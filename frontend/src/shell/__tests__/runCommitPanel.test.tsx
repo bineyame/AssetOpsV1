@@ -445,4 +445,66 @@ describe("Commit and the configuration a Draft froze (S2-01a)", () => {
       "LEGACY_FILE",
     );
   });
+
+  // S2-01a carry F1: a pre-import YAML artifact committed before its Site was
+  // imported is history; the server refuses its release (409), so neither an
+  // unfinished nor a refused release may offer Resume or Retry.
+  const IMPORTED_SINCE = {
+    configuration_store: "LEGACY_FILE" as const,
+    site_imported: true,
+    can_release: false,
+    statement: "Frozen at Draft setup from the legacy Site document.",
+  };
+
+  it.each([
+    [
+      "an unfinished",
+      committed(release({ status: "IN_PROGRESS", processed: 40, accepted: 40, completed_at: null })),
+    ],
+    [
+      "a refused",
+      committed(
+        release({
+          status: "REFUSED",
+          processed: 0,
+          accepted: 0,
+          completed_at: null,
+          refusal: { kind: "CONFIGURATION_UNRESOLVED", detail: "Foundation v1 is not registered" },
+        }),
+      ),
+    ],
+    ["a missing", committed(null)],
+  ])(
+    "blocks %s release of a legacy artifact committed before its Site was imported",
+    async (_label, read) => {
+      const fake = client(withBasis(ELIGIBLE, IMPORTED_SINCE), read);
+      renderAt(fake);
+      await settledScreen();
+
+      expect(panel().querySelector('[data-commit-state="COMMITTED"]')).not.toBeNull();
+      expect(within(panel()).queryByRole("button", { name: "Resume release" })).toBeNull();
+      expect(within(panel()).queryByRole("button", { name: "Retry release" })).toBeNull();
+      expect(within(panel()).queryAllByRole("button")).toHaveLength(0);
+      const block = panel().querySelector("[data-release-basis-block]");
+      expect(block?.textContent).toMatch(/read-only history/);
+      expect(block?.textContent).toMatch(/cannot be resumed or retried/);
+      expect(fake.posts).toBe(0);
+    },
+  );
+
+  it("still offers Resume for a committed legacy artifact whose Site was never imported", async () => {
+    const interrupted = committed(
+      release({ status: "IN_PROGRESS", processed: 40, accepted: 40, completed_at: null }),
+    );
+    renderAt(
+      client(
+        withBasis(ELIGIBLE, { ...IMPORTED_SINCE, site_imported: false, can_release: true }),
+        interrupted,
+      ),
+    );
+    await settledScreen();
+
+    expect(within(panel()).getByRole("button", { name: "Resume release" })).toBeEnabled();
+    expect(panel().querySelector("[data-release-basis-block]")).toBeNull();
+  });
 });

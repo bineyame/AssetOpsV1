@@ -151,6 +151,10 @@ function CommitBody({
     );
   }
 
+  // S2-01a carry F1: a legacy artifact committed before its Site was
+  // registered is read-only history now, and the server refuses to resume or
+  // retry its release; the same frozen basis that blocks Commit blocks that.
+  const releaseBlock = releaseBasisBlock(stage);
   return (
     <>
       <FactList>
@@ -168,7 +172,12 @@ function CommitBody({
           <strong>Release error.</strong> {release_error}
         </p>
       )}
-      {release === null || release.status === "IN_PROGRESS" || release.status === "REFUSED" ? (
+      {releaseBlock !== null &&
+      (release === null || release.status === "IN_PROGRESS" || release.status === "REFUSED") ? (
+        <p data-commit-basis-block data-release-basis-block>
+          {releaseBlock}
+        </p>
+      ) : release === null || release.status === "IN_PROGRESS" || release.status === "REFUSED" ? (
         <p>
           {/* The backend accepts a retry after a refusal (a refused batch wrote
               no records), so the same POST is offered; the refusal stays shown
@@ -293,5 +302,43 @@ export function commitBasisBlock(stage: RunStageResult | null): string | null {
     "Not committed. This draft was set up from the legacy Site file and the " +
     "Site has since been registered, so the draft is read-only history and " +
     "cannot be committed."
+  );
+}
+
+/**
+ * Why the frozen configuration forbids resuming or retrying the release of an
+ * already committed artifact, or null when it does not (S2-01a carry F1).
+ *
+ * The same `frozen_basis` that blocks Commit decides it: the server refuses
+ * release for a registered run and for a legacy artifact whose Site has since
+ * been registered, so no Resume or Retry button is offered for either.
+ */
+export function releaseBasisBlock(stage: RunStageResult | null): string | null {
+  if (commitBasisBlock(stage) === null || stage === null || stage.status !== "loaded") {
+    return null;
+  }
+  const basis = stage.frozenBasis;
+  if (basis === null || basis === undefined) {
+    return (
+      "Release is not offered. The configuration this draft froze could not be " +
+      "read, so the release is not resumed or retried."
+    );
+  }
+  if (basis.configuration_store === "REGISTERED") {
+    return (
+      "Release is not offered. This run was set up from a registered Site " +
+      "configuration, and releasing such runs is not available in this build."
+    );
+  }
+  if (basis.site_imported === null) {
+    return (
+      "Release is not offered. Whether this Site has since been registered could " +
+      "not be checked, so the release is not resumed or retried."
+    );
+  }
+  return (
+    "Release is not offered. This artifact was committed from the legacy Site " +
+    "file before the Site was registered. The Site is now registered, so this " +
+    "artifact is read-only history and its release cannot be resumed or retried."
   );
 }
