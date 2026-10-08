@@ -1327,6 +1327,8 @@ for (const [label, width, height] of [
   // a page whose regions do not scroll at all, which is the defect it exists
   // to catch. The claim below asserts the set is not empty here.
   ["640x700, narrow enough that a dense table cannot fit", 640, 700],
+  // S1-03: the phone width the owner compares against the v6.9 mock.
+  ["390x844, phone width", 390, 844],
 ]) {
   // S1-01 (Architect, 2026-10-08): an imported Site's Foundation carries one
   // required enabled action, "Publish reserve change", the only editable
@@ -1335,21 +1337,35 @@ for (const [label, width, height] of [
   // Both are allowed only on an imported Site; every other enabled action
   // still fails.
   const siteImported = (await configurationStore(SITE)) === "POSTGRES";
+  // S1-03: an imported Site's Foundation is three views (Site model, Single
+  // line diagram, Readiness); each is measured at its own address. The reserve
+  // change lives on the Site model, the binding change on Readiness, the
+  // diagram on the SLD view, and the densest table (the binding set) on
+  // Readiness. A legacy Site keeps its one page, with every claim on it.
+  const foundationViews = siteImported
+    ? [
+        { name: "Site model", suffix: "", diagram: false, reserve: 1, binding: 0, dense: false },
+        { name: "Single line diagram", suffix: "/sld", diagram: true, reserve: 0, binding: 0, dense: false },
+        { name: "Readiness", suffix: "/readiness", diagram: false, reserve: 0, binding: 1, dense: true },
+      ]
+    : [{ name: "page", suffix: "", diagram: true, reserve: 0, binding: 0, dense: true }];
+  for (const foundationView of foundationViews) {
   const foundation = await visit(
     cdp,
-    `/sites/${SITE}/foundation`,
+    `/sites/${SITE}/foundation${foundationView.suffix}`,
     width,
     height,
     ".site-tabs",
   );
   const subtabs =
-    foundation.navRows.find((row) => row.label === "Foundation sections")
+    foundation.navRows.find((row) => row.label === "Foundation views")
       ?.items ?? [];
+  const contentsRow = foundation.navRows.find((row) => row.label === "Foundation sections");
   const siteTabs =
     foundation.navRows.find((row) => row.label === "Site sections")?.items ?? [];
 
   allPass =
-    report(`Foundation at ${label}`, foundation, [
+    report(`Foundation ${foundationView.name} at ${label}`, foundation, [
       [
         "the page does not scroll horizontally",
         !foundation.pageScrollsHorizontally,
@@ -1363,9 +1379,13 @@ for (const [label, width, height] of [
         siteTabs.join(" | "),
       ],
       [
-        "the Foundation subtab row is exactly Definition, Topology, Controls",
-        subtabs.join("|") === "Definition|Topology|Controls",
-        subtabs.join(" | "),
+        siteImported
+          ? "the Foundation view row is exactly Site model, Single line diagram, Readiness, and no contents row renders"
+          : "a legacy Site renders no Foundation view row and no contents row",
+        (siteImported
+          ? subtabs.join("|") === "Site model|Single line diagram|Readiness"
+          : subtabs.length === 0) && contentsRow === undefined,
+        subtabs.join(" | ") || "no view row",
       ],
       [
         siteImported
@@ -1381,13 +1401,14 @@ for (const [label, width, height] of [
       ...(siteImported
         ? [
             [
-              "the imported Site's Publish reserve change renders, enabled, exactly once",
-              foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL && !b.disabled).length === 1,
+              `Publish reserve change renders, enabled, ${foundationView.reserve} time(s) on this view`,
+              foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL && !b.disabled).length ===
+                foundationView.reserve,
               `${foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL).length} found`,
             ],
             [
-              "the imported Site's Publish binding change renders at most once",
-              foundation.buttons.filter((b) => b.label === PUBLISH_BINDING_LABEL).length <= 1,
+              `Publish binding change renders at most ${foundationView.binding} time(s) on this view`,
+              foundation.buttons.filter((b) => b.label === PUBLISH_BINDING_LABEL).length <= foundationView.binding,
               `${foundation.buttons.filter((b) => b.label === PUBLISH_BINDING_LABEL).length} found`,
             ],
           ]
@@ -1418,13 +1439,17 @@ for (const [label, width, height] of [
         foundation.railLeftBefore === foundation.railLeftAfterAll,
         `left ${foundation.railLeftBefore} -> ${foundation.railLeftAfterAll}`,
       ],
-      ...(width <= 640
+      ...(width <= 640 && foundationView.dense
         ? [
             [
               "at least one table overflows here, so the claim above is not vacuous",
               foundation.scrollers.some((s) => s.overflows),
               `${foundation.scrollers.filter((s) => s.overflows).length} of ${foundation.scrollers.length} overflow`,
             ],
+          ]
+        : []),
+      ...(width <= 640 && foundationView.diagram
+        ? [
             [
               "the diagram overflows here too, so its scroll claim is not vacuous",
               foundation.diagrams.some((d) => d.overflows),
@@ -1445,6 +1470,8 @@ for (const [label, width, height] of [
       // content column does not have, so it is the one piece of content on
       // this page most able to push the rail sideways - and jsdom cannot see
       // any of that.
+      ...(foundationView.diagram
+        ? [
       [
         "the configured diagram is drawn, with nodes and connections",
         foundation.diagrams.length === 1 &&
@@ -1488,7 +1515,16 @@ for (const [label, width, height] of [
           : foundation.diagramRefusals === 1,
         `${foundation.diagrams[0]?.nodes ?? 0} nodes, ${foundation.diagramRefusals} refusals`,
       ],
+          ]
+        : [
+            [
+              "no diagram is drawn on a view that is not the diagram",
+              foundation.diagrams.length === 0,
+              `${foundation.diagrams.length} diagram regions`,
+            ],
+          ]),
     ]) && allPass;
+  }
 }
 
 // The scenario detail. The event timeline is eight columns of dense content

@@ -318,8 +318,11 @@ function Get-OperatorSiteTabFailures {
     return $failures
 }
 
-# The Foundation subtab row: one definition, in the shared substrate, with
-# `Changes` absent and the superseded mockup vocabulary gone.
+# The Foundation view row (S1-03): one definition, in the shared substrate,
+# naming exactly the three supported views - Site model, Single line diagram,
+# Readiness, in v6.9's order - with `Changes` absent and the superseded
+# vocabulary (including the old Definition | Topology | Controls contents row)
+# gone.
 #
 # This row lives in the substrate rather than a shell, unlike the operator Site
 # tab row above it. The difference is real: which aspects a workspace divides a
@@ -331,21 +334,26 @@ function Get-FoundationSubtabFailures {
     $inventoryName = "FOUNDATION_SUBTABS"
     $substrateRoot = "frontend/src/sites"
 
-    # v6.9 line 2117 lists five; `Readiness` is also not rendered as a
-    # subtab, enforced below. Claim/capability readiness lives on Site >
-    # Evidence; S1-02 configuration readiness (bindings and Foundation gaps)
-    # is a linked section of the Foundation page itself, not a subtab
-    # (Architect ruling D2, .agent/architect-S1-02-deviations-2026-10-08.md).
+    # The three supported views, in order (Architect decision
+    # D-2026-10-08-s1-foundation-organization, section 2, which revises the
+    # S1-02 D2 ruling that kept Readiness off this row). `Readiness` is S1-02
+    # configuration readiness; claim/capability readiness stays on Site >
+    # Evidence. Every view is navigable: none is disabled or labelled in place.
+    $requiredViews = @("Site model", "Single line diagram", "Readiness")
+
     # `Changes` is filtered out by the accepted T008
     # checkpoint: lines 2149 and 2225-2228 make it a real intervention and
     # change-effect capability rather than the mockup's `Version History`, no
     # configuration-change model exists, and naming it would promise a meaning
     # a reader would guess wrongly. Absent in every state, not labelled.
     $forbiddenSubtab = "Changes"
+    $forbiddenChangeLabels = @("Change & effect", "Change and effect")
 
     # What T013 replaced. These were the old mockup-derived subtab names and
     # they must not come back as a Foundation subtab row.
-    $supersededVocabulary = @("Summary", "Components", "Control Logic", "Settings")
+    # S1-03 adds the Definition | Topology | Controls contents row it replaced.
+    $supersededVocabulary = @("Summary", "Components", "Control Logic", "Settings",
+        "Definition", "Topology", "Controls")
 
     # A subtab this build cannot open is not rendered, never disabled, never
     # labelled in place in operator views. Same rule as the tab row above, same
@@ -398,9 +406,31 @@ function Get-FoundationSubtabFailures {
                 "not in a shell.")) | Out-Null
         }
 
+        $declaredLabels = @()
+        foreach ($line in $module.Lines) {
+            $labelMatch = [regex]::Match($line, "label\s*:\s*[""']([^""']+)[""']")
+            if ($labelMatch.Success) { $declaredLabels += $labelMatch.Groups[1].Value }
+        }
+        if (($declaredLabels -join "|") -ne ($requiredViews -join "|")) {
+            $failures.Add(("$inventoryName in $($module.Path) declares " +
+                "'$($declaredLabels -join ", ")'. The Foundation view row is " +
+                "exactly '$($requiredViews -join ", ")', in v6.9's order " +
+                "(D-2026-10-08-s1-foundation-organization): three supported, " +
+                "navigable views and no other.")) | Out-Null
+        }
+
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
+
+            foreach ($changeLabel in $forbiddenChangeLabels) {
+                if ($line -match ("label\s*:\s*[""']" + [regex]::Escape($changeLabel) + "[""']")) {
+                    $failures.Add(("'$changeLabel' is declared as a Foundation " +
+                        "view at $($module.Path):${lineNumber}. v6.9 makes it an " +
+                        "intervention and change-effect capability with no " +
+                        "supported model; it is absent in every state.")) | Out-Null
+                }
+            }
 
             if ($line -match "label\s*:\s*[""']$forbiddenSubtab[""']") {
                 $failures.Add(("'$forbiddenSubtab' is declared as a Foundation " +
@@ -441,15 +471,6 @@ function Get-FoundationSubtabFailures {
                     "(D-2026-10-02-rendered-tabs-per-capability).")) | Out-Null
             }
 
-            if ($line -match "label\s*:\s*[""']Readiness[""']") {
-                $failures.Add(("'Readiness' is declared as a Foundation " +
-                    "subtab at $($module.Path):${lineNumber}: " +
-                    "$($line.Trim()). Claim/capability readiness lives on " +
-                    "Site > Evidence, and S1-02 configuration readiness is a " +
-                    "section of the Foundation page, so Readiness is not " +
-                    "rendered in the Foundation subtab list " +
-                    "(D-2026-10-02-rendered-tabs-per-capability).")) | Out-Null
-            }
         }
     }
 
