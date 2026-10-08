@@ -12,13 +12,12 @@
 import { useState, type FormEvent } from "react";
 
 import { Badge, DataTable, Fact, FactList, Panel } from "../ui";
-import {
-  bindingPublicationItem,
-  type BindingPublishOutcome,
-  type ConfigurationReadiness,
-  type FoundationReadModel,
-  type ReadinessRole,
-  type SignalBinding,
+import type {
+  BindingPublishOutcome,
+  ConfigurationReadiness,
+  FoundationReadModel,
+  ReadinessRole,
+  SignalBinding,
 } from "./siteFoundationClient";
 import { formatInstant, utcInstantFromLocal } from "./FoundationRevisionPanel";
 
@@ -84,11 +83,9 @@ export function FoundationBindingsPanel({
       <Panel heading="Configuration readiness" headingId={FOUNDATION_READINESS_HEADING_ID}>
         <p data-readiness-state={readiness.state}>
           <Badge tone="neutral">{READINESS_WORD[readiness.state]}</Badge>{" "}
-          {readiness.state === "INCOMPLETE"
-            ? `Not bound: ${readiness.missing_roles.join(", ")}.`
-            : readiness.state === "READY_TO_REPORT"
-              ? "Every required role has a configured channel or control."
-              : `Not bound: ${readiness.missing_roles.join(", ")}.`}
+          {readiness.state === "READY_TO_REPORT"
+            ? "Every required role has a configured channel or control."
+            : `Not bound: ${readiness.missing_roles.join(", ")}.`}
         </p>
         <p>{readiness.statement}</p>
         <DataTable labelledBy={FOUNDATION_READINESS_HEADING_ID}>
@@ -276,7 +273,3 @@ function RemoveBindingForm({
   );
 }
 
-/** The publish body for a set of bindings read from the screen. */
-export function publicationItems(bindings: SignalBinding[]) {
-  return bindings.map(bindingPublicationItem);
-}
