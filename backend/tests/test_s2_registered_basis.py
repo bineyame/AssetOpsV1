@@ -311,6 +311,14 @@ class TestHistoricalAvailability:
         assert refused.kind == "REGISTERED_BASIS_UNAVAILABLE"
         assert refused.reason_code == "SITE_RECORD_INVALID"
 
+    def test_a_site_type_the_role_set_does_not_serve_refuses_even_historically(self) -> None:
+        store, result, _ = converted()
+        knowledge = text(NOW - timedelta(minutes=1))
+        publish_reserve(store, result, 40)
+        store.sites = [replace(s, site_type="SOLAR_HOME") if s.id == result.site.id else s for s in store.sites]
+        refused = refusal(store, request(knowledge_at=knowledge))
+        assert refused.reason_code == "SITE_TYPE_ROLE_SET_MISMATCH"
+
     def test_selected_foundation_content_gaps_always_refuse(self, tmp_path) -> None:
         store, result, _ = converted()
         rows = store.rows[result.site.id]

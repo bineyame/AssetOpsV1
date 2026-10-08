@@ -25,6 +25,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
+from assetops_backend.sites.binding_roles import ROLE_SET_BY_SITE_TYPE
 from assetops_backend.sites.binding_service import Snapshot, acquisition_snapshot
 from assetops_backend.sites.foundation_content import record_at
 from assetops_backend.sites.foundation_records import (
@@ -146,6 +147,16 @@ def select_registered_basis(
     )
     if not isinstance(snapshot, Snapshot):
         raise BasisRefused(snapshot.code, snapshot.reason)
+    # Architect amendment (S2-01a questions 1): a current Site type that the
+    # selected binding role set does not serve refuses before any Draft, for a
+    # historical basis too (where the current-row type gap is only reported).
+    expected_role_set = ROLE_SET_BY_SITE_TYPE.get(site.site_type)
+    if expected_role_set != binding_set.role_set:
+        raise BasisRefused(
+            "SITE_TYPE_ROLE_SET_MISMATCH",
+            f"Site {site.site_code} is currently of type {site.site_type!r}, which binding "
+            f"v{binding_set.version}'s role set {binding_set.role_set!r} does not serve.",
+        )
     try:
         # The Site row's name, type and time zone are not in the pinned
         # snapshot; the record is built from the CURRENT row plus the selected
