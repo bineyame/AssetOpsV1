@@ -4749,8 +4749,11 @@ Branch `task/S1-01-persisted-foundation`; packet `.agent/S1-01-review-packet.md`
 
 - `create_app` with an injected Site repository and no Foundation store is a
   legacy-only composition (no imports); product composition fails closed.
-- Layout tool claim "no enabled action renders" now fails on an imported
-  Foundation (the required publish control); its Kobo Draft section cannot run
-  after import (Lab refuses by design). Tool not updated.
+- Layout tool (correction round, Architect 2026-10-08): only the imported
+  Site's "Publish reserve change" is allowed; the Kobo Lab sections (T024-T028)
+  are reported SKIP until S2; `ASSETOPS_LAB_SITE` binds run setup elsewhere.
+  Draft-screen claims still need the isolated `var/` store.
+- The reserve form states the resulting period: start to end of the containing
+  period, or "no end".
 - Lab Site creation for a new code that later gets imported is not migrated.
 - S1-02: bindings, Readiness, snapshot; S2-02/S3/S5 evidence/dispatch/Overview cutovers.
