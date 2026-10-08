@@ -34,3 +34,7 @@ Eight commits after `98a255b`: two "S1-02 n6:" (cherry-pickable onto the S1-02 l
 Status line above is superseded: the slice is reviewed (accept with carries) and owner-accepted; the fix round is complete.
 
 Next: Architect/coordinator integrates n6 with S1-02 and runs the independent correction review before S2-01a; then merge S1-01, S1-02, S1-03 in dependency order. Open carries: Lab phone layout, m4, m5.
+
+## Fix round 2 (done)
+
+Re-review R1-R3 addressed: `7c28b8c` (S1-02 n6: lineage-based carry-through, explicit reinstatement is a stop, n1 names the original publication's version; in-memory and Postgres tests) and `022a9d1` (S1-03 fix: accessible-name Change & effect test plus guard, audit panel pinned last). Details in the packet's "Fix round 2". Carries unchanged: n2, n3, n4, Lab phone layout, m4, m5.

@@ -148,3 +148,22 @@ Written list: the S1-03 independent review (accept with carries), the Architect 
 - m5: topology cards follow one upstream chain per feeder.
 - A later independent binding publication whose bindings are identical to its predecessor cannot be told from a split copy by content, so an edit carries through it. Harmless (same set), but the rule is "unchanged and contiguous", not "SPLIT origin".
 - The 390 px captures in `.agent/S1-03-screens/` predate m1/m2 and were not regenerated.
+
+## Fix round 2 (re-review R1-R3)
+
+Source: `.agent/S1-fix-rereview.md`. Commits: `7c28b8c` (S1-02 n6), `022a9d1` (S1-03 fix).
+
+| Item | Change | Proof |
+|---|---|---|
+| R1 (major) + n1 | `binding_service.py`: the carry-through now matches on lineage. `_publication_root` walks `derived_from_revision_id` through SPLIT rows (superseded included) to the first published row; `_publication_key` compares publication identity (origin, derived_from, recorded_at, note), not row id, so a publication spanning several Foundation periods still carries. Content equality is kept as well. An explicit reinstatement with identical content is a stop: reported in `applies_until`, and `stopped_by_binding_version` names the root publication's version (n1). | New tests: in-memory `test_an_explicit_reinstatement_with_identical_content_is_a_stop_not_carried` and Postgres `TestN6LineageStopsAtAnExplicitReinstatement` (fuel off 10-08, explicit full reinstatement 10-08 = v4, SOC removal from 10-04: stops at 10-08, names v4, v4 keeps its note, SOC bound after 10-08). Mutation (lineage clause removed = content matching): both new tests failed, the other 3 n6 tests passed; restored. |
+| R2 | Page test matches `aria-label` and `title` as well as `textContent`. Guard (`navigation-truthfulness.ps1`) also refuses `aria-label`/`title` values naming Changes / Change & effect. | Probe `<Link aria-label="Change and effect">` in the Site model: page test failed; guard failed. Both reverted. |
+| R3 | "Record and inventory details" added to the expected Site-model order. | Probe: audit panel moved above topology; the order test failed with the new position list. Reverted. |
+| n2, n3, n4 | Carried, not fixed. | |
+
+Results: backend without DB 1551 passed, 26 skipped; with `assetops_test` 1577 passed, 0 skipped; frontend 49 files, 1182 passed; `tsc --noEmit` clean; build ok (chunk-size warning only); both guards passed before each commit. Layout evidence not rerun (no layout-affecting change).
+
+## Re-review 2 (fresh Claude reviewer, 2026-10-08): accept with carries, whole S1 branch
+
+Source: `.agent/S1-fix-rereview-2.md`. R1/n1, R2, R3 closed; no regressions. New carries:
+- N1: carry half of the R1 lineage fix untested (multi-period publication carried across a split, split-of-split on Postgres, realigned reinstatement reporting v4).
+- N2: aria-labelledby, role="button", input value, and trailing-arrow "Change & effect" shapes pass the page test and guard; no such control exists today.
