@@ -1192,6 +1192,69 @@ if (process.env.ASSETOPS_LAYOUT_S2_01A_RUN) {
   process.exit(allPass ? 0 : 1);
 }
 
+if (process.env.ASSETOPS_LAYOUT_S2_01B_RUN) {
+  // S2-01b: a registered run whose Stage is the gateway ledger, measured alone.
+  // The run ID names an already executed registered Draft whose gateway is
+  // running; nothing else in this file runs.
+  const runId = process.env.ASSETOPS_LAYOUT_S2_01B_RUN;
+  for (const [width, height] of [[1280, 800], [640, 700]]) {
+    await visit(cdp, `/simulator-lab/runs/${runId}`, width, height, "[data-gateway-ledger]");
+    await waitForSelector(cdp, "[data-commit-state]");
+    const read = await cdp.send("Runtime.evaluate", {
+      expression: `(() => {
+        for (const d of document.querySelectorAll("details[data-disclosure]")) d.open = true;
+        const doc = document.scrollingElement;
+        const right = (el) => (el ? Math.round(el.getBoundingClientRect().right) : null);
+        const ledger = document.querySelector("[data-gateway-ledger]");
+        const snap = document.querySelector("[data-gateway-snapshot]");
+        const pres = [...document.querySelectorAll("[data-gateway-batch-canonical], [data-gateway-envelope-canonical]")];
+        const shas = [...document.querySelectorAll("[data-gateway-batch-sha256]")];
+        const scrollers = shas.map((s) => s.closest(".data-table__scroll"));
+        const commit = [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Commit and release");
+        return {
+          scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth,
+          status: ledger ? ledger.getAttribute("data-gateway-status") : null,
+          snapshot: snap ? snap.textContent : "",
+          snapshotRight: right(snap),
+          upload: document.querySelector("[data-gateway-upload]")?.getAttribute("data-gateway-upload") ?? null,
+          receipts: document.querySelector("[data-gateway-receipts]")?.textContent ?? null,
+          batches: document.querySelectorAll("[data-gateway-batch]").length,
+          envelopes: document.querySelectorAll("[data-gateway-envelope]").length,
+          holds: document.querySelectorAll("[data-gateway-hold]").length,
+          shaFull: shas.filter((s) => /^[0-9a-f]{64}$/.test(s.textContent)).length,
+          scrollersRight: Math.max(0, ...scrollers.map((s) => right(s) ?? 0)),
+          pres: pres.length,
+          presRight: Math.max(0, ...pres.map(right)),
+          presNonEmpty: pres.filter((p) => p.textContent.length > 0).length,
+          resolutionCells: document.querySelectorAll("[data-signal-resolution]").length,
+          resolutionNote: document.querySelector("[data-signal-resolution-note]") !== null,
+          commitDisabled: commit ? commit.disabled : null,
+          basisBlock: document.querySelector("[data-commit-basis-block]") !== null,
+          resumeOrRetry: [...document.querySelectorAll("button")].some((b) => /Resume release|Retry release/.test(b.textContent)),
+        };
+      })()`,
+      returnByValue: true,
+    });
+    const m = read.result.value;
+    allPass = report(`S2-01b gateway-ledger run ${runId} at ${width}x${height}`, m, [
+      ["the page does not scroll horizontally", m.scrollWidth <= m.clientWidth, `scrollWidth ${m.scrollWidth} vs clientWidth ${m.clientWidth}`],
+      ["the Stage is the gateway ledger, staged", m.status === "STAGED", String(m.status)],
+      ["the snapshot hash is drawn in full and ends inside the viewport", /^[0-9a-f]{64}$/.test(m.snapshot) && m.snapshotRight !== null && m.snapshotRight <= m.clientWidth, `right ${m.snapshotRight}`],
+      ["upload is pending with no receipt", m.upload === "PENDING" && m.receipts === "None", `${m.upload} / ${m.receipts}`],
+      ["sealed batches are drawn, each with its full SHA-256 (set not empty)", m.batches > 0 && m.shaFull === m.batches, `${m.batches} batches, ${m.shaFull} full digests`],
+      ["the batch table scrolls inside its own box", m.scrollersRight <= m.clientWidth, `right ${m.scrollersRight}`],
+      ["sealed envelopes are drawn (set not empty)", m.envelopes > 0, `${m.envelopes} envelopes, ${m.holds} holds`],
+      ["exact batch and envelope text is shown and ends inside the viewport", m.pres === 2 && m.presNonEmpty === 2 && m.presRight <= m.clientWidth, `${m.pres} blocks, right ${m.presRight}`],
+      ["each reporting path shows its resolution, with the half-step note", m.resolutionCells > 0 && m.resolutionNote, `${m.resolutionCells} cells`],
+      ["Commit is disabled with the basis reason, and no release is offered", m.commitDisabled === true && m.basisBlock && !m.resumeOrRetry, `disabled ${m.commitDisabled}, basis block ${m.basisBlock}`],
+    ]) && allPass;
+  }
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  process.exit(allPass ? 0 : 1);
+}
+
 if (READBACK_ARG > 0) {
   // T025c's second invocation, made after the host was stopped and started
   // again over the same store: no live session exists for the run any more.
