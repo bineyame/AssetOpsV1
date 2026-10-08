@@ -836,6 +836,12 @@ class RegisteredBasis:
     snapshot_canonical: str
     source_start: str
     knowledge_at: str
+    #: The Site's display name as its CURRENT row read at setup, frozen here so
+    #: the Draft can say what it was set up against. Like the time zone and
+    #: Site type on `FrozenSiteBinding`, it is current-row metadata frozen at
+    #: setup, not a historical fact selected by `knowledge_at`: snapshot v1
+    #: does not version Site metadata (D-2026-10-08 amendment, Q1).
+    site_display_name: str
     #: CURRENT: the gateway's current acquisition basis at setup. HISTORICAL:
     #: superseded or ended by setup, validated from its own stored identity.
     selection: str

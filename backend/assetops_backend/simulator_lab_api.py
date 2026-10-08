@@ -310,6 +310,8 @@ REFUSAL_SCENARIO_NOT_FOUND = "SCENARIO_NOT_FOUND"
 REFUSAL_SCENARIO_STORE_UNAVAILABLE = "SCENARIO_STORE_UNAVAILABLE"
 REFUSAL_RUN_STORE_UNAVAILABLE = "RUN_STORE_UNAVAILABLE"
 REFUSAL_RUN_NOT_FOUND = "RUN_NOT_FOUND"
+#: S2-01a: Commit of a run set up from a registered basis, until S2-02.
+REFUSAL_REGISTERED_COMMIT_UNAVAILABLE = "REGISTERED_COMMIT_UNAVAILABLE"
 REFUSAL_EXECUTION_REQUEST_INVALID = "EXECUTION_REQUEST_INVALID"
 REFUSAL_COMMIT_REFUSED = "COMMIT_REFUSED"
 REFUSAL_COMMIT_STAGE_CHANGED = "COMMIT_STAGE_CHANGED"
@@ -2007,6 +2009,7 @@ def configuration_basis_payload(record: SimulationRun) -> dict[str, object]:
     basis = record.registered_basis
     if basis is None:
         return {"store": "LEGACY_FILE"}
+    site = record.deterministic_identity.site
     return {
         "store": "REGISTERED",
         "selection": basis.selection,
@@ -2024,6 +2027,16 @@ def configuration_basis_payload(record: SimulationRun) -> dict[str, object]:
         "snapshot_sha256": basis.snapshot_sha256,
         "snapshot_byte_length": len(basis.snapshot_canonical.encode("utf-8")),
         "current_registration_gaps": list(basis.current_registration_gaps),
+        # The amendment to D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary:
+        # name, time zone and Site type are the Site's current row as read at
+        # setup and frozen on this Draft. They are not selected by
+        # `knowledge_at`; only the Foundation and binding revisions are.
+        "site_metadata": {
+            "display_name": basis.site_display_name,
+            "timezone": site.timezone,
+            "site_type": site.site_type,
+            "source": "CURRENT_SITE_ROW_AT_SETUP",
+        },
         "accepted_evidence": False,
     }
 
@@ -2537,15 +2550,35 @@ def build_simulator_lab_router(
                 detail=_refusal(REFUSAL_RUN_STORE_UNAVAILABLE, str(error)),
             ) from error
 
-    def _refuse_if_imported(record: SimulationRun) -> None:
-        """S1-01: no Lab execution or Commit against an imported Site.
+    def _refuse_if_imported(record: SimulationRun, *, commit: bool = False) -> None:
+        """The one boundary every Lab write passes before the port runs.
 
-        From the moment a Site code is registered in the product Foundation
-        store, start, step, run-to-end and Commit refuse at this shared
-        boundary, whatever Stage already exists: Commit is the sealing and
-        release path. `GET .../stage` and the run's history stay readable as
-        frozen historical inspection and never call this.
+        S2-01a: a Draft set up from a registered basis (`registered_basis`
+        frozen on the record and re-verified against its hash on every read)
+        may start, step and run to end from that basis. Commit refuses every
+        imported run, registered or not, until S2-02 delivers Site Evidence:
+        a completed registered run seals and releases nothing here.
+
+        S1-01, unchanged for a Draft frozen from the legacy YAML Site: once its
+        code is registered in the product Foundation store, start, step,
+        run-to-end and Commit all refuse, whatever Stage already exists. The
+        Draft is never reinterpreted under the new registration.
+        `GET .../stage` and the run's history stay readable as frozen
+        historical inspection and never call this.
         """
+        if record.registered_basis is not None:
+            if commit:
+                raise HTTPException(
+                    status_code=409,
+                    detail=_refusal(
+                        REFUSAL_REGISTERED_COMMIT_UNAVAILABLE,
+                        "This run was set up from a registered Site configuration. "
+                        "Committing it is not available yet, because accepted Site "
+                        "evidence for registered Sites is not delivered in this "
+                        "build. Nothing was sealed or released.",
+                    ),
+                )
+            return
         if imported_site_check is None:
             return
         site_id = record.deterministic_identity.site.site_id
@@ -2654,13 +2687,33 @@ def build_simulator_lab_router(
         }
 
     def _frozen_basis(record: SimulationRun) -> dict[str, object]:
-        """The legacy YAML Foundation basis this Draft froze at setup (S1-01).
+        """The configuration basis this Draft froze at setup.
 
-        Historical inspection only. When the Site has since been imported
+        A registered Draft (S2-01a) reports its registered basis. Otherwise it
+        is the legacy YAML Foundation basis (S1-01): historical inspection only. When the Site has since been imported
         into the product Foundation store, Commit refuses; this read says so
         rather than presenting the frozen basis as current.
         """
         site = record.deterministic_identity.site
+        if record.registered_basis is not None:
+            # S2-01a: a Draft set up from a registered basis. Labelled as
+            # registered, with the exact revisions and hash it froze, and no
+            # accepted-evidence claim: Commit refuses every imported run.
+            return {
+                "configuration_store": "REGISTERED",
+                "site_id": site.site_id,
+                "foundation_version": site.foundation_version,
+                "foundation_valid_from": site.foundation_valid_from,
+                "site_imported": True,
+                "can_release": False,
+                "registered_basis": configuration_basis_payload(record),
+                "statement": (
+                    "Frozen at Draft setup from the registered Site configuration "
+                    "named here. Configuration, not accepted evidence; this read "
+                    "cannot seal or release anything, and Commit is not available "
+                    "for registered Sites yet."
+                ),
+            }
         imported: bool | None = False
         if imported_site_check is not None:
             try:
@@ -2798,7 +2851,7 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
-        _refuse_if_imported(record)
+        _refuse_if_imported(record, commit=True)
         existing = _stored_artifact(record.run_id)
         view = port.staged_envelopes(record)
         if existing is None:

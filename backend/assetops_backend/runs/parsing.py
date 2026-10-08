@@ -905,6 +905,7 @@ def _render_registered_basis(basis: RegisteredBasis | None) -> dict[str, Any]:
             "snapshot_canonical": basis.snapshot_canonical,
             "source_start": basis.source_start,
             "knowledge_at": basis.knowledge_at,
+            "site_display_name": basis.site_display_name,
             "selection": basis.selection,
             "current_registration_gaps": list(basis.current_registration_gaps),
         }
@@ -930,6 +931,7 @@ REGISTERED_BASIS_KEYS = frozenset(
         "snapshot_canonical",
         "source_start",
         "knowledge_at",
+        "site_display_name",
         "selection",
         "current_registration_gaps",
     }
@@ -980,6 +982,7 @@ def _parse_registered_basis(raw: Any, *, source: str) -> RegisteredBasis:
             snapshot_canonical=_text(basis, "snapshot_canonical", where=where),
             source_start=instant("source_start"),
             knowledge_at=instant("knowledge_at"),
+            site_display_name=_text(basis, "site_display_name", where=where),
             selection=_text(basis, "selection", where=where),
             current_registration_gaps=tuple(gaps),
         )

@@ -162,6 +162,7 @@ def _basis(selection: RegisteredSelection, start_time: str) -> RegisteredBasis:
         snapshot_canonical=snapshot.body.decode("utf-8"),
         source_start=start_time,
         knowledge_at=_text(selection.knowledge_at),
+        site_display_name=selection.record.display_name,
         selection="CURRENT" if snapshot.current else "HISTORICAL",
         current_registration_gaps=tuple(gap.code for gap in snapshot.current_gaps),
     )

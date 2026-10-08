@@ -673,12 +673,29 @@ function Invoke-ConfigurationPersistenceCheck {
             $failures.Add("$cutoverPath LegacySiteGate.create_site no longer refuses an imported code.") | Out-Null
         }
         $labText = $lab.Lines -join "`n"
-        foreach ($route in @('RUN_EXECUTION_START_ROUTE', 'RUN_EXECUTION_STEP_ROUTE', 'RUN_EXECUTION_END_ROUTE', 'RUN_COMMIT_ROUTE')) {
-            $pattern = '(?s)@router\.post\(' + $route + '\)\n(?:(?!@router\.).)*?_refuse_if_imported\(record\)'
+        # S2-01a: every Lab write still passes the one shared boundary. Start,
+        # step and run-to-end call it plainly (a registered Draft runs from its
+        # frozen basis; a pre-import YAML Draft of an imported code refuses).
+        # Commit must call it with commit=True, and the boundary must refuse
+        # Commit for a registered run before anything else, until S2-02.
+        $guarded = @{
+            'RUN_EXECUTION_START_ROUTE' = '_refuse_if_imported\(record\)'
+            'RUN_EXECUTION_STEP_ROUTE' = '_refuse_if_imported\(record\)'
+            'RUN_EXECUTION_END_ROUTE' = '_refuse_if_imported\(record\)'
+            'RUN_COMMIT_ROUTE' = '_refuse_if_imported\(record, commit=True\)'
+        }
+        foreach ($route in $guarded.Keys) {
+            $pattern = '(?s)@router\.post\(' + $route + '\)\n(?:(?!@router\.).)*?' + $guarded[$route]
             if ($labText -notmatch $pattern) {
-                $failures.Add(("$labPath POST $route no longer refuses an imported Site " +
-                    "(_refuse_if_imported). Lab writes against an imported code must refuse.")) | Out-Null
+                $failures.Add(("$labPath POST $route no longer passes the shared imported-Site boundary " +
+                    "($($guarded[$route].Replace('\', ''))). Lab writes against an imported code must refuse.")) | Out-Null
             }
+        }
+        $boundary = '(?s)def _refuse_if_imported\(record: SimulationRun, \*, commit: bool = False\) -> None:\n' +
+            '(?:(?!\n    def ).)*?\n        if record\.registered_basis is not None:\n            if commit:\n                raise HTTPException\('
+        if ($labText -notmatch $boundary) {
+            $failures.Add(("$labPath _refuse_if_imported no longer refuses Commit for a registered run first. " +
+                "Every imported run's Commit refuses until Site Evidence delivery exists (S2-01a AC4).")) | Out-Null
         }
     }
 

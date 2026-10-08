@@ -414,3 +414,65 @@ class TestOverHttp:
         assert detail["refusal_kind"] == "REGISTERED_BASIS_BOUNDARY" and detail["run_created"] is False
         assert detail["reason_code"] == "BASIS_BOUNDARY"
         assert len(YamlRunStore(tmp_path / "runs").list_runs()) == 1
+
+
+class TestRegisteredControls:
+    """AC4: a registered Draft runs through its frozen basis; Commit refuses."""
+
+    def client_with_draft(self, tmp_path, legacy_root):
+        from test_s1_cutover import ON, StagedExecution
+
+        store, result, _ = converted()
+        execution = StagedExecution()
+        runs = YamlRunStore(tmp_path / "runs")
+        client = app_for(
+            store, legacy_root, flags=ON, run_repository=runs, execution=execution,
+            scenario_repository=FakeScenarios((SCENARIO,)),
+        )
+        created = client.post("/api/simulator-lab/runs", json=request())
+        assert created.status_code == 201, created.text
+        return client, execution, runs, created.json()["run"]
+
+    def test_start_step_and_run_to_end_reach_the_port_for_a_registered_draft(
+        self, tmp_path, legacy_root
+    ) -> None:
+        client, execution, _, run = self.client_with_draft(tmp_path, legacy_root)
+        base = f"/api/simulator-lab/runs/{run['run_id']}"
+        assert client.post(f"{base}/execution/start").status_code == 200
+        step = client.post(f"{base}/execution/step", json={"boundaries": 1, "from_boundary": 0})
+        assert step.status_code == 200, step.text
+        assert client.post(f"{base}/execution/run-to-end").status_code == 200
+        assert [call[0] for call in execution.calls] == ["start", "step", "run_to_end"]
+
+    def test_commit_refuses_a_registered_run_before_the_port_or_commit_store(
+        self, tmp_path, legacy_root
+    ) -> None:
+        client, execution, _, run = self.client_with_draft(tmp_path, legacy_root)
+        response = client.post(f"/api/simulator-lab/runs/{run['run_id']}/commit")
+        assert response.status_code == 409, response.text
+        assert response.json()["detail"]["code"] == "REGISTERED_COMMIT_UNAVAILABLE"
+        assert execution.calls == [], "a refused Commit asked the port for its stage"
+
+    def test_stage_is_labelled_registered_with_no_evidence_claim_after_reload(
+        self, tmp_path, legacy_root
+    ) -> None:
+        client, _, runs, run = self.client_with_draft(tmp_path, legacy_root)
+        # A fresh store over the same directory stands for a process restart.
+        reread = YamlRunStore(tmp_path / "runs").get_run(run["run_id"])
+        assert reread is not None and reread.registered_basis is not None
+        stage = client.get(f"/api/simulator-lab/runs/{run['run_id']}/stage")
+        assert stage.status_code == 200, stage.text
+        basis = stage.json()["frozen_basis"]
+        assert basis["configuration_store"] == "REGISTERED"
+        assert basis["can_release"] is False and basis["site_imported"] is True
+        assert basis["registered_basis"] == run["configuration_basis"]
+        assert basis["registered_basis"]["accepted_evidence"] is False
+        assert basis["registered_basis"]["snapshot_sha256"] == reread.registered_basis.snapshot_sha256
+
+    def test_site_name_and_time_zone_are_labelled_current_row_metadata(
+        self, tmp_path, legacy_root
+    ) -> None:
+        _, _, _, run = self.client_with_draft(tmp_path, legacy_root)
+        metadata = run["configuration_basis"]["site_metadata"]
+        assert metadata["source"] == "CURRENT_SITE_ROW_AT_SETUP"
+        assert metadata["display_name"] and metadata["timezone"] and metadata["site_type"]
