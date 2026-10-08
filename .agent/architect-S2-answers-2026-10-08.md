@@ -1,0 +1,25 @@
+# S2 planning answers — 2026-10-08
+
+**Codex Architect**, per `.ai/ROLE_CONFIG.md`. This answers `.agent/planner-S2-questions-2026-10-08.md`; the controlling record is `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` in `.ai/DECISIONS.md`. The present branch is the S2-01a task branch. These decisions amend the packet; they do not claim S2 was built or tested.
+
+## Q1 — Choose 1 for historical reads; carry 3 as later integrity hardening
+
+Serve a previously published snapshot from its verified stored bytes and immutable revision/publication references when those versions' original valid periods cover the requested source time. A later mutation of current registration names or another current configuration gap must not make that historical artifact disappear; report present gaps separately, and continue to refuse an incomplete new/current acquisition snapshot. This follows S1-02's persisted-byte/hash decision and the technical design's rule that a later correction does not invalidate an originally registered, source-time-valid evidence basis.
+
+For Lab selection, `at` is the run's source-interval start and `knowledge_at` means **what configuration had been recorded by that instant**. Accept optional `knowledge_at` at the setup API only in S2-01a; default it to server now. An explicit earlier value may select a revision superseded as of now if that revision was recorded then and its original valid range covers the run's public source times. Pin the resolved `at` and `knowledge_at`, exact Foundation/binding IDs and snapshot bytes/hash on the Draft; do not silently fall back to the current pair, YAML or a cached replacement. A configuration that never had a valid registered snapshot for that pair/time remains unavailable, and selected Foundation content gaps still block setup. This S2-01a correction closes n5 for historical selection; forbid later registration-identity edits at the database boundary in a separately planned hardening change, after defining reconciliation for already edited records. Do not delay this slice on that broader migration.
+
+**Packet change made:** S2-01a now states the selection, freeze, historical availability and current-gap distinction in its result, criteria and reviewer path. S2-02's outline now requires original registered-basis validation for superseded references; S1's development-tenant download is not gateway authentication.
+
+## Q2 — Choose 1: one frozen basis, refuse crossings at setup
+
+The run's public reports must all cite one selected registered Foundation/binding snapshot, and the technical design requires each report's `source_time` to fall in both revisions' **original** half-open validity ranges. S2-01a should refuse a run before Draft allocation when a configuration boundary makes that impossible, naming the boundary; multiple pinned bases would expand the S2-01a and S2-01b contracts, while producing reports that S2-02 must reject would be a misleading Lab result.
+
+There is an end-boundary detail the Planner's proposal did not name: `FrozenInterval` is `[start_time, end_time)`, yet the existing kernel traverses the end boundary and the observation path can stamp a public reading at `end_time`. Thus a run ending exactly at the selected `valid_to` is **not** safe under the current producer: refuse it. Do not present two adjacent runs as gap-free under the current producer without demonstrating their boundary reports. A run wholly inside one period proceeds; the selected requested Foundation version must equal the resolved one.
+
+**Packet change made:** S2-01a now checks all possible public source times, including the final boundary, and asks the reviewer for both a crossing case and an end-equals-boundary case. S2-01b consumes the frozen basis; it does not get an implicit mid-run mapping switch.
+
+## Owner input and sequence check
+
+**I do not ask the owner to weigh in.** Both choices are required to keep the already selected immutable S1 snapshot, bitemporal reads and S2 accepted-as rules coherent; the owner has delegated such contract decisions to the active Architect. If the owner later wants one run to span a configuration change, that is a new product scope decision requiring a multi-basis run and gateway handoff design.
+
+The refined order remains sound: **S2-01a** freezes and runs from a registered basis; **S2-01b** persists V3 envelopes and sealed V2 batches in the separate simulated gateway; **S2-01c** adds local diagnostics and fault scenarios; **S2-02** authenticates upload, stores dispositions/diagnostics and switches Site Evidence after comparison. Keep the owner checkpoint at S2-02 and refine each outline after its predecessor review. The only misleading downstream sentence I found was S2-02's generic “stale configuration” rejection: the technical design accepts a later-superseded pair whose original range covers `source_time`, while flagging it as outdated. I corrected that outline and its n5 handoff text. S2-01b still must define the separate process's snapshot transfer and authorization during its own refinement; no gateway credential route is added to S2-01a.
