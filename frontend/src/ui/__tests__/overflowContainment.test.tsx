@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
+import { SimulatorLabShell } from "../../shell/SimulatorLabShell";
 import { OPERATOR_SITE_TABS_LABEL } from "../../shell/operatorSiteTabs";
 import type {
   SiteTemplateCatalogClient,
@@ -297,6 +298,21 @@ describe("the shell keeps its shape in both gate states", () => {
     expect(frames).toHaveLength(1);
     expect(shell?.contains(frames[0])).toBe(true);
     expect(frames[0].parentElement).toBe(shell);
+    // The phone-width shell rules key on this class, so the Lab's frame (which
+    // shares `.app-frame`) is untouched by them.
+    expect(frames[0]).toHaveClass("app-frame--operator");
+  });
+
+  it("does not mark the Simulator Lab frame as the operator shell", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <SimulatorLabShell railItems={[]}>
+          <p>Lab content</p>
+        </SimulatorLabShell>
+      </MemoryRouter>,
+    );
+    expect(container.querySelector(".app-frame")).not.toBeNull();
+    expect(container.querySelector(".app-frame--operator")).toBeNull();
   });
 
   it("renders the Lab frame standalone, outside the shell", async () => {

@@ -208,6 +208,34 @@ function Invoke-ShellOverflowCheck {
             "vertically when it is empty.")) | Out-Null
     }
 
+    # 2b. The phone-width shell rules belong to the operator Site shell
+    #     (`.app-frame--operator`). The Simulator Lab shares `.app-frame` and
+    #     its phone layout was never verified, so a bare `.app-frame` or
+    #     `.nav-rail` selector in a narrow media block silently changes it
+    #     (Architect Q1, S1-03 fix round).
+    $narrowRuleCount = 0
+    foreach ($media in [regex]::Matches($css, '(?s)@media\s*\(\s*max-width\s*:\s*(\d+)px\s*\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}')) {
+        if ([int]$media.Groups[1].Value -gt 640) { continue }
+        foreach ($rule in [regex]::Matches($media.Groups[2].Value, '(?s)([^{}]+)\{[^{}]*\}')) {
+            $selector = ($rule.Groups[1].Value -replace '(?s)/\*.*?\*/', '').Trim()
+            if ($selector -notmatch 'app-frame|nav-rail') { continue }
+            $narrowRuleCount++
+            foreach ($part in ($selector -split ',')) {
+                if ($part -notmatch 'app-frame--operator') {
+                    $failures.Add(("'$($part.Trim())' in a max-width:$($media.Groups[1].Value)px " +
+                        "block of $primitivesCss is not scoped to .app-frame--operator. " +
+                        "The Simulator Lab shares these classes and its phone layout " +
+                        "is not verified, so a shell rule here changes it unreviewed.")) | Out-Null
+                }
+            }
+        }
+    }
+    if ($narrowRuleCount -eq 0) {
+        $failures.Add(("No narrow-width .app-frame--operator rule was found in " +
+            "$primitivesCss, so the scoping check is vacuous. Update the check, " +
+            "do not delete it.")) | Out-Null
+    }
+
     # 3. Nobody hides page overflow instead of containing it.
     $hidingSelectors = @("html", "body", ".app-shell", ".app-frame", ".app-frame__body", ".app-frame__content")
     foreach ($block in $blocks) {
