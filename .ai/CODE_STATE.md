@@ -4836,3 +4836,12 @@ Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning
 - Owner side-by-side UI acceptance; S1 merge is held on it.
 - Decisions taken under the ambiguity rule are in `.agent/S1-03-questions.md`: the narrow-shell stacking, the legacy view-route state, and the omitted legacy-only panels.
 - Lab layout claims are still unmeasured. The run aborts at Lab run-setup when served by the product backend, as in S1-02.
+
+
+### S1-03 fix round and S1-02 n6 (settled in code)
+
+- `BindingService.publish` carries a binding edit through every contiguous later current period of the same binding set with unchanged bindings (Foundation-split copies), re-aligned atomically; it stops at a later independent binding change. The 201 body adds `applies_until` (null = open-ended) and `stopped_by_binding_version`; Readiness shows the end. Tests on the in-memory fake (`TestBindingEditThroughFoundationSplits`); no migration.
+- `SiteFoundationFrame`: "needs an imported Site" only for `migration_required`; other failures say stored versions are unavailable.
+- `navigation-truthfulness.ps1`: backtick labels, non-literal labels and a hard-coded `Changes` / `Change & effect` destination fail; page-level and panel-order tests in `siteFoundationRevision.test.tsx`.
+- Phone-width shell rules are scoped to `.app-frame--operator` (set by `OperatorShellLayout`); `shell-overflow.ps1` fails an unscoped narrow `.app-frame`/`.nav-rail` rule. Lab shell unchanged; its phone layout is an open carry.
+- Parts table column is "Channels" with a bound-versus-unbound legend; the SLD drawing precedes its paragraphs; the controls table names priority members.

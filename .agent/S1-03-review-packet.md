@@ -111,3 +111,40 @@ Two truthfulness fixes go beyond pure reorganization:
 - Hierarchy against the mock, side by side.
 - Whether the omissions in `INDEX.md` are acceptable.
 - The narrow layout.
+
+
+## Fix round (S1-03 review + n6)
+
+Written list: the S1-03 independent review (accept with carries), the Architect rulings (`.agent/architect-S1-03-questions-2026-10-08.md`) and S1-02 re-review n6. The owner's S1 UI acceptance is `.agent/owner-S1-acceptance-2026-10-08.md`. Branch `task/S1-03-foundation-organization`; the n6 commits are separate and prefixed "S1-02 n6:" so the coordinator can cherry-pick them onto the S1-02 line.
+
+| Finding | Change | Evidence | Commit |
+|---|---|---|---|
+| n6: a binding edit stops at the next Foundation-split boundary | `BindingService.publish` carries the requested set through each contiguous later current period of the same binding set whose bindings are unchanged (`binding_service.py`), supersedes them, and `finalize` re-aligns one immutable row and snapshot per Foundation period atomically under the Site lock. Validation already ran over every overlapping Foundation period. It stops at the first later period whose bindings differ (an independent publication). **Choice: return the end, do not refuse.** The 201 body adds `applies_until` (null = open-ended) and `stopped_by_binding_version`; the Readiness form says "with no end" or "only until X, where binding vN ... takes over". | `TestBindingEditThroughFoundationSplits` (in-memory fake): removal from 10-04 with a reserve split at 10-05 is absent at 10-05 and 2026-12-01; the earlier `knowledge_at` recovers the old snapshot hash and mapping; an independent fuel-level removal from 10-08 stops the edit with `applies_until` 10-08 and its version, and is left intact. Mutation: loop disabled -> all 3 fail; stop condition removed -> the stop test fails; both reverted. UI test for both messages. No migration, constraint or trigger touched, so no Postgres-only test. | `6a952ae`, `ff88ed8` |
+| M1: unreadable store reported as "needs an imported Site" | That panel only for `migration_required`; `unavailable`, `not_found`, `invalid` show "Stored versions unavailable" with the message and a link back. | New test, 4 statuses x SLD and Readiness. | `7e00b0c` |
+| M2(a): guard bypasses | Guard accepts backtick quotes, fails on any non-literal `label:` in the inventory module, and refuses a `>Changes<` / `>Change & effect<` destination in any `.tsx`. Frontend test: no link/button/tab or `aria-disabled` named Changes / Change & effect on any of the three views (page level). | Probed and failed: backtick `Changes` entry, `label: CHANGE_LABEL`, hard-coded `aria-disabled` link (guard, and the new page test fails 3/3). All reverted. The first version of the non-literal check was inert (a stray backspace in the pattern); the probe caught it and `70b7588` fixed it. | `776ccd7`, `7ba1ac4`, `70b7588` |
+| M2(b): panel order | Tests pin `h2`/`summary` order per view and that the reserve form sits in the controls panel. | Mutations: acquisition above verdict, bindings above verdict (Readiness), controls above topology/identity, SLD parts above diagram: each fails exactly one test. Reverted. | `7ba1ac4` |
+| Q1 / m1: shell-wide narrow rules | New `app-frame--operator` hook on `OperatorShellLayout`; every <=640 px rule is scoped to it; the Lab's `.app-frame` is untouched. Rail group labels now stay visible (inline). `shell-overflow.ps1` fails any unscoped `.app-frame`/`.nav-rail` selector in a narrow block, and fails if none exists. | Probe: unscoping `.app-frame__content` fails the guard; reverted. Tests: operator frame has the class, Lab frame does not. Layout evidence below. | `e6d097a` |
+| Q4: channel wording | Column "Channels"; caption separates bound channels that describe the part from unbound channels on devices attached to it; unbound items are muted and keep "Not bound:"; placement unchanged. | Test: header, caption, bound vs unbound items, no "Not bound" on bound items. | `8598c58` |
+| m2: SLD lead paragraphs | The two explanatory paragraphs now follow the drawing. | Test: svg precedes first paragraph. Not re-captured at 390 px. | `8598c58` |
+| m3: raw codes | Controls table names priority members from the registered assets, so the identity panel and the table agree. | Test. | `8598c58` |
+| m4 | Carried (Readiness is still dense). | | |
+
+### Results
+
+| Check | Result |
+|---|---|
+| Backend `pytest tests` without a database | 1550 passed, 25 skipped |
+| Backend with `ASSETOPS_TEST_DATABASE_URL` (assetops_test) | 1575 passed, 0 skipped |
+| `npm test` | 49 files, 1182 tests passed |
+| `tsc --noEmit`, `npm run build` | clean; built (existing chunk-size warning only) |
+| `check-architecture.ps1`, `check-agent-workflow.ps1` | passed before every commit |
+| `node tools/layout-evidence.mjs http://localhost:5185 KOBO-001` (own servers :8014/:5185, scratch copy of the dev DB, dropped afterwards) | `.agent/S1-03-fix-layout-evidence.txt`: 200 PASS, 0 FAIL, including each Site view at 1280, 1000, 640 and 390. Aborted at Lab run-setup, the existing Lab-unmeasured carry. |
+
+### Carries
+
+- Lab phone layout: with the narrow rules scoped away, the Lab is back to its pre-S1-03 behaviour at 390 px, which the reviewer found unusable (216 px rail, about 140 px content). Needs its own phone-layout check (Planner: with the owning Lab slice or V-01). Not claimed verified by the Site captures.
+- Lab layout claims remain unmeasured (run-setup abort).
+- m4: Readiness density; the role-to-channel mapping is stated in both coverage and the binding table.
+- m5: topology cards follow one upstream chain per feeder.
+- A later independent binding publication whose bindings are identical to its predecessor cannot be told from a split copy by content, so an edit carries through it. Harmless (same set), but the rule is "unchanged and contiguous", not "SPLIT origin".
+- The 390 px captures in `.agent/S1-03-screens/` predate m1/m2 and were not regenerated.

@@ -26,3 +26,11 @@ Processes already on :8000 and :5173 were there before this session and were not
 1. Independent review.
 2. Owner side-by-side UI check.
 3. After owner acceptance, integrate S1-01, S1-02 and S1-03 in dependency order (decision §4).
+
+## Fix round (done)
+
+Eight commits after `98a255b`: two "S1-02 n6:" (cherry-pickable onto the S1-02 line: `binding_service.py`, `foundation_api.py`, `test_s1_bindings.py`, plus the client and panel message) and six "S1-03 fix:". Results and the finding table are in the packet's "Fix round" section. My servers (:8014, :5185) and scratch DB `assetops_fixround` are gone; :8010 and :5183 were left as found.
+
+Status line above is superseded: the slice is reviewed (accept with carries) and owner-accepted; the fix round is complete.
+
+Next: Architect/coordinator integrates n6 with S1-02 and runs the independent correction review before S2-01a; then merge S1-01, S1-02, S1-03 in dependency order. Open carries: Lab phone layout, m4, m5.
