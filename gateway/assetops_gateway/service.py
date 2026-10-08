@@ -80,6 +80,15 @@ class Admission:
     detail: str | None = None
 
 
+#: Upper bound on one admission chunk (one transaction).
+MAX_ADMISSION_CHUNK = 1024
+
+
+def _check_initial_state(initial_state: str) -> None:
+    if initial_state not in ("STAGED", "READY"):
+        raise ValueError("an envelope starts STAGED (Lab) or READY (live)")
+
+
 class _Held(Exception):
     def __init__(self, kind: str, field: str, detail: str) -> None:
         self.kind, self.field, self.detail = kind, field, detail
@@ -206,6 +215,19 @@ class GatewayService:
         sources = frozenset(r[0] for r in db.execute("SELECT source_id FROM permitted_source"))
         return Provisioning(row[0], row[1], row[2], row[3], sources), row[4]
 
+    def identity(self) -> dict[str, object]:
+        """This gateway's provisioned identity, as the host may check it."""
+        with self._tx() as db:
+            provisioning, epoch = self._provisioning(db)
+        return {
+            "tenant_id": provisioning.tenant_id,
+            "site_id": provisioning.site_id,
+            "gateway_id": provisioning.gateway_id,
+            "source_mode": provisioning.source_mode,
+            "permitted_source_ids": sorted(provisioning.permitted_source_ids),
+            "sequence_epoch": epoch,
+        }
+
     # --- activation ------------------------------------------------------------
 
     def activate(self, snapshot_text: str, claimed: ClaimedReferences) -> VerifiedSnapshot:
@@ -305,125 +327,157 @@ class GatewayService:
         initial_state: str = "STAGED",
     ) -> Admission:
         """Admit one public report under one activated snapshot."""
-        if initial_state not in ("STAGED", "READY"):
-            raise ValueError("an envelope starts STAGED (Lab) or READY (live)")
+        _check_initial_state(initial_state)
+        with self._tx() as db:
+            admission = self._admit_in(db, report_text, snapshot_sha256, lab_run_ref, initial_state)
+        self._hit("after_enqueue_commit")
+        return admission
+
+    def admit_texts(
+        self,
+        report_texts: Iterable[str],
+        *,
+        snapshot_sha256: str,
+        lab_run_ref: str | None = None,
+        initial_state: str = "STAGED",
+    ) -> list[Admission]:
+        """Admit a bounded chunk of reports in ONE transaction.
+
+        Same per-report rules as `admit`; the chunk commits or rolls back whole,
+        so a crash leaves either every report of the chunk admitted or none.
+        One transaction per report made a full-day Lab run slow (phase-1 risk)."""
+        _check_initial_state(initial_state)
+        texts = list(report_texts)
+        if len(texts) > MAX_ADMISSION_CHUNK:
+            raise ValueError(f"at most {MAX_ADMISSION_CHUNK} reports per admission chunk")
+        with self._tx() as db:
+            admissions = [self._admit_in(db, text, snapshot_sha256, lab_run_ref, initial_state) for text in texts]
+        self._hit("after_enqueue_commit")
+        return admissions
+
+    def _admit_in(
+        self,
+        db: sqlite3.Connection,
+        report_text: str,
+        snapshot_sha256: str,
+        lab_run_ref: str | None,
+        initial_state: str,
+    ) -> Admission:
         report_sha = text_sha256(report_text) if isinstance(report_text, str) else text_sha256(repr(report_text))
         report: DeviceReport | None = None
         snapshot: VerifiedSnapshot | None = None
-        with self._tx() as db:
+        try:
             try:
-                try:
-                    report = parse_device_report_text(report_text)
-                except EnvelopeRejected as error:
-                    raise _Held("INVALID_REPORT", error.field, error.detail) from error
-                provisioning, epoch = self._provisioning(db)
-                snapshot = self._snapshot(db, snapshot_sha256)
-                if snapshot is None:
-                    raise _Held("NO_ACTIVE_MAPPING", "snapshot_sha256", "no activated snapshot has this hash")
-                binding = snapshot.binding_for(report.device_id, report.signal_id)
-                if binding is None:
-                    raise _Held(
-                        "UNKNOWN_CHANNEL",
-                        "device_id/signal_id",
-                        f"{report.device_id}/{report.signal_id} has no binding in this snapshot",
-                    )
-                if binding.source_id not in provisioning.permitted_source_ids:
-                    raise _Held("SOURCE_NOT_PERMITTED", "source_id", f"{binding.source_id} is not permitted")
-                published_at = self._now()
-                self._check_report(report, binding, snapshot, published_at)
-                if report.report_key is not None:
-                    earlier = db.execute(
-                        "SELECT report_sha256, a.message_id, o.sequence FROM report_admission a "
-                        "JOIN envelope_outbox o ON o.message_id=a.message_id "
-                        "WHERE a.gateway_id=? AND a.source_id=? AND a.report_key=?",
-                        (provisioning.gateway_id, binding.source_id, report.report_key),
-                    ).fetchone()
-                    if earlier is not None:
-                        if earlier[0] != report_sha:
-                            raise _Held(
-                                "CONFLICTING_REPORT",
-                                "report_key",
-                                "this key was admitted with different content",
-                            )
-                        self._provenance(db, lab_run_ref, message_id=earlier[1])
-                        return Admission("ALREADY_ADMITTED", message_id=earlier[1], sequence=earlier[2])
-                key = (provisioning.gateway_id, binding.source_id, epoch)
-                row = db.execute(
-                    "SELECT last_sequence FROM sequence_state WHERE gateway_id=? AND source_id=? AND sequence_epoch=?",
-                    key,
+                report = parse_device_report_text(report_text)
+            except EnvelopeRejected as error:
+                raise _Held("INVALID_REPORT", error.field, error.detail) from error
+            provisioning, epoch = self._provisioning(db)
+            snapshot = self._snapshot(db, snapshot_sha256)
+            if snapshot is None:
+                raise _Held("NO_ACTIVE_MAPPING", "snapshot_sha256", "no activated snapshot has this hash")
+            binding = snapshot.binding_for(report.device_id, report.signal_id)
+            if binding is None:
+                raise _Held(
+                    "UNKNOWN_CHANNEL",
+                    "device_id/signal_id",
+                    f"{report.device_id}/{report.signal_id} has no binding in this snapshot",
+                )
+            if binding.source_id not in provisioning.permitted_source_ids:
+                raise _Held("SOURCE_NOT_PERMITTED", "source_id", f"{binding.source_id} is not permitted")
+            published_at = self._now()
+            self._check_report(report, binding, snapshot, published_at)
+            if report.report_key is not None:
+                earlier = db.execute(
+                    "SELECT report_sha256, a.message_id, o.sequence FROM report_admission a "
+                    "JOIN envelope_outbox o ON o.message_id=a.message_id "
+                    "WHERE a.gateway_id=? AND a.source_id=? AND a.report_key=?",
+                    (provisioning.gateway_id, binding.source_id, report.report_key),
                 ).fetchone()
-                if row is not None and row[0] >= MAX_SEQUENCE:
-                    raise _Held("SEQUENCE_EXHAUSTED", "sequence", "reprovision a new epoch to continue")
-                sequence = 1 if row is None else row[0] + 1
-                self._hit("after_sequence_read")
-                message_id = v3_message_id(
+                if earlier is not None:
+                    if earlier[0] != report_sha:
+                        raise _Held(
+                            "CONFLICTING_REPORT",
+                            "report_key",
+                            "this key was admitted with different content",
+                        )
+                    self._provenance(db, lab_run_ref, message_id=earlier[1])
+                    return Admission("ALREADY_ADMITTED", message_id=earlier[1], sequence=earlier[2])
+            key = (provisioning.gateway_id, binding.source_id, epoch)
+            row = db.execute(
+                "SELECT last_sequence FROM sequence_state WHERE gateway_id=? AND source_id=? AND sequence_epoch=?",
+                key,
+            ).fetchone()
+            if row is not None and row[0] >= MAX_SEQUENCE:
+                raise _Held("SEQUENCE_EXHAUSTED", "sequence", "reprovision a new epoch to continue")
+            sequence = 1 if row is None else row[0] + 1
+            self._hit("after_sequence_read")
+            message_id = v3_message_id(
+                site_id=provisioning.site_id,
+                gateway_id=provisioning.gateway_id,
+                source_id=binding.source_id,
+                sequence_epoch=epoch,
+                sequence=sequence,
+            )
+            try:
+                envelope = SourceEnvelopeV3(
+                    message_id=message_id,
+                    sequence_epoch=epoch,
+                    sequence=sequence,
                     site_id=provisioning.site_id,
                     gateway_id=provisioning.gateway_id,
                     source_id=binding.source_id,
-                    sequence_epoch=epoch,
-                    sequence=sequence,
+                    device_id=report.device_id,
+                    signal_id=report.signal_id,
+                    binding_set_id=snapshot.binding_set_id,
+                    binding_version=snapshot.binding_set_version,
+                    source_time=report.source_time,
+                    published_at=published_at,
+                    interval_start=report.interval_start,
+                    interval_end=report.source_time if report.measurement == "INTERVAL_MEAN" else None,
+                    family="MEASUREMENT",
+                    measurement=report.measurement,
+                    value=report.value,
+                    unit=report.unit,
+                    quality=report.quality,
+                    unavailable_reason=report.unavailable_reason,
                 )
-                try:
-                    envelope = SourceEnvelopeV3(
-                        message_id=message_id,
-                        sequence_epoch=epoch,
-                        sequence=sequence,
-                        site_id=provisioning.site_id,
-                        gateway_id=provisioning.gateway_id,
-                        source_id=binding.source_id,
-                        device_id=report.device_id,
-                        signal_id=report.signal_id,
-                        binding_set_id=snapshot.binding_set_id,
-                        binding_version=snapshot.binding_set_version,
-                        source_time=report.source_time,
-                        published_at=published_at,
-                        interval_start=report.interval_start,
-                        interval_end=report.source_time if report.measurement == "INTERVAL_MEAN" else None,
-                        family="MEASUREMENT",
-                        measurement=report.measurement,
-                        value=report.value,
-                        unit=report.unit,
-                        quality=report.quality,
-                        unavailable_reason=report.unavailable_reason,
-                    )
-                except EnvelopeRejected as error:
-                    raise _Held(error.kind, error.field, error.detail) from error
-                text = canonical_envelope_v3_text(envelope)
+            except EnvelopeRejected as error:
+                raise _Held(error.kind, error.field, error.detail) from error
+            text = canonical_envelope_v3_text(envelope)
+            db.execute(
+                "INSERT INTO envelope_outbox (message_id, gateway_id, source_id, sequence_epoch, sequence, "
+                "source_time, snapshot_sha256, envelope_text, sha256, state, created_at) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    message_id,
+                    provisioning.gateway_id,
+                    binding.source_id,
+                    epoch,
+                    sequence,
+                    report.source_time,
+                    snapshot.snapshot_sha256,
+                    text,
+                    text_sha256(text),
+                    initial_state,
+                    published_at,
+                ),
+            )
+            db.execute(
+                "INSERT INTO sequence_state VALUES (?,?,?,?,?) ON CONFLICT DO UPDATE "
+                "SET last_sequence=excluded.last_sequence, updated_at=excluded.updated_at",
+                (*key, sequence, published_at),
+            )
+            if report.report_key is not None:
                 db.execute(
-                    "INSERT INTO envelope_outbox (message_id, gateway_id, source_id, sequence_epoch, sequence, "
-                    "source_time, snapshot_sha256, envelope_text, sha256, state, created_at) "
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                    (
-                        message_id,
-                        provisioning.gateway_id,
-                        binding.source_id,
-                        epoch,
-                        sequence,
-                        report.source_time,
-                        snapshot.snapshot_sha256,
-                        text,
-                        text_sha256(text),
-                        initial_state,
-                        published_at,
-                    ),
+                    "INSERT INTO report_admission VALUES (?,?,?,?,?)",
+                    (provisioning.gateway_id, binding.source_id, report.report_key, report_sha, message_id),
                 )
-                db.execute(
-                    "INSERT INTO sequence_state VALUES (?,?,?,?,?) ON CONFLICT DO UPDATE "
-                    "SET last_sequence=excluded.last_sequence, updated_at=excluded.updated_at",
-                    (*key, sequence, published_at),
-                )
-                if report.report_key is not None:
-                    db.execute(
-                        "INSERT INTO report_admission VALUES (?,?,?,?,?)",
-                        (provisioning.gateway_id, binding.source_id, report.report_key, report_sha, message_id),
-                    )
-                self._provenance(db, lab_run_ref, message_id=message_id)
-                admission = Admission("ADMITTED", message_id=message_id, sequence=sequence)
-            except _Held as held:
-                hold_id = self._hold(db, report_text, report_sha, report, snapshot_sha256, held)
-                self._provenance(db, lab_run_ref, hold_id=hold_id)
-                return Admission("HELD", hold_id=hold_id, kind=held.kind, field=held.field, detail=held.detail)
-        self._hit("after_enqueue_commit")
+            self._provenance(db, lab_run_ref, message_id=message_id)
+            admission = Admission("ADMITTED", message_id=message_id, sequence=sequence)
+        except _Held as held:
+            hold_id = self._hold(db, report_text, report_sha, report, snapshot_sha256, held)
+            self._provenance(db, lab_run_ref, hold_id=hold_id)
+            return Admission("HELD", hold_id=hold_id, kind=held.kind, field=held.field, detail=held.detail)
         return admission
 
     def admit_all(
