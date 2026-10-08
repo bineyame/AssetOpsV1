@@ -2,7 +2,7 @@
 
 **Current direction (2026-10-07):** [current system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [current technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md). These are current implementation authority under project routing; their proposal headers do not record owner sign-off. The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and S1-01 addendum control the first slice. This is the only executable queue. The [superseded T0xx queue](archive/pre-site-first-2026-10-07/README.md) and its open packets are historical reference with original status intact. Completed tasks and decisions remain historical built-state evidence.
 
-One mini-grid Site and one assessed window form the first end-to-end path. Work one slice at a time. S1-01 is implementation-ready; S1-02 is planned; S2–S7 are outlines to refine after the preceding review. Do not activate a later packet without that refinement. No product behavior is implemented by this planning change.
+One mini-grid Site and one assessed window form the first end-to-end path. Work one slice at a time. S1-01/02/03 are merged on `main` at `26d013b`; owner accepted the S1 UI check. S2-01a is implementation-ready on its task branch, subject to the Architect answer on historical snapshot availability. S2-01b through S7 remain outlines to refine after predecessor review. Do not activate a later packet without that refinement. This planning change implements no product behavior.
 
 For implementation, read the active packet and the contract sections it names. The registry, ledger and follow-on lanes below guide Architect/Planner review; they do not expand an active packet's scope.
 
@@ -14,10 +14,10 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 
 | Milestone | Task | Visible mock-screen result | Direct dependency | Status |
 | --- | --- | --- | --- | --- |
-| S1 Foundation | [S1-01](S1-01-persisted-foundation.md) | Foundation opens a persisted, time-selectable Kobo version | None; current architecture | In review (built on `task/S1-01-persisted-foundation`) |
-| S1 Foundation | [S1-02](S1-02-bindings-readiness.md) | Foundation mappings, Readiness gaps and configured SLD | S1-01 | Planned |
-| S1 Foundation | [S1-03](S1-03-foundation-organization.md) | Foundation Site model, Readiness and SLD organized as three mock-aligned views | S1-02 reviewed baseline; owner UI feedback | In review (packet `.agent/S1-03-review-packet.md`); owner UI check required; holds S1 merge |
-| S2 Evidence | [S2-01a](S2-01a-registered-lab-basis.md) | Imported Kobo Lab run opens from registered Foundation/bindings; Commit awaits ingestion | S1-02 | Outline |
+| S1 Foundation | [S1-01](S1-01-persisted-foundation.md) | Foundation opens a persisted, time-selectable Kobo version | None; current architecture | Merged; owner S1 UI check accepted |
+| S1 Foundation | [S1-02](S1-02-bindings-readiness.md) | Foundation mappings, Readiness gaps and configured SLD | S1-01 | Merged; owner S1 UI check accepted |
+| S1 Foundation | [S1-03](S1-03-foundation-organization.md) | Foundation Site model, Readiness and SLD organized as three mock-aligned views | S1-02 reviewed baseline; owner UI feedback | Merged; owner S1 UI check accepted |
+| S2 Evidence | [S2-01a](S2-01a-registered-lab-basis.md) | Imported Kobo Lab run opens from registered Foundation/bindings; Commit awaits ingestion | merged S1 | Implementation-ready; Architect n5 answer pending |
 | S2 Evidence | [S2-01b](S2-01b-durable-simulated-gateway.md) | Lab sealed V3 envelope and SQLite queue survive restart from simulated input | S2-01a | Outline |
 | S2 Evidence | [S2-01c](S2-01c-gateway-diagnostics-faults.md) | Lab gateway status shows diagnostic publication, outage/retry/disk-pressure cases | S2-01b | Outline |
 | S2 Evidence | [S2-02](S2-02-ingestion-site-evidence.md) | Site Evidence shows accepted, rejected and duplicate decisions with central gateway status | S2-01c | Outline; owner review checkpoint |
@@ -35,7 +35,9 @@ The [v6.9 screen realization map](../frontend/docs/architecture/v69-screen-reali
 
 For each `Deferred` screen, the ledger's `promotion_dependencies.to_candidate` lists the design, projection, fixture and task gates before it can enter the executable queue. For every proposed `Real with honest gaps` screen, `promotion_dependencies.to_real` names unresolved panels and remaining work before full mock fidelity can be claimed. A named S task alone does not satisfy that gate. The Planner checks these fields when refining a packet and updates them when a dependency is met or the owner changes a tier.
 
-S1-01, S1-02, S2-01a/b/c and S2-02 retain the statuses and acceptance boundaries above. **Before S3-01 is activated**, review the owner fidelity-tier choices, the [V-01 proposal](V-01-v69-visual-fidelity.md) after S2 evidence arrives, and the Architect decisions on shared projection/root navigation needed by S3/S4. Resolve only model gaps merited by the next supported claim; broader work, domains and indexes stay in the follow-on lane. S3-S7 packets remain outlines until the preceding slice is reviewed and their named manifest IDs, panel contracts, selected-window API, honest missing state and fidelity check are refined. A proposed tier does not authorize an empty route or an illustrative mock value as product data.
+S1 is merged; S2-01a is the current ready packet. S2-01b/c and S2-02 stay outlines until the preceding review and their named contracts and checks are refined. **Before S3-01 is activated**, review the owner fidelity-tier choices, the [V-01 proposal](V-01-v69-visual-fidelity.md) after S2 evidence arrives, and the Architect decisions on shared projection/root navigation needed by S3/S4. Resolve only model gaps merited by the next supported claim; broader work, domains and indexes stay in the follow-on lane. S3-S7 packets remain outlines until the preceding slice is reviewed and their named manifest IDs, panel contracts, selected-window API, honest missing state and fidelity check are refined. A proposed tier does not authorize an empty route or an illustrative mock value as product data.
+
+S2 refinement compared `queue_baseline_nodes`: S2-01a/b/c and S2-02 still own their listed implementation nodes; none leaves the baseline. The registry checker currently has a pre-existing 13-task sequence without merged S1-03, so it reports a queue-sequence mismatch against this 14-row queue. The registry overlay/checker needs an S1-03 reconciliation before its all-queue guard can pass; this does not alter S2 task ownership.
 
 | Proposal | Manifest IDs | Dependency and review gate | Status |
 | --- | --- | --- | --- |

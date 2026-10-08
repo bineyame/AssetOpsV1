@@ -41,6 +41,8 @@ Open each accepted record to original/normalized value and unit, source/publishe
 
 Reviewer opens Site Evidence and Lab Commit, verifies Postgres reload, receipt retry, central diagnostics and legacy comparison using simulated input. Before activation, refine exact credentials, migration fixture, wire fields and focused checks using S2-01c outcome and the current technical design. Apply shared queue gates. Physical-adapter input proof is a first-real-pilot gate, not S2 acceptance.
 
+S1 carry to consume at refinement: registration identity fields remain mutable and historical snapshot download may be unavailable when current registrations have gaps (S1-02 n5). Use the Architect resolution in `.agent/planner-S2-questions-2026-10-08.md` before defining original registered-basis validation and gateway credential scope; do not treat S1's development-tenant snapshot download as an authenticated gateway endpoint. Reconcile the actual S2-01a frozen basis and S2-01b/c wire, outbox and diagnostics before activating this outline. `queue_baseline_nodes` still assigns `I-accepted-evidence-store`, `I-edge-diagnostics-store`, `I-S2-02` here; no baseline move from S1.
+
 ## Defer
 
 Analytics, full replay UI, broker transport and optional artifact-store offload.
