@@ -1991,6 +1991,40 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
             }
             for item in record.unsupported_optional_inputs
         ],
+        "configuration_basis": configuration_basis_payload(record),
+    }
+
+
+def configuration_basis_payload(record: SimulationRun) -> dict[str, object]:
+    """Which configuration a run was set up from (S2-01a).
+
+    `LEGACY_FILE` for a run against a YAML Site. `REGISTERED` for an imported
+    Site: the frozen Foundation and binding revisions, the snapshot schema and
+    hash, and the two instants the basis was selected at. The canonical bytes
+    stay on the record; only their length is reported here. A registered basis
+    is configuration, not accepted evidence, and says so.
+    """
+    basis = record.registered_basis
+    if basis is None:
+        return {"store": "LEGACY_FILE"}
+    return {
+        "store": "REGISTERED",
+        "selection": basis.selection,
+        "source_start": basis.source_start,
+        "knowledge_at": basis.knowledge_at,
+        "foundation_revision_id": basis.foundation_revision_id,
+        "foundation_version": basis.foundation_version,
+        "foundation_valid_from": basis.foundation_valid_from,
+        "foundation_valid_to": basis.foundation_valid_to,
+        "binding_set_revision_id": basis.binding_set_revision_id,
+        "binding_set_version": basis.binding_set_version,
+        "binding_valid_from": basis.binding_valid_from,
+        "binding_valid_to": basis.binding_valid_to,
+        "snapshot_schema": basis.snapshot_schema,
+        "snapshot_sha256": basis.snapshot_sha256,
+        "snapshot_byte_length": len(basis.snapshot_canonical.encode("utf-8")),
+        "current_registration_gaps": list(basis.current_registration_gaps),
+        "accepted_evidence": False,
     }
 
 

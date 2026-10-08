@@ -391,6 +391,13 @@ class TestOverHttp:
         )
         created = client.post("/api/simulator-lab/runs", json=request(foundation_version=3))
         assert created.status_code == 201, created.text
+        basis = created.json()["run"]["configuration_basis"]
+        assert basis["store"] == "REGISTERED" and basis["accepted_evidence"] is False
+        assert basis["binding_valid_to"] == SPLIT_TEXT and basis["knowledge_at"] == text(NOW)
+        assert "snapshot_canonical" not in basis
+        run_id = created.json()["run"]["run_id"]
+        reread = client.get(f"/api/simulator-lab/runs/{run_id}").json()["run"]["configuration_basis"]
+        assert reread == basis
         crossing = client.post("/api/simulator-lab/runs", json=request(
             interval={"start_time": "2026-10-04T18:00:00Z", "end_time": "2026-10-05T06:00:00Z"},
             foundation_version=3))
