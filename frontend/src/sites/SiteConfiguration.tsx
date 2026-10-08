@@ -144,6 +144,21 @@ export interface SiteConfigurationProps {
    * device as having no bound channel. Absent for a legacy Site.
    */
   sldBoundDevices?: ReadonlySet<string> | null;
+  /**
+   * S1-02: for an imported Site, the binding set whose device-to-asset links
+   * fill the "Signal mappings" table, and the Foundation revision it is
+   * aligned to. Absent for a legacy Site, whose table keeps the document's
+   * declared mappings and their mapping IDs.
+   */
+  signalMappingBasis?: SignalMappingBasis | null;
+}
+
+/** Which published binding set the stored-Site mapping rows come from. */
+export interface SignalMappingBasis {
+  /** Null when no binding set is in effect for the period shown. */
+  bindingSetVersion: number | null;
+  bindingSetRevisionId: string | null;
+  foundationVersion: number;
 }
 
 export function SiteConfiguration({
@@ -154,6 +169,7 @@ export function SiteConfiguration({
   parentTrail,
   templateLineage,
   sldBoundDevices = null,
+  signalMappingBasis = null,
 }: SiteConfigurationProps) {
   const result = useSiteRecord(siteId, detail);
   const lineage = useSiteTemplateLineage(templateLineage);
@@ -225,6 +241,7 @@ export function SiteConfiguration({
       parentTrail={parentTrail}
       lineage={lineage?.get(result.site.site_id)}
       sldBoundDevices={sldBoundDevices}
+      signalMappingBasis={signalMappingBasis}
     />
   );
 }
@@ -247,6 +264,8 @@ export interface SiteConfigurationFactsProps {
   lineage?: SiteTemplateLineageReadModel;
   /** See `SiteConfigurationProps.sldBoundDevices`. */
   sldBoundDevices?: ReadonlySet<string> | null;
+  /** See `SiteConfigurationProps.signalMappingBasis`. */
+  signalMappingBasis?: SignalMappingBasis | null;
 }
 
 export function SiteConfigurationFacts({
@@ -256,6 +275,7 @@ export function SiteConfigurationFacts({
   parentTrail,
   lineage,
   sldBoundDevices = null,
+  signalMappingBasis = null,
 }: SiteConfigurationFactsProps) {
   const view = deriveSiteConfigurationView(site);
 
@@ -395,7 +415,7 @@ export function SiteConfigurationFacts({
         )}
 
         <SiteFoundationDevices section={view.devices} />
-        <SiteSignalMappings section={view.signalMappings} />
+        <SiteSignalMappings section={view.signalMappings} basis={signalMappingBasis} />
 
         {/*
           * Two device facts this build does not hold, stated once rather than
@@ -806,22 +826,25 @@ export function SiteFoundationDevices({
  */
 export function SiteSignalMappings({
   section,
+  basis = null,
 }: {
   section: SiteDeclaredSection<SignalMappingView>;
+  /** S1-02: set for an imported Site, whose rows are published bindings. */
+  basis?: SignalMappingBasis | null;
 }) {
   return (
     <SiteConfigurationSubsection
       name="Signal mappings"
       headingId="foundation-signal-mappings-heading"
       section={section}
-      caption="Which component each declared device signal describes. Every row is a declaration in this site's foundation: none is inferred from a name, a type, or a position in the topology."
+      caption={basis === null ? LEGACY_SIGNAL_MAPPINGS_CAPTION : storedSignalMappingsCaption(basis)}
       columns={[
         "Signal",
         "Signal ID",
         "Unit",
         "Reported by",
         "Describes",
-        "Mapping ID",
+        basis === null ? "Mapping ID" : "Binding ID",
       ]}
       row={(mapping) => ({
         key: mapping.mappingId,
@@ -836,6 +859,21 @@ export function SiteSignalMappings({
       })}
     />
   );
+}
+
+const LEGACY_SIGNAL_MAPPINGS_CAPTION =
+  "Which component each declared device signal describes. Every row is a declaration in this site's foundation: none is inferred from a name, a type, or a position in the topology.";
+
+/**
+ * S1-02 (Architect ruling D5): a stored Site's rows are the device-to-asset
+ * links of the selected signal binding set, not declarations in the imported
+ * document, whose mappings stay legacy comparison data and are not mixed in.
+ */
+function storedSignalMappingsCaption(basis: SignalMappingBasis): string {
+  if (basis.bindingSetVersion === null) {
+    return `No signal binding set is in effect for the period shown (Foundation v${basis.foundationVersion}), so this table lists no device-to-asset link. The imported document's signal mappings are legacy comparison data and are not shown here.`;
+  }
+  return `The device-to-asset links of the selected signal binding set: binding v${basis.bindingSetVersion} (record ${basis.bindingSetRevisionId}), aligned to Foundation v${basis.foundationVersion}. Each row is a published binding, identified by its binding ID; the imported document's signal mappings are legacy comparison data and are not shown here.`;
 }
 
 /**

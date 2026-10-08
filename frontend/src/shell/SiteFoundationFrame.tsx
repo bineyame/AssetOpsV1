@@ -57,7 +57,8 @@ export function SiteFoundationFrame({
   const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;
   // S1-02: for a stored Site the SLD's signals are the bindings in effect,
   // never the imported legacy mappings, so the diagram shows only configured
-  // links; each binding's ID is the mapping ID the screen shows.
+  // links. The shared table labels them as the binding set's links, with a
+  // Binding ID column (ruling D5); see `signalMappingBasis` below.
   const storedDetail = useMemo<SiteDetailClient | null>(
     () =>
       loaded === null
@@ -113,6 +114,11 @@ export function SiteFoundationFrame({
           tabs={tabs}
           parentTrail={parentTrail}
           sldBoundDevices={boundDevices}
+          signalMappingBasis={{
+            bindingSetVersion: loaded.bindings.binding_set?.version ?? null,
+            bindingSetRevisionId: loaded.bindings.binding_set?.binding_set_revision_id ?? null,
+            foundationVersion: loaded.revision.version,
+          }}
           revision={
             <FoundationRevisionPanel
               foundation={loaded}

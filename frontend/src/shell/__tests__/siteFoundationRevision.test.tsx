@@ -547,6 +547,22 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect(boundNames.sort()).toEqual(["Battery PCS controller", "Generator controller"]);
   });
 
+  it("labels the shared mapping table as the binding set's links, with Binding IDs (ruling D5)", async () => {
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(bound));
+    await settledScreen();
+    const table = screen.getByRole("table", { name: "Signal mappings" });
+    const caption = table.querySelector("caption")?.textContent ?? "";
+    expect(caption).toContain("device-to-asset links of the selected signal binding set");
+    expect(caption).toMatch(/binding v1 \(record bset-1\), aligned to Foundation v\d+/);
+    expect(caption).toContain("legacy comparison data and are not shown here");
+    expect(caption).not.toContain("Every row is a declaration in this site's foundation");
+    const headers = within(table).getAllByRole("columnheader").map((th) => th.textContent);
+    expect(headers).toContain("Binding ID");
+    expect(headers).not.toContain("Mapping ID");
+    const ids = within(table).getAllByRole("row").slice(1).map((row) => row.lastElementChild?.textContent);
+    expect(ids.sort()).toEqual(["b-battery-soc", "b-genset-power"]);
+  });
+
   it("names a missing required role as not bound", async () => {
     const incomplete = (): FoundationRead<FoundationReadModel> => ({
       status: "loaded",
