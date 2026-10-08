@@ -1,6 +1,6 @@
 # S1-03 — Organize persisted Foundation, configuration Readiness and SLD
 
-Status: in_review
+Status: done
 USER_REVIEW_REQUIRED: true
 Milestone: S1 Foundation
 Depends on: S1-01 and S1-02 reviewed baseline at `d8dd3e9`
