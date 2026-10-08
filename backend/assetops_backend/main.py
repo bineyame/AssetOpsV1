@@ -48,6 +48,7 @@ from assetops_backend.runs.commit_ports import CommittedArtifactStore
 from assetops_backend.runs.composition import build_commit_store, build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
+from assetops_backend.runs.registered_basis import RegisteredLabBasis
 from assetops_backend.runs.profiles import (
     MODEL_PROFILES,
     PUBLICATION_PROFILES,
@@ -244,6 +245,9 @@ def create_app(
                 execution,
                 commits,
                 imported_site_check=repository.refuse_if_imported,
+                # S2-01a: an imported code is set up from its registered
+                # Foundation + SignalBinding basis, never from the YAML Site.
+                registered_bases=RegisteredLabBasis(registry),
             )
         )
 

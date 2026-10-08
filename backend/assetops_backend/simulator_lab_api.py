@@ -94,6 +94,7 @@ from assetops_backend.runs.models import (
     readiness_disclosure,
 )
 from assetops_backend.runs.ports import (
+    RegisteredBasisPort,
     RunConfigurationInvalid,
     RunIdentityConflict,
     RunNotFound,
@@ -2042,6 +2043,7 @@ def build_simulator_lab_router(
     commits: CommittedArtifactStore | None = None,
     *,
     imported_site_check: Callable[[str], None] | None = None,
+    registered_bases: RegisteredBasisPort | None = None,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
@@ -2075,6 +2077,7 @@ def build_simulator_lab_router(
         scenarios,
         model_profiles=model_profiles,
         publication_profiles=publication_profiles,
+        registered_bases=registered_bases,
     )
     router = APIRouter(prefix=SIMULATOR_LAB_API_PREFIX, tags=["simulator-lab"])
 
@@ -2350,6 +2353,11 @@ def build_simulator_lab_router(
                 detail={
                     **_refusal(run_refusal_code(error.kind), error.message),
                     "refusal_kind": error.kind,
+                    **(
+                        {}
+                        if error.reason_code is None
+                        else {"reason_code": error.reason_code}
+                    ),
                     "run_created": False,
                 },
             ) from error

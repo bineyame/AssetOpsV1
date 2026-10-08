@@ -40,6 +40,8 @@ from assetops_backend.sites.binding_roles import (
     roles_for,
 )
 from assetops_backend.sites.foundation_content import (
+    CURRENT_ROW_GAP_CODES,
+    ConfigurationGap,
     battery_reserve,
     configuration_gaps,
     content_digest,
@@ -741,6 +743,12 @@ class Snapshot:
     schema: str
     foundation_revision_id: UUID
     binding_set: BindingSetRevisionRow
+    #: True when the selected binding set is the one a gateway acquires now:
+    #: still recorded, and its validity has not ended. A current snapshot is
+    #: refused on any configuration gap; a historical one is validated against
+    #: its own stored identity and reports current-row gaps here instead.
+    current: bool = True
+    current_gaps: tuple[ConfigurationGap, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -750,12 +758,90 @@ class SnapshotUnavailable:
     status: int
 
 
+def is_current_snapshot(binding_set: BindingSetRevisionRow, now: datetime) -> bool:
+    """Whether a binding set is the current/new acquisition basis at `now`.
+
+    Still recorded (not superseded) and not yet ended in valid time. Anything
+    else - superseded since, or a period that has ended - is historical.
+    """
+    return binding_set.superseded_at is None and (
+        binding_set.valid_to is None or binding_set.valid_to > now
+    )
+
+
+def pinned_identity_problems(
+    document: Mapping[str, Any],
+    tenant_id: UUID,
+    site: StoredSite,
+    foundation: RevisionRow,
+    binding_set: BindingSetRevisionRow,
+) -> list[str]:
+    """Where the stored snapshot disagrees with its immutable publication references.
+
+    The original registration identity of a pinned snapshot is read from its
+    own stored bytes and checked against the immutable revision rows it was
+    published with, never against today's gateway/source rows (S1-02 carry n5,
+    D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary).
+    """
+    problems: list[str] = []
+
+    def expect(path: str, actual: Any, wanted: Any) -> None:
+        if actual != wanted:
+            problems.append(f"{path} is {actual!r}, not {wanted!r}")
+
+    def part(key: str) -> Mapping[str, Any]:
+        value = document.get(key)
+        return value if isinstance(value, Mapping) else {}
+
+    expect("schema", document.get("schema"), binding_set.snapshot_schema)
+    expect("tenant_id", document.get("tenant_id"), str(tenant_id))
+    expect("site.site_id", part("site").get("site_id"), str(site.id))
+    expect("foundation.revision_id", part("foundation").get("revision_id"), str(foundation.id))
+    expect("foundation.version", part("foundation").get("version"), foundation.version)
+    expect("foundation.valid_from", part("foundation").get("valid_from"), _iso(foundation.valid_from))
+    expect("foundation.valid_to", part("foundation").get("valid_to"), _iso(foundation.valid_to))
+    expect("foundation.content_sha256", part("foundation").get("content_sha256"), foundation.content_sha256)
+    expect("mapping.binding_set_revision_id", part("mapping").get("binding_set_revision_id"), str(binding_set.id))
+    expect("mapping.version", part("mapping").get("version"), binding_set.version)
+    expect("mapping.valid_from", part("mapping").get("valid_from"), _iso(binding_set.valid_from))
+    expect("mapping.valid_to", part("mapping").get("valid_to"), _iso(binding_set.valid_to))
+    expect("mapping.bindings_sha256", part("mapping").get("bindings_sha256"), binding_set.bindings_sha256)
+    expect("gateway.gateway_id", part("gateway").get("gateway_id"), str(binding_set.gateway_id))
+    sources = {
+        s.get("source_id") for s in document.get("sources") or () if isinstance(s, Mapping)
+    }
+    pinned = {str(b.id): b for b in binding_set.bindings}
+    seen: set[str] = set()
+    for entry in document.get("bindings") or ():
+        if not isinstance(entry, Mapping):
+            problems.append("a binding entry is not an object")
+            continue
+        binding_id = str(entry.get("binding_revision_id"))
+        seen.add(binding_id)
+        row = pinned.get(binding_id)
+        if row is None:
+            problems.append(f"binding {binding_id} is not a row of binding v{binding_set.version}")
+            continue
+        expect(f"binding {binding_id}.device_id", entry.get("device_id"), row.device_id)
+        expect(f"binding {binding_id}.signal_id", entry.get("signal_id"), row.signal_id)
+        expect(f"binding {binding_id}.source_id", entry.get("source_id"), str(row.source_id))
+        expect(f"binding {binding_id}.role", entry.get("role"), row.role)
+        expect(f"binding {binding_id}.gateway_id", entry.get("gateway_id"), str(binding_set.gateway_id))
+        if entry.get("source_id") not in sources:
+            problems.append(f"binding {binding_id} names a source the snapshot does not register")
+    for missing in sorted(set(pinned) - seen):
+        problems.append(f"binding {missing} of binding v{binding_set.version} is absent from the snapshot")
+    return problems
+
+
 def acquisition_snapshot(
     tenant_id: UUID,
     site: StoredSite,
     revisions: Sequence[RevisionRow],
     registrations: Registrations,
     binding_set: BindingSetRevisionRow | None,
+    *,
+    now: datetime | None = None,
 ) -> Snapshot | SnapshotUnavailable:
     """The pinned gateway snapshot of the binding set selected, or why there is none.
 
@@ -764,6 +850,15 @@ def acquisition_snapshot(
     are never rebuilt from current registration rows, whose identity fields can
     change after publication (S1-02 fix round, review M1); a stored hash the
     stored bytes do not reproduce is refused, never served.
+
+    Current versus historical (D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary):
+    when `now` is given and the selected set is no longer the current
+    acquisition basis (`is_current_snapshot`), gaps derived from CURRENT
+    mutable rows (`CURRENT_ROW_GAP_CODES`) do not withdraw it. Its original
+    registration identity is validated from the stored snapshot instead, and
+    the current gaps are reported in `current_gaps`. Gaps of the selected
+    Foundation content always refuse, and so does every gap of a current set.
+    Without `now` every selection is treated as current, the S1-02 behaviour.
     """
     if binding_set is None:
         return SnapshotUnavailable(
@@ -778,12 +873,14 @@ def acquisition_snapshot(
             f"Binding v{binding_set.version} names a Foundation revision this Site does not hold.",
             500,
         )
+    current = now is None or is_current_snapshot(binding_set, now)
     gaps = configuration_gaps(site, foundation, registrations)
-    if gaps:
+    blocking = gaps if current else [g for g in gaps if g.code not in CURRENT_ROW_GAP_CODES]
+    if blocking:
         return SnapshotUnavailable(
             "ACQUISITION_SNAPSHOT_UNAVAILABLE",
             "This Foundation has configuration gaps ("
-            + ", ".join(g.code for g in gaps)
+            + ", ".join(g.code for g in blocking)
             + "), so no gateway snapshot can be downloaded.",
             409,
         )
@@ -808,11 +905,31 @@ def acquisition_snapshot(
             "stored at publication, so it is not served.",
             500,
         )
+    try:
+        document = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError):
+        document = None
+    if not isinstance(document, dict):
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_INCONSISTENT",
+            f"The stored snapshot of binding v{binding_set.version} is not a JSON object.",
+            500,
+        )
+    problems = pinned_identity_problems(document, tenant_id, site, foundation, binding_set)
+    if problems:
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_INCONSISTENT",
+            f"The stored snapshot of binding v{binding_set.version} disagrees with its "
+            "publication references: " + "; ".join(problems[:5]) + ".",
+            500,
+        )
     return Snapshot(
-        document=json.loads(body.decode("utf-8")),
+        document=document,
         body=body,
         sha256=digest,
         schema=binding_set.snapshot_schema,
         foundation_revision_id=foundation.id,
         binding_set=binding_set,
+        current=current,
+        current_gaps=() if current else tuple(g for g in gaps if g.code in CURRENT_ROW_GAP_CODES),
     )

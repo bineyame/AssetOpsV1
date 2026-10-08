@@ -129,6 +129,18 @@ RUN_SETUP_REFUSAL_KINDS = frozenset(
         # the Lab cannot set up against it until it uses the registered
         # Foundation and gateway snapshot.
         "SITE_AWAITING_MIGRATION",
+        # S2-01a (D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary):
+        # no registered Foundation + SignalBinding basis can be selected for
+        # an imported Site at the requested source start and knowledge
+        # instant - never registered then, content gaps, a current gap on a
+        # current basis, missing bytes, a hash mismatch or an unsupported
+        # schema. The message names the specific reason; nothing falls back
+        # to the YAML Site or another revision.
+        "REGISTERED_BASIS_UNAVAILABLE",
+        # S2-01a: the selected basis's original validity ends inside the run
+        # interval or exactly at its end_time, where the kernel can still
+        # stamp a public reading. One run cites one basis.
+        "REGISTERED_BASIS_BOUNDARY",
     }
 )
 
@@ -141,7 +153,7 @@ class RunSetupRefused(Exception):
     a client switches on, so neither has to be parsed out of the other.
     """
 
-    def __init__(self, kind: str, message: str) -> None:
+    def __init__(self, kind: str, message: str, *, reason_code: str | None = None) -> None:
         if kind not in RUN_SETUP_REFUSAL_KINDS:
             raise ValueError(
                 f"{kind!r} is not a run setup refusal kind. Add it to "
@@ -151,6 +163,11 @@ class RunSetupRefused(Exception):
         super().__init__(message)
         self.kind = kind
         self.message = message
+        #: S2-01a: the specific registered-basis reason under a
+        #: `REGISTERED_BASIS_*` kind (for example
+        #: `ACQUISITION_SNAPSHOT_HASH_MISMATCH`), so a client need not parse
+        #: the message. None for every other refusal.
+        self.reason_code = reason_code
 
 
 def refuse(kind: str, message: str) -> RunSetupRefused:

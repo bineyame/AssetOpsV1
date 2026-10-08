@@ -25,9 +25,17 @@ point of the record is that it cannot drift out from under a later execution.
 
 from __future__ import annotations
 
-from typing import Protocol, Sequence, runtime_checkable
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Protocol, Sequence, runtime_checkable
 
-from assetops_backend.runs.models import SimulationRun
+from assetops_backend.runs.models import (
+    FrozenSignalMapping,
+    RegisteredBasis,
+    SimulationRun,
+)
+
+if TYPE_CHECKING:
+    from assetops_backend.sites.models import SiteRecord
 
 
 class RunRepositoryError(Exception):
@@ -105,3 +113,45 @@ class SimulationRunRepository(Protocol):
             RunStoreUnavailable: the store could not be read.
         """
         ...
+
+
+@runtime_checkable
+class RegisteredBasisPort(Protocol):
+    """The read-only registered-basis boundary at Lab setup (S2-01a).
+
+    It answers two questions about an IMPORTED Site and writes nothing:
+    whether a Site code is registered in the product Foundation store, and the
+    one registered Foundation + SignalBinding basis a run would freeze
+    (D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary).
+
+    A store that cannot be asked raises `SiteStoreUnavailable`, never "not
+    registered", so an outage fails closed instead of falling back to the
+    legacy YAML Site.
+    """
+
+    def registered(self, site_id: str) -> bool:
+        """Whether `site_id` names an imported, registered Site."""
+
+    def select(
+        self,
+        site_id: str,
+        *,
+        start_time: str,
+        end_time: str,
+        knowledge_at: str | None,
+    ) -> RegisteredSiteSelection:
+        """The basis covering `[start_time, end_time]`, or `RunSetupRefused`."""
+
+
+@dataclass(frozen=True)
+class RegisteredSiteSelection:
+    """What run setup takes from a selected registered basis.
+
+    `site` is the selected Foundation revision as a Site record (the existing
+    Lab run input shape); `signal_mappings` are the registered binding set's
+    device-signal-to-component links; `basis` is what the run freezes.
+    """
+
+    site: SiteRecord
+    signal_mappings: tuple[FrozenSignalMapping, ...]
+    basis: RegisteredBasis

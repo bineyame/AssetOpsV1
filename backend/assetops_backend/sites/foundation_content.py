@@ -45,6 +45,23 @@ REQUIRED_MINIGRID_COMPONENTS: tuple[tuple[str, str], ...] = (
 )
 REQUIRED_SITE_CONTROLS = ("source-priority", "critical-load-priority")
 
+#: Gap codes `configuration_gaps` derives from CURRENT mutable rows - the Site
+#: row and the gateway/source registrations - rather than from the immutable
+#: Foundation revision. A pinned historical snapshot is validated against its
+#: own stored identity instead, so these are reported beside it, never used to
+#: withdraw it (D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary). They
+#: still refuse a current acquisition snapshot.
+CURRENT_ROW_GAP_CODES = frozenset(
+    {
+        "SITE_CODE_INVALID",
+        "SITE_NAME_MISSING",
+        "SITE_TYPE_UNSUPPORTED",
+        "SITE_TIMEZONE_INVALID",
+        "GATEWAY_NOT_REGISTERED",
+        "SOURCE_NOT_REGISTERED",
+    }
+)
+
 
 def utc_text(instant: datetime) -> str:
     """The UTC instant spelling the Site document uses (`...Z`, whole seconds)."""

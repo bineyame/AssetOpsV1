@@ -67,7 +67,7 @@ module calls it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from fractions import Fraction
 from typing import Callable, Iterable, Sequence
@@ -101,7 +101,11 @@ from assetops_backend.runs.parsing import (
     parse_run_setup_request,
     reject_unusable_quantity,
 )
-from assetops_backend.runs.ports import SimulationRunRepository
+from assetops_backend.runs.ports import (
+    RegisteredBasisPort,
+    RegisteredSiteSelection,
+    SimulationRunRepository,
+)
 from assetops_backend.runs.profiles import (
     PUBLICATION_DELAY_STATES,
     REPORTING_PATH_STATES,
@@ -383,9 +387,13 @@ class RunSetupService:
         model_profiles: tuple[ModelProfile, ...],
         publication_profiles: tuple[PublicationProfile, ...],
         now: Callable[[], str] = _utc_now,
+        registered_bases: RegisteredBasisPort | None = None,
     ) -> None:
         self._runs = runs
         self._sites = sites
+        # S2-01a: the read-only registered-basis boundary. None in a
+        # legacy-only composition, where every code is a YAML Site.
+        self._registered_bases = registered_bases
         self._scenarios = scenarios
         self._model_profiles = model_profiles
         self._publication_profiles = publication_profiles
@@ -404,7 +412,7 @@ class RunSetupService:
         """
         request = parse_run_setup_request(body)
 
-        site = self._resolve_site(request)
+        site, selection = self._resolve_site(request)
         scenario = self._resolve_scenario(request)
         model = self._resolve_model_profile(request)
         publication = self._resolve_publication_profile(request)
@@ -426,6 +434,10 @@ class RunSetupService:
             parameters=parameters,
             supplied=supplied,
         )
+        if selection is not None:
+            # The registered binding set, not the Foundation content's legacy
+            # mapping list, says which component a device signal describes.
+            identity = replace(identity, signal_mappings=selection.signal_mappings)
 
         reasons, optional = self._decide(
             scenario=scenario,
@@ -444,13 +456,60 @@ class RunSetupService:
             deterministic_identity=identity,
             blocking_reasons=reasons,
             unsupported_optional_inputs=optional,
+            registered_basis=None if selection is None else selection.basis,
         )
 
         return self._runs.create_run(record)
 
     # --- Resolving what the request names -----------------------------------
 
-    def _resolve_site(self, request: RunSetupRequest) -> SiteRecord:
+    def _resolve_site(
+        self, request: RunSetupRequest
+    ) -> tuple[SiteRecord, RegisteredSiteSelection | None]:
+        if self._registered_bases is not None and self._registered_bases.registered(
+            request.site_id
+        ):
+            return self._resolve_registered_site(request)
+        if request.knowledge_at is not None:
+            raise refuse(
+                "REQUEST_INVALID",
+                f"'knowledge_at' selects what a registered Site's configuration "
+                f"had recorded by then; site {request.site_id} is not a registered "
+                "Site, so there is nothing for it to select.",
+            )
+        return self._resolve_legacy_site(request), None
+
+    def _resolve_registered_site(
+        self, request: RunSetupRequest
+    ) -> tuple[SiteRecord, RegisteredSiteSelection]:
+        """The imported Site at its one registered basis (S2-01a).
+
+        Selected at the run's source start as recorded at `knowledge_at`,
+        covering every public source time through `end_time`. The requested
+        Foundation version must equal the selected one; it is never resolved
+        to whatever is current.
+        """
+        assert self._registered_bases is not None
+        selection = self._registered_bases.select(
+            request.site_id,
+            start_time=request.start_time,
+            end_time=request.end_time,
+            knowledge_at=request.knowledge_at,
+        )
+        site = selection.site
+        if site.foundation.version != request.foundation_version:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"At {request.start_time} as recorded at "
+                f"{selection.basis.knowledge_at}, site {site.site_id} is registered "
+                f"at Foundation version {site.foundation.version}, and this request "
+                f"names version {request.foundation_version}. A run freezes the "
+                "exact registered version selected; it is not substituted.",
+            )
+        self._validate_site_timezone(site)
+        return site, selection
+
+    def _resolve_legacy_site(self, request: RunSetupRequest) -> SiteRecord:
         try:
             site = self._sites.get_site(request.site_id)
         except SiteAwaitingMigration as error:
@@ -473,6 +532,10 @@ class RunSetupService:
                 "rather than resolved to whatever is current.",
             )
 
+        self._validate_site_timezone(site)
+        return site
+
+    def _validate_site_timezone(self, site: SiteRecord) -> None:
         try:
             validate_iana_timezone(
                 site.timezone, where=f"The time zone of site {site.site_id}"
@@ -485,8 +548,6 @@ class RunSetupService:
                 f"{error} No run was created, and this is a statement about "
                 "the database rather than about the site.",
             ) from error
-
-        return site
 
     def _resolve_scenario(self, request: RunSetupRequest) -> ScenarioDefinition:
         try:

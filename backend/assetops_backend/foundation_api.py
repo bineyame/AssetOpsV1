@@ -379,7 +379,7 @@ def _bindings(view: FoundationView) -> dict[str, Any]:
 
 def _snapshot_summary(view: FoundationView) -> dict[str, Any]:
     result = acquisition_snapshot(
-        view.tenant.id, view.site, view.revisions, view.registrations, view.binding_set
+        view.tenant.id, view.site, view.revisions, view.registrations, view.binding_set, now=view.now
     )
     if not isinstance(result, Snapshot):
         return {"available": False, "code": result.code, "reason": result.reason}
@@ -393,6 +393,11 @@ def _snapshot_summary(view: FoundationView) -> dict[str, Any]:
         "valid_to": _iso(result.binding_set.valid_to),
         "byte_length": len(result.body),
         "access": SNAPSHOT_ACCESS_STATEMENT,
+        # Historical (superseded or ended) snapshots are served from their own
+        # stored identity; gaps in today's registration rows are reported
+        # here, not used to withdraw them (S1-02 carry n5).
+        "selection": "CURRENT" if result.current else "HISTORICAL",
+        "current_registration_gaps": [g.to_wire() for g in result.current_gaps],
     }
 
 
@@ -553,7 +558,12 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
         def work() -> Response:
             view = registry.service.read(site, tenant, resolved_at, resolved_knowledge)
             result = acquisition_snapshot(
-                view.tenant.id, view.site, view.revisions, view.registrations, view.binding_set
+                view.tenant.id,
+                view.site,
+                view.revisions,
+                view.registrations,
+                view.binding_set,
+                now=view.now,
             )
             if not isinstance(result, Snapshot):
                 raise FoundationRefused(result.code, result.reason, status=result.status)
@@ -565,6 +575,7 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
                     "X-AssetOps-Snapshot-SHA256": result.sha256,
                     "X-AssetOps-Snapshot-Schema": result.schema,
                     "X-AssetOps-Access": "development-tenant; gateway-authentication-pending",
+                    "X-AssetOps-Snapshot-Selection": "CURRENT" if result.current else "HISTORICAL",
                     "ETag": '"' + result.sha256 + '"',
                     "Content-Disposition": 'attachment; filename="' + filename + '"',
                 },
