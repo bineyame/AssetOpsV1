@@ -26,9 +26,17 @@ export function useSiteFoundation(
 ): SiteFoundationState {
   const [state, setState] = useState<SiteFoundationState>({ foundation: null, versions: null });
 
+  const [key, setKey] = useState<string | null>(null);
+  const viewKey = `${siteId ?? ""}|${at ?? ""}`;
+
   useEffect(() => {
     let live = true;
-    setState({ foundation: null, versions: null });
+    // A refresh after a publish keeps the screen (and its result message)
+    // while re-reading; only a different Site or period starts from loading.
+    if (key !== viewKey) {
+      setState({ foundation: null, versions: null });
+      setKey(viewKey);
+    }
     if (siteId === undefined) {
       setState({
         foundation: { status: "not_found", message: "No site is named." },

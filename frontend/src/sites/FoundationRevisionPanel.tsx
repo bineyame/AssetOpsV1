@@ -23,7 +23,7 @@ import type {
 export const FOUNDATION_REVISION_HEADING_ID = "foundation-revision-heading";
 
 export function formatInstant(value: string | null): string {
-  if (value === null) return "open-ended";
+  if (value === null) return "no end";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -170,6 +170,7 @@ export function FoundationRevisionPanel({
         <ReservePublishForm
           assetCode={reserve.asset_code ?? "battery"}
           current={reserve.value ?? null}
+          periods={current}
           onPublish={onPublish}
         />
       </Panel>
@@ -229,13 +230,38 @@ export function FoundationRevisionPanel({
   );
 }
 
+/**
+ * The period a reserve change would apply to (Architect, 2026-10-08): from
+ * its effective instant to the end of the currently recorded period that
+ * contains it, or with no end when that period is open. Later scheduled
+ * periods keep their own values, so a bounded change must not read as
+ * permanent.
+ */
+export function resultingPeriod(
+  periods: FoundationRevisionSummary[],
+  effectiveFrom: string,
+): { from: string; to: string | null; version: number } | null {
+  const at = new Date(effectiveFrom).getTime();
+  if (Number.isNaN(at)) return null;
+  const covering = periods.find(
+    (row) =>
+      new Date(row.valid_from).getTime() <= at &&
+      (row.valid_to === null || at < new Date(row.valid_to).getTime()),
+  );
+  return covering === undefined
+    ? null
+    : { from: effectiveFrom, to: covering.valid_to, version: covering.version };
+}
+
 function ReservePublishForm({
   assetCode,
   current,
+  periods,
   onPublish,
 }: {
   assetCode: string;
   current: number | null;
+  periods: FoundationRevisionSummary[];
   onPublish: (value: number, validFrom: string) => Promise<PublishOutcome>;
 }) {
   const [value, setValue] = useState("");
@@ -260,12 +286,15 @@ function ReservePublishForm({
     );
   }
 
+  const preview = effective === "" ? null : resultingPeriod(periods, `${effective}:00Z`);
+
   return (
     <form aria-label="Change battery reserve" onSubmit={submit}>
       <p>
         Change the battery reserve ({assetCode}) from a chosen instant. The current value
         {current === null ? " is not configured" : ` is ${current}%`}; earlier periods keep their
-        stored values.
+        stored values. A change applies until the end of the period it falls in; later scheduled
+        periods keep their own values.
       </p>
       <label>
         New reserve (%){" "}
@@ -289,6 +318,15 @@ function ReservePublishForm({
       <button type="submit" disabled={pending}>
         Publish reserve change
       </button>
+      {effective === "" ? null : (
+        <p data-resulting-period={preview === null ? "none" : preview.to === null ? "open" : "bounded"}>
+          {preview === null
+            ? "No stored period contains this instant, so no change can start there."
+            : preview.to === null
+              ? `Resulting period: from ${formatInstant(preview.from)}, with no end (the v${preview.version} period is open).`
+              : `Resulting period: from ${formatInstant(preview.from)} until ${formatInstant(preview.to)}, when the v${preview.version} period ends. The value after that is unchanged.`}
+        </p>
+      )}
       {message === null ? null : <p role="status">{message}</p>}
     </form>
   );

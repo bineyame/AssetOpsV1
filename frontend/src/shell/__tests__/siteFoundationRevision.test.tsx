@@ -205,6 +205,45 @@ describe("the persisted Foundation version", () => {
     expect(client.getFoundation).toHaveBeenCalledTimes(2);
   });
 
+  it("shows a bounded resulting period for a change inside a period that ends", async () => {
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(byAt));
+    await settledScreen();
+    const form = screen.getByRole("form", { name: "Change battery reserve" });
+    fireEvent.change(within(form).getByLabelText(/Effective from/), { target: { value: "2026-10-08T00:00" } });
+    const preview = form.querySelector("[data-resulting-period]") as HTMLElement;
+    expect(preview.dataset.resultingPeriod).toBe("bounded");
+    expect(preview.textContent).toBe(
+      "Resulting period: from 2026-10-08 00:00 UTC until 2026-10-10 00:00 UTC, when the v2 period ends. The value after that is unchanged.",
+    );
+  });
+
+  it("shows an open-ended resulting period for a change inside the open period", async () => {
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(byAt));
+    await settledScreen();
+    const form = screen.getByRole("form", { name: "Change battery reserve" });
+    fireEvent.change(within(form).getByLabelText(/Effective from/), { target: { value: "2026-10-12T00:00" } });
+    const preview = form.querySelector("[data-resulting-period]") as HTMLElement;
+    expect(preview.dataset.resultingPeriod).toBe("open");
+    expect(preview.textContent).toMatch(/from 2026-10-12 00:00 UTC, with no end/);
+  });
+
+  it("keeps the published period, start and end, on screen after the re-read", async () => {
+    const client = fakeFoundation(byAt);
+    const bounded = revision({ revision_id: "rev-5", version: 5, origin: "PUBLISH", valid_from: "2026-10-08T00:00:00Z", valid_to: "2026-10-10T00:00:00Z" });
+    client.publishReserve.mockResolvedValueOnce({ status: "published", revision: bounded });
+    renderAt(`/sites/${ID}/foundation`, client);
+    await settledScreen();
+    const form = screen.getByRole("form", { name: "Change battery reserve" });
+    fireEvent.change(within(form).getByLabelText(/New reserve/), { target: { value: "40" } });
+    fireEvent.change(within(form).getByLabelText(/Effective from/), { target: { value: "2026-10-08T00:00" } });
+    fireEvent.click(within(form).getByRole("button", { name: "Publish reserve change" }));
+    const published = "Published Foundation v5, effective 2026-10-08 00:00 UTC to 2026-10-10 00:00 UTC.";
+    expect(await within(form).findByText(published)).toBeInTheDocument();
+    await settledScreen();
+    expect(screen.getByText(published)).toBeInTheDocument();
+    expect(client.getFoundation).toHaveBeenCalledTimes(2);
+  });
+
   it("names configuration gaps", async () => {
     const gapped = (): FoundationRead<FoundationReadModel> => ({
       status: "loaded",
