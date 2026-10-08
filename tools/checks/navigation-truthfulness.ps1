@@ -366,6 +366,9 @@ function Get-FoundationSubtabFailures {
         '\btitle\s*='
     )
 
+    # A quoted literal may use ", ' or a backtick.
+    $quote = '["''`]'
+
     $declarations = @()
     $inventoryModules = @()
 
@@ -408,8 +411,14 @@ function Get-FoundationSubtabFailures {
 
         $declaredLabels = @()
         foreach ($line in $module.Lines) {
-            $labelMatch = [regex]::Match($line, "label\s*:\s*[""']([^""']+)[""']")
+            $labelMatch = [regex]::Match($line, "label\s*:\s*$quote([^""'``$]+)$quote")
             if ($labelMatch.Success) { $declaredLabels += $labelMatch.Groups[1].Value }
+            elseif ($line -match 'label\s*:' -and $line -notmatch 'label\s*:\s*string\s*[;,]?\s*$') {
+                $failures.Add(("A Foundation view label is not a plain string " +
+                    "literal at $($module.Path): $($line.Trim()). A label held in " +
+                    "a constant or built from a template could say anything, so " +
+                    "this check cannot tell which views the row offers.")) | Out-Null
+            }
         }
         if (($declaredLabels -join "|") -ne ($requiredViews -join "|")) {
             $failures.Add(("$inventoryName in $($module.Path) declares " +
@@ -424,7 +433,7 @@ function Get-FoundationSubtabFailures {
             $lineNumber++
 
             foreach ($changeLabel in $forbiddenChangeLabels) {
-                if ($line -match ("label\s*:\s*[""']" + [regex]::Escape($changeLabel) + "[""']")) {
+                if ($line -match ("label\s*:\s*$quote" + [regex]::Escape($changeLabel) + $quote)) {
                     $failures.Add(("'$changeLabel' is declared as a Foundation " +
                         "view at $($module.Path):${lineNumber}. v6.9 makes it an " +
                         "intervention and change-effect capability with no " +
@@ -432,7 +441,7 @@ function Get-FoundationSubtabFailures {
                 }
             }
 
-            if ($line -match "label\s*:\s*[""']$forbiddenSubtab[""']") {
+            if ($line -match "label\s*:\s*$quote$forbiddenSubtab$quote") {
                 $failures.Add(("'$forbiddenSubtab' is declared as a Foundation " +
                     "subtab at $($module.Path):${lineNumber}: $($line.Trim()). " +
                     "v6.9 makes it an intervention and change-effect " +
@@ -443,7 +452,7 @@ function Get-FoundationSubtabFailures {
             }
 
             foreach ($label in $supersededVocabulary) {
-                if ($line -match "label\s*:\s*[""']$label[""']") {
+                if ($line -match "label\s*:\s*$quote$label$quote") {
                     $failures.Add(("Superseded Foundation subtab vocabulary at " +
                         "$($module.Path):${lineNumber}: $($line.Trim()). " +
                         "'$label' is the mockup-derived name T013 replaced; the " +
@@ -471,6 +480,25 @@ function Get-FoundationSubtabFailures {
                     "(D-2026-10-02-rendered-tabs-per-capability).")) | Out-Null
             }
 
+        }
+    }
+
+
+    # A Change & effect / Changes destination hard-coded anywhere else in the
+    # app (beside the view row, inside a view) is the same absent capability,
+    # enabled, disabled or labelled in place. Rendered pages are also checked
+    # in frontend tests; this catches it at the source.
+    foreach ($module in (Get-ScannedModules -Root "frontend/src" -Extensions @(".tsx"))) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match '>\s*(Changes|Change\s*(&amp;|&|and)\s*effect)\s*<') {
+                $failures.Add(("A '$($Matches[1])' destination is written into " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()). v6.9 makes it " +
+                    "an intervention and change-effect capability with no " +
+                    "supported model; it is absent in every state, not " +
+                    "disabled and not labelled in place.")) | Out-Null
+            }
         }
     }
 
