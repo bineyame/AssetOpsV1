@@ -413,7 +413,7 @@ function Get-FoundationSubtabFailures {
         foreach ($line in $module.Lines) {
             $labelMatch = [regex]::Match($line, "label\s*:\s*$quote([^""'``$]+)$quote")
             if ($labelMatch.Success) { $declaredLabels += $labelMatch.Groups[1].Value }
-            elseif ($line -match 'label\s*:' -and $line -notmatch 'label\s*:\s*string\s*[;,]?\s*$') {
+            elseif ($line -match 'label\s*:' -and $line -notmatch 'label\s*:\s*string\s*[;,]?\s*$') {
                 $failures.Add(("A Foundation view label is not a plain string " +
                     "literal at $($module.Path): $($line.Trim()). A label held in " +
                     "a constant or built from a template could say anything, so " +
