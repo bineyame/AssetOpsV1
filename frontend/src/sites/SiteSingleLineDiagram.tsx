@@ -688,10 +688,12 @@ function SldContents({
   diagram,
   slots = null,
   headingId = SITE_SLD_CONTENTS_ID,
+  boundDevices = null,
 }: {
   diagram: SldDiagramView;
   slots?: SldSlotContent | null;
   headingId?: string;
+  boundDevices?: ReadonlySet<string> | null;
 }) {
   return (
     <>
@@ -737,9 +739,20 @@ function SldContents({
                   "None configured against this component"
                 ) : (
                   <ul className="cell-list">
-                    {node.attachedDevices.map((device) => (
-                      <li key={device.deviceId}>{device.displayName}</li>
-                    ))}
+                    {node.attachedDevices.map((device) =>
+                      boundDevices === null ? (
+                        <li key={device.deviceId}>{device.displayName}</li>
+                      ) : (
+                        <li
+                          key={device.deviceId}
+                          data-sld-device-binding={boundDevices.has(device.deviceId) ? "bound" : "unbound"}
+                        >
+                          {boundDevices.has(device.deviceId)
+                            ? device.displayName
+                            : `${device.displayName} - no bound channel`}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 )}
               </td>
@@ -1001,7 +1014,23 @@ export function ConfiguredSingleLineDrawing({
  * unavailable branches exist, and neither branch can be rendered without the
  * other being considered.
  */
-export function SiteSingleLineDiagram({ site }: { site: SiteDetailReadModel }) {
+/** S1-02: what the SLD says when its signals are a published binding set. */
+export const SITE_SLD_BINDINGS_STATEMENT =
+  "For this stored Site, the signals listed are the channels bound in the " +
+  "binding set in effect for the period shown. A device marked as having no " +
+  "bound channel is registered, but nothing it could report is bound to a role.";
+
+export function SiteSingleLineDiagram({
+  site,
+  boundDevices = null,
+}: {
+  site: SiteDetailReadModel;
+  /**
+   * S1-02: devices with a bound channel in the binding set in effect. When
+   * given, every other attached device is shown as having no bound channel.
+   */
+  boundDevices?: ReadonlySet<string> | null;
+}) {
   const view: SiteSldView = deriveSiteSldView(site);
 
   return (
@@ -1010,12 +1039,13 @@ export function SiteSingleLineDiagram({ site }: { site: SiteDetailReadModel }) {
         {SITE_SLD_HEADING}
       </h3>
       <p>{SITE_SLD_INTRODUCTION}</p>
+      {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
 
       {view.status === "compatible" ? (
         <>
           <SldDrawing diagram={view.diagram} siteName={site.display_name} />
           <SldUnplaced diagram={view.diagram} />
-          <SldContents diagram={view.diagram} />
+          <SldContents diagram={view.diagram} boundDevices={boundDevices} />
         </>
       ) : (
         <SldUnavailable reason={view.reason} />

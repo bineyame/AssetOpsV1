@@ -5,6 +5,10 @@ import { describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type {
+  BindingSetSummary,
+  ConfigurationReadiness,
+  FoundationBindings,
+  SignalBinding,
   FoundationRead,
   FoundationReadModel,
   FoundationRevisionSummary,
@@ -47,6 +51,19 @@ function revision(over: Partial<FoundationRevisionSummary>): FoundationRevisionS
   };
 }
 
+const UNKNOWN_READINESS: ConfigurationReadiness = {
+  role_set: "minigrid-roles-1",
+  state: "UNKNOWN",
+  binding_set_revision_id: null,
+  foundation_revision_id: "rev-2",
+  roles: [
+    { role: "generator_power", label: "Generator power", required: true, canonical_unit: "kW", covered_by: "CHANNEL", status: "UNBOUND", subjects: [] },
+  ],
+  missing_roles: ["Generator power"],
+  channels: [],
+  statement: "No signal binding set is in effect for the period shown, so every role is unbound and readiness is Unknown. Nothing is reporting.",
+};
+
 function foundation(
   rev: FoundationRevisionSummary,
   over: Partial<FoundationReadModel> = {},
@@ -86,11 +103,118 @@ function foundation(
       source_priority: { state: "CONFIGURED", editable: false, members: ["pv-array", "battery", "generator"], authority: `Foundation v${rev.version}` },
       critical_load_priority: { state: "CONFIGURED", editable: false, members: ["load-clinic", "load-res", "load-mill"], authority: `Foundation v${rev.version}` },
     },
-    bindings: { state: "INCOMPLETE", legacy_signal_mapping_count: 9, statement: "Signal roles are not bound yet." },
-    acquisition_snapshot: { available: false, reason: "No signal binding set is published." },
+    bindings: {
+      state: "NONE",
+      binding_set: null,
+      mappings: [],
+      legacy_signal_mapping_count: 9,
+      statement: "No signal binding set is in effect for the period shown.",
+    },
+    readiness: UNKNOWN_READINESS,
+    acquisition_snapshot: { available: false, reason: "No signal binding set is in effect for the period shown." },
     evidence: { state: "NONE", statement: "No accepted evidence is linked to this Foundation." },
     configuration_gaps: [],
     ...over,
+  };
+}
+
+function bindingSet(over: Partial<BindingSetSummary> = {}): BindingSetSummary {
+  return {
+    binding_set_id: "set-1",
+    binding_set_revision_id: "bset-1",
+    version: 1,
+    role_set: "minigrid-roles-1",
+    valid_from: "2026-09-29T11:57:49Z",
+    valid_to: null,
+    recorded_at: "2026-10-07T11:30:00Z",
+    superseded_at: null,
+    recorded_state: "CURRENT",
+    period_state: "CURRENT",
+    origin: "CONVERSION",
+    derived_from_revision_id: null,
+    bindings_sha256: "c".repeat(64),
+    binding_count: 2,
+    change_note: null,
+    ...over,
+  };
+}
+
+const BINDING_SET_V3 = bindingSet({ binding_set_revision_id: "bset-3", version: 3, valid_from: "2026-10-05T00:00:00Z", origin: "PUBLISH" });
+
+function binding(over: Partial<SignalBinding>): SignalBinding {
+  return {
+    binding_revision_id: "b-genset-power",
+    binding_set_revision_id: "bset-1",
+    device_id: "d-genset-controller",
+    signal_id: "ac-power",
+    source_id: "s1",
+    source_external_id: "d-genset-controller",
+    gateway_id: "g1",
+    gateway_external_id: "edge-kobo-001",
+    asset_id: "asset-genset",
+    asset_code: "c-genset",
+    role: "generator_power",
+    role_label: "Generator power",
+    source_unit: "kW",
+    canonical_unit: "kW",
+    conversion: { kind: "IDENTITY", parameters: {} },
+    ...over,
+  };
+}
+
+const GENSET_POWER = binding({});
+const BATTERY_SOC = binding({
+  binding_revision_id: "b-battery-soc",
+  device_id: "d-storage-controller",
+  signal_id: "state-of-charge",
+  source_external_id: "d-storage-controller",
+  asset_id: "asset-storage",
+  asset_code: "c-storage",
+  role: "battery_soc",
+  role_label: "Battery state of charge",
+  source_unit: "%",
+  canonical_unit: "%",
+});
+
+function published(mappings: SignalBinding[], missing: string[]): Partial<FoundationReadModel> {
+  const bindings: FoundationBindings = {
+    state: "PUBLISHED",
+    binding_set: bindingSet(),
+    mappings,
+    legacy_signal_mapping_count: 9,
+    statement: "These bindings are configuration. No evidence has been accepted against them.",
+  };
+  const soc = mappings.includes(BATTERY_SOC);
+  return {
+    bindings,
+    readiness: {
+      role_set: "minigrid-roles-1",
+      state: missing.length === 0 ? "READY_TO_REPORT" : "INCOMPLETE",
+      binding_set_revision_id: "bset-1",
+      foundation_revision_id: "rev-2",
+      roles: [
+        { role: "generator_power", label: "Generator power", required: true, canonical_unit: "kW", covered_by: "CHANNEL", status: "CONFIGURED",
+          subjects: [{ asset_id: "asset-genset", asset_code: "c-genset", status: "CONFIGURED", binding_revision_ids: ["b-genset-power"] }] },
+        { role: "battery_soc", label: "Battery state of charge", required: true, canonical_unit: "%", covered_by: "CHANNEL",
+          status: soc ? "CONFIGURED" : "UNBOUND",
+          subjects: soc ? [{ asset_id: "asset-storage", asset_code: "c-storage", status: "CONFIGURED", binding_revision_ids: ["b-battery-soc"] }] : [] },
+      ],
+      missing_roles: missing,
+      channels: [
+        { device_id: "d-genset-controller", signal_id: "ac-power", display_name: "Generator output power", unit: "kW", source_id: "s1", status: "BOUND", binding_revision_id: "b-genset-power", role: "generator_power" },
+        { device_id: "d-genset-controller", signal_id: "output-voltage", display_name: "Generator output voltage", unit: "V", source_id: "s1", status: "UNBOUND", binding_revision_id: null, role: null },
+      ],
+      statement: "Ready to report means this configuration names a bound channel for every required role. It does not mean any device is connected, reporting or healthy: no evidence has been accepted for this Site.",
+    },
+    acquisition_snapshot: {
+      available: true,
+      sha256: "d".repeat(64),
+      foundation_revision_id: "rev-2",
+      binding_set_revision_id: "bset-1",
+      valid_from: "2026-09-29T11:57:49Z",
+      valid_to: null,
+      byte_length: 2048,
+    },
   };
 }
 
@@ -100,16 +224,22 @@ const VERSIONS: FoundationVersionsReadModel = {
   server_now: "2026-10-07T12:00:00Z",
   current_revision_id: "rev-2",
   revisions: [revision({ recorded_state: "SUPERSEDED", superseded_at: "2026-10-07T12:00:00Z" }), PAST, FUTURE],
+  binding_sets: [],
 };
 
 function fakeFoundation(
   byAt: (at: string | null) => FoundationRead<FoundationReadModel>,
   versions: FoundationRead<FoundationVersionsReadModel> = { status: "loaded", value: VERSIONS },
 ) {
-  const client: SiteFoundationClient & { publishReserve: ReturnType<typeof vi.fn> } = {
+  const client: SiteFoundationClient & {
+    publishReserve: ReturnType<typeof vi.fn>;
+    publishBindings: ReturnType<typeof vi.fn>;
+  } = {
     getFoundation: vi.fn((_site: string, at: string | null) => Promise.resolve(byAt(at))),
     listVersions: () => Promise.resolve(versions),
     publishReserve: vi.fn(() => Promise.resolve({ status: "published" as const, revision: FUTURE })),
+    publishBindings: vi.fn(() => Promise.resolve({ status: "published" as const, binding_set: BINDING_SET_V3 })),
+    snapshotUrl: (site: string, at: string) => `/api/sites/${site}/foundation/snapshot?at=${at}`,
   };
   return client;
 }
@@ -162,7 +292,8 @@ describe("the persisted Foundation version", () => {
     expect(within(controls).getByRole("row", { name: /Generator start/ }).textContent).toContain("declares no generator start");
     expect(within(controls).getByRole("row", { name: /Minimum generator runtime/ }).textContent).toContain("30 min");
     expect(controls.textContent).not.toMatch(/35\s?%|90\s?%/);
-    expect(screen.getByText(/Signal bindings: incomplete/)).toBeInTheDocument();
+    expect(screen.getByText("No signal binding set is in effect for the period shown.")).toBeInTheDocument();
+    expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
     expect(screen.getByText(/awaiting credentials, not sending data/)).toBeInTheDocument();
   });
 
@@ -347,5 +478,103 @@ describe("legacy surfaces of an imported Site", () => {
     renderAt(`/sites/${ID}`, fakeFoundation(byAt), overview);
     await settledScreen();
     expect(screen.getByRole("heading", { name: "Awaiting evidence migration" })).toBeInTheDocument();
+  });
+});
+
+/** The Panel section under a heading (its table is a region of the same name). */
+function panel(name: string): HTMLElement {
+  return screen.getByRole("heading", { name }).closest("section") as HTMLElement;
+}
+
+describe("S1-02 bindings, Readiness and the configured SLD", () => {
+  const bound = (): FoundationRead<FoundationReadModel> => ({
+    status: "loaded",
+    value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [])),
+  });
+
+  it("traces each bound channel to its source, equipment, role and binding ID, and offers the snapshot", async () => {
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(bound));
+    await settledScreen();
+    const readiness = panel("Configuration readiness");
+    expect(within(readiness).getByText("Ready to report")).toBeInTheDocument();
+    expect(within(readiness).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
+      "c-storage: d-storage-controller / state-of-charge",
+    );
+    expect(readiness.textContent).toContain("It does not mean any device is connected, reporting or healthy");
+    const bindings = panel("Signal bindings");
+    const soc = within(bindings).getByRole("row", { name: /d-storage-controller \/ state-of-charge/ });
+    expect(soc.textContent).toContain("c-storage");
+    expect(soc.textContent).toContain("Battery state of charge");
+    expect(soc.textContent).toContain("% → %");
+    expect(soc.textContent).toContain("b-battery-soc");
+    expect(within(bindings).getByText(/not bound/).closest("li")?.textContent).toContain("output-voltage");
+    const download = within(bindings).getByRole("link", { name: "Download snapshot" });
+    expect(download.getAttribute("href")).toBe(`/api/sites/${ID}/foundation/snapshot?at=${PAST.valid_from}`);
+    expect(bindings.textContent).toContain("d".repeat(64));
+  });
+
+  it("draws only bound signals on the SLD and marks devices with no bound channel", async () => {
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(bound));
+    await settledScreen();
+    expect(document.querySelector("[data-sld-bindings]")).not.toBeNull();
+    const genset = document.querySelector('[data-sld-row="n-genset"]') as HTMLElement | null;
+    const rows = Array.from(document.querySelectorAll("[data-sld-row]"));
+    const gensetRow = genset ?? (rows.find((row) => row.textContent?.includes("Generator controller")) as HTMLElement);
+    expect(gensetRow.textContent).toContain("Generator output power");
+    expect(gensetRow.textContent).not.toContain("Generator output voltage");
+    const unbound = Array.from(document.querySelectorAll('[data-sld-device-binding="unbound"]')).map((li) => li.textContent);
+    expect(unbound.length).toBeGreaterThan(0);
+    expect(unbound.every((text) => text?.endsWith("- no bound channel"))).toBe(true);
+    const boundNames = Array.from(document.querySelectorAll('[data-sld-device-binding="bound"]')).map((li) => li.textContent);
+    expect(boundNames.sort()).toEqual(["Battery PCS controller", "Generator controller"]);
+  });
+
+  it("names a missing required role as not bound", async () => {
+    const incomplete = (): FoundationRead<FoundationReadModel> => ({
+      status: "loaded",
+      value: foundation(PAST, published([GENSET_POWER], ["Battery state of charge"])),
+    });
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(incomplete));
+    await settledScreen();
+    const readiness = panel("Configuration readiness");
+    expect(within(readiness).getByText("Incomplete")).toBeInTheDocument();
+    expect(readiness.textContent).toContain("Not bound: Battery state of charge.");
+    expect(within(readiness).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain("Not bound");
+  });
+
+  it("publishes a binding removal as the remaining set from a UTC instant, then re-reads", async () => {
+    const client = fakeFoundation(bound);
+    renderAt(`/sites/${ID}/foundation`, client);
+    await settledScreen();
+    const form = screen.getByRole("form", { name: "Remove a binding" });
+    fireEvent.change(within(form).getByRole("combobox"), { target: { value: "b-battery-soc" } });
+    fireEvent.change(within(form).getByLabelText("Effective from (UTC)"), { target: { value: "2026-10-05T00:00" } });
+    fireEvent.click(within(form).getByRole("button", { name: "Publish binding change" }));
+    expect(await within(form).findByRole("status")).toHaveTextContent("Published binding v3");
+    const [site, change] = client.publishBindings.mock.calls[0];
+    expect(site).toBe(ID);
+    expect(change.valid_from).toBe("2026-10-05T00:00:00Z");
+    expect(change.bindings.map((b: { signal_id: string }) => b.signal_id)).toEqual(["ac-power"]);
+    expect(change.bindings[0]).not.toHaveProperty("binding_revision_id");
+    expect((client.getFoundation as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(1);
+  });
+
+  it("offers binding periods in the period selector and carries one in the URL", async () => {
+    const withBindingPeriods = {
+      ...VERSIONS,
+      binding_sets: [
+        bindingSet({ recorded_state: "SUPERSEDED", superseded_at: "2026-10-07T12:00:00Z" }),
+        bindingSet({ binding_set_revision_id: "bset-2", version: 2, origin: "SPLIT", valid_to: "2026-10-05T00:00:00Z" }),
+        BINDING_SET_V3,
+      ],
+    };
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(bound, { status: "loaded", value: withBindingPeriods }));
+    await settledScreen();
+    const picker = screen.getByRole("combobox", { name: "Foundation period" });
+    const labels = within(picker).getAllByRole("option").map((option) => option.textContent);
+    expect(labels.some((label) => label?.startsWith("Binding v3 · from 2026-10-05 00:00 UTC"))).toBe(true);
+    expect(labels.filter((label) => label?.startsWith("Binding v")).length).toBe(1);
+    fireEvent.change(picker, { target: { value: "2026-10-05T00:00:00Z" } });
+    expect(screen.getByTestId("location").textContent).toContain("at=2026-10-05T00%3A00%3A00Z");
   });
 });

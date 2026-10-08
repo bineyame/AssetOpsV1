@@ -138,6 +138,12 @@ export interface SiteConfigurationProps {
    * alone; present, it adds the advisory note when the record is behind.
    */
   templateLineage?: SiteTemplateLineageClient;
+  /**
+   * S1-02: the devices with at least one channel bound in the binding set in
+   * effect, for an imported Site. The SLD then marks every other attached
+   * device as having no bound channel. Absent for a legacy Site.
+   */
+  sldBoundDevices?: ReadonlySet<string> | null;
 }
 
 export function SiteConfiguration({
@@ -147,6 +153,7 @@ export function SiteConfiguration({
   revision,
   parentTrail,
   templateLineage,
+  sldBoundDevices = null,
 }: SiteConfigurationProps) {
   const result = useSiteRecord(siteId, detail);
   const lineage = useSiteTemplateLineage(templateLineage);
@@ -217,6 +224,7 @@ export function SiteConfiguration({
       revision={revision}
       parentTrail={parentTrail}
       lineage={lineage?.get(result.site.site_id)}
+      sldBoundDevices={sldBoundDevices}
     />
   );
 }
@@ -237,6 +245,8 @@ export interface SiteConfigurationFactsProps {
   parentTrail?: (siteId: string) => Crumb[];
   /** This site's lineage answer, if the shell supplied a lineage read. */
   lineage?: SiteTemplateLineageReadModel;
+  /** See `SiteConfigurationProps.sldBoundDevices`. */
+  sldBoundDevices?: ReadonlySet<string> | null;
 }
 
 export function SiteConfigurationFacts({
@@ -245,6 +255,7 @@ export function SiteConfigurationFacts({
   revision,
   parentTrail,
   lineage,
+  sldBoundDevices = null,
 }: SiteConfigurationFactsProps) {
   const view = deriveSiteConfigurationView(site);
 
@@ -367,7 +378,7 @@ export function SiteConfigurationFacts({
           * names, and a panel headed for the diagram between Topology and
           * Controls would make the row misleading about where Topology ends.
           */}
-        <SiteSingleLineDiagram site={site} />
+        <SiteSingleLineDiagram site={site} boundDevices={sldBoundDevices} />
 
         {view.topologyNodes.status === "not_declared" ? (
           <FactList>

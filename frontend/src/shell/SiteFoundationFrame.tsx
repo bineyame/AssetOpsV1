@@ -7,7 +7,7 @@ import {
 } from "../sites/SiteConfiguration";
 import { FoundationRevisionPanel } from "../sites/FoundationRevisionPanel";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
-import type { SiteFoundationClient } from "../sites/siteFoundationClient";
+import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
 import { PageHeader, Panel } from "../ui";
@@ -55,11 +55,35 @@ export function SiteFoundationFrame({
   );
 
   const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;
+  // S1-02: for a stored Site the SLD's signals are the bindings in effect,
+  // never the imported legacy mappings, so the diagram shows only configured
+  // links; each binding's ID is the mapping ID the screen shows.
   const storedDetail = useMemo<SiteDetailClient | null>(
     () =>
       loaded === null
         ? null
-        : { getSite: () => Promise.resolve({ status: "loaded", site: loaded.detail }) },
+        : {
+            getSite: () =>
+              Promise.resolve({
+                status: "loaded",
+                site: {
+                  ...loaded.detail,
+                  foundation: {
+                    ...loaded.detail.foundation,
+                    signal_mappings: loaded.bindings.mappings.map((binding) => ({
+                      mapping_id: binding.binding_revision_id,
+                      device_id: binding.device_id,
+                      signal_id: binding.signal_id,
+                      component_id: binding.asset_code ?? "",
+                    })),
+                  },
+                },
+              }),
+          },
+    [loaded],
+  );
+  const boundDevices = useMemo<ReadonlySet<string> | null>(
+    () => (loaded === null ? null : new Set(loaded.bindings.mappings.map((binding) => binding.device_id))),
     [loaded],
   );
 
@@ -88,12 +112,23 @@ export function SiteFoundationFrame({
           templateLineage={templateLineage}
           tabs={tabs}
           parentTrail={parentTrail}
+          sldBoundDevices={boundDevices}
           revision={
             <FoundationRevisionPanel
               foundation={loaded}
               versions={versions}
               selectedAt={at}
               onSelectAt={selectAt}
+              snapshotHref={foundation.snapshotUrl(siteId, loaded.resolved.at)}
+              onPublishBindings={async (validFrom, bindings, note) => {
+                const outcome = await foundation.publishBindings(siteId, {
+                  valid_from: validFrom,
+                  bindings: bindings.map(bindingPublicationItem),
+                  note,
+                });
+                if (outcome.status === "published") setRefresh((count) => count + 1);
+                return outcome;
+              }}
               onPublish={async (assetCode, value, validFrom) => {
                 const outcome = await foundation.publishReserve(siteId, {
                   asset_code: assetCode,

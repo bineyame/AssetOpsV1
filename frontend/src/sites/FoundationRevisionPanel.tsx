@@ -5,14 +5,19 @@
  *
  * Substrate leaf: rendered beside the shared Foundation screen as a slot. It
  * states only configuration. Nothing here is an observation: the gateway and
- * its sources are registrations awaiting credentials, signal bindings are
- * incomplete, and no evidence is linked to this Foundation yet.
+ * its sources are registrations awaiting credentials, and no evidence is
+ * linked to this Foundation yet. S1-02 adds configuration Readiness, the
+ * binding set in effect and the gateway snapshot (`FoundationBindingsPanel`),
+ * and binding periods in the period selector.
  */
 
 import { useState, type FormEvent } from "react";
 
 import { Badge, DataTable, Fact, FactList, Panel } from "../ui";
+import { FOUNDATION_READINESS_HEADING_ID, FoundationBindingsPanel } from "./FoundationBindingsPanel";
 import type {
+  BindingPublishOutcome,
+  SignalBinding,
   FoundationControl,
   FoundationReadModel,
   FoundationRevisionSummary,
@@ -57,6 +62,10 @@ export interface FoundationRevisionPanelProps {
   selectedAt: string | null;
   onSelectAt: (at: string | null) => void;
   onPublish: (assetCode: string, value: number, validFrom: string) => Promise<PublishOutcome>;
+  /** S1-02: where the snapshot for the instant shown downloads from. */
+  snapshotHref: string;
+  /** S1-02: publish a complete replacement binding set from an instant. */
+  onPublishBindings: (validFrom: string, bindings: SignalBinding[], note: string) => Promise<BindingPublishOutcome>;
 }
 
 /**
@@ -74,10 +83,20 @@ export function FoundationRevisionPanel({
   selectedAt,
   onSelectAt,
   onPublish,
+  snapshotHref,
+  onPublishBindings,
 }: FoundationRevisionPanelProps) {
   const { revision, site, provenance, controls } = foundation;
   const current = versions?.revisions.filter((row) => row.recorded_state === "CURRENT") ?? [];
   const superseded = versions?.revisions.filter((row) => row.recorded_state === "SUPERSEDED") ?? [];
+  // Binding periods are selectable too, so a binding change inside one
+  // Foundation period can be inspected before and after (S1-02).
+  const foundationStarts = new Set(current.map((row) => row.valid_from));
+  const bindingPeriods =
+    versions?.binding_sets.filter(
+      (row) => row.recorded_state === "CURRENT" && !foundationStarts.has(row.valid_from),
+    ) ?? [];
+  const selectable = new Set([...foundationStarts, ...bindingPeriods.map((row) => row.valid_from)]);
   const reserve = controls.battery_reserve;
   // The battery the reserve belongs to, from the registered assets; never a
   // guessed code (review m8).
@@ -113,9 +132,14 @@ export function FoundationRevisionPanel({
                 {`v${row.version} · ${period(row)} (${PERIOD_WORD[row.period_state]})`}
               </option>
             ))}
+            {bindingPeriods.map((row) => (
+              <option key={row.binding_set_revision_id} value={row.valid_from}>
+                {`Binding v${row.version} · from ${formatInstant(row.valid_from)} (${PERIOD_WORD[row.period_state]})`}
+              </option>
+            ))}
           </select>
         </label>
-        {selectedAt !== null && !current.some((row) => row.valid_from === selectedAt) ? (
+        {selectedAt !== null && !selectable.has(selectedAt) ? (
           <p>Showing the version in effect at {formatInstant(foundation.resolved.at)}.</p>
         ) : null}
         <FactList>
@@ -148,7 +172,16 @@ export function FoundationRevisionPanel({
             in force: {superseded.map((row) => `v${row.version}`).join(", ")}.
           </p>
         ) : null}
+        <p>
+          <a href={`#${FOUNDATION_READINESS_HEADING_ID}`}>Review configuration readiness</a>
+        </p>
       </Panel>
+
+      <FoundationBindingsPanel
+        foundation={foundation}
+        snapshotHref={snapshotHref}
+        onPublishBindings={onPublishBindings}
+      />
 
       <Panel heading="Time-valid control configuration" headingId="foundation-controls-config-heading">
         <DataTable labelledBy="foundation-controls-config-heading">
@@ -207,11 +240,6 @@ export function FoundationRevisionPanel({
             ))}
           </ul>
         )}
-        <p>
-          Signal bindings: incomplete. {foundation.bindings.statement} This is a configuration
-          state, not a statement about any device.
-        </p>
-        <p>Data collection setup: not available. {foundation.acquisition_snapshot.reason}</p>
         <p>{foundation.evidence.statement}</p>
       </Panel>
 

@@ -8,6 +8,12 @@
  * else. `knowledge_at` is an API-only audit parameter in S1 and is not sent
  * from the screen. A Site still read from its legacy document answers
  * `migration_required`, never a fabricated version.
+ *
+ * S1-02 adds the binding set in effect, configuration-only Readiness, the
+ * gateway acquisition snapshot (download by `at`) and `POST
+ * .../foundation/bindings`, which publishes a complete replacement binding
+ * set from an effective time. Readiness is configuration: "ready to report"
+ * never means a device is reporting or healthy.
  */
 
 import { SITES_API_PATH } from "./siteDirectoryClient";
@@ -47,6 +53,106 @@ export interface FoundationGap {
   subject: string;
   message: string;
 }
+
+export interface BindingSetSummary {
+  binding_set_id: string;
+  binding_set_revision_id: string;
+  version: number;
+  role_set: string;
+  valid_from: string;
+  valid_to: string | null;
+  recorded_at: string;
+  superseded_at: string | null;
+  recorded_state: "CURRENT" | "SUPERSEDED";
+  period_state: "PAST" | "CURRENT" | "FUTURE";
+  origin: "CONVERSION" | "PUBLISH" | "SPLIT";
+  derived_from_revision_id: string | null;
+  bindings_sha256: string;
+  binding_count: number;
+  change_note: string | null;
+}
+
+export interface SignalBindingConversion {
+  kind: "IDENTITY" | "LINEAR" | "ENUM";
+  parameters: Record<string, unknown>;
+}
+
+export interface SignalBinding {
+  binding_revision_id: string;
+  binding_set_revision_id: string;
+  device_id: string;
+  signal_id: string;
+  source_id: string;
+  source_external_id: string | null;
+  gateway_id: string;
+  gateway_external_id: string | null;
+  asset_id: string | null;
+  asset_code: string | null;
+  role: string;
+  role_label: string;
+  source_unit: string;
+  canonical_unit: string;
+  conversion: SignalBindingConversion;
+}
+
+export interface ReadinessRole {
+  role: string;
+  label: string;
+  required: boolean;
+  canonical_unit: string;
+  covered_by: "CHANNEL" | "FOUNDATION_CONTROL";
+  status: "CONFIGURED" | "UNBOUND" | "NOT_CONFIGURED";
+  subjects: {
+    asset_id: string | null;
+    asset_code: string | null;
+    status: "CONFIGURED" | "UNBOUND";
+    binding_revision_ids: string[];
+  }[];
+  detail?: string;
+  foundation_revision_id?: string;
+}
+
+export interface ReadinessChannel {
+  device_id: string;
+  signal_id: string;
+  display_name: string | null;
+  unit: string;
+  source_id: string | null;
+  status: "BOUND" | "UNBOUND" | "UNREGISTERED";
+  binding_revision_id: string | null;
+  role: string | null;
+}
+
+export interface ConfigurationReadiness {
+  role_set: string | null;
+  state: "READY_TO_REPORT" | "INCOMPLETE" | "UNKNOWN";
+  binding_set_revision_id: string | null;
+  foundation_revision_id: string;
+  roles: ReadinessRole[];
+  missing_roles: string[];
+  channels: ReadinessChannel[];
+  statement: string;
+}
+
+export interface FoundationBindings {
+  state: "NONE" | "PUBLISHED";
+  binding_set: BindingSetSummary | null;
+  mappings: SignalBinding[];
+  legacy_signal_mapping_count: number;
+  statement: string;
+}
+
+export type AcquisitionSnapshotSummary =
+  | { available: false; reason: string }
+  | {
+      available: true;
+      sha256: string;
+      foundation_revision_id: string;
+      binding_set_revision_id: string;
+      valid_from: string;
+      valid_to: string | null;
+      byte_length: number;
+    };
 
 export interface FoundationReadModel {
   resolved: { at: string; knowledge_at: string; server_now: string };
@@ -95,8 +201,9 @@ export interface FoundationReadModel {
     source_priority: FoundationControl;
     critical_load_priority: FoundationControl;
   };
-  bindings: { state: string; legacy_signal_mapping_count: number; statement: string };
-  acquisition_snapshot: { available: boolean; reason: string };
+  bindings: FoundationBindings;
+  readiness: ConfigurationReadiness;
+  acquisition_snapshot: AcquisitionSnapshotSummary;
   evidence: { state: string; statement: string };
   configuration_gaps: FoundationGap[];
 }
@@ -105,6 +212,7 @@ export interface FoundationVersionsReadModel {
   server_now: string;
   current_revision_id: string | null;
   revisions: FoundationRevisionSummary[];
+  binding_sets: BindingSetSummary[];
 }
 
 export type FoundationRead<T> =
@@ -124,10 +232,47 @@ export type PublishOutcome =
   | { status: "published"; revision: FoundationRevisionSummary }
   | { status: "refused"; code: string; message: string };
 
+/** One binding as the publish route takes it: the full replacement set. */
+export interface BindingPublicationItem {
+  device_id: string;
+  signal_id: string;
+  asset_id: string | null;
+  role: string;
+  source_unit: string;
+  canonical_unit: string;
+  conversion: SignalBindingConversion;
+}
+
+export interface BindingPublication {
+  valid_from: string;
+  bindings: BindingPublicationItem[];
+  note?: string;
+}
+
+export type BindingPublishOutcome =
+  | { status: "published"; binding_set: BindingSetSummary }
+  | { status: "refused"; code: string; message: string };
+
 export interface SiteFoundationClient {
   getFoundation(siteId: string, at: string | null): Promise<FoundationRead<FoundationReadModel>>;
   listVersions(siteId: string): Promise<FoundationRead<FoundationVersionsReadModel>>;
   publishReserve(siteId: string, change: ReservePublication): Promise<PublishOutcome>;
+  publishBindings(siteId: string, change: BindingPublication): Promise<BindingPublishOutcome>;
+  /** Where the browser downloads the snapshot for the instant shown. */
+  snapshotUrl(siteId: string, at: string): string;
+}
+
+/** The publish shape of a binding read from the screen. */
+export function bindingPublicationItem(binding: SignalBinding): BindingPublicationItem {
+  return {
+    device_id: binding.device_id,
+    signal_id: binding.signal_id,
+    asset_id: binding.asset_id,
+    role: binding.role,
+    source_unit: binding.source_unit,
+    canonical_unit: binding.canonical_unit,
+    conversion: binding.conversion,
+  };
 }
 
 function isFoundation(value: unknown): value is FoundationReadModel {
@@ -137,13 +282,18 @@ function isFoundation(value: unknown): value is FoundationReadModel {
     isObject(value.site) &&
     isObject(value.detail) &&
     isObject(value.controls) &&
+    isObject(value.bindings) &&
+    Array.isArray(value.bindings.mappings) &&
+    isObject(value.readiness) &&
+    Array.isArray(value.readiness.roles) &&
+    isObject(value.acquisition_snapshot) &&
     Array.isArray(value.configuration_gaps) &&
     Array.isArray(value.sources)
   );
 }
 
 function isVersions(value: unknown): value is FoundationVersionsReadModel {
-  return isObject(value) && Array.isArray(value.revisions);
+  return isObject(value) && Array.isArray(value.revisions) && Array.isArray(value.binding_sets);
 }
 
 function refusal(body: unknown): { code: string; message: string } {
@@ -217,6 +367,31 @@ export function createSiteFoundationClient(basePath: string = SITES_API_PATH): S
         return { status: "published", revision: body.revision as unknown as FoundationRevisionSummary };
       }
       return { status: "refused", ...refusal(body) };
+    },
+    async publishBindings(siteId, change) {
+      let response: Response;
+      try {
+        response = await fetch(`${site(siteId)}/bindings`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(change),
+        });
+      } catch {
+        return { status: "refused", code: "UNAVAILABLE", message: "The change could not be sent." };
+      }
+      let body: unknown = null;
+      try {
+        body = await response.json();
+      } catch {
+        body = null;
+      }
+      if (response.status === 201 && isObject(body) && isObject(body.binding_set)) {
+        return { status: "published", binding_set: body.binding_set as unknown as BindingSetSummary };
+      }
+      return { status: "refused", ...refusal(body) };
+    },
+    snapshotUrl(siteId, at) {
+      return `${site(siteId)}/snapshot?at=${encodeURIComponent(at)}`;
     },
   };
 }
