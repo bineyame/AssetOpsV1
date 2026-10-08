@@ -31,6 +31,10 @@ cd backend && ../.venv/Scripts/python.exe -m alembic upgrade head && cd ..
   --source var/sites/kobo-001.yaml --tenant demo \
   --report .agent/S1-01-import-comparison.md
 
+# S1-02: publish the first signal binding set (one atomic Foundation-plus-binding
+# change; a rerun writes nothing). Decision D-2026-10-08-s1-bindings-roles-and-snapshot.
+.venv/Scripts/python.exe -m assetops_backend.sites.convert_kobo_bindings   --fixture backend/conversions/kobo-001-bindings.json --tenant demo
+
 # serve
 .venv/Scripts/python.exe -m uvicorn assetops_backend.main:app --port 8000
 ```
@@ -38,6 +42,11 @@ cd backend && ../.venv/Scripts/python.exe -m alembic upgrade head && cd ..
 The first migration enables `btree_gist`. A database role that cannot create
 the extension fails the migration with a message naming the fix; there is no
 fallback.
+
+Migration 0003 (pinned snapshots) refuses to run over binding sets published
+under 0002 alone, because their snapshot hash cannot be backfilled honestly.
+That state exists only on a scratch database used during S1-02 development.
+Recreate that database and rerun the conversion.
 
 ## Tests
 
@@ -47,7 +56,7 @@ zero; they never touch the developer database.
 
 ```sh
 export ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test
-.venv/Scripts/python.exe -m pytest backend/tests/test_s1_foundation_postgres.py
+.venv/Scripts/python.exe -m pytest backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py
 ```
 
 Without `ASSETOPS_TEST_DATABASE_URL` those tests are reported as skipped, not

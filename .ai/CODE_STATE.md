@@ -4761,3 +4761,40 @@ Branch `task/S1-01-persisted-foundation`; packet `.agent/S1-01-review-packet.md`
   period, or "no end".
 - Lab Site creation for a new code that later gets imported is not migrated.
 - S1-02: bindings, Readiness, snapshot; S2-02/S3/S5 evidence/dispatch/Overview cutovers.
+
+## S1-02 - Versioned bindings, Readiness and configured SLD (in review)
+
+Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agent/S1-02-review-packet.md`. Decision `D-2026-10-08-s1-bindings-roles-and-snapshot` (answers in `.agent/architect-S1-02-answers-2026-10-08.md`).
+
+### What it settled in code
+
+- Migrations 0002 and 0003 add two tables:
+  - `signal_binding_set_revision` holds one time-valid version per Foundation-aligned period. It names its Foundation revision and gateway, and pins `snapshot_schema` and `snapshot_sha256`.
+  - `signal_binding_revision` holds one bound channel per row.
+  - Database constraints:
+    - GiST exclusions: one current set per Site and role set, and one current binding per channel `(source, signal)`;
+    - same-Site composite foreign keys, plus a source-of-gateway foreign key that also checks `device_id`;
+    - append-only triggers, with closing a set closing its rows;
+    - a trigger that keeps each set inside a current Foundation revision.
+- Role vocabulary: `sites/binding_roles.py` holds `minigrid-roles-1`. Battery reserve is covered by a Foundation control. Only IDENTITY and ENUM conversions are accepted; LINEAR is refused.
+- Publication: `sites/binding_service.py` validates the whole set atomically. A refusal returns the code and every problem, and writes nothing.
+- Joint plans: `FoundationStore.publish_configuration` writes the Foundation and binding parts of one plan under the Site lock.
+- Alignment: `sites/binding_alignment.py` `finalize` aligns binding sets to Foundation periods and pins each snapshot (canonical serializer `assetops.acquisition-snapshot/1`). The reserve publish now runs through it as well, so a Foundation split also re-aligns the binding sets.
+- API:
+  - The Foundation read gains `bindings`, a configuration-only `readiness` (READY_TO_REPORT, INCOMPLETE or UNKNOWN) and `acquisition_snapshot`.
+  - New `POST .../foundation/bindings`.
+  - New `GET .../foundation/snapshot`. It rebuilds the bytes and refuses a hash mismatch. It is a development download only: gateway authentication is pending.
+  - `versions` now lists `binding_sets`.
+- Conversion: `sites/convert_kobo_bindings.py` takes the explicit fixture `backend/conversions/kobo-001-bindings.json`, holding nine legacy IDENTITY mappings plus the status ENUM the decision declared.
+- UI:
+  - `FoundationBindingsPanel` shows Readiness, the bindings, unbound channels, the snapshot and binding removal.
+  - The period picker lists binding periods.
+  - For a stored Site, the SLD lists only bound signals and marks each device with no bound channel.
+
+### What this leaves open
+
+- The conversion is not applied to the developer database. It has run only on `assetops_test` and on the scratch database `assetops_s102_scratch`.
+- Readiness is a section of Foundation, not its own subtab. Guard rule 5 forbids a "Readiness" subtab label.
+- Gateway-credential download and ingestion are S2.
+- A Foundation split re-issues unchanged binding rows with new IDs. Each split copy is a new snapshot.
+- The legacy "Signal mappings" table on a stored Site shows binding IDs as mapping IDs.

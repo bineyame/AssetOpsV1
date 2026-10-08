@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-S1 Foundation is the active milestone. [S1-01 persisted Foundation](../tasks/S1-01-persisted-foundation.md) is built on branch `task/S1-01-persisted-foundation` and is **in review** (packet `.agent/S1-01-review-packet.md`); not accepted. Independent review and owner review (`USER_REVIEW_REQUIRED: true`) come next; S1-02 follows acceptance. Only one slice is active at a time.
+S1 Foundation is the active milestone. [S1-01 persisted Foundation](../tasks/S1-01-persisted-foundation.md) is built and independently re-reviewed (accept with carries) on `task/S1-01-persisted-foundation`, awaiting owner review. [S1-02 bindings, Readiness and SLD](../tasks/S1-02-bindings-readiness.md) is built on `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`) and is **in review** (packet `.agent/S1-02-review-packet.md`); not accepted. Codex reviews S1-01 and S1-02 together; owner review is required for both. Decision `D-2026-10-08-s1-bindings-roles-and-snapshot` governs S1-02.
 
 The only executable queue is [tasks/README.md](../tasks/README.md). The current [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md) own the current direction. The [open T0xx archive](../tasks/archive/pre-site-first-2026-10-07/README.md) is superseded historical reference. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and old scoped handoffs do not route current work.
 
@@ -16,4 +16,4 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 
 ## Next read
 
-Reviewer: read S1-01, its review packet and the `.ai/CODE_STATE.md` S1-01 entry, then the diff. Postgres setup and commands are in `backend/README-db.md`. S1-01 creates a persisted Foundation version and honest configuration gaps. S1-02 binds signals and completes configuration Readiness/SLD. S2 supplies accepted SourceEnvelope lineage. Run the workflow and architecture guards and checks applicable to changed behavior. Independent review and owner review are required by each packet; no approval is implied here.
+Reviewer: read S1-01 and S1-02, their review packets and the `.ai/CODE_STATE.md` S1-01/S1-02 entries, then the diffs. Postgres setup and commands are in `backend/README-db.md`. S1-01 creates a persisted Foundation version and honest configuration gaps. S1-02 binds signals and completes configuration Readiness/SLD. S2 supplies accepted SourceEnvelope lineage. Run the workflow and architecture guards and checks applicable to changed behavior. Independent review and owner review are required by each packet; no approval is implied here.
