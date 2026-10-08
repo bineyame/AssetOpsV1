@@ -135,6 +135,11 @@ export interface ConfigurationReadiness {
   foundation_revision_id: string;
   roles: ReadinessRole[];
   missing_roles: string[];
+  /**
+   * Configuration gaps of the selected Foundation revision. Any gap keeps the
+   * aggregate state INCOMPLETE; they are reported apart from unbound roles.
+   */
+  foundation_gaps: FoundationGap[];
   channels: ReadinessChannel[];
   statement: string;
 }
@@ -293,6 +298,7 @@ function isFoundation(value: unknown): value is FoundationReadModel {
     Array.isArray(value.bindings.mappings) &&
     isObject(value.readiness) &&
     Array.isArray(value.readiness.roles) &&
+    Array.isArray(value.readiness.foundation_gaps) &&
     isObject(value.acquisition_snapshot) &&
     Array.isArray(value.configuration_gaps) &&
     Array.isArray(value.sources)

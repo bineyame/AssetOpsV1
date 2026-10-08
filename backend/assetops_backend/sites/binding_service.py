@@ -78,8 +78,9 @@ SNAPSHOT_ACCESS_STATEMENT = (
 )
 
 READINESS_STATEMENT = (
-    "Ready to report means this configuration names a bound channel for every "
-    "required role. It does not mean any device is connected, reporting or healthy: "
+    "Ready to report means this configuration names a bound channel or a configured "
+    "control for every required role, and the Foundation shown has no configuration gap. "
+    "It does not mean any device is connected, reporting or healthy: "
     "no evidence has been accepted for this Site."
 )
 
@@ -564,7 +565,14 @@ def readiness(
     registrations: Registrations,
     binding_set: BindingSetRevisionRow | None,
 ) -> dict[str, Any]:
-    """Which required roles this configuration covers, at one selected time."""
+    """Which required roles this configuration covers, at one selected time.
+
+    The aggregate state is configuration readiness: a required role that no
+    channel or control covers, or any configuration gap in the selected
+    Foundation revision, makes it INCOMPLETE (review M3). Gaps are reported in
+    `foundation_gaps`, apart from the roles; neither is observed health.
+    """
+    gaps = configuration_gaps(site, revision, registrations)
     role_set = ROLE_SET_BY_SITE_TYPE.get(site.site_type)
     roles = roles_for(role_set) if role_set else {}
     bindings = binding_set.bindings if binding_set else ()
@@ -646,7 +654,7 @@ def readiness(
             })
     if binding_set is None:
         state = "UNKNOWN"
-    elif missing:
+    elif missing or gaps:
         state = "INCOMPLETE"
     else:
         state = "READY_TO_REPORT"
@@ -657,6 +665,7 @@ def readiness(
         "foundation_revision_id": str(revision.id),
         "roles": entries,
         "missing_roles": missing,
+        "foundation_gaps": [gap.to_wire() for gap in gaps],
         "channels": channels,
         "statement": READINESS_STATEMENT
         if binding_set is not None

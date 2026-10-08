@@ -79,9 +79,23 @@ export function FoundationBindingsPanel({
         <p data-readiness-state={readiness.state}>
           <Badge tone="neutral">{READINESS_WORD[readiness.state]}</Badge>{" "}
           {readiness.state === "READY_TO_REPORT"
-            ? "Every required role has a configured channel or control."
-            : `Not bound: ${readiness.missing_roles.join(", ")}.`}
+            ? "Every required role has a configured channel or control, and this Foundation has no configuration gap."
+            : readiness.missing_roles.length > 0
+              ? `Not bound: ${readiness.missing_roles.join(", ")}.`
+              : "Every required role has a configured channel or control, but this Foundation has configuration gaps."}
         </p>
+        {readiness.foundation_gaps.length > 0 ? (
+          <div data-readiness-gaps="">
+            <p>Foundation gaps (configuration, not channel bindings):</p>
+            <ul>
+              {readiness.foundation_gaps.map((gap) => (
+                <li key={`${gap.code}:${gap.subject}`} data-readiness-gap={gap.code}>
+                  {gap.message}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <p>{readiness.statement}</p>
         <DataTable labelledBy={FOUNDATION_READINESS_HEADING_ID}>
           <caption>

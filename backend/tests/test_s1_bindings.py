@@ -277,6 +277,8 @@ class TestRefusals:
                 {**FIXTURE, "site_code": "KOBO-GAP-001"})
         body = app_for(store, tmp_path, legacy_documents=lambda: ()).get("/api/sites/KOBO-GAP-001/foundation").json()
         assert body["readiness"]["missing_roles"] == ["Battery reserve"]
+        assert body["readiness"]["state"] == "INCOMPLETE"
+        assert [g["code"] for g in body["readiness"]["foundation_gaps"]] == ["BATTERY_RESERVE_MISSING"]
         assert body["acquisition_snapshot"]["available"] is False
         assert "BATTERY_RESERVE_MISSING" in body["acquisition_snapshot"]["reason"]
 
@@ -525,3 +527,39 @@ class TestReviewM2Ambiguity:
         assert response.json()["detail"]["code"] == "BINDING_BATTERY_MISMATCH"
         assert "configured on battery" in response.json()["detail"]["message"]
         assert store.sets[result.site.id] == sets_before
+
+
+class TestReviewM3ReadinessWithFoundationGaps:
+    """Aggregate configuration readiness is incomplete while the Foundation has a gap."""
+
+    def test_a_missing_generator_rating_makes_complete_bindings_incomplete(self, tmp_path) -> None:
+        def no_generator_rating(text_):
+            block = _block(text_, "  - component_id: generator\n", "  - component_id: fuel-tank\n")
+            assert "    rating:\n      value: 40.0\n      unit: kW\n" in block
+            return text_.replace(block, block.replace("    rating:\n      value: 40.0\n      unit: kW\n",
+                                                      "    rating: null\n", 1), 1)
+
+        store, result = variant(tmp_path, "KOBO-NO-RATING", no_generator_rating)
+        convert(store, BindingService(store, Clock(CONVERTED_AT)), result.tenant, result.site,
+                {**FIXTURE, "site_code": "KOBO-NO-RATING"})
+        body = app_for(store, tmp_path, legacy_documents=lambda: ()).get(
+            "/api/sites/KOBO-NO-RATING/foundation"
+        ).json()
+        ready = body["readiness"]
+        # Every channel role and the reserve control are covered ...
+        assert ready["missing_roles"] == []
+        assert all(r["status"] == "CONFIGURED" for r in ready["roles"] if r["required"])
+        # ... but the Foundation gap keeps configuration readiness incomplete, named apart from roles.
+        assert ready["state"] == "INCOMPLETE"
+        assert [(g["code"], g["subject"]) for g in ready["foundation_gaps"]] == [
+            ("COMPONENT_RATING_MISSING", "generator")
+        ]
+        assert ready["foundation_gaps"] == [
+            g for g in body["configuration_gaps"] if g["code"] == "COMPONENT_RATING_MISSING"
+        ]
+        assert body["acquisition_snapshot"]["available"] is False
+
+    def test_the_converted_kobo_foundation_has_no_gap_and_is_ready(self, legacy_root) -> None:
+        store, _, _ = converted()
+        ready = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation").json()["readiness"]
+        assert (ready["state"], ready["foundation_gaps"], ready["missing_roles"]) == ("READY_TO_REPORT", [], [])

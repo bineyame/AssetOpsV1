@@ -8,6 +8,7 @@ import type {
   BindingSetSummary,
   ConfigurationReadiness,
   FoundationBindings,
+  FoundationGap,
   SignalBinding,
   FoundationRead,
   FoundationReadModel,
@@ -60,6 +61,7 @@ const UNKNOWN_READINESS: ConfigurationReadiness = {
     { role: "generator_power", label: "Generator power", required: true, canonical_unit: "kW", covered_by: "CHANNEL", status: "UNBOUND", subjects: [] },
   ],
   missing_roles: ["Generator power"],
+  foundation_gaps: [],
   channels: [],
   statement: "No signal binding set is in effect for the period shown, so every role is unbound and readiness is Unknown. Nothing is reporting.",
 };
@@ -184,7 +186,11 @@ const BATTERY_SOC = binding({
   canonical_unit: "%",
 });
 
-function published(mappings: SignalBinding[], missing: string[]): Partial<FoundationReadModel> {
+function published(
+  mappings: SignalBinding[],
+  missing: string[],
+  gaps: FoundationGap[] = [],
+): Partial<FoundationReadModel> {
   const bindings: FoundationBindings = {
     state: "PUBLISHED",
     binding_set: bindingSet(),
@@ -197,7 +203,7 @@ function published(mappings: SignalBinding[], missing: string[]): Partial<Founda
     bindings,
     readiness: {
       role_set: "minigrid-roles-1",
-      state: missing.length === 0 ? "READY_TO_REPORT" : "INCOMPLETE",
+      state: missing.length === 0 && gaps.length === 0 ? "READY_TO_REPORT" : "INCOMPLETE",
       binding_set_revision_id: "bset-1",
       foundation_revision_id: "rev-2",
       roles: [
@@ -208,6 +214,7 @@ function published(mappings: SignalBinding[], missing: string[]): Partial<Founda
           subjects: soc ? [{ asset_id: "asset-storage", asset_code: "c-storage", status: "CONFIGURED", binding_revision_ids: ["b-battery-soc"] }] : [] },
       ],
       missing_roles: missing,
+      foundation_gaps: gaps,
       channels: [
         { device_id: "d-genset-controller", signal_id: "ac-power", display_name: "Generator output power", unit: "kW", source_id: "s1", status: "BOUND", binding_revision_id: "b-genset-power", role: "generator_power" },
         { device_id: "d-genset-controller", signal_id: "output-voltage", display_name: "Generator output voltage", unit: "V", source_id: "s1", status: "UNBOUND", binding_revision_id: null, role: null },
@@ -551,6 +558,29 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect(within(readiness).getByText("Incomplete")).toBeInTheDocument();
     expect(readiness.textContent).toContain("Not bound: Battery state of charge.");
     expect(within(readiness).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain("Not bound");
+  });
+
+  it("keeps readiness incomplete for a Foundation gap and names it apart from roles", async () => {
+    const gap: FoundationGap = {
+      code: "COMPONENT_RATING_MISSING",
+      subject: "c-genset",
+      message: "Diesel generator declares no rating.",
+    };
+    const gapped = (): FoundationRead<FoundationReadModel> => ({
+      status: "loaded",
+      value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [], [gap])),
+    });
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(gapped));
+    await settledScreen();
+    const readiness = panel("Configuration readiness");
+    expect(within(readiness).getByText("Incomplete")).toBeInTheDocument();
+    expect(readiness.textContent).not.toContain("Not bound:");
+    expect(readiness.textContent).toContain("but this Foundation has configuration gaps");
+    const listed = readiness.querySelector('[data-readiness-gap="COMPONENT_RATING_MISSING"]');
+    expect(listed?.textContent).toBe("Diesel generator declares no rating.");
+    expect(within(readiness).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
+      "c-storage: d-storage-controller / state-of-charge",
+    );
   });
 
   it("publishes a binding removal as the remaining set from a UTC instant, then re-reads", async () => {
