@@ -59,6 +59,10 @@ const BASE = process.argv[2] ?? "http://localhost:5173";
  */
 const SITE = process.argv[3] ?? process.env.ASSETOPS_LAYOUT_SITE ?? "MG-001";
 const PUBLISH_RESERVE_LABEL = "Publish reserve change";
+// S1-02: the binding-removal publish, rendered only when a binding set is in
+// effect. Allowed on an imported Site beside the reserve change, and nothing else.
+const PUBLISH_BINDING_LABEL = "Publish binding change";
+const IMPORTED_SITE_ACTIONS = new Set([PUBLISH_RESERVE_LABEL, PUBLISH_BINDING_LABEL]);
 // S1-01: the Site the Lab run setup binds to. Defaults to SITE; set it to an
 // unimported Site when SITE is imported, because the Lab refuses an imported
 // Site's Draft setup until S2.
@@ -1356,10 +1360,10 @@ for (const [label, width, height] of [
       ],
       [
         siteImported
-          ? "no enabled action renders except the imported Site's Publish reserve change"
+          ? "no enabled action renders except the imported Site's Publish reserve change and Publish binding change"
           : "no enabled action renders",
         foundation.buttons.every(
-          (b) => b.disabled || (siteImported && b.label === PUBLISH_RESERVE_LABEL),
+          (b) => b.disabled || (siteImported && IMPORTED_SITE_ACTIONS.has(b.label)),
         ),
         foundation.buttons.length === 0
           ? "no action rendered"
@@ -1371,6 +1375,11 @@ for (const [label, width, height] of [
               "the imported Site's Publish reserve change renders, enabled, exactly once",
               foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL && !b.disabled).length === 1,
               `${foundation.buttons.filter((b) => b.label === PUBLISH_RESERVE_LABEL).length} found`,
+            ],
+            [
+              "the imported Site's Publish binding change renders at most once",
+              foundation.buttons.filter((b) => b.label === PUBLISH_BINDING_LABEL).length <= 1,
+              `${foundation.buttons.filter((b) => b.label === PUBLISH_BINDING_LABEL).length} found`,
             ],
           ]
         : []),
