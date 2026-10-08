@@ -48,6 +48,16 @@ under 0002 alone, because their snapshot hash cannot be backfilled honestly.
 That state exists only on a scratch database used during S1-02 development.
 Recreate that database and rerun the conversion.
 
+Migration 0004 stores each pinned snapshot's canonical bytes
+(`snapshot_canonical`, NOT NULL, CHECKed against `snapshot_sha256`); the
+download serves those bytes instead of rebuilding them from registration rows.
+Over a database that already holds binding sets (for example a converted
+developer database) it backfills each row with the v1 serializer, and writes the
+bytes only when they reproduce the pinned hash. If a registration identity field
+(Site code, gateway external ID or mode, source external ID) changed after
+publication, the rebuilt bytes miss the hash and the migration refuses, naming
+the rows; it never recomputes a published hash.
+
 ## Tests
 
 The Compose service also creates `assetops_test`, a disposable database used

@@ -116,7 +116,7 @@ class TestMigration:
             tables = set(connection.execute(text(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
             )).scalars())
-        assert head == "0003_pinned_binding_snapshots"
+        assert head == "0004_snapshot_canonical_bytes"
         assert {"signal_binding_set_revision", "signal_binding_revision"} <= tables
 
 
@@ -178,7 +178,8 @@ class TestPublishAndHistory:
         assert len(store.binding_sets(result.tenant.id, result.site.id)) == 1
 
 
-def _set_row(connection, result, *, role_set="other-roles", version=50, valid_from=EARLIER, foundation=None):
+def _set_row(connection, result, *, role_set="other-roles", version=50, valid_from=EARLIER, foundation=None,
+             body=b"{}", sha=None):
     set_id = uuid4()
     anchor = foundation or connection.execute(text(
         "SELECT id FROM foundation_revision WHERE site_id = :s AND superseded_at IS NULL "
@@ -188,10 +189,11 @@ def _set_row(connection, result, *, role_set="other-roles", version=50, valid_fr
     connection.execute(text(
         "INSERT INTO signal_binding_set_revision (id, tenant_id, site_id, binding_set_id, version, role_set, "
         "valid_from, valid_to, recorded_at, bindings_sha256, origin, foundation_revision_id, gateway_id, "
-        "snapshot_schema, snapshot_sha256) VALUES (:id, :t, :s, :b, :v, :r, :from_, NULL, :rec, :sha, "
-        "'PUBLISH', :f, :g, 'assetops.acquisition-snapshot/1', :sha)"
+        "snapshot_schema, snapshot_sha256, snapshot_canonical) VALUES (:id, :t, :s, :b, :v, :r, :from_, NULL, "
+        ":rec, :sha, 'PUBLISH', :f, :g, 'assetops.acquisition-snapshot/1', :sha, :body)"
     ), {"id": set_id, "t": result.tenant.id, "s": result.site.id, "b": uuid4(), "v": version, "r": role_set,
-        "from_": valid_from, "rec": NOW, "sha": "0" * 64, "f": anchor, "g": gateway})
+        "from_": valid_from, "rec": NOW, "sha": sha or hashlib.sha256(body).hexdigest(), "f": anchor,
+        "g": gateway, "body": body})
     return set_id
 
 
@@ -297,3 +299,75 @@ class TestDecisionRulesInTheDatabase:
         again = view(store, result, at=EARLIER, knowledge=NOW - timedelta(minutes=1))
         recovered = acquisition_snapshot(result.tenant.id, again.site, again.revisions, again.registrations, again.binding_set)
         assert recovered.body == old.body and recovered.sha256 == old.sha256
+
+
+# --- S1-02 fix round (Codex review M1) --------------------------------------------
+
+
+def _alembic():
+    config = Config(str(BACKEND / "alembic.ini"))
+    config.attributes["database_url"] = URL
+    return config
+
+
+def _download(store, result, **kw):
+    v = view(store, result, **kw)
+    return acquisition_snapshot(result.tenant.id, v.site, v.revisions, v.registrations, v.binding_set)
+
+
+class TestReviewM1HistoricalBytesInTheDatabase:
+    def test_registration_updates_do_not_change_a_published_download(self, store, engine) -> None:
+        result, outcome = converted(store)
+        original = _download(store, result)
+        with engine.begin() as connection:
+            # Operational (credential rotation, disable) and identity (external ID, mode) updates
+            # are both permitted by the schema; neither may alter the historical bytes.
+            connection.execute(text(
+                "UPDATE gateway SET credential_ref = 'vault://rotated', disabled_at = :now, "
+                "gateway_external_id = 'renamed-gateway', mode = 'LIVE' WHERE site_id = :s"
+            ), {"now": NOW, "s": result.site.id})
+        again = _download(store, result)
+        assert (again.body, again.sha256) == (original.body, original.sha256)
+        assert again.sha256 == outcome.published.changed.snapshot_sha256
+        assert b"renamed-gateway" not in again.body
+
+    def test_the_database_refuses_bytes_that_miss_the_pinned_hash_and_any_edit(self, store, engine) -> None:
+        result, outcome = converted(store)
+        with pytest.raises(DBAPIError, match="immutable"):
+            with engine.begin() as connection:
+                connection.execute(text(
+                    "UPDATE signal_binding_set_revision SET snapshot_canonical = :b WHERE id = :id"
+                ), {"b": b"{}", "id": outcome.published.changed.id})
+        with engine.connect() as connection:
+            checks = set(connection.execute(text(
+                "SELECT conname FROM pg_constraint WHERE conname = 'binding_set_snapshot_canonical_hashed'"
+            )).scalars())
+        assert checks == {"binding_set_snapshot_canonical_hashed"}
+
+    def test_a_row_whose_bytes_miss_its_hash_is_refused_on_insert(self, store, engine) -> None:
+        result = imported(store)
+        with pytest.raises(IntegrityError, match="binding_set_snapshot_canonical_hashed"):
+            with engine.begin() as connection:
+                _set_row(connection, result, body=b"{}", sha="0" * 64)
+
+    def test_migration_0004_backfills_only_bytes_that_reproduce_the_pinned_hash(self, store, engine) -> None:
+        result, outcome = converted(store)
+        original = _download(store, result)
+        config = _alembic()
+        try:
+            command.downgrade(config, "0003_pinned_binding_snapshots")
+            with engine.begin() as connection:
+                connection.execute(text("UPDATE gateway SET gateway_external_id = 'renamed' WHERE site_id = :s"),
+                                   {"s": result.site.id})
+            with pytest.raises(RuntimeError, match="will not pin different bytes or recompute"):
+                command.upgrade(config, "head")
+            with engine.begin() as connection:
+                connection.execute(
+                    text("UPDATE gateway SET gateway_external_id = :g WHERE site_id = :s"),
+                    {"g": original.document["gateway"]["gateway_external_id"], "s": result.site.id},
+                )
+            command.upgrade(config, "head")
+        finally:
+            command.upgrade(config, "head")
+        again = _download(store, result)
+        assert (again.body, again.sha256) == (original.body, original.sha256)

@@ -212,6 +212,12 @@ class BindingSetRevisionRow:
     #: canonical bytes, persisted in the publishing transaction (decision Q6).
     snapshot_schema: str
     snapshot_sha256: str
+    #: The exact canonical bytes that `snapshot_sha256` hashes, kept from the
+    #: publishing transaction (S1-02 fix round, review M1). A download serves
+    #: these bytes; it never rebuilds them from registration rows, whose
+    #: identity fields (site code, gateway external ID, mode, source external
+    #: IDs) are not immutable.
+    snapshot_canonical: bytes = b""
 
 
 @dataclass(frozen=True)

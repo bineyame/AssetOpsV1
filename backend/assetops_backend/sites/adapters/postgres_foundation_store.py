@@ -480,7 +480,7 @@ class PostgresFoundationStore:
             text(
                 "SELECT id, binding_set_id, version, role_set, valid_from, valid_to, recorded_at, "
                 "superseded_at, bindings_sha256, origin, derived_from_revision_id, change_note, "
-                "foundation_revision_id, gateway_id, snapshot_schema, snapshot_sha256 "
+                "foundation_revision_id, gateway_id, snapshot_schema, snapshot_sha256, snapshot_canonical "
                 "FROM signal_binding_set_revision WHERE tenant_id = :tenant_id AND site_id = :site_id "
                 "ORDER BY version"
             ),
@@ -529,6 +529,7 @@ class PostgresFoundationStore:
                 gateway_id=r.gateway_id,
                 snapshot_schema=r.snapshot_schema,
                 snapshot_sha256=r.snapshot_sha256,
+                snapshot_canonical=bytes(r.snapshot_canonical),
             )
             for r in rows
         )
@@ -545,9 +546,10 @@ class PostgresFoundationStore:
                 "INSERT INTO signal_binding_set_revision (id, tenant_id, site_id, binding_set_id, version, "
                 "role_set, valid_from, valid_to, recorded_at, superseded_at, bindings_sha256, origin, "
                 "derived_from_revision_id, change_note, foundation_revision_id, gateway_id, snapshot_schema, "
-                "snapshot_sha256) VALUES (:id, :tenant_id, :site_id, :set_id, "
+                "snapshot_sha256, snapshot_canonical) VALUES (:id, :tenant_id, :site_id, :set_id, "
                 ":version, :role_set, :valid_from, :valid_to, :recorded_at, NULL, :sha, :origin, "
-                ":derived_from, :note, :foundation_revision_id, :gateway_id, :snapshot_schema, :snapshot_sha256)"
+                ":derived_from, :note, :foundation_revision_id, :gateway_id, :snapshot_schema, :snapshot_sha256, "
+                ":snapshot_canonical)"
             ),
             {
                 "id": row.id,
@@ -567,6 +569,7 @@ class PostgresFoundationStore:
                 "gateway_id": row.gateway_id,
                 "snapshot_schema": row.snapshot_schema,
                 "snapshot_sha256": row.snapshot_sha256,
+                "snapshot_canonical": row.snapshot_canonical,
             },
         )
         for b in row.bindings:

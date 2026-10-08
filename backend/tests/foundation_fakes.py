@@ -12,6 +12,7 @@ foreign keys, migrations) are tested against PostgreSQL in
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Sequence
@@ -159,6 +160,9 @@ class InMemoryFoundationStore:
                 anchor.valid_to is not None and (s.valid_to is None or s.valid_to > anchor.valid_to)
             ):
                 raise ValueError("binding_set_within_foundation: not inside a current Foundation revision")
+            # Migration 0004: the stored canonical bytes hash to the pinned SHA-256.
+            if hashlib.sha256(s.snapshot_canonical).hexdigest() != s.snapshot_sha256:
+                raise ValueError("binding_set_snapshot_canonical_hashed: bytes do not match the pinned hash")
         for role_set in {s.role_set for s in current}:
             _refuse_overlap([s for s in current if s.role_set == role_set], BindingOverlap)
         regs = self.registered[site_id]

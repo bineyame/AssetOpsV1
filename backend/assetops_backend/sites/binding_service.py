@@ -32,7 +32,6 @@ from assetops_backend.sites.binding_alignment import (
     binding_content,
     canonical_bytes,
     finalize,
-    snapshot_bytes,
 )
 from assetops_backend.sites.binding_roles import (
     ROLE_SET_BY_SITE_TYPE,
@@ -666,9 +665,11 @@ def acquisition_snapshot(
 ) -> Snapshot | SnapshotUnavailable:
     """The pinned gateway snapshot of the binding set selected, or why there is none.
 
-    The bytes are rebuilt with the serializer version persisted on the binding
-    set revision, from immutable inputs, and must reproduce the SHA-256 stored
-    at publication (decision Q6); a mismatch is refused, never served.
+    The bytes served are the canonical bytes stored in the publishing
+    transaction, checked against the SHA-256 stored with them (decision Q6). They
+    are never rebuilt from current registration rows, whose identity fields can
+    change after publication (S1-02 fix round, review M1); a stored hash the
+    stored bytes do not reproduce is refused, never served.
     """
     if binding_set is None:
         return SnapshotUnavailable(
@@ -698,12 +699,18 @@ def acquisition_snapshot(
             f"Snapshot schema {binding_set.snapshot_schema!r} has no serializer in this build.",
             500,
         )
-    body = snapshot_bytes(binding_set.snapshot_schema, tenant_id, site, registrations, foundation, binding_set)
+    body = binding_set.snapshot_canonical
+    if not body:
+        return SnapshotUnavailable(
+            "ACQUISITION_SNAPSHOT_INCONSISTENT",
+            f"Binding v{binding_set.version} holds no published snapshot bytes, so none is served.",
+            500,
+        )
     digest = hashlib.sha256(body).hexdigest()
     if digest != binding_set.snapshot_sha256:
         return SnapshotUnavailable(
             "ACQUISITION_SNAPSHOT_HASH_MISMATCH",
-            f"The rebuilt snapshot hashes to {digest}, not the {binding_set.snapshot_sha256} "
+            f"The stored snapshot hashes to {digest}, not the {binding_set.snapshot_sha256} "
             "stored at publication, so it is not served.",
             500,
         )

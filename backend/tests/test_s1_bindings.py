@@ -382,3 +382,56 @@ class TestDecisionQ6PinnedSnapshot:
         response = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation/snapshot")
         assert response.status_code == 500
         assert response.json()["detail"]["code"] == "ACQUISITION_SNAPSHOT_HASH_MISMATCH"
+
+
+# --- S1-02 fix round (Codex review) ----------------------------------------------
+
+
+def _with_gateway(store, site_id, **changes):
+    regs = store.registered[site_id]
+    store.registered[site_id] = replace(regs, gateways=tuple(replace(g, **changes) for g in regs.gateways))
+
+
+class TestReviewM1HistoricalBytes:
+    """The download serves the bytes kept at publication, not a rebuild from registrations."""
+
+    def _download(self, client, **query):
+        response = client.get("/api/sites/KOBO-001/foundation/snapshot", params=query)
+        assert response.status_code == 200, response.text
+        return response.content, response.headers["X-AssetOps-Snapshot-SHA256"]
+
+    def test_the_published_bytes_are_kept_on_the_row(self) -> None:
+        _, _, outcome = converted()
+        pinned = outcome.published.changed
+        assert pinned.snapshot_canonical
+        assert hashlib.sha256(pinned.snapshot_canonical).hexdigest() == pinned.snapshot_sha256
+
+    def test_an_operational_registration_update_keeps_bytes_and_hash(self, legacy_root) -> None:
+        store, result, outcome = converted()
+        client = app_for(store, legacy_root)
+        body, sha = self._download(client)
+        _with_gateway(store, result.site.id, credential_ref="vault://rotated", disabled_at=NOW)
+        assert self._download(client) == (body, sha)
+        assert sha == outcome.published.changed.snapshot_sha256
+
+    def test_an_identity_registration_update_does_not_change_an_old_download(self, legacy_root) -> None:
+        store, result, outcome = converted()
+        client = app_for(store, legacy_root)
+        body, sha = self._download(client)
+        _with_gateway(store, result.site.id, gateway_external_id="renamed-gateway", mode="LIVE")
+        again, again_sha = self._download(client)
+        # Same bytes, and the hash is the one stored at publication - never recomputed.
+        assert (again, again_sha) == (body, sha) == (
+            outcome.published.changed.snapshot_canonical, outcome.published.changed.snapshot_sha256
+        )
+        assert b"renamed-gateway" not in again
+
+    def test_stored_bytes_that_do_not_hash_to_the_pinned_value_are_refused(self, legacy_root) -> None:
+        store, result, outcome = converted()
+        store.sets[result.site.id] = [
+            replace(s, snapshot_canonical=s.snapshot_canonical + b" ") if s.id == outcome.published.changed.id else s
+            for s in store.sets[result.site.id]
+        ]
+        response = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation/snapshot")
+        assert response.status_code == 500
+        assert response.json()["detail"]["code"] == "ACQUISITION_SNAPSHOT_HASH_MISMATCH"

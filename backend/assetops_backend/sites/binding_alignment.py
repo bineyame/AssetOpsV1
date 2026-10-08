@@ -13,8 +13,11 @@ Decision `D-2026-10-08-s1-bindings-roles-and-snapshot`:
   bytes are produced by a versioned serializer from immutable inputs only (no
   recorded-time closure, request time or gateway status), and their SHA-256
   and the serializer version are persisted on the row in the publishing
-  transaction. A download rebuilds the bytes with that serializer and must
-  reproduce the stored hash.
+  transaction, together with the canonical bytes themselves. The serializer
+  reads registration fields (site code, gateway external ID and mode, source
+  external IDs) that the schema does not make immutable, so a download serves
+  the stored bytes and checks them against the stored hash; it never rebuilds
+  them from current registrations (S1-02 fix round, review M1).
 
 Pure: no storage technology is named here.
 """
@@ -227,7 +230,7 @@ def finalize(
         )
         next_version += 1
         body = snapshot_bytes(SNAPSHOT_SCHEMA_V1, tenant_id, site, registrations, foundation, aligned)
-        aligned = replace(aligned, snapshot_sha256=hashlib.sha256(body).hexdigest())
+        aligned = replace(aligned, snapshot_sha256=hashlib.sha256(body).hexdigest(), snapshot_canonical=body)
         finished.append(aligned)
         if origin_id is not None:
             became.setdefault(origin_id, []).append(aligned)
