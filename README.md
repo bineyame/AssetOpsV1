@@ -158,11 +158,11 @@ Store alias. The repository-root `.venv` is the working interpreter.
 
 ### First-time Python setup
 
-Three editable installs, because three Python trees are importable and the
+Four editable installs, because four Python trees are importable and the
 backend imports the neutral contracts:
 
 ```
-.venv\Scripts\python.exe -m pip install -e backend -e contracts -e simulator
+.venv\Scripts\python.exe -m pip install -e backend -e contracts -e simulator -e gateway
 .venv\Scripts\python.exe tools/run-store-evidence.py runtime
 ```
 
@@ -178,6 +178,17 @@ the two parsers accept and refuse different documents.
 `host/` is deliberately not installed. Nothing imports it, which is the rule that
 keeps the crossing between the product and the simulator in one place; its tests
 reach it through `host/conftest.py`.
+
+### Gateway
+
+The durable simulated gateway (S2-01b) imports the neutral contracts only. Its
+suite covers the SourceEnvelope V3 / Batch V2 vectors in
+`contract-fixtures/source-envelope-v3-vectors.json` and the SQLite ledger:
+
+```
+cd gateway
+..\.venv\Scripts\python.exe -m pytest
+```
 
 ### Backend
 

@@ -24,7 +24,12 @@ function Invoke-ModuleRootsCheck {
         # trees that have to exist for the rules to mean anything.
         "contracts",
         "contracts/assetops_contracts",
-        "host"
+        "host",
+        # S2-01b: the separate durable gateway process. Required so the
+        # dependency rule that it imports the contracts only is about a tree
+        # that exists.
+        "gateway",
+        "gateway/assetops_gateway"
     )
 
     foreach ($directory in $requiredDirectories) {
@@ -44,7 +49,9 @@ function Invoke-ModuleRootsCheck {
         "contracts/pyproject.toml",
         "contracts/assetops_contracts/__init__.py",
         "simulator/pyproject.toml",
-        "host/execution_adapter.py"
+        "host/execution_adapter.py",
+        "gateway/pyproject.toml",
+        "gateway/assetops_gateway/__init__.py"
     )
 
     foreach ($file in $requiredFiles) {

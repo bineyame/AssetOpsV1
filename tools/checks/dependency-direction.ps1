@@ -102,6 +102,7 @@ function Invoke-DependencyDirectionCheck {
         @{ Root = "backend";   Extensions = @(".py") },
         @{ Root = "simulator"; Extensions = @(".py") },
         @{ Root = "contracts"; Extensions = @(".py") },
+        @{ Root = "gateway";   Extensions = @(".py") },
         @{ Root = "frontend/src"; Extensions = @(".ts", ".tsx", ".js", ".jsx") }
     )
 
@@ -158,6 +159,43 @@ function Invoke-DependencyDirectionCheck {
                 if ($line -match $pattern) {
                     $relative = Resolve-Path -LiteralPath $source.FullName -Relative
                     $failures.Add("Banned import in the neutral contracts at ${relative}:${lineNumber}: $($line.Trim()). A shared contract that imports one side is not dependency-neutral.") | Out-Null
+                    break
+                }
+            }
+        }
+    }
+
+    # --- The gateway is a separate public-side process ------------------------
+    #
+    # S2-01b. The durable simulated gateway receives public device reports and a
+    # frozen registered snapshot from the Lab host and nothing else. It may import
+    # the neutral contracts only: an import of the simulator (kernel, world,
+    # scenario, oracle), the backend or the composition leaf would let private
+    # truth or product state reach the acquisition ledger. Tests are included:
+    # the gateway suite restates the snapshot shape rather than importing it.
+    $gatewayMayNotImport = @(
+        '^\s*(?:from|import)\s+[^\s]*assetops_backend',
+        '^\s*(?:from|import)\s+[^\s]*assetops_simulator',
+        '^\s*(?:from|import)\s+(?:backend|simulator)(?:\.|\s|$)',
+        'import_module\(\s*["''](?:assetops_backend|assetops_simulator)'
+    )
+
+    $gatewaySources = Get-SourceFiles -Root "gateway" -Extensions @(".py")
+
+    if ($gatewaySources.Count -eq 0) {
+        $failures.Add(("No module was scanned under gateway/, so the gateway " +
+            "boundary check below is vacuous. Update the check, do not " +
+            "delete it.")) | Out-Null
+    }
+
+    foreach ($source in $gatewaySources) {
+        $lineNumber = 0
+        foreach ($line in (Get-Content -LiteralPath $source.FullName)) {
+            $lineNumber++
+            foreach ($pattern in $gatewayMayNotImport) {
+                if ($line -match $pattern) {
+                    $relative = Resolve-Path -LiteralPath $source.FullName -Relative
+                    $failures.Add("Banned import in the gateway at ${relative}:${lineNumber}: $($line.Trim()). The gateway process may import the neutral contracts only.") | Out-Null
                     break
                 }
             }
