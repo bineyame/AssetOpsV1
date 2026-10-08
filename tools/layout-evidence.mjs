@@ -59,6 +59,10 @@ const BASE = process.argv[2] ?? "http://localhost:5173";
  */
 const SITE = process.argv[3] ?? process.env.ASSETOPS_LAYOUT_SITE ?? "MG-001";
 const PUBLISH_RESERVE_LABEL = "Publish reserve change";
+// S1-01: the Site the Lab run setup binds to. Defaults to SITE; set it to an
+// unimported Site when SITE is imported, because the Lab refuses an imported
+// Site's Draft setup until S2.
+const LAB_SITE = process.env.ASSETOPS_LAB_SITE ?? SITE;
 const PORT = 9333;
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
@@ -615,7 +619,7 @@ const SUBMIT_RUN_SETUP = `(() => {
       document.querySelectorAll('input[name="run-setup-site"]'),
     );
     const radio =
-      radios.find((item) => item.value === ${JSON.stringify(SITE)}) ?? radios[0];
+      radios.find((item) => item.value === ${JSON.stringify(LAB_SITE)}) ?? radios[0];
     if (!radio) return false;
     radio.click();
     return true;
