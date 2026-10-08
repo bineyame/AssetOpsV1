@@ -4783,7 +4783,7 @@ Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agen
 - API:
   - The Foundation read gains `bindings`, a configuration-only `readiness` (READY_TO_REPORT, INCOMPLETE or UNKNOWN) and `acquisition_snapshot`.
   - New `POST .../foundation/bindings`.
-  - New `GET .../foundation/snapshot`. It rebuilds the bytes and refuses a hash mismatch. It is a development download only: gateway authentication is pending.
+  - New `GET .../foundation/snapshot`. It serves the stored canonical bytes and refuses a hash mismatch. It is a development download only: gateway authentication is pending.
   - `versions` now lists `binding_sets`.
 - Conversion: `sites/convert_kobo_bindings.py` takes the explicit fixture `backend/conversions/kobo-001-bindings.json`, holding nine legacy IDENTITY mappings plus the status ENUM the decision declared.
 - UI:
@@ -4791,10 +4791,16 @@ Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agen
   - The period picker lists binding periods.
   - For a stored Site, the SLD lists only bound signals and marks each device with no bound channel.
 
+- Fix round (Codex review M1-M3, Architect rulings D2-D5):
+  - Migration 0004 stores `snapshot_canonical` (NOT NULL, CHECKed against `snapshot_sha256`, immutable under the 0003 trigger). Downloads serve those bytes; they never rebuild from registration rows. 0004 backfills existing rows only when the v1 serializer reproduces the pinned hash, else refuses.
+  - `validate_bindings` refuses `BINDING_ROLE_AMBIGUOUS` when a Foundation period declares more than one eligible component for a ONE role the publication needs, and `BINDING_BATTERY_MISMATCH` when the SOC binding names a battery other than the reserve's.
+  - `readiness()` is INCOMPLETE while the selected Foundation revision has configuration gaps, reported as `readiness.foundation_gaps`, apart from `missing_roles`.
+  - On a stored Site the shared "Signal mappings" table is captioned as the selected binding set's links (binding version and record, Foundation version) with a "Binding ID" column; legacy Sites keep "Mapping ID".
+
 ### What this leaves open
 
-- The conversion is not applied to the developer database. It has run only on `assetops_test` and on the scratch database `assetops_s102_scratch`.
-- Readiness is a section of Foundation, not its own subtab. Guard rule 5 forbids a "Readiness" subtab label.
+- Readiness is a section of Foundation, not its own subtab (ruling D2). Guard rule 5 forbids a "Readiness" subtab label.
 - Gateway-credential download and ingestion are S2.
-- A Foundation split re-issues unchanged binding rows with new IDs. Each split copy is a new snapshot.
-- The legacy "Signal mappings" table on a stored Site shows binding IDs as mapping IDs.
+- A Foundation split re-issues unchanged binding rows with new IDs (ruling D4). Each split copy is a new snapshot.
+- Registration identity fields stay updatable; a later publication snapshots their then-current values. Download availability still depends on current configuration gaps.
+- Codex carries m1 (mixed Foundation/binding read under concurrency), m2 (conversion rerun provenance), m3 (insert-only alignment trigger; Foundation-only `store.publish()`).
