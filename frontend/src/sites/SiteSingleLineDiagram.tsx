@@ -1076,8 +1076,8 @@ export function SiteSldPrimary({
   const view: SiteSldView = deriveSiteSldView(site);
   return (
     <div data-sld-region="">
-      <p>{SITE_SLD_INTRODUCTION}</p>
-      {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
+      {/* The drawing leads (S1-03 review m2): at phone width the two
+          explanatory paragraphs used to push it below the first screen. */}
       {view.status === "compatible" ? (
         <>
           <SldDrawing diagram={view.diagram} siteName={site.display_name} labelledBy={headingId} />
@@ -1086,6 +1086,8 @@ export function SiteSldPrimary({
       ) : (
         <SldUnavailable reason={view.reason} />
       )}
+      <p>{SITE_SLD_INTRODUCTION}</p>
+      {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
     </div>
   );
 }

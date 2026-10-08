@@ -42,11 +42,11 @@ const PERIOD_WORD: Record<FoundationRevisionSummary["period_state"], string> = {
   FUTURE: "scheduled",
 };
 
-export function controlValue(control: FoundationControl): string {
+export function controlValue(control: FoundationControl, names?: ReadonlyMap<string, string>): string {
   if (control.state === "NOT_CONFIGURED") {
     return control.message ?? "Not configured in this Foundation";
   }
-  if (control.members !== undefined) return control.members.join(" → ");
+  if (control.members !== undefined) return control.members.map((code) => names?.get(code) ?? code).join(" → ");
   return `${control.value ?? ""} ${control.unit ?? ""}`.trim();
 }
 
@@ -256,6 +256,8 @@ export function FoundationControlsPanel({ foundation, versions, onPublish }: Fou
   const { revision, controls } = foundation;
   const { current } = selectablePeriods(versions);
   const reserve = controls.battery_reserve;
+  // Priorities list asset codes; the table names them as the rest of the view does.
+  const assetNames = new Map(foundation.assets.map((asset) => [asset.asset_code, asset.display_name ?? asset.asset_code]));
   // The battery the reserve belongs to, from the registered assets; never a
   // guessed code (review m8).
   const batteryCode =
@@ -286,7 +288,7 @@ export function FoundationControlsPanel({ foundation, versions, onPublish }: Fou
           ).map(([label, control]) => (
             <tr key={label}>
               <th scope="row">{label}</th>
-              <td data-control-state={control.state}>{controlValue(control)}</td>
+              <td data-control-state={control.state}>{controlValue(control, assetNames)}</td>
               <td>{control.authority ?? "None"}</td>
             </tr>
           ))}

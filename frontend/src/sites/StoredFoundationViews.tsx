@@ -369,15 +369,17 @@ function ConfiguredPartsPanel({
     <Panel heading="What each configured part is" headingId="foundation-sld-parts-heading">
       <DataTable labelledBy="foundation-sld-parts-heading">
         <caption>
-          Each declared component, its declared rating, and the channels of the binding set shown that
-          describe it. Configuration, not readings.
+          Each declared component, its declared rating, and its channels. A bound channel describes this
+          part: the binding set shown names it as the asset. An unbound channel (marked Not bound) is only
+          one declared on a device attached to this part; it has no published meaning and is not a report
+          from the part. Configuration, not readings.
         </caption>
         <thead>
           <tr>
             <th scope="col">Part</th>
             <th scope="col">Type</th>
             <th scope="col">Declared rating</th>
-            <th scope="col">Bound channels</th>
+            <th scope="col">Channels</th>
           </tr>
         </thead>
         <tbody>
@@ -400,7 +402,7 @@ function ConfiguredPartsPanel({
                         </li>
                       ))}
                       {missing.map((c) => (
-                        <li key={`${c.device_id}/${c.signal_id}`} data-part-channel="unbound">
+                        <li key={`${c.device_id}/${c.signal_id}`} data-part-channel="unbound" className="muted">
                           Not bound: <code>{`${c.device_id} / ${c.signal_id}`}</code>
                         </li>
                       ))}

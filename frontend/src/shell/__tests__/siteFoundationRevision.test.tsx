@@ -910,4 +910,57 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
       "Diagram detail",
     ]);
   });
+
+  it("Single line diagram: separates bound channels describing a part from unbound channels on its devices", async () => {
+    const mixed = (): FoundationRead<FoundationReadModel> => {
+      const base = published([GENSET_POWER], ["Battery state of charge"]);
+      return { status: "loaded", value: foundation(PAST, base) };
+    };
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(mixed));
+    await settledScreen();
+    const parts = panel("What each configured part is");
+    expect(within(parts).getByRole("columnheader", { name: "Channels" })).toBeInTheDocument();
+    expect(within(parts).queryByRole("columnheader", { name: "Bound channels" })).toBeNull();
+    const caption = parts.querySelector("caption")?.textContent ?? "";
+    expect(caption).toMatch(/bound channel describes this part/i);
+    expect(caption).toMatch(/unbound channel .* attached to this part/i);
+    const bound = Array.from(parts.querySelectorAll('[data-part-channel="bound"]'));
+    const unbound = Array.from(parts.querySelectorAll('[data-part-channel="unbound"]'));
+    expect(bound.length).toBeGreaterThan(0);
+    expect(unbound.length).toBeGreaterThan(0);
+    for (const item of unbound) {
+      expect(item.textContent).toMatch(/^Not bound: /);
+      expect(item.className).toContain("muted");
+    }
+    for (const item of bound) expect(item.textContent).not.toMatch(/Not bound/);
+  });
+
+  it("Site model: the controls table names priority members instead of showing raw asset codes", async () => {
+    const named = (): FoundationRead<FoundationReadModel> => {
+      const base = foundation(PAST, published([BATTERY_SOC, GENSET_POWER], []));
+      const asset = (code: string, name: string) => ({ asset_id: code, asset_code: code, asset_type: "LOAD", display_name: name });
+      return {
+        status: "loaded",
+        value: {
+          ...base,
+          assets: [asset("load-clinic", "Health clinic"), asset("load-res", "Residential feeder"), asset("load-mill", "Grain mill")],
+        },
+      };
+    };
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(named));
+    await settledScreen();
+    const row = within(panel("Time-valid control configuration")).getByRole("row", { name: /Critical-load priority/ });
+    expect(row.textContent).toContain("Health clinic → Residential feeder → Grain mill");
+    expect(row.textContent).not.toMatch(/load-(clinic|res|mill)/);
+  });
+
+  it("Single line diagram: the drawing comes before its explanatory paragraphs", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(loadedFoundation));
+    await settledScreen();
+    const region = document.querySelector("[data-sld-region]") as HTMLElement;
+    const drawing = region.querySelector("svg") as Element;
+    const firstParagraph = region.querySelector(":scope > p") as Element;
+    expect(drawing).not.toBeNull();
+    expect(drawing.compareDocumentPosition(firstParagraph) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });
