@@ -14,8 +14,7 @@ from pathlib import Path
 
 import yaml
 
-from assetops_backend.sites.adapters.yaml_shipped_site_store import SHIPPED_SITE_ROOT
-from assetops_backend.sites.adapters.yaml_user_site_store import USER_SITE_STORE_ROOT
+from assetops_backend.sites.adapters.import_report_target import check_report_path
 from assetops_backend.sites.foundation_service import ImportSource, LegacyDocument
 from assetops_backend.sites.ports import SiteConfigurationInvalid, SiteStoreUnavailable
 from assetops_backend.sites.site_parsing import parse_site_document
@@ -96,26 +95,6 @@ def legacy_documents(roots: tuple[Path, ...]) -> tuple[LegacyDocument, ...]:
 def _absolute(path_text: str) -> Path:
     path = Path(path_text)
     return (path if path.is_absolute() else Path.cwd() / path).resolve()
-
-
-def check_report_path(report_text: str, source_text: str) -> None:
-    """Refuse a report target that is the source or inside a Site store (review m5).
-
-    The report is review evidence. It may never replace the document being
-    imported, nor land among the Site documents the legacy stores read.
-    """
-    target = _absolute(report_text)
-    if target == _absolute(source_text):
-        raise SiteConfigurationInvalid(
-            f"The report path {report_text} is the import source; the source stays read-only."
-        )
-    for root in (SHIPPED_SITE_ROOT, USER_SITE_STORE_ROOT):
-        resolved = root.resolve()
-        if target == resolved or resolved in target.parents:
-            raise SiteConfigurationInvalid(
-                f"The report path {report_text} is inside the Site store {canonical_path(resolved)}; "
-                "write the report elsewhere (for example .agent/)."
-            )
 
 
 def write_import_report(path_text: str, report: str, *, source_text: str) -> str:
