@@ -563,3 +563,87 @@ class TestReviewM3ReadinessWithFoundationGaps:
         store, _, _ = converted()
         ready = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation").json()["readiness"]
         assert (ready["state"], ready["foundation_gaps"], ready["missing_roles"]) == ("READY_TO_REPORT", [], [])
+
+
+class TestBindingEditThroughFoundationSplits:
+    """S1-02 n6: a binding edit is not limited by a Foundation split boundary."""
+
+    SPLIT_AT = "2026-10-05T00:00:00Z"
+    FROM = "2026-10-04T00:00:00Z"
+    SOC = ("battery-pcs-controller", "state-of-charge")
+
+    def _reserve(self, client, value, valid_from) -> None:
+        response = client.post(
+            "/api/sites/KOBO-001/foundation/revisions",
+            json={"asset_code": "battery", "property_key": "reserve-state-of-charge", "unit": "%",
+                  "value": value, "valid_from": valid_from},
+        )
+        assert response.status_code == 201, response.text
+
+    def _remove(self, client, valid_from=None, drop=None):
+        mappings = client.get("/api/sites/KOBO-001/foundation").json()["bindings"]["mappings"]
+        return client.post(
+            "/api/sites/KOBO-001/foundation/bindings",
+            json={"valid_from": valid_from or self.FROM, "bindings": wire(mappings, drop={drop or self.SOC}),
+                  "note": "SOC channel removed"},
+        )
+
+    def _soc_bound(self, client, at) -> bool:
+        body = client.get("/api/sites/KOBO-001/foundation", params={"at": at}).json()
+        return any((m["device_id"], m["signal_id"]) == self.SOC for m in body["bindings"]["mappings"])
+
+    def test_a_removal_from_10_04_survives_a_reserve_split_at_10_05(self, legacy_root) -> None:
+        store, result, _ = converted()
+        client = app_for(store, legacy_root)
+        self._reserve(client, 40, self.SPLIT_AT)
+        response = self._remove(client)
+        assert response.status_code == 201, response.text
+        body = response.json()
+        assert body["applies_until"] is None and body["stopped_by_binding_version"] is None
+        for at in ("2026-10-04T12:00:00Z", self.SPLIT_AT, "2026-12-01T00:00:00Z"):
+            assert not self._soc_bound(client, at), at
+        assert self._soc_bound(client, "2026-10-03T00:00:00Z")
+        current = sorted(
+            (s for s in store.sets[result.site.id] if s.superseded_at is None), key=lambda s: s.valid_from
+        )
+        assert [s.valid_to is None for s in current][-1]
+        rows = {r.id: r for r in store.rows[result.site.id] if r.superseded_at is None}
+        assert all(s.foundation_revision_id in rows for s in current)
+        # One immutable aligned row per Foundation period, each with its own pinned snapshot.
+        after = [s for s in current if s.valid_from >= datetime(2026, 10, 4, tzinfo=timezone.utc)]
+        assert len(after) == 2 and len({s.snapshot_sha256 for s in after}) == 2
+        assert all(len(s.bindings) == len(after[0].bindings) for s in after)
+
+    def test_the_earlier_knowledge_time_still_recovers_the_old_set(self, legacy_root) -> None:
+        store, _, _ = converted()
+        client = app_for(store, legacy_root)
+        old_sha, _ = snapshot_hash(client, at=self.SPLIT_AT)
+        knowledge = (NOW - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        self._reserve(client, 40, self.SPLIT_AT)
+        assert self._remove(client).status_code == 201
+        recovered, _ = snapshot_hash(client, at=self.SPLIT_AT, knowledge_at=knowledge)
+        assert recovered == old_sha
+        assert self._soc_bound(client, "2026-10-06T00:00:00Z") is False
+        earlier = client.get(
+            "/api/sites/KOBO-001/foundation", params={"at": "2026-10-06T00:00:00Z", "knowledge_at": knowledge}
+        ).json()
+        assert any((m["device_id"], m["signal_id"]) == self.SOC for m in earlier["bindings"]["mappings"])
+
+    def test_the_edit_stops_at_a_later_independent_binding_change_and_says_so(self, legacy_root) -> None:
+        store, result, _ = converted()
+        client = app_for(store, legacy_root)
+        self._reserve(client, 40, self.SPLIT_AT)
+        # An independent, explicit change from 10-08: drop the fuel level channel.
+        later = self._remove(client, valid_from="2026-10-08T00:00:00Z", drop=("fuel-level-sensor", "fuel-level"))
+        assert later.status_code == 201, later.text
+        independent_version = later.json()["binding_set"]["version"]
+        response = self._remove(client)
+        assert response.status_code == 201, response.text
+        body = response.json()
+        assert body["applies_until"] == "2026-10-08T00:00:00Z"
+        assert body["stopped_by_binding_version"] == independent_version
+        assert not self._soc_bound(client, "2026-10-07T00:00:00Z")
+        # The independent change is untouched: it still lacks fuel level and still has the SOC.
+        after = client.get("/api/sites/KOBO-001/foundation", params={"at": "2026-10-09T00:00:00Z"}).json()
+        keys = {(m["device_id"], m["signal_id"]) for m in after["bindings"]["mappings"]}
+        assert self.SOC in keys and ("fuel-level-sensor", "fuel-level") not in keys

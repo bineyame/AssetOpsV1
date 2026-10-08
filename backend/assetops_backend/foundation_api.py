@@ -605,6 +605,8 @@ def build_foundation_router(registry: ImportedSiteRegistry, legacy: SiteReposito
                 "site": _site_identity(site, tenant),
                 "binding_set": binding_set_summary(result.changed, now),
                 "published_binding_sets": [binding_set_summary(r, now) for r in result.published],
+                "applies_until": None if result.applies_until is None else _iso(result.applies_until),
+                "stopped_by_binding_version": result.stopped_by_version,
                 "inserted_binding_sets": [binding_set_summary(r, now) for r in result.plan.binding_set_inserts],
                 "superseded_binding_set_revision_ids": [str(i) for i in result.plan.supersede_binding_set_ids],
                 "inserted_revisions": [revision_summary(r, now) for r in result.plan.revision_inserts],

@@ -380,6 +380,12 @@ class BindingPublishResult:
     changed: BindingSetRevisionRow
     #: Every aligned revision the change became (one per Foundation period).
     published: tuple[BindingSetRevisionRow, ...]
+    #: Where the published set stops applying (None: open-ended). It reaches
+    #: through every later period that was only an unchanged copy of the set
+    #: being edited, and stops at a later independent binding change.
+    applies_until: datetime | None = None
+    #: The version of that later independent binding set, when one stopped it.
+    stopped_by_version: int | None = None
 
 
 class BindingService:
@@ -433,8 +439,25 @@ class BindingService:
                         status=422,
                     )
                 replaced = covering[0]
-                binding_set_id, period_to = replaced.binding_set_id, replaced.valid_to
-                supersede_sets = (replaced.id,)
+                binding_set_id = replaced.binding_set_id
+                # n6: a Foundation split reissues the same bindings as later
+                # unchanged periods. The edit reaches through each contiguous
+                # one, so a split boundary never restores the old set; it stops
+                # at a later period whose bindings differ (an independent change).
+                carried: list[BindingSetRevisionRow] = []
+                period_to = replaced.valid_to
+                while period_to is not None:
+                    following = [
+                        s for s in current_sets
+                        if s.binding_set_id == replaced.binding_set_id and s.valid_from == period_to
+                    ]
+                    if len(following) != 1 or following[0].bindings_sha256 != replaced.bindings_sha256:
+                        if len(following) == 1:
+                            holder["stopped_by"] = following[0].version
+                        break
+                    carried.append(following[0])
+                    period_to = following[0].valid_to
+                supersede_sets = (replaced.id, *(c.id for c in carried))
                 if effective_from > replaced.valid_from:
                     set_inserts.append(
                         replace(
@@ -545,6 +568,7 @@ class BindingService:
                 state, draft, tenant_id=tenant.id, site=site, registrations=registrations, now=now
             )
             pieces = became.get(changed.id, ())
+            holder["applies_until"] = period_to
             holder["published"] = pieces
             holder["changed"] = next(p for p in pieces if p.valid_from <= effective_from < _until(p.valid_to))
             return completed
@@ -553,7 +577,13 @@ class BindingService:
             plan = self._store.publish_configuration(tenant.id, site.id, planner)
         except FoundationSiteNotFound as error:
             raise BindingRefused("SITE_NOT_FOUND", str(error), status=404) from error
-        return BindingPublishResult(plan=plan, changed=holder["changed"], published=holder["published"])
+        return BindingPublishResult(
+            plan=plan,
+            changed=holder["changed"],
+            published=holder["published"],
+            applies_until=holder["applies_until"],
+            stopped_by_version=holder.get("stopped_by"),
+        )
 
 
 # --- Readiness and snapshot (configuration only) ------------------------------------
