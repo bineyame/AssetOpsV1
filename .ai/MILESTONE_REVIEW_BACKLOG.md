@@ -1963,3 +1963,11 @@ The carried review findings above are unchanged.
   Composition And Truth Barrier.
 - The unassigned delivery requirements are in the feature map's Next Work And
   Unowned Requirements table. They are planned capability, not review debt.
+
+### S2-02 first review carries (2026-10-09, `.agent/S2-02-review.md`, fresh Claude)
+
+- F3 (low): Overview headline says "No readings were received for this period" while readings wait at the gateway; qualify it when the gateway reports a queue or contact is STALE/UNKNOWN.
+- Gateway health uses the most recently *received* diagnostic; a late backlogged diagnostic can show stale queue/pressure/offset figures beside CURRENT.
+- Site Evidence reads load every Site rejection plus referenced batch text and filter in Python; will not scale for a long-running Site.
+- Chunked oversized upload (no Content-Length) is read fully into memory before 413 (authenticated callers only).
+- `PUBLICATION_REFUSED` blocker comes from in-memory session notes and is lost on host restart (gap blockers survive).
