@@ -2537,3 +2537,12 @@ input:focus-visible,
 [data-diagnostics-last-emitted] {
   overflow-wrap: anywhere;
 }
+
+/*
+ * S2-01c: the ledger's selected-batch summary line carries a batch ID and a
+ * full SHA-256, unbroken machine text. It breaks inside its panel rather than
+ * setting the page's minimum width, as `.canonical-text` does.
+ */
+[data-gateway-batch-summary] {
+  overflow-wrap: anywhere;
+}

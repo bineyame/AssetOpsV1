@@ -135,7 +135,7 @@ export function GatewayLedgerView({
       )}
       {batch === undefined ? null : (
         <Panel heading="The selected batch, exactly as sealed" headingId="gateway-batch-heading">
-          <p>{`${batch.batch_id}, SHA-256 ${batch.sha256}, ${batch.canonical.length} characters.`}</p>
+          <p data-gateway-batch-summary>{`${batch.batch_id}, SHA-256 ${batch.sha256}, ${batch.canonical.length} characters.`}</p>
           <pre className="canonical-text" data-gateway-batch-canonical={batch.batch_id}>
             {batch.canonical}
           </pre>
