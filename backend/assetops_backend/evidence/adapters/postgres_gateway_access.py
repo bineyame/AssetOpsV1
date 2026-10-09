@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from typing import Sequence
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
@@ -217,10 +218,13 @@ class PostgresGatewayAccess:
              "kind": kind, "actor": actor, "at": at})
 
     def issue_credential(self, tenant_slug: str, site_code: str, gateway_external_id: str,
-                         issued: IssuedCredential, *, actor: str, at: datetime) -> list[str]:
-        """Store the new verifier, revoke every earlier active credential of the gateway
-        (rotation; takes effect on the next request) and point `credential_ref` at it.
-        Returns the revoked selectors."""
+                         issued: IssuedCredential, *, actor: str, at: datetime,
+                         enable_sources: Sequence[str] = (), cadence_seconds: int | None = None) -> list[str]:
+        """In ONE transaction: store the new verifier, revoke every earlier active
+        credential of the gateway (rotation; takes effect on the next request), point
+        `credential_ref` at it, enable the gateway and exactly the named sources.
+        Any refusal rolls all of it back, so the earlier credential stays usable and
+        no identity becomes more enabled (Q8). Returns the revoked selectors."""
 
         def work(c: Connection) -> list[str]:
             g = self._gateway(c, tenant_slug, site_code, gateway_external_id)
@@ -237,6 +241,9 @@ class PostgresGatewayAccess:
             c.execute(text("UPDATE gateway SET credential_ref = :sel WHERE id = :g"),
                       {"sel": issued.selector, "g": g.id})
             self._event(c, g, "CREDENTIAL_ISSUED", actor, at, selector=issued.selector)
+            self._gateway_enabled(c, g, True, actor, at, cadence_seconds)
+            for source in enable_sources:
+                self._source_enabled(c, g, gateway_external_id, source, True, actor, at)
             return revoked
 
         return self._run(work, write=True)
@@ -254,16 +261,30 @@ class PostgresGatewayAccess:
 
         return self._run(work, write=True)
 
+    def _gateway_enabled(self, c: Connection, g, enabled: bool, actor: str, at: datetime,
+                         cadence_seconds: int | None) -> None:
+        c.execute(text("UPDATE gateway SET disabled_at = :d WHERE id = :g"),
+                  {"d": None if enabled else at, "g": g.id})
+        if cadence_seconds is not None:
+            c.execute(text("UPDATE gateway SET diagnostic_cadence_seconds = :c WHERE id = :g"),
+                      {"c": cadence_seconds, "g": g.id})
+        self._event(c, g, "GATEWAY_ENABLED" if enabled else "GATEWAY_DISABLED", actor, at)
+
+    def _source_enabled(self, c: Connection, g, gateway_external_id: str, source_external_id: str,
+                        enabled: bool, actor: str, at: datetime) -> None:
+        source = c.execute(text(
+            "UPDATE source SET disabled_at = :d WHERE gateway_id = :g AND source_external_id = :x "
+            "RETURNING id"), {"d": None if enabled else at, "g": g.id, "x": source_external_id}).first()
+        if source is None:
+            raise ProvisioningRefused(
+                f"source {source_external_id!r} is not registered to gateway {gateway_external_id!r}")
+        self._event(c, g, "SOURCE_ENABLED" if enabled else "SOURCE_DISABLED", actor, at, source_id=source.id)
+
     def set_gateway_enabled(self, tenant_slug: str, site_code: str, gateway_external_id: str, enabled: bool,
                             *, actor: str, at: datetime, cadence_seconds: int | None = None) -> None:
         def work(c: Connection) -> None:
             g = self._gateway(c, tenant_slug, site_code, gateway_external_id)
-            c.execute(text("UPDATE gateway SET disabled_at = :d WHERE id = :g"),
-                      {"d": None if enabled else at, "g": g.id})
-            if cadence_seconds is not None:
-                c.execute(text("UPDATE gateway SET diagnostic_cadence_seconds = :c WHERE id = :g"),
-                          {"c": cadence_seconds, "g": g.id})
-            self._event(c, g, "GATEWAY_ENABLED" if enabled else "GATEWAY_DISABLED", actor, at)
+            self._gateway_enabled(c, g, enabled, actor, at, cadence_seconds)
 
         self._run(work, write=True)
 
@@ -271,12 +292,6 @@ class PostgresGatewayAccess:
                            source_external_id: str, enabled: bool, *, actor: str, at: datetime) -> None:
         def work(c: Connection) -> None:
             g = self._gateway(c, tenant_slug, site_code, gateway_external_id)
-            source = c.execute(text(
-                "UPDATE source SET disabled_at = :d WHERE gateway_id = :g AND source_external_id = :x "
-                "RETURNING id"), {"d": None if enabled else at, "g": g.id, "x": source_external_id}).first()
-            if source is None:
-                raise ProvisioningRefused(
-                    f"source {source_external_id!r} is not registered to gateway {gateway_external_id!r}")
-            self._event(c, g, "SOURCE_ENABLED" if enabled else "SOURCE_DISABLED", actor, at, source_id=source.id)
+            self._source_enabled(c, g, gateway_external_id, source_external_id, enabled, actor, at)
 
         self._run(work, write=True)

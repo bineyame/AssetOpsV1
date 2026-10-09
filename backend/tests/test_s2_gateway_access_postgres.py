@@ -6,6 +6,8 @@ Runs against the Postgres test database (`ASSETOPS_TEST_DATABASE_URL`).
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
@@ -137,6 +139,67 @@ class TestProvisioning:
         assert provision(["issue", "--tenant", "demo", "--site", rig.site_code, "--gateway", "nope",
                           "--credential-out", str(tmp_path / "x")], store=rig.access) == 2
         assert not (tmp_path / "x").exists()
+
+
+    def _state(self, rig) -> dict:
+        with rig.engine.connect() as c:
+            return {t: sorted(tuple(str(v) for v in r) for r in c.execute(text(f"SELECT * FROM {t}")).all())
+                    for t in ("gateway_credential", "gateway_access_event", "gateway", "source")}
+
+    def _uploads(self, rig, token: str) -> int:
+        return rig.client().post("/api/ingestion/batches", content=rig.kit.seal(rig.kit.pv(2)),
+                                 headers=bearer(token)).status_code
+
+    @pytest.mark.parametrize("failure", ["unprotected", "unwritable", "unregistered-source"])
+    def test_a_failed_issue_leaves_the_old_credential_usable_and_identities_unchanged(
+            self, rig, monkeypatch, failure) -> None:
+        old = rig.issue(rig.sources[rig.pv_source])
+        before = self._state(rig)
+        other = next(x for s, x in rig.sources.items() if s != rig.pv_source)
+        out = rig.tmp / "cred"
+        if failure == "unprotected":  # the effective ACL/mode check refuses before any commit
+            from assetops_backend.evidence.adapters import gateway_credential_file
+            monkeypatch.setattr(gateway_credential_file, "_protect", lambda path: os.chmod(path, 0o644))
+            flags = ["--credential-out", str(out), "--enable-source", other]
+        elif failure == "unwritable":  # the versioned file cannot be created
+            (rig.tmp / "blocker").write_text("not a directory")
+            flags = ["--credential-out", str(rig.tmp / "blocker" / "cred"), "--enable-source", other]
+        else:  # the one transaction is refused after the file was prepared
+            flags = ["--credential-out", str(out), "--enable-source", other, "--enable-source", "no-such-source"]
+        assert rig.provision("issue", *flags) == 2
+        assert self._state(rig) == before  # no verifier, no revocation, no enablement, no audit event
+        assert out.read_text(encoding="ascii").strip() == old  # the old file was never overwritten
+        assert sorted(p.name for p in rig.tmp.iterdir() if p.name.startswith("cred")) == ["cred"]
+        assert self._uploads(rig, old) == 200
+
+    def test_successful_rotation_replaces_the_configured_file_protected_without_resealing(self, rig) -> None:
+        from assetops_backend.evidence.adapters.gateway_credential_file import verify_owner_only
+        old = rig.issue(rig.sources[rig.pv_source])
+        body = rig.kit.seal(rig.kit.pv(2))
+        first = rig.client().post("/api/ingestion/batches", content=body, headers=bearer(old))
+        new = rig.issue(rig.sources[rig.pv_source])  # same configured path the gateway reads
+        assert new != old
+        verify_owner_only(rig.tmp / "cred")
+        assert sorted(p.name for p in rig.tmp.iterdir() if p.name.startswith("cred")) == ["cred"]
+        client = rig.client()
+        assert client.post("/api/ingestion/batches", content=body, headers=bearer(old)).status_code == 401
+        again = client.post("/api/ingestion/batches", content=body, headers=bearer(new))
+        assert again.status_code == 200 and again.text == first.text
+
+    @pytest.mark.skipif(sys.platform != "win32", reason="Windows DACL check")
+    def test_a_protected_dacl_that_grants_another_account_is_refused(self, tmp_path) -> None:
+        from assetops_backend.evidence.adapters.gateway_credential_file import (
+            CredentialFileRefused,
+            verify_owner_only,
+        )
+        path = tmp_path / "shared"
+        path.write_text("x")
+        subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r", f"{os.environ['USERNAME']}:F",
+                        "/grant", "*S-1-1-0:R"], check=True, capture_output=True)  # Everyone: read
+        with pytest.raises(CredentialFileRefused, match="another account"):
+            verify_owner_only(path)
+        subprocess.run(["icacls", str(path), "/remove:g", "*S-1-1-0"], check=True, capture_output=True)
+        verify_owner_only(path)
 
 
 class TestBearerBoundary:
