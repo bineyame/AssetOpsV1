@@ -264,11 +264,11 @@ def create_app(
     latest_comparison = (lambda site_code: None) if comparison_reports is None else comparison_reports.latest
     # Q14: the gate recomputes the Site's legacy inventory from the CURRENT
     # legacy evidence and committed artifacts on every read, and is scoped to
-    # this environment's database.
-    inventory_commits = build_commit_store() if commit_store is None else commit_store
-
+    # this environment's database. The commit store is built only when an
+    # imported Site's gate is actually asked (a closed build never builds it).
     def current_inventory(site_code: str) -> dict:
-        return current_legacy_inventory(ingestion.store, inventory_commits, site_code)
+        commits = build_commit_store() if commit_store is None else commit_store
+        return current_legacy_inventory(ingestion.store, commits, site_code)
     app.include_router(
         build_evidence_router(
             ingestion,
