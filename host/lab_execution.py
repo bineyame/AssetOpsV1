@@ -2698,14 +2698,25 @@ class HostLabExecution:
     def publication_schedule(self, run: SimulationRun) -> PublicationSchedule | None:
         """The Lab-private schedule of a registered run, or None if it has none.
 
-        An unreadable schedule refuses rather than reading as an empty queue."""
+        An unreadable schedule refuses rather than reading as an empty queue,
+        and so does a missing one once the run has executed with no live
+        session (answers-4 phase-3a Q3): that is lost durable state, the same
+        condition `advance_publication` refuses, not a run not yet started."""
         with self._lock_for(run.run_id):
             try:
-                return self._schedules.read(run.run_id)
+                schedule = self._schedules.read(run.run_id)
             except ScheduleUnreadable as unreadable:
                 raise LabControlRefused(
                     "PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(unreadable)
                 ) from unreadable
+            if schedule is None and run.run_id not in self._sessions and self._executed(run):
+                raise LabControlRefused(
+                    "PUBLICATION_SCHEDULE_MISSING",
+                    run.run_id,
+                    "this run has executed but its Lab publication schedule is missing; "
+                    "no pending report is known and none is reconstructed from the scenario",
+                )
+            return schedule
 
     def gateway_diagnostics(self) -> dict:
         """The gateway's local diagnostic read, or an explicit unavailable state."""

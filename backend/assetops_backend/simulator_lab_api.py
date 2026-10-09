@@ -2995,8 +2995,9 @@ def build_simulator_lab_router(
         """S2-01c: this run's Lab-private publication schedule, a read.
 
         A run with no virtual publication clock answers NOT_SUPPORTED; one not
-        yet scheduled NO_SCHEDULE; an unreadable schedule UNREADABLE with its
-        reason - never an invented empty queue.
+        yet scheduled NO_SCHEDULE; an executed run whose schedule is gone
+        SCHEDULE_MISSING; an unreadable schedule UNREADABLE with its reason -
+        never an invented empty queue.
         """
         port = _port()
         record = _run_or_404(run_id)
@@ -3010,12 +3011,16 @@ def build_simulator_lab_router(
         try:
             schedule = port.publication_schedule(record)
         except LabControlRefused as error:
+            # answers-4 phase-3a Q3: an executed run whose schedule is gone is
+            # SCHEDULE_MISSING (lost durable state), not NO_SCHEDULE (not yet
+            # started) and not an empty queue.
+            missing = error.kind == "PUBLICATION_SCHEDULE_MISSING"
             return {
                 "publication": publication_schedule_payload(
                     run_id,
                     None,
                     publication_clock=clock,
-                    status="UNREADABLE",
+                    status="SCHEDULE_MISSING" if missing else "UNREADABLE",
                     detail=error.detail or error.statement,
                 )
             }

@@ -308,3 +308,20 @@ def test_a_boundary_the_gateway_clock_has_passed_is_refused_not_stamped_late(dra
         assert len(port.registered_stage(draft).envelopes) == admitted
     finally:
         gateway.kill()
+
+
+def test_an_executed_run_without_its_schedule_reads_missing_not_empty(draft, tmp_path) -> None:
+    """answers-4 phase-3a Q3: NO_SCHEDULE (None) before a start; afterwards a
+    lost schedule refuses the read exactly as it refuses an advance."""
+    gateway = delay.gateway_for(tmp_path / "g", draft)
+    try:
+        port = delay.host(tmp_path / "h", gateway.link)
+        assert port.publication_schedule(draft) is None  # not started
+        port.start(draft)
+        assert port.run_to_end(draft).status == "COMPLETED"
+        port._schedules.path(draft.run_id).unlink()
+        restarted = delay.host(tmp_path / "h", gateway.link)
+        delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: restarted.publication_schedule(draft))
+        delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: restarted.advance_publication(draft, PAST_DUE))
+    finally:
+        gateway.kill()

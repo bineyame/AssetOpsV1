@@ -259,6 +259,18 @@ class TestPublicationApi:
         publication = client.get(f"/api/simulator-lab/runs/{run_id}/publication").json()["publication"]
         assert (publication["status"], publication["detail"], publication["reports"]) == ("UNREADABLE", "bad json", [])
 
+    def test_an_executed_run_without_its_schedule_reads_schedule_missing(self, tmp_path, legacy_root) -> None:
+        """answers-4 phase-3a Q3: lost durable state, distinct from NO_SCHEDULE."""
+        client, execution, run_id = self.client_with_draft(tmp_path, legacy_root)
+        execution.schedule_answer = LabControlRefused("PUBLICATION_SCHEDULE_MISSING", run_id, "schedule gone")
+        publication = client.get(f"/api/simulator-lab/runs/{run_id}/publication").json()["publication"]
+        assert (publication["status"], publication["detail"], publication["reports"]) == (
+            "SCHEDULE_MISSING", "schedule gone", [],
+        )
+        execution.schedule_answer = None  # not yet started
+        publication = client.get(f"/api/simulator-lab/runs/{run_id}/publication").json()["publication"]
+        assert publication["status"] == "NO_SCHEDULE"
+
     def test_a_gateway_utc_run_has_no_schedule_to_read(self, tmp_path, legacy_root) -> None:
         payload = publication_schedule_payload("r", None, publication_clock="GATEWAY_UTC", status="NOT_SUPPORTED")
         assert payload["status"] == "NOT_SUPPORTED" and payload["reports"] == []
