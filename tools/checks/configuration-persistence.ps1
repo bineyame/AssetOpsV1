@@ -569,35 +569,58 @@ function Invoke-ConfigurationPersistenceCheck {
     #       LegacySiteGate - the raw legacy repository reaches nothing else.
     #    d. Imported-code write refusal: the gate refuses create_site for an
     #       imported code, and each Lab write control calls the import check.
+    #
+    #    S2-02 adds exactly one more writer, the central evidence ledger
+    #    adapter. Each writer is confined to its own tables: the ledger writes
+    #    only the ledger tables (migration 0005), and the Foundation store
+    #    writes none of them. Every other module stays SQL- and driver-free.
     $pgWriter = "$backendRoot/sites/adapters/postgres_foundation_store.py"
+    $ledgerWriter = "$backendRoot/evidence/adapters/postgres_evidence_ledger.py"
+    $ledgerTables = @('ingestion_batch', 'accepted_evidence', 'evidence_rejection',
+        'ingestion_disposition', 'batch_refusal', 'recompute_job')
+    $pgWriters = @($pgWriter, $ledgerWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
+    $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
-    $pgWritesSeen = 0
-    $pgDriverSeen = $false
+    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0 }
+    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
+        $isWriter = $pgWriters -contains $module.Path
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
             if ($line -match $sqlWrite) {
-                if ($module.Path -eq $pgWriter) { $pgWritesSeen++ }
-                else {
+                if (-not $isWriter) {
                     $failures.Add(("A second product database writer in $($module.Path):${lineNumber}: " +
-                        "$($line.Trim()). Imported product Sites are written only by $pgWriter.")) | Out-Null
+                        "$($line.Trim()). Product rows are written only by $($pgWriters -join ' and ').")) | Out-Null
+                    continue
+                }
+                $pgWritesSeen[$module.Path]++
+                $target = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
+                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or $ledgerTables -notcontains $target)) {
+                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $pgWriter -and $null -ne $target -and $ledgerTables -contains $target) {
+                    $failures.Add(("The Foundation store must not write ledger table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
             if ($line -match $dbDriver) {
-                if ($module.Path -eq $pgWriter) { $pgDriverSeen = $true }
+                if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
                 else {
-                    $failures.Add(("Database driver imported outside $pgWriter in " +
+                    $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
         }
     }
-    if ($pgWritesSeen -eq 0 -or -not $pgDriverSeen) {
-        $failures.Add(("The product database writer check found no SQL write or driver import in " +
-            "$pgWriter, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+    foreach ($writer in $pgWriters) {
+        if ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer]) {
+            $failures.Add(("The product database writer check found no SQL write or driver import in " +
+                "$writer, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+        }
     }
 
     $reportWriter = "$backendRoot/sites/adapters/import_files.py"
