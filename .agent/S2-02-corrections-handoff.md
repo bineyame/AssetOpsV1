@@ -1,0 +1,26 @@
+# S2-02 backend/gateway corrections handoff - Q14, Q15, Q16, Q19 (+Q21) landed; phase 3c next
+
+Branch `task/S2-02-ingestion-site-evidence`. Rulings: `.agent/architect-S2-batch-answers-3.md`. Commits: `94db934` (Q14 + Q19), `5a4a1fa` (Q15), `efceb75` (Q16), `5e84966` (Q21), `0b8eb80` (lazy commit store for the inventory). New questions Q25-Q31 in `.agent/S2-02-questions-5.md` (fail-closed defaults).
+
+## Landed (anchors)
+
+- **Q14 freshness gate.** `backend/assetops_backend/evidence/legacy_comparison.py`: `REPORT_SCHEMA` v2; `environment_identity(database_url)` (host:port/db, no credentials); `legacy_inventory(legacy, committed_artifacts)` (sha256 over file-store batches/records/rejections/conflicts + sorted `(run_id, artifact sha256)`, zero inventory included); `compare(..., committed_artifacts=, environment=)` stores `environment` and `legacy_inventory`; `permits_cutover(report, code, site_id, *, tenant_id, environment, inventory)` closes on other tenant/environment, v1 report, changed digest, unreadable input (`inventory=None`), or an empty-set report whose store now holds evidence. `ledger_reads.ImportedEvidenceReads(ledger, imported, latest_comparison, current_inventory, environment)`; `scope` recomputes the inventory each read (`EvidenceStoreUnavailable` -> closed). `JsonCommitStore.site_artifacts(site_key)` (+ Protocol). `evidence_migration.current_legacy_inventory` / `committed_artifacts`; CLI `main(..., commit_store=, environment=)` refuses (exit 2) without a `DATABASE_URL` database. Wired in `main.py`.
+- **Q19.** `ledger_reads._rejection`: placed by the rejected/conflicting envelope's OWN source time; `conflicts_with_source_time` = original (lineage); the rejections route adds `rejected_without_source_time` (Evidence `counts.rejected_without_source_time` unchanged, matches `ledgerEvidenceClient.ts`). Frontend type gained optional fields only. Note: per-record rejections always hold a parseable envelope today (an unparseable envelope refuses the whole batch), so "untimed" occurs only if stored batch text is unreadable.
+- **Q15.** `gateway/assetops_gateway/credential_protection.py` (`owner_only_problem`, `restrict_to_current_user`; gateway-local copy of the provisioning DACL validator). `uploader.read_upload_credential` refuses before reading. Test helpers now protect the credential file (`gateway/tests/test_gateway_upload.py` `write_credential`; `host/tests/test_registered_gateway_delivery.py`).
+- **Q16.** `gateway_credential_file.py`: `activate` removed; `prepare` writes, fsyncs file (+ POSIX folder), reads back, re-verifies; `provision_gateway.py` commits only after, prints `Credential file: <configured>.<selector>`, never touches the old file; DB failure discards only the new file.
+- **Q21.** Gateway `DiagnosticRow` + `_DIAGNOSTIC_COLUMNS` add `last_error_code`, `refusal_code`; frontend `diagnosticUploadText` names a refusal (not retried) or the failing code; `isEmittedDiagnostic` accepts ACKED (Q30).
+- **Guards** `tools/checks/configuration-persistence.ps1`: scope must recompute inventory + environment for `permits_cutover` (Q14); issuance prepares before `issue_credential` and no rename/replace/activate in the CLI or file adapter (Q16).
+
+## Tests and non-vacuity
+
+New/changed: `backend/tests/test_s2_legacy_comparison.py` (TestFreshness 4), `test_s2_site_evidence_postgres.py` (TestCutoverFreshness: legacy evidence added after an empty-set pass -> 409 on all four routes; DB conflict placed by its own time), `test_s2_rejection_placement.py` (2), `test_s2_gateway_access_postgres.py` (failure at 5 boundaries, rotation to a new path, path printed), gateway permissive-ACL + inherited-ACL refusal, refused-diagnostic local read, frontend Q21 text. Each reverted with `git checkout`: guard Q14 (inventory=None) failed the check; digest check skipped -> 3 fail; old placement -> 2 fail; reader check disabled -> 2 fail; Q16 rename reintroduced -> guard fails; discard removed -> 2 fail; refusal text disabled -> 1 fail; diagnostic columns nulled -> 2 fail.
+
+## Phase 3c must know
+
+- **KOBO-001 on the dev DB is now closed (409 awaiting migration)**: its report is schema v1 with no fingerprint. Phase 3c regenerates it: `DATABASE_URL=... python -m assetops_backend.evidence_migration run --tenant demo --site KOBO-001` (not done here, per brief).
+- Rotation now leaves a new file `<credential-out>.<selector>`; the gateway's `upload_credential_file` must be switched to it before the next upload (walkthrough step). The gateway refuses a credential file with an inherited or broad ACL.
+- Remaining 3c work per the Architect: KOBO comparison regeneration, a newly accepted registered V2 batch with selected-window lineage, failure/retry/duplicate/conflict, terminal gap, layout evidence, owner limits.
+
+## Checks (after `0b8eb80`)
+
+Backend with `ASSETOPS_TEST_DATABASE_URL` **1750 passed** (the first full run caught `test_a_closed_build_never_builds_the_commit_store`; fixed in `0b8eb80` by building the inventory commit store lazily, then the full rerun passed). Gateway **164 passed**; host **662 passed**; frontend vitest **53 files / 1270 passed**, `tsc --noEmit` clean, `npm run build` ok; `tools/check-architecture.ps1` and `tools/check-agent-workflow.ps1` passed. Layout evidence not run (no layout change).
