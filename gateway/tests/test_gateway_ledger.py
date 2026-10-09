@@ -526,7 +526,7 @@ def test_a_version_1_ledger_migrates_to_record_seal_refusals(db_path: Path, cloc
     service = GatewayService(db_path, clock=clock)
     try:
         versions = [r[0] for r in service._db.execute("SELECT version FROM schema_migration ORDER BY version")]
-        assert versions == [1, 2] and SCHEMA_VERSION == 2
+        assert versions == [1, 2, 3] and SCHEMA_VERSION == 3
         assert service._db.execute("SELECT COUNT(*) FROM seal_refusal").fetchone()[0] == 0
     finally:
         service.close()

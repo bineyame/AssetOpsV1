@@ -488,7 +488,7 @@ class TestRegisteredControls:
         refusal = GatewaySealRefusal(
             source_id="src", sequence_epoch="1", snapshot_sha256="ab" * 32, message_id="m-2",
             kind="TOO_LARGE", field="batch", detail="more than 1048576 bytes",
-            last_seen_at="2026-10-01T09:00:00Z", seen_count=2,
+            last_seen_at="2026-10-01T09:00:00Z", seen_count=2, outbox_state="STAGED",
         )
         view = RegisteredStageView(
             run_id="run", status="SEALING_REFUSED", statement=REGISTERED_STAGE_STATEMENTS["SEALING_REFUSED"],

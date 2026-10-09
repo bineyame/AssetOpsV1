@@ -38,7 +38,7 @@ PROTOCOL_VERSION = 1
 #: One request or response. A full-day Kobo run's stage read is about 1 MiB.
 MAX_MESSAGE_BYTES = 16 * 1024 * 1024
 CREDENTIAL_BYTES = 32
-OPS = ("identity", "activate", "admit", "seal", "run_stage")
+OPS = ("identity", "activate", "admit", "seal", "run_stage", "diagnostics", "emit_diagnostic")
 #: Keys a request may carry, per op. Anything else is refused unread.
 REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     "identity": frozenset(),
@@ -46,6 +46,10 @@ REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     "admit": frozenset({"snapshot_sha256", "lab_run_ref", "reports"}),
     "seal": frozenset(),
     "run_stage": frozenset({"lab_run_ref"}),
+    # S2-01c: the local diagnostic read, and an emission for the current
+    # cadence slot (idempotent inside the slot). Neither is a receipt.
+    "diagnostics": frozenset(),
+    "emit_diagnostic": frozenset(),
 }
 CLAIMED_KEYS = frozenset(
     {
@@ -166,6 +170,7 @@ class GatewayServer:
         self._credential = credential
         self._lock = threading.Lock()
         self._listener = Listener(address, family=_family(address))  # no authkey: we challenge per thread
+        self._stop = threading.Event()
 
     @property
     def address(self) -> str:
@@ -180,7 +185,30 @@ class GatewayServer:
             threading.Thread(target=self._serve, args=(connection,), daemon=True).start()
 
     def close(self) -> None:
+        self._stop.set()
         self._listener.close()
+
+    def start_diagnostics(self, tick_seconds: float) -> threading.Thread:
+        """Emit a diagnostic for each cadence slot, independently of readings.
+
+        Ticks run under the service lock, so the ledger keeps one writer.
+        Emission is idempotent within a slot, so ticking faster than the
+        cadence never makes a second report. A failed emission (for example
+        storage exhausted) is retried at the next tick; the local read still
+        shows the live state."""
+
+        def run() -> None:
+            while not self._stop.is_set():
+                with self._lock:
+                    try:
+                        self._service.emit_diagnostic()
+                    except Exception:  # noqa: BLE001 - retried next tick; never stops serving
+                        pass
+                self._stop.wait(tick_seconds)
+
+        thread = threading.Thread(target=run, daemon=True, name="gateway-diagnostics")
+        thread.start()
+        return thread
 
     def _serve(self, connection: Connection) -> None:
         try:
@@ -248,6 +276,10 @@ class GatewayServer:
             with GatewayReader(self._reader_path) as reader:
                 stage = reader.run_stage(_str(body, "lab_run_ref"))
             return stage_document(stage)
+        if op == "diagnostics":
+            return service.local_diagnostics()
+        if op == "emit_diagnostic":
+            return dict(service.emit_diagnostic().__dict__)
         raise _BadRequest("op", f"unknown op {op!r}")
 
 

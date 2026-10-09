@@ -11,6 +11,10 @@ from a request or a run:
         "tenant_id": "...", "site_id": "...", "gateway_id": "...",
         "source_mode": "SIMULATED", "permitted_source_ids": ["..."],
         "sequence_epoch": "..."
+      },
+      "diagnostics": {                     (optional; S2-01c defaults otherwise)
+        "emission_cadence_seconds": 60,
+        "disk_warn_free_bytes": ..., "disk_stop_free_bytes": ...
       }
     }
 
@@ -27,11 +31,13 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from assetops_contracts.gateway_diagnostics import DiagnosticConfig
 from assetops_gateway.ipc import GatewayServer, default_address, ensure_credential
 from assetops_gateway.service import GatewayRefused, GatewayService
 from assetops_gateway.snapshot import Provisioning
 
-CONFIG_KEYS = {"database", "credential_file", "address", "provisioning"}
+CONFIG_KEYS = {"database", "credential_file", "address", "provisioning", "diagnostics"}
+DIAGNOSTICS_KEYS = {"emission_cadence_seconds", "disk_warn_free_bytes", "disk_stop_free_bytes"}
 PROVISIONING_KEYS = {"tenant_id", "site_id", "gateway_id", "source_mode", "permitted_source_ids", "sequence_epoch"}
 
 
@@ -42,13 +48,21 @@ class GatewayConfig:
     address: str
     provisioning: Provisioning
     sequence_epoch: str
+    diagnostics: DiagnosticConfig = DiagnosticConfig()
 
 
 def load_config(path: Path) -> GatewayConfig:
     path = Path(path)
     document = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(document, dict) or not set(document) <= CONFIG_KEYS or not (CONFIG_KEYS - {"address"}) <= set(document):
-        raise SystemExit(f"gateway config needs {sorted(CONFIG_KEYS - {'address'})} (address optional)")
+    if not isinstance(document, dict) or not set(document) <= CONFIG_KEYS or not (CONFIG_KEYS - {"address", "diagnostics"}) <= set(document):
+        raise SystemExit(
+            f"gateway config needs {sorted(CONFIG_KEYS - {'address', 'diagnostics'})} (address, diagnostics optional)"
+        )
+    raw_diagnostics = document.get("diagnostics", {})
+    if not isinstance(raw_diagnostics, dict) or not set(raw_diagnostics) <= DIAGNOSTICS_KEYS:
+        raise SystemExit(f"gateway diagnostics takes only {sorted(DIAGNOSTICS_KEYS)}")
+    diagnostics = DiagnosticConfig(**raw_diagnostics)
+    diagnostics.document()  # validates now, not at first emission
     raw = document["provisioning"]
     if not isinstance(raw, dict) or set(raw) != PROVISIONING_KEYS:
         raise SystemExit(f"gateway provisioning needs exactly {sorted(PROVISIONING_KEYS)}")
@@ -67,6 +81,7 @@ def load_config(path: Path) -> GatewayConfig:
         address=document.get("address") or default_address(database.parent, provisioning.gateway_id),
         provisioning=provisioning,
         sequence_epoch=raw["sequence_epoch"],
+        diagnostics=diagnostics,
     )
 
 
@@ -74,12 +89,13 @@ def serve(config: GatewayConfig) -> int:
     credential = ensure_credential(config.credential_file)
     service = GatewayService(config.database)
     try:
-        service.provision(config.provisioning, sequence_epoch=config.sequence_epoch)
+        service.provision(config.provisioning, sequence_epoch=config.sequence_epoch, diagnostics=config.diagnostics)
     except GatewayRefused as refused:
         print(f"REFUSED {refused.kind}: {refused.detail}", flush=True)
         service.close()
         return 2
     server = GatewayServer(service, config.database, config.address, credential)
+    server.start_diagnostics(min(15.0, config.diagnostics.emission_cadence_seconds / 2))
     print(f"READY {config.address}", flush=True)
     try:
         server.serve_forever()
