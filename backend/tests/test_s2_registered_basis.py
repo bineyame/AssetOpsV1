@@ -38,6 +38,7 @@ from assetops_backend.sites.foundation_content import battery_reserve
 from assetops_backend.sites.foundation_records import Registrations
 from assetops_backend.sites.foundation_service import FoundationService
 from assetops_backend.sites.ports import SiteStoreUnavailable
+from assetops_contracts.lab_projection import LabControlRefused
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 SCENARIO = parse_scenario_document(
@@ -444,14 +445,20 @@ class TestRegisteredControls:
         assert client.post(f"{base}/execution/run-to-end").status_code == 200
         assert [call[0] for call in execution.calls] == ["start", "step", "run_to_end"]
 
-    def test_commit_refuses_a_registered_run_before_the_port_or_commit_store(
+    def test_commit_of_a_registered_run_is_a_port_release_never_the_file_stage(
         self, tmp_path, legacy_root
     ) -> None:
+        """S2-02 phase 2 replaces the S2-01a refusal: Commit asks the port's
+        gateway release and never reads the file Stage or the commit store
+        (test_s2_registered_commit_api.py covers the answers)."""
         client, execution, _, run = self.client_with_draft(tmp_path, legacy_root)
+        execution.release_registered = lambda record: (_ for _ in ()).throw(
+            LabControlRefused("COMMIT_NOT_READY", record.run_id, "NOT_STARTED")
+        )
         response = client.post(f"/api/simulator-lab/runs/{run['run_id']}/commit")
         assert response.status_code == 409, response.text
-        assert response.json()["detail"]["code"] == "REGISTERED_COMMIT_UNAVAILABLE"
-        assert execution.calls == [], "a refused Commit asked the port for its stage"
+        assert response.json()["detail"]["refusal_kind"] == "COMMIT_NOT_READY"
+        assert execution.calls == [], "a registered Commit read the file Stage"
 
     def test_stage_is_labelled_registered_with_no_evidence_claim_after_reload(
         self, tmp_path, legacy_root

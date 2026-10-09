@@ -733,7 +733,7 @@ function Invoke-ConfigurationPersistenceCheck {
         # step and run-to-end call it plainly (a registered Draft runs from its
         # frozen basis; a pre-import YAML Draft of an imported code refuses).
         # Commit must call it with commit=True, and the boundary must refuse
-        # Commit for a registered run before anything else, until S2-02.
+        # Commit for a pre-import YAML Draft; a registered run releases (below).
         $guarded = @{
             'RUN_EXECUTION_START_ROUTE' = '_refuse_if_imported\(record\)'
             'RUN_EXECUTION_STEP_ROUTE' = '_refuse_if_imported\(record\)'
@@ -747,11 +747,25 @@ function Invoke-ConfigurationPersistenceCheck {
                     "($($guarded[$route].Replace('\', ''))). Lab writes against an imported code must refuse.")) | Out-Null
             }
         }
-        $boundary = '(?s)def _refuse_if_imported\(record: SimulationRun, \*, commit: bool = False\) -> None:\n' +
-            '(?:(?!\n    def ).)*?\n        if record\.registered_basis is not None:\n            if commit:\n                raise HTTPException\('
-        if ($labText -notmatch $boundary) {
-            $failures.Add(("$labPath _refuse_if_imported no longer refuses Commit for a registered run first. " +
-                "Every imported run's Commit refuses until Site Evidence delivery exists (S2-01a AC4).")) | Out-Null
+        # S2-02 phase 2: a registered run's Commit is a local gateway release.
+        # The Commit route must branch on registered_basis first and answer only
+        # from port.release_registered, before the file-Stage path; that branch
+        # may not seal a file Stage, write the commit store or call ingestion.
+        $registeredCommit = '(?s)@router\.post\(RUN_COMMIT_ROUTE\)\n(?:(?!@router\.).)*?' +
+            '\n        if record\.registered_basis is not None:\n((?:(?!\n        [^ \n]).)*)' +
+            '\n        _refuse_if_imported\(record, commit=True\)'
+        if ($labText -notmatch $registeredCommit) {
+            $failures.Add(("$labPath POST RUN_COMMIT_ROUTE no longer answers a registered run from " +
+                "port.release_registered before the file-Stage path (S2-02 AC5).")) | Out-Null
+        } else {
+            $branch = $Matches[1]
+            if ($branch -notmatch 'port\.release_registered\(record\)') {
+                $failures.Add("$labPath registered Commit branch does not call port.release_registered(record).") | Out-Null
+            }
+            if ($branch -match '_commit_store|_seal\(|\.ingest\(|staged_envelopes') {
+                $failures.Add(("$labPath registered Commit branch seals, files or ingests a Stage; a registered " +
+                    "run releases only its gateway's sealed batches (S2-02 AC5).")) | Out-Null
+            }
         }
     }
 

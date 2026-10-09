@@ -58,6 +58,8 @@ def test_the_sites_index_is_served_and_no_evidence_surface_is() -> None:
         "/api/sites/{site_id}/foundation/revisions",
         "/api/sites/{site_id}/foundation/snapshot",
         "/api/sites/{site_id}/foundation/versions",
+        # S2-02 phase 2: central gateway health, operational only.
+        "/api/sites/{site_id}/gateway-health",
         # T027 phase 2: the Overview read, beside Site evidence.
         "/api/sites/{site_id}/overview",
     ]

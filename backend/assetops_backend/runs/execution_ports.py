@@ -174,3 +174,27 @@ class LabExecutionPort(Protocol):
         an unreachable gateway is unavailable, never a healthy zero queue.
         """
         ...
+
+    def release_registered(self, run: SimulationRun) -> dict:
+        """S2-02: Lab Commit of a registered run, as a LOCAL gateway release.
+
+        The gateway moves each sealed STAGED batch of the run to READY under a
+        private release manifest (idempotent) and uploads it itself with its
+        own protected credential; neither this port nor the browser ever holds
+        that secret, and nothing here writes Evidence or calls the central
+        ledger. Returns the delivery view (see `registered_delivery`). Raises
+        `LabControlRefused` (`COMMIT_NOT_READY`, `GATEWAY_RELEASE_UNAVAILABLE`)
+        when nothing was released.
+        """
+        ...
+
+    def registered_delivery(self, run: SimulationRun) -> dict:
+        """S2-02: a registered run's release and delivery state. A read, never a refusal.
+
+        `{"status": "AVAILABLE" | "GATEWAY_UNAVAILABLE", "detail",
+        "execution_status", "delivery", "released_now", "publication_gap",
+        "publication_gap_detail", "fully_released", "release_blockers"}`.
+        `fully_released` is true only when every admitted envelope is sealed,
+        no publication gap remains, and every batch is released and ACKED.
+        """
+        ...
