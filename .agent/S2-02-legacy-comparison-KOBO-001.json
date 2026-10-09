@@ -1,5 +1,5 @@
 {
-  "compared_at": "2026-10-09T11:55:07.591790Z",
+  "compared_at": "2026-10-09T15:46:16.711964Z",
   "empty_set": true,
   "environment": "postgresql://127.0.0.1:55432/assetops",
   "exceptions": [],
@@ -31,7 +31,7 @@
     "parser": "source-envelope V1 (parse_canonical_envelope_json), dry run",
     "replayed": 0
   },
-  "report_id": "2336513b-2ec2-45db-8787-a33a56ab6342",
+  "report_id": "297aa1aa-28de-49dd-9103-17ef8829d26b",
   "representative_records": [],
   "s3_fixtures": {
     "legacy_dispatch_claims": [],
@@ -40,11 +40,12 @@
   },
   "schema": {
     "id": "assetops.evidence-legacy-comparison",
-    "version": 2
+    "version": 3
   },
   "site_id": "KOBO-001",
   "site_uuid": "c78e6e71-8833-4f2f-bb07-2083b4e49e8b",
   "statement": "Empty-set comparison: the legacy file store holds no evidence for KOBO-001, so nothing was replayed and no record is claimed to match.",
+  "store_root": "sha256:2196b88e17a976a84235b31af96b95b362674ec25bd71e784257a3c9d8e55b17",
   "tenant_id": "899746c9-7916-4bee-aa6f-f151a398bb3c",
   "writes": "None to Postgres; the legacy evidence, run, Stage and commit stores are left untouched."
 }
