@@ -13,7 +13,11 @@ Site dispatch and selected-interval analysis classify a generator interval as Ne
 
 ## Persisted object and read contract
 
+Pre-activation decisions `D-2026-10-09-pre-s3-claim-routes-and-actor`, `D-2026-10-09-pre-s3-evidence-readiness-health` and `D-2026-10-09-pre-s3-shared-contract-scope` are recorded. They define shared routes, actors and readiness/health boundaries; they do not add dispatch implementation dependencies. Activation still waits for `A-S3-dispatch` and normal-ingestion `I-sim-dispatch-cases`, plus accepted S2-02 and time-valid S1 bindings. W1 owner core-panel/demo-value input and startup guards are separate planning stops.
+
 Typed EvidenceQuery/AnalyticInputSet over Postgres accepted records and time-valid role bindings, a durable consumer of S2-02 recompute jobs, versioned dispatch analytic, persisted AnalyticRun/AssessmentRevision and window Performance read model. Replace hard-coded demo device keys in `backend/assetops_backend/analytics/dispatch.py` and JSON assessment persistence with role-bound inputs and Postgres revisions; no raw envelope, SQL row or Lab world object crosses the analytic boundary.
+
+Refinement must bind tenant/Site/domain, half-open window, knowledge cutoff, accepted evidence IDs/digests, Foundation/binding revisions and role coverage. Select a run/epoch basis for overlapping same-time simulated reports (including the S2 demo's two runs and fault epoch) or return Limited/Indeterminate; never sum them as one physical stream. Distinguish source-time overlap, server receipt and virtual publication time. Compare representative file-backed dispatch claims before read cutover; persist input hash/run/assessment revisions, consume recompute jobs and prove late-evidence revision selection. Necessary/Candidate/Indeterminate uses accepted lineage, not diagnostic contact or readiness as dispatch proof.
 
 ## Demo acceptance
 

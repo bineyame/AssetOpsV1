@@ -1,9 +1,9 @@
 ﻿# S6-01 — Action and controlled policy change
 
-Status: outline; refine after preceding task review, before activation
+Status: outline; refine after technical gates and owner wave input, before activation
 USER_REVIEW_REQUIRED: true
 Milestone: S6 Work / Action / Verification
-Depends on: S5-01
+Depends on: S4-01 Finding identity/read, S1 Foundation publish, and recorded actor/route contracts. S5-01 is ordering history only.
 Branch: task/S6-01-action-change
 Planner: Codex, 2026-10-07
 

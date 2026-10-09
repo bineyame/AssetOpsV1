@@ -1,9 +1,9 @@
 ﻿# S7-01 — Site Health and first asset risk
 
-Status: outline; refine after preceding task review, before activation
+Status: outline; refine after technical gates and owner wave input, before activation
 USER_REVIEW_REQUIRED: true
 Milestone: S7 Health
-Depends on: S6-02
+Depends on: S2-02 central diagnostics, S1-02 bindings, bounded readiness/health contract and D-edge-health-cases. S6-02 is ordering history only.
 Branch: task/S7-01-site-health
 Planner: Codex, 2026-10-07
 

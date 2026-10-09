@@ -106,9 +106,12 @@ function visitQueue(id) {
   queueVisited.add(id);
 }
 for (const id of nodes.keys()) visitQueue(id);
-const expectedTasks = ['S1-01', 'S1-02', 'S2-01a', 'S2-01b', 'S2-01c', 'S2-02', 'S3-01', 'S4-01', 'S4-02', 'S5-01', 'S6-01', 'S6-02', 'S7-01'];
 const taskRows = [...taskQueue.matchAll(/\|\s*S[1-7][^|]*\|\s*\[(S[1-7]-\d{2}[a-z]?)\]\(([^)]+)\)/g)];
-if (JSON.stringify(taskRows.map((match) => match[1])) !== JSON.stringify(expectedTasks) ||
+const expectedTasks = taskRows.map((match) => match[1]);
+const registryTasks = registry.nodes.filter((node) => node.kind === 'implementation' && node.layer === 'task' && /^S[1-7]-/.test(node.task || '')).map((node) => node.task);
+if (!expectedTasks.length || new Set(expectedTasks).size !== expectedTasks.length ||
+    expectedTasks.length !== registryTasks.length || expectedTasks.some((task) => !registryTasks.includes(task)) ||
+    expectedTasks[0] !== 'S1-01' || expectedTasks.at(-1) !== 'S7-01' ||
     taskRows.some((match) => !fs.existsSync(path.resolve(here, '../../../tasks', match[2])))) {
   fail('Task queue rows, packets and registry task sequence differ');
 }
@@ -118,7 +121,7 @@ for (const [index, task] of expectedTasks.entries()) {
     fail(`${task}: missing S1–S7 task gate`);
   }
   if (!node.requires.some((id) => nodes.get(id).kind === 'architecture')) fail(`${task}: no direct architecture gate`);
-  const predecessor = index ? [`I-${expectedTasks[index - 1]}`] : [];
+  const predecessor = index && !['S6-01', 'S7-01'].includes(task) ? [`I-${expectedTasks[index - 1]}`] : [];
   if (JSON.stringify(node.sequenced_after || []) !== JSON.stringify(predecessor)) fail(`${task}: queue order differs from S1–S7 plan`);
 }
 for (const node of nodes.values()) if (node.kind === 'implementation' && node.layer !== 'task' && expectedTasks.includes(node.task)) {
@@ -213,6 +216,29 @@ for (const area of briefs.areas) {
 }
 
 const knownPanels = new Set(contracts.map((panel) => `${panel.screen_id}:${panel.panel_index}`));
+const plan = registry.delivery_plan;
+if (plan?.version !== 1 || !plan.waves || !Array.isArray(plan.w1_panel_mapping)) fail('Missing versioned delivery plan');
+const manifestIds = new Set(screenLedger.map((row) => row.id));
+const waveIds = Object.values(plan.waves).flatMap((wave) => wave.manifest_ids || []);
+if (waveIds.length !== manifestIds.size || new Set(waveIds).size !== waveIds.length ||
+    waveIds.some((id) => !manifestIds.has(id))) fail('Delivery waves do not allocate every manifest screen exactly once');
+const w1Ids = new Set(plan.waves.W1?.manifest_ids || []);
+const w1Keys = new Set(contracts.filter((panel) => w1Ids.has(panel.screen_id)).map((panel) => `${panel.screen_id}:${panel.panel_index}`));
+const mappedKeys = plan.w1_panel_mapping.map((row) => row.key);
+if (mappedKeys.length !== w1Keys.size || new Set(mappedKeys).size !== mappedKeys.length ||
+    mappedKeys.some((key) => !w1Keys.has(key)) ||
+    plan.w1_panel_mapping.some((row) => !Array.isArray(row.claim_portions) || !row.claim_portions.length ||
+      row.title !== contracts.find((panel) => `${panel.screen_id}:${panel.panel_index}` === row.key)?.panel_title)) {
+  fail('W1 panel mapping differs from panel contracts');
+}
+if (process.argv.includes('--next-work')) {
+  const input = plan.owner_inputs?.W1;
+  if (!input?.approved_manifest_ids || !input?.core_panels || !input?.demo_values || !input?.evidence) {
+    fail('W1 owner input missing: next-work ranking unavailable');
+  }
+  if (plan.w1_panel_mapping.some((row) => !row.reviewed_mapping)) fail('W1 claim-portion mapping unreviewed: next-work ranking unavailable');
+  fail('Next-work scoring/report is pending PRE-S3-03 implementation');
+}
 const seenPanels = new Set();
 const pilotScreens = new Set(registry.panels.map((panel) => panel.screen_id));
 const screenAreas = new Map(briefs.areas.flatMap((area) => area.primary_screens.map((screen) => [screen, area.id])));
