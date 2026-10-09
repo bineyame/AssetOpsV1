@@ -19,7 +19,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 4
 BUSY_TIMEOUT_MS = 5000
 
 OUTBOX_STATES = ("STAGED", "READY", "IN_FLIGHT", "ACKED", "DEAD_LETTER")
@@ -223,7 +223,98 @@ CREATE TABLE seal_refusal (
 );
 """
 
-MIGRATIONS = {1: MIGRATION_1, 2: MIGRATION_2}
+# S2-01c phase 1.
+#
+# R1: a sealing group is (source, epoch, snapshot, outbox state), so the
+# durable refusal is keyed by all four. A version-2 row takes the state of the
+# envelope it names: that envelope is unbatched, and an unbatched envelope's
+# state never changes (only batch moves change states), so it is exactly the
+# state of the group that was refused.
+#
+# Diagnostics: the frozen emission configuration, the GatewayDiagnosticsV1
+# outbox and local health observations (last simulated source contact, clock
+# offset, injected disk pressure), each with its provenance. Nothing here is a
+# receipt: `server_received_at` stays NULL until S2-02 stores a central row,
+# and no state other than READY is written locally.
+MIGRATION_3 = """
+CREATE TABLE seal_refusal_v3 (
+  source_id TEXT NOT NULL,
+  sequence_epoch TEXT NOT NULL,
+  snapshot_sha256 TEXT NOT NULL,
+  outbox_state TEXT NOT NULL CHECK (outbox_state IN ('STAGED','READY')),
+  message_id TEXT NOT NULL REFERENCES envelope_outbox(message_id),
+  kind TEXT NOT NULL,
+  field TEXT NOT NULL,
+  detail TEXT NOT NULL,
+  first_seen_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL,
+  seen_count INTEGER NOT NULL DEFAULT 1,
+  PRIMARY KEY (source_id, sequence_epoch, snapshot_sha256, outbox_state)
+);
+INSERT INTO seal_refusal_v3 (source_id, sequence_epoch, snapshot_sha256, outbox_state, message_id, kind, field,
+  detail, first_seen_at, last_seen_at, seen_count)
+SELECT r.source_id, r.sequence_epoch, r.snapshot_sha256, o.state, r.message_id, r.kind, r.field, r.detail,
+  r.first_seen_at, r.last_seen_at, r.seen_count
+FROM seal_refusal r JOIN envelope_outbox o ON o.message_id = r.message_id
+WHERE o.state IN ('STAGED','READY');
+DROP TABLE seal_refusal;
+ALTER TABLE seal_refusal_v3 RENAME TO seal_refusal;
+CREATE TABLE diagnostic_config (
+  singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
+  config_text TEXT NOT NULL,
+  sha256 TEXT NOT NULL,
+  configured_at TEXT NOT NULL
+);
+CREATE TABLE diagnostic_outbox (
+  gateway_id TEXT NOT NULL,
+  sequence_epoch TEXT NOT NULL,
+  diagnostic_sequence INTEGER NOT NULL CHECK (diagnostic_sequence >= 1),
+  cadence_slot INTEGER NOT NULL,
+  payload_text TEXT NOT NULL,
+  sha256 TEXT NOT NULL,
+  state TEXT NOT NULL CHECK (state IN ('READY','IN_FLIGHT','ACKED')),
+  observed_at TEXT NOT NULL,
+  last_attempt_at TEXT,
+  server_received_at TEXT,
+  PRIMARY KEY (gateway_id, sequence_epoch, diagnostic_sequence),
+  UNIQUE (gateway_id, sequence_epoch, cadence_slot)
+);
+CREATE TABLE health_observation (
+  name TEXT PRIMARY KEY,
+  value_text TEXT NOT NULL,
+  observed_at TEXT NOT NULL,
+  provenance TEXT NOT NULL CHECK (provenance IN ('OBSERVED_SIMULATED_REPORT','OBSERVED_DEVICE_REPORT','MEASURED','INJECTED_FAULT_FIXTURE'))
+);
+CREATE TRIGGER diagnostic_bytes_immutable BEFORE UPDATE OF payload_text, sha256, gateway_id, sequence_epoch,
+  diagnostic_sequence, cadence_slot, observed_at ON diagnostic_outbox
+BEGIN SELECT RAISE(ABORT, 'diagnostic bytes are immutable'); END;
+CREATE TRIGGER diagnostic_never_deleted BEFORE DELETE ON diagnostic_outbox
+BEGIN SELECT RAISE(ABORT, 'diagnostics are retained'); END;
+CREATE TRIGGER diagnostic_config_immutable BEFORE UPDATE ON diagnostic_config
+BEGIN SELECT RAISE(ABORT, 'the diagnostic configuration is frozen'); END;
+CREATE TRIGGER diagnostic_config_never_deleted BEFORE DELETE ON diagnostic_config
+BEGIN SELECT RAISE(ABORT, 'the diagnostic configuration is retained'); END;
+"""
+
+#: S2-01c phase 2 (`D-2026-10-09-s2-simulated-publication-clock`): one virtual
+#: publication clock per registered Lab run, owned and persisted here. It only
+#: moves forward; V3 `published_at` for that run's admissions is read from it,
+#: while every operational time (outbox creation, contact, diagnostics) stays
+#: on the gateway's real UTC clock.
+MIGRATION_4 = """
+CREATE TABLE publication_clock (
+  lab_run_ref TEXT PRIMARY KEY,
+  instant TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE TRIGGER publication_clock_forward_only BEFORE UPDATE OF instant ON publication_clock
+WHEN NEW.instant < OLD.instant
+BEGIN SELECT RAISE(ABORT, 'a publication clock never moves backward'); END;
+CREATE TRIGGER publication_clock_never_deleted BEFORE DELETE ON publication_clock
+BEGIN SELECT RAISE(ABORT, 'publication clocks are retained'); END;
+"""
+
+MIGRATIONS = {1: MIGRATION_1, 2: MIGRATION_2, 3: MIGRATION_3, 4: MIGRATION_4}
 
 
 class WriterBusy(RuntimeError):

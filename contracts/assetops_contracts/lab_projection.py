@@ -106,12 +106,61 @@ LAB_CONTROL_REFUSALS = frozenset(
         "FROZEN_RUN_NOT_RECONSTRUCTIBLE",
         "CADENCE_NOT_EXPRESSIBLE",
         "ARTIFACT_UNREADABLE",
+        # S2-01c: the registered run's virtual publication clock.
+        "PUBLICATION_CLOCK_NOT_SUPPORTED",
+        "PUBLICATION_CLOCK_BACKWARD",
+        "PUBLICATION_AHEAD_OF_WORLD",
+        "PUBLICATION_SCHEDULE_UNREADABLE",
+        "PUBLICATION_SCHEDULE_MISSING",
+        "PUBLICATION_INSTANT_INVALID",
+        "PUBLICATION_GAP",
     }
 )
 
 #: What each refusal tells a reader. A test asserts this covers the vocabulary
 #: exactly, so a refusal cannot be raised without a statement somebody wrote.
 LAB_CONTROL_REFUSAL_STATEMENTS: dict[str, str] = {
+    "PUBLICATION_CLOCK_NOT_SUPPORTED": (
+        "Only a run set up from a registered Site under a publication profile "
+        "that publishes on the run's virtual publication clock has a clock to "
+        "advance. This run publishes on the gateway's own clock, so nothing "
+        "was advanced and nothing was released."
+    ),
+    "PUBLICATION_CLOCK_BACKWARD": (
+        "A run's publication clock only moves forward: an instant earlier than "
+        "where it already is would publish into the past. Nothing was changed; "
+        "the clock's current instant is on the refusal. Advancing to the same "
+        "instant again is accepted and changes nothing."
+    ),
+    "PUBLICATION_AHEAD_OF_WORLD": (
+        "While the world run is still executing, its publication clock may not "
+        "pass the instant the world has reached: a reading not yet observed "
+        "cannot be published. Step the world, or finish it; after it completes "
+        "the publication clock may be advanced past its end."
+    ),
+    "PUBLICATION_SCHEDULE_UNREADABLE": (
+        "The Lab's record of this run's pending publications could not be read, "
+        "so nothing was released: releasing from a record that cannot be "
+        "verified could publish a report twice or not at all."
+    ),
+    "PUBLICATION_SCHEDULE_MISSING": (
+        "This run executed, but the Lab holds no record of its pending "
+        "publications, so nothing was released. A report is never rebuilt or "
+        "guessed from the scenario: only a stored schedule's exact report text "
+        "is ever released."
+    ),
+    "PUBLICATION_GAP": (
+        "This run's ordinary publication stopped before the boundary its world "
+        "reached, and the stored schedule cannot regenerate those readings. "
+        "Releasing a delayed report now would publish past the gap for good, "
+        "so nothing was moved, admitted or sealed. Where ordinary publication "
+        "is admitted through and where the world reached are on the refusal; "
+        "recovery is a new run."
+    ),
+    "PUBLICATION_INSTANT_INVALID": (
+        "A publication instant is a UTC instant written YYYY-MM-DDTHH:MM:SSZ. "
+        "This one is not, so the clock was not moved."
+    ),
     "RUN_BLOCKED": (
         "This Draft is BLOCKED, which is run setup's answer that its frozen "
         "inputs may not execute. There is no override and no partial mode: a "

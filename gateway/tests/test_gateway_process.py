@@ -167,3 +167,63 @@ def test_restart_keeps_identity_and_bytes(running: GatewayProcess, tmp_path: Pat
         assert replay["admissions"][0]["outcome"] == "ALREADY_ADMITTED"
     finally:
         again.kill()
+
+
+def test_the_process_serves_local_diagnostics_and_a_dead_gateway_is_unavailable(running: GatewayProcess) -> None:
+    """S2-01c: the diagnostic read crosses the authenticated channel; a killed
+    gateway is unavailable, never a healthy zero queue."""
+    link = running.link
+    emitted = link.call("emit_diagnostic")
+    again = link.call("emit_diagnostic")
+    assert emitted["diagnostic_sequence"] >= 1 and emitted["state"] == "READY"
+    # inside one 60 s cadence slot a retry is the same identity and bytes
+    # (the ticker may have emitted first; either way the slot holds one report)
+    if again["diagnostic_sequence"] == emitted["diagnostic_sequence"]:
+        assert again == emitted
+    read = link.call("diagnostics")
+    assert read["site_id"] == SITE and read["upload"] == "PENDING"
+    assert read["config"]["emission_cadence_seconds"] == 60
+    assert read["diagnostics"][0]["payload_text"] in (emitted["payload_text"], again["payload_text"])
+    assert {c["last_contact_at"] for c in read["source_contacts"]} == {None}
+    with pytest.raises(GatewayRequestRefused):
+        link.call("diagnostics", {"lab_run_ref": "x"})  # exact body
+    running.kill()
+    with pytest.raises(GatewayUnavailable):
+        link.call("diagnostics")
+
+
+def test_the_run_clock_and_fault_fixtures_cross_the_channel_typed(running: GatewayProcess) -> None:
+    """S2-01c phase 2: clock advance, virtual admission and fault fixtures are
+    ops of the authenticated channel, with exact bodies and typed refusals."""
+    link = running.link
+    text, claimed = snapshot()
+    sha = link.call("activate", {"snapshot_text": text, "claimed": claimed.__dict__})["snapshot_sha256"]
+    body = {"snapshot_sha256": sha, "lab_run_ref": "run-v", "reports": [report(key="v1")]}
+    with pytest.raises(GatewayRequestRefused):
+        link.call("admit_at_run_clock", body)  # exact body: the admission instant is required
+    body["at_instant"] = "2026-10-01T08:10:00Z"
+    assert link.call("advance_publication_clock", {"lab_run_ref": "run-v", "instant": "2026-10-01T08:10:00Z"})[
+        "advanced"
+    ]
+    admitted = link.call("admit_at_run_clock", body)["admissions"][0]
+    assert admitted["outcome"] == "ADMITTED"
+    stage = link.call("run_stage", {"lab_run_ref": "run-v"})
+    assert "\"published_at\":\"2026-10-01T08:10:00Z\"" in stage["envelopes"][0]["envelope_text"]
+    with pytest.raises(GatewayRequestRefused) as error:
+        link.call("advance_publication_clock", {"lab_run_ref": "run-v", "instant": "2026-10-01T08:00:00Z"})
+    assert error.value.kind == "PUBLICATION_CLOCK_BACKWARD"
+    assert link.call("inject_fault", {"fault": "DISK_PRESSURE", "value": "STOP"}) == {
+        "fault": "DISK_PRESSURE",
+        "value": "STOP",
+    }
+    with pytest.raises(GatewayRequestRefused) as error:
+        link.call("admit", {"snapshot_sha256": sha, "lab_run_ref": "run-a", "reports": [report(key="a1")]})
+    assert error.value.kind == "DISK_PRESSURE_STOP"
+    assert link.call("diagnostics")["disk_pressure"]["provenance"] == "INJECTED_FAULT_FIXTURE"
+    link.call("inject_fault", {"fault": "DISK_PRESSURE", "value": None})
+    link.call("inject_fault", {"fault": "CLOCK_OFFSET", "value": 1500})
+    assert link.call("diagnostics")["clock_offset"]["value_ms"] == 1500
+    for bad in ({"fault": "ORACLE", "value": 1}, {"fault": "CLOCK_OFFSET", "value": "1"}):
+        with pytest.raises(GatewayRequestRefused) as error:
+            link.call("inject_fault", bad)
+        assert error.value.kind == "BAD_REQUEST"

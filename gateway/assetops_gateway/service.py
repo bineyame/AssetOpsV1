@@ -14,6 +14,7 @@ row with its kind, field and reason, and allocates no sequence.
 from __future__ import annotations
 
 import json
+import shutil
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -24,6 +25,12 @@ from assetops_contracts.gateway_report import (
     DeviceReport,
     device_report_text,
     parse_device_report_text,
+)
+from assetops_contracts.gateway_diagnostics import (
+    DISK_PRESSURES,
+    DiagnosticConfig,
+    parse_diagnostic_config_text,
+    seal_gateway_diagnostics_v1,
 )
 from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_ENVELOPES, BatchRejected, seal_batch_v2
 from assetops_contracts.source_envelope import EnvelopeRejected
@@ -50,6 +57,24 @@ from assetops_gateway.snapshot import (
 
 _INSTANT = "%Y-%m-%dT%H:%M:%SZ"
 _MEMBER_CHARS = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")
+
+
+#: The hold kinds the diagnostic `mapping_error_count` counts
+#: (`D-2026-10-09-s2-gateway-diagnostic-semantics`). Invalid values, conflicting
+#: reports, exhausted sequences and batching refusals are holds, not mapping errors.
+MAPPING_ERROR_KINDS = (
+    "NO_ACTIVE_MAPPING",
+    "UNKNOWN_CHANNEL",
+    "SOURCE_NOT_PERMITTED",
+    "OUTSIDE_VALIDITY",
+    "UNIT_INCOMPATIBLE",
+    "INVALID_ENUM",
+)
+
+
+#: Which clock stamps V3 `published_at` for an admission.
+GATEWAY_UTC = "GATEWAY_UTC"
+RUN_VIRTUAL = "RUN_VIRTUAL"
 
 
 def _utc_now() -> datetime:
@@ -138,7 +163,25 @@ def _fit(provisioning: Provisioning, snapshot: VerifiedSnapshot, source_id: str,
 
 
 #: Fault-injection points tests use to stop the process between steps.
-FAULT_POINTS = ("after_sequence_read", "after_enqueue_commit", "after_seal_commit")
+FAULT_POINTS = (
+    "after_sequence_read",
+    "after_enqueue_commit",
+    "after_seal_commit",
+    "after_diagnostic_sequence_read",
+    "after_diagnostic_commit",
+)
+
+#: Outbox states still awaiting a central disposition: the local queue.
+QUEUED_STATES = ("STAGED", "READY", "IN_FLIGHT")
+#: `health_observation` names. Contacts are `source_contact:<source_id>`.
+_CONTACT = "source_contact:"
+_CLOCK_OFFSET = "clock_offset_ms"
+_DISK_PRESSURE = "disk_pressure"
+INJECTED = "INJECTED_FAULT_FIXTURE"
+
+
+def _default_disk_free(path: Path) -> Callable[[], int]:
+    return lambda: shutil.disk_usage(path.parent).free
 
 
 class GatewayService:
@@ -148,10 +191,13 @@ class GatewayService:
         *,
         clock: Callable[[], datetime] = _utc_now,
         fault: Callable[[str], None] | None = None,
+        disk_free: Callable[[], int] | None = None,
     ) -> None:
         self.path = Path(path)
         self._clock = clock
         self._fault = fault
+        #: The measured free-space probe behind MEASURED disk pressure.
+        self._disk_free = disk_free or _default_disk_free(self.path)
         self._db, self._lock = open_writer_connection(self.path)
         self._verified: dict[str, VerifiedSnapshot] = {}
         self._recover()
@@ -205,9 +251,17 @@ class GatewayService:
 
     # --- provisioning ----------------------------------------------------------
 
-    def provision(self, provisioning: Provisioning, *, sequence_epoch: str) -> None:
-        """Install this gateway's identity once; an identical repeat is a no-op."""
+    def provision(
+        self, provisioning: Provisioning, *, sequence_epoch: str, diagnostics: DiagnosticConfig | None = None
+    ) -> None:
+        """Install this gateway's identity once; an identical repeat is a no-op.
+
+        The diagnostic configuration (cadence, pressure triggers) is frozen with
+        it: installed when absent (also on a ledger migrated from S2-01b), and a
+        different declaration later refuses rather than silently moving the
+        cadence a freshness judgement relies on."""
         with self._tx() as db:
+            self._freeze_diagnostic_config(db, diagnostics or DiagnosticConfig())
             row = db.execute(
                 "SELECT tenant_id, site_id, gateway_id, source_mode FROM gateway_identity"
             ).fetchone()
@@ -239,6 +293,21 @@ class GatewayService:
                 [(s,) for s in sorted(provisioning.permitted_source_ids)],
             )
             db.execute("INSERT INTO sequence_epoch_history VALUES (?,?)", (sequence_epoch, now))
+
+    def _freeze_diagnostic_config(self, db: sqlite3.Connection, config: DiagnosticConfig) -> None:
+        text = config.text()
+        row = db.execute("SELECT config_text FROM diagnostic_config").fetchone()
+        if row is None:
+            db.execute("INSERT INTO diagnostic_config VALUES (1,?,?,?)", (text, text_sha256(text), self._now()))
+        elif row[0] != text:
+            raise GatewayRefused("DIAGNOSTIC_CONFIG_FIXED", "this gateway's diagnostic configuration is frozen")
+
+    @staticmethod
+    def _diagnostic_config(db: sqlite3.Connection) -> tuple[DiagnosticConfig, str, str]:
+        row = db.execute("SELECT config_text, sha256 FROM diagnostic_config").fetchone()
+        if row is None:
+            raise GatewayRefused("NOT_PROVISIONED", "this gateway has no diagnostic configuration")
+        return parse_diagnostic_config_text(row[0]), row[0], row[1]
 
     def reprovision_epoch(self, new_epoch: str) -> None:
         """The only way the sequence epoch changes. A used epoch never returns."""
@@ -359,6 +428,81 @@ class GatewayService:
         self._verified[snapshot_sha256] = verified
         return verified
 
+    # --- the per-run virtual publication clock (S2-01c phase 2) -----------------
+
+    def _publication_instant(self, db: sqlite3.Connection, clock: str, lab_run_ref: str | None) -> str | None:
+        """None for the gateway's real UTC; the run's current virtual instant otherwise."""
+        if clock == GATEWAY_UTC:
+            return None
+        if clock != RUN_VIRTUAL:
+            raise ValueError(f"publication clock is one of {[GATEWAY_UTC, RUN_VIRTUAL]}")
+        if not lab_run_ref:
+            raise GatewayRefused("NO_PUBLICATION_CLOCK", "a virtual publication clock is scoped to a Lab run")
+        row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+        if row is None:
+            raise GatewayRefused(
+                "NO_PUBLICATION_CLOCK", "this run's publication clock has not been advanced; nothing is admitted"
+            )
+        return row[0]
+
+    def advance_publication_clock(self, lab_run_ref: str, instant: str) -> dict[str, object]:
+        """Move one run's virtual publication clock forward to `instant`.
+
+        SIMULATED gateways only. An earlier instant refuses
+        (`PUBLICATION_CLOCK_BACKWARD`); the same instant is idempotent. Nothing
+        is admitted or released here: the clock only says what instant the
+        next admission for this run is stamped with."""
+        if not isinstance(lab_run_ref, str) or not lab_run_ref:
+            raise ValueError("a publication clock is scoped to a non-empty Lab run reference")
+        try:
+            datetime.strptime(instant, _INSTANT)
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"{instant!r} is not a UTC instant (YYYY-MM-DDTHH:MM:SSZ)") from error
+        with self._tx() as db:
+            self._require_simulated(db)
+            row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+            if row is not None and instant < row[0]:
+                raise GatewayRefused(
+                    "PUBLICATION_CLOCK_BACKWARD", f"the run's publication clock is at {row[0]}, after {instant}"
+                )
+            advanced = row is None or instant > row[0]
+            if row is None:
+                db.execute("INSERT INTO publication_clock VALUES (?,?,?)", (lab_run_ref, instant, self._now()))
+            elif advanced:
+                db.execute(
+                    "UPDATE publication_clock SET instant=?, updated_at=? WHERE lab_run_ref=?",
+                    (instant, self._now(), lab_run_ref),
+                )
+        return {"lab_run_ref": lab_run_ref, "instant": instant, "advanced": advanced}
+
+    def _clock_at(
+        self, db: sqlite3.Connection, clock: str, lab_run_ref: str | None, at_instant: str
+    ) -> tuple[str, bool]:
+        """Advance the run clock to `at_instant` in `db`; (instant, passed)."""
+        if clock != RUN_VIRTUAL:
+            raise ValueError("an admission instant is a RUN_VIRTUAL admission's")
+        if not lab_run_ref:
+            raise GatewayRefused("NO_PUBLICATION_CLOCK", "a virtual publication clock is scoped to a Lab run")
+        try:
+            datetime.strptime(at_instant, _INSTANT)
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"{at_instant!r} is not a UTC instant (YYYY-MM-DDTHH:MM:SSZ)") from error
+        self._require_simulated(db)
+        row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+        if row is None:
+            db.execute("INSERT INTO publication_clock VALUES (?,?,?)", (lab_run_ref, at_instant, self._now()))
+        elif at_instant > row[0]:
+            db.execute(
+                "UPDATE publication_clock SET instant=?, updated_at=? WHERE lab_run_ref=?",
+                (at_instant, self._now(), lab_run_ref),
+            )
+        return at_instant, row is not None and at_instant < row[0]
+
+    def publication_clock(self, lab_run_ref: str) -> str | None:
+        with self._tx() as db:
+            row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+        return None if row is None else row[0]
+
     # --- admission -------------------------------------------------------------
 
     def admit(
@@ -368,11 +512,14 @@ class GatewayService:
         snapshot_sha256: str,
         lab_run_ref: str | None = None,
         initial_state: str = "STAGED",
+        publication_clock: str = GATEWAY_UTC,
     ) -> Admission:
         """Admit one public report under one activated snapshot."""
         _check_initial_state(initial_state)
         with self._tx() as db:
-            admission = self._admit_in(db, report_text, snapshot_sha256, lab_run_ref, initial_state)
+            self._refuse_at_stop(db)
+            published_at = self._publication_instant(db, publication_clock, lab_run_ref)
+            admission = self._admit_in(db, report_text, snapshot_sha256, lab_run_ref, initial_state, published_at)
         self._hit("after_enqueue_commit")
         return admission
 
@@ -383,18 +530,39 @@ class GatewayService:
         snapshot_sha256: str,
         lab_run_ref: str | None = None,
         initial_state: str = "STAGED",
+        publication_clock: str = GATEWAY_UTC,
+        at_instant: str | None = None,
     ) -> list[Admission]:
         """Admit a bounded chunk of reports in ONE transaction.
 
         Same per-report rules as `admit`; the chunk commits or rolls back whole,
         so a crash leaves either every report of the chunk admitted or none.
-        One transaction per report made a full-day Lab run slow (phase-1 risk)."""
+        One transaction per report made a full-day Lab run slow (phase-1 risk).
+
+        `at_instant` (RUN_VIRTUAL only; `D-2026-10-09-s2-ordered-publication-
+        and-closing-boundary`): the reports' own reached boundary. The run clock
+        moves forward to it in this same transaction, and the chunk is stamped
+        with it. If the clock has already passed it, nothing new is admitted: a
+        report already admitted answers with its first identity, and any other
+        refuses the whole chunk `PUBLICATION_INSTANT_PASSED` rather than be
+        stamped with a later, undeclared publication instant."""
         _check_initial_state(initial_state)
         texts = list(report_texts)
         if len(texts) > MAX_ADMISSION_CHUNK:
             raise ValueError(f"at most {MAX_ADMISSION_CHUNK} reports per admission chunk")
         with self._tx() as db:
-            admissions = [self._admit_in(db, text, snapshot_sha256, lab_run_ref, initial_state) for text in texts]
+            self._refuse_at_stop(db)
+            passed = False
+            if at_instant is not None:
+                published_at, passed = self._clock_at(db, publication_clock, lab_run_ref, at_instant)
+            else:
+                published_at = self._publication_instant(db, publication_clock, lab_run_ref)
+            admissions = [
+                self._admit_in(
+                    db, text, snapshot_sha256, lab_run_ref, initial_state, published_at, replay_only=passed
+                )
+                for text in texts
+            ]
         self._hit("after_enqueue_commit")
         return admissions
 
@@ -405,7 +573,14 @@ class GatewayService:
         snapshot_sha256: str,
         lab_run_ref: str | None,
         initial_state: str,
+        virtual_published_at: str | None = None,
+        *,
+        replay_only: bool = False,
     ) -> Admission:
+        """`virtual_published_at` is the run's virtual publication instant
+        (`D-2026-10-09-s2-simulated-publication-clock`), or None for the
+        gateway's real UTC. Either way the outbox creation time, the sequence
+        update and the contact stay on real UTC: queue age is operational."""
         report_sha = text_sha256(report_text) if isinstance(report_text, str) else text_sha256(repr(report_text))
         report: DeviceReport | None = None
         snapshot: VerifiedSnapshot | None = None
@@ -427,7 +602,9 @@ class GatewayService:
                 )
             if binding.source_id not in provisioning.permitted_source_ids:
                 raise _Held("SOURCE_NOT_PERMITTED", "source_id", f"{binding.source_id} is not permitted")
-            published_at = self._now()
+            self._record_contact(db, provisioning, binding.source_id)
+            created_at = self._now()
+            published_at = created_at if virtual_published_at is None else virtual_published_at
             self._check_report(report, binding, snapshot, published_at)
             if report.report_key is not None:
                 earlier = db.execute(
@@ -445,6 +622,14 @@ class GatewayService:
                         )
                     self._provenance(db, lab_run_ref, message_id=earlier[1])
                     return Admission("ALREADY_ADMITTED", message_id=earlier[1], sequence=earlier[2])
+            if replay_only:
+                # The run clock is past this report's boundary and it was never
+                # admitted: stamping it now would fabricate a publication delay.
+                raise GatewayRefused(
+                    "PUBLICATION_INSTANT_PASSED",
+                    f"the run's publication clock is past {virtual_published_at}; "
+                    f"{report.device_id}/{report.signal_id} at {report.source_time} was never admitted there",
+                )
             key = (provisioning.gateway_id, binding.source_id, epoch)
             row = db.execute(
                 "SELECT last_sequence FROM sequence_state WHERE gateway_id=? AND source_id=? AND sequence_epoch=?",
@@ -503,13 +688,13 @@ class GatewayService:
                     text,
                     text_sha256(text),
                     initial_state,
-                    published_at,
+                    created_at,
                 ),
             )
             db.execute(
                 "INSERT INTO sequence_state VALUES (?,?,?,?,?) ON CONFLICT DO UPDATE "
                 "SET last_sequence=excluded.last_sequence, updated_at=excluded.updated_at",
-                (*key, sequence, published_at),
+                (*key, sequence, created_at),
             )
             if report.report_key is not None:
                 db.execute(
@@ -675,12 +860,15 @@ class GatewayService:
                         created.append(batch.batch_id)
                         start += len(chunk)
                 except BatchRejected as error:
-                    self._record_seal_refusal(db, source_id, epoch, snapshot_sha, members[start][0], error)
+                    self._record_seal_refusal(db, source_id, epoch, snapshot_sha, state, members[start][0], error)
                     refusals.append(f"{source_id}: {error}")
                     continue
+                # R1: only this group's own refusal clears; a sibling group of
+                # the same source/epoch/snapshot in another state keeps its own.
                 db.execute(
-                    "DELETE FROM seal_refusal WHERE source_id=? AND sequence_epoch=? AND snapshot_sha256=?",
-                    (source_id, epoch, snapshot_sha),
+                    "DELETE FROM seal_refusal WHERE source_id=? AND sequence_epoch=? AND snapshot_sha256=? "
+                    "AND outbox_state=?",
+                    (source_id, epoch, snapshot_sha, state),
                 )
         self._hit("after_seal_commit")
         if refusals:
@@ -728,18 +916,254 @@ class GatewayService:
         source_id: str,
         epoch: str,
         snapshot_sha: str,
+        state: str,
         message_id: str,
         error: BatchRejected,
     ) -> None:
         now = self._now()
         db.execute(
-            "INSERT INTO seal_refusal (source_id, sequence_epoch, snapshot_sha256, message_id, kind, field, "
-            "detail, first_seen_at, last_seen_at) VALUES (?,?,?,?,?,?,?,?,?) "
-            "ON CONFLICT (source_id, sequence_epoch, snapshot_sha256) DO UPDATE SET "
+            "INSERT INTO seal_refusal (source_id, sequence_epoch, snapshot_sha256, outbox_state, message_id, kind, "
+            "field, detail, first_seen_at, last_seen_at) VALUES (?,?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT (source_id, sequence_epoch, snapshot_sha256, outbox_state) DO UPDATE SET "
             "message_id=excluded.message_id, kind=excluded.kind, field=excluded.field, "
             "detail=excluded.detail, last_seen_at=excluded.last_seen_at, seen_count=seen_count+1",
-            (source_id, epoch, snapshot_sha, message_id, error.kind, error.field, error.detail, now, now),
+            (source_id, epoch, snapshot_sha, state, message_id, error.kind, error.field, error.detail, now, now),
         )
+
+    # --- diagnostics (S2-01c phase 1) -------------------------------------------
+
+    def _record_contact(self, db: sqlite3.Connection, provisioning: Provisioning, source_id: str) -> None:
+        """A public report naming this source arrived: the gateway heard it now.
+
+        Recorded once the report resolves to a permitted source, whether it is
+        then admitted or held. The time is the gateway's own (real UTC) clock,
+        not the report's source time. On a SIMULATED gateway the provenance
+        says so: it is not proof of contact with a physical device."""
+        provenance = "OBSERVED_SIMULATED_REPORT" if provisioning.source_mode == "SIMULATED" else "OBSERVED_DEVICE_REPORT"
+        now = self._now()
+        db.execute(
+            "INSERT INTO health_observation VALUES (?,?,?,?) ON CONFLICT (name) DO UPDATE SET "
+            "value_text=excluded.value_text, observed_at=excluded.observed_at, provenance=excluded.provenance",
+            (_CONTACT + source_id, now, now, provenance),
+        )
+
+    def _disk(self, db: sqlite3.Connection, config: DiagnosticConfig) -> dict[str, object]:
+        """The operative disk pressure and where it came from.
+
+        An injected fault-fixture level wins and is labelled INJECTED: it never
+        claims actual storage pressure. Otherwise the free-space probe is
+        compared with the frozen WARN/STOP triggers. A probe that fails is
+        STOP (fail closed), labelled UNMEASURABLE."""
+        row = db.execute(
+            "SELECT value_text, observed_at FROM health_observation WHERE name=?", (_DISK_PRESSURE,)
+        ).fetchone()
+        if row is not None:
+            return {"level": row[0], "provenance": INJECTED, "free_bytes": None, "observed_at": row[1]}
+        try:
+            free = int(self._disk_free())
+        except (OSError, ValueError, TypeError):
+            return {"level": "STOP", "provenance": "UNMEASURABLE", "free_bytes": None, "observed_at": self._now()}
+        return {"level": config.pressure(free), "provenance": "MEASURED", "free_bytes": free, "observed_at": self._now()}
+
+    def _refuse_at_stop(self, db: sqlite3.Connection) -> None:
+        config, _, _ = self._diagnostic_config(db)
+        disk = self._disk(db, config)
+        if disk["level"] == "STOP":
+            raise GatewayRefused(
+                "DISK_PRESSURE_STOP",
+                f"acquisition refused before any sequence ({disk['provenance']} disk pressure STOP); "
+                "existing envelopes and batches are retained",
+            )
+
+    def _require_simulated(self, db: sqlite3.Connection) -> None:
+        provisioning, _ = self._provisioning(db)
+        if provisioning.source_mode != "SIMULATED":
+            raise GatewayRefused("NOT_SIMULATED", "fault-fixture injection exists only on a SIMULATED gateway")
+
+    def inject_disk_pressure(self, level: str | None) -> None:
+        """Fault fixture: force OK/WARN/STOP, or clear (None) back to measurement."""
+        if level is not None and level not in DISK_PRESSURES:
+            raise ValueError(f"disk pressure is one of {list(DISK_PRESSURES)} or None")
+        with self._tx() as db:
+            self._require_simulated(db)
+            if level is None:
+                db.execute("DELETE FROM health_observation WHERE name=?", (_DISK_PRESSURE,))
+            else:
+                db.execute(
+                    "INSERT OR REPLACE INTO health_observation VALUES (?,?,?,?)",
+                    (_DISK_PRESSURE, level, self._now(), INJECTED),
+                )
+
+    def inject_clock_offset(self, offset_ms: int | None) -> None:
+        """Fault fixture: a labelled clock offset, or clear (None) back to unknown."""
+        if offset_ms is not None and type(offset_ms) is not int:
+            raise ValueError("a clock offset is whole milliseconds")
+        with self._tx() as db:
+            self._require_simulated(db)
+            if offset_ms is None:
+                db.execute("DELETE FROM health_observation WHERE name=?", (_CLOCK_OFFSET,))
+            else:
+                db.execute(
+                    "INSERT OR REPLACE INTO health_observation VALUES (?,?,?,?)",
+                    (_CLOCK_OFFSET, str(offset_ms), self._now(), INJECTED),
+                )
+
+    def _health(self, db: sqlite3.Connection, provisioning: Provisioning, config: DiagnosticConfig, now: datetime):
+        """Every counter, derived from ledger rows at `now`."""
+        queued = "('STAGED','READY','IN_FLIGHT')"
+        count, oldest = db.execute(
+            f"SELECT COUNT(*), MIN(created_at) FROM envelope_outbox WHERE state IN {queued}"
+        ).fetchone()
+        age = None
+        if count:
+            moment = datetime.strptime(oldest, _INSTANT).replace(tzinfo=timezone.utc)
+            age = max(0, int((now - moment).total_seconds()))
+        sealed_envelopes = db.execute(
+            "SELECT COUNT(*) FROM envelope_outbox o JOIN batch_item b ON b.message_id=o.message_id "
+            f"WHERE o.state IN {queued}"
+        ).fetchone()[0]
+        queue = {
+            "queue_count": count,
+            "oldest_queued_at": oldest if count else None,
+            "oldest_queue_age_seconds": age,
+            "sealed_pending_batches": db.execute(
+                f"SELECT COUNT(*) FROM upload_batch WHERE state IN {queued}"
+            ).fetchone()[0],
+            "sealed_pending_envelopes": sealed_envelopes,
+            "unbatched_envelopes": count - sealed_envelopes,
+            "held_reports": db.execute("SELECT COUNT(*) FROM mapping_hold").fetchone()[0],
+            "active_seal_refusals": db.execute("SELECT COUNT(*) FROM seal_refusal").fetchone()[0],
+            "dead_letter_envelopes": db.execute(
+                "SELECT COUNT(*) FROM envelope_outbox WHERE state='DEAD_LETTER'"
+            ).fetchone()[0],
+        }
+        contacts = []
+        for source_id in sorted(provisioning.permitted_source_ids):
+            row = db.execute(
+                "SELECT value_text, provenance FROM health_observation WHERE name=?", (_CONTACT + source_id,)
+            ).fetchone()
+            contacts.append(
+                {
+                    "source_id": source_id,
+                    "last_contact_at": None if row is None else row[0],
+                    "provenance": None if row is None else row[1],
+                }
+            )
+        clock = db.execute(
+            "SELECT value_text, provenance, observed_at FROM health_observation WHERE name=?", (_CLOCK_OFFSET,)
+        ).fetchone()
+        return {
+            "queue": queue,
+            # D-2026-10-09-s2-gateway-diagnostic-semantics: mapping/registration
+            # holds only; every other hold stays in `held_reports`.
+            "mapping_error_count": db.execute(
+                "SELECT COUNT(*) FROM mapping_hold WHERE kind IN (%s)" % ",".join("?" * len(MAPPING_ERROR_KINDS)),
+                MAPPING_ERROR_KINDS,
+            ).fetchone()[0],
+            "source_contacts": contacts,
+            "clock_offset": {
+                "value_ms": None if clock is None else int(clock[0]),
+                "provenance": None if clock is None else clock[1],
+                "observed_at": None if clock is None else clock[2],
+            },
+            "disk_pressure": self._disk(db, config),
+        }
+
+    def emit_diagnostic(self) -> "DiagnosticRow":
+        """Allocate and store one GatewayDiagnosticsV1 for the current cadence slot.
+
+        One transaction allocates the sequence and stores the exact bytes and
+        hash. At most one diagnostic exists per declared cadence slot, so a
+        retry (or a restart) inside the slot returns the same identity and
+        bytes instead of a second report. The row starts and stays READY:
+        nothing here sends it or marks it received (S2-02). Emission is not
+        acquisition, so it continues at STOP pressure while storage permits."""
+        with self._tx() as db:
+            provisioning, epoch = self._provisioning(db)
+            config, _, _ = self._diagnostic_config(db)
+            now = self._clock()
+            slot = int(now.timestamp()) // config.emission_cadence_seconds
+            existing = db.execute(
+                f"SELECT {_DIAGNOSTIC_COLUMNS} FROM diagnostic_outbox "
+                "WHERE gateway_id=? AND sequence_epoch=? AND cadence_slot=?",
+                (provisioning.gateway_id, epoch, slot),
+            ).fetchone()
+            if existing is not None:
+                return DiagnosticRow(*existing)
+            last_sequence, last_slot = db.execute(
+                "SELECT MAX(diagnostic_sequence), MAX(cadence_slot) FROM diagnostic_outbox "
+                "WHERE gateway_id=? AND sequence_epoch=?",
+                (provisioning.gateway_id, epoch),
+            ).fetchone()
+            if last_slot is not None and slot < last_slot:
+                raise GatewayRefused("CLOCK_BEHIND", "the gateway clock is behind its last diagnostic")
+            if last_sequence is not None and last_sequence >= MAX_SEQUENCE:
+                raise GatewayRefused("SEQUENCE_EXHAUSTED", "reprovision a new epoch to continue diagnostics")
+            sequence = 1 if last_sequence is None else last_sequence + 1
+            self._hit("after_diagnostic_sequence_read")
+            health = self._health(db, provisioning, config, now)
+            observed_at = _text(now)
+            diagnostic, text = seal_gateway_diagnostics_v1(
+                site_id=provisioning.site_id,
+                gateway_id=provisioning.gateway_id,
+                sequence_epoch=epoch,
+                diagnostic_sequence=sequence,
+                observed_at=observed_at,
+                last_device_contact_by_source={c["source_id"]: c["last_contact_at"] for c in health["source_contacts"]},
+                queue_count=health["queue"]["queue_count"],
+                oldest_queue_age_seconds=health["queue"]["oldest_queue_age_seconds"],
+                disk_pressure=health["disk_pressure"]["level"],
+                clock_offset_ms=health["clock_offset"]["value_ms"],
+                mapping_error_count=health["mapping_error_count"],
+            )
+            db.execute(
+                "INSERT INTO diagnostic_outbox (gateway_id, sequence_epoch, diagnostic_sequence, cadence_slot, "
+                "payload_text, sha256, state, observed_at) VALUES (?,?,?,?,?,?,'READY',?)",
+                (provisioning.gateway_id, epoch, sequence, slot, text, diagnostic.payload_sha256, observed_at),
+            )
+            row = DiagnosticRow(
+                provisioning.gateway_id, epoch, sequence, observed_at, text, diagnostic.payload_sha256, "READY", None
+            )
+        self._hit("after_diagnostic_commit")
+        return row
+
+    def local_diagnostics(self, *, limit: int = 20) -> dict[str, object]:
+        """The local read: frozen configuration, live counters and stored diagnostics.
+
+        `observed_at` is the real UTC time of this read. Nothing in it is a
+        server receipt; every stored diagnostic is pending upload (S2-02)."""
+        if not 1 <= limit <= 200:
+            raise ValueError("limit out of range")
+        with self._tx() as db:
+            provisioning, epoch = self._provisioning(db)
+            config, config_text, config_sha = self._diagnostic_config(db)
+            now = self._clock()
+            health = self._health(db, provisioning, config, now)
+            rows = [
+                DiagnosticRow(*r)
+                for r in db.execute(
+                    f"SELECT {_DIAGNOSTIC_COLUMNS} FROM diagnostic_outbox "
+                    "ORDER BY sequence_epoch DESC, diagnostic_sequence DESC LIMIT ?",
+                    (limit,),
+                )
+            ]
+            total, pending = db.execute(
+                "SELECT COUNT(*), COALESCE(SUM(state<>'ACKED'),0) FROM diagnostic_outbox"
+            ).fetchone()
+        return {
+            "site_id": provisioning.site_id,
+            "gateway_id": provisioning.gateway_id,
+            "source_mode": provisioning.source_mode,
+            "sequence_epoch": epoch,
+            "observed_at": _text(now),
+            "config": {"text": config_text, "sha256": config_sha, **config.document()},
+            **health,
+            "acquisition": "REFUSED_DISK_PRESSURE_STOP" if health["disk_pressure"]["level"] == "STOP" else "ACCEPTING",
+            "diagnostics": [dict(r.__dict__) for r in rows],
+            "diagnostic_count": total,
+            "pending_diagnostic_count": pending,
+            "upload": "PENDING",
+        }
 
     # --- local delivery states (S2-02 adds the network) ------------------------
 
@@ -842,6 +1266,27 @@ class SealRefusalRow:
     detail: str
     last_seen_at: str
     seen_count: int
+    #: R1: the outbox state of the refused group (STAGED or READY).
+    outbox_state: str
+
+
+_DIAGNOSTIC_COLUMNS = (
+    "gateway_id, sequence_epoch, diagnostic_sequence, observed_at, payload_text, sha256, state, last_attempt_at"
+)
+
+
+@dataclass(frozen=True)
+class DiagnosticRow:
+    """One stored GatewayDiagnosticsV1, exactly as allocated."""
+
+    gateway_id: str
+    sequence_epoch: str
+    diagnostic_sequence: int
+    observed_at: str
+    payload_text: str
+    sha256: str
+    state: str
+    last_attempt_at: str | None
 
 
 @dataclass(frozen=True)
@@ -911,14 +1356,14 @@ class GatewayReader:
                 )
             )
             unbatched = sorted(
-                {(e.source_id, e.sequence_epoch, e.snapshot_sha256) for e in envelopes if e.batch_id is None}
+                {(e.source_id, e.sequence_epoch, e.snapshot_sha256, e.state) for e in envelopes if e.batch_id is None}
             )
             refusals = []
             for group in unbatched:
                 r = db.execute(
                     "SELECT source_id, sequence_epoch, snapshot_sha256, message_id, kind, field, detail, "
-                    "last_seen_at, seen_count FROM seal_refusal "
-                    "WHERE source_id=? AND sequence_epoch=? AND snapshot_sha256=?",
+                    "last_seen_at, seen_count, outbox_state FROM seal_refusal "
+                    "WHERE source_id=? AND sequence_epoch=? AND snapshot_sha256=? AND outbox_state=?",
                     group,
                 ).fetchone()
                 if r is not None:

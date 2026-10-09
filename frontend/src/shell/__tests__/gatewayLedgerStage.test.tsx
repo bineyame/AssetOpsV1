@@ -246,6 +246,7 @@ describe("the gateway-ledger Stage (S2-01b)", () => {
           source_id: SOURCE_B,
           sequence_epoch: "1",
           message_id: "msg-b-1",
+          outbox_state: "READY",
           kind: "TOO_LARGE",
           field: "batch",
           detail: "more than 1048576 bytes",
@@ -260,6 +261,8 @@ describe("the gateway-ledger Stage (S2-01b)", () => {
     const view = ledger();
     expect(view.getAttribute("data-gateway-status")).toBe("SEALING_REFUSED");
     const row = view.querySelector('[data-gateway-seal-refusal="TOO_LARGE"]') as HTMLElement;
+    // S2-01c (R1): the refusal names the outbox group it belongs to.
+    expect(row.querySelector("[data-gateway-seal-refusal-state]")?.textContent).toBe("READY");
     expect(row.textContent).toMatch(/msg-b-1/);
     expect(row.textContent).toMatch(/more than 1048576 bytes/);
     const words = spacedText(view);

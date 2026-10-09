@@ -135,7 +135,7 @@ export function GatewayLedgerView({
       )}
       {batch === undefined ? null : (
         <Panel heading="The selected batch, exactly as sealed" headingId="gateway-batch-heading">
-          <p>{`${batch.batch_id}, SHA-256 ${batch.sha256}, ${batch.canonical.length} characters.`}</p>
+          <p data-gateway-batch-summary>{`${batch.batch_id}, SHA-256 ${batch.sha256}, ${batch.canonical.length} characters.`}</p>
           <pre className="canonical-text" data-gateway-batch-canonical={batch.batch_id}>
             {batch.canonical}
           </pre>
@@ -153,6 +153,7 @@ export function GatewayLedgerView({
               <tr>
                 <th scope="col">Refusal</th>
                 <th scope="col">Source and epoch</th>
+                <th scope="col">Outbox group</th>
                 <th scope="col">First unsealed envelope</th>
                 <th scope="col">Field</th>
                 <th scope="col">Reason</th>
@@ -162,11 +163,14 @@ export function GatewayLedgerView({
             <tbody>
               {stage.seal_refusals.map((refusal) => (
                 <tr
-                  key={`${refusal.source_id}/${refusal.sequence_epoch}/${refusal.message_id}`}
+                  key={`${refusal.source_id}/${refusal.sequence_epoch}/${refusal.outbox_state ?? ""}/${refusal.message_id}`}
                   data-gateway-seal-refusal={refusal.kind}
                 >
                   <th scope="row">{refusal.kind}</th>
                   <td>{`${refusal.source_id}, epoch ${refusal.sequence_epoch}`}</td>
+                  <td data-gateway-seal-refusal-state={refusal.outbox_state ?? ""}>
+                    {refusal.outbox_state ?? "not reported"}
+                  </td>
                   <td>{refusal.message_id}</td>
                   <td>{refusal.field}</td>
                   <td>{refusal.detail}</td>

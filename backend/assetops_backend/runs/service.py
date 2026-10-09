@@ -420,7 +420,7 @@ class RunSetupService:
         publication = self._resolve_publication_profile(request)
 
         self._refuse_site_without_topology(site)
-        self._refuse_entries_outside_the_interval(request, scenario)
+        self._refuse_entries_outside_the_interval(request, scenario, publication)
         self._refuse_unresolved_sources(scenario, site)
         self._refuse_requirement_conflicts(scenario, site, model, publication)
 
@@ -745,7 +745,10 @@ class RunSetupService:
         )
 
     def _refuse_entries_outside_the_interval(
-        self, request: RunSetupRequest, scenario: ScenarioDefinition
+        self,
+        request: RunSetupRequest,
+        scenario: ScenarioDefinition,
+        publication: PublicationProfile | None = None,
     ) -> None:
         """Every authored entry must fall inside the interval the run chose.
 
@@ -777,7 +780,9 @@ class RunSetupService:
                 window_end = entry.offset_minutes + (
                     entry.timing.duration_minutes or 0
                 )
-                if window_end > length:
+                if window_end > length and not _post_run_release_window(
+                    entry, publication, length, request.timestep_minutes
+                ):
                     raise refuse(
                         "INTERVAL_INVALID",
                         f"Entry {entry.event_id} runs until {window_end} "
@@ -3463,6 +3468,34 @@ def executable_inputs(scenario: ScenarioDefinition) -> Sequence[ExecutableInput]
 #: so (`D-2026-10-02-scenario-states-override-issuer`). The host's projection
 #: names the same states; a test asserts the two agree.
 OVERRIDE_COMMAND_STATES = OPERATOR_COMMANDABLE_STATES
+
+
+def _post_run_release_window(
+    entry, publication: PublicationProfile | None, length: int, timestep: int
+) -> bool:
+    """The one narrow exception to `outside-the-interval` (S2-01c).
+
+    `D-2026-10-09-s2-publication-clock-post-run-release`: on a registered
+    `RUN_VIRTUAL` publication profile alone, a reporting-path publication-delay
+    WINDOW that starts inside the interval may end no more than one timestep
+    after it. It only schedules when a reading sourced inside the interval is
+    published - it neither extends the world interval nor makes a source sample
+    after it, and reporting-path conditions never reach the kernel. Every
+    forcing, cause, other reporting-path state and every other profile keeps
+    the refusal, and so does a larger overrun.
+    """
+    if publication is None or publication.publication_clock != "RUN_VIRTUAL":
+        return False
+    if entry.timing.shape != "WINDOW" or entry.state_ref is None:
+        return False
+    state_key = entry.state_ref.state_key
+    if state_key not in PUBLICATION_DELAY_STATES:
+        return False
+    declared = publication.supported_reporting(state_key)
+    if declared is None or not declared.delays:
+        return False
+    end = entry.offset_minutes + (entry.timing.duration_minutes or 0)
+    return 0 <= entry.offset_minutes < length and end <= length + timestep
 
 
 def _held_span(

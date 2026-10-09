@@ -383,7 +383,7 @@ _HOLD = {"hold_id": 1, "kind": "INVALID_VALUE", "field": "value", "detail": "d",
          "signal_id": "s", "source_time": None, "seen_count": 1}
 _REFUSAL = {"source_id": "src", "sequence_epoch": "1", "snapshot_sha256": "ab" * 32, "message_id": "m-2",
             "kind": "TOO_LARGE", "field": "batch", "detail": "more than 1048576 bytes",
-            "last_seen_at": "2026-10-01T09:00:00Z", "seen_count": 1}
+            "last_seen_at": "2026-10-01T09:00:00Z", "seen_count": 1, "outbox_state": "STAGED"}
 
 
 def _document(envelopes, holds=(), refusals=()) -> dict:

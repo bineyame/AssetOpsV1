@@ -73,19 +73,23 @@ def report_texts(
     run_id: str, snapshot_sha256: str, observations: Iterable[DeviceObservation], interval_minutes: int
 ) -> list[str]:
     """The public reports for a series; dropped/suppressed observations make none."""
+    return [text for _, _, text in keyed_reports(run_id, snapshot_sha256, observations, interval_minutes)]
+
+
+def keyed_reports(
+    run_id: str, snapshot_sha256: str, observations: Iterable[DeviceObservation], interval_minutes: int
+) -> list[tuple[DeviceObservation, str, str]]:
+    """Each public report with the observation it came from and its admission key."""
     seen: dict[tuple[str, str, str], int] = {}
-    texts: list[str] = []
+    texts: list[tuple[DeviceObservation, str, str]] = []
     for observation in observations:
         slot = (observation.device_id, observation.signal_id, observation.source_sample_time)
         ordinal = seen.get(slot, 0)
         seen[slot] = ordinal + 1
-        report = report_from_observation(
-            observation,
-            interval_minutes=interval_minutes,
-            report_key=report_key(run_id, snapshot_sha256, *slot, ordinal),
-        )
+        key = report_key(run_id, snapshot_sha256, *slot, ordinal)
+        report = report_from_observation(observation, interval_minutes=interval_minutes, report_key=key)
         if report is not None:
-            texts.append(device_report_text(report))
+            texts.append((observation, key, device_report_text(report)))
     return texts
 
 
@@ -114,6 +118,41 @@ class RegisteredGatewayPublisher:
         interval_minutes: int,
     ) -> PublicationResult:
         """Activate the frozen basis, admit the series, seal. Raises on any refusal."""
+        self._activate(basis)
+        try:
+            texts = report_texts(run_id, basis.snapshot_sha256, observations, interval_minutes)
+        except EnvelopeRejected as rejected:
+            raise PublicationRefused("REPORT_NOT_ADAPTABLE", str(rejected)) from rejected
+        return self._sealed(self._admit(run_id, basis, texts, "admit"))
+
+    def publish_in_boundary_order(
+        self, run_id: str, basis, groups: Sequence[tuple[str, Sequence[str]]], final_instant: str
+    ) -> tuple[list[list[dict]], Exception | None]:
+        """S2-01c: admit each group at its own reached boundary, in order, then
+        move the run clock to `final_instant`.
+
+        `D-2026-10-09-s2-ordered-publication-and-closing-boundary`. Each group
+        is `(instant, report texts)`; the gateway advances the run clock to that
+        instant and stamps first admissions with it, so a cadence-aligned
+        reading publishes at its own source instant whatever the step size. A
+        group whose instant the clock has passed admits nothing new
+        (`PUBLICATION_INSTANT_PASSED`). Every group is sealed before the next,
+        so the batches do not depend on how the operator stepped. Returns the
+        admissions of every group that committed, and the refusal that stopped
+        the pass, if any; a group sealed in refusal still committed."""
+        done: list[list[dict]] = []
+        try:
+            self._activate(basis)
+            for instant, texts in groups:
+                admissions = self._admit(run_id, basis, list(texts), "admit_at_run_clock", at_instant=instant)
+                done.append(admissions)
+                self._sealed(admissions)
+            self._link.call("advance_publication_clock", {"lab_run_ref": run_id, "instant": final_instant})
+        except (GatewayUnavailable, GatewayRequestRefused, PublicationRefused) as refused:
+            return done, refused
+        return done, None
+
+    def _activate(self, basis) -> None:
         identity = self._link.call("identity")
         if identity["tenant_id"] != basis.tenant_id or identity["site_id"] != basis.site_record_id:
             raise PublicationRefused(
@@ -123,22 +162,32 @@ class RegisteredGatewayPublisher:
         self._link.call(
             "activate", {"snapshot_text": basis.snapshot_canonical, "claimed": claimed_references(basis)}
         )
-        try:
-            texts = report_texts(run_id, basis.snapshot_sha256, observations, interval_minutes)
-        except EnvelopeRejected as rejected:
-            raise PublicationRefused("REPORT_NOT_ADAPTABLE", str(rejected)) from rejected
-        counts = {"ADMITTED": 0, "ALREADY_ADMITTED": 0, "HELD": 0}
+
+    def _admit(self, run_id: str, basis, texts: list[str], op: str, *, at_instant: str | None = None) -> list[dict]:
+        admissions: list[dict] = []
         for start in range(0, len(texts), ADMISSION_CHUNK):
-            answer = self._link.call(
-                "admit",
-                {
-                    "snapshot_sha256": basis.snapshot_sha256,
-                    "lab_run_ref": run_id,
-                    "reports": texts[start : start + ADMISSION_CHUNK],
-                },
-            )
-            for admission in answer["admissions"]:
-                counts[admission["outcome"]] += 1
+            body = {
+                "snapshot_sha256": basis.snapshot_sha256,
+                "lab_run_ref": run_id,
+                "reports": texts[start : start + ADMISSION_CHUNK],
+            }
+            if at_instant is not None:
+                body["at_instant"] = at_instant
+            try:
+                answer = self._link.call(op, body)
+            except GatewayRequestRefused as refused:
+                if refused.kind == "DISK_PRESSURE_STOP":
+                    # S2-01c AC3: acquisition refused before any sequence; what
+                    # was admitted and sealed before is retained untouched.
+                    raise PublicationRefused("DISK_PRESSURE_STOP", refused.detail) from refused
+                raise
+            admissions.extend(answer["admissions"])
+        return admissions
+
+    def _sealed(self, admissions: list[dict]) -> PublicationResult:
+        counts = {"ADMITTED": 0, "ALREADY_ADMITTED": 0, "HELD": 0}
+        for admission in admissions:
+            counts[admission["outcome"]] += 1
         try:
             batch_ids = self._link.call("seal")["batch_ids"]
         except GatewayRequestRefused as refused:
@@ -150,6 +199,21 @@ class RegisteredGatewayPublisher:
         return PublicationResult(
             counts["ADMITTED"], counts["ALREADY_ADMITTED"], counts["HELD"], tuple(batch_ids)
         )
+
+    def diagnostics(self) -> dict:
+        """S2-01c: the gateway's local diagnostic read, or an explicit unavailable state.
+
+        A gateway that cannot be reached is `GATEWAY_UNAVAILABLE` with its
+        reason, never a healthy zero queue. Local only: no central receipt."""
+        try:
+            document = self._link.call("diagnostics")
+        except (GatewayUnavailable, GatewayRequestRefused) as failure:
+            return {"status": "GATEWAY_UNAVAILABLE", "detail": str(failure), "diagnostics": None}
+        return {"status": "AVAILABLE", "detail": None, "diagnostics": document}
+
+    def inject_fault(self, fault: str, value) -> dict:
+        """S2-01c fault fixture (SIMULATED gateways only); raises on refusal."""
+        return self._link.call("inject_fault", {"fault": fault, "value": value})
 
     def stage(
         self, run_id: str, basis, *, execution_status: str, notes: Sequence[str] = ()

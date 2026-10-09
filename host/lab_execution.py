@@ -43,6 +43,7 @@ from __future__ import annotations
 import json
 import threading
 from dataclasses import dataclass, field, replace
+from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
 
@@ -133,6 +134,7 @@ from execution_adapter import (
     RunNotExecutable,
     frozen_world_inputs,
     model_for,
+    publication_profile_for,
     refuse_a_model_the_run_did_not_select,
     record_inputs,
     reporting_inputs,
@@ -142,10 +144,19 @@ from source_stages import JsonSourceStages
 from gateway_publication import (
     PublicationRefused,
     RegisteredGatewayPublisher,
+    keyed_reports,
     unavailable_stage,
 )
 from assetops_contracts.gateway_stage import RegisteredStageView
 from assetops_gateway.ipc import GatewayRequestRefused, GatewayUnavailable
+from publication_schedule import (
+    DelayedReport,
+    JsonPublicationSchedules,
+    PublicationSchedule,
+    ScheduleUnreadable,
+    parse_instant,
+)
+from assetops_contracts.observation import publication_delay_minutes
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
@@ -543,6 +554,10 @@ class LabSession:
     #: S2-01b: the run's frozen registered basis, or None for a YAML run. A
     #: registered session publishes through the durable gateway, not the file Stage.
     registered_basis: object | None = None
+    #: S2-01c: the clock the frozen publication profile publishes on
+    #: (`PublicationProfile.publication_clock`). `RUN_VIRTUAL` routes a
+    #: registered run through the Lab publication schedule.
+    publication_clock: str = "GATEWAY_UTC"
 
 
 def _state_key_of(address: str) -> str:
@@ -1930,9 +1945,20 @@ class HostLabExecution:
         # publication is then refused and its Stage reads unavailable - it is
         # never staged into the file Stage instead.
         gateway: RegisteredGatewayPublisher | None = None,
+        # S2-01c: the Lab-private publication schedules of registered runs on a
+        # virtual publication clock. None places them beside the Stage root.
+        schedules: JsonPublicationSchedules | None = None,
     ) -> None:
         self._model = model
         self._gateway = gateway
+        if schedules is None:
+            stage_root = getattr(stages, "_root", None)
+            schedules = (
+                JsonPublicationSchedules()
+                if stage_root is None
+                else JsonPublicationSchedules(Path(stage_root).parent / "publication-schedules")
+            )
+        self._schedules = schedules
         self._publication_profile = publication_profile
         self._artifacts = (
             YamlExecutionArtifacts() if artifacts is None else artifacts
@@ -2145,6 +2171,7 @@ class HostLabExecution:
                 mapping=mapping,
                 records=records,
                 registered_basis=run.registered_basis,
+                publication_clock=self._publication_clock_of(run),
             )
             self._sessions[run.run_id] = session
             # Staged before the artifact says the run is running, so the stage
@@ -2408,10 +2435,14 @@ class HostLabExecution:
         if self._gateway is None:
             note("registered publication refused: no gateway is configured for this host")
             return
+        if session.publication_clock == "RUN_VIRTUAL":
+            # S2-01c: the profile publishes on the run's virtual clock, which
+            # is what lets a delayed report wait without an envelope.
+            self._stage_registered_virtual(session, note)
+            return
         if session.reporting.delays:
-            # Publication-delay windows are a Lab fault scenario (S2-01c); the
-            # gateway path does not model them yet, so it refuses rather than
-            # publish a delayed report early.
+            # A profile on the gateway's real clock cannot model a delay: it
+            # refuses rather than publish a delayed report early (S2-01b Q3).
             note("registered publication refused: publication-delay windows are not supported by the gateway path")
             return
         if session.records is not None and generate_records(
@@ -2435,6 +2466,311 @@ class HostLabExecution:
             # Not "nothing was staged": a seal refusal comes after admission
             # committed. The Stage read reports what the ledger holds.
             note(f"registered publication refused: {refused}")
+
+    # --- S2-01c: the virtual publication clock ---------------------------------
+    #
+    # `D-2026-10-09-s2-simulated-publication-clock`. A world step advances the
+    # run's publication clock to the instant the world reached; once the world
+    # run has completed, `advance_publication` may move it further without
+    # executing anything. A report due inside a frozen delay window is recorded
+    # PENDING in the Lab-private schedule BEFORE the gateway hears of it, and is
+    # submitted - unchanged - only once the clock has reached the window's end.
+    # The gateway stamps `published_at` from its own persisted run clock at
+    # first admission, so a jump past the due instant is stamped with the later
+    # instant, and a replay is answered with the first identity and bytes.
+
+    def _publication_clock_of(self, run: SimulationRun) -> str:
+        if run.registered_basis is None:
+            return "GATEWAY_UTC"
+        try:
+            return publication_profile_for(run).publication_clock
+        except FrozenRunNotReconstructible:
+            return "GATEWAY_UTC"
+
+    @staticmethod
+    def _instant_at(session: LabSession, offset_minutes: int) -> str:
+        start = parse_instant(session.reporting.interval.start_time)
+        return (start + timedelta(minutes=offset_minutes)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def _stage_registered_virtual(self, session: LabSession, note, target: str | None = None) -> str | None:
+        """Schedule delayed reports, advance the clock, publish what is due.
+
+        Returns the refusal text when publication was refused, else None."""
+        basis = session.registered_basis
+        observations = generate_observations(session.execution.boundaries, session.reporting)
+        try:
+            keyed = keyed_reports(
+                session.run_id, basis.snapshot_sha256, observations, session.reporting.interval.timestep_minutes
+            )
+        except EnvelopeRejected as rejected:
+            text = f"registered publication refused: REPORT_NOT_ADAPTABLE: {rejected}"
+            note(text)
+            return text
+        try:
+            schedule = self._schedules.read(session.run_id)
+        except ScheduleUnreadable as unreadable:
+            text = f"registered publication refused: {unreadable}"
+            note(text)
+            return text
+        if schedule is None:
+            if self._executed_id(session.run_id):
+                # questions-5 Q5: only the first start, before the run's
+                # execution artifact exists and before the gateway hears
+                # anything, creates a schedule. Once it has executed, a missing
+                # one is lost durable state; a live step never rebuilds it.
+                text = (
+                    "registered publication refused: PUBLICATION_SCHEDULE_MISSING: this run has executed "
+                    "but its Lab publication schedule is missing; nothing is rebuilt from the live world"
+                )
+                note(text)
+                return text
+            schedule = PublicationSchedule(run_id=session.run_id, snapshot_sha256=basis.snapshot_sha256)
+        known = schedule.keys()
+        # Undelayed reports by the reached boundary they were observed at.
+        ordinary: dict[str, list[str]] = {}
+        added: list[DelayedReport] = []
+        for observation, key, report_text in keyed:
+            windows = [
+                w
+                for w in session.reporting.delays
+                if w.key == (observation.device_id, observation.signal_id) and w.covers(observation.at_offset_minutes)
+            ]
+            # One instant has one delay; two covering windows raise here.
+            if not publication_delay_minutes(
+                session.reporting.delays, observation.device_id, observation.signal_id, observation.at_offset_minutes
+            ):
+                ordinary.setdefault(self._instant_at(session, observation.at_offset_minutes), []).append(report_text)
+                continue
+            if key in known:
+                continue
+            added.append(
+                DelayedReport(
+                    report_key=key,
+                    device_id=observation.device_id,
+                    signal_id=observation.signal_id,
+                    source_time=observation.source_sample_time,
+                    scheduled_release_at=self._instant_at(session, windows[0].end_offset_minutes),
+                    delay_event_id=windows[0].event_id,
+                    report_text=report_text,
+                )
+            )
+        boundaries = session.execution.boundaries
+        reached = self._instant_at(session, boundaries[-1].offset_minutes if boundaries else 0)
+        candidates = [i for i in (reached, schedule.clock_instant, target) if i is not None]
+        schedule = replace(
+            schedule.with_delayed(added),
+            world_reached_instant=reached,
+            world_complete=session.execution.is_terminal,
+            world_boundaries_completed=len(boundaries),
+        )
+        # Only boundaries the world has actually completed: before the first,
+        # nothing is observed and nothing may be marked published.
+        instants = [self._instant_at(session, b.offset_minutes) for b in boundaries]
+        return self._release(session.run_id, basis, schedule, max(candidates), note, instants, ordinary)
+
+    def _release(
+        self,
+        run_id: str,
+        basis,
+        schedule: PublicationSchedule,
+        target: str,
+        note,
+        instants: list[str] | None = None,
+        ordinary: dict[str, list[str]] | None = None,
+    ) -> str | None:
+        """Publish in source-boundary order (`D-2026-10-09-s2-ordered-
+        publication-and-closing-boundary`).
+
+        Each reached boundary after the last one already published is its own
+        admission at its own instant: the delayed reports due by then first
+        (observed earlier), then that boundary's undelayed readings. So a
+        cadence-aligned reading has `published_at == source_time`, a delayed
+        one is stamped with the first reached boundary at or after its due
+        instant, and a `run_to_end` gives the same envelopes as single steps.
+        What is still due once the world's boundaries are done goes at
+        `target`, the explicit post-run advance - never backdated. A boundary
+        the gateway clock has already passed admits nothing new: the refusal is
+        a staging note and the pass stops there, rather than stamp an ordinary
+        reading with an undeclared delay."""
+        # The Lab's clock and every pending report are durable before the
+        # gateway hears anything, so a crash here leaves nothing published early.
+        schedule = replace(schedule, clock_instant=target)
+        self._schedules.write(schedule)
+        ordinary = ordinary or {}
+        after = schedule.admitted_through
+        groups: list[tuple[str, list[DelayedReport], list[str]]] = []
+        submitted: set[str] = set()
+        for instant in sorted(set(instants or ())):
+            if after is not None and instant <= after:
+                continue
+            due = [d for d in schedule.due(instant) if d.report_key not in submitted]
+            submitted.update(d.report_key for d in due)
+            texts = ordinary.get(instant, [])
+            groups.append((instant, due, texts))
+        last = groups[-1][0] if groups else None
+        tail = [d for d in schedule.due(target) if d.report_key not in submitted]
+        if tail and (last is None or target > last):
+            groups.append((target, tail, []))
+        elif tail:
+            groups[-1] = (last, groups[-1][1] + tail, groups[-1][2])
+        wanted = [(instant, [d.report_text for d in due] + texts) for instant, due, texts in groups if due or texts]
+        done, refused = self._gateway.publish_in_boundary_order(run_id, basis, wanted, target)
+        boundary_instants = set(instants or ())
+        through = schedule.admitted_through
+        stopped_at = schedule.ordinary_stopped_at
+        committed = iter(done)
+        for instant, due, texts in groups:
+            if due or texts:
+                admissions = next(committed, None)
+                if admissions is None:
+                    # This group and every later one were not admitted. If the
+                    # gateway clock had already passed an ordinary boundary, the
+                    # gap is permanent for this run (questions-5 Q2): recorded,
+                    # read back and shown, never stamped late or leapt over.
+                    if (
+                        stopped_at is None
+                        and instant in boundary_instants
+                        and getattr(refused, "kind", None) == "PUBLICATION_INSTANT_PASSED"
+                    ):
+                        stopped_at = instant
+                    break
+                for d, answer in zip(due, admissions):
+                    schedule = schedule.released({d.report_key: answer}, instant)
+            if instant in boundary_instants:
+                through = instant
+        schedule = replace(schedule, admitted_through=through, ordinary_stopped_at=stopped_at)
+        self._schedules.write(schedule)
+        if refused is not None:
+            text = f"registered publication refused: {refused}"
+            note(text)
+            return text
+        return None
+
+    def advance_publication(self, run: SimulationRun, instant: str) -> dict:
+        """Advance a registered run's virtual publication clock and release what is due.
+
+        Forward only; the same instant again is accepted (and retries anything
+        a failed earlier release left pending). While the world run is still
+        executing the clock may not pass the instant it reached; after it has
+        completed it may be advanced past its end, and no kernel step runs."""
+        if run.registered_basis is None or self._publication_clock_of(run) != "RUN_VIRTUAL":
+            raise LabControlRefused("PUBLICATION_CLOCK_NOT_SUPPORTED", run.run_id)
+        try:
+            parse_instant(instant)
+        except ValueError as invalid:
+            raise LabControlRefused("PUBLICATION_INSTANT_INVALID", run.run_id, str(invalid)) from invalid
+        with self._lock_for(run.run_id):
+            try:
+                schedule = self._schedules.read(run.run_id)
+            except ScheduleUnreadable as unreadable:
+                raise LabControlRefused("PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(unreadable)) from unreadable
+            session = self._sessions.get(run.run_id)
+            if schedule is None and self._executed(run):
+                # Q5 (answers-3), and questions-5 Q5: a run that executed with
+                # no stored schedule is refused, live session or not; no report
+                # is reconstructed from the scenario or the live world.
+                raise LabControlRefused("PUBLICATION_SCHEDULE_MISSING", run.run_id)
+            if schedule is None or schedule.clock_instant is None:
+                raise LabControlRefused("NOT_STARTED", run.run_id)
+            if instant < schedule.clock_instant:
+                raise LabControlRefused(
+                    "PUBLICATION_CLOCK_BACKWARD",
+                    run.run_id,
+                    f"the publication clock is at {schedule.clock_instant}; {instant} is earlier",
+                )
+            if not schedule.world_complete and instant > schedule.world_reached_instant:
+                raise LabControlRefused(
+                    "PUBLICATION_AHEAD_OF_WORLD",
+                    run.run_id,
+                    f"the world has reached {schedule.world_reached_instant}; {instant} is later",
+                )
+            if session is None and schedule.ordinary_gap():
+                # `D-2026-10-09-s2-publication-gap-and-batch-boundary`: a stored
+                # schedule cannot regenerate the unadmitted ordinary readings,
+                # so releasing a delayed report now would leap the gap for good.
+                # Refused before the Lab clock, the gateway or a seal moves.
+                raise LabControlRefused(
+                    "PUBLICATION_GAP",
+                    run.run_id,
+                    f"Ordinary publication is admitted through {schedule.admitted_through or 'no boundary'}"
+                    f"; the world reached {schedule.world_reached_instant}"
+                    + (
+                        f"; the gateway clock passed {schedule.ordinary_stopped_at} before it was admitted."
+                        if schedule.ordinary_stopped_at is not None
+                        else "."
+                    ),
+                )
+            notes = [] if session is None else session.staging_notes
+
+            def note(text: str) -> None:
+                if text not in notes:
+                    notes.append(text)
+
+            # Q5 (answers-3): which basis released. LIVE_SESSION re-drives the
+            # whole due series from the live world; STORED_SCHEDULE_ONLY (after a
+            # host restart) releases only the stored delayed reports' exact text.
+            # Neither is central delivery, and the stored-only release never
+            # claims an undelayed series a failed earlier step left unadmitted
+            # was regenerated: the Stage read shows what is admitted and held.
+            release_basis = "LIVE_SESSION" if session is not None else "STORED_SCHEDULE_ONLY"
+            if self._gateway is None:
+                refused = "registered publication refused: no gateway is configured for this host"
+                note(refused)
+            elif session is not None:
+                refused = self._stage_registered_virtual(session, note, target=instant)
+            else:
+                # After a host restart there is no live session: the series
+                # admitted before stays admitted; only the schedule is released.
+                refused = self._release(run.run_id, run.registered_basis, schedule, instant, note)
+            return {
+                "schedule": self._schedules.read(run.run_id),
+                "publication_refused": refused,
+                "release_basis": release_basis,
+            }
+
+    def _executed(self, run: SimulationRun) -> bool:
+        """Whether this run has a stored execution artifact (it was started)."""
+        return self._executed_id(run.run_id)
+
+    def _executed_id(self, run_id: str) -> bool:
+        try:
+            return self._artifacts.read(run_id) is not None
+        except ExecutionArtifactUnreadable:
+            return True
+
+    def publication_schedule(self, run: SimulationRun) -> PublicationSchedule | None:
+        """The Lab-private schedule of a registered run, or None if it has none.
+
+        An unreadable schedule refuses rather than reading as an empty queue,
+        and so does a missing one once the run has executed, live session or
+        not (answers-4 phase-3a Q3, questions-5 Q5): that is lost durable
+        state, the same condition `advance_publication` refuses, not a run not
+        yet started."""
+        with self._lock_for(run.run_id):
+            try:
+                schedule = self._schedules.read(run.run_id)
+            except ScheduleUnreadable as unreadable:
+                raise LabControlRefused(
+                    "PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(unreadable)
+                ) from unreadable
+            if schedule is None and self._executed(run):
+                raise LabControlRefused(
+                    "PUBLICATION_SCHEDULE_MISSING",
+                    run.run_id,
+                    "this run has executed but its Lab publication schedule is missing; "
+                    "no pending report is known and none is reconstructed from the scenario",
+                )
+            return schedule
+
+    def gateway_diagnostics(self) -> dict:
+        """The gateway's local diagnostic read, or an explicit unavailable state."""
+        if self._gateway is None:
+            return {
+                "status": "GATEWAY_UNAVAILABLE",
+                "detail": "no gateway is configured for this host",
+                "diagnostics": None,
+            }
+        return self._gateway.diagnostics()
 
     def registered_stage(self, run: SimulationRun) -> RegisteredStageView:
         """A registered run's Stage, read back from the gateway ledger."""

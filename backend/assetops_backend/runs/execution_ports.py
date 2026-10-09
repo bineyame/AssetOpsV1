@@ -61,6 +61,7 @@ from assetops_backend.runs.models import SimulationRun
 from assetops_contracts.lab_history import LabHistory
 from assetops_contracts.lab_projection import LabProjection
 from assetops_contracts.gateway_stage import RegisteredStageView
+from assetops_contracts.publication_schedule import PublicationSchedule
 from assetops_contracts.source_stage import SourceStageView
 
 
@@ -143,5 +144,33 @@ class LabExecutionPort(Protocol):
         history existed, a failed history write, an unreadable one). A Draft
         never executed, or one whose live session ended, answers NOT_RECORDED
         with no records: nothing is re-run to fill it.
+        """
+        ...
+
+    def advance_publication(self, run: SimulationRun, instant: str) -> dict:
+        """S2-01c: advance a registered RUN_VIRTUAL run's publication clock.
+
+        Forward only, idempotent at the same instant, bounded by the world's
+        reached instant until the world run completes; no kernel step. Returns
+        `{"schedule": PublicationSchedule | None, "publication_refused": str |
+        None, "release_basis": "LIVE_SESSION" | "STORED_SCHEDULE_ONLY"}`.
+        Raises `LabControlRefused` (`PUBLICATION_*`, `NOT_STARTED`) when nothing
+        was advanced. Never central delivery.
+        """
+        ...
+
+    def publication_schedule(self, run: SimulationRun) -> PublicationSchedule | None:
+        """S2-01c: the Lab-private schedule of a registered run, or None.
+
+        Raises `LabControlRefused("PUBLICATION_SCHEDULE_UNREADABLE")` rather
+        than inventing an empty queue.
+        """
+        ...
+
+    def gateway_diagnostics(self) -> dict:
+        """S2-01c: the gateway's local diagnostic read.
+
+        `{"status": "AVAILABLE" | "GATEWAY_UNAVAILABLE", "detail", "diagnostics"}`;
+        an unreachable gateway is unavailable, never a healthy zero queue.
         """
         ...

@@ -38,7 +38,22 @@ PROTOCOL_VERSION = 1
 #: One request or response. A full-day Kobo run's stage read is about 1 MiB.
 MAX_MESSAGE_BYTES = 16 * 1024 * 1024
 CREDENTIAL_BYTES = 32
-OPS = ("identity", "activate", "admit", "seal", "run_stage")
+OPS = (
+    "identity",
+    "activate",
+    "admit",
+    "seal",
+    "run_stage",
+    "diagnostics",
+    "emit_diagnostic",
+    "advance_publication_clock",
+    "admit_at_run_clock",
+    "inject_fault",
+)
+#: Fault-fixture controls `inject_fault` accepts (SIMULATED gateways only). They
+#: change local operational state; none is ever written into V3, Batch V2 or a
+#: GatewayDiagnosticsV1 report as a cause.
+FAULTS = ("DISK_PRESSURE", "CLOCK_OFFSET")
 #: Keys a request may carry, per op. Anything else is refused unread.
 REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     "identity": frozenset(),
@@ -46,6 +61,19 @@ REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     "admit": frozenset({"snapshot_sha256", "lab_run_ref", "reports"}),
     "seal": frozenset(),
     "run_stage": frozenset({"lab_run_ref"}),
+    # S2-01c: the local diagnostic read, and an emission for the current
+    # cadence slot (idempotent inside the slot). Neither is a receipt.
+    "diagnostics": frozenset(),
+    "emit_diagnostic": frozenset(),
+    # S2-01c phase 2 (`D-2026-10-09-s2-simulated-publication-clock`): advance
+    # one run's persisted virtual publication clock (forward only, idempotent),
+    # and admit reports stamped from it. `admit` keeps the gateway's real UTC.
+    "advance_publication_clock": frozenset({"lab_run_ref", "instant"}),
+    # `at_instant`: the reports' reached boundary; the clock moves to it with
+    # the admission, and a passed instant admits nothing new (ordered publication).
+    "admit_at_run_clock": frozenset({"snapshot_sha256", "lab_run_ref", "reports", "at_instant"}),
+    # A labelled fault fixture; `value` null clears it back to measurement/unknown.
+    "inject_fault": frozenset({"fault", "value"}),
 }
 CLAIMED_KEYS = frozenset(
     {
@@ -166,6 +194,7 @@ class GatewayServer:
         self._credential = credential
         self._lock = threading.Lock()
         self._listener = Listener(address, family=_family(address))  # no authkey: we challenge per thread
+        self._stop = threading.Event()
 
     @property
     def address(self) -> str:
@@ -180,7 +209,30 @@ class GatewayServer:
             threading.Thread(target=self._serve, args=(connection,), daemon=True).start()
 
     def close(self) -> None:
+        self._stop.set()
         self._listener.close()
+
+    def start_diagnostics(self, tick_seconds: float) -> threading.Thread:
+        """Emit a diagnostic for each cadence slot, independently of readings.
+
+        Ticks run under the service lock, so the ledger keeps one writer.
+        Emission is idempotent within a slot, so ticking faster than the
+        cadence never makes a second report. A failed emission (for example
+        storage exhausted) is retried at the next tick; the local read still
+        shows the live state."""
+
+        def run() -> None:
+            while not self._stop.is_set():
+                with self._lock:
+                    try:
+                        self._service.emit_diagnostic()
+                    except Exception:  # noqa: BLE001 - retried next tick; never stops serving
+                        pass
+                self._stop.wait(tick_seconds)
+
+        thread = threading.Thread(target=run, daemon=True, name="gateway-diagnostics")
+        thread.start()
+        return thread
 
     def _serve(self, connection: Connection) -> None:
         try:
@@ -232,14 +284,20 @@ class GatewayServer:
                 raise _BadRequest("claimed", f"exactly {sorted(CLAIMED_KEYS)} are wanted")
             verified = service.activate(body["snapshot_text"], ClaimedReferences(**claimed))
             return {"snapshot_sha256": verified.snapshot_sha256}
-        if op == "admit":
+        if op in ("admit", "admit_at_run_clock"):
+            from assetops_gateway.service import GATEWAY_UTC, RUN_VIRTUAL
+
             reports = body["reports"]
             if not isinstance(reports, list) or not all(isinstance(r, str) for r in reports):
                 raise _BadRequest("reports", "a list of report texts is wanted")
             if len(reports) > MAX_ADMISSION_CHUNK:
                 raise _BadRequest("reports", f"at most {MAX_ADMISSION_CHUNK} reports per request")
             admissions = service.admit_texts(
-                reports, snapshot_sha256=_str(body, "snapshot_sha256"), lab_run_ref=_str(body, "lab_run_ref")
+                reports,
+                snapshot_sha256=_str(body, "snapshot_sha256"),
+                lab_run_ref=_str(body, "lab_run_ref"),
+                publication_clock=RUN_VIRTUAL if op == "admit_at_run_clock" else GATEWAY_UTC,
+                at_instant=_str(body, "at_instant") if op == "admit_at_run_clock" else None,
             )
             return {"admissions": [a.__dict__ for a in admissions]}
         if op == "seal":
@@ -248,6 +306,25 @@ class GatewayServer:
             with GatewayReader(self._reader_path) as reader:
                 stage = reader.run_stage(_str(body, "lab_run_ref"))
             return stage_document(stage)
+        if op == "diagnostics":
+            return service.local_diagnostics()
+        if op == "emit_diagnostic":
+            return dict(service.emit_diagnostic().__dict__)
+        if op == "advance_publication_clock":
+            return service.advance_publication_clock(_str(body, "lab_run_ref"), _str(body, "instant"))
+        if op == "inject_fault":
+            fault, value = body["fault"], body["value"]
+            if fault == "DISK_PRESSURE":
+                if value is not None and not isinstance(value, str):
+                    raise _BadRequest("value", "OK, WARN, STOP or null is wanted")
+                service.inject_disk_pressure(value)
+            elif fault == "CLOCK_OFFSET":
+                if value is not None and type(value) is not int:
+                    raise _BadRequest("value", "whole milliseconds or null is wanted")
+                service.inject_clock_offset(value)
+            else:
+                raise _BadRequest("fault", f"one of {list(FAULTS)} is wanted")
+            return {"fault": fault, "value": value}
         raise _BadRequest("op", f"unknown op {op!r}")
 
 

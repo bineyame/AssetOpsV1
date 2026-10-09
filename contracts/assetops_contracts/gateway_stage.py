@@ -114,6 +114,9 @@ class GatewaySealRefusal:
     detail: str
     last_seen_at: str
     seen_count: int
+    #: S2-01c R1: the refused group's outbox state; a sibling group of the same
+    #: source/epoch/snapshot in the other state has its own refusal, or none.
+    outbox_state: str
 
 
 def registered_stage_status(

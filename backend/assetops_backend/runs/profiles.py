@@ -617,8 +617,22 @@ class PublicationProfile:
     #: T026. The record channels (policy and override) this profile publishes,
     #: as (device, channel). Not device signals: no cadence, no bias, no draw.
     record_channels: tuple[tuple[str, str], ...] = ()
+    #: S2-01c (`D-2026-10-09-s2-simulated-publication-clock`). Which clock a
+    #: registered run's gateway stamps V3 `published_at` from. `GATEWAY_UTC`
+    #: (every profile before `registered-kobo-publication` v2) is the gateway's
+    #: real clock, and such a registered run still refuses a delay window.
+    #: `RUN_VIRTUAL` is the run's persisted, explicitly advanced publication
+    #: clock, which is what lets a delayed report be released at a virtual
+    #: instant - during the world run or after it - and never by wall time.
+    publication_clock: str = "GATEWAY_UTC"
 
     def __post_init__(self) -> None:
+        if self.publication_clock not in ("GATEWAY_UTC", "RUN_VIRTUAL"):
+            raise ValueError(
+                f"Publication profile {self.publication_profile_id!r} declares "
+                f"publication clock {self.publication_clock!r}; it is "
+                "GATEWAY_UTC or RUN_VIRTUAL."
+            )
         seen: set[tuple[str, str]] = set()
         for declaration in self.device_signals:
             if declaration.signal_key in seen:
@@ -1799,6 +1813,35 @@ REGISTERED_KOBO_PUBLICATION_PROFILE = replace(
     ),
 )
 
+#: S2-01c. The registered-Kobo publication profile, version two: version one's
+#: devices and resolution, plus the state-of-charge publication-delay state
+#: (the same declaration `simulator-lab-publication` v5 carries), published
+#: through the gateway on the run's virtual publication clock
+#: (`D-2026-10-09-s2-simulated-publication-clock`). A report due inside a
+#: declared window stays Lab-private and pending - no V3 envelope, no
+#: sequence - until the run's publication clock reaches the window's end; the
+#: gateway then stamps its actual virtual admission instant, never the
+#: scheduled one. Version one, every Draft frozen against it and every
+#: envelope it staged are unchanged; a new Draft selects this explicitly.
+REGISTERED_KOBO_PUBLICATION_PROFILE_V2 = replace(
+    REGISTERED_KOBO_PUBLICATION_PROFILE,
+    publication_profile_version=2,
+    statement=(
+        REGISTERED_KOBO_PUBLICATION_PROFILE.statement
+        + " Version two may hold a state-of-charge publication across a "
+        "declared window; the Lab keeps it pending until the run's virtual "
+        "publication clock reaches the window's end, and its value and source "
+        "time never change."
+    ),
+    supported_reporting_states=REGISTERED_KOBO_PUBLICATION_PROFILE.supported_reporting_states
+    + tuple(
+        state
+        for state in LAB_PUBLICATION_PROFILE_V5.supported_reporting_states
+        if state.state_key == "battery-soc-publication-delay"
+    ),
+    publication_clock="RUN_VIRTUAL",
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
@@ -1812,6 +1855,7 @@ PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     LAB_PUBLICATION_PROFILE_V4,
     LAB_PUBLICATION_PROFILE_V5,
     REGISTERED_KOBO_PUBLICATION_PROFILE,
+    REGISTERED_KOBO_PUBLICATION_PROFILE_V2,
 )
 
 

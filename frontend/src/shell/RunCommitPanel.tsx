@@ -324,7 +324,28 @@ export function commitBasisBlock(stage: RunStageResult | null): string | null {
  * been registered, so no Resume or Retry button is offered for either.
  */
 export function releaseBasisBlock(stage: RunStageResult | null): string | null {
-  if (commitBasisBlock(stage) === null || stage === null) {
+  // S2-01b carry F2: while the Stage read is pending or failed, or it does not
+  // report the frozen basis, whether release is allowed is unknown, and an
+  // unknown basis offers no Resume or Retry. The server refusal remains.
+  if (stage === null) {
+    return (
+      "Release is not offered yet. The configuration this draft froze is still " +
+      "being read, so the release is not resumed or retried until it is known."
+    );
+  }
+  if (stage.status === "unavailable" || stage.status === "not_found") {
+    return (
+      "Release is not offered. The configuration this draft froze could not be " +
+      "read, so the release is not resumed or retried."
+    );
+  }
+  if (stage.status === "loaded" && stage.frozenBasis === undefined) {
+    return (
+      "Release is not offered. This build did not report the configuration this " +
+      "draft froze, so the release is not resumed or retried."
+    );
+  }
+  if (commitBasisBlock(stage) === null) {
     return null;
   }
   if (stage.status === "gateway") {

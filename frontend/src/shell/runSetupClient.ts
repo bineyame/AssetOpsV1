@@ -88,6 +88,12 @@ export interface RunPublicationProfile {
   device_resolutions?: RunDeviceResolution[];
   /** S2-01b: true when only a registered Site's Draft may select this profile. */
   requires_registered_site?: boolean;
+  /**
+   * S2-01c: which clock stamps this profile's publication. `GATEWAY_UTC` is
+   * the gateway's own real clock; `RUN_VIRTUAL` is the run's virtual
+   * publication clock, which delayed reports are released on.
+   */
+  publication_clock?: string;
 }
 
 /** S2-01b: one simulated device's declared publication resolution. */
@@ -828,6 +834,11 @@ export interface GatewayLedgerSealRefusal {
   source_id: string;
   sequence_epoch: string;
   message_id: string;
+  /**
+   * S2-01c (R1): the outbox group the refusal belongs to (`STAGED` or
+   * `READY`). Absent only from a backend older than S2-01c.
+   */
+  outbox_state?: string;
   kind: string;
   field: string;
   detail: string;
@@ -880,6 +891,204 @@ export type RunStageResult =
       stage: GatewayLedgerStage;
       frozenBasis?: RunStageFrozenBasis | null;
     }
+  | { status: "not_found" }
+  | { status: "unavailable"; message: string | null };
+
+/**
+ * S2-01c: one delayed public report in a run's Lab-private publication
+ * schedule. `source_time` is the reading's own instant; `scheduled_release_at`
+ * and `released_at_clock` are on the run's virtual publication clock;
+ * `published_at` is the gateway's own stamp read back from its envelope, and
+ * is null until one exists - never the scheduled instant.
+ */
+export interface PublicationScheduleReport {
+  report_key: string;
+  device_id: string;
+  signal_id: string;
+  source_time: string;
+  scheduled_release_at: string;
+  /** `PENDING` or `RELEASED`. */
+  state: string;
+  released_at_clock: string | null;
+  message_id: string | null;
+  sequence: number | null;
+  outcome: string | null;
+  published_at: string | null;
+}
+
+/** S2-01c: the read status of a run's publication schedule. */
+export const PUBLICATION_SCHEDULE_STATUSES = [
+  "AVAILABLE",
+  "NO_SCHEDULE",
+  /** An executed RUN_VIRTUAL run whose schedule is gone: lost state (answers-4 Q3). */
+  "SCHEDULE_MISSING",
+  "NOT_SUPPORTED",
+  "UNREADABLE",
+] as const;
+export type PublicationScheduleStatus = (typeof PUBLICATION_SCHEDULE_STATUSES)[number];
+
+/**
+ * S2-01c: ordinary (undelayed) publication against the world it observed
+ * (`D-2026-10-09-s2-publication-gap-and-batch-boundary`). INCOMPLETE and
+ * TERMINAL_GAP are a run that is not fully published.
+ */
+export const ORDINARY_PUBLICATION_STATES = [
+  "NOT_STARTED",
+  "CONTIGUOUS",
+  "COMPLETE",
+  "INCOMPLETE",
+  "TERMINAL_GAP",
+] as const;
+export type OrdinaryPublicationState = (typeof ORDINARY_PUBLICATION_STATES)[number];
+
+/**
+ * S2-01c: a registered run's Lab-private publication schedule. Never an
+ * invented empty queue: a run without one says NO_SCHEDULE, SCHEDULE_MISSING,
+ * NOT_SUPPORTED or UNREADABLE. Nothing in it entered an envelope, a batch or a diagnostic.
+ */
+export interface RunPublicationSchedule {
+  store: "LAB_PUBLICATION_SCHEDULE";
+  run_id: string;
+  status: PublicationScheduleStatus;
+  detail: string | null;
+  publication_clock: string | null;
+  statement: string;
+  /** Field name to the clock it is on, such as `published_at` to `GATEWAY_STAMPED_RUN_VIRTUAL`. */
+  clock_labels: Record<string, string>;
+  clock_instant: string | null;
+  world_reached_instant: string | null;
+  world_complete: boolean;
+  /** The last contiguous boundary whose ordinary readings the gateway admitted. */
+  admitted_through: string | null;
+  /** Null when there is no schedule to judge. */
+  ordinary_publication: OrdinaryPublicationState | null;
+  /** The boundary the gateway clock passed before it was admitted: a terminal gap. */
+  ordinary_stopped_at: string | null;
+  pending_count: number;
+  released_count: number;
+  reports: PublicationScheduleReport[];
+}
+
+export type RunPublicationResult =
+  | { status: "loaded"; publication: RunPublicationSchedule }
+  | { status: "not_found" }
+  | { status: "unavailable"; message: string | null };
+
+/**
+ * S2-01c: the seven refusals a publication-clock advance can answer, besides
+ * the run-state refusals every Lab control shares.
+ */
+export const PUBLICATION_REFUSAL_KINDS = [
+  "PUBLICATION_CLOCK_NOT_SUPPORTED",
+  "PUBLICATION_CLOCK_BACKWARD",
+  "PUBLICATION_AHEAD_OF_WORLD",
+  "PUBLICATION_SCHEDULE_UNREADABLE",
+  "PUBLICATION_SCHEDULE_MISSING",
+  "PUBLICATION_INSTANT_INVALID",
+  /** A stored-only advance refused: ordinary publication stopped short of the world. */
+  "PUBLICATION_GAP",
+] as const;
+export type PublicationRefusalKind = (typeof PUBLICATION_REFUSAL_KINDS)[number];
+
+export function isPublicationRefusalKind(value: unknown): value is PublicationRefusalKind {
+  return (
+    typeof value === "string" &&
+    (PUBLICATION_REFUSAL_KINDS as readonly string[]).includes(value)
+  );
+}
+
+export type AdvancePublicationResult =
+  | {
+      status: "loaded";
+      publication: RunPublicationSchedule;
+      /** The gateway refused or could not be reached; the clock still moved. */
+      publicationRefused: string | null;
+      /** `LIVE_SESSION` or `STORED_SCHEDULE_ONLY`. */
+      releaseBasis: string | null;
+      releaseBasisStatement: string | null;
+    }
+  | {
+      status: "refused";
+      /** One of PUBLICATION_REFUSAL_KINDS, another Lab refusal kind, or null. */
+      refusalKind: string | null;
+      code: string | null;
+      message: string;
+    }
+  | { status: "not_found" }
+  | { status: "unavailable"; message: string | null };
+
+/** S2-01c: one level-and-provenance reading in the gateway's local read. */
+export interface GatewayProvenanced {
+  provenance: string | null;
+  observed_at: string | null;
+}
+
+export interface GatewayDiagnosticsCurrent {
+  site_id: string | null;
+  gateway_id: string | null;
+  source_mode: string | null;
+  sequence_epoch: string | null;
+  /** Gateway real UTC. */
+  observed_at: string | null;
+  queue: {
+    queue_count: number;
+    oldest_queued_at: string | null;
+    oldest_queue_age_seconds: number | null;
+    sealed_pending_batches: number;
+    sealed_pending_envelopes: number;
+    unbatched_envelopes: number;
+    held_reports: number;
+    active_seal_refusals: number;
+    dead_letter_envelopes: number;
+  };
+  mapping_error_count: number;
+  source_contacts: { source_id: string; last_contact_at: string | null; provenance: string | null }[];
+  clock_offset: GatewayProvenanced & { value_ms: number | null };
+  disk_pressure: GatewayProvenanced & { level: string; free_bytes: number | null };
+  /** `ACCEPTING` or `REFUSED_DISK_PRESSURE_STOP`. */
+  acquisition: string;
+  diagnostic_count: number;
+  pending_diagnostic_count: number;
+  upload: "PENDING";
+  config_sha256: string | null;
+  config: Record<string, unknown>;
+}
+
+/** S2-01c: the newest stored GatewayDiagnosticsV1, as the gateway allocated it. */
+export interface GatewayEmittedDiagnostic {
+  gateway_id: string;
+  sequence_epoch: string;
+  diagnostic_sequence: number;
+  observed_at: string;
+  payload_text: string;
+  sha256: string;
+  state: string;
+  last_attempt_at: string | null;
+}
+
+/**
+ * S2-01c: the local gateway's diagnostic read. GATEWAY_UNAVAILABLE carries no
+ * counters at all, so it can never be shown as a healthy zero queue.
+ */
+export type GatewayDiagnostics =
+  | {
+      status: "AVAILABLE";
+      statement: string;
+      observed_at_clock: string;
+      current: GatewayDiagnosticsCurrent;
+      last_emitted: GatewayEmittedDiagnostic | null;
+    }
+  | {
+      status: "GATEWAY_UNAVAILABLE";
+      detail: string | null;
+      statement: string;
+      observed_at_clock: string;
+      current: null;
+      last_emitted: null;
+    };
+
+export type GatewayDiagnosticsResult =
+  | { status: "loaded"; gateway: GatewayDiagnostics }
   | { status: "not_found" }
   | { status: "unavailable"; message: string | null };
 
@@ -1005,6 +1214,19 @@ export interface RunSetupClient {
     runId: string,
     sinceBoundary: number,
   ): Promise<RunHistoryDeltaResult>;
+  /**
+   * S2-01c: this run's Lab-private publication schedule. A read. Optional so a
+   * client without it is shown as "not available", never as an empty queue.
+   */
+  getPublication?(runId: string): Promise<RunPublicationResult>;
+  /**
+   * S2-01c: move this run's virtual publication clock to `instant`, releasing
+   * due delayed reports to the local gateway only. No kernel step, upload or
+   * central receipt.
+   */
+  advancePublication?(runId: string, instant: string): Promise<AdvancePublicationResult>;
+  /** S2-01c: the local gateway's diagnostic read. */
+  getGatewayDiagnostics?(): Promise<GatewayDiagnosticsResult>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -1064,7 +1286,8 @@ function isPublicationProfile(value: unknown): value is RunPublicationProfile {
       (Array.isArray(value.device_resolutions) &&
         value.device_resolutions.every(isDeviceResolution))) &&
     (value.requires_registered_site === undefined ||
-      typeof value.requires_registered_site === "boolean")
+      typeof value.requires_registered_site === "boolean") &&
+    (value.publication_clock === undefined || typeof value.publication_clock === "string")
   );
 }
 
@@ -1704,12 +1927,196 @@ export function isGatewayLedgerStage(value: unknown): value is GatewayLedgerStag
   );
 }
 
+function isNonNegativeInteger(value: unknown): value is number {
+  return Number.isInteger(value) && (value as number) >= 0;
+}
+
+function isScheduleReport(value: unknown): value is PublicationScheduleReport {
+  return (
+    isRecord(value) &&
+    typeof value.report_key === "string" &&
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.source_time === "string" &&
+    typeof value.scheduled_release_at === "string" &&
+    (value.state === "PENDING" || value.state === "RELEASED") &&
+    isNullableString(value.released_at_clock) &&
+    isNullableString(value.message_id) &&
+    (value.sequence === null || Number.isInteger(value.sequence)) &&
+    isNullableString(value.outcome) &&
+    isNullableString(value.published_at)
+  );
+}
+
+/**
+ * S2-01c: whether a body is a whole publication schedule. The private delay
+ * cause and report text are never part of one, so a body carrying either is
+ * refused rather than rendered.
+ */
+export function isRunPublicationSchedule(value: unknown): value is RunPublicationSchedule {
+  if (!isRecord(value) || value.store !== "LAB_PUBLICATION_SCHEDULE") {
+    return false;
+  }
+  const labels = value.clock_labels;
+  const reports = value.reports;
+  return (
+    typeof value.run_id === "string" &&
+    (PUBLICATION_SCHEDULE_STATUSES as readonly unknown[]).includes(value.status) &&
+    isNullableString(value.detail) &&
+    isNullableString(value.publication_clock) &&
+    typeof value.statement === "string" &&
+    isRecord(labels) &&
+    Object.values(labels).every((label) => typeof label === "string") &&
+    isNullableString(value.clock_instant) &&
+    isNullableString(value.world_reached_instant) &&
+    typeof value.world_complete === "boolean" &&
+    isNullableString(value.admitted_through) &&
+    isNullableString(value.ordinary_stopped_at) &&
+    (value.ordinary_publication === null ||
+      (ORDINARY_PUBLICATION_STATES as readonly unknown[]).includes(value.ordinary_publication)) &&
+    isNonNegativeInteger(value.pending_count) &&
+    isNonNegativeInteger(value.released_count) &&
+    Array.isArray(reports) &&
+    reports.every(isScheduleReport) &&
+    reports.every(
+      (report) =>
+        isRecord(report) && !("delay_event_id" in report) && !("report_text" in report),
+    ) &&
+    // An absent schedule is a status, never an empty list of reports.
+    (value.status === "AVAILABLE" || reports.length === 0)
+  );
+}
+
+function isProvenanced(value: unknown): value is Record<string, unknown> & GatewayProvenanced {
+  return isRecord(value) && isNullableString(value.provenance) && isNullableString(value.observed_at);
+}
+
+function isDiagnosticsCurrent(value: unknown): value is GatewayDiagnosticsCurrent {
+  if (!isRecord(value)) {
+    return false;
+  }
+  const queue = value.queue;
+  const clock = value.clock_offset;
+  const disk = value.disk_pressure;
+  return (
+    isNullableString(value.site_id) &&
+    isNullableString(value.gateway_id) &&
+    isNullableString(value.source_mode) &&
+    isNullableString(value.sequence_epoch) &&
+    isNullableString(value.observed_at) &&
+    isRecord(queue) &&
+    [
+      "queue_count",
+      "sealed_pending_batches",
+      "sealed_pending_envelopes",
+      "unbatched_envelopes",
+      "held_reports",
+      "active_seal_refusals",
+      "dead_letter_envelopes",
+    ].every((key) => isNonNegativeInteger(queue[key])) &&
+    isNullableString(queue.oldest_queued_at) &&
+    (queue.oldest_queue_age_seconds === null || isNonNegativeInteger(queue.oldest_queue_age_seconds)) &&
+    isNonNegativeInteger(value.mapping_error_count) &&
+    Array.isArray(value.source_contacts) &&
+    value.source_contacts.every(
+      (contact) =>
+        isRecord(contact) &&
+        typeof contact.source_id === "string" &&
+        isNullableString(contact.last_contact_at) &&
+        isNullableString(contact.provenance),
+    ) &&
+    isProvenanced(clock) &&
+    (clock.value_ms === null || Number.isInteger(clock.value_ms)) &&
+    isProvenanced(disk) &&
+    typeof disk.level === "string" &&
+    (disk.free_bytes === null || isNonNegativeInteger(disk.free_bytes)) &&
+    typeof value.acquisition === "string" &&
+    isNonNegativeInteger(value.diagnostic_count) &&
+    isNonNegativeInteger(value.pending_diagnostic_count) &&
+    value.upload === "PENDING" &&
+    isNullableString(value.config_sha256) &&
+    isRecord(value.config) &&
+    !("text" in value.config)
+  );
+}
+
+function isEmittedDiagnostic(value: unknown): value is GatewayEmittedDiagnostic {
+  return (
+    isRecord(value) &&
+    typeof value.gateway_id === "string" &&
+    typeof value.sequence_epoch === "string" &&
+    isNonNegativeInteger(value.diagnostic_sequence) &&
+    typeof value.observed_at === "string" &&
+    typeof value.payload_text === "string" &&
+    typeof value.sha256 === "string" &&
+    SHA256_HEX.test(value.sha256) &&
+    typeof value.state === "string" &&
+    // Nothing is received centrally in this build.
+    value.state !== "ACKED" &&
+    isNullableString(value.last_attempt_at)
+  );
+}
+
+/**
+ * S2-01c: whether a body is the gateway's diagnostic read. An unavailable
+ * gateway carrying any counter is refused: it must never read as a zero queue.
+ */
+export function isGatewayDiagnostics(value: unknown): value is GatewayDiagnostics {
+  if (!isRecord(value) || typeof value.statement !== "string" || typeof value.observed_at_clock !== "string") {
+    return false;
+  }
+  if (value.status === "GATEWAY_UNAVAILABLE") {
+    return isNullableString(value.detail) && value.current === null && value.last_emitted === null;
+  }
+  return (
+    value.status === "AVAILABLE" &&
+    isDiagnosticsCurrent(value.current) &&
+    (value.last_emitted === null || isEmittedDiagnostic(value.last_emitted))
+  );
+}
+
+/** A response body's refusal detail: its message, code and refusal kind. */
+function refusalDetail(parsed: Record<string, unknown> | null): {
+  message: string | null;
+  code: string | null;
+  refusalKind: string | null;
+} {
+  const detail = parsed?.detail;
+  return {
+    message: isRecord(detail) && typeof detail.message === "string" ? detail.message : null,
+    code: isRecord(detail) && typeof detail.code === "string" ? detail.code : null,
+    refusalKind:
+      isRecord(detail) && typeof detail.refusal_kind === "string" ? detail.refusal_kind : null,
+  };
+}
+
+/** Fetch and parse a JSON body; a body that is not JSON is null. */
+async function fetchJson(
+  path: string,
+  init?: RequestInit,
+): Promise<{ response: Response; parsed: Record<string, unknown> | null } | null> {
+  let response: Response;
+  try {
+    response = await fetch(path, init);
+  } catch {
+    return null;
+  }
+  let parsed: Record<string, unknown> | null = null;
+  try {
+    parsed = (await response.json()) as Record<string, unknown>;
+  } catch {
+    parsed = null;
+  }
+  return { response, parsed };
+}
+
 function isGatewaySealRefusal(value: unknown): value is GatewayLedgerSealRefusal {
   return (
     isRecord(value) &&
     typeof value.source_id === "string" &&
     typeof value.sequence_epoch === "string" &&
     typeof value.message_id === "string" &&
+    (value.outbox_state === undefined || typeof value.outbox_state === "string") &&
     typeof value.kind === "string" &&
     typeof value.field === "string" &&
     typeof value.detail === "string" &&
@@ -1817,6 +2224,8 @@ export function isRunStage(value: unknown): value is RunStage {
 export function createRunSetupClient(
   profilesPath: string,
   runsPath: string,
+  /** S2-01c: defaults to the gated Lab surface's sibling of `runsPath`. */
+  diagnosticsPath: string = runsPath.replace(/\/runs$/, "/gateway/diagnostics"),
 ): RunSetupClient {
   return {
     async listProfiles(): Promise<RunProfilesResult> {
@@ -2050,6 +2459,79 @@ export function createRunSetupClient(
             ? detail.message
             : null,
       };
+    },
+
+    async getPublication(runId: string): Promise<RunPublicationResult> {
+      const answer = await fetchJson(`${runsPath}/${encodeURIComponent(runId)}/publication`);
+      if (answer === null) {
+        return { status: "unavailable", message: null };
+      }
+      if (answer.response.status === 404) {
+        return { status: "not_found" };
+      }
+      if (answer.response.ok && isRunPublicationSchedule(answer.parsed?.publication)) {
+        return { status: "loaded", publication: answer.parsed.publication as RunPublicationSchedule };
+      }
+      return { status: "unavailable", message: refusalDetail(answer.parsed).message };
+    },
+
+    async advancePublication(runId: string, instant: string): Promise<AdvancePublicationResult> {
+      const answer = await fetchJson(
+        `${runsPath}/${encodeURIComponent(runId)}/publication/advance`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ instant }),
+        },
+      );
+      if (answer === null) {
+        return { status: "unavailable", message: null };
+      }
+      const { response, parsed } = answer;
+      if (response.status === 404) {
+        return { status: "not_found" };
+      }
+      if (response.ok) {
+        if (
+          !isRunPublicationSchedule(parsed?.publication) ||
+          !isNullableString(parsed.publication_refused) ||
+          !isNullableString(parsed.release_basis) ||
+          !isNullableString(parsed.release_basis_statement)
+        ) {
+          return { status: "unavailable", message: null };
+        }
+        return {
+          status: "loaded",
+          publication: parsed.publication as RunPublicationSchedule,
+          publicationRefused: parsed.publication_refused as string | null,
+          releaseBasis: parsed.release_basis as string | null,
+          releaseBasisStatement: parsed.release_basis_statement as string | null,
+        };
+      }
+      const detail = refusalDetail(parsed);
+      if (response.status === 409 || response.status === 422) {
+        return {
+          status: "refused",
+          refusalKind: detail.refusalKind,
+          code: detail.code,
+          message: detail.message ?? "The publication clock was not advanced.",
+        };
+      }
+      return { status: "unavailable", message: detail.message };
+    },
+
+    async getGatewayDiagnostics(): Promise<GatewayDiagnosticsResult> {
+      const answer = await fetchJson(diagnosticsPath);
+      if (answer === null) {
+        return { status: "unavailable", message: null };
+      }
+      if (answer.response.status === 404) {
+        return { status: "not_found" };
+      }
+      if (answer.response.ok && isGatewayDiagnostics(answer.parsed?.gateway)) {
+        return { status: "loaded", gateway: answer.parsed.gateway as GatewayDiagnostics };
+      }
+      return { status: "unavailable", message: refusalDetail(answer.parsed).message };
     },
   };
 }
