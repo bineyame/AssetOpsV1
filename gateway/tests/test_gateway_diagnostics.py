@@ -319,6 +319,9 @@ def test_counters_derive_from_ledger_rows(gateway, active: str, db_path: Path, c
     gateway.admit(report(key="bms-1"), snapshot_sha256=active)
     gateway.admit(report(key="bms-2", at="2026-10-01T08:15:00Z"), snapshot_sha256=active)
     gateway.admit(report(key="bad", unit="degF"), snapshot_sha256=active)  # held: UNIT_INCOMPATIBLE
+    # held, but not a mapping error: same key, different content
+    conflicting = gateway.admit(report(key="bms-1", value="99"), snapshot_sha256=active)
+    assert conflicting.kind == "CONFLICTING_REPORT"
     real = service_module.seal_batch_v2
     bms = {m for (m,) in _rows(db_path, "SELECT message_id FROM envelope_outbox WHERE source_id=?", (SRC_BMS,))}
     monkeypatch.setattr(service_module, "seal_batch_v2", _refusing(bms, real))
@@ -333,7 +336,7 @@ def test_counters_derive_from_ledger_rows(gateway, active: str, db_path: Path, c
         "sealed_pending_batches": 1,
         "sealed_pending_envelopes": 1,
         "unbatched_envelopes": 2,
-        "held_reports": 1,
+        "held_reports": 2,
         "active_seal_refusals": 1,
         "dead_letter_envelopes": 0,
     }

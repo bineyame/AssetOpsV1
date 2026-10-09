@@ -59,6 +59,19 @@ _INSTANT = "%Y-%m-%dT%H:%M:%SZ"
 _MEMBER_CHARS = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")
 
 
+#: The hold kinds the diagnostic `mapping_error_count` counts
+#: (`D-2026-10-09-s2-gateway-diagnostic-semantics`). Invalid values, conflicting
+#: reports, exhausted sequences and batching refusals are holds, not mapping errors.
+MAPPING_ERROR_KINDS = (
+    "NO_ACTIVE_MAPPING",
+    "UNKNOWN_CHANNEL",
+    "SOURCE_NOT_PERMITTED",
+    "OUTSIDE_VALIDITY",
+    "UNIT_INCOMPATIBLE",
+    "INVALID_ENUM",
+)
+
+
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -923,7 +936,12 @@ class GatewayService:
         ).fetchone()
         return {
             "queue": queue,
-            "mapping_error_count": queue["held_reports"],
+            # D-2026-10-09-s2-gateway-diagnostic-semantics: mapping/registration
+            # holds only; every other hold stays in `held_reports`.
+            "mapping_error_count": db.execute(
+                "SELECT COUNT(*) FROM mapping_hold WHERE kind IN (%s)" % ",".join("?" * len(MAPPING_ERROR_KINDS)),
+                MAPPING_ERROR_KINDS,
+            ).fetchone()[0],
             "source_contacts": contacts,
             "clock_offset": {
                 "value_ms": None if clock is None else int(clock[0]),
