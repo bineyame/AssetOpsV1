@@ -2563,6 +2563,14 @@ class HostLabExecution:
             world_complete=session.execution.is_terminal,
             world_boundaries_completed=len(boundaries),
         )
+        if schedule.ordinary_stopped_at is not None:
+            # `D-2026-10-09-s2-terminal-publication-gap-closeout`: a terminal gap
+            # publishes nothing more, live session or not. The world facts are
+            # recorded; the Lab publication clock and the gateway do not move.
+            self._schedules.write(schedule)
+            text = f"registered publication refused: PUBLICATION_GAP: {_gap_detail(schedule)}"
+            note(text)
+            return text
         # Only boundaries the world has actually completed: before the first,
         # nothing is observed and nothing may be marked published.
         instants = [self._instant_at(session, b.offset_minutes) for b in boundaries]
@@ -2684,22 +2692,15 @@ class HostLabExecution:
                     run.run_id,
                     f"the world has reached {schedule.world_reached_instant}; {instant} is later",
                 )
-            if session is None and schedule.ordinary_gap():
+            if schedule.ordinary_stopped_at is not None or (session is None and schedule.ordinary_gap()):
                 # `D-2026-10-09-s2-publication-gap-and-batch-boundary`: a stored
                 # schedule cannot regenerate the unadmitted ordinary readings,
                 # so releasing a delayed report now would leap the gap for good.
-                # Refused before the Lab clock, the gateway or a seal moves.
-                raise LabControlRefused(
-                    "PUBLICATION_GAP",
-                    run.run_id,
-                    f"Ordinary publication is admitted through {schedule.admitted_through or 'no boundary'}"
-                    f"; the world reached {schedule.world_reached_instant}"
-                    + (
-                        f"; the gateway clock passed {schedule.ordinary_stopped_at} before it was admitted."
-                        if schedule.ordinary_stopped_at is not None
-                        else "."
-                    ),
-                )
+                # `D-2026-10-09-s2-terminal-publication-gap-closeout`: a TERMINAL
+                # gap refuses even with a live session - nothing can publish.
+                # Both are refused before the Lab clock, the gateway or a seal
+                # moves; a still-retryable INCOMPLETE live session continues.
+                raise LabControlRefused("PUBLICATION_GAP", run.run_id, _gap_detail(schedule))
             notes = [] if session is None else session.staging_notes
 
             def note(text: str) -> None:
@@ -2977,3 +2978,17 @@ class HostLabExecution:
         """
         with self._lock_for(run_id):
             self._sessions.pop(run_id, None)
+
+
+def _gap_detail(schedule: PublicationSchedule) -> str:
+    """The persisted instants a publication-gap refusal names (Q4: message detail;
+    the schedule read carries the structured state)."""
+    return (
+        f"Ordinary publication is admitted through {schedule.admitted_through or 'no boundary'}"
+        f"; the world reached {schedule.world_reached_instant}"
+        + (
+            f"; the gateway clock passed {schedule.ordinary_stopped_at} before it was admitted."
+            if schedule.ordinary_stopped_at is not None
+            else "."
+        )
+    )
