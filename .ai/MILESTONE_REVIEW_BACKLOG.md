@@ -39,6 +39,8 @@ S2-02 demo setup must publish a new-effective, provenance-labelled Foundation re
 - C2: the link-loss test does not assert stored diagnostics are byte-identical across a real reconnect (AC5); proven only at service level. Add the integration assertion.
 - N1 (fix re-review `.agent/S2-01c-fix-rereview.md`): `gateway/tests/test_gateway_process.py:202` no longer asserts the specific refusal kind for a body without `at_instant`; assert it.
 - N2: 640 px width of the new HELD and SCHEDULE_MISSING texts is unmeasured; fold into C3's seeded full layout run.
+- N3 (fix-2 re-review `.agent/S2-01c-fix2-rereview.md`): `frontend/src/shell/GatewayPublicationPanels.tsx:60` PUBLICATION_GAP text says "the world's last boundary"; it also fires mid-run. Reword to "before the boundary the world reached".
+- S2-02 must take ordinary-publication completeness from the schedule state, not from Stage STAGED (STAGED speaks only of admitted reports).
 - C3: the full `tools/layout-evidence.mjs` run on an isolated store reached 222 PASS / 6 FAIL then the renderer stopped responding; the failures need scenario fixtures (optional inputs, declared reporting gap) the isolated store lacked. Re-run on a fully fixtured store; the full layout gate is unverified.
 
 ### S2-01b fix re-review carries (2026-10-09, `.agent/S2-01b-fix-rereview.md`, fresh Claude reviewer)
