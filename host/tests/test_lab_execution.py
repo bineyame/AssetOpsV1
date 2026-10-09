@@ -2616,9 +2616,18 @@ class TestExecutingADraftWritesNoSiteHistory:
             for name in dir(execution)
             if not name.startswith("_")
         ) == [
+            # S2-01c: moves a registered run's virtual publication clock
+            # forward (`D-2026-10-09-s2-simulated-publication-clock`) and lets
+            # the LOCAL gateway admit what is now due. Not a commit, a central
+            # release or an injected event: no Site history, no receipt.
+            "advance_publication",
             "forget",
+            # S2-01c: READ of the gateway's local diagnostics, or unavailable.
+            "gateway_diagnostics",
             "history",
             "projection",
+            # S2-01c: READ of a registered run's Lab-private publication schedule.
+            "publication_schedule",
             # S2-01b: a READ of a registered run's gateway-ledger Stage.
             "registered_stage",
             "run_to_end",
