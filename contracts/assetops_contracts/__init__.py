@@ -10,7 +10,7 @@ reads a document, opens a file, or reaches a store: these are the versioned
 rules and the record shapes, and resolving either against a Site or a scenario
 belongs to the product domain on one side and to the host adapter on the other.
 
-Nine modules:
+The modules:
 
 - `execution_contract` - the versioned semantics: canonical units, half-open
   dispatch, the boundary cycle, what a timestamped reading describes, whether a
@@ -36,6 +36,9 @@ Nine modules:
   length-delimited message ids, sealed homogeneous Batch V2 bytes, and the
   public device report the Lab host hands the gateway. Separate modules, so
   the v1/v2 readers above keep their identity semantics;
+- `gateway_diagnostics` - the gateway's own GatewayDiagnosticsV1 report and
+  its frozen emission configuration (S2-01c): operational state, never
+  evidence and never a device-health claim;
 - `source_stage` - a Draft's staged envelopes, the append-only admission rule,
   the persisted stage document and its integrity check. Staged is not accepted,
   and only the gated Lab surface may import this one.
