@@ -178,3 +178,9 @@ Non-vacuity (each mutation on the committed tree, then `git checkout --`): count
 | Layout evidence | not run: the normal registered path still renders `STAGED` with unchanged tables; the new refusal table appears only for the refusal state, which a live run cannot reach from valid input. Its layout is unverified. |
 
 **Residual risk:** a ledger already holding an unbatchable envelope admitted before this fix now records a refusal instead of raising forever; that group stays unbatched until an operator acts (no re-sequencing path exists, by design). The binary search re-seals up to about 9 trial prefixes per over-size chunk; bounded, and only on the over-size path.
+
+## Fix round 2 (Architect answers 5)
+
+- Q1: `STAGED` statement (`contracts/assetops_contracts/gateway_stage.py`) now says every admitted envelope is in a sealed local batch and held reports are listed separately; doc comments and `runSetupClient.ts` status comment match. Pinned by `test_staged_statement_claims_only_admitted_envelopes`. No Lab copy used the old STAGED text (frontend tests only negate it).
+- Q2: `_check_batchable` (`gateway/assetops_gateway/service.py`) uses `UNBATCHABLE`/`value` only for BatchRejected `TOO_LARGE` at `batch`; any other singleton failure is held with its actual kind and field. New test `test_a_non_size_singleton_seal_failure_keeps_its_own_kind_and_field`; non-vacuous (narrowing replaced by `if True`, test failed, reverted). Size/no-sequence test unchanged and passing.
+- Checks: gateway 82 passed; host registered-publication tests 15 passed (full host run: see report); backend test_s2_registered_basis/resolution run; vitest gatewayLedgerStage 9 passed; tsc clean; architecture and workflow checks pass. Sealed bytes/vectors untouched. R1, F2, F3 not touched.
