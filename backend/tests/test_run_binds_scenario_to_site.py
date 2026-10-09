@@ -202,7 +202,8 @@ def owner_shaped_copy(path: Path) -> dict:
 
 #: Shipped after T025g at version 1 and never shipped in the v1 shape, so no
 #: owner copy of it exists to rebuild (T026).
-NEVER_SHIPPED_AS_V1 = {"kobo-mini-grid-degraded-evidence"}
+#: S2-01c adds the delayed-publication fixture, likewise first shipped at v1.
+NEVER_SHIPPED_AS_V1 = {"kobo-mini-grid-degraded-evidence", "kobo-daytime-delayed-publication"}
 
 SHIPPED_DOCUMENTS = sorted(
     path

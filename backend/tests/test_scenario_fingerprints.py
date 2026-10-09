@@ -29,6 +29,10 @@ from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import (
 
 #: (scenario_id, scenario_version) -> SHA-256 of the canonical parsed document.
 PINNED_SCENARIO_FINGERPRINTS: dict[tuple[str, int], str] = {
+    # S2-01c (`D-2026-10-09-s2-simulated-publication-clock`).
+    ("kobo-daytime-delayed-publication", 1): (
+        "130e42fcdefdbaa70f38201e74254165f96a9cd04440e3c951f641d0bcabe9ad"
+    ),
     # T026: a new scenario id at version 1, naming no site.
     ("kobo-mini-grid-degraded-evidence", 1): (
         "0fc92f6dda17664c17e6550dea1d5c4c881016333433d656b970e1f85e82e06e"
@@ -111,7 +115,7 @@ def site_naming_failure(path_name: str, document: dict[str, Any]) -> str | None:
 
 def test_the_shipped_scenarios_were_found() -> None:
     documents = shipped_documents()
-    assert len(documents) == 8, [path.name for path, _ in documents]
+    assert len(documents) == 9, [path.name for path, _ in documents]
 
 
 def test_every_shipped_scenario_matches_its_pinned_fingerprint() -> None:
@@ -142,7 +146,8 @@ def test_no_shipped_scenario_names_a_site() -> None:
 
 
 #: T026: scenarios first shipped after the T025g v2 bump start at version 1.
-NEW_SINCE_T025G = {"kobo-mini-grid-degraded-evidence"}
+#: S2-01c: the delayed-publication fixture for the registered virtual clock.
+NEW_SINCE_T025G = {"kobo-mini-grid-degraded-evidence", "kobo-daytime-delayed-publication"}
 
 
 def test_every_shipped_scenario_is_v2_superseding_v1() -> None:
