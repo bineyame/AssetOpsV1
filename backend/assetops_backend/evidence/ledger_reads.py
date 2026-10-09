@@ -28,7 +28,9 @@ GET /api/sites/{id}/evidence/records    -> {store, site_id, window, total, limit
 GET /api/sites/{id}/evidence/records/{evidence_id|message_id}
   -> RECORD + {envelope, accepted_as, receipt, sequence, duplicates[], conflicts[]}
 GET /api/sites/{id}/evidence/rejections?batch= -> {store, site_id, total,
-  rejections[], conflicts[], duplicates[]}
+  rejected_without_source_time, rejections[], conflicts[], duplicates[]}
+  A rejection's `source_time` is its own envelope's (null when unreadable);
+  a conflict also carries `conflicts_with_source_time` (the original, lineage only).
 """
 
 from __future__ import annotations
@@ -40,6 +42,7 @@ from typing import Any, Callable, Protocol
 from uuid import UUID
 
 from assetops_backend.evidence.legacy_comparison import permits_cutover
+from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 
 CLOCK_STATEMENT = (
     "Source and publication times on simulated reports are run-virtual instants; "
@@ -122,7 +125,11 @@ def _envelope_source_time(text: str | None) -> datetime | None:
 
 
 def _rejection(row: dict) -> dict:
-    placed = row["original_source_time"] or _envelope_source_time(row["envelope_text"])
+    # Q19 (Architect, batch answers 3): a rejection is placed by the refused or
+    # conflicting envelope's OWN source time. A conflict's original accepted row
+    # is lineage (`conflicts_with_source_time`), never the conflict event's time.
+    # No readable source time: no window holds it; it is counted and listed unwindowed.
+    placed = _envelope_source_time(row["envelope_text"])
     return {
         "rejection_id": str(row["rejection_id"]), "batch_id": row["external_batch_id"], "ordinal": row["ordinal"],
         "message_id": row["message_id"], "decision": row["decision"], "kind": row["kind"],
@@ -131,6 +138,7 @@ def _rejection(row: dict) -> dict:
         "envelope_sha256": row["envelope_sha256"], "envelope_text": row["envelope_text"],
         "conflicts_with_evidence_id": None if row["conflicts_with_evidence_id"] is None
         else str(row["conflicts_with_evidence_id"]),
+        "conflicts_with_source_time": _z(row["original_source_time"]),
     }
 
 
@@ -178,10 +186,17 @@ class ImportedEvidenceReads:
         ledger: LedgerReads,
         imported: Callable[[str], tuple[str, UUID, UUID] | None],
         latest_comparison: Callable[[str], dict | None],
+        current_inventory: Callable[[str], dict],
+        environment: str | None,
     ) -> None:
+        """`current_inventory(site_code)` recomputes `legacy_inventory` from the
+        current legacy input (raises `EvidenceStoreUnavailable` when unreadable);
+        `environment` is `environment_identity` of the active database (Q14)."""
         self._ledger = ledger
         self._imported = imported
         self._latest_comparison = latest_comparison
+        self._current_inventory = current_inventory
+        self._environment = environment
 
     def scope(self, site_code: str) -> ImportedScope | None:
         """None for a Site that is not imported (the legacy path answers it).
@@ -191,7 +206,12 @@ class ImportedEvidenceReads:
             return None
         code, tenant_id, site_id = found
         report = self._latest_comparison(code)
-        allowed, reason = permits_cutover(report, code, site_id)
+        try:
+            inventory = self._current_inventory(code)
+        except EvidenceStoreUnavailable:
+            inventory = None  # unreadable legacy input: fail closed
+        allowed, reason = permits_cutover(report, code, site_id, tenant_id=tenant_id,
+                                          environment=self._environment, inventory=inventory)
         if not allowed:
             raise AwaitingComparison(
                 f"Site {code} is imported; its Evidence moves to the central ledger only after a "
@@ -347,6 +367,7 @@ class ImportedEvidenceReads:
         return {
             "store": "POSTGRES", "site_id": scope.site_code, "total": len(rejections),
             "rejections": rejections,
+            "rejected_without_source_time": sum(1 for r in rejections if r["source_time"] is None),
             "conflicts": [r for r in rejections if r["kind"] == "MESSAGE_CONFLICT"],
             "duplicates": [
                 {"batch_id": d["external_batch_id"], "ordinal": d["ordinal"], "message_id": d["message_id"],

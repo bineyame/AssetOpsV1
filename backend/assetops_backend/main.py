@@ -65,6 +65,8 @@ from assetops_backend.evidence.service import Clock, IngestionService, system_cl
 from assetops_backend.evidence_api import build_evidence_router
 from assetops_backend.foundation_api import build_foundation_router
 from assetops_backend.runs.commit_ports import CommittedArtifactStore
+from assetops_backend.evidence.legacy_comparison import environment_identity
+from assetops_backend.evidence_migration import current_legacy_inventory
 from assetops_backend.runs.composition import build_commit_store, build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
@@ -260,6 +262,13 @@ def create_app(
     if comparison_reports is None and evidence_store is None:
         comparison_reports = build_comparison_reports()
     latest_comparison = (lambda site_code: None) if comparison_reports is None else comparison_reports.latest
+    # Q14: the gate recomputes the Site's legacy inventory from the CURRENT
+    # legacy evidence and committed artifacts on every read, and is scoped to
+    # this environment's database.
+    inventory_commits = build_commit_store() if commit_store is None else commit_store
+
+    def current_inventory(site_code: str) -> dict:
+        return current_legacy_inventory(ingestion.store, inventory_commits, site_code)
     app.include_router(
         build_evidence_router(
             ingestion,
@@ -271,6 +280,8 @@ def create_app(
                 batch_ingestion.ledger,
                 registry.ledger_scope,
                 latest_comparison,
+                current_inventory,
+                environment_identity(database_url()),
             ),
         )
     )

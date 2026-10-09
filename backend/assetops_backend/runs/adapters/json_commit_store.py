@@ -9,6 +9,7 @@ manifest and integrity digest, so a changed byte is an unreadable artifact.
 
 from __future__ import annotations
 
+import hashlib
 import os
 import threading
 import uuid
@@ -66,6 +67,34 @@ class JsonCommitStore:
 
     def get(self, run_id: str) -> CommittedArtifact | None:
         return self._read(self._path(run_id), run_id)
+
+    def site_artifacts(self, site_key: str) -> list[tuple[str, str]]:
+        """`(run_id, sha256 of the stored bytes)` of every verified artifact filed
+        for the Site whose `site_id_key` is `site_key` (S2-02 Q14 legacy inventory).
+
+        Read-only. Any unreadable or unverifiable artifact raises, so a caller
+        that fingerprints the legacy input fails closed rather than skip it."""
+        from assetops_backend.sites.identity import site_id_key
+
+        if not self._root.is_dir():
+            return []
+        found: list[tuple[str, str]] = []
+        try:
+            paths = sorted(self._root.glob(f"*{SUFFIX}"))
+        except OSError as error:
+            raise CommitStoreUnavailable(f"The commit store could not be read: {self._root}") from error
+        for path in paths:
+            try:
+                raw = path.read_bytes()
+            except OSError as error:
+                raise CommitStoreUnavailable(f"The commit store could not be read: {path.name}") from error
+            try:
+                artifact = parse_artifact_text(raw.decode("utf-8"))
+            except (ArtifactUnreadable, UnicodeDecodeError) as error:
+                raise CommittedArtifactUnreadable(f"{path.name} failed verification: {error}") from error
+            if site_id_key(artifact.site_id) == site_key:
+                found.append((artifact.run_id, hashlib.sha256(raw).hexdigest()))
+        return found
 
     def create(self, artifact: CommittedArtifact) -> CommittedArtifact:
         payload = artifact_text(artifact).encode("utf-8")

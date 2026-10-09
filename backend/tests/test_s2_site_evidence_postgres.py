@@ -38,12 +38,13 @@ if URL:
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_reads import ImportedEvidenceReads
     from assetops_backend.evidence.ledger_service import BatchIngestionService, SimulatedCrash
-    from assetops_backend.evidence.legacy_comparison import compare
+    from assetops_backend.evidence.legacy_comparison import compare, environment_identity, legacy_inventory
     from assetops_backend.evidence.models import SiteEvidence
     from assetops_backend.evidence_api import build_evidence_router
     from assetops_backend.evidence_migration import main as comparison_cli
 
 LATER = RECEIVED + timedelta(minutes=7)
+ENV = environment_identity(URL) if URL else None
 
 
 class _NoSites:
@@ -62,12 +63,13 @@ def empty_set_report(kit, **changes) -> dict:
         site_code="KOBO-001", tenant_id=kit.principal.tenant_id, site_id=kit.principal.site_id,
         legacy=SiteEvidence(site_id="KOBO-001"), ledger_digests={}, bound_channels=(),
         legacy_dispatch_claims=[], recompute_jobs=[], compared_at="2026-10-09T09:00:00.000000Z",
+        committed_artifacts=(), environment=ENV,
     )
     report.update(changes)
     return report
 
 
-def client(kit, report: dict | None) -> TestClient:
+def client(kit, report: dict | None, legacy: SiteEvidence | None = None) -> TestClient:
     from assetops_backend.evidence.service import IngestionService
 
     principal = kit.principal
@@ -75,6 +77,8 @@ def client(kit, report: dict | None) -> TestClient:
         PostgresEvidenceLedger(URL),
         lambda code: ("KOBO-001", principal.tenant_id, principal.site_id) if code.lower() == "kobo-001" else None,
         lambda code: report,
+        lambda code: legacy_inventory(SiteEvidence(site_id=code) if legacy is None else legacy, ()),
+        ENV,
     )
     app = FastAPI()
     app.include_router(build_evidence_router(
@@ -128,6 +132,19 @@ class TestCutoverGate:
         assert body["store"] == "POSTGRES" and body["state"] == "NO_DATA"
         assert body["migration"]["outcome"] == "PASSED" and body["migration"]["empty_set"] is True
         assert body["migration"]["statement"].startswith("Empty-set comparison")
+
+
+class TestCutoverFreshness:
+    def test_legacy_evidence_added_after_an_empty_set_pass_returns_awaiting_migration(self, kit) -> None:
+        from test_s2_legacy_comparison import legacy_record, legacy_site
+
+        assert client(kit, empty_set_report(kit)).get("/api/sites/KOBO-001/evidence").status_code == 200
+        http = client(kit, empty_set_report(kit), legacy=legacy_site([legacy_record(1)]))
+        for route in TestCutoverGate.ROUTES:
+            answer = http.get(f"/api/sites/KOBO-001/{route}")
+            assert answer.status_code == 409, route
+            assert answer.json()["detail"]["code"] == "AWAITING_EVIDENCE_MIGRATION"
+            assert "changed" in answer.json()["detail"]["message"]
 
 
 class TestSelectedWindow:
@@ -210,6 +227,21 @@ class TestRecordLineage:
         listed = http.get(f"/api/sites/KOBO-001/evidence/rejections?batch={receipts['conflict'].batch_id}").json()
         assert listed["conflicts"][0]["conflicts_with_evidence_id"] == original_id
 
+    def test_a_conflict_is_placed_by_its_own_source_time_with_the_original_as_lineage(self, kit) -> None:
+        pv = "pv-inverter-controller"
+        accepted = submit(kit, kit.seal(kit.pv(3))).receipt
+        original_id = accepted.dispositions[1].evidence_id
+        submit(kit, kit.seal([kit.envelope(pv, 2, 45, "7")]))  # same message, a different source time
+        http = client(kit, empty_set_report(kit))
+        original = http.get(f"/api/sites/KOBO-001/evidence/records/{original_id}").json()
+        own = http.get(f"/api/sites/KOBO-001/evidence?{window(kit, 40, 50)}").json()
+        assert own["counts"]["conflicts"] == 1 and "CONFLICTING" in own["states"]
+        before = http.get(f"/api/sites/KOBO-001/evidence?{window(kit, 0, 10)}").json()
+        assert before["counts"]["conflicts"] == 0 and "CONFLICTING" not in before["states"]
+        [conflict] = http.get("/api/sites/KOBO-001/evidence/rejections").json()["conflicts"]
+        assert conflict["source_time"] == _z(kit.start + timedelta(minutes=45))
+        assert conflict["conflicts_with_source_time"] == original["source_time"] != conflict["source_time"]
+
     def test_received_at_is_the_first_batch_receipt_not_a_later_ordinal_decision(self, kit) -> None:
         receipts = load_scenario(kit)
         resumed = BatchIngestionService(PostgresEvidenceLedger(URL), Clock(LATER), chunk_size=2)
@@ -241,9 +273,14 @@ class TestComparisonCli:
                 from assetops_backend.analytics.models import AssessmentHistory
                 return AssessmentHistory(site_id=site_id)
 
+        class _NoCommits:
+            def site_artifacts(self, site_key):
+                return []
+
         reports = ComparisonReportFiles(tmp_path)
         code = comparison_cli(["run", "--tenant", "demo", "--site", "KOBO-001"], evidence_store=_Legacy(),
-                              ledger=PostgresEvidenceLedger(URL), reports=reports, assessments=_Assessments())
+                              ledger=PostgresEvidenceLedger(URL), reports=reports, assessments=_Assessments(),
+                              commit_store=_NoCommits(), environment=ENV)
         assert code == 0
         report = reports.latest("KOBO-001")
         assert (report["outcome"], report["empty_set"]) == ("PASSED", True)

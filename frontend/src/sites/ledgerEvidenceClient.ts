@@ -237,12 +237,16 @@ export interface LedgerRejection {
   envelope_sha256: string | null;
   envelope_text: string | null;
   conflicts_with_evidence_id: string | null;
+  /** Q19: the original accepted reading's source time (lineage only); the
+   * rejection's own `source_time` places it. */
+  conflicts_with_source_time?: string | null;
 }
 
 export interface LedgerRejections {
   store: "POSTGRES";
   site_id: string;
   total: number;
+  rejected_without_source_time?: number;
   rejections: LedgerRejection[];
   conflicts: LedgerRejection[];
   duplicates: {

@@ -22,18 +22,34 @@ Outcomes:
 `permits_cutover` is the one predicate the Evidence routes ask. The S3 hand-off
 fixtures (file-saved `dispatch` claims and the ledger's recompute jobs) ride in
 the report verbatim, without any analytic claim.
+
+Freshness (Q14, Architect batch answers 3). A report binds the tenant UUID, the
+Site UUID, the active environment (`environment_identity`: the product
+database's host, port and name, never its credentials) and a deterministic
+`legacy_inventory` fingerprint of the Site's legacy input: its file-store
+batches, records, rejections and conflicts and every committed artifact filed
+for the Site, the zero inventory included. `permits_cutover` is given the
+inventory recomputed from the current input on every read; a changed inventory,
+another environment or tenant, or an unreadable store keeps the cutover closed
+until a fresh comparison. An old PASSED report never authorizes a changed store.
 """
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping
+import hashlib
+import json
+from dataclasses import asdict
+from typing import Any, Iterable, Mapping, Sequence
+from urllib.parse import urlsplit
 from uuid import UUID, uuid4
 
 from assetops_backend.evidence.models import SiteEvidence
 from assetops_contracts.committed_artifact import envelope_content_digest
 from assetops_contracts.source_envelope import EnvelopeRejected, parse_canonical_envelope_json
 
-REPORT_SCHEMA = {"id": "assetops.evidence-legacy-comparison", "version": 1}
+#: Version 2 adds the environment and legacy-inventory binding (Q14); a version-1
+#: report (no fingerprint) no longer opens the cutover.
+REPORT_SCHEMA = {"id": "assetops.evidence-legacy-comparison", "version": 2}
 REPLAY_PARSER = "source-envelope V1 (parse_canonical_envelope_json), dry run"
 FAILING_KINDS = frozenset({
     "REPLAY_PARSE_FAILED", "MESSAGE_ID_MISMATCH", "DIGEST_MISMATCH", "COUNT_MISMATCH", "LEDGER_DIGEST_MISMATCH",
@@ -56,6 +72,42 @@ def _counts(legacy: SiteEvidence) -> dict:
     }
 
 
+def environment_identity(database_url: str | None) -> str | None:
+    """The active environment a report is scoped to: the product database's
+    driver family, host, port and database name. Credentials are dropped."""
+    if not database_url:
+        return None
+    parts = urlsplit(database_url)
+    if not parts.hostname or not parts.path.strip("/"):
+        return None
+    family = parts.scheme.split("+", 1)[0]
+    return f"{family}://{parts.hostname.lower()}:{parts.port or 5432}/{parts.path.strip('/')}"
+
+
+def legacy_inventory(legacy: SiteEvidence, committed_artifacts: Sequence[tuple[str, str]]) -> dict:
+    """The deterministic fingerprint of a Site's legacy input (Q14).
+
+    `committed_artifacts` is `(run_id, sha256 of the stored artifact bytes)` for
+    every committed artifact filed for the Site. The zero inventory has a digest
+    too, so evidence that appears after an empty-set comparison changes it."""
+    document = {
+        "batches": [asdict(b) for b in legacy.batches],
+        "records": [asdict(r) for r in legacy.records],
+        "rejections": [asdict(r) for r in legacy.rejections],
+        "conflicts": [asdict(c) for c in legacy.conflicts],
+        "committed_artifacts": sorted([run_id, digest] for run_id, digest in committed_artifacts),
+    }
+    text = json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
+    return {
+        "digest": "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "batches": len(legacy.batches),
+        "accepted_records": len(legacy.records),
+        "rejections": len(legacy.rejections),
+        "conflicts": len(legacy.conflicts),
+        "committed_artifacts": len(committed_artifacts),
+    }
+
+
 def compare(
     *,
     site_code: str,
@@ -67,6 +119,8 @@ def compare(
     legacy_dispatch_claims: list[dict],
     recompute_jobs: list[dict],
     compared_at: str,
+    committed_artifacts: Sequence[tuple[str, str]],
+    environment: str,
 ) -> dict[str, Any]:
     """Build the comparison report. Pure: every input is already read."""
     exceptions: list[dict] = []
@@ -132,6 +186,8 @@ def compare(
         "site_id": site_code,
         "site_uuid": str(site_id),
         "tenant_id": str(tenant_id),
+        "environment": environment,
+        "legacy_inventory": legacy_inventory(legacy, committed_artifacts),
         "compared_at": compared_at,
         "outcome": outcome,
         "empty_set": empty,
@@ -151,17 +207,41 @@ def compare(
     }
 
 
-def permits_cutover(report: Mapping[str, Any] | None, site_code: str, site_id: UUID) -> tuple[bool, str]:
-    """Whether the newest comparison record lets the Site's Evidence read the ledger."""
+def permits_cutover(
+    report: Mapping[str, Any] | None,
+    site_code: str,
+    site_id: UUID,
+    *,
+    tenant_id: UUID,
+    environment: str | None,
+    inventory: Mapping[str, Any] | None,
+) -> tuple[bool, str]:
+    """Whether the newest comparison record lets the Site's Evidence read the ledger.
+
+    `inventory` is `legacy_inventory` recomputed from the CURRENT legacy input
+    (None when it could not be read, which closes the gate)."""
     if report is None:
         return False, ("No legacy comparison record exists; run "
                        "`python -m assetops_backend.evidence_migration run` for the Site.")
     if report.get("schema") != REPORT_SCHEMA or report.get("site_uuid") != str(site_id):
-        return False, "The newest comparison record is for another schema or Site."
+        return False, "The newest comparison record is for another schema or Site; run a fresh comparison."
+    if report.get("tenant_id") != str(tenant_id):
+        return False, "The newest comparison record is for another tenant."
+    if environment is None or report.get("environment") != environment:
+        return False, "The newest comparison record was made in another environment; run a fresh comparison here."
     if report.get("outcome") != "PASSED":
         return False, f"The newest comparison record is {report.get('outcome')}, not PASSED."
     if report.get("empty_set") is not False and not (
         report.get("empty_set") is True and str(report.get("statement", "")).startswith("Empty-set comparison")
     ):
         return False, "The comparison record does not state whether it compared an empty set."
+    if inventory is None:
+        return False, "The Site's legacy input could not be read, so the comparison cannot be confirmed current."
+    recorded = report.get("legacy_inventory")
+    if not isinstance(recorded, Mapping) or recorded.get("digest") != inventory.get("digest"):
+        return False, ("The Site's legacy input has changed since the newest comparison (inventory "
+                       f"{inventory.get('digest')}); run a fresh comparison.")
+    if report.get("empty_set") is True and any(
+            inventory.get(k) for k in ("batches", "accepted_records", "rejections", "conflicts")):
+        return False, "The empty-set comparison no longer matches a legacy store that now holds evidence."
     return True, ""
