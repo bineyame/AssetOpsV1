@@ -463,6 +463,23 @@ def test_an_individually_unbatchable_report_is_held_before_a_sequence(gateway, a
     assert (after.outcome, after.sequence) == ("ADMITTED", 1)
 
 
+def test_a_non_size_singleton_seal_failure_keeps_its_own_kind_and_field(
+    gateway, active: str, db_path: Path, monkeypatch
+) -> None:
+    import assetops_gateway.service as service_module
+    from assetops_contracts.ingestion_batch_v2 import BatchRejected
+
+    def refuse(**kwargs):
+        raise BatchRejected("INVALID_FIELD", "mapping.snapshot_sha256", "forced for the test")
+
+    monkeypatch.setattr(service_module, "seal_batch_v2", refuse)
+    held = gateway.admit(report(key="odd"), snapshot_sha256=active, lab_run_ref="run-1")
+    assert (held.outcome, held.kind, held.field) == ("HELD", "INVALID_FIELD", "mapping.snapshot_sha256")
+    assert held.sequence is None
+    assert _count(db_path, "SELECT COUNT(*) FROM envelope_outbox") == 0
+    assert _count(db_path, "SELECT COUNT(*) FROM sequence_state") == 0
+
+
 def test_a_seal_refusal_is_durable_and_leaves_the_group_unbatched(
     gateway, active: str, db_path: Path, clock, monkeypatch
 ) -> None:
@@ -513,3 +530,10 @@ def test_a_version_1_ledger_migrates_to_record_seal_refusals(db_path: Path, cloc
         assert service._db.execute("SELECT COUNT(*) FROM seal_refusal").fetchone()[0] == 0
     finally:
         service.close()
+
+
+def test_staged_statement_claims_only_admitted_envelopes() -> None:
+    from assetops_contracts.gateway_stage import REGISTERED_STAGE_STATEMENTS
+
+    text = REGISTERED_STAGE_STATEMENTS["STAGED"]
+    assert "Every report the gateway admitted" in text and "held reports are listed separately" in text

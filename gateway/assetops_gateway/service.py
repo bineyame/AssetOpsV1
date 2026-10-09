@@ -543,11 +543,14 @@ class GatewayService:
         try:
             _seal(provisioning, snapshot, source_id, [envelope_text])
         except BatchRejected as error:
-            raise _Held(
-                "UNBATCHABLE",
-                "value",
-                f"this report cannot fit one Batch V2 even alone ({error.kind} at {error.field})",
-            ) from error
+            if error.kind == "TOO_LARGE" and error.field == "batch":
+                raise _Held(
+                    "UNBATCHABLE",
+                    "value",
+                    f"this report cannot fit one Batch V2 even alone ({error.kind} at {error.field})",
+                ) from error
+            # Any other cause keeps its actual kind and field as a typed refusal.
+            raise _Held(error.kind, error.field, error.detail) from error
 
     @staticmethod
     def _check_report(report: DeviceReport, binding: Binding, snapshot: VerifiedSnapshot, now: str) -> None:

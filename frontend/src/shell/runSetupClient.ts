@@ -844,7 +844,7 @@ export interface GatewayLedgerStage {
   store: "GATEWAY_LEDGER";
   run_id: string;
   /**
-   * `STAGED` (every envelope sealed), `SEALING_PENDING`, `SEALING_REFUSED`,
+   * `STAGED` (every admitted envelope sealed; held reports may remain), `SEALING_PENDING`, `SEALING_REFUSED`,
    * `HELD` (every report held), `NOT_STAGED` or `GATEWAY_UNAVAILABLE`.
    */
   status: string;

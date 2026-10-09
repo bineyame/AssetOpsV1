@@ -17,8 +17,8 @@ from dataclasses import dataclass
 #: Where a registered run's Stage comes from. Pre-import runs say LEGACY_FILE.
 GATEWAY_LEDGER_STORE = "GATEWAY_LEDGER"
 
-#: S2-01b fix round 1 (F1): `STAGED` claims sealing only when every envelope
-#: this run handed the gateway is in a sealed batch. Unbatched envelopes say
+#: S2-01b fix round 1 (F1): `STAGED` claims sealing only when every admitted
+#: envelope for this run is in a sealed batch (held reports may remain). Unbatched envelopes say
 #: `SEALING_PENDING`, or `SEALING_REFUSED` when the ledger durably records why;
 #: a run whose every report was held says `HELD`. All derive from the ledger, so
 #: a read after a restart says the same.
@@ -32,7 +32,8 @@ REGISTERED_STAGE_STATUSES = (
 )
 REGISTERED_STAGE_STATEMENTS = {
     "STAGED": (
-        "The gateway sealed this run's public reports into its local outbox. "
+        "Every report the gateway admitted for this run is in a sealed local batch; "
+        "any held reports are listed separately. "
         "Upload is pending: nothing has been sent or accepted."
     ),
     "SEALING_PENDING": (
@@ -120,7 +121,7 @@ def registered_stage_status(
     holds: tuple[GatewayHold, ...],
     seal_refusals: tuple[GatewaySealRefusal, ...],
 ) -> str:
-    """The Stage status the ledger supports; `STAGED` only when all is sealed."""
+    """The Stage status the ledger supports; `STAGED` only when every admitted envelope is sealed."""
     if any(e.batch_id is None for e in envelopes):
         return "SEALING_REFUSED" if seal_refusals else "SEALING_PENDING"
     if envelopes:
