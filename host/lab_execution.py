@@ -2515,7 +2515,8 @@ class HostLabExecution:
         if schedule is None:
             schedule = PublicationSchedule(run_id=session.run_id, snapshot_sha256=basis.snapshot_sha256)
         known = schedule.keys()
-        immediate: list[str] = []
+        # Undelayed reports by the reached boundary they were observed at.
+        ordinary: dict[str, list[str]] = {}
         added: list[DelayedReport] = []
         for observation, key, report_text in keyed:
             windows = [
@@ -2527,7 +2528,7 @@ class HostLabExecution:
             if not publication_delay_minutes(
                 session.reporting.delays, observation.device_id, observation.signal_id, observation.at_offset_minutes
             ):
-                immediate.append(report_text)
+                ordinary.setdefault(self._instant_at(session, observation.at_offset_minutes), []).append(report_text)
                 continue
             if key in known:
                 continue
@@ -2550,28 +2551,76 @@ class HostLabExecution:
             world_reached_instant=reached,
             world_complete=session.execution.is_terminal,
         )
-        return self._release(session.run_id, basis, schedule, max(candidates), immediate, note)
+        # Only boundaries the world has actually completed: before the first,
+        # nothing is observed and nothing may be marked published.
+        instants = [self._instant_at(session, b.offset_minutes) for b in boundaries]
+        return self._release(session.run_id, basis, schedule, max(candidates), note, instants, ordinary)
 
     def _release(
-        self, run_id: str, basis, schedule: PublicationSchedule, target: str, immediate: list[str], note
+        self,
+        run_id: str,
+        basis,
+        schedule: PublicationSchedule,
+        target: str,
+        note,
+        instants: list[str] | None = None,
+        ordinary: dict[str, list[str]] | None = None,
     ) -> str | None:
+        """Publish in source-boundary order (`D-2026-10-09-s2-ordered-
+        publication-and-closing-boundary`).
+
+        Each reached boundary after the last one already published is its own
+        admission at its own instant: the delayed reports due by then first
+        (observed earlier), then that boundary's undelayed readings. So a
+        cadence-aligned reading has `published_at == source_time`, a delayed
+        one is stamped with the first reached boundary at or after its due
+        instant, and a `run_to_end` gives the same envelopes as single steps.
+        What is still due once the world's boundaries are done goes at
+        `target`, the explicit post-run advance - never backdated. A boundary
+        the gateway clock has already passed admits nothing new: the refusal is
+        a staging note and the pass stops there, rather than stamp an ordinary
+        reading with an undeclared delay."""
         # The Lab's clock and every pending report are durable before the
         # gateway hears anything, so a crash here leaves nothing published early.
         schedule = replace(schedule, clock_instant=target)
         self._schedules.write(schedule)
-        due = schedule.due(target)
-        try:
-            admissions = self._gateway.publish_at_run_clock(
-                run_id, basis, list(immediate) + [d.report_text for d in due], target
-            )
-        except (GatewayUnavailable, GatewayRequestRefused, PublicationRefused) as refused:
-            # The delayed reports stay PENDING; a retry at this or a later
-            # instant resubmits them under the same admission key.
+        ordinary = ordinary or {}
+        after = schedule.admitted_through
+        groups: list[tuple[str, list[DelayedReport], list[str]]] = []
+        submitted: set[str] = set()
+        for instant in sorted(set(instants or ())):
+            if after is not None and instant <= after:
+                continue
+            due = [d for d in schedule.due(instant) if d.report_key not in submitted]
+            submitted.update(d.report_key for d in due)
+            texts = ordinary.get(instant, [])
+            groups.append((instant, due, texts))
+        last = groups[-1][0] if groups else None
+        tail = [d for d in schedule.due(target) if d.report_key not in submitted]
+        if tail and (last is None or target > last):
+            groups.append((target, tail, []))
+        elif tail:
+            groups[-1] = (last, groups[-1][1] + tail, groups[-1][2])
+        wanted = [(instant, [d.report_text for d in due] + texts) for instant, due, texts in groups if due or texts]
+        done, refused = self._gateway.publish_in_boundary_order(run_id, basis, wanted, target)
+        boundary_instants = set(instants or ())
+        through = schedule.admitted_through
+        committed = iter(done)
+        for instant, due, texts in groups:
+            if due or texts:
+                admissions = next(committed, None)
+                if admissions is None:
+                    break  # this group and every later one were not admitted
+                for d, answer in zip(due, admissions):
+                    schedule = schedule.released({d.report_key: answer}, instant)
+            if instant in boundary_instants:
+                through = instant
+        schedule = replace(schedule, admitted_through=through)
+        self._schedules.write(schedule)
+        if refused is not None:
             text = f"registered publication refused: {refused}"
             note(text)
             return text
-        answers = {d.report_key: a for d, a in zip(due, admissions[len(immediate) :])}
-        self._schedules.write(schedule.released(answers, target))
         return None
 
     def advance_publication(self, run: SimulationRun, instant: str) -> dict:
@@ -2632,7 +2681,7 @@ class HostLabExecution:
             else:
                 # After a host restart there is no live session: the series
                 # admitted before stays admitted; only the schedule is released.
-                refused = self._release(run.run_id, run.registered_basis, schedule, instant, [], note)
+                refused = self._release(run.run_id, run.registered_basis, schedule, instant, note)
             return {
                 "schedule": self._schedules.read(run.run_id),
                 "publication_refused": refused,

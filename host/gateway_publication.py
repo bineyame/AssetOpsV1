@@ -125,21 +125,32 @@ class RegisteredGatewayPublisher:
             raise PublicationRefused("REPORT_NOT_ADAPTABLE", str(rejected)) from rejected
         return self._sealed(self._admit(run_id, basis, texts, "admit"))
 
-    def publish_at_run_clock(self, run_id: str, basis, texts: Sequence[str], instant: str) -> list[dict]:
-        """S2-01c: advance the run's gateway clock to `instant`, admit, seal.
+    def publish_in_boundary_order(
+        self, run_id: str, basis, groups: Sequence[tuple[str, Sequence[str]]], final_instant: str
+    ) -> tuple[list[list[dict]], Exception | None]:
+        """S2-01c: admit each group at its own reached boundary, in order, then
+        move the run clock to `final_instant`.
 
-        `D-2026-10-09-s2-simulated-publication-clock`. The caller passes only
-        reports already due at `instant`; the gateway stamps `published_at`
-        from its persisted run clock at first admission and answers a replay
-        with its first identity, unchanged. Returns the per-report admissions
-        in order, so the Lab can record which delayed report became which
-        envelope. Sealing runs even when nothing new was admitted, which is
-        the retry of an earlier failed seal."""
-        self._activate(basis)
-        self._link.call("advance_publication_clock", {"lab_run_ref": run_id, "instant": instant})
-        admissions = self._admit(run_id, basis, list(texts), "admit_at_run_clock")
-        self._sealed(admissions)
-        return admissions
+        `D-2026-10-09-s2-ordered-publication-and-closing-boundary`. Each group
+        is `(instant, report texts)`; the gateway advances the run clock to that
+        instant and stamps first admissions with it, so a cadence-aligned
+        reading publishes at its own source instant whatever the step size. A
+        group whose instant the clock has passed admits nothing new
+        (`PUBLICATION_INSTANT_PASSED`). Every group is sealed before the next,
+        so the batches do not depend on how the operator stepped. Returns the
+        admissions of every group that committed, and the refusal that stopped
+        the pass, if any; a group sealed in refusal still committed."""
+        done: list[list[dict]] = []
+        try:
+            self._activate(basis)
+            for instant, texts in groups:
+                admissions = self._admit(run_id, basis, list(texts), "admit_at_run_clock", at_instant=instant)
+                done.append(admissions)
+                self._sealed(admissions)
+            self._link.call("advance_publication_clock", {"lab_run_ref": run_id, "instant": final_instant})
+        except (GatewayUnavailable, GatewayRequestRefused, PublicationRefused) as refused:
+            return done, refused
+        return done, None
 
     def _activate(self, basis) -> None:
         identity = self._link.call("identity")
@@ -152,18 +163,18 @@ class RegisteredGatewayPublisher:
             "activate", {"snapshot_text": basis.snapshot_canonical, "claimed": claimed_references(basis)}
         )
 
-    def _admit(self, run_id: str, basis, texts: list[str], op: str) -> list[dict]:
+    def _admit(self, run_id: str, basis, texts: list[str], op: str, *, at_instant: str | None = None) -> list[dict]:
         admissions: list[dict] = []
         for start in range(0, len(texts), ADMISSION_CHUNK):
+            body = {
+                "snapshot_sha256": basis.snapshot_sha256,
+                "lab_run_ref": run_id,
+                "reports": texts[start : start + ADMISSION_CHUNK],
+            }
+            if at_instant is not None:
+                body["at_instant"] = at_instant
             try:
-                answer = self._link.call(
-                    op,
-                    {
-                        "snapshot_sha256": basis.snapshot_sha256,
-                        "lab_run_ref": run_id,
-                        "reports": texts[start : start + ADMISSION_CHUNK],
-                    },
-                )
+                answer = self._link.call(op, body)
             except GatewayRequestRefused as refused:
                 if refused.kind == "DISK_PRESSURE_STOP":
                     # S2-01c AC3: acquisition refused before any sequence; what

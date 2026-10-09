@@ -199,9 +199,9 @@ def test_the_run_clock_and_fault_fixtures_cross_the_channel_typed(running: Gatew
     text, claimed = snapshot()
     sha = link.call("activate", {"snapshot_text": text, "claimed": claimed.__dict__})["snapshot_sha256"]
     body = {"snapshot_sha256": sha, "lab_run_ref": "run-v", "reports": [report(key="v1")]}
-    with pytest.raises(GatewayRequestRefused) as error:
-        link.call("admit_at_run_clock", body)
-    assert error.value.kind == "NO_PUBLICATION_CLOCK"
+    with pytest.raises(GatewayRequestRefused):
+        link.call("admit_at_run_clock", body)  # exact body: the admission instant is required
+    body["at_instant"] = "2026-10-01T08:10:00Z"
     assert link.call("advance_publication_clock", {"lab_run_ref": "run-v", "instant": "2026-10-01T08:10:00Z"})[
         "advanced"
     ]

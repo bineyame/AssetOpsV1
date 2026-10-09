@@ -475,6 +475,29 @@ class GatewayService:
                 )
         return {"lab_run_ref": lab_run_ref, "instant": instant, "advanced": advanced}
 
+    def _clock_at(
+        self, db: sqlite3.Connection, clock: str, lab_run_ref: str | None, at_instant: str
+    ) -> tuple[str, bool]:
+        """Advance the run clock to `at_instant` in `db`; (instant, passed)."""
+        if clock != RUN_VIRTUAL:
+            raise ValueError("an admission instant is a RUN_VIRTUAL admission's")
+        if not lab_run_ref:
+            raise GatewayRefused("NO_PUBLICATION_CLOCK", "a virtual publication clock is scoped to a Lab run")
+        try:
+            datetime.strptime(at_instant, _INSTANT)
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"{at_instant!r} is not a UTC instant (YYYY-MM-DDTHH:MM:SSZ)") from error
+        self._require_simulated(db)
+        row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+        if row is None:
+            db.execute("INSERT INTO publication_clock VALUES (?,?,?)", (lab_run_ref, at_instant, self._now()))
+        elif at_instant > row[0]:
+            db.execute(
+                "UPDATE publication_clock SET instant=?, updated_at=? WHERE lab_run_ref=?",
+                (at_instant, self._now(), lab_run_ref),
+            )
+        return at_instant, row is not None and at_instant < row[0]
+
     def publication_clock(self, lab_run_ref: str) -> str | None:
         with self._tx() as db:
             row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
@@ -508,21 +531,37 @@ class GatewayService:
         lab_run_ref: str | None = None,
         initial_state: str = "STAGED",
         publication_clock: str = GATEWAY_UTC,
+        at_instant: str | None = None,
     ) -> list[Admission]:
         """Admit a bounded chunk of reports in ONE transaction.
 
         Same per-report rules as `admit`; the chunk commits or rolls back whole,
         so a crash leaves either every report of the chunk admitted or none.
-        One transaction per report made a full-day Lab run slow (phase-1 risk)."""
+        One transaction per report made a full-day Lab run slow (phase-1 risk).
+
+        `at_instant` (RUN_VIRTUAL only; `D-2026-10-09-s2-ordered-publication-
+        and-closing-boundary`): the reports' own reached boundary. The run clock
+        moves forward to it in this same transaction, and the chunk is stamped
+        with it. If the clock has already passed it, nothing new is admitted: a
+        report already admitted answers with its first identity, and any other
+        refuses the whole chunk `PUBLICATION_INSTANT_PASSED` rather than be
+        stamped with a later, undeclared publication instant."""
         _check_initial_state(initial_state)
         texts = list(report_texts)
         if len(texts) > MAX_ADMISSION_CHUNK:
             raise ValueError(f"at most {MAX_ADMISSION_CHUNK} reports per admission chunk")
         with self._tx() as db:
             self._refuse_at_stop(db)
-            published_at = self._publication_instant(db, publication_clock, lab_run_ref)
+            passed = False
+            if at_instant is not None:
+                published_at, passed = self._clock_at(db, publication_clock, lab_run_ref, at_instant)
+            else:
+                published_at = self._publication_instant(db, publication_clock, lab_run_ref)
             admissions = [
-                self._admit_in(db, text, snapshot_sha256, lab_run_ref, initial_state, published_at) for text in texts
+                self._admit_in(
+                    db, text, snapshot_sha256, lab_run_ref, initial_state, published_at, replay_only=passed
+                )
+                for text in texts
             ]
         self._hit("after_enqueue_commit")
         return admissions
@@ -535,6 +574,8 @@ class GatewayService:
         lab_run_ref: str | None,
         initial_state: str,
         virtual_published_at: str | None = None,
+        *,
+        replay_only: bool = False,
     ) -> Admission:
         """`virtual_published_at` is the run's virtual publication instant
         (`D-2026-10-09-s2-simulated-publication-clock`), or None for the
@@ -581,6 +622,14 @@ class GatewayService:
                         )
                     self._provenance(db, lab_run_ref, message_id=earlier[1])
                     return Admission("ALREADY_ADMITTED", message_id=earlier[1], sequence=earlier[2])
+            if replay_only:
+                # The run clock is past this report's boundary and it was never
+                # admitted: stamping it now would fabricate a publication delay.
+                raise GatewayRefused(
+                    "PUBLICATION_INSTANT_PASSED",
+                    f"the run's publication clock is past {virtual_published_at}; "
+                    f"{report.device_id}/{report.signal_id} at {report.source_time} was never admitted there",
+                )
             key = (provisioning.gateway_id, binding.source_id, epoch)
             row = db.execute(
                 "SELECT last_sequence FROM sequence_state WHERE gateway_id=? AND source_id=? AND sequence_epoch=?",

@@ -69,7 +69,9 @@ REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     # one run's persisted virtual publication clock (forward only, idempotent),
     # and admit reports stamped from it. `admit` keeps the gateway's real UTC.
     "advance_publication_clock": frozenset({"lab_run_ref", "instant"}),
-    "admit_at_run_clock": frozenset({"snapshot_sha256", "lab_run_ref", "reports"}),
+    # `at_instant`: the reports' reached boundary; the clock moves to it with
+    # the admission, and a passed instant admits nothing new (ordered publication).
+    "admit_at_run_clock": frozenset({"snapshot_sha256", "lab_run_ref", "reports", "at_instant"}),
     # A labelled fault fixture; `value` null clears it back to measurement/unknown.
     "inject_fault": frozenset({"fault", "value"}),
 }
@@ -295,6 +297,7 @@ class GatewayServer:
                 snapshot_sha256=_str(body, "snapshot_sha256"),
                 lab_run_ref=_str(body, "lab_run_ref"),
                 publication_clock=RUN_VIRTUAL if op == "admit_at_run_clock" else GATEWAY_UTC,
+                at_instant=_str(body, "at_instant") if op == "admit_at_run_clock" else None,
             )
             return {"admissions": [a.__dict__ for a in admissions]}
         if op == "seal":

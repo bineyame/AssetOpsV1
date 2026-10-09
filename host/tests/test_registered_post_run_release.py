@@ -1,8 +1,8 @@
 """S2-01c phase 3a: a delayed report still pending when the world run completes.
 
 `D-2026-10-09-s2-publication-clock-post-run-release` (answers-3 Q3, Q5). The
-shipped `kobo-daytime-post-run-publication` v1 holds the last in-interval
-state-of-charge sample - the world's reading at its last instant, source
+shipped `kobo-daytime-post-run-publication` v1 holds the closing-boundary
+state-of-charge observation - the world's reading at its end instant, source
 15:00 - until 15:05, after the world end. A real registered KOBO-001 Draft on `registered-kobo-publication`
 v2 runs to completion through a real gateway process with that report PENDING
 (no V3 envelope, no sequence). Only an explicit post-run publication-clock
@@ -26,6 +26,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import test_registered_publication_delay as delay  # noqa: E402
 from gateway_process import GatewayProcess  # noqa: E402
 from publication_schedule import RELEASED  # noqa: E402
+
+from assetops_gateway.ipc import GatewayUnavailable  # noqa: E402
 
 from assetops_contracts.source_envelope_v3 import parse_canonical_envelope_v3_text  # noqa: E402
 
@@ -97,7 +99,7 @@ def test_pending_at_completion_then_released_after_restart(draft, tmp_path) -> N
         port.start(draft)
         assert port.run_to_end(draft).status == "COMPLETED"
 
-        # The world run is complete and the last in-interval sample is PENDING.
+        # The world run is complete and the closing-boundary observation is PENDING.
         schedule = port.publication_schedule(draft)
         assert schedule.world_complete and schedule.clock_instant == END
         [pending] = schedule.pending()
@@ -186,5 +188,123 @@ def test_an_executed_run_without_a_stored_schedule_refuses(draft, tmp_path) -> N
         before = delay.stage_bytes(again.registered_stage(draft))
         delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: again.advance_publication(draft, "2026-09-30T04:00:00Z"))
         assert delay.stage_bytes(again.registered_stage(draft)) == before
+    finally:
+        gateway.kill()
+
+
+# --- ordered publication (`D-2026-10-09-s2-ordered-publication-and-closing-boundary`, B1)
+
+
+def _undelayed_lag(view, schedule) -> list[tuple[str, str]]:
+    """(source_time, published_at) pairs that differ, over every undelayed envelope."""
+    delayed = {(d.device_id, d.signal_id, d.source_time) for d in schedule.delayed}
+    pairs = [
+        (env.source_time, env.published_at)
+        for env in (parse_canonical_envelope_v3_text(e.envelope_text) for e in view.envelopes)
+        if (env.device_id, env.signal_id, env.source_time) not in delayed
+    ]
+    assert pairs, "the measured set is not empty"
+    return [p for p in pairs if p[0] != p[1]]
+
+
+def _complete(port, draft, how: str) -> None:
+    port.start(draft)
+    if how == "run_to_end":
+        assert port.run_to_end(draft).status == "COMPLETED"
+    else:
+        at = 0
+        while port.step(draft, boundaries=1, from_boundary=at).status != "COMPLETED":
+            at += 1
+    assert port.advance_publication(draft, PAST_DUE)["publication_refused"] is None
+
+
+def _published(root: Path, draft, how: str, link_wrapper=None):
+    gateway = delay.gateway_for(root / "g", draft)
+    try:
+        link = gateway.link if link_wrapper is None else link_wrapper(gateway.link)
+        port = delay.host(root / "h", link)
+        _complete(port, draft, how)
+        return port, delay.stage_bytes(port.registered_stage(draft)), port.registered_stage(draft)
+    finally:
+        gateway.kill()
+
+
+def test_run_to_end_and_single_steps_publish_the_same_bytes_at_source_instants(draft, tmp_path) -> None:
+    """The reviewer's probe: run_to_end used to stamp all 292 at 15:00Z."""
+    port, whole, view = _published(tmp_path / "whole", draft, "run_to_end")
+    _, stepped, _ = _published(tmp_path / "stepped", draft, "steps")
+    assert len(view.envelopes) == MANIFEST["public_expected"]["admitted_envelopes_after_release"]
+    assert _undelayed_lag(view, port.publication_schedule(draft)) == [], "an undelayed reading carries an undeclared publication delay"
+    late = delay.soc_envelopes(view)[CLOSING]
+    assert (late.source_time, late.published_at) == (CLOSING, PAST_DUE)
+    assert whole == stepped, "envelope and batch identity/bytes depend on how the operator stepped"
+    # Delayed order: released at the first reached boundary at/after its due
+    # instant, ahead of the readings first observed at that boundary.
+    midday = delay.soc_envelopes(view)["2026-09-30T07:00:00Z"]
+    assert midday.published_at == "2026-09-30T07:15:00Z"
+    at_release = [  # sequences are per source: compare within the SOC's source
+        env.sequence
+        for env in (parse_canonical_envelope_v3_text(e.envelope_text) for e in view.envelopes)
+        if env.source_time == "2026-09-30T07:15:00Z" and env.source_id == midday.source_id
+    ]
+    assert at_release and midday.sequence < min(at_release)
+
+
+class _FailingLink:
+    """Answers GATEWAY_UNAVAILABLE on the nth ordered admission, once."""
+
+    def __init__(self, link, fail_at: int) -> None:
+        self.link, self.fail_at, self.seen = link, fail_at, 0
+
+    def call(self, op, body=None):
+        if op == "admit_at_run_clock":
+            self.seen += 1
+            if self.seen == self.fail_at:
+                raise GatewayUnavailable("injected link loss")
+        return self.link.call(op, body)
+
+
+def test_a_retry_after_a_failed_pass_resumes_in_order_with_the_same_bytes(draft, tmp_path) -> None:
+    _, clean, _ = _published(tmp_path / "clean", draft, "run_to_end")
+    gateway = delay.gateway_for(tmp_path / "g", draft)
+    try:
+        link = _FailingLink(gateway.link, fail_at=20)
+        port = delay.host(tmp_path / "h", link)
+        port.start(draft)
+        assert port.run_to_end(draft).status == "COMPLETED"
+        notes = port._sessions[draft.run_id].staging_notes
+        assert any("registered publication refused" in n for n in notes), notes
+        partial = port.publication_schedule(draft)
+        assert partial.admitted_through is not None and partial.admitted_through < END
+        assert _undelayed_lag(port.registered_stage(draft), port.publication_schedule(draft)) == []
+        # Retry at the reached instant, then a host restart and the post-run advance.
+        assert port.advance_publication(draft, END)["publication_refused"] is None
+        assert port.publication_schedule(draft).admitted_through == END
+        restarted = delay.host(tmp_path / "h", gateway.link)
+        assert restarted.advance_publication(draft, PAST_DUE)["publication_refused"] is None
+        assert delay.stage_bytes(restarted.registered_stage(draft)) == clean
+    finally:
+        gateway.kill()
+
+
+def test_a_boundary_the_gateway_clock_has_passed_is_refused_not_stamped_late(draft, tmp_path) -> None:
+    gateway = delay.gateway_for(tmp_path / "g", draft)
+    try:
+        port = delay.host(tmp_path / "h", gateway.link)
+        port.start(draft)
+        port.step(draft, boundaries=4, from_boundary=0)  # 03:00..03:45 published
+        admitted = len(port.registered_stage(draft).envelopes)
+        assert admitted > 0
+        # Something moved this run's gateway clock past boundaries never admitted.
+        gateway.link.call("advance_publication_clock", {"lab_run_ref": draft.run_id, "instant": "2026-09-30T05:00:00Z"})
+        port.step(draft, boundaries=4, from_boundary=4)  # 04:00..04:45: the clock has passed them
+        notes = port._sessions[draft.run_id].staging_notes
+        assert any("PUBLICATION_INSTANT_PASSED" in n for n in notes), notes
+        view = port.registered_stage(draft)
+        assert len(view.envelopes) == admitted, "a missed boundary admitted nothing, and nothing after it"
+        assert _undelayed_lag(view, port.publication_schedule(draft)) == []
+        assert port.publication_schedule(draft).admitted_through == "2026-09-30T03:45:00Z"
+        assert port.run_to_end(draft).status == "COMPLETED"  # still refused, still exposed
+        assert len(port.registered_stage(draft).envelopes) == admitted
     finally:
         gateway.kill()

@@ -57,6 +57,10 @@ class PublicationSchedule:
     world_reached_instant: str | None = None
     world_complete: bool = False
     delayed: tuple[DelayedReport, ...] = field(default_factory=tuple)
+    #: The last reached world boundary whose undelayed reports the gateway
+    #: admitted at that boundary's own instant (ordered publication). Later
+    #: passes start after it; absent in a schedule written before it existed.
+    admitted_through: str | None = None
 
     def pending(self) -> tuple[DelayedReport, ...]:
         return tuple(d for d in self.delayed if d.state == PENDING)

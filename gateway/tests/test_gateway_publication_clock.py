@@ -146,3 +146,42 @@ def test_a_live_gateway_has_no_lab_publication_clock(tmp_path: Path, clock) -> N
         with pytest.raises(GatewayRefused) as error:
             service.advance_publication_clock(RUN, DUE)
         assert error.value.kind == "NOT_SIMULATED"
+
+
+# --- ordered admission at a reached boundary (`D-2026-10-09-s2-ordered-publication-and-closing-boundary`)
+
+
+def _admit_at(gateway: GatewayService, active: str, texts: list[str], at: str, run: str = RUN):
+    return gateway.admit_texts(
+        texts, snapshot_sha256=active, lab_run_ref=run, publication_clock=RUN_VIRTUAL, at_instant=at
+    )
+
+
+def test_an_admission_instant_moves_the_clock_with_the_admission(gateway, active: str, db_path: Path) -> None:
+    first = _admit_at(gateway, active, [report(key="b1", at=SOURCE)], SOURCE)[0]
+    assert gateway.publication_clock(RUN) == SOURCE
+    second = _admit_at(gateway, active, [report(key="b2", at=DUE)], DUE)[0]
+    assert gateway.publication_clock(RUN) == DUE
+    stamped = {
+        parse_canonical_envelope_v3_text(t).source_time: parse_canonical_envelope_v3_text(t).published_at
+        for (t,) in _rows(db_path, "SELECT envelope_text FROM envelope_outbox")
+    }
+    assert stamped == {SOURCE: SOURCE, DUE: DUE}
+    assert (first.sequence, second.sequence) == (1, 2)
+
+
+def test_a_passed_instant_replays_but_never_stamps_a_new_admission_later(
+    gateway, active: str, db_path: Path
+) -> None:
+    admitted = _admit_at(gateway, active, [report(key="b1", at=SOURCE)], SOURCE)[0]
+    gateway.advance_publication_clock(RUN, LATER)
+    # Already admitted at its boundary: answered with its first identity.
+    again = _admit_at(gateway, active, [report(key="b1", at=SOURCE)], SOURCE)[0]
+    assert (again.outcome, again.message_id) == ("ALREADY_ADMITTED", admitted.message_id)
+    # Never admitted, and the clock is past its boundary: the whole chunk refuses.
+    with pytest.raises(GatewayRefused) as error:
+        _admit_at(gateway, active, [report(key="b1", at=SOURCE), report(key="missed", at=DUE)], DUE)
+    assert error.value.kind == "PUBLICATION_INSTANT_PASSED"
+    assert _rows(db_path, "SELECT COUNT(*) FROM envelope_outbox") == [(1,)]
+    assert _rows(db_path, "SELECT COUNT(*) FROM report_admission WHERE report_key='missed'") == [(0,)]
+    assert gateway.publication_clock(RUN) == LATER
