@@ -1,6 +1,6 @@
 # S2-02 — Authenticated ingestion and Site Evidence
 
-Status: in progress on `task/S2-02-ingestion-site-evidence`; phases 1 and 2 built, phase 3 pending. S2-01c R1 was closed by fresh re-review and S2-01c merged at `b4006d1`.
+Status: in_review on `task/S2-02-ingestion-site-evidence`; phases 1, 2 and 3 built (packet `.agent/S2-02-review-packet.md`). S2-01c R1 was closed by fresh re-review and S2-01c merged at `b4006d1`.
 USER_REVIEW_REQUIRED: true — S2 Evidence owner checkpoint
 Milestone: S2 Evidence
 Depends on: merged S2-01c (`b4006d1`); S2-01a/b were merged earlier at `7c10283`

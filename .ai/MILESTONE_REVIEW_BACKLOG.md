@@ -36,12 +36,12 @@ S2-02 demo setup must publish a new-effective, provenance-labelled Foundation re
 
 ### S2-01c first review carries (2026-10-09, `.agent/S2-01c-review.md`, fresh Claude; Architect ruling `.agent/architect-S2-01c-answers-4.md`) — S2 milestone checkpoint
 
-- C2: the link-loss test does not assert stored diagnostics are byte-identical across a real reconnect (AC5); proven only at service level. Add the integration assertion.
-- N1 (fix re-review `.agent/S2-01c-fix-rereview.md`): `gateway/tests/test_gateway_process.py:202` no longer asserts the specific refusal kind for a body without `at_instant`; assert it.
+- C2: the link-loss test does not assert stored diagnostics are byte-identical across a real reconnect (AC5); proven only at service level. Add the integration assertion. **Closed in S2-02 phase 3c (`30b8cd5`).**
+- N1 (fix re-review `.agent/S2-01c-fix-rereview.md`): `gateway/tests/test_gateway_process.py:202` no longer asserts the specific refusal kind for a body without `at_instant`; assert it. **Closed in S2-02 phase 3c (`9c7ea0d`).**
 - N2: 640 px width of the new HELD and SCHEDULE_MISSING texts is unmeasured; fold into C3's seeded full layout run.
-- N3 (fix-2 re-review `.agent/S2-01c-fix2-rereview.md`): `frontend/src/shell/GatewayPublicationPanels.tsx:60` PUBLICATION_GAP text says "the world's last boundary"; it also fires mid-run. Reword to "before the boundary the world reached".
+- N3 (fix-2 re-review `.agent/S2-01c-fix2-rereview.md`): `frontend/src/shell/GatewayPublicationPanels.tsx:60` PUBLICATION_GAP text says "the world's last boundary"; it also fires mid-run. Reword to "before the boundary the world reached". **Closed in S2-02 phase 3c (`9c7ea0d`).**
 - S2-02 must take ordinary-publication completeness from the schedule state, not from Stage STAGED (STAGED speaks only of admitted reports).
-- C3: the full `tools/layout-evidence.mjs` run on an isolated store reached 222 PASS / 6 FAIL then the renderer stopped responding; the failures need scenario fixtures (optional inputs, declared reporting gap) the isolated store lacked. Re-run on a fully fixtured store; the full layout gate is unverified.
+- C3: the full `tools/layout-evidence.mjs` run on an isolated store reached 222 PASS / 6 FAIL then the renderer stopped responding; the failures need scenario fixtures (optional inputs, declared reporting gap) the isolated store lacked. Re-run on a fully fixtured store; the full layout gate is unverified. S2-02 phase 3c measured its own surfaces (`.agent/S2-02-layout-evidence.txt`) but did not run the full seeded gate; still open.
 
 ### S2-02 phase-2 bounded carries (2026-10-09, `.agent/S2-02-phase-2-handoff.md`) — S2 checkpoint / first real-pilot gate
 
