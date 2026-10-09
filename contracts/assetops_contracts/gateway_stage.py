@@ -17,11 +17,37 @@ from dataclasses import dataclass
 #: Where a registered run's Stage comes from. Pre-import runs say LEGACY_FILE.
 GATEWAY_LEDGER_STORE = "GATEWAY_LEDGER"
 
-REGISTERED_STAGE_STATUSES = ("STAGED", "NOT_STAGED", "GATEWAY_UNAVAILABLE")
+#: S2-01b fix round 1 (F1): `STAGED` claims sealing only when every envelope
+#: this run handed the gateway is in a sealed batch. Unbatched envelopes say
+#: `SEALING_PENDING`, or `SEALING_REFUSED` when the ledger durably records why;
+#: a run whose every report was held says `HELD`. All derive from the ledger, so
+#: a read after a restart says the same.
+REGISTERED_STAGE_STATUSES = (
+    "STAGED",
+    "SEALING_PENDING",
+    "SEALING_REFUSED",
+    "HELD",
+    "NOT_STAGED",
+    "GATEWAY_UNAVAILABLE",
+)
 REGISTERED_STAGE_STATEMENTS = {
     "STAGED": (
         "The gateway sealed this run's public reports into its local outbox. "
         "Upload is pending: nothing has been sent or accepted."
+    ),
+    "SEALING_PENDING": (
+        "The gateway admitted this run's public reports into its local outbox, "
+        "but some are not sealed into a batch yet. "
+        "Upload is pending: nothing has been sent or accepted."
+    ),
+    "SEALING_REFUSED": (
+        "The gateway admitted this run's public reports into its local outbox, "
+        "but could not seal some of them into a batch; they stay unbatched and the "
+        "refusal is recorded below. Nothing has been sent or accepted."
+    ),
+    "HELD": (
+        "The gateway held every report this run handed it, so nothing was admitted "
+        "or sealed. The held reports are listed below."
     ),
     "NOT_STAGED": "The gateway holds nothing for this run yet.",
     "GATEWAY_UNAVAILABLE": (
@@ -75,6 +101,34 @@ class GatewayHold:
 
 
 @dataclass(frozen=True)
+class GatewaySealRefusal:
+    """A durable refusal to seal a group holding this run's unbatched envelopes."""
+
+    source_id: str
+    sequence_epoch: str
+    snapshot_sha256: str
+    message_id: str
+    kind: str
+    field: str
+    detail: str
+    last_seen_at: str
+    seen_count: int
+
+
+def registered_stage_status(
+    envelopes: tuple[GatewayEnvelope, ...],
+    holds: tuple[GatewayHold, ...],
+    seal_refusals: tuple[GatewaySealRefusal, ...],
+) -> str:
+    """The Stage status the ledger supports; `STAGED` only when all is sealed."""
+    if any(e.batch_id is None for e in envelopes):
+        return "SEALING_REFUSED" if seal_refusals else "SEALING_PENDING"
+    if envelopes:
+        return "STAGED"
+    return "HELD" if holds else "NOT_STAGED"
+
+
+@dataclass(frozen=True)
 class RegisteredStageView:
     run_id: str
     status: str
@@ -92,3 +146,4 @@ class RegisteredStageView:
     unavailable_detail: str | None = None
     #: What publishing this run through the gateway had to say (refusals).
     publication_notes: tuple[str, ...] = ()
+    seal_refusals: tuple[GatewaySealRefusal, ...] = ()

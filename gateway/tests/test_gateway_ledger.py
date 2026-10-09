@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from assetops_contracts.ingestion_batch_v2 import parse_canonical_batch_v2_text
+from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_BYTES, parse_canonical_batch_v2_text
 from assetops_contracts.source_envelope_v3 import MAX_SEQUENCE, parse_canonical_envelope_v3_text, v3_message_id
 from assetops_gateway.ledger import SCHEMA_VERSION, WriterBusy
 from assetops_gateway.service import GatewayReader, GatewayRefused, GatewayService
@@ -424,3 +424,92 @@ def test_kill_after_sealing_then_restart_keeps_batch_bytes(db_path: Path, clock)
         stage = reader.run_stage("run-1")
     assert [b.payload_text for b in stage.batches] == [before[0][1]]
     assert {e.source_id for e in stage.envelopes} == {SRC_BMS}
+
+
+# --- F1 (fix round 1): batches are bounded by bytes as well as count ---------
+
+LONG_VALUE = "9" * 4096
+
+
+def test_sealing_fits_batches_by_bytes_as_well_as_count(gateway, active: str, db_path: Path) -> None:
+    """The reviewer's case: 256 admitted reports that together exceed 1 MiB."""
+    admissions = [
+        gateway.admit(report(value=LONG_VALUE, key=f"long-{n}"), snapshot_sha256=active, lab_run_ref="run-1")
+        for n in range(256)
+    ]
+    assert {a.outcome for a in admissions} == {"ADMITTED"}
+    batch_ids = gateway.seal()
+    assert len(batch_ids) >= 2
+    with GatewayReader(db_path) as reader:
+        stage = reader.run_stage("run-1")
+    assert all(e.batch_id is not None for e in stage.envelopes)
+    sequences: list[int] = []
+    for batch in stage.batches:
+        assert len(batch.payload_text.encode("utf-8")) <= MAX_BATCH_BYTES
+        parsed = parse_canonical_batch_v2_text(batch.payload_text)
+        sequences += [parse_canonical_envelope_v3_text(t).sequence for t in parsed.envelopes]
+    assert sorted(sequences) == list(range(1, 257))
+    assert stage.seal_refusals == ()
+    assert gateway.seal() == []
+
+
+def test_an_individually_unbatchable_report_is_held_before_a_sequence(gateway, active: str, db_path: Path) -> None:
+    held = gateway.admit(report(value="9" * MAX_BATCH_BYTES, key="huge"), snapshot_sha256=active, lab_run_ref="run-1")
+    assert (held.outcome, held.kind, held.field) == ("HELD", "UNBATCHABLE", "value")
+    assert held.sequence is None
+    assert _count(db_path, "SELECT COUNT(*) FROM envelope_outbox") == 0
+    assert _count(db_path, "SELECT COUNT(*) FROM sequence_state") == 0
+    after = gateway.admit(report(key="normal"), snapshot_sha256=active, lab_run_ref="run-1")
+    assert (after.outcome, after.sequence) == ("ADMITTED", 1)
+
+
+def test_a_seal_refusal_is_durable_and_leaves_the_group_unbatched(
+    gateway, active: str, db_path: Path, clock, monkeypatch
+) -> None:
+    import assetops_gateway.service as service_module
+    from assetops_contracts.ingestion_batch_v2 import BatchRejected
+
+    _publish_series(gateway, active)
+    real = service_module.seal_batch_v2
+
+    def refuse_bms(**kwargs):
+        if kwargs["source_id"] == SRC_BMS:
+            raise BatchRejected("TOO_LARGE", "batch", "forced for the test")
+        return real(**kwargs)
+
+    monkeypatch.setattr(service_module, "seal_batch_v2", refuse_bms)
+    with pytest.raises(GatewayRefused) as refused:
+        gateway.seal()
+    assert refused.value.kind == "SEAL_REFUSED"
+    gateway.close()
+    monkeypatch.setattr(service_module, "seal_batch_v2", real)
+    with GatewayReader(db_path) as reader:  # a fresh read, as after a restart
+        stage = reader.run_stage("run-1")
+    assert {b.source_id for b in stage.batches} == {SRC_PV}
+    assert [e.batch_id for e in stage.envelopes if e.source_id == SRC_BMS] == [None] * 3
+    assert [(r.source_id, r.kind, r.field) for r in stage.seal_refusals] == [(SRC_BMS, "TOO_LARGE", "batch")]
+    reopened = GatewayService(db_path, clock=clock)
+    try:
+        assert len(reopened.seal()) == 1  # the cause is gone: the group seals, the refusal clears
+    finally:
+        reopened.close()
+    with GatewayReader(db_path) as reader:
+        assert reader.run_stage("run-1").seal_refusals == ()
+
+
+def test_a_version_1_ledger_migrates_to_record_seal_refusals(db_path: Path, clock) -> None:
+    from assetops_gateway.ledger import MIGRATION_1, _statements
+
+    db = sqlite3.connect(db_path)
+    for statement in _statements(MIGRATION_1):
+        db.execute(statement)
+    db.execute("INSERT INTO schema_migration(version, applied_at) VALUES (1, '2026-10-01T00:00:00Z')")
+    db.commit()
+    db.close()
+    service = GatewayService(db_path, clock=clock)
+    try:
+        versions = [r[0] for r in service._db.execute("SELECT version FROM schema_migration ORDER BY version")]
+        assert versions == [1, 2] and SCHEMA_VERSION == 2
+        assert service._db.execute("SELECT COUNT(*) FROM seal_refusal").fetchone()[0] == 0
+    finally:
+        service.close()

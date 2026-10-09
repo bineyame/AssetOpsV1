@@ -31,6 +31,7 @@ from source_stages import JsonSourceStages  # noqa: E402
 from assetops_contracts.gateway_report import DEVICE_REPORT_SCHEMA_ID, DeviceReport, device_report_text  # noqa: E402
 from assetops_contracts.ingestion_batch_v2 import parse_canonical_batch_v2_text  # noqa: E402
 from assetops_contracts.source_envelope_v3 import parse_canonical_envelope_v3_text  # noqa: E402
+from assetops_gateway.ipc import GatewayRequestRefused  # noqa: E402
 
 REPORT_KEYS = {
     "schema", "report_key", "device_id", "signal_id", "source_time", "measurement",
@@ -341,3 +342,78 @@ def test_a_later_basis_opens_new_source_batches_and_leaves_the_old_bytes(tmp_pat
         assert again == old
     finally:
         process.kill()
+
+
+# --- F1 (fix round 1): the Stage claims sealing only when the ledger shows it ---
+
+
+class _LedgerLink:
+    """A stand-in channel answering with a fixed ledger document."""
+
+    def __init__(self, document: dict, *, seal_refused: bool = False) -> None:
+        self.document, self.seal_refused = document, seal_refused
+
+    def call(self, op: str, body: dict | None = None) -> dict:
+        if op == "identity":
+            return {"tenant_id": "t", "site_id": "s", "gateway_id": "g"}
+        if op == "seal" and self.seal_refused:
+            raise GatewayRequestRefused("SEAL_REFUSED", None, "TOO_LARGE at batch")
+        if op == "seal":
+            return {"batch_ids": []}
+        if op == "run_stage":
+            return self.document
+        return {"admissions": []}
+
+
+class _Basis:
+    tenant_id, site_record_id, snapshot_sha256, snapshot_canonical = "t", "s", "ab" * 32, "{}"
+    foundation_revision_id = binding_set_id = binding_set_revision_id = "x"
+    foundation_version = binding_set_version = 1
+
+
+def _envelope(sequence: int, batch_id: str | None) -> dict:
+    return {
+        "message_id": f"m-{sequence}", "source_id": "src", "sequence_epoch": "1", "sequence": sequence,
+        "source_time": "2026-10-01T08:00:00Z", "snapshot_sha256": "ab" * 32, "envelope_text": "{}",
+        "sha256": "cd" * 32, "state": "STAGED", "batch_id": batch_id, "ordinal": None if batch_id is None else 0,
+    }
+
+
+_HOLD = {"hold_id": 1, "kind": "INVALID_VALUE", "field": "value", "detail": "d", "device_id": "d",
+         "signal_id": "s", "source_time": None, "seen_count": 1}
+_REFUSAL = {"source_id": "src", "sequence_epoch": "1", "snapshot_sha256": "ab" * 32, "message_id": "m-2",
+            "kind": "TOO_LARGE", "field": "batch", "detail": "more than 1048576 bytes",
+            "last_seen_at": "2026-10-01T09:00:00Z", "seen_count": 1}
+
+
+def _document(envelopes, holds=(), refusals=()) -> dict:
+    return {"lab_run_ref": "run", "sequence_epoch": "1", "envelopes": list(envelopes), "batches": [],
+            "holds": list(holds), "queue_depth_by_state": {}, "seal_refusals": list(refusals)}
+
+
+@pytest.mark.parametrize(
+    ("document", "status"),
+    [
+        (_document([_envelope(1, "b-1")], [_HOLD]), "STAGED"),
+        (_document([_envelope(1, "b-1"), _envelope(2, None)]), "SEALING_PENDING"),
+        (_document([_envelope(1, "b-1"), _envelope(2, None)], refusals=[_REFUSAL]), "SEALING_REFUSED"),
+        (_document([], [_HOLD]), "HELD"),
+        (_document([]), "NOT_STAGED"),
+    ],
+)
+def test_the_stage_status_follows_what_the_ledger_sealed(document, status) -> None:
+    from assetops_contracts.gateway_stage import REGISTERED_STAGE_STATEMENTS
+
+    view = RegisteredGatewayPublisher(_LedgerLink(document)).stage("run", _Basis(), execution_status="COMPLETED")
+    assert view.status == status
+    assert view.statement == REGISTERED_STAGE_STATEMENTS[status]
+    if status != "STAGED":
+        assert "sealed this run" not in view.statement
+    assert [r.kind for r in view.seal_refusals] == [r["kind"] for r in document["seal_refusals"]]
+
+
+def test_a_seal_refusal_is_a_typed_publication_refusal() -> None:
+    publisher = RegisteredGatewayPublisher(_LedgerLink(_document([]), seal_refused=True))
+    with pytest.raises(PublicationRefused) as refused:
+        publisher.publish("run", _Basis(), [], interval_minutes=15)
+    assert refused.value.kind == "SEAL_REFUSED"

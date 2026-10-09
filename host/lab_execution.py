@@ -2432,7 +2432,9 @@ class HostLabExecution:
                 interval_minutes=session.reporting.interval.timestep_minutes,
             )
         except (GatewayUnavailable, GatewayRequestRefused, PublicationRefused) as refused:
-            note(f"registered publication refused and nothing was staged by this attempt: {refused}")
+            # Not "nothing was staged": a seal refusal comes after admission
+            # committed. The Stage read reports what the ledger holds.
+            note(f"registered publication refused: {refused}")
 
     def registered_stage(self, run: SimulationRun) -> RegisteredStageView:
         """A registered run's Stage, read back from the gateway ledger."""

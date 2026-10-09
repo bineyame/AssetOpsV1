@@ -142,6 +142,42 @@ export function GatewayLedgerView({
         </Panel>
       )}
 
+      {stage.seal_refusals.length === 0 ? null : (
+        <Panel heading="Sealing refused" headingId="gateway-seal-refusals-heading" flush>
+          <p className="note">
+            The gateway admitted these reports but could not seal them into a
+            batch. They stay unbatched in its local outbox; nothing was sent.
+          </p>
+          <DataTable labelledBy="gateway-seal-refusals-heading">
+            <thead>
+              <tr>
+                <th scope="col">Refusal</th>
+                <th scope="col">Source and epoch</th>
+                <th scope="col">First unsealed envelope</th>
+                <th scope="col">Field</th>
+                <th scope="col">Reason</th>
+                <th scope="col">Seen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stage.seal_refusals.map((refusal) => (
+                <tr
+                  key={`${refusal.source_id}/${refusal.sequence_epoch}/${refusal.message_id}`}
+                  data-gateway-seal-refusal={refusal.kind}
+                >
+                  <th scope="row">{refusal.kind}</th>
+                  <td>{`${refusal.source_id}, epoch ${refusal.sequence_epoch}`}</td>
+                  <td>{refusal.message_id}</td>
+                  <td>{refusal.field}</td>
+                  <td>{refusal.detail}</td>
+                  <td>{String(refusal.seen_count)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </Panel>
+      )}
+
       {stage.holds.length === 0 ? null : (
         <Panel heading="Held reports" headingId="gateway-holds-heading" flush>
           <p className="note">
@@ -176,7 +212,7 @@ export function GatewayLedgerView({
       )}
 
       {envelope === undefined ? null : (
-        <Panel heading="The selected envelope, exactly as sealed" headingId="gateway-envelope-heading">
+        <Panel heading="The selected envelope, exactly as stored" headingId="gateway-envelope-heading">
           <FactList>
             <Fact term="Message ID">{envelope.message_id}</Fact>
             <Fact term="Source and sequence">
@@ -197,7 +233,7 @@ export function GatewayLedgerView({
         </Panel>
       )}
       {stage.envelopes.length === 0 ? null : (
-        <Panel heading="Every sealed envelope" headingId="gateway-envelopes-heading" flush>
+        <Panel heading="Every envelope in the outbox" headingId="gateway-envelopes-heading" flush>
           <DataTable labelledBy="gateway-envelopes-heading">
             <thead>
               <tr>

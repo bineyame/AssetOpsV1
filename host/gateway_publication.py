@@ -31,7 +31,9 @@ from assetops_contracts.gateway_stage import (
     GatewayBatch,
     GatewayEnvelope,
     GatewayHold,
+    GatewaySealRefusal,
     RegisteredStageView,
+    registered_stage_status,
 )
 from assetops_contracts.observation import DeviceObservation
 from assetops_contracts.source_envelope import EnvelopeRejected
@@ -137,7 +139,14 @@ class RegisteredGatewayPublisher:
             )
             for admission in answer["admissions"]:
                 counts[admission["outcome"]] += 1
-        batch_ids = self._link.call("seal")["batch_ids"]
+        try:
+            batch_ids = self._link.call("seal")["batch_ids"]
+        except GatewayRequestRefused as refused:
+            # Admission is already committed: the ledger keeps the unbatched
+            # envelopes and a durable seal refusal the Stage read reports.
+            raise PublicationRefused(
+                "SEAL_REFUSED", f"the reports were admitted but not all could be sealed: {refused}"
+            ) from refused
         return PublicationResult(
             counts["ADMITTED"], counts["ALREADY_ADMITTED"], counts["HELD"], tuple(batch_ids)
         )
@@ -153,7 +162,8 @@ class RegisteredGatewayPublisher:
             return unavailable_stage(run_id, basis, execution_status, str(failure), notes)
         envelopes = tuple(GatewayEnvelope(**e) for e in document["envelopes"])
         holds = tuple(GatewayHold(**h) for h in document["holds"])
-        status = "STAGED" if envelopes or holds else "NOT_STAGED"
+        seal_refusals = tuple(GatewaySealRefusal(**r) for r in document.get("seal_refusals", ()))
+        status = registered_stage_status(envelopes, holds, seal_refusals)
         return RegisteredStageView(
             run_id=run_id,
             status=status,
@@ -170,6 +180,7 @@ class RegisteredGatewayPublisher:
             holds=holds,
             queue_depth_by_state=dict(document["queue_depth_by_state"]),
             publication_notes=tuple(notes),
+            seal_refusals=seal_refusals,
         )
 
 

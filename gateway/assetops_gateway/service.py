@@ -25,7 +25,7 @@ from assetops_contracts.gateway_report import (
     device_report_text,
     parse_device_report_text,
 )
-from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_ENVELOPES, seal_batch_v2
+from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_ENVELOPES, BatchRejected, seal_batch_v2
 from assetops_contracts.source_envelope import EnvelopeRejected
 from assetops_contracts.source_envelope_v3 import (
     MAX_SEQUENCE,
@@ -92,6 +92,49 @@ def _check_initial_state(initial_state: str) -> None:
 class _Held(Exception):
     def __init__(self, kind: str, field: str, detail: str) -> None:
         self.kind, self.field, self.detail = kind, field, detail
+
+
+def _seal(provisioning: Provisioning, snapshot: VerifiedSnapshot, source_id: str, texts: list[str]):
+    return seal_batch_v2(
+        site_id=provisioning.site_id,
+        gateway_id=provisioning.gateway_id,
+        source_id=source_id,
+        source_mode=provisioning.source_mode,
+        foundation_version=snapshot.foundation_version,
+        foundation_valid_from=snapshot.foundation_valid_from,
+        binding_set_id=snapshot.binding_set_id,
+        binding_version=snapshot.binding_set_version,
+        snapshot_sha256=snapshot.snapshot_sha256,
+        envelope_texts=texts,
+    )
+
+
+def _fit(provisioning: Provisioning, snapshot: VerifiedSnapshot, source_id: str, members: list[tuple], limit: int):
+    """`(chunk, batch, text)`: the longest sequence-ordered prefix that seals.
+
+    The count-bounded prefix is tried first, so a group within both bounds
+    seals exactly as before F1. Only a byte refusal shortens it: a batch grows
+    with every envelope, so a binary search finds the longest prefix that fits.
+    Raises `BatchRejected` when not even the first envelope can be sealed."""
+    count = min(limit, len(members))
+    try:
+        return (members[:count], *_seal(provisioning, snapshot, source_id, [m[5] for m in members[:count]]))
+    except BatchRejected as error:
+        if error.field != "batch" or count == 1:
+            raise
+    low, high, best = 1, count - 1, None
+    while low <= high:
+        middle = (low + high) // 2
+        try:
+            best = (members[:middle], *_seal(provisioning, snapshot, source_id, [m[5] for m in members[:middle]]))
+            low = middle + 1
+        except BatchRejected as error:
+            if error.field != "batch":
+                raise
+            high = middle - 1
+    if best is None:
+        return (members[:1], *_seal(provisioning, snapshot, source_id, [members[0][5]]))
+    return best
 
 
 #: Fault-injection points tests use to stop the process between steps.
@@ -444,6 +487,7 @@ class GatewayService:
             except EnvelopeRejected as error:
                 raise _Held(error.kind, error.field, error.detail) from error
             text = canonical_envelope_v3_text(envelope)
+            self._check_batchable(provisioning, snapshot, binding.source_id, text)
             db.execute(
                 "INSERT INTO envelope_outbox (message_id, gateway_id, source_id, sequence_epoch, sequence, "
                 "source_time, snapshot_sha256, envelope_text, sha256, state, created_at) "
@@ -487,6 +531,23 @@ class GatewayService:
             self.admit(device_report_text(r), snapshot_sha256=snapshot_sha256, lab_run_ref=lab_run_ref)
             for r in reports
         ]
+
+    @staticmethod
+    def _check_batchable(
+        provisioning: Provisioning, snapshot: VerifiedSnapshot, source_id: str, envelope_text: str
+    ) -> None:
+        """F1: an envelope that cannot be sealed even alone is held, never sequenced.
+
+        Raised before the outbox insert and the sequence-state write, so the
+        held report consumes no sequence and the transaction stays whole."""
+        try:
+            _seal(provisioning, snapshot, source_id, [envelope_text])
+        except BatchRejected as error:
+            raise _Held(
+                "UNBATCHABLE",
+                "value",
+                f"this report cannot fit one Batch V2 even alone ({error.kind} at {error.field})",
+            ) from error
 
     @staticmethod
     def _check_report(report: DeviceReport, binding: Binding, snapshot: VerifiedSnapshot, now: str) -> None:
@@ -577,10 +638,17 @@ class GatewayService:
     # --- sealing ---------------------------------------------------------------
 
     def seal(self, *, max_envelopes: int = MAX_BATCH_ENVELOPES) -> list[str]:
-        """Seal every unsealed envelope into homogeneous batches; return new ids."""
+        """Seal every unsealed envelope into homogeneous batches; return new ids.
+
+        Each group (source, epoch, snapshot, state) is cut in sequence order into
+        the longest prefixes that fit both `max_envelopes` and Batch V2's byte
+        bound (F1). A group that cannot be sealed keeps its envelopes unbatched
+        from that point, records a durable `seal_refusal`, and does not stop
+        other groups; the call then raises `SEAL_REFUSED` after committing."""
         if not 1 <= max_envelopes <= MAX_BATCH_ENVELOPES:
             raise ValueError("batch bound out of range")
         created: list[str] = []
+        refusals: list[str] = []
         with self._tx() as db:
             provisioning, _ = self._provisioning(db)
             rows = db.execute(
@@ -596,47 +664,79 @@ class GatewayService:
             for (source_id, epoch, snapshot_sha, state), members in groups.items():
                 snapshot = self._snapshot(db, snapshot_sha)
                 assert snapshot is not None
-                for start in range(0, len(members), max_envelopes):
-                    chunk = members[start : start + max_envelopes]
-                    batch, text = seal_batch_v2(
-                        site_id=provisioning.site_id,
-                        gateway_id=provisioning.gateway_id,
-                        source_id=source_id,
-                        source_mode=provisioning.source_mode,
-                        foundation_version=snapshot.foundation_version,
-                        foundation_valid_from=snapshot.foundation_valid_from,
-                        binding_set_id=snapshot.binding_set_id,
-                        binding_version=snapshot.binding_set_version,
-                        snapshot_sha256=snapshot_sha,
-                        envelope_texts=[m[5] for m in chunk],
-                    )
-                    db.execute(
-                        "INSERT INTO upload_batch (batch_id, site_id, gateway_id, source_id, sequence_epoch, "
-                        "snapshot_sha256, foundation_version, binding_set_id, binding_set_version, payload_text, "
-                        "sha256, state, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                        (
-                            batch.batch_id,
-                            batch.site_id,
-                            batch.gateway_id,
-                            source_id,
-                            epoch,
-                            snapshot_sha,
-                            snapshot.foundation_version,
-                            snapshot.binding_set_id,
-                            snapshot.binding_set_version,
-                            text,
-                            batch.payload_sha256,
-                            state,
-                            self._now(),
-                        ),
-                    )
-                    db.executemany(
-                        "INSERT INTO batch_item VALUES (?,?,?)",
-                        [(batch.batch_id, ordinal, m[0]) for ordinal, m in enumerate(chunk)],
-                    )
-                    created.append(batch.batch_id)
+                start = 0
+                try:
+                    while start < len(members):
+                        chunk, batch, text = _fit(provisioning, snapshot, source_id, members[start:], max_envelopes)
+                        self._insert_batch(db, batch, text, epoch, snapshot, state, chunk)
+                        created.append(batch.batch_id)
+                        start += len(chunk)
+                except BatchRejected as error:
+                    self._record_seal_refusal(db, source_id, epoch, snapshot_sha, members[start][0], error)
+                    refusals.append(f"{source_id}: {error}")
+                    continue
+                db.execute(
+                    "DELETE FROM seal_refusal WHERE source_id=? AND sequence_epoch=? AND snapshot_sha256=?",
+                    (source_id, epoch, snapshot_sha),
+                )
         self._hit("after_seal_commit")
+        if refusals:
+            raise GatewayRefused("SEAL_REFUSED", "; ".join(refusals))
         return created
+
+    def _insert_batch(
+        self,
+        db: sqlite3.Connection,
+        batch,
+        text: str,
+        epoch: str,
+        snapshot: VerifiedSnapshot,
+        state: str,
+        chunk: list[tuple],
+    ) -> None:
+        db.execute(
+            "INSERT INTO upload_batch (batch_id, site_id, gateway_id, source_id, sequence_epoch, "
+            "snapshot_sha256, foundation_version, binding_set_id, binding_set_version, payload_text, "
+            "sha256, state, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                batch.batch_id,
+                batch.site_id,
+                batch.gateway_id,
+                batch.source_id,
+                epoch,
+                snapshot.snapshot_sha256,
+                snapshot.foundation_version,
+                snapshot.binding_set_id,
+                snapshot.binding_set_version,
+                text,
+                batch.payload_sha256,
+                state,
+                self._now(),
+            ),
+        )
+        db.executemany(
+            "INSERT INTO batch_item VALUES (?,?,?)",
+            [(batch.batch_id, ordinal, m[0]) for ordinal, m in enumerate(chunk)],
+        )
+
+    def _record_seal_refusal(
+        self,
+        db: sqlite3.Connection,
+        source_id: str,
+        epoch: str,
+        snapshot_sha: str,
+        message_id: str,
+        error: BatchRejected,
+    ) -> None:
+        now = self._now()
+        db.execute(
+            "INSERT INTO seal_refusal (source_id, sequence_epoch, snapshot_sha256, message_id, kind, field, "
+            "detail, first_seen_at, last_seen_at) VALUES (?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT (source_id, sequence_epoch, snapshot_sha256) DO UPDATE SET "
+            "message_id=excluded.message_id, kind=excluded.kind, field=excluded.field, "
+            "detail=excluded.detail, last_seen_at=excluded.last_seen_at, seen_count=seen_count+1",
+            (source_id, epoch, snapshot_sha, message_id, error.kind, error.field, error.detail, now, now),
+        )
 
     # --- local delivery states (S2-02 adds the network) ------------------------
 
@@ -727,6 +827,21 @@ class HoldRow:
 
 
 @dataclass(frozen=True)
+class SealRefusalRow:
+    """A durable sealing refusal for a group holding this run's unbatched envelopes."""
+
+    source_id: str
+    sequence_epoch: str
+    snapshot_sha256: str
+    message_id: str
+    kind: str
+    field: str
+    detail: str
+    last_seen_at: str
+    seen_count: int
+
+
+@dataclass(frozen=True)
 class RunStage:
     """What a Lab run handed the gateway, as the durable ledger holds it."""
 
@@ -736,6 +851,7 @@ class RunStage:
     batches: tuple[BatchRow, ...]
     holds: tuple[HoldRow, ...]
     queue_depth_by_state: dict[str, int]
+    seal_refusals: tuple[SealRefusalRow, ...] = ()
 
 
 class GatewayReader:
@@ -791,6 +907,19 @@ class GatewayReader:
                     (lab_run_ref,),
                 )
             )
+            unbatched = sorted(
+                {(e.source_id, e.sequence_epoch, e.snapshot_sha256) for e in envelopes if e.batch_id is None}
+            )
+            refusals = []
+            for group in unbatched:
+                r = db.execute(
+                    "SELECT source_id, sequence_epoch, snapshot_sha256, message_id, kind, field, detail, "
+                    "last_seen_at, seen_count FROM seal_refusal "
+                    "WHERE source_id=? AND sequence_epoch=? AND snapshot_sha256=?",
+                    group,
+                ).fetchone()
+                if r is not None:
+                    refusals.append(SealRefusalRow(*r))
         finally:
             db.execute("COMMIT")
         depth: dict[str, int] = {}
@@ -803,4 +932,5 @@ class GatewayReader:
             batches=tuple(batches),
             holds=holds,
             queue_depth_by_state=depth,
+            seal_refusals=tuple(refusals),
         )

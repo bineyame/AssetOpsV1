@@ -19,7 +19,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 BUSY_TIMEOUT_MS = 5000
 
 OUTBOX_STATES = ("STAGED", "READY", "IN_FLIGHT", "ACKED", "DEAD_LETTER")
@@ -203,6 +203,28 @@ CREATE TRIGGER mapping_row_never_deleted BEFORE DELETE ON device_signal_mapping
 BEGIN SELECT RAISE(ABORT, 'mapping rows are retained'); END;
 """
 
+# S2-01b fix round 1 (F1): a sealing refusal is durable, so a read after a
+# restart says the group is unsealed and why, instead of a lost session note.
+# One row per stuck (source, epoch, snapshot) group, naming the first envelope
+# that could not be sealed; sealing that group later deletes the row.
+MIGRATION_2 = """
+CREATE TABLE seal_refusal (
+  source_id TEXT NOT NULL,
+  sequence_epoch TEXT NOT NULL,
+  snapshot_sha256 TEXT NOT NULL,
+  message_id TEXT NOT NULL REFERENCES envelope_outbox(message_id),
+  kind TEXT NOT NULL,
+  field TEXT NOT NULL,
+  detail TEXT NOT NULL,
+  first_seen_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL,
+  seen_count INTEGER NOT NULL DEFAULT 1,
+  PRIMARY KEY (source_id, sequence_epoch, snapshot_sha256)
+);
+"""
+
+MIGRATIONS = {1: MIGRATION_1, 2: MIGRATION_2}
+
 
 class WriterBusy(RuntimeError):
     """Another live process holds this ledger's single writer."""
@@ -284,13 +306,15 @@ def _migrate(connection: sqlite3.Connection) -> None:
         current = connection.execute("SELECT MAX(version) FROM schema_migration").fetchone()[0] or 0
     if current > SCHEMA_VERSION:
         raise RuntimeError(f"ledger schema {current} is newer than this gateway ({SCHEMA_VERSION})")
-    if current == 0:
+    for version in range(current + 1, SCHEMA_VERSION + 1):
         connection.execute("BEGIN IMMEDIATE")
         try:
-            for statement in _statements(MIGRATION_1):
+            for statement in _statements(MIGRATIONS[version]):
                 connection.execute(statement)
             connection.execute(
-                "INSERT INTO schema_migration(version, applied_at) VALUES (1, strftime('%Y-%m-%dT%H:%M:%SZ','now'))"
+                "INSERT INTO schema_migration(version, applied_at) "
+                "VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ','now'))",
+                (version,),
             )
             connection.execute("COMMIT")
         except BaseException:

@@ -821,6 +821,21 @@ export interface GatewayLedgerHold {
 }
 
 /**
+ * S2-01b fix round 1 (F1): the gateway's durable record that it could not seal
+ * a group holding this run's envelopes. Those envelopes stay unbatched.
+ */
+export interface GatewayLedgerSealRefusal {
+  source_id: string;
+  sequence_epoch: string;
+  message_id: string;
+  kind: string;
+  field: string;
+  detail: string;
+  last_seen_at: string;
+  seen_count: number;
+}
+
+/**
  * S2-01b: a registered run's Stage, read from the separate gateway process's
  * durable SQLite ledger. Upload is always pending in this build and
  * `receipts` is always empty; nothing here is accepted evidence.
@@ -828,7 +843,10 @@ export interface GatewayLedgerHold {
 export interface GatewayLedgerStage {
   store: "GATEWAY_LEDGER";
   run_id: string;
-  /** `STAGED`, `NOT_STAGED` or `GATEWAY_UNAVAILABLE`. */
+  /**
+   * `STAGED` (every envelope sealed), `SEALING_PENDING`, `SEALING_REFUSED`,
+   * `HELD` (every report held), `NOT_STAGED` or `GATEWAY_UNAVAILABLE`.
+   */
   status: string;
   statement: string;
   execution_status: string;
@@ -846,6 +864,7 @@ export interface GatewayLedgerStage {
   envelopes: GatewayLedgerEnvelope[];
   batches: GatewayLedgerBatch[];
   holds: GatewayLedgerHold[];
+  seal_refusals: GatewayLedgerSealRefusal[];
 }
 
 export type RunStageResult =
@@ -1679,7 +1698,23 @@ export function isGatewayLedgerStage(value: unknown): value is GatewayLedgerStag
     Array.isArray(value.batches) &&
     value.batches.every(isGatewayBatch) &&
     Array.isArray(value.holds) &&
-    value.holds.every(isGatewayHold)
+    value.holds.every(isGatewayHold) &&
+    Array.isArray(value.seal_refusals) &&
+    value.seal_refusals.every(isGatewaySealRefusal)
+  );
+}
+
+function isGatewaySealRefusal(value: unknown): value is GatewayLedgerSealRefusal {
+  return (
+    isRecord(value) &&
+    typeof value.source_id === "string" &&
+    typeof value.sequence_epoch === "string" &&
+    typeof value.message_id === "string" &&
+    typeof value.kind === "string" &&
+    typeof value.field === "string" &&
+    typeof value.detail === "string" &&
+    typeof value.last_seen_at === "string" &&
+    Number.isInteger(value.seen_count)
   );
 }
 

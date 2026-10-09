@@ -474,6 +474,35 @@ class TestRegisteredControls:
         assert staged["receipts"] == [] and staged["release_eligible"] is False
         assert staged["snapshot_sha256"] == reread.registered_basis.snapshot_sha256
         assert ("staged_envelopes", run["run_id"]) not in execution.calls
+        assert staged["seal_refusals"] == []
+
+    def test_a_durable_seal_refusal_travels_with_the_stage(self) -> None:
+        """F1: a refusal to seal is carried to the Lab verbatim, not dropped."""
+        from assetops_backend.simulator_lab_api import registered_stage_payload
+        from assetops_contracts.gateway_stage import (
+            REGISTERED_STAGE_STATEMENTS,
+            GatewaySealRefusal,
+            RegisteredStageView,
+        )
+
+        refusal = GatewaySealRefusal(
+            source_id="src", sequence_epoch="1", snapshot_sha256="ab" * 32, message_id="m-2",
+            kind="TOO_LARGE", field="batch", detail="more than 1048576 bytes",
+            last_seen_at="2026-10-01T09:00:00Z", seen_count=2,
+        )
+        view = RegisteredStageView(
+            run_id="run", status="SEALING_REFUSED", statement=REGISTERED_STAGE_STATEMENTS["SEALING_REFUSED"],
+            execution_status="COMPLETED", snapshot_sha256="ab" * 32, site_id="s", gateway_id="g",
+            sequence_epoch="1", envelopes=(), batches=(), holds=(), queue_depth_by_state={},
+            seal_refusals=(refusal,),
+        )
+        payload = registered_stage_payload(view)
+        assert payload["status"] == "SEALING_REFUSED"
+        assert payload["seal_refusals"] == [{
+            "source_id": "src", "sequence_epoch": "1", "message_id": "m-2", "kind": "TOO_LARGE",
+            "field": "batch", "detail": "more than 1048576 bytes", "last_seen_at": "2026-10-01T09:00:00Z",
+            "seen_count": 2,
+        }]
 
     def test_site_name_and_time_zone_are_labelled_current_row_metadata(
         self, tmp_path, legacy_root

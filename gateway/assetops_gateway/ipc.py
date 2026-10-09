@@ -285,5 +285,6 @@ def stage_document(stage: Any) -> dict[str, Any]:
         "batches": [{**b.__dict__, "message_ids": list(b.message_ids)} for b in stage.batches],
         "holds": [dict(h.__dict__) for h in stage.holds],
         "queue_depth_by_state": dict(stage.queue_depth_by_state),
+        "seal_refusals": [dict(r.__dict__) for r in stage.seal_refusals],
     }
 

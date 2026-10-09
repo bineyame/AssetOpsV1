@@ -1810,6 +1810,20 @@ def registered_stage_payload(view: RegisteredStageView) -> dict[str, object]:
             }
             for h in view.holds
         ],
+        # F1: a durable refusal to seal a group holding this run's envelopes.
+        "seal_refusals": [
+            {
+                "source_id": r.source_id,
+                "sequence_epoch": r.sequence_epoch,
+                "message_id": r.message_id,
+                "kind": r.kind,
+                "field": r.field,
+                "detail": r.detail,
+                "last_seen_at": r.last_seen_at,
+                "seen_count": r.seen_count,
+            }
+            for r in view.seal_refusals
+        ],
     }
 
 

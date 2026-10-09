@@ -69,9 +69,10 @@ function envelope(source: string, sequence: number, batch: string | null, ordina
 const LEDGER: GatewayLedgerStage = {
   store: "GATEWAY_LEDGER",
   run_id: RUN_ID,
-  status: "STAGED",
+  // One envelope below is unbatched, so the ledger cannot say STAGED (F1).
+  status: "SEALING_PENDING",
   statement:
-    "The gateway sealed this run's public reports into its local outbox. Upload is pending: nothing has been sent or accepted.",
+    "The gateway admitted this run's public reports into its local outbox, but some are not sealed into a batch yet. Upload is pending: nothing has been sent or accepted.",
   execution_status: "COMPLETED",
   release_eligible: false,
   snapshot_sha256: SNAPSHOT,
@@ -114,6 +115,7 @@ const LEDGER: GatewayLedgerStage = {
       seen_count: 2,
     },
   ],
+  seal_refusals: [],
 };
 
 const REGISTERED_BASIS = {
@@ -173,6 +175,8 @@ describe("the gateway-ledger Stage (S2-01b)", () => {
     ).toBe(false);
     const { holds: _holds, ...noHolds } = LEDGER;
     expect(isGatewayLedgerStage(noHolds)).toBe(false);
+    const { seal_refusals: _refusals, ...noRefusals } = LEDGER;
+    expect(isGatewayLedgerStage(noRefusals)).toBe(false);
   });
 
   it("reads a registered Stage body as the gateway ledger, not as unavailable", async () => {
@@ -203,7 +207,7 @@ describe("the gateway-ledger Stage (S2-01b)", () => {
     await settledScreen();
 
     const view = ledger();
-    expect(view.getAttribute("data-gateway-status")).toBe("STAGED");
+    expect(view.getAttribute("data-gateway-status")).toBe("SEALING_PENDING");
     expect(view.querySelector("[data-gateway-snapshot]")?.textContent).toBe(SNAPSHOT);
     expect(view.querySelector("[data-gateway-epoch]")?.textContent).toBe("1");
     expect(view.querySelector("[data-gateway-queue]")?.textContent).toBe("1 READY, 2 STAGED");
@@ -229,6 +233,39 @@ describe("the gateway-ledger Stage (S2-01b)", () => {
       LEDGER.envelopes[2].canonical,
     );
     expect(spacedText(view)).toMatch(/not sealed into a batch yet/);
+  });
+
+  it("shows a durable seal refusal and never claims the reports were sealed (F1)", async () => {
+    const refused: GatewayLedgerStage = {
+      ...LEDGER,
+      status: "SEALING_REFUSED",
+      statement:
+        "The gateway admitted this run's public reports into its local outbox, but could not seal some of them into a batch; they stay unbatched and the refusal is recorded below. Nothing has been sent or accepted.",
+      seal_refusals: [
+        {
+          source_id: SOURCE_B,
+          sequence_epoch: "1",
+          message_id: "msg-b-1",
+          kind: "TOO_LARGE",
+          field: "batch",
+          detail: "more than 1048576 bytes",
+          last_seen_at: "2026-10-01T09:00:00Z",
+          seen_count: 2,
+        },
+      ],
+    };
+    renderAt(client({ status: "gateway", stage: refused, frozenBasis: REGISTERED_BASIS }));
+    await settledScreen();
+
+    const view = ledger();
+    expect(view.getAttribute("data-gateway-status")).toBe("SEALING_REFUSED");
+    const row = view.querySelector('[data-gateway-seal-refusal="TOO_LARGE"]') as HTMLElement;
+    expect(row.textContent).toMatch(/msg-b-1/);
+    expect(row.textContent).toMatch(/more than 1048576 bytes/);
+    const words = spacedText(view);
+    expect(words).toMatch(/could not seal them into a batch/);
+    expect(words).not.toMatch(/sealed this run's public reports/);
+    expect(words).not.toMatch(/Every sealed envelope/);
   });
 
   it("shows a typed hold with its field and reason, and no envelope for it", async () => {
