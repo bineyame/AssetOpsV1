@@ -1419,6 +1419,24 @@ describe("a publication profile whose simulated devices round (S2-01b)", () => {
     expect(note?.textContent).toMatch(/round each numeric reading half-to-even to 0\.000001/);
     expect(note?.textContent).toMatch(/Status readings are not rounded/);
     expect(note?.textContent).toMatch(/registered Site/);
+    expect(note?.querySelector("[data-setup-profile-publication-clock]")).toBeNull();
+  });
+
+  it("names the publication clock the chosen profile uses (S2-01c)", async () => {
+    const virtual = { ...ROUNDING, publication_profile_version: 2, publication_clock: "RUN_VIRTUAL" };
+    renderSetup({
+      ...roundingClient({ status: "created", run: READY_RUN }),
+      listProfiles: () =>
+        Promise.resolve({
+          ...(PROFILES as Extract<RunProfilesResult, { status: "loaded" }>),
+          publicationProfiles: [virtual],
+        }),
+    });
+    await settledScreen();
+
+    const clock = document.querySelector("[data-setup-profile-publication-clock]");
+    expect(clock?.getAttribute("data-setup-profile-publication-clock")).toBe("RUN_VIRTUAL");
+    expect(clock?.textContent).toMatch(/^Publication clock: the run's virtual publication clock\./);
   });
 
   it("says nothing about rounding for a profile that publishes exactly", async () => {

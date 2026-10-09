@@ -11,6 +11,7 @@ import {
   unavailableArrival,
 } from "./HistoryInspector";
 import { GatewayLedgerView } from "./GatewayLedgerView";
+import { GatewayDiagnosticsPanel, PublicationSchedulePanel } from "./GatewayPublicationPanels";
 import { RunCommitPanel } from "./RunCommitPanel";
 import { RunHeader } from "./RunHeader";
 import {
@@ -1182,7 +1183,18 @@ export function RunFrame({
                 "The stage could not be read, so nothing is known about what was staged."}
             </p>
           ) : stage.status === "gateway" ? (
-            <GatewayLedgerView stage={stage.stage} frozenBasis={stage.frozenBasis} />
+            <>
+              <GatewayLedgerView stage={stage.stage} frozenBasis={stage.frozenBasis} />
+              {runId === undefined ? null : (
+                <PublicationSchedulePanel
+                  runId={runId}
+                  runSetup={runSetup}
+                  refreshKey={stage}
+                  onAdvanced={() => void rereadStage()}
+                />
+              )}
+              <GatewayDiagnosticsPanel runSetup={runSetup} refreshKey={stage} />
+            </>
           ) : (
             <>
               <p

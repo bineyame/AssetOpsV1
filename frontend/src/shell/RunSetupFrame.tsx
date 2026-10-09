@@ -37,6 +37,7 @@ import {
   type RunSetupClient,
   type RunSummary,
 } from "./runSetupClient";
+import { publicationClockText } from "./GatewayPublicationPanels";
 
 /**
  * Set up a Draft SimulationRun from one saved scenario. A Simulator Lab
@@ -1393,7 +1394,12 @@ function refusalLabel(kind: string | null): string | null {
  */
 function ProfileResolution({ profile }: { profile: RunPublicationProfile | undefined }) {
   const resolutions = profile?.device_resolutions ?? [];
-  if (profile === undefined || (resolutions.length === 0 && !profile.requires_registered_site)) {
+  if (
+    profile === undefined ||
+    (resolutions.length === 0 &&
+      !profile.requires_registered_site &&
+      profile.publication_clock === undefined)
+  ) {
     return null;
   }
   const steps = Array.from(new Set(resolutions.map((item) => item.resolution)));
@@ -1407,8 +1413,15 @@ function ProfileResolution({ profile }: { profile: RunPublicationProfile | undef
         ? null
         : `Simulated devices round each numeric reading half-to-even to ${steps.join(" or ")} in that signal's own unit before publishing it (${resolutions.length} signals). Status readings are not rounded. `}
       {profile.requires_registered_site
-        ? "Only a draft on a registered Site can use this profile, because each unit is checked against the Site's registered binding."
+        ? "Only a draft on a registered Site can use this profile, because each unit is checked against the Site's registered binding. "
         : null}
+      {profile.publication_clock === undefined ? null : (
+        <span data-setup-profile-publication-clock={profile.publication_clock}>
+          {profile.publication_clock === "RUN_VIRTUAL"
+            ? "Publication clock: the run's virtual publication clock. A delayed report is held until its scheduled release on that clock, and the gateway stamps its publication time there."
+            : `Publication clock: ${publicationClockText(profile.publication_clock)}.`}
+        </span>
+      )}
     </p>
   );
 }

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
+import { waitFor } from "@testing-library/react";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
@@ -244,7 +245,8 @@ describe("the Commit panel", () => {
       }),
       "OSError: disk full",
     );
-    const runSetup = client(ELIGIBLE, interrupted, [committed(release({}))]);
+    // S2-01b F2: release is offered only once the frozen basis is known.
+    const runSetup = client(RELEASABLE, interrupted, [committed(release({}))]);
     renderAt(runSetup);
     await settledScreen();
 
@@ -271,7 +273,7 @@ describe("the Commit panel", () => {
         refusal: { kind: "CONFIGURATION_UNRESOLVED", detail: "Foundation v1 is not registered" },
       }),
     );
-    const runSetup = client(ELIGIBLE, refused, [committed(release({}))]);
+    const runSetup = client(RELEASABLE, refused, [committed(release({}))]);
     renderAt(runSetup);
     await settledScreen();
 
@@ -344,6 +346,13 @@ function withBasis(
 ): RunStageResult {
   return stage.status === "loaded" ? { ...stage, frozenBasis } : stage;
 }
+
+const RELEASABLE = withBasis(ELIGIBLE, {
+  configuration_store: "LEGACY_FILE" as const,
+  site_imported: false,
+  can_release: true,
+  statement: "Frozen at Draft setup from the legacy Site document.",
+});
 
 describe("Commit and the configuration a Draft froze (S2-01a)", () => {
   it("keeps Commit disabled for a registered run even when the stage is eligible", async () => {
@@ -446,7 +455,7 @@ describe("Commit and the configuration a Draft froze (S2-01a)", () => {
     );
   });
 
-  // S2-01a carry F1: a pre-import YAML artifact committed before its Site was
+    // S2-01a carry F1: a pre-import YAML artifact committed before its Site was
   // imported is history; the server refuses its release (409), so neither an
   // unfinished nor a refused release may offer Resume or Retry.
   const IMPORTED_SINCE = {
@@ -506,5 +515,61 @@ describe("Commit and the configuration a Draft froze (S2-01a)", () => {
 
     expect(within(panel()).getByRole("button", { name: "Resume release" })).toBeEnabled();
     expect(panel().querySelector("[data-release-basis-block]")).toBeNull();
+  });
+
+  // S2-01b carry F2: while the Stage read (which carries the frozen basis) is
+  // pending, failed or silent about the basis, an already committed artifact
+  // offers no Resume or Retry; once it resolves after Site import, the basis
+  // block names why.
+  it("offers no release while the Stage read is pending, then shows the basis block", async () => {
+    let resolveStage: (stage: RunStageResult) => void = () => undefined;
+    const pendingStage = new Promise<RunStageResult>((resolve) => {
+      resolveStage = resolve;
+    });
+    const fake = client(
+      ELIGIBLE,
+      committed(release({ status: "IN_PROGRESS", processed: 40, accepted: 40, completed_at: null })),
+    );
+    fake.getStage = () => pendingStage;
+    renderAt(fake);
+    await waitFor(() => expect(panel()).not.toBeNull());
+    await settledScreen(panel());
+
+    expect(panel().querySelector('[data-commit-state="COMMITTED"]')).not.toBeNull();
+    expect(within(panel()).queryByRole("button", { name: "Resume release" })).toBeNull();
+    expect(panel().querySelector("[data-release-basis-block]")?.textContent).toMatch(
+      /still being read/,
+    );
+
+    resolveStage(withBasis(ELIGIBLE, IMPORTED_SINCE));
+    await settledScreen();
+    expect(panel().querySelector("[data-release-basis-block]")?.textContent).toMatch(
+      /read-only history/,
+    );
+    expect(within(panel()).queryAllByRole("button")).toHaveLength(0);
+    expect(fake.posts).toBe(0);
+  });
+
+  it.each([
+    ["unavailable", { status: "unavailable" as const, message: null }, /could not be read/],
+    ["silent about the basis", ELIGIBLE, /did not report the configuration/],
+  ])("offers no release while the Stage read is %s", async (_label, stage, statement) => {
+    const fake = client(
+      stage as RunStageResult,
+      committed(
+        release({
+          status: "REFUSED",
+          processed: 0,
+          accepted: 0,
+          completed_at: null,
+          refusal: { kind: "CONFIGURATION_UNRESOLVED", detail: "Foundation v1 is not registered" },
+        }),
+      ),
+    );
+    renderAt(fake);
+    await settledScreen();
+
+    expect(within(panel()).queryByRole("button", { name: "Retry release" })).toBeNull();
+    expect(panel().querySelector("[data-release-basis-block]")?.textContent).toMatch(statement);
   });
 });
