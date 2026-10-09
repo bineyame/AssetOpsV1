@@ -72,6 +72,11 @@ MAPPING_ERROR_KINDS = (
 )
 
 
+#: Which clock stamps V3 `published_at` for an admission.
+GATEWAY_UTC = "GATEWAY_UTC"
+RUN_VIRTUAL = "RUN_VIRTUAL"
+
+
 def _utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -423,6 +428,58 @@ class GatewayService:
         self._verified[snapshot_sha256] = verified
         return verified
 
+    # --- the per-run virtual publication clock (S2-01c phase 2) -----------------
+
+    def _publication_instant(self, db: sqlite3.Connection, clock: str, lab_run_ref: str | None) -> str | None:
+        """None for the gateway's real UTC; the run's current virtual instant otherwise."""
+        if clock == GATEWAY_UTC:
+            return None
+        if clock != RUN_VIRTUAL:
+            raise ValueError(f"publication clock is one of {[GATEWAY_UTC, RUN_VIRTUAL]}")
+        if not lab_run_ref:
+            raise GatewayRefused("NO_PUBLICATION_CLOCK", "a virtual publication clock is scoped to a Lab run")
+        row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+        if row is None:
+            raise GatewayRefused(
+                "NO_PUBLICATION_CLOCK", "this run's publication clock has not been advanced; nothing is admitted"
+            )
+        return row[0]
+
+    def advance_publication_clock(self, lab_run_ref: str, instant: str) -> dict[str, object]:
+        """Move one run's virtual publication clock forward to `instant`.
+
+        SIMULATED gateways only. An earlier instant refuses
+        (`PUBLICATION_CLOCK_BACKWARD`); the same instant is idempotent. Nothing
+        is admitted or released here: the clock only says what instant the
+        next admission for this run is stamped with."""
+        if not isinstance(lab_run_ref, str) or not lab_run_ref:
+            raise ValueError("a publication clock is scoped to a non-empty Lab run reference")
+        try:
+            datetime.strptime(instant, _INSTANT)
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"{instant!r} is not a UTC instant (YYYY-MM-DDTHH:MM:SSZ)") from error
+        with self._tx() as db:
+            self._require_simulated(db)
+            row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+            if row is not None and instant < row[0]:
+                raise GatewayRefused(
+                    "PUBLICATION_CLOCK_BACKWARD", f"the run's publication clock is at {row[0]}, after {instant}"
+                )
+            advanced = row is None or instant > row[0]
+            if row is None:
+                db.execute("INSERT INTO publication_clock VALUES (?,?,?)", (lab_run_ref, instant, self._now()))
+            elif advanced:
+                db.execute(
+                    "UPDATE publication_clock SET instant=?, updated_at=? WHERE lab_run_ref=?",
+                    (instant, self._now(), lab_run_ref),
+                )
+        return {"lab_run_ref": lab_run_ref, "instant": instant, "advanced": advanced}
+
+    def publication_clock(self, lab_run_ref: str) -> str | None:
+        with self._tx() as db:
+            row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (lab_run_ref,)).fetchone()
+        return None if row is None else row[0]
+
     # --- admission -------------------------------------------------------------
 
     def admit(
@@ -432,12 +489,14 @@ class GatewayService:
         snapshot_sha256: str,
         lab_run_ref: str | None = None,
         initial_state: str = "STAGED",
+        publication_clock: str = GATEWAY_UTC,
     ) -> Admission:
         """Admit one public report under one activated snapshot."""
         _check_initial_state(initial_state)
         with self._tx() as db:
             self._refuse_at_stop(db)
-            admission = self._admit_in(db, report_text, snapshot_sha256, lab_run_ref, initial_state)
+            published_at = self._publication_instant(db, publication_clock, lab_run_ref)
+            admission = self._admit_in(db, report_text, snapshot_sha256, lab_run_ref, initial_state, published_at)
         self._hit("after_enqueue_commit")
         return admission
 
@@ -448,6 +507,7 @@ class GatewayService:
         snapshot_sha256: str,
         lab_run_ref: str | None = None,
         initial_state: str = "STAGED",
+        publication_clock: str = GATEWAY_UTC,
     ) -> list[Admission]:
         """Admit a bounded chunk of reports in ONE transaction.
 
@@ -460,7 +520,10 @@ class GatewayService:
             raise ValueError(f"at most {MAX_ADMISSION_CHUNK} reports per admission chunk")
         with self._tx() as db:
             self._refuse_at_stop(db)
-            admissions = [self._admit_in(db, text, snapshot_sha256, lab_run_ref, initial_state) for text in texts]
+            published_at = self._publication_instant(db, publication_clock, lab_run_ref)
+            admissions = [
+                self._admit_in(db, text, snapshot_sha256, lab_run_ref, initial_state, published_at) for text in texts
+            ]
         self._hit("after_enqueue_commit")
         return admissions
 
@@ -471,7 +534,12 @@ class GatewayService:
         snapshot_sha256: str,
         lab_run_ref: str | None,
         initial_state: str,
+        virtual_published_at: str | None = None,
     ) -> Admission:
+        """`virtual_published_at` is the run's virtual publication instant
+        (`D-2026-10-09-s2-simulated-publication-clock`), or None for the
+        gateway's real UTC. Either way the outbox creation time, the sequence
+        update and the contact stay on real UTC: queue age is operational."""
         report_sha = text_sha256(report_text) if isinstance(report_text, str) else text_sha256(repr(report_text))
         report: DeviceReport | None = None
         snapshot: VerifiedSnapshot | None = None
@@ -494,7 +562,8 @@ class GatewayService:
             if binding.source_id not in provisioning.permitted_source_ids:
                 raise _Held("SOURCE_NOT_PERMITTED", "source_id", f"{binding.source_id} is not permitted")
             self._record_contact(db, provisioning, binding.source_id)
-            published_at = self._now()
+            created_at = self._now()
+            published_at = created_at if virtual_published_at is None else virtual_published_at
             self._check_report(report, binding, snapshot, published_at)
             if report.report_key is not None:
                 earlier = db.execute(
@@ -570,13 +639,13 @@ class GatewayService:
                     text,
                     text_sha256(text),
                     initial_state,
-                    published_at,
+                    created_at,
                 ),
             )
             db.execute(
                 "INSERT INTO sequence_state VALUES (?,?,?,?,?) ON CONFLICT DO UPDATE "
                 "SET last_sequence=excluded.last_sequence, updated_at=excluded.updated_at",
-                (*key, sequence, published_at),
+                (*key, sequence, created_at),
             )
             if report.report_key is not None:
                 db.execute(

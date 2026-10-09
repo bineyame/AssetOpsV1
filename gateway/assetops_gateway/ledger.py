@@ -19,7 +19,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 BUSY_TIMEOUT_MS = 5000
 
 OUTBOX_STATES = ("STAGED", "READY", "IN_FLIGHT", "ACKED", "DEAD_LETTER")
@@ -296,7 +296,25 @@ CREATE TRIGGER diagnostic_config_never_deleted BEFORE DELETE ON diagnostic_confi
 BEGIN SELECT RAISE(ABORT, 'the diagnostic configuration is retained'); END;
 """
 
-MIGRATIONS = {1: MIGRATION_1, 2: MIGRATION_2, 3: MIGRATION_3}
+#: S2-01c phase 2 (`D-2026-10-09-s2-simulated-publication-clock`): one virtual
+#: publication clock per registered Lab run, owned and persisted here. It only
+#: moves forward; V3 `published_at` for that run's admissions is read from it,
+#: while every operational time (outbox creation, contact, diagnostics) stays
+#: on the gateway's real UTC clock.
+MIGRATION_4 = """
+CREATE TABLE publication_clock (
+  lab_run_ref TEXT PRIMARY KEY,
+  instant TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE TRIGGER publication_clock_forward_only BEFORE UPDATE OF instant ON publication_clock
+WHEN NEW.instant < OLD.instant
+BEGIN SELECT RAISE(ABORT, 'a publication clock never moves backward'); END;
+CREATE TRIGGER publication_clock_never_deleted BEFORE DELETE ON publication_clock
+BEGIN SELECT RAISE(ABORT, 'publication clocks are retained'); END;
+"""
+
+MIGRATIONS = {1: MIGRATION_1, 2: MIGRATION_2, 3: MIGRATION_3, 4: MIGRATION_4}
 
 
 class WriterBusy(RuntimeError):

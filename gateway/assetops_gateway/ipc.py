@@ -38,7 +38,22 @@ PROTOCOL_VERSION = 1
 #: One request or response. A full-day Kobo run's stage read is about 1 MiB.
 MAX_MESSAGE_BYTES = 16 * 1024 * 1024
 CREDENTIAL_BYTES = 32
-OPS = ("identity", "activate", "admit", "seal", "run_stage", "diagnostics", "emit_diagnostic")
+OPS = (
+    "identity",
+    "activate",
+    "admit",
+    "seal",
+    "run_stage",
+    "diagnostics",
+    "emit_diagnostic",
+    "advance_publication_clock",
+    "admit_at_run_clock",
+    "inject_fault",
+)
+#: Fault-fixture controls `inject_fault` accepts (SIMULATED gateways only). They
+#: change local operational state; none is ever written into V3, Batch V2 or a
+#: GatewayDiagnosticsV1 report as a cause.
+FAULTS = ("DISK_PRESSURE", "CLOCK_OFFSET")
 #: Keys a request may carry, per op. Anything else is refused unread.
 REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     "identity": frozenset(),
@@ -50,6 +65,13 @@ REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     # cadence slot (idempotent inside the slot). Neither is a receipt.
     "diagnostics": frozenset(),
     "emit_diagnostic": frozenset(),
+    # S2-01c phase 2 (`D-2026-10-09-s2-simulated-publication-clock`): advance
+    # one run's persisted virtual publication clock (forward only, idempotent),
+    # and admit reports stamped from it. `admit` keeps the gateway's real UTC.
+    "advance_publication_clock": frozenset({"lab_run_ref", "instant"}),
+    "admit_at_run_clock": frozenset({"snapshot_sha256", "lab_run_ref", "reports"}),
+    # A labelled fault fixture; `value` null clears it back to measurement/unknown.
+    "inject_fault": frozenset({"fault", "value"}),
 }
 CLAIMED_KEYS = frozenset(
     {
@@ -260,14 +282,19 @@ class GatewayServer:
                 raise _BadRequest("claimed", f"exactly {sorted(CLAIMED_KEYS)} are wanted")
             verified = service.activate(body["snapshot_text"], ClaimedReferences(**claimed))
             return {"snapshot_sha256": verified.snapshot_sha256}
-        if op == "admit":
+        if op in ("admit", "admit_at_run_clock"):
+            from assetops_gateway.service import GATEWAY_UTC, RUN_VIRTUAL
+
             reports = body["reports"]
             if not isinstance(reports, list) or not all(isinstance(r, str) for r in reports):
                 raise _BadRequest("reports", "a list of report texts is wanted")
             if len(reports) > MAX_ADMISSION_CHUNK:
                 raise _BadRequest("reports", f"at most {MAX_ADMISSION_CHUNK} reports per request")
             admissions = service.admit_texts(
-                reports, snapshot_sha256=_str(body, "snapshot_sha256"), lab_run_ref=_str(body, "lab_run_ref")
+                reports,
+                snapshot_sha256=_str(body, "snapshot_sha256"),
+                lab_run_ref=_str(body, "lab_run_ref"),
+                publication_clock=RUN_VIRTUAL if op == "admit_at_run_clock" else GATEWAY_UTC,
             )
             return {"admissions": [a.__dict__ for a in admissions]}
         if op == "seal":
@@ -280,6 +307,21 @@ class GatewayServer:
             return service.local_diagnostics()
         if op == "emit_diagnostic":
             return dict(service.emit_diagnostic().__dict__)
+        if op == "advance_publication_clock":
+            return service.advance_publication_clock(_str(body, "lab_run_ref"), _str(body, "instant"))
+        if op == "inject_fault":
+            fault, value = body["fault"], body["value"]
+            if fault == "DISK_PRESSURE":
+                if value is not None and not isinstance(value, str):
+                    raise _BadRequest("value", "OK, WARN, STOP or null is wanted")
+                service.inject_disk_pressure(value)
+            elif fault == "CLOCK_OFFSET":
+                if value is not None and type(value) is not int:
+                    raise _BadRequest("value", "whole milliseconds or null is wanted")
+                service.inject_clock_offset(value)
+            else:
+                raise _BadRequest("fault", f"one of {list(FAULTS)} is wanted")
+            return {"fault": fault, "value": value}
         raise _BadRequest("op", f"unknown op {op!r}")
 
 
