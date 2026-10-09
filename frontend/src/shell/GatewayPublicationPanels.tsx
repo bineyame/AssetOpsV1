@@ -85,7 +85,7 @@ export const PUBLICATION_REFUSAL_TEXT: Record<PublicationRefusalKind, string> = 
   PUBLICATION_INSTANT_INVALID:
     "That is not an instant the clock accepts. Use UTC in the form 2026-09-30T15:10:00Z.",
   PUBLICATION_GAP:
-    "Ordinary publication stopped before the world's last boundary, and the stored schedule cannot regenerate those readings. Nothing was moved, admitted or sealed.",
+    "Ordinary publication stopped before the boundary the world reached, and the stored schedule cannot regenerate those readings. Nothing was moved, admitted or sealed.",
 };
 
 /** Plain words for where ordinary publication stands against the world. */
