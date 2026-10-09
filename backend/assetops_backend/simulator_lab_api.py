@@ -1930,6 +1930,8 @@ def publication_schedule_payload(
             "source_time": "SOURCE_TIME",
             "scheduled_release_at": "RUN_VIRTUAL_SCHEDULED",
             "clock_instant": "RUN_VIRTUAL",
+            "admitted_through": "RUN_VIRTUAL",
+            "ordinary_stopped_at": "RUN_VIRTUAL",
             "released_at_clock": "RUN_VIRTUAL",
             "published_at": "GATEWAY_STAMPED_RUN_VIRTUAL",
         },
@@ -1938,6 +1940,16 @@ def publication_schedule_payload(
             None if schedule is None else schedule.world_reached_instant
         ),
         "world_complete": False if schedule is None else schedule.world_complete,
+        # `D-2026-10-09-s2-publication-gap-and-batch-boundary`: the last
+        # contiguous ordinary-publication boundary and where it stands against
+        # the world. INCOMPLETE or TERMINAL_GAP is a run not fully published.
+        "admitted_through": None if schedule is None else schedule.admitted_through,
+        "ordinary_publication": (
+            None if schedule is None else schedule.ordinary_publication()
+        ),
+        "ordinary_stopped_at": (
+            None if schedule is None else schedule.ordinary_stopped_at
+        ),
         "pending_count": sum(1 for r in reports if r["state"] == "PENDING"),
         "released_count": sum(1 for r in reports if r["state"] == "RELEASED"),
         "reports": reports,

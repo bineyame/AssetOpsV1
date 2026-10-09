@@ -79,6 +79,8 @@ const CLOCK_LABELS = {
   source_time: "SOURCE_TIME",
   scheduled_release_at: "RUN_VIRTUAL_SCHEDULED",
   clock_instant: "RUN_VIRTUAL",
+  admitted_through: "RUN_VIRTUAL",
+  ordinary_stopped_at: "RUN_VIRTUAL",
   released_at_clock: "RUN_VIRTUAL",
   published_at: "GATEWAY_STAMPED_RUN_VIRTUAL",
 };
@@ -111,6 +113,9 @@ const PENDING_AT_END: RunPublicationSchedule = {
   clock_instant: "2026-09-30T15:00:00Z",
   world_reached_instant: "2026-09-30T15:00:00Z",
   world_complete: true,
+  admitted_through: "2026-09-30T15:00:00Z",
+  ordinary_publication: "COMPLETE",
+  ordinary_stopped_at: null,
   pending_count: 1,
   released_count: 1,
   reports: [
@@ -296,6 +301,10 @@ describe("parsing the publication and diagnostics reads (S2-01c)", () => {
       isRunPublicationSchedule({ ...PENDING_AT_END, status: "NO_SCHEDULE", reports: [report({})] }),
     ).toBe(false);
     expect(isRunPublicationSchedule({ ...PENDING_AT_END, status: "EMPTY" })).toBe(false);
+    // The ordinary watermark is part of the read, and its state is a known one.
+    expect(isRunPublicationSchedule({ ...PENDING_AT_END, ordinary_publication: "PARTIAL" })).toBe(false);
+    const { admitted_through: _dropped, ...withoutWatermark } = PENDING_AT_END;
+    expect(isRunPublicationSchedule(withoutWatermark)).toBe(false);
   });
 
   it("refuses an unavailable gateway carrying counters, and a received diagnostic", () => {
@@ -504,6 +513,73 @@ describe("the delayed-publication view (S2-01c)", () => {
     expect(view.querySelector("[data-publication-none]")).toBeNull();
     expect(view.querySelector("[data-publication-pending]")).toBeNull();
     expect(screen.queryByRole("button", { name: "Advance publication clock" })).toBeNull();
+  });
+
+  it("shows a complete ordinary watermark with no gap warning", async () => {
+    renderAt(client(PENDING_AT_END, AVAILABLE));
+    await settledScreen();
+    const view = section("[data-publication]");
+    const ordinary = view.querySelector("[data-ordinary-publication]") as HTMLElement;
+    expect(ordinary.getAttribute("data-ordinary-publication")).toBe("COMPLETE");
+    expect(ordinary.textContent).toMatch(/Published through 2026-09-30T15:00:00Z\./);
+    expect(view.querySelector("[data-publication-gap]")).toBeNull();
+  });
+
+  it("labels a run with an ordinary gap incomplete and shows a refused advance plainly (R1)", async () => {
+    const gap: RunPublicationSchedule = {
+      ...PENDING_AT_END,
+      admitted_through: "2026-09-30T07:30:00Z",
+      ordinary_publication: "INCOMPLETE",
+    };
+    const fake = client(gap, AVAILABLE, {
+      status: "refused",
+      refusalKind: "PUBLICATION_GAP",
+      code: "EXECUTION_PUBLICATION_GAP",
+      message:
+        "Ordinary publication is admitted through 2026-09-30T07:30:00Z; the world reached 2026-09-30T15:00:00Z.",
+    });
+    renderAt(fake);
+    await settledScreen();
+    const view = section("[data-publication]");
+    expect(
+      view.querySelector("[data-ordinary-publication]")?.getAttribute("data-ordinary-publication"),
+    ).toBe("INCOMPLETE");
+    const warning = section('[data-publication-gap="INCOMPLETE"]');
+    expect(spacedText(warning)).toMatch(
+      /^This run is not fully published\. Ordinary readings are published through 2026-09-30T07:30:00Z; the world reached 2026-09-30T15:00:00Z\. .*no delayed report is released past the gap\.$/,
+    );
+    fireEvent.click(await readyAdvanceButton());
+    const refusal = await waitFor(() => section('[data-publication-refusal="PUBLICATION_GAP"]'));
+    expect(spacedText(refusal)).toMatch(
+      /^Not advanced\. Ordinary publication stopped .*Nothing was moved, admitted or sealed\. .*admitted through 2026-09-30T07:30:00Z; the world reached 2026-09-30T15:00:00Z\.$/,
+    );
+    expect(fake.advances).toEqual(["2026-09-30T15:05:00Z"]);
+    // The refused advance released nothing and the gap is still shown.
+    expect(
+      section('[data-publication-report="soc-1500"]').getAttribute("data-publication-report-state"),
+    ).toBe("PENDING");
+    expect(document.querySelector('[data-publication-gap="INCOMPLETE"]')).not.toBeNull();
+    expect(document.querySelector("[data-publication-advanced]")).toBeNull();
+  });
+
+  it("shows a terminal gap as needing a new run, never as fully published", async () => {
+    renderAt(
+      client(
+        {
+          ...PENDING_AT_END,
+          admitted_through: "2026-09-30T03:45:00Z",
+          ordinary_publication: "TERMINAL_GAP",
+          ordinary_stopped_at: "2026-09-30T04:00:00Z",
+        },
+        AVAILABLE,
+      ),
+    );
+    await settledScreen();
+    const warning = section('[data-publication-gap="TERMINAL_GAP"]');
+    expect(spacedText(warning)).toMatch(
+      /published through 2026-09-30T03:45:00Z; .*passed 2026-09-30T04:00:00Z before it was published.*Start a new run/,
+    );
+    expect(section("[data-ordinary-publication]").textContent).toMatch(/^Incomplete for good/);
   });
 
   it("never shows an absent schedule as an empty queue", async () => {

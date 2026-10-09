@@ -2513,6 +2513,17 @@ class HostLabExecution:
             note(text)
             return text
         if schedule is None:
+            if self._executed_id(session.run_id):
+                # questions-5 Q5: only the first start, before the run's
+                # execution artifact exists and before the gateway hears
+                # anything, creates a schedule. Once it has executed, a missing
+                # one is lost durable state; a live step never rebuilds it.
+                text = (
+                    "registered publication refused: PUBLICATION_SCHEDULE_MISSING: this run has executed "
+                    "but its Lab publication schedule is missing; nothing is rebuilt from the live world"
+                )
+                note(text)
+                return text
             schedule = PublicationSchedule(run_id=session.run_id, snapshot_sha256=basis.snapshot_sha256)
         known = schedule.keys()
         # Undelayed reports by the reached boundary they were observed at.
@@ -2550,6 +2561,7 @@ class HostLabExecution:
             schedule.with_delayed(added),
             world_reached_instant=reached,
             world_complete=session.execution.is_terminal,
+            world_boundaries_completed=len(boundaries),
         )
         # Only boundaries the world has actually completed: before the first,
         # nothing is observed and nothing may be marked published.
@@ -2605,17 +2617,28 @@ class HostLabExecution:
         done, refused = self._gateway.publish_in_boundary_order(run_id, basis, wanted, target)
         boundary_instants = set(instants or ())
         through = schedule.admitted_through
+        stopped_at = schedule.ordinary_stopped_at
         committed = iter(done)
         for instant, due, texts in groups:
             if due or texts:
                 admissions = next(committed, None)
                 if admissions is None:
-                    break  # this group and every later one were not admitted
+                    # This group and every later one were not admitted. If the
+                    # gateway clock had already passed an ordinary boundary, the
+                    # gap is permanent for this run (questions-5 Q2): recorded,
+                    # read back and shown, never stamped late or leapt over.
+                    if (
+                        stopped_at is None
+                        and instant in boundary_instants
+                        and getattr(refused, "kind", None) == "PUBLICATION_INSTANT_PASSED"
+                    ):
+                        stopped_at = instant
+                    break
                 for d, answer in zip(due, admissions):
                     schedule = schedule.released({d.report_key: answer}, instant)
             if instant in boundary_instants:
                 through = instant
-        schedule = replace(schedule, admitted_through=through)
+        schedule = replace(schedule, admitted_through=through, ordinary_stopped_at=stopped_at)
         self._schedules.write(schedule)
         if refused is not None:
             text = f"registered publication refused: {refused}"
@@ -2642,9 +2665,10 @@ class HostLabExecution:
             except ScheduleUnreadable as unreadable:
                 raise LabControlRefused("PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(unreadable)) from unreadable
             session = self._sessions.get(run.run_id)
-            if schedule is None and session is None and self._executed(run):
-                # Q5 (answers-3): a run that executed with no stored schedule
-                # is refused; no report is reconstructed from the scenario.
+            if schedule is None and self._executed(run):
+                # Q5 (answers-3), and questions-5 Q5: a run that executed with
+                # no stored schedule is refused, live session or not; no report
+                # is reconstructed from the scenario or the live world.
                 raise LabControlRefused("PUBLICATION_SCHEDULE_MISSING", run.run_id)
             if schedule is None or schedule.clock_instant is None:
                 raise LabControlRefused("NOT_STARTED", run.run_id)
@@ -2659,6 +2683,22 @@ class HostLabExecution:
                     "PUBLICATION_AHEAD_OF_WORLD",
                     run.run_id,
                     f"the world has reached {schedule.world_reached_instant}; {instant} is later",
+                )
+            if session is None and schedule.ordinary_gap():
+                # `D-2026-10-09-s2-publication-gap-and-batch-boundary`: a stored
+                # schedule cannot regenerate the unadmitted ordinary readings,
+                # so releasing a delayed report now would leap the gap for good.
+                # Refused before the Lab clock, the gateway or a seal moves.
+                raise LabControlRefused(
+                    "PUBLICATION_GAP",
+                    run.run_id,
+                    f"Ordinary publication is admitted through {schedule.admitted_through or 'no boundary'}"
+                    f"; the world reached {schedule.world_reached_instant}"
+                    + (
+                        f"; the gateway clock passed {schedule.ordinary_stopped_at} before it was admitted."
+                        if schedule.ordinary_stopped_at is not None
+                        else "."
+                    ),
                 )
             notes = [] if session is None else session.staging_notes
 
@@ -2690,8 +2730,11 @@ class HostLabExecution:
 
     def _executed(self, run: SimulationRun) -> bool:
         """Whether this run has a stored execution artifact (it was started)."""
+        return self._executed_id(run.run_id)
+
+    def _executed_id(self, run_id: str) -> bool:
         try:
-            return self._artifacts.read(run.run_id) is not None
+            return self._artifacts.read(run_id) is not None
         except ExecutionArtifactUnreadable:
             return True
 
@@ -2699,9 +2742,10 @@ class HostLabExecution:
         """The Lab-private schedule of a registered run, or None if it has none.
 
         An unreadable schedule refuses rather than reading as an empty queue,
-        and so does a missing one once the run has executed with no live
-        session (answers-4 phase-3a Q3): that is lost durable state, the same
-        condition `advance_publication` refuses, not a run not yet started."""
+        and so does a missing one once the run has executed, live session or
+        not (answers-4 phase-3a Q3, questions-5 Q5): that is lost durable
+        state, the same condition `advance_publication` refuses, not a run not
+        yet started."""
         with self._lock_for(run.run_id):
             try:
                 schedule = self._schedules.read(run.run_id)
@@ -2709,7 +2753,7 @@ class HostLabExecution:
                 raise LabControlRefused(
                     "PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(unreadable)
                 ) from unreadable
-            if schedule is None and run.run_id not in self._sessions and self._executed(run):
+            if schedule is None and self._executed(run):
                 raise LabControlRefused(
                     "PUBLICATION_SCHEDULE_MISSING",
                     run.run_id,

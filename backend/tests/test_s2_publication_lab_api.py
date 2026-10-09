@@ -14,6 +14,7 @@ an unreachable gateway is unavailable, never a healthy zero queue.
 from __future__ import annotations
 
 import copy
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -289,7 +290,8 @@ class TestPublicationApi:
         assert body["publication"]["pending_count"] == 1
 
     @pytest.mark.parametrize(
-        "kind", ["PUBLICATION_AHEAD_OF_WORLD", "PUBLICATION_CLOCK_BACKWARD", "PUBLICATION_SCHEDULE_MISSING"]
+        "kind",
+        ["PUBLICATION_AHEAD_OF_WORLD", "PUBLICATION_CLOCK_BACKWARD", "PUBLICATION_SCHEDULE_MISSING", "PUBLICATION_GAP"],
     )
     def test_a_refused_advance_is_a_typed_409(self, tmp_path, legacy_root, kind) -> None:
         client, execution, run_id = self.client_with_draft(tmp_path, legacy_root)
@@ -299,6 +301,57 @@ class TestPublicationApi:
         assert response.status_code == 409, response.text
         detail = response.json()["detail"]
         assert (detail["refusal_kind"], detail["advanced"]) == (kind, False)
+
+    def test_a_publication_gap_refusal_names_both_instants(self, tmp_path, legacy_root) -> None:
+        """`D-2026-10-09-s2-publication-gap-and-batch-boundary`: the 409 says
+        where ordinary publication stopped and where the world reached."""
+        client, execution, run_id = self.client_with_draft(tmp_path, legacy_root)
+        execution.advance_answer = LabControlRefused(
+            "PUBLICATION_GAP", run_id,
+            "Ordinary publication is admitted through 2026-09-30T07:30:00Z; the world reached 2026-09-30T15:00:00Z.",
+        )
+        response = client.post(f"/api/simulator-lab/runs/{run_id}/publication/advance",
+                               json={"instant": "2026-09-30T15:10:00Z"})
+        assert response.status_code == 409, response.text
+        detail = response.json()["detail"]
+        assert detail["code"] == "EXECUTION_PUBLICATION_GAP"
+        assert "2026-09-30T07:30:00Z" in detail["message"] and "2026-09-30T15:00:00Z" in detail["message"]
+        assert "new run" in detail["message"]
+
+    @pytest.mark.parametrize(
+        ("through", "stopped", "complete", "state"),
+        [
+            ("2026-09-30T15:00:00Z", None, True, "COMPLETE"),
+            ("2026-09-30T15:00:00Z", None, False, "CONTIGUOUS"),
+            ("2026-09-30T07:30:00Z", None, True, "INCOMPLETE"),
+            (None, None, True, "INCOMPLETE"),
+            ("2026-09-30T03:45:00Z", "2026-09-30T04:00:00Z", True, "TERMINAL_GAP"),
+        ],
+    )
+    def test_the_schedule_read_carries_the_ordinary_watermark(
+        self, tmp_path, legacy_root, through, stopped, complete, state
+    ) -> None:
+        client, execution, run_id = self.client_with_draft(tmp_path, legacy_root)
+        execution.schedule_answer = replace(
+            a_schedule(run_id), admitted_through=through, ordinary_stopped_at=stopped,
+            world_complete=complete, world_boundaries_completed=49,
+        )
+        publication = client.get(f"/api/simulator-lab/runs/{run_id}/publication").json()["publication"]
+        assert (
+            publication["admitted_through"], publication["ordinary_stopped_at"],
+            publication["world_reached_instant"], publication["ordinary_publication"],
+        ) == (through, stopped, "2026-09-30T15:00:00Z", state)
+        assert publication["clock_labels"]["admitted_through"] == "RUN_VIRTUAL"
+        # The advance answer carries the same read.
+        execution.advance_answer = {"schedule": execution.schedule_answer, "publication_refused": None,
+                                    "release_basis": "LIVE_SESSION"}
+        body = client.post(f"/api/simulator-lab/runs/{run_id}/publication/advance",
+                           json={"instant": "2026-09-30T15:10:00Z"}).json()
+        assert (body["publication"]["ordinary_publication"], body["publication"]["admitted_through"]) == (state, through)
+
+    def test_no_schedule_has_no_ordinary_state(self) -> None:
+        payload = publication_schedule_payload("r", None, publication_clock="RUN_VIRTUAL")
+        assert (payload["ordinary_publication"], payload["admitted_through"]) == (None, None)
 
     @pytest.mark.parametrize("body", [None, {}, {"instant": 5}, {"instant": "x", "extra": 1}])
     def test_a_malformed_advance_is_refused_before_the_port(self, tmp_path, legacy_root, body) -> None:

@@ -7,6 +7,7 @@ import {
   type GatewayDiagnosticsCurrent,
   type GatewayEmittedDiagnostic,
   type GatewayDiagnosticsResult,
+  type OrdinaryPublicationState,
   type PublicationRefusalKind,
   type PublicationScheduleReport,
   type RunPublicationResult,
@@ -42,7 +43,7 @@ function clockText(label: string | undefined): string {
   return CLOCK_LABEL_TEXT[label] ?? label;
 }
 
-/** Plain words for each of the six publication refusals. */
+/** Plain words for each of the seven publication refusals. */
 export const PUBLICATION_REFUSAL_TEXT: Record<PublicationRefusalKind, string> = {
   PUBLICATION_CLOCK_NOT_SUPPORTED:
     "This run's publication profile does not use a virtual publication clock, so there is nothing to advance.",
@@ -55,7 +56,37 @@ export const PUBLICATION_REFUSAL_TEXT: Record<PublicationRefusalKind, string> = 
     "This run executed but its stored publication schedule is missing. Nothing was reconstructed or released.",
   PUBLICATION_INSTANT_INVALID:
     "That is not an instant the clock accepts. Use UTC in the form 2026-09-30T15:10:00Z.",
+  PUBLICATION_GAP:
+    "Ordinary publication stopped before the world's last boundary, and the stored schedule cannot regenerate those readings. Nothing was moved, admitted or sealed.",
 };
+
+/** Plain words for where ordinary publication stands against the world. */
+const ORDINARY_PUBLICATION_TEXT: Record<OrdinaryPublicationState, string> = {
+  NOT_STARTED: "No world boundary reached yet.",
+  CONTIGUOUS: "Published without a gap up to where the world has reached.",
+  COMPLETE: "Published without a gap through the world's last boundary.",
+  INCOMPLETE: "Incomplete: a reached boundary has not been published.",
+  TERMINAL_GAP: "Incomplete for good: the gateway clock passed a boundary that was never published.",
+};
+
+/** The gap, in words that cannot read as a fully published run. */
+function OrdinaryGap({ schedule }: { schedule: RunPublicationSchedule }) {
+  const state = schedule.ordinary_publication;
+  if (state !== "INCOMPLETE" && state !== "TERMINAL_GAP") {
+    return null;
+  }
+  const through = schedule.admitted_through ?? "no boundary";
+  const reached = schedule.world_reached_instant ?? "an unrecorded instant";
+  return (
+    <p data-publication-gap={state}>
+      <strong>This run is not fully published.</strong>{" "}
+      {`Ordinary readings are published through ${through}; the world reached ${reached}.`}{" "}
+      {state === "TERMINAL_GAP"
+        ? `The gateway clock passed ${schedule.ordinary_stopped_at ?? "a missing boundary"} before it was published, so those readings can no longer be published and no later or delayed report is released past the gap. Start a new run to publish this world in full.`
+        : "While the live session runs, stepping or advancing retries the missing boundaries. Without it, no delayed report is released past the gap."}
+    </p>
+  );
+}
 
 const PUBLICATION_CLOCK_TEXT: Record<string, string> = {
   RUN_VIRTUAL: "the run's virtual publication clock",
@@ -221,6 +252,16 @@ function ScheduleBody({
                   : `Reached ${schedule.world_reached_instant ?? "nothing yet"}. The clock cannot pass this until the run completes.`}
               </span>
             </Fact>
+            <Fact term={`Ordinary publication (${clockText(labels.admitted_through)})`}>
+              <span
+                data-ordinary-publication={schedule.ordinary_publication ?? ""}
+                data-ordinary-admitted-through={schedule.admitted_through ?? ""}
+              >
+                {schedule.ordinary_publication === null
+                  ? "not stated"
+                  : `${ORDINARY_PUBLICATION_TEXT[schedule.ordinary_publication]} Published through ${schedule.admitted_through ?? "no boundary"}.`}
+              </span>
+            </Fact>
             <Fact term="Delayed reports">
               <span
                 data-publication-pending={schedule.pending_count}
@@ -257,6 +298,8 @@ function ScheduleBody({
           {schedule.detail ?? ""} Nothing is shown as pending or released.
         </p>
       ) : null}
+
+      {schedule.status === "AVAILABLE" ? <OrdinaryGap schedule={schedule} /> : null}
 
       <p className="note">{schedule.statement}</p>
 

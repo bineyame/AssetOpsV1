@@ -126,6 +126,9 @@ def test_pending_at_completion_then_released_after_restart(draft, tmp_path) -> N
         again = delay.host(tmp_path / "h", delay.RecordingLink(restarted.link))
         stored = again.publication_schedule(draft)
         assert stored.clock_instant == BEFORE_DUE and stored.pending() == (pending,)
+        # The complete-schedule control: no ordinary gap, so the stored-only
+        # advance below is not refused PUBLICATION_GAP.
+        assert (stored.ordinary_publication(), stored.admitted_through) == ("COMPLETE", END)
         assert delay.stage_bytes(again.registered_stage(draft)) == completed
 
         # Skip past due: released from the stored schedule only, stamped with
@@ -276,10 +279,12 @@ def test_a_retry_after_a_failed_pass_resumes_in_order_with_the_same_bytes(draft,
         assert any("registered publication refused" in n for n in notes), notes
         partial = port.publication_schedule(draft)
         assert partial.admitted_through is not None and partial.admitted_through < END
+        assert (partial.ordinary_publication(), partial.world_reached_instant) == ("INCOMPLETE", END)
         assert _undelayed_lag(port.registered_stage(draft), port.publication_schedule(draft)) == []
         # Retry at the reached instant, then a host restart and the post-run advance.
         assert port.advance_publication(draft, END)["publication_refused"] is None
         assert port.publication_schedule(draft).admitted_through == END
+        assert port.publication_schedule(draft).ordinary_publication() == "COMPLETE"
         restarted = delay.host(tmp_path / "h", gateway.link)
         assert restarted.advance_publication(draft, PAST_DUE)["publication_refused"] is None
         assert delay.stage_bytes(restarted.registered_stage(draft)) == clean
@@ -303,9 +308,23 @@ def test_a_boundary_the_gateway_clock_has_passed_is_refused_not_stamped_late(dra
         view = port.registered_stage(draft)
         assert len(view.envelopes) == admitted, "a missed boundary admitted nothing, and nothing after it"
         assert _undelayed_lag(view, port.publication_schedule(draft)) == []
-        assert port.publication_schedule(draft).admitted_through == "2026-09-30T03:45:00Z"
+        schedule = port.publication_schedule(draft)
+        assert schedule.admitted_through == "2026-09-30T03:45:00Z"
+        assert (schedule.ordinary_publication(), schedule.ordinary_stopped_at) == ("TERMINAL_GAP", "2026-09-30T04:00:00Z")
         assert port.run_to_end(draft).status == "COMPLETED"  # still refused, still exposed
         assert len(port.registered_stage(draft).envelopes) == admitted
+        # questions-5 Q2/Q3: a live advance keeps the terminal refusal, and no
+        # delayed report (07:00 due 07:10, 15:00 due 15:05) leaps the gap.
+        live = port.advance_publication(draft, PAST_DUE)
+        assert "PUBLICATION_INSTANT_PASSED" in live["publication_refused"]
+        assert all(d.state == "PENDING" for d in live["schedule"].delayed) and live["schedule"].delayed
+        assert len(port.registered_stage(draft).envelopes) == admitted
+        assert live["schedule"].ordinary_publication() == "TERMINAL_GAP"
+        # And after a restart the stored-only advance refuses before anything moves.
+        restarted = delay.host(tmp_path / "h", gateway.link)
+        refusal = delay.refused("PUBLICATION_GAP", lambda: restarted.advance_publication(draft, "2026-09-30T16:00:00Z"))
+        assert "2026-09-30T03:45:00Z" in refusal.detail and "2026-09-30T04:00:00Z" in refusal.detail
+        assert restarted.publication_schedule(draft).clock_instant == PAST_DUE
     finally:
         gateway.kill()
 
@@ -323,5 +342,84 @@ def test_an_executed_run_without_its_schedule_reads_missing_not_empty(draft, tmp
         restarted = delay.host(tmp_path / "h", gateway.link)
         delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: restarted.publication_schedule(draft))
         delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: restarted.advance_publication(draft, PAST_DUE))
+    finally:
+        gateway.kill()
+
+
+# --- publication gap (`D-2026-10-09-s2-publication-gap-and-batch-boundary`, re-review R1)
+
+
+def _gateway_run_clock(root: Path, run_id: str) -> str | None:
+    """The gateway's persisted publication clock for this run, read directly."""
+    import sqlite3
+
+    database = root / "gateway.sqlite3"
+    assert database.is_file(), database
+    with sqlite3.connect(f"file:{database.as_posix()}?mode=ro", uri=True) as db:
+        row = db.execute("SELECT instant FROM publication_clock WHERE lab_run_ref=?", (run_id,)).fetchone()
+    return None if row is None else row[0]
+
+
+def test_a_stored_only_advance_refuses_a_known_ordinary_gap_before_anything_moves(draft, tmp_path) -> None:
+    """The reviewer's R1 probe: a failed pass, a host restart, a post-run
+    advance. It used to release the 15:00 SOC at 15:10 straight after 07:30,
+    skipping 178 ordinary readings for good with no sequence hole."""
+    gateway = delay.gateway_for(tmp_path / "g", draft)
+    try:
+        port = delay.host(tmp_path / "h", _FailingLink(gateway.link, fail_at=20))
+        port.start(draft)
+        assert port.run_to_end(draft).status == "COMPLETED"
+        port.forget(draft.run_id)  # Lab host restart
+
+        recording = delay.RecordingLink(gateway.link)
+        restarted = delay.host(tmp_path / "h", recording)
+        before = restarted.publication_schedule(draft)
+        assert before.world_complete and before.world_reached_instant == END
+        assert before.admitted_through is not None and before.admitted_through < END
+        assert before.ordinary_publication() == "INCOMPLETE" and before.ordinary_stopped_at is None
+        assert before.pending(), "the measured set of delayed reports is not empty"
+        stage = delay.stage_bytes(restarted.registered_stage(draft))
+        assert stage[0] and stage[1], "the pre-gap envelopes and batches exist"
+        gateway_clock = _gateway_run_clock(tmp_path / "g", draft.run_id)
+        assert gateway_clock is not None
+        recording.requests.clear()
+
+        refusal = delay.refused("PUBLICATION_GAP", lambda: restarted.advance_publication(draft, PAST_DUE))
+        assert before.admitted_through in refusal.detail and END in refusal.detail
+
+        # No new envelope, no new batch, no publication-clock movement on either side.
+        assert delay.stage_bytes(restarted.registered_stage(draft)) == stage
+        assert _gateway_run_clock(tmp_path / "g", draft.run_id) == gateway_clock
+        after = restarted.publication_schedule(draft)
+        assert after == before, "the Lab schedule (clock, watermark, pending reports) did not change"
+        mutating = {"activate", "admit", "admit_at_run_clock", "seal", "advance_publication_clock"}
+        assert not [op for op, _ in recording.requests if op in mutating], recording.requests
+        # Refused again at the same instant: still nothing, never a quiet release.
+        delay.refused("PUBLICATION_GAP", lambda: restarted.advance_publication(draft, END))
+        assert delay.stage_bytes(restarted.registered_stage(draft)) == stage
+    finally:
+        gateway.kill()
+
+
+def test_a_live_session_that_lost_its_schedule_reads_and_advances_missing(draft, tmp_path) -> None:
+    """questions-5 Q5: SCHEDULE_MISSING even with a live session, and a later
+    live step does not silently rebuild the schedule."""
+    gateway = delay.gateway_for(tmp_path / "g", draft)
+    try:
+        port = delay.host(tmp_path / "h", gateway.link)
+        port.start(draft)
+        port.step(draft, boundaries=4, from_boundary=0)
+        path = port._schedules.path(draft.run_id)
+        path.unlink()
+        assert draft.run_id in port._sessions, "the live session survives"
+        stage = delay.stage_bytes(port.registered_stage(draft))
+        delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: port.publication_schedule(draft))
+        delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: port.advance_publication(draft, "2026-09-30T03:45:00Z"))
+        port.step(draft, boundaries=4, from_boundary=4)
+        assert not path.exists(), "a live step rebuilt the lost schedule"
+        notes = port._sessions[draft.run_id].staging_notes
+        assert any("PUBLICATION_SCHEDULE_MISSING" in n for n in notes), notes
+        assert delay.stage_bytes(port.registered_stage(draft)) == stage
+        delay.refused("PUBLICATION_SCHEDULE_MISSING", lambda: port.publication_schedule(draft))
     finally:
         gateway.kill()

@@ -18,6 +18,15 @@ INSTANT = "%Y-%m-%dT%H:%M:%SZ"
 PENDING = "PENDING"
 RELEASED = "RELEASED"
 
+#: Ordinary (undelayed) publication of a RUN_VIRTUAL run, against the world
+#: (`D-2026-10-09-s2-publication-gap-and-batch-boundary`).
+ORDINARY_NOT_STARTED = "NOT_STARTED"  # no world boundary reached yet
+ORDINARY_CONTIGUOUS = "CONTIGUOUS"  # admitted through the reached boundary; world running
+ORDINARY_COMPLETE = "COMPLETE"  # admitted through the world's last boundary
+ORDINARY_INCOMPLETE = "INCOMPLETE"  # a reached boundary is not yet admitted
+ORDINARY_TERMINAL_GAP = "TERMINAL_GAP"  # the gateway clock passed an unadmitted boundary
+ORDINARY_GAP_STATES = frozenset({ORDINARY_INCOMPLETE, ORDINARY_TERMINAL_GAP})
+
 
 def parse_instant(text: str) -> datetime:
     """A strict `YYYY-MM-DDTHH:MM:SSZ` instant, or ValueError."""
@@ -61,6 +70,28 @@ class PublicationSchedule:
     #: admitted at that boundary's own instant (ordered publication). Later
     #: passes start after it; absent in a schedule written before it existed.
     admitted_through: str | None = None
+    #: How many world boundaries the world had completed when the schedule was
+    #: last written; None in a schedule written before it existed (then the
+    #: gap check compares the two instants alone, failing closed).
+    world_boundaries_completed: int | None = None
+    #: The first ordinary boundary the gateway refused because its clock had
+    #: already passed it (`PUBLICATION_INSTANT_PASSED`): a permanent gap for
+    #: this run. Nothing later is admitted; recovery is a new run.
+    ordinary_stopped_at: str | None = None
+
+    def ordinary_publication(self) -> str:
+        """Where ordinary publication stands against the world it observed."""
+        if self.ordinary_stopped_at is not None:
+            return ORDINARY_TERMINAL_GAP
+        if self.world_reached_instant is None or self.world_boundaries_completed == 0:
+            return ORDINARY_NOT_STARTED
+        if self.admitted_through is None or self.admitted_through < self.world_reached_instant:
+            return ORDINARY_INCOMPLETE
+        return ORDINARY_COMPLETE if self.world_complete else ORDINARY_CONTIGUOUS
+
+    def ordinary_gap(self) -> bool:
+        """A reached boundary whose ordinary readings the gateway never admitted."""
+        return self.ordinary_publication() in ORDINARY_GAP_STATES
 
     def pending(self) -> tuple[DelayedReport, ...]:
         return tuple(d for d in self.delayed if d.state == PENDING)

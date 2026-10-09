@@ -928,6 +928,20 @@ export const PUBLICATION_SCHEDULE_STATUSES = [
 export type PublicationScheduleStatus = (typeof PUBLICATION_SCHEDULE_STATUSES)[number];
 
 /**
+ * S2-01c: ordinary (undelayed) publication against the world it observed
+ * (`D-2026-10-09-s2-publication-gap-and-batch-boundary`). INCOMPLETE and
+ * TERMINAL_GAP are a run that is not fully published.
+ */
+export const ORDINARY_PUBLICATION_STATES = [
+  "NOT_STARTED",
+  "CONTIGUOUS",
+  "COMPLETE",
+  "INCOMPLETE",
+  "TERMINAL_GAP",
+] as const;
+export type OrdinaryPublicationState = (typeof ORDINARY_PUBLICATION_STATES)[number];
+
+/**
  * S2-01c: a registered run's Lab-private publication schedule. Never an
  * invented empty queue: a run without one says NO_SCHEDULE, SCHEDULE_MISSING,
  * NOT_SUPPORTED or UNREADABLE. Nothing in it entered an envelope, a batch or a diagnostic.
@@ -944,6 +958,12 @@ export interface RunPublicationSchedule {
   clock_instant: string | null;
   world_reached_instant: string | null;
   world_complete: boolean;
+  /** The last contiguous boundary whose ordinary readings the gateway admitted. */
+  admitted_through: string | null;
+  /** Null when there is no schedule to judge. */
+  ordinary_publication: OrdinaryPublicationState | null;
+  /** The boundary the gateway clock passed before it was admitted: a terminal gap. */
+  ordinary_stopped_at: string | null;
   pending_count: number;
   released_count: number;
   reports: PublicationScheduleReport[];
@@ -955,7 +975,7 @@ export type RunPublicationResult =
   | { status: "unavailable"; message: string | null };
 
 /**
- * S2-01c: the six refusals a publication-clock advance can answer, besides
+ * S2-01c: the seven refusals a publication-clock advance can answer, besides
  * the run-state refusals every Lab control shares.
  */
 export const PUBLICATION_REFUSAL_KINDS = [
@@ -965,6 +985,8 @@ export const PUBLICATION_REFUSAL_KINDS = [
   "PUBLICATION_SCHEDULE_UNREADABLE",
   "PUBLICATION_SCHEDULE_MISSING",
   "PUBLICATION_INSTANT_INVALID",
+  /** A stored-only advance refused: ordinary publication stopped short of the world. */
+  "PUBLICATION_GAP",
 ] as const;
 export type PublicationRefusalKind = (typeof PUBLICATION_REFUSAL_KINDS)[number];
 
@@ -1948,6 +1970,10 @@ export function isRunPublicationSchedule(value: unknown): value is RunPublicatio
     isNullableString(value.clock_instant) &&
     isNullableString(value.world_reached_instant) &&
     typeof value.world_complete === "boolean" &&
+    isNullableString(value.admitted_through) &&
+    isNullableString(value.ordinary_stopped_at) &&
+    (value.ordinary_publication === null ||
+      (ORDINARY_PUBLICATION_STATES as readonly unknown[]).includes(value.ordinary_publication)) &&
     isNonNegativeInteger(value.pending_count) &&
     isNonNegativeInteger(value.released_count) &&
     Array.isArray(reports) &&

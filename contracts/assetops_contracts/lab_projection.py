@@ -113,6 +113,7 @@ LAB_CONTROL_REFUSALS = frozenset(
         "PUBLICATION_SCHEDULE_UNREADABLE",
         "PUBLICATION_SCHEDULE_MISSING",
         "PUBLICATION_INSTANT_INVALID",
+        "PUBLICATION_GAP",
     }
 )
 
@@ -147,6 +148,14 @@ LAB_CONTROL_REFUSAL_STATEMENTS: dict[str, str] = {
         "publications, so nothing was released. A report is never rebuilt or "
         "guessed from the scenario: only a stored schedule's exact report text "
         "is ever released."
+    ),
+    "PUBLICATION_GAP": (
+        "This run's ordinary publication stopped before the boundary its world "
+        "reached, and the stored schedule cannot regenerate those readings. "
+        "Releasing a delayed report now would publish past the gap for good, "
+        "so nothing was moved, admitted or sealed. Where ordinary publication "
+        "is admitted through and where the world reached are on the refusal; "
+        "recovery is a new run."
     ),
     "PUBLICATION_INSTANT_INVALID": (
         "A publication instant is a UTC instant written YYYY-MM-DDTHH:MM:SSZ. "
