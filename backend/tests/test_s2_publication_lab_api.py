@@ -32,6 +32,7 @@ from assetops_backend.runs.adapters.yaml_run_store import YamlRunStore
 from assetops_backend.runs.profiles import (
     DAYTIME_MINI_GRID_MODEL,
     LAB_PUBLICATION_PROFILE,
+    LAB_PUBLICATION_PROFILE_V5,
     REGISTERED_KOBO_PUBLICATION_PROFILE,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V2,
 )
@@ -82,7 +83,7 @@ def setup(document: dict[str, Any] = POST_RUN_DOCUMENT, profile=V2):
         FakeSites(()),
         FakeScenarios((SCENARIO, parsed)),
         model_profiles=(DAYTIME_MINI_GRID_MODEL,),
-        publication_profiles=(LAB_PUBLICATION_PROFILE, V1, V2),
+        publication_profiles=(LAB_PUBLICATION_PROFILE, LAB_PUBLICATION_PROFILE_V5, V1, V2),
         now=lambda: text(NOW),
         registered_bases=RegisteredLabBasis(registry),
     )
@@ -118,6 +119,13 @@ class TestPostRunReleaseWindow:
 
     def test_a_gateway_utc_profile_keeps_the_refusal(self) -> None:
         assert refused_kind(profile=V1).kind == "INTERVAL_INVALID"
+
+    def test_a_gateway_utc_profile_declaring_the_delay_keeps_the_refusal(self) -> None:
+        """`simulator-lab-publication` v5 declares the same delay state on the
+        gateway's own clock: the exception is the virtual clock's alone."""
+        assert LAB_PUBLICATION_PROFILE_V5.publication_clock == "GATEWAY_UTC"
+        assert LAB_PUBLICATION_PROFILE_V5.supported_reporting("battery-soc-publication-delay") is not None
+        assert refused_kind(profile=LAB_PUBLICATION_PROFILE_V5).kind == "INTERVAL_INVALID"
 
     def test_two_timesteps_past_the_end_is_refused(self) -> None:
         def longer(entries):
