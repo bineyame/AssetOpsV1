@@ -209,6 +209,8 @@ def build_evidence_router(
                 content={"detail": {"code": refusal.code, "message": refusal.message}},
                 headers=headers,
             )
+        except LedgerUnavailable as error:
+            return ledger_unavailable(str(error))
 
     def ledger_unavailable(message: str) -> JSONResponse:
         return JSONResponse(

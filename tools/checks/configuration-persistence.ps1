@@ -100,7 +100,12 @@ function Invoke-ConfigurationPersistenceCheck {
             Name        = "evidence"
             Package     = "$backendRoot/evidence"
             Composition = "$backendRoot/evidence/composition.py"
-            Writer      = "$backendRoot/evidence/adapters/json_evidence_store.py"
+            # S2-02 phase 2: the gateway upload secret file is the second
+            # evidence-domain file writer (written once at issue, owner-only).
+            Writer      = @(
+                "$backendRoot/evidence/adapters/json_evidence_store.py",
+                "$backendRoot/evidence/adapters/gateway_credential_file.py"
+            )
             UserRootVar = "EVIDENCE_STORE_ROOT"
             UserRootOwner = "$backendRoot/evidence/adapters/json_evidence_store.py"
         },
@@ -574,16 +579,29 @@ function Invoke-ConfigurationPersistenceCheck {
     #    adapter. Each writer is confined to its own tables: the ledger writes
     #    only the ledger tables (migration 0005), and the Foundation store
     #    writes none of them. Every other module stays SQL- and driver-free.
+    #
+    #    S2-02 phase 2 adds a third, the gateway access store (migration 0006).
+    #    It inserts only credential, provisioning-audit and diagnostic rows, and
+    #    its only updates are the operator-mutable registration fields listed in
+    #    $accessUpdates (credential rotation/revocation and enablement). No other
+    #    writer touches its tables.
     $pgWriter = "$backendRoot/sites/adapters/postgres_foundation_store.py"
     $ledgerWriter = "$backendRoot/evidence/adapters/postgres_evidence_ledger.py"
+    $accessWriter = "$backendRoot/evidence/adapters/postgres_gateway_access.py"
     $ledgerTables = @('ingestion_batch', 'accepted_evidence', 'evidence_rejection',
         'ingestion_disposition', 'batch_refusal', 'recompute_job')
-    $pgWriters = @($pgWriter, $ledgerWriter)
+    $accessInserts = @('gateway_credential', 'gateway_access_event', 'gateway_diagnostic',
+        'gateway_diagnostic_refusal')
+    $accessUpdates = @(
+        '(?i)\bUPDATE\s+gateway_credential\s+SET\s+revoked_at\s*=\s*:[a-z_]+\s+WHERE\b',
+        '(?i)\bUPDATE\s+gateway\s+SET\s+(?:credential_ref|disabled_at|diagnostic_cadence_seconds)\s*=\s*:[a-z_]+\s+WHERE\b',
+        '(?i)\bUPDATE\s+source\s+SET\s+disabled_at\s*=\s*:[a-z_]+\s+WHERE\b')
+    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
-    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0 }
-    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false }
+    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0 }
+    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
@@ -600,6 +618,21 @@ function Invoke-ConfigurationPersistenceCheck {
                 $target = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
                 if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or $ledgerTables -notcontains $target)) {
                     $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $accessWriter) {
+                    $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
+                    $insertOk = $isInsert -and $accessInserts -contains $Matches[1].ToLowerInvariant()
+                    $updateOk = $false
+                    foreach ($allowed in $accessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+                    if (-not ($insertOk -or $updateOk)) {
+                        $failures.Add(("The gateway access store inserts only $($accessInserts -join ', ') and " +
+                            "updates only credential revocation and gateway/source enablement fields; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($module.Path -ne $accessWriter -and $null -ne $target -and $accessInserts -contains $target) {
+                    $failures.Add(("Only $accessWriter writes gateway access table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($module.Path -eq $pgWriter -and $null -ne $target -and $ledgerTables -contains $target) {

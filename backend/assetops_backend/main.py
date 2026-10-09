@@ -25,6 +25,8 @@ in both gate states beside them. No configuration editing is served.
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from typing import Callable, Sequence
 
 from fastapi import APIRouter, FastAPI
@@ -39,7 +41,21 @@ from assetops_backend.config import (
     database_url,
     load_feature_flags,
 )
-from assetops_backend.evidence.composition import build_evidence_ledger, build_evidence_store
+from assetops_backend.evidence.composition import (
+    build_evidence_ledger,
+    build_evidence_store,
+    build_gateway_access,
+)
+from assetops_backend.evidence.gateway_access import (
+    DiagnosticIngestionService,
+    GatewayAccessStore,
+    StoreGatewayPrincipals,
+)
+from assetops_backend.gateway_api import (
+    build_gateway_router,
+    install_gateway_tls_boundary,
+    registered_site_scope,
+)
 from assetops_backend.evidence.ledger import EvidenceLedger, GatewayPrincipalResolver
 from assetops_backend.evidence.ledger_service import BatchIngestionService
 from assetops_backend.evidence.ports import EvidenceStore
@@ -108,6 +124,8 @@ def create_app(
     legacy_documents: Callable[[], Sequence[LegacyDocument]] | None = None,
     evidence_ledger: EvidenceLedger | None = None,
     gateway_principals: GatewayPrincipalResolver | None = None,
+    gateway_access: GatewayAccessStore | None = None,
+    gateway_clock: Callable[[], datetime] | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -226,6 +244,13 @@ def create_app(
         build_evidence_ledger(database_url()) if evidence_ledger is None else evidence_ledger
     )
     app.state.batch_ingestion = batch_ingestion
+    # S2-02 phase 2: the registered-gateway bearer credential verifier. With no
+    # product database the network route stays closed (401 GATEWAY_UPLOAD_CLOSED).
+    if gateway_access is None and database_url():
+        gateway_access = build_gateway_access(database_url())
+    if gateway_principals is None and gateway_access is not None:
+        gateway_principals = StoreGatewayPrincipals(gateway_access)
+    install_gateway_tls_boundary(app)
     app.include_router(
         build_evidence_router(
             ingestion,
@@ -233,6 +258,15 @@ def create_app(
             assessments.card_assessments,
             batch_ingestion=batch_ingestion,
             gateway_principals=gateway_principals,
+        )
+    )
+    app.include_router(
+        build_gateway_router(
+            gateway_principals,
+            None if gateway_access is None else DiagnosticIngestionService(gateway_access, gateway_clock or utc_now),
+            gateway_access,
+            registered_site_scope(registry),
+            gateway_clock or utc_now,
         )
     )
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
