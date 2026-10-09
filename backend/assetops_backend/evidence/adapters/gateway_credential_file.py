@@ -4,18 +4,22 @@ The only place the raw bearer secret is written: once, into the file the gateway
 reads as protected configuration (`D-2026-10-09-s2-pilot-gateway-upload-credential`).
 Never a database row.
 
-Issuance order (`D-2026-10-09-s2-ingestion-operational-semantics`, Q8):
+Issuance order (`D-2026-10-09-s2-ingestion-operational-semantics`, Q8; Q16
+Architect ruling, batch answers 3):
 
-1. `prepare` creates a NEW versioned file beside the configured path (never the
-   configured path itself, so the old usable secret is not overwritten as a
-   preparation step), restricts it to the current user, verifies the EFFECTIVE
-   protection (POSIX mode/owner, or the Windows DACL), and only then writes the
-   secret into it.
-2. The caller commits the verifier, revocation and enablement in one transaction.
-3. `activate` atomically renames the prepared file onto the configured path (an
-   NTFS rename keeps the file's protected DACL) and re-verifies it.
+1. `prepare` creates a NEW unique versioned file `<configured>.<selector>`
+   (never the configured path itself, so the old usable secret is never
+   overwritten), restricts it to the current user, verifies the EFFECTIVE
+   protection (POSIX mode/owner, or the Windows DACL), writes the secret,
+   fsyncs the file (and, on POSIX, its folder), reads it back and re-verifies
+   the protection. That versioned file IS the final issued credential path.
+2. Only then does the caller commit the verifier, revocation and enablement in
+   one transaction, and returns the versioned path for an explicit gateway
+   configuration switch. There is no post-commit rename or overwrite, so no file
+   step can fail after the old verifier is revoked.
 
-A failure in step 1 or 2 calls `discard`; the configured file is untouched.
+A failure in step 1 or 2 calls `discard` on the new, unissued file only; the
+configured (old) file is never touched.
 """
 
 from __future__ import annotations
@@ -51,8 +55,10 @@ def prepare(configured: str, selector: str, token: str) -> Path:
             handle.write(token + "\n")
             handle.flush()
             os.fsync(handle.fileno())
+        _fsync_folder(path.parent)
         if path.read_text(encoding="ascii").strip() != token:
             raise CredentialFileRefused(f"{path} did not read back the written credential")
+        verify_owner_only(path)  # still owner-only once durable, immediately before any commit
     except CredentialFileRefused:
         discard(path)
         raise
@@ -62,15 +68,16 @@ def prepare(configured: str, selector: str, token: str) -> Path:
     return path
 
 
-def activate(prepared: Path, configured: str) -> Path:
-    """Atomically move the prepared (protected) file onto the configured path."""
-    target = Path(configured)
+def _fsync_folder(folder: Path) -> None:
+    """Make the new directory entry durable (POSIX). Windows has no folder fsync;
+    the file's own flush is what NTFS offers."""
+    if sys.platform == "win32":
+        return
+    descriptor = os.open(folder, os.O_RDONLY)
     try:
-        os.replace(prepared, target)
-    except OSError as error:
-        raise CredentialFileRefused(f"could not move {prepared} to {target}: {type(error).__name__}") from None
-    verify_owner_only(target)
-    return target
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
 
 
 def discard(path: Path) -> None:

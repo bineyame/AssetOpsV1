@@ -37,9 +37,9 @@ def build_comparison_reports() -> ComparisonReportFiles:
     return ComparisonReportFiles()
 
 
-# The protected gateway credential file: prepare (new versioned protected path,
-# verified owner-only) -> caller commits -> activate (atomic rename) or discard.
+# The protected gateway credential file: prepare (new unique versioned protected
+# path, durable and verified owner-only; it is the final issued path) -> caller
+# commits, or discards the unissued file. No post-commit rename (Q16).
 CredentialFileRefused = gateway_credential_file.CredentialFileRefused
 prepare_gateway_credential_file = gateway_credential_file.prepare
-activate_gateway_credential_file = gateway_credential_file.activate
 discard_gateway_credential_file = gateway_credential_file.discard

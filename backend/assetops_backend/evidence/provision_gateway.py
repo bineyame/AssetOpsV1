@@ -10,14 +10,18 @@ Run with `DATABASE_URL` set and the database migrated to 0006.
 selector and one-way verifier, revokes every earlier credential of the gateway
 (rotation: the old one stops working on the next request; sealed bytes are not
 touched), enables the gateway and exactly the sources named with
-`--enable-source`, and writes the secret once to `--credential-out`, an
-owner-only file the gateway reads as protected configuration. Order (Q8): the
-secret is first written to a new versioned path `<credential-out>.<selector>`,
-restricted to the current user and verified (Windows DACL or POSIX mode); only
-then are the verifier, revocation and enablement committed in one transaction;
-finally the file is renamed onto `--credential-out`. A file/ACL or database
-failure before that commit leaves the earlier credential usable and no identity
-more enabled. The secret is
+`--enable-source`, and writes the secret once to a NEW unique versioned file
+`<credential-out>.<selector>`, an owner-only file the gateway reads as
+protected configuration. Order (Q8, Q16): the secret is written to that path,
+restricted to the current user, made durable and verified (Windows DACL or POSIX
+mode); only then are the verifier, revocation and enablement committed in one
+transaction. That versioned file is the final credential path: nothing is
+renamed or overwritten afterwards, and the file at `--credential-out` (or any
+earlier versioned file) is left untouched. The output names the new path; the
+operator switches the gateway's `upload_credential_file` to it before the next
+upload (the earlier credential is revoked at once). A file/ACL or database
+failure before that commit removes only the new unissued file, leaving the
+earlier credential usable and no identity more enabled. The secret is
 never printed or logged; output names the selector only. Import leaves the
 gateway and every source disabled; no upload ever enables one (questions-1 Q2).
 
@@ -37,7 +41,6 @@ from typing import Sequence
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
 from assetops_backend.evidence.composition import (
     CredentialFileRefused,
-    activate_gateway_credential_file,
     build_gateway_access,
     discard_gateway_credential_file,
     prepare_gateway_credential_file,
@@ -72,9 +75,10 @@ def main(argv: Sequence[str] | None = None, *, store=None, now=None) -> int:
                 print("issue needs --credential-out (the gateway's protected credential file).", file=sys.stderr)
                 return 2
             issued = new_credential()
-            # Q8 order: the secret goes to a NEW versioned path, restricted and
-            # verified owner-only (Windows DACL or POSIX mode) BEFORE anything is
-            # committed; the configured file (the old usable secret) is not touched.
+            # Q8/Q16 order: the secret goes to a NEW unique versioned path, restricted,
+            # durable and verified owner-only (Windows DACL or POSIX mode) BEFORE
+            # anything is committed. That path is the final issued credential; the
+            # configured file (the old usable secret) is never touched.
             try:
                 prepared = prepare_gateway_credential_file(args.credential_out, issued.selector, issued.token)
             except CredentialFileRefused as error:
@@ -88,18 +92,14 @@ def main(argv: Sequence[str] | None = None, *, store=None, now=None) -> int:
                                                   enable_sources=args.enable_source,
                                                   cadence_seconds=args.cadence_seconds)
             except BaseException:
-                discard_gateway_credential_file(prepared)
+                discard_gateway_credential_file(prepared)  # only the new, unissued file
                 raise
-            try:
-                active = activate_gateway_credential_file(prepared, args.credential_out)
-            except CredentialFileRefused as error:
-                print(f"Issued {redact(issued.token)} and revoked {len(revoked)} earlier credential(s), but the "
-                      f"configured file could not be replaced ({error}). The new credential is in {prepared}; "
-                      f"point the gateway's upload_credential_file at it.", file=sys.stderr)
-                return 3
             print(f"Issued {redact(issued.token)} for gateway {args.gateway!r}; revoked {len(revoked)} earlier "
                   f"credential(s); enabled the gateway and {len(args.enable_source)} named source(s). "
-                  f"The secret was written only to {active}, verified readable by the current user only.")
+                  f"The secret was written only to {prepared}, verified readable by the current user only. "
+                  "Set the gateway's upload_credential_file to that path before its next upload; the earlier "
+                  "credential file was left untouched and its credential no longer authenticates.")
+            print(f"Credential file: {prepared}")
         elif args.step == "revoke":
             if not args.selector:
                 print("revoke needs --selector.", file=sys.stderr)

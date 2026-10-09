@@ -813,5 +813,32 @@ function Invoke-ConfigurationPersistenceCheck {
         }
     }
 
+    # S2-02 Q16: the verified unique versioned credential file is the final
+    # issued path. Issuance prepares it before the one commit, and neither the
+    # CLI nor the file adapter renames or replaces a credential file afterwards
+    # (a post-commit file failure would strand a revoked old verifier).
+    $issuePath = "$backendRoot/evidence/provision_gateway.py"
+    $credentialFilePath = "$backendRoot/evidence/adapters/gateway_credential_file.py"
+    $issue = $backendModules | Where-Object { $_.Path -eq $issuePath } | Select-Object -First 1
+    $credentialFile = $backendModules | Where-Object { $_.Path -eq $credentialFilePath } | Select-Object -First 1
+    if ($null -eq $issue -or $null -eq $credentialFile) {
+        $failures.Add("The credential issuance check could not find $issuePath or $credentialFilePath; update the check.") | Out-Null
+    } else {
+        $issueText = $issue.Lines -join "`n"
+        if ($issueText -notmatch '(?s)prepare_gateway_credential_file\(.*?access\.issue_credential\(') {
+            $failures.Add("$issuePath no longer prepares the protected versioned file before committing the verifier (Q16).") | Out-Null
+        }
+        foreach ($module in @($issue, $credentialFile)) {
+            $lineNumber = 0
+            foreach ($line in $module.Lines) {
+                $lineNumber++
+                if ($line -match '(?:\bos\.(?:replace|rename)\(|\.rename\(|\.replace\([^)]*Path|\bshutil\.move\(|\bactivate[a-z_]*\()') {
+                    $failures.Add(("$($module.Path) renames or replaces a credential file at line ${lineNumber}: " +
+                        "$($line.Trim()). The issued versioned file is final; the gateway switches path explicitly (Q16).")) | Out-Null
+                }
+            }
+        }
+    }
+
     return $failures
 }

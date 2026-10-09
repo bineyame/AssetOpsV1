@@ -76,9 +76,13 @@ class Rig:
                          store=self.access, now=self.clock())
 
     def issue(self, *sources: str, out: str = "cred") -> str:
+        """Issue and return the token from the NEW versioned file the CLI names (Q16)."""
         flags = [x for s in sources for x in ("--enable-source", s)]
+        before = set(self.tmp.glob(f"{out}.*"))
         assert self.provision("issue", "--credential-out", str(self.tmp / out), *flags) == 0
-        return (self.tmp / out).read_text(encoding="ascii").strip()
+        [issued] = set(self.tmp.glob(f"{out}.*")) - before
+        self.issued_path = issued
+        return issued.read_text(encoding="ascii").strip()
 
     def client(self, *, https: bool = True) -> TestClient:
         app = FastAPI()
@@ -138,7 +142,7 @@ class TestProvisioning:
         assert rig.provision("enable-source", "--source", "no-such-source") == 2
         assert provision(["issue", "--tenant", "demo", "--site", rig.site_code, "--gateway", "nope",
                           "--credential-out", str(tmp_path / "x")], store=rig.access) == 2
-        assert not (tmp_path / "x").exists()
+        assert list(tmp_path.glob("x*")) == []
 
 
     def _state(self, rig) -> dict:
@@ -150,41 +154,68 @@ class TestProvisioning:
         return rig.client().post("/api/ingestion/batches", content=rig.kit.seal(rig.kit.pv(2)),
                                  headers=bearer(token)).status_code
 
-    @pytest.mark.parametrize("failure", ["unprotected", "unwritable", "unregistered-source"])
+    @pytest.mark.parametrize("failure", [
+        "unwritable", "unprotected", "write-not-durable", "unregistered-source", "database-unavailable",
+    ])
     def test_a_failed_issue_leaves_the_old_credential_usable_and_identities_unchanged(
             self, rig, monkeypatch, failure) -> None:
+        """Q16: a failure at each file or database boundary before the commit removes
+        only the new unissued file; the old file, verifier and enablement stay."""
+        from assetops_backend.evidence.adapters import gateway_credential_file
+        from assetops_backend.evidence.ledger import LedgerUnavailable
+
         old = rig.issue(rig.sources[rig.pv_source])
+        old_path = rig.issued_path
+        old_bytes = old_path.read_bytes()
         before = self._state(rig)
         other = next(x for s, x in rig.sources.items() if s != rig.pv_source)
-        out = rig.tmp / "cred"
-        if failure == "unprotected":  # the effective ACL/mode check refuses before any commit
-            from assetops_backend.evidence.adapters import gateway_credential_file
-            monkeypatch.setattr(gateway_credential_file, "_protect", lambda path: os.chmod(path, 0o644))
-            flags = ["--credential-out", str(out), "--enable-source", other]
-        elif failure == "unwritable":  # the versioned file cannot be created
+        flags = ["--credential-out", str(rig.tmp / "cred"), "--enable-source", other]
+        expected_exit = 2
+        if failure == "unwritable":  # file boundary 1: the versioned file cannot be created
             (rig.tmp / "blocker").write_text("not a directory")
             flags = ["--credential-out", str(rig.tmp / "blocker" / "cred"), "--enable-source", other]
-        else:  # the one transaction is refused after the file was prepared
-            flags = ["--credential-out", str(out), "--enable-source", other, "--enable-source", "no-such-source"]
-        assert rig.provision("issue", *flags) == 2
+        elif failure == "unprotected":  # file boundary 2: the effective ACL/mode check refuses
+            monkeypatch.setattr(gateway_credential_file, "_protect", lambda path: os.chmod(path, 0o644))
+        elif failure == "write-not-durable":  # file boundary 3: the secret cannot be made durable
+            def no_fsync(descriptor):
+                raise OSError("disk full")
+            monkeypatch.setattr(gateway_credential_file.os, "fsync", no_fsync)
+        elif failure == "unregistered-source":  # DB boundary: the one transaction is refused
+            flags += ["--enable-source", "no-such-source"]
+        else:  # DB boundary: the database is unreachable at commit
+            def unavailable(*args, **kwargs):
+                raise LedgerUnavailable("connection lost")
+            monkeypatch.setattr(rig.access, "issue_credential", unavailable)
+            expected_exit = 1
+        assert rig.provision("issue", *flags) == expected_exit
         assert self._state(rig) == before  # no verifier, no revocation, no enablement, no audit event
-        assert out.read_text(encoding="ascii").strip() == old  # the old file was never overwritten
-        assert sorted(p.name for p in rig.tmp.iterdir() if p.name.startswith("cred")) == ["cred"]
+        assert old_path.read_bytes() == old_bytes  # the old file was never touched
+        assert sorted(p.name for p in rig.tmp.iterdir() if p.name.startswith("cred")) == [old_path.name]
         assert self._uploads(rig, old) == 200
 
-    def test_successful_rotation_replaces_the_configured_file_protected_without_resealing(self, rig) -> None:
+    def test_successful_rotation_writes_a_new_protected_path_and_revokes_the_old_at_once(self, rig) -> None:
         from assetops_backend.evidence.adapters.gateway_credential_file import verify_owner_only
         old = rig.issue(rig.sources[rig.pv_source])
+        old_path = rig.issued_path
+        old_bytes = old_path.read_bytes()
         body = rig.kit.seal(rig.kit.pv(2))
         first = rig.client().post("/api/ingestion/batches", content=body, headers=bearer(old))
-        new = rig.issue(rig.sources[rig.pv_source])  # same configured path the gateway reads
-        assert new != old
-        verify_owner_only(rig.tmp / "cred")
-        assert sorted(p.name for p in rig.tmp.iterdir() if p.name.startswith("cred")) == ["cred"]
+        new = rig.issue(rig.sources[rig.pv_source])
+        new_path = rig.issued_path
+        assert new != old and new_path != old_path and new_path.name == f"cred.{new.split('.')[1]}"
+        verify_owner_only(new_path)
+        assert old_path.read_bytes() == old_bytes  # untouched; the operator switches the gateway path
+        assert not (rig.tmp / "cred").exists()  # nothing was renamed onto the configured path
         client = rig.client()
         assert client.post("/api/ingestion/batches", content=body, headers=bearer(old)).status_code == 401
         again = client.post("/api/ingestion/batches", content=body, headers=bearer(new))
         assert again.status_code == 200 and again.text == first.text
+
+    def test_issue_names_the_new_credential_path_for_the_gateway_switch(self, rig, capsys) -> None:
+        rig.issue(rig.sources[rig.pv_source])
+        out = capsys.readouterr().out
+        assert f"Credential file: {rig.issued_path}" in out
+        assert rig.issued_path.read_text(encoding="ascii").strip().split(".")[2] not in out
 
     @pytest.mark.skipif(sys.platform != "win32", reason="Windows DACL check")
     def test_a_protected_dacl_that_grants_another_account_is_refused(self, tmp_path) -> None:
