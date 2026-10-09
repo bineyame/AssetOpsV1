@@ -43,6 +43,12 @@ S2-02 demo setup must publish a new-effective, provenance-labelled Foundation re
 - S2-02 must take ordinary-publication completeness from the schedule state, not from Stage STAGED (STAGED speaks only of admitted reports).
 - C3: the full `tools/layout-evidence.mjs` run on an isolated store reached 222 PASS / 6 FAIL then the renderer stopped responding; the failures need scenario fixtures (optional inputs, declared reporting gap) the isolated store lacked. Re-run on a fully fixtured store; the full layout gate is unverified.
 
+### S2-02 phase-2 bounded carries (2026-10-09, `.agent/S2-02-phase-2-handoff.md`) — S2 checkpoint / first real-pilot gate
+
+- A sealed Batch V2 shared between two Lab runs is not released by either run's single-run Commit and blocks `fully_released`; this fails closed and the single-run Kobo owner path is unaffected. Phase 3 must display `shared_batch_ids` and partial status. Before any multi-run complete-release claim, define explicit joint batch authority or deterministic run-isolated sealing and test it; do not silently assign the batch to one run.
+- The checked-in TLS private key under `gateway/tests/fixtures/` is a test-only fixture. Phase 3 owner instructions must generate separate local TLS material and never point a demo or deployed gateway at the test key; replace the static fixture with ephemeral test issuance before a real pilot if the test environment can support it.
+- The demo-only provisioning CLI records the local OS user as actor context, not a verified tenant operator. Label it that way in audit/readback and require authenticated operator identity and authorization before multi-tenant or real-pilot provisioning. The CLI remains limited to the configured development tenant in S2-02.
+
 ### S2-01b fix re-review carries (2026-10-09, `.agent/S2-01b-fix-rereview.md`, fresh Claude reviewer)
 
 - R1 (low): the `seal_refusal` row is keyed, deleted and looked up without outbox state (`gateway/assetops_gateway/service.py` ~661-680, ~910-920; `ledger.py` ~154); a refused READY group can have its refusal erased when the same source/epoch/snapshot STAGED group seals, so Stage says pending instead of refused. Fails safe; unreachable from valid input. Add state to the key, delete and lookup when S2-01c touches sealing/faults.
