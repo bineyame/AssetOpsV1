@@ -34,6 +34,11 @@ S2-02 demo setup must publish a new-effective, provenance-labelled Foundation re
 - F2: `frontend/src/shell/RunCommitPanel.tsx` `releaseBasisBlock(null)` returns null, so a committed pre-import artifact briefly shows enabled Resume/Retry release before Stage loads (and keeps it if Stage fails). Server refuses; presentation gap. Keep release controls unavailable while the basis is unknown; next Lab UI correction.
 - F3: 640 px page overflow (scrollWidth 780 vs 625, from `.app-frame`, also on a READY draft without the ledger; not baselined against S2-01a) and the full layout run stopping at 215 PASS on polluted `var/runs` state remain unverified. Run against a clean runs store and baseline the overflow at the next layout closeout.
 
+### S2-01b fix re-review carries (2026-10-09, `.agent/S2-01b-fix-rereview.md`, fresh Claude reviewer)
+
+- R1 (low): the `seal_refusal` row is keyed, deleted and looked up without outbox state (`gateway/assetops_gateway/service.py` ~661-680, ~910-920; `ledger.py` ~154); a refused READY group can have its refusal erased when the same source/epoch/snapshot STAGED group seals, so Stage says pending instead of refused. Fails safe; unreachable from valid input. Add state to the key, delete and lookup when S2-01c touches sealing/faults.
+- Layout: add a narrow-width check of the new "Sealing refused" table to the F3 layout carry.
+
 ### S2-01a Codex review carries (2026-10-08, `.agent/S2-01a-codex-review.md`)
 
 - F1: `frontend/src/shell/RunCommitPanel.tsx` applies the registered/imported Commit block only to `NOT_COMMITTED`; a pre-import YAML run committed before its Site was imported, with an unfinished release, still offers Resume/Retry release, which the server always refuses (409). No write escapes. Apply the basis block to the committed branch and test that historical case; fold into the next Lab-touching slice (S2-01b).
