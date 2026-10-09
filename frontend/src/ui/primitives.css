@@ -2546,3 +2546,16 @@ input:focus-visible,
 [data-gateway-batch-summary] {
   overflow-wrap: anywhere;
 }
+
+/* S2-02: an exact received message on Site Evidence wraps rather than widening the page. */
+.evidence-message-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  margin: 0.5rem 0;
+}
+
+.evidence-window label {
+  display: inline-block;
+  margin: 0.25rem 0;
+}

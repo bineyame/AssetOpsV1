@@ -23,9 +23,27 @@ import {
  * here: a reading's own source time, the run's virtual publication clock (the
  * scheduled release and the instant the Lab released it), the gateway's own
  * `published_at` stamp on that virtual clock, and the gateway's real UTC clock
- * for its diagnostics. Nothing here is an upload, a central receipt or Site
+ * for its diagnostics. S2-02 adds each stored diagnostic's upload state; nothing here is Site
  * evidence, and a diagnostic is not device or asset health.
  */
+
+/**
+ * S2-02: where a stored diagnostic's upload stands. A failed attempt goes back
+ * to READY and is retried; this local read does not carry the failure reason,
+ * so a retried diagnostic is never shown as refused or as received.
+ */
+export function diagnosticUploadText(row: { state: string; last_attempt_at: string | null }): string {
+  if (row.state === "ACKED") {
+    return "The central server has a verified receipt for it.";
+  }
+  if (row.state === "IN_FLIGHT") {
+    return "It is being uploaded now; no central receipt yet.";
+  }
+  if (row.last_attempt_at !== null) {
+    return `An upload attempt at ${row.last_attempt_at} did not produce a receipt; it waits to be retried. The reason is not shown in this local read.`;
+  }
+  return "It waits for upload; no central receipt exists yet.";
+}
 
 /** Plain words for each clock label the backend sends. */
 export const CLOCK_LABEL_TEXT: Record<string, string> = {
@@ -61,7 +79,7 @@ export const PUBLICATION_REFUSAL_TEXT: Record<PublicationRefusalKind, string> = 
 };
 
 /** Plain words for where ordinary publication stands against the world. */
-const ORDINARY_PUBLICATION_TEXT: Record<OrdinaryPublicationState, string> = {
+export const ORDINARY_PUBLICATION_TEXT: Record<OrdinaryPublicationState, string> = {
   NOT_STARTED: "No world boundary reached yet.",
   CONTIGUOUS: "Published without a gap up to where the world has reached.",
   COMPLETE: "Published without a gap through the world's last boundary.",
@@ -593,7 +611,7 @@ function DiagnosticsBody({
         <p data-diagnostics-last-emitted="NONE">No diagnostic report has been stored yet.</p>
       ) : (
         <p data-diagnostics-last-emitted={lastEmitted.diagnostic_sequence}>
-          {`Last stored diagnostic: sequence ${lastEmitted.diagnostic_sequence} in epoch ${lastEmitted.sequence_epoch}, observed ${lastEmitted.observed_at} (${clock}), ${lastEmitted.state}, SHA-256 ${lastEmitted.sha256}. It waits for upload; no central receipt exists.`}
+          {`Last stored diagnostic: sequence ${lastEmitted.diagnostic_sequence} in epoch ${lastEmitted.sequence_epoch}, observed ${lastEmitted.observed_at} (${clock}), ${lastEmitted.state}, SHA-256 ${lastEmitted.sha256}. ${diagnosticUploadText(lastEmitted)}`}
         </p>
       )}
     </div>

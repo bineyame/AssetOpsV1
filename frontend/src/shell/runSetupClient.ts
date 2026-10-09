@@ -1049,7 +1049,8 @@ export interface GatewayDiagnosticsCurrent {
   acquisition: string;
   diagnostic_count: number;
   pending_diagnostic_count: number;
-  upload: "PENDING";
+  /** S2-02: `ACKED` only once every stored diagnostic has a verified central receipt. */
+  upload: "PENDING" | "ACKED";
   config_sha256: string | null;
   config: Record<string, unknown>;
 }
@@ -1141,10 +1142,92 @@ export interface OpenInAssetOps {
  * `release_error` is set only on a Commit answer whose release was interrupted.
  */
 export interface RunCommit {
-  commit: "NOT_COMMITTED" | CommitSummary;
+  /** `RELEASED_TO_GATEWAY` only for a registered run (S2-02): its gateway holds the batches. */
+  commit: "NOT_COMMITTED" | "RELEASED_TO_GATEWAY" | CommitSummary;
   release: ReleaseBatch | null;
   open_in_assetops: OpenInAssetOps | null;
   release_error: string | null;
+  /** S2-02 phase 3: a registered run's delivery, read from the gateway ledger and the Lab schedule. */
+  registered_release?: RegisteredRelease;
+  fully_released?: boolean;
+  statement?: string;
+}
+
+/** One sealed Batch V2 of a registered run, as the gateway ledger holds it. */
+export interface RegisteredBatch {
+  batch_id: string;
+  source_id: string;
+  state: "STAGED" | "READY" | "IN_FLIGHT" | "ACKED" | "REFUSED" | string;
+  released: boolean;
+  shared_with_another_run: boolean;
+  item_count: number;
+  receipt: { receipt_sha256: string; server_received_at: string; server_completed_at: string | null } | null;
+  decisions: Record<string, number>;
+  last_error_code: string | null;
+}
+
+export interface RegisteredDelivery {
+  stage_status: string;
+  envelope_count: number;
+  unbatched_envelope_count: number;
+  held_report_count: number;
+  batch_count: number;
+  released_batch_count: number;
+  batches_by_state: Record<string, number>;
+  shared_batch_ids: string[];
+  batches: RegisteredBatch[];
+  decisions: Record<string, number>;
+  refusals: { batch_id: string; http_status: number | null; code: string | null; detail: string | null; refused_at: string }[];
+  last_upload_error: { batch_id: string; code: string; at: string } | null;
+  release_state: string;
+  gateway_complete: boolean;
+}
+
+/** Where ordinary publication stands (null for a gateway-clock run or an unreadable schedule). */
+export interface RegisteredPublicationSchedule {
+  ordinary_publication: OrdinaryPublicationState | string;
+  clock_instant: string | null;
+  admitted_through: string | null;
+  world_reached_instant: string | null;
+  world_complete: boolean;
+  ordinary_stopped_at: string | null;
+  delayed_report_count: number;
+  delayed_pending_count: number;
+}
+
+export interface RegisteredRelease {
+  status: "AVAILABLE" | "GATEWAY_UNAVAILABLE" | string;
+  detail: string | null;
+  execution_status: string;
+  delivery: RegisteredDelivery | null;
+  released_now: number | null;
+  publication_gap: string | null;
+  publication_gap_detail: string | null;
+  publication_schedule: RegisteredPublicationSchedule | null;
+  fully_released: boolean;
+  release_blockers: string[];
+}
+
+function isRegisteredRelease(value: unknown): value is RegisteredRelease {
+  if (!isRecord(value)) {
+    return false;
+  }
+  const delivery = value.delivery;
+  return (
+    typeof value.status === "string" &&
+    typeof value.fully_released === "boolean" &&
+    Array.isArray(value.release_blockers) &&
+    (delivery === null ||
+      (isRecord(delivery) &&
+        typeof delivery.stage_status === "string" &&
+        typeof delivery.batch_count === "number" &&
+        typeof delivery.released_batch_count === "number" &&
+        Array.isArray(delivery.shared_batch_ids) &&
+        Array.isArray(delivery.batches))) &&
+    (value.publication_schedule === null ||
+      value.publication_schedule === undefined ||
+      (isRecord(value.publication_schedule) && typeof value.publication_schedule.ordinary_publication === "string"))
+  );
 }
 
 export type RunCommitResult =
@@ -2033,7 +2116,7 @@ function isDiagnosticsCurrent(value: unknown): value is GatewayDiagnosticsCurren
     typeof value.acquisition === "string" &&
     isNonNegativeInteger(value.diagnostic_count) &&
     isNonNegativeInteger(value.pending_diagnostic_count) &&
-    value.upload === "PENDING" &&
+    (value.upload === "PENDING" || value.upload === "ACKED") &&
     isNullableString(value.config_sha256) &&
     isRecord(value.config) &&
     !("text" in value.config)
@@ -2543,7 +2626,9 @@ function isRunCommit(value: unknown): value is RunCommit {
   const commit = value.commit;
   const release = value.release;
   return (
+    (value.registered_release === undefined || isRegisteredRelease(value.registered_release)) &&
     (commit === "NOT_COMMITTED" ||
+      (commit === "RELEASED_TO_GATEWAY" && value.registered_release !== undefined) ||
       (isRecord(commit) &&
         typeof commit.artifact_id === "string" &&
         typeof commit.envelope_count === "number")) &&
