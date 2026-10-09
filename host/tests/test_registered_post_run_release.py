@@ -340,6 +340,12 @@ def test_a_boundary_the_gateway_clock_has_passed_is_refused_not_stamped_late(dra
         refusal = delay.refused("PUBLICATION_GAP", lambda: restarted.advance_publication(draft, "2026-09-30T16:00:00Z"))
         assert "2026-09-30T03:45:00Z" in refusal.detail and "2026-09-30T04:00:00Z" in refusal.detail
         assert restarted.publication_schedule(draft).clock_instant == lab_clock
+        # The Lab Commit read shows the terminal gap structurally and never fully released.
+        delivery = restarted.registered_delivery(draft)
+        assert delivery["publication_gap"] == "PUBLICATION_GAP" and delivery["fully_released"] is False
+        assert delivery["publication_schedule"]["ordinary_publication"] == "TERMINAL_GAP"
+        assert delivery["publication_schedule"]["ordinary_stopped_at"] == "2026-09-30T04:00:00Z"
+        assert delivery["publication_schedule"]["admitted_through"] == "2026-09-30T03:45:00Z"
     finally:
         gateway.kill()
 

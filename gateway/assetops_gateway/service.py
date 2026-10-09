@@ -1542,17 +1542,56 @@ def run_delivery_in(db: sqlite3.Connection, lab_run_ref: str) -> dict[str, objec
     released = 0
     shared: list[str] = []
     last_error = None
+    rows: list[dict[str, object]] = []
     for batch_id, foreign in batches:
-        state, code, at = db.execute(
-            "SELECT state, last_error_code, last_error_at FROM upload_batch WHERE batch_id=?", (batch_id,)
+        state, code, at, source_id = db.execute(
+            "SELECT state, last_error_code, last_error_at, source_id FROM upload_batch WHERE batch_id=?",
+            (batch_id,),
         ).fetchone()
         by_state[state] += 1
         if foreign:
             shared.append(batch_id)
-        if db.execute(
-            "SELECT 1 FROM release_manifest WHERE lab_run_ref=? AND batch_id=?", (lab_run_ref, batch_id)
-        ).fetchone():
+        is_released = (
+            db.execute(
+                "SELECT 1 FROM release_manifest WHERE lab_run_ref=? AND batch_id=?", (lab_run_ref, batch_id)
+            ).fetchone()
+            is not None
+        )
+        if is_released:
             released += 1
+        receipt = db.execute(
+            "SELECT receipt_sha256, server_received_at, server_completed_at FROM batch_receipt WHERE batch_id=?",
+            (batch_id,),
+        ).fetchone()
+        batch_decisions = {d: 0 for d in RECEIPT_DECISIONS}
+        for decision, count in db.execute(
+            "SELECT decision, COUNT(*) FROM acknowledgement WHERE batch_id=? GROUP BY decision", (batch_id,)
+        ):
+            batch_decisions[decision] = count
+        # Per batch, for the Lab Commit view (S2-02 phase 3): its state, whether
+        # this run released it, whether it is shared (never released under one
+        # run's authority) and its verified receipt's server times, if any.
+        rows.append(
+            {
+                "batch_id": batch_id,
+                "source_id": source_id,
+                "state": state,
+                "released": is_released,
+                "shared_with_another_run": foreign,
+                "item_count": db.execute(
+                    "SELECT COUNT(*) FROM batch_item WHERE batch_id=?", (batch_id,)
+                ).fetchone()[0],
+                "receipt": None
+                if receipt is None
+                else {
+                    "receipt_sha256": receipt[0],
+                    "server_received_at": receipt[1],
+                    "server_completed_at": receipt[2],
+                },
+                "decisions": batch_decisions,
+                "last_error_code": code if state != "ACKED" else None,
+            }
+        )
         if code is not None and state != "ACKED" and (last_error is None or at > last_error["at"]):
             last_error = {"batch_id": batch_id, "code": code, "at": at}
     decisions = {d: 0 for d in RECEIPT_DECISIONS}
@@ -1594,6 +1633,7 @@ def run_delivery_in(db: sqlite3.Connection, lab_run_ref: str) -> dict[str, objec
         "released_batch_count": released,
         "batches_by_state": by_state,
         "shared_batch_ids": shared,
+        "batches": rows,
         "decisions": decisions,
         "refusals": refusals,
         "last_upload_error": last_error,

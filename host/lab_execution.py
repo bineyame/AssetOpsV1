@@ -2845,6 +2845,7 @@ class HostLabExecution:
                     "released_now": None,
                     "publication_gap": None,
                     "publication_gap_detail": None,
+                    "publication_schedule": None,
                     "fully_released": False,
                     "release_blockers": ["GATEWAY_UNAVAILABLE"],
                 }
@@ -2878,6 +2879,7 @@ class HostLabExecution:
         self, run: SimulationRun, execution_status: str, delivery: dict, *, released_now: int | None
     ) -> dict:
         gap, gap_detail = self._publication_gap(run)
+        schedule_state = self._publication_schedule_state(run)
         session = self._sessions.get(run.run_id)
         blockers: list[str] = []
         if execution_status != "COMPLETED":
@@ -2905,8 +2907,33 @@ class HostLabExecution:
             "released_now": released_now,
             "publication_gap": gap,
             "publication_gap_detail": gap_detail,
+            "publication_schedule": schedule_state,
             "fully_released": fully,
             "release_blockers": blockers,
+        }
+
+    def _publication_schedule_state(self, run: SimulationRun) -> dict | None:
+        """Structured publication completeness for the Lab Commit view (S2-02
+        phase 3, answers-2 Q4): Stage `STAGED` covers only admitted reports, so
+        the UI reads where ordinary publication stands from here. None for a
+        gateway-UTC run or an unreadable/missing schedule (the gap is UNKNOWN)."""
+        if self._publication_clock_of(run) != "RUN_VIRTUAL":
+            return None
+        try:
+            schedule = self._schedules.read(run.run_id)
+        except ScheduleUnreadable:
+            return None
+        if schedule is None:
+            return None
+        return {
+            "ordinary_publication": schedule.ordinary_publication(),
+            "clock_instant": schedule.clock_instant,
+            "admitted_through": schedule.admitted_through,
+            "world_reached_instant": schedule.world_reached_instant,
+            "world_complete": schedule.world_complete,
+            "ordinary_stopped_at": schedule.ordinary_stopped_at,
+            "delayed_report_count": len(schedule.delayed),
+            "delayed_pending_count": len(schedule.pending()),
         }
 
     def staged_envelopes(self, run: SimulationRun) -> SourceStageView:

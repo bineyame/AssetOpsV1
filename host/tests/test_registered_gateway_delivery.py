@@ -70,6 +70,7 @@ def test_commit_releases_the_sealed_batches_once_and_reports_pending(draft, tmp_
         assert delivery["stage_status"] == "STAGED" and delivery["release_state"] == "PENDING"
         assert delivery["held_report_count"] > 0 and delivery["decisions"]["ACCEPTED"] == 0
         assert view["fully_released"] is False and "RECEIPTS_PENDING" in view["release_blockers"]
+        assert {(r["state"], r["released"], r["receipt"]) for r in delivery["batches"]} == {("READY", True, None)}
         assert {b.state for b in port.registered_stage(draft).batches} == {"READY"}
         again = port.release_registered(draft)
         assert again["released_now"] == 0 and again["delivery"] == delivery
@@ -106,6 +107,17 @@ def test_the_gateway_uploads_every_batch_and_the_run_reads_fully_released(draft,
         assert delivery["batches_by_state"]["ACKED"] == released["delivery"]["batch_count"]
         assert delivery["decisions"]["ACCEPTED"] == delivery["envelope_count"]
         assert view["fully_released"] is True and view["release_blockers"] == []
+        # Phase 3: one row per batch with its verified receipt, and the structured
+        # schedule completeness the Lab Commit view reads beside Stage STAGED.
+        rows = delivery["batches"]
+        assert len(rows) == delivery["batch_count"] > 1
+        assert all(r["state"] == "ACKED" and r["released"] and not r["shared_with_another_run"] for r in rows)
+        assert all(r["receipt"]["server_received_at"] and r["receipt"]["receipt_sha256"] for r in rows)
+        assert sum(r["decisions"]["ACCEPTED"] for r in rows) == delivery["envelope_count"]
+        assert sum(r["item_count"] for r in rows) == delivery["envelope_count"]
+        # A gateway-UTC run has no Lab publication schedule (its terminal and
+        # incomplete RUN_VIRTUAL readings are covered in test_registered_post_run_release).
+        assert view["publication_gap"] == "NOT_APPLICABLE" and view["publication_schedule"] is None
         assert all(r.headers["Authorization"] == f"Bearer {token}" for r in central.requests)
         stage = port.registered_stage(draft)
         assert {b.state for b in stage.batches} == {"ACKED"}
