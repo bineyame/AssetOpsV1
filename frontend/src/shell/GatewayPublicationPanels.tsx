@@ -32,15 +32,25 @@ import {
  * to READY and is retried; this local read does not carry the failure reason,
  * so a retried diagnostic is never shown as refused or as received.
  */
-export function diagnosticUploadText(row: { state: string; last_attempt_at: string | null }): string {
+export function diagnosticUploadText(row: {
+  state: string;
+  last_attempt_at: string | null;
+  last_error_code?: string | null;
+  refusal_code?: string | null;
+}): string {
   if (row.state === "ACKED") {
     return "The central server has a verified receipt for it.";
   }
   if (row.state === "IN_FLIGHT") {
     return "It is being uploaded now; no central receipt yet.";
   }
+  if (typeof row.refusal_code === "string") {
+    return `The central server refused it (${row.refusal_code}); it is not retried and has no central receipt.`;
+  }
   if (row.last_attempt_at !== null) {
-    return `An upload attempt at ${row.last_attempt_at} did not produce a receipt; it waits to be retried. The reason is not shown in this local read.`;
+    return typeof row.last_error_code === "string"
+      ? `An upload attempt at ${row.last_attempt_at} did not produce a receipt (${row.last_error_code}); it waits to be retried.`
+      : `An upload attempt at ${row.last_attempt_at} did not produce a receipt; it waits to be retried. The reason is not shown in this local read.`;
   }
   return "It waits for upload; no central receipt exists yet.";
 }

@@ -1065,6 +1065,10 @@ export interface GatewayEmittedDiagnostic {
   sha256: string;
   state: string;
   last_attempt_at: string | null;
+  /** S2-02 Q21: the last failed upload's typed code; absent from an older gateway. */
+  last_error_code?: string | null;
+  /** S2-02 Q21: the server's refusal code when it refused the diagnostic (not retried). */
+  refusal_code?: string | null;
 }
 
 /**
@@ -2134,9 +2138,9 @@ function isEmittedDiagnostic(value: unknown): value is GatewayEmittedDiagnostic 
     typeof value.sha256 === "string" &&
     SHA256_HEX.test(value.sha256) &&
     typeof value.state === "string" &&
-    // Nothing is received centrally in this build.
-    value.state !== "ACKED" &&
-    isNullableString(value.last_attempt_at)
+    isNullableString(value.last_attempt_at) &&
+    (value.last_error_code === undefined || isNullableString(value.last_error_code)) &&
+    (value.refusal_code === undefined || isNullableString(value.refusal_code))
   );
 }
 

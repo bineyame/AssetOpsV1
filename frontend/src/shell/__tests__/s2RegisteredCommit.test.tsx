@@ -212,4 +212,22 @@ describe("local diagnostic upload state", () => {
     expect(retried).toMatch(/did not produce a receipt; it waits to be retried/);
     expect(retried).not.toMatch(/refused|received by/);
   });
+
+  it("names a refused or failed diagnostic upload from the local read (Q21)", () => {
+    const refused = diagnosticUploadText({
+      state: "READY",
+      last_attempt_at: "2026-10-09T09:00:00Z",
+      last_error_code: "DIAGNOSTIC_CONFLICT",
+      refusal_code: "DIAGNOSTIC_CONFLICT",
+    });
+    expect(refused).toMatch(/refused it \(DIAGNOSTIC_CONFLICT\); it is not retried/);
+    const failed = diagnosticUploadText({
+      state: "READY",
+      last_attempt_at: "2026-10-09T09:00:00Z",
+      last_error_code: "HTTP_503",
+      refusal_code: null,
+    });
+    expect(failed).toMatch(/did not produce a receipt \(HTTP_503\); it waits to be retried/);
+    expect(failed).not.toMatch(/refused/);
+  });
 });

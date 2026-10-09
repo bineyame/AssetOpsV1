@@ -527,6 +527,9 @@ def test_a_refused_diagnostic_is_recorded_and_not_retried(
     assert _rows(db_path, "SELECT state, refusal_code, server_received_at FROM diagnostic_outbox") == [
         ("READY", "DIAGNOSTIC_CONFLICT", None)
     ]
+    [row] = gateway.local_diagnostics()["diagnostics"]  # Q21: the local read names the refusal
+    assert (row["state"], row["refusal_code"], row["last_error_code"]) == ("READY", "DIAGNOSTIC_CONFLICT",
+                                                                         "DIAGNOSTIC_CONFLICT")
 
 
 def test_a_diagnostic_answer_for_other_bytes_is_not_acknowledged(

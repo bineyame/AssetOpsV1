@@ -1704,7 +1704,8 @@ class SealRefusalRow:
 
 
 _DIAGNOSTIC_COLUMNS = (
-    "gateway_id, sequence_epoch, diagnostic_sequence, observed_at, payload_text, sha256, state, last_attempt_at"
+    "gateway_id, sequence_epoch, diagnostic_sequence, observed_at, payload_text, sha256, state, last_attempt_at, "
+    "last_error_code, refusal_code"
 )
 
 
@@ -1720,6 +1721,10 @@ class DiagnosticRow:
     sha256: str
     state: str
     last_attempt_at: str | None
+    #: S2-02 Q21: the last failed upload's typed code (cleared on a receipt), and
+    #: the server's refusal code when it refused the diagnostic (not retried).
+    last_error_code: str | None = None
+    refusal_code: str | None = None
 
 
 @dataclass(frozen=True)
