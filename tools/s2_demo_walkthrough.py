@@ -609,7 +609,12 @@ class Demo:
         say(f"  publication read unchanged by the refusal: {before == after}")
         released = self.lab("POST", f"/runs/{run_id}/commit", expect=None)
         say(f"  POST commit: {json.dumps(released)[:200]}")
+        before_n = self.pg_counts()["accepted_evidence"]
         self.deliver_all("gap")
+        after_n = self.pg_counts()["accepted_evidence"]
+        say(f"  accepted readings before/after the gap run's upload: {before_n} / {after_n}"
+            f" (the gap run added {after_n - before_n}); the page total is the main run's readings,"
+            " plus the fault fixture's valid sibling, plus these")
         self.commit_summary(run_id)
 
     def readback(self, run_id: str) -> None:
@@ -680,7 +685,7 @@ class Demo:
             self.start_gateway()
             self.start_lab()
             say(f"Serving the demo: Lab/product API {self.http} (database {DEMO_DB}), TLS upload {self.https}.")
-            say("Frontend, from frontend/:  $env:ASSETOPS_API_PORT=\"%d\"; npm run dev -- --port 5310 --strictPort"
+            say("Frontend, from frontend/:  $env:ASSETOPS_API_PORT=\"%d\"; npm.cmd run dev -- --port 5310 --strictPort"
                 % self.args.http_port)
             say(f"Then open http://localhost:5310/sites/{SITE}/evidence . Ctrl+C stops everything.")
             deadline = time.time() + self.args.serve_seconds if self.args.serve_seconds else None
