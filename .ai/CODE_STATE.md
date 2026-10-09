@@ -4891,3 +4891,22 @@ Branch `task/S2-01a-registered-lab-basis`. Phase 1: commits `ce65b8d`, `fabbfc2`
 - Backlog: Site name, type and time zone are current-row metadata (snapshot v1 does not version them). Asset-code identity is mutable before S2-02.
 - The full `layout-evidence.mjs` run stopped after the run-setup sections because the browser stopped answering (no FAIL before that point).
 
+
+## S2-01b - Durable simulated gateway (in review)
+
+Packet `.agent/S2-01b-review-packet.md`; phase handoffs `.agent/S2-01b-phase-{1,2,3a}-handoff.md`.
+
+- Wire: `contracts/assetops_contracts/source_envelope_v3.py` (length-delimited message id, canonical V3 text), `ingestion_batch_v2.py` (sealed, bounded, source-homogeneous Batch V2; digest excludes `payload_sha256`), `gateway_report.py` (`assetops.simulated-device-report` v1, the only text that crosses the process boundary), `gateway_stage.py` (`RegisteredStageView`, `GATEWAY_LEDGER`, upload always `PENDING`). Vectors: `contract-fixtures/source-envelope-v3-vectors.json`.
+- Gateway: `gateway/assetops_gateway/` is a separate process (`python -m assetops_gateway serve --config`), importing contracts only. WAL SQLite ledger with single-writer file lock, immutability triggers, per-(gateway,source,epoch) sequence, `report_admission` dedupe, `mapping_hold` holds; authenticated local IPC with a protected credential file.
+- Host: `host/gateway_publication.py` publishes a registered run's public reports through `assetops_gateway.ipc` only (guarded); `lab_execution.py::_stage` for registered runs uses the gateway; a delay-window run is refused before activation. `execution_adapter.py::frozen_resolutions` makes the frozen identity the resolution authority.
+- Profiles: `registered-kobo-publication` v1 = v3 plus `resolution="0.000001"` on each numeric signal; quantized half-even after bias in `simulator/.../observation/transform.py`; frozen as `DeterministicIdentity.signal_resolutions` (written only when non-empty). Refusals `PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE`, `PUBLICATION_UNIT_MISMATCH`. Every run's `frozen_inputs` gains a "Device resolution" row.
+- API: `GET /runs/{id}/stage` returns `registered_stage_payload` for a registered run (never the file Stage); `signals[].resolution`; profile summary `device_resolutions`, `requires_registered_site`.
+- Frontend: `runSetupClient.ts::isGatewayLedgerStage` accepts only pending, receipt-free, non-eligible ledgers and yields `status: "gateway"`; `GatewayLedgerView.tsx` renders it; `commitBasisBlock`/`releaseBasisBlock` block Commit and release for it. F1 closed: `releaseBasisBlock` blocks Resume/Retry for a committed legacy artifact whose Site was imported since. Run view shows a resolution column and half-step note; setup shows the profile's resolution and labels the two refusals.
+- Q4: `ObservationView` docstring no longer says reported minus bias recovers a quantized or gap-hidden value exactly.
+- Layout: `ASSETOPS_LAYOUT_S2_01B_RUN=<run_id> node tools/layout-evidence.mjs <base>`.
+
+### Open
+
+- ENUM is proved by a direct public generator-status observation, not by the daytime run (S2-02 owns a selectable generator-status run). Delay windows are refused only (S2-01c owns delayed admission).
+- No product path writes gateway provisioning; it is an operator config file. No IPC idle timeout; Windows credential protection relies on the profile ACL.
+- Whole-series republish per step is O(n); a long run needs a watermark. Hold rows are not byte-fixed (`seen_count`).

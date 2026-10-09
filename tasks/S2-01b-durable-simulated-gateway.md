@@ -1,6 +1,7 @@
 # S2-01b — Durable simulated gateway
 
-Status: implementation-ready for phased work on `task/S2-01b-durable-simulated-gateway`; independent review at close. Phase 2 transfer follows `D-2026-10-08-s2-local-gateway-snapshot-transfer`.
+Status: in_review
+Phase 2 transfer follows `D-2026-10-08-s2-local-gateway-snapshot-transfer`.
 USER_REVIEW_REQUIRED: false
 Milestone: S2 Evidence
 Depends on: S2-01a through `85a11c4` (Codex first review ACCEPT WITH CARRIES; not yet merged)

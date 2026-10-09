@@ -8,7 +8,7 @@ S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged
 
 [S2-01a registered Lab basis](../tasks/S2-01a-registered-lab-basis.md) is built on `task/S2-01a-registered-lab-basis` (packet `.agent/S2-01a-review-packet.md`); Codex first review ACCEPT WITH CARRIES (`.agent/S2-01a-codex-review.md`), carries in the backlog; not yet merged to main. Decisions: `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` (with amendment), `D-2026-10-08-s2-registered-kobo-demo-configuration`.
 
-[S2-01b durable simulated gateway](../tasks/S2-01b-durable-simulated-gateway.md) is in progress on `task/S2-01b-durable-simulated-gateway` (cut from S2-01a `85a11c4`): phase 1 (V3 envelope, Batch V2, gateway package and SQLite ledger) is built (handoff `.agent/S2-01b-phase-1-handoff.md`); phases 2-3 follow. Snapshot transfer is local authenticated IPC per the S2-01b Architect decision in `.ai/DECISIONS.md`; phase-1 questions are in `.agent/S2-01b-questions-1.md`.
+[S2-01b durable simulated gateway](../tasks/S2-01b-durable-simulated-gateway.md) is built on `task/S2-01b-durable-simulated-gateway` (cut from S2-01a `85a11c4`) in phases 1, 2, 3a and 3b and is `in_review`: separate gateway process, authenticated local IPC, V3/Batch V2 SQLite ledger, registered Stage read from it, `registered-kobo-publication` v1 device resolution, Lab gateway Stage and S2-01a carry F1 closed. Packet `.agent/S2-01b-review-packet.md`; built state in `.ai/CODE_STATE.md` "S2-01b".
 
 The only executable queue is [tasks/README.md](../tasks/README.md). The current [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md) own the current direction. The [open T0xx archive](../tasks/archive/pre-site-first-2026-10-07/README.md) is superseded historical reference. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and old scoped handoffs do not route current work.
 
@@ -20,4 +20,4 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 
 ## Next read
 
-Implementer (S2-01b phase 2): read the S2-01b task, `.agent/S2-01b-phase-1-handoff.md`, the Architect answers `.agent/architect-S2-01b-answers*.md`, then the phase-1 diff. Reviewer: read the task, packet and decisions, then the diff from the S2-01a branch. Postgres setup is in `backend/README-db.md`. Run the workflow and architecture guards and checks applicable to changed behavior.
+Reviewer (S2-01b): read the task, `.agent/S2-01b-review-packet.md` and the S2-01b decisions, then the diff from S2-01a `85a11c4`; the packet names the reviewer path and live gateway setup. Postgres setup is in `backend/README-db.md`. Run the workflow and architecture guards and checks applicable to changed behavior.
