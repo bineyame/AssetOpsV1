@@ -15,6 +15,12 @@ from a request or a run:
       "diagnostics": {                     (optional; S2-01c defaults otherwise)
         "emission_cadence_seconds": 60,
         "disk_warn_free_bytes": ..., "disk_stop_free_bytes": ...
+      },
+      "upload": {                          (optional; S2-02. Absent: no network)
+        "server_url": "https://...",       (https only; refused otherwise)
+        "upload_credential_file": "...",   (owner-only `aog1.<selector>.<secret>`)
+        "ca_file": "...",                  (optional; else the system store)
+        "timeout_seconds": 10, "batches_per_pass": 50, "interval_seconds": 30
       }
     }
 
@@ -35,8 +41,10 @@ from assetops_contracts.gateway_diagnostics import DiagnosticConfig
 from assetops_gateway.ipc import GatewayServer, default_address, ensure_credential
 from assetops_gateway.service import GatewayRefused, GatewayService
 from assetops_gateway.snapshot import Provisioning
+from assetops_gateway.uploader import UploadConfig, UploadConfigInvalid, Uploader, parse_upload_config
 
-CONFIG_KEYS = {"database", "credential_file", "address", "provisioning", "diagnostics"}
+CONFIG_KEYS = {"database", "credential_file", "address", "provisioning", "diagnostics", "upload"}
+OPTIONAL_CONFIG_KEYS = {"address", "diagnostics", "upload"}
 DIAGNOSTICS_KEYS = {"emission_cadence_seconds", "disk_warn_free_bytes", "disk_stop_free_bytes"}
 PROVISIONING_KEYS = {"tenant_id", "site_id", "gateway_id", "source_mode", "permitted_source_ids", "sequence_epoch"}
 
@@ -49,14 +57,15 @@ class GatewayConfig:
     provisioning: Provisioning
     sequence_epoch: str
     diagnostics: DiagnosticConfig = DiagnosticConfig()
+    upload: UploadConfig | None = None
 
 
 def load_config(path: Path) -> GatewayConfig:
     path = Path(path)
     document = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(document, dict) or not set(document) <= CONFIG_KEYS or not (CONFIG_KEYS - {"address", "diagnostics"}) <= set(document):
+    if not isinstance(document, dict) or not set(document) <= CONFIG_KEYS or not (CONFIG_KEYS - OPTIONAL_CONFIG_KEYS) <= set(document):
         raise SystemExit(
-            f"gateway config needs {sorted(CONFIG_KEYS - {'address', 'diagnostics'})} (address, diagnostics optional)"
+            f"gateway config needs {sorted(CONFIG_KEYS - OPTIONAL_CONFIG_KEYS)} ({sorted(OPTIONAL_CONFIG_KEYS)} optional)"
         )
     raw_diagnostics = document.get("diagnostics", {})
     if not isinstance(raw_diagnostics, dict) or not set(raw_diagnostics) <= DIAGNOSTICS_KEYS:
@@ -67,6 +76,10 @@ def load_config(path: Path) -> GatewayConfig:
     if not isinstance(raw, dict) or set(raw) != PROVISIONING_KEYS:
         raise SystemExit(f"gateway provisioning needs exactly {sorted(PROVISIONING_KEYS)}")
     base = path.parent
+    try:
+        upload = None if "upload" not in document else parse_upload_config(document["upload"], base)
+    except UploadConfigInvalid as invalid:
+        raise SystemExit(f"gateway {invalid}") from None
     database = (base / document["database"]).resolve()
     provisioning = Provisioning(
         tenant_id=raw["tenant_id"],
@@ -82,6 +95,7 @@ def load_config(path: Path) -> GatewayConfig:
         provisioning=provisioning,
         sequence_epoch=raw["sequence_epoch"],
         diagnostics=diagnostics,
+        upload=upload,
     )
 
 
@@ -96,6 +110,8 @@ def serve(config: GatewayConfig) -> int:
         return 2
     server = GatewayServer(service, config.database, config.address, credential)
     server.start_diagnostics(min(15.0, config.diagnostics.emission_cadence_seconds / 2))
+    if config.upload is not None:
+        server.attach_uploader(Uploader(service, config.upload, service_lock=server.lock))
     print(f"READY {config.address}", flush=True)
     try:
         server.serve_forever()

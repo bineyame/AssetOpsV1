@@ -49,6 +49,9 @@ OPS = (
     "advance_publication_clock",
     "admit_at_run_clock",
     "inject_fault",
+    "release_run",
+    "run_delivery",
+    "deliver",
 )
 #: Fault-fixture controls `inject_fault` accepts (SIMULATED gateways only). They
 #: change local operational state; none is ever written into V3, Batch V2 or a
@@ -74,6 +77,14 @@ REQUEST_BODY_KEYS: dict[str, frozenset[str]] = {
     "admit_at_run_clock": frozenset({"snapshot_sha256", "lab_run_ref", "reports", "at_instant"}),
     # A labelled fault fixture; `value` null clears it back to measurement/unknown.
     "inject_fault": frozenset({"fault", "value"}),
+    # S2-02 phase 2. `release_run` is Lab Commit's local release: this run's
+    # sealed STAGED batches become READY with a private release manifest, in
+    # one transaction, idempotently. `run_delivery` reads the run's delivery
+    # state. `deliver` runs one upload pass and one diagnostics pass now; the
+    # network secret never crosses this channel in either direction.
+    "release_run": frozenset({"lab_run_ref"}),
+    "run_delivery": frozenset({"lab_run_ref"}),
+    "deliver": frozenset({"max_batches"}),
 }
 CLAIMED_KEYS = frozenset(
     {
@@ -193,6 +204,7 @@ class GatewayServer:
         self._address = address
         self._credential = credential
         self._lock = threading.Lock()
+        self._uploader: Any = None
         self._listener = Listener(address, family=_family(address))  # no authkey: we challenge per thread
         self._stop = threading.Event()
 
@@ -234,6 +246,17 @@ class GatewayServer:
         thread.start()
         return thread
 
+    @property
+    def lock(self) -> threading.Lock:
+        """The service lock: every ledger write, including the uploader's, takes it."""
+        return self._lock
+
+    def attach_uploader(self, uploader: Any, *, background: bool = True) -> None:
+        """S2-02: enable `deliver` and, unless `background` is off, periodic passes."""
+        self._uploader = uploader
+        if background:
+            uploader.start(self._stop)
+
     def _serve(self, connection: Connection) -> None:
         try:
             deliver_challenge(connection, self._credential)
@@ -257,6 +280,10 @@ class GatewayServer:
         try:
             request = json.loads(raw.decode("utf-8"))
             op, body = _request(request)
+            if op == "deliver":
+                # The uploader takes the service lock per ledger call, never
+                # across a network request, so it is not dispatched under it.
+                return {"ok": True, "body": self._deliver(body)}
             with self._lock:
                 return {"ok": True, "body": self._dispatch(op, body)}
         except _BadRequest as bad:
@@ -312,6 +339,11 @@ class GatewayServer:
             return dict(service.emit_diagnostic().__dict__)
         if op == "advance_publication_clock":
             return service.advance_publication_clock(_str(body, "lab_run_ref"), _str(body, "instant"))
+        if op == "release_run":
+            return service.release_run(_str(body, "lab_run_ref"))
+        if op == "run_delivery":
+            with GatewayReader(self._reader_path) as reader:
+                return reader.run_delivery(_str(body, "lab_run_ref"))
         if op == "inject_fault":
             fault, value = body["fault"], body["value"]
             if fault == "DISK_PRESSURE":
@@ -326,6 +358,17 @@ class GatewayServer:
                 raise _BadRequest("fault", f"one of {list(FAULTS)} is wanted")
             return {"fault": fault, "value": value}
         raise _BadRequest("op", f"unknown op {op!r}")
+
+
+    def _deliver(self, body: dict[str, Any]) -> Any:
+        from assetops_gateway.service import GatewayRefused
+
+        max_batches = body["max_batches"]
+        if type(max_batches) is not int or not 1 <= max_batches <= 500:
+            raise _BadRequest("max_batches", "an integer from 1 to 500 is wanted")
+        if self._uploader is None:
+            raise GatewayRefused("UPLOAD_NOT_CONFIGURED", "this gateway has no upload configuration")
+        return self._uploader.deliver(max_batches)
 
 
 class _BadRequest(Exception):
