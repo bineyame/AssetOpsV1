@@ -1,6 +1,6 @@
 # V-01 - v6.9 visual and interaction fidelity
 
-Status: proposal only; non-executable until owner fidelity-tier review, S2 evidence review and pre-S3 refinement
+Status: adopted by the owner 2026-10-09 as a W1 item (`.agent/owner-S2-closeout-2026-10-09.md`); Planner refines it into an executable task before activation
 USER_REVIEW_REQUIRED: true
 Depends on: S2-02; owner decision on proposed screen tiers; Architect's relevant projection and navigation decisions
 Branch when activated: task/V-01-v69-visual-fidelity
