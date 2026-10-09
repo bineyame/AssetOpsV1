@@ -23,6 +23,12 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
+### S2-02 rotation-recovery follow-up after owner closeout (2026-10-09)
+
+Q37: the same-account pilot's `ISSUE_OUTCOME_UNKNOWN` halt is an operator instruction, not a durable lock; a local marker alone could be stale. R3: a failure provably before any issuance transaction currently produces the conservative unknown outcome and keeps an unissued protected file. These are safe for the supervised, single-operator S2 demo because they cannot silently expose or discard a committed secret. A bounded S2-02r follow-up should add explicit reconcile/status or durable operation tracking and distinguish never-started from ambiguous COMMIT before unattended/multi-operator rotation. Q38 is **not** accepted as a carry: its unlocked no-selector read can race late COMMIT, so S2-02r must use the gateway row lock and old-credential survival check required by `D-2026-10-09-s2-rotation-reconciliation-followup` before any non-demo/real-pilot rotation. S3-01 does not consume credential rotation.
+
+Q39/Q40 are accepted operational limits: schema-v3 comparison closes an old server until compatible restart, and a moved store root needs a new report. Neither merits a product task. See `.agent/architect-pre-S3-answers.md` for the rulings and recovery gate.
+
 ### S2-02 Architect batch-4 bounded carries (2026-10-09, `.agent/architect-batch-answers-4.md`)
 
 - The pilot gateway and provisioning CLI run under the same OS account; runtime Windows DACL verification refuses an inherited/broad file. This is safe for the isolated demo and protects the actual reader. Before a real pilot with a distinct gateway service account, provision and test an ACL granting only that account plus the authorized operator, and replace local OS-user audit context with authenticated operator identity.
