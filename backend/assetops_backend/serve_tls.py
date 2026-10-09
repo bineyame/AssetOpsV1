@@ -32,7 +32,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     import uvicorn
 
     uvicorn.run("assetops_backend.main:app", host=args.host, port=args.port,
-                ssl_certfile=args.cert, ssl_keyfile=args.key)
+                ssl_certfile=args.cert, ssl_keyfile=args.key,
+                proxy_headers=False)  # the scheme is the socket's; no forwarded header is trusted
     return 0
 
 

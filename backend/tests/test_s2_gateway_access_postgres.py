@@ -84,7 +84,7 @@ class Rig:
         self.issued_path = issued
         return issued.read_text(encoding="ascii").strip()
 
-    def client(self, *, https: bool = True) -> TestClient:
+    def client(self, *, https: bool = True, trusted_proxy: bool = False) -> TestClient:
         app = FastAPI()
         install_gateway_tls_boundary(app)
         principals = StoreGatewayPrincipals(self.access)
@@ -94,6 +94,9 @@ class Rig:
         app.include_router(build_gateway_router(
             principals, DiagnosticIngestionService(self.access, self.clock), self.access,
             lambda code: (self.tenant_uuid, self.site_uuid) if code == self.site_code else None, self.clock))
+        if trusted_proxy:  # exactly what default uvicorn serving puts in front of the app
+            from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+            app = ProxyHeadersMiddleware(app, trusted_hosts="*")
         return TestClient(app, base_url="https://testserver" if https else "http://testserver")
 
     def counts(self, tables) -> dict[str, int]:
@@ -243,6 +246,31 @@ class TestBearerBoundary:
                                             content=rig.diagnostic(), headers=bearer(token))
         assert diag.status_code == 426
         assert rig.counts(LEDGER_TABLES + ("gateway_diagnostic",)) == {t: 0 for t in LEDGER_TABLES + ("gateway_diagnostic",)}
+
+    @pytest.mark.parametrize("header", [{"X-Forwarded-Proto": "https"}, {"Forwarded": "proto=https"}])
+    def test_a_forwarded_scheme_header_never_satisfies_the_tls_boundary(self, rig, header) -> None:
+        """Review F1: uvicorn's default proxy handling rewrites the scheme from
+        `X-Forwarded-Proto` before the app runs; a plaintext request carrying it is 426."""
+        token = rig.issue(rig.sources[rig.pv_source])
+        body = rig.kit.seal(rig.kit.pv(1))
+        for client in (rig.client(https=False, trusted_proxy=True), rig.client(https=True)):
+            answer = client.post("/api/ingestion/batches", content=body, headers={**bearer(token), **header})
+            assert answer.status_code == 426 and answer.json()["detail"]["code"] == "GATEWAY_TLS_REQUIRED"
+            diag = client.post(f"/api/gateways/{rig.kit.principal.gateway_id}/diagnostics",
+                               content=rig.diagnostic(), headers={**bearer(token), **header})
+            assert diag.status_code == 426
+        assert rig.counts(LEDGER_TABLES + ("gateway_diagnostic",)) == {t: 0 for t in LEDGER_TABLES + ("gateway_diagnostic",)}
+
+    def test_serve_tls_never_trusts_proxy_headers(self, tmp_path, monkeypatch) -> None:
+        import uvicorn
+
+        from assetops_backend.serve_tls import main as serve_tls
+        seen = {}
+        monkeypatch.setattr(uvicorn, "run", lambda app, **kwargs: seen.update(kwargs))
+        for name in ("c", "k"):
+            (tmp_path / name).write_text("x")
+        assert serve_tls(["--cert", str(tmp_path / "c"), "--key", str(tmp_path / "k")]) == 0
+        assert seen["proxy_headers"] is False
 
     def test_a_provisioned_credential_uploads_over_tls_and_reads_its_receipt(self, rig) -> None:
         token = rig.issue(rig.sources[rig.pv_source])

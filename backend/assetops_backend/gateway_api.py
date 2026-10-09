@@ -120,6 +120,9 @@ def _is_gateway_network_route(request: Request) -> bool:
             and request.headers.get("authorization") is not None)
 
 
+_PROXY_SCHEME_HEADERS = ("x-forwarded-proto", "forwarded")
+
+
 def install_gateway_tls_boundary(app) -> None:
     """Refuse every credentialed gateway request that did not arrive over TLS
     (`D-2026-10-09-s2-pilot-gateway-upload-credential`), before authentication or
@@ -127,7 +130,11 @@ def install_gateway_tls_boundary(app) -> None:
 
     @app.middleware("http")
     async def gateway_tls_required(request: Request, call_next):
-        if _is_gateway_network_route(request) and request.url.scheme != "https":
+        # A proxy header can rewrite the ASGI scheme before this middleware runs
+        # (uvicorn trusts loopback `X-Forwarded-Proto` by default), and app code cannot
+        # see the pre-rewrite scheme, so a gateway request carrying one is never trusted.
+        if _is_gateway_network_route(request) and (
+                request.url.scheme != "https" or any(h in request.headers for h in _PROXY_SCHEME_HEADERS)):
             return JSONResponse(status_code=426, headers={"Upgrade": "TLS/1.2"}, content={"detail": {
                 "code": "GATEWAY_TLS_REQUIRED",
                 "message": "Gateway upload and diagnostics are accepted only over HTTPS."}})
