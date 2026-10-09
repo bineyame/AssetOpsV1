@@ -248,6 +248,46 @@ class PostgresGatewayAccess:
 
         return self._run(work, write=True)
 
+    def issue_outcome(self, tenant_slug: str, site_code: str, gateway_external_id: str,
+                      issued: IssuedCredential, enable_sources: Sequence[str] = ()) -> str:
+        """Q28 reconciliation after an ambiguous issue transaction: a fresh privileged
+        read (the pool is discarded first, so no connection from the failed attempt is
+        reused) of the scoped gateway, the selector's verifier and the named sources.
+
+        `ISSUED`: the new verifier is stored, active, the gateway's `credential_ref`,
+        the gateway and every named source enabled - the one transaction committed.
+        `NOT_ISSUED`: no row carries the new selector, so that single transaction
+        (which inserts it) definitively did not commit. `UNKNOWN`: the selector row
+        exists but the rest does not match (for example a later rotation revoked it),
+        so only an operator can reconcile. Raises `LedgerUnavailable` if the database
+        still cannot be read."""
+        if self._engine is not None:
+            self._engine.dispose()
+            self._engine = None
+
+        def work(c: Connection) -> str:
+            g = c.execute(text(
+                "SELECT g.id, g.credential_ref, g.disabled_at IS NULL AS enabled FROM gateway g "
+                "JOIN tenant t ON t.id = g.tenant_id JOIN site s ON s.tenant_id = g.tenant_id AND s.id = g.site_id "
+                "WHERE t.slug = :slug AND s.site_code_key = lower(:code) AND g.gateway_external_id = :g"),
+                {"slug": tenant_slug, "code": site_code, "g": gateway_external_id}).first()
+            if g is None:
+                return "UNKNOWN"
+            row = c.execute(text(
+                "SELECT verifier_sha256, revoked_at IS NULL AS active, gateway_id FROM gateway_credential "
+                "WHERE selector = :s"), {"s": issued.selector}).first()
+            if row is None:
+                return "NOT_ISSUED"
+            sources_enabled = all(c.execute(text(
+                "SELECT disabled_at IS NULL FROM source WHERE gateway_id = :g AND source_external_id = :x"),
+                {"g": g.id, "x": source}).scalar() for source in enable_sources)
+            if (row.verifier_sha256 == issued.verifier_sha256 and row.active and row.gateway_id == g.id
+                    and g.credential_ref == issued.selector and g.enabled and sources_enabled):
+                return "ISSUED"
+            return "UNKNOWN"
+
+        return self._run(work)
+
     def revoke_credential(self, tenant_slug: str, site_code: str, gateway_external_id: str, selector: str,
                           *, actor: str, at: datetime) -> bool:
         def work(c: Connection) -> bool:

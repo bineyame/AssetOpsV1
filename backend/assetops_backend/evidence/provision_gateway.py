@@ -19,9 +19,14 @@ transaction. That versioned file is the final credential path: nothing is
 renamed or overwritten afterwards, and the file at `--credential-out` (or any
 earlier versioned file) is left untouched. The output names the new path; the
 operator switches the gateway's `upload_credential_file` to it before the next
-upload (the earlier credential is revoked at once). A file/ACL or database
-failure before that commit removes only the new unissued file, leaving the
-earlier credential usable and no identity more enabled. The secret is
+upload (the earlier credential is revoked at once). A file/ACL failure before
+the transaction, or a refusal inside it, removes only the new unissued file,
+leaving the earlier credential usable and no identity more enabled. A database
+error whose COMMIT outcome is unknown keeps the new file and reconciles by a
+fresh database read (Architect Q28): committed -> issued; no row with the new
+selector -> proven non-commit, the unissued file is removed; unreadable or
+inconsistent -> `ISSUE_OUTCOME_UNKNOWN` (exit 3), the file is kept and rotation
+halts for operator reconciliation. Nothing is ever blindly reissued. The secret is
 never printed or logged; output names the selector only. Import leaves the
 gateway and every source disabled; no upload ever enables one (questions-1 Q2).
 
@@ -91,10 +96,29 @@ def main(argv: Sequence[str] | None = None, *, store=None, now=None) -> int:
                 revoked = access.issue_credential(*ref, issued, actor=args.actor, at=at,
                                                   enable_sources=args.enable_source,
                                                   cadence_seconds=args.cadence_seconds)
-            except BaseException:
+            except ProvisioningRefused:
+                # Raised inside the transaction before COMMIT: a proven rollback.
                 discard_gateway_credential_file(prepared)  # only the new, unissued file
                 raise
-            print(f"Issued {redact(issued.token)} for gateway {args.gateway!r}; revoked {len(revoked)} earlier "
+            except Exception as error:  # noqa: BLE001 - the COMMIT outcome is unknown (Q28)
+                outcome = _reconcile_issue(access, ref, issued, args.enable_source)
+                if outcome == "NOT_ISSUED":
+                    discard_gateway_credential_file(prepared)  # proven non-commit: only the new file
+                    print(f"Provisioning failed: {error}. A fresh database read shows the new credential was "
+                          "not committed; its unissued file was removed. Nothing about the earlier credential "
+                          "is asserted here: check it before relying on it.", file=sys.stderr)
+                    return 1
+                if outcome != "ISSUED":
+                    print(f"ISSUE_OUTCOME_UNKNOWN: {error}. Whether the new credential was committed cannot be "
+                          f"established. Its protected file was KEPT at {prepared} (it may hold the only usable "
+                          "secret). Halt rotation: do not issue again and do not delete that file until an "
+                          "operator has reconciled the gateway's active credential in the database.",
+                          file=sys.stderr)
+                    return 3
+                revoked = None  # committed; the response was lost, so the revoked count is unknown
+                print(f"The issue response was lost ({error}); a fresh database read shows it was committed.")
+            revoked_text = "every earlier" if revoked is None else f"{len(revoked)} earlier"
+            print(f"Issued {redact(issued.token)} for gateway {args.gateway!r}; revoked {revoked_text} "
                   f"credential(s); enabled the gateway and {len(args.enable_source)} named source(s). "
                   f"The secret was written only to {prepared}, verified readable by the current user only. "
                   "Set the gateway's upload_credential_file to that path before its next upload; the earlier "
@@ -123,6 +147,14 @@ def main(argv: Sequence[str] | None = None, *, store=None, now=None) -> int:
         print(f"Provisioning failed: {error}", file=sys.stderr)
         return 1
     return 0
+
+
+def _reconcile_issue(access, ref, issued, enable_sources) -> str:
+    """`ISSUED`, `NOT_ISSUED`, or `UNKNOWN` (also when the database still cannot be read)."""
+    try:
+        return access.issue_outcome(*ref, issued, enable_sources)
+    except Exception:  # noqa: BLE001 - unreadable means unknown, never a guessed rollback
+        return "UNKNOWN"
 
 
 if __name__ == "__main__":

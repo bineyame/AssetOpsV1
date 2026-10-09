@@ -196,6 +196,59 @@ class TestProvisioning:
         assert sorted(p.name for p in rig.tmp.iterdir() if p.name.startswith("cred")) == [old_path.name]
         assert self._uploads(rig, old) == 200
 
+    def _ambiguous_rotation(self, rig, monkeypatch, *, commits: bool, readable: bool):
+        """Q28: the issue transaction raises as if the connection dropped during COMMIT,
+        after (`commits`) or without its effects landing; `readable` is whether the
+        fresh reconciliation read can reach the database."""
+        from assetops_backend.evidence.ledger import LedgerUnavailable
+
+        old = rig.issue(rig.sources[rig.pv_source])
+        old_path = rig.issued_path
+        real_issue = rig.access.issue_credential
+
+        def lost(*args, **kwargs):
+            if commits:
+                real_issue(*args, **kwargs)
+            raise LedgerUnavailable("server closed the connection unexpectedly")
+        monkeypatch.setattr(rig.access, "issue_credential", lost)
+        if not readable:
+            def unreadable(*args, **kwargs):
+                raise LedgerUnavailable("still unreachable")
+            monkeypatch.setattr(rig.access, "issue_outcome", unreadable)
+        before = {p.name for p in rig.tmp.iterdir() if p.name.startswith("cred")}
+        code = rig.provision("issue", "--credential-out", str(rig.tmp / "cred"),
+                             "--enable-source", rig.sources[rig.pv_source])
+        new_files = [p for p in rig.tmp.iterdir() if p.name.startswith("cred") and p.name not in before]
+        return code, old, old_path, new_files
+
+    def test_a_committed_issue_whose_response_was_lost_is_reported_issued(self, rig, monkeypatch, capsys) -> None:
+        code, old, old_path, [new_path] = self._ambiguous_rotation(rig, monkeypatch, commits=True, readable=True)
+        out = capsys.readouterr().out
+        assert code == 0 and "was committed" in out and f"Credential file: {new_path}" in out
+        new = new_path.read_text(encoding="ascii").strip()
+        assert new.split(".")[2] not in out and old_path.exists()
+        assert self._uploads(rig, new) == 200 and self._uploads(rig, old) == 401
+
+    def test_a_proven_rollback_removes_only_the_unissued_file(self, rig, monkeypatch, capsys) -> None:
+        code, old, old_path, new_files = self._ambiguous_rotation(rig, monkeypatch, commits=False, readable=True)
+        err = capsys.readouterr().err
+        assert code == 1 and new_files == [] and old_path.exists()
+        assert "not committed" in err and "remains usable" not in err  # no claim about the old credential
+        with rig.engine.connect() as c:
+            assert c.execute(text("SELECT count(*) FROM gateway_credential WHERE revoked_at IS NULL")).scalar_one() == 1
+
+    @pytest.mark.parametrize("commits", [True, False])
+    def test_an_unreadable_outcome_keeps_the_file_and_halts_rotation(self, rig, monkeypatch, capsys, commits) -> None:
+        code, old, old_path, [kept] = self._ambiguous_rotation(rig, monkeypatch, commits=commits, readable=False)
+        captured = capsys.readouterr()
+        secret = kept.read_text(encoding="ascii").strip().split(".")[2]
+        assert code == 3 and "ISSUE_OUTCOME_UNKNOWN" in captured.err and str(kept) in captured.err
+        assert secret not in captured.err and secret not in captured.out
+        assert old_path.exists()
+        if commits:  # the kept file holds the only usable secret
+            assert self._uploads(rig, kept.read_text(encoding="ascii").strip()) == 200
+            assert self._uploads(rig, old) == 401
+
     def test_successful_rotation_writes_a_new_protected_path_and_revokes_the_old_at_once(self, rig) -> None:
         from assetops_backend.evidence.adapters.gateway_credential_file import verify_owner_only
         old = rig.issue(rig.sources[rig.pv_source])
