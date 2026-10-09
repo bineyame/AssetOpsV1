@@ -4913,7 +4913,7 @@ Packet `.agent/S2-01b-review-packet.md`; phase handoffs `.agent/S2-01b-phase-{1,
 
 ## S2-01c - Gateway diagnostics and fault scenarios (in review)
 
-Packet `.agent/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-handoff.md`; open questions `.agent/S2-01c-questions-{3,4}.md`.
+Packet `.agent/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-handoff.md`; open questions `.agent/S2-01c-questions-5.md` (3, 4 answered).
 
 - Gateway ledger: schema 3 keys `seal_refusal` by `(source, epoch, snapshot, outbox_state)` (R1); `diagnostic_config` (frozen), `diagnostic_outbox` (one immutable report per cadence slot, READY only, never received), `health_observation` (contacts, injected faults). Schema 4 `publication_clock(lab_run_ref)` forward-only.
 - Wire: `contracts/assetops_contracts/gateway_diagnostics.py` `GatewayDiagnosticsV1` + `DiagnosticConfig` (60 s cadence, 1 GiB/256 MiB WARN/STOP demo triggers); vectors `contract-fixtures/gateway-diagnostics-v1-vectors.json`. `publication_schedule.py` holds the Lab-private `PublicationSchedule`/`DelayedReport`.
@@ -4923,8 +4923,10 @@ Packet `.agent/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-
 - API: `GET /runs/{id}/publication`, `POST /runs/{id}/publication/advance` `{instant}`, `GET /gateway/diagnostics`; profile `publication_clock`; seal refusals carry `outbox_state`.
 - Frontend: `runSetupClient.ts` `isRunPublicationSchedule` (no private fields, absent schedule never a list), `isGatewayDiagnostics` (unavailable carries no counters, no ACKED), optional client methods `getPublication`/`advancePublication`/`getGatewayDiagnostics`; `GatewayPublicationPanels.tsx` renders schedule, advance and diagnostics with clock labels on a registered run's Stage; setup names the profile's publication clock. F2: `releaseBasisBlock` blocks Resume/Retry while the basis is pending, unreadable or unreported.
 - Layout: `ASSETOPS_LAYOUT_S2_01C_RUN=<run_id> node tools/layout-evidence.mjs <base>` (includes a fetch-intercepted Sealing-refused row).
+- Fix round 1 (`D-2026-10-09-s2-ordered-publication-and-closing-boundary`): IPC `admit_at_run_clock` requires `at_instant`; the gateway advances the run clock to it in the admission transaction and, once the clock has passed it, answers replays only and refuses a new admission `PUBLICATION_INSTANT_PASSED` (`service.py` `_clock_at`, `_admit_in(replay_only=)`). Host `RegisteredGatewayPublisher.publish_in_boundary_order` + `lab_execution.py` `_release`: each reached boundary after the schedule's `admitted_through` watermark is admitted at its own instant (due delayed reports first), sealed per boundary; post-run leftovers go at the explicit advance instant. Undelayed `published_at == source_time`; run_to_end and single steps give identical envelope and batch bytes. Read `SCHEDULE_MISSING` for an executed run with no schedule and no session; Lab view renders gateway HELD releases as held.
 
 ### Open
 
-- Architect: questions-3 (end-instant pending reading, read status for missing schedule) and questions-4 (F2 scope, page placement, diagnostics freshness, optional client methods, free-text instant).
+- Architect: questions-5 (per-boundary sealing, a passed boundary stops the run's publication, missed delayed release, required `at_instant`, SCHEDULE_MISSING with a live session). questions-3/-4 answered in `.agent/architect-S2-01c-answers-4.md`.
+- Carries C2 (AC5 diagnostic bytes across a real reconnect not asserted) and C3 (full seeded layout run unverified) for the S2 milestone checkpoint.
 - A seal refusal after admission leaves a delayed report PENDING until the next advance. S2-02 owns upload, central receipt and diagnostic freshness.

@@ -79,3 +79,39 @@ Measured on an isolated runs store and gateway (the owner's `var/` and servers w
 ## User-review focus
 
 None is required. Plain-language clock labels and the unavailable wording are worth a glance.
+
+## Fix round 1
+
+Against `.agent/architect-S2-01c-answers-4.md` "First-review ruling" and `D-2026-10-09-s2-ordered-publication-and-closing-boundary`. Commits `f693d4e` (B1), `5cbbbc5` (Q3 host/API), `d7beec7` (C1, Q3 UI, B2), plus this closeout.
+
+- **B1. Fixed.** The gateway's `admit_at_run_clock` now requires `at_instant` (the reports' reached boundary). It advances the run clock to that instant in the admission transaction. Once the clock has passed it, a report already admitted replays with its first identity, and a new admission refuses the whole chunk `PUBLICATION_INSTANT_PASSED` instead of being stamped late (`gateway/assetops_gateway/service.py` `_clock_at`, `_admit_in(replay_only=)`). The host admits each reached boundary after the schedule's durable `admitted_through` watermark at its own instant. Delayed reports due by then go first, then that boundary's undelayed readings, and every boundary is sealed (`host/gateway_publication.py` `publish_in_boundary_order`, `host/lab_execution.py` `_release`). Post-run leftovers go at the explicit advance instant, never backdated. Admitted envelopes are never rewritten.
+  - The reviewer's probe is now a test, `test_run_to_end_and_single_steps_publish_the_same_bytes_at_source_instants`. Every undelayed envelope has `published_at == source_time` (293 envelopes). The closing-boundary observation is stamped 15:10 after the advance, and the midday report is stamped 07:15, ahead of the 07:15 readings of its source. `run_to_end` and repeated `step(1)` give identical envelope and batch bytes.
+  - Retry and restart: `test_a_retry_after_a_failed_pass_resumes_in_order_with_the_same_bytes`, with link loss injected on the 20th admission, then a retry, a host restart and the post-run advance. Its final bytes equal a clean run's.
+  - Skipped boundary: `test_a_boundary_the_gateway_clock_has_passed_is_refused_not_stamped_late`. The run's publication is refused and the refusal is shown. Nothing at or after the gap is admitted, and the watermark stays.
+  - Gateway level: `test_an_admission_instant_moves_the_clock_with_the_admission` and `test_a_passed_instant_replays_but_never_stamps_a_new_admission_later`.
+  - Non-vacuous: stamping every group at the pass target (the old behaviour) fails all 3 new host tests. Disabling `replay_only` fails the gateway test and the skipped-boundary host test. Both mutations were reverted with `git checkout`.
+- **B2. Fixed.** `readyAdvanceButton()` waits for the suggested instant and an enabled Advance button before any click, in the refusal `it.each` and in the advance test. `gatewayPublication` + `runCommitPanel` run 10 times in a row: **10/10 passed**. That only shows the flake did not recur; it does not prove the race is gone.
+- **C1. Fixed.** A RELEASED schedule row whose gateway outcome is `HELD` renders as state `HELD`, "Submitted, held by the gateway". Its published-at cell reads "Held by the gateway (HELD): no envelope and no publication instant", and the summary counts it as held. "not readable from the gateway" remains only for an admitted release with no readable Stage envelope. Tests cover both; reverting the HELD state fails the test.
+- **Q3. Fixed.** `HostLabExecution.publication_schedule` refuses `PUBLICATION_SCHEDULE_MISSING` for an executed run with no stored schedule and no live session, the same condition as the advance refusal. The API returns `status: SCHEDULE_MISSING` with the detail. The UI shows "executed, but its publication schedule is missing ... not an empty queue", with no counts and no Advance. `NO_SCHEDULE` stays for not started. Tests: host, API, UI; removing the UI branch fails the test.
+- **Wording.** No product UI string said "in-interval final sample". Test docstrings now say "closing-boundary observation". The shipped scenario YAML and the v1/v2 manifests are unchanged, including their comments, so their fingerprints and sealed bytes are preserved.
+- **Not done (carried per ruling):** C2, C3.
+
+### Checks (fix round 1, HEAD after `d7beec7`)
+
+| Check | Result |
+|---|---|
+| `tools/check-architecture.ps1` / `check-agent-workflow.ps1` | passed / passed |
+| `pytest gateway/tests` | 127 passed |
+| `pytest host/tests backend/tests` (Postgres on) | 2318 passed, 0 skipped (829 s) |
+| `pytest` (simulator/) | 265 passed |
+| `npm.cmd test` (frontend) | 51 files, 1235 passed |
+| `npx.cmd tsc --noEmit` / `npm.cmd run build` | exit 0 / built (chunk-size warning only) |
+| Layout, S2-01c mode, isolated store (vite 5320, lab app 8010, own gateway), run `run-32df7374...` | 1280x800 9/9 PASS; 640x700 9/9 PASS; fixture Sealing-refused 640 6/6 PASS; publication table 2 rows, 8 contacts |
+
+Layout limit: the run had neither a HELD row nor a SCHEDULE_MISSING paragraph, so the 640 width of the two new strings is **unmeasured**. Both are plain wrapping text in an existing scroll box or paragraph.
+
+### Fix-round deviations and risk
+
+- Batches are now sealed per boundary, so a full run seals many small batches: 292 envelopes in 245 batches in the layout run. See questions-5 Q1.
+- A passed boundary stops the run's ordinary publication for good, and there is no repair control (questions-5 Q2).
+- New open questions: `.agent/S2-01c-questions-5.md` (Q1-Q5, fail-closed, built).
