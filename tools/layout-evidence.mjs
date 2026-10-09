@@ -1520,6 +1520,77 @@ if (process.env.ASSETOPS_LAYOUT_S2_01C_RUN) {
   process.exit(allPass ? 0 : 1);
 }
 
+if (process.env.ASSETOPS_LAYOUT_S2_02_RUN) {
+  // S2-02 phase 3c: imported KOBO-001 Site Evidence read from Postgres
+  // (overview, analysis, one reading's detail with its exact message text) and
+  // a registered run's Lab Commit panel with its batch-and-receipt table,
+  // measured alone against the isolated demo stack
+  // (`tools/s2_demo_walkthrough.py serve`). The run ID names a committed
+  // registered run; the record names one accepted evidence ID of that Site.
+  const runId = process.env.ASSETOPS_LAYOUT_S2_02_RUN;
+  const recordId = process.env.ASSETOPS_LAYOUT_S2_02_RECORD ?? "";
+  const site = process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001";
+  const windowQuery = "from=2026-09-30T03%3A00%3A00Z&to=2026-09-30T15%3A00%3A01Z";
+  const READ = `(() => {
+    for (const d of document.querySelectorAll("details")) d.open = true;
+    const doc = document.scrollingElement;
+    const right = (el) => (el ? Math.round(el.getBoundingClientRect().right) : null);
+    const widest = (els) => els.reduce((w, el) => Math.max(w, right(el) ?? 0), 0);
+    const scrollers = [...document.querySelectorAll(".data-table__scroll")];
+    const message = document.querySelector("[data-record-message]");
+    const batches = [...document.querySelectorAll("[data-registered-batch]")];
+    const batchScroller = batches[0] ? batches[0].closest(".data-table__scroll") : null;
+    const panels = [...document.querySelectorAll("section.panel")];
+    return {
+      scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth,
+      panels: panels.length,
+      panelsRight: widest(panels),
+      scrollers: scrollers.length, scrollersRight: widest(scrollers),
+      tableRows: document.querySelectorAll(".data-table__scroll tbody tr").length,
+      message: message !== null,
+      messageChars: message ? message.textContent.length : 0,
+      messageRight: right(message), messageHeight: message ? Math.round(message.getBoundingClientRect().height) : 0,
+      messageScroll: message ? message.scrollWidth - message.clientWidth : null,
+      batches: batches.length,
+      batchStates: [...new Set(batches.map((b) => b.getAttribute("data-batch-state")))].join(","),
+      batchScroller: batchScroller !== null, batchScrollerRight: right(batchScroller),
+      release: document.querySelector("[data-registered-release]")?.getAttribute("data-registered-release") ?? null,
+      headings: [...document.querySelectorAll("h1, h2")].map((h) => h.textContent.trim()).slice(0, 6).join(" | "),
+    };
+  })()`;
+  const pages = [
+    ["Site Evidence overview", `/sites/${site}/evidence?${windowQuery}`, "#site-evidence-state-heading"],
+    ["Evidence Analysis", `/sites/${site}/evidence?${windowQuery}&view=analysis`, "#site-evidence-deliveries-heading"],
+    ["one reading's detail", `/sites/${site}/evidence?${windowQuery}&view=analysis&record=${recordId}`, "[data-record-message]"],
+    ["Lab Commit panel", `/simulator-lab/runs/${runId}`, "[data-registered-release]"],
+  ];
+  for (const [width, height] of [[1280, 800], [640, 700]]) {
+    for (const [label, path, waitFor] of pages) {
+      await visit(cdp, path, width, height, waitFor);
+      await sleep(400);
+      const m = (await cdp.send("Runtime.evaluate", { expression: READ, returnByValue: true })).result.value;
+      const checks = [
+        ["the page does not scroll horizontally", m.scrollWidth <= m.clientWidth, `scrollWidth ${m.scrollWidth} vs clientWidth ${m.clientWidth}`],
+        ["panels were drawn, so the set measured is not empty", m.panels > 0, `${m.panels} panels; ${m.headings}`],
+        ["every panel ends inside the viewport", m.panelsRight <= m.clientWidth, `widest right ${m.panelsRight}`],
+        ["every dense table scrolls inside its own region within the viewport", m.scrollersRight <= m.clientWidth, `${m.scrollers} scrollers, ${m.tableRows} rows, widest right ${m.scrollersRight}`],
+      ];
+      if (label === "one reading's detail") {
+        checks.push(["the exact message text is drawn, wraps, and ends inside the viewport", m.message && m.messageChars > 200 && m.messageScroll <= 1 && m.messageRight <= m.clientWidth, `drawn ${m.message}, ${m.messageChars} chars, height ${m.messageHeight}, overflow ${m.messageScroll}, right ${m.messageRight}`]);
+      }
+      if (label === "Lab Commit panel") {
+        checks.push(["the batch table is drawn with every batch row", m.batches > 200, `${m.batches} rows, states ${m.batchStates}, release claim ${m.release}`]);
+        checks.push(["the batch table scrolls inside its own region within the viewport", m.batchScroller && m.batchScrollerRight <= m.clientWidth, `scroller ${m.batchScroller}, right ${m.batchScrollerRight}`]);
+      }
+      allPass = report(`S2-02 ${label} at ${width}x${height}`, m, checks) && allPass;
+    }
+  }
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  process.exit(allPass ? 0 : 1);
+}
+
 if (READBACK_ARG > 0) {
   // T025c's second invocation, made after the host was stopped and started
   // again over the same store: no live session exists for the run any more.
