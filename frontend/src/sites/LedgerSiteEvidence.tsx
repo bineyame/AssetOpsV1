@@ -22,6 +22,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
+import { CountBars } from "./assessmentGraphics";
 import { LocalViews, localView, readablePeriod, readableTime } from "./findingPresentation";
 import type { EvidenceRead } from "./evidenceRead";
 import type { GatewayHealth, GatewayHealthClient } from "./gatewayHealthClient";
@@ -254,42 +255,13 @@ const OUTCOMES = [
 ] as const;
 
 function OutcomeBars({ evidence }: { evidence: LedgerEvidence }) {
-  const total = OUTCOMES.reduce((sum, o) => sum + evidence.counts[o.key], 0);
   return (
-    <div className="assessment-graphic value-bars" data-graphic="evidence-outcomes">
-      <DataTable>
-        <caption className="assessment-graphic__caption">
-          Readings that arrived for this period, by what happened to them. Counts of readings.
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Outcome</th>
-            <th scope="col">Readings</th>
-            <th scope="col" className="value-bars__bar-heading">
-              <span className="visually-hidden">Bar</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {OUTCOMES.map((o) => {
-            const count = evidence.counts[o.key];
-            const share = total === 0 ? 0 : count / total;
-            return (
-              <tr key={o.key} data-evidence-outcome={o.key}>
-                <th scope="row">{o.label}</th>
-                <td>{count}</td>
-                <td className="value-bars__bar">
-                  <svg viewBox="0 0 1000 12" preserveAspectRatio="none" aria-hidden="true" focusable="false" data-bar-width={share.toFixed(6)}>
-                    <rect x="0" y="0" width="1000" height="12" className="graphic-track" />
-                    <rect x="0" y="0" width={share * 1000} height="12" className="graphic-fill--value" />
-                  </svg>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </DataTable>
-    </div>
+    <CountBars
+      graphic="evidence-outcomes"
+      caption="Readings that arrived for this period, by what happened to them. Counts of readings."
+      heading="Outcome"
+      rows={OUTCOMES.map((o) => ({ key: o.key, label: o.label, count: evidence.counts[o.key] }))}
+    />
   );
 }
 
