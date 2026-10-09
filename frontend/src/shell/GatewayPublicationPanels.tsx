@@ -71,7 +71,9 @@ export function publicationClockText(clock: string | null | undefined): string {
 
 function reportState(report: PublicationScheduleReport, clock: string | null): string {
   if (report.state === "RELEASED") {
-    return "RELEASED";
+    // Submitted is not released evidence: a gateway HELD answer has no
+    // envelope and no publication instant (answers-4, C1).
+    return report.outcome === "HELD" ? "HELD" : "RELEASED";
   }
   // Canonical UTC instants compare as text.
   return clock !== null && report.scheduled_release_at <= clock ? "DUE" : "PENDING";
@@ -79,6 +81,7 @@ function reportState(report: PublicationScheduleReport, clock: string | null): s
 
 const REPORT_STATE_TEXT: Record<string, string> = {
   RELEASED: "Released to the local gateway",
+  HELD: "Submitted, held by the gateway",
   DUE: "Due, not admitted yet",
   PENDING: "Waiting: not due yet",
 };
@@ -197,6 +200,7 @@ function ScheduleBody({
 }) {
   const labels = schedule.clock_labels;
   const clock = schedule.clock_instant;
+  const heldCount = schedule.reports.filter((report) => reportState(report, clock) === "HELD").length;
   return (
     <div data-publication data-publication-status={schedule.status}>
       <FactList>
@@ -222,7 +226,9 @@ function ScheduleBody({
                 data-publication-pending={schedule.pending_count}
                 data-publication-released={schedule.released_count}
               >
-                {`${schedule.pending_count} waiting, ${schedule.released_count} released`}
+                {heldCount === 0
+                  ? `${schedule.pending_count} waiting, ${schedule.released_count} released`
+                  : `${schedule.pending_count} waiting, ${schedule.released_count - heldCount} released, ${heldCount} held by the gateway`}
               </span>
             </Fact>
           </>
@@ -238,6 +244,12 @@ function ScheduleBody({
         <p className="note" data-publication-none>
           No publication schedule is recorded for this run. That is not an empty queue: nothing
           is known about delayed reports until the run executes and records one.
+        </p>
+      ) : schedule.status === "SCHEDULE_MISSING" ? (
+        <p data-publication-missing>
+          <strong>This run has executed, but its publication schedule is missing.</strong>{" "}
+          {schedule.detail ?? ""} That is lost Lab state, not an empty queue: no report is shown as
+          pending or released, and none is reconstructed from the scenario.
         </p>
       ) : schedule.status === "UNREADABLE" ? (
         <p data-publication-unreadable>
@@ -286,9 +298,11 @@ function ScheduleBody({
                   <td data-publication-released-at>{report.released_at_clock ?? "not released"}</td>
                   <td data-publication-published-at>
                     {report.published_at ??
-                      (report.state === "RELEASED"
-                        ? "not readable from the gateway"
-                        : "no envelope yet")}
+                      (state === "HELD"
+                        ? `Held by the gateway${report.outcome === null ? "" : ` (${report.outcome})`}: no envelope and no publication instant`
+                        : report.state === "RELEASED"
+                          ? "not readable from the gateway"
+                          : "no envelope yet")}
                   </td>
                   <td>{report.sequence === null ? "none" : String(report.sequence)}</td>
                 </tr>

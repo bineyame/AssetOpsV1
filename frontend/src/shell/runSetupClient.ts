@@ -920,6 +920,8 @@ export interface PublicationScheduleReport {
 export const PUBLICATION_SCHEDULE_STATUSES = [
   "AVAILABLE",
   "NO_SCHEDULE",
+  /** An executed RUN_VIRTUAL run whose schedule is gone: lost state (answers-4 Q3). */
+  "SCHEDULE_MISSING",
   "NOT_SUPPORTED",
   "UNREADABLE",
 ] as const;
@@ -927,8 +929,8 @@ export type PublicationScheduleStatus = (typeof PUBLICATION_SCHEDULE_STATUSES)[n
 
 /**
  * S2-01c: a registered run's Lab-private publication schedule. Never an
- * invented empty queue: a run without one says NO_SCHEDULE, NOT_SUPPORTED or
- * UNREADABLE. Nothing in it entered an envelope, a batch or a diagnostic.
+ * invented empty queue: a run without one says NO_SCHEDULE, SCHEDULE_MISSING,
+ * NOT_SUPPORTED or UNREADABLE. Nothing in it entered an envelope, a batch or a diagnostic.
  */
 export interface RunPublicationSchedule {
   store: "LAB_PUBLICATION_SCHEDULE";

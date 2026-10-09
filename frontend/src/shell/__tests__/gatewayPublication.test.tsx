@@ -249,6 +249,21 @@ function client(
   return fake;
 }
 
+/**
+ * B2: the advance form fills its instant from the schedule in an effect, after
+ * the read settles; a click before then lands on a disabled button and does
+ * nothing. Wait for the suggested instant and an enabled button first.
+ */
+async function readyAdvanceButton(suggested = "2026-09-30T15:05:00Z"): Promise<HTMLButtonElement> {
+  return waitFor(() => {
+    const input = screen.getByLabelText(/Advance the publication clock to/) as HTMLInputElement;
+    expect(input.value).toBe(suggested);
+    const button = screen.getByRole("button", { name: "Advance publication clock" }) as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+    return button;
+  });
+}
+
 function renderAt(runSetup: RunSetupClient) {
   return render(
     <MemoryRouter initialEntries={[URL]}>
@@ -378,8 +393,8 @@ describe("the delayed-publication view (S2-01c)", () => {
     renderAt(fake);
     await settledScreen();
 
+    await readyAdvanceButton();
     const input = screen.getByLabelText(/Advance the publication clock to/) as HTMLInputElement;
-    expect(input.value).toBe("2026-09-30T15:05:00Z");
     fireEvent.change(input, { target: { value: "2026-09-30T15:10:00Z" } });
     fireEvent.click(screen.getByRole("button", { name: "Advance publication clock" }));
 
@@ -419,7 +434,7 @@ describe("the delayed-publication view (S2-01c)", () => {
         }),
       );
       await settledScreen();
-      fireEvent.click(screen.getByRole("button", { name: "Advance publication clock" }));
+      fireEvent.click(await readyAdvanceButton());
       const refusal = await waitFor(() => section(`[data-publication-refusal="${kind}"]`));
       expect(spacedText(refusal)).toMatch(/^Not advanced\. .+ server statement$/);
       expect(
@@ -429,6 +444,67 @@ describe("the delayed-publication view (S2-01c)", () => {
       ).toBe("PENDING");
     },
   );
+
+  it("shows a gateway HELD release as held, with no envelope or publication instant (C1)", async () => {
+    const held = report({
+      report_key: "soc-held",
+      state: "RELEASED",
+      released_at_clock: "2026-09-30T15:10:00Z",
+      outcome: "HELD",
+    });
+    renderAt(
+      client(
+        { ...PENDING_AT_END, reports: [PENDING_AT_END.reports[0], held], pending_count: 0, released_count: 2 },
+        AVAILABLE,
+      ),
+    );
+    await settledScreen();
+    const row = section('[data-publication-report="soc-held"]');
+    expect(row.getAttribute("data-publication-report-state")).toBe("HELD");
+    expect(spacedText(row)).toMatch(/Submitted, held by the gateway/);
+    expect(spacedText(row)).not.toMatch(/Released to the local gateway|not readable/);
+    expect(row.querySelector("[data-publication-published-at]")?.textContent).toBe(
+      "Held by the gateway (HELD): no envelope and no publication instant",
+    );
+    expect(section("[data-publication-released]").textContent).toBe(
+      "0 waiting, 1 released, 1 held by the gateway",
+    );
+  });
+
+  it("keeps 'not readable' for an admitted release whose Stage could not be read", async () => {
+    const unread = { ...PENDING_AT_END.reports[0], published_at: null };
+    renderAt(client({ ...PENDING_AT_END, reports: [unread, PENDING_AT_END.reports[1]] }, AVAILABLE));
+    await settledScreen();
+    expect(
+      section('[data-publication-report="soc-1045"]').querySelector("[data-publication-published-at]")
+        ?.textContent,
+    ).toBe("not readable from the gateway");
+  });
+
+  it("names an executed run's missing schedule as lost state, not NO_SCHEDULE or an empty queue", async () => {
+    renderAt(
+      client(
+        {
+          ...PENDING_AT_END,
+          status: "SCHEDULE_MISSING",
+          detail: "schedule gone",
+          reports: [],
+          pending_count: 0,
+          released_count: 0,
+        },
+        AVAILABLE,
+      ),
+    );
+    await settledScreen();
+    const view = section("[data-publication]");
+    expect(view.getAttribute("data-publication-status")).toBe("SCHEDULE_MISSING");
+    expect(spacedText(view.querySelector("[data-publication-missing]") as HTMLElement)).toMatch(
+      /executed, but its publication schedule is missing\. schedule gone .*not an empty queue/,
+    );
+    expect(view.querySelector("[data-publication-none]")).toBeNull();
+    expect(view.querySelector("[data-publication-pending]")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Advance publication clock" })).toBeNull();
+  });
 
   it("never shows an absent schedule as an empty queue", async () => {
     renderAt(
