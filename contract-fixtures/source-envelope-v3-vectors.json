@@ -1,0 +1,60 @@
+{
+  "description": "S2-01b SourceEnvelope V3 message-id framing and canonical envelope/batch vectors. Framing: each field UTF-8, prefixed by a 4-byte unsigned big-endian byte length, concatenated; fields (domain, site_id, gateway_id, source_id, sequence_epoch, decimal sequence). message_id = SHA-256 hex of the framed bytes. Envelope/batch canonical JSON: sorted keys, no whitespace, UTF-8, every key present (null when absent). envelope_sha256 = SHA-256 of the envelope text; batch payload_sha256 = SHA-256 of the canonical batch document without payload_sha256.",
+  "message_id_domain": "assetops.source-envelope.message-id.v3",
+  "message_ids": [
+    {
+      "site_id": "site-a",
+      "gateway_id": "gw-1",
+      "source_id": "src-1",
+      "sequence_epoch": "epoch-1",
+      "sequence": 1,
+      "framed_hex": "0000002661737365746f70732e736f757263652d656e76656c6f70652e6d6573736167652d69642e763300000006736974652d610000000467772d31000000057372632d310000000765706f63682d310000000131",
+      "message_id": "0e08e0eac4ab002a0a3c2fdaadbf31e83e22e53b9054adc916bc623782be3b5a"
+    },
+    {
+      "site_id": "site-a",
+      "gateway_id": "gw-1",
+      "source_id": "src-1",
+      "sequence_epoch": "epoch-1",
+      "sequence": 2,
+      "framed_hex": "0000002661737365746f70732e736f757263652d656e76656c6f70652e6d6573736167652d69642e763300000006736974652d610000000467772d31000000057372632d310000000765706f63682d310000000132",
+      "message_id": "35cdb26512e24d6322abc5c268ff0bd0963f83bf590e2d1d4224e14d4061367d"
+    },
+    {
+      "site_id": "11111111-1111-4111-8111-111111111111",
+      "gateway_id": "22222222-2222-4222-8222-222222222222",
+      "source_id": "33333333-3333-4333-8333-333333333331",
+      "sequence_epoch": "epoch-1",
+      "sequence": 9223372036854775807,
+      "framed_hex": "0000002661737365746f70732e736f757263652d656e76656c6f70652e6d6573736167652d69642e76330000002431313131313131312d313131312d343131312d383131312d3131313131313131313131310000002432323232323232322d323232322d343232322d383232322d3232323232323232323232320000002433333333333333332d333333332d343333332d383333332d3333333333333333333333310000000765706f63682d310000001339323233333732303336383534373735383037",
+      "message_id": "03545f80d4f0a342b57f7c824b18a987d407c29724a822170c7237c07fb15f50"
+    }
+  ],
+  "unframed_collision": {
+    "a": [
+      "ab",
+      "c"
+    ],
+    "b": [
+      "a",
+      "bc"
+    ],
+    "a_framed_hex": "0000000261620000000163",
+    "b_framed_hex": "0000000161000000026263"
+  },
+  "envelopes": [
+    {
+      "text": "{\"mapping\":{\"binding_set_id\":\"bs-kobo\",\"version\":2},\"message\":{\"message_id\":\"0e08e0eac4ab002a0a3c2fdaadbf31e83e22e53b9054adc916bc623782be3b5a\",\"sequence\":1,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"family\":\"MEASUREMENT\",\"measurement\":\"STATE_AT_INSTANT\",\"quality\":\"GOOD\",\"unavailable_reason\":null,\"unit\":\"%\",\"value\":\"61.5\"},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":3},\"source\":{\"device_id\":\"battery-bms\",\"gateway_id\":\"gw-1\",\"signal_id\":\"soc\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-08T12:00:00Z\",\"source_time\":\"2026-10-01T08:00:00Z\"}}",
+      "sha256": "5fc9c1cb4f2d3206a9f42a1d123542505dd728c6b035e6f378d7eaa0c70a30b8"
+    },
+    {
+      "text": "{\"mapping\":{\"binding_set_id\":\"bs-kobo\",\"version\":2},\"message\":{\"message_id\":\"35cdb26512e24d6322abc5c268ff0bd0963f83bf590e2d1d4224e14d4061367d\",\"sequence\":2,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"family\":\"MEASUREMENT\",\"measurement\":\"STATE_AT_INSTANT\",\"quality\":\"GOOD\",\"unavailable_reason\":null,\"unit\":\"%\",\"value\":\"-0.25\"},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":3},\"source\":{\"device_id\":\"battery-bms\",\"gateway_id\":\"gw-1\",\"signal_id\":\"soc\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-08T12:00:00Z\",\"source_time\":\"2026-10-01T08:00:00Z\"}}",
+      "sha256": "c3b4eea7218ab173445fcfb74df093c2ffb5ecf2cf6e6d120eddfb4e268c3844"
+    }
+  ],
+  "batch": {
+    "text": "{\"batch_id\":\"9ee5f402202ad25765e235eb5c8e79cc4e5c561a20f024c1d735ad3afe04b046\",\"configuration\":{\"foundation_valid_from\":\"2026-09-29T11:57:49Z\",\"foundation_version\":3},\"envelopes\":[\"{\\\"mapping\\\":{\\\"binding_set_id\\\":\\\"bs-kobo\\\",\\\"version\\\":2},\\\"message\\\":{\\\"message_id\\\":\\\"0e08e0eac4ab002a0a3c2fdaadbf31e83e22e53b9054adc916bc623782be3b5a\\\",\\\"sequence\\\":1,\\\"sequence_epoch\\\":\\\"epoch-1\\\"},\\\"payload\\\":{\\\"family\\\":\\\"MEASUREMENT\\\",\\\"measurement\\\":\\\"STATE_AT_INSTANT\\\",\\\"quality\\\":\\\"GOOD\\\",\\\"unavailable_reason\\\":null,\\\"unit\\\":\\\"%\\\",\\\"value\\\":\\\"61.5\\\"},\\\"schema\\\":{\\\"id\\\":\\\"assetops.source-envelope\\\",\\\"version\\\":3},\\\"source\\\":{\\\"device_id\\\":\\\"battery-bms\\\",\\\"gateway_id\\\":\\\"gw-1\\\",\\\"signal_id\\\":\\\"soc\\\",\\\"site_id\\\":\\\"site-a\\\",\\\"source_id\\\":\\\"src-1\\\"},\\\"timing\\\":{\\\"interval_end\\\":null,\\\"interval_start\\\":null,\\\"published_at\\\":\\\"2026-10-08T12:00:00Z\\\",\\\"source_time\\\":\\\"2026-10-01T08:00:00Z\\\"}}\",\"{\\\"mapping\\\":{\\\"binding_set_id\\\":\\\"bs-kobo\\\",\\\"version\\\":2},\\\"message\\\":{\\\"message_id\\\":\\\"35cdb26512e24d6322abc5c268ff0bd0963f83bf590e2d1d4224e14d4061367d\\\",\\\"sequence\\\":2,\\\"sequence_epoch\\\":\\\"epoch-1\\\"},\\\"payload\\\":{\\\"family\\\":\\\"MEASUREMENT\\\",\\\"measurement\\\":\\\"STATE_AT_INSTANT\\\",\\\"quality\\\":\\\"GOOD\\\",\\\"unavailable_reason\\\":null,\\\"unit\\\":\\\"%\\\",\\\"value\\\":\\\"-0.25\\\"},\\\"schema\\\":{\\\"id\\\":\\\"assetops.source-envelope\\\",\\\"version\\\":3},\\\"source\\\":{\\\"device_id\\\":\\\"battery-bms\\\",\\\"gateway_id\\\":\\\"gw-1\\\",\\\"signal_id\\\":\\\"soc\\\",\\\"site_id\\\":\\\"site-a\\\",\\\"source_id\\\":\\\"src-1\\\"},\\\"timing\\\":{\\\"interval_end\\\":null,\\\"interval_start\\\":null,\\\"published_at\\\":\\\"2026-10-08T12:00:00Z\\\",\\\"source_time\\\":\\\"2026-10-01T08:00:00Z\\\"}}\"],\"gateway_id\":\"gw-1\",\"mapping\":{\"binding_set_id\":\"bs-kobo\",\"snapshot_sha256\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"version\":2},\"payload_sha256\":\"533fb463573bb6aa4ffe00d41def1a18cd9060e9843060b3d37b7d9fc28419ba\",\"schema\":{\"id\":\"assetops.ingestion-batch\",\"version\":2},\"site_id\":\"site-a\",\"source_id\":\"src-1\",\"source_mode\":\"SIMULATED\"}",
+    "batch_id": "9ee5f402202ad25765e235eb5c8e79cc4e5c561a20f024c1d735ad3afe04b046",
+    "payload_sha256": "533fb463573bb6aa4ffe00d41def1a18cd9060e9843060b3d37b7d9fc28419ba"
+  }
+}

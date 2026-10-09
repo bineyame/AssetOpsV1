@@ -94,6 +94,7 @@ from assetops_backend.runs.models import (
     readiness_disclosure,
 )
 from assetops_backend.runs.ports import (
+    RegisteredBasisPort,
     RunConfigurationInvalid,
     RunIdentityConflict,
     RunNotFound,
@@ -197,6 +198,11 @@ from assetops_contracts.source_envelope import (
     SOURCE_ENVELOPE_SCHEMA_ID,
     SOURCE_ENVELOPE_SCHEMA_VERSION,
     canonical_envelope_json,
+)
+from assetops_contracts.gateway_stage import (
+    GATEWAY_LEDGER_STORE,
+    UPLOAD_STATEMENT,
+    RegisteredStageView,
 )
 from assetops_contracts.source_stage import (
     RELEASE_BLOCKER_STATEMENTS,
@@ -309,6 +315,8 @@ REFUSAL_SCENARIO_NOT_FOUND = "SCENARIO_NOT_FOUND"
 REFUSAL_SCENARIO_STORE_UNAVAILABLE = "SCENARIO_STORE_UNAVAILABLE"
 REFUSAL_RUN_STORE_UNAVAILABLE = "RUN_STORE_UNAVAILABLE"
 REFUSAL_RUN_NOT_FOUND = "RUN_NOT_FOUND"
+#: S2-01a: Commit of a run set up from a registered basis, until S2-02.
+REFUSAL_REGISTERED_COMMIT_UNAVAILABLE = "REGISTERED_COMMIT_UNAVAILABLE"
 REFUSAL_EXECUTION_REQUEST_INVALID = "EXECUTION_REQUEST_INVALID"
 REFUSAL_COMMIT_REFUSED = "COMMIT_REFUSED"
 REFUSAL_COMMIT_STAGE_CHANGED = "COMMIT_STAGE_CHANGED"
@@ -827,6 +835,24 @@ def publication_profile_summary(
             }
             for state in profile.supported_reporting_states
         ],
+        # S2-01b: the simulated device resolutions this profile declares, in
+        # each signal's own unit. Empty for a profile that publishes exactly;
+        # a non-empty list means run setup accepts it only for a registered
+        # Site whose binding source units match.
+        "device_resolutions": [
+            {
+                "device_id": declaration.device_id,
+                "signal_id": declaration.signal_id,
+                "unit": declaration.canonical_unit,
+                "resolution": declaration.resolution,
+            }
+            for declaration in profile.device_signals
+            if declaration.resolution is not None
+        ],
+        "requires_registered_site": any(
+            declaration.resolution is not None
+            for declaration in profile.device_signals
+        ),
     }
 
 
@@ -1175,6 +1201,11 @@ def execution_payload(projection: LabProjection) -> dict[str, object]:
                 "bias": exact(signal.bias),
                 "dropout_per_thousand": signal.dropout_per_thousand,
                 "statement": signal.statement,
+                # S2-01b: the simulated device resolution, or null when the
+                # run's profile publishes exactly.
+                "resolution": (
+                    None if signal.resolution is None else exact(signal.resolution)
+                ),
             }
             for signal in projection.signals
         ],
@@ -1712,6 +1743,90 @@ def _drawing_context_payload(
     }
 
 
+def registered_stage_payload(view: RegisteredStageView) -> dict[str, object]:
+    """S2-01b: a registered run's Stage, exactly as the gateway ledger holds it.
+
+    Envelope and batch text travel verbatim with their stored SHA-256, so a
+    reviewer can compare bytes across restarts. Upload is pending and no receipt
+    exists; nothing here is accepted evidence.
+    """
+    return {
+        "store": GATEWAY_LEDGER_STORE,
+        "run_id": view.run_id,
+        "status": view.status,
+        "statement": view.statement,
+        "execution_status": view.execution_status,
+        "release_eligible": False,
+        "snapshot_sha256": view.snapshot_sha256,
+        "site_id": view.site_id,
+        "gateway_id": view.gateway_id,
+        "sequence_epoch": view.sequence_epoch,
+        "upload_state": view.upload_state,
+        "upload_statement": UPLOAD_STATEMENT,
+        "receipts": [],
+        "unavailable_detail": view.unavailable_detail,
+        "publication_notes": list(view.publication_notes),
+        "queue_depth_by_state": dict(sorted(view.queue_depth_by_state.items())),
+        "envelopes": [
+            {
+                "message_id": e.message_id,
+                "source_id": e.source_id,
+                "sequence_epoch": e.sequence_epoch,
+                "sequence": e.sequence,
+                "source_time": e.source_time,
+                "snapshot_sha256": e.snapshot_sha256,
+                "canonical": e.envelope_text,
+                "sha256": e.sha256,
+                "state": e.state,
+                "batch_id": e.batch_id,
+                "ordinal": e.ordinal,
+            }
+            for e in view.envelopes
+        ],
+        "batches": [
+            {
+                "batch_id": b.batch_id,
+                "source_id": b.source_id,
+                "sequence_epoch": b.sequence_epoch,
+                "snapshot_sha256": b.snapshot_sha256,
+                "canonical": b.payload_text,
+                "sha256": b.sha256,
+                "state": b.state,
+                "attempt_count": b.attempt_count,
+                "message_ids": list(b.message_ids),
+            }
+            for b in view.batches
+        ],
+        "holds": [
+            {
+                "hold_id": h.hold_id,
+                "kind": h.kind,
+                "field": h.field,
+                "detail": h.detail,
+                "device_id": h.device_id,
+                "signal_id": h.signal_id,
+                "source_time": h.source_time,
+                "seen_count": h.seen_count,
+            }
+            for h in view.holds
+        ],
+        # F1: a durable refusal to seal a group holding this run's envelopes.
+        "seal_refusals": [
+            {
+                "source_id": r.source_id,
+                "sequence_epoch": r.sequence_epoch,
+                "message_id": r.message_id,
+                "kind": r.kind,
+                "field": r.field,
+                "detail": r.detail,
+                "last_seen_at": r.last_seen_at,
+                "seen_count": r.seen_count,
+            }
+            for r in view.seal_refusals
+        ],
+    }
+
+
 def stage_payload(view: SourceStageView) -> dict[str, object]:
     """One Draft's staged source envelopes on the wire, for the gated inspector.
 
@@ -1990,6 +2105,51 @@ def run_summary(record: SimulationRun) -> dict[str, object]:
             }
             for item in record.unsupported_optional_inputs
         ],
+        "configuration_basis": configuration_basis_payload(record),
+    }
+
+
+def configuration_basis_payload(record: SimulationRun) -> dict[str, object]:
+    """Which configuration a run was set up from (S2-01a).
+
+    `LEGACY_FILE` for a run against a YAML Site. `REGISTERED` for an imported
+    Site: the frozen Foundation and binding revisions, the snapshot schema and
+    hash, and the two instants the basis was selected at. The canonical bytes
+    stay on the record; only their length is reported here. A registered basis
+    is configuration, not accepted evidence, and says so.
+    """
+    basis = record.registered_basis
+    if basis is None:
+        return {"store": "LEGACY_FILE"}
+    site = record.deterministic_identity.site
+    return {
+        "store": "REGISTERED",
+        "selection": basis.selection,
+        "source_start": basis.source_start,
+        "knowledge_at": basis.knowledge_at,
+        "foundation_revision_id": basis.foundation_revision_id,
+        "foundation_version": basis.foundation_version,
+        "foundation_valid_from": basis.foundation_valid_from,
+        "foundation_valid_to": basis.foundation_valid_to,
+        "binding_set_revision_id": basis.binding_set_revision_id,
+        "binding_set_version": basis.binding_set_version,
+        "binding_valid_from": basis.binding_valid_from,
+        "binding_valid_to": basis.binding_valid_to,
+        "snapshot_schema": basis.snapshot_schema,
+        "snapshot_sha256": basis.snapshot_sha256,
+        "snapshot_byte_length": len(basis.snapshot_canonical.encode("utf-8")),
+        "current_registration_gaps": list(basis.current_registration_gaps),
+        # The amendment to D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary:
+        # name, time zone and Site type are the Site's current row as read at
+        # setup and frozen on this Draft. They are not selected by
+        # `knowledge_at`; only the Foundation and binding revisions are.
+        "site_metadata": {
+            "display_name": basis.site_display_name,
+            "timezone": site.timezone,
+            "site_type": site.site_type,
+            "source": "CURRENT_SITE_ROW_AT_SETUP",
+        },
+        "accepted_evidence": False,
     }
 
 
@@ -2042,6 +2202,7 @@ def build_simulator_lab_router(
     commits: CommittedArtifactStore | None = None,
     *,
     imported_site_check: Callable[[str], None] | None = None,
+    registered_bases: RegisteredBasisPort | None = None,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
@@ -2075,6 +2236,7 @@ def build_simulator_lab_router(
         scenarios,
         model_profiles=model_profiles,
         publication_profiles=publication_profiles,
+        registered_bases=registered_bases,
     )
     router = APIRouter(prefix=SIMULATOR_LAB_API_PREFIX, tags=["simulator-lab"])
 
@@ -2350,6 +2512,11 @@ def build_simulator_lab_router(
                 detail={
                     **_refusal(run_refusal_code(error.kind), error.message),
                     "refusal_kind": error.kind,
+                    **(
+                        {}
+                        if error.reason_code is None
+                        else {"reason_code": error.reason_code}
+                    ),
                     "run_created": False,
                 },
             ) from error
@@ -2495,15 +2662,35 @@ def build_simulator_lab_router(
                 detail=_refusal(REFUSAL_RUN_STORE_UNAVAILABLE, str(error)),
             ) from error
 
-    def _refuse_if_imported(record: SimulationRun) -> None:
-        """S1-01: no Lab execution or Commit against an imported Site.
+    def _refuse_if_imported(record: SimulationRun, *, commit: bool = False) -> None:
+        """The one boundary every Lab write passes before the port runs.
 
-        From the moment a Site code is registered in the product Foundation
-        store, start, step, run-to-end and Commit refuse at this shared
-        boundary, whatever Stage already exists: Commit is the sealing and
-        release path. `GET .../stage` and the run's history stay readable as
-        frozen historical inspection and never call this.
+        S2-01a: a Draft set up from a registered basis (`registered_basis`
+        frozen on the record and re-verified against its hash on every read)
+        may start, step and run to end from that basis. Commit refuses every
+        imported run, registered or not, until S2-02 delivers Site Evidence:
+        a completed registered run seals and releases nothing here.
+
+        S1-01, unchanged for a Draft frozen from the legacy YAML Site: once its
+        code is registered in the product Foundation store, start, step,
+        run-to-end and Commit all refuse, whatever Stage already exists. The
+        Draft is never reinterpreted under the new registration.
+        `GET .../stage` and the run's history stay readable as frozen
+        historical inspection and never call this.
         """
+        if record.registered_basis is not None:
+            if commit:
+                raise HTTPException(
+                    status_code=409,
+                    detail=_refusal(
+                        REFUSAL_REGISTERED_COMMIT_UNAVAILABLE,
+                        "This run was set up from a registered Site configuration. "
+                        "Committing it is not available yet, because accepted Site "
+                        "evidence for registered Sites is not delivered in this "
+                        "build. Nothing was sealed or released.",
+                    ),
+                )
+            return
         if imported_site_check is None:
             return
         site_id = record.deterministic_identity.site.site_id
@@ -2606,19 +2793,46 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
+        if record.registered_basis is not None:
+            # S2-01b: a registered run's publication authority is the gateway
+            # ledger; the file Stage is never consulted for it.
+            return {
+                "stage": registered_stage_payload(port.registered_stage(record)),
+                "frozen_basis": _frozen_basis(record),
+            }
         return {
             "stage": stage_payload(port.staged_envelopes(record)),
             "frozen_basis": _frozen_basis(record),
         }
 
     def _frozen_basis(record: SimulationRun) -> dict[str, object]:
-        """The legacy YAML Foundation basis this Draft froze at setup (S1-01).
+        """The configuration basis this Draft froze at setup.
 
-        Historical inspection only. When the Site has since been imported
+        A registered Draft (S2-01a) reports its registered basis. Otherwise it
+        is the legacy YAML Foundation basis (S1-01): historical inspection only. When the Site has since been imported
         into the product Foundation store, Commit refuses; this read says so
         rather than presenting the frozen basis as current.
         """
         site = record.deterministic_identity.site
+        if record.registered_basis is not None:
+            # S2-01a: a Draft set up from a registered basis. Labelled as
+            # registered, with the exact revisions and hash it froze, and no
+            # accepted-evidence claim: Commit refuses every imported run.
+            return {
+                "configuration_store": "REGISTERED",
+                "site_id": site.site_id,
+                "foundation_version": site.foundation_version,
+                "foundation_valid_from": site.foundation_valid_from,
+                "site_imported": True,
+                "can_release": False,
+                "registered_basis": configuration_basis_payload(record),
+                "statement": (
+                    "Frozen at Draft setup from the registered Site configuration "
+                    "named here. Configuration, not accepted evidence; this read "
+                    "cannot seal or release anything, and Commit is not available "
+                    "for registered Sites yet."
+                ),
+            }
         imported: bool | None = False
         if imported_site_check is not None:
             try:
@@ -2756,7 +2970,7 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
-        _refuse_if_imported(record)
+        _refuse_if_imported(record, commit=True)
         existing = _stored_artifact(record.run_id)
         view = port.staged_envelopes(record)
         if existing is None:

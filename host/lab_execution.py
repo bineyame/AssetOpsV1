@@ -139,6 +139,13 @@ from execution_adapter import (
     unconfigured_signals,
 )
 from source_stages import JsonSourceStages
+from gateway_publication import (
+    PublicationRefused,
+    RegisteredGatewayPublisher,
+    unavailable_stage,
+)
+from assetops_contracts.gateway_stage import RegisteredStageView
+from assetops_gateway.ipc import GatewayRequestRefused, GatewayUnavailable
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
@@ -533,6 +540,9 @@ class LabSession:
     #: Held here so the live session answers what the artifact says, rather
     #: than a complete-looking in-memory history only a restart would contradict.
     history_write_failure: str | None = None
+    #: S2-01b: the run's frozen registered basis, or None for a YAML run. A
+    #: registered session publishes through the durable gateway, not the file Stage.
+    registered_basis: object | None = None
 
 
 def _state_key_of(address: str) -> str:
@@ -1382,6 +1392,13 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
                 "bias": str(signal.bias),
                 "dropout_per_thousand": signal.dropout_per_thousand,
                 "statement": signal.statement,
+                # S2-01b: only when the profile declares one, so every earlier
+                # projection keeps its exact bytes.
+                **(
+                    {}
+                    if signal.resolution is None
+                    else {"resolution": str(signal.resolution)}
+                ),
             }
             for signal in projection.signals
         ],
@@ -1669,6 +1686,14 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
                     bias=_exact(row["bias"], f"the bias of {row['signal_id']}"),
                     dropout_per_thousand=int(row["dropout_per_thousand"]),
                     statement=str(row["statement"]),
+                    resolution=(
+                        None
+                        if row.get("resolution") is None
+                        else _exact(
+                            row["resolution"],
+                            f"the resolution of {row['signal_id']}",
+                        )
+                    ),
                 )
                 for row in document["signals"]
             ),
@@ -1900,8 +1925,14 @@ class HostLabExecution:
         # profile publishes through (`gateway_mapping_for`); a test may inject
         # one, which then applies to every run.
         gateway_mapping: SourceMappingSet | None = None,
+        # S2-01b: the authenticated channel to the separate gateway process.
+        # None means no gateway is configured, and a registered run's
+        # publication is then refused and its Stage reads unavailable - it is
+        # never staged into the file Stage instead.
+        gateway: RegisteredGatewayPublisher | None = None,
     ) -> None:
         self._model = model
+        self._gateway = gateway
         self._publication_profile = publication_profile
         self._artifacts = (
             YamlExecutionArtifacts() if artifacts is None else artifacts
@@ -2113,6 +2144,7 @@ class HostLabExecution:
                 gateway_id=publication.gateway_id or "",
                 mapping=mapping,
                 records=records,
+                registered_basis=run.registered_basis,
             )
             self._sessions[run.run_id] = session
             # Staged before the artifact says the run is running, so the stage
@@ -2308,6 +2340,9 @@ class HostLabExecution:
         a reload too), a content conflict is also recorded by id, and the
         projection says what happened.
         """
+        if session.registered_basis is not None:
+            self._stage_registered(session)
+            return
         observations = generate_observations(
             session.execution.boundaries, session.reporting
         )
@@ -2356,6 +2391,73 @@ class HostLabExecution:
             )
             if note not in session.staging_notes:
                 session.staging_notes.append(note)
+
+    def _stage_registered(self, session: LabSession) -> None:
+        """S2-01b: publish a registered run's series through the gateway.
+
+        The whole series every time, as for the file Stage: the gateway answers
+        a replayed observation ALREADY_ADMITTED with its first identity, so
+        nothing is allocated twice. Any refusal or an unreachable gateway is a
+        staging note and leaves the ledger as it was; there is no fallback.
+        """
+
+        def note(text: str) -> None:
+            if text not in session.staging_notes:
+                session.staging_notes.append(text)
+
+        if self._gateway is None:
+            note("registered publication refused: no gateway is configured for this host")
+            return
+        if session.reporting.delays:
+            # Publication-delay windows are a Lab fault scenario (S2-01c); the
+            # gateway path does not model them yet, so it refuses rather than
+            # publish a delayed report early.
+            note("registered publication refused: publication-delay windows are not supported by the gateway path")
+            return
+        if session.records is not None and generate_records(
+            session.execution.boundaries, session.records
+        ):
+            note(
+                "policy and operational records are not published to the gateway: "
+                "SourceEnvelope V3 accepts MEASUREMENT only (SCHEMA_UNSUPPORTED)"
+            )
+        observations = generate_observations(
+            session.execution.boundaries, session.reporting
+        )
+        try:
+            self._gateway.publish(
+                session.run_id,
+                session.registered_basis,
+                observations,
+                interval_minutes=session.reporting.interval.timestep_minutes,
+            )
+        except (GatewayUnavailable, GatewayRequestRefused, PublicationRefused) as refused:
+            # Not "nothing was staged": a seal refusal comes after admission
+            # committed. The Stage read reports what the ledger holds.
+            note(f"registered publication refused: {refused}")
+
+    def registered_stage(self, run: SimulationRun) -> RegisteredStageView:
+        """A registered run's Stage, read back from the gateway ledger."""
+        if run.registered_basis is None:
+            raise ValueError("only a registered run has a gateway Stage")
+        with self._lock_for(run.run_id):
+            execution_status = self._execution_status(run)
+            session = self._sessions.get(run.run_id)
+            notes = () if session is None else tuple(session.staging_notes)
+            if self._gateway is None:
+                return unavailable_stage(
+                    run.run_id,
+                    run.registered_basis,
+                    execution_status,
+                    "no gateway is configured for this host",
+                    notes,
+                )
+            return self._gateway.stage(
+                run.run_id,
+                run.registered_basis,
+                execution_status=execution_status,
+                notes=notes,
+            )
 
     def staged_envelopes(self, run: SimulationRun) -> SourceStageView:
         """This Draft's staged envelopes, re-read from persistence and verified.

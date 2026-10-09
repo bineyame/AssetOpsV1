@@ -23,6 +23,34 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
+### Registered Kobo generator and capability demo configuration (expires at S2-02 demo setup / before S3-01 capability claims)
+
+S2-01a correctly leaves a registered `mini-grid` v3 Draft blocked because the imported Foundation lacks four static generator properties. Its ten bindings are the nine original Kobo mappings plus the explicitly added generator status; the two capability channels in the newer template remain unconfigured. This is safe for the S2-01a daytime run and its uncommittable simulated output because no generator or capability evidence is claimed. It is not proof that a profile-5 report or generator evidence can be produced from the registered basis.
+
+S2-02 demo setup must publish a new-effective, provenance-labelled Foundation revision for the generator properties before using a registered generator scenario, and supply scenario-owned initial fuel and generator state. If that demo uses profile 5 or asserts capability, first declare and bind the two capability channels under a new compatible role-set version; otherwise keep their absence explicit and close this part before S3-01 candidate dispatch from registered evidence. Neither step may rewrite the old import or invent observations. See `D-2026-10-08-s2-registered-kobo-demo-configuration`.
+
+### S2-01b Codex review carries (2026-10-09, `.agent/S2-01b-codex-review.md`)
+
+- F2: `frontend/src/shell/RunCommitPanel.tsx` `releaseBasisBlock(null)` returns null, so a committed pre-import artifact briefly shows enabled Resume/Retry release before Stage loads (and keeps it if Stage fails). Server refuses; presentation gap. Keep release controls unavailable while the basis is unknown; next Lab UI correction.
+- F3: 640 px page overflow (scrollWidth 780 vs 625, from `.app-frame`, also on a READY draft without the ledger; not baselined against S2-01a) and the full layout run stopping at 215 PASS on polluted `var/runs` state remain unverified. Run against a clean runs store and baseline the overflow at the next layout closeout.
+
+### S2-01b fix re-review carries (2026-10-09, `.agent/S2-01b-fix-rereview.md`, fresh Claude reviewer)
+
+- R1 (low): the `seal_refusal` row is keyed, deleted and looked up without outbox state (`gateway/assetops_gateway/service.py` ~661-680, ~910-920; `ledger.py` ~154); a refused READY group can have its refusal erased when the same source/epoch/snapshot STAGED group seals, so Stage says pending instead of refused. Fails safe; unreachable from valid input. Add state to the key, delete and lookup when S2-01c touches sealing/faults.
+- Layout: add a narrow-width check of the new "Sealing refused" table to the F3 layout carry.
+
+### S2-01a Codex review carries (2026-10-08, `.agent/S2-01a-codex-review.md`)
+
+- F1: `frontend/src/shell/RunCommitPanel.tsx` applies the registered/imported Commit block only to `NOT_COMMITTED`; a pre-import YAML run committed before its Site was imported, with an unfinished release, still offers Resume/Retry release, which the server always refuses (409). No write escapes. Apply the basis block to the committed branch and test that historical case; fold into the next Lab-touching slice (S2-01b).
+- F3: the full `tools/layout-evidence.mjs` run stalled after 132 PASS / 0 FAIL (browser stopped responding; ~270 local runs suspected); the later run, cockpit and site sections were not measured on S2-01a. Re-run (or diagnose the stall) at the next layout closeout.
+- F2 is the Q4/Q5 carry above.
+
+### S2-01a current-row metadata and asset-code identity (expires before S2-02 evidence ingestion)
+
+Snapshot v1 pins Foundation, binding and acquisition references, but not the Site row's name/type/timezone or the asset UUID-to-code relation. S2-01a freezes valid current Site metadata on each Draft and refuses a Site type inconsistent with the selected role set; its binding-derived component links still resolve asset codes from current rows. This is safe for the S2-01a simulated, uncommittable run because the product has no Site/asset identity-edit path and no accepted evidence is produced. It does not prove historical Site metadata at `knowledge_at`.
+
+Before S2-02 accepts evidence, enforce stable `asset.asset_code` identity at the database boundary and reconcile any already changed rows, then validate original registered references without substituting current gateway/source names. If historical Site name/timezone reconstruction becomes a product claim, version those facts or change the snapshot contract; do not infer them from current rows. See the S2-01a phase-1 amendment to `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` and the S2-02 packet.
+
 ### ~~`supported_states` has no falsifier until T021~~ - RESOLVED in T021, 2026-09-27
 
 `MINIMAL_FUEL_TANK_MODEL` declares that `fuel-tank-volume` supports

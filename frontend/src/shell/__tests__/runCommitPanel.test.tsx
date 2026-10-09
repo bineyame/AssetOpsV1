@@ -310,3 +310,201 @@ describe("the Commit panel", () => {
     expect(release?.textContent).not.toMatch(/do not exist/);
   });
 });
+
+/** S2-01a: the registered basis this Draft froze, as the run read reports it. */
+const REGISTERED_BASIS = {
+  store: "REGISTERED" as const,
+  selection: "CURRENT",
+  source_start: "2026-09-30T03:00:00Z",
+  knowledge_at: "2026-10-07T12:00:00Z",
+  foundation_revision_id: "8a1f0c2e-0000-4000-8000-000000000001",
+  foundation_version: 2,
+  foundation_valid_from: "2026-09-01T00:00:00Z",
+  foundation_valid_to: null,
+  binding_set_revision_id: "8a1f0c2e-0000-4000-8000-000000000002",
+  binding_set_version: 1,
+  binding_valid_from: "2026-09-01T00:00:00Z",
+  binding_valid_to: "2026-10-05T00:00:00Z",
+  snapshot_schema: "assetops.acquisition-snapshot/1",
+  snapshot_sha256: "c".repeat(64),
+  snapshot_byte_length: 5562,
+  current_registration_gaps: [],
+  site_metadata: {
+    display_name: "Kobo",
+    timezone: "Africa/Addis_Ababa",
+    site_type: "MINIGRID",
+    source: "CURRENT_SITE_ROW_AT_SETUP",
+  },
+  accepted_evidence: false as const,
+};
+
+function withBasis(
+  stage: RunStageResult,
+  frozenBasis: NonNullable<Extract<RunStageResult, { status: "loaded" }>["frozenBasis"]>,
+): RunStageResult {
+  return stage.status === "loaded" ? { ...stage, frozenBasis } : stage;
+}
+
+describe("Commit and the configuration a Draft froze (S2-01a)", () => {
+  it("keeps Commit disabled for a registered run even when the stage is eligible", async () => {
+    const stage = withBasis(ELIGIBLE, {
+      configuration_store: "REGISTERED",
+      site_imported: true,
+      can_release: false,
+      statement: "Frozen at Draft setup from the registered Site configuration.",
+      registered_basis: REGISTERED_BASIS,
+    });
+    const fake = client(stage, NOT_COMMITTED);
+    renderAt(fake);
+    await settledScreen();
+
+    const button = within(panel()).getByRole("button", { name: "Commit and release" });
+    expect(button).toBeDisabled();
+    const reason = document.getElementById(button.getAttribute("aria-describedby") ?? "");
+    expect(reason?.textContent).toMatch(/registered Site configuration/);
+    expect(reason?.hasAttribute("data-commit-basis-block")).toBe(true);
+    fireEvent.click(button);
+    expect(fake.posts).toBe(0);
+    const basis = document.querySelector("[data-stage-basis]");
+    expect(basis?.getAttribute("data-stage-basis")).toBe("REGISTERED");
+    expect(basis?.getAttribute("data-stage-can-release")).toBe("false");
+  });
+
+  it("keeps Commit disabled for a legacy Draft whose Site has since been registered", async () => {
+    renderAt(
+      client(
+        withBasis(ELIGIBLE, {
+          configuration_store: "LEGACY_FILE",
+          site_imported: true,
+          can_release: false,
+          statement: "Frozen at Draft setup from the legacy Site document.",
+        }),
+        NOT_COMMITTED,
+      ),
+    );
+    await settledScreen();
+
+    const button = within(panel()).getByRole("button", { name: "Commit and release" });
+    expect(button).toBeDisabled();
+    expect(within(panel()).getByText(/read-only history/)).toBeInTheDocument();
+    expect(document.querySelector("[data-stage-basis]")?.getAttribute("data-stage-basis")).toBe(
+      "LEGACY_FILE",
+    );
+  });
+
+  it("leaves an unimported legacy Draft's eligible Commit enabled", async () => {
+    renderAt(
+      client(
+        withBasis(ELIGIBLE, {
+          configuration_store: "LEGACY_FILE",
+          site_imported: false,
+          can_release: true,
+          statement: "Frozen at Draft setup from the legacy Site document.",
+        }),
+        NOT_COMMITTED,
+      ),
+    );
+    await settledScreen();
+
+    expect(within(panel()).getByRole("button", { name: "Commit and release" })).toBeEnabled();
+  });
+
+  it("shows a registered run's basis, labelling name and time zone as setup metadata", async () => {
+    const fake = client(NOT_ELIGIBLE, NOT_COMMITTED);
+    fake.getRun = () =>
+      Promise.resolve({
+        status: "loaded" as const,
+        run: { ...RUN, configuration_basis: REGISTERED_BASIS },
+      });
+    renderAt(fake);
+    await settledScreen();
+
+    expect(document.querySelector("[data-run-basis]")?.getAttribute("data-run-basis")).toBe(
+      "REGISTERED",
+    );
+    expect(document.querySelector("[data-run-basis-sha256]")?.textContent).toBe("c".repeat(64));
+    const metadata = document.querySelector("[data-run-basis-site-metadata]");
+    expect(metadata?.textContent).toBe("Kobo, Africa/Addis_Ababa");
+    expect(metadata?.parentElement?.textContent).toMatch(
+      /current record as read when this draft was created, frozen here\. Not chosen by the knowledge time/,
+    );
+    expect(document.body.textContent).toMatch(/configuration, not accepted evidence/);
+  });
+
+  it("labels a legacy run's basis LEGACY_FILE", async () => {
+    const fake = client(NOT_ELIGIBLE, NOT_COMMITTED);
+    fake.getRun = () =>
+      Promise.resolve({
+        status: "loaded" as const,
+        run: { ...RUN, configuration_basis: { store: "LEGACY_FILE" as const } },
+      });
+    renderAt(fake);
+    await settledScreen();
+
+    expect(document.querySelector("[data-run-basis]")?.getAttribute("data-run-basis")).toBe(
+      "LEGACY_FILE",
+    );
+  });
+
+  // S2-01a carry F1: a pre-import YAML artifact committed before its Site was
+  // imported is history; the server refuses its release (409), so neither an
+  // unfinished nor a refused release may offer Resume or Retry.
+  const IMPORTED_SINCE = {
+    configuration_store: "LEGACY_FILE" as const,
+    site_imported: true,
+    can_release: false,
+    statement: "Frozen at Draft setup from the legacy Site document.",
+  };
+
+  it.each([
+    [
+      "an unfinished",
+      committed(release({ status: "IN_PROGRESS", processed: 40, accepted: 40, completed_at: null })),
+    ],
+    [
+      "a refused",
+      committed(
+        release({
+          status: "REFUSED",
+          processed: 0,
+          accepted: 0,
+          completed_at: null,
+          refusal: { kind: "CONFIGURATION_UNRESOLVED", detail: "Foundation v1 is not registered" },
+        }),
+      ),
+    ],
+    ["a missing", committed(null)],
+  ])(
+    "blocks %s release of a legacy artifact committed before its Site was imported",
+    async (_label, read) => {
+      const fake = client(withBasis(ELIGIBLE, IMPORTED_SINCE), read);
+      renderAt(fake);
+      await settledScreen();
+
+      expect(panel().querySelector('[data-commit-state="COMMITTED"]')).not.toBeNull();
+      expect(within(panel()).queryByRole("button", { name: "Resume release" })).toBeNull();
+      expect(within(panel()).queryByRole("button", { name: "Retry release" })).toBeNull();
+      expect(within(panel()).queryAllByRole("button")).toHaveLength(0);
+      const block = panel().querySelector("[data-release-basis-block]");
+      expect(block?.textContent).toMatch(/read-only history/);
+      expect(block?.textContent).toMatch(/cannot be resumed or retried/);
+      expect(fake.posts).toBe(0);
+    },
+  );
+
+  it("still offers Resume for a committed legacy artifact whose Site was never imported", async () => {
+    const interrupted = committed(
+      release({ status: "IN_PROGRESS", processed: 40, accepted: 40, completed_at: null }),
+    );
+    renderAt(
+      client(
+        withBasis(ELIGIBLE, { ...IMPORTED_SINCE, site_imported: false, can_release: true }),
+        interrupted,
+      ),
+    );
+    await settledScreen();
+
+    expect(within(panel()).getByRole("button", { name: "Resume release" })).toBeEnabled();
+    expect(panel().querySelector("[data-release-basis-block]")).toBeNull();
+  });
+});

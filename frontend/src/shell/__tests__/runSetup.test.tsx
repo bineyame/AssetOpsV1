@@ -10,6 +10,11 @@ import type {
 } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import type { SiteTemplateLineageClient } from "../../sites/siteTemplateLineage";
+import type {
+  FoundationRead,
+  FoundationReadModel,
+  SiteFoundationClient,
+} from "../../sites/siteFoundationClient";
 import { settledScreen } from "../../test/settled";
 import { spacedText, textNodes } from "../../test/text";
 import type {
@@ -282,6 +287,7 @@ function renderSetup(
     directory?: SiteDirectoryClient;
     detail?: SiteDetailClient;
     lineage?: SiteTemplateLineageClient;
+    foundation?: SiteFoundationClient;
   } = {},
 ) {
   return render(
@@ -294,6 +300,7 @@ function renderSetup(
         scenarioCatalog={catalog}
         runSetup={runSetup}
         now={() => TODAY}
+        {...(sites.foundation === undefined ? {} : { siteFoundation: sites.foundation })}
       />
     </MemoryRouter>,
   );
@@ -319,8 +326,8 @@ const SCENARIO_LAST_MOMENT = SCENARIO_DETAIL.timeline.reduce(
  * nothing on this screen chooses them: they are components of the frozen
  * deterministic identity and the model profile decides the outcome.
  */
-async function fillAndSubmit(): Promise<void> {
-  chooseSite();
+async function fillAndSubmit(site: string = SITE_CHOICE): Promise<void> {
+  chooseSite(site);
   fireEvent.change(screen.getByLabelText("Interval start"), {
     target: { value: "2026-09-21T00:00:00Z" },
   });
@@ -1250,5 +1257,194 @@ describe("the run setup surface is gated", () => {
 
     expect(fetched).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
+  });
+});
+
+describe("a registered Site (S2-01a)", () => {
+  const KOBO = {
+    ...SITE,
+    site_id: "KOBO-001",
+    display_name: "Kobo",
+    configuration_store: "POSTGRES",
+    // The version effective today; a run's start selects its own.
+    foundation: { ...SITE.foundation, version: 3 },
+  };
+  const KOBO_CHOICE = "Kobo (KOBO-001)";
+  const directory: SiteDirectoryClient = {
+    listSites: () =>
+      Promise.resolve({ status: "loaded", sites: [{ ...SITE, configuration_store: "LEGACY_FILE" }, KOBO] }),
+  };
+  const detail: SiteDetailClient = {
+    getSite: (id: string) =>
+      Promise.resolve({ status: "loaded", site: id === KOBO.site_id ? KOBO : SITE }),
+  };
+
+  function registered(available: boolean): FoundationReadModel {
+    return {
+      revision: { version: 2, valid_from: "2026-09-01T00:00:00Z", valid_to: null },
+      bindings: {
+        binding_set: { version: 1, valid_from: "2026-09-01T00:00:00Z", valid_to: null },
+      },
+      acquisition_snapshot: available
+        ? { available: true, sha256: "d".repeat(64), schema: "assetops.acquisition-snapshot/1" }
+        : { available: false, code: "BINDINGS_NOT_REGISTERED", reason: "No binding set applies." },
+    } as unknown as FoundationReadModel;
+  }
+
+  function foundationClient(available = true) {
+    const reads: [string, string | null][] = [];
+    const client = {
+      getFoundation: (siteId: string, at: string | null) => {
+        reads.push([siteId, at]);
+        return Promise.resolve<FoundationRead<FoundationReadModel>>({
+          status: "loaded",
+          value: registered(available),
+        });
+      },
+    } as unknown as SiteFoundationClient;
+    return { client, reads };
+  }
+
+  it("labels each picker row with the configuration that answers for it", async () => {
+    renderSetup(runClient(REFUSED_FOR_REGISTERED).client, scenarioClient(), {
+      directory,
+      detail,
+      foundation: foundationClient().client,
+    });
+    await settledScreen();
+
+    expect(
+      document.querySelector('[data-site-picker-store="POSTGRES"]')?.textContent,
+    ).toBe("Registered configuration");
+    expect(
+      document.querySelector('[data-site-picker-store="LEGACY_FILE"]')?.textContent,
+    ).toBe("Legacy Site file");
+  });
+
+  it("shows the basis the start selects and sends that Foundation version", async () => {
+    const { client, calls } = runClient(REFUSED_FOR_REGISTERED);
+    const foundation = foundationClient();
+    renderSetup(client, scenarioClient(), { directory, detail, foundation: foundation.client });
+    await settledScreen();
+    await fillAndSubmit(KOBO_CHOICE);
+    // Create waits for the registered read; once the basis shows, submit.
+    await screen.findByText("d".repeat(64));
+    expect(calls).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Create draft run" }));
+
+    await screen.findByRole("alert");
+    expect(foundation.reads).toContainEqual(["KOBO-001", "2026-09-21T00:00:00Z"]);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].foundation_version).toBe(2);
+    expect(document.querySelector("[data-setup-registered-basis]")).not.toBeNull();
+    expect(screen.getByText("d".repeat(64))).toBeInTheDocument();
+    const alert = screen.getByRole("alert");
+    expect(alert.getAttribute("data-setup-refusal-kind")).toBe("REGISTERED_BASIS_BOUNDARY");
+    expect(alert.getAttribute("data-setup-refusal-reason")).toBe("BASIS_BOUNDARY");
+    expect(alert.textContent).toMatch(/Reason code: BASIS_BOUNDARY/);
+  });
+
+  it("blocks Create with the reason when no complete registered basis applies", async () => {
+    const { client, calls } = runClient(REFUSED_FOR_REGISTERED);
+    renderSetup(client, scenarioClient(), {
+      directory,
+      detail,
+      foundation: foundationClient(false).client,
+    });
+    await settledScreen();
+    await fillAndSubmit(KOBO_CHOICE);
+
+    await screen.findAllByText(/BINDINGS_NOT_REGISTERED/);
+    expect(screen.getByRole("button", { name: "Create draft run" })).toBeDisabled();
+    expect(calls).toHaveLength(0);
+  });
+
+  it("never reads a registered configuration for a legacy Site", async () => {
+    const foundation = foundationClient();
+    renderSetup(runClient(REFUSED_FOR_REGISTERED).client, scenarioClient(), {
+      directory,
+      detail,
+      foundation: foundation.client,
+    });
+    await settledScreen();
+    await fillAndSubmit();
+    await screen.findByRole("alert");
+
+    expect(foundation.reads).toEqual([]);
+  });
+});
+
+const REFUSED_FOR_REGISTERED: CreateRunResult = {
+  status: "refused",
+  code: "RUN_SETUP_REFUSED",
+  refusalKind: "REGISTERED_BASIS_BOUNDARY",
+  reasonCode: "BASIS_BOUNDARY",
+  message: "The interval crosses a configuration boundary.",
+};
+
+describe("a publication profile whose simulated devices round (S2-01b)", () => {
+  const ROUNDING = {
+    ...(PROFILES.status === "loaded" ? PROFILES.publicationProfiles[0] : ({} as never)),
+    publication_profile_id: "registered-kobo-publication",
+    publication_profile_version: 1,
+    display_name: "Registered Kobo publication profile",
+    device_resolutions: [
+      { device_id: "pcs-meter", signal_id: "ac-power", unit: "kW", resolution: "0.000001" },
+      { device_id: "battery-bms", signal_id: "soc", unit: "%", resolution: "0.000001" },
+    ],
+    requires_registered_site: true,
+  };
+
+  function roundingClient(outcome: CreateRunResult): RunSetupClient {
+    return {
+      ...runClient(outcome).client,
+      listProfiles: () =>
+        Promise.resolve({
+          ...(PROFILES as Extract<RunProfilesResult, { status: "loaded" }>),
+          publicationProfiles: [ROUNDING],
+        }),
+    };
+  }
+
+  it("says the chosen profile rounds numeric readings, and that it needs a registered Site", async () => {
+    renderSetup(roundingClient({ status: "created", run: READY_RUN }));
+    await settledScreen();
+
+    expect(screen.getByLabelText("Publication profile")).toHaveValue(
+      "registered-kobo-publication@1",
+    );
+    const note = document.querySelector("[data-setup-profile-resolution]");
+    expect(note?.getAttribute("data-setup-profile-resolution")).toBe("0.000001");
+    expect(note?.hasAttribute("data-setup-profile-registered-only")).toBe(true);
+    expect(note?.textContent).toMatch(/round each numeric reading half-to-even to 0\.000001/);
+    expect(note?.textContent).toMatch(/Status readings are not rounded/);
+    expect(note?.textContent).toMatch(/registered Site/);
+  });
+
+  it("says nothing about rounding for a profile that publishes exactly", async () => {
+    renderSetup(runClient({ status: "created", run: READY_RUN }).client);
+    await settledScreen();
+
+    expect(document.querySelector("[data-setup-profile-resolution]")).toBeNull();
+  });
+
+  it.each([
+    ["PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE", /needs a registered Site/],
+    ["PUBLICATION_UNIT_MISMATCH", /does not match the Site's registered binding/],
+  ])("leads a %s refusal with a plain label and the backend's own message", async (kind, label) => {
+    const refused: CreateRunResult = {
+      status: "refused",
+      code: "RUN_SETUP_REFUSED",
+      refusalKind: kind,
+      message: `Backend sentence for ${kind}. No run was created.`,
+    };
+    renderSetup(roundingClient(refused));
+    await settledScreen();
+    await fillAndSubmit();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.getAttribute("data-setup-refusal-kind")).toBe(kind);
+    expect(alert.textContent).toMatch(label);
+    expect(alert.textContent).toContain(refused.message);
   });
 });

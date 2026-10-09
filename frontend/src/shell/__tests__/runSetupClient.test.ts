@@ -298,7 +298,31 @@ describe("what a response becomes", () => {
       status: "refused",
       code: "RUN_INTERVAL_INVALID",
       refusalKind: "INTERVAL_INVALID",
+      reasonCode: null,
       message: "Entry generator-run-window runs until 1320 minutes.",
+    });
+  });
+
+  it("a registered-basis refusal carries its specific reason code (S2-01a)", async () => {
+    respondWith(
+      {
+        detail: {
+          code: "RUN_SETUP_REFUSED",
+          refusal_kind: "REGISTERED_BASIS_BOUNDARY",
+          reason_code: "BASIS_BOUNDARY",
+          run_created: false,
+          message: "The interval crosses a configuration boundary.",
+        },
+      },
+      422,
+    );
+
+    expect(await client().createRun(INPUT)).toEqual({
+      status: "refused",
+      code: "RUN_SETUP_REFUSED",
+      refusalKind: "REGISTERED_BASIS_BOUNDARY",
+      reasonCode: "BASIS_BOUNDARY",
+      message: "The interval crosses a configuration boundary.",
     });
   });
 
@@ -309,6 +333,7 @@ describe("what a response becomes", () => {
       status: "refused",
       code: null,
       refusalKind: null,
+      reasonCode: null,
       message: "The run setup request was refused.",
     });
   });
@@ -367,5 +392,70 @@ describe("what a response becomes", () => {
       expect(["created", "created_but_unreadable"]).toContain(result.status);
       vi.unstubAllGlobals();
     }
+  });
+});
+
+describe("the configuration basis a run froze (S2-01a)", () => {
+  const REGISTERED = {
+    store: "REGISTERED",
+    selection: "HISTORICAL",
+    source_start: "2026-09-30T03:00:00Z",
+    knowledge_at: "2026-10-07T12:00:00Z",
+    foundation_revision_id: "f",
+    foundation_version: 2,
+    foundation_valid_from: "2026-09-01T00:00:00Z",
+    foundation_valid_to: null,
+    binding_set_revision_id: "b",
+    binding_set_version: 1,
+    binding_valid_from: "2026-09-01T00:00:00Z",
+    binding_valid_to: "2026-10-05T00:00:00Z",
+    snapshot_schema: "assetops.acquisition-snapshot/1",
+    snapshot_sha256: "c".repeat(64),
+    snapshot_byte_length: 5562,
+    current_registration_gaps: ["SOURCE_RENAMED"],
+    site_metadata: {
+      display_name: "Kobo",
+      timezone: "Africa/Addis_Ababa",
+      site_type: "MINIGRID",
+      source: "CURRENT_SITE_ROW_AT_SETUP",
+    },
+    accepted_evidence: false,
+  };
+
+  it("reads a registered basis on the run", async () => {
+    respondWith({ run: { ...RUN, configuration_basis: REGISTERED } }, 200);
+    const read = await client().getRun(RUN.run_id);
+    expect(read.status).toBe("loaded");
+    expect(read.status === "loaded" && read.run.configuration_basis).toEqual(REGISTERED);
+  });
+
+  it("refuses half a basis rather than rendering it, and any evidence claim", async () => {
+    respondWith({ run: { ...RUN, configuration_basis: { ...REGISTERED, snapshot_sha256: 7 } } }, 200);
+    expect((await client().getRun(RUN.run_id)).status).toBe("unavailable");
+    respondWith({ run: { ...RUN, configuration_basis: { ...REGISTERED, accepted_evidence: true } } }, 200);
+    expect((await client().getRun(RUN.run_id)).status).toBe("unavailable");
+  });
+
+  it("still reads a run from a backend that reports no basis", async () => {
+    respondWith({ run: RUN }, 200);
+    expect((await client().getRun(RUN.run_id)).status).toBe("loaded");
+  });
+});
+
+describe("the Stage read's frozen basis (S2-01a)", () => {
+  it("carries the frozen basis beside the stage, and null for a malformed one", async () => {
+    const { NOT_STAGED } = await import("./executionFixtures");
+    const basis = {
+      configuration_store: "REGISTERED",
+      site_imported: true,
+      can_release: false,
+      statement: "Frozen at Draft setup from the registered Site configuration.",
+    };
+    respondWith({ stage: NOT_STAGED, frozen_basis: basis }, 200);
+    const read = await client().getStage("run-1");
+    expect(read.status === "loaded" && read.frozenBasis).toEqual(basis);
+    respondWith({ stage: NOT_STAGED, frozen_basis: { ...basis, can_release: "no" } }, 200);
+    const malformed = await client().getStage("run-1");
+    expect(malformed.status === "loaded" && malformed.frozenBasis).toBeNull();
   });
 });

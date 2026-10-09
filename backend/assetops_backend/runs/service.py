@@ -67,7 +67,7 @@ module calls it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from fractions import Fraction
 from typing import Callable, Iterable, Sequence
@@ -90,6 +90,7 @@ from assetops_backend.runs.models import (
     FrozenProfileBinding,
     FrozenScenarioBinding,
     FrozenSignalMapping,
+    FrozenSignalResolution,
     FrozenSiteBinding,
     FrozenTemplateLineage,
     SimulationRun,
@@ -101,7 +102,11 @@ from assetops_backend.runs.parsing import (
     parse_run_setup_request,
     reject_unusable_quantity,
 )
-from assetops_backend.runs.ports import SimulationRunRepository
+from assetops_backend.runs.ports import (
+    RegisteredBasisPort,
+    RegisteredSiteSelection,
+    SimulationRunRepository,
+)
 from assetops_backend.runs.profiles import (
     PUBLICATION_DELAY_STATES,
     REPORTING_PATH_STATES,
@@ -113,6 +118,7 @@ from assetops_backend.runs.profiles import (
     find_publication_profile,
     resolve_observation_binding,
     resolve_publication_identity,
+    resolve_signal_resolutions,
     state_authority,
 )
 from assetops_backend.runs.refusals import refuse
@@ -383,9 +389,13 @@ class RunSetupService:
         model_profiles: tuple[ModelProfile, ...],
         publication_profiles: tuple[PublicationProfile, ...],
         now: Callable[[], str] = _utc_now,
+        registered_bases: RegisteredBasisPort | None = None,
     ) -> None:
         self._runs = runs
         self._sites = sites
+        # S2-01a: the read-only registered-basis boundary. None in a
+        # legacy-only composition, where every code is a YAML Site.
+        self._registered_bases = registered_bases
         self._scenarios = scenarios
         self._model_profiles = model_profiles
         self._publication_profiles = publication_profiles
@@ -404,7 +414,7 @@ class RunSetupService:
         """
         request = parse_run_setup_request(body)
 
-        site = self._resolve_site(request)
+        site, selection = self._resolve_site(request)
         scenario = self._resolve_scenario(request)
         model = self._resolve_model_profile(request)
         publication = self._resolve_publication_profile(request)
@@ -426,6 +436,16 @@ class RunSetupService:
             parameters=parameters,
             supplied=supplied,
         )
+        if selection is not None:
+            # The registered binding set, not the Foundation content's legacy
+            # mapping list, says which component a device signal describes.
+            identity = replace(identity, signal_mappings=selection.signal_mappings)
+        identity = replace(
+            identity,
+            signal_resolutions=self._freeze_signal_resolutions(
+                request, publication, selection
+            ),
+        )
 
         reasons, optional = self._decide(
             scenario=scenario,
@@ -444,13 +464,60 @@ class RunSetupService:
             deterministic_identity=identity,
             blocking_reasons=reasons,
             unsupported_optional_inputs=optional,
+            registered_basis=None if selection is None else selection.basis,
         )
 
         return self._runs.create_run(record)
 
     # --- Resolving what the request names -----------------------------------
 
-    def _resolve_site(self, request: RunSetupRequest) -> SiteRecord:
+    def _resolve_site(
+        self, request: RunSetupRequest
+    ) -> tuple[SiteRecord, RegisteredSiteSelection | None]:
+        if self._registered_bases is not None and self._registered_bases.registered(
+            request.site_id
+        ):
+            return self._resolve_registered_site(request)
+        if request.knowledge_at is not None:
+            raise refuse(
+                "REQUEST_INVALID",
+                f"'knowledge_at' selects what a registered Site's configuration "
+                f"had recorded by then; site {request.site_id} is not a registered "
+                "Site, so there is nothing for it to select.",
+            )
+        return self._resolve_legacy_site(request), None
+
+    def _resolve_registered_site(
+        self, request: RunSetupRequest
+    ) -> tuple[SiteRecord, RegisteredSiteSelection]:
+        """The imported Site at its one registered basis (S2-01a).
+
+        Selected at the run's source start as recorded at `knowledge_at`,
+        covering every public source time through `end_time`. The requested
+        Foundation version must equal the selected one; it is never resolved
+        to whatever is current.
+        """
+        assert self._registered_bases is not None
+        selection = self._registered_bases.select(
+            request.site_id,
+            start_time=request.start_time,
+            end_time=request.end_time,
+            knowledge_at=request.knowledge_at,
+        )
+        site = selection.site
+        if site.foundation.version != request.foundation_version:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"At {request.start_time} as recorded at "
+                f"{selection.basis.knowledge_at}, site {site.site_id} is registered "
+                f"at Foundation version {site.foundation.version}, and this request "
+                f"names version {request.foundation_version}. A run freezes the "
+                "exact registered version selected; it is not substituted.",
+            )
+        self._validate_site_timezone(site)
+        return site, selection
+
+    def _resolve_legacy_site(self, request: RunSetupRequest) -> SiteRecord:
         try:
             site = self._sites.get_site(request.site_id)
         except SiteAwaitingMigration as error:
@@ -473,6 +540,10 @@ class RunSetupService:
                 "rather than resolved to whatever is current.",
             )
 
+        self._validate_site_timezone(site)
+        return site
+
+    def _validate_site_timezone(self, site: SiteRecord) -> None:
         try:
             validate_iana_timezone(
                 site.timezone, where=f"The time zone of site {site.site_id}"
@@ -485,8 +556,6 @@ class RunSetupService:
                 f"{error} No run was created, and this is a statement about "
                 "the database rather than about the site.",
             ) from error
-
-        return site
 
     def _resolve_scenario(self, request: RunSetupRequest) -> ScenarioDefinition:
         try:
@@ -539,6 +608,58 @@ class RunSetupService:
                 f"{request.publication_profile_version} exists in this build.",
             )
         return profile
+
+    def _freeze_signal_resolutions(
+        self,
+        request: RunSetupRequest,
+        publication: PublicationProfile,
+        selection: RegisteredSiteSelection | None,
+    ) -> tuple[FrozenSignalResolution, ...]:
+        """S2-01b: freeze the profile's device resolutions, or refuse.
+
+        `D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary`. A
+        profile that declares none freezes none. One that does is selectable
+        only for a registered Site, and each declared unit must equal the
+        registered binding's source unit for that device signal: a mismatch
+        refuses rather than rounding in a unit the binding does not publish. A
+        declared signal the binding set does not bind is not a reporting path
+        of this run, so there is no unit to disagree with.
+        """
+        resolutions = resolve_signal_resolutions(publication)
+        if not resolutions:
+            return ()
+        named = (
+            f"{publication.publication_profile_id!r} at version "
+            f"{publication.publication_profile_version}"
+        )
+        if selection is None:
+            raise refuse(
+                "PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE",
+                f"Publication profile {named} states a simulated device "
+                "resolution against registered binding source units, and site "
+                f"{request.site_id} has no registered basis to check them "
+                "against. No run was created.",
+            )
+        units = {
+            (device_id, signal_id): unit
+            for device_id, signal_id, unit in selection.source_units
+        }
+        mismatched = [
+            f"{item.device_id}/{item.signal_id} declares {item.unit!r} and the "
+            f"binding publishes {units[(item.device_id, item.signal_id)]!r}"
+            for item in resolutions
+            if (item.device_id, item.signal_id) in units
+            and units[(item.device_id, item.signal_id)] != item.unit
+        ]
+        if mismatched:
+            raise refuse(
+                "PUBLICATION_UNIT_MISMATCH",
+                f"Publication profile {named} declares a device resolution in a "
+                f"unit the registered binding does not publish: "
+                f"{'; '.join(mismatched)}. Nothing is rounded in an assumed "
+                "unit. No run was created.",
+            )
+        return resolutions
 
     # --- Refusals: what cannot be frozen ------------------------------------
 

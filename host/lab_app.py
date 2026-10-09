@@ -30,12 +30,32 @@ gate closed an exploding artifact store is never touched.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
+
 from fastapi import FastAPI
 
 from assetops_backend.config import FeatureFlags, load_feature_flags
 from assetops_backend.main import create_app
 
 from lab_execution import HostLabExecution
+from gateway_publication import RegisteredGatewayPublisher
+from assetops_gateway.ipc import GatewayLink
+
+#: S2-01b: where the Lab host reaches its colocated gateway process. Both name
+#: the gateway's own provisioning (`python -m assetops_gateway serve --config`):
+#: the pipe/socket address and the protected local credential file it created.
+#: Unset means no gateway, and registered runs then stage nothing - fail closed.
+GATEWAY_ADDRESS_ENV = "ASSETOPS_GATEWAY_ADDRESS"
+GATEWAY_CREDENTIAL_ENV = "ASSETOPS_GATEWAY_CREDENTIAL"
+
+
+def gateway_from_environment() -> RegisteredGatewayPublisher | None:
+    address = os.environ.get(GATEWAY_ADDRESS_ENV)
+    credential = os.environ.get(GATEWAY_CREDENTIAL_ENV)
+    if not address or not credential:
+        return None
+    return RegisteredGatewayPublisher(GatewayLink(address, Path(credential)))
 
 
 def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI:
@@ -47,7 +67,9 @@ def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI
     """
     resolved = load_feature_flags() if flags is None else flags
     execution = (
-        HostLabExecution() if resolved.simulator_lab_enabled else None
+        HostLabExecution(gateway=gateway_from_environment())
+        if resolved.simulator_lab_enabled
+        else None
     )
     return create_app(resolved, execution=execution, **overrides)
 

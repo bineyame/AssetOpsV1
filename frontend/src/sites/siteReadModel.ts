@@ -51,6 +51,12 @@ export interface SiteSummary {
   origin: string;
   source: SiteSourceReadModel;
   template: SiteTemplateProvenanceReadModel | null;
+  /**
+   * Which store answers for this Site (S1-01): `POSTGRES` for a registered
+   * Site, `LEGACY_FILE` for one still read from its legacy document. Absent
+   * from an older backend.
+   */
+  configuration_store?: string;
 }
 
 /**

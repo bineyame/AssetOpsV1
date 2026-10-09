@@ -15,6 +15,12 @@ import {
   useSiteTemplateLineage,
   type SiteTemplateLineageClient,
 } from "../sites/siteTemplateLineage";
+import {
+  createSiteFoundationClient,
+  type FoundationRead,
+  type FoundationReadModel,
+  type SiteFoundationClient,
+} from "../sites/siteFoundationClient";
 import { TemplateProvenanceText } from "../sites/TemplateProvenanceText";
 import { deriveSiteView } from "../sites/siteViewModel";
 import type {
@@ -27,6 +33,7 @@ import {
   templateLineageText,
   type CreateRunResult,
   type RunProfilesResult,
+  type RunPublicationProfile,
   type RunSetupClient,
   type RunSummary,
 } from "./runSetupClient";
@@ -121,6 +128,21 @@ export interface RunSetupFrameProps {
   scenarioHref: (scenarioId: string) => string;
   /** Injected so a test can pin the day the defaults are derived from. */
   now?: () => Date;
+  /**
+   * S2-01a: the registered Site configuration effective at the run's start,
+   * read for a registered Site only. Defaults to the product client.
+   */
+  siteFoundation?: Pick<SiteFoundationClient, "getFoundation">;
+}
+
+/** A whole-second UTC instant, the only start the setup request accepts. */
+const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
+
+const defaultSiteFoundation = createSiteFoundationClient();
+
+/** Whether this Site is answered by the registered configuration store. */
+export function isRegisteredSite(summary: SiteSummary | undefined | null): boolean {
+  return summary?.configuration_store === "POSTGRES";
 }
 
 interface FormState {
@@ -262,6 +284,7 @@ export function RunSetupFrame({
   simulatorLabPath,
   scenarioHref,
   now = () => new Date(),
+  siteFoundation = defaultSiteFoundation,
 }: RunSetupFrameProps) {
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const [scenario, setScenario] = useState<ScenarioDetailResult | null>(null);
@@ -272,6 +295,10 @@ export function RunSetupFrame({
   >({});
   /** The site the person picked. Never set by the screen itself. */
   const [chosenSiteId, setChosenSiteId] = useState<string | null>(null);
+  const [registeredRead, setRegisteredRead] = useState<{
+    key: string;
+    read: FoundationRead<FoundationReadModel>;
+  } | null>(null);
   const lineage = useSiteTemplateLineage(templateLineage);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [result, setResult] = useState<CreateRunResult | null>(null);
@@ -382,6 +409,32 @@ export function RunSetupFrame({
     // render; the scenario is what this depends on.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scenario]);
+
+  // S2-01a: for a registered Site, the configuration its registry selects at
+  // the run's start, so the screen shows the basis the Draft will freeze.
+  const startForRead = form.startTime;
+  const registeredSiteId =
+    sites?.status === "loaded" &&
+    isRegisteredSite(sites.sites.find((s) => s.site_id === chosenSiteId))
+      ? chosenSiteId
+      : null;
+  useEffect(() => {
+    if (registeredSiteId === null || !UTC_INSTANT.test(startForRead)) {
+      return;
+    }
+    let active = true;
+    const key = `${registeredSiteId}@${startForRead}`;
+    void siteFoundation
+      .getFoundation(registeredSiteId, startForRead)
+      .then((read) => {
+        if (active) {
+          setRegisteredRead({ key, read });
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [siteFoundation, registeredSiteId, startForRead]);
 
   // Every configured site, then each one's Foundation version. Read for the
   // picker, never chosen from: the effect sets no selection.
@@ -533,8 +586,20 @@ export function RunSetupFrame({
    * it cannot fill in.
    */
   const site = chosenSiteId === null ? null : siteDetails[chosenSiteId] ?? null;
-  const foundationVersion =
-    site?.status === "loaded" ? site.site.foundation.version : null;
+  const registered = registeredSiteId !== null;
+  const registeredKey = `${chosenSiteId ?? ""}@${form.startTime}`;
+  const registeredBasis =
+    registered && registeredRead?.key === registeredKey ? registeredRead.read : null;
+  // A registered Site's version is the one its registered configuration
+  // selects at the run's start, never the version effective today.
+  const foundationVersion = registered
+    ? registeredBasis?.status === "loaded" &&
+      registeredBasis.value.acquisition_snapshot.available
+      ? registeredBasis.value.revision.version
+      : null
+    : site?.status === "loaded"
+      ? site.site.foundation.version
+      : null;
 
   const siteReadFailure =
     chosenSiteId === null
@@ -545,7 +610,9 @@ export function RunSetupFrame({
       : site?.status === "unavailable"
         ? "The site store could not be read, so the foundation version this " +
           "run would freeze is unknown and no run can be set up."
-        : null;
+        : registered
+          ? registeredBasisProblem(form.startTime, registeredBasis)
+          : null;
 
   const refusal = result?.status === "refused" ? result : null;
   const created = result?.status === "created" ? result.run : null;
@@ -645,6 +712,9 @@ export function RunSetupFrame({
               ? siteReadFailure ?? "Loading the chosen site."
               : String(foundationVersion)}
           </Fact>
+          {registered && registeredBasis?.status === "loaded" ? (
+            <RegisteredBasisFacts model={registeredBasis.value} />
+          ) : null}
         </FactList>
       </Panel>
 
@@ -817,6 +887,15 @@ export function RunSetupFrame({
               declares none blocks the draft.
             </span>
           </p>
+          <ProfileResolution
+            profile={publicationProfiles.find(
+              (profile) =>
+                profileKey(
+                  profile.publication_profile_id,
+                  profile.publication_profile_version,
+                ) === form.publicationProfile,
+            )}
+          />
 
           {profiles.status === "unavailable" ? (
             <p className="field-error" role="alert">
@@ -867,9 +946,21 @@ export function RunSetupFrame({
           )}
 
           {refusal === null ? null : (
-            <p className="field-error" role="alert">
+            <p
+              className="field-error"
+              role="alert"
+              data-setup-refusal-kind={refusal.refusalKind ?? undefined}
+              data-setup-refusal-reason={refusal.reasonCode ?? undefined}
+            >
+              {refusalLabel(refusal.refusalKind)}
               {refusal.message} No draft run was created and nothing was
               written.
+              {refusal.reasonCode ? (
+                <span className="cell-secondary">
+                  {" "}
+                  Reason code: {refusal.reasonCode}.
+                </span>
+              ) : null}
             </p>
           )}
 
@@ -994,6 +1085,74 @@ function SitePicker({
   );
 }
 
+/**
+ * Why a registered Site's basis is not available for this start, or null.
+ */
+function registeredBasisProblem(
+  startTime: string,
+  read: FoundationRead<FoundationReadModel> | null,
+): string | null {
+  if (!UTC_INSTANT.test(startTime)) {
+    return (
+      "This site uses its registered configuration, which is chosen by the " +
+      "run's start time. Enter a start time to see which configuration applies."
+    );
+  }
+  if (read === null) {
+    return "Reading the registered configuration for this start time.";
+  }
+  if (read.status !== "loaded") {
+    const message =
+      "message" in read && read.message
+        ? read.message
+        : "The registered configuration could not be read for this start time.";
+    return `${message} No run can be set up from it.`;
+  }
+  const snapshot = read.value.acquisition_snapshot;
+  if (!snapshot.available) {
+    return (
+      `No complete registered configuration applies at this start time ` +
+      `(${snapshot.code}): ${snapshot.reason} No run can be set up from it.`
+    );
+  }
+  return null;
+}
+
+/**
+ * The registered configuration the run's start selects, shown before setup.
+ *
+ * Setup selects it again and checks it covers the whole interval; this read is
+ * what the Draft will freeze when it does.
+ */
+function RegisteredBasisFacts({ model }: { model: FoundationReadModel }) {
+  const snapshot = model.acquisition_snapshot;
+  const bindings = model.bindings.binding_set;
+  return (
+    <>
+      <Fact term="Configuration">
+        <span data-setup-registered-basis="">
+          Registered configuration, chosen by the run's start time
+        </span>
+      </Fact>
+      <Fact term="Foundation revision">
+        {`Version ${model.revision.version}, valid from ${model.revision.valid_from}` +
+          (model.revision.valid_to === null ? "" : ` to ${model.revision.valid_to}`)}
+      </Fact>
+      <Fact term="Signal bindings">
+        {bindings === null
+          ? "None registered"
+          : `Version ${bindings.version}, valid from ${bindings.valid_from}` +
+            (bindings.valid_to === null ? "" : ` to ${bindings.valid_to}`)}
+      </Fact>
+      {snapshot.available ? (
+        <Fact term="Configuration snapshot">
+          <code>{snapshot.sha256}</code> ({snapshot.schema})
+        </Fact>
+      ) : null}
+    </>
+  );
+}
+
 function SitePickerRow({
   summary,
   detail,
@@ -1033,6 +1192,16 @@ function SitePickerRow({
       <span className="cell-secondary" data-site-picker-foundation="">
         {foundation}
       </span>
+      {summary.configuration_store === undefined ? null : (
+        <span
+          className="cell-secondary"
+          data-site-picker-store={summary.configuration_store}
+        >
+          {isRegisteredSite(summary)
+            ? "Registered configuration"
+            : "Legacy Site file"}
+        </span>
+      )}
       <span className="cell-secondary" data-site-picker-lineage="">
         Created from template:{" "}
         <TemplateProvenanceText
@@ -1200,5 +1369,46 @@ function CreatedDraft({ run }: { run: RunSummary }) {
         </ul>
       </Panel>
     </>
+  );
+}
+
+/**
+ * S2-01b: a plain lead-in for the two publication-profile refusals a
+ * registered Draft can meet; every other refusal's message stands alone.
+ */
+function refusalLabel(kind: string | null): string | null {
+  if (kind === "PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE") {
+    return "This publication profile needs a registered Site. ";
+  }
+  if (kind === "PUBLICATION_UNIT_MISMATCH") {
+    return "A unit in this publication profile does not match the Site's registered binding. ";
+  }
+  return null;
+}
+
+/**
+ * S2-01b: what the chosen profile's simulated devices round to before they
+ * publish, so the person choosing it sees that the Lab reports are rounded
+ * readings and not exact world values.
+ */
+function ProfileResolution({ profile }: { profile: RunPublicationProfile | undefined }) {
+  const resolutions = profile?.device_resolutions ?? [];
+  if (profile === undefined || (resolutions.length === 0 && !profile.requires_registered_site)) {
+    return null;
+  }
+  const steps = Array.from(new Set(resolutions.map((item) => item.resolution)));
+  return (
+    <p
+      className="note"
+      data-setup-profile-resolution={steps.join(" ")}
+      data-setup-profile-registered-only={profile.requires_registered_site ? "" : undefined}
+    >
+      {resolutions.length === 0
+        ? null
+        : `Simulated devices round each numeric reading half-to-even to ${steps.join(" or ")} in that signal's own unit before publishing it (${resolutions.length} signals). Status readings are not rounded. `}
+      {profile.requires_registered_site
+        ? "Only a draft on a registered Site can use this profile, because each unit is checked against the Site's registered binding."
+        : null}
+    </p>
   );
 }

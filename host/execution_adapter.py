@@ -86,6 +86,7 @@ from assetops_contracts.observation import (
     FrozenReportingInputs,
     PublicationDelayWindow,
     ReportingPathWindow,
+    device_resolution,
 )
 from assetops_contracts.operational_records import (
     FrozenRecordInputs,
@@ -534,6 +535,44 @@ def refuse_a_model_the_run_did_not_select(
     )
 
 
+def frozen_resolutions(
+    run: SimulationRun, profile: PublicationProfile
+) -> dict[tuple[str, str], Fraction]:
+    """S2-01b: each signal's simulated device resolution, as the run froze it.
+
+    The run's frozen identity is the authority, not the catalog: a build whose
+    profile of the same identity declared a different resolution, or a unit
+    other than the one frozen, would publish another experiment's readings
+    under this run's name, so either disagreement refuses.
+    """
+    frozen = {
+        (item.device_id, item.signal_id): item
+        for item in run.deterministic_identity.signal_resolutions
+    }
+    declared = {
+        declaration.signal_key: declaration
+        for declaration in profile.device_signals
+        if declaration.resolution is not None
+    }
+    disagreeing = sorted(
+        key
+        for key in set(frozen) | set(declared)
+        if key not in frozen
+        or key not in declared
+        or frozen[key].resolution != declared[key].resolution
+        or frozen[key].unit != declared[key].canonical_unit
+    )
+    if disagreeing:
+        raise FrozenRunNotReconstructible(
+            f"Run {run.run_id} froze device resolutions that publication profile "
+            f"{profile.publication_profile_id} version "
+            f"{profile.publication_profile_version} in this build does not "
+            f"declare identically, for {disagreeing}. A run publishes at the "
+            "resolution it froze or not at all."
+        )
+    return {key: device_resolution(item.resolution) for key, item in frozen.items()}
+
+
 def refuse_a_publication_profile_the_run_did_not_select(
     run: SimulationRun, profile: PublicationProfile
 ) -> None:
@@ -645,6 +684,7 @@ def reporting_inputs(
         timestep_minutes=identity.interval.timestep_minutes,
     )
 
+    resolutions = frozen_resolutions(run, profile)
     signals: list[DeviceSignalSpec] = []
     components: dict[tuple[str, str], str] = {}
     for declaration in profile.device_signals:
@@ -677,6 +717,7 @@ def reporting_inputs(
                 bias=normalize_authored_float(declaration.bias),
                 dropout_per_thousand=declaration.dropout_per_thousand,
                 statement=declaration.statement,
+                resolution=resolutions.get(declaration.signal_key),
             )
         )
 

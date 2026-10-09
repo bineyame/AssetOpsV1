@@ -64,6 +64,7 @@ empty projection ever being mistaken for a run with no causes.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 
 from assetops_backend.state_refs import StateRef
@@ -495,6 +496,24 @@ class FrozenPublicationIdentity:
 
 
 @dataclass(frozen=True)
+class FrozenSignalResolution:
+    """One simulated device signal's published resolution, frozen with the run.
+
+    S2-01b (`D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary`).
+    Resolved from the selected publication profile only, like the gateway and
+    source identities beside it; a profile that declares none freezes none, so
+    every run set up before `registered-kobo-publication` v1 reads back with an
+    empty tuple and unchanged bytes. `unit` is the unit the resolution is stated
+    in, which run setup has checked equals the registered binding's source unit.
+    """
+
+    device_id: str
+    signal_id: str
+    unit: str
+    resolution: str
+
+
+@dataclass(frozen=True)
 class FrozenSignalMapping:
     """One device-to-signal mapping the Foundation declares, frozen by identity.
 
@@ -797,6 +816,74 @@ class FrozenBusAttachment:
     connection_ids: tuple[str, ...]
 
 
+REGISTERED_BASIS_SELECTIONS = ("CURRENT", "HISTORICAL")
+
+
+@dataclass(frozen=True)
+class RegisteredBasis:
+    """The one registered basis a run froze (S2-01a).
+
+    Selected at the run's source-interval start (`source_start`) as recorded at
+    `knowledge_at`, both resolved and frozen at setup
+    (D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary). It carries the
+    exact revision identities, the original valid periods it was checked
+    against, and the canonical snapshot text stored at publication with its
+    SHA-256. The text is verified against the hash whenever a record is built,
+    so a run read back after a restart either shows the bytes it froze or is
+    refused; nothing re-reads the current registration to fill it in.
+
+    Instants are UTC ISO-8601 with a `Z` suffix; `knowledge_at` may carry
+    fractional seconds because it is the server clock reading it was resolved
+    from. Valid ends are None when the period was open.
+    """
+
+    tenant_id: str
+    site_record_id: str
+    foundation_revision_id: str
+    foundation_version: int
+    foundation_valid_from: str
+    foundation_valid_to: str | None
+    foundation_content_sha256: str
+    binding_set_id: str
+    binding_set_revision_id: str
+    binding_set_version: int
+    binding_valid_from: str
+    binding_valid_to: str | None
+    snapshot_schema: str
+    snapshot_sha256: str
+    snapshot_canonical: str
+    source_start: str
+    knowledge_at: str
+    #: The Site's display name as its CURRENT row read at setup, frozen here so
+    #: the Draft can say what it was set up against. Like the time zone and
+    #: Site type on `FrozenSiteBinding`, it is current-row metadata frozen at
+    #: setup, not a historical fact selected by `knowledge_at`: snapshot v1
+    #: does not version Site metadata (D-2026-10-08 amendment, Q1).
+    site_display_name: str
+    #: CURRENT: the gateway's current acquisition basis at setup. HISTORICAL:
+    #: superseded or ended by setup, validated from its own stored identity.
+    selection: str
+    #: Gap codes in the Site's CURRENT registration rows at setup, reported
+    #: beside a historical basis and never used to deny it.
+    current_registration_gaps: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.selection not in REGISTERED_BASIS_SELECTIONS:
+            raise ValueError(
+                f"A registered basis selection is one of {REGISTERED_BASIS_SELECTIONS}, "
+                f"not {self.selection!r}."
+            )
+        if not self.snapshot_canonical:
+            raise ValueError("A registered basis carries no snapshot bytes.")
+        digest = hashlib.sha256(self.snapshot_canonical.encode("utf-8")).hexdigest()
+        if digest != self.snapshot_sha256:
+            raise ValueError(
+                f"The frozen snapshot hashes to {digest}, not the pinned "
+                f"{self.snapshot_sha256}. A registered basis is never served "
+                "with bytes its hash does not reproduce."
+            )
+
+
 @dataclass(frozen=True)
 class DeterministicIdentity:
     """Everything a rerun would have to reproduce to be the same run.
@@ -831,6 +918,10 @@ class DeterministicIdentity:
     #: attachments. Absent (empty) on a run whose profile has no bus, and on
     #: an earlier version-9 record, which the model refuses at execution.
     bus_attachments: tuple[FrozenBusAttachment, ...] = ()
+    #: S2-01b. Per-signal simulated device resolutions from the selected
+    #: publication profile. Empty, and absent from the stored document, on
+    #: every run whose profile declares none.
+    signal_resolutions: tuple[FrozenSignalResolution, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -869,6 +960,10 @@ class SimulationRun:
     deterministic_identity: DeterministicIdentity
     blocking_reasons: tuple[BlockingReason, ...]
     unsupported_optional_inputs: tuple[UnsupportedOptionalInput, ...]
+    #: S2-01a: the registered Foundation + SignalBinding basis an imported
+    #: Site's run was set up from. None for a run against a legacy YAML Site,
+    #: whose stored document carries no such key and round-trips unchanged.
+    registered_basis: RegisteredBasis | None = None
 
     def __post_init__(self) -> None:
         expected = "BLOCKED" if self.blocking_reasons else "READY"

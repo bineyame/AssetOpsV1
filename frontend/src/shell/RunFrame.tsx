@@ -10,6 +10,7 @@ import {
   stagedSignal,
   unavailableArrival,
 } from "./HistoryInspector";
+import { GatewayLedgerView } from "./GatewayLedgerView";
 import { RunCommitPanel } from "./RunCommitPanel";
 import { RunHeader } from "./RunHeader";
 import {
@@ -34,6 +35,7 @@ import {
   type RunFrameState,
 } from "./runFrameState";
 import type {
+  RunConfigurationBasis,
   RunDetailResult,
   RunExecutionResult,
   RunSetupClient,
@@ -480,6 +482,10 @@ export function RunFrame({
     execution !== null && execution.status === "loaded"
       ? execution.execution
       : null;
+  // S2-01b: some signal's simulated device rounds what it publishes.
+  const quantized =
+    projection !== null &&
+    projection.signals.some((signal) => typeof signal.resolution === "string");
   // Manual Step and Run to the end cannot race auto-play: while it schedules
   // (or awaits a step it already sent) they are unavailable, and while a
   // manual control is in flight Play is.
@@ -669,7 +675,9 @@ export function RunFrame({
           <p className="control-strip__slot" data-control-message>
             {execution !== null && execution.status === "refused" ? (
               <span data-control-refusal>
-                <strong>{execution.refusalKind ?? "Refused"}.</strong>{" "}
+                <strong>
+                  {execution.refusalKind ?? execution.code ?? "Refused"}.
+                </strong>{" "}
                 {execution.message}
               </span>
             ) : projection === null ? (
@@ -727,6 +735,7 @@ export function RunFrame({
             <p>{run.readiness_disclosure}</p>
           </Panel>
         )}
+        <ConfigurationBasisPanel basis={run.configuration_basis} />
         <Panel heading="The frozen inputs" headingId="run-frozen-heading" flush>
           <DataTable labelledBy="run-frozen-heading">
             <thead>
@@ -1027,6 +1036,7 @@ export function RunFrame({
                   <th scope="col">Reads</th>
                   <th scope="col">Publishes every</th>
                   <th scope="col">Bias</th>
+                  {quantized ? <th scope="col">Published to the nearest</th> : null}
                   <th scope="col">Samples lost per thousand</th>
                 </tr>
               </thead>
@@ -1044,11 +1054,28 @@ export function RunFrame({
                     </td>
                     <td>{`${signal.cadence_minutes} minutes`}</td>
                     <td>{`${signal.bias} ${signal.canonical_unit}`}</td>
+                    {quantized ? (
+                      <td data-signal-resolution={signal.resolution ?? "EXACT"}>
+                        {signal.resolution === null || signal.resolution === undefined
+                          ? "exact (not rounded)"
+                          : `${signal.resolution} ${signal.canonical_unit}`}
+                      </td>
+                    ) : null}
                     <td>{String(signal.dropout_per_thousand)}</td>
                   </tr>
                 ))}
               </tbody>
             </DataTable>
+            {quantized ? (
+              <p className="note" data-signal-resolution-note>
+                Each simulated device adds its bias, then rounds the reading
+                half-to-even to the step shown before publishing it. Subtracting
+                the bias from a reported value therefore gives the true value at
+                that reading&apos;s own time only to within half a step, and a
+                reading kept across a reporting gap still describes its own
+                earlier time, not the value the gap hid.
+              </p>
+            ) : null}
           </Panel>
         )}
         {projection === null ||
@@ -1154,6 +1181,8 @@ export function RunFrame({
               {stage.message ??
                 "The stage could not be read, so nothing is known about what was staged."}
             </p>
+          ) : stage.status === "gateway" ? (
+            <GatewayLedgerView stage={stage.stage} frozenBasis={stage.frozenBasis} />
           ) : (
             <>
               <p
@@ -1164,6 +1193,19 @@ export function RunFrame({
               >
                 {stage.stage.statement}
               </p>
+              {stage.frozenBasis ? (
+                <p
+                  data-stage-basis={stage.frozenBasis.configuration_store}
+                  data-stage-can-release={String(stage.frozenBasis.can_release)}
+                >
+                  <strong>
+                    {stage.frozenBasis.configuration_store === "REGISTERED"
+                      ? "Registered configuration."
+                      : "Legacy Site file."}
+                  </strong>{" "}
+                  {stage.frozenBasis.statement}
+                </p>
+              ) : null}
               {stage.stage.unreadable_detail === null ? null : (
                 <p data-stage-unreadable>
                   <strong>Integrity check failed.</strong>{" "}
@@ -1643,5 +1685,79 @@ function PlaybackControls({
           : ` Auto-play needs a RUNNING execution this host still holds; this one is ${executionStatus}.`}
       </p>
     </section>
+  );
+}
+
+/**
+ * The configuration this run was set up from (S2-01a).
+ *
+ * A registered basis names the exact Foundation and binding revisions, the
+ * snapshot hash and the two instants that selected them. The Site's name, time
+ * zone and type are labelled for what they are: the Site's current record as
+ * read at setup and frozen on this Draft, not facts selected by the knowledge
+ * time.
+ */
+export function ConfigurationBasisPanel({
+  basis,
+}: {
+  basis: RunConfigurationBasis | undefined;
+}) {
+  return (
+    <Panel heading="Configuration basis" headingId="run-basis-heading">
+      {basis === undefined ? (
+        <p data-run-basis="UNREPORTED">
+          This run's configuration basis was not reported.
+        </p>
+      ) : basis.store === "LEGACY_FILE" ? (
+        <p data-run-basis="LEGACY_FILE">
+          Set up from the legacy Site file (LEGACY_FILE). It is read as frozen
+          history and is never reinterpreted under a later registration.
+        </p>
+      ) : (
+        <>
+          <p data-run-basis="REGISTERED">
+            Set up from the registered Site configuration below, frozen when
+            this draft was created. It is configuration, not accepted evidence.
+          </p>
+          <FactList>
+            <Fact term="Foundation revision">
+              {`Version ${basis.foundation_version}, valid from ${basis.foundation_valid_from}` +
+                (basis.foundation_valid_to === null ? "" : ` to ${basis.foundation_valid_to}`)}
+              <span className="cell-secondary"> <code>{basis.foundation_revision_id}</code></span>
+            </Fact>
+            <Fact term="Signal bindings">
+              {`Version ${basis.binding_set_version}, valid from ${basis.binding_valid_from}` +
+                (basis.binding_valid_to === null ? "" : ` to ${basis.binding_valid_to}`)}
+              <span className="cell-secondary"> <code>{basis.binding_set_revision_id}</code></span>
+            </Fact>
+            <Fact term="Configuration snapshot">
+              <code data-run-basis-sha256>{basis.snapshot_sha256}</code>{" "}
+              ({basis.snapshot_schema}, {basis.snapshot_byte_length} bytes)
+            </Fact>
+            <Fact term="Selected for">
+              {`Source time ${basis.source_start}, as known at ${basis.knowledge_at}`}
+              {basis.selection === "HISTORICAL"
+                ? " (an earlier configuration, since replaced or ended)"
+                : ""}
+            </Fact>
+            {basis.current_registration_gaps.length === 0 ? null : (
+              <Fact term="Current registration gaps">
+                {basis.current_registration_gaps.join(", ")}
+              </Fact>
+            )}
+            <Fact term="Site name and time zone">
+              <span data-run-basis-site-metadata={basis.site_metadata.source}>
+                {`${basis.site_metadata.display_name}, ${basis.site_metadata.timezone}`}
+              </span>
+              <span className="cell-secondary">
+                {" "}
+                The Site's current record as read when this draft was created,
+                frozen here. Not chosen by the knowledge time.
+              </span>
+            </Fact>
+          </FactList>
+        </>
+      )}
+    </Panel>
   );
 }

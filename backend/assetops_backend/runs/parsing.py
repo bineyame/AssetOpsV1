@@ -50,6 +50,7 @@ from typing import Any, Mapping, NoReturn
 
 from assetops_contracts.control import DISCRETE_UNIT as DISCRETE_VALUE_UNIT
 from assetops_contracts.execution_contract import MODEL_NEED_ONLY_UNITS
+from assetops_contracts.observation import device_resolution
 
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.runs.identity import validate_run_id
@@ -73,10 +74,12 @@ from assetops_backend.runs.models import (
     FrozenParameter,
     FrozenProfileBinding,
     FrozenPublicationIdentity,
+    FrozenSignalResolution,
     FrozenScenarioBinding,
     FrozenSignalMapping,
     FrozenSiteBinding,
     FrozenTemplateLineage,
+    RegisteredBasis,
     SimulationRun,
     UnsupportedOptionalInput,
 )
@@ -115,6 +118,10 @@ REQUEST_KEYS = frozenset(
         "model_profile",
         "publication_profile",
         "run_inputs",
+        # S2-01a, API-only: what configuration had been recorded by this
+        # instant. Optional; a registered Site's setup defaults it to the
+        # server's now and freezes the resolved value.
+        "knowledge_at",
     }
 )
 
@@ -199,6 +206,9 @@ class RunSetupRequest:
     publication_profile_id: str
     publication_profile_version: int
     run_inputs: tuple[RunInputValue, ...]
+    #: S2-01a: optional, registered Sites only. A UTC instant, or None for
+    #: "the server's now at setup".
+    knowledge_at: str | None = None
 
 
 def parse_run_setup_request(request: Any) -> RunSetupRequest:
@@ -289,7 +299,26 @@ def parse_run_setup_request(request: Any) -> RunSetupRequest:
         publication_profile_id=publication_profile_id,
         publication_profile_version=publication_profile_version,
         run_inputs=_parse_run_inputs(request.get("run_inputs")),
+        knowledge_at=_knowledge_at(request.get("knowledge_at")),
     )
+
+
+def _knowledge_at(value: Any) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not INSTANT_PATTERN.match(value):
+        raise refuse(
+            "REQUEST_INVALID",
+            "'knowledge_at' is optional and, when given, a UTC instant spelled "
+            "as YYYY-MM-DDTHH:MM:SSZ: what configuration had been recorded by then.",
+        )
+    try:
+        datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError as error:
+        raise refuse(
+            "REQUEST_INVALID", f"'knowledge_at' {value!r} is not a real instant."
+        ) from error
+    return value
 
 
 def _refuse_request(message: str) -> NoReturn:
@@ -833,6 +862,23 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                 }
                 for item in identity.bus_attachments
             ],
+            # S2-01b: written only when frozen, so every earlier run's stored
+            # document keeps its exact bytes.
+            **(
+                {
+                    "signal_resolutions": [
+                        {
+                            "device_id": item.device_id,
+                            "signal_id": item.signal_id,
+                            "unit": item.unit,
+                            "resolution": item.resolution,
+                        }
+                        for item in identity.signal_resolutions
+                    ]
+                }
+                if identity.signal_resolutions
+                else {}
+            ),
         },
         "blocking_reasons": [
             {
@@ -850,7 +896,117 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
             }
             for item in record.unsupported_optional_inputs
         ],
+        # Absent for a legacy YAML Site's run, so its stored document
+        # round-trips unchanged.
+        **_render_registered_basis(record.registered_basis),
     }
+
+
+def _render_registered_basis(basis: RegisteredBasis | None) -> dict[str, Any]:
+    if basis is None:
+        return {}
+    return {
+        "registered_basis": {
+            "tenant_id": basis.tenant_id,
+            "site_record_id": basis.site_record_id,
+            "foundation_revision_id": basis.foundation_revision_id,
+            "foundation_version": basis.foundation_version,
+            "foundation_valid_from": basis.foundation_valid_from,
+            "foundation_valid_to": basis.foundation_valid_to,
+            "foundation_content_sha256": basis.foundation_content_sha256,
+            "binding_set_id": basis.binding_set_id,
+            "binding_set_revision_id": basis.binding_set_revision_id,
+            "binding_set_version": basis.binding_set_version,
+            "binding_valid_from": basis.binding_valid_from,
+            "binding_valid_to": basis.binding_valid_to,
+            "snapshot_schema": basis.snapshot_schema,
+            "snapshot_sha256": basis.snapshot_sha256,
+            "snapshot_canonical": basis.snapshot_canonical,
+            "source_start": basis.source_start,
+            "knowledge_at": basis.knowledge_at,
+            "site_display_name": basis.site_display_name,
+            "selection": basis.selection,
+            "current_registration_gaps": list(basis.current_registration_gaps),
+        }
+    }
+
+
+REGISTERED_BASIS_KEYS = frozenset(
+    {
+        "tenant_id",
+        "site_record_id",
+        "foundation_revision_id",
+        "foundation_version",
+        "foundation_valid_from",
+        "foundation_valid_to",
+        "foundation_content_sha256",
+        "binding_set_id",
+        "binding_set_revision_id",
+        "binding_set_version",
+        "binding_valid_from",
+        "binding_valid_to",
+        "snapshot_schema",
+        "snapshot_sha256",
+        "snapshot_canonical",
+        "source_start",
+        "knowledge_at",
+        "site_display_name",
+        "selection",
+        "current_registration_gaps",
+    }
+)
+#: Whole-second UTC for valid times; `knowledge_at` may carry the fraction of
+#: the clock reading it was resolved from.
+_BASIS_INSTANT = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z$")
+
+
+def _parse_registered_basis(raw: Any, *, source: str) -> RegisteredBasis:
+    where = "registered_basis"
+    basis = _mapping(raw, where="run")
+    unknown = sorted(set(basis) - REGISTERED_BASIS_KEYS)
+    missing = sorted(REGISTERED_BASIS_KEYS - set(basis))
+    if unknown or missing:
+        raise _bad(
+            f"'run.registered_basis' in {source} has unknown keys {unknown} "
+            f"or lacks {missing}."
+        )
+
+    def instant(key: str, *, optional: bool = False) -> str | None:
+        value = basis.get(key)
+        if value is None and optional:
+            return None
+        if not isinstance(value, str) or not _BASIS_INSTANT.match(value):
+            raise _bad(f"'{where}.{key}' in {source} is not a UTC instant.")
+        return value
+
+    gaps = basis.get("current_registration_gaps")
+    if not isinstance(gaps, list) or not all(isinstance(g, str) for g in gaps):
+        raise _bad(f"'{where}.current_registration_gaps' in {source} must be a list of codes.")
+    try:
+        return RegisteredBasis(
+            tenant_id=_text(basis, "tenant_id", where=where),
+            site_record_id=_text(basis, "site_record_id", where=where),
+            foundation_revision_id=_text(basis, "foundation_revision_id", where=where),
+            foundation_version=_whole(basis, "foundation_version", where=where),
+            foundation_valid_from=instant("foundation_valid_from"),
+            foundation_valid_to=instant("foundation_valid_to", optional=True),
+            foundation_content_sha256=_text(basis, "foundation_content_sha256", where=where),
+            binding_set_id=_text(basis, "binding_set_id", where=where),
+            binding_set_revision_id=_text(basis, "binding_set_revision_id", where=where),
+            binding_set_version=_whole(basis, "binding_set_version", where=where),
+            binding_valid_from=instant("binding_valid_from"),
+            binding_valid_to=instant("binding_valid_to", optional=True),
+            snapshot_schema=_text(basis, "snapshot_schema", where=where),
+            snapshot_sha256=_text(basis, "snapshot_sha256", where=where),
+            snapshot_canonical=_text(basis, "snapshot_canonical", where=where),
+            source_start=instant("source_start"),
+            knowledge_at=instant("knowledge_at"),
+            site_display_name=_text(basis, "site_display_name", where=where),
+            selection=_text(basis, "selection", where=where),
+            current_registration_gaps=tuple(gaps),
+        )
+    except ValueError as error:
+        raise _bad(f"{error} Read from {source}.") from error
 
 
 def _bad(message: str) -> RunConfigurationInvalid:
@@ -1005,6 +1161,11 @@ def parse_run_document(document: Any, *, source: str) -> SimulationRun:
             deterministic_identity=identity,
             blocking_reasons=reasons,
             unsupported_optional_inputs=optional,
+            registered_basis=(
+                None
+                if document.get("registered_basis") is None
+                else _parse_registered_basis(document["registered_basis"], source=source)
+            ),
         )
     except ValueError as error:
         # The record's own invariant: a run is READY exactly when it carries
@@ -1200,7 +1361,43 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
                 else []
             )
         ),
+        signal_resolutions=_parse_signal_resolutions(raw),
     )
+
+
+def _parse_signal_resolutions(
+    raw: Mapping[str, Any],
+) -> tuple[FrozenSignalResolution, ...]:
+    """S2-01b: the frozen device resolutions, absent on every earlier run.
+
+    A stored list is never empty, because an empty one is not written; one
+    that is would be a document this build did not write.
+    """
+    if raw.get("signal_resolutions") is None:
+        return ()
+    entries = _entries(raw, "signal_resolutions", where="deterministic_identity")
+    if not entries:
+        raise _bad(
+            "'deterministic_identity.signal_resolutions' is written only when a "
+            "resolution was frozen, so it is never an empty list."
+        )
+    frozen: list[FrozenSignalResolution] = []
+    for entry in entries:
+        item = _mapping(entry, where="signal_resolution")
+        resolution = _text(item, "resolution", where="signal_resolution")
+        try:
+            device_resolution(resolution)
+        except ValueError as error:
+            raise _bad(f"'signal_resolution.resolution': {error}") from error
+        frozen.append(
+            FrozenSignalResolution(
+                device_id=_text(item, "device_id", where="signal_resolution"),
+                signal_id=_text(item, "signal_id", where="signal_resolution"),
+                unit=_text(item, "unit", where="signal_resolution"),
+                resolution=resolution,
+            )
+        )
+    return tuple(frozen)
 
 def _parse_model_need(entry: Any) -> FrozenModelNeed:
     """One model-owned Foundation need (T024), with its absent case checked."""

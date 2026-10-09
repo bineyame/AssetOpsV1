@@ -1,0 +1,23 @@
+[project]
+name = "assetops-gateway"
+version = "0.0.0"
+description = "AssetOps durable simulated gateway: SQLite acquisition ledger, SourceEnvelope V3 and Batch V2 sealing."
+requires-python = ">=3.12"
+# The neutral contracts and nothing else. The gateway is a separate process on the
+# public side of the truth barrier: it never imports the simulator kernel, world,
+# scenario or oracle, the backend, or the `host/` composition leaf, and
+# `tools/checks/dependency-direction.ps1` fails the build if it does.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["assetops_gateway*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

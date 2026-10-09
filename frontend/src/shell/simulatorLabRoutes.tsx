@@ -1,3 +1,4 @@
+import type { SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { ReactElement } from "react";
 
 import type { FeatureFlags } from "../config/featureFlags";
@@ -253,6 +254,7 @@ export function simulatorLabRoutes(
   now?: () => Date,
   siteDirectory: SiteDirectoryClient = defaultSiteDetail,
   templateLineage?: SiteTemplateLineageClient,
+  siteFoundation?: Pick<SiteFoundationClient, "getFoundation">,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -368,6 +370,7 @@ export function simulatorLabRoutes(
           simulatorLabPath={SIMULATOR_LAB_PATH}
           scenarioHref={scenarioHref}
           {...(now === undefined ? {} : { now })}
+          {...(siteFoundation === undefined ? {} : { siteFoundation })}
         />,
       ),
     },

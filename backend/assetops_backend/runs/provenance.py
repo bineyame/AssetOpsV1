@@ -708,6 +708,31 @@ def frozen_inputs(
             )
         )
 
+    # S2-01b: the simulated device resolutions the publication profile froze.
+    if not identity.signal_resolutions:
+        rows.append(
+            FrozenInput(
+                identity_field="signal_resolutions",
+                field="Device resolution",
+                value="none declared by this profile; readings publish exactly",
+                answered_by="PUBLICATION_PROFILE",
+                answered_by_detail=publication_detail,
+            )
+        )
+    for item in identity.signal_resolutions:
+        rows.append(
+            FrozenInput(
+                identity_field="signal_resolutions",
+                field=f"Device resolution {item.device_id}/{item.signal_id}",
+                value=(
+                    f"{item.resolution} {item.unit}, rounded half to even by "
+                    "the simulated device"
+                ),
+                answered_by="PUBLICATION_PROFILE",
+                answered_by_detail=publication_detail,
+            )
+        )
+
     rows.append(
         FrozenInput(
             identity_field="intervention_history",

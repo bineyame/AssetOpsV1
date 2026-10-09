@@ -69,11 +69,14 @@ from dataclasses import dataclass, replace
 from assetops_backend.runs.models import (
     FrozenObservationBinding,
     FrozenPublicationIdentity,
+    FrozenSignalResolution,
 )
 from assetops_backend.scenarios.models import ObservationSource
 from assetops_backend.state_refs import STATE_SCOPES
+from assetops_contracts.control import DISCRETE_UNIT
 from assetops_contracts.observation import (
     REPORTABLE_READING_CLASSES,
+    device_resolution,
     refuse_numeric_error_on_a_discrete_signal,
 )
 
@@ -512,8 +515,15 @@ class DeviceSignalDeclaration:
     bias: float
     dropout_per_thousand: int
     statement: str
+    #: S2-01b (`D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary`).
+    #: The simulated device's published resolution in `canonical_unit`, as a
+    #: finite decimal. None on `simulator-lab-publication` v3/v4/v5, which
+    #: publish exactly as before; never set on a discrete (enum) signal.
+    resolution: str | None = None
 
     def __post_init__(self) -> None:
+        if self.resolution is not None:
+            device_resolution(self.resolution)
         if self.reading_class not in REPORTABLE_READING_CLASSES:
             raise ValueError(
                 f"Signal {self.signal_id!r} on {self.device_id!r} is declared as "
@@ -547,6 +557,7 @@ class DeviceSignalDeclaration:
             reading_class=self.reading_class,
             canonical_unit=self.canonical_unit,
             bias=self.bias,
+            resolution=self.resolution,
         )
 
     @property
@@ -815,6 +826,27 @@ def resolve_publication_identity(
     return FrozenPublicationIdentity(
         simulator_source_id=profile.simulator_source_id,
         gateway_id=profile.gateway_id,
+    )
+
+
+def resolve_signal_resolutions(
+    profile: PublicationProfile,
+) -> tuple[FrozenSignalResolution, ...]:
+    """Freeze each device resolution the profile declares, in declaration order.
+
+    S2-01b. One argument, the profile, as for the publication identity: the
+    unit is the declaration's own canonical unit, and run setup, not this
+    function, compares it with the registered binding's source unit.
+    """
+    return tuple(
+        FrozenSignalResolution(
+            device_id=declaration.device_id,
+            signal_id=declaration.signal_id,
+            unit=declaration.canonical_unit,
+            resolution=declaration.resolution,
+        )
+        for declaration in profile.device_signals
+        if declaration.resolution is not None
     )
 
 
@@ -1729,6 +1761,44 @@ LAB_PUBLICATION_PROFILE_V5 = replace(
     ),
 )
 
+#: S2-01b. The registered-Kobo publication profile, version one.
+#:
+#: `simulator-lab-publication` v3 with one change: every numeric device signal
+#: declares the simulated device's published resolution, 0.000001 in its own
+#: canonical unit, which is the unit it publishes in. The observation transform
+#: rounds the biased reading once, exactly and half-to-even, to that quantum, so
+#: every public reading is a finite decimal a SourceEnvelope V3 can carry. A
+#: state of charge of 1035/19 percent is published as 54.473684.
+#:
+#: A NEW identity rather than v6 of the Lab profile, because it is selected only
+#: by a registered Site's Draft: run setup refuses it for a legacy YAML Site and
+#: refuses it when a declared unit differs from the registered binding's source
+#: unit, rather than rounding in a unit the binding does not publish. It is a
+#: property of the SIMULATED device, not a claim about a physical Kobo
+#: instrument's precision. v3/v4/v5, every Draft frozen against them and every
+#: artifact they produced are unchanged.
+REGISTERED_KOBO_RESOLUTION = "0.000001"
+
+REGISTERED_KOBO_PUBLICATION_PROFILE = replace(
+    LAB_PUBLICATION_PROFILE,
+    publication_profile_id="registered-kobo-publication",
+    publication_profile_version=1,
+    display_name="Registered Kobo publication profile",
+    statement=(
+        LAB_PUBLICATION_PROFILE.statement
+        + " Each numeric signal is published by a simulated device at a "
+        "resolution of 0.000001 in its own unit, rounded half to even after its "
+        "bias; that is a property of the simulated device, not of a physical "
+        "instrument."
+    ),
+    device_signals=tuple(
+        declaration
+        if declaration.canonical_unit == DISCRETE_UNIT
+        else replace(declaration, resolution=REGISTERED_KOBO_RESOLUTION)
+        for declaration in LAB_PUBLICATION_PROFILE.device_signals
+    ),
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
@@ -1741,6 +1811,7 @@ PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     LAB_PUBLICATION_PROFILE,
     LAB_PUBLICATION_PROFILE_V4,
     LAB_PUBLICATION_PROFILE_V5,
+    REGISTERED_KOBO_PUBLICATION_PROFILE,
 )
 
 

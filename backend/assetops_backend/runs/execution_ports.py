@@ -60,6 +60,7 @@ from typing import Protocol, runtime_checkable
 from assetops_backend.runs.models import SimulationRun
 from assetops_contracts.lab_history import LabHistory
 from assetops_contracts.lab_projection import LabProjection
+from assetops_contracts.gateway_stage import RegisteredStageView
 from assetops_contracts.source_stage import SourceStageView
 
 
@@ -107,6 +108,15 @@ class LabExecutionPort(Protocol):
 
     def run_to_end(self, run: SimulationRun) -> LabProjection:
         """Advance a started execution until its interval is covered."""
+        ...
+
+    def registered_stage(self, run: SimulationRun) -> RegisteredStageView:
+        """S2-01b: a registered run's Stage, read from the durable gateway ledger.
+
+        Only for a run with a `registered_basis`. A read, never a refusal: an
+        unreachable or unconfigured gateway answers `GATEWAY_UNAVAILABLE` and
+        nothing from the file Stage is substituted.
+        """
         ...
 
     def staged_envelopes(self, run: SimulationRun) -> SourceStageView:

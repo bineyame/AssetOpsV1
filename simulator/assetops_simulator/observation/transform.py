@@ -58,6 +58,7 @@ from assetops_contracts.observation import (
     FrozenReportingInputs,
     ReportedReading,
     draw_selects,
+    quantize_half_even,
 )
 from assetops_contracts.trajectory import BoundaryState
 
@@ -208,7 +209,13 @@ def _attempt(
     if isinstance(value, str):
         # A discrete member is reported as is: the spec refused any bias.
         return observation("REPORTED", value=value)
-    return observation("REPORTED", value=value + signal.bias)
+    published = value + signal.bias
+    if signal.resolution is not None:
+        # S2-01b: the simulated device publishes at its declared resolution,
+        # rounded once, exactly and half-to-even, after its modeled bias. The
+        # exact world value never leaves the kernel; only this reading does.
+        published = quantize_half_even(published, signal.resolution)
+    return observation("REPORTED", value=published)
 
 
 def generate_observations(

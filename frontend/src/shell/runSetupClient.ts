@@ -81,6 +81,22 @@ export interface RunPublicationProfile {
    * and is what blocks a scenario that requires one of them.
    */
   supported_reporting_states: RunSupportedState[];
+  /**
+   * S2-01b: the resolution each numeric signal's simulated device publishes
+   * at, in the signal's source unit. Absent or empty: readings publish exactly.
+   */
+  device_resolutions?: RunDeviceResolution[];
+  /** S2-01b: true when only a registered Site's Draft may select this profile. */
+  requires_registered_site?: boolean;
+}
+
+/** S2-01b: one simulated device's declared publication resolution. */
+export interface RunDeviceResolution {
+  device_id: string;
+  signal_id: string;
+  unit: string;
+  /** Exact positive decimal text, such as `0.000001`. */
+  resolution: string;
 }
 
 /** One frozen value, and who answered for it. */
@@ -114,6 +130,50 @@ export interface RunUnsupportedOptionalInput {
   statement: string;
 }
 
+/**
+ * The Site metadata a registered Draft froze at setup (S2-01a).
+ *
+ * Name, time zone and type are the Site's current record as read when the
+ * Draft was created. They are not selected by the knowledge time: only the
+ * Foundation and binding revisions are.
+ */
+export interface RunSiteMetadata {
+  display_name: string;
+  timezone: string;
+  site_type: string;
+  source: string;
+}
+
+/**
+ * Which configuration a run was set up from (S2-01a).
+ *
+ * `LEGACY_FILE` for a run against a legacy Site document. `REGISTERED` for a
+ * run against a registered Site: the exact revisions and snapshot hash it
+ * froze. A registered basis is configuration, never accepted evidence.
+ */
+export type RunConfigurationBasis =
+  | { store: "LEGACY_FILE" }
+  | {
+      store: "REGISTERED";
+      selection: string;
+      source_start: string;
+      knowledge_at: string;
+      foundation_revision_id: string;
+      foundation_version: number;
+      foundation_valid_from: string;
+      foundation_valid_to: string | null;
+      binding_set_revision_id: string;
+      binding_set_version: number;
+      binding_valid_from: string;
+      binding_valid_to: string | null;
+      snapshot_schema: string;
+      snapshot_sha256: string;
+      snapshot_byte_length: number;
+      current_registration_gaps: string[];
+      site_metadata: RunSiteMetadata;
+      accepted_evidence: false;
+    };
+
 export interface RunSummary {
   run_id: string;
   lifecycle_status: string;
@@ -136,6 +196,11 @@ export interface RunSummary {
   frozen_inputs: RunFrozenInput[];
   blocking_reasons: RunBlockingReason[];
   unsupported_optional_inputs: RunUnsupportedOptionalInput[];
+  /**
+   * Absent from a backend that predates S2-01a; the screen then says the
+   * basis was not reported rather than guessing.
+   */
+  configuration_basis?: RunConfigurationBasis;
 }
 
 /**
@@ -256,6 +321,8 @@ export type CreateRunResult =
       status: "refused";
       code: string | null;
       refusalKind: string | null;
+      /** The specific configuration reason, e.g. `BINDINGS_NOT_REGISTERED`. */
+      reasonCode?: string | null;
       message: string;
     }
   /**
@@ -328,6 +395,11 @@ export interface RunDeviceSignal {
   bias: string;
   dropout_per_thousand: number;
   statement: string;
+  /**
+   * S2-01b: the frozen resolution this device publishes at, in the signal's
+   * unit, or null when it publishes exactly. Absent on a run served before it.
+   */
+  resolution?: string | null;
 }
 
 /**
@@ -697,8 +769,117 @@ export interface RunStage {
   envelopes: RunStagedEnvelope[];
 }
 
+/** What the Stage read says about the configuration the Draft froze. */
+export interface RunStageFrozenBasis {
+  configuration_store: string;
+  site_imported: boolean | null;
+  can_release: boolean;
+  statement: string;
+  registered_basis?: RunConfigurationBasis;
+}
+
+/** S2-01b: one SourceEnvelope V3 row in the gateway's local outbox. */
+export interface GatewayLedgerEnvelope {
+  message_id: string;
+  source_id: string;
+  sequence_epoch: string;
+  sequence: number;
+  source_time: string;
+  snapshot_sha256: string;
+  /** The exact stored envelope text. */
+  canonical: string;
+  sha256: string;
+  state: string;
+  batch_id: string | null;
+  ordinal: number | null;
+}
+
+/** S2-01b: one sealed, immutable Batch V2 in the gateway's local outbox. */
+export interface GatewayLedgerBatch {
+  batch_id: string;
+  source_id: string;
+  sequence_epoch: string;
+  snapshot_sha256: string;
+  /** The exact stored batch text. */
+  canonical: string;
+  sha256: string;
+  state: string;
+  attempt_count: number;
+  message_ids: string[];
+}
+
+/** S2-01b: a report the gateway refused to sequence, with the field and why. */
+export interface GatewayLedgerHold {
+  hold_id: number;
+  kind: string;
+  field: string;
+  detail: string;
+  device_id: string | null;
+  signal_id: string | null;
+  source_time: string | null;
+  seen_count: number;
+}
+
+/**
+ * S2-01b fix round 1 (F1): the gateway's durable record that it could not seal
+ * a group holding this run's envelopes. Those envelopes stay unbatched.
+ */
+export interface GatewayLedgerSealRefusal {
+  source_id: string;
+  sequence_epoch: string;
+  message_id: string;
+  kind: string;
+  field: string;
+  detail: string;
+  last_seen_at: string;
+  seen_count: number;
+}
+
+/**
+ * S2-01b: a registered run's Stage, read from the separate gateway process's
+ * durable SQLite ledger. Upload is always pending in this build and
+ * `receipts` is always empty; nothing here is accepted evidence.
+ */
+export interface GatewayLedgerStage {
+  store: "GATEWAY_LEDGER";
+  run_id: string;
+  /**
+   * `STAGED` (every admitted envelope sealed; held reports may remain), `SEALING_PENDING`, `SEALING_REFUSED`,
+   * `HELD` (every report held), `NOT_STAGED` or `GATEWAY_UNAVAILABLE`.
+   */
+  status: string;
+  statement: string;
+  execution_status: string;
+  release_eligible: false;
+  snapshot_sha256: string;
+  site_id: string | null;
+  gateway_id: string | null;
+  sequence_epoch: string | null;
+  upload_state: "PENDING";
+  upload_statement: string;
+  receipts: [];
+  unavailable_detail: string | null;
+  publication_notes: string[];
+  queue_depth_by_state: Record<string, number>;
+  envelopes: GatewayLedgerEnvelope[];
+  batches: GatewayLedgerBatch[];
+  holds: GatewayLedgerHold[];
+  seal_refusals: GatewayLedgerSealRefusal[];
+}
+
 export type RunStageResult =
-  | { status: "loaded"; stage: RunStage }
+  | {
+      status: "loaded";
+      stage: RunStage;
+      /** Absent: not reported. Null: reported and unreadable. */
+      frozenBasis?: RunStageFrozenBasis | null;
+    }
+  | {
+      /** S2-01b: a registered run, whose Stage is the gateway ledger. */
+      status: "gateway";
+      stage: GatewayLedgerStage;
+      frozenBasis?: RunStageFrozenBasis | null;
+    }
   | { status: "not_found" }
   | { status: "unavailable"; message: string | null };
 
@@ -878,7 +1059,26 @@ function isPublicationProfile(value: unknown): value is RunPublicationProfile {
     isNullableString(value.simulator_source_id) &&
     isNullableString(value.gateway_id) &&
     Array.isArray(value.supported_reporting_states) &&
-    value.supported_reporting_states.every(isSupportedState)
+    value.supported_reporting_states.every(isSupportedState) &&
+    (value.device_resolutions === undefined ||
+      (Array.isArray(value.device_resolutions) &&
+        value.device_resolutions.every(isDeviceResolution))) &&
+    (value.requires_registered_site === undefined ||
+      typeof value.requires_registered_site === "boolean")
+  );
+}
+
+/** Exact positive decimal text: never a float exponent or a ratio. */
+const EXACT_DECIMAL = /^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/;
+
+function isDeviceResolution(value: unknown): value is RunDeviceResolution {
+  return (
+    isRecord(value) &&
+    typeof value.device_id === "string" &&
+    typeof value.signal_id === "string" &&
+    typeof value.unit === "string" &&
+    typeof value.resolution === "string" &&
+    EXACT_DECIMAL.test(value.resolution)
   );
 }
 
@@ -961,8 +1161,74 @@ export function isRunSummary(value: unknown): value is RunSummary {
     Array.isArray(value.blocking_reasons) &&
     value.blocking_reasons.every(isBlockingReason) &&
     Array.isArray(value.unsupported_optional_inputs) &&
-    value.unsupported_optional_inputs.every(isUnsupportedOptional)
+    value.unsupported_optional_inputs.every(isUnsupportedOptional) &&
+    (value.configuration_basis === undefined ||
+      isRunConfigurationBasis(value.configuration_basis))
   );
+}
+
+function isSiteMetadata(value: unknown): value is RunSiteMetadata {
+  return (
+    isRecord(value) &&
+    typeof value.display_name === "string" &&
+    typeof value.timezone === "string" &&
+    typeof value.site_type === "string" &&
+    typeof value.source === "string"
+  );
+}
+
+/** A whole configuration basis; half of one is not rendered. */
+export function isRunConfigurationBasis(
+  value: unknown,
+): value is RunConfigurationBasis {
+  if (!isRecord(value)) {
+    return false;
+  }
+  if (value.store === "LEGACY_FILE") {
+    return true;
+  }
+  return (
+    value.store === "REGISTERED" &&
+    typeof value.selection === "string" &&
+    typeof value.source_start === "string" &&
+    typeof value.knowledge_at === "string" &&
+    typeof value.foundation_revision_id === "string" &&
+    typeof value.foundation_version === "number" &&
+    typeof value.foundation_valid_from === "string" &&
+    isNullableString(value.foundation_valid_to) &&
+    typeof value.binding_set_revision_id === "string" &&
+    typeof value.binding_set_version === "number" &&
+    typeof value.binding_valid_from === "string" &&
+    isNullableString(value.binding_valid_to) &&
+    typeof value.snapshot_schema === "string" &&
+    typeof value.snapshot_sha256 === "string" &&
+    typeof value.snapshot_byte_length === "number" &&
+    isStringArray(value.current_registration_gaps) &&
+    isSiteMetadata(value.site_metadata) &&
+    value.accepted_evidence === false
+  );
+}
+
+/**
+ * The Stage read's frozen basis: `undefined` when the backend reported none
+ * (it predates S1-01), `null` when it reported one this client cannot read.
+ */
+function readFrozenBasis(value: unknown): RunStageFrozenBasis | null | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (
+    !isRecord(value) ||
+    typeof value.configuration_store !== "string" ||
+    !(value.site_imported === null || typeof value.site_imported === "boolean") ||
+    typeof value.can_release !== "boolean" ||
+    typeof value.statement !== "string" ||
+    (value.registered_basis !== undefined &&
+      !isRunConfigurationBasis(value.registered_basis))
+  ) {
+    return null;
+  }
+  return value as unknown as RunStageFrozenBasis;
 }
 
 function isStringArray(value: unknown): boolean {
@@ -1052,6 +1318,9 @@ function isDeviceSignal(value: unknown): value is RunDeviceSignal {
     typeof value.bias === "string" &&
     typeof value.dropout_per_thousand === "number" &&
     typeof value.statement === "string" &&
+    (value.resolution === undefined ||
+      value.resolution === null ||
+      (typeof value.resolution === "string" && EXACT_DECIMAL.test(value.resolution))) &&
     isDiscreteReadingSound(value)
   );
 }
@@ -1394,6 +1663,109 @@ function isStageMapping(value: unknown): value is RunStageMapping {
   );
 }
 
+const SHA256_HEX = /^[0-9a-f]{64}$/;
+
+/**
+ * S2-01b: whether a body is a whole gateway-ledger Stage. Anything short of
+ * one - a receipt, an upload state other than pending, a release-eligible
+ * flag - is not rendered as one, so the screen never shows a delivery claim.
+ */
+export function isGatewayLedgerStage(value: unknown): value is GatewayLedgerStage {
+  if (!isRecord(value) || value.store !== "GATEWAY_LEDGER") {
+    return false;
+  }
+  const depth = value.queue_depth_by_state;
+  return (
+    typeof value.run_id === "string" &&
+    typeof value.status === "string" &&
+    typeof value.statement === "string" &&
+    typeof value.execution_status === "string" &&
+    value.release_eligible === false &&
+    typeof value.snapshot_sha256 === "string" &&
+    isNullableString(value.site_id) &&
+    isNullableString(value.gateway_id) &&
+    isNullableString(value.sequence_epoch) &&
+    value.upload_state === "PENDING" &&
+    typeof value.upload_statement === "string" &&
+    Array.isArray(value.receipts) &&
+    value.receipts.length === 0 &&
+    isNullableString(value.unavailable_detail) &&
+    isStringArray(value.publication_notes) &&
+    isRecord(depth) &&
+    Object.values(depth).every((n) => Number.isInteger(n) && (n as number) >= 0) &&
+    Array.isArray(value.envelopes) &&
+    value.envelopes.every(isGatewayEnvelope) &&
+    Array.isArray(value.batches) &&
+    value.batches.every(isGatewayBatch) &&
+    Array.isArray(value.holds) &&
+    value.holds.every(isGatewayHold) &&
+    Array.isArray(value.seal_refusals) &&
+    value.seal_refusals.every(isGatewaySealRefusal)
+  );
+}
+
+function isGatewaySealRefusal(value: unknown): value is GatewayLedgerSealRefusal {
+  return (
+    isRecord(value) &&
+    typeof value.source_id === "string" &&
+    typeof value.sequence_epoch === "string" &&
+    typeof value.message_id === "string" &&
+    typeof value.kind === "string" &&
+    typeof value.field === "string" &&
+    typeof value.detail === "string" &&
+    typeof value.last_seen_at === "string" &&
+    Number.isInteger(value.seen_count)
+  );
+}
+
+function isGatewayEnvelope(value: unknown): value is GatewayLedgerEnvelope {
+  return (
+    isRecord(value) &&
+    typeof value.message_id === "string" &&
+    typeof value.source_id === "string" &&
+    typeof value.sequence_epoch === "string" &&
+    Number.isInteger(value.sequence) &&
+    typeof value.source_time === "string" &&
+    typeof value.snapshot_sha256 === "string" &&
+    typeof value.canonical === "string" &&
+    typeof value.sha256 === "string" &&
+    SHA256_HEX.test(value.sha256) &&
+    typeof value.state === "string" &&
+    isNullableString(value.batch_id) &&
+    (value.ordinal === null || Number.isInteger(value.ordinal))
+  );
+}
+
+function isGatewayBatch(value: unknown): value is GatewayLedgerBatch {
+  return (
+    isRecord(value) &&
+    typeof value.batch_id === "string" &&
+    typeof value.source_id === "string" &&
+    typeof value.sequence_epoch === "string" &&
+    typeof value.snapshot_sha256 === "string" &&
+    typeof value.canonical === "string" &&
+    typeof value.sha256 === "string" &&
+    SHA256_HEX.test(value.sha256) &&
+    typeof value.state === "string" &&
+    Number.isInteger(value.attempt_count) &&
+    isStringArray(value.message_ids)
+  );
+}
+
+function isGatewayHold(value: unknown): value is GatewayLedgerHold {
+  return (
+    isRecord(value) &&
+    Number.isInteger(value.hold_id) &&
+    typeof value.kind === "string" &&
+    typeof value.field === "string" &&
+    typeof value.detail === "string" &&
+    isNullableString(value.device_id) &&
+    isNullableString(value.signal_id) &&
+    isNullableString(value.source_time) &&
+    Number.isInteger(value.seen_count)
+  );
+}
+
 /** Whether a body is a whole stage view; half of one is not rendered. */
 export function isRunStage(value: unknown): value is RunStage {
   if (!isRecord(value)) {
@@ -1566,6 +1938,10 @@ export function createRunSetupClient(
             isRecord(detail) && typeof detail.refusal_kind === "string"
               ? detail.refusal_kind
               : null,
+          reasonCode:
+            isRecord(detail) && typeof detail.reason_code === "string"
+              ? detail.reason_code
+              : null,
           message: message ?? "The run setup request was refused.",
         };
       }
@@ -1652,8 +2028,19 @@ export function createRunSetupClient(
       if (response.status === 404) {
         return { status: "not_found" };
       }
+      if (response.ok && isGatewayLedgerStage(parsed?.stage)) {
+        return {
+          status: "gateway",
+          stage: parsed.stage as GatewayLedgerStage,
+          frozenBasis: readFrozenBasis(parsed.frozen_basis),
+        };
+      }
       if (response.ok && isRunStage(parsed?.stage)) {
-        return { status: "loaded", stage: parsed.stage as RunStage };
+        return {
+          status: "loaded",
+          stage: parsed.stage as RunStage,
+          frozenBasis: readFrozenBasis(parsed.frozen_basis),
+        };
       }
       const detail = parsed?.detail;
       return {

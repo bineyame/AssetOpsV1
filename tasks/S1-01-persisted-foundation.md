@@ -1,6 +1,6 @@
 # S1-01 — Persisted Site Foundation
 
-Status: in_review
+Status: done
 USER_REVIEW_REQUIRED: true
 Milestone: S1 Foundation
 Depends on: current Site-first plan and `D-2026-10-07-s1-foundation-import-and-cutover`; no S task

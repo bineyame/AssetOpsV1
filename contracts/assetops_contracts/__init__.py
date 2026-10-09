@@ -31,6 +31,11 @@ Nine modules:
   normal ingestion may accept: its strict parser, its canonical text and the
   gateway mapping that says what publishes, versioned independently of the
   execution contract;
+- `source_envelope_v3`, `ingestion_batch_v2` and `gateway_report` - the
+  durable gateway's wire (S2-01b): sequence-allocated V3 envelopes with
+  length-delimited message ids, sealed homogeneous Batch V2 bytes, and the
+  public device report the Lab host hands the gateway. Separate modules, so
+  the v1/v2 readers above keep their identity semantics;
 - `source_stage` - a Draft's staged envelopes, the append-only admission rule,
   the persisted stage document and its integrity check. Staged is not accepted,
   and only the gated Lab surface may import this one.

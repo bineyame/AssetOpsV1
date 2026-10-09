@@ -304,6 +304,18 @@ class StagedExecution(FakeExecution):
         self.calls.append(("staged_envelopes", run.run_id))
         return a_view(run.run_id)
 
+    def registered_stage(self, run):
+        """S2-01b: a registered run's Stage comes from the gateway ledger."""
+        from assetops_contracts.gateway_stage import REGISTERED_STAGE_STATEMENTS, RegisteredStageView
+
+        self.calls.append(("registered_stage", run.run_id))
+        return RegisteredStageView(
+            run_id=run.run_id, status="NOT_STAGED", statement=REGISTERED_STAGE_STATEMENTS["NOT_STAGED"],
+            execution_status="NOT_STARTED", snapshot_sha256=run.registered_basis.snapshot_sha256,
+            site_id=None, gateway_id=None, sequence_epoch=None, envelopes=(), batches=(), holds=(),
+            queue_depth_by_state={},
+        )
+
 
 def lab_client(store, execution, runs, **overrides) -> TestClient:
     return TestClient(create_app(
@@ -347,7 +359,13 @@ class TestLabRefusesImportedSites:
         import_mg900(store)
         client = lab_client(store, StagedExecution(), runs)
         setup = client.post("/api/simulator-lab/runs", json=setup_request())
-        assert setup.status_code == 422 and setup.json()["detail"]["refusal_kind"] == "SITE_AWAITING_MIGRATION"
+        # S2-01a: an imported code is set up only from its registered basis;
+        # MG-900 has no binding set, so setup refuses with that reason and no
+        # Draft, and never falls back to the YAML Site.
+        assert setup.status_code == 422, setup.text
+        assert setup.json()["detail"]["refusal_kind"] == "REGISTERED_BASIS_UNAVAILABLE"
+        assert setup.json()["detail"]["reason_code"] == "BINDINGS_NOT_REGISTERED"
+        assert [r.run_id for r in runs.list_runs()] == [record.run_id]
         assert client.get(f"/api/simulator-lab/runs/{record.run_id}").status_code == 200
         stage = client.get(f"/api/simulator-lab/runs/{record.run_id}/stage")
         assert stage.status_code == 200

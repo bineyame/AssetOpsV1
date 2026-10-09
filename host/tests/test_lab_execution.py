@@ -2619,6 +2619,8 @@ class TestExecutingADraftWritesNoSiteHistory:
             "forget",
             "history",
             "projection",
+            # S2-01b: a READ of a registered run's gateway-ledger Stage.
+            "registered_stage",
             "run_to_end",
             "staged_envelopes",
             "start",
