@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import secrets
 import sqlite3
+import subprocess
+import sys
 import time
 from datetime import timedelta
 from pathlib import Path
@@ -20,10 +23,12 @@ from conftest import GATEWAY, SITE, SRC_BMS, report, snapshot
 from fake_central import CERT, DROP, SERVER_INSTANT, FakeCentral, receipt_for, receipt_text
 
 from assetops_contracts.ingestion_receipt_v2 import ReceiptCounts, canonical_receipt_v2_text
+from assetops_gateway.credential_protection import restrict_to_current_user
 from assetops_gateway.ipc import GatewayServer
 from assetops_gateway.service import GatewayRefused, GatewayReader, GatewayService
 from assetops_gateway.uploader import (
     UploadConfigInvalid,
+    UploadCredentialInvalid,
     Uploader,
     parse_upload_config,
     read_upload_credential,
@@ -39,8 +44,14 @@ def _token() -> str:
 @pytest.fixture
 def token(tmp_path: Path) -> str:
     value = _token()
-    (tmp_path / "upload.credential").write_text(value + "\n", encoding="ascii")
+    write_credential(tmp_path / "upload.credential", value + "\n")
     return value
+
+
+def write_credential(path: Path, text: str) -> None:
+    """Provisioning's job in production: an owner-only file the gateway will read (Q15)."""
+    path.write_text(text, encoding="ascii")
+    restrict_to_current_user(path)
 
 
 def _uploader(service: GatewayService, tmp_path: Path, url: str, **extra) -> Uploader:
@@ -355,10 +366,35 @@ def test_the_secret_never_reaches_the_ledger_logs_or_answers(
 def test_a_malformed_credential_file_stops_without_sending(
     gateway, released, db_path: Path, tmp_path: Path, central
 ) -> None:
-    (tmp_path / "upload.credential").write_text("not-a-credential-secret-value", encoding="ascii")
+    write_credential(tmp_path / "upload.credential", "not-a-credential-secret-value")
     server = central(_honest)
     summary = _uploader(gateway, tmp_path, server.url).upload_pass()
     assert summary["stopped"] == "UPLOAD_CREDENTIAL_INVALID" and server.requests == []
+
+
+def test_a_credential_file_readable_by_others_is_refused_before_it_is_read(
+    gateway, released, tmp_path: Path, token: str, central
+) -> None:
+    path = tmp_path / "upload.credential"
+    if sys.platform == "win32":  # a protected DACL that also lets Everyone read
+        subprocess.run(["icacls", str(path), "/grant", "*S-1-1-0:R"], check=True, capture_output=True)
+    else:
+        os.chmod(path, 0o644)
+    with pytest.raises(UploadCredentialInvalid, match="gateway's user only"):
+        read_upload_credential(path)
+    server = central(_honest)
+    summary = _uploader(gateway, tmp_path, server.url).upload_pass()
+    assert summary["stopped"] == "UPLOAD_CREDENTIAL_INVALID" and server.requests == []
+    restrict_to_current_user(path)
+    assert read_upload_credential(path).authorization() == f"Bearer {token}"
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Windows inheritance")
+def test_a_credential_file_inheriting_its_folders_access_is_refused(tmp_path: Path) -> None:
+    path = tmp_path / "inherited.credential"
+    path.write_text(_token(), encoding="ascii")  # default: inherits the folder's DACL
+    with pytest.raises(UploadCredentialInvalid, match="inherits access"):
+        read_upload_credential(path)
 
 
 def test_credential_rotation_needs_no_restart_and_no_reseal(

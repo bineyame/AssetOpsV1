@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "backend" / "tests"))
 sys.path.insert(0, str(ROOT / "gateway" / "tests"))
 
 import test_s2_registered_basis as registered  # noqa: E402
+from assetops_gateway.credential_protection import restrict_to_current_user  # noqa: E402
 from fake_central import CERT, FakeCentral, receipt_text  # noqa: E402
 from gateway_process import GatewayProcess, provisioning_from_snapshot, write_config  # noqa: E402
 from gateway_publication import RegisteredGatewayPublisher  # noqa: E402
@@ -86,6 +87,7 @@ def test_the_gateway_uploads_every_batch_and_the_run_reads_fully_released(draft,
     token = f"aog1.{secrets.token_hex(16)}.{secrets.token_urlsafe(32)}"
     (tmp_path / "gateway").mkdir(parents=True)
     (tmp_path / "gateway" / "upload.credential").write_text(token, encoding="ascii")
+    restrict_to_current_user(tmp_path / "gateway" / "upload.credential")  # provisioning's owner-only file (Q15)
     central = FakeCentral(lambda path, headers, body: (200, receipt_text(body.decode("utf-8"))))
     upload = {
         "server_url": central.url,

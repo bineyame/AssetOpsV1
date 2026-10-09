@@ -44,12 +44,9 @@ from __future__ import annotations
 import http.client
 import json
 import logging
-import os
 import re
 import socket
 import ssl
-import stat
-import sys
 import threading
 from contextlib import nullcontext
 from dataclasses import dataclass
@@ -57,6 +54,7 @@ from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import quote, urlsplit
 
+from assetops_gateway.credential_protection import owner_only_problem
 from assetops_gateway.service import GatewayRefused, ReceiptMismatch, verify_receipt
 
 LOG = logging.getLogger("assetops_gateway.uploader")
@@ -172,12 +170,15 @@ class UploadCredential:
 
 
 def read_upload_credential(path: Path) -> UploadCredential:
-    """Read the owner-only credential file. On POSIX a group/other-readable file
-    refuses; on Windows the file's ACL is the operator's provisioning duty."""
+    """Read the owner-only credential file, verifying its EFFECTIVE protection
+    first (S2-02 Q15): on Windows a protected DACL granting only the gateway's
+    user, on POSIX owner + no group/other bits. Broad or unknown access refuses
+    before a byte of the secret is read."""
     path = Path(path)
     try:
-        if sys.platform != "win32" and stat.S_IMODE(os.stat(path).st_mode) & 0o077:
-            raise UploadCredentialInvalid(f"{path} must be owner-only (0600)")
+        problem = owner_only_problem(path)
+        if problem is not None:
+            raise UploadCredentialInvalid(f"{path} must be readable by the gateway's user only: it {problem}")
         text = path.read_text(encoding="ascii").strip()
     except UploadCredentialInvalid:
         raise
