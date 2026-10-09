@@ -17,8 +17,8 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 | S1 Foundation | [S1-01](S1-01-persisted-foundation.md) | Foundation opens a persisted, time-selectable Kobo version | None; current architecture | Merged; owner S1 UI check accepted |
 | S1 Foundation | [S1-02](S1-02-bindings-readiness.md) | Foundation mappings, Readiness gaps and configured SLD | S1-01 | Merged; owner S1 UI check accepted |
 | S1 Foundation | [S1-03](S1-03-foundation-organization.md) | Foundation Site model, Readiness and SLD organized as three mock-aligned views | S1-02 reviewed baseline; owner UI feedback | Merged; owner S1 UI check accepted |
-| S2 Evidence | [S2-01a](S2-01a-registered-lab-basis.md) | Imported Kobo Lab run opens from registered Foundation/bindings; Commit awaits ingestion | merged S1 | Built; Codex ACCEPT WITH CARRIES; not merged |
-| S2 Evidence | [S2-01b](S2-01b-durable-simulated-gateway.md) | Lab sealed V3 envelope and SQLite queue survive restart from simulated input | S2-01a at `85a11c4` | Built; first review and fresh re-reviews accepted with carries; not merged |
+| S2 Evidence | [S2-01a](S2-01a-registered-lab-basis.md) | Imported Kobo Lab run opens from registered Foundation/bindings; Commit awaits ingestion | merged S1 | Done; Codex ACCEPT WITH CARRIES; merged at `7c10283` |
+| S2 Evidence | [S2-01b](S2-01b-durable-simulated-gateway.md) | Lab sealed V3 envelope and SQLite queue survive restart from simulated input | S2-01a at `85a11c4` | Done; first review and fresh re-reviews accepted with carries; merged at `7c10283` |
 | S2 Evidence | [S2-01c](S2-01c-gateway-diagnostics-faults.md) | Lab shows local diagnostics, delayed report and outage/pressure states | S2-01b at `08712e7`; Architect delay-clock answer for integration | Implementation-ready for phases |
 | S2 Evidence | [S2-02](S2-02-ingestion-site-evidence.md) | Site Evidence shows accepted, rejected and duplicate decisions with central gateway status | S2-01c | Outline; owner review checkpoint |
 | S3 Performance | [S3-01](S3-01-dispatch-assessment.md) | Dispatch interval classification with evidence and gaps | S2-02 | Outline |

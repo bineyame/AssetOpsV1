@@ -1,6 +1,6 @@
 # S2-01b — Durable simulated gateway
 
-Status: in_review
+Status: done (merged to main at `7c10283`)
 Phase 2 transfer follows `D-2026-10-08-s2-local-gateway-snapshot-transfer`.
 USER_REVIEW_REQUIRED: false
 Milestone: S2 Evidence
