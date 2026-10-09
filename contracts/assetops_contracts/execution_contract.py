@@ -757,7 +757,15 @@ DISPATCH_RULES: tuple[DispatchRule, ...] = (
             "An entry whose offset, or whose window, falls outside the "
             "interval a run chooses is a mismatch between the scenario and the "
             "run. Later run setup refuses it and says which entry; it never "
-            "quietly leaves the entry out and executes the rest."
+            "quietly leaves the entry out and executes the rest. One narrow "
+            "exception (S2-01c, D-2026-10-09-s2-publication-clock-post-run-"
+            "release): on a registered publication profile that publishes on "
+            "the run's virtual clock, a reporting-path publication-delay WINDOW "
+            "that starts inside the interval may end at most one timestep "
+            "after it. It only schedules when a reading sourced inside the "
+            "interval is published; it does not extend the world or make a "
+            "later source sample. Every other entry, state and profile keeps "
+            "the refusal."
         ),
     ),
     DispatchRule(
