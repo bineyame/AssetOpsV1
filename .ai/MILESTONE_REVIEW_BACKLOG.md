@@ -23,6 +23,14 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
+### S2-02 Architect batch-4 bounded carries (2026-10-09, `.agent/architect-batch-answers-4.md`)
+
+- The pilot gateway and provisioning CLI run under the same OS account; runtime Windows DACL verification refuses an inherited/broad file. This is safe for the isolated demo and protects the actual reader. Before a real pilot with a distinct gateway service account, provision and test an ACL granting only that account plus the authorized operator, and replace local OS-user audit context with authenticated operator identity.
+- Evidence shows a conflict at the conflicting envelope's source time; the original accepted reading's source time is retained as lineage but not yet displayed beside it. The rejection route remains inspectable, so no record is misplaced. Add a labelled original-time link when a reviewed owner path needs to compare the two times.
+- A missing `registered_release` keeps the Lab Commit action unavailable, but older fallback copy may imply the run itself is uncommittable rather than the read being unavailable. The server still refuses unauthorized release. Refine the copy with the next Lab UI touch if an actual missing-read state reaches users.
+- S3 must treat same-source/same-time readings from separate simulated gateway epochs as distinct accepted Evidence, not independent physical energy to sum. Before S3-01 makes a dispatch or money claim, select a defensible run/epoch basis or return limited/Indeterminate coverage, with an overlapping-runs fixture. S2's ledger is truthful because it preserves both source identities and does not compute the assessment.
+- The S2 owner walkthrough may show crash/resume 202 and an outside-period closing reading as labelled Postgres test evidence, while the corrected fault-fixture rejected sibling is live through HTTPS. This is safe only while the owner accepts the stated demonstration limits; any claim that the UI itself proved those two cases requires a separate live exercise. The existing S2-01c C3/N2 full seeded layout carry remains open.
+
 ### Registered Kobo generator and capability demo configuration (expires at S2-02 demo setup / before S3-01 capability claims)
 
 S2-01a correctly leaves a registered `mini-grid` v3 Draft blocked because the imported Foundation lacks four static generator properties. Its ten bindings are the nine original Kobo mappings plus the explicitly added generator status; the two capability channels in the newer template remain unconfigured. This is safe for the S2-01a daytime run and its uncommittable simulated output because no generator or capability evidence is claimed. It is not proof that a profile-5 report or generator evidence can be produced from the registered basis.
