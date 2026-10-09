@@ -625,8 +625,8 @@ class Demo:
         say(f"  closing-boundary (15:00:00Z) readings accepted: {len(records)}")
         status, rej = self.call("GET", f"/api/sites/{SITE}/evidence/rejections")
         items = (rej or {}).get("rejections") or []
-        say(f"  rejections route: {status}; {len(items)} refused readings; reasons "
-            f"{sorted({r.get('reason') or r.get('reason_code') for r in items})}")
+        say(f"  rejections route: {status}; {len(items)} refused readings; kinds "
+            f"{sorted({str(r.get('kind')) for r in items})}")
         fixture = self.result.get("fault_fixture") or {}
         for item in items:
             if item.get("batch_id") == fixture.get("batch_id") or item.get("message_id") == fixture.get("invalid"):
