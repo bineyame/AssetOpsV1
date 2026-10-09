@@ -4910,3 +4910,21 @@ Packet `.agent/S2-01b-review-packet.md`; phase handoffs `.agent/S2-01b-phase-{1,
 - ENUM is proved by a direct public generator-status observation, not by the daytime run (S2-02 owns a selectable generator-status run). Delay windows are refused only (S2-01c owns delayed admission).
 - No product path writes gateway provisioning; it is an operator config file. No IPC idle timeout; Windows credential protection relies on the profile ACL.
 - Whole-series republish per step is O(n); a long run needs a watermark. Hold rows are not byte-fixed (`seen_count`).
+
+## S2-01c - Gateway diagnostics and fault scenarios (in review)
+
+Packet `.agent/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-handoff.md`; open questions `.agent/S2-01c-questions-{3,4}.md`.
+
+- Gateway ledger: schema 3 keys `seal_refusal` by `(source, epoch, snapshot, outbox_state)` (R1); `diagnostic_config` (frozen), `diagnostic_outbox` (one immutable report per cadence slot, READY only, never received), `health_observation` (contacts, injected faults). Schema 4 `publication_clock(lab_run_ref)` forward-only.
+- Wire: `contracts/assetops_contracts/gateway_diagnostics.py` `GatewayDiagnosticsV1` + `DiagnosticConfig` (60 s cadence, 1 GiB/256 MiB WARN/STOP demo triggers); vectors `contract-fixtures/gateway-diagnostics-v1-vectors.json`. `publication_schedule.py` holds the Lab-private `PublicationSchedule`/`DelayedReport`.
+- Service: STOP refuses acquisition before any write; `mapping_error_count` counts mapping kinds only; queue age on real-UTC `created_at`; `admit_at_run_clock` stamps V3 `published_at` from the scoped virtual clock. IPC ops `diagnostics`, `emit_diagnostic`, `advance_publication_clock`, `admit_at_run_clock`, `inject_fault` (fixture only; no Lab port method).
+- Profiles/scenarios: `registered-kobo-publication` v2 (`publication_clock: RUN_VIRTUAL`, opt-in); `kobo-daytime-delayed-publication` v1 and `kobo-daytime-post-run-publication` v1 (closing window [710,725)); setup allows only a RUN_VIRTUAL reporting-path WINDOW ending at most one timestep after the interval (`runs/service.py` `_post_run_release_window`). Manifests `host/fixtures/gateway-fault-scenarios.v{1,2}.json`.
+- Host: `lab_execution.py` `advance_publication` (`release_basis` LIVE_SESSION|STORED_SCHEDULE_ONLY; refusals CLOCK_NOT_SUPPORTED, CLOCK_BACKWARD, AHEAD_OF_WORLD, SCHEDULE_UNREADABLE, SCHEDULE_MISSING, INSTANT_INVALID), `publication_schedule`, `gateway_diagnostics` (AVAILABLE|GATEWAY_UNAVAILABLE).
+- API: `GET /runs/{id}/publication`, `POST /runs/{id}/publication/advance` `{instant}`, `GET /gateway/diagnostics`; profile `publication_clock`; seal refusals carry `outbox_state`.
+- Frontend: `runSetupClient.ts` `isRunPublicationSchedule` (no private fields, absent schedule never a list), `isGatewayDiagnostics` (unavailable carries no counters, no ACKED), optional client methods `getPublication`/`advancePublication`/`getGatewayDiagnostics`; `GatewayPublicationPanels.tsx` renders schedule, advance and diagnostics with clock labels on a registered run's Stage; setup names the profile's publication clock. F2: `releaseBasisBlock` blocks Resume/Retry while the basis is pending, unreadable or unreported.
+- Layout: `ASSETOPS_LAYOUT_S2_01C_RUN=<run_id> node tools/layout-evidence.mjs <base>` (includes a fetch-intercepted Sealing-refused row).
+
+### Open
+
+- Architect: questions-3 (end-instant pending reading, read status for missing schedule) and questions-4 (F2 scope, page placement, diagnostics freshness, optional client methods, free-text instant).
+- A seal refusal after admission leaves a delayed report PENDING until the next advance. S2-02 owns upload, central receipt and diagnostic freshness.

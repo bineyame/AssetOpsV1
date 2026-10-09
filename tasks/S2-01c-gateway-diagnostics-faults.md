@@ -1,6 +1,6 @@
 # S2-01c — Gateway diagnostics and fault scenarios
 
-Status: implementation-ready for phased work on `task/S2-01c-gateway-diagnostics-faults`; review the complete slice before S2-02
+Status: in_review
 USER_REVIEW_REQUIRED: false
 Milestone: S2 Evidence
 Depends on: S2-01b through `08712e7` (Codex first review, fix rounds and fresh Claude re-reviews accepted; not merged to main)
