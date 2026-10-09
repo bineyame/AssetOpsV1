@@ -115,3 +115,52 @@ Layout limit: the run had neither a HELD row nor a SCHEDULE_MISSING paragraph, s
 - Batches are now sealed per boundary, so a full run seals many small batches: 292 envelopes in 245 batches in the layout run. See questions-5 Q1.
 - A passed boundary stops the run's ordinary publication for good, and there is no repair control (questions-5 Q2).
 - New open questions: `.agent/S2-01c-questions-5.md` (Q1-Q5, fail-closed, built).
+
+## Fix round 2
+
+Against `.agent/architect-S2-batch-answers-2026-10-09.md` ("S2-01c re-review R1 and questions-5", items (1)-(4)) and `D-2026-10-09-s2-publication-gap-and-batch-boundary`. Commit `803f62f` (code and tests), the layout-tool commit, and this closeout. Not worked, as directed: N1, N2, C2 and C3.
+
+- **R1 (1). Fixed.** A stored-schedule-only advance (no live session) refuses `PUBLICATION_GAP` when the schedule's contiguous `admitted_through` is absent or earlier than `world_reached_instant` for a run that has reached a boundary. The refusal detail names both instants, and `ordinary_stopped_at` when the gap is terminal. It is raised in `host/lab_execution.py` `advance_publication`, after the backward and ahead-of-world checks and before `_release`. The Lab clock is not written, the gateway is not called, and nothing is sealed or released. Q3: a delayed report never leaps a gap. On the live path, `_release` stops at the first refused boundary group, so neither the tail nor any later group is admitted. On the stored-only path, the preflight refuses. The new kind is in `LAB_CONTROL_REFUSALS` with its statement, and the API returns it as a 409 `EXECUTION_PUBLICATION_GAP`.
+- **Q2 (2). Watermark and state persisted and exposed.** `PublicationSchedule` gains `world_boundaries_completed` and `ordinary_stopped_at`, and derives `ordinary_publication()`: NOT_STARTED, CONTIGUOUS, COMPLETE, INCOMPLETE or TERMINAL_GAP. `_release` records `ordinary_stopped_at` when the gateway refuses an ordinary boundary group `PUBLICATION_INSTANT_PASSED`. The schedule read and the advance answer carry `admitted_through`, `ordinary_publication` and `ordinary_stopped_at`, all labelled `RUN_VIRTUAL`. In the Lab panel:
+  - an "Ordinary publication" fact (`data-ordinary-publication`);
+  - for INCOMPLETE and TERMINAL_GAP, a bold "This run is not fully published." paragraph (`data-publication-gap`) with both instants. TERMINAL_GAP adds the passed boundary and "Start a new run";
+  - the refused advance as `data-publication-refusal="PUBLICATION_GAP"` in plain words.
+  
+  A live session still retries while the gateway clock permits the boundary. After that, the terminal `PUBLICATION_INSTANT_PASSED` is kept, as ruled.
+- **Q5 (3). Fixed.** `publication_schedule` and `advance_publication` refuse `PUBLICATION_SCHEDULE_MISSING` for an executed run with no schedule even when a live session exists. `_stage_registered_virtual` creates a schedule only before the run's execution artifact exists, which is the first start and comes before any gateway submission. Afterwards a missing schedule is a staging note `PUBLICATION_SCHEDULE_MISSING`, and the schedule is never rebuilt.
+- **Tests (4).**
+  - **The reviewer's probe, as a host test:** `test_a_stored_only_advance_refuses_a_known_ordinary_gap_before_anything_moves`. It runs `_FailingLink(fail_at=20)`, `run_to_end`, a host restart, then `advance_publication(PAST_DUE)`. Result: PUBLICATION_GAP naming both instants. Stage envelope and batch bytes are unchanged, the gateway's persisted `publication_clock` row is unchanged (read from its sqlite), and the Lab schedule is equal to before. No `activate`, `admit*`, `seal` or `advance_publication_clock` request reached the link, and a repeat at 15:00 is also refused.
+  - **Complete-schedule control:** `test_pending_at_completion_then_released_after_restart` now asserts the schedule is COMPLETE before its stored-only advance, which still releases the 15:00 report at 15:10.
+  - **Live retry before the boundary passes:** the retry test asserts INCOMPLETE, then COMPLETE after the live retry.
+  - **Terminal case:** the passed-boundary test asserts TERMINAL_GAP with `ordinary_stopped_at` 04:00. A live advance to 15:10 is refused `PUBLICATION_INSTANT_PASSED`, with every delayed report still PENDING and no new envelope. After a restart it is refused `PUBLICATION_GAP` and the Lab clock is unchanged.
+  - **Q5:** `test_a_live_session_that_lost_its_schedule_reads_and_advances_missing`.
+  - **API:** PUBLICATION_GAP 409 with both instants, and the watermark and state across five states in both the read and the advance answer.
+  - **UI:** complete (no warning), an INCOMPLETE gap with a refused advance, TERMINAL_GAP, and a parse check that refuses an unknown state or a missing watermark.
+- **Non-vacuous, each reverted with `git checkout`:**
+  - Disabling the preflight fails the R1 and terminal tests ("DID NOT RAISE").
+  - Letting a live step rebuild the schedule fails the Q5 test.
+  - Restoring the live-session exception on the read fails the Q5 test.
+  - Not recording `ordinary_stopped_at` fails the terminal test.
+  - Never rendering the gap paragraph fails both UI gap tests.
+  - Layout: changing the gap selector to INCOMPLETE fails both injected widths.
+- **Kept:** per-boundary batches, the exact IPC body, and the sealed bytes. The byte-equality, retry and complete-run tests are unchanged and pass. Schedule documents stay version 1, and the new fields are optional with defaults.
+
+### Checks (fix round 2, HEAD `803f62f` + layout tool)
+
+| Check | Result |
+|---|---|
+| `tools/check-architecture.ps1` / `check-agent-workflow.ps1` | passed / passed |
+| `pytest gateway/tests` | 127 passed |
+| `pytest host/tests backend/tests` (Postgres on) | 2329 passed, 0 skipped (645 s) |
+| `pytest` (simulator/) | 265 passed |
+| `vitest run` (frontend) | 51 files, 1239 passed |
+| `npx.cmd tsc --noEmit` / `npm.cmd run build` | exit 0 / built (chunk-size warning only) |
+| Layout, S2-01c mode, isolated store (vite 5320, lab app 8010, own gateway), run `run-0de38165...` | 1280x800 10/10 PASS (`data-ordinary-publication` COMPLETE); 640x700 10/10 PASS (scrollWidth 625 = 625); fixture Sealing refused 640 6/6 PASS; **fixture-injected TERMINAL_GAP + PUBLICATION_GAP refusal** 640 5/5 PASS and 1280 5/5 PASS (gap paragraph right edge 542 of 625 at 640, refusal paragraph 542; no page scroll) |
+
+The gap case is FIXTURE-INJECTED. It rewrites the publication read and answers the advance with the 409 over CDP, because the layout run's live run has no gap. The live gap path is covered by the host tests above. All servers were stopped. The owner's ports and `var/` were not used.
+
+### Fix-round-2 deviations and risk
+
+- Schedules written by earlier branch code have no boundary count, so the gap is judged from the two instants alone. A run that was only started under that code reads INCOMPLETE (fail-closed; questions-6 Q1).
+- On a terminal gap, a live-session advance still moves the Lab clock before the gateway refuses, as ruled (questions-6 Q2).
+- New open questions: `.agent/S2-01c-questions-6.md` (Q1-Q5, fail-closed, built). Independent re-review of R1 is required before merge.
