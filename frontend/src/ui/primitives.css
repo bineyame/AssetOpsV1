@@ -2528,3 +2528,12 @@ input:focus-visible,
     padding: var(--space-4) var(--space-4) var(--space-5);
   }
 }
+
+/*
+ * S2-01c: the gateway diagnostics' last-stored line carries a full SHA-256 and
+ * an epoch, unbroken machine text. It breaks inside the panel rather than
+ * setting the page's minimum width, as `.canonical-text` does.
+ */
+[data-diagnostics-last-emitted] {
+  overflow-wrap: anywhere;
+}
