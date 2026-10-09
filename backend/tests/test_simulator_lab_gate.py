@@ -37,6 +37,12 @@ RUN_EXECUTION_HISTORY_PATH = (
     "/api/simulator-lab/runs/{run_id}/execution/history"
 )
 SITE_TEMPLATE_LINEAGE_PATH = "/api/simulator-lab/site-template-lineage"
+# S2-01c: a registered run's Lab-private publication schedule (READ), the one
+# control that advances its virtual publication clock, and the local gateway's
+# diagnostic read (READ). Gated like every Lab path; closed, none exists.
+RUN_PUBLICATION_PATH = "/api/simulator-lab/runs/{run_id}/publication"
+RUN_PUBLICATION_ADVANCE_PATH = "/api/simulator-lab/runs/{run_id}/publication/advance"
+GATEWAY_DIAGNOSTICS_PATH = "/api/simulator-lab/gateway/diagnostics"
 
 # Every Lab-only path the gate must serve when open and hide when closed. T005
 # added the two template paths, T006 added the create path, T017 added the
@@ -80,6 +86,9 @@ SIMULATOR_LAB_SERVED_PATHS = {
     RUN_COMMIT_PATH,
     RUN_EXECUTION_HISTORY_PATH,
     SITE_TEMPLATE_LINEAGE_PATH,
+    RUN_PUBLICATION_PATH,
+    RUN_PUBLICATION_ADVANCE_PATH,
+    GATEWAY_DIAGNOSTICS_PATH,
 }
 
 # The same four, with a concrete run identity, for the request-level assertions.
@@ -106,6 +115,9 @@ SIMULATOR_LAB_DIRECT_PATHS = [
     *RUN_EXECUTION_REQUEST_PATHS,
     "/api/simulator-lab/runs/run-1/stage",
     "/api/simulator-lab/runs/run-1/execution/history",
+    "/api/simulator-lab/runs/run-1/publication",
+    "/api/simulator-lab/runs/run-1/publication/advance",
+    GATEWAY_DIAGNOSTICS_PATH,
     SITE_TEMPLATE_LINEAGE_PATH,
     "/api/simulator-lab/world",
     "/api/simulator-lab/truth",
