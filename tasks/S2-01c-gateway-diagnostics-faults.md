@@ -1,6 +1,6 @@
 # S2-01c — Gateway diagnostics and fault scenarios
 
-Status: in_review
+Status: done (merged to main at `b4006d1`)
 USER_REVIEW_REQUIRED: false
 Milestone: S2 Evidence
 Depends on: S2-01b through `08712e7` (Codex first review, fix rounds and fresh Claude re-reviews accepted; not merged to main)
