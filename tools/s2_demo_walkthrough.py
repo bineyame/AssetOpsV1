@@ -287,6 +287,15 @@ class Demo:
         rows = self.gw_db("SELECT state, COUNT(*) FROM upload_batch GROUP BY state ORDER BY state")
         return ", ".join(f"{s} {n}" for s, n in rows) or "none"
 
+    def sealed_inventory(self) -> dict[str, list[dict[str, Any]]]:
+        """Every sealed batch at the gateway and its envelopes (parsed), by batch ID."""
+        rows = self.gw_db("SELECT i.batch_id, o.envelope_text FROM batch_item i "
+                          "JOIN envelope_outbox o ON o.message_id = i.message_id ORDER BY i.batch_id, i.ordinal")
+        found: dict[str, list[dict[str, Any]]] = {}
+        for batch_id, text in rows:
+            found.setdefault(batch_id, []).append(json.loads(text))
+        return found
+
     def deliver(self, max_batches: int = 25) -> dict[str, Any]:
         return self.link.call("deliver", {"max_batches": max_batches})
 
@@ -385,6 +394,46 @@ class Demo:
             snapshot_sha256=batch["mapping"]["snapshot_sha256"], envelope_texts=envelopes)
         return resealed
 
+    @staticmethod
+    def fault_fixture(text: str) -> tuple[str, str, str]:
+        """A clearly labelled FAULT FIXTURE (not gateway output): a new canonical Batch V2
+        of two envelopes copied from a sealed reading under a fixture sequence epoch, 30 s
+        later: one valid, one naming a signal no binding maps (per-record invalid).
+        Returns (body, valid message ID, invalid message ID)."""
+        from datetime import datetime, timedelta
+
+        from assetops_contracts.ingestion_batch_v2 import seal_batch_v2
+        from assetops_contracts.source_envelope import canonical_json
+        from assetops_contracts.source_envelope_v3 import v3_message_id
+
+        batch = json.loads(text)
+        template = next(json.loads(e) for e in batch["envelopes"] if json.loads(e)["payload"].get("value") is not None)
+
+        def later(instant: str) -> str:
+            moved = datetime.fromisoformat(instant.replace("Z", "+00:00")) + timedelta(seconds=30)
+            return moved.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        texts, ids = [], []
+        for sequence, signal in ((1, template["source"]["signal_id"]), (2, "fault-fixture-unbound-signal")):
+            envelope = json.loads(json.dumps(template))
+            src = envelope["source"]
+            envelope["message"] = {"message_id": v3_message_id(
+                site_id=src["site_id"], gateway_id=src["gateway_id"], source_id=src["source_id"],
+                sequence_epoch="fault-fixture-epoch", sequence=sequence),
+                "sequence_epoch": "fault-fixture-epoch", "sequence": sequence}
+            src["signal_id"] = signal
+            envelope["timing"]["source_time"] = later(envelope["timing"]["source_time"])
+            envelope["timing"]["published_at"] = later(envelope["timing"]["published_at"])
+            texts.append(canonical_json(envelope))
+            ids.append(envelope["message"]["message_id"])
+        _, body = seal_batch_v2(
+            site_id=batch["site_id"], gateway_id=batch["gateway_id"], source_id=batch["source_id"],
+            source_mode=batch["source_mode"], foundation_version=batch["configuration"]["foundation_version"],
+            foundation_valid_from=batch["configuration"]["foundation_valid_from"],
+            binding_set_id=batch["mapping"]["binding_set_id"], binding_version=batch["mapping"]["version"],
+            snapshot_sha256=batch["mapping"]["snapshot_sha256"], envelope_texts=texts)
+        return body, ids[0], ids[1]
+
     def bearer(self, credential: Path) -> dict[str, str]:
         return {"Authorization": "Bearer " + credential.read_text(encoding="utf-8").strip()}
 
@@ -436,10 +485,23 @@ class Demo:
         self.lab("POST", f"/runs/{run_id}/execution/run-to-end")
         pub = self.lab("GET", f"/runs/{run_id}/publication")
         say(f"  publication after run-to-end: {json.dumps(pub)[:500]}")
+        before = self.sealed_inventory()
+        say(f"  sealed at the gateway after run-to-end: {len(before)} batches, "
+            f"{sum(len(m) for m in before.values())} envelopes (the earlier 245/292 proof stopped here)")
         say("  The closing 15:00 reading is due after the run; advance the run's virtual publication clock.")
         adv = self.lab("POST", f"/runs/{run_id}/publication/advance", {"instant": "2026-09-30T15:10:00Z"},
                        expect=None)
         say(f"  advance to 15:10Z: {json.dumps(adv)[:400]}")
+        after = self.sealed_inventory()
+        say(f"  sealed after the post-run advance: {len(after)} batches, "
+            f"{sum(len(m) for m in after.values())} envelopes")
+        for batch_id in sorted(set(after) - set(before)):
+            for envelope in after[batch_id]:
+                say(f"  added by the advance (publication profile registered-kobo-publication v2): batch {batch_id} "
+                    f"source {envelope['source']['source_id']} "
+                    f"{envelope['source']['device_id']}/{envelope['source']['signal_id']} "
+                    f"source_time {envelope['timing']['source_time']} published_at {envelope['timing']['published_at']}")
+        self.result["post_run_added"] = sorted(set(after) - set(before))
         self.commit_summary(run_id)
 
         step("6. Commit: release this run's sealed batches to the gateway (no Evidence written by the Lab)")
@@ -487,6 +549,20 @@ class Demo:
                                      headers=self.bearer(old))
         say(f"  same batch ID, one changed byte run: {status} {json.dumps(conflict)[:300]}")
         say(f"  ledger rows after the conflicting attempt: {self.pg_counts()}")
+        step("8b. FAULT FIXTURE (labelled test input, not gateway output): one valid and one invalid sibling")
+        say("  The ordinary sealing gateway never emits an invalid envelope. This script builds a separate Batch V2")
+        say("  of two envelopes under a fixture sequence epoch and posts it over the normal authenticated HTTPS route.")
+        fixture, valid_id, invalid_id = self.fault_fixture(text)
+        status, receipt = self.call("POST", "/api/ingestion/batches", raw=fixture.encode("utf-8"), base=self.https,
+                                    headers=self.bearer(old))
+        decisions = {d.get("message_id"): d for d in (receipt or {}).get("dispositions") or []}
+        say(f"  fault-fixture batch {json.loads(fixture)['batch_id']}: {status} counts={(receipt or {}).get('counts')}")
+        for label, mid in (("valid sibling", valid_id), ("invalid sibling", invalid_id)):
+            d = decisions.get(mid) or {}
+            say(f"  {label}: ordinal {d.get('ordinal')} decision {d.get('decision')} "
+                f"evidence_id {d.get('evidence_id')} rejection {json.dumps(d.get('rejection'))[:200]}")
+        self.result["fault_fixture"] = {"batch_id": json.loads(fixture)["batch_id"], "valid": valid_id,
+                                        "invalid": invalid_id}
         status, wrong = self.call("POST", "/api/ingestion/batches", raw=raw, base=self.https,
                                   headers={"Authorization": "Bearer aog1.0000.not-a-secret"})
         say(f"  wrong credential: {status} {json.dumps(wrong)[:200]}")
@@ -551,6 +627,14 @@ class Demo:
         items = (rej or {}).get("rejections") or []
         say(f"  rejections route: {status}; {len(items)} refused readings; reasons "
             f"{sorted({r.get('reason') or r.get('reason_code') for r in items})}")
+        fixture = self.result.get("fault_fixture") or {}
+        for item in items:
+            if item.get("batch_id") == fixture.get("batch_id") or item.get("message_id") == fixture.get("invalid"):
+                say(f"  after reload, the FAULT FIXTURE's invalid sibling is on the Site rejection route: "
+                    f"{json.dumps(item)[:400]}")
+        status, everything = self.call("GET", f"/api/sites/{SITE}/evidence")
+        listed = [b for b in (everything or {}).get("batches") or [] if b.get("batch_id") == fixture.get("batch_id")]
+        say(f"  after reload, the fault-fixture batch on Site Evidence: {json.dumps(listed)[:400]}")
         if records:
             first = records[0]
             status, detail = self.call("GET", f"/api/sites/{SITE}/evidence/records/{first['evidence_id']}")
