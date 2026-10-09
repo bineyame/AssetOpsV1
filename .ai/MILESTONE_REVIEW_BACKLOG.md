@@ -1971,3 +1971,11 @@ The carried review findings above are unchanged.
 - Site Evidence reads load every Site rejection plus referenced batch text and filter in Python; will not scale for a long-running Site.
 - Chunked oversized upload (no Content-Length) is read fully into memory before 413 (authenticated callers only).
 - `PUBLICATION_REFUSED` blocker comes from in-memory session notes and is lost on host restart (gap blockers survive).
+
+### S2 Codex review carries (2026-10-09, `.agent/S2-codex-review.md`; S2-01c and S2-02 both accept with carries)
+
+- N3 follow-up: `frontend/src/shell/RegisteredDeliveryView.tsx:46` Commit copy still says ordinary publication stopped before the world's *last* boundary; align with "the boundary the world reached".
+- Diagnostic emission failures in the gateway ticker (`gateway/assetops_gateway/ipc.py`) are swallowed and surface only as STALE; expose the last emission error with the next gateway-operations work.
+- Before S7 health uses diagnostic facts, separate contact freshness from the age of the reported facts (backlogged diagnostic beside CURRENT).
+- Other S2-02 carries confirmed as recorded above (NO_DATA wording, Evidence read scale, chunked body limit, non-gap refusal note on restart, Q37/Q38, owner proof limits, fault-fixture sibling never S3 input).
+
