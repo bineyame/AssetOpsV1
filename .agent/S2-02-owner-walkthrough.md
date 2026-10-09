@@ -28,7 +28,7 @@ The demo runs on its own copy, so your usual servers and data are not used or ch
    - Each time is labelled with its clock. Source time and publication time are the run's virtual clock. Received time is the server's real clock. The two kinds of clock are never subtracted from each other.
    - Deliveries lists the batches.
    - "Earlier store comparison" says the old file store held nothing for KOBO-001, so nothing was carried over and nothing is claimed to match.
-   - The refused-readings list is empty in this run.
+   - The refused-readings list holds exactly one item: the **fault fixture's** invalid sibling (kind `BINDING_NOT_REGISTERED`, signal `fault-fixture-unbound-signal`). It is test input the script built on purpose; the ordinary sealing gateway never sends an invalid reading. Its valid sibling in the same batch was accepted and appears among the readings. Reload the page: both stay.
 4. **One reading.** Open the `link` from `demo-result.json`; it goes to one 15:00:00Z reading. The page shows:
    - the value as reported and in site units;
    - the Foundation and binding revision IDs it was accepted under;
@@ -46,7 +46,9 @@ The demo runs on its own copy, so your usual servers and data are not used or ch
 
 | Case | Result |
 | --- | --- |
-| Scale | One run gave 246 sealed batches (293 readings). They uploaded in 10 bounded passes of up to 25 batches, with progress printed. |
+| Scale | After run-to-end the gateway held 245 sealed batches (292 readings), the earlier proof's count. Advancing the run's publication clock to 15:10 released the one delayed closing report of publication profile v2 (battery state of charge, source time 15:00:00Z, published 15:10:00Z) as one more batch, giving 246 batches (293 readings). The script prints that added batch. They uploaded in 10 bounded passes of up to 25 batches, with progress printed. |
+| Fault fixture (labelled) | The script posted a separate test batch over the normal secure upload with two readings: one valid, one naming a signal no binding maps. The server answered 200 with one ACCEPTED and one REJECTED (`BINDING_NOT_REGISTERED`, field `source.signal_id`). After reload, the Site rejection route shows the rejected one and Site Evidence lists the batch. |
+| Comparison binding | The comparison report now also records which local evidence and commit stores it was made over (a fingerprint, not a path). A report copied to another workspace pointed at the same database keeps that workspace's Evidence closed until it runs its own comparison. The demo copy made its own. |
 | Outage | With the server down, the first attempt failed with `CONNECTION_FAILED` and the batch stayed ready. After restart, the same bytes were sent again. The server's stored digest equals the gateway's sealed digest. |
 | Identical bytes again | 200 with the stored receipt. The ledger row counts are unchanged. |
 | Same batch ID, changed bytes | One reading's value was changed and the batch was resealed as a valid batch. The server answered 409 `BATCH_ID_CONFLICT`. The stored batch is unchanged and one audit refusal row was added. |
@@ -60,11 +62,10 @@ The demo runs on its own copy, so your usual servers and data are not used or ch
 - **No historical KOBO replay.** KOBO-001 had no older file-backed Evidence, so the comparison is an explicitly empty set. It proves there was nothing to migrate, not that old and new records match. Old-format parsing is covered only by test fixtures.
 - **No S3 analysis.** Accepted readings queue recompute jobs. No analysis, dispatch, capability or healthy-service conclusion is computed or shown.
 - **No physical-device proof.** All input comes from the simulator through the simulated gateway. Real protocols and devices are the first-pilot gate.
-- **Shown by tests, not live:**
-  - a rejected reading next to accepted ones in the same batch;
+- **Shown by Postgres tests, not live (labelled test evidence):**
   - a server crash in the middle of a batch, then resume (202 in progress);
   - a closing-boundary reading rejected as outside its period.
 
-  A sealing gateway does not produce these, so they are proven in the Postgres test suite and not on screen (`.agent/S2-02-questions-6.md` Q32, Q36).
+  Neither has a product test switch. The live closing readings were accepted because their configuration periods are open (Architect Q32, Q36). The rejected-sibling case is now live, through the labelled fault fixture above.
 - **Unconfigured claims:** generator status and the two newer capability channels are not configured in this demo, and no claim is made about them.
-- **Your usual server on port 8000:** it still answered "awaiting evidence migration" for KOBO-001 after the comparison was regenerated. A backend started on the current code with `DATABASE_URL` set (port 8620) served KOBO-001 Evidence from Postgres on the developer database. It showed an empty set there, because no gateway has uploaded to that database. Restarting your 8000 server on this branch with `DATABASE_URL` set should do the same.
+- **Your usual server on port 8000:** the developer KOBO-001 comparison was regenerated again in fix round 1 as schema v3 (store-root bound). A server still running older code reads it as "another schema" and answers "awaiting evidence migration" until it is restarted on this branch (`.agent/S2-02-questions-7.md` Q39). Earlier, it also answered "awaiting evidence migration" for KOBO-001 after the comparison was regenerated. A backend started on the current code with `DATABASE_URL` set (port 8620) served KOBO-001 Evidence from Postgres on the developer database. It showed an empty set there, because no gateway has uploaded to that database. Restarting your 8000 server on this branch with `DATABASE_URL` set should do the same.

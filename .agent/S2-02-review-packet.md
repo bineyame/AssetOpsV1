@@ -84,11 +84,11 @@ A completed registered simulated Kobo run Commits its existing sealed Batch V2 b
 
 ## Known deviations
 
-- Batch count is 246 batches / 293 envelopes for the post-run publication profile v2 run, against the spec's 245 / 292. The difference is one envelope and one batch. It is probably the post-run closing report, but this was not investigated.
+- Batch count 246 / 293 versus the spec's 245 / 292: explained in Fix round 1 (the profile-v2 delayed closing report).
 - Rotation requires a gateway restart to switch `upload_credential_file` (Q33).
 - The demo isolates by a `git archive` copy with its own `var/` (Q34).
 - Two runs over the same window both appear in Site Evidence (Q35).
-- Not live: rejected sibling, crash/resume 202, closing-boundary rejection (Q32/Q36).
+- Not live: crash/resume 202 and closing-boundary rejection (Postgres test evidence, Q32/Q36). The rejected sibling is live via the labelled fault fixture (Fix round 1).
 - Not done: C3/N2 full seeded layout run. The isolated demo store lacks the legacy Sites and scenario fixtures it needs, the owner's servers were off limits, and the context budget was reached. The carry stays open.
 - The owner's long-running backend on 8000 still answers 409 for KOBO-001 (its process predates this code or lacks `DATABASE_URL`). It was not restarted.
 
@@ -110,3 +110,69 @@ Follow `.agent/S2-02-owner-walkthrough.md`:
 - the explicit limits: no historical KOBO replay, no S3 projection, no physical-device proof.
 
 Owner acceptance is recorded separately from technical review. A fresh Claude reviewer and the S2-wide Codex review follow the owner routing.
+
+## Fix round 1 (review F1; Architect batch 4 items 1-4)
+
+Commits: `15f5c62` F1, `888a836` Q28 (both by the previous implementer, verified here), `c128129` + `1eb52ea` Q26, `8aa35a6` + the following commit Q32/count (walkthrough).
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| F1 forwarded scheme | Done | `serve_tls` passes `proxy_headers=False`. `gateway_api.install_gateway_tls_boundary` returns 426 for any gateway request that carries `X-Forwarded-Proto` or `Forwarded`. Test `test_a_forwarded_scheme_header_never_satisfies_the_tls_boundary[both headers]`. |
+| Q28 uncertain COMMIT | Done (complete at `888a836`; no change needed) | See "Q28 behaviour" below. |
+| Q26 store root | Done | See "Q26 behaviour" below. |
+| Q32 rejected sibling | Live | See "Q32 behaviour" below. |
+| 246/293 vs 245/292 | Explained, expected | See "Count difference" below. |
+
+**Q28 behaviour.** An ambiguous issue failure keeps the new protected file. `PostgresGatewayAccess.issue_outcome` then discards the old pool and does a fresh read of the scoped gateway, the selector's verifier, `credential_ref` and the named sources.
+- Full match: issued. The command prints the new file to switch the gateway to.
+- No row with the new selector: proven non-commit. Only the new file is removed, and nothing is claimed about the old credential.
+- Otherwise, or if the database is still unreadable: `ISSUE_OUTCOME_UNKNOWN`, exit 3. The file is kept and rotation is halted.
+- Nothing is ever reissued blindly.
+
+Tests cover committed-but-response-lost, rolled back, and still unavailable (two variants). `ProvisioningRefused` stays a proven in-transaction rollback.
+
+**Q26 behaviour.**
+- Report schema v3 adds `store_root`: the sha256 of the canonical resolved evidence and commit roots, from `canonical_root()` on both ports and adapters. No path is stored.
+- `permits_cutover` closes the gate when that root is missing or different. `ImportedEvidenceReads` passes the current root on every read.
+- The Q14 configuration-persistence guard now requires `store_root=self._current_store_root()`.
+- Tests:
+  - same database, same tenant and Site, and zero inventory from another root stays closed (pure test, and all routes in the Postgres test);
+  - the adapter canonicalises spelling;
+  - v2 reports stay closed;
+  - Evidence responses carry no `store_root` and no path.
+- The developer KOBO-001 report was regenerated (v3, PASSED, `.agent/S2-02-legacy-comparison-KOBO-001.json`). The isolated demo makes its own in step 2.
+
+**Q32 behaviour.** Walkthrough step 8b posts a FAULT FIXTURE Batch V2 over the normal authenticated HTTPS route. It holds two envelopes copied from a sealed reading under the sequence epoch `fault-fixture-epoch`.
+- Result: 200 {accepted 1, rejected 1}.
+- Ordinal 1 is `BINDING_NOT_REGISTERED` on `source.signal_id`.
+- After reload, `/evidence/rejections` lists it and Site Evidence lists the batch.
+- The step says the gateway never emits such input. Crash/202 and the outside-period rejection stay Postgres test evidence.
+
+**Count difference.** Step 5 now diffs the gateway's sealed batches. After run-to-end it holds 245 batches / 292 envelopes. The advance to 15:10 adds exactly one batch, holding one envelope.
+- What it is: `battery-pcs-controller/state-of-charge`, source time `2026-09-30T15:00:00Z`, published `15:10:00Z`, publication profile `registered-kobo-publication` v2.
+- In this run: batch `ad6fab4b…0b5ea`, source `01e01d6a…2548`.
+- Why it is expected: it is the profile-v2 delayed closing report, as in the S2-01c phase-3a proof. The earlier 245/292 count stopped before the post-run advance.
+
+**Checks (after the fix commits):**
+- Isolated walkthrough `run`: exit 0, every process stopped. Recorded in `.agent/S2-02-demo-run-output.txt`; no full credential token in it.
+- Test suites:
+  - backend with `ASSETOPS_TEST_DATABASE_URL`: **1760 passed**;
+  - gateway: **164 passed**;
+  - host: **662 passed**.
+- Frontend: not touched.
+- Architecture and workflow checks: passed.
+- Non-vacuous proofs, each reverted with `git checkout`:
+  - dropping the header test fails both F1 tests;
+  - forcing reconcile to `NOT_ISSUED` fails the lost-response test and both unreadable tests;
+  - forcing `UNKNOWN` fails the lost-response and rollback tests;
+  - removing the gate's store-root check fails the Q26 test;
+  - passing `store_root=None` in `scope` fails the architecture guard.
+
+**New questions:** `.agent/S2-02-questions-7.md`.
+- Q37: halt rotation is an instruction, not a lock.
+- Q38: residual window on a proven non-commit.
+- Q39: servers on pre-fix code close KOBO-001 on the v3 report; restart the owner's servers on this branch.
+- Q40: root identity semantics.
+
+**Review:** focused independent re-review is required (Architect batch 4). Then the S2 Evidence owner checkpoint (USER_REVIEW_REQUIRED).
+
