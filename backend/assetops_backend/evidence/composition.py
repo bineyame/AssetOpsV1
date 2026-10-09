@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from assetops_backend.evidence.adapters import gateway_credential_file
 from assetops_backend.evidence.adapters.json_evidence_store import JsonEvidenceStore
+from assetops_backend.evidence.adapters.legacy_comparison_file import ComparisonReportFiles
 from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
 from assetops_backend.evidence.adapters.postgres_gateway_access import PostgresGatewayAccess
 from assetops_backend.evidence.ledger import EvidenceLedger
@@ -29,6 +30,11 @@ def build_gateway_access(database_url: str | None) -> PostgresGatewayAccess:
     """Gateway credentials, provisioning steps and central diagnostics (S2-02 phase 2).
     Lazy: no connection until first use."""
     return PostgresGatewayAccess(database_url)
+
+
+def build_comparison_reports() -> ComparisonReportFiles:
+    """Immutable legacy comparison reports (S2-02 phase 3a); the newest decides the Evidence cutover."""
+    return ComparisonReportFiles()
 
 
 # The protected gateway credential file: prepare (new versioned protected path,

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Callable, Sequence
+from uuid import UUID
 
 from assetops_backend.sites.foundation_content import record_at
 from assetops_backend.sites.foundation_records import (
@@ -102,6 +103,12 @@ class ImportedSiteRegistry:
             if site_id_key(site.site_code) == key:
                 return site
         return None
+
+    def ledger_scope(self, site_code: str) -> tuple[str, UUID, UUID] | None:
+        """`(site_code, tenant_id, site_id)` of an imported Site for the central
+        ledger's Site Evidence reads; None for a legacy or unknown code."""
+        site = self.imported(site_code)
+        return None if site is None else (site.site_code, site.tenant_id, site.id)
 
 
 def _awaiting(site_code: str) -> SiteAwaitingMigration:

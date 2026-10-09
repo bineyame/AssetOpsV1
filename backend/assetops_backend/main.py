@@ -42,6 +42,7 @@ from assetops_backend.config import (
     load_feature_flags,
 )
 from assetops_backend.evidence.composition import (
+    build_comparison_reports,
     build_evidence_ledger,
     build_evidence_store,
     build_gateway_access,
@@ -57,6 +58,7 @@ from assetops_backend.gateway_api import (
     registered_site_scope,
 )
 from assetops_backend.evidence.ledger import EvidenceLedger, GatewayPrincipalResolver
+from assetops_backend.evidence.ledger_reads import ImportedEvidenceReads
 from assetops_backend.evidence.ledger_service import BatchIngestionService
 from assetops_backend.evidence.ports import EvidenceStore
 from assetops_backend.evidence.service import Clock, IngestionService, system_clock
@@ -125,6 +127,7 @@ def create_app(
     evidence_ledger: EvidenceLedger | None = None,
     gateway_principals: GatewayPrincipalResolver | None = None,
     gateway_access: GatewayAccessStore | None = None,
+    comparison_reports=None,
     gateway_clock: Callable[[], datetime] | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
@@ -251,6 +254,12 @@ def create_app(
     if gateway_principals is None and gateway_access is not None:
         gateway_principals = StoreGatewayPrincipals(gateway_access)
     install_gateway_tls_boundary(app)
+    # S2-02 phase 3a: the newest legacy comparison report gates each imported
+    # Site's Evidence cutover. A composition that injects its own evidence
+    # store reads no workspace report unless it injects reports too.
+    if comparison_reports is None and evidence_store is None:
+        comparison_reports = build_comparison_reports()
+    latest_comparison = (lambda site_code: None) if comparison_reports is None else comparison_reports.latest
     app.include_router(
         build_evidence_router(
             ingestion,
@@ -258,6 +267,11 @@ def create_app(
             assessments.card_assessments,
             batch_ingestion=batch_ingestion,
             gateway_principals=gateway_principals,
+            imported_reads=ImportedEvidenceReads(
+                batch_ingestion.ledger,
+                registry.ledger_scope,
+                latest_comparison,
+            ),
         )
     )
     app.include_router(

@@ -104,7 +104,9 @@ function Invoke-ConfigurationPersistenceCheck {
             # evidence-domain file writer (written once at issue, owner-only).
             Writer      = @(
                 "$backendRoot/evidence/adapters/json_evidence_store.py",
-                "$backendRoot/evidence/adapters/gateway_credential_file.py"
+                "$backendRoot/evidence/adapters/gateway_credential_file.py",
+                # S2-02 phase 3a: immutable legacy comparison reports (Q14 default).
+                "$backendRoot/evidence/adapters/legacy_comparison_file.py"
             )
             UserRootVar = "EVIDENCE_STORE_ROOT"
             UserRootOwner = "$backendRoot/evidence/adapters/json_evidence_store.py"
@@ -765,6 +767,42 @@ function Invoke-ConfigurationPersistenceCheck {
             if ($branch -match '_commit_store|_seal\(|\.ingest\(|staged_envelopes') {
                 $failures.Add(("$labPath registered Commit branch seals, files or ingests a Stage; a registered " +
                     "run releases only its gateway's sealed batches (S2-02 AC5).")) | Out-Null
+            }
+        }
+    }
+
+    # S2-02 phase 3a: the Evidence cutover gate. Each of the four Site Evidence
+    # routes asks imported_scope(site_id) before the legacy site_or_404, the
+    # scope asks permits_cutover on the newest comparison record, and the
+    # comparison CLI never calls a ledger write path.
+    $apiPath = "$backendRoot/evidence_api.py"
+    $readsPath = "$backendRoot/evidence/ledger_reads.py"
+    $cliPath = "$backendRoot/evidence_migration.py"
+    $api = $backendModules | Where-Object { $_.Path -eq $apiPath } | Select-Object -First 1
+    $reads = $backendModules | Where-Object { $_.Path -eq $readsPath } | Select-Object -First 1
+    $cli = $backendModules | Where-Object { $_.Path -eq $cliPath } | Select-Object -First 1
+    if ($null -eq $api -or $null -eq $reads -or $null -eq $cli) {
+        $failures.Add("The Evidence cutover check could not find $apiPath, $readsPath or $cliPath; update the check.") | Out-Null
+    } else {
+        $apiText = $api.Lines -join "`n"
+        foreach ($route in @('SITE_EVIDENCE_ROUTE', 'SITE_EVIDENCE_RECORDS_ROUTE', 'SITE_EVIDENCE_RECORD_ROUTE',
+                             'SITE_EVIDENCE_REJECTIONS_ROUTE')) {
+            $pattern = '(?s)@router\.get\(' + $route + '\)\n    def [a-z_]+\([^\n]*\n        scope = imported_scope\(site_id\)\n'
+            if ($apiText -notmatch $pattern) {
+                $failures.Add(("$apiPath GET $route no longer asks imported_scope(site_id) first; an imported " +
+                    "Site's Evidence reads the ledger only through the comparison gate (S2-02 AC7).")) | Out-Null
+            }
+        }
+        $readsText = $reads.Lines -join "`n"
+        if ($readsText -notmatch '(?s)\n    def scope\(self[^\n]*\n(?:(?!\n    def ).)*?permits_cutover\(report') {
+            $failures.Add("$readsPath ImportedEvidenceReads.scope no longer asks permits_cutover on the newest report.") | Out-Null
+        }
+        $lineNumber = 0
+        foreach ($line in $cli.Lines) {
+            $lineNumber++
+            if ($line -match '\.(?:submit|open_batch|decide_chunk|record_refusal|save_site|register_[a-z]+|clear_derived|save_history)\(') {
+                $failures.Add(("$cliPath writes through a ledger or legacy store at line ${lineNumber}: " +
+                    "$($line.Trim()). The legacy comparison only reads and writes its report.")) | Out-Null
             }
         }
     }
