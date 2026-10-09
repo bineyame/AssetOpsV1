@@ -29,6 +29,11 @@ S2-01a correctly leaves a registered `mini-grid` v3 Draft blocked because the im
 
 S2-02 demo setup must publish a new-effective, provenance-labelled Foundation revision for the generator properties before using a registered generator scenario, and supply scenario-owned initial fuel and generator state. If that demo uses profile 5 or asserts capability, first declare and bind the two capability channels under a new compatible role-set version; otherwise keep their absence explicit and close this part before S3-01 candidate dispatch from registered evidence. Neither step may rewrite the old import or invent observations. See `D-2026-10-08-s2-registered-kobo-demo-configuration`.
 
+### S2-01b Codex review carries (2026-10-09, `.agent/S2-01b-codex-review.md`)
+
+- F2: `frontend/src/shell/RunCommitPanel.tsx` `releaseBasisBlock(null)` returns null, so a committed pre-import artifact briefly shows enabled Resume/Retry release before Stage loads (and keeps it if Stage fails). Server refuses; presentation gap. Keep release controls unavailable while the basis is unknown; next Lab UI correction.
+- F3: 640 px page overflow (scrollWidth 780 vs 625, from `.app-frame`, also on a READY draft without the ledger; not baselined against S2-01a) and the full layout run stopping at 215 PASS on polluted `var/runs` state remain unverified. Run against a clean runs store and baseline the overflow at the next layout closeout.
+
 ### S2-01a Codex review carries (2026-10-08, `.agent/S2-01a-codex-review.md`)
 
 - F1: `frontend/src/shell/RunCommitPanel.tsx` applies the registered/imported Commit block only to `NOT_COMMITTED`; a pre-import YAML run committed before its Site was imported, with an unfinished release, still offers Resume/Retry release, which the server always refuses (409). No write escapes. Apply the basis block to the committed branch and test that historical case; fold into the next Lab-touching slice (S2-01b).
