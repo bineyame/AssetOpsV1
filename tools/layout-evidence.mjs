@@ -1318,6 +1318,24 @@ if (process.env.ASSETOPS_LAYOUT_S2_01C_RUN) {
       refusalScroller: refusalScroller !== null, refusalScrollerRight: right(refusalScroller),
       refusalRowRight: right(refusals[0]),
       resumeOrRetry: [...document.querySelectorAll("button")].some((b) => /Resume release|Retry release/.test(b.textContent)),
+      ordinaryPub: document.querySelector("[data-ordinary-publication]")?.getAttribute("data-ordinary-publication") ?? null,
+    };
+  })()`;
+  // Fix round 2: the ordinary-publication gap warning and a PUBLICATION_GAP
+  // advance refusal, read after the advance button has been clicked.
+  const READ_GAP = `(() => {
+    const doc = document.scrollingElement;
+    const box = (el) => (el ? el.getBoundingClientRect() : null);
+    const gap = document.querySelector('[data-publication-gap="TERMINAL_GAP"]');
+    const refusal = document.querySelector('[data-publication-refusal="PUBLICATION_GAP"]');
+    return {
+      scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth,
+      ordinaryPub: document.querySelector("[data-ordinary-publication]")?.getAttribute("data-ordinary-publication") ?? null,
+      gap: gap !== null, gapText: gap ? gap.textContent.trim() : "",
+      gapRight: gap ? Math.round(box(gap).right) : null, gapHeight: gap ? Math.round(box(gap).height) : null,
+      refusal: refusal !== null, refusalText: refusal ? refusal.textContent.trim() : "",
+      refusalRight: refusal ? Math.round(box(refusal).right) : null, refusalHeight: refusal ? Math.round(box(refusal).height) : null,
+      refusalKinds: [...document.querySelectorAll("[data-publication-refusal]")].map((p) => p.getAttribute("data-publication-refusal")).join(","),
     };
   })()`;
   const measure = async (width, height) => {
@@ -1345,6 +1363,7 @@ if (process.env.ASSETOPS_LAYOUT_S2_01C_RUN) {
       ["gateway diagnostics are AVAILABLE with the queue fact", m.diagStatus === "AVAILABLE" && /envelopes waiting for upload/.test(m.queueText), `${m.diagStatus}; ${m.queueText}`],
       ["the contact table scrolls inside its own box (set not empty)", m.contacts > 0 && m.diagScroller && m.diagScrollerRight <= m.clientWidth, `${m.contacts} contacts, scroller ${m.diagScroller}, right ${m.diagScrollerRight}`],
       ["no Resume or Retry release button is offered", !m.resumeOrRetry, `resume/retry ${m.resumeOrRetry}`],
+      ["the Ordinary publication fact is drawn with its state", (m.ordinaryPub ?? "").length > 0, `data-ordinary-publication ${m.ordinaryPub}`],
     ]) && allPass;
   }
 
@@ -1400,6 +1419,100 @@ if (process.env.ASSETOPS_LAYOUT_S2_01C_RUN) {
     ["the page does not scroll horizontally", f.scrollWidth <= f.clientWidth, `scrollWidth ${f.scrollWidth} vs clientWidth ${f.clientWidth}; overflowing: ${f.overflow}`],
     ["no Resume or Retry release button is offered", !f.resumeOrRetry, `resume/retry ${f.resumeOrRetry}`],
   ]) && allPass;
+
+  // FIXTURE-INJECTED (fix round 2): a terminal ordinary-publication gap and a
+  // PUBLICATION_GAP advance refusal. A valid live run publishes without a gap,
+  // so the schedule read is rewritten over CDP and the advance POST is answered
+  // 409 by the interceptor itself; the backend never sees the advance.
+  const GAP_FIELDS = {
+    ordinary_publication: "TERMINAL_GAP",
+    admitted_through: "2026-09-30T03:45:00Z",
+    ordinary_stopped_at: "2026-09-30T04:00:00Z",
+  };
+  const GAP_REFUSAL = {
+    detail: {
+      code: "EXECUTION_PUBLICATION_GAP",
+      message: "Ordinary publication stopped before the world's last boundary, and the stored schedule cannot regenerate those readings. Nothing was moved, admitted or sealed. Ordinary publication is admitted through 2026-09-30T03:45:00Z; the world reached 2026-09-30T15:00:00Z.",
+      refusal_kind: "PUBLICATION_GAP",
+      subject: runId,
+      advanced: false,
+    },
+  };
+  let gapReads = 0;
+  let gapAdvances = 0;
+  const onGapPaused = async (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.method !== "Fetch.requestPaused") return;
+    const { requestId, request, responseStatusCode, responseHeaders } = msg.params;
+    try {
+      if (/\/publication\/advance$/.test(request.url)) {
+        gapAdvances += 1;
+        await cdp.send("Fetch.fulfillRequest", {
+          requestId,
+          responseCode: 409,
+          responseHeaders: [{ name: "Content-Type", value: "application/json" }],
+          body: Buffer.from(JSON.stringify(GAP_REFUSAL), "utf8").toString("base64"),
+        });
+        return;
+      }
+      const body = await cdp.send("Fetch.getResponseBody", { requestId });
+      const text = body.base64Encoded ? Buffer.from(body.body, "base64").toString("utf8") : body.body;
+      const doc = JSON.parse(text);
+      Object.assign(doc.publication ?? doc, GAP_FIELDS);
+      gapReads += 1;
+      await cdp.send("Fetch.fulfillRequest", {
+        requestId,
+        responseCode: responseStatusCode ?? 200,
+        responseHeaders: (responseHeaders ?? []).filter((h) => !/^content-(length|encoding)$/i.test(h.name)),
+        body: Buffer.from(JSON.stringify(doc), "utf8").toString("base64"),
+      });
+    } catch (error) {
+      console.log(`  (fixture injection failed: ${error.message})`);
+      await cdp.send("Fetch.continueRequest", { requestId }).catch(() => {});
+    }
+  };
+  ws.addEventListener("message", onGapPaused);
+  await cdp.send("Fetch.enable", { patterns: [
+    { urlPattern: `*/runs/${runId}/publication`, requestStage: "Response" },
+    { urlPattern: `*/runs/${runId}/publication/advance`, requestStage: "Request" },
+  ] });
+  for (const [width, height] of [[640, 700], [1280, 800]]) {
+    await measure(width, height);
+    // Wait until the advance button is enabled (the suggested instant filled),
+    // filling an instant through React's own setter only if none was suggested.
+    let clicked = false;
+    for (let attempt = 0; attempt < 60 && !clicked; attempt += 1) {
+      clicked = (await cdp.send("Runtime.evaluate", { returnByValue: true, expression: `(() => {
+        const input = document.querySelector("#publication-advance-instant");
+        const button = [...document.querySelectorAll("button")].find((b) => b.textContent.trim() === "Advance publication clock");
+        if (!input || !button) return false;
+        if (input.value.trim() === "") {
+          Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, "2026-09-30T15:10:00Z");
+          input.dispatchEvent(new Event("input", { bubbles: true }));
+          return false;
+        }
+        if (button.disabled) return false;
+        button.click();
+        return true;
+      })()` })).result.value === true;
+      if (!clicked) await sleep(150);
+    }
+    await waitForSelector(cdp, '[data-publication-refusal]');
+    await sleep(400);
+    const g = (await cdp.send("Runtime.evaluate", { expression: READ_GAP, returnByValue: true })).result.value;
+    g.overflow = g.scrollWidth > g.clientWidth
+      ? (await cdp.send("Runtime.evaluate", { expression: OVERFLOW, returnByValue: true })).result.value
+      : "none";
+    allPass = report(`S2-01c FIXTURE-INJECTED ordinary publication gap and PUBLICATION_GAP advance refusal (publication read rewritten to TERMINAL_GAP and advance POST answered 409 over CDP), run ${runId} at ${width}x${height}`, g, [
+      ["the publication read was rewritten and the advance was clicked and answered by the fixture", gapReads > 0 && clicked && gapAdvances > 0, `${gapReads} reads rewritten, clicked ${clicked}, ${gapAdvances} advances answered`],
+      ["the page does not scroll horizontally", g.scrollWidth <= g.clientWidth, `scrollWidth ${g.scrollWidth} vs clientWidth ${g.clientWidth}; overflowing: ${g.overflow}`],
+      ["the Ordinary publication fact reads TERMINAL_GAP", g.ordinaryPub === "TERMINAL_GAP", `data-ordinary-publication ${g.ordinaryPub}`],
+      ["the TERMINAL_GAP warning is drawn with text, inside the page width", g.gap && g.gapText.length > 0 && g.gapHeight > 0 && g.gapRight <= g.clientWidth, `drawn ${g.gap}, ${g.gapText.length} chars, height ${g.gapHeight}, right ${g.gapRight} vs ${g.clientWidth}`],
+      ["the PUBLICATION_GAP refusal is drawn with text, inside the page width", g.refusal && g.refusalText.length > 0 && g.refusalHeight > 0 && g.refusalRight <= g.clientWidth, `drawn ${g.refusal}, ${g.refusalText.length} chars, height ${g.refusalHeight}, right ${g.refusalRight} vs ${g.clientWidth}; refusal kinds [${g.refusalKinds}]`],
+    ]) && allPass;
+  }
+  await cdp.send("Fetch.disable");
+  ws.removeEventListener("message", onGapPaused);
 
   console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
   ws.close();
