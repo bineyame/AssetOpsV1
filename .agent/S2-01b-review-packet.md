@@ -144,3 +144,37 @@ None required (USER_REVIEW_REQUIRED false). The reviewer should check:
 - the gateway Stage copy, which never claims sent, accepted or delivered;
 - the half-step wording in the reporting-paths note;
 - the F1 block text on a committed legacy artifact.
+
+## Fix round 1 (Codex review F1, `.agent/S2-01b-codex-review.md`)
+
+Code commit `ed0e397`. F2 and F3 stay carried in `.ai/MILESTONE_REVIEW_BACKLOG.md`; not touched. Choices the review did not name are in `.agent/S2-01b-questions-5.md` (fail-closed defaults).
+
+**What changed**
+- **Byte-aware sealing** (`gateway/assetops_gateway/service.py` `_fit`, `seal`): each (source, epoch, snapshot, state) group is cut in sequence order into the longest prefix that fits both `max_envelopes` and Batch V2's 1 MiB. The count-bounded prefix is tried first, so a group within both bounds seals exactly as before (normal-path bytes, batch IDs and vectors unchanged; existing sealing, replay, restart and wire-vector tests pass unedited). Only a byte refusal shortens it, by binary search.
+- **Unbatchable report held before a sequence** (`_check_batchable`): after building the envelope and before the outbox insert and `sequence_state` write, a singleton seal is tried; failure is a typed hold `UNBATCHABLE` at `value`, no sequence consumed.
+- **Durable seal refusal** (ledger schema 2, `seal_refusal` table, migration v1 to v2 in `ledger.py`): a group that still cannot be sealed keeps its envelopes unbatched from the first unsealable one, records one refusal row, does not stop other groups, and `seal` raises `SEAL_REFUSED` after commit. Sealing the group later deletes the row. `GatewayReader.run_stage` returns the refusals for groups holding the run's unbatched envelopes; `ipc.stage_document` carries them.
+- **Honest Stage** (`contracts/.../gateway_stage.py` `registered_stage_status`): `STAGED` ("sealed this run's public reports") only when every envelope is in a batch; otherwise `SEALING_PENDING` or `SEALING_REFUSED`; holds only is `HELD`. Derived from the ledger, so a read after host restart says the same. Host maps a seal refusal to `PublicationRefused("SEAL_REFUSED")`, and the session note no longer claims "nothing was staged by this attempt" (`host/lab_execution.py`).
+- **Lab** (`registered_stage_payload`, `GatewayLedgerView.tsx`, `runSetupClient.ts`): `seal_refusals` travel and are parsed (required); a "Sealing refused" table renders them. Headings "exactly as sealed" / "Every sealed envelope" became "exactly as stored" / "Every envelope in the outbox", since they list unbatched envelopes too. The test fixture with an unbatched envelope now carries `SEALING_PENDING`.
+
+**New tests** (each first seen failing, or proven non-vacuous)
+- `gateway/tests/test_gateway_ledger.py`: the reviewer's case (256 reports, 4,096-digit value: all admitted, at least 2 batches, each at most 1 MiB, sequences 1..256 all batched); a single over-limit value held `UNBATCHABLE` with no outbox row and no sequence, the next report gets sequence 1; a forced seal refusal is durable across close and fresh read, leaves only that source unbatched, and clears when the group seals; v1 ledger migrates to v2.
+- `host/tests/test_registered_gateway_publication.py`: status per ledger shape (5 cases) and statement never says "sealed this run" unless `STAGED`; a seal refusal is a typed `PublicationRefused`.
+- `backend/tests/test_s2_registered_basis.py`: refusal travels verbatim in the payload; the registered Stage carries `seal_refusals: []`.
+- `frontend/.../gatewayLedgerStage.test.tsx`: refusal row renders, no "sealed" claim; parser rejects a body without `seal_refusals`.
+
+Non-vacuity (each mutation on the committed tree, then `git checkout --`): count-only `_fit` fails the bytes test; removing `_check_batchable` fails the unbatchable test; not reading `seal_refusal` fails the durability test; the old "any envelope means STAGED" rule fails 2 host status cases; an optional `seal_refusals` in the parser fails the parse test.
+
+**Checks (after `ed0e397`)**
+
+| Check | Result |
+| --- | --- |
+| Gateway | 80 passed |
+| Host | 644 passed |
+| Backend with `ASSETOPS_TEST_DATABASE_URL` (Postgres on) | 1631 passed |
+| Simulator (from `simulator/`) | 265 passed |
+| Frontend `npx vitest run` | 50 files, 1213 passed |
+| `npx tsc --noEmit` / `npm run build` | exit 0 / exit 0 |
+| `tools/check-architecture.ps1` / `tools/check-agent-workflow.ps1` | passed / passed |
+| Layout evidence | not run: the normal registered path still renders `STAGED` with unchanged tables; the new refusal table appears only for the refusal state, which a live run cannot reach from valid input. Its layout is unverified. |
+
+**Residual risk:** a ledger already holding an unbatchable envelope admitted before this fix now records a refusal instead of raising forever; that group stays unbatched until an operator acts (no re-sequencing path exists, by design). The binary search re-seals up to about 9 trial prefixes per over-size chunk; bounded, and only on the over-size path.
