@@ -1,0 +1,50 @@
+{
+  "schema": "assetops.lab-gateway-fault-scenarios",
+  "version": 1,
+  "statement": "S2-01c local gateway fault and delay fixtures for a registered KOBO-001 Draft. Four separate parts: what the public reporting path is expected to publish, which reports are intentionally delayed or missing, which local gateway fault controls a fixture may drive, and the private Lab oracle. Only public report text ever reaches the gateway; nothing in delayed_cases' oracle fields, fault_controls or private_oracle enters V3, Batch V2 or GatewayDiagnosticsV1. A local IPC reconnect is not an HTTPS retry and nothing here is central receipt.",
+  "run_setup": {
+    "site_id": "KOBO-001",
+    "scenario": {"scenario_id": "kobo-daytime-delayed-publication", "scenario_version": 1},
+    "model_profile": {"profile_id": "daytime-mini-grid", "profile_version": 1},
+    "publication_profile": {"profile_id": "registered-kobo-publication", "profile_version": 2},
+    "interval": {"start_time": "2026-09-30T03:00:00Z", "end_time": "2026-09-30T15:00:00Z"},
+    "timestep_minutes": 15,
+    "publication_clock": "RUN_VIRTUAL"
+  },
+  "public_expected": {
+    "admitted_envelopes_after_release": 293,
+    "held_reports": 0,
+    "rule": "Every published_at is at or after its source_time; a delayed report keeps its source_time and value."
+  },
+  "delayed_cases": [
+    {
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "source_time": "2026-09-30T07:00:00Z",
+      "released_by": "WORLD_STEP",
+      "expected_published_at": "2026-09-30T07:15:00Z"
+    },
+    {
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "source_time": "2026-09-30T14:45:00Z",
+      "released_by": "WORLD_STEP",
+      "expected_published_at": "2026-09-30T15:00:00Z"
+    }
+  ],
+  "missing_cases": {
+    "rule": "Dropped samples of the profile's dropout draw publish no report and no envelope; they stay missing, never filled."
+  },
+  "fault_controls": [
+    {"control": "LINK_LOSS", "how": "stop the gateway process, step the world, restart it, advance the publication clock to the same instant", "expect": "publication refused while down; delayed report stays PENDING; earlier envelope and batch bytes unchanged after reconnect; one release, no new sequence on repeat"},
+    {"control": "DISK_PRESSURE", "value": "WARN", "how": "inject_fault DISK_PRESSURE WARN", "expect": "acquisition continues; local read shows WARN with INJECTED_FAULT_FIXTURE provenance"},
+    {"control": "DISK_PRESSURE", "value": "STOP", "how": "inject_fault DISK_PRESSURE STOP, step the world", "expect": "DISK_PRESSURE_STOP refusal before any sequence; existing bytes retained; clearing it lets the replay admit what was refused"},
+    {"control": "CLOCK_OFFSET", "value": 1500, "how": "inject_fault CLOCK_OFFSET 1500", "expect": "local read shows 1500 ms with INJECTED_FAULT_FIXTURE provenance; unknown otherwise"}
+  ],
+  "private_oracle": {
+    "delay_windows": [
+      {"event_id": "soc-publication-delay-midday", "start_offset_minutes": 240, "end_offset_minutes": 250, "scheduled_release_at": "2026-09-30T07:10:00Z"},
+      {"event_id": "soc-publication-delay-closing", "start_offset_minutes": 705, "end_offset_minutes": 720, "scheduled_release_at": "2026-09-30T15:00:00Z"}
+    ]
+  }
+}

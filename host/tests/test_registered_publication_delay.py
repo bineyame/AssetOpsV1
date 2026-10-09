@@ -39,6 +39,9 @@ from assetops_contracts.lab_projection import LabControlRefused  # noqa: E402
 from assetops_contracts.source_envelope_v3 import parse_canonical_envelope_v3_text  # noqa: E402
 
 V2 = REGISTERED_KOBO_PUBLICATION_PROFILE_V2
+MANIFEST = json.loads(
+    (Path(__file__).resolve().parents[1] / "fixtures" / "gateway-fault-scenarios.v1.json").read_text(encoding="utf-8")
+)
 SOC = ("battery-pcs-controller", "state-of-charge")
 MIDDAY, MIDDAY_DUE, MIDDAY_STEP = "2026-09-30T07:00:00Z", "2026-09-30T07:10:00Z", "2026-09-30T07:15:00Z"
 CLOSING, CLOSING_DUE, END = "2026-09-30T14:45:00Z", "2026-09-30T15:00:00Z", "2026-09-30T15:00:00Z"
@@ -133,6 +136,24 @@ def refused(kind: str, action) -> LabControlRefused:
     return error.value
 
 
+def test_the_manifest_describes_the_draft_it_runs(draft) -> None:
+    setup = MANIFEST["run_setup"]
+    profiles = draft.deterministic_identity.profiles
+    assert (MANIFEST["schema"], MANIFEST["version"]) == ("assetops.lab-gateway-fault-scenarios", 1)
+    assert (profiles.publication_profile_id, profiles.publication_profile_version) == (
+        setup["publication_profile"]["profile_id"], setup["publication_profile"]["profile_version"],
+    )
+    assert (profiles.model_profile_id, profiles.model_profile_version) == (
+        setup["model_profile"]["profile_id"], setup["model_profile"]["profile_version"],
+    )
+    assert setup["publication_clock"] == V2.publication_clock
+    # The public part and the private oracle are separate keys; no public
+    # expectation names a delay cause or a scheduled release.
+    public = json.dumps([MANIFEST["public_expected"], MANIFEST["delayed_cases"]])
+    for window in MANIFEST["private_oracle"]["delay_windows"]:
+        assert window["event_id"] not in public
+
+
 def test_the_delay_profile_and_scenario_freeze_two_windows(draft, tmp_path) -> None:
     port = host(tmp_path / "h", RecordingLink(None))
     reporting = port._reporting_for(draft)
@@ -187,6 +208,12 @@ def test_a_delayed_report_waits_then_is_admitted_at_the_actual_virtual_instant(d
         view = port.registered_stage(draft)
         late = soc_envelopes(view)[CLOSING]
         assert (late.source_time, late.published_at) == (CLOSING, CLOSING_DUE)
+        expected = MANIFEST["public_expected"]
+        assert (len(view.envelopes), len(view.holds)) == (expected["admitted_envelopes_after_release"], expected["held_reports"])
+        for case in MANIFEST["delayed_cases"]:
+            assert soc_envelopes(view)[case["source_time"]].published_at == case["expected_published_at"]
+        oracle = {w["scheduled_release_at"] for w in MANIFEST["private_oracle"]["delay_windows"]}
+        assert {d.scheduled_release_at for d in port.publication_schedule(draft).delayed} == oracle
 
         # After the world run: the clock advances past its end without a
         # kernel step, and releases nothing that was not due.
@@ -290,8 +317,14 @@ def test_injected_stop_refuses_acquisition_and_keeps_bytes(draft, tmp_path) -> N
         port.start(draft)
         port.step(draft, boundaries=4, from_boundary=0)
         before = stage_bytes(port.registered_stage(draft))
+        publisher.inject_fault("DISK_PRESSURE", "WARN")
+        port.step(draft, boundaries=1, from_boundary=4)
+        warned = port.gateway_diagnostics()["diagnostics"]
+        assert (warned["disk_pressure"]["level"], warned["acquisition"]) == ("WARN", "ACCEPTING")
+        assert len(port.registered_stage(draft).envelopes) > len(before[0])
+        before = stage_bytes(port.registered_stage(draft))
         publisher.inject_fault("DISK_PRESSURE", "STOP")
-        port.step(draft, boundaries=4, from_boundary=4)
+        port.step(draft, boundaries=4, from_boundary=5)
         notes = port._sessions[draft.run_id].staging_notes
         assert any("DISK_PRESSURE_STOP" in n for n in notes), notes
         assert stage_bytes(port.registered_stage(draft)) == before
@@ -301,7 +334,7 @@ def test_injected_stop_refuses_acquisition_and_keeps_bytes(draft, tmp_path) -> N
         assert read["diagnostics"]["disk_pressure"]["provenance"] == "INJECTED_FAULT_FIXTURE"
         assert read["diagnostics"]["acquisition"] != "ACCEPTING"
         publisher.inject_fault("DISK_PRESSURE", None)
-        port.step(draft, boundaries=1, from_boundary=8)
+        port.step(draft, boundaries=1, from_boundary=9)
         after = port.registered_stage(draft)
         assert set(before[0]) <= set(stage_bytes(after)[0]) and set(before[1]) <= set(stage_bytes(after)[1])
         assert len(after.envelopes) > len(before[0])  # the replay admitted what STOP refused
