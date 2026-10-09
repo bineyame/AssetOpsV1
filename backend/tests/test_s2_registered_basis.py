@@ -501,7 +501,7 @@ class TestRegisteredControls:
         assert payload["seal_refusals"] == [{
             "source_id": "src", "sequence_epoch": "1", "message_id": "m-2", "kind": "TOO_LARGE",
             "field": "batch", "detail": "more than 1048576 bytes", "last_seen_at": "2026-10-01T09:00:00Z",
-            "seen_count": 2,
+            "seen_count": 2, "outbox_state": "STAGED",
         }]
 
     def test_site_name_and_time_zone_are_labelled_current_row_metadata(

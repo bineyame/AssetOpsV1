@@ -2592,6 +2592,11 @@ class HostLabExecution:
                 schedule = self._schedules.read(run.run_id)
             except ScheduleUnreadable as unreadable:
                 raise LabControlRefused("PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(unreadable)) from unreadable
+            session = self._sessions.get(run.run_id)
+            if schedule is None and session is None and self._executed(run):
+                # Q5 (answers-3): a run that executed with no stored schedule
+                # is refused; no report is reconstructed from the scenario.
+                raise LabControlRefused("PUBLICATION_SCHEDULE_MISSING", run.run_id)
             if schedule is None or schedule.clock_instant is None:
                 raise LabControlRefused("NOT_STARTED", run.run_id)
             if instant < schedule.clock_instant:
@@ -2606,13 +2611,19 @@ class HostLabExecution:
                     run.run_id,
                     f"the world has reached {schedule.world_reached_instant}; {instant} is later",
                 )
-            session = self._sessions.get(run.run_id)
             notes = [] if session is None else session.staging_notes
 
             def note(text: str) -> None:
                 if text not in notes:
                     notes.append(text)
 
+            # Q5 (answers-3): which basis released. LIVE_SESSION re-drives the
+            # whole due series from the live world; STORED_SCHEDULE_ONLY (after a
+            # host restart) releases only the stored delayed reports' exact text.
+            # Neither is central delivery, and the stored-only release never
+            # claims an undelayed series a failed earlier step left unadmitted
+            # was regenerated: the Stage read shows what is admitted and held.
+            release_basis = "LIVE_SESSION" if session is not None else "STORED_SCHEDULE_ONLY"
             if self._gateway is None:
                 refused = "registered publication refused: no gateway is configured for this host"
                 note(refused)
@@ -2622,12 +2633,30 @@ class HostLabExecution:
                 # After a host restart there is no live session: the series
                 # admitted before stays admitted; only the schedule is released.
                 refused = self._release(run.run_id, run.registered_basis, schedule, instant, [], note)
-            return {"schedule": self._schedules.read(run.run_id), "publication_refused": refused}
+            return {
+                "schedule": self._schedules.read(run.run_id),
+                "publication_refused": refused,
+                "release_basis": release_basis,
+            }
+
+    def _executed(self, run: SimulationRun) -> bool:
+        """Whether this run has a stored execution artifact (it was started)."""
+        try:
+            return self._artifacts.read(run.run_id) is not None
+        except ExecutionArtifactUnreadable:
+            return True
 
     def publication_schedule(self, run: SimulationRun) -> PublicationSchedule | None:
-        """The Lab-private schedule of a registered run, or None if it has none."""
+        """The Lab-private schedule of a registered run, or None if it has none.
+
+        An unreadable schedule refuses rather than reading as an empty queue."""
         with self._lock_for(run.run_id):
-            return self._schedules.read(run.run_id)
+            try:
+                return self._schedules.read(run.run_id)
+            except ScheduleUnreadable as unreadable:
+                raise LabControlRefused(
+                    "PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(unreadable)
+                ) from unreadable
 
     def gateway_diagnostics(self) -> dict:
         """The gateway's local diagnostic read, or an explicit unavailable state."""

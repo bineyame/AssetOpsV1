@@ -25,95 +25,28 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import asdict, dataclass, field, replace
-from datetime import datetime, timezone
+from dataclasses import asdict
 from pathlib import Path
+
+from assetops_contracts.publication_schedule import (  # noqa: F401 - re-exported
+    INSTANT,
+    PENDING,
+    RELEASED,
+    DelayedReport,
+    PublicationSchedule,
+    parse_instant,
+)
 
 SCHEMA = "assetops.lab-publication-schedule"
 VERSION = 1
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 SCHEDULE_ROOT = REPOSITORY_ROOT / "var" / "publication-schedules"
-INSTANT = "%Y-%m-%dT%H:%M:%SZ"
-PENDING = "PENDING"
-RELEASED = "RELEASED"
 
 
 class ScheduleUnreadable(RuntimeError):
     def __init__(self, run_id: str, detail: str) -> None:
         self.run_id, self.detail = run_id, detail
         super().__init__(f"the publication schedule of {run_id} is unreadable: {detail}")
-
-
-def parse_instant(text: str) -> datetime:
-    """A strict `YYYY-MM-DDTHH:MM:SSZ` instant, or ValueError."""
-    if not isinstance(text, str):
-        raise ValueError(f"{text!r} is not a UTC instant")
-    moment = datetime.strptime(text, INSTANT).replace(tzinfo=timezone.utc)
-    if moment.strftime(INSTANT) != text:
-        raise ValueError(f"{text!r} is not a canonical UTC instant")
-    return moment
-
-
-@dataclass(frozen=True)
-class DelayedReport:
-    report_key: str
-    device_id: str
-    signal_id: str
-    source_time: str
-    scheduled_release_at: str
-    #: The scenario entry that held it: a private Lab cause, never sent.
-    delay_event_id: str
-    #: The exact public report text the gateway will receive once due.
-    report_text: str
-    state: str = PENDING
-    #: The Lab's virtual publication instant when it was submitted. The V3
-    #: `published_at` is the gateway's own stamp, read back from the Stage.
-    released_at_clock: str | None = None
-    message_id: str | None = None
-    sequence: int | None = None
-    outcome: str | None = None
-
-
-@dataclass(frozen=True)
-class PublicationSchedule:
-    run_id: str
-    snapshot_sha256: str
-    clock_instant: str | None = None
-    world_reached_instant: str | None = None
-    world_complete: bool = False
-    delayed: tuple[DelayedReport, ...] = field(default_factory=tuple)
-
-    def pending(self) -> tuple[DelayedReport, ...]:
-        return tuple(d for d in self.delayed if d.state == PENDING)
-
-    def due(self, instant: str) -> tuple[DelayedReport, ...]:
-        moment = parse_instant(instant)
-        return tuple(d for d in self.pending() if parse_instant(d.scheduled_release_at) <= moment)
-
-    def keys(self) -> frozenset[str]:
-        return frozenset(d.report_key for d in self.delayed)
-
-    def with_delayed(self, added: list[DelayedReport]) -> "PublicationSchedule":
-        return replace(self, delayed=self.delayed + tuple(added))
-
-    def released(self, answers: dict[str, dict], clock_instant: str) -> "PublicationSchedule":
-        """Mark the reports the gateway answered for as RELEASED, by key."""
-        delayed = []
-        for item in self.delayed:
-            answer = answers.get(item.report_key)
-            # Submitted is released, whatever the gateway answered: a HELD
-            # report is the gateway's hold to show, not a pending one to resend.
-            if item.state == PENDING and answer is not None:
-                item = replace(
-                    item,
-                    state=RELEASED,
-                    released_at_clock=clock_instant,
-                    message_id=answer.get("message_id"),
-                    sequence=answer.get("sequence"),
-                    outcome=answer["outcome"],
-                )
-            delayed.append(item)
-        return replace(self, delayed=tuple(delayed))
 
 
 def schedule_document(schedule: PublicationSchedule) -> dict:

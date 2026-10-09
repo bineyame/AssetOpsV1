@@ -104,6 +104,7 @@ from assetops_backend.runs.ports import (
 from assetops_backend.runs.profiles import (
     ModelProfile,
     PublicationProfile,
+    find_publication_profile,
 )
 from assetops_backend.runs.identity import RUN_ID_RULE, validate_run_id
 from assetops_backend.runs.provenance import frozen_inputs
@@ -176,6 +177,8 @@ from assetops_contracts.committed_artifact import (
 )
 from assetops_contracts.execution_contract import DISCRETE_STATE_RULES
 from assetops_contracts.ingestion_batch import ConfigurationReference
+from assetops_contracts.publication_schedule import PublicationSchedule
+from assetops_contracts.source_envelope_v3 import parse_canonical_envelope_v3_text
 from assetops_contracts.lab_history import (
     FAMILY_AVAILABILITY_STATEMENTS,
     SAMPLE_PHASES,
@@ -239,6 +242,45 @@ RUN_EXECUTION_END_ROUTE = "/runs/{run_id}/execution/run-to-end"
 # edits, deletes, releases or commits a staged envelope: staging happens as a run
 # is stepped, and a staged record is immutable.
 RUN_STAGE_ROUTE = "/runs/{run_id}/stage"
+
+# S2-01c. A registered RUN_VIRTUAL run's Lab-private publication schedule and
+# the one control that moves its virtual publication clock, plus the gateway's
+# local diagnostic read. None of them commits, uploads or receives anything:
+# advancing the clock submits due public reports to the LOCAL gateway only.
+RUN_PUBLICATION_ROUTE = "/runs/{run_id}/publication"
+RUN_PUBLICATION_ADVANCE_ROUTE = "/runs/{run_id}/publication/advance"
+GATEWAY_DIAGNOSTICS_ROUTE = "/gateway/diagnostics"
+LAB_PUBLICATION_SCHEDULE_STORE = "LAB_PUBLICATION_SCHEDULE"
+PUBLICATION_SCHEDULE_STATEMENT = (
+    "Lab-private schedule of this run's delayed public reports. Source time is "
+    "the reading's own instant; the scheduled release and the publication "
+    "clock are on the run's virtual publication clock; an admitted report's "
+    "published_at is the gateway's own stamp at its actual virtual admission "
+    "instant. Nothing here entered a V3 envelope, a batch or a diagnostic, and "
+    "a released report is admitted to the local gateway only - not uploaded, "
+    "not received centrally and not Site Evidence."
+)
+RELEASE_BASIS_STATEMENTS = {
+    "LIVE_SESSION": (
+        "Released from the live world session: every due report of the run, "
+        "delayed or not, was resubmitted to the local gateway."
+    ),
+    "STORED_SCHEDULE_ONLY": (
+        "No live world session (the Lab host restarted): only the stored "
+        "delayed reports' exact text was released. This does not regenerate or "
+        "resubmit any undelayed report an earlier failed step left unadmitted; "
+        "the Stage read shows what the gateway actually admitted and held."
+    ),
+}
+GATEWAY_DIAGNOSTICS_STATEMENT = (
+    "The local gateway's own read at its real UTC clock. Queue counts come from "
+    "its ledger; last contact means a simulated public report reached the "
+    "gateway (OBSERVED_SIMULATED_REPORT), not that a physical device or asset "
+    "is healthy; clock offset is unknown unless measured or injected by a "
+    "labelled fault fixture; an injected disk pressure is not measured "
+    "hardware pressure. Diagnostics are pending upload: nothing here is a "
+    "central receipt."
+)
 
 # T027 (D4). Commit seals an eligible stage into one immutable artifact and
 # releases it through ingestion - the same `IngestionService.ingest` every
@@ -853,6 +895,10 @@ def publication_profile_summary(
             declaration.resolution is not None
             for declaration in profile.device_signals
         ),
+        # S2-01c (Q1): which clock a registered run's gateway stamps V3
+        # `published_at` from - the gateway's real UTC, or the run's virtual
+        # publication clock the Lab advances.
+        "publication_clock": profile.publication_clock,
     }
 
 
@@ -1816,6 +1862,8 @@ def registered_stage_payload(view: RegisteredStageView) -> dict[str, object]:
                 "source_id": r.source_id,
                 "sequence_epoch": r.sequence_epoch,
                 "message_id": r.message_id,
+                # R1: which outbox group the refusal belongs to.
+                "outbox_state": r.outbox_state,
                 "kind": r.kind,
                 "field": r.field,
                 "detail": r.detail,
@@ -1824,6 +1872,126 @@ def registered_stage_payload(view: RegisteredStageView) -> dict[str, object]:
             }
             for r in view.seal_refusals
         ],
+    }
+
+
+def publication_schedule_payload(
+    run_id: str,
+    schedule: PublicationSchedule | None,
+    *,
+    publication_clock: str | None,
+    stage: RegisteredStageView | None = None,
+    status: str | None = None,
+    detail: str | None = None,
+) -> dict[str, object]:
+    """S2-01c: the Lab-private schedule, bounded, with each instant's clock.
+
+    Omits the delay cause and the report text: source, scheduled and actual
+    publication instants and state are what the Lab view needs. A released
+    report's actual `published_at` is read from the gateway's Stage envelope;
+    when the Stage cannot be read it is null, never the scheduled instant.
+    """
+    published: dict[str, str] = {}
+    if stage is not None:
+        for envelope in stage.envelopes:
+            try:
+                parsed = parse_canonical_envelope_v3_text(envelope.envelope_text)
+            except ValueError:
+                continue
+            published[envelope.message_id] = parsed.published_at
+    if status is None:
+        status = "NO_SCHEDULE" if schedule is None else "AVAILABLE"
+    reports = [] if schedule is None else [
+        {
+            "report_key": item.report_key,
+            "device_id": item.device_id,
+            "signal_id": item.signal_id,
+            "source_time": item.source_time,
+            "scheduled_release_at": item.scheduled_release_at,
+            "state": item.state,
+            "released_at_clock": item.released_at_clock,
+            "message_id": item.message_id,
+            "sequence": item.sequence,
+            "outcome": item.outcome,
+            "published_at": (
+                published.get(item.message_id) if item.message_id else None
+            ),
+        }
+        for item in schedule.delayed
+    ]
+    return {
+        "store": LAB_PUBLICATION_SCHEDULE_STORE,
+        "run_id": run_id,
+        "status": status,
+        "detail": detail,
+        "publication_clock": publication_clock,
+        "statement": PUBLICATION_SCHEDULE_STATEMENT,
+        "clock_labels": {
+            "source_time": "SOURCE_TIME",
+            "scheduled_release_at": "RUN_VIRTUAL_SCHEDULED",
+            "clock_instant": "RUN_VIRTUAL",
+            "released_at_clock": "RUN_VIRTUAL",
+            "published_at": "GATEWAY_STAMPED_RUN_VIRTUAL",
+        },
+        "clock_instant": None if schedule is None else schedule.clock_instant,
+        "world_reached_instant": (
+            None if schedule is None else schedule.world_reached_instant
+        ),
+        "world_complete": False if schedule is None else schedule.world_complete,
+        "pending_count": sum(1 for r in reports if r["state"] == "PENDING"),
+        "released_count": sum(1 for r in reports if r["state"] == "RELEASED"),
+        "reports": reports,
+    }
+
+
+def gateway_diagnostics_payload(read: dict[str, Any]) -> dict[str, object]:
+    """S2-01c: the gateway's local diagnostic read, labelled.
+
+    `GATEWAY_UNAVAILABLE` carries no counters at all - never a zero queue.
+    `current` is the live local read; `last_emitted` is the newest stored
+    GatewayDiagnosticsV1 (null when none was emitted yet).
+    """
+    body = read.get("diagnostics")
+    status = read.get("status", "GATEWAY_UNAVAILABLE")
+    if status != "AVAILABLE" or not isinstance(body, dict):
+        return {
+            "status": "GATEWAY_UNAVAILABLE",
+            "detail": read.get("detail"),
+            "statement": GATEWAY_DIAGNOSTICS_STATEMENT,
+            "observed_at_clock": "GATEWAY_REAL_UTC",
+            "current": None,
+            "last_emitted": None,
+        }
+    emitted = body.get("diagnostics") or []
+    current = {
+        key: body.get(key)
+        for key in (
+            "site_id",
+            "gateway_id",
+            "source_mode",
+            "sequence_epoch",
+            "observed_at",
+            "queue",
+            "mapping_error_count",
+            "source_contacts",
+            "clock_offset",
+            "disk_pressure",
+            "acquisition",
+            "diagnostic_count",
+            "pending_diagnostic_count",
+            "upload",
+        )
+    }
+    config = body.get("config") or {}
+    current["config_sha256"] = config.get("sha256")
+    current["config"] = {k: v for k, v in config.items() if k != "text"}
+    return {
+        "status": "AVAILABLE",
+        "detail": None,
+        "statement": GATEWAY_DIAGNOSTICS_STATEMENT,
+        "observed_at_clock": "GATEWAY_REAL_UTC",
+        "current": current,
+        "last_emitted": emitted[0] if emitted else None,
     }
 
 
@@ -2805,6 +2973,100 @@ def build_simulator_lab_router(
             "frozen_basis": _frozen_basis(record),
         }
 
+    def _publication_clock(record: SimulationRun) -> str | None:
+        profiles = record.deterministic_identity.profiles
+        profile = find_publication_profile(
+            publication_profiles,
+            profiles.publication_profile_id,
+            profiles.publication_profile_version,
+        )
+        return None if profile is None else profile.publication_clock
+
+    def _stage_or_none(
+        port: LabExecutionPort, record: SimulationRun
+    ) -> RegisteredStageView | None:
+        if record.registered_basis is None:
+            return None
+        view = port.registered_stage(record)
+        return None if view.status == "GATEWAY_UNAVAILABLE" else view
+
+    @router.get(RUN_PUBLICATION_ROUTE)
+    def read_run_publication(run_id: str) -> dict[str, object]:
+        """S2-01c: this run's Lab-private publication schedule, a read.
+
+        A run with no virtual publication clock answers NOT_SUPPORTED; one not
+        yet scheduled NO_SCHEDULE; an unreadable schedule UNREADABLE with its
+        reason - never an invented empty queue.
+        """
+        port = _port()
+        record = _run_or_404(run_id)
+        clock = _publication_clock(record)
+        if record.registered_basis is None or clock != "RUN_VIRTUAL":
+            return {
+                "publication": publication_schedule_payload(
+                    run_id, None, publication_clock=clock, status="NOT_SUPPORTED"
+                )
+            }
+        try:
+            schedule = port.publication_schedule(record)
+        except LabControlRefused as error:
+            return {
+                "publication": publication_schedule_payload(
+                    run_id,
+                    None,
+                    publication_clock=clock,
+                    status="UNREADABLE",
+                    detail=error.detail or error.statement,
+                )
+            }
+        return {
+            "publication": publication_schedule_payload(
+                run_id,
+                schedule,
+                publication_clock=clock,
+                stage=_stage_or_none(port, record) if schedule else None,
+            )
+        }
+
+    @router.post(RUN_PUBLICATION_ADVANCE_ROUTE)
+    def advance_run_publication(
+        run_id: str, request: Any = Body(default=None)
+    ) -> dict[str, object]:
+        """S2-01c: advance this run's virtual publication clock to `instant`.
+
+        Releases due delayed reports to the LOCAL gateway; no kernel step, no
+        upload, no central receipt. Refusals are typed 409s; a gateway that
+        refused or could not be reached is `publication_refused` beside a
+        persisted clock, and the report stays PENDING.
+        """
+        port = _port()
+        record = _run_or_404(run_id)
+        _refuse_if_imported(record)
+        instant = _parse_advance_request(request)
+        try:
+            answer = port.advance_publication(record, instant)
+        except LabControlRefused as error:
+            raise _refused(error) from error
+        schedule = answer.get("schedule")
+        basis = answer.get("release_basis")
+        return {
+            "publication": publication_schedule_payload(
+                run_id,
+                schedule,
+                publication_clock=_publication_clock(record),
+                stage=_stage_or_none(port, record) if schedule else None,
+            ),
+            "publication_refused": answer.get("publication_refused"),
+            "release_basis": basis,
+            "release_basis_statement": RELEASE_BASIS_STATEMENTS.get(basis),
+        }
+
+    @router.get(GATEWAY_DIAGNOSTICS_ROUTE)
+    def read_gateway_diagnostics() -> dict[str, object]:
+        """S2-01c: the local gateway's diagnostic read, or GATEWAY_UNAVAILABLE."""
+        port = _port()
+        return {"gateway": gateway_diagnostics_payload(port.gateway_diagnostics())}
+
     def _frozen_basis(record: SimulationRun) -> dict[str, object]:
         """The configuration basis this Draft froze at setup.
 
@@ -3097,6 +3359,28 @@ def build_simulator_lab_router(
         return {"execution": execution_payload(projection)}
 
     return router
+
+
+def _parse_advance_request(request: Any) -> str:
+    """The one `instant` a publication-clock advance carries, or a typed refusal.
+
+    Only its shape is checked here; whether it is a real canonical UTC instant
+    is the port's `PUBLICATION_INSTANT_INVALID`.
+    """
+    if (
+        not isinstance(request, dict)
+        or set(request) != {"instant"}
+        or not isinstance(request.get("instant"), str)
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=_refusal(
+                REFUSAL_EXECUTION_REQUEST_INVALID,
+                "A publication-clock advance is an object carrying one string "
+                "'instant' and nothing else. Nothing was advanced.",
+            ),
+        )
+    return request["instant"]
 
 
 def _parse_step_request(request: Any) -> tuple[int, int]:

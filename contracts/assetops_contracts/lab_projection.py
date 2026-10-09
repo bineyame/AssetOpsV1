@@ -111,6 +111,7 @@ LAB_CONTROL_REFUSALS = frozenset(
         "PUBLICATION_CLOCK_BACKWARD",
         "PUBLICATION_AHEAD_OF_WORLD",
         "PUBLICATION_SCHEDULE_UNREADABLE",
+        "PUBLICATION_SCHEDULE_MISSING",
         "PUBLICATION_INSTANT_INVALID",
     }
 )
@@ -140,6 +141,12 @@ LAB_CONTROL_REFUSAL_STATEMENTS: dict[str, str] = {
         "The Lab's record of this run's pending publications could not be read, "
         "so nothing was released: releasing from a record that cannot be "
         "verified could publish a report twice or not at all."
+    ),
+    "PUBLICATION_SCHEDULE_MISSING": (
+        "This run executed, but the Lab holds no record of its pending "
+        "publications, so nothing was released. A report is never rebuilt or "
+        "guessed from the scenario: only a stored schedule's exact report text "
+        "is ever released."
     ),
     "PUBLICATION_INSTANT_INVALID": (
         "A publication instant is a UTC instant written YYYY-MM-DDTHH:MM:SSZ. "
