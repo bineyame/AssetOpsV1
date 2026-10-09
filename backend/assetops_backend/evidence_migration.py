@@ -36,6 +36,7 @@ from assetops_backend.evidence.legacy_comparison import (
     environment_identity,
     legacy_inventory,
     permits_cutover,
+    store_root_identity,
 )
 from assetops_backend.evidence.models import SiteEvidence
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
@@ -82,6 +83,15 @@ def current_legacy_inventory(evidence_store, commit_store, site_code: str) -> di
     return legacy_inventory(legacy, committed_artifacts(commit_store, site_code))
 
 
+def current_store_root(evidence_store, commit_store) -> str | None:
+    """`store_root_identity` of the local evidence and commit stores (Q26). None
+    (the gate stays closed) when a store cannot name its root."""
+    try:
+        return store_root_identity(evidence_store.canonical_root(), commit_store.canonical_root())
+    except (AttributeError, OSError, RuntimeError):
+        return None
+
+
 def _dispatch_claims(assessments, site_code: str) -> list[dict]:
     history = assessments.load_history(site_code)
     return [_jsonable(asdict(lineage)) for lineage in history.lineages if lineage.analytic_id == "dispatch"]
@@ -120,6 +130,11 @@ def main(argv: Sequence[str] | None = None, *, evidence_store=None, ledger=None,
     store = build_evidence_store() if evidence_store is None else evidence_store
     commits = build_commit_store() if commit_store is None else commit_store
     assessments = build_assessment_store() if assessments is None else assessments
+    store_root = current_store_root(store, commits)
+    if store_root is None:
+        print("The local evidence and commit store roots cannot be resolved; a comparison is scoped to them.",
+              file=sys.stderr)
+        return 2
     try:
         scope = ledger.site_scope(args.tenant, args.site)
         if scope is None:
@@ -136,15 +151,18 @@ def main(argv: Sequence[str] | None = None, *, evidence_store=None, ledger=None,
             compared_at=(now or _now)(),
             committed_artifacts=committed_artifacts(commits, args.site),
             environment=environment,
+            store_root=store_root,
         )
     except (LedgerUnavailable, EvidenceStoreUnavailable) as error:
         print(f"The comparison could not read its stores: {error}", file=sys.stderr)
         return 2
     path = reports.write(report)
     allowed, reason = permits_cutover(report, args.site, site_id, tenant_id=tenant_id, environment=environment,
-                                      inventory=report["legacy_inventory"])
+                                      inventory=report["legacy_inventory"], store_root=store_root)
     print(f"{report['outcome']}: {report['statement']}")
     print(f"Report: {path}")
+    print(f"Store root: {store_root} (this workspace's evidence and commit stores; a moved or copied store "
+          "needs its own comparison)")
     print("Evidence cutover: " + ("permitted" if allowed else f"closed. {reason}"))
     return 0 if report["outcome"] == "PASSED" else 1
 

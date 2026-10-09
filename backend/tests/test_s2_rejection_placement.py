@@ -45,7 +45,7 @@ class _Ledger:
         return {"rejections": ROWS, "duplicates": []}
 
 
-READS = ImportedEvidenceReads(_Ledger(), lambda code: None, lambda code: None, lambda code: {}, "env")
+READS = ImportedEvidenceReads(_Ledger(), lambda code: None, lambda code: None, lambda code: {}, "env", lambda: "root")
 SCOPE = ImportedScope("KOBO-001", UUID(int=1), UUID(int=2), None)
 
 

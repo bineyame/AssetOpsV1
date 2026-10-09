@@ -59,6 +59,12 @@ class EvidenceStore(Protocol):
         """Empty every per-Site evidence document; keep the immutable registries."""
         ...
 
+    def canonical_root(self) -> str:
+        """The canonical resolved local root this store reads and writes (S2-02 Q26
+        store-root identity).
+        Never served by a product route."""
+        ...
+
 
 def find_batch(store: EvidenceStore, batch_id: str) -> BatchProgress | None:
     """A batch's progress, wherever its Site is."""

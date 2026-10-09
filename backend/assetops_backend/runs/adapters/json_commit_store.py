@@ -41,6 +41,9 @@ class JsonCommitStore:
         self._root = COMMIT_STORE_ROOT if root is None else root
         self._write_lock = threading.Lock()
 
+    def canonical_root(self) -> str:
+        return os.path.normcase(str(Path(self._root).resolve(strict=False)))
+
     def _path(self, run_id: str) -> Path:
         return self._root / f"{run_id_key(run_id)}{SUFFIX}"
 

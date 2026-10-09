@@ -13,6 +13,7 @@ from assetops_backend.evidence.legacy_comparison import (
     environment_identity,
     legacy_inventory,
     permits_cutover,
+    store_root_identity,
 )
 from assetops_backend.evidence.models import AcceptedRecord, BatchProgress, SiteEvidence
 from assetops_contracts.committed_artifact import envelope_content_digest
@@ -20,6 +21,7 @@ from assetops_contracts.source_envelope import canonical_envelope_json
 
 TENANT, SITE = UUID(int=1), UUID(int=2)
 ENV = environment_identity("postgresql+psycopg://u:secret@127.0.0.1:55432/assetops")
+ROOT = store_root_identity("c:\ws-a\var\evidence", "c:\ws-a\var\commits")
 
 
 def legacy_record(minute: int) -> AcceptedRecord:
@@ -52,13 +54,14 @@ def run(legacy: SiteEvidence, *, digests=None, bound=None, committed=()) -> dict
     return compare(site_code="KOBO-001", tenant_id=TENANT, site_id=SITE, legacy=legacy,
                    ledger_digests=digests or {}, bound_channels=channels,
                    legacy_dispatch_claims=[{"analytic_id": "dispatch"}], recompute_jobs=[],
-                   compared_at="2026-10-09T09:00:00.000000Z", committed_artifacts=committed, environment=ENV)
+                   compared_at="2026-10-09T09:00:00.000000Z", committed_artifacts=committed, environment=ENV,
+                   store_root=ROOT)
 
 
-def permits(report, current, committed=(), *, environment=ENV, tenant=TENANT):
+def permits(report, current, committed=(), *, environment=ENV, tenant=TENANT, store_root=ROOT):
     inventory = None if current is None else legacy_inventory(current, committed)
     return permits_cutover(report, "KOBO-001", SITE, tenant_id=tenant, environment=environment,
-                           inventory=inventory)
+                           inventory=inventory, store_root=store_root)
 
 
 def test_a_replayed_legacy_set_that_matches_passes_as_a_non_empty_comparison() -> None:
@@ -133,6 +136,30 @@ class TestFreshness:
         version_1 = {k: v for k, v in report.items() if k not in ("legacy_inventory", "environment")}
         version_1["schema"] = {"id": "assetops.evidence-legacy-comparison", "version": 1}
         assert permits(version_1, self.EMPTY)[0] is False
+        version_2 = {k: v for k, v in report.items() if k != "store_root"}
+        version_2["schema"] = {"id": "assetops.evidence-legacy-comparison", "version": 2}
+        assert permits(version_2, self.EMPTY)[0] is False
+
+    def test_same_database_and_zero_inventory_from_another_store_root_stays_closed(self) -> None:
+        """Q26: a report copied into a second workspace that points at the same database
+        (same tenant, Site, environment and zero inventory) does not open its gate."""
+        report = run(self.EMPTY)
+        assert permits(report, self.EMPTY) == (True, "")
+        moved = store_root_identity("c:\ws-b\var\evidence", "c:\ws-b\var\commits")
+        allowed, reason = permits(report, self.EMPTY, store_root=moved)
+        assert allowed is False and "another local evidence store" in reason
+        assert permits(report, self.EMPTY, store_root=None)[0] is False
+        assert store_root_identity(None, "c:\ws-a\var\commits") is None
+        assert store_root_identity("c:\ws-a\var\commits", "c:\ws-a\var\evidence") != ROOT
+        assert ROOT.startswith("sha256:") and "ws-a" not in ROOT
+
+    def test_the_adapters_name_canonical_resolved_roots(self, tmp_path) -> None:
+        from assetops_backend.evidence.adapters.json_evidence_store import JsonEvidenceStore
+        from assetops_backend.runs.adapters.json_commit_store import JsonCommitStore
+
+        spelled = JsonEvidenceStore(tmp_path / "a" / ".." / "evidence").canonical_root()
+        assert spelled == JsonEvidenceStore(tmp_path / "evidence").canonical_root()
+        assert ".." not in spelled and JsonCommitStore(tmp_path / "commits").canonical_root().endswith("commits")
 
     def test_the_fingerprint_is_deterministic_and_the_environment_drops_credentials(self) -> None:
         a = legacy_inventory(legacy_site([legacy_record(1)]), [("r2", "b"), ("r1", "a")])

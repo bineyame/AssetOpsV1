@@ -66,7 +66,7 @@ from assetops_backend.evidence_api import build_evidence_router
 from assetops_backend.foundation_api import build_foundation_router
 from assetops_backend.runs.commit_ports import CommittedArtifactStore
 from assetops_backend.evidence.legacy_comparison import environment_identity
-from assetops_backend.evidence_migration import current_legacy_inventory
+from assetops_backend.evidence_migration import current_legacy_inventory, current_store_root
 from assetops_backend.runs.composition import build_commit_store, build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
@@ -269,6 +269,11 @@ def create_app(
     def current_inventory(site_code: str) -> dict:
         commits = build_commit_store() if commit_store is None else commit_store
         return current_legacy_inventory(ingestion.store, commits, site_code)
+
+    # Q26: the gate is also scoped to the local store roots this process reads.
+    def store_root() -> str | None:
+        commits = build_commit_store() if commit_store is None else commit_store
+        return current_store_root(ingestion.store, commits)
     app.include_router(
         build_evidence_router(
             ingestion,
@@ -282,6 +287,7 @@ def create_app(
                 latest_comparison,
                 current_inventory,
                 environment_identity(database_url()),
+                store_root,
             ),
         )
     )

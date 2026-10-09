@@ -32,6 +32,14 @@ for the Site, the zero inventory included. `permits_cutover` is given the
 inventory recomputed from the current input on every read; a changed inventory,
 another environment or tenant, or an unreadable store keeps the cutover closed
 until a fresh comparison. An old PASSED report never authorizes a changed store.
+
+Store root (Q26, Architect batch answers 4). Host, port and database name do
+not bind a report to its file-store environment: a copied report could open a
+second workspace pointed at the same database. A version-3 report also binds
+`store_root`, the identity of the canonical resolved local evidence and commit
+store roots (`store_root_identity`, a digest: no machine-user path is stored or
+served). A moved or copied store, or a store whose root cannot be resolved,
+keeps the cutover closed until a new explicit comparison is run there.
 """
 
 from __future__ import annotations
@@ -47,9 +55,9 @@ from assetops_backend.evidence.models import SiteEvidence
 from assetops_contracts.committed_artifact import envelope_content_digest
 from assetops_contracts.source_envelope import EnvelopeRejected, parse_canonical_envelope_json
 
-#: Version 2 adds the environment and legacy-inventory binding (Q14); a version-1
-#: report (no fingerprint) no longer opens the cutover.
-REPORT_SCHEMA = {"id": "assetops.evidence-legacy-comparison", "version": 2}
+#: Version 2 added the environment and legacy-inventory binding (Q14); version 3
+#: adds the local store-root identity (Q26). An earlier report no longer opens the cutover.
+REPORT_SCHEMA = {"id": "assetops.evidence-legacy-comparison", "version": 3}
 REPLAY_PARSER = "source-envelope V1 (parse_canonical_envelope_json), dry run"
 FAILING_KINDS = frozenset({
     "REPLAY_PARSE_FAILED", "MESSAGE_ID_MISMATCH", "DIGEST_MISMATCH", "COUNT_MISMATCH", "LEDGER_DIGEST_MISMATCH",
@@ -82,6 +90,17 @@ def environment_identity(database_url: str | None) -> str | None:
         return None
     family = parts.scheme.split("+", 1)[0]
     return f"{family}://{parts.hostname.lower()}:{parts.port or 5432}/{parts.path.strip('/')}"
+
+
+def store_root_identity(evidence_root: str | None, commit_root: str | None) -> str | None:
+    """The local file-store environment a report is scoped to (Q26): a digest of
+    the canonical resolved evidence and commit store roots (each adapter's
+    `canonical_root()`). None when either root is unknown, which keeps the cutover
+    closed. The paths themselves are never stored in the report or served."""
+    if not evidence_root or not commit_root:
+        return None
+    text = json.dumps({"evidence": evidence_root, "commits": commit_root}, sort_keys=True, separators=(",", ":"))
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def legacy_inventory(legacy: SiteEvidence, committed_artifacts: Sequence[tuple[str, str]]) -> dict:
@@ -121,6 +140,7 @@ def compare(
     compared_at: str,
     committed_artifacts: Sequence[tuple[str, str]],
     environment: str,
+    store_root: str,
 ) -> dict[str, Any]:
     """Build the comparison report. Pure: every input is already read."""
     exceptions: list[dict] = []
@@ -187,6 +207,7 @@ def compare(
         "site_uuid": str(site_id),
         "tenant_id": str(tenant_id),
         "environment": environment,
+        "store_root": store_root,
         "legacy_inventory": legacy_inventory(legacy, committed_artifacts),
         "compared_at": compared_at,
         "outcome": outcome,
@@ -215,11 +236,13 @@ def permits_cutover(
     tenant_id: UUID,
     environment: str | None,
     inventory: Mapping[str, Any] | None,
+    store_root: str | None,
 ) -> tuple[bool, str]:
     """Whether the newest comparison record lets the Site's Evidence read the ledger.
 
     `inventory` is `legacy_inventory` recomputed from the CURRENT legacy input
-    (None when it could not be read, which closes the gate)."""
+    (None when it could not be read, which closes the gate); `store_root` is
+    `store_root_identity` of the CURRENT local stores (None closes the gate)."""
     if report is None:
         return False, ("No legacy comparison record exists; run "
                        "`python -m assetops_backend.evidence_migration run` for the Site.")
@@ -229,6 +252,9 @@ def permits_cutover(
         return False, "The newest comparison record is for another tenant."
     if environment is None or report.get("environment") != environment:
         return False, "The newest comparison record was made in another environment; run a fresh comparison here."
+    if store_root is None or report.get("store_root") != store_root:
+        return False, ("The newest comparison record was made over another local evidence store (moved, copied "
+                       "or unresolvable); run a fresh comparison here.")
     if report.get("outcome") != "PASSED":
         return False, f"The newest comparison record is {report.get('outcome')}, not PASSED."
     if report.get("empty_set") is not False and not (

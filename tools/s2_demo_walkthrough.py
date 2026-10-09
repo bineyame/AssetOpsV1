@@ -401,7 +401,7 @@ class Demo:
             say("  stopped: tls-server, lab-api, gateway")
 
     def flow(self) -> None:
-        step("2. Legacy comparison for KOBO-001 in this environment (schema v2, fingerprinted)")
+        step("2. Legacy comparison for KOBO-001 in this environment (schema v3: fingerprinted and bound to this copy's store root)")
         out = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", SITE,
                       check=False)
         say("  " + " | ".join(out.stdout.strip().splitlines()))

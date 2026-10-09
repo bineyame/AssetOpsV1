@@ -798,10 +798,10 @@ function Invoke-ConfigurationPersistenceCheck {
             $failures.Add("$readsPath ImportedEvidenceReads.scope no longer asks permits_cutover on the newest report.") | Out-Null
         }
         # S2-02 Q14: the gate recomputes the CURRENT legacy inventory on every
-        # read and hands it, with the active environment, to permits_cutover.
-        if ($readsText -notmatch '(?s)\n    def scope\(self[^\n]*\n(?:(?!\n    def ).)*?inventory = self\._current_inventory\(code\)(?:(?!\n    def ).)*?permits_cutover\([^)]*environment=self\._environment, inventory=inventory\)') {
-            $failures.Add(("$readsPath ImportedEvidenceReads.scope no longer recomputes the current legacy inventory " +
-                "and environment for permits_cutover; an old PASSED report could authorize a changed store (Q14).")) | Out-Null
+        # read and hands it, with the active environment and the local store-root identity (Q26), to permits_cutover.
+        if ($readsText -notmatch '(?s)\n    def scope\(self[^\n]*\n(?:(?!\n    def ).)*?inventory = self\._current_inventory\(code\)(?:(?!\n    def ).)*?permits_cutover\([^)]*environment=self\._environment, inventory=inventory,\s*store_root=self\._current_store_root\(\)\)') {
+            $failures.Add(("$readsPath ImportedEvidenceReads.scope no longer recomputes the current legacy inventory, " +
+                "environment and store root for permits_cutover; an old PASSED report could authorize a changed or copied store (Q14/Q26).")) | Out-Null
         }
         $lineNumber = 0
         foreach ($line in $cli.Lines) {

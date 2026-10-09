@@ -52,6 +52,12 @@ class CommittedArtifactStore(Protocol):
         Site (S2-02 Q14 legacy inventory). Raises like `get` on an unreadable one."""
         ...
 
+    def canonical_root(self) -> str:
+        """The canonical resolved local root artifacts are filed under (S2-02 Q26
+        store-root identity).
+        Never served by a product route."""
+        ...
+
     def create(self, artifact: CommittedArtifact) -> CommittedArtifact:
         """File `artifact` once, or return the artifact already filed for its run.
 

@@ -38,13 +38,19 @@ if URL:
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_reads import ImportedEvidenceReads
     from assetops_backend.evidence.ledger_service import BatchIngestionService, SimulatedCrash
-    from assetops_backend.evidence.legacy_comparison import compare, environment_identity, legacy_inventory
+    from assetops_backend.evidence.legacy_comparison import (
+        compare,
+        environment_identity,
+        legacy_inventory,
+        store_root_identity,
+    )
     from assetops_backend.evidence.models import SiteEvidence
     from assetops_backend.evidence_api import build_evidence_router
     from assetops_backend.evidence_migration import main as comparison_cli
 
 LATER = RECEIVED + timedelta(minutes=7)
 ENV = environment_identity(URL) if URL else None
+ROOT = store_root_identity("c:\ws-a\var\evidence", "c:\ws-a\var\commits") if URL else None
 
 
 class _NoSites:
@@ -63,13 +69,13 @@ def empty_set_report(kit, **changes) -> dict:
         site_code="KOBO-001", tenant_id=kit.principal.tenant_id, site_id=kit.principal.site_id,
         legacy=SiteEvidence(site_id="KOBO-001"), ledger_digests={}, bound_channels=(),
         legacy_dispatch_claims=[], recompute_jobs=[], compared_at="2026-10-09T09:00:00.000000Z",
-        committed_artifacts=(), environment=ENV,
+        committed_artifacts=(), environment=ENV, store_root=ROOT,
     )
     report.update(changes)
     return report
 
 
-def client(kit, report: dict | None, legacy: SiteEvidence | None = None) -> TestClient:
+def client(kit, report: dict | None, legacy: SiteEvidence | None = None, store_root: str | None = None) -> TestClient:
     from assetops_backend.evidence.service import IngestionService
 
     principal = kit.principal
@@ -79,6 +85,7 @@ def client(kit, report: dict | None, legacy: SiteEvidence | None = None) -> Test
         lambda code: report,
         lambda code: legacy_inventory(SiteEvidence(site_id=code) if legacy is None else legacy, ()),
         ENV,
+        lambda: ROOT if store_root is None else store_root,
     )
     app = FastAPI()
     app.include_router(build_evidence_router(
@@ -132,6 +139,21 @@ class TestCutoverGate:
         assert body["store"] == "POSTGRES" and body["state"] == "NO_DATA"
         assert body["migration"]["outcome"] == "PASSED" and body["migration"]["empty_set"] is True
         assert body["migration"]["statement"].startswith("Empty-set comparison")
+        assert "store_root" not in body["migration"] and ROOT not in json.dumps(body)
+
+
+class TestCutoverStoreRoot:
+    def test_same_database_and_zero_inventory_from_another_store_root_stays_closed(self, kit, tmp_path) -> None:
+        """Q26: the same tenant, Site, database and zero inventory read through a second
+        workspace's store root keeps every route closed; no path or root is served."""
+        other = store_root_identity(str(tmp_path / "evidence"), str(tmp_path / "commits"))
+        http = client(kit, empty_set_report(kit), store_root=other)
+        for route in TestCutoverGate.ROUTES:
+            answer = http.get(f"/api/sites/KOBO-001/{route}")
+            assert answer.status_code == 409, route
+            assert answer.json()["detail"]["code"] == "AWAITING_EVIDENCE_MIGRATION"
+            assert "another local evidence store" in answer.json()["detail"]["message"]
+            assert str(tmp_path) not in answer.text and other not in answer.text
 
 
 class TestCutoverFreshness:
@@ -268,6 +290,9 @@ class TestComparisonCli:
             def load_site(self, site_id):  # pragma: no cover - KOBO-001 has no legacy evidence here
                 raise AssertionError(site_id)
 
+            def canonical_root(self):
+                return str(tmp_path / "evidence")
+
         class _Assessments:
             def load_history(self, site_id):
                 from assetops_backend.analytics.models import AssessmentHistory
@@ -276,6 +301,9 @@ class TestComparisonCli:
         class _NoCommits:
             def site_artifacts(self, site_key):
                 return []
+
+            def canonical_root(self):
+                return str(tmp_path / "commits")
 
         reports = ComparisonReportFiles(tmp_path)
         code = comparison_cli(["run", "--tenant", "demo", "--site", "KOBO-001"], evidence_store=_Legacy(),
@@ -286,6 +314,8 @@ class TestComparisonCli:
         assert (report["outcome"], report["empty_set"]) == ("PASSED", True)
         assert report["exceptions"] == [] and report["legacy"]["accepted_records"] == 0
         assert report["site_uuid"] == str(kit.principal.site_id)
+        assert report["store_root"] == store_root_identity(str(tmp_path / "evidence"), str(tmp_path / "commits"))
+        assert str(tmp_path) not in json.dumps(report)
         jobs = report["s3_fixtures"]["recompute_jobs"]
         assert jobs and {j["domain"] for j in jobs} == {"dispatch"}
         assert kit.counts() == before

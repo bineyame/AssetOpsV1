@@ -188,15 +188,19 @@ class ImportedEvidenceReads:
         latest_comparison: Callable[[str], dict | None],
         current_inventory: Callable[[str], dict],
         environment: str | None,
+        current_store_root: Callable[[], str | None],
     ) -> None:
         """`current_inventory(site_code)` recomputes `legacy_inventory` from the
         current legacy input (raises `EvidenceStoreUnavailable` when unreadable);
-        `environment` is `environment_identity` of the active database (Q14)."""
+        `environment` is `environment_identity` of the active database (Q14);
+        `current_store_root()` is `store_root_identity` of the local stores this
+        process reads (Q26; None closes the gate)."""
         self._ledger = ledger
         self._imported = imported
         self._latest_comparison = latest_comparison
         self._current_inventory = current_inventory
         self._environment = environment
+        self._current_store_root = current_store_root
 
     def scope(self, site_code: str) -> ImportedScope | None:
         """None for a Site that is not imported (the legacy path answers it).
@@ -211,7 +215,8 @@ class ImportedEvidenceReads:
         except EvidenceStoreUnavailable:
             inventory = None  # unreadable legacy input: fail closed
         allowed, reason = permits_cutover(report, code, site_id, tenant_id=tenant_id,
-                                          environment=self._environment, inventory=inventory)
+                                          environment=self._environment, inventory=inventory,
+                                          store_root=self._current_store_root())
         if not allowed:
             raise AwaitingComparison(
                 f"Site {code} is imported; its Evidence moves to the central ledger only after a "
