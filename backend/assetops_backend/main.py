@@ -39,7 +39,9 @@ from assetops_backend.config import (
     database_url,
     load_feature_flags,
 )
-from assetops_backend.evidence.composition import build_evidence_store
+from assetops_backend.evidence.composition import build_evidence_ledger, build_evidence_store
+from assetops_backend.evidence.ledger import EvidenceLedger, GatewayPrincipalResolver
+from assetops_backend.evidence.ledger_service import BatchIngestionService
 from assetops_backend.evidence.ports import EvidenceStore
 from assetops_backend.evidence.service import Clock, IngestionService, system_clock
 from assetops_backend.evidence_api import build_evidence_router
@@ -104,6 +106,8 @@ def create_app(
     foundation_store: FoundationStore | None = None,
     foundation_clock: Callable[[], object] | None = None,
     legacy_documents: Callable[[], Sequence[LegacyDocument]] | None = None,
+    evidence_ledger: EvidenceLedger | None = None,
+    gateway_principals: GatewayPrincipalResolver | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -216,8 +220,20 @@ def create_app(
     )
     app.state.assessments = assessments
     ingestion.add_completed_listener(assessments.assess_site)
+    # S2-02: Batch/Receipt V2 over the central ledger. Network upload stays
+    # closed (401) unless a registered-gateway principal resolver is injected.
+    batch_ingestion = BatchIngestionService(
+        build_evidence_ledger(database_url()) if evidence_ledger is None else evidence_ledger
+    )
+    app.state.batch_ingestion = batch_ingestion
     app.include_router(
-        build_evidence_router(ingestion, repository, assessments.card_assessments)
+        build_evidence_router(
+            ingestion,
+            repository,
+            assessments.card_assessments,
+            batch_ingestion=batch_ingestion,
+            gateway_principals=gateway_principals,
+        )
     )
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
 

@@ -116,7 +116,7 @@ class TestMigration:
             tables = set(connection.execute(text(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
             )).scalars())
-        assert head == "0004_snapshot_canonical_bytes"
+        assert head == "0005_evidence_ledger"
         assert {"signal_binding_set_revision", "signal_binding_revision"} <= tables
 
 
@@ -320,11 +320,12 @@ class TestReviewM1HistoricalBytesInTheDatabase:
         result, outcome = converted(store)
         original = _download(store, result)
         with engine.begin() as connection:
-            # Operational (credential rotation, disable) and identity (external ID, mode) updates
-            # are both permitted by the schema; neither may alter the historical bytes.
+            # Operational (credential rotation, disable) and external-name updates are
+            # permitted by the schema; neither may alter the historical bytes. Mode is
+            # immutable since migration 0005 (S2-02 AC4).
             connection.execute(text(
                 "UPDATE gateway SET credential_ref = 'vault://rotated', disabled_at = :now, "
-                "gateway_external_id = 'renamed-gateway', mode = 'LIVE' WHERE site_id = :s"
+                "gateway_external_id = 'renamed-gateway' WHERE site_id = :s"
             ), {"now": NOW, "s": result.site.id})
         again = _download(store, result)
         assert (again.body, again.sha256) == (original.body, original.sha256)

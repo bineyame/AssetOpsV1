@@ -108,11 +108,19 @@ import re
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from assetops_backend.evidence.overview import CardAssessments, OverviewReadModel
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 from assetops_backend.evidence.read_model import EvidenceReadModel, batch_payload
+from assetops_backend.evidence.ledger import (
+    ClosedGatewayPrincipals,
+    GatewayPrincipal,
+    GatewayPrincipalResolver,
+    LedgerUnavailable,
+    PrincipalRefused,
+)
+from assetops_backend.evidence.ledger_service import BatchIngestionService, BatchRefused
 from assetops_backend.evidence.service import IngestionService
 from assetops_backend.sites.models import SiteRecord
 from assetops_backend.sites.ports import (
@@ -125,6 +133,8 @@ from assetops_contracts.ingestion_batch import (
     IngestionBatchRejected,
     parse_ingestion_batch_document,
 )
+from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_BYTES
+from assetops_contracts.ingestion_receipt_v2 import canonical_receipt_v2_text
 
 INGESTION_BATCHES_ROUTE = "/api/ingestion/batches"
 INGESTION_BATCH_ROUTE = "/api/ingestion/batches/{batch_id}"
@@ -152,8 +162,15 @@ def build_evidence_router(
     ingestion: IngestionService,
     sites: SiteRepository,
     card_assessments: CardAssessments | None = None,
+    batch_ingestion: BatchIngestionService | None = None,
+    gateway_principals: GatewayPrincipalResolver | None = None,
 ) -> APIRouter:
+    """`batch_ingestion` serves Batch/Receipt V2 (S2-02) for a request carrying
+    `Authorization`; the principal comes only from `gateway_principals`, which
+    defaults to closed (every V2 upload 401) until the TLS/bearer verifier exists.
+    A request without `Authorization` keeps the legacy V1 path for YAML Sites."""
     router = APIRouter()
+    principals = ClosedGatewayPrincipals() if gateway_principals is None else gateway_principals
     read_model = EvidenceReadModel(ingestion.store)
     overview_model = OverviewReadModel(ingestion.store, card_assessments)
 
@@ -182,8 +199,53 @@ def build_evidence_router(
             detail={"code": "EVIDENCE_STORE_UNAVAILABLE", "message": str(error)},
         )
 
+    def authenticate(request: Request) -> GatewayPrincipal | JSONResponse:
+        try:
+            return principals.resolve(request.headers.get("authorization"))
+        except PrincipalRefused as refusal:
+            headers = {"WWW-Authenticate": "Bearer"} if refusal.status == 401 else None
+            return JSONResponse(
+                status_code=refusal.status,
+                content={"detail": {"code": refusal.code, "message": refusal.message}},
+                headers=headers,
+            )
+
+    def ledger_unavailable(message: str) -> JSONResponse:
+        return JSONResponse(
+            status_code=503, content={"detail": {"code": "EVIDENCE_LEDGER_UNAVAILABLE", "message": message}}
+        )
+
+    def receipt_response(status: int, receipt) -> Response:
+        # The exact canonical Receipt V2 text, so the gateway can verify receipt_sha256.
+        return Response(status_code=status, content=canonical_receipt_v2_text(receipt),
+                        media_type="application/json")
+
+    async def post_batch_v2(request: Request) -> Response:
+        principal = authenticate(request)
+        if isinstance(principal, JSONResponse):
+            return principal
+        if batch_ingestion is None:
+            return ledger_unavailable("No central evidence ledger is configured.")
+        declared = request.headers.get("content-length")
+        if declared is not None and declared.isdigit() and int(declared) > MAX_BATCH_BYTES:
+            return JSONResponse(status_code=413, content={"detail": {
+                "code": "BATCH_REFUSED", "kind": "TOO_LARGE", "field": "batch",
+                "message": f"more than {MAX_BATCH_BYTES} bytes"}})
+        raw = await request.body()
+        try:
+            submitted = await run_in_threadpool(batch_ingestion.submit, principal, raw)
+        except BatchRefused as refused:
+            return JSONResponse(status_code=refused.status, content={"detail": {
+                "code": refused.code, "kind": refused.kind, "field": refused.field,
+                "message": refused.detail, "refusal_id": refused.refusal_id}})
+        except LedgerUnavailable as error:
+            return ledger_unavailable(str(error))
+        return receipt_response(submitted.status, submitted.receipt)
+
     @router.post(INGESTION_BATCHES_ROUTE)
-    async def post_batch(request: Request) -> JSONResponse:
+    async def post_batch(request: Request) -> Response:
+        if "authorization" in request.headers:
+            return await post_batch_v2(request)
         raw = await request.body()
         try:
             document = json.loads(raw)
@@ -193,6 +255,13 @@ def build_evidence_router(
                 detail={"code": "BATCH_REJECTED", "kind": "NOT_A_BATCH", "field": "",
                         "message": "the body is not JSON"},
             ) from error
+        if isinstance(document, dict) and document.get("schema") == {
+            "id": "assetops.ingestion-batch", "version": 2
+        }:
+            # Batch V2 is accepted only from an authenticated registered gateway.
+            return JSONResponse(status_code=401, headers={"WWW-Authenticate": "Bearer"}, content={"detail": {
+                "code": "GATEWAY_CREDENTIAL_REQUIRED",
+                "message": "Batch V2 requires a registered gateway credential."}})
         try:
             batch = parse_ingestion_batch_document(document)
         except IngestionBatchRejected as refusal:
@@ -209,7 +278,21 @@ def build_evidence_router(
         return JSONResponse(status_code=status, content=batch_payload(progress))
 
     @router.get(INGESTION_BATCH_ROUTE)
-    def get_batch(batch_id: str) -> dict:
+    def get_batch(batch_id: str, request: Request):
+        if "authorization" in request.headers:
+            principal = authenticate(request)
+            if isinstance(principal, JSONResponse):
+                return principal
+            if batch_ingestion is None:
+                return ledger_unavailable("No central evidence ledger is configured.")
+            try:
+                receipt = batch_ingestion.receipt(principal, batch_id)
+            except LedgerUnavailable as error:
+                return ledger_unavailable(str(error))
+            if receipt is None:
+                return JSONResponse(status_code=404, content={"detail": {
+                    "code": "BATCH_NOT_FOUND", "message": f"No batch {batch_id} was received from this gateway."}})
+            return receipt_response(200 if receipt.status == "COMPLETED" else 202, receipt)
         try:
             payload = read_model.batch(batch_id)
         except EvidenceStoreUnavailable as error:

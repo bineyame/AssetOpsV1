@@ -83,10 +83,10 @@ class TestRegisteredBasisInPostgres:
         knowledge = (NOW - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
         publish_reserve(store, result)
         with engine.begin() as connection:
-            # An identity edit the S1 schema still permits on a current row
+            # A name edit the schema still permits on a current row
             # (carry m4). Every source is held by a binding foreign key.
             connection.execute(text(
-                "UPDATE gateway SET gateway_external_id = 'renamed-gateway', mode = 'LIVE' WHERE site_id = :s"
+                "UPDATE gateway SET gateway_external_id = 'renamed-gateway' WHERE site_id = :s"
             ), {"s": result.site.id})
         historical = service(store).create_draft_run(request(knowledge_at=knowledge)).registered_basis
         assert historical.selection == "HISTORICAL"
