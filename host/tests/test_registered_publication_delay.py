@@ -122,6 +122,20 @@ def soc_envelopes(view) -> dict[str, object]:
     return found
 
 
+def stored_diagnostics(database: Path) -> list[tuple]:
+    """The gateway's stored diagnostic reports, exact bytes and digests."""
+    import sqlite3
+
+    db = sqlite3.connect(f"file:{database.as_posix()}?mode=ro", uri=True)
+    try:
+        return db.execute(
+            "SELECT gateway_id, sequence_epoch, diagnostic_sequence, cadence_slot, payload_text, sha256 "
+            "FROM diagnostic_outbox ORDER BY diagnostic_sequence"
+        ).fetchall()
+    finally:
+        db.close()
+
+
 def stage_bytes(view):
     return (
         [(e.message_id, e.sequence, e.envelope_text, e.sha256) for e in view.envelopes],
@@ -283,6 +297,9 @@ def test_link_loss_keeps_the_report_pending_and_reconnect_releases_it_once(draft
         port.start(draft)
         port.step(draft, boundaries=17, from_boundary=0)
         before = stage_bytes(port.registered_stage(draft))
+        gateway.link.call("emit_diagnostic", {})
+        diagnostics_before = stored_diagnostics(gateway.database)
+        assert diagnostics_before, "the measured set is not empty"
         gateway.kill()  # link loss
         port.step(draft, boundaries=1, from_boundary=17)  # the world goes on: 07:15, past due
         notes = port._sessions[draft.run_id].staging_notes
@@ -303,6 +320,9 @@ def test_link_loss_keeps_the_report_pending_and_reconnect_releases_it_once(draft
             count = len(view.envelopes)
             port.advance_publication(draft, MIDDAY_STEP)
             assert len(port.registered_stage(draft).envelopes) == count
+            # S2-01c carry C2: stored diagnostics survive the real reconnect byte for byte.
+            restarted.link.call("emit_diagnostic", {})
+            assert set(diagnostics_before) <= set(stored_diagnostics(restarted.database)),                 "earlier diagnostics byte-identical"
         finally:
             restarted.kill()
     finally:
