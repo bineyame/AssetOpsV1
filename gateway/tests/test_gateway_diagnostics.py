@@ -70,7 +70,7 @@ def _refusing(ids: set[str], real):
     return seal
 
 
-@pytest.mark.parametrize("refused_state", ["READY", "STAGED"])
+@pytest.mark.parametrize("refused_state", ["READY", "STAGED", "BOTH"])
 def test_r1_a_sibling_group_sealing_never_erases_another_states_refusal(
     gateway, active: str, db_path: Path, clock, monkeypatch, refused_state: str
 ) -> None:
@@ -78,12 +78,18 @@ def test_r1_a_sibling_group_sealing_never_erases_another_states_refusal(
 
     ready = _mixed_groups(gateway, active)
     staged = {m for (m,) in _rows(db_path, "SELECT message_id FROM envelope_outbox WHERE state='STAGED'")}
-    refused = ready if refused_state == "READY" else staged
+    refused = {"READY": ready, "STAGED": staged, "BOTH": ready | staged}[refused_state]
+    states = ["READY", "STAGED"] if refused_state == "BOTH" else [refused_state]
     real = service_module.seal_batch_v2
     monkeypatch.setattr(service_module, "seal_batch_v2", _refusing(refused, real))
     with pytest.raises(GatewayRefused) as error:
         gateway.seal()
     assert error.value.kind == "SEAL_REFUSED"
+    # Groups seal in (source, epoch, snapshot, state) order, so a refused READY
+    # group is recorded before its STAGED sibling seals in the same pass: the
+    # pass that would have erased a state-blind refusal.
+    with GatewayReader(db_path) as reader:
+        assert sorted(r.outbox_state for r in reader.run_stage("run-1").seal_refusals) == states
     with pytest.raises(GatewayRefused):
         gateway.seal()  # a second pass: the sibling is sealed, the refusal must stay
     gateway.close()
@@ -91,17 +97,17 @@ def test_r1_a_sibling_group_sealing_never_erases_another_states_refusal(
 
     with GatewayReader(db_path) as reader:  # after a restart
         stage = reader.run_stage("run-1")
-    assert [(r.outbox_state, r.kind, r.message_id in refused) for r in stage.seal_refusals] == [
-        (refused_state, "TOO_LARGE", True)
+    assert sorted((r.outbox_state, r.kind, r.message_id in refused) for r in stage.seal_refusals) == [
+        (state, "TOO_LARGE", True) for state in states
     ]
-    sibling = [b for b in stage.batches]
-    assert len(sibling) == 1 and set(sibling[0].message_ids) == (staged | ready) - refused  # partial progress
+    sealed_ids = {m for b in stage.batches for m in b.message_ids}
+    assert sealed_ids == (staged | ready) - refused  # partial progress for the sibling
     assert {e.message_id for e in stage.envelopes if e.batch_id is None} == refused
     sealed_before = _rows(db_path, "SELECT batch_id, payload_text, sha256 FROM upload_batch")
 
     reopened = GatewayService(db_path, clock=clock)
     try:
-        assert len(reopened.seal()) == 1  # the refused group's own success clears it
+        assert len(reopened.seal()) == len(states)  # each refused group's own success clears it
     finally:
         reopened.close()
     with GatewayReader(db_path) as reader:
