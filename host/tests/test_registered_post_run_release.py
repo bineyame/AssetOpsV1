@@ -311,20 +311,41 @@ def test_a_boundary_the_gateway_clock_has_passed_is_refused_not_stamped_late(dra
         schedule = port.publication_schedule(draft)
         assert schedule.admitted_through == "2026-09-30T03:45:00Z"
         assert (schedule.ordinary_publication(), schedule.ordinary_stopped_at) == ("TERMINAL_GAP", "2026-09-30T04:00:00Z")
-        assert port.run_to_end(draft).status == "COMPLETED"  # still refused, still exposed
+        gateway_clock = _gateway_run_clock(tmp_path / "g", draft.run_id)
+        lab_clock = schedule.clock_instant
+        assert port.run_to_end(draft).status == "COMPLETED"  # the world finishes; publication does not move
         assert len(port.registered_stage(draft).envelopes) == admitted
-        # questions-5 Q2/Q3: a live advance keeps the terminal refusal, and no
-        # delayed report (07:00 due 07:10, 15:00 due 15:05) leaps the gap.
-        live = port.advance_publication(draft, PAST_DUE)
-        assert "PUBLICATION_INSTANT_PASSED" in live["publication_refused"]
-        assert all(d.state == "PENDING" for d in live["schedule"].delayed) and live["schedule"].delayed
-        assert len(port.registered_stage(draft).envelopes) == admitted
-        assert live["schedule"].ordinary_publication() == "TERMINAL_GAP"
+        completed = port.publication_schedule(draft)
+        assert completed.world_complete and completed.clock_instant == lab_clock
+        assert _gateway_run_clock(tmp_path / "g", draft.run_id) == gateway_clock
+        assert any("PUBLICATION_GAP" in n for n in port._sessions[draft.run_id].staging_notes)
+        # `D-2026-10-09-s2-terminal-publication-gap-closeout`: a LIVE advance on a
+        # terminal run is a typed refusal before either publication clock moves;
+        # no admission, seal or release, and no delayed report (07:00 due 07:10,
+        # 15:00 due 15:05) leaps the gap.
+        assert draft.run_id in port._sessions, "the live session survives"
+        stage = delay.stage_bytes(port.registered_stage(draft))
+        refusal = delay.refused("PUBLICATION_GAP", lambda: port.advance_publication(draft, PAST_DUE))
+        assert "2026-09-30T03:45:00Z" in refusal.detail and "2026-09-30T04:00:00Z" in refusal.detail
+        after = port.publication_schedule(draft)
+        assert after == completed, "the Lab schedule (clock, watermark, pending reports) did not change"
+        assert after.ordinary_publication() == "TERMINAL_GAP"
+        assert all(d.state == "PENDING" for d in after.delayed) and after.delayed
+        assert _gateway_run_clock(tmp_path / "g", draft.run_id) == gateway_clock
+        assert delay.stage_bytes(port.registered_stage(draft)) == stage
+        # The same instant again is refused too, never a quiet 200.
+        delay.refused("PUBLICATION_GAP", lambda: port.advance_publication(draft, lab_clock))
         # And after a restart the stored-only advance refuses before anything moves.
         restarted = delay.host(tmp_path / "h", gateway.link)
         refusal = delay.refused("PUBLICATION_GAP", lambda: restarted.advance_publication(draft, "2026-09-30T16:00:00Z"))
         assert "2026-09-30T03:45:00Z" in refusal.detail and "2026-09-30T04:00:00Z" in refusal.detail
-        assert restarted.publication_schedule(draft).clock_instant == PAST_DUE
+        assert restarted.publication_schedule(draft).clock_instant == lab_clock
+        # The Lab Commit read shows the terminal gap structurally and never fully released.
+        delivery = restarted.registered_delivery(draft)
+        assert delivery["publication_gap"] == "PUBLICATION_GAP" and delivery["fully_released"] is False
+        assert delivery["publication_schedule"]["ordinary_publication"] == "TERMINAL_GAP"
+        assert delivery["publication_schedule"]["ordinary_stopped_at"] == "2026-09-30T04:00:00Z"
+        assert delivery["publication_schedule"]["admitted_through"] == "2026-09-30T03:45:00Z"
     finally:
         gateway.kill()
 

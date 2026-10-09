@@ -19,7 +19,7 @@ import sqlite3
 import sys
 from pathlib import Path
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 BUSY_TIMEOUT_MS = 5000
 
 OUTBOX_STATES = ("STAGED", "READY", "IN_FLIGHT", "ACKED", "DEAD_LETTER")
@@ -314,7 +314,79 @@ CREATE TRIGGER publication_clock_never_deleted BEFORE DELETE ON publication_cloc
 BEGIN SELECT RAISE(ABORT, 'publication clocks are retained'); END;
 """
 
-MIGRATIONS = {1: MIGRATION_1, 2: MIGRATION_2, 3: MIGRATION_3, 4: MIGRATION_4}
+#: S2-02 phase 2 (`D-2026-10-09-s2-gateway-sealing-state-and-partial-progress`,
+#: `D-2026-10-09-s2-pilot-gateway-upload-credential`): delivery through the
+#: authenticated HTTPS route.
+#:
+#: - `release_manifest` is the private Lab Commit record linking one run to the
+#:   existing sealed batch IDs it authorized (`STAGED -> READY`). Append-only.
+#: - `batch_receipt` holds the whole verified Receipt V2 text of a COMPLETED
+#:   batch; `acknowledgement` (migration 1) holds its per-ordinal decisions.
+#:   Both are written in the same transaction that moves the batch to ACKED and
+#:   are immutable afterwards.
+#: - `batch_refusal` is an authenticated terminal whole-batch refusal (HTTP
+#:   409/413/422): the batch is REFUSED and its envelopes DEAD_LETTER.
+#: - `last_error_code` columns record the latest retryable failure (transport,
+#:   credential, receipt mismatch). They are codes only: the upload secret is
+#:   never stored in this ledger.
+#: - A diagnostic `refusal_code` (HTTP 409/422) is terminal for that row: it
+#:   stays not-ACKED and is not retried.
+#: ACKED and REFUSED batches, and ACKED/DEAD_LETTER envelopes, never move again.
+MIGRATION_5 = """
+CREATE TABLE release_manifest (
+  lab_run_ref TEXT NOT NULL,
+  batch_id TEXT NOT NULL REFERENCES upload_batch(batch_id),
+  released_at TEXT NOT NULL,
+  PRIMARY KEY (lab_run_ref, batch_id)
+);
+CREATE TRIGGER release_manifest_immutable BEFORE UPDATE ON release_manifest
+BEGIN SELECT RAISE(ABORT, 'the release manifest is append-only'); END;
+CREATE TRIGGER release_manifest_never_deleted BEFORE DELETE ON release_manifest
+BEGIN SELECT RAISE(ABORT, 'the release manifest is append-only'); END;
+CREATE TABLE batch_receipt (
+  batch_id TEXT PRIMARY KEY REFERENCES upload_batch(batch_id),
+  receipt_text TEXT NOT NULL,
+  receipt_sha256 TEXT NOT NULL,
+  server_received_at TEXT NOT NULL,
+  server_completed_at TEXT NOT NULL,
+  stored_at TEXT NOT NULL
+);
+CREATE TRIGGER batch_receipt_immutable BEFORE UPDATE ON batch_receipt
+BEGIN SELECT RAISE(ABORT, 'a verified receipt is immutable'); END;
+CREATE TRIGGER batch_receipt_never_deleted BEFORE DELETE ON batch_receipt
+BEGIN SELECT RAISE(ABORT, 'receipts are retained'); END;
+CREATE TRIGGER acknowledgement_immutable BEFORE UPDATE ON acknowledgement
+BEGIN SELECT RAISE(ABORT, 'acknowledgements are immutable'); END;
+CREATE TRIGGER acknowledgement_never_deleted BEFORE DELETE ON acknowledgement
+BEGIN SELECT RAISE(ABORT, 'acknowledgements are retained'); END;
+CREATE TABLE batch_refusal (
+  batch_id TEXT PRIMARY KEY REFERENCES upload_batch(batch_id),
+  http_status INTEGER NOT NULL,
+  code TEXT NOT NULL,
+  detail TEXT NOT NULL,
+  refused_at TEXT NOT NULL
+);
+CREATE TRIGGER batch_refusal_immutable BEFORE UPDATE ON batch_refusal
+BEGIN SELECT RAISE(ABORT, 'a batch refusal is immutable'); END;
+CREATE TRIGGER batch_refusal_never_deleted BEFORE DELETE ON batch_refusal
+BEGIN SELECT RAISE(ABORT, 'batch refusals are retained'); END;
+ALTER TABLE upload_batch ADD COLUMN last_error_code TEXT;
+ALTER TABLE upload_batch ADD COLUMN last_error_at TEXT;
+CREATE TRIGGER batch_terminal_state BEFORE UPDATE OF state ON upload_batch
+WHEN OLD.state IN ('ACKED','REFUSED') AND NEW.state <> OLD.state
+BEGIN SELECT RAISE(ABORT, 'a terminal batch never moves'); END;
+CREATE TRIGGER envelope_terminal_state BEFORE UPDATE OF state ON envelope_outbox
+WHEN OLD.state IN ('ACKED','DEAD_LETTER') AND NEW.state <> OLD.state
+BEGIN SELECT RAISE(ABORT, 'a terminal envelope never moves'); END;
+ALTER TABLE diagnostic_outbox ADD COLUMN next_attempt_at TEXT;
+ALTER TABLE diagnostic_outbox ADD COLUMN last_error_code TEXT;
+ALTER TABLE diagnostic_outbox ADD COLUMN refusal_code TEXT;
+CREATE TRIGGER diagnostic_terminal_state BEFORE UPDATE OF state ON diagnostic_outbox
+WHEN OLD.state = 'ACKED' AND NEW.state <> OLD.state
+BEGIN SELECT RAISE(ABORT, 'an acknowledged diagnostic never moves'); END;
+"""
+
+MIGRATIONS = {1: MIGRATION_1, 2: MIGRATION_2, 3: MIGRATION_3, 4: MIGRATION_4, 5: MIGRATION_5}
 
 
 class WriterBusy(RuntimeError):

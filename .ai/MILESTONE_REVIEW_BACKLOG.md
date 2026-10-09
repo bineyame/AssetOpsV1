@@ -23,6 +23,14 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
+### S2-02 Architect batch-4 bounded carries (2026-10-09, `.agent/architect-batch-answers-4.md`)
+
+- The pilot gateway and provisioning CLI run under the same OS account; runtime Windows DACL verification refuses an inherited/broad file. This is safe for the isolated demo and protects the actual reader. Before a real pilot with a distinct gateway service account, provision and test an ACL granting only that account plus the authorized operator, and replace local OS-user audit context with authenticated operator identity.
+- Evidence shows a conflict at the conflicting envelope's source time; the original accepted reading's source time is retained as lineage but not yet displayed beside it. The rejection route remains inspectable, so no record is misplaced. Add a labelled original-time link when a reviewed owner path needs to compare the two times.
+- A missing `registered_release` keeps the Lab Commit action unavailable, but older fallback copy may imply the run itself is uncommittable rather than the read being unavailable. The server still refuses unauthorized release. Refine the copy with the next Lab UI touch if an actual missing-read state reaches users.
+- S3 must treat same-source/same-time readings from separate simulated gateway epochs as distinct accepted Evidence, not independent physical energy to sum. Before S3-01 makes a dispatch or money claim, select a defensible run/epoch basis or return limited/Indeterminate coverage, with an overlapping-runs fixture. S2's ledger is truthful because it preserves both source identities and does not compute the assessment.
+- The S2 owner walkthrough may show crash/resume 202 and an outside-period closing reading as labelled Postgres test evidence, while the corrected fault-fixture rejected sibling is live through HTTPS. This is safe only while the owner accepts the stated demonstration limits; any claim that the UI itself proved those two cases requires a separate live exercise. The existing S2-01c C3/N2 full seeded layout carry remains open.
+
 ### Registered Kobo generator and capability demo configuration (expires at S2-02 demo setup / before S3-01 capability claims)
 
 S2-01a correctly leaves a registered `mini-grid` v3 Draft blocked because the imported Foundation lacks four static generator properties. Its ten bindings are the nine original Kobo mappings plus the explicitly added generator status; the two capability channels in the newer template remain unconfigured. This is safe for the S2-01a daytime run and its uncommittable simulated output because no generator or capability evidence is claimed. It is not proof that a profile-5 report or generator evidence can be produced from the registered basis.
@@ -36,12 +44,18 @@ S2-02 demo setup must publish a new-effective, provenance-labelled Foundation re
 
 ### S2-01c first review carries (2026-10-09, `.agent/S2-01c-review.md`, fresh Claude; Architect ruling `.agent/architect-S2-01c-answers-4.md`) — S2 milestone checkpoint
 
-- C2: the link-loss test does not assert stored diagnostics are byte-identical across a real reconnect (AC5); proven only at service level. Add the integration assertion.
-- N1 (fix re-review `.agent/S2-01c-fix-rereview.md`): `gateway/tests/test_gateway_process.py:202` no longer asserts the specific refusal kind for a body without `at_instant`; assert it.
+- C2: the link-loss test does not assert stored diagnostics are byte-identical across a real reconnect (AC5); proven only at service level. Add the integration assertion. **Closed in S2-02 phase 3c (`30b8cd5`).**
+- N1 (fix re-review `.agent/S2-01c-fix-rereview.md`): `gateway/tests/test_gateway_process.py:202` no longer asserts the specific refusal kind for a body without `at_instant`; assert it. **Closed in S2-02 phase 3c (`9c7ea0d`).**
 - N2: 640 px width of the new HELD and SCHEDULE_MISSING texts is unmeasured; fold into C3's seeded full layout run.
-- N3 (fix-2 re-review `.agent/S2-01c-fix2-rereview.md`): `frontend/src/shell/GatewayPublicationPanels.tsx:60` PUBLICATION_GAP text says "the world's last boundary"; it also fires mid-run. Reword to "before the boundary the world reached".
+- N3 (fix-2 re-review `.agent/S2-01c-fix2-rereview.md`): `frontend/src/shell/GatewayPublicationPanels.tsx:60` PUBLICATION_GAP text says "the world's last boundary"; it also fires mid-run. Reword to "before the boundary the world reached". **Closed in S2-02 phase 3c (`9c7ea0d`).**
 - S2-02 must take ordinary-publication completeness from the schedule state, not from Stage STAGED (STAGED speaks only of admitted reports).
-- C3: the full `tools/layout-evidence.mjs` run on an isolated store reached 222 PASS / 6 FAIL then the renderer stopped responding; the failures need scenario fixtures (optional inputs, declared reporting gap) the isolated store lacked. Re-run on a fully fixtured store; the full layout gate is unverified.
+- C3: the full `tools/layout-evidence.mjs` run on an isolated store reached 222 PASS / 6 FAIL then the renderer stopped responding; the failures need scenario fixtures (optional inputs, declared reporting gap) the isolated store lacked. Re-run on a fully fixtured store; the full layout gate is unverified. S2-02 phase 3c measured its own surfaces (`.agent/S2-02-layout-evidence.txt`) but did not run the full seeded gate; still open.
+
+### S2-02 phase-2 bounded carries (2026-10-09, `.agent/S2-02-phase-2-handoff.md`) — S2 checkpoint / first real-pilot gate
+
+- A sealed Batch V2 shared between two Lab runs is not released by either run's single-run Commit and blocks `fully_released`; this fails closed and the single-run Kobo owner path is unaffected. Phase 3 must display `shared_batch_ids` and partial status. Before any multi-run complete-release claim, define explicit joint batch authority or deterministic run-isolated sealing and test it; do not silently assign the batch to one run.
+- The checked-in TLS private key under `gateway/tests/fixtures/` is a test-only fixture. Phase 3 owner instructions must generate separate local TLS material and never point a demo or deployed gateway at the test key; replace the static fixture with ephemeral test issuance before a real pilot if the test environment can support it.
+- The demo-only provisioning CLI records the local OS user as actor context, not a verified tenant operator. Label it that way in audit/readback and require authenticated operator identity and authorization before multi-tenant or real-pilot provisioning. The CLI remains limited to the configured development tenant in S2-02.
 
 ### S2-01b fix re-review carries (2026-10-09, `.agent/S2-01b-fix-rereview.md`, fresh Claude reviewer)
 
@@ -1949,3 +1963,19 @@ The carried review findings above are unchanged.
   Composition And Truth Barrier.
 - The unassigned delivery requirements are in the feature map's Next Work And
   Unowned Requirements table. They are planned capability, not review debt.
+
+### S2-02 first review carries (2026-10-09, `.agent/S2-02-review.md`, fresh Claude)
+
+- F3 (low): Overview headline says "No readings were received for this period" while readings wait at the gateway; qualify it when the gateway reports a queue or contact is STALE/UNKNOWN.
+- Gateway health uses the most recently *received* diagnostic; a late backlogged diagnostic can show stale queue/pressure/offset figures beside CURRENT.
+- Site Evidence reads load every Site rejection plus referenced batch text and filter in Python; will not scale for a long-running Site.
+- Chunked oversized upload (no Content-Length) is read fully into memory before 413 (authenticated callers only).
+- `PUBLICATION_REFUSED` blocker comes from in-memory session notes and is lost on host restart (gap blockers survive).
+
+### S2 Codex review carries (2026-10-09, `.agent/S2-codex-review.md`; S2-01c and S2-02 both accept with carries)
+
+- N3 follow-up: `frontend/src/shell/RegisteredDeliveryView.tsx:46` Commit copy still says ordinary publication stopped before the world's *last* boundary; align with "the boundary the world reached".
+- Diagnostic emission failures in the gateway ticker (`gateway/assetops_gateway/ipc.py`) are swallowed and surface only as STALE; expose the last emission error with the next gateway-operations work.
+- Before S7 health uses diagnostic facts, separate contact freshness from the age of the reported facts (backlogged diagnostic beside CURRENT).
+- Other S2-02 carries confirmed as recorded above (NO_DATA wording, Evidence read scale, chunked body limit, non-gap refusal note on restart, Q37/Q38, owner proof limits, fault-fixture sibling never S3 input).
+

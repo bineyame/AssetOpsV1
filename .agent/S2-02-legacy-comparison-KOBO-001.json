@@ -1,0 +1,51 @@
+{
+  "compared_at": "2026-10-09T15:46:16.711964Z",
+  "empty_set": true,
+  "environment": "postgresql://127.0.0.1:55432/assetops",
+  "exceptions": [],
+  "legacy": {
+    "accepted_records": 0,
+    "batch_totals": {
+      "accepted": 0,
+      "conflicts": 0,
+      "duplicates": 0,
+      "rejected": 0
+    },
+    "batches": 0,
+    "conflicts": 0,
+    "rejections": 0,
+    "store": "LEGACY_FILE"
+  },
+  "legacy_inventory": {
+    "accepted_records": 0,
+    "batches": 0,
+    "committed_artifacts": 0,
+    "conflicts": 0,
+    "digest": "sha256:3e6ad354c662e7ce6f4f6f8f23e1a991ad4581cbe2f83cccf0a56d4821b4c311",
+    "rejections": 0
+  },
+  "outcome": "PASSED",
+  "replay": {
+    "in_ledger": 0,
+    "matched": 0,
+    "parser": "source-envelope V1 (parse_canonical_envelope_json), dry run",
+    "replayed": 0
+  },
+  "report_id": "297aa1aa-28de-49dd-9103-17ef8829d26b",
+  "representative_records": [],
+  "s3_fixtures": {
+    "legacy_dispatch_claims": [],
+    "recompute_jobs": [],
+    "statement": "Hand-off fixtures for the S3 dispatch comparison; no analytic result is claimed here."
+  },
+  "schema": {
+    "id": "assetops.evidence-legacy-comparison",
+    "version": 3
+  },
+  "site_id": "KOBO-001",
+  "site_uuid": "c78e6e71-8833-4f2f-bb07-2083b4e49e8b",
+  "statement": "Empty-set comparison: the legacy file store holds no evidence for KOBO-001, so nothing was replayed and no record is claimed to match.",
+  "store_root": "sha256:2196b88e17a976a84235b31af96b95b362674ec25bd71e784257a3c9d8e55b17",
+  "tenant_id": "899746c9-7916-4bee-aa6f-f151a398bb3c",
+  "writes": "None to Postgres; the legacy evidence, run, Stage and commit stores are left untouched."
+}

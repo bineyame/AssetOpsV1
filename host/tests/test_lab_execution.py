@@ -2628,8 +2628,16 @@ class TestExecutingADraftWritesNoSiteHistory:
             "projection",
             # S2-01c: READ of a registered run's Lab-private publication schedule.
             "publication_schedule",
+            # S2-02 phase 2: READ of a registered run's local delivery state.
+            "registered_delivery",
             # S2-01b: a READ of a registered run's gateway-ledger Stage.
             "registered_stage",
+            # S2-02 phase 2: Lab Commit of a registered run is a LOCAL gateway
+            # release (sealed STAGED batches -> READY + private manifest). It
+            # writes no Site history or Evidence and holds no upload secret;
+            # the gateway process uploads. A file-Stage run still has no
+            # commit/release here.
+            "release_registered",
             "run_to_end",
             "staged_envelopes",
             "start",

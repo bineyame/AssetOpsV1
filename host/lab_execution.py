@@ -2563,6 +2563,14 @@ class HostLabExecution:
             world_complete=session.execution.is_terminal,
             world_boundaries_completed=len(boundaries),
         )
+        if schedule.ordinary_stopped_at is not None:
+            # `D-2026-10-09-s2-terminal-publication-gap-closeout`: a terminal gap
+            # publishes nothing more, live session or not. The world facts are
+            # recorded; the Lab publication clock and the gateway do not move.
+            self._schedules.write(schedule)
+            text = f"registered publication refused: PUBLICATION_GAP: {_gap_detail(schedule)}"
+            note(text)
+            return text
         # Only boundaries the world has actually completed: before the first,
         # nothing is observed and nothing may be marked published.
         instants = [self._instant_at(session, b.offset_minutes) for b in boundaries]
@@ -2684,22 +2692,15 @@ class HostLabExecution:
                     run.run_id,
                     f"the world has reached {schedule.world_reached_instant}; {instant} is later",
                 )
-            if session is None and schedule.ordinary_gap():
+            if schedule.ordinary_stopped_at is not None or (session is None and schedule.ordinary_gap()):
                 # `D-2026-10-09-s2-publication-gap-and-batch-boundary`: a stored
                 # schedule cannot regenerate the unadmitted ordinary readings,
                 # so releasing a delayed report now would leap the gap for good.
-                # Refused before the Lab clock, the gateway or a seal moves.
-                raise LabControlRefused(
-                    "PUBLICATION_GAP",
-                    run.run_id,
-                    f"Ordinary publication is admitted through {schedule.admitted_through or 'no boundary'}"
-                    f"; the world reached {schedule.world_reached_instant}"
-                    + (
-                        f"; the gateway clock passed {schedule.ordinary_stopped_at} before it was admitted."
-                        if schedule.ordinary_stopped_at is not None
-                        else "."
-                    ),
-                )
+                # `D-2026-10-09-s2-terminal-publication-gap-closeout`: a TERMINAL
+                # gap refuses even with a live session - nothing can publish.
+                # Both are refused before the Lab clock, the gateway or a seal
+                # moves; a still-retryable INCOMPLETE live session continues.
+                raise LabControlRefused("PUBLICATION_GAP", run.run_id, _gap_detail(schedule))
             notes = [] if session is None else session.staging_notes
 
             def note(text: str) -> None:
@@ -2795,6 +2796,146 @@ class HostLabExecution:
                 notes=notes,
             )
 
+    def release_registered(self, run: SimulationRun) -> dict:
+        """S2-02 Lab Commit of a registered run: a local gateway release.
+
+        The gateway moves each sealed STAGED batch of this run to READY with a
+        private release manifest (idempotent) and uploads it itself; the host
+        never holds the network credential, writes no Evidence and calls no
+        central ledger. Refused, with nothing released, before the world run
+        has completed or when the gateway is unconfigured or unreachable. The
+        answer is the delivery view: a partial, SEALING_REFUSED or gapped run
+        is released as far as it is sealed and never claimed fully released."""
+        if run.registered_basis is None:
+            raise ValueError("only a registered run has a gateway release")
+        with self._lock_for(run.run_id):
+            execution_status = self._execution_status(run)
+            if execution_status != "COMPLETED":
+                raise LabControlRefused(
+                    "COMMIT_NOT_READY", run.run_id, f"the run's execution is {execution_status}"
+                )
+            if self._gateway is None:
+                raise LabControlRefused(
+                    "GATEWAY_RELEASE_UNAVAILABLE", run.run_id, "no gateway is configured for this host"
+                )
+            try:
+                released = self._gateway.release(run.run_id)
+            except (GatewayUnavailable, GatewayRequestRefused) as failure:
+                raise LabControlRefused("GATEWAY_RELEASE_UNAVAILABLE", run.run_id, str(failure)) from failure
+            return self._delivery_view(
+                run, execution_status, released["delivery"], released_now=released["released_now"]
+            )
+
+    def registered_delivery(self, run: SimulationRun) -> dict:
+        """S2-02: a registered run's release and delivery state. A read, never a refusal."""
+        if run.registered_basis is None:
+            raise ValueError("only a registered run has a gateway delivery")
+        with self._lock_for(run.run_id):
+            execution_status = self._execution_status(run)
+            if self._gateway is None:
+                read = {"status": "GATEWAY_UNAVAILABLE", "detail": "no gateway is configured for this host"}
+            else:
+                read = self._gateway.delivery(run.run_id)
+            if read["status"] != "AVAILABLE":
+                return {
+                    "status": "GATEWAY_UNAVAILABLE",
+                    "detail": read["detail"],
+                    "execution_status": execution_status,
+                    "delivery": None,
+                    "released_now": None,
+                    "publication_gap": None,
+                    "publication_gap_detail": None,
+                    "publication_schedule": None,
+                    "fully_released": False,
+                    "release_blockers": ["GATEWAY_UNAVAILABLE"],
+                }
+            return self._delivery_view(run, execution_status, read["delivery"], released_now=None)
+
+    def _publication_gap(self, run: SimulationRun) -> tuple[str, str | None]:
+        """Whether the Lab's own schedule leaves this run's publication incomplete.
+
+        The gateway cannot see the Lab schedule, so the host answers this half
+        of a "fully released" claim. An unreadable or missing schedule is
+        `UNKNOWN`, which blocks the claim (fail closed)."""
+        if self._publication_clock_of(run) != "RUN_VIRTUAL":
+            return "NOT_APPLICABLE", None
+        try:
+            schedule = self._schedules.read(run.run_id)
+        except ScheduleUnreadable as unreadable:
+            return "UNKNOWN", f"the publication schedule is unreadable: {unreadable}"
+        if schedule is None:
+            return "UNKNOWN", "no publication schedule is stored for this run"
+        if schedule.ordinary_gap():
+            return "PUBLICATION_GAP", (
+                f"ordinary publication is admitted through {schedule.admitted_through or 'no boundary'}; "
+                f"the world reached {schedule.world_reached_instant}"
+            )
+        pending = schedule.pending()
+        if pending:
+            return "DELAYED_PENDING", f"{len(pending)} delayed report(s) are not published yet"
+        return "NONE", None
+
+    def _delivery_view(
+        self, run: SimulationRun, execution_status: str, delivery: dict, *, released_now: int | None
+    ) -> dict:
+        gap, gap_detail = self._publication_gap(run)
+        schedule_state = self._publication_schedule_state(run)
+        session = self._sessions.get(run.run_id)
+        blockers: list[str] = []
+        if execution_status != "COMPLETED":
+            blockers.append("EXECUTION_NOT_COMPLETED")
+        if session is not None and any("refused" in note for note in session.staging_notes):
+            blockers.append("PUBLICATION_REFUSED")
+        if gap not in ("NONE", "NOT_APPLICABLE"):
+            blockers.append(gap if gap != "UNKNOWN" else "PUBLICATION_GAP_UNKNOWN")
+        if delivery["stage_status"] != "STAGED":
+            blockers.append(f"STAGE_{delivery['stage_status']}")
+        if delivery["shared_batch_ids"]:
+            blockers.append("BATCH_SHARED_WITH_ANOTHER_RUN")
+        if delivery["released_batch_count"] < delivery["batch_count"]:
+            blockers.append("NOT_ALL_BATCHES_RELEASED")
+        if delivery["batches_by_state"]["REFUSED"]:
+            blockers.append("BATCH_REFUSED")
+        if delivery["batches_by_state"]["ACKED"] < delivery["batch_count"]:
+            blockers.append("RECEIPTS_PENDING")
+        fully = not blockers and delivery["gateway_complete"] is True
+        return {
+            "status": "AVAILABLE",
+            "detail": None,
+            "execution_status": execution_status,
+            "delivery": delivery,
+            "released_now": released_now,
+            "publication_gap": gap,
+            "publication_gap_detail": gap_detail,
+            "publication_schedule": schedule_state,
+            "fully_released": fully,
+            "release_blockers": blockers,
+        }
+
+    def _publication_schedule_state(self, run: SimulationRun) -> dict | None:
+        """Structured publication completeness for the Lab Commit view (S2-02
+        phase 3, answers-2 Q4): Stage `STAGED` covers only admitted reports, so
+        the UI reads where ordinary publication stands from here. None for a
+        gateway-UTC run or an unreadable/missing schedule (the gap is UNKNOWN)."""
+        if self._publication_clock_of(run) != "RUN_VIRTUAL":
+            return None
+        try:
+            schedule = self._schedules.read(run.run_id)
+        except ScheduleUnreadable:
+            return None
+        if schedule is None:
+            return None
+        return {
+            "ordinary_publication": schedule.ordinary_publication(),
+            "clock_instant": schedule.clock_instant,
+            "admitted_through": schedule.admitted_through,
+            "world_reached_instant": schedule.world_reached_instant,
+            "world_complete": schedule.world_complete,
+            "ordinary_stopped_at": schedule.ordinary_stopped_at,
+            "delayed_report_count": len(schedule.delayed),
+            "delayed_pending_count": len(schedule.pending()),
+        }
+
     def staged_envelopes(self, run: SimulationRun) -> SourceStageView:
         """This Draft's staged envelopes, re-read from persistence and verified.
 
@@ -2864,3 +3005,17 @@ class HostLabExecution:
         """
         with self._lock_for(run_id):
             self._sessions.pop(run_id, None)
+
+
+def _gap_detail(schedule: PublicationSchedule) -> str:
+    """The persisted instants a publication-gap refusal names (Q4: message detail;
+    the schedule read carries the structured state)."""
+    return (
+        f"Ordinary publication is admitted through {schedule.admitted_through or 'no boundary'}"
+        f"; the world reached {schedule.world_reached_instant}"
+        + (
+            f"; the gateway clock passed {schedule.ordinary_stopped_at} before it was admitted."
+            if schedule.ordinary_stopped_at is not None
+            else "."
+        )
+    )

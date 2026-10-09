@@ -516,6 +516,8 @@ class TestNoUpdateOrDeleteRouteExists:
             f"{SITES_PATH}/{{site_id}}/foundation/revisions",
             f"{SITES_PATH}/{{site_id}}/foundation/snapshot",
             f"{SITES_PATH}/{{site_id}}/foundation/versions",
+            # S2-02 phase 2: central gateway health, operational only.
+            f"{SITES_PATH}/{{site_id}}/gateway-health",
             # T027 phase 2: the Overview read, beside Site evidence.
             f"{SITES_PATH}/{{site_id}}/overview",
         ]

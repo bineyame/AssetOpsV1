@@ -18,6 +18,11 @@
  */
 
 import { SITES_API_PATH } from "./siteDirectoryClient";
+import { arrayOf, hasKeys, isObject, query, read, type EvidenceRead } from "./evidenceRead";
+import { createGatewayHealthClient, type GatewayHealthClient } from "./gatewayHealthClient";
+import { createLedgerEvidenceClient, isLedgerEvidence, type LedgerEvidence, type LedgerEvidenceClient } from "./ledgerEvidenceClient";
+
+export { arrayOf, awaitingMigration, hasKeys, isObject, query, read, type EvidenceRead } from "./evidenceRead";
 
 export interface EvidenceBatchProgress {
   batch_id: string;
@@ -170,21 +175,6 @@ export interface EvidenceRejections {
   rejections: EvidenceRejection[];
 }
 
-export type EvidenceRead<T> =
-  | { status: "loaded"; value: T }
-  | { status: "not_found" }
-  | {
-      status: "unavailable";
-      message: string | null;
-      /** S1-01: set when the Site's evidence is awaiting migration. */
-      transition?: "AWAITING_EVIDENCE_MIGRATION";
-    };
-
-/** True when a read was refused because the Site awaits evidence migration. */
-export function awaitingMigration(result: EvidenceRead<unknown> | null): boolean {
-  return result !== null && result.status === "unavailable" && result.transition === "AWAITING_EVIDENCE_MIGRATION";
-}
-
 export interface EvidenceWindowQuery {
   from?: string | null;
   to?: string | null;
@@ -198,10 +188,14 @@ export interface EvidenceRecordQuery extends EvidenceWindowQuery {
 }
 
 export interface SiteEvidenceClient {
+  /**
+   * A legacy Site answers the file-backed overview; an imported Site whose
+   * comparison permits it answers the central-ledger payload (`store: "POSTGRES"`).
+   */
   getEvidence(
     siteId: string,
     window: EvidenceWindowQuery,
-  ): Promise<EvidenceRead<EvidenceOverview>>;
+  ): Promise<EvidenceRead<EvidenceOverview | LedgerEvidence>>;
   listRecords(
     siteId: string,
     query: EvidenceRecordQuery,
@@ -214,18 +208,10 @@ export interface SiteEvidenceClient {
     siteId: string,
     batch?: string | null,
   ): Promise<EvidenceRead<EvidenceRejections>>;
-}
-
-export function isObject(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-export function hasKeys(value: unknown, keys: readonly string[]): boolean {
-  return isObject(value) && keys.every((key) => key in value);
-}
-
-export function arrayOf(value: unknown, keys: readonly string[]): boolean {
-  return Array.isArray(value) && value.every((item) => hasKeys(item, keys));
+  /** The central-ledger reads (records by cursor, record by evidence id). */
+  ledger?: LedgerEvidenceClient;
+  /** The Site's central gateway contact, shown beside ledger evidence. */
+  gatewayHealth?: GatewayHealthClient;
 }
 
 function isOverview(value: unknown): value is EvidenceOverview {
@@ -287,66 +273,19 @@ function isRejections(value: unknown): value is EvidenceRejections {
   );
 }
 
-export async function read<T>(
-  path: string,
-  valid: (value: unknown) => value is T,
-): Promise<EvidenceRead<T>> {
-  let response: Response;
-  try {
-    response = await fetch(path);
-  } catch {
-    return { status: "unavailable", message: null };
-  }
-  let body: unknown = null;
-  try {
-    body = await response.json();
-  } catch {
-    body = null;
-  }
-  if (response.status === 404) {
-    return { status: "not_found" };
-  }
-  if (response.ok && valid(body)) {
-    return { status: "loaded", value: body };
-  }
-  const detail = isObject(body) ? body.detail : null;
-  if (response.status === 409 && isObject(detail) && detail.code === "AWAITING_EVIDENCE_MIGRATION") {
-    return {
-      status: "unavailable",
-      message: typeof detail.message === "string" ? detail.message : null,
-      transition: "AWAITING_EVIDENCE_MIGRATION",
-    };
-  }
-  return {
-    status: "unavailable",
-    message:
-      isObject(detail) && typeof detail.message === "string"
-        ? detail.message
-        : null,
-  };
-}
-
-export function query(params: Record<string, string | number | null | undefined>): string {
-  const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== null && value !== undefined && value !== "") {
-      search.set(key, String(value));
-    }
-  }
-  const text = search.toString();
-  return text === "" ? "" : `?${text}`;
-}
-
 export function createSiteEvidenceClient(
   basePath: string = SITES_API_PATH,
 ): SiteEvidenceClient {
   const evidencePath = (siteId: string) =>
     `${basePath}/${encodeURIComponent(siteId)}/evidence`;
   return {
+    ledger: createLedgerEvidenceClient(basePath),
+    gatewayHealth: createGatewayHealthClient(basePath),
     getEvidence(siteId, window) {
       return read(
         `${evidencePath(siteId)}${query({ from: window.from, to: window.to })}`,
-        isOverview,
+        (value: unknown): value is EvidenceOverview | LedgerEvidence =>
+          isLedgerEvidence(value) || isOverview(value),
       );
     },
     listRecords(siteId, request) {

@@ -1,0 +1,114 @@
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\AppData\Local\AssetOps\s2-demo (code from git HEAD 293ccc1; own var/)
+Database: assetops_s2demo (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=dc63e6b5-5340-4faf-9993-6ec6ac65e370 revision=6712deb4-570d-42b6-add0-1398b219a9f3 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s2-demo\tls\server.crt (sha256 Fingerprint=F4:2B:94:CF:A4:F3:33:A0:B1:36:D2:47:E3:E3:14:31:62:49:28:51:6A:A2:63:8C:59:AC:B3:D3:51:C0:70:8C); key restricted to the current user
+
+=== 2. Legacy comparison for KOBO-001 in this environment (schema v3: fingerprinted and bound to this copy's store root) ===
+  PASSED: Empty-set comparison: the legacy file store holds no evidence for KOBO-001, so nothing was replayed and no record is claimed to match. | Report: C:\Users\assef\AppData\Local\AssetOps\s2-demo\tree\var\evidence\migration\kobo-001\20261009T155223351571Z-7ff77a82-72a7-4984-99e1-3e2239c2f14b.json | Store root: sha256:26e24b1d06478935e3b54bfafea1ab0942570a90f470077e7a31f3ef551c41b2 (this workspace's evidence and commit stores; a moved or copied store needs its own comparison) | Evidence cutover: permitted
+
+=== 3. Provision the gateway: one-time protected upload credential (owner-only DACL) ===
+  Issued aog1.c10fbe5ebafaecc1abe9f05071a7eb70.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.c10fbe5ebafaecc1abe9f05071a7eb70 (in C:\Users\assef\AppData\Local\AssetOps\s2-demo\credentials)
+  TLS upload server https://127.0.0.1:8643; Lab/product API http://127.0.0.1:8610; gateway pipe \\.\pipe\assetops-s2-demo-gateway
+
+=== 4. Central diagnostics: none before the gateway reports, then its first receipt ===
+  gateway-health (before the gateway has ever reported): 200 status=UNKNOWN last_server_contact=None declared_cadence_seconds=60 basis=SERVER_RECEIVED_AT
+  gateway-health (after the gateway's first diagnostic receipt): 200 status=CURRENT last_server_contact=2026-10-09T15:52:32.329006Z declared_cadence_seconds=60 basis=SERVER_RECEIVED_AT
+  Lab's local diagnostic read: {"gateway": {"status": "AVAILABLE", "detail": null, "statement": "The local gateway's own read at its real UTC clock. Queue counts come from its ledger; last contact means a simulated public report reached the gateway (OBSERVED_SIMULATED_REPORT), not that a physical device or asset is healthy; clock
+
+=== 5. A registered Kobo Lab run (post-run publication profile v2) executed to the end ===
+  main run: run run-65c637512a104557b8df1295bccf0356 (READY)
+  publication after run-to-end: {"publication": {"store": "LAB_PUBLICATION_SCHEDULE", "run_id": "run-65c637512a104557b8df1295bccf0356", "status": "AVAILABLE", "detail": null, "publication_clock": "RUN_VIRTUAL", "statement": "Lab-private schedule of this run's delayed public reports. Source time is the reading's own instant; the scheduled release and the publication clock are on the run's virtual publication clock; an admitted report's published_at is the gateway's own stamp at its actual virtual admission instant. Nothing here
+  sealed at the gateway after run-to-end: 245 batches, 292 envelopes (the earlier 245/292 proof stopped here)
+  The closing 15:00 reading is due after the run; advance the run's virtual publication clock.
+  advance to 15:10Z: {"publication": {"store": "LAB_PUBLICATION_SCHEDULE", "run_id": "run-65c637512a104557b8df1295bccf0356", "status": "AVAILABLE", "detail": null, "publication_clock": "RUN_VIRTUAL", "statement": "Lab-private schedule of this run's delayed public reports. Source time is the reading's own instant; the scheduled release and the publication clock are on the run's virtual publication clock; an admitted re
+  sealed after the post-run advance: 246 batches, 293 envelopes
+  added by the advance (publication profile registered-kobo-publication v2): batch ad6fab4b01b8e0cad927559effe0075f537b542f4ea8f48e627d51c93f80b5ea source 01e01d6a-46b8-449f-9792-4712b37f2548 battery-pcs-controller/state-of-charge source_time 2026-09-30T15:00:00Z published_at 2026-09-30T15:10:00Z
+  GET commit: commit=NOT_COMMITTED fully_released=False batches_by_state={'ACKED': 0, 'IN_FLIGHT': 0, 'READY': 0, 'REFUSED': 0, 'STAGED': 246} gap=NONE schedule=COMPLETE
+  release blockers: ["NOT_ALL_BATCHES_RELEASED", "RECEIPTS_PENDING"]
+
+=== 6. Commit: release this run's sealed batches to the gateway (no Evidence written by the Lab) ===
+  POST commit: {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release": {"status": "AVAILABLE", "detail": null, "execution_status": "COMPLETED", "delivery": {"batch_count": 246, "batches": [{"batch_id": "68c0d153b086d94577958ce649b876b1d0a30da67f07fc
+  gateway batches: READY 246
+
+=== 7. Outage: the TLS server is down for the first pass; bytes stay READY ===
+  pass during outage: {"acked": 0, "attempted": 1, "credential": "aog1.c10fbe5ebafaecc1abe9f05071a7eb70.<redacted>", "in_progress": 0, "refused": 0, "retrying": 1, "stopped": "CONNECTION_FAILED"}
+  68c0d153b086d94577958ce649b876b1d0a30da67f07fc8aac0c53a2df4f7984 sha256=e4ea917392ebd8fd.. attempts=1 last_error=CONNECTION_FAILED
+  TLS server back; delivering all batches with progress:
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 25, READY 221
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 50, READY 196
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 75, READY 171
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 100, READY 146
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 125, READY 121
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 150, READY 96
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 175, READY 71
+  pass  8: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 200, READY 46
+  pass  9: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 225, READY 21
+  pass 10: attempted 21 acked 21 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 246
+  pass 11: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 246
+  exact-byte retry: gateway sha256 e4ea917392ebd8fdba0bfcd55ea77ea1e6287b6fffbb2ee86d7da9306a93880e | central receipt 200 payload_sha256=e4ea917392ebd8fdba0bfcd55ea77ea1e6287b6fffbb2ee86d7da9306a93880e counts={'accepted': 2, 'conflict': 0, 'duplicate': 0, 'processed': 2, 'rejected': 0, 'total': 2}
+  GET commit: commit=RELEASED_TO_GATEWAY fully_released=True batches_by_state={'ACKED': 246, 'IN_FLIGHT': 0, 'READY': 0, 'REFUSED': 0, 'STAGED': 0} gap=NONE schedule=COMPLETE
+
+=== 8. Duplicate identical bytes and same batch ID with changed bytes ===
+  identical bytes again: 200 counts={'accepted': 2, 'conflict': 0, 'duplicate': 0, 'processed': 2, 'rejected': 0, 'total': 2} completed_at=2026-10-09T15:52:48.909178Z
+  ledger rows before/after the identical retry: {'ingestion_batch': 246, 'accepted_evidence': 293, 'ingestion_disposition': 293, 'batch_refusal': 0} / {'ingestion_batch': 246, 'accepted_evidence': 293, 'ingestion_disposition': 293, 'batch_refusal': 0}
+  resealed batch: same batch_id True, valid canonical Batch V2 with one reading's value changed, bytes differ True
+  same batch ID, one changed byte run: 409 {"detail": {"code": "BATCH_CONFLICT", "kind": "BATCH_ID_CONFLICT", "field": "batch_id", "message": "this batch ID was received with different bytes; the stored batch is unchanged", "refusal_id": "fc3bbe2c-ddb8-48be-93b8-15c8b234a8b1"}}
+  ledger rows after the conflicting attempt: {'ingestion_batch': 246, 'accepted_evidence': 293, 'ingestion_disposition': 293, 'batch_refusal': 1}
+
+=== 8b. FAULT FIXTURE (labelled test input, not gateway output): one valid and one invalid sibling ===
+  The ordinary sealing gateway never emits an invalid envelope. This script builds a separate Batch V2
+  of two envelopes under a fixture sequence epoch and posts it over the normal authenticated HTTPS route.
+  fault-fixture batch c909464c7336309273de49f001c0ecfdc6e7255305d9c6440b34bd58f688e633: 200 counts={'accepted': 1, 'conflict': 0, 'duplicate': 0, 'processed': 2, 'rejected': 1, 'total': 2}
+  valid sibling: ordinal 0 decision ACCEPTED evidence_id 2f02ef12-e468-4968-9356-5ab824ac8b83 rejection null
+  invalid sibling: ordinal 1 decision REJECTED evidence_id None rejection {"conflicts_with_evidence_id": null, "detail": "binding set v1 registers no channel battery-pcs-controller/fault-fixture-unbound-signal for this source", "field": "source.signal_id", "kind": "BINDING_
+  wrong credential: 401 {"detail": {"code": "GATEWAY_CREDENTIAL_INVALID", "message": "The gateway credential is not valid."}}
+  same upload over plain HTTP: 426 {"detail": {"code": "GATEWAY_TLS_REQUIRED", "message": "Gateway upload and diagnostics are accepted only over HTTPS."}}
+
+=== 9. Credential rotation: issue a new versioned file; the old one stops authenticating at once ===
+  Issued aog1.b188713f6c877f94385f2d9599eaddf6.<redacted> for gateway 'edge-kobo-001'; revoked 1 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.b188713f6c877f94385f2d9599eaddf6 (in C:\Users\assef\AppData\Local\AssetOps\s2-demo\credentials)
+  old credential after rotation: 401 {"detail": {"code": "GATEWAY_CREDENTIAL_INVALID", "message": "The gateway credential is not valid."}}
+  old file still on disk, untouched: True
+  gateway restarted with upload_credential_file -> upload.credential.b188713f6c877f94385f2d9599eaddf6; sealed bytes unchanged
+  new credential reads the same receipt: 200 payload_sha256=e4ea917392ebd8fdba0bfcd55ea77ea1e6287b6fffbb2ee86d7da9306a93880e
+  diagnostics pass with the new credential: {"acked": 0, "attempted": 0, "refused": 0, "retrying": 0, "stopped": null}
+  gateway-health (after the rotation and gateway restart): 200 status=CURRENT last_server_contact=2026-10-09T15:53:03.122256Z declared_cadence_seconds=60 basis=SERVER_RECEIVED_AT
+
+=== 10. Terminal publication gap: the gateway clock passes a boundary the run had not reached ===
+  gap run: run run-41b76eacc1ff49b990ef4f4ca6dce260 (READY)
+  gateway clock forced to 05:00Z (fault fixture over the local channel): {"advanced": true, "instant": "2026-09-30T05:00:00Z", "lab_run_ref": "run-41b76eacc1ff49b990ef4f4ca6dce260"}
+  later advance: 409 {"detail": {"code": "EXECUTION_PUBLICATION_GAP", "message": "This run's ordinary publication stopped before the boundary its world reached, and the stored schedule cannot regenerate those readings. Releasing a delayed report now would publish past the gap for good, so nothing was moved, admitted or 
+  publication read unchanged by the refusal: True
+  POST commit: {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release": {"status": "AVAILABLE", "detail": null, "execution_status": "COMPLETED", "deli
+  pass  1: attempted 20 acked 20 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 266
+  pass  2: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 266
+  GET commit: commit=RELEASED_TO_GATEWAY fully_released=False batches_by_state={'ACKED': 20, 'IN_FLIGHT': 0, 'READY': 0, 'REFUSED': 0, 'STAGED': 0} gap=PUBLICATION_GAP schedule=TERMINAL_GAP
+  release blockers: ["PUBLICATION_REFUSED", "PUBLICATION_GAP"]
+
+=== 11. Site Evidence read back from Postgres (selected source-time window) ===
+  evidence 200: store=POSTGRES state=ACCEPTED states=['ACCEPTED', 'STALE_PROJECTION']
+  counts={"accepted": 318, "duplicates": 0, "rejected": 1, "conflicts": 0, "rejected_without_source_time": 0}
+  projection={"status": "STALE", "pending_jobs": 1, "leased_jobs": 0, "failed_jobs": 0, "oldest_job_created_at": "2026-10-09T15:52:48.909178Z", "statement": "Accepted evidence queues dispatch recompute jobs; the Analysis projection is computed by the S3 worker, which is not part of this slice."}
+  closing-boundary (15:00:00Z) readings accepted: 6
+  rejections route: 200; 1 refused readings; kinds ['BINDING_NOT_REGISTERED']
+  after reload, the FAULT FIXTURE's invalid sibling is on the Site rejection route: {"rejection_id": "c03b68b1-f39b-4664-90a2-175c4cc2c4c5", "batch_id": "c909464c7336309273de49f001c0ecfdc6e7255305d9c6440b34bd58f688e633", "ordinal": 1, "message_id": "b2371eb5d9019281cdadd33bc5a11f626945246bf71971c9b65ddcd7f08fcaf3", "decision": "REJECTED", "kind": "BINDING_NOT_REGISTERED", "field": "source.signal_id", "detail": "binding set v1 registers no channel battery-pcs-controller/fault-fixt
+  after reload, the fault-fixture batch on Site Evidence: [{"batch_id": "c909464c7336309273de49f001c0ecfdc6e7255305d9c6440b34bd58f688e633", "batch_uuid": "a0f3e27d-0810-4bde-aaf6-2b23e53cc0f5", "source_id": "01e01d6a-46b8-449f-9792-4712b37f2548", "status": "COMPLETED", "partial": false, "payload_sha256": "c04a7868a54f1ddcf1d3f769a3ea3fa92781f7aabb5dca601f426206ed2908d3", "counts": {"total": 2, "processed": 2, "accepted": 1, "duplicate": 0, "rejected": 1,
+  one 15:00 reading: 200 keys=['accepted_as', 'clocks', 'configuration_outdated', 'conflicts', 'device_id', 'duplicates', 'envelope', 'evidence_id', 'family', 'gateway', 'interval', 'measurement']
+  receipt: batch=ad6fab4b01b8e0cad927559effe0075f537b542f4ea8f48e627d51c93f80b5ea ordinal=0 received_at=2026-10-09T15:53:14.377421Z decided_at=2026-10-09T15:53:14.405561Z
+  selected-window link: /sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=2f0a2501-39fe-4596-9bcc-a6f8e9d7cfde
+  gateway-health (now): 200 status=CURRENT last_server_contact=2026-10-09T15:53:03.122256Z declared_cadence_seconds=60 basis=SERVER_RECEIVED_AT
+  gateway stopped; waiting 125 s (two declared cadences) with no contact ...
+  gateway-health (after two declared cadences of silence): 200 status=STALE last_server_contact=2026-10-09T15:53:03.122256Z declared_cadence_seconds=60 basis=SERVER_RECEIVED_AT
+  gateway-health (after the gateway is back): 200 status=CURRENT last_server_contact=2026-10-09T15:55:27.067674Z declared_cadence_seconds=60 basis=SERVER_RECEIVED_AT
+
+=== 12. The empty-set comparison still opens the read (registered Commit writes no legacy artifact) ===
+  { |   "report_id": "7ff77a82-72a7-4984-99e1-3e2239c2f14b", |   "outcome": "PASSED", |   "empty_set": true, |   "statement": "Empty-set comparison: the legacy file store holds no evidence for KOBO-001, so nothing was replayed and no record is claimed to match.", |   "compared_at": "2026-10-09T15:52:23.351571Z" | }
+
+Result: {"database": "assetops_s2demo", "http": "http://127.0.0.1:8610", "https": "https://127.0.0.1:8643", "credential_first": "upload.credential.c10fbe5ebafaecc1abe9f05071a7eb70", "main_run": "run-65c637512a104557b8df1295bccf0356", "post_run_added": ["ad6fab4b01b8e0cad927559effe0075f537b542f4ea8f48e627d51c93f80b5ea"], "fault_fixture": {"batch_id": "c909464c7336309273de49f001c0ecfdc6e7255305d9c6440b34bd58f688e633", "valid": "2e1f705747f50ef8f7e21c36c91f70f50b7341ebe87dae90e93a0e73708fecf6", "invalid": "b2371eb5d9019281cdadd33bc5a11f626945246bf71971c9b65ddcd7f08fcaf3"}, "credential_current": "upload.credential.b188713f6c877f94385f2d9599eaddf6", "gap_run": "run-41b76eacc1ff49b990ef4f4ca6dce260", "record": "2f0a2501-39fe-4596-9bcc-a6f8e9d7cfde", "link": "/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=2f0a2501-39fe-4596-9bcc-a6f8e9d7cfde"}
+
+=== Stopping every process this script started ===
+  stopped: tls-server, lab-api, gateway

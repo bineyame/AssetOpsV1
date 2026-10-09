@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Fact, FactList, Panel } from "../ui";
+import { RegisteredDeliveryView } from "./RegisteredDeliveryView";
 import type {
   ReleaseBatch,
   RunCommitResult,
@@ -102,6 +103,27 @@ function CommitBody({
   }
 
   const { commit, release, open_in_assetops, release_error } = read.commit;
+
+  if (read.commit.registered_release !== undefined) {
+    // S2-02 phase 3b: a registered run's Commit asks its gateway to release
+    // the existing sealed batches; the status is the gateway ledger's delivery
+    // plus the Lab publication schedule, never Stage STAGED alone.
+    return (
+      <RegisteredDeliveryView
+        view={read.commit.registered_release}
+        statement={read.commit.statement}
+        pending={pending}
+        onRelease={onCommit}
+      />
+    );
+  }
+  if (commit === "RELEASED_TO_GATEWAY") {
+    return (
+      <p data-commit-unavailable>
+        The gateway release answer carried no delivery status, so nothing is known about its progress.
+      </p>
+    );
+  }
 
   if (commit === "NOT_COMMITTED") {
     // S2-01a: the configuration this Draft froze can forbid release whatever

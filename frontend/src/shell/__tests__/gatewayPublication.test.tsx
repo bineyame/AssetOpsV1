@@ -307,12 +307,17 @@ describe("parsing the publication and diagnostics reads (S2-01c)", () => {
     expect(isRunPublicationSchedule(withoutWatermark)).toBe(false);
   });
 
-  it("refuses an unavailable gateway carrying counters, and a received diagnostic", () => {
+  it("refuses an unavailable gateway carrying counters, and a malformed upload code", () => {
     expect(isGatewayDiagnostics(AVAILABLE)).toBe(true);
     expect(isGatewayDiagnostics(UNAVAILABLE)).toBe(true);
     expect(isGatewayDiagnostics({ ...UNAVAILABLE, current: AVAILABLE.current })).toBe(false);
+    // S2-02: a gateway-verified central receipt is real now; the newest stored
+    // diagnostic may be ACKED without making the whole read unavailable.
     expect(
       isGatewayDiagnostics({ ...AVAILABLE, last_emitted: { ...AVAILABLE.last_emitted, state: "ACKED" } }),
+    ).toBe(true);
+    expect(
+      isGatewayDiagnostics({ ...AVAILABLE, last_emitted: { ...AVAILABLE.last_emitted, refusal_code: 409 } }),
     ).toBe(false);
     expect(
       isGatewayDiagnostics({

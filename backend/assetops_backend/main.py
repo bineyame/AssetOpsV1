@@ -25,6 +25,8 @@ in both gate states beside them. No configuration editing is served.
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from typing import Callable, Sequence
 
 from fastapi import APIRouter, FastAPI
@@ -39,12 +41,32 @@ from assetops_backend.config import (
     database_url,
     load_feature_flags,
 )
-from assetops_backend.evidence.composition import build_evidence_store
+from assetops_backend.evidence.composition import (
+    build_comparison_reports,
+    build_evidence_ledger,
+    build_evidence_store,
+    build_gateway_access,
+)
+from assetops_backend.evidence.gateway_access import (
+    DiagnosticIngestionService,
+    GatewayAccessStore,
+    StoreGatewayPrincipals,
+)
+from assetops_backend.gateway_api import (
+    build_gateway_router,
+    install_gateway_tls_boundary,
+    registered_site_scope,
+)
+from assetops_backend.evidence.ledger import EvidenceLedger, GatewayPrincipalResolver
+from assetops_backend.evidence.ledger_reads import ImportedEvidenceReads
+from assetops_backend.evidence.ledger_service import BatchIngestionService
 from assetops_backend.evidence.ports import EvidenceStore
 from assetops_backend.evidence.service import Clock, IngestionService, system_clock
 from assetops_backend.evidence_api import build_evidence_router
 from assetops_backend.foundation_api import build_foundation_router
 from assetops_backend.runs.commit_ports import CommittedArtifactStore
+from assetops_backend.evidence.legacy_comparison import environment_identity
+from assetops_backend.evidence_migration import current_legacy_inventory, current_store_root
 from assetops_backend.runs.composition import build_commit_store, build_run_repository
 from assetops_backend.runs.execution_ports import LabExecutionPort
 from assetops_backend.runs.ports import SimulationRunRepository
@@ -104,6 +126,11 @@ def create_app(
     foundation_store: FoundationStore | None = None,
     foundation_clock: Callable[[], object] | None = None,
     legacy_documents: Callable[[], Sequence[LegacyDocument]] | None = None,
+    evidence_ledger: EvidenceLedger | None = None,
+    gateway_principals: GatewayPrincipalResolver | None = None,
+    gateway_access: GatewayAccessStore | None = None,
+    comparison_reports=None,
+    gateway_clock: Callable[[], datetime] | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -216,8 +243,62 @@ def create_app(
     )
     app.state.assessments = assessments
     ingestion.add_completed_listener(assessments.assess_site)
+    # S2-02: Batch/Receipt V2 over the central ledger. Network upload stays
+    # closed (401) unless a registered-gateway principal resolver is injected.
+    batch_ingestion = BatchIngestionService(
+        build_evidence_ledger(database_url()) if evidence_ledger is None else evidence_ledger
+    )
+    app.state.batch_ingestion = batch_ingestion
+    # S2-02 phase 2: the registered-gateway bearer credential verifier. With no
+    # product database the network route stays closed (401 GATEWAY_UPLOAD_CLOSED).
+    if gateway_access is None and database_url():
+        gateway_access = build_gateway_access(database_url())
+    if gateway_principals is None and gateway_access is not None:
+        gateway_principals = StoreGatewayPrincipals(gateway_access)
+    install_gateway_tls_boundary(app)
+    # S2-02 phase 3a: the newest legacy comparison report gates each imported
+    # Site's Evidence cutover. A composition that injects its own evidence
+    # store reads no workspace report unless it injects reports too.
+    if comparison_reports is None and evidence_store is None:
+        comparison_reports = build_comparison_reports()
+    latest_comparison = (lambda site_code: None) if comparison_reports is None else comparison_reports.latest
+    # Q14: the gate recomputes the Site's legacy inventory from the CURRENT
+    # legacy evidence and committed artifacts on every read, and is scoped to
+    # this environment's database. The commit store is built only when an
+    # imported Site's gate is actually asked (a closed build never builds it).
+    def current_inventory(site_code: str) -> dict:
+        commits = build_commit_store() if commit_store is None else commit_store
+        return current_legacy_inventory(ingestion.store, commits, site_code)
+
+    # Q26: the gate is also scoped to the local store roots this process reads.
+    def store_root() -> str | None:
+        commits = build_commit_store() if commit_store is None else commit_store
+        return current_store_root(ingestion.store, commits)
     app.include_router(
-        build_evidence_router(ingestion, repository, assessments.card_assessments)
+        build_evidence_router(
+            ingestion,
+            repository,
+            assessments.card_assessments,
+            batch_ingestion=batch_ingestion,
+            gateway_principals=gateway_principals,
+            imported_reads=ImportedEvidenceReads(
+                batch_ingestion.ledger,
+                registry.ledger_scope,
+                latest_comparison,
+                current_inventory,
+                environment_identity(database_url()),
+                store_root,
+            ),
+        )
+    )
+    app.include_router(
+        build_gateway_router(
+            gateway_principals,
+            None if gateway_access is None else DiagnosticIngestionService(gateway_access, gateway_clock or utc_now),
+            gateway_access,
+            registered_site_scope(registry),
+            gateway_clock or utc_now,
+        )
     )
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
 

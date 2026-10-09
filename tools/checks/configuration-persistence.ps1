@@ -100,7 +100,14 @@ function Invoke-ConfigurationPersistenceCheck {
             Name        = "evidence"
             Package     = "$backendRoot/evidence"
             Composition = "$backendRoot/evidence/composition.py"
-            Writer      = "$backendRoot/evidence/adapters/json_evidence_store.py"
+            # S2-02 phase 2: the gateway upload secret file is the second
+            # evidence-domain file writer (written once at issue, owner-only).
+            Writer      = @(
+                "$backendRoot/evidence/adapters/json_evidence_store.py",
+                "$backendRoot/evidence/adapters/gateway_credential_file.py",
+                # S2-02 phase 3a: immutable legacy comparison reports (Q14 default).
+                "$backendRoot/evidence/adapters/legacy_comparison_file.py"
+            )
             UserRootVar = "EVIDENCE_STORE_ROOT"
             UserRootOwner = "$backendRoot/evidence/adapters/json_evidence_store.py"
         },
@@ -569,35 +576,86 @@ function Invoke-ConfigurationPersistenceCheck {
     #       LegacySiteGate - the raw legacy repository reaches nothing else.
     #    d. Imported-code write refusal: the gate refuses create_site for an
     #       imported code, and each Lab write control calls the import check.
+    #
+    #    S2-02 adds exactly one more writer, the central evidence ledger
+    #    adapter. Each writer is confined to its own tables: the ledger writes
+    #    only the ledger tables (migration 0005), and the Foundation store
+    #    writes none of them. Every other module stays SQL- and driver-free.
+    #
+    #    S2-02 phase 2 adds a third, the gateway access store (migration 0006).
+    #    It inserts only credential, provisioning-audit and diagnostic rows, and
+    #    its only updates are the operator-mutable registration fields listed in
+    #    $accessUpdates (credential rotation/revocation and enablement). No other
+    #    writer touches its tables.
     $pgWriter = "$backendRoot/sites/adapters/postgres_foundation_store.py"
+    $ledgerWriter = "$backendRoot/evidence/adapters/postgres_evidence_ledger.py"
+    $accessWriter = "$backendRoot/evidence/adapters/postgres_gateway_access.py"
+    $ledgerTables = @('ingestion_batch', 'accepted_evidence', 'evidence_rejection',
+        'ingestion_disposition', 'batch_refusal', 'recompute_job')
+    $accessInserts = @('gateway_credential', 'gateway_access_event', 'gateway_diagnostic',
+        'gateway_diagnostic_refusal')
+    $accessUpdates = @(
+        '(?i)\bUPDATE\s+gateway_credential\s+SET\s+revoked_at\s*=\s*:[a-z_]+\s+WHERE\b',
+        '(?i)\bUPDATE\s+gateway\s+SET\s+(?:credential_ref|disabled_at|diagnostic_cadence_seconds)\s*=\s*:[a-z_]+\s+WHERE\b',
+        '(?i)\bUPDATE\s+source\s+SET\s+disabled_at\s*=\s*:[a-z_]+\s+WHERE\b')
+    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
+    $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
-    $pgWritesSeen = 0
-    $pgDriverSeen = $false
+    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0 }
+    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
+        $isWriter = $pgWriters -contains $module.Path
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
             if ($line -match $sqlWrite) {
-                if ($module.Path -eq $pgWriter) { $pgWritesSeen++ }
-                else {
+                if (-not $isWriter) {
                     $failures.Add(("A second product database writer in $($module.Path):${lineNumber}: " +
-                        "$($line.Trim()). Imported product Sites are written only by $pgWriter.")) | Out-Null
+                        "$($line.Trim()). Product rows are written only by $($pgWriters -join ' and ').")) | Out-Null
+                    continue
+                }
+                $pgWritesSeen[$module.Path]++
+                $target = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
+                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or $ledgerTables -notcontains $target)) {
+                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $accessWriter) {
+                    $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
+                    $insertOk = $isInsert -and $accessInserts -contains $Matches[1].ToLowerInvariant()
+                    $updateOk = $false
+                    foreach ($allowed in $accessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+                    if (-not ($insertOk -or $updateOk)) {
+                        $failures.Add(("The gateway access store inserts only $($accessInserts -join ', ') and " +
+                            "updates only credential revocation and gateway/source enablement fields; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($module.Path -ne $accessWriter -and $null -ne $target -and $accessInserts -contains $target) {
+                    $failures.Add(("Only $accessWriter writes gateway access table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $pgWriter -and $null -ne $target -and $ledgerTables -contains $target) {
+                    $failures.Add(("The Foundation store must not write ledger table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
             if ($line -match $dbDriver) {
-                if ($module.Path -eq $pgWriter) { $pgDriverSeen = $true }
+                if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
                 else {
-                    $failures.Add(("Database driver imported outside $pgWriter in " +
+                    $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
         }
     }
-    if ($pgWritesSeen -eq 0 -or -not $pgDriverSeen) {
-        $failures.Add(("The product database writer check found no SQL write or driver import in " +
-            "$pgWriter, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+    foreach ($writer in $pgWriters) {
+        if ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer]) {
+            $failures.Add(("The product database writer check found no SQL write or driver import in " +
+                "$writer, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+        }
     }
 
     $reportWriter = "$backendRoot/sites/adapters/import_files.py"
@@ -677,7 +735,7 @@ function Invoke-ConfigurationPersistenceCheck {
         # step and run-to-end call it plainly (a registered Draft runs from its
         # frozen basis; a pre-import YAML Draft of an imported code refuses).
         # Commit must call it with commit=True, and the boundary must refuse
-        # Commit for a registered run before anything else, until S2-02.
+        # Commit for a pre-import YAML Draft; a registered run releases (below).
         $guarded = @{
             'RUN_EXECUTION_START_ROUTE' = '_refuse_if_imported\(record\)'
             'RUN_EXECUTION_STEP_ROUTE' = '_refuse_if_imported\(record\)'
@@ -691,11 +749,94 @@ function Invoke-ConfigurationPersistenceCheck {
                     "($($guarded[$route].Replace('\', ''))). Lab writes against an imported code must refuse.")) | Out-Null
             }
         }
-        $boundary = '(?s)def _refuse_if_imported\(record: SimulationRun, \*, commit: bool = False\) -> None:\n' +
-            '(?:(?!\n    def ).)*?\n        if record\.registered_basis is not None:\n            if commit:\n                raise HTTPException\('
-        if ($labText -notmatch $boundary) {
-            $failures.Add(("$labPath _refuse_if_imported no longer refuses Commit for a registered run first. " +
-                "Every imported run's Commit refuses until Site Evidence delivery exists (S2-01a AC4).")) | Out-Null
+        # S2-02 phase 2: a registered run's Commit is a local gateway release.
+        # The Commit route must branch on registered_basis first and answer only
+        # from port.release_registered, before the file-Stage path; that branch
+        # may not seal a file Stage, write the commit store or call ingestion.
+        $registeredCommit = '(?s)@router\.post\(RUN_COMMIT_ROUTE\)\n(?:(?!@router\.).)*?' +
+            '\n        if record\.registered_basis is not None:\n((?:(?!\n        [^ \n]).)*)' +
+            '\n        _refuse_if_imported\(record, commit=True\)'
+        if ($labText -notmatch $registeredCommit) {
+            $failures.Add(("$labPath POST RUN_COMMIT_ROUTE no longer answers a registered run from " +
+                "port.release_registered before the file-Stage path (S2-02 AC5).")) | Out-Null
+        } else {
+            $branch = $Matches[1]
+            if ($branch -notmatch 'port\.release_registered\(record\)') {
+                $failures.Add("$labPath registered Commit branch does not call port.release_registered(record).") | Out-Null
+            }
+            if ($branch -match '_commit_store|_seal\(|\.ingest\(|staged_envelopes') {
+                $failures.Add(("$labPath registered Commit branch seals, files or ingests a Stage; a registered " +
+                    "run releases only its gateway's sealed batches (S2-02 AC5).")) | Out-Null
+            }
+        }
+    }
+
+    # S2-02 phase 3a: the Evidence cutover gate. Each of the four Site Evidence
+    # routes asks imported_scope(site_id) before the legacy site_or_404, the
+    # scope asks permits_cutover on the newest comparison record, and the
+    # comparison CLI never calls a ledger write path.
+    $apiPath = "$backendRoot/evidence_api.py"
+    $readsPath = "$backendRoot/evidence/ledger_reads.py"
+    $cliPath = "$backendRoot/evidence_migration.py"
+    $api = $backendModules | Where-Object { $_.Path -eq $apiPath } | Select-Object -First 1
+    $reads = $backendModules | Where-Object { $_.Path -eq $readsPath } | Select-Object -First 1
+    $cli = $backendModules | Where-Object { $_.Path -eq $cliPath } | Select-Object -First 1
+    if ($null -eq $api -or $null -eq $reads -or $null -eq $cli) {
+        $failures.Add("The Evidence cutover check could not find $apiPath, $readsPath or $cliPath; update the check.") | Out-Null
+    } else {
+        $apiText = $api.Lines -join "`n"
+        foreach ($route in @('SITE_EVIDENCE_ROUTE', 'SITE_EVIDENCE_RECORDS_ROUTE', 'SITE_EVIDENCE_RECORD_ROUTE',
+                             'SITE_EVIDENCE_REJECTIONS_ROUTE')) {
+            $pattern = '(?s)@router\.get\(' + $route + '\)\n    def [a-z_]+\([^\n]*\n        scope = imported_scope\(site_id\)\n'
+            if ($apiText -notmatch $pattern) {
+                $failures.Add(("$apiPath GET $route no longer asks imported_scope(site_id) first; an imported " +
+                    "Site's Evidence reads the ledger only through the comparison gate (S2-02 AC7).")) | Out-Null
+            }
+        }
+        $readsText = $reads.Lines -join "`n"
+        if ($readsText -notmatch '(?s)\n    def scope\(self[^\n]*\n(?:(?!\n    def ).)*?permits_cutover\(report') {
+            $failures.Add("$readsPath ImportedEvidenceReads.scope no longer asks permits_cutover on the newest report.") | Out-Null
+        }
+        # S2-02 Q14: the gate recomputes the CURRENT legacy inventory on every
+        # read and hands it, with the active environment and the local store-root identity (Q26), to permits_cutover.
+        if ($readsText -notmatch '(?s)\n    def scope\(self[^\n]*\n(?:(?!\n    def ).)*?inventory = self\._current_inventory\(code\)(?:(?!\n    def ).)*?permits_cutover\([^)]*environment=self\._environment, inventory=inventory,\s*store_root=self\._current_store_root\(\)\)') {
+            $failures.Add(("$readsPath ImportedEvidenceReads.scope no longer recomputes the current legacy inventory, " +
+                "environment and store root for permits_cutover; an old PASSED report could authorize a changed or copied store (Q14/Q26).")) | Out-Null
+        }
+        $lineNumber = 0
+        foreach ($line in $cli.Lines) {
+            $lineNumber++
+            if ($line -match '\.(?:submit|open_batch|decide_chunk|record_refusal|save_site|register_[a-z]+|clear_derived|save_history)\(') {
+                $failures.Add(("$cliPath writes through a ledger or legacy store at line ${lineNumber}: " +
+                    "$($line.Trim()). The legacy comparison only reads and writes its report.")) | Out-Null
+            }
+        }
+    }
+
+    # S2-02 Q16: the verified unique versioned credential file is the final
+    # issued path. Issuance prepares it before the one commit, and neither the
+    # CLI nor the file adapter renames or replaces a credential file afterwards
+    # (a post-commit file failure would strand a revoked old verifier).
+    $issuePath = "$backendRoot/evidence/provision_gateway.py"
+    $credentialFilePath = "$backendRoot/evidence/adapters/gateway_credential_file.py"
+    $issue = $backendModules | Where-Object { $_.Path -eq $issuePath } | Select-Object -First 1
+    $credentialFile = $backendModules | Where-Object { $_.Path -eq $credentialFilePath } | Select-Object -First 1
+    if ($null -eq $issue -or $null -eq $credentialFile) {
+        $failures.Add("The credential issuance check could not find $issuePath or $credentialFilePath; update the check.") | Out-Null
+    } else {
+        $issueText = $issue.Lines -join "`n"
+        if ($issueText -notmatch '(?s)prepare_gateway_credential_file\(.*?access\.issue_credential\(') {
+            $failures.Add("$issuePath no longer prepares the protected versioned file before committing the verifier (Q16).") | Out-Null
+        }
+        foreach ($module in @($issue, $credentialFile)) {
+            $lineNumber = 0
+            foreach ($line in $module.Lines) {
+                $lineNumber++
+                if ($line -match '(?:\bos\.(?:replace|rename)\(|\.rename\(|\.replace\([^)]*Path|\bshutil\.move\(|\bactivate[a-z_]*\()') {
+                    $failures.Add(("$($module.Path) renames or replaces a credential file at line ${lineNumber}: " +
+                        "$($line.Trim()). The issued versioned file is final; the gateway switches path explicitly (Q16).")) | Out-Null
+                }
+            }
         }
     }
 

@@ -17,6 +17,8 @@
 
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { awaitingMigration } from "./siteEvidenceClient";
+import { LedgerSiteEvidence } from "./LedgerSiteEvidence";
+import { isLedgerEvidence, type LedgerEvidence } from "./ledgerEvidenceClient";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -46,7 +48,7 @@ export const INSPECTOR_RECORD_LIMIT = 50;
 export const EVIDENCE_INSPECTOR_ID = "site-evidence-inspector";
 
 type Loaded = {
-  overview: EvidenceRead<EvidenceOverview>;
+  overview: EvidenceRead<EvidenceOverview | LedgerEvidence>;
   rejections: EvidenceRead<EvidenceRejections>;
   declaration: EvidenceRead<SiteAnalytics> | null;
 };
@@ -154,6 +156,17 @@ export function SiteEvidence({
     );
   }
 
+  if (isLedgerEvidence(overview.value)) {
+    // An imported Site whose comparison permits it: the central evidence ledger.
+    return (
+      <LedgerSiteEvidence
+        siteId={siteId}
+        evidence={overview.value}
+        ledger={client.ledger}
+        gatewayHealth={client.gatewayHealth}
+      />
+    );
+  }
   const evidence = overview.value;
   const empty = evidence.sources.length === 0;
   const rejections =

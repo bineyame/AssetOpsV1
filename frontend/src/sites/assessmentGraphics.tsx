@@ -724,6 +724,65 @@ export function ReportedValues({ segment, which, onWhich, partLabel }: ReportedV
   );
 }
 
+// --- counts by category (S2-02 Site Evidence outcomes) ---------------------------
+
+export interface CountBarRow {
+  key: string;
+  label: string;
+  count: number;
+}
+
+/**
+ * One count per row with a bar over the rows' total: counts, never shares of
+ * time. Used for what happened to the readings of a Site Evidence period.
+ */
+export function CountBars({
+  rows,
+  caption,
+  heading,
+  graphic,
+}: {
+  rows: CountBarRow[];
+  caption: string;
+  heading: string;
+  graphic: string;
+}) {
+  const total = rows.reduce((sum, row) => sum + row.count, 0);
+  return (
+    <div className="assessment-graphic value-bars" data-graphic={graphic}>
+      <DataTable>
+        <caption className="assessment-graphic__caption">{caption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{heading}</th>
+            <th scope="col">Count</th>
+            <th scope="col" className="value-bars__bar-heading">
+              <span className="visually-hidden">Bar</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const share = total === 0 ? 0 : row.count / total;
+            return (
+              <tr key={row.key} data-evidence-outcome={row.key}>
+                <th scope="row">{row.label}</th>
+                <td>{row.count}</td>
+                <td className="value-bars__bar">
+                  <svg viewBox="0 0 1000 12" preserveAspectRatio="none" aria-hidden="true" focusable="false" data-bar-width={share.toFixed(6)}>
+                    <rect x="0" y="0" width="1000" height="12" className="graphic-track" />
+                    <rect x="0" y="0" width={share * 1000} height="12" className="graphic-fill--value" />
+                  </svg>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </DataTable>
+    </div>
+  );
+}
+
 // --- record coverage by input ----------------------------------------------------
 
 export interface CoverageByInputProps {

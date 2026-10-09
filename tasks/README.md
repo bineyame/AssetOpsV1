@@ -19,8 +19,8 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 | S1 Foundation | [S1-03](S1-03-foundation-organization.md) | Foundation Site model, Readiness and SLD organized as three mock-aligned views | S1-02 reviewed baseline; owner UI feedback | Merged; owner S1 UI check accepted |
 | S2 Evidence | [S2-01a](S2-01a-registered-lab-basis.md) | Imported Kobo Lab run opens from registered Foundation/bindings; Commit awaits ingestion | merged S1 | Done; Codex ACCEPT WITH CARRIES; merged at `7c10283` |
 | S2 Evidence | [S2-01b](S2-01b-durable-simulated-gateway.md) | Lab sealed V3 envelope and SQLite queue survive restart from simulated input | S2-01a at `85a11c4` | Done; first review and fresh re-reviews accepted with carries; merged at `7c10283` |
-| S2 Evidence | [S2-01c](S2-01c-gateway-diagnostics-faults.md) | Lab shows local diagnostics, delayed report and outage/pressure states | S2-01b at `08712e7` | Built; fix re-review R1 block open; not merged |
-| S2 Evidence | [S2-02](S2-02-ingestion-site-evidence.md) | Site Evidence shows accepted, rejected and duplicate decisions with central gateway status | S2-01c R1 closed/re-reviewed; central credential ruling for transport | Implementation-ready for phases; owner review checkpoint |
+| S2 Evidence | [S2-01c](S2-01c-gateway-diagnostics-faults.md) | Lab shows local diagnostics, delayed report and outage/pressure states | S2-01b at `08712e7` | Done; fresh Claude reviews accepted after two fix rounds; Codex review with S2-02; merged at `b4006d1` |
+| S2 Evidence | [S2-02](S2-02-ingestion-site-evidence.md) | Site Evidence shows accepted, rejected and duplicate decisions with central gateway status | S2-01c R1 closed/re-reviewed; central credential ruling for transport | Done; fresh Claude + one S2 Codex review accepted with carries; owner S2 Evidence checkpoint passed 2026-10-09; merged |
 | S3 Performance | [S3-01](S3-01-dispatch-assessment.md) | Dispatch interval classification with evidence and gaps | S2-02 | Outline |
 | S4 Finding + Financials | [S4-01](S4-01-finding-identity.md) | Finding detail opens from assessed interval with stable episode identity | S3-01; `A-claim-work-routes` | Outline |
 | S4 Finding + Financials | [S4-02](S4-02-bounded-financials.md) | Financials shows quantity, assumption and bounded amount | S4-01; `A-actor-identity` | Outline; owner review checkpoint |
@@ -41,7 +41,7 @@ S2-02 refinement compared `queue_baseline_nodes`: `I-accepted-evidence-store`, `
 
 | Proposal | Manifest IDs | Dependency and review gate | Status |
 | --- | --- | --- | --- |
-| [V-01 visual fidelity](V-01-v69-visual-fidelity.md) | `sites`, `foundation`, `readiness`, `sld`, `evidence`, `evidence-analysis`, `lab`; `dispatch` joins at S3-01 | S2-02 evidence review; owner tier decision; relevant shared navigation/projection decision | Non-executable proposal |
+| [V-01 visual fidelity](V-01-v69-visual-fidelity.md) | `sites`, `foundation`, `readiness`, `sld`, `evidence`, `evidence-analysis`, `lab`; `dispatch` joins at S3-01 | S2-02 evidence review; owner tier decision; relevant shared navigation/projection decision | Adopted by owner 2026-10-09 as a W1 item; Planner refines to executable |
 | S3/S4 first claim fixture | `dispatch`, `analysis`, `finding`, `finding-evidence`, `financials`, `assumptions` | [Demo-data plan](../frontend/docs/architecture/v69-demo-data-plan-proposal.md): complete, missing/contradictory and late Kobo intervals, one price revision, exact accepted evidence | Planning dependency |
 | S6 later-window fixture | `changes`, `recommendation`, `verification`, `sitework` | Baseline, applied change, later closed window, guardrail fail and inconclusive variant with lineage | Planning dependency |
 

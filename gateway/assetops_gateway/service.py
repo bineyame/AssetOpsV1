@@ -17,7 +17,7 @@ import json
 import shutil
 import sqlite3
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable, Iterable
 
@@ -33,6 +33,13 @@ from assetops_contracts.gateway_diagnostics import (
     seal_gateway_diagnostics_v1,
 )
 from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_ENVELOPES, BatchRejected, seal_batch_v2
+from assetops_contracts.ingestion_receipt_v2 import (
+    RECEIPT_DECISIONS,
+    IngestionReceiptV2,
+    ReceiptRejected,
+    parse_canonical_receipt_v2_text,
+    receipt_v2_sha256,
+)
 from assetops_contracts.source_envelope import EnvelopeRejected
 from assetops_contracts.source_envelope_v3 import (
     MAX_SEQUENCE,
@@ -169,7 +176,12 @@ FAULT_POINTS = (
     "after_seal_commit",
     "after_diagnostic_sequence_read",
     "after_diagnostic_commit",
+    "after_receipt_commit",
 )
+
+#: S2-02: retry back-off for a failed upload attempt (seconds).
+RETRY_BASE_SECONDS = 5
+RETRY_CAP_SECONDS = 300
 
 #: Outbox states still awaiting a central disposition: the local queue.
 QUEUED_STATES = ("STAGED", "READY", "IN_FLIGHT")
@@ -234,6 +246,8 @@ class GatewayService:
                     "(SELECT message_id FROM batch_item WHERE batch_id=?)",
                     (batch_id,),
                 )
+            # S2-02: an interrupted diagnostic send is retried with its exact bytes.
+            self._db.execute("UPDATE diagnostic_outbox SET state='READY' WHERE state='IN_FLIGHT'")
 
     class _Tx:
         def __init__(self, db: sqlite3.Connection) -> None:
@@ -1162,7 +1176,8 @@ class GatewayService:
             "diagnostics": [dict(r.__dict__) for r in rows],
             "diagnostic_count": total,
             "pending_diagnostic_count": pending,
-            "upload": "PENDING",
+            # S2-02: ACKED only once every stored diagnostic has a verified central receipt.
+            "upload": "ACKED" if total and not pending else "PENDING",
         }
 
     # --- local delivery states (S2-02 adds the network) ------------------------
@@ -1208,6 +1223,424 @@ class GatewayService:
             "UPDATE envelope_outbox SET state=? WHERE message_id IN (SELECT message_id FROM batch_item WHERE batch_id=?)",
             (target, batch_id),
         )
+
+    # --- S2-02 phase 2: Lab Commit release and authenticated delivery ----------
+
+    def release_run(self, lab_run_ref: str) -> dict[str, object]:
+        """Lab Commit: authorize this run's sealed `STAGED` batches for upload.
+
+        One transaction moves every STAGED batch whose every item this run
+        handed the gateway (`lab_report_provenance`) to READY, with its
+        envelopes, and appends one `release_manifest` row per batch. Idempotent:
+        a second call releases nothing new and returns the same summary. A batch
+        that also carries another run's envelope is never released here (it
+        would upload a report that run did not commit); it is reported and keeps
+        the run from being complete. Unbatched envelopes, seal refusals and holds
+        are untouched: a partial run releases what is sealed and says so."""
+        released: list[str] = []
+        with self._tx() as db:
+            now = self._now()
+            for batch_id, foreign in _run_batches(db, lab_run_ref):
+                if foreign:
+                    continue
+                state = db.execute("SELECT state FROM upload_batch WHERE batch_id=?", (batch_id,)).fetchone()[0]
+                if state == "STAGED":
+                    self._move_in(db, batch_id, "STAGED", "READY")
+                inserted = db.execute(
+                    "INSERT OR IGNORE INTO release_manifest (lab_run_ref, batch_id, released_at) VALUES (?,?,?)",
+                    (lab_run_ref, batch_id, now),
+                ).rowcount
+                if inserted:
+                    released.append(batch_id)
+            summary = run_delivery_in(db, lab_run_ref)
+        return {"released_batch_ids": released, "released_now": len(released), "delivery": summary}
+
+    def due_batches(self, limit: int) -> list[str]:
+        """READY batches whose retry time has come, oldest first, at most `limit`."""
+        with self._tx() as db:
+            now = self._now()
+            return [
+                r[0]
+                for r in db.execute(
+                    "SELECT batch_id FROM upload_batch WHERE state='READY' "
+                    "AND (next_attempt_at IS NULL OR next_attempt_at <= ?) "
+                    "ORDER BY created_at, rowid LIMIT ?",
+                    (now, limit),
+                )
+            ]
+
+    def batch_expectation(self, batch_id: str) -> "BatchExpectation":
+        with self._tx() as db:
+            row = db.execute(
+                "SELECT site_id, gateway_id, source_id, sha256 FROM upload_batch WHERE batch_id=?", (batch_id,)
+            ).fetchone()
+            if row is None:
+                raise GatewayRefused("UNKNOWN_BATCH", batch_id)
+            items = tuple(
+                (o, m)
+                for o, m in db.execute(
+                    "SELECT ordinal, message_id FROM batch_item WHERE batch_id=? ORDER BY ordinal", (batch_id,)
+                )
+            )
+        return BatchExpectation(batch_id, row[0], row[1], row[2], row[3], items)
+
+    def record_receipt(self, batch_id: str, receipt_text: str) -> dict[str, int]:
+        """Persist a COMPLETED, verified receipt: acks, receipt, terminal states, in ONE transaction.
+
+        The receipt is verified here against the batch's own identity, digest
+        and items before anything is written; a mismatch raises
+        `ReceiptMismatch` and writes nothing. ACCEPTED/DUPLICATE envelopes
+        become ACKED; REJECTED/CONFLICT envelopes become DEAD_LETTER (the
+        server's durable terminal decision, never retried). The batch is ACKED."""
+        receipt = verify_receipt(receipt_text, self.batch_expectation(batch_id), complete=True)
+        receipt_sha = receipt_v2_sha256(receipt)
+        tally = {d: 0 for d in RECEIPT_DECISIONS}
+        with self._tx() as db:
+            state = db.execute("SELECT state FROM upload_batch WHERE batch_id=?", (batch_id,)).fetchone()[0]
+            if state != "IN_FLIGHT":
+                raise GatewayRefused("WRONG_STATE", f"batch {batch_id} is {state}, not IN_FLIGHT")
+            for d in receipt.dispositions:
+                db.execute(
+                    "INSERT INTO acknowledgement (batch_id, ordinal, message_id, decision, server_evidence_id, "
+                    "server_rejection_id, received_at, receipt_sha256) VALUES (?,?,?,?,?,?,?,?)",
+                    (
+                        batch_id,
+                        d.ordinal,
+                        d.message_id,
+                        d.decision,
+                        d.evidence_id,
+                        None if d.rejection is None else d.rejection.rejection_id,
+                        receipt.received_at,
+                        receipt_sha,
+                    ),
+                )
+                db.execute(
+                    "UPDATE envelope_outbox SET state=? WHERE message_id=?",
+                    ("ACKED" if d.decision in ("ACCEPTED", "DUPLICATE") else "DEAD_LETTER", d.message_id),
+                )
+                tally[d.decision] += 1
+            db.execute(
+                "INSERT INTO batch_receipt (batch_id, receipt_text, receipt_sha256, server_received_at, "
+                "server_completed_at, stored_at) VALUES (?,?,?,?,?,?)",
+                (batch_id, receipt_text, receipt_sha, receipt.received_at, receipt.completed_at, self._now()),
+            )
+            db.execute(
+                "UPDATE upload_batch SET state='ACKED', last_error_code=NULL, last_error_at=NULL, "
+                "next_attempt_at=NULL WHERE batch_id=?",
+                (batch_id,),
+            )
+        self._hit("after_receipt_commit")
+        return tally
+
+    def _retry_at(self, attempts: int, retry_after_seconds: float | None) -> str:
+        """`retry_after_seconds` None backs off by attempts (5 s doubling, at most 300 s)."""
+        if retry_after_seconds is None:
+            retry_after_seconds = min(RETRY_BASE_SECONDS * 2 ** max(attempts - 1, 0), RETRY_CAP_SECONDS)
+        return _text(self._clock() + timedelta(seconds=retry_after_seconds))
+
+    def record_retry(self, batch_id: str, *, code: str | None, retry_after_seconds: float | None) -> None:
+        """IN_FLIGHT -> READY with unchanged bytes, the failure code and the next due time."""
+        with self._tx() as db:
+            self._move_in(db, batch_id, "IN_FLIGHT", "READY")
+            attempts = db.execute("SELECT attempt_count FROM upload_batch WHERE batch_id=?", (batch_id,)).fetchone()[0]
+            db.execute(
+                "UPDATE upload_batch SET next_attempt_at=?, last_error_code=?, last_error_at=? WHERE batch_id=?",
+                (self._retry_at(attempts, retry_after_seconds), code, None if code is None else self._now(), batch_id),
+            )
+
+    def record_batch_refusal(self, batch_id: str, *, http_status: int, code: str, detail: str) -> None:
+        """An authenticated terminal whole-batch refusal: REFUSED, envelopes DEAD_LETTER."""
+        with self._tx() as db:
+            row = db.execute("SELECT state FROM upload_batch WHERE batch_id=?", (batch_id,)).fetchone()
+            if row is None or row[0] != "IN_FLIGHT":
+                raise GatewayRefused("WRONG_STATE", f"batch {batch_id} is not IN_FLIGHT")
+            now = self._now()
+            db.execute(
+                "INSERT INTO batch_refusal (batch_id, http_status, code, detail, refused_at) VALUES (?,?,?,?,?)",
+                (batch_id, http_status, code, detail[:500], now),
+            )
+            db.execute(
+                "UPDATE upload_batch SET state='REFUSED', last_error_code=?, last_error_at=?, next_attempt_at=NULL "
+                "WHERE batch_id=?",
+                (code, now, batch_id),
+            )
+            db.execute(
+                "UPDATE envelope_outbox SET state='DEAD_LETTER' WHERE message_id IN "
+                "(SELECT message_id FROM batch_item WHERE batch_id=?)",
+                (batch_id,),
+            )
+
+    def due_diagnostics(self, limit: int) -> list[tuple[str, str, int]]:
+        with self._tx() as db:
+            now = self._now()
+            return [
+                (r[0], r[1], r[2])
+                for r in db.execute(
+                    "SELECT gateway_id, sequence_epoch, diagnostic_sequence FROM diagnostic_outbox "
+                    "WHERE state='READY' AND refusal_code IS NULL "
+                    "AND (next_attempt_at IS NULL OR next_attempt_at <= ?) "
+                    "ORDER BY observed_at, diagnostic_sequence LIMIT ?",
+                    (now, limit),
+                )
+            ]
+
+    def begin_diagnostic(self, key: tuple[str, str, int]) -> tuple[str, str]:
+        """READY -> IN_FLIGHT; returns the exact stored bytes and their hash."""
+        with self._tx() as db:
+            row = db.execute(
+                "SELECT state, payload_text, sha256 FROM diagnostic_outbox "
+                "WHERE gateway_id=? AND sequence_epoch=? AND diagnostic_sequence=?",
+                key,
+            ).fetchone()
+            if row is None or row[0] != "READY":
+                raise GatewayRefused("NOT_READY", f"diagnostic {key} is {None if row is None else row[0]}")
+            db.execute(
+                "UPDATE diagnostic_outbox SET state='IN_FLIGHT', last_attempt_at=? "
+                "WHERE gateway_id=? AND sequence_epoch=? AND diagnostic_sequence=?",
+                (self._now(), *key),
+            )
+            return row[1], row[2]
+
+    def diagnostic_acked(self, key: tuple[str, str, int], *, server_received_at: str) -> None:
+        with self._tx() as db:
+            db.execute(
+                "UPDATE diagnostic_outbox SET state='ACKED', server_received_at=?, last_error_code=NULL, "
+                "next_attempt_at=NULL WHERE gateway_id=? AND sequence_epoch=? AND diagnostic_sequence=? "
+                "AND state='IN_FLIGHT'",
+                (server_received_at, *key),
+            )
+
+    def diagnostic_failed(
+        self, key: tuple[str, str, int], *, code: str, retry_after_seconds: float | None, refused: bool = False
+    ) -> None:
+        """Back to READY, never ACKED. A refusal (409/422) is recorded and not retried."""
+        next_attempt_at = self._retry_at(1, retry_after_seconds)
+        with self._tx() as db:
+            db.execute(
+                "UPDATE diagnostic_outbox SET state='READY', last_error_code=?, next_attempt_at=?, "
+                "refusal_code=CASE WHEN ? THEN ? ELSE refusal_code END "
+                "WHERE gateway_id=? AND sequence_epoch=? AND diagnostic_sequence=? AND state='IN_FLIGHT'",
+                (code, next_attempt_at, 1 if refused else 0, code, *key),
+            )
+
+    def run_delivery(self, lab_run_ref: str) -> dict[str, object]:
+        with self._tx() as db:
+            return run_delivery_in(db, lab_run_ref)
+
+
+# --- S2-02 phase 2: receipt verification and the run delivery read -------------
+
+
+class ReceiptMismatch(RuntimeError):
+    """A receipt that does not answer exactly this batch: a local integrity error.
+
+    Never acknowledged; the batch stays retryable with unchanged bytes."""
+
+    code = "RECEIPT_MISMATCH"
+
+    def __init__(self, detail: str) -> None:
+        self.detail = detail
+        super().__init__(f"RECEIPT_MISMATCH: {detail}")
+
+
+@dataclass(frozen=True)
+class BatchExpectation:
+    """What a receipt for this batch must say, from the gateway's own ledger."""
+
+    batch_id: str
+    site_id: str
+    gateway_id: str
+    source_id: str
+    payload_sha256: str
+    items: tuple[tuple[int, str], ...]
+
+
+def verify_receipt(text: object, expected: BatchExpectation, *, complete: bool) -> IngestionReceiptV2:
+    """Parse the exact received text and check it answers exactly `expected`.
+
+    `complete=True` wants a COMPLETED receipt covering every ordinal (HTTP 200);
+    `complete=False` wants an IN_PROGRESS prefix (HTTP 202). Either way the
+    receipt's own hash, batch ID, payload digest, Site/gateway/source, total
+    count and every listed ordinal's message ID must match the sealed batch."""
+    try:
+        receipt = parse_canonical_receipt_v2_text(text)
+    except ReceiptRejected as error:
+        raise ReceiptMismatch(f"unparseable receipt: {error.kind} at {error.field}") from error
+    if receipt.batch_id != expected.batch_id:
+        raise ReceiptMismatch("batch_id differs")
+    if receipt.payload_sha256 != expected.payload_sha256:
+        raise ReceiptMismatch("payload_sha256 differs from the sealed bytes")
+    if (receipt.site_id, receipt.gateway_id, receipt.source_id) != (
+        expected.site_id,
+        expected.gateway_id,
+        expected.source_id,
+    ):
+        raise ReceiptMismatch("site, gateway or source differs")
+    if receipt.counts.total != len(expected.items):
+        raise ReceiptMismatch("ordinal count differs from the sealed batch")
+    if receipt.status != ("COMPLETED" if complete else "IN_PROGRESS"):
+        raise ReceiptMismatch(f"status {receipt.status} does not fit the HTTP answer")
+    if complete and len(receipt.dispositions) != len(expected.items):
+        raise ReceiptMismatch("a completed receipt must decide every ordinal")
+    for d in receipt.dispositions:
+        if d.ordinal >= len(expected.items) or expected.items[d.ordinal] != (d.ordinal, d.message_id):
+            raise ReceiptMismatch(f"ordinal {d.ordinal} names a different message")
+    return receipt
+
+
+def _run_batches(db: sqlite3.Connection, lab_run_ref: str) -> list[tuple[str, bool]]:
+    """This run's batches (as `run_stage` scopes them), oldest first, each with
+    whether it also carries an envelope this run did not hand the gateway."""
+    return [
+        (r[0], bool(r[1]))
+        for r in db.execute(
+            "SELECT b.batch_id, EXISTS (SELECT 1 FROM batch_item i WHERE i.batch_id=b.batch_id AND NOT EXISTS "
+            "(SELECT 1 FROM lab_report_provenance q WHERE q.lab_run_ref=? AND q.message_id=i.message_id)) "
+            "FROM upload_batch b WHERE b.batch_id IN (SELECT i.batch_id FROM batch_item i JOIN "
+            "lab_report_provenance p ON p.message_id=i.message_id WHERE p.lab_run_ref=?) "
+            "ORDER BY b.created_at, b.rowid",
+            (lab_run_ref, lab_run_ref),
+        )
+    ]
+
+
+def run_delivery_in(db: sqlite3.Connection, lab_run_ref: str) -> dict[str, object]:
+    """One run's local delivery state, from the ledger alone.
+
+    `gateway_complete` is the gateway's share of a "fully released" claim:
+    Stage `STAGED` (every admitted envelope sealed, no active seal refusal),
+    no batch shared with another run, and every batch of the run released and
+    ACKED. The gateway cannot see the Lab's publication schedule, so
+    `publication_gap` is `UNKNOWN_TO_GATEWAY` and the host combines it. Held
+    reports are counted apart and never as accepted."""
+    envelopes = db.execute(
+        "SELECT o.source_id, o.sequence_epoch, o.snapshot_sha256, o.state, b.batch_id "
+        "FROM lab_report_provenance p JOIN envelope_outbox o ON o.message_id=p.message_id "
+        "LEFT JOIN batch_item b ON b.message_id=o.message_id WHERE p.lab_run_ref=?",
+        (lab_run_ref,),
+    ).fetchall()
+    holds = db.execute(
+        "SELECT COUNT(*) FROM lab_report_provenance WHERE lab_run_ref=? AND hold_id IS NOT NULL", (lab_run_ref,)
+    ).fetchone()[0]
+    unbatched = {(e[0], e[1], e[2], e[3]) for e in envelopes if e[4] is None}
+    refused = any(
+        db.execute(
+            "SELECT 1 FROM seal_refusal WHERE source_id=? AND sequence_epoch=? AND snapshot_sha256=? "
+            "AND outbox_state=?",
+            group,
+        ).fetchone()
+        for group in unbatched
+    )
+    if unbatched:
+        stage_status = "SEALING_REFUSED" if refused else "SEALING_PENDING"
+    elif envelopes:
+        stage_status = "STAGED"
+    else:
+        stage_status = "HELD" if holds else "NOT_STAGED"
+    batches = _run_batches(db, lab_run_ref)
+    by_state = {s: 0 for s in ("STAGED", "READY", "IN_FLIGHT", "ACKED", "REFUSED")}
+    released = 0
+    shared: list[str] = []
+    last_error = None
+    rows: list[dict[str, object]] = []
+    for batch_id, foreign in batches:
+        state, code, at, source_id = db.execute(
+            "SELECT state, last_error_code, last_error_at, source_id FROM upload_batch WHERE batch_id=?",
+            (batch_id,),
+        ).fetchone()
+        by_state[state] += 1
+        if foreign:
+            shared.append(batch_id)
+        is_released = (
+            db.execute(
+                "SELECT 1 FROM release_manifest WHERE lab_run_ref=? AND batch_id=?", (lab_run_ref, batch_id)
+            ).fetchone()
+            is not None
+        )
+        if is_released:
+            released += 1
+        receipt = db.execute(
+            "SELECT receipt_sha256, server_received_at, server_completed_at FROM batch_receipt WHERE batch_id=?",
+            (batch_id,),
+        ).fetchone()
+        batch_decisions = {d: 0 for d in RECEIPT_DECISIONS}
+        for decision, count in db.execute(
+            "SELECT decision, COUNT(*) FROM acknowledgement WHERE batch_id=? GROUP BY decision", (batch_id,)
+        ):
+            batch_decisions[decision] = count
+        # Per batch, for the Lab Commit view (S2-02 phase 3): its state, whether
+        # this run released it, whether it is shared (never released under one
+        # run's authority) and its verified receipt's server times, if any.
+        rows.append(
+            {
+                "batch_id": batch_id,
+                "source_id": source_id,
+                "state": state,
+                "released": is_released,
+                "shared_with_another_run": foreign,
+                "item_count": db.execute(
+                    "SELECT COUNT(*) FROM batch_item WHERE batch_id=?", (batch_id,)
+                ).fetchone()[0],
+                "receipt": None
+                if receipt is None
+                else {
+                    "receipt_sha256": receipt[0],
+                    "server_received_at": receipt[1],
+                    "server_completed_at": receipt[2],
+                },
+                "decisions": batch_decisions,
+                "last_error_code": code if state != "ACKED" else None,
+            }
+        )
+        if code is not None and state != "ACKED" and (last_error is None or at > last_error["at"]):
+            last_error = {"batch_id": batch_id, "code": code, "at": at}
+    decisions = {d: 0 for d in RECEIPT_DECISIONS}
+    for decision, count in db.execute(
+        "SELECT a.decision, COUNT(*) FROM acknowledgement a JOIN lab_report_provenance p "
+        "ON p.message_id=a.message_id WHERE p.lab_run_ref=? GROUP BY a.decision",
+        (lab_run_ref,),
+    ):
+        decisions[decision] = count
+    refusals = [
+        {"batch_id": r[0], "http_status": r[1], "code": r[2], "detail": r[3], "refused_at": r[4]}
+        for r in db.execute(
+            "SELECT f.batch_id, f.http_status, f.code, f.detail, f.refused_at FROM batch_refusal f "
+            "WHERE f.batch_id IN (SELECT i.batch_id FROM batch_item i JOIN lab_report_provenance p "
+            "ON p.message_id=i.message_id WHERE p.lab_run_ref=?) ORDER BY f.refused_at, f.batch_id",
+            (lab_run_ref,),
+        )
+    ]
+    total = len(batches)
+    terminal = by_state["ACKED"] + by_state["REFUSED"]
+    if released == 0:
+        release_state = "NOT_RELEASED"
+    elif terminal == 0:
+        release_state = "PENDING"
+    elif terminal < total or released < total:
+        release_state = "PARTIAL"
+    else:
+        release_state = "TERMINAL"
+    gateway_complete = (
+        stage_status == "STAGED" and not shared and total > 0 and released == total and by_state["ACKED"] == total
+    )
+    return {
+        "lab_run_ref": lab_run_ref,
+        "stage_status": stage_status,
+        "envelope_count": len(envelopes),
+        "unbatched_envelope_count": sum(1 for e in envelopes if e[4] is None),
+        "held_report_count": holds,
+        "batch_count": total,
+        "released_batch_count": released,
+        "batches_by_state": by_state,
+        "shared_batch_ids": shared,
+        "batches": rows,
+        "decisions": decisions,
+        "refusals": refusals,
+        "last_upload_error": last_error,
+        "release_state": release_state,
+        "publication_gap": "UNKNOWN_TO_GATEWAY",
+        "gateway_complete": gateway_complete,
+    }
 
 
 # --- reads (no writer lock) -----------------------------------------------------
@@ -1271,7 +1704,8 @@ class SealRefusalRow:
 
 
 _DIAGNOSTIC_COLUMNS = (
-    "gateway_id, sequence_epoch, diagnostic_sequence, observed_at, payload_text, sha256, state, last_attempt_at"
+    "gateway_id, sequence_epoch, diagnostic_sequence, observed_at, payload_text, sha256, state, last_attempt_at, "
+    "last_error_code, refusal_code"
 )
 
 
@@ -1287,6 +1721,10 @@ class DiagnosticRow:
     sha256: str
     state: str
     last_attempt_at: str | None
+    #: S2-02 Q21: the last failed upload's typed code (cleared on a receipt), and
+    #: the server's refusal code when it refused the diagnostic (not retried).
+    last_error_code: str | None = None
+    refusal_code: str | None = None
 
 
 @dataclass(frozen=True)
@@ -1314,6 +1752,14 @@ class GatewayReader:
 
     def __exit__(self, *_: object) -> None:
         self.close()
+
+    def run_delivery(self, lab_run_ref: str) -> dict[str, object]:
+        db = self._db
+        db.execute("BEGIN")
+        try:
+            return run_delivery_in(db, lab_run_ref)
+        finally:
+            db.execute("COMMIT")
 
     def run_stage(self, lab_run_ref: str) -> RunStage:
         db = self._db

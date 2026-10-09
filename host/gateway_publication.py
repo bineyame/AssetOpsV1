@@ -215,6 +215,27 @@ class RegisteredGatewayPublisher:
         """S2-01c fault fixture (SIMULATED gateways only); raises on refusal."""
         return self._link.call("inject_fault", {"fault": fault, "value": value})
 
+    def release(self, run_id: str) -> dict:
+        """S2-02 Lab Commit: ask the gateway to release this run's sealed batches.
+
+        The gateway moves each sealed STAGED batch of the run to READY with a
+        private release manifest, idempotently; it uploads them itself with its
+        own protected network credential, which never crosses this channel.
+        Raises `GatewayUnavailable` / `GatewayRequestRefused`."""
+        return self._link.call("release_run", {"lab_run_ref": run_id})
+
+    def delivery(self, run_id: str) -> dict:
+        """The run's local delivery state, or an explicit unavailable state."""
+        try:
+            document = self._link.call("run_delivery", {"lab_run_ref": run_id})
+        except (GatewayUnavailable, GatewayRequestRefused) as failure:
+            return {"status": "GATEWAY_UNAVAILABLE", "detail": str(failure), "delivery": None}
+        return {"status": "AVAILABLE", "detail": None, "delivery": document}
+
+    def deliver(self, max_batches: int) -> dict:
+        """Run one upload and diagnostics pass now (raises on refusal)."""
+        return self._link.call("deliver", {"max_batches": max_batches})
+
     def stage(
         self, run_id: str, basis, *, execution_status: str, notes: Sequence[str] = ()
     ) -> RegisteredStageView:

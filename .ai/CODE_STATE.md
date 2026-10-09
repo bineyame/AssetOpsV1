@@ -4932,3 +4932,25 @@ Packet `.agent/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-
 - N1 (exact IPC key-set refusal kind) and N2 (HELD/SCHEDULE_MISSING strings at 640 px) carried to the S2 checkpoint.
 - Carries C2 (AC5 diagnostic bytes across a real reconnect not asserted) and C3 (full seeded layout run unverified) for the S2 milestone checkpoint.
 - A seal refusal after admission leaves a delayed report PENDING until the next advance. S2-02 owns upload, central receipt and diagnostic freshness.
+
+## S2-02 - Authenticated ingestion and Site Evidence (in review)
+
+Packet `.agent/S2-02-review-packet.md`; walkthrough `.agent/S2-02-owner-walkthrough.md`; handoffs `.agent/S2-02-phase-{1,2,3a,3a2,3b}-handoff.md`, `.agent/S2-02-corrections-handoff.md`.
+
+- Postgres ledger (migrations 0005/0006): `ingestion_batch`, `accepted_evidence`, `evidence_rejection`, `ingestion_disposition`, `batch_refusal`, `recompute_job` (`dispatch` domain); `gateway_credential` (selector + SHA-256 verifier), `gateway_access_event`, `gateway_diagnostic`(+refusal). Three confined writers (guard `tools/checks/configuration-persistence.ps1`).
+- Ingestion: `evidence/ledger_service.py` `BatchIngestionService.submit` (413/422/403/409/202/200, per-chunk transactions, first-receipt `received_at`); Receipt V2 contract `contracts/assetops_contracts/ingestion_receipt_v2.py`.
+- Credential: `provision_gateway issue` writes `<credential-out>.<selector>` owner-only (DACL/0600) and verifies it BEFORE one DB transaction (verifier, revocation, enablement); gateway `read_upload_credential` re-checks the DACL. Rotation = new file + gateway config switch + restart.
+- Transport: `python -m assetops_backend.serve_tls` (426 on plaintext credentialed routes); gateway `uploader.py` bounded passes, exact bytes, receipt verification before ACK; IPC `deliver`, `release_run`, `run_delivery`.
+- Reads: `evidence/ledger_reads.py` + four Site Evidence routes for imported Sites behind `permits_cutover` (schema v2 report bound to tenant/Site/environment/inventory digest, newest report decides, `var/evidence/migration/<site>/`); CLI `python -m assetops_backend.evidence_migration run|show`. `GET /api/sites/{id}/gateway-health` UNKNOWN/CURRENT(2x cadence)/STALE.
+- Frontend: `sites/LedgerSiteEvidence.tsx` (overview/analysis/inspector/reading detail), `shell/RegisteredDeliveryView.tsx` (Commit release claim, batch table, blockers).
+- Demo: `tools/s2_demo_walkthrough.py run|serve` (isolated `git archive` tree under `%LOCALAPPDATA%\AssetOps\s2-demo`, DB `assetops_s2demo`, API 8610, TLS 8643, new openssl cert). Layout: `ASSETOPS_LAYOUT_S2_02_RUN=<run> ASSETOPS_LAYOUT_S2_02_RECORD=<evidence id> node tools/layout-evidence.mjs <base>`.
+- Dev DB KOBO-001 comparison regenerated 2026-10-09 (schema v3, empty set, PASSED).
+- S2-01c carries closed here: N1, N3, C2.
+- Fix round 1 (review F1, Architect batch 4 Q28/Q26/Q32/count): forwarded scheme headers -> 426 and `serve_tls` `proxy_headers=False`; `provision_gateway` reconciles an ambiguous issue COMMIT via `PostgresGatewayAccess.issue_outcome` (ISSUED / proven NOT_ISSUED / `ISSUE_OUTCOME_UNKNOWN` exit 3, file kept); comparison report schema v3 binds `store_root` (digest of adapters' `canonical_root()`), checked in `permits_cutover` and by the configuration-persistence guard; walkthrough step 8b posts a labelled fault-fixture sibling batch, step 5 prints the post-run batch (245/292 -> 246/293 = profile-v2 delayed 15:00 battery SOC report).
+
+### Open
+
+- Questions-7 (Q37-Q40) await the Architect (fail-closed defaults shipped); questions-5/6 answered in `.agent/architect-batch-answers-4.md`.
+- C3/N2 full seeded layout run still unverified.
+- Crash/resume 202 and closing-boundary rejection are Postgres test evidence only; the rejected sibling is live via the labelled fault fixture.
+- Generator-status run and capability channels unconfigured; no S3 projection; physical devices remain a pilot gate.

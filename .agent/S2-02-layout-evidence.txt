@@ -1,0 +1,57 @@
+
+=== S2-02 Site Evidence overview at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  panels were drawn, so the set measured is not empty  [3 panels; Evidence | What arrived | Gateway contact | Sources]
+  PASS  every panel ends inside the viewport  [widest right 1233]
+  PASS  every dense table scrolls inside its own region within the viewport  [1 scrollers, 4 rows, widest right 1233]
+
+=== S2-02 Evidence Analysis at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  panels were drawn, so the set measured is not empty  [9 panels; Evidence | What arrived | Gateway contact | Which clock each time uses | Sources in this period | Deliveries]
+  PASS  every panel ends inside the viewport  [widest right 1233]
+  PASS  every dense table scrolls inside its own region within the viewport  [3 scrollers, 280 rows, widest right 1232]
+
+=== S2-02 one reading's detail at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  panels were drawn, so the set measured is not empty  [10 panels; Evidence | What arrived | Gateway contact | Which clock each time uses | Sources in this period | Deliveries]
+  PASS  every panel ends inside the viewport  [widest right 1233]
+  PASS  every dense table scrolls inside its own region within the viewport  [3 scrollers, 280 rows, widest right 1232]
+  PASS  the exact message text is drawn, wraps, and ends inside the viewport  [drawn true, 796 chars, height 189, overflow 0, right 1216]
+
+=== S2-02 Lab Commit panel at 1280x800 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 1265 vs clientWidth 1265]
+  PASS  panels were drawn, so the set measured is not empty  [39 panels; Draft run | Executing this run | Recorded history at the history cursor | Single line diagram at the selected boundary | Requested and accepted control | Each load's service over the interval]
+  PASS  every panel ends inside the viewport  [widest right 1233]
+  PASS  every dense table scrolls inside its own region within the viewport  [27 scrollers, 1096 rows, widest right 1217]
+  PASS  the batch table is drawn with every batch row  [246 rows, states ACKED, release claim FULLY_RELEASED]
+  PASS  the batch table scrolls inside its own region within the viewport  [scroller true, right 1199]
+
+=== S2-02 Site Evidence overview at 640x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  panels were drawn, so the set measured is not empty  [3 panels; Evidence | What arrived | Gateway contact | Sources]
+  PASS  every panel ends inside the viewport  [widest right 609]
+  PASS  every dense table scrolls inside its own region within the viewport  [1 scrollers, 4 rows, widest right 609]
+
+=== S2-02 Evidence Analysis at 640x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  panels were drawn, so the set measured is not empty  [9 panels; Evidence | What arrived | Gateway contact | Which clock each time uses | Sources in this period | Deliveries]
+  PASS  every panel ends inside the viewport  [widest right 609]
+  PASS  every dense table scrolls inside its own region within the viewport  [3 scrollers, 280 rows, widest right 608]
+
+=== S2-02 one reading's detail at 640x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  panels were drawn, so the set measured is not empty  [10 panels; Evidence | What arrived | Gateway contact | Which clock each time uses | Sources in this period | Deliveries]
+  PASS  every panel ends inside the viewport  [widest right 609]
+  PASS  every dense table scrolls inside its own region within the viewport  [3 scrollers, 280 rows, widest right 608]
+  PASS  the exact message text is drawn, wraps, and ends inside the viewport  [drawn true, 796 chars, height 294, overflow 0, right 592]
+
+=== S2-02 Lab Commit panel at 640x700 ===
+  PASS  the page does not scroll horizontally  [scrollWidth 625 vs clientWidth 625]
+  PASS  panels were drawn, so the set measured is not empty  [39 panels; Draft run | Executing this run | Recorded history at the history cursor | Single line diagram at the selected boundary | Requested and accepted control | Each load's service over the interval]
+  PASS  every panel ends inside the viewport  [widest right 593]
+  PASS  every dense table scrolls inside its own region within the viewport  [27 scrollers, 1096 rows, widest right 577]
+  PASS  the batch table is drawn with every batch row  [246 rows, states ACKED, release claim FULLY_RELEASED]
+  PASS  the batch table scrolls inside its own region within the viewport  [scroller true, right 559]
+
+ALL CLAIMS HOLD
+

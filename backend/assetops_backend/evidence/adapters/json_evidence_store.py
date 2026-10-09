@@ -89,6 +89,9 @@ class JsonEvidenceStore:
         self._root = EVIDENCE_STORE_ROOT if root is None else Path(root)
         self._lock = threading.Lock()
 
+    def canonical_root(self) -> str:
+        return os.path.normcase(str(self._root.resolve(strict=False)))
+
     # --- paths -------------------------------------------------------------
     def _sites(self) -> Path:
         return self._root / "sites"

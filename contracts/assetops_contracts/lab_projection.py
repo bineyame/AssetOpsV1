@@ -114,6 +114,9 @@ LAB_CONTROL_REFUSALS = frozenset(
         "PUBLICATION_SCHEDULE_MISSING",
         "PUBLICATION_INSTANT_INVALID",
         "PUBLICATION_GAP",
+        # S2-02 phase 2: Lab Commit of a registered run (a local gateway release).
+        "COMMIT_NOT_READY",
+        "GATEWAY_RELEASE_UNAVAILABLE",
     }
 )
 
@@ -156,6 +159,15 @@ LAB_CONTROL_REFUSAL_STATEMENTS: dict[str, str] = {
         "so nothing was moved, admitted or sealed. Where ordinary publication "
         "is admitted through and where the world reached are on the refusal; "
         "recovery is a new run."
+    ),
+    "COMMIT_NOT_READY": (
+        "Commit releases a registered run's sealed batches only after its world "
+        "run has completed. This run has not, so nothing was released."
+    ),
+    "GATEWAY_RELEASE_UNAVAILABLE": (
+        "Commit asks the gateway to release this run's sealed batches, and the "
+        "gateway could not be reached or refused the release, so nothing was "
+        "released. No other store is used instead."
     ),
     "PUBLICATION_INSTANT_INVALID": (
         "A publication instant is a UTC instant written YYYY-MM-DDTHH:MM:SSZ. "

@@ -357,8 +357,24 @@ REFUSAL_SCENARIO_NOT_FOUND = "SCENARIO_NOT_FOUND"
 REFUSAL_SCENARIO_STORE_UNAVAILABLE = "SCENARIO_STORE_UNAVAILABLE"
 REFUSAL_RUN_STORE_UNAVAILABLE = "RUN_STORE_UNAVAILABLE"
 REFUSAL_RUN_NOT_FOUND = "RUN_NOT_FOUND"
-#: S2-01a: Commit of a run set up from a registered basis, until S2-02.
+#: S2-01a: Commit of a run set up from a registered basis, until S2-02. Retired
+#: by S2-02 phase 2 (a registered Commit is now a local gateway release); kept
+#: so a client that knows the code still names it.
 REFUSAL_REGISTERED_COMMIT_UNAVAILABLE = "REGISTERED_COMMIT_UNAVAILABLE"
+#: S2-02 phase 2: what a registered run's Commit answer says, by whether the
+#: run is fully released.
+REGISTERED_RELEASE_STATEMENTS = {
+    True: (
+        "Every report the gateway admitted for this run is sealed, released and "
+        "has a durable central receipt. Held reports are listed separately and "
+        "are not accepted evidence."
+    ),
+    False: (
+        "Committed to the gateway as far as this run is sealed: released batches "
+        "upload from the gateway with its own credential. This run is not fully "
+        "released; the blockers say why. Held reports are not accepted evidence."
+    ),
+}
 REFUSAL_EXECUTION_REQUEST_INVALID = "EXECUTION_REQUEST_INVALID"
 REFUSAL_COMMIT_REFUSED = "COMMIT_REFUSED"
 REFUSAL_COMMIT_STAGE_CHANGED = "COMMIT_STAGE_CHANGED"
@@ -2847,9 +2863,9 @@ def build_simulator_lab_router(
 
         S2-01a: a Draft set up from a registered basis (`registered_basis`
         frozen on the record and re-verified against its hash on every read)
-        may start, step and run to end from that basis. Commit refuses every
-        imported run, registered or not, until S2-02 delivers Site Evidence:
-        a completed registered run seals and releases nothing here.
+        may start, step and run to end from that basis. S2-02 phase 2: its
+        Commit is a local gateway release the Commit route makes through the
+        port (`release_registered`), never through this file-Stage path.
 
         S1-01, unchanged for a Draft frozen from the legacy YAML Site: once its
         code is registered in the product Foundation store, start, step,
@@ -2859,17 +2875,6 @@ def build_simulator_lab_router(
         historical inspection and never call this.
         """
         if record.registered_basis is not None:
-            if commit:
-                raise HTTPException(
-                    status_code=409,
-                    detail=_refusal(
-                        REFUSAL_REGISTERED_COMMIT_UNAVAILABLE,
-                        "This run was set up from a registered Site configuration. "
-                        "Committing it is not available yet, because accepted Site "
-                        "evidence for registered Sites is not delivered in this "
-                        "build. Nothing was sealed or released.",
-                    ),
-                )
             return
         if imported_site_check is None:
             return
@@ -3235,6 +3240,19 @@ def build_simulator_lab_router(
             "open_in_assetops": open_in_assetops(release),
         }
 
+    def _registered_commit_payload(view: dict[str, Any]) -> dict[str, object]:
+        delivery = view.get("delivery") or {}
+        released = bool(delivery.get("released_batch_count"))
+        return {
+            "commit": "RELEASED_TO_GATEWAY" if released else "NOT_COMMITTED",
+            "release": None,
+            "open_in_assetops": None,
+            "release_error": None,
+            "registered_release": view,
+            "fully_released": view["fully_released"] is True,
+            "statement": REGISTERED_RELEASE_STATEMENTS[view["fully_released"] is True],
+        }
+
     @router.post(RUN_COMMIT_ROUTE)
     def commit_run(run_id: str, request: Request) -> dict[str, object]:
         """Seal this Draft's eligible stage once and release it through ingestion.
@@ -3249,6 +3267,16 @@ def build_simulator_lab_router(
         """
         port = _port()
         record = _run_or_404(run_id)
+        if record.registered_basis is not None:
+            # S2-02 phase 2: a registered run commits by asking its gateway to
+            # release the existing sealed batches. No file Stage is sealed, no
+            # Evidence is written and no central ledger is called in-process;
+            # the gateway uploads with a secret this process never holds.
+            try:
+                view = port.release_registered(record)
+            except LabControlRefused as error:
+                raise _refused(error) from error
+            return _registered_commit_payload(view)
         _refuse_if_imported(record, commit=True)
         existing = _stored_artifact(record.run_id)
         view = port.staged_envelopes(record)
@@ -3290,6 +3318,8 @@ def build_simulator_lab_router(
         never inferred from the stage (AC18).
         """
         record = _run_or_404(run_id)
+        if record.registered_basis is not None:
+            return _registered_commit_payload(_port().registered_delivery(record))
         artifact = _stored_artifact(record.run_id)
         release = (
             None
