@@ -1,0 +1,11 @@
+# S2-01b fix-round Architect answers — Codex Architect, 2026-10-09
+
+These resolve the defaults in `.agent/S2-01b-questions-5.md` without reviewing the fix. Decision `D-2026-10-09-s2-gateway-sealing-state-and-partial-progress` records the contract.
+
+**Q1 — Accept the status vocabulary; narrow the `STAGED` statement.** Ledger-derived `STAGED`, `SEALING_PENDING`, `SEALING_REFUSED`, `HELD`, `NOT_STAGED` and `GATEWAY_UNAVAILABLE` distinguish sealed, unbatched, refused and holds-only states after restart, as the S2-01b Stage contract needs. Change the `STAGED` text to say that every **admitted envelope** for this run is in a sealed local batch, while held reports remain listed separately; sealing says nothing about upload or central acceptance. The Implementer should adjust any matching Lab copy/tests in the current fix round; no status rename is required.
+
+**Q2 — Accept `UNBATCHABLE` at `value` for a singleton size overflow, with one guard.** A canonical report too large to fit even alone must be held before sequence/outbox allocation, so no later report is stranded behind it. Restrict that attribution to a Batch V2 `TOO_LARGE`/byte-size failure; if the singleton seal fails for another reason, retain that failure's actual kind and field as a typed refusal rather than calling the value unbatchable. Make this narrow change in the S2-01b fix round and keep the size/no-sequence proof.
+
+**Q3 — Accept independent group progress.** Source/configuration groups are independently homogeneous, so one unsealable suffix may remain durably unbatched while other groups commit sealed batches in sequence order. Reporting `SEAL_REFUSED` after that transaction and clearing the active refusal when the group later seals are honest, provided Stage remains `SEALING_REFUSED` for the affected run and never implies complete staging. No change to this mechanism is required. S2-01c must count/show sealed, unbatched, held and active refusal states; S2-02 may upload already sealed batches but must present partial release until every admitted envelope is sealed or explicitly resolved.
+
+I amended the S2-01b, S2-01c and S2-02 packets. **Owner input:** I do not need an additional owner decision; this is local queue truthfulness and size-bound behavior under the existing S2 contract. S2-02 retains its owner acceptance gate.
