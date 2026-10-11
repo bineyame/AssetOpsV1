@@ -1993,3 +1993,7 @@ The carried review findings above are unchanged.
 - C4: stale Readiness text ("awaiting credentials, not sending data") at `StoredFoundationViews.tsx:433-436`, `foundation_api.py:295-298`, `FoundationRevisionPanel.tsx:323-324` - user-visible since S2-02; needs an owning slice (PRE-S3-03 Q8, Architect).
 - C5: the checker never reads `delivery_plan.enables`; fail closed or implement before anyone fills it.
 
+### PRE-S3-04 review carries (2026-10-11, `.agent/PRE-S3-04-review.md`, fresh Claude)
+
+- C2: `frontend/src/.../SiteOverview.tsx:241` "No window: no evidence has been accepted for this site." is stale since S2-02; fold into a later truthfulness sweep (S5-01 Overview work).
+
