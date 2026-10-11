@@ -12,6 +12,8 @@ const screenLedger = read('v69-screen-ledger.json').screens;
 const modelHomes = read('v69-model-homes.json').models;
 const taskQueue = fs.readFileSync(path.resolve(here, '../../../tasks/README.md'), 'utf8');
 const fail = (message) => { throw new Error(message); };
+const delivery = require('./delivery_next_work.cjs');
+const queueRows = delivery.parseQueue(taskQueue);
 
 if (registry.schema !== 'assetops.v69.dependency-registry.pilot.v2') fail('Wrong schema');
 if (registry.s2_device_input_in_effect !== 'SIMULATED_ONLY' || !registry.physical_peer_gate?.includes('First real pilot')) {
@@ -106,13 +108,12 @@ function visitQueue(id) {
   queueVisited.add(id);
 }
 for (const id of nodes.keys()) visitQueue(id);
-const taskRows = [...taskQueue.matchAll(/\|\s*S[1-7][^|]*\|\s*\[(S[1-7]-\d{2}[a-z]?)\]\(([^)]+)\)/g)];
-const expectedTasks = taskRows.map((match) => match[1]);
+const expectedTasks = queueRows.map((row) => row.task);
 const registryTasks = registry.nodes.filter((node) => node.kind === 'implementation' && node.layer === 'task' && /^S[1-7]-/.test(node.task || '')).map((node) => node.task);
 if (!expectedTasks.length || new Set(expectedTasks).size !== expectedTasks.length ||
     expectedTasks.length !== registryTasks.length || expectedTasks.some((task) => !registryTasks.includes(task)) ||
     expectedTasks[0] !== 'S1-01' || expectedTasks.at(-1) !== 'S7-01' ||
-    taskRows.some((match) => !fs.existsSync(path.resolve(here, '../../../tasks', match[2])))) {
+    queueRows.some((row) => !fs.existsSync(path.resolve(here, '../../../tasks', row.packet)))) {
   fail('Task queue rows, packets and registry task sequence differ');
 }
 for (const [index, task] of expectedTasks.entries()) {
@@ -248,13 +249,22 @@ if (plan.active_wave === 'W1') {
         !Number.isInteger(value) || value < 1 || value > 5) fail(`${screen}: invalid approved W1 core or demo value`);
   }
 }
-if (process.argv.includes('--next-work')) {
-  const input = plan.owner_inputs?.W1;
-  if (!input?.approved_manifest_ids || !input?.core_panels || !input?.demo_values || !input?.evidence) {
-    fail('W1 owner input missing: next-work ranking unavailable');
+// Delivery mapping structure (claim-portion states, delivered proof, visual gates) is
+// validated on every run; ranking refusals for unreviewed rows apply only to --next-work.
+const mappingErrors = delivery.validateMapping(registry, contracts);
+if (mappingErrors.length) fail(`Delivery mapping invalid:\n${mappingErrors.map((e) => `- [${e.type}] ${e.key}: ${e.reason}`).join('\n')}`);
+for (const [id, gate] of Object.entries(plan.visual_gates || {})) {
+  const row = taskQueue.split(/\r?\n/).find((line) => line.startsWith('|') && line.includes(`(${gate.packet})`));
+  if (!row || !fs.existsSync(path.resolve(here, '../../../tasks', gate.packet)) ||
+      gate.manifest_ids.some((screen) => !row.includes(`\`${screen}\``) || !w1Ids.has(screen))) {
+    fail(`${id}: visual gate packet/manifest IDs differ from tasks/README.md or the active wave`);
   }
-  if (plan.w1_panel_mapping.some((row) => !row.reviewed_mapping)) fail('W1 claim-portion mapping unreviewed: next-work ranking unavailable');
-  fail('Next-work scoring/report is pending PRE-S3-03 implementation');
+  for (const row of plan.w1_panel_mapping) {
+    if ((row.visual_gate === id) !== gate.manifest_ids.includes(row.key.split(':')[0])) fail(`${row.key}: visual gate ${id} assignment differs from its manifest IDs`);
+  }
+}
+for (const entry of plan.outside_ranking || []) {
+  if (!nodes.has(entry.id) || !entry.reason) fail(`outside_ranking ${entry.id}: unknown node or missing reason`);
 }
 const seenPanels = new Set();
 const pilotScreens = new Set(registry.panels.map((panel) => panel.screen_id));
@@ -330,6 +340,8 @@ for (const panel of registry.panels) {
   if (panel.status === 'withheld' && !panel.owner_approval) fail(`${key}: withheld needs owner approval evidence`);
 }
 
+const nextWorkMode = process.argv.includes('--next-work') || process.argv.includes('--verify-report');
+if (!nextWorkMode) {
 const counts = {};
 for (const area of areas) counts[area] = {architecture: 0, implementation: 0, data: 0, product: 0};
 for (const node of nodes.values()) if (node.status === 'open' || node.status === 'pending owner') counts[node.area][node.kind]++;
@@ -396,4 +408,39 @@ for (const screen of pilotScreens) {
     console.log(`  ${panel.panel_index} ${title} | ${open.length} open / ${points(open)} total | ${marginal(open).length} marginal / ${points(marginal(open))} points`);
     if (detailed) console.log(`    nodes: ${open.join(', ')}`);
   }
+}
+}
+
+// ---- next-work report (PRE-S3-03) ----
+// --next-work [--json] [--out <file>]: validate everything above, then publish the report.
+// --verify-report <file>: refuse (exit 3) when any input changed since that report was generated.
+if (nextWorkMode) {
+  const root = path.resolve(here, '../../..');
+  const readText = (rel) => fs.readFileSync(path.resolve(root, rel), 'utf8');
+  const packets = [...queueRows, ...Object.values(plan.visual_gates || {}).map((gate) => ({task: null, packet: gate.packet}))];
+  const packetText = (packet) => { try { return readText(path.join('tasks', packet)); } catch { return null; } };
+  const ownerEvidence = plan.owner_inputs?.[plan.active_wave]?.evidence;
+  const currentPrints = delivery.fingerprints({
+    registry: readText('frontend/docs/architecture/v69-dependency-registry-pilot.json'),
+    queue: taskQueue,
+    packet_status: packets.map((p) => {
+      const text = packetText(p.packet);
+      return `${p.packet}|${text === null ? 'MISSING' : JSON.stringify(delivery.packetMeta(text))}`;
+    }).join('\n'),
+    panel_contracts: readText('frontend/docs/architecture/v69-panel-contracts.json'),
+    manifest: readText('frontend/mockups/v69/screen-manifest.json'),
+    owner_input: JSON.stringify(plan.owner_inputs || null) + (ownerEvidence ? readText(path.join('frontend/docs/architecture', ownerEvidence)) : 'NO-EVIDENCE'),
+  });
+  const verifyIndex = process.argv.indexOf('--verify-report');
+  let expected;
+  if (verifyIndex > 0) expected = JSON.parse(fs.readFileSync(process.argv[verifyIndex + 1], 'utf8')).fingerprints;
+  const report = delivery.nextWork({registry, contracts, briefs, fingerprints: currentPrints, expected_fingerprints: expected,
+    queue: queueRows.map((row) => {
+      const text = packetText(row.packet);
+      return {...row, meta: text === null ? null : delivery.packetMeta(text)};
+    })});
+  const outIndex = process.argv.indexOf('--out');
+  if (outIndex > 0) fs.writeFileSync(process.argv[outIndex + 1], JSON.stringify(report, null, 2) + '\n');
+  console.log(process.argv.includes('--json') ? JSON.stringify(report, null, 2) : delivery.formatReport(report));
+  if (report.status === 'refused') process.exitCode = 3;
 }
