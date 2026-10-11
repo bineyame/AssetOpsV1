@@ -23,7 +23,15 @@ function parseQueue(readme) {
 // covered by registry task nodes.
 function parseGateQueue(readme) {
   const seen = new Map();
-  for (const m of readme.matchAll(/\[([A-Z][A-Za-z0-9]*(?:-[A-Z]\d)?-\d{2}[a-z]?)\]\(([^)#]+\.md)\)/g)) if (!seen.has(m[1])) seen.set(m[1], {task: m[1], packet: m[2]});
+  // Discover by link target filename (any label); a bare-id link text is the fallback for non-conforming filenames.
+  const idRe = String.raw`[A-Z][A-Za-z0-9]*(?:-[A-Z]\d)?-\d{2}[a-z]?`;
+  const fileRe = new RegExp('^(' + idRe + String.raw`)(?:-[^/]*)?\.md$`);
+  const textRe = new RegExp('^' + idRe + '$');
+  for (const m of readme.matchAll(/\[([^\]\n]*)\]\(([^)#\s]+\.md)\)/g)) {
+    if (/^[a-z]+:\/\//i.test(m[2])) continue;
+    const id = (m[2].split('/').pop().match(fileRe) || [])[1] || (textRe.test(m[1]) ? m[1] : null);
+    if (id && !seen.has(id)) seen.set(id, {task: id, packet: m[2]});
+  }
   return [...seen.values()];
 }
 
@@ -38,7 +46,7 @@ const packetPhase = (status) => {
   if (/^done\b/i.test(status)) return 'done';
   if (/^in_review\b/i.test(status)) return 'in_review';
   if (/^(active|in_progress|in progress)\b/i.test(status)) return 'active';
-  if (/^(outline|executable|carry|implementation-ready|refined|umbrella)/i.test(status) || /not activated/i.test(status)) return 'not_started';
+  if (/^(outline|executable|carry|implementation-ready|refined|open)\b/i.test(status) || /^umbrella\/index\b/i.test(status) || /not activated/i.test(status)) return 'not_started';
   return 'unknown';
 };
 

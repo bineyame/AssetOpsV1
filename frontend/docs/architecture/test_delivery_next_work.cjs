@@ -288,3 +288,28 @@ test('task discovery reads ordered queue rows and packet metadata', () => {
   assert.equal(nw.packetPhase('implementation-ready packet; **not activated**'), 'not_started');
   assert.equal(nw.packetPhase('mystery'), 'unknown');
 });
+
+test('labeled packet links are discovered by target filename (B1)', () => {
+  const readme = '| [V-01a Site/Foundation fidelity](V-01a-foundation-visual-fidelity.md) | x |\n| [V-01b Lab/Evidence fidelity](V-01b-evidence-lab-visual-fidelity.md) | x |\n[S2-02r](S2-02r-x.md) [docs](http://x/PRE-S3-09-x.md) [arch](../frontend/docs/architecture/notes.md)';
+  assert.deepEqual(nw.parseGateQueue(readme).map((q) => q.task), ['V-01a', 'V-01b', 'S2-02r']);
+});
+
+test('open visual-gate status is not_started; only literal umbrella/index is exempt (B1, C1)', () => {
+  assert.equal(nw.packetPhase('open W1 visual gate (L); activate after startup guards'), 'not_started');
+  assert.equal(nw.packetPhase('opening soon'), 'unknown');
+  assert.equal(nw.packetPhase('umbrella/index; not a scored gate'), 'not_started');
+  assert.equal(nw.packetPhase('umbrella of active work'), 'unknown');
+});
+
+test('labeled V-01a/V-01b through discovery: open does not stop or refuse, active/in_review stops (B1)', () => {
+  const gq = (st) => nw.parseGateQueue('[V-01a Site fidelity](V-01a-x.md) [V-01b Lab fidelity](V-01b-y.md)')
+    .map((q) => ({...q, meta: {status: q.task === 'V-01a' ? st : 'open W1 visual gate (L)', user_review_required: true}}));
+  const open = run((ctx) => { ctx.gate_queue = gq('open W1 visual gate (L); activate after startup guards'); });
+  assert.notEqual(open.status, 'refused');
+  assert.ok(!open.global_stops.some((s) => /V-01[ab]/.test(s.reason)));
+  for (const [st, stop] of [['active', 'active_task'], ['in_review', 'review']]) {
+    const r = run((ctx) => { ctx.gate_queue = gq(st); });
+    assert.equal(r.decision.action, 'stop', st);
+    assert.ok(r.global_stops.some((s) => s.stop === stop && s.reason.includes('V-01a')));
+  }
+});

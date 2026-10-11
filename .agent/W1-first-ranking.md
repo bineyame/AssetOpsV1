@@ -1,11 +1,11 @@
-# W1 first ranking (live --next-work, after mapping marks + C9 fix, 2026-10-11)
+# W1 first ranking (live --next-work, after mapping marks + C9 fix2: labeled V-01a/V-01b discovered, 2026-10-11)
 
 Command: node frontend/docs/architecture/check_v69_dependency_registry.cjs --next-work (exit 0). Exact output:
 
 ```text
 next-work report (assetops.next-work.v1) wave W1 K=10: ranked
 Authority: Non-authoritative until mapped paths and scoring are independently reviewed; never clears USER_REVIEW_REQUIRED.
-Input fingerprints: registry=4f1a75c2d1036dde queue=60aa58d30bc6be52 packet_status=f9d8511dd95a75d9 panel_contracts=37fd1252dfc006b5 manifest=468bd0cf06b26749 owner_input=f902d15082e24067
+Input fingerprints: registry=4f1a75c2d1036dde queue=60aa58d30bc6be52 packet_status=8efe64f298668aad panel_contracts=37fd1252dfc006b5 manifest=468bd0cf06b26749 owner_input=f902d15082e24067
 Candidates (id | effort | ready-now | closure-unlock | panels tech/visual | D P R E | score | blocked):
 I-dispatch-read | M | 0 | 0 | 35/0 | 5 1.059 5 3 | 3.018 | technical: open prerequisites: I-dispatch-assessment-store, I-sim-dispatch-cases
     action-evidence:1 [technical] d=31 after A-S6-verification + A-action-index + A-action-lifecycle + A-finding-episode + D-action-records + D-verification-window + I-S3-01 + I-S6-01 + I-S6-02 + I-action-evidence-read + I-action-evidence-ui + I-action-execution-ui + I-action-history-ui + I-action-overview-ui + I-action-read + I-action-store + I-action-ui + I-configuration-change-read + I-configuration-change-ui + I-dispatch-assessment-store + I-dispatch-ui + I-finding-read + I-finding-store + I-recommendation-read + I-recommendation-ui + I-sim-dispatch-cases + I-sim-verification-cases + I-verification-plan-read + I-verification-plan-ui + I-verification-read + I-verification-ui portions action-evidence:1#a
