@@ -31,6 +31,8 @@ Outcome resolves plan, baseline/later assessments and accepted SourceEnvelope ID
 
 ## Review and refinement
 
+S6-02 owns `I-sim-verification-cases`, `D-verification-window`, `I-verification-plan-read/ui`, `I-verification-read/ui` and `I-action-evidence-read/ui`. These gate `verification:1-3`, effect `changes:1#b` (later-window effect of the applied change) and `changes:2`, `recommendation:2-3`, `action-plan:1` and `action-evidence:1`. The moved child views select the frozen `plan_revision_id`, predeclared target/guardrails and required evidence, accepted later-window IDs and explicit missing/inconclusive states. Compare exact Action child-view app/mock desktop and narrow behavior; no panel is delivered until its read and fixture paths are reviewed.
+
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 
 ## Defer

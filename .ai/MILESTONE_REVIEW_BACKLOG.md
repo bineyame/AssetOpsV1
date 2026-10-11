@@ -23,6 +23,12 @@ Expiry: delete when the milestone review has closed it out.
 
 ## Carried
 
+### S2-02 rotation-recovery follow-up after owner closeout (2026-10-09)
+
+Q37: the same-account pilot's `ISSUE_OUTCOME_UNKNOWN` halt is an operator instruction, not a durable lock; a local marker alone could be stale. R3: a failure provably before any issuance transaction currently produces the conservative unknown outcome and keeps an unissued protected file. These are safe for the supervised, single-operator S2 demo because they cannot silently expose or discard a committed secret. A bounded S2-02r follow-up should add explicit reconcile/status or durable operation tracking and distinguish never-started from ambiguous COMMIT before unattended/multi-operator rotation. Q38 is **not** accepted as a carry: its unlocked no-selector read can race late COMMIT, so S2-02r must use the gateway row lock and old-credential survival check required by `D-2026-10-09-s2-rotation-reconciliation-followup` before any non-demo/real-pilot rotation. S3-01 does not consume credential rotation.
+
+Q39/Q40 are accepted operational limits: schema-v3 comparison closes an old server until compatible restart, and a moved store root needs a new report. Neither merits a product task. See `.agent/architect-pre-S3-answers.md` for the rulings and recovery gate.
+
 ### S2-02 Architect batch-4 bounded carries (2026-10-09, `.agent/architect-batch-answers-4.md`)
 
 - The pilot gateway and provisioning CLI run under the same OS account; runtime Windows DACL verification refuses an inherited/broad file. This is safe for the isolated demo and protects the actual reader. Before a real pilot with a distinct gateway service account, provision and test an ACL granting only that account plus the authorized operator, and replace local OS-user audit context with authenticated operator identity.
@@ -1978,4 +1984,38 @@ The carried review findings above are unchanged.
 - Diagnostic emission failures in the gateway ticker (`gateway/assetops_gateway/ipc.py`) are swallowed and surface only as STALE; expose the last emission error with the next gateway-operations work.
 - Before S7 health uses diagnostic facts, separate contact freshness from the age of the reported facts (backlogged diagnostic beside CURRENT).
 - Other S2-02 carries confirmed as recorded above (NO_DATA wording, Evidence read scale, chunked body limit, non-gap refusal note on restart, Q37/Q38, owner proof limits, fault-fixture sibling never S3 input).
+
+### PRE-S3-03 review carries (2026-10-11, `.agent/PRE-S3-03-review.md`, fresh Claude)
+
+- C1: the 14 `reviewed_mapping:true` rows still say "independent review pending"; cite `.agent/PRE-S3-03-review.md` at the next registry edit.
+- C2: delivered portions depending on S1-02, S1-03, S2-01a, S2-01b cite only implementer packets; add the independent verdict files.
+- C3: registry text contradictions: `lab:3#a` boundary still says "awaits S2-02"; capability/claim-lineage IDs listed as superseded on `evidence:1#a` / `evidence-analysis:2#a` but live proposed gates on their `#b` portions.
+- C4: stale Readiness text ("awaiting credentials, not sending data") at `StoredFoundationViews.tsx:433-436`, `foundation_api.py:295-298`, `FoundationRevisionPanel.tsx:323-324` - user-visible since S2-02; needs an owning slice (PRE-S3-03 Q8, Architect).
+- C5: the checker never reads `delivery_plan.enables`; fail closed or implement before anyone fills it.
+
+### PRE-S3-04 review carries (2026-10-11, `.agent/PRE-S3-04-review.md`, fresh Claude)
+
+- C2: `frontend/src/.../SiteOverview.tsx:241` "No window: no evidence has been accepted for this site." is stale since S2-02; fold into a later truthfulness sweep (S5-01 Overview work).
+- `backend/tests/test_s2_site_evidence_postgres.py:51` uses `RECEIVED` at module level but imports it only when `ASSETOPS_TEST_DATABASE_URL` is set, so a run without Postgres fails at collection instead of skipping (present on main since S2-02). Guard the module-level constants with `if URL:`.
+
+### W1 mapping review carries (2026-10-11, `.agent/W1-mapping-review.md`, fresh Claude)
+
+- C1 (Architect question): S4-03 bundles Finding Evidence/History with the Site Finding index, so those panels (and `mini:1/2/4` via S5-01) wait on undecided `A-finding-index`; accept or split.
+- C2: `mini:3#a` labelled "bounded" but is the empty/Unknown variant (Q3).
+- C3: 25 portions keep placeholder claim text; all 37 share boilerplate `mapping_target`; reused task nodes lack acceptance targets.
+- C4: task-node effort inconsistent (e.g. `I-S6-01` M over 4 M + 7 S open subnodes).
+- C5 (Architect question): `A-action-index` gates all 14 Action panels; Architect scoped it to the Site list only.
+- C6 (Architect question): S6 panels disagree on needing the S4-01 Finding closeout.
+- C7: S3-02 reviewer must verify reusing `I-sim-dispatch-cases` for the coverage fixture.
+- PRE-S3-04 fix re-review carry: `SiteConfiguration.tsx:802` devices caption says "none has reported" then that nothing states whether any device is reporting (contradictory, pre-existing); fold into the truthfulness sweep with `SiteOverview.tsx:241`.
+- C8 (`.agent/W1-mapping-fix-rereview.md`): `finding:2#a` and `recommendation:3#a` boundary labels still say "CAP" without a capability node; reword in the C3 placeholder pass (positive capability limit would be a separate portion if the Architect wants it).
+
+### Graph-pass review carries (2026-10-11, `.agent/graph-pass-review.md`, fresh Claude; fix at the next Planner touch)
+
+- G1: `v69-panel-contracts.json` still names old owners for moved panels (sitework:1 S6-01, mini:3 S5-01, sitefindings:1, finding-evidence:1-2, finding-history:1 lanes, recommendation:2 S6-01).
+- G2: templated acceptance-target text cites wrong fixtures (mini:1/2 `D-financial-basis`; recommendation:2/3 `D-action-records`); sitework:1 boundary omits the Site index.
+- G3: `I-overview-finding-list-ui` requires the Site Finding list UI (cross-screen UI, B2 precedent); no closure change.
+- G4: S4-04 packet says "Decide `A-finding-index`" (Architect's decision); S6-01 header says "S4-01 Finding identity/read" instead of the closed S4-01 task.
+- G5: `I-sim-dispatch-cases` and `I-sim-verification-cases` lack acceptance targets in the registry (fix before activating the first selection's refinement).
+- Residual: S3-01 sized S may undercount Performance cutover + legacy-exception review; sitework:1 has one claim portion, so the S6-03 reviewer checks empty and positive states.
 

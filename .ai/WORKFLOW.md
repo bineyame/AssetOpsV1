@@ -197,6 +197,16 @@ its status is set to complete, or the task says explicitly what is still open.
 Nothing checks this, so it is the Reviewer's and the user's to hold: T011B and
 T011C reached `main` at `in_review`, and the user noticed rather than a guard.
 
+### Coordinator transition for the W1–W6 delivery loop
+
+The coordinator owns transitions, not implementation or independent review. A candidate may be selected only after the active wave's owner-approved manifest IDs, core-panel keys, 1–5 demo values and K are recorded and the registry, ledger, navigation and workflow guards pass on current inputs. Require a reviewed mapped path from the candidate to an approved core claim, closed technical `requires`, no competing active task, and an S/M/L reviewable packet. `sequenced_after` records history; an `enables` path supplies planning benefit only. Stale inputs or checker failure stop selection. `next-work` is advice with evidence, never approval.
+
+For an active task, the coordinator verifies the branch and packet, requests implementation, then dispatches an independent Reviewer after the tree is stable. List and read every review file before recording an outcome; disagreement is reported. On rejection, return the packet/finding to the Implementer for a bounded fix and fresh review. A second rejection of the same task stops the loop for owner direction. Only the coordinator records the review outcome, changes task status or moves a packet to completed, and only from the underlying review evidence. An agent does not write owner approval; the coordinator records owner words against the named checkpoint.
+
+Before merge, verify all required checks and lineage, the independent review result, task closeout/status, and any `USER_REVIEW_REQUIRED` owner checkpoint. A blocked or unrecorded checkpoint stops merge. The coordinator merges the reviewed branch, records commit/evidence and recalculates the registry/report from the merged tree before selecting another task. Do not commit into a Reviewer-measured tree. A real claim without accepted source lineage stops the loop.
+
+At wave start and exit, S2/S4/S6/S7 checkpoints, panel withholding, screen dropping, XL escalation, scoring-parameter change or contested ≤5% top-two ranking, stop for the owner with the actual options/evidence. At >5% through 10%, apply the published tie-break, record the two scores and reason in `.agent/coordinator-handoff.md`, and continue; above 10% or with one eligible candidate, continue without ranking notice. Other gates remain binding. A changed input invalidates prior report/selection until guards rerun. The coordinator does not infer an approval from silence or a proposed tier.
+
 ## User Review
 
 Use `USER_REVIEW_REQUIRED: true` when the slice materially affects product

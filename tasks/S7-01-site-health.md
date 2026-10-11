@@ -1,9 +1,9 @@
 ﻿# S7-01 — Site Health and first asset risk
 
-Status: outline; refine after preceding task review, before activation
+Status: outline; refine after technical gates and owner wave input, before activation
 USER_REVIEW_REQUIRED: true
 Milestone: S7 Health
-Depends on: S6-02
+Depends on: S2-02 central diagnostics, S1-02 bindings, bounded readiness/health contract and D-edge-health-cases. S6-02 is ordering history only.
 Branch: task/S7-01-site-health
 Planner: Codex, 2026-10-07
 
@@ -28,6 +28,8 @@ Absent evidence is Unknown, not healthy; no remaining-life date or failure diagn
 Source-health state resolves central diagnostic IDs and server receive times. Any supported battery claim additionally resolves accepted readings, configuration, assumptions and SourceEnvelope IDs; an Unknown state names the missing input.
 
 ## Review and refinement
+
+`I-source-health-read/ui` owns `health:2` from centrally received diagnostics and `D-edge-health-cases`. `I-asset-boundary-read/ui` owns only the Unknown/missing-input core of `asset:3`; positive physical condition remains an unmapped, non-core gap pending accepted causal battery observations.
 
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 

@@ -27,6 +27,10 @@ No price yields unpriced amount, never zero; incompatible bases do not silently 
 
 Consequence resolves assumption version, FindingRevision, AssessmentRevision and accepted SourceEnvelope IDs.
 
+## W1 closeouts
+
+`I-financial-store` and `D-financial-basis` record the price, currency, authenticated author/basis and distinct assumption/consequence revision IDs. `I-financial-read/ui` owns the bounded Financials panels; `I-assumption-history-read/ui` owns current/prior Assumptions. The final `I-S4-02` closeout follows these real read/UI and fixture paths. The later cross-option/estate `A-money-comparability` contract does not gate one Site-bounded amount.
+
 ## Review and refinement
 
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.

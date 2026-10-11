@@ -5,11 +5,12 @@
  * audit record details, and the registered gateway and sources.
  *
  * Substrate leaf. It states only configuration. Nothing here is an
- * observation: the gateway and its sources are registrations awaiting
- * credentials, and no evidence is linked to this Foundation yet.
+ * observation: the gateway and its sources are registrations, and contact,
+ * credentials and evidence are not assessed here (Site Evidence reports them).
  */
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type {
@@ -315,18 +316,25 @@ export function FoundationControlsPanel({ foundation, versions, onPublish }: Fou
  * The registered gateway and its sources: registrations only. A pending
  * gateway is never shown as connected; none of these is sending data.
  */
-export function RegisteredSourcesPanel({ foundation }: { foundation: FoundationReadModel }) {
+export function RegisteredSourcesPanel({
+  foundation,
+  evidenceHref,
+}: {
+  foundation: FoundationReadModel;
+  evidenceHref?: string;
+}) {
   return (
     <Panel heading="Registered gateway and sources" headingId="foundation-sources-heading">
       {foundation.gateways.map((gateway) => (
         <p key={gateway.gateway_id}>
-          Gateway <code>{gateway.gateway_external_id}</code>: registered, awaiting credentials,
-          not sending data.
+          Gateway <code>{gateway.gateway_external_id}</code>: registered. Whether it has made
+          contact or sent data is not assessed here
+          {evidenceHref === undefined ? "." : <>; see <Link to={evidenceHref}>Site Evidence</Link>.</>}
         </p>
       ))}
       <Disclosure name="foundation-sources" summary={`Registered sources (${foundation.sources.length})`}>
         <DataTable labelledBy="foundation-sources-heading">
-          <caption>One source per configured device. Registrations only; none is sending data.</caption>
+          <caption>One source per configured device. Registrations only; whether data is arriving is not assessed here.</caption>
           <thead>
             <tr>
               <th scope="col">Source</th>
@@ -343,7 +351,7 @@ export function RegisteredSourcesPanel({ foundation }: { foundation: FoundationR
                 </th>
                 <td>{source.display_name ?? source.device_kind}</td>
                 <td>{source.asset_code ?? "Unknown"}</td>
-                <td>Awaiting credentials</td>
+                <td>Registered</td>
               </tr>
             ))}
           </tbody>

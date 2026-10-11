@@ -12,6 +12,9 @@ const screenLedger = read('v69-screen-ledger.json').screens;
 const modelHomes = read('v69-model-homes.json').models;
 const taskQueue = fs.readFileSync(path.resolve(here, '../../../tasks/README.md'), 'utf8');
 const fail = (message) => { throw new Error(message); };
+const delivery = require('./delivery_next_work.cjs');
+const queueRows = delivery.parseQueue(taskQueue);
+const gateRows = delivery.parseGateQueue(taskQueue);
 
 if (registry.schema !== 'assetops.v69.dependency-registry.pilot.v2') fail('Wrong schema');
 if (registry.s2_device_input_in_effect !== 'SIMULATED_ONLY' || !registry.physical_peer_gate?.includes('First real pilot')) {
@@ -106,10 +109,12 @@ function visitQueue(id) {
   queueVisited.add(id);
 }
 for (const id of nodes.keys()) visitQueue(id);
-const expectedTasks = ['S1-01', 'S1-02', 'S2-01a', 'S2-01b', 'S2-01c', 'S2-02', 'S3-01', 'S4-01', 'S4-02', 'S5-01', 'S6-01', 'S6-02', 'S7-01'];
-const taskRows = [...taskQueue.matchAll(/\|\s*S[1-7][^|]*\|\s*\[(S[1-7]-\d{2}[a-z]?)\]\(([^)]+)\)/g)];
-if (JSON.stringify(taskRows.map((match) => match[1])) !== JSON.stringify(expectedTasks) ||
-    taskRows.some((match) => !fs.existsSync(path.resolve(here, '../../../tasks', match[2])))) {
+const expectedTasks = queueRows.map((row) => row.task);
+const registryTasks = registry.nodes.filter((node) => node.kind === 'implementation' && node.layer === 'task' && /^S[1-7]-/.test(node.task || '')).map((node) => node.task);
+if (!expectedTasks.length || new Set(expectedTasks).size !== expectedTasks.length ||
+    expectedTasks.length !== registryTasks.length || expectedTasks.some((task) => !registryTasks.includes(task)) ||
+    expectedTasks[0] !== 'S1-01' || expectedTasks.at(-1) !== 'S7-01' ||
+    queueRows.some((row) => !fs.existsSync(path.resolve(here, '../../../tasks', row.packet)))) {
   fail('Task queue rows, packets and registry task sequence differ');
 }
 for (const [index, task] of expectedTasks.entries()) {
@@ -118,7 +123,7 @@ for (const [index, task] of expectedTasks.entries()) {
     fail(`${task}: missing S1–S7 task gate`);
   }
   if (!node.requires.some((id) => nodes.get(id).kind === 'architecture')) fail(`${task}: no direct architecture gate`);
-  const predecessor = index ? [`I-${expectedTasks[index - 1]}`] : [];
+  const predecessor = index && !['S6-01', 'S7-01'].includes(task) ? [`I-${expectedTasks[index - 1]}`] : [];
   if (JSON.stringify(node.sequenced_after || []) !== JSON.stringify(predecessor)) fail(`${task}: queue order differs from S1–S7 plan`);
 }
 for (const node of nodes.values()) if (node.kind === 'implementation' && node.layer !== 'task' && expectedTasks.includes(node.task)) {
@@ -213,6 +218,55 @@ for (const area of briefs.areas) {
 }
 
 const knownPanels = new Set(contracts.map((panel) => `${panel.screen_id}:${panel.panel_index}`));
+const plan = registry.delivery_plan;
+if (plan?.version !== 1 || !plan.waves || !Array.isArray(plan.w1_panel_mapping)) fail('Missing versioned delivery plan');
+const manifestIds = new Set(screenLedger.map((row) => row.id));
+const waveIds = Object.values(plan.waves).flatMap((wave) => wave.manifest_ids || []);
+if (waveIds.length !== manifestIds.size || new Set(waveIds).size !== waveIds.length ||
+    waveIds.some((id) => !manifestIds.has(id))) fail('Delivery waves do not allocate every manifest screen exactly once');
+const w1Ids = new Set(plan.waves.W1?.manifest_ids || []);
+const w1Keys = new Set(contracts.filter((panel) => w1Ids.has(panel.screen_id)).map((panel) => `${panel.screen_id}:${panel.panel_index}`));
+const mappedKeys = plan.w1_panel_mapping.map((row) => row.key);
+if (mappedKeys.length !== w1Keys.size || new Set(mappedKeys).size !== mappedKeys.length ||
+    mappedKeys.some((key) => !w1Keys.has(key)) ||
+    plan.w1_panel_mapping.some((row) => !Array.isArray(row.claim_portions) || !row.claim_portions.length ||
+      row.title !== contracts.find((panel) => `${panel.screen_id}:${panel.panel_index}` === row.key)?.panel_title)) {
+  fail('W1 panel mapping differs from panel contracts');
+}
+const ownerW1 = plan.owner_inputs?.W1;
+if (plan.active_wave === 'W1') {
+  const movedW1 = ['sitefindings', 'finding-history', 'action-plan', 'action-execution', 'action-evidence', 'action-history'];
+  if (w1Ids.size !== 27 || plan.waves.W4?.manifest_ids?.length !== 9 || w1Keys.size !== 64 ||
+      movedW1.some((id) => !w1Ids.has(id) || plan.waves.W4.manifest_ids.includes(id)) ||
+      plan.waves.W1.k !== 10 || !plan.waves.W1.owner_start?.evidence ||
+      JSON.stringify(ownerW1?.approved_manifest_ids) !== JSON.stringify(plan.waves.W1.manifest_ids) ||
+      ownerW1?.k !== 10 || ownerW1.evidence !== plan.waves.W1.owner_start.evidence ||
+      Object.keys(ownerW1.core_panels || {}).length !== w1Ids.size ||
+      Object.keys(ownerW1.demo_values || {}).length !== w1Ids.size) fail('Recorded W1 owner input or revised allocation incomplete');
+  for (const screen of w1Ids) {
+    const core = ownerW1.core_panels[screen];
+    const value = ownerW1.demo_values[screen];
+    if (!Array.isArray(core) || !core.length || core.some((key) => !w1Keys.has(key) || !key.startsWith(`${screen}:`)) ||
+        !Number.isInteger(value) || value < 1 || value > 5) fail(`${screen}: invalid approved W1 core or demo value`);
+  }
+}
+// Delivery mapping structure (claim-portion states, delivered proof, visual gates) is
+// validated on every run; ranking refusals for unreviewed rows apply only to --next-work.
+const mappingErrors = delivery.validateMapping(registry, contracts);
+if (mappingErrors.length) fail(`Delivery mapping invalid:\n${mappingErrors.map((e) => `- [${e.type}] ${e.key}: ${e.reason}`).join('\n')}`);
+for (const [id, gate] of Object.entries(plan.visual_gates || {})) {
+  const row = taskQueue.split(/\r?\n/).find((line) => line.startsWith('|') && line.includes(`(${gate.packet})`));
+  if (!row || !fs.existsSync(path.resolve(here, '../../../tasks', gate.packet)) ||
+      gate.manifest_ids.some((screen) => !row.includes(`\`${screen}\``) || !w1Ids.has(screen))) {
+    fail(`${id}: visual gate packet/manifest IDs differ from tasks/README.md or the active wave`);
+  }
+  for (const row of plan.w1_panel_mapping) {
+    if ((row.visual_gate === id) !== gate.manifest_ids.includes(row.key.split(':')[0])) fail(`${row.key}: visual gate ${id} assignment differs from its manifest IDs`);
+  }
+}
+for (const entry of plan.outside_ranking || []) {
+  if (!nodes.has(entry.id) || !entry.reason) fail(`outside_ranking ${entry.id}: unknown node or missing reason`);
+}
 const seenPanels = new Set();
 const pilotScreens = new Set(registry.panels.map((panel) => panel.screen_id));
 const screenAreas = new Map(briefs.areas.flatMap((area) => area.primary_screens.map((screen) => [screen, area.id])));
@@ -239,9 +293,13 @@ for (const [screen, area] of screenAreas) {
 }
 for (const node of nodes.values()) if (node.kind === 'product' && node.status === 'recorded') {
   const effectiveScreens = [...governed].filter(([, id]) => id === node.id).map(([screen]) => screen);
-  const allowed = new Set(effectiveScreens.flatMap((screen) => registry.panels
-    .filter((panel) => panel.screen_id === screen).map((panel) => `${screen}:${panel.panel_index}`)));
+  const allowed = new Set(effectiveScreens.flatMap((screen) => plan.w1_panel_mapping
+    .filter((panel) => panel.key.startsWith(`${screen}:`)).map((panel) => panel.key)));
   if (node.core_panels.some((key) => !allowed.has(key))) fail(`${node.id}: unknown core panel`);
+  if (node.priority === 'W1' && (effectiveScreens.length !== 1 ||
+      JSON.stringify(node.core_panels) !== JSON.stringify(ownerW1?.core_panels?.[effectiveScreens[0]]) ||
+      node.demo_value !== ownerW1?.demo_values?.[effectiveScreens[0]] ||
+      node.evidence !== ownerW1.evidence)) fail(`${node.id}: differs from recorded owner W1 input`);
   if (node.target_tier === 'Real with honest gaps' && effectiveScreens.some((screen) =>
     !node.core_panels.some((key) => key.startsWith(`${screen}:`)))) {
     fail(`${node.id}: Real with honest gaps requires core panels for every governed screen`);
@@ -283,6 +341,8 @@ for (const panel of registry.panels) {
   if (panel.status === 'withheld' && !panel.owner_approval) fail(`${key}: withheld needs owner approval evidence`);
 }
 
+const nextWorkMode = process.argv.includes('--next-work') || process.argv.includes('--verify-report');
+if (!nextWorkMode) {
 const counts = {};
 for (const area of areas) counts[area] = {architecture: 0, implementation: 0, data: 0, product: 0};
 for (const node of nodes.values()) if (node.status === 'open' || node.status === 'pending owner') counts[node.area][node.kind]++;
@@ -327,7 +387,7 @@ if (process.argv.includes('--json')) {
   for (const fact of byReach.slice(0, 12)) console.log(
     `${fact.id} | ${fact.ready_now} | ${fact.closure_unlock} | ${fact.pilot_panel_reach} | ${fact.pilot_area_reach} | ${fact.open_upstream} | ${fact.effort}`);
 }
-console.log('Newly promotable screens: 0; owner core-panel choices and priority ranking remain pending.');
+console.log(`Newly promotable screens: 0; W1 owner target ${plan.active_wave === 'W1' ? 'recorded' : 'pending'}; priority ranking awaits reviewed claim paths and PRE-S3-03.`);
 const effortPoints = {S: 1, M: 3, L: 5};
 const openForPanel = (panel) => [...new Set(panel.requires.flatMap((id) => [id, ...ancestors(id)]))]
   .filter((id) => nodes.get(id).status === 'open').sort();
@@ -349,4 +409,43 @@ for (const screen of pilotScreens) {
     console.log(`  ${panel.panel_index} ${title} | ${open.length} open / ${points(open)} total | ${marginal(open).length} marginal / ${points(marginal(open))} points`);
     if (detailed) console.log(`    nodes: ${open.join(', ')}`);
   }
+}
+}
+
+// ---- next-work report (PRE-S3-03) ----
+// --next-work [--json] [--out <file>]: validate everything above, then publish the report.
+// --verify-report <file>: refuse (exit 3) when any input changed since that report was generated.
+if (nextWorkMode) {
+  const root = path.resolve(here, '../../..');
+  const readText = (rel) => fs.readFileSync(path.resolve(root, rel), 'utf8');
+  const packets = [...queueRows, ...gateRows, ...Object.values(plan.visual_gates || {}).map((gate) => ({task: null, packet: gate.packet}))];
+  const packetText = (packet) => { try { return readText(path.join('tasks', packet)); } catch { return null; } };
+  const ownerEvidence = plan.owner_inputs?.[plan.active_wave]?.evidence;
+  const currentPrints = delivery.fingerprints({
+    registry: readText('frontend/docs/architecture/v69-dependency-registry-pilot.json'),
+    queue: taskQueue,
+    packet_status: packets.map((p) => {
+      const text = packetText(p.packet);
+      return `${p.packet}|${text === null ? 'MISSING' : JSON.stringify(delivery.packetMeta(text))}`;
+    }).join('\n'),
+    panel_contracts: readText('frontend/docs/architecture/v69-panel-contracts.json'),
+    manifest: readText('frontend/mockups/v69/screen-manifest.json'),
+    owner_input: JSON.stringify(plan.owner_inputs || null) + (ownerEvidence ? readText(path.join('frontend/docs/architecture', ownerEvidence)) : 'NO-EVIDENCE'),
+  });
+  const verifyIndex = process.argv.indexOf('--verify-report');
+  let expected;
+  if (verifyIndex > 0) expected = JSON.parse(fs.readFileSync(process.argv[verifyIndex + 1], 'utf8')).fingerprints;
+  const report = delivery.nextWork({registry, contracts, briefs, fingerprints: currentPrints, expected_fingerprints: expected,
+    queue: queueRows.map((row) => {
+      const text = packetText(row.packet);
+      return {...row, meta: text === null ? null : delivery.packetMeta(text)};
+    }),
+    gate_queue: gateRows.map((row) => {
+      const text = packetText(row.packet);
+      return {...row, meta: text === null ? null : delivery.packetMeta(text)};
+    })});
+  const outIndex = process.argv.indexOf('--out');
+  if (outIndex > 0) fs.writeFileSync(process.argv[outIndex + 1], JSON.stringify(report, null, 2) + '\n');
+  console.log(process.argv.includes('--json') ? JSON.stringify(report, null, 2) : delivery.formatReport(report));
+  if (report.status === 'refused') process.exitCode = 3;
 }

@@ -82,8 +82,8 @@ SNAPSHOT_ACCESS_STATEMENT = (
 READINESS_STATEMENT = (
     "Ready to report means this configuration names a bound channel or a configured "
     "control for every required role, and the Foundation shown has no configuration gap. "
-    "It does not mean any device is connected, reporting or healthy: "
-    "no evidence has been accepted for this Site."
+    "It does not mean any device is connected, reporting or healthy; "
+    "operational status is not assessed here."
 )
 
 
@@ -729,7 +729,7 @@ def readiness(
         "statement": READINESS_STATEMENT
         if binding_set is not None
         else "No signal binding set is in effect for the period shown, so every role is unbound "
-        "and readiness is Unknown. Nothing is reporting.",
+        "and readiness is Unknown. Operational status is not assessed here.",
     }
 
 

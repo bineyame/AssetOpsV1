@@ -1,0 +1,10 @@
+# Planner brief: one graph/packet/queue pass (2026-10-11)
+
+Role: Planner (Codex). Branch `plan/pre-S3-startup`. One bounded pass (owner Codex-usage rule, verbatim 2026-10-09: "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use").
+
+Authoritative: `.agent/architect-batch-answers-6.md` (read fully) and `D-2026-10-11-w1-loop-and-mapping-boundaries` in `.ai/DECISIONS.md`. Apply, as tracked edits (no product code; coordinator commits):
+1. **C1** — narrow S4-03 to Finding Evidence/History; add S4-04 Site FindingIndex; add S5-02 Finding list in Overview; move `mini:3` variants; remove index gates from S4-03/S5-01/`mini:1/2/4`; packets, queue links, node task/requires, panel paths.
+2. **C5** — drop `A-action-index` from Action detail read and the 14 Action panels; add S6-03 Site Work list (`I-site-action-index-read`, `I-sitework-ui`, `I-S6-03`); move `sitework:1`.
+3. **C6** — `I-S6-01` requires `I-S4-01`; remove substitute/restated Finding gates.
+4. **Carries in the same pass:** C2 (name the empty `mini:3` variant), C3 (replace placeholder claim/`mapping_target` text; add acceptance targets to reused task nodes), C8 (remove false `CAP` labels), C4 (define task-node effort as incremental remaining closeout after independently sized subnodes, or re-estimate indivisible composites; apply consistently and say so in the registry's scoring notes).
+Changed panel paths revert to `reviewed_mapping:false` until the independent review that follows; unchanged ones keep their review. Do NOT touch `frontend/docs/architecture/delivery_next_work.cjs` or `test_delivery_next_work.cjs` (an implementer is fixing packet discovery there concurrently); list any scoring-fixture changes your graph needs in `.agent/planner-graph-pass-notes.md` for the implementer. Run the registry checker, ledger, workflow and architecture checks and the live `--next-work` report (it will likely refuse until the changed paths are reviewed — report exactly). No commit. End with a short summary.

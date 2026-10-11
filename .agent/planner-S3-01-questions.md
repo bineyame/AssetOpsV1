@@ -1,0 +1,8 @@
+# S3-01 Planner questions and fail-closed defaults (2026-10-11)
+
+The recorded `D-2026-10-11-s3-dispatch-interval-assessment` supplies the implementation contract. No additional Architect answer is required before phase 1 starts. Bundle any later contract question here for one Architect review, with the exact public evidence and affected `dispatch-3` row.
+
+1. **Public capability meaning.** The packet proposes `pv_available_power` and `pcs_discharge_capability` in `minigrid-roles-2`. If the simulator/public V3 report cannot truthfully supply available PV or PCS discharge capability for a selected window, keep Candidate Indeterminate and do not substitute observed PV/battery power. Ask the Architect to resolve only the missing source semantics and binding.
+2. **Minimum-runtime basis.** Until the effective Foundation control and uncertain first-ON bound are mapped into a reviewed `dispatch-3` row, do not classify Necessary from minimum runtime. Keep the configured value visible as context with the alternative unavailable.
+3. **Cohort ambiguity.** If public gateway/source/sequence epoch/batch/evidence lineage cannot separate S2's overlapping runs or labelled fault epoch, return Limited/Indeterminate for that interval. Do not select by latest receipt or blend series. Escalate only with the exact ambiguous public IDs.
+4. **Legacy comparison exception.** If a file-backed claim relies on an unregistered command/POLICY or unavailable capability channel, record it as an intentional version/migration exception and keep the Performance cutover closed for that supported read until the review accepts the bounded comparison. Do not invent a product record to make parity pass.

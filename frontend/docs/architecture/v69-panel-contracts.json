@@ -1,7 +1,7 @@
 {
   "schema": "assetops.v69.panel-contracts.v1",
   "source": "v69-rendered-panels.json",
-  "rules": "Mappings for S slices are proposals to verify at task refinement. Deferred panels name candidate manifest models only; GAP is explicit. Tiers require owner approval.",
+  "rules": "Panel mappings remain technical proposals until reviewed. Owner-confirmed W1 target tiers and core keys are recorded separately from claim delivery and full Real acceptance; GAP remains explicit.",
   "panels": [
     {
       "screen_id": "portfolio",
@@ -76,7 +76,8 @@
       "claim_limit": "Unavailable store is error, not empty estate.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 routing only",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sites",
@@ -91,7 +92,8 @@
       "claim_limit": "Unavailable store is error, not empty estate.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 routing only",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -106,7 +108,8 @@
       "claim_limit": "Unassessed objective is Unknown; lag is Pending.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -121,7 +124,8 @@
       "claim_limit": "Unassessed objective is Unknown; lag is Pending.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -136,7 +140,8 @@
       "claim_limit": "Unassessed objective is Unknown; lag is Pending.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -151,7 +156,8 @@
       "claim_limit": "Unassessed objective is Unknown; lag is Pending.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -166,7 +172,8 @@
       "claim_limit": "Unassessed objective is Unknown; lag is Pending.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "foundation",
@@ -181,7 +188,8 @@
       "claim_limit": "Missing required value is a named configuration gap.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 + S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "foundation",
@@ -196,7 +204,8 @@
       "claim_limit": "Missing required value is a named configuration gap.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 + S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "foundation",
@@ -211,7 +220,8 @@
       "claim_limit": "Missing required value is a named configuration gap.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 + S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -226,7 +236,8 @@
       "claim_limit": "Unbound roles remain unready; absence is never confirmed.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -241,7 +252,8 @@
       "claim_limit": "Unbound roles remain unready; absence is never confirmed.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -256,7 +268,8 @@
       "claim_limit": "Unbound roles remain unready; absence is never confirmed.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -271,7 +284,8 @@
       "claim_limit": "Unbound roles remain unready; absence is never confirmed.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "changes",
@@ -286,7 +300,8 @@
       "claim_limit": "No later evidence means outcome pending.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01 + S6-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "changes",
@@ -301,7 +316,8 @@
       "claim_limit": "No later evidence means outcome pending.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01 + S6-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "dispatch",
@@ -316,7 +332,8 @@
       "claim_limit": "Missing/contradictory role yields Indeterminate.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "dispatch",
@@ -331,7 +348,8 @@
       "claim_limit": "Missing/contradictory role yields Indeterminate.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "dispatch",
@@ -346,7 +364,8 @@
       "claim_limit": "Missing/contradictory role yields Indeterminate.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "renewable",
@@ -406,7 +425,8 @@
       "claim_limit": "No accepted record or lag is explicit; no inferred healthy state.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "evidence",
@@ -421,7 +441,8 @@
       "claim_limit": "No accepted record or lag is explicit; no inferred healthy state.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "evidence",
@@ -436,7 +457,8 @@
       "claim_limit": "No accepted record or lag is explicit; no inferred healthy state.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -451,7 +473,8 @@
       "claim_limit": "No defensible episode gives no Finding; reassessment preserves history.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -466,7 +489,8 @@
       "claim_limit": "No defensible episode gives no Finding; reassessment preserves history.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -481,7 +505,8 @@
       "claim_limit": "No defensible episode gives no Finding; reassessment preserves history.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -496,7 +521,8 @@
       "claim_limit": "No defensible episode gives no Finding; reassessment preserves history.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "analysis",
@@ -511,7 +537,8 @@
       "claim_limit": "Missing input names its effect on classification.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01 + S4-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "analysis",
@@ -526,7 +553,8 @@
       "claim_limit": "Missing input names its effect on classification.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01 + S4-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "analysis",
@@ -541,7 +569,8 @@
       "claim_limit": "Missing input names its effect on classification.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01 + S4-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "financials",
@@ -556,7 +585,8 @@
       "claim_limit": "Missing price means unpriced, never zero.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "financials",
@@ -571,7 +601,8 @@
       "claim_limit": "Missing price means unpriced, never zero.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "financials",
@@ -586,7 +617,8 @@
       "claim_limit": "Missing price means unpriced, never zero.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assumptions",
@@ -601,7 +633,8 @@
       "claim_limit": "Absent price leaves consequence unpriced.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assumptions",
@@ -616,7 +649,8 @@
       "claim_limit": "Absent price leaves consequence unpriced.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assumptions",
@@ -631,7 +665,8 @@
       "claim_limit": "Absent price leaves consequence unpriced.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "recommendation",
@@ -646,7 +681,8 @@
       "claim_limit": "No supported Finding means no recommendation.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "recommendation",
@@ -661,22 +697,24 @@
       "claim_limit": "No supported Finding means no recommendation.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "recommendation",
       "panel_index": 3,
       "panel_title": "Evidence needed to verify",
       "visual_reference": "index.html#/recommendation",
-      "read_model": "CapabilityReadiness",
+      "read_model": "VerificationPlanVersion",
       "read_model_status": "proposed mapping for owning S slice",
-      "domain_object": "evidence sufficiency projection",
+      "domain_object": "frozen verification plan and declared evidence requirements",
       "evidence_roles_or_analytic": "S4 Finding -> S6 Action/plan",
-      "owning_table_or_gap": "accepted_evidence + assessment_revision",
-      "claim_limit": "No supported Finding means no recommendation.",
+      "owning_table_or_gap": "verification_plan_revision + accepted_evidence",
+      "claim_limit": "No frozen plan means no declared verification requirements; later evidence remains pending until accepted.",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "task_or_lane": "S6-01",
-      "tier_approval": "pending owner review"
+      "task_or_lane": "S6-02",
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "verification",
@@ -691,7 +729,8 @@
       "claim_limit": "Weak comparison/failed guardrail yields Inconclusive or Ineffective.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "verification",
@@ -706,7 +745,8 @@
       "claim_limit": "Weak comparison/failed guardrail yields Inconclusive or Ineffective.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "verification",
@@ -721,7 +761,8 @@
       "claim_limit": "Weak comparison/failed guardrail yields Inconclusive or Ineffective.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "asset",
@@ -736,7 +777,8 @@
       "claim_limit": "No capacity/thermal evidence cannot yield RUL.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "asset",
@@ -751,7 +793,8 @@
       "claim_limit": "No capacity/thermal evidence cannot yield RUL.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "asset",
@@ -766,7 +809,8 @@
       "claim_limit": "No capacity/thermal evidence cannot yield RUL.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "health",
@@ -781,7 +825,8 @@
       "claim_limit": "Missing cadence/evidence is Unknown, not healthy.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "health",
@@ -796,7 +841,8 @@
       "claim_limit": "Missing cadence/evidence is Unknown, not healthy.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -811,7 +857,8 @@
       "claim_limit": "Offline queue and refused receipt remain inspectable.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -826,7 +873,8 @@
       "claim_limit": "Offline queue and refused receipt remain inspectable.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -841,7 +889,8 @@
       "claim_limit": "Offline queue and refused receipt remain inspectable.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -856,7 +905,8 @@
       "claim_limit": "Offline queue and refused receipt remain inspectable.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "cold",
@@ -1559,9 +1609,10 @@
       "evidence_roles_or_analytic": "GAP: required roles/analytic not yet designed",
       "owning_table_or_gap": "GAP: no S1-S7 panel table contract",
       "claim_limit": "No product claim until this panel's model, roles and lineage are decided",
-      "proposed_fidelity_tier": "Deferred",
-      "task_or_lane": "post-S7 mini-grid breadth",
-      "tier_approval": "pending owner review"
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "task_or_lane": "W1 S5-01 outline refinement; technical mapping unreviewed",
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sitework",
@@ -1576,7 +1627,8 @@
       "claim_limit": "No Action gives a truthful empty Work state.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sitework-incidents",
@@ -1621,7 +1673,8 @@
       "claim_limit": "No records gives an empty coverage set and claim ceiling.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "evidence-analysis",
@@ -1636,7 +1689,8 @@
       "claim_limit": "No records gives an empty coverage set and claim ceiling.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assets",
@@ -2506,7 +2560,8 @@
       "claim_limit": "Unresolved evidence link blocks claim presentation.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding-evidence",
@@ -2521,7 +2576,8 @@
       "claim_limit": "Unresolved evidence link blocks claim presentation.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "alternatives",
@@ -2549,9 +2605,10 @@
       "evidence_roles_or_analytic": "GAP: required roles/analytic not yet designed",
       "owning_table_or_gap": "GAP: no S1-S7 panel table contract",
       "claim_limit": "No product claim until this panel's model, roles and lineage are decided",
-      "proposed_fidelity_tier": "Deferred",
-      "task_or_lane": "post-S7 global/contextual roots",
-      "tier_approval": "pending owner review"
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "task_or_lane": "W1 S4-01 outline refinement; technical mapping unreviewed",
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-overview",
@@ -2566,7 +2623,8 @@
       "claim_limit": "No verified outcome remains pending or inconclusive.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01 + S6-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-plan",
@@ -2579,9 +2637,10 @@
       "evidence_roles_or_analytic": "GAP: required roles/analytic not yet designed",
       "owning_table_or_gap": "GAP: no S1-S7 panel table contract",
       "claim_limit": "No product claim until this panel's model, roles and lineage are decided",
-      "proposed_fidelity_tier": "Deferred",
-      "task_or_lane": "post-S7 global/contextual roots",
-      "tier_approval": "pending owner review"
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "task_or_lane": "W1 S6-02 outline refinement; technical mapping unreviewed",
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-execution",
@@ -2594,9 +2653,10 @@
       "evidence_roles_or_analytic": "GAP: required roles/analytic not yet designed",
       "owning_table_or_gap": "GAP: no S1-S7 panel table contract",
       "claim_limit": "No product claim until this panel's model, roles and lineage are decided",
-      "proposed_fidelity_tier": "Deferred",
-      "task_or_lane": "post-S7 global/contextual roots",
-      "tier_approval": "pending owner review"
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "task_or_lane": "W1 S6-01 outline refinement; technical mapping unreviewed",
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-evidence",
@@ -2609,9 +2669,10 @@
       "evidence_roles_or_analytic": "GAP: required roles/analytic not yet designed",
       "owning_table_or_gap": "GAP: no S1-S7 panel table contract",
       "claim_limit": "No product claim until this panel's model, roles and lineage are decided",
-      "proposed_fidelity_tier": "Deferred",
-      "task_or_lane": "post-S7 global/contextual roots",
-      "tier_approval": "pending owner review"
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "task_or_lane": "W1 S6-02 outline refinement; technical mapping unreviewed",
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-history",
@@ -2624,9 +2685,10 @@
       "evidence_roles_or_analytic": "GAP: required roles/analytic not yet designed",
       "owning_table_or_gap": "GAP: no S1-S7 panel table contract",
       "claim_limit": "No product claim until this panel's model, roles and lineage are decided",
-      "proposed_fidelity_tier": "Deferred",
-      "task_or_lane": "post-S7 global/contextual roots",
-      "tier_approval": "pending owner review"
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "task_or_lane": "W1 S6-01 outline refinement; technical mapping unreviewed",
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "opportunity-finding",
@@ -2926,7 +2988,8 @@
       "claim_limit": "Unbound/offline elements are Unknown, not energized.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sld",
@@ -2941,7 +3004,8 @@
       "claim_limit": "Unbound/offline elements are Unknown, not energized.",
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
-      "tier_approval": "pending owner review"
+      "tier_approval": "owner approved",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "cold-sld",

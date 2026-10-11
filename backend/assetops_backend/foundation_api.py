@@ -293,8 +293,10 @@ def foundation_payload(view: FoundationView) -> dict[str, Any]:
         "readiness": readiness(site, revision, regs, view.binding_set),
         "acquisition_snapshot": _snapshot_summary(view),
         "evidence": {
-            "state": "NONE",
-            "statement": "No accepted evidence is linked to this Foundation and no live source is claimed.",
+            "statement": (
+                "Operational status (contact, credentials, data received, accepted evidence) "
+                "is not assessed here."
+            ),
         },
         "configuration_gaps": [item.to_wire() for item in gaps],
     }
@@ -372,7 +374,7 @@ def _bindings(view: FoundationView) -> dict[str, Any]:
         "legacy_signal_mapping_count": legacy_count,
         "statement": (
             "These bindings are configuration: what a registered channel will mean once "
-            "it reports. No evidence has been accepted against them."
+            "it reports. Whether any channel is reporting is not assessed here."
         ),
     }
 

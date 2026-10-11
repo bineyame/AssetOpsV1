@@ -1,0 +1,17 @@
+# Planner brief: pre-S3 startup planning (2026-10-09)
+
+Role: Planner (Codex). Branch `plan/pre-S3-startup` (from main `82ba6cd`; Architect commit `5330aed`). Owner Codex-usage rule (verbatim, 2026-10-09): "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use" — one bounded pass.
+
+Inputs: `D-2026-10-09-owner-delivery-strategy` and the three new pre-S3 decisions in `.ai/DECISIONS.md`; working plan `.agent/D-2026-10-09-owner-delivery-strategy-proposal.md` ("Phased prerequisites and activation"); Architect answers `.agent/architect-pre-S3-answers.md` (exact registry edits, S2-02r, S3-01 requires) and `.agent/architect-batch-answers-4.md` "Delivery-planning contract answers" (claim-portion splits, ordering-only edges); your drafts `.agent/delivery-drafts/`; owner S2 closeout `.agent/owner-S2-closeout-2026-10-09.md` (V-01 adopted); `tasks/README.md`, `tasks/V-01-v69-visual-fidelity.md`, `.ai/WORKFLOW.md`, the dependency registry and its checker.
+
+Do, as tracked edits on this branch (no product code; the coordinator commits):
+1. **Startup 1 — reconciliation:** apply the registry/queue reconciliation for merged S1-01/02/03, S2-01a/b/c and S2-02 (all merged at `82ba6cd`), the Architect's exact node resolutions and edits, and classify S3–S7 predecessor edges as technical `requires` vs ordering-only, removing ordering-only edges only where queue, packets and registry agree. Refresh stale `tasks/README.md` prose.
+2. **Startup 3 (planning half):** add the `delivery_plan` block (versioned; wave allocations W1–W6 from the confirmed decision; scoring parameters 0.4/0.3/0.2/−0.1, K=10, 5%/10% thresholds, XL rule; owner-input fields left empty and fail-closed) and the W1 58-panel mapping with the Architect's claim-portion splits, reconciling proposed IDs with existing nodes. Write an implementation-ready task packet for the checker/report work (weighted score, `next-work` report, staleness guard, task discovery from `tasks/README.md`, fail-closed on missing owner input/unmapped panels) — the Implementer builds it.
+3. **Startup 4:** draft the coordinator closeout/stop/merge transitions into `.ai/WORKFLOW.md` (preserve no-agent-approval and independent review).
+4. **Startup 5:** packet item (or include in 2's packet) to put registry/ledger/navigation/workflow guards in the normal check path.
+5. **V-01:** refine `tasks/V-01-v69-visual-fidelity.md` into an executable W1 task (supported manifest IDs, comparison method, acceptance boundary, honest missing states), sized for review.
+6. **S2-02r:** create `tasks/S2-02r-credential-rotation-recovery.md` per the Architect (carry/follow-up lane, not an S3 requirement).
+7. **S3-01:** note in its outline what refinement must take from the pre-S3 decisions; do not activate it (it still needs `A-S3-dispatch` and `I-sim-dispatch-cases`).
+8. Produce `.agent/W1-owner-input-proposal.md`: for each of the 21 W1 screens, its mapped panels with a recommended core-panel set and a recommended 1–5 demo value with one-line reasons, in plain language, so the owner can confirm W1 input in one reply.
+
+Run the agent-workflow and architecture checks and the registry checker; report results honestly (the checker may need the Implementer's work to pass fully). Questions needing an Architect decision: `.agent/planner-pre-S3-questions.md` (fail-closed defaults). End with a short summary.
