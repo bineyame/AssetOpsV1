@@ -1996,4 +1996,4 @@ The carried review findings above are unchanged.
 ### PRE-S3-04 review carries (2026-10-11, `.agent/PRE-S3-04-review.md`, fresh Claude)
 
 - C2: `frontend/src/.../SiteOverview.tsx:241` "No window: no evidence has been accepted for this site." is stale since S2-02; fold into a later truthfulness sweep (S5-01 Overview work).
-
+- `backend/tests/test_s2_site_evidence_postgres.py:51` uses `RECEIVED` at module level but imports it only when `ASSETOPS_TEST_DATABASE_URL` is set, so a run without Postgres fails at collection instead of skipping (present on main since S2-02). Guard the module-level constants with `if URL:`.
