@@ -5024,5 +5024,30 @@ Built on `task/S3-01-dispatch-assessment` (`aaa47ae`..HEAD); packet `.agent/S3-0
 ### Open
 
 - No UI yet (phase 3b): `SitePerformance.tsx` `DispatchView` still reads the file-backed `/dispatch`; anchors in the 3a handoff.
-- Q9-Q13 await the Architect (stricter cohort and named window limits without a version bump; exceptions vs gate; delta rule; outstanding-job mapping).
+- Q9-Q13 resolved by `D-2026-10-11-s3-phase-3a-version-and-cutover`; built as `dispatch-3.1` (next entry).
 - A window read evaluates the full input basis per request; `run_pending` reconciles every assessed Site per pass.
+
+## S3-01 dispatch-3.1 - Model version bump, stored-window reassessment, stricter comparison (active, review pending)
+
+Built on `task/S3-01-dispatch-assessment` (`05f9b4d`..HEAD) under `D-2026-10-11-s3-phase-3a-version-and-cutover`. Packet: the "dispatch-3.1" section of `.agent/S3-01-phase-3a-review-packet.md`. Handoff to 3b: `.agent/S3-01-dispatch-3-1-handoff.md`. Questions: `.agent/S3-01-questions-4.md` (Q14-Q16).
+
+### What it settled in code
+
+- `dispatch_v3.MODEL_VERSION = "dispatch-3.1"` covers Q9 and Q13. Stored `dispatch-3` runs and revisions are immutable history. The worker reconcile, already keyed on `model_version`, reassesses their windows; `assess_dispatch process-jobs` runs it. Explicit selections are not remapped.
+- `dispatch_read`: `run` and `revision` carry `model_note` (`OLDER_RULE_RESULT ...` for a non-current model); a `dispatch-3` head reads `STALE_PROJECTION` with `MODEL_VERSION_CHANGED`.
+- `postgres_assessment_store`:
+  - `lineage_breaks(..., model_version)` counts `selected_heads_other_model`;
+  - `accepted_evidence` maps a message ID to its evidence ID;
+  - `selected_intervals(..., domain, bracket)` adds the overlapping `window_jobs`.
+- `performance_comparison` (report schema v2, which records `model_version`):
+  - `STALE_MODEL` and `STALE_PROJECTION` are `UNPROVEN`.
+  - `MATCH` and `INTENTIONAL_DELTA` need the cited records in the interval's evidence.
+  - `INTENTIONAL_DELTA` applies only through `DOCUMENTED_DELTAS` (`CAPABILITY_CHANNELS_REQUIRED`, rows 5a/5b), and only on the interval's own limitation.
+  - `MISSING_SOURCE` gives `EXCEPTIONS`, which keeps the gate closed.
+  - The gate refuses a report made under another model, and refuses while any head uses another model.
+- The cutover route's read label is now `POSTGRES_DISPATCH_3_1`. The decision table has "Model versions" and "Comparison" sections.
+
+### Open
+
+- Phase 3b UI. Its required displays are listed in the handoff, and the cutover route does not yet expose the report summary.
+- Q14-Q16 are open, with fail-closed defaults built.

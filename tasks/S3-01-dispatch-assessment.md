@@ -1,6 +1,6 @@
 # S3-01 — Typed dispatch assessment and interval detail
 
-Status: active (phase 1 reviewed; phase 2 reviewed (fix re-review accept); phase 3a built, fresh Claude review pending - `.agent/S3-01-phase-3a-review-packet.md`; phase 3b UI next; selected by next-work 2026-10-11 `.agent/next-work-2026-10-11.json`, 3.028 vs 2.691)
+Status: active (phase 1 reviewed; phase 2 reviewed (fix re-review accept); phase 3a and the `dispatch-3.1` bump built, fresh Claude review pending - `.agent/S3-01-phase-3a-review-packet.md`; phase 3b UI next; selected by next-work 2026-10-11 `.agent/next-work-2026-10-11.json`, 3.028 vs 2.691)
 USER_REVIEW_REQUIRED: true
 Milestone: S3 Performance / Dispatch
 Depends on: merged S2-02 (`I-S2-02`), time-valid S1 bindings (`I-S1-02`), resolved `A-S3-dispatch`, and `I-sim-dispatch-cases` delivered in this task

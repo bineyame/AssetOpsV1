@@ -395,7 +395,7 @@ class Cases(s2.Demo):
         step("11. PHASE 2 FAULT FIXTURE (labelled): later source time accepted first, earlier second (2026-10-07)")
         self.out_of_order()
 
-        step("12. PHASE 2: the dispatch-3 worker consumes the S2 recompute jobs; every case window assessed")
+        step("12. PHASE 2: the dispatch assessment worker (current model) consumes the S2 recompute jobs; every case window assessed")
         self.assess_cases()
 
         step("13. PHASE 2: late CENTRAL acceptance (2026-10-08): cutoff A, held batches accepted, cutoff B")
@@ -575,7 +575,7 @@ class Cases(s2.Demo):
 
     @staticmethod
     def check(case_id: str, read: dict[str, Any]) -> dict[str, Any]:
-        """Phase-2 expectations on the persisted dispatch-3 result (claim ceilings, not mock values)."""
+        """Phase-2 expectations on the persisted dispatch-3.x result (claim ceilings, not mock values)."""
         claims = [i["claim_level"] for i in read.get("intervals", [])]
         limits = " ".join(read.get("window", {}).get("limitations", []))
         segs = read.get("segment_classes", [])
