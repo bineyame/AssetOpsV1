@@ -61,3 +61,10 @@ Branch `task/S3-01-dispatch-assessment`. Commits: `aaa47ae`, `79161dc`, `6314b64
 - `INTENTIONAL_DELTA` heuristic (Q11).
 - A large window read evaluates the full input basis on every request (about 3k rows per day; acceptable for the demo).
 - `run_pending` reconciles every assessed Site on each pass, at a cost of O(windows) configuration reads.
+
+## Fixture producer result (commit `93cc3ef`)
+
+- The producer was rerun with the cohort change. It reports `VERIFY PASSED`, and every case is `check met`.
+- The new case `necessary-interval` is on 2026-10-09 and uses epoch `s3-cases-epoch-2`. Its window is `LIMITED` and its interval is `NECESSARY`; see `.agent/S3-01-dispatch-cases-run.txt` lines 112-178.
+- The run predates the read-test commit `6f23429`, which changed tests only, so it does not need a rerun for that.
+- I handed off before the subagent's written report arrived. Read the SOC-difference cause from the commit messages of `d47c03d` and `93cc3ef`. If they do not establish it, it is still open.
