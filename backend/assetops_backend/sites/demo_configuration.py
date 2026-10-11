@@ -4,17 +4,18 @@
         --fixture backend/conversions/kobo-001-s3-dispatch-demo-config.json --tenant demo
 
 Run from the repository root with `DATABASE_URL` set, the database migrated,
-KOBO-001 imported and its S1-02 bindings converted. One labelled step at the
-fixture's effective instant, in this order:
+KOBO-001 imported and its S1-02 bindings converted. One labelled
+configuration, in this order (`--steps` may name only the first):
 
-1. the template's generator control values as a later-effective Foundation
-   revision (`FoundationService.publish_component_properties`, TEMPLATE
+1. at `component_properties.effective_from`, the template's generator control
+   values as a later-effective Foundation revision (`FoundationService.publish_component_properties`, TEMPLATE
    provenance; decision `D-2026-10-08-s2-registered-kobo-demo-configuration`);
-2. a `minigrid-roles-2` binding set carrying every current binding unchanged
+2. at `bindings.effective_from`, a `minigrid-roles-2` binding set carrying
+   every current binding unchanged
    plus the two declared simulated capability channels.
 
 Earlier periods are split, never rewritten, so roles-1 bases before the
-instant stay selectable. Idempotent: a rerun publishes nothing and prints the
+bindings instant stay selectable. Idempotent: a rerun publishes nothing and prints the
 versions already in effect. Not an operator route.
 """
 
@@ -40,7 +41,8 @@ from assetops_backend.sites.foundation_service import (
 from assetops_backend.sites.ports import SiteRepositoryError
 
 DEMO_CONFIGURATION_SCHEMA = {"id": "assetops.demo-configuration", "version": 1}
-FIXTURE_KEYS = {"schema", "status", "label", "site_code", "effective_from", "component_properties", "bindings"}
+FIXTURE_KEYS = {"schema", "status", "label", "site_code", "component_properties", "bindings"}
+STEPS = ("properties", "bindings")
 
 
 class DemoConfigurationConflict(Exception):
@@ -50,29 +52,24 @@ class DemoConfigurationConflict(Exception):
 @dataclass(frozen=True)
 class DemoConfigurationResult:
     label: str
-    effective_from: datetime
+    properties_from: datetime
+    bindings_from: datetime
     properties_published: bool
     bindings_published: bool
-    foundation_version: int
-    foundation_revision_id: str
-    binding_set_id: str
-    binding_version: int
-    role_set: str
-    snapshot_sha256: str | None
+    #: The selected basis at each effective instant (and at the instant just
+    #: before the bindings change): Foundation version/revision, binding set
+    #: version, role set and pinned snapshot - what a Lab run names.
+    periods: tuple[dict[str, Any], ...]
     capability_channels: tuple[str, ...]
 
     def to_wire(self) -> dict[str, Any]:
         return {
             "label": self.label,
-            "effective_from": utc_text(self.effective_from),
+            "properties_from": utc_text(self.properties_from),
+            "bindings_from": utc_text(self.bindings_from),
             "properties_published": self.properties_published,
             "bindings_published": self.bindings_published,
-            "foundation_version": self.foundation_version,
-            "foundation_revision_id": self.foundation_revision_id,
-            "binding_set_id": self.binding_set_id,
-            "binding_version": self.binding_version,
-            "role_set": self.role_set,
-            "snapshot_sha256": self.snapshot_sha256,
+            "periods": [dict(p) for p in self.periods],
             "capability_channels": list(self.capability_channels),
         }
 
@@ -118,63 +115,80 @@ def apply_demo_configuration(
     tenant: TenantRef,
     site: StoredSite,
     fixture: Mapping[str, Any],
+    steps: Sequence[str] = STEPS,
 ) -> DemoConfigurationResult:
-    """Publish the labelled demo configuration once; a rerun writes nothing."""
-    _check(fixture, site)
-    effective_from = parse_utc_text(fixture["effective_from"])
-    props = fixture["component_properties"]
-    properties_published = True
-    try:
-        foundation.publish_component_properties(
-            tenant, site, asset_code=props["asset_code"], properties=props["properties"],
-            effective_from=effective_from, note=props["note"],
-        )
-    except FoundationRefused as error:
-        if error.code != "FOUNDATION_NO_CHANGE":
-            raise DemoConfigurationConflict(f"{error.code}: {error.message}") from error
-        properties_published = False
+    """Publish the labelled demo configuration once; a rerun writes nothing.
 
-    spec = fixture["bindings"]
-    wanted = {(a["device_id"], a["signal_id"], a["role"]) for a in spec["add"]}
-    far = datetime(9999, 1, 1, tzinfo=effective_from.tzinfo)  # below the open-ended sentinel
-    current = binding_set_at(store.binding_sets(tenant.id, site.id), effective_from, far)
-    if current is None:
-        raise DemoConfigurationConflict(
-            f"{site.site_code} has no binding set at {utc_text(effective_from)}; convert its bindings first."
-        )
-    have = {(b.device_id, b.signal_id, b.role) for b in current.bindings}
-    bindings_published = False
-    if not (current.role_set == spec["role_set"] and wanted <= have):
-        asset_ids = {a.asset_code: str(a.id) for a in store.registrations(tenant.id, site.id).assets}
-        kept = [b for b in current.bindings if (b.device_id, b.signal_id) not in {(d, s) for d, s, _ in wanted}]
+    `steps` may name only `properties` so a producer can run a roles-1 case
+    after the generator values exist and before any capability channel does.
+    """
+    _check(fixture, site)
+    if not steps or set(steps) - set(STEPS):
+        raise DemoConfigurationConflict(f"Steps must be drawn from {STEPS}; got {list(steps)}.")
+    props, spec = fixture["component_properties"], fixture["bindings"]
+    properties_from = parse_utc_text(props["effective_from"])
+    bindings_from = parse_utc_text(spec["effective_from"])
+    if bindings_from < properties_from:
+        raise DemoConfigurationConflict("The bindings cannot take effect before the generator values.")
+    properties_published = False
+    if "properties" in steps:
+        properties_published = True
         try:
-            bindings.publish(
-                tenant, site, requests=_requests(kept, spec["add"], asset_ids), effective_from=effective_from,
-                note=spec["note"],
-                declare=[DeclaredSignal(d["device_id"], d["signal_id"], d["display_name"], d["unit"])
-                         for d in spec["declare_signals"]],
-                role_set=spec["role_set"],
+            foundation.publish_component_properties(
+                tenant, site, asset_code=props["asset_code"], properties=props["properties"],
+                effective_from=properties_from, note=props["note"],
             )
-        except BindingRefused as error:
-            raise DemoConfigurationConflict(f"{error.code}: {error.message}") from error
-        bindings_published = True
+        except FoundationRefused as error:
+            if error.code != "FOUNDATION_NO_CHANGE":
+                raise DemoConfigurationConflict(f"{error.code}: {error.message}") from error
+            properties_published = False
+
+    wanted = {(a["device_id"], a["signal_id"], a["role"]) for a in spec["add"]}
+    far = datetime(9999, 1, 1, tzinfo=bindings_from.tzinfo)  # below the open-ended sentinel
+    bindings_published = False
+    if "bindings" in steps:
+        current = binding_set_at(store.binding_sets(tenant.id, site.id), bindings_from, far)
+        if current is None:
+            raise DemoConfigurationConflict(
+                f"{site.site_code} has no binding set at {utc_text(bindings_from)}; convert its bindings first."
+            )
+        have = {(b.device_id, b.signal_id, b.role) for b in current.bindings}
+        if not (current.role_set == spec["role_set"] and wanted <= have):
+            asset_ids = {a.asset_code: str(a.id) for a in store.registrations(tenant.id, site.id).assets}
+            replaced = {(d, s) for d, s, _ in wanted}
+            kept = [b for b in current.bindings if (b.device_id, b.signal_id) not in replaced]
+            try:
+                bindings.publish(
+                    tenant, site, requests=_requests(kept, spec["add"], asset_ids), effective_from=bindings_from,
+                    note=spec["note"],
+                    declare=[DeclaredSignal(d["device_id"], d["signal_id"], d["display_name"], d["unit"])
+                             for d in spec["declare_signals"]],
+                    role_set=spec["role_set"],
+                )
+            except BindingRefused as error:
+                raise DemoConfigurationConflict(f"{error.code}: {error.message}") from error
+            bindings_published = True
 
     sets = store.binding_sets(tenant.id, site.id)
     revisions = store.revisions(tenant.id, site.id)
-    now = far
-    selected = binding_set_at(sets, effective_from, now)
-    revision = revision_at(revisions, effective_from, now)
-    if selected is None or revision is None:
-        raise DemoConfigurationConflict("The published demo configuration is not readable at its effective instant.")
-    channels = tuple(sorted(f"{b.device_id}/{b.signal_id}->{b.role}" for b in selected.bindings
-                            if (b.device_id, b.signal_id, b.role) in wanted))
+    periods = []
+    channels: tuple[str, ...] = ()
+    for at in sorted({properties_from, bindings_from}):
+        selected, revision = binding_set_at(sets, at, far), revision_at(revisions, at, far)
+        if selected is None or revision is None:
+            raise DemoConfigurationConflict(f"The demo configuration is not readable at {utc_text(at)}.")
+        periods.append({
+            "at": utc_text(at), "foundation_version": revision.version, "foundation_revision_id": str(revision.id),
+            "binding_set_id": str(selected.binding_set_id), "binding_version": selected.version,
+            "role_set": selected.role_set, "snapshot_sha256": selected.snapshot_sha256,
+        })
+        if at == bindings_from:
+            channels = tuple(sorted(f"{b.device_id}/{b.signal_id}->{b.role}" for b in selected.bindings
+                                    if (b.device_id, b.signal_id, b.role) in wanted))
     return DemoConfigurationResult(
-        label=str(fixture["label"]), effective_from=effective_from,
+        label=str(fixture["label"]), properties_from=properties_from, bindings_from=bindings_from,
         properties_published=properties_published, bindings_published=bindings_published,
-        foundation_version=revision.version, foundation_revision_id=str(revision.id),
-        binding_set_id=str(selected.binding_set_id), binding_version=selected.version,
-        role_set=selected.role_set, snapshot_sha256=selected.snapshot_sha256,
-        capability_channels=channels,
+        periods=tuple(periods), capability_channels=channels,
     )
 
 
@@ -186,6 +200,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--fixture", required=True)
     parser.add_argument("--tenant", required=True)
+    parser.add_argument("--steps", default=",".join(STEPS),
+                        help="comma-separated subset of properties,bindings (default: both)")
     args = parser.parse_args(argv)
     if args.tenant != DEVELOPMENT_TENANT_SLUG:
         print(f"Tenant {args.tenant!r} is not the configured development tenant.", file=sys.stderr)
@@ -199,7 +215,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         if site is None:
             print(f"Site {fixture.get('site_code')!r} is not imported in tenant {args.tenant!r}.", file=sys.stderr)
             return 2
-        result = apply_demo_configuration(store, foundation, BindingService(store, utc_now), tenant, site, fixture)
+        result = apply_demo_configuration(store, foundation, BindingService(store, utc_now), tenant, site, fixture,
+                                          steps=tuple(x for x in args.steps.split(",") if x))
     except DemoConfigurationConflict as error:
         print(f"Demo configuration refused; nothing more was written. {error}", file=sys.stderr)
         return 2

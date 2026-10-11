@@ -3,8 +3,8 @@
   "status": "SIMULATED DEMO CONFIGURATION - D-2026-10-08-s2-registered-kobo-demo-configuration; D-2026-10-11-s3-dispatch-interval-assessment (S3-01 phase 1). Not operator-entered Site truth.",
   "label": "s3-dispatch-demo-config-v1",
   "site_code": "KOBO-001",
-  "effective_from": "2026-10-01T00:00:00Z",
   "component_properties": {
+    "effective_from": "2026-10-01T00:00:00Z",
     "asset_code": "generator",
     "note": "S3-01 simulated demo configuration (s3-dispatch-demo-config-v1): the kobo-mini-grid-60kw template v2 generator control values, TEMPLATE provenance, under D-2026-10-08-s2-registered-kobo-demo-configuration.",
     "properties": [
@@ -15,6 +15,7 @@
     ]
   },
   "bindings": {
+    "effective_from": "2026-10-02T00:00:00Z",
     "role_set": "minigrid-roles-2",
     "note": "S3-01 simulated demo configuration (s3-dispatch-demo-config-v1): every current minigrid-roles-1 binding carried unchanged, plus the two simulated capability channels of minigrid-roles-2.",
     "declare_signals": [

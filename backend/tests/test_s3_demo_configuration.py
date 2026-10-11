@@ -26,6 +26,7 @@ from assetops_backend.sites.foundation_service import FoundationService, binding
 BACKEND = Path(__file__).resolve().parents[1]
 DEMO = json.loads((BACKEND / "conversions" / "kobo-001-s3-dispatch-demo-config.json").read_text(encoding="utf-8"))
 CONFIG_FROM = datetime(2026, 10, 1, tzinfo=timezone.utc)
+BINDINGS_FROM = datetime(2026, 10, 2, tzinfo=timezone.utc)
 BEFORE = datetime(2026, 9, 30, 12, tzinfo=timezone.utc)
 FAR = datetime(9999, 1, 1, tzinfo=timezone.utc)
 CAPABILITY = {
@@ -34,18 +35,18 @@ CAPABILITY = {
 }
 
 
-def apply(store, result, when):
+def apply(store, result, when, steps=("properties", "bindings")):
     clock = Clock(when)
     return apply_demo_configuration(
         store, FoundationService(store, "demo", clock), BindingService(store, clock),
-        result.tenant, result.site, DEMO,
+        result.tenant, result.site, DEMO, steps=steps,
     )
 
 
 def assert_configured(store, result, outcome) -> None:
     sets = store.binding_sets(result.tenant.id, result.site.id)
     revisions = store.revisions(result.tenant.id, result.site.id)
-    after, before = binding_set_at(sets, CONFIG_FROM, FAR), binding_set_at(sets, BEFORE, FAR)
+    after, before = binding_set_at(sets, BINDINGS_FROM, FAR), binding_set_at(sets, CONFIG_FROM, FAR)
     assert after.role_set == "minigrid-roles-2" and before.role_set == "minigrid-roles-1"
     channels = {(b.device_id, b.signal_id, b.role) for b in after.bindings}
     assert CAPABILITY <= channels
@@ -55,6 +56,9 @@ def assert_configured(store, result, outcome) -> None:
         (b.device_id, b.signal_id, b.role, b.conversion["kind"]) for b in after.bindings
     }
     revision = revision_at(revisions, CONFIG_FROM, FAR)
+    later = revision_at(revisions, BINDINGS_FROM, FAR)
+    assert next(c for c in later.content["components"] if c["component_id"] == "generator") == next(
+        c for c in revision.content["components"] if c["component_id"] == "generator")
     generator = next(c for c in revision.content["components"] if c["component_id"] == "generator")
     props = {p["property_key"]: p for p in generator["properties"]}
     assert props["start-soc-threshold"]["value"] == 35 and props["start-soc-threshold"]["source"] == "TEMPLATE"
@@ -64,9 +68,12 @@ def assert_configured(store, result, outcome) -> None:
         p["property_key"]
         for c in revision_at(revisions, BEFORE, FAR).content["components"] for p in c.get("properties") or ()
     }
-    assert outcome.binding_version == after.version and outcome.foundation_version == revision.version
-    assert outcome.role_set == "minigrid-roles-2" and len(outcome.capability_channels) == 2
-    view = FoundationService(store, "demo", Clock(FAR)).read(result.site, result.tenant, CONFIG_FROM, None)
+    first, second = outcome.periods
+    assert (first["role_set"], first["foundation_version"]) == ("minigrid-roles-1", revision.version)
+    assert (second["role_set"], second["binding_version"], second["foundation_version"]) == (
+        "minigrid-roles-2", after.version, later.version)
+    assert second["snapshot_sha256"] == after.snapshot_sha256 and len(outcome.capability_channels) == 2
+    view = FoundationService(store, "demo", Clock(FAR)).read(result.site, result.tenant, BINDINGS_FROM, None)
     assert readiness(view.site, view.revision, view.registrations, view.binding_set)["state"] == "READY_TO_REPORT"
 
 
@@ -83,6 +90,15 @@ class TestInMemory:
         assert again.to_wire() | {"properties_published": True, "bindings_published": True} == first.to_wire()
         assert counts == (len(store.revisions(result.tenant.id, result.site.id)),
                           len(store.binding_sets(result.tenant.id, result.site.id)))
+
+    def test_properties_step_alone_leaves_no_capability_channel(self) -> None:
+        store, result, _ = converted()
+        only = apply(store, result, CONVERTED_AT + timedelta(minutes=10), steps=("properties",))
+        assert only.properties_published and not only.bindings_published
+        assert {p["role_set"] for p in only.periods} == {"minigrid-roles-1"} and only.capability_channels == ()
+        both = apply(store, result, CONVERTED_AT + timedelta(minutes=20))
+        assert not both.properties_published and both.bindings_published
+        assert_configured(store, result, both)
 
     def test_a_fixture_for_another_site_or_unlabelled_writes_nothing(self) -> None:
         store, result, _ = converted()

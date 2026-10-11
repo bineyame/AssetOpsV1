@@ -1842,6 +1842,63 @@ REGISTERED_KOBO_PUBLICATION_PROFILE_V2 = replace(
     publication_clock="RUN_VIRTUAL",
 )
 
+#: S3-01 phase 1 (`D-2026-10-11-s3-dispatch-interval-assessment`). The
+#: registered-Kobo publication profile, version three: version two's devices,
+#: resolution, state-of-charge delay and virtual publication clock, plus what
+#: dispatch needs from `simulator-lab-publication` v5 - the generator's typed
+#: status reading (STATE_SIGNAL, 15 min), its output power every fifteen
+#: minutes (v4's cadence, so status and power share instants), the PV
+#: inverter's available power and the PCS's discharge capability (numeric, at
+#: the registered resolution) - and the discharge-capability reporting gap.
+#: Measurement only: v5's POLICY and override record channels and their
+#: states are NOT carried (a registered run publishes V3 measurements, never
+#: an invented policy or command record). A capability channel reaches central
+#: acceptance only where a `minigrid-roles-2` binding maps it; on a roles-1
+#: basis the gateway holds it as an unknown channel. Versions one and two,
+#: every Draft frozen against them and every envelope they staged are unchanged.
+_V3_FROM_LAB_V5 = (
+    ("generator-controller", "status"),
+    ("pv-inverter-controller", "available-power"),
+    ("battery-pcs-controller", "discharge-capability"),
+)
+REGISTERED_KOBO_PUBLICATION_PROFILE_V3 = replace(
+    REGISTERED_KOBO_PUBLICATION_PROFILE_V2,
+    publication_profile_version=3,
+    statement=(
+        REGISTERED_KOBO_PUBLICATION_PROFILE_V2.statement
+        + " Version three also publishes the generator's typed status and its "
+        "output power every fifteen minutes, and two simulated capability "
+        "readings - the PV inverter's available power and the PCS's discharge "
+        "capability - and a run may declare a discharge-capability reporting "
+        "gap. It publishes no policy or command record."
+    ),
+    supported_reporting_states=REGISTERED_KOBO_PUBLICATION_PROFILE_V2.supported_reporting_states
+    + tuple(
+        state
+        for state in LAB_PUBLICATION_PROFILE_V5.supported_reporting_states
+        if state.state_key == "battery-discharge-capability-reporting-availability"
+    ),
+    device_signals=tuple(
+        replace(
+            declaration,
+            cadence_minutes=15,
+            statement=LAB_PUBLICATION_PROFILE_V4.device_signal("generator-controller", "ac-power").statement,
+        )
+        if declaration.signal_key == ("generator-controller", "ac-power")
+        else declaration
+        for declaration in REGISTERED_KOBO_PUBLICATION_PROFILE_V2.device_signals
+    )
+    + tuple(
+        declaration
+        if declaration.canonical_unit == DISCRETE_UNIT
+        else replace(declaration, resolution=REGISTERED_KOBO_RESOLUTION)
+        for key in _V3_FROM_LAB_V5
+        for declaration in LAB_PUBLICATION_PROFILE_V5.device_signals
+        if declaration.signal_key == key
+    ),
+    record_channels=(),
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
@@ -1856,6 +1913,7 @@ PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     LAB_PUBLICATION_PROFILE_V5,
     REGISTERED_KOBO_PUBLICATION_PROFILE,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V2,
+    REGISTERED_KOBO_PUBLICATION_PROFILE_V3,
 )
 
 

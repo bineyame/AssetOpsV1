@@ -204,10 +204,12 @@ def owner_shaped_copy(path: Path) -> dict:
 #: owner copy of it exists to rebuild (T026).
 #: S2-01c adds the delayed-publication fixture, likewise first shipped at v1.
 #: S2-01c phase 3 adds the post-run release fixture, likewise first shipped at v1.
+#: S3-01 phase 1 adds the s3-dispatch-cases-v1 degraded-reporting fixture, likewise.
 NEVER_SHIPPED_AS_V1 = {
     "kobo-mini-grid-degraded-evidence",
     "kobo-daytime-delayed-publication",
     "kobo-daytime-post-run-publication",
+    "kobo-s3-dispatch-degraded-reporting",
 }
 
 SHIPPED_DOCUMENTS = sorted(
