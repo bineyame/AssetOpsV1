@@ -29,6 +29,7 @@ import {
   reasonWords,
   roleWords,
   shiftDay,
+  stamp,
   STATUS_WORDS,
 } from "./dispatchWords";
 import { ClaimBadge, LocalViews, localView, localViewSearch, OUTCOME_WORDS } from "./findingPresentation";
@@ -691,7 +692,7 @@ function EvidencePanel({
         <tbody>
           {shown.map((item) => (
             <tr key={item.evidence_id} data-evidence-id={item.evidence_id}>
-              <td>{item.source_time ?? `${item.interval_start ?? "?"} to ${item.interval_end ?? "?"}`}</td>
+              <td>{item.source_time ? stamp(item.source_time) : `${stamp(item.interval_start)} to ${stamp(item.interval_end)}`}</td>
               <td>{roleWords(item.role)}</td>
               <td>
                 {item.value ?? "none"} {item.unit ?? ""}

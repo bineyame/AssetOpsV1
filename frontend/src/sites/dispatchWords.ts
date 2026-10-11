@@ -93,6 +93,9 @@ const ROLE_WORDS: Record<string, string> = {
   pv_available_power: "Available solar power",
   pcs_discharge_capability: "Battery output limit",
   fuel_level: "Fuel level",
+  feeder_demand: "Feeder demand",
+  pv_irradiance: "Solar irradiance",
+  battery_reserve: "Battery reserve setting",
 };
 
 export function roleWords(role: string): string {
@@ -126,6 +129,15 @@ export function clock(instant: string | null | undefined): string {
   }
   const match = /T(\d{2}):(\d{2})/.exec(instant);
   return match === null ? instant : `${match[1]}:${match[2]}`;
+}
+
+/** "2026-10-02 04:15" from an ISO instant (UTC), or the text unchanged. */
+export function stamp(instant: string | null | undefined): string {
+  if (!instant) {
+    return "not reported";
+  }
+  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(instant);
+  return match === null ? instant : `${match[1]} ${match[2]}`;
 }
 
 /** Whole minutes from a decimal string, or null. */

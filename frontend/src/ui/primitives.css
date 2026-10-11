@@ -2561,7 +2561,7 @@ input:focus-visible,
 }
 
 /* S3-01 durable Performance > Dispatch ------------------------------------- */
-.durable-dispatch__body { display: grid; gap: var(--space-4); }
+.durable-dispatch__body { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .durable-dispatch__pair { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 1100px) {
   .durable-dispatch__pair { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
@@ -2686,3 +2686,9 @@ input:focus-visible,
 .dispatch-demo-notes h3 { font-size: var(--text-sm); margin: 0 0 var(--space-1); }
 .durable-dispatch code { overflow-wrap: anywhere; }
 .dispatch-comparison-claims { padding-left: var(--space-5); overflow-wrap: anywhere; }
+.durable-dispatch {
+  --graphic-needed: #3d6fb0;
+  --graphic-avoidable: #c2680a;
+  --graphic-unknown: #7e8796;
+  --graphic-ink: #334155;
+}
