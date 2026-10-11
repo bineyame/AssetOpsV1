@@ -1,6 +1,6 @@
 # PRE-S3-04 — Foundation Readiness truthfulness
 
-Status: in_review
+Status: done (accepted 2026-10-11: fresh Claude review `.agent/PRE-S3-04-review.md`, fix re-review `.agent/PRE-S3-04-fix-rereview.md`; on plan/pre-S3-startup, merges with it)
 USER_REVIEW_REQUIRED: false
 Depends on: merged S1 Foundation/Readiness and S2 Evidence/central diagnostics
 Branch when activated: task/PRE-S3-04-readiness-truthfulness

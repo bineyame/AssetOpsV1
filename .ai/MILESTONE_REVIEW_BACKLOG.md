@@ -2007,4 +2007,4 @@ The carried review findings above are unchanged.
 - C5 (Architect question): `A-action-index` gates all 14 Action panels; Architect scoped it to the Site list only.
 - C6 (Architect question): S6 panels disagree on needing the S4-01 Finding closeout.
 - C7: S3-02 reviewer must verify reusing `I-sim-dispatch-cases` for the coverage fixture.
-
+- PRE-S3-04 fix re-review carry: `SiteConfiguration.tsx:802` devices caption says "none has reported" then that nothing states whether any device is reporting (contradictory, pre-existing); fold into the truthfulness sweep with `SiteOverview.tsx:241`.
