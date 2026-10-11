@@ -95,3 +95,12 @@ None required (USER_REVIEW_REQUIRED: false). For the reviewer:
 - Fixture: new test `V-01 distance includes the panel open technical gates (review F1)` in `test_delivery_next_work.cjs` (V-01 sized M, `site:1#b/#c` open on `I-S7-01`: d=1, proof `[I-S7-01]`, ready_now=0, closure_unlock=0; plus a subset case where V-01 requires `I-S7-01`: d=1, closure_unlock=1). Before the fix it failed (`actual: 0, expected: 1`); after, 18/18 delivery fixtures pass.
 - `tools/check-all.ps1`: all six guards PASS. Live `--next-work` still refuses with `unmapped_approved_panel` (37 approved core panels unmapped), unchanged.
 - Carries C1-C5 not worked.
+
+## Carry round (C1, C2, C3, C5; Architect Q9 and "C5 checker fix")
+
+- **C1/Q9:** the 14 `reviewed_mapping:true` S1/S2 rows' `mapping_review.by/evidence` now cite the fresh Claude review (`.agent/PRE-S3-03-review.md`) and F1 re-review (`.agent/PRE-S3-03-fix-rereview.md`); "independent review pending" removed (0 remain). The 37 newly mapped rows stay `reviewed_mapping:false`.
+- **C2:** independent verdicts added to delivered-portion `evidence`: S1-02/S1-03 portions (`S1-codex-review`, `S1-02-fix-rereview`, `S1-03-review`, `S1-fix-rereview`, `S1-fix-rereview-2`), `lab:1#a` (`S2-01b-codex-review`, `-fix-rereview`, `-fix-rereview-2`), `lab:2#a`/`lab:4#a` (`S2-01a-codex-review`).
+- **C3:** `lab:3#a` boundary now "delivered by I-S2-02"; `R-/UI-capability`, `D-coverage-window` removed from `evidence:1#a` superseded list (live on `#b`); those plus `R-claim-lineage`/`UI-evidence-analysis` removed from `evidence-analysis:2#a` (its `#b` now has real nodes).
+- **C5:** `validateMapping` (used by both the report and the registry checker) emits typed `unsupported_enables` for any non-empty `delivery_plan.enables`; empty stays valid. Fixture added; with the guard disabled the suite fails 1 of 19 (non-vacuous), restored to 19/19.
+- **Checks:** `tools/check-all.ps1` all 6 guards pass; delivery fixtures 19 pass. Live `--next-work` still REFUSED, sole reason `[unmapped_approved_panel]` 37 approved core panels lack a reviewed claim-portion path (awaiting review of the new mappings).
+- Note: the registry/checker edits were swept into commit `75dd4d8` (PRE-S3-04 implementer's commit); this commit adds only this section.
