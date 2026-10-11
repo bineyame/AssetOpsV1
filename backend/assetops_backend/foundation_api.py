@@ -374,7 +374,7 @@ def _bindings(view: FoundationView) -> dict[str, Any]:
         "legacy_signal_mapping_count": legacy_count,
         "statement": (
             "These bindings are configuration: what a registered channel will mean once "
-            "it reports. No evidence has been accepted against them."
+            "it reports. Whether any channel is reporting is not assessed here."
         ),
     }
 

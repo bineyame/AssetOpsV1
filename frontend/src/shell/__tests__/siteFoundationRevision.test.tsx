@@ -63,7 +63,7 @@ const UNKNOWN_READINESS: ConfigurationReadiness = {
   missing_roles: ["Generator power"],
   foundation_gaps: [],
   channels: [],
-  statement: "No signal binding set is in effect for the period shown, so every role is unbound and readiness is Unknown. Nothing is reporting.",
+  statement: "No signal binding set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.",
 };
 
 function foundation(
@@ -196,7 +196,7 @@ function published(
     binding_set: bindingSet(),
     mappings,
     legacy_signal_mapping_count: 9,
-    statement: "These bindings are configuration. No evidence has been accepted against them.",
+    statement: "These bindings are configuration. Whether any channel is reporting is not assessed here.",
   };
   const soc = mappings.includes(BATTERY_SOC);
   return {
@@ -219,7 +219,7 @@ function published(
         { device_id: "d-genset-controller", signal_id: "ac-power", display_name: "Generator output power", unit: "kW", source_id: "s1", status: "BOUND", binding_revision_id: "b-genset-power", role: "generator_power" },
         { device_id: "d-genset-controller", signal_id: "output-voltage", display_name: "Generator output voltage", unit: "V", source_id: "s1", status: "UNBOUND", binding_revision_id: null, role: null },
       ],
-      statement: "Ready to report means this configuration names a bound channel for every required role. It does not mean any device is connected, reporting or healthy: no evidence has been accepted for this Site.",
+      statement: "Ready to report means this configuration names a bound channel for every required role. It does not mean any device is connected, reporting or healthy; operational status is not assessed here.",
     },
     acquisition_snapshot: {
       available: true,
@@ -320,7 +320,8 @@ describe("the persisted Foundation version", () => {
     expect(screen.getByText("No signal binding set is in effect for the period shown.")).toBeInTheDocument();
     expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
     expect(screen.getByText(/registered\. Whether it has made contact or sent data is not assessed here/)).toBeInTheDocument();
-    expect(document.body.textContent).not.toMatch(/awaiting credentials|not sending data|no accepted evidence/i);
+    expect(document.body.textContent).not.toMatch(/awaiting credentials|not sending data|no accepted evidence|no evidence has been accepted|nothing is reporting|accepted against/i);
+    expect(document.body.textContent).toMatch(/Operational status is not assessed here/);
     expect(screen.getAllByRole("link", { name: "Site Evidence" }).length).toBeGreaterThan(0);
     expect(screen.queryByText(/^(Online|Connected|Reporting|Healthy)$/)).toBeNull();
   });

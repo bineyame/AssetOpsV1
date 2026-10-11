@@ -63,6 +63,18 @@ def snapshot_hash(client, **query):
     return response.headers["X-AssetOps-Snapshot-SHA256"], response.json()
 
 
+
+def _assert_configuration_only_copy(body: dict) -> None:
+    """PRE-S3-04 B1: readiness/bindings statements claim configuration scope only."""
+    for text in (body["readiness"]["statement"], (body.get("bindings") or {}).get("statement", "")):
+        low = text.lower()
+        for phrase in ("no evidence has been accepted", "nothing is reporting", "accepted against"):
+            assert phrase not in low, (phrase, text)
+    assert "not assessed here" in body["readiness"]["statement"].lower()
+    if body.get("bindings", {}).get("state") != "NONE":
+        assert "not assessed here" in body["bindings"]["statement"].lower()
+
+
 class TestBeforeConversion:
     def test_no_binding_set_is_unknown_and_unbound_with_no_snapshot(self, legacy_root) -> None:
         store = InMemoryFoundationStore()
@@ -88,6 +100,7 @@ class TestBeforeConversion:
         assert "not assessed here" in claim
         assert "no accepted evidence" not in claim and "awaiting credentials" not in claim
         assert "not sending data" not in claim
+        _assert_configuration_only_copy(body)
         assert all(g["status"] == "PENDING" for g in body["gateways"])
 
 
@@ -153,6 +166,7 @@ class TestReadAndTrace:
         assert "not assessed here" in claim
         assert "no accepted evidence" not in claim and "awaiting credentials" not in claim
         assert "not sending data" not in claim
+        _assert_configuration_only_copy(body)
         assert all(g["status"] == "PENDING" for g in body["gateways"])
         assert {r["role"] for r in body["readiness"]["roles"] if r["required"] and r["status"] == "CONFIGURED"} == REQUIRED
         sources = {s["source_external_id"]: s["source_id"] for s in body["sources"]}
