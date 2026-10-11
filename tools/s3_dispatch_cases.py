@@ -47,6 +47,8 @@ DEFAULT_WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / 
 MANIFEST_NAME = "s3-dispatch-cases-v1.json"
 DEMO_CONFIG = "backend/conversions/kobo-001-s3-dispatch-demo-config.json"
 EPOCH_1, EPOCH_2 = "s3-cases-epoch-1", "s3-cases-epoch-2"
+OOO_EPOCH = "s3-out-of-order-fixture-epoch"  # phase 2: labelled fault fixture (Architect Q5/F3)
+ASSESS = ("-m", "assetops_backend.analytics.assess_dispatch")
 FIXTURE_EPOCH = "s3-contradiction-fixture-epoch"
 MODEL = {"profile_id": "mini-grid", "profile_version": 3}
 PUBLICATION = {"profile_id": "registered-kobo-publication", "profile_version": 3}
@@ -325,10 +327,11 @@ class Cases(s2.Demo):
                 late.append({"evidence_id": r["evidence_id"], "source_time": r["source_time"].isoformat(),
                              "published_at": r["published_at"].isoformat(), "sequence": r["sequence"],
                              "same_source_later_readings_sequenced_before_it": len(overtaken)})
-        self.record("late-out-of-order", "One battery SOC publication held ten minutes (late). The ordinary "
+        self.record("late-publication", "One battery SOC publication held ten minutes (late at source publication only; "
+                    "not out-of-order, not centrally late - see late-central-acceptance). The ordinary "
                     "path keeps source order within a source, so no reading is sequenced after a later one "
-                    "(Q5 default: not fabricated)", "03", batches, rows,
-                    "Late evidence: a new revision when it arrives after an assessment; never silently reordered",
+                    "(Q5 ruling)", "03", batches, rows,
+                    "Placed at its source time; delivered with its window, so it cannot by itself prove reassessment",
                     {"met": bool(late), "late_readings": late,
                      "out_of_order_within_source": any(x["same_source_later_readings_sequenced_before_it"]
                                                        for x in late)})
@@ -368,6 +371,15 @@ class Cases(s2.Demo):
 
         step("10. FAULT FIXTURE (labelled, not gateway output): contradictory same-role readings (Q1 default)")
         self.contradiction()
+
+        step("11. PHASE 2 FAULT FIXTURE (labelled): later source time accepted first, earlier second (2026-10-07)")
+        self.out_of_order()
+
+        step("12. PHASE 2: the dispatch-3 worker consumes the S2 recompute jobs; every case window assessed")
+        self.assess_cases()
+
+        step("13. PHASE 2: late CENTRAL acceptance (2026-10-08): cutoff A, held batches accepted, cutoff B")
+        self.late_central()
 
     def contradiction(self) -> None:
         from assetops_contracts.ingestion_batch_v2 import seal_batch_v2
@@ -420,6 +432,231 @@ class Cases(s2.Demo):
                     {"met": status == 200 and len(rows) == 2 and len(values) == 2, "source_time": source_time,
                      "values": values}, fault_fixture=True)
 
+    # ------------------------------------------------------------ phase 2
+    def soc_template(self) -> tuple[dict[str, Any], dict[str, Any]]:
+        main = next(c for c in self.cases if c["case_id"] == "two-capability-candidate")
+        texts = dict(self.gw_db("SELECT batch_id, payload_text FROM upload_batch"))
+        for batch_id in main["batch_ids"]:
+            parsed = json.loads(texts[batch_id])
+            for envelope_text in parsed["envelopes"]:
+                envelope = json.loads(envelope_text)
+                if envelope["source"]["signal_id"] == "state-of-charge" and envelope["payload"].get("value"):
+                    return envelope, parsed
+        raise SystemExit("no accepted state-of-charge envelope to copy for the fault fixture")
+
+    def post_fixture(self, template: dict[str, Any], batch: dict[str, Any], epoch: str,
+                     items: list[tuple[int, str, str]]) -> tuple[str, int]:
+        """One labelled FAULT FIXTURE Batch V2 (authenticated, NOT gateway-sealed)."""
+        from assetops_contracts.ingestion_batch_v2 import seal_batch_v2
+        from assetops_contracts.source_envelope import canonical_json
+        from assetops_contracts.source_envelope_v3 import v3_message_id
+
+        texts = []
+        for sequence, source_time, value in items:
+            envelope = json.loads(json.dumps(template))
+            src = envelope["source"]
+            envelope["message"] = {"message_id": v3_message_id(
+                site_id=src["site_id"], gateway_id=src["gateway_id"], source_id=src["source_id"],
+                sequence_epoch=epoch, sequence=sequence), "sequence_epoch": epoch, "sequence": sequence}
+            envelope["timing"]["source_time"] = source_time
+            envelope["timing"]["published_at"] = plus(source_time, 1)
+            envelope["payload"]["value"] = value
+            texts.append(canonical_json(envelope))
+        _, body = seal_batch_v2(
+            site_id=batch["site_id"], gateway_id=batch["gateway_id"], source_id=batch["source_id"],
+            source_mode=batch["source_mode"], foundation_version=batch["configuration"]["foundation_version"],
+            foundation_valid_from=batch["configuration"]["foundation_valid_from"],
+            binding_set_id=batch["mapping"]["binding_set_id"], binding_version=batch["mapping"]["version"],
+            snapshot_sha256=batch["mapping"]["snapshot_sha256"], envelope_texts=texts)
+        status, _ = self.call("POST", "/api/ingestion/batches", raw=body.encode("utf-8"), base=self.https,
+                              headers=self.bearer(self.credential))
+        return json.loads(body)["batch_id"], status
+
+    def decided(self, evidence_ids: list[str]) -> dict[str, str]:
+        rows = self.pg("SELECT e.id::text, d.decided_at FROM accepted_evidence e JOIN ingestion_disposition d "
+                       "ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal WHERE e.id::text = ANY(%s)",
+                       list(evidence_ids))
+        return {i: t.isoformat() for i, t in rows}
+
+    def out_of_order(self) -> None:
+        template, batch = self.soc_template()
+        base = Decimal(template["payload"]["value"])
+        later, status_1 = self.post_fixture(template, batch, OOO_EPOCH, [(1, "2026-10-07T05:15:00Z", f"{base:f}")])
+        earlier, status_2 = self.post_fixture(template, batch, OOO_EPOCH,
+                                              [(2, "2026-10-07T05:00:00Z", f"{base + 1:f}")])
+        rows = self.accepted([later, earlier])
+        at = self.decided([r["evidence_id"] for r in rows])
+        ordered = sorted(rows, key=lambda r: at[r["evidence_id"]])
+        inverted = (len(rows) == 2 and ordered[0]["source_time"] > ordered[1]["source_time"]
+                    and ordered[0]["sequence"] < ordered[1]["sequence"])
+        say(f"  out-of-order fixture batches {later} ({status_1}) then {earlier} ({status_2}); inverted={inverted}")
+        self.record("out-of-order-fault-fixture", "LABELLED FAULT FIXTURE: a battery SOC at 05:15 centrally accepted "
+                    "BEFORE the same source's SOC at 05:00 (authenticated Batch V2, not gateway-sealed)", "07",
+                    [later, earlier], rows,
+                    "Limited: SEQUENCE_ORDER_INVERTED over 05:00-05:15 names both IDs; never re-sorted by receipt",
+                    {"met": status_1 == 200 and status_2 == 200 and inverted,
+                     "acceptance_order": [{"evidence_id": r["evidence_id"], "batch_id": r["batch_id"],
+                                           "sequence": r["sequence"], "source_time": r["source_time"].isoformat(),
+                                           "decided_at": at[r["evidence_id"]]} for r in ordered]},
+                    fault_fixture=True)
+
+    def worker(self, *argv: str) -> Any:
+        return json.loads(self.py(*ASSESS, *argv).stdout.strip().splitlines()[-1])
+
+    def window_read(self, start: str, explicit: bool = False) -> dict[str, Any]:
+        """The latest run of a window and its selected revisions (direct read; phase 3 builds the API)."""
+        selection = "EXPLICIT" if explicit else "DEFAULT"
+        rows = self.pg(
+            "SELECT r.id::text, r.cohort_status, r.input_sha256, r.knowledge_cutoff, r.job_id::text, "
+            "a.assessment_key, a.revision_no, a.id::text, a.claim_level, a.result FROM analytic_run r "
+            "JOIN analytic_run_assessment l ON l.run_id = r.id JOIN assessment_revision a ON a.id = "
+            "l.assessment_revision_id WHERE r.id = (SELECT id FROM analytic_run WHERE window_start = %s "
+            "AND selection = %s ORDER BY completed_at DESC, id LIMIT 1) ORDER BY a.assessment_key",
+            start, selection)
+        if not rows:
+            return {"run_id": None}
+        window_row = next(r for r in rows if ":window:" in r[5])
+        intervals = [r for r in rows if ":interval:" in r[5]]
+        segments = [s for r in intervals for s in r[9]["segments"]]
+        return {"run_id": rows[0][0], "cohort_status": rows[0][1], "input_sha256": rows[0][2],
+                "knowledge_cutoff": rows[0][3].isoformat(), "job_id": rows[0][4],
+                "window": {"revision_id": window_row[7], "revision_no": window_row[6], "claim_level": window_row[8],
+                           "limitations": window_row[9]["limitations"]},
+                "intervals": [{"key": r[5], "revision_id": r[7], "revision_no": r[6], "claim_level": r[8],
+                               "candidate_minutes": r[9]["portions_minutes"]["candidate"]} for r in intervals],
+                "segment_classes": sorted({s["classification"] for s in segments}),
+                "indeterminate_segments": [(s["start"], s["end"]) for s in segments
+                                           if s["classification"] == "INDETERMINATE"]}
+
+    def assess_cases(self) -> None:
+        outcomes = self.worker("run-pending")
+        say(f"  worker: {len(outcomes)} job(s): " + ", ".join(sorted({o['status'] for o in outcomes})))
+        for case in self.cases:
+            start = (case["window"] or {"start": window("06")[0]})["start"]
+            read = self.window_read(start.replace("Z", "+00:00"))
+            case["assessment"] = read
+            case["assessment_check"] = self.check(case["case_id"], read)
+            say(f"  {case['case_id']}: window {read.get('window', {}).get('claim_level')}, intervals "
+                f"{[i['claim_level'] for i in read.get('intervals', [])]}, check={case['assessment_check']}")
+        sep = next(c for c in self.cases if c["case_id"] == "overlap-separable-epoch")
+        gateway = self.identity["gateway_id"]
+        sep["explicit_choices"] = {}
+        for epoch in (EPOCH_1, EPOCH_2):
+            sources = [r[0] for r in self.pg(
+                "SELECT DISTINCT source_id::text FROM accepted_evidence WHERE sequence_epoch = %s "
+                "AND source_time >= %s AND source_time < %s ORDER BY 1", epoch, *window("05"))]
+            chosen = [f"{gateway}:{s}:{epoch}" for s in sources]
+            out = self.worker("assess", "--tenant-id", self.identity["tenant_id"], "--site-id",
+                              self.identity["site_id"], "--start", window("05")[0], "--end", window("05")[1],
+                              "--cohort", *chosen)
+            claims = sorted(c[0] for c in self.pg(
+                "SELECT a.claim_level FROM analytic_run_assessment l JOIN assessment_revision a ON "
+                "a.id = l.assessment_revision_id WHERE l.run_id::text = %s AND l.scope = 'INTERVAL'", out["run_id"]))
+            status = self.pg("SELECT cohort_status FROM analytic_run WHERE id::text = %s", out["run_id"])[0][0]
+            sep["explicit_choices"][epoch] = {"run_id": out["run_id"], "cohort": chosen, "cohort_status": status,
+                                              "interval_claims": claims}
+            say(f"  explicit cohort {epoch}: run {out['run_id']} {status}, intervals {claims}")
+
+    @staticmethod
+    def check(case_id: str, read: dict[str, Any]) -> dict[str, Any]:
+        """Phase-2 expectations on the persisted dispatch-3 result (claim ceilings, not mock values)."""
+        claims = [i["claim_level"] for i in read.get("intervals", [])]
+        limits = " ".join(read.get("window", {}).get("limitations", []))
+        segs = read.get("segment_classes", [])
+        expect = {
+            "candidate-blocked-before": bool(claims) and "CANDIDATE_AVOIDABLE" not in claims
+                                        and "MISSING_ROLE" in limits,
+            "physical-necessary": "NECESSARY" in segs,
+            "two-capability-candidate": "CANDIDATE_AVOIDABLE" in claims,
+            "missing-poor-quality": any(s <= "2026-10-03T06:45" and e >= "2026-10-03T06:00"
+                                        for s, e in read.get("indeterminate_segments", [])),
+            "late-publication": read.get("run_id") is not None,
+            "overlap-same-epoch": (bool(claims) and set(claims) == {"INDETERMINATE"}
+                                   and "SEQUENCE_ORDER_INVERTED" in limits),
+            "overlap-separable-epoch": read.get("cohort_status") == "AMBIGUOUS" and not claims,
+            "contradiction-fault-fixture": "REPORTS_OVERLAP" in limits and not claims,
+            "out-of-order-fault-fixture": "SEQUENCE_ORDER_INVERTED" in limits,
+        }
+        return {"met": bool(expect.get(case_id, True))}
+
+    def late_central(self) -> None:
+        start, end = window("08")
+        basis = self.basis(start)
+        scenario_id, scenario_version = SCENARIOS["prolonged"]
+        body = {"site_id": s2.SITE, "foundation_version": basis["foundation_version"], "scenario_id": scenario_id,
+                "scenario_version": scenario_version, "interval": {"start_time": start, "end_time": end},
+                "timestep_minutes": 5, "seed": 20261008, "model_profile": MODEL, "publication_profile": PUBLICATION,
+                "run_inputs": []}
+        run = self.lab("POST", "/runs", body, expect=201)["run"]
+        if run.get("execution_status") != "READY":
+            raise SystemExit(f"late-central: run is {run.get('execution_status')}")
+        self.private_runs.setdefault("late-central", []).append(run["run_id"])
+        before = set(self.sealed_inventory())
+        self.lab("POST", f"/runs/{run['run_id']}/execution/start")
+        self.lab("POST", f"/runs/{run['run_id']}/execution/run-to-end")
+        self.lab("POST", f"/runs/{run['run_id']}/publication/advance", {"instant": plus(end, 15)}, expect=None)
+        self.lab("POST", f"/runs/{run['run_id']}/commit", expect=None)
+        sealed = sorted(set(self.sealed_inventory()) - before)
+        held = 2
+        first = self.deliver(len(sealed) - held)["batches"]
+        delivered_a = sorted(r[0] for r in self.pg(
+            "SELECT external_batch_id FROM ingestion_batch WHERE external_batch_id = ANY(%s)", sealed))
+        say(f"  delivered {first['acked']} of {len(sealed)} sealed batches; {len(sealed) - len(delivered_a)} held")
+        rows_a = self.accepted(delivered_a)
+        self.worker("run-pending")
+        read_a = self.window_read(start.replace("Z", "+00:00"))
+        say(f"  cutoff A {read_a['knowledge_cutoff']}: run {read_a['run_id']}, window rev "
+            f"{read_a['window']['revision_no']}, intervals {[i['claim_level'] for i in read_a['intervals']]}")
+        self.deliver_all("late-central-held")
+        late_batches = sorted(set(sealed) - set(delivered_a))
+        late_rows = self.accepted(late_batches)
+        jobs = self.pg("SELECT id::text, created_at, window_start, window_end FROM recompute_job "
+                       "WHERE status = 'PENDING' ORDER BY created_at")
+        self.worker("run-pending")
+        read_b = self.window_read(start.replace("Z", "+00:00"))
+        say(f"  cutoff B {read_b['knowledge_cutoff']}: run {read_b['run_id']}, window rev "
+            f"{read_b['window']['revision_no']}, intervals {[i['claim_level'] for i in read_b['intervals']]}")
+        late_ids = sorted(r["evidence_id"] for r in late_rows)
+        late_at = self.decided(late_ids)
+        old_kept = self.pg("SELECT count(*) FROM assessment_revision WHERE id::text = %s",
+                           read_a["window"]["revision_id"])[0][0] == 1
+        met = (bool(late_rows) and bool(jobs) and read_a["run_id"] != read_b["run_id"] and old_kept
+               and read_b["window"]["revision_no"] > read_a["window"]["revision_no"]
+               and min(late_at.values()) > read_a["knowledge_cutoff"])
+        self.record("late-central-acceptance", "Ordinary registered run whose last sealed batches are HELD at the "
+                    "gateway until after a first central assessment (gateway order kept; Architect F3)", "08",
+                    sealed, rows_a + late_rows,
+                    "A new recompute job and new revision(s) at cutoff B; the cutoff-A revision stays addressable",
+                    {"met": met, "cutoff_a": read_a["knowledge_cutoff"], "cutoff_b": read_b["knowledge_cutoff"],
+                     "held_batch_ids": late_batches, "late_evidence_ids": late_ids,
+                     "late_decided_at": sorted(set(late_at.values())),
+                     "pending_jobs_after_late": [{"job_id": j[0], "created_at": j[1].isoformat(),
+                                                  "window": [j[2].isoformat(), j[3].isoformat()]} for j in jobs],
+                     "run_a": read_a, "run_b": read_b})
+
+    def verify_phase2(self, manifest: dict[str, Any]) -> list[str]:
+        """Reload the persisted runs and revisions named in the manifest; the old late-case revision must
+        still exist unchanged and the cutoff-A run must still select it."""
+        failures = []
+        for case in manifest["cases"]:
+            a = case.get("assessment") or {}
+            if not case.get("assessment_check", {"met": True})["met"]:
+                failures.append(case["case_id"] + " (assessment)")
+            if a.get("run_id"):
+                found = self.pg("SELECT input_sha256 FROM analytic_run WHERE id::text = %s", a["run_id"])
+                if not found or found[0][0] != a["input_sha256"]:
+                    failures.append(case["case_id"] + " (run reload)")
+        late = next((c for c in manifest["cases"] if c["case_id"] == "late-central-acceptance"), None)
+        if late:
+            run_a = late["precondition"]["run_a"]
+            linked = {r[0] for r in self.pg("SELECT assessment_revision_id::text FROM analytic_run_assessment "
+                                            "WHERE run_id::text = %s", run_a["run_id"])}
+            if run_a["window"]["revision_id"] not in linked:
+                failures.append("late-central-acceptance (old revision not addressable)")
+            say(f"  verify late-central-acceptance: cutoff A run {run_a['run_id']} still selects window revision "
+                f"{run_a['window']['revision_no']} = {run_a['window']['revision_id'] in linked}")
+        return failures
+
     # ------------------------------------------------------------ manifest
     def write_manifest(self) -> dict[str, Any]:
         commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=s2.REPO, capture_output=True,
@@ -428,12 +665,13 @@ class Cases(s2.Demo):
         manifest = {
             "schema": {"id": "s3-dispatch-cases", "version": 1},
             "label": "s3-dispatch-cases-v1",
-            "status": "SIMULATED public fixture (S3-01 phase 1, I-sim-dispatch-cases). Not field evidence.",
+            "status": "SIMULATED public fixture (S3-01 phases 1-2, I-sim-dispatch-cases; phase 2 adds the persisted dispatch-3 result per case). Not field evidence. Fault-fixture labels are manifest annotations, not central attestation.",
             "produced_from_commit": commit,
             "database": s2.DEMO_DB,
             "site": self.identity,
             "publication": {"model_profile": MODEL, "publication_profile": PUBLICATION,
-                            "gateway_epochs": [EPOCH_1, EPOCH_2], "fault_fixture_epoch": FIXTURE_EPOCH},
+                            "gateway_epochs": [EPOCH_1, EPOCH_2], "fault_fixture_epoch": FIXTURE_EPOCH,
+                            "out_of_order_fixture_epoch": OOO_EPOCH},
             "demo_configuration": {"fixture": DEMO_CONFIG,
                                    "fixture_sha256": hashlib.sha256(config_bytes).hexdigest(),
                                    "periods": self.periods,
@@ -469,6 +707,7 @@ class Cases(s2.Demo):
                 failures.append(case["case_id"] + " (precondition)")
         all_ids = [i for c in manifest["cases"] for i in c["evidence_ids"]]
         say(f"  all evidence digest match={id_digest(all_ids) == manifest['all_evidence_id_sha256']}")
+        failures += self.verify_phase2(manifest)
         say("VERIFY " + ("PASSED" if not failures else f"FAILED: {failures}"))
         return 0 if not failures else 1
 
@@ -476,7 +715,7 @@ class Cases(s2.Demo):
         self.setup()
         try:
             self.flow()
-            step("11. Manifest")
+            step("14. Manifest")
             self.write_manifest()
         finally:
             step("Stopping every process this script started")
