@@ -2041,4 +2041,4 @@ The carried review findings above are unchanged.
 - R3: unreadable report file or file-backed legacy baseline gives 500, not 503, on the cutover/window routes.
 - R4: migration 0008 does not backfill selections for runs written under 0007 (theoretical; no DB sits at 0007).
 - R5: the producer's first-run timeout looks like harness load, not a product defect (deliver_all stops after one pass; VERIFY fails safe); failed-run log not kept.
-
+- R1 re-review carries (`.agent/S3-01-R1-rereview.md`): C1 add a direct comparison-classification recovery test (coverage is indirect via `window_jobs`); C2 (low) FAILED-job supersession is overlap-based, so a partial-window selection clears the whole job (likely moot with daily windows).
