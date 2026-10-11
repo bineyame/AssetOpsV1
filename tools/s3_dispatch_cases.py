@@ -321,14 +321,17 @@ class Cases(s2.Demo):
             # sequences are per (source, epoch): compare only within the SOC reading's own source
             overtaken = [o for o in rows if o["source_id"] == r["source_id"] and o["epoch"] == r["epoch"]
                          and o["source_time"] > r["source_time"] and o["sequence"] < r["sequence"]]
-            if lag >= 600 and overtaken:
+            if lag >= 600:
                 late.append({"evidence_id": r["evidence_id"], "source_time": r["source_time"].isoformat(),
                              "published_at": r["published_at"].isoformat(), "sequence": r["sequence"],
                              "same_source_later_readings_sequenced_before_it": len(overtaken)})
-        self.record("late-out-of-order", "One battery SOC publication held ten minutes; later readings were "
-                    "sequenced before it", "03", batches, rows,
+        self.record("late-out-of-order", "One battery SOC publication held ten minutes (late). The ordinary "
+                    "path keeps source order within a source, so no reading is sequenced after a later one "
+                    "(Q5 default: not fabricated)", "03", batches, rows,
                     "Late evidence: a new revision when it arrives after an assessment; never silently reordered",
-                    {"met": bool(late), "late_readings": late})
+                    {"met": bool(late), "late_readings": late,
+                     "out_of_order_within_source": any(x["same_source_later_readings_sequenced_before_it"]
+                                                       for x in late)})
 
         step("8. Overlapping runs on ONE epoch (2026-10-04): ambiguous by construction (Q3 default)")
         first = self.run_case("overlap-a", "04", "prolonged")
