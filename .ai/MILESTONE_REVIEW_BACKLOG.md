@@ -2034,3 +2034,11 @@ The carried review findings above are unchanged.
 - F5 (phase 3): no assessed interval in the fixture is NECESSARY (the check looks only at segments); the phase-3 reviewer path needs a Necessary interval.
 - F6 (low): an expired lease is re-leased with no attempts cap; a job that always outlives its lease never reaches FAILED.
 - S3-01 phase 2 fix re-review carry (`.agent/S3-01-phase-2-fix-rereview.md`): the contradiction fixture picks its template SOC envelope by batch walk order, so its value varies between runs; pick by minimum `(source_time, sequence)` and state in the manifest that evidence IDs are per-run (replayable by procedure + seed + verify, not byte-for-byte). The cause of the differing Lab SOC value between runs is not established; investigate in phase 3.
+
+### S3-01 phase 3a + dispatch-3.1 review carries (2026-10-11, `.agent/S3-01-phase-3a-review.md`, fresh Claude) — fold R2/R3 into phase 3b's cutover-summary work
+
+- R2: the gate does not check a PASSED report against the current selection; after a reassessment it would stay open on a stale classification (no live effect for KOBO-001's empty legacy set).
+- R3: unreadable report file or file-backed legacy baseline gives 500, not 503, on the cutover/window routes.
+- R4: migration 0008 does not backfill selections for runs written under 0007 (theoretical; no DB sits at 0007).
+- R5: the producer's first-run timeout looks like harness load, not a product defect (deliver_all stops after one pass; VERIFY fails safe); failed-run log not kept.
+
