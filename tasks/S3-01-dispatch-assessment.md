@@ -36,6 +36,8 @@ Record every numeric threshold and carried/changed branch in a versioned `dispat
 
 ## Fixture `I-sim-dispatch-cases` and phases
 
+The registry names phase 2 `I-dispatch-assessment-store` and phase 3 `I-dispatch-read`/`I-dispatch-ui`; `I-S3-01` closes only after their reviewed persistence, selected-revision API, UI/cutover and owner checkpoint. These are the real gates for `dispatch:1-3` and S3-supported `analysis:1,3`, with the separate S3-02 positive capability/coverage follow-up after S3-01. The `dispatch` app/mock desktop, narrow and interaction comparison is this task's visual increment, not a V-01a/V-01b gate.
+
 The fixture is **phase 1 of this S3-01 packet**, owned by the separately selectable registry node `I-sim-dispatch-cases`; the main `I-S3-01` gate remains blocked until this phase is reviewed. It is not an assumed S2 artifact or a second queue task. A versioned `s3-dispatch-cases-v1` manifest names the registered Foundation/binding revisions, simulated gateway/source IDs, public batch/envelope/evidence IDs, cohort/epoch, expected claim ceiling and private Lab oracle location separately. Produce: complete physical-constraint Necessary, supported two-capability Candidate, missing/poor-quality, contradictory same-role, late/out-of-order, and overlapping-run/fault-epoch isolation cases. Every public report goes through the durable registered gateway, sealed Batch V2 upload and central acceptance; the fault fixture is labelled and never blended into ordinary source truth. The manifest is replayable and compares accepted IDs after reload.
 
 | Phase (each bounded below ~120k Implementer context) | Reviewable handoff |
