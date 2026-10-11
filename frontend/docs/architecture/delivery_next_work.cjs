@@ -18,11 +18,12 @@ function parseQueue(readme) {
     .map((m) => ({task: m[1], packet: m[2]}));
 }
 
-// Gate packets (PRE-S3-NN) are linked anywhere in tasks/README.md. They are not registry task nodes, but an
-// active or in-review one stops selection (Architect Q7).
+// Every packet linked anywhere in tasks/README.md (PRE-S#-##, V-01*, S2-02r, S3-02, S4-03, any future packet) counts
+// for the global stop: an active or in-review one stops selection (Architect Q7). nextWork drops ids already
+// covered by registry task nodes.
 function parseGateQueue(readme) {
   const seen = new Map();
-  for (const m of readme.matchAll(/\[(PRE-S\d-\d{2}[a-z]?)\]\(([^)]+\.md)\)/g)) if (!seen.has(m[1])) seen.set(m[1], {task: m[1], packet: m[2]});
+  for (const m of readme.matchAll(/\[([A-Z][A-Za-z0-9]*(?:-[A-Z]\d)?-\d{2}[a-z]?)\]\(([^)#]+\.md)\)/g)) if (!seen.has(m[1])) seen.set(m[1], {task: m[1], packet: m[2]});
   return [...seen.values()];
 }
 
@@ -37,7 +38,7 @@ const packetPhase = (status) => {
   if (/^done\b/i.test(status)) return 'done';
   if (/^in_review\b/i.test(status)) return 'in_review';
   if (/^(active|in_progress|in progress)\b/i.test(status)) return 'active';
-  if (/^(outline|executable|carry|implementation-ready|refined)/i.test(status) || /not activated/i.test(status)) return 'not_started';
+  if (/^(outline|executable|carry|implementation-ready|refined|umbrella)/i.test(status) || /not activated/i.test(status)) return 'not_started';
   return 'unknown';
 };
 
@@ -305,8 +306,9 @@ function nextWork(ctx) {
   }
   const eligible = candidates.filter((c) => !c.blocked.length && c.score);
   eligible.sort(rankOrder);
-  const gateInfo = (ctx.gate_queue || []).map((q) => ({...q, phase: packetPhase(q.meta?.status)}));
+  const gateInfo = (ctx.gate_queue || []).filter((q) => !taskInfo.has(q.task)).map((q) => ({...q, phase: packetPhase(q.meta?.status)}));
   for (const q of gateInfo) if (!q.meta || q.phase === 'unknown') refuse('queue_mismatch', `${q.task}: gate packet ${q.packet} missing or has an unrecognised Status`);
+  if (refusals.length) return {...report, status: 'refused', refusals, decision: {action: 'none', reason: 'fail closed; no task selected'}};
   const activeTasks = [...taskInfo.values(), ...gateInfo].filter((t) => ['active', 'in_review'].includes(t.phase));
   const globalStops = activeTasks.map((t) => ({stop: t.phase === 'active' ? 'active_task' : 'review',
     reason: `${t.task} is ${t.phase}; finish or review it before selecting new work`}));

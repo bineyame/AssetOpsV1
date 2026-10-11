@@ -217,9 +217,25 @@ test('a PRE-S3 gate packet in review or active stops selection (Q7)', () => {
   assert.equal(r2.decision.action, 'stop');
 });
 
-test('gate packet discovery reads PRE-S3 links', () => {
-  assert.deepEqual(nw.parseGateQueue('x [PRE-S3-03](a.md) y [PRE-S3-04](b.md) [PRE-S3-03](a.md) [S1-01](c.md)'),
-    [{task: 'PRE-S3-03', packet: 'a.md'}, {task: 'PRE-S3-04', packet: 'b.md'}]);
+test('umbrella/index packet status is not_started, not unknown', () => {
+  assert.equal(nw.packetPhase('umbrella/index; not a scored gate or implementation packet'), 'not_started');
+  assert.equal(nw.packetPhase('done (accepted 2026-10-11)'), 'done');
+});
+
+test('gate packet discovery reads every linked packet', () => {
+  assert.deepEqual(nw.parseGateQueue('x [PRE-S3-03](a.md) y [PRE-S3-04](b.md) [PRE-S3-03](a.md) [V-01](v.md) [S2-02r](r.md) [S3-02](s.md) [docs](http://x/y.html)'),
+    [{task: 'PRE-S3-03', packet: 'a.md'}, {task: 'PRE-S3-04', packet: 'b.md'}, {task: 'V-01', packet: 'v.md'},
+      {task: 'S2-02r', packet: 'r.md'}, {task: 'S3-02', packet: 's.md'}]);
+});
+
+test('a visual-gate or follow-up packet that is active or in review stops selection (C9)', () => {
+  for (const id of ['V-01a', 'S2-02r', 'S4-03']) for (const [status, stop] of [['active', 'active_task'], ['in_review', 'review']]) {
+    const r = run((ctx) => { ctx.gate_queue = [{task: id, packet: id + '.md', meta: {status, user_review_required: false}}]; });
+    assert.equal(r.decision.action, 'stop', `${id} ${status}`);
+    assert.ok(r.global_stops.some((s) => s.stop === stop && s.reason.includes(id)));
+  }
+  const missing = run((ctx) => { ctx.gate_queue = [{task: 'V-01a', packet: 'x.md', meta: null}]; });
+  assert.equal(missing.status, 'refused');
 });
 
 test('outside-ranking shared contract is listed but not eligible', () => {
