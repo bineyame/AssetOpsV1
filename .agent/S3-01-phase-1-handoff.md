@@ -32,7 +32,7 @@ Branch `task/S3-01-dispatch-assessment`. Phase 1 is **not complete**: the role v
 
 ## Tests
 
-Full backend with Postgres (`ASSETOPS_TEST_DATABASE_URL=...assetops_test`) on `e68da1c`: **1766 passed** (296 s). `tools/check-all.ps1 -ExecutionPolicy Bypass`: **all 6 guards passed**. Host, simulator, gateway suites and `tools/check-all.ps1` not yet run for this phase. Known pre-existing: `tests/test_s2_site_evidence_postgres.py:51` raises NameError at collection when `ASSETOPS_TEST_DATABASE_URL` is unset.
+Full backend with Postgres (`ASSETOPS_TEST_DATABASE_URL=...assetops_test`) on `e68da1c`: **1766 passed** (296 s). `tools/check-all.ps1 -ExecutionPolicy Bypass`: **all 6 guards passed**. Host, simulator and gateway suites not yet run (no host/simulator/gateway code changed in 1a). Known pre-existing: `tests/test_s2_site_evidence_postgres.py:51` raises NameError at collection when `ASSETOPS_TEST_DATABASE_URL` is unset.
 
 ## Risks
 
