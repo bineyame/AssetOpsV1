@@ -4965,7 +4965,7 @@ Built on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, ques
 - `tools/check-all.ps1` is the normal check command (architecture, navigation, workflow, registry, delivery fixtures, ledger).
 - Open: the live report refuses (37 approved core panels unmapped: evidence-analysis:2 and all S3-S7 cores still name proposed R-/UI-/D- IDs). Independent mapping review pending. Stale Readiness text after S2-02 (foundation_api.py:270,286,295-298; FoundationRevisionPanel.tsx:318-353) is unowned (Q8).
 
-## S3-01 phase 1 - Role vocabulary and `s3-dispatch-cases-v1` fixture (active, phase review pending)
+## S3-01 phase 1 - Role vocabulary and `s3-dispatch-cases-v1` fixture (reviewed, accepted with carries)
 
 Built on `task/S3-01-dispatch-assessment` (1a `e68da1c`, 1b `7e9da8c`..`f508bae`); packet `.agent/S3-01-phase-1-review-packet.md`, questions `.agent/S3-01-questions-1.md`.
 
@@ -4985,3 +4985,23 @@ Built on `task/S3-01-dispatch-assessment` (1a `e68da1c`, 1b `7e9da8c`..`f508bae`
 - Q1-Q6 unanswered: contradiction is a labelled fault-fixture batch; poor quality = UNAVAILABLE readings + gap (no SUSPECT); same-epoch overlap is ambiguous by construction; the ordinary path produces late but not out-of-order-within-source readings; `fuel_level` is not published by `mini-grid` v3 registered runs.
 - Any Foundation-UI binding edit on a MINIGRID Site now records roles-2 (risk noted in packet).
 - The manifest's IDs are environment-specific (fresh import UUIDs per run); replay regenerates, `verify` compares within one environment.
+
+## S3-01 phase 2 - Typed seam and durable dispatch assessment (active, phase review pending)
+
+Built on `task/S3-01-dispatch-assessment` (`75886d1`..HEAD); packet `.agent/S3-01-phase-2-review-packet.md`, questions `.agent/S3-01-questions-2.md`, table `backend/tests/dispatch_3_decision_table.md`.
+
+### What it settled in code
+
+- `analytics/assessment_inputs.py`: `EvidenceQuery` (tenant/Site/domain, UTC half-open `Window`, `knowledge_at`, optional explicit cohort, roles, 6 h `BRACKET`), `AcceptedReading`, `RoleBinding`, `ControlValue`, `EvidenceQueryResult`, `CohortSelection`/`CohortLimit`, `AnalyticInputSet` with canonical `input_sha256` (evidence IDs + digests, cohort, as-accepted and selected revisions, controls, bindings, coverage, window, model; not `knowledge_at`).
+- `analytics/cohort.py`: default cohort = streams `(gateway, source, epoch)` with a reading in the window; overlapping epochs of one source -> `AMBIGUOUS`; explicit selection; per-channel `SEQUENCE_ORDER_INVERTED` / `REPORTS_OVERLAP` limits. No epoch-name, manifest or receipt-order logic.
+- `analytics/dispatch_v3.py` (`MODEL_VERSION = "dispatch-3"`, reuses `dispatch.ANALYTIC_ID`, no own declaration): pure; window + interval assessments; rows 3/4/5a/5b carried; row 1 unavailable; row 2 = Candidate-blocking minimum runtime only; window `COMPLETE|LIMITED|INDETERMINATE`. `dispatch.py` (`dispatch-2`) untouched.
+- Migration `0007_dispatch_assessment`: `analytic_run` (idempotent basis key), `analytic_run_evidence`, `assessment_revision`, `analytic_run_assessment` (all append-only), `recompute_job.last_error`.
+- `analytics/adapters/postgres_assessment_store.py`: the fourth product DB writer (guard rule 8 extended: own tables plus `recompute_job` lease/retry/scheduling only). Evidence read joins the ACCEPTED disposition; cutoff on `decided_at`; Foundation/binding selected bitemporally at the cutoff, tenant/Site scoped.
+- `analytics/assessment_worker.py` + CLI `python -m assetops_backend.analytics.assess_dispatch process-jobs|reconcile|assess`: lease (SKIP LOCKED, expired leases reclaimed), UTC-day windows over job window +/- bracket, one commit for runs + revisions + DONE under a lease token; retry with back-off, FAILED after 3 with `last_error`; `reconcile` enqueues windows whose latest default run has another model version or configuration digest.
+- `tools/s3_dispatch_cases.py`: case `late-out-of-order` renamed `late-publication`; new `out-of-order-fault-fixture` (10-07, labelled epoch) and `late-central-acceptance` (10-08, two batches held at the gateway; cutoff A/B); each case carries its persisted `dispatch-3` result and a check; `verify` reloads runs and the cutoff-A revision.
+
+### Open
+
+- No read API, projection table, UI or Performance cutover (phase 3); phase 3 derives `CURRENT/STALE_PROJECTION/...` from runs + overlapping jobs unless Q7 rules otherwise.
+- Questions Q1-Q8 in `.agent/S3-01-questions-2.md` (controls at cutoff vs as-accepted, minimum runtime mapping, day windows, fixture-epoch default read, in-flight cutoff, interval key anchoring).
+- Same-epoch overlap (10-04) yields a window `INDETERMINATE` with no intervals (generator series ambiguous).

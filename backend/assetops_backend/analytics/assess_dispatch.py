@@ -1,6 +1,6 @@
 """Operator CLI for the S3-01 dispatch recompute worker (DATABASE_URL names the database).
 
-    python -m assetops_backend.analytics.assess_dispatch run-pending
+    python -m assetops_backend.analytics.assess_dispatch process-jobs
     python -m assetops_backend.analytics.assess_dispatch reconcile --tenant-id T --site-id S
     python -m assetops_backend.analytics.assess_dispatch assess --tenant-id T --site-id S \
         --start 2026-10-05T00:00:00Z --end 2026-10-06T00:00:00Z --cohort GATEWAY:SOURCE:EPOCH ...
@@ -33,7 +33,7 @@ def _run(run) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="assess_dispatch")
-    parser.add_argument("command", choices=("run-pending", "reconcile", "assess"))
+    parser.add_argument("command", choices=("process-jobs", "reconcile", "assess"))
     parser.add_argument("--tenant-id")
     parser.add_argument("--site-id")
     parser.add_argument("--start")
@@ -41,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cohort", nargs="*", default=())
     args = parser.parse_args(argv)
     worker = build_dispatch_assessment_worker(os.environ.get("DATABASE_URL"))
-    if args.command == "run-pending":
+    if args.command == "process-jobs":
         out = [{"job_id": str(o.job_id), "status": o.status, "error": o.error, "runs": [_run(r) for r in o.runs]}
                for o in worker.run_pending()]
     elif args.command == "reconcile":

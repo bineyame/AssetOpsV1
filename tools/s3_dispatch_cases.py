@@ -529,7 +529,7 @@ class Cases(s2.Demo):
                                            if s["classification"] == "INDETERMINATE"]}
 
     def assess_cases(self) -> None:
-        outcomes = self.worker("run-pending")
+        outcomes = self.worker("process-jobs")
         say(f"  worker: {len(outcomes)} job(s): " + ", ".join(sorted({o['status'] for o in outcomes})))
         for case in self.cases:
             start = (case["window"] or {"start": window("06")[0]})["start"]
@@ -604,7 +604,7 @@ class Cases(s2.Demo):
             "SELECT external_batch_id FROM ingestion_batch WHERE external_batch_id = ANY(%s)", sealed))
         say(f"  delivered {first['acked']} of {len(sealed)} sealed batches; {len(sealed) - len(delivered_a)} held")
         rows_a = self.accepted(delivered_a)
-        self.worker("run-pending")
+        self.worker("process-jobs")
         read_a = self.window_read(start[:10] + "T00:00:00+00:00")
         say(f"  cutoff A {read_a['knowledge_cutoff']}: run {read_a['run_id']}, window rev "
             f"{read_a['window']['revision_no']}, intervals {[i['claim_level'] for i in read_a['intervals']]}")
@@ -613,7 +613,7 @@ class Cases(s2.Demo):
         late_rows = self.accepted(late_batches)
         jobs = self.pg("SELECT id::text, created_at, window_start, window_end FROM recompute_job "
                        "WHERE status = 'PENDING' ORDER BY created_at")
-        self.worker("run-pending")
+        self.worker("process-jobs")
         read_b = self.window_read(start[:10] + "T00:00:00+00:00")
         say(f"  cutoff B {read_b['knowledge_cutoff']}: run {read_b['run_id']}, window rev "
             f"{read_b['window']['revision_no']}, intervals {[i['claim_level'] for i in read_b['intervals']]}")
