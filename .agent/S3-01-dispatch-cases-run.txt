@@ -1,0 +1,141 @@
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases (code from git HEAD 0f68635; own var/)
+Database: assetops_s3cases (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=7186b6fd-fd4f-48d1-87db-9a08e6743356 revision=c4db2936-0efa-49d4-b873-36f0561c6618 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tls\server.crt (sha256 Fingerprint=73:57:2C:38:63:EC:DD:98:E4:75:DA:C0:75:24:95:19:18:C9:68:11:6E:35:D0:63:E2:FA:69:B1:1A:24:86:9C); key restricted to the current user
+
+=== 2. Lab/product API, provisioned gateway (epoch s3-cases-epoch-1), TLS upload server ===
+  Issued aog1.facad5820db119566c78aa00ebfc8f01.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.facad5820db119566c78aa00ebfc8f01 (in C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\credentials)
+
+=== 3. SIMULATED DEMO CONFIGURATION, step 1 only: generator values from 2026-10-01 (no capability channel yet) ===
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  from 2026-10-01T00:00:00Z: Foundation v4, binding set v3 minigrid-roles-1, snapshot 94b0ef48d4d1b176..
+  from 2026-10-02T00:00:00Z: Foundation v4, binding set v3 minigrid-roles-1, snapshot 94b0ef48d4d1b176..
+
+=== 4. Candidate blocked BEFORE: a roles-1 run (2026-10-01); capability channels are unbound ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 25, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 50, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 75, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 100, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 125, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 150, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 175, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  before-roles-1: kobo-mini-grid-prolonged v2 2026-10-01T03:00:00Z..2026-10-01T11:00:00Z on Foundation v4 / minigrid-roles-1 v3; commit {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release"; 198 sealed batches delivered
+  CASE candidate-blocked-before: 260 accepted readings, epochs ['s3-cases-epoch-1'], roles 6, precondition met=True; expected ceiling: Indeterminate: missing roles pv_available_power, pcs_discharge_capability (never Candidate)
+
+=== 5. SIMULATED DEMO CONFIGURATION, step 2: minigrid-roles-2 with both capability channels from 2026-10-02 ===
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  from 2026-10-01T00:00:00Z: Foundation v5, binding set v4 minigrid-roles-1, snapshot 3816066efda1c527..
+  from 2026-10-02T00:00:00Z: Foundation v6, binding set v5 minigrid-roles-2, snapshot 3f05c79c148328c0..
+
+=== 6. Necessary and two-capability Candidate (2026-10-02, roles-2) ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 223, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 248, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 273, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 298, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 323, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 348, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 373, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 396
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 396
+  main-roles-2: kobo-mini-grid-prolonged v2 2026-10-02T03:00:00Z..2026-10-02T11:00:00Z on Foundation v6 / minigrid-roles-2 v5; commit {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release"; 198 sealed batches delivered
+  reserve 30.0 %; public rows satisfied while RUNNING: row3_near_reserve 5, row4_capability_shortfall 3, row5a_pv_alone 15, row5b_pv_plus_discharge 13
+  CASE physical-necessary: 326 accepted readings, epochs ['s3-cases-epoch-1'], roles 8, precondition met=True; expected ceiling: Necessary (BATTERY_NEAR_RESERVE / CAPABILITY_SHORTFALL) at the named instants
+  CASE two-capability-candidate: 326 accepted readings, epochs ['s3-cases-epoch-1'], roles 8, precondition met=True; expected ceiling: Candidate avoidable, bounded to the named segments (never the whole interval)
+
+=== 7. Missing/poor-quality and late/out-of-order reporting (2026-10-03, degraded-reporting scenario) ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 421, READY 174
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 446, READY 149
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 471, READY 124
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 496, READY 99
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 521, READY 74
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 546, READY 49
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 571, READY 24
+  pass  8: attempted 24 acked 24 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 595
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 595
+  degraded-roles-2: kobo-s3-dispatch-degraded-reporting v1 2026-10-03T03:00:00Z..2026-10-03T11:00:00Z on Foundation v6 / minigrid-roles-2 v5; commit {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release"; 199 sealed batches delivered
+  CASE missing-poor-quality: 322 accepted readings, epochs ['s3-cases-epoch-1'], roles 8, precondition met=True; expected ceiling: Indeterminate across the gap: missing pcs_discharge_capability (never Candidate)
+  CASE late-out-of-order: 322 accepted readings, epochs ['s3-cases-epoch-1'], roles 8, precondition met=True; expected ceiling: Late evidence: a new revision when it arrives after an assessment; never silently reordered
+
+=== 8. Overlapping runs on ONE epoch (2026-10-04): ambiguous by construction (Q3 default) ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 620, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 645, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 670, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 695, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 720, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 745, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 770, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 793
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 793
+  overlap-a: kobo-mini-grid-prolonged v2 2026-10-04T03:00:00Z..2026-10-04T11:00:00Z on Foundation v6 / minigrid-roles-2 v5; commit {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release"; 198 sealed batches delivered
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 818, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 843, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 868, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 893, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 918, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 943, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 968, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 991
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 991
+  overlap-b: kobo-mini-grid-stop-60 v2 2026-10-04T03:00:00Z..2026-10-04T11:00:00Z on Foundation v6 / minigrid-roles-2 v5; commit {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release"; 198 sealed batches delivered
+  CASE overlap-same-epoch: 654 accepted readings, epochs ['s3-cases-epoch-1'], roles 8, precondition met=True; expected ceiling: Limited/Indeterminate: ambiguous cohort named (one epoch, two reports per channel-time); never summed, never separated by sequence range or receipt order
+
+=== 9. Overlap separable by epoch (2026-10-05): epoch-1 run, reprovision to epoch-2, second run ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1016, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1041, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1066, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1091, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1116, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1141, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1166, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1189
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1189
+  separable-epoch-1: kobo-mini-grid-prolonged v2 2026-10-05T03:00:00Z..2026-10-05T11:00:00Z on Foundation v6 / minigrid-roles-2 v5; commit {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release"; 198 sealed batches delivered
+  gateway reprovisioned to s3-cases-epoch-2 (exit 0)
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1214, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1239, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1264, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1289, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1314, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1339, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1364, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1387
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1387
+  separable-epoch-2: kobo-mini-grid-stop-60 v2 2026-10-05T03:00:00Z..2026-10-05T11:00:00Z on Foundation v6 / minigrid-roles-2 v5; commit {"commit": "RELEASED_TO_GATEWAY", "release": null, "open_in_assetops": null, "release_error": null, "registered_release"; 198 sealed batches delivered
+  CASE overlap-separable-epoch: 656 accepted readings, epochs ['s3-cases-epoch-1', 's3-cases-epoch-2'], roles 8, precondition met=True; expected ceiling: Each epoch is its own cohort; an assessment selects one and names the other (no blending)
+
+=== 10. FAULT FIXTURE (labelled, not gateway output): contradictory same-role readings (Q1 default) ===
+  fault-fixture batch feec22e74d442c189c18f769d279fc126014f93b488bdac5b184ed9937502bed: 200 counts={'accepted': 2, 'conflict': 0, 'duplicate': 0, 'processed': 2, 'rejected': 0, 'total': 2}
+  CASE contradiction-fault-fixture: 2 accepted readings, epochs ['s3-contradiction-fixture-epoch'], roles 1, precondition met=True; expected ceiling: Indeterminate: contradictory same-role samples (equal rank); never blended into source truth
+
+=== 11. Manifest ===
+  manifest: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\s3-dispatch-cases-v1.json (8 cases, 2868 accepted readings)
+
+=== Stopping every process this script started ===
+  stopped: tls-server, lab-api, gateway
+Produced in 198 s. Verifying after reload:
+  verify candidate-blocked-before: 260 reloaded, match=True, precondition met=True
+  verify physical-necessary: 326 reloaded, match=True, precondition met=True
+  verify two-capability-candidate: 326 reloaded, match=True, precondition met=True
+  verify missing-poor-quality: 322 reloaded, match=True, precondition met=True
+  verify late-out-of-order: 322 reloaded, match=True, precondition met=True
+  verify overlap-same-epoch: 654 reloaded, match=True, precondition met=True
+  verify overlap-separable-epoch: 656 reloaded, match=True, precondition met=True
+  verify contradiction-fault-fixture: 2 reloaded, match=True, precondition met=True
+  all evidence digest match=True
+VERIFY PASSED
+  verify candidate-blocked-before: 260 reloaded, match=True, precondition met=True
+  verify physical-necessary: 326 reloaded, match=True, precondition met=True
+  verify two-capability-candidate: 326 reloaded, match=True, precondition met=True
+  verify missing-poor-quality: 322 reloaded, match=True, precondition met=True
+  verify late-out-of-order: 322 reloaded, match=True, precondition met=True
+  verify overlap-same-epoch: 654 reloaded, match=True, precondition met=True
+  verify overlap-separable-epoch: 656 reloaded, match=True, precondition met=True
+  verify contradiction-fault-fixture: 2 reloaded, match=True, precondition met=True
+  all evidence digest match=True
+VERIFY PASSED
