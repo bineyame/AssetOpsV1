@@ -1,4 +1,4 @@
-"""Imported-Site Performance > Dispatch read over the durable dispatch-3 assessment (S3-01 phase 3).
+"""Imported-Site Performance > Dispatch read over the durable dispatch-3.1 assessment (S3-01 phase 3).
 
 Routes follow `D-2026-10-09-pre-s3-claim-routes-and-actor`: the Site code is
 resolved inside the configured tenant (never taken from the client), a foreign
@@ -64,7 +64,7 @@ def build_performance_router(reads: DispatchReadService | None, scope: Scope, ga
             allowed, reason = gate(code, tenant_id, site_id)
         except AssessmentStoreUnavailable as error:
             allowed, reason = False, f"The assessment store is unavailable: {error}"
-        return {"site_code": code, "read": "POSTGRES_DISPATCH_3" if allowed else "CLOSED", "permitted": allowed,
+        return {"site_code": code, "read": "POSTGRES_DISPATCH_3_1" if allowed else "CLOSED", "permitted": allowed,
                 "reason": reason}
 
     @router.get("/api/sites/{site_code}/performance/dispatch/windows/{day}")

@@ -233,7 +233,7 @@ class TestRoutes:
     def test_open_gate_serves_window_and_pinned_drill_down(self) -> None:
         reads = FakeReads()
         c = client(reads)
-        assert c.get(f"{BASE.format('KOBO-001')}/cutover").json()["read"] == "POSTGRES_DISPATCH_3"
+        assert c.get(f"{BASE.format('KOBO-001')}/cutover").json()["read"] == "POSTGRES_DISPATCH_3_1"
         assert c.get(f"{BASE.format('KOBO-001')}/windows/2026-10-06").json()["status"] == "CURRENT"
         detail = c.get(f"{BASE.format('KOBO-001')}/revisions/{reads.revision_id}")
         assert detail.status_code == 200
