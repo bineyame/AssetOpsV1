@@ -29,6 +29,11 @@ from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import (
 
 #: (scenario_id, scenario_version) -> SHA-256 of the canonical parsed document.
 PINNED_SCENARIO_FINGERPRINTS: dict[tuple[str, int], str] = {
+    # S3-01 phase 3 (review F5): the s3-dispatch-cases-v1 ordinary Necessary
+    # interval fixture, a new id at version 1.
+    ("kobo-s3-dispatch-necessary-run", 1): (
+        "ad889dbe1fffb4b9736660bb61ec9d986a1a409992b1bdc5fa94c6407cc05f14"
+    ),
     # S3-01 phase 1 (`D-2026-10-11-s3-dispatch-interval-assessment`): the
     # s3-dispatch-cases-v1 degraded-reporting fixture, a new id at version 1.
     ("kobo-s3-dispatch-degraded-reporting", 1): (
@@ -125,7 +130,7 @@ def site_naming_failure(path_name: str, document: dict[str, Any]) -> str | None:
 
 def test_the_shipped_scenarios_were_found() -> None:
     documents = shipped_documents()
-    assert len(documents) == 11, [path.name for path, _ in documents]
+    assert len(documents) == 12, [path.name for path, _ in documents]
 
 
 def test_every_shipped_scenario_matches_its_pinned_fingerprint() -> None:
@@ -163,6 +168,7 @@ NEW_SINCE_T025G = {
     "kobo-daytime-delayed-publication",
     "kobo-daytime-post-run-publication",
     "kobo-s3-dispatch-degraded-reporting",
+    "kobo-s3-dispatch-necessary-run",
 }
 
 

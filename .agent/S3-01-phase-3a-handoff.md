@@ -68,3 +68,8 @@ Branch `task/S3-01-dispatch-assessment`. Commits: `aaa47ae`, `79161dc`, `6314b64
 - The new case `necessary-interval` is on 2026-10-09 and uses epoch `s3-cases-epoch-2`. Its window is `LIMITED` and its interval is `NECESSARY`; see `.agent/S3-01-dispatch-cases-run.txt` lines 112-178.
 - The run predates the read-test commit `6f23429`, which changed tests only, so it does not need a rerun for that.
 - I handed off before the subagent's written report arrived. Read the SOC-difference cause from the commit messages of `d47c03d` and `93cc3ef`. If they do not establish it, it is still open.
+- The scenario is registered in the backend guards (`test_scenario_fingerprints.py` pin `ad889dbe…5f14`, `NEVER_SHIPPED_AS_V1`, count 12): 49 passed.
+- Subagent findings:
+  - **SOC cause:** established as batch walk order only. The batch ID digests the per-run gateway ID, and the simulator is deterministic (69.1875, 30 and 58.5 all lie on one prolonged-day-02 trajectory).
+  - **Contradiction values:** now `['40', '47.5']`.
+- Unconfirmed: the necessary-interval window reads `LIMITED` with an empty limitations list. Check `dispatch_v3` window claim logic, likely the open upper bound. A `LIMITED` claim with no named limitation may be a defect to fix in 3a.
