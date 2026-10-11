@@ -88,3 +88,10 @@ None required (USER_REVIEW_REQUIRED: false). For the reviewer:
 - the delivered-portion table above;
 - the Q2/Q3/Q8 defaults;
 - whether `d = |open AND closure of the panel's core portions| − 1` matches the strategy's distance.
+
+## Fix round 1 (review F1)
+
+- Fix: `delivery_next_work.cjs` visual branch now takes the union of V-01's open prerequisites and the panel's open technical gates (`p.needed`) for `d` and `proof`; `closure_unlock` is true only when `p.needed` is a subset of V-01's prerequisites.
+- Fixture: new test `V-01 distance includes the panel open technical gates (review F1)` in `test_delivery_next_work.cjs` (V-01 sized M, `site:1#b/#c` open on `I-S7-01`: d=1, proof `[I-S7-01]`, ready_now=0, closure_unlock=0; plus a subset case where V-01 requires `I-S7-01`: d=1, closure_unlock=1). Before the fix it failed (`actual: 0, expected: 1`); after, 18/18 delivery fixtures pass.
+- `tools/check-all.ps1`: all six guards PASS. Live `--next-work` still refuses with `unmapped_approved_panel` (37 approved core panels unmapped), unchanged.
+- Carries C1-C5 not worked.

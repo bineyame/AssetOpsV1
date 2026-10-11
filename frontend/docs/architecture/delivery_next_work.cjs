@@ -252,10 +252,12 @@ function nextWork(ctx) {
           closure_unlock: [...p.needed].every((x) => x === c.id || upstream.has(x))});
       }
       if (c.visual && p.vGate === c.id) {
-        const d = upstream.size;
+        // The panel is only ready once V-01's own prerequisites AND the panel's open technical gates are closed.
+        const all = new Set([...upstream, ...p.needed]);
+        const d = all.size;
         const prior = reach.get(p.key);
         if (!prior || d < prior.d) reach.set(p.key, {key: p.key, screen: p.screen, area: p.area, value: p.value, path: 'visual', d,
-          proof: [...upstream].sort(), portions: [], closure_unlock: true});
+          proof: [...all].sort(), portions: [], closure_unlock: [...p.needed].every((x) => upstream.has(x))});
       }
     }
     const reached = [...reach.values()].sort((a, b) => a.key.localeCompare(b.key));

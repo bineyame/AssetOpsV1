@@ -91,6 +91,23 @@ test('panel counted once across technical and visual paths for one candidate', (
   assert.deepEqual(v01.blocked, []);
 });
 
+test('V-01 distance includes the panel open technical gates (review F1)', () => {
+  const r = run(({registry}) => { registry.delivery_plan.visual_gates['V-01'].effort = 'M'; });
+  const p = cand(r, 'V-01').paths[0];
+  assert.equal(p.path, 'visual');
+  assert.equal(p.d, 1, 'I-S7-01 still open on site:1');
+  assert.deepEqual(p.proof, ['I-S7-01']);
+  assert.equal(cand(r, 'V-01').ready_now, 0);
+  assert.equal(cand(r, 'V-01').closure_unlock, 0, 'V-01 closure alone does not unlock site:1');
+  // When V-01 itself requires the panel's technical gate, the union is one gate and closure unlocks it.
+  const r2 = run(({registry}) => {
+    registry.delivery_plan.visual_gates['V-01'].effort = 'M';
+    registry.delivery_plan.visual_gates['V-01'].requires = ['I-S7-01'];
+  });
+  assert.equal(cand(r2, 'V-01').paths[0].d, 1);
+  assert.equal(cand(r2, 'V-01').closure_unlock, 1);
+});
+
 test('fully delivered core panel contributes no technical reach; V-01 still reaches it', () => {
   const r = run(({registry}) => {
     const row = registry.delivery_plan.w1_panel_mapping[0];
