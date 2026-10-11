@@ -528,6 +528,10 @@ def assess(inputs: AnalyticInputSet) -> WindowAssessment:
     if inputs.cohort.usable and not any(r.role in (GEN_STATE, GEN_POWER) for r in inputs.readings):
         limitations.append("NO_GENERATOR_STATE: no accepted generator state or output in the cohort")
     for i in intervals:
+        # A window Limited by an interval names that interval's limitation (phase-2 F1 rule: a Limited claim
+        # always names what limits it; an open bound alone once left the window Limited with an empty list).
+        for limit in i.result["limitations"]:
+            limitations.append(f"INTERVAL_LIMITED: interval from {i.result['interval']['first_on']}: {limit}")
         for seg in i.result["segments"]:
             gaps = [m for m in seg["missing"] if not m.startswith(_NOT_EVIDENCE_GAPS)]
             if seg["classification"] == INDETERMINATE and gaps:
@@ -540,7 +544,7 @@ def assess(inputs: AnalyticInputSet) -> WindowAssessment:
                            "overlapping; intervals cannot be reconstructed over those spans")
     if not inputs.cohort.usable or generator_ambiguous:
         claim = WINDOW_INDETERMINATE
-    elif limitations or any(i.result["limitations"] for i in intervals):
+    elif limitations:
         claim = WINDOW_LIMITED
     else:
         claim = WINDOW_COMPLETE

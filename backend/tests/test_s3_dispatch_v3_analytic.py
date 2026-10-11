@@ -298,3 +298,17 @@ def test_in_interval_capability_gap_makes_window_limited_and_names_it():
     assert interval.result["portions_minutes"]["indeterminate"] != "0"
     assert result.claim_level == d3.WINDOW_LIMITED
     assert any(x.startswith("EVIDENCE_GAP:") for x in result.result["limitations"])
+
+
+def test_open_bound_interval_makes_window_limited_and_names_it():
+    # The necessary-interval case read LIMITED with an empty limitations list: the interval's open bound
+    # limited the window without being named there. A Limited window always names its limitation.
+    feed = Feed()
+    feed.instant(4, 45, state="STOPPED")
+    for k in range(5):
+        feed.instant(5, k * 15 if k < 4 else 59)
+    _, result = run(feed)
+    [interval] = result.intervals
+    assert any(x.startswith("OPEN_BOUND") for x in interval.result["limitations"])
+    assert result.claim_level == d3.WINDOW_LIMITED
+    assert any(x.startswith("INTERVAL_LIMITED:") and "OPEN_BOUND" in x for x in result.result["limitations"])
