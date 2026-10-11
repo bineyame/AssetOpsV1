@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import sys
 from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -53,6 +54,7 @@ def _scenario(name: str):
 
 PROLONGED = _scenario("kobo-mini-grid-prolonged")
 DEGRADED = _scenario("kobo-s3-dispatch-degraded-reporting")
+NECESSARY_RUN = _scenario("kobo-s3-dispatch-necessary-run")
 NOW = registered.NOW
 
 
@@ -68,7 +70,7 @@ def configured():
 def service(store):
     registry = registered.ImportedSiteRegistry(registered.FoundationService(store, "demo", registered.Clock(NOW)))
     return registered.RunSetupService(
-        registered.FakeRuns(), registered.FakeSites(()), registered.FakeScenarios((PROLONGED, DEGRADED)),
+        registered.FakeRuns(), registered.FakeSites(()), registered.FakeScenarios((PROLONGED, DEGRADED, NECESSARY_RUN)),
         model_profiles=(MINI_GRID_V3_MODEL,),
         publication_profiles=(REGISTERED_KOBO_PUBLICATION_PROFILE_V2, V3),
         now=lambda: registered.text(NOW),
@@ -156,3 +158,31 @@ def test_degraded_scenario_gap_silences_discharge_capability_for_an_hour(configu
     available = sorted(e.source_time for e in envelopes
                        if (e.device_id, e.signal_id) == ("pv-inverter-controller", "available-power"))
     assert len(available) - len(discharge) == 4  # one hour of 15-minute readings not carried
+
+
+def test_necessary_run_scenario_is_short_of_capability_at_every_running_report(configured, tmp_path) -> None:
+    """S3-01 phase 3 (review F5): the generator runs to the end of the interval, and at every
+    report while it runs, published load exceeds PV available power plus PCS discharge capability
+    (decision-table row 4), so a dispatch-3 interval there is all-Necessary on public values."""
+    version, role_set = version_at(configured, "2026-10-09T03:00:00Z")
+    assert role_set == "minigrid-roles-2"
+    run = draft(configured, "09", version, scenario=NECESSARY_RUN)
+    envelopes, _ = published(tmp_path, run)
+    # no reporting fault: the only non-GOOD readings are the interval means not yet complete at run start
+    assert {(e.source_time, e.unavailable_reason) for e in envelopes if e.quality != "GOOD"} == {
+        ("2026-10-09T03:00:00Z", "NO_COMPLETED_INTERVAL")}
+    grid: dict[str, dict[tuple[str, str], Decimal]] = {}
+    for e in envelopes:
+        if e.value is not None and (e.device_id, e.signal_id) != GENERATOR_STATUS:
+            grid.setdefault(e.interval_end or e.source_time, {})[(e.device_id, e.signal_id)] = Decimal(e.value)
+    status = {e.source_time: e.value for e in envelopes if (e.device_id, e.signal_id) == GENERATOR_STATUS}
+    meters = [(m, "active-power") for m in ("residential-meter", "clinic-meter", "mill-meter")]
+    running = sorted(t for t, v in status.items() if v == "RUNNING")
+    assert running and running[-1] == "2026-10-09T11:00:00Z"  # runs to the end: no stop inside the interval
+    assert "STOPPED" in {status[t] for t in status if t < running[0]}  # a STOPPED report before the first ON
+    assert all(status[t] == "RUNNING" for t in status if t >= running[0])
+    for t in running:
+        slot = grid[t]
+        load = sum(slot[m] for m in meters)
+        pv, dis = slot[("pv-inverter-controller", "available-power")], slot[("battery-pcs-controller", "discharge-capability")]
+        assert load > pv + dis, (t, load, pv, dis)

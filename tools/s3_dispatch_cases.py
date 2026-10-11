@@ -56,6 +56,7 @@ SCENARIOS = {
     "prolonged": ("kobo-mini-grid-prolonged", 2),
     "stop-60": ("kobo-mini-grid-stop-60", 2),
     "degraded": ("kobo-s3-dispatch-degraded-reporting", 1),
+    "necessary-run": ("kobo-s3-dispatch-necessary-run", 1),  # phase 3 (review F5)
 }
 CAPABILITY_ROLES = ("pv_available_power", "pcs_discharge_capability")
 HEADROOM = Decimal("1.1")
@@ -369,6 +370,25 @@ class Cases(s2.Demo):
                     "Each epoch is its own cohort; an assessment selects one and names the other (no blending)",
                     {"met": separable, "epoch_by_batch": {EPOCH_1: len(first), EPOCH_2: len(second)}})
 
+        step("9b. PHASE 3: generator needed for its whole run (2026-10-09, necessary-run scenario, ordinary)")
+        batches = self.run_case("necessary-run", "09", "necessary-run", seed=20261009)
+        rows = self.accepted(batches)
+        reserve = self.reserve(window("09")[0])
+        hit = self.classify_public(rows, reserve)
+        running = sorted({at.strftime("%Y-%m-%dT%H:%M:%SZ") for at, s in self.instants(rows).items()
+                          if s.get("generator_state") == "RUNNING"})
+        necessary = set(hit["row3_near_reserve"]) | set(hit["row4_capability_shortfall"])
+        say(f"  reserve {reserve} %; {len(running)} RUNNING instants, {len(necessary & set(running))} satisfy "
+            f"row 3 or row 4; candidate rows {len(hit['row5a_pv_alone']) + len(hit['row5b_pv_plus_discharge'])}")
+        self.record("necessary-interval", "Generator needed for its whole run: load above PV available + PCS "
+                    "discharge capability at every RUNNING report (ordinary registered gateway evidence)", "09",
+                    batches, rows, "Interval claim NECESSARY (all segments Necessary: CAPABILITY_SHORTFALL, "
+                    "BATTERY_NEAR_RESERVE/AT_RESERVE while SOC <= reserve + 10)",
+                    {"met": bool(running) and set(running) <= set(hit["row4_capability_shortfall"])
+                     and not hit["row5a_pv_alone"] and not hit["row5b_pv_plus_discharge"],
+                     "reserve_soc": str(reserve), "running_instants": len(running),
+                     "row3_instants": hit["row3_near_reserve"], "row4_instants": hit["row4_capability_shortfall"]})
+
         step("10. FAULT FIXTURE (labelled, not gateway output): contradictory same-role readings (Q1 default)")
         self.contradiction()
 
@@ -386,20 +406,7 @@ class Cases(s2.Demo):
         from assetops_contracts.source_envelope import canonical_json
         from assetops_contracts.source_envelope_v3 import v3_message_id
 
-        main = next(c for c in self.cases if c["case_id"] == "two-capability-candidate")
-        texts = dict(self.gw_db("SELECT batch_id, payload_text FROM upload_batch"))
-        template, batch = None, None
-        for batch_id in main["batch_ids"]:
-            parsed = json.loads(texts[batch_id])
-            for envelope_text in parsed["envelopes"]:
-                envelope = json.loads(envelope_text)
-                if envelope["source"]["signal_id"] == "state-of-charge" and envelope["payload"].get("value"):
-                    template, batch = envelope, parsed
-                    break
-            if template:
-                break
-        if template is None:
-            raise SystemExit("no accepted state-of-charge envelope to copy for the fault fixture")
+        template, batch = self.soc_template()
         source_time = "2026-10-06T05:00:00Z"
         base = Decimal(template["payload"]["value"])
         envelope_texts = []
@@ -434,15 +441,24 @@ class Cases(s2.Demo):
 
     # ------------------------------------------------------------ phase 2
     def soc_template(self) -> tuple[dict[str, Any], dict[str, Any]]:
+        """The fault fixtures' template: the two-capability-candidate case's state-of-charge envelope with a
+        value at the minimum (source_time, sequence) across all its batches - never batch walk order, since
+        batch IDs digest the per-run gateway ID and snapshot, so their sort order changes run to run."""
         main = next(c for c in self.cases if c["case_id"] == "two-capability-candidate")
         texts = dict(self.gw_db("SELECT batch_id, payload_text FROM upload_batch"))
+        found = []
         for batch_id in main["batch_ids"]:
             parsed = json.loads(texts[batch_id])
             for envelope_text in parsed["envelopes"]:
                 envelope = json.loads(envelope_text)
                 if envelope["source"]["signal_id"] == "state-of-charge" and envelope["payload"].get("value"):
-                    return envelope, parsed
-        raise SystemExit("no accepted state-of-charge envelope to copy for the fault fixture")
+                    found.append(((envelope["timing"]["source_time"], envelope["message"]["sequence"]),
+                                  envelope, parsed))
+        if not found:
+            raise SystemExit("no accepted state-of-charge envelope to copy for the fault fixture")
+        key, envelope, parsed = min(found, key=lambda f: f[0])
+        say(f"  template SOC envelope: source_time {key[0]}, sequence {key[1]}, value {envelope['payload']['value']}")
+        return envelope, parsed
 
     def post_fixture(self, template: dict[str, Any], batch: dict[str, Any], epoch: str,
                      items: list[tuple[int, str, str]]) -> tuple[str, int]:
@@ -567,6 +583,8 @@ class Cases(s2.Demo):
             "candidate-blocked-before": bool(claims) and "CANDIDATE_AVOIDABLE" not in claims
                                         and "MISSING_ROLE" in limits,
             "physical-necessary": "NECESSARY" in segs,
+            # review F5: the INTERVAL claim, not merely a Necessary segment
+            "necessary-interval": "NECESSARY" in claims and not set(claims) - {"NECESSARY"},
             "two-capability-candidate": "CANDIDATE_AVOIDABLE" in claims,
             "missing-poor-quality": any(s <= "2026-10-03T06:45" and e >= "2026-10-03T06:00"
                                         for s, e in read.get("indeterminate_segments", [])),
@@ -666,7 +684,12 @@ class Cases(s2.Demo):
         manifest = {
             "schema": {"id": "s3-dispatch-cases", "version": 1},
             "label": "s3-dispatch-cases-v1",
-            "status": "SIMULATED public fixture (S3-01 phases 1-2, I-sim-dispatch-cases; phase 2 adds the persisted dispatch-3 result per case). Not field evidence. Fault-fixture labels are manifest annotations, not central attestation.",
+            "status": "SIMULATED public fixture (S3-01 phases 1-3, I-sim-dispatch-cases; phase 2 adds the persisted dispatch-3 result per case; phase 3 adds the ordinary necessary-interval case). Not field evidence. Fault-fixture labels are manifest annotations, not central attestation.",
+            "replayability": "Evidence, batch, run and revision IDs are per run: each run recreates the database, "
+                              "registers a new gateway and new Foundation/binding revisions, and batch IDs digest "
+                              "those. The fixture is replayable by procedure + seeds + verify (same cases, counts, "
+                              "values and claim checks), not byte-for-byte. Fault-fixture templates are chosen by "
+                              "minimum (source_time, sequence), so their values are stable across runs.",
             "produced_from_commit": commit,
             "database": s2.DEMO_DB,
             "site": self.identity,
