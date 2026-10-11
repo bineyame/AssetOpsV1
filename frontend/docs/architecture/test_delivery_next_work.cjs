@@ -313,3 +313,90 @@ test('labeled V-01a/V-01b through discovery: open does not stop or refuse, activ
     assert.ok(r.global_stops.some((s) => s.stop === stop && s.reason.includes('V-01a')));
   }
 });
+
+// ---- Graph-pass fixtures (S4-04 / S5-02 / S6-03) against the real committed registry and tasks/README.md ----
+const fs = require('node:fs');
+const path = require('node:path');
+const repo = path.resolve(__dirname, '../../..');
+const realRegistry = JSON.parse(fs.readFileSync(path.join(__dirname, 'v69-dependency-registry-pilot.json'), 'utf8'));
+const realNodes = new Map(realRegistry.nodes.map((n) => [n.id, n]));
+const realReadme = fs.readFileSync(path.join(repo, 'tasks/README.md'), 'utf8');
+const closure = (ids) => { // technical `requires` closure only; sequenced_after is ordering, not a path
+  const seen = new Set(); const stack = [...ids];
+  while (stack.length) { const id = stack.pop(); if (seen.has(id)) continue; seen.add(id); stack.push(...(realNodes.get(id)?.requires || [])); }
+  return seen;
+};
+const panelsReaching = (nodeId) => realRegistry.delivery_plan.w1_panel_mapping
+  .filter((p) => p.claim_portions.some((c) => closure(c.technical_requires).has(nodeId))).map((p) => p.key);
+const portionReaching = (key, nodeId) => realRegistry.delivery_plan.w1_panel_mapping.find((p) => p.key === key)
+  .claim_portions.map((c) => closure(c.technical_requires).has(nodeId));
+
+test('real README links the new packets and the renamed S4-03; real packets are not_started (graph pass)', () => {
+  const gq = nw.parseGateQueue(realReadme);
+  for (const [task, file] of [['S4-03', 'S4-03-finding-evidence-history.md'], ['S4-04', 'S4-04-site-finding-index.md'],
+    ['S5-02', 'S5-02-overview-finding-list.md'], ['S6-03', 'S6-03-site-work-list.md']]) {
+    const found = gq.find((q) => q.task === task);
+    assert.ok(found, `${task} discovered from tasks/README.md`);
+    assert.equal(found.packet, file);
+    assert.ok(fs.existsSync(path.join(repo, 'tasks', file)), `${file} exists`);
+    const meta = nw.packetMeta(fs.readFileSync(path.join(repo, 'tasks', file), 'utf8'));
+    assert.equal(nw.packetPhase(meta.status), 'not_started', `${task} status "${meta.status}"`);
+  }
+  assert.ok(!gq.some((q) => q.packet === 'S4-03-finding-evidence.md'), 'no stale pre-rename S4-03 link');
+});
+
+test('each of S4-03, S4-04, S5-02, S6-03 stops selection when active or in review (graph pass)', () => {
+  const gq = nw.parseGateQueue(realReadme).filter((q) => ['S4-03', 'S4-04', 'S5-02', 'S6-03'].includes(q.task));
+  assert.equal(gq.length, 4);
+  for (const g of gq) for (const [status, stop] of [['active', 'active_task'], ['in_review', 'review']]) {
+    const r = run((ctx) => { ctx.gate_queue = [{...g, meta: {status, user_review_required: true}}]; });
+    assert.equal(r.decision.action, 'stop', `${g.task} ${status}`);
+    assert.ok(r.global_stops.some((s) => s.stop === stop && s.reason.includes(g.task)), `${g.task} ${status} names the packet`);
+  }
+  const unknown = run((ctx) => { ctx.gate_queue = [{...gq[0], meta: {status: 'mystery', user_review_required: true}}]; });
+  assert.equal(unknown.status, 'refused', 'unknown status refuses');
+  const open = run((ctx) => { ctx.gate_queue = gq.map((g) => ({...g, meta: {status: 'implementation-ready packet; not activated', user_review_required: true}})); });
+  assert.notEqual(open.status, 'refused');
+  assert.ok(!open.global_stops.some((s) => /S4-0[34]|S5-02|S6-03/.test(s.reason)), 'not-started packets do not stop');
+});
+
+test('A-finding-index reaches the Site Finding list and both mini:3 variants, not Evidence/History or mini:1/2/4 (graph pass)', () => {
+  const reach = panelsReaching('A-finding-index');
+  assert.ok(reach.includes('sitefindings:1'));
+  assert.ok(reach.includes('mini:3'));
+  assert.deepEqual(portionReaching('mini:3', 'A-finding-index'), [true, true], 'empty and positive variants both gated');
+  assert.deepEqual(portionReaching('sitefindings:1', 'A-finding-index'), [true, true]);
+  for (const k of ['finding-evidence:1', 'finding-evidence:2', 'finding-history:1', 'mini:1', 'mini:2', 'mini:4']) assert.ok(!reach.includes(k), `${k} must not reach A-finding-index`);
+  // Only I-S4-04 (and I-S5-02 for the Overview integration) own the index work.
+  for (const k of ['sitefindings:1', 'mini:3']) assert.ok(panelsReaching('I-S4-04').includes(k));
+  assert.ok(panelsReaching('I-S5-02').includes('mini:3'));
+  assert.ok(!panelsReaching('I-S5-02').includes('sitefindings:1'));
+});
+
+test('S4-03 and S5-01 are technically closable while the Site index stays open (graph pass)', () => {
+  for (const id of ['I-S4-03', 'I-S5-01']) {
+    assert.ok(!closure([id]).has('A-finding-index'), `${id} does not require A-finding-index`);
+    assert.ok(!closure([id]).has('I-S4-04'), `${id} does not require I-S4-04`);
+  }
+  assert.ok(closure(['I-S4-04']).has('I-S4-01'));
+  assert.ok(closure(['I-S5-02']).has('I-S5-01') && closure(['I-S5-02']).has('I-S4-04'));
+});
+
+test('A-action-index reaches only sitework:1, via S6-03 (graph pass)', () => {
+  assert.deepEqual(panelsReaching('A-action-index'), ['sitework:1']);
+  assert.deepEqual(panelsReaching('I-S6-03'), ['sitework:1']);
+  const realPanels = realRegistry.delivery_plan.w1_panel_mapping.map((p) => p.key);
+  const actionish = realPanels.filter((k) => /^(action|recommendation|changes|verification|plan)/.test(k));
+  assert.ok(actionish.length > 0, 'non-empty set of Action/Recommendation/Change/Verification panels');
+  for (const k of actionish) assert.ok(!panelsReaching('A-action-index').includes(k), `${k} does not need A-action-index`);
+  assert.ok(!closure(['I-S6-01']).has('A-action-index') && !closure(['I-S6-02']).has('A-action-index'));
+});
+
+test('S6 ordering: I-S6-01 requires I-S4-01; I-S6-02 follows S6-01 not S6-03 (graph pass)', () => {
+  assert.ok(realNodes.get('I-S6-01').requires.includes('I-S4-01'));
+  assert.ok(realNodes.get('I-S6-02').requires.includes('I-S6-01'));
+  assert.ok(!closure(['I-S6-02']).has('I-S6-03'));
+  assert.ok(realNodes.get('I-S6-03').requires.includes('I-S6-01'));
+  assert.deepEqual(realNodes.get('I-S6-03').sequenced_after, ['I-S6-02'], 'S6-03 is queue-ordered after S6-02, not technically dependent');
+  assert.ok(!closure(['I-S6-03']).has('I-S6-02'));
+});
