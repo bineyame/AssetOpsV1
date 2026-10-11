@@ -2008,3 +2008,4 @@ The carried review findings above are unchanged.
 - C6 (Architect question): S6 panels disagree on needing the S4-01 Finding closeout.
 - C7: S3-02 reviewer must verify reusing `I-sim-dispatch-cases` for the coverage fixture.
 - PRE-S3-04 fix re-review carry: `SiteConfiguration.tsx:802` devices caption says "none has reported" then that nothing states whether any device is reporting (contradictory, pre-existing); fold into the truthfulness sweep with `SiteOverview.tsx:241`.
+- C8 (`.agent/W1-mapping-fix-rereview.md`): `finding:2#a` and `recommendation:3#a` boundary labels still say "CAP" without a capability node; reword in the C3 placeholder pass (positive capability limit would be a separate portion if the Architect wants it).
