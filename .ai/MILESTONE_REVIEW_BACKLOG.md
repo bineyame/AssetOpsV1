@@ -2009,3 +2009,13 @@ The carried review findings above are unchanged.
 - C7: S3-02 reviewer must verify reusing `I-sim-dispatch-cases` for the coverage fixture.
 - PRE-S3-04 fix re-review carry: `SiteConfiguration.tsx:802` devices caption says "none has reported" then that nothing states whether any device is reporting (contradictory, pre-existing); fold into the truthfulness sweep with `SiteOverview.tsx:241`.
 - C8 (`.agent/W1-mapping-fix-rereview.md`): `finding:2#a` and `recommendation:3#a` boundary labels still say "CAP" without a capability node; reword in the C3 placeholder pass (positive capability limit would be a separate portion if the Architect wants it).
+
+### Graph-pass review carries (2026-10-11, `.agent/graph-pass-review.md`, fresh Claude; fix at the next Planner touch)
+
+- G1: `v69-panel-contracts.json` still names old owners for moved panels (sitework:1 S6-01, mini:3 S5-01, sitefindings:1, finding-evidence:1-2, finding-history:1 lanes, recommendation:2 S6-01).
+- G2: templated acceptance-target text cites wrong fixtures (mini:1/2 `D-financial-basis`; recommendation:2/3 `D-action-records`); sitework:1 boundary omits the Site index.
+- G3: `I-overview-finding-list-ui` requires the Site Finding list UI (cross-screen UI, B2 precedent); no closure change.
+- G4: S4-04 packet says "Decide `A-finding-index`" (Architect's decision); S6-01 header says "S4-01 Finding identity/read" instead of the closed S4-01 task.
+- G5: `I-sim-dispatch-cases` and `I-sim-verification-cases` lack acceptance targets in the registry (fix before activating the first selection's refinement).
+- Residual: S3-01 sized S may undercount Performance cutover + legacy-exception review; sitework:1 has one claim portion, so the S6-03 reviewer checks empty and positive states.
+
