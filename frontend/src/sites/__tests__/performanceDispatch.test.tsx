@@ -138,8 +138,9 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     const { container } = mount(client, "?day=2026-10-02");
     await settledScreen();
     expect(container.querySelector("[data-dispatch-cutover='closed']")).not.toBeNull();
-    expect(screen.getByText(/The newest report is EXCEPTIONS/)).toBeTruthy();
-    expect(container.querySelector("[data-missing-message-ids]")?.textContent).toMatch(/m9.*not a match/);
+    expect(container.querySelector("[data-missing-message-ids]")).toBeNull();
+    expect(container.textContent).not.toMatch(/EXCEPTIONS|MISSING_SOURCE|INTENTIONAL_DELTA|m9|lineage|\{"/);
+    expect(container.querySelector("[data-closed-plain]")?.textContent).toMatch(/not be shown|not shown/);
     expect(client.windows).toEqual([]);
     expect(container.querySelector("[data-dispatch-status]")).toBeNull();
   });
@@ -231,6 +232,85 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     expect(notes?.textContent).toMatch(/not records AssetOps accepted/);
     expect(notes?.closest("table")).toBeNull();
     expect(container.querySelector("[data-evidence-id='e1']")?.textContent).not.toMatch(/contradictory/);
+  });
+
+  it("keeps the technical comparison on the closed path in the Analysis view only", async () => {
+    const closed: CutoverState = { ...OPEN, permitted: false, read: "CLOSED", reason: "The newest report is EXCEPTIONS",
+      comparison: { ...EMPTY_SET, empty_set: false, outcome: "EXCEPTIONS", counts: { MATCH: 0, INTENTIONAL_DELTA: 0, MISSING_SOURCE: 1, UNPROVEN: 0 },
+        lineage_breaks: { x: 1 }, claims: [{ class: "MISSING_SOURCE", legacy_assessment_id: "a1", missing_message_ids: ["m9"], reason: "not accepted" }] } };
+    const { container } = mount(fake({ status: "loaded", value: closed }, { status: "loaded", value: window() }), "?day=2026-10-02&view=analysis");
+    await settledScreen();
+    expect(container.querySelector("[data-missing-message-ids]")?.textContent).toMatch(/m9.*not a match/);
+    expect(screen.getByText(/The newest report is EXCEPTIONS/)).toBeTruthy();
+  });
+
+  it("shows the day's demonstration notes on the Overview even when no period can be selected", async () => {
+    const notes = [{ kind: "DEMO_MANIFEST_FAULT_FIXTURE", case_label: "out-of-order-fault-fixture", matched_evidence_ids: ["e1", "e2"] }];
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [], demo_annotations: notes }) });
+    const { container } = mount(client, "?day=2026-10-07");
+    await settledScreen();
+    const found = container.querySelector("[data-demo-annotations='1']");
+    expect(found?.textContent).toMatch(/not records AssetOps accepted/);
+    expect(found?.textContent).toMatch(/out-of-order-fault-fixture/);
+  });
+
+  it("does not label the battery channel row as a missing reserve setting", async () => {
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({
+      coverage: { battery_reserve: { status: "UNBOUND", readings: 0, not_good: 0 } } }) });
+    const { container } = mount(client, "?day=2026-10-02");
+    await settledScreen();
+    const row = container.querySelector("[data-coverage-role='battery_reserve']")?.textContent ?? "";
+    expect(row).not.toMatch(/^Battery reserve setting/);
+    expect(row).toMatch(/site settings/);
+  });
+
+  it("uses plain words for the shortfall constraint and a missing series, and hides model strings", async () => {
+    const base = revision("rev-current", "NECESSARY");
+    base.result.binding_constraints = ["CAPABILITY_SHORTFALL"];
+    base.result.limitations = ["NO_COHORT: nothing"];
+    base.result.segments[0].missing = ["not bound in the selected role set (missing role)"];
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [base],
+      limitations: ["NO_COHORT: nothing"] }) }, { "rev-current": detail(base) });
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current&block=0");
+    await settledScreen();
+    const text = container.textContent ?? "";
+    expect(text).toMatch(/Demand above what solar and battery could supply/);
+    expect(text).not.toMatch(/capability shortfall|Another limitation is recorded/i);
+    expect(container.querySelector("[data-limitation='NO_COHORT']")?.textContent).toMatch(/series of records/);
+    const block = container.querySelector("[data-selected-block]")?.textContent ?? "";
+    expect(block).not.toMatch(/role set|missing role|cohort|Missing:/);
+    expect(block).toMatch(/Analysis/);
+    expect(container.querySelector("[data-evidence-id='e1']")?.textContent).not.toMatch(/GOOD|T\d\d:\d\d:\d\d/);
+    expect(container.querySelector("[data-evidence-id='e1'] details")?.textContent).not.toMatch(/2026-10-11T/);
+  });
+
+  it("says plainly when records exist but no series was chosen, and when a binding covers only part of the day", async () => {
+    const selection = { cohort_status: "AMBIGUOUS", cohort: { status: "AMBIGUOUS", reason: "two series", members: [] },
+      model_version: "dispatch-3.1" } as unknown as DispatchWindow["selection"];
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [], selection,
+      evidence_count: 0, current_basis: { read_at: "x", accepted_reading_count: 14 }, limitations: ["AMBIGUOUS_COHORT: two"] }) });
+    const { container } = mount(client, "?day=2026-10-05");
+    await settledScreen();
+    const note = container.querySelector("[data-coverage-note]")?.textContent ?? "";
+    expect(note).toMatch(/no single series/i);
+    expect(note).not.toMatch(/^0 accepted records/);
+    expect(container.querySelector("[data-limitation='AMBIGUOUS_COHORT']")).not.toBeNull();
+  });
+
+  it("names part-of-the-day for a missing measurement", async () => {
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() });
+    const { container } = mount(client, "?day=2026-10-02");
+    await settledScreen();
+    expect(container.querySelector("[data-limitation='MISSING_ROLE']")?.textContent).toMatch(/part of the day/);
+  });
+
+  it.each(["STALE_PROJECTION", "FAILED"] as const)("marks the day totals as not current on a %s day", async (status) => {
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ status, stale: true,
+      status_reasons: ["RECOMPUTE_OUTSTANDING: job"] }) });
+    const { container } = mount(client, "?day=2026-10-02");
+    await settledScreen();
+    expect(container.querySelector("[data-totals-stale]")?.textContent).toMatch(/not current/);
+    expect(container.querySelectorAll("[data-total][data-stale='true']")).toHaveLength(4);
   });
 
   it("Analysis shows the constraint and coverage portions and types the rest unavailable", async () => {

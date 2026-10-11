@@ -115,6 +115,12 @@ def py(*argv: str, check: bool = True) -> subprocess.CompletedProcess:
 def prepare() -> None:
     import psycopg
 
+    for needed, hint in (
+        (PRODUCER_MANIFEST, "run the dispatch-case producer first (tools/s3_dispatch_cases.py)"),
+        (REPO / "var" / "sites" / "kobo-001.yaml", "the Kobo site configuration is missing"),
+    ):
+        if not needed.exists():
+            raise SystemExit(f"Missing prerequisite {needed}: {hint}")
     say("=== 1. Private work tree (git HEAD) with its own var/ ===")
     tree = WORK / "tree"
     if tree.exists():
@@ -146,6 +152,11 @@ def prepare() -> None:
     done = py("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", "KOBO-001",
               check=False)
     say("  " + done.stdout.strip().replace("\n", "\n  "))
+    if done.returncode != 0:
+        raise SystemExit(
+            f"FAILED: the file-backed comparison did not pass (exit {done.returncode}); the dispatch read stays "
+            f"closed, so nothing is ready to show.\n{done.stderr.strip()}"
+        )
 
     say(f"=== 4. Staged states: FAILED {FAILED_DAY}, PENDING {STALE_DAY} (walkthrough database only) ===")
     say("  " + py("-c", STAGE, DB_URL, STALE_DAY, FAILED_DAY).stdout.strip())

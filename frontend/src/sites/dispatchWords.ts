@@ -53,7 +53,7 @@ export function reasonWords(reason: string): string {
 }
 
 const LIMITATION_WORDS: Record<string, string> = {
-  MISSING_ROLE: "A measurement this assessment needs is not set up for the site",
+  MISSING_ROLE: "A measurement this assessment needs is not set up for part of the day",
   EVIDENCE_GAP: "Records needed for part of a generator period are missing",
   INTERVAL_LIMITED: "A generator period is only partly bounded by the records",
   OPEN_BOUND: "The generator's start or stop falls outside the records",
@@ -62,6 +62,7 @@ const LIMITATION_WORDS: Record<string, string> = {
   SEQUENCE_ORDER_INVERTED: "Some records arrived in a different order from when they were taken",
   REPORTS_OVERLAP: "Some reports cover overlapping times",
   GENERATOR_SERIES_AMBIGUOUS: "The generator's on and off records disagree",
+  NO_COHORT: "No single series of records could be chosen for this day, so it is not assessed",
   NO_GENERATOR_STATE: "No generator on/off record for this day",
 };
 
@@ -95,7 +96,7 @@ const ROLE_WORDS: Record<string, string> = {
   fuel_level: "Fuel level",
   feeder_demand: "Feeder demand",
   pv_irradiance: "Solar irradiance",
-  battery_reserve: "Battery reserve setting",
+  battery_reserve: "Reported battery reserve level (the reserve used comes from site settings)",
 };
 
 export function roleWords(role: string): string {
@@ -115,11 +116,19 @@ export function coverageWords(status: string): string {
 const CONSTRAINT_WORDS: Record<string, string> = {
   BATTERY_AT_RESERVE: "Battery at its reserve level",
   BATTERY_NEAR_RESERVE: "Battery near its reserve level",
-  LOAD_ABOVE_CAPABILITY: "Demand above what solar and battery could supply",
+  CAPABILITY_SHORTFALL: "Demand above what solar and battery could supply",
+  OPERATOR_OVERRIDE: "An operator instruction kept the generator on",
+  MINIMUM_RUNTIME: "The generator was within its minimum operating time",
 };
 
 export function constraintWords(code: string): string {
   return CONSTRAINT_WORDS[code] ?? code.toLowerCase().replace(/_/g, " ");
+}
+
+/** Plain words for a record's quality flag. */
+export function qualityWords(quality: string): string {
+  const text = quality.toLowerCase().replace(/_/g, " ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /** "14:20" from an ISO instant (UTC), or the text unchanged. */

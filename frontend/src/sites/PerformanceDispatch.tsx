@@ -26,6 +26,7 @@ import {
   isDay,
   limitationWords,
   minutes,
+  qualityWords,
   reasonWords,
   roleWords,
   shiftDay,
@@ -139,7 +140,7 @@ export function PerformanceDispatch({
           </p>
         </Panel>
       ) : !cutover.value.permitted ? (
-        <ClosedCutover state={cutover.value} />
+        <ClosedCutover state={cutover.value} view={view} />
       ) : windowRead === null ? (
         <p>Loading the site&apos;s assessments.</p>
       ) : windowRead.status !== "loaded" ? (
@@ -195,20 +196,34 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
   );
 }
 
-function ClosedCutover({ state }: { state: CutoverState }) {
+function ClosedCutover({ state, view }: { state: CutoverState; view: "overview" | "analysis" }) {
+  const technical = view === "analysis";
   return (
     <>
       <Panel heading="Dispatch results are not shown yet" headingId="durable-dispatch-closed-heading">
-        <p data-dispatch-cutover="closed">
-          The stored dispatch assessment for this site is not shown until it has been checked against the
-          earlier results and its records are complete. Nothing is shown in its place.
-        </p>
-        <p className="chart-note" data-dispatch-cutover-reason>
-          {state.unavailable ? "The check could not be read: " : "Why: "}
-          {state.reason}
-        </p>
+        <div data-closed-plain>
+          <p data-dispatch-cutover="closed">
+            The stored dispatch assessment for this site is not shown until it has been checked against the
+            earlier results and its records are complete. Nothing is shown in its place.
+          </p>
+          {technical ? (
+            <p className="chart-note" data-dispatch-cutover-reason>
+              {state.unavailable ? "The check could not be read: " : "Why: "}
+              {state.reason}
+            </p>
+          ) : (
+            <p className="chart-note" data-dispatch-cutover-plain>
+              {state.unavailable
+                ? "The check could not be read, so nothing can be shown yet."
+                : state.comparison
+                  ? "The check against the earlier results found differences that still need to be resolved."
+                  : "The check against the earlier results has not been completed."}{" "}
+              The Analysis view has the full detail.
+            </p>
+          )}
+        </div>
       </Panel>
-      {state.comparison ? <ComparisonPanel summary={state.comparison} /> : null}
+      {state.comparison ? technical ? <ComparisonPanel summary={state.comparison} /> : <ComparisonLine summary={state.comparison} /> : null}
     </>
   );
 }
@@ -265,6 +280,7 @@ function WindowView({
   return (
     <div className="durable-dispatch__body" data-dispatch-status={read.status}>
       <StatusLine read={read} />
+      {read.demo_annotations.length > 0 ? <DemoNotes notes={read.demo_annotations} /> : null}
       {view === "analysis" ? (
         <AnalysisView read={read} selected={selected} segment={segment} comparison={comparison} detail={loaded} />
       ) : (
@@ -365,15 +381,23 @@ function DayTotals({ read }: { read: DispatchWindow }) {
     ["Cannot determine", durationText(portion(read, "indeterminate")), "Records missing or conflicting", "unknown"],
   ];
   return (
-    <ul className="dispatch-cards" aria-label="Day totals">
-      {cards.map(([label, value, note, key]) => (
-        <li key={key} className="dispatch-card" data-total={key}>
-          <span className="dispatch-card__label">{label}</span>
-          <span className="dispatch-card__value">{value}</span>
-          <span className="dispatch-card__note">{note}</span>
-        </li>
-      ))}
-    </ul>
+    <>
+      {read.stale ? (
+        <p className="dispatch-pinned" data-totals-stale>
+          {STATUS_WORDS[read.status]?.label ?? read.status}: these totals come from an earlier result and are not
+          current.
+        </p>
+      ) : null}
+      <ul className="dispatch-cards" aria-label="Day totals">
+        {cards.map(([label, value, note, key]) => (
+          <li key={key} className="dispatch-card" data-total={key} data-stale={read.stale ? "true" : undefined}>
+            <span className="dispatch-card__label">{label}</span>
+            <span className="dispatch-card__value">{value}</span>
+            <span className="dispatch-card__note">{read.stale ? "Not current. " : ""}{note}</span>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -562,9 +586,6 @@ function SelectedPeriod({
               .join("; ")}
           </Fact>
         ) : null}
-        <Fact term="Stored result">
-          Revision {revision.revision_no} · <code>{revision.id}</code>
-        </Fact>
       </FactList>
       {segment !== null ? (
         <div className="dispatch-block-detail" data-selected-block={segment.start}>
@@ -574,9 +595,11 @@ function SelectedPeriod({
           <ul>
             {segment.load_kw ? <li>Site demand {segment.load_kw} kW.</li> : null}
             {segment.binding_constraint ? <li>{constraintWords(segment.binding_constraint)}.</li> : null}
-            {(segment.missing ?? []).map((item) => (
-              <li key={item}>Missing: {item}</li>
-            ))}
+            {(segment.missing ?? []).length > 0 ? (
+              <li data-block-limited>
+                Some readings this block needs are missing or limited; the Analysis view lists them.
+              </li>
+            ) : null}
             {segment.observed === false ? <li>No report falls inside this block; it is bounded by its neighbours.</li> : null}
           </ul>
         </div>
@@ -610,6 +633,8 @@ function LimitationsPanel({ read }: { read: DispatchWindow }) {
 
 function CoveragePanel({ read }: { read: DispatchWindow }) {
   const rows = Object.entries(read.coverage ?? {});
+  const noSeries =
+    read.selection !== null && !["SELECTED_UNIQUE", "SELECTED_EXPLICIT"].includes(read.selection.cohort_status);
   return (
     <Panel heading="Accepted sample coverage" headingId="durable-dispatch-coverage-heading">
       {rows.length === 0 ? (
@@ -636,9 +661,12 @@ function CoveragePanel({ read }: { read: DispatchWindow }) {
           </tbody>
         </DataTable>
       )}
-      <p className="chart-note">
-        {read.evidence_count} accepted records behind this day&apos;s result. A reading counted here is a report the
-        site sent and AssetOps accepted; gaps between reports are not filled in.
+      <p className="chart-note" data-coverage-note>
+        {noSeries
+          ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result. `
+          : `${read.evidence_count} accepted records behind this day's result. `}
+        A reading counted here is a report the site sent and AssetOps accepted; gaps between reports are not
+        filled in.
       </p>
     </Panel>
   );
@@ -670,7 +698,8 @@ function EvidencePanel({
   const wanted = segment?.evidence_ids ? new Set(segment.evidence_ids) : null;
   const rows = wanted === null ? detail.evidence : detail.evidence.filter((item) => wanted.has(item.evidence_id));
   const shown = rows.slice(0, 60);
-  const notes = detail.demo_annotations.length > 0 ? detail.demo_annotations : windowNote;
+  const shownAbove = new Set(windowNote.map((note) => JSON.stringify(note)));
+  const notes = detail.demo_annotations.filter((note) => !shownAbove.has(JSON.stringify(note)));
   return (
     <Panel heading="Accepted records behind the selected result" headingId="durable-dispatch-evidence-heading">
       <p className="chart-note" data-evidence-scope={segment === null ? "period" : "block"}>
@@ -697,7 +726,7 @@ function EvidencePanel({
               <td>
                 {item.value ?? "none"} {item.unit ?? ""}
               </td>
-              <td>{item.quality}</td>
+              <td>{qualityWords(item.quality)}</td>
               <td>
                 <RecordProvenance item={item} />
               </td>
@@ -730,7 +759,7 @@ function RecordProvenance({ item }: { item: AcceptedEvidenceItem }) {
         <Fact term="Message">
           <code>{item.message_id}</code>
         </Fact>
-        <Fact term="Accepted at">{item.accepted_at}</Fact>
+        <Fact term="Accepted at (UTC)">{stamp(item.accepted_at)}</Fact>
         {item.selection_note ? <Fact term="Note">{item.selection_note}</Fact> : null}
       </FactList>
     </Disclosure>
