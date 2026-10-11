@@ -81,7 +81,8 @@ class AssessmentStore(Protocol):
     def configuration(self, tenant_id: UUID, site_id: UUID, read_range: Window,
                       knowledge_at: datetime) -> Configuration: ...
 
-    def lease_job(self, domain: str, now: datetime, lease: timedelta) -> JobLease | None: ...
+    def lease_job(self, domain: str, now: datetime, lease: timedelta, *,
+                  max_attempts: int = 3) -> JobLease | None: ...
 
     def complete_job(self, lease: JobLease, outputs: list[RunOutput], now: datetime) -> list[PersistedRun]:
         """Persist every run and mark the job DONE in ONE commit, only while the lease is still ours."""

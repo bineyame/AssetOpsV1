@@ -3,10 +3,14 @@
 A cohort is a set of public report streams (gateway, registered source,
 sequence epoch). The rule (dispatch-3 table, "Cohort"):
 
-- A source whose readings in the read range come from two or more epochs
-  whose source-time spans overlap has no coherent default choice: the result
-  is AMBIGUOUS and names each epoch as an alternative. Epochs that follow one
-  another in time (a reprovisioned gateway) are one coherent stream.
+- A source whose readings in the window come from two or more sequence
+  epochs has no coherent default choice: the result is AMBIGUOUS and names each
+  epoch as an alternative. This holds whether the epochs' source-time spans
+  overlap (two runs) or follow one another (a reprovisioned gateway, or a
+  labelled fault fixture placed beside ordinary evidence): central evidence
+  carries no attested marker that would tell these apart, so the default never
+  blends epochs (phase-2 review F3, `D-2026-10-11-s3-phase-2-selection-and-read`).
+  An explicit selection may still name one or more non-overlapping epochs.
 - An explicit selection uses exactly the named members; readings of other
   members are excluded, never blended.
 - Inside a selected member, each channel (role, asset) must be one series:
@@ -68,7 +72,24 @@ def select_cohort(readings: tuple[AcceptedReading, ...], window: Window,
             reason=("a source reports the same time span under more than one sequence epoch ("
                     + ", ".join(f"{m.source_id}@{m.sequence_epoch}" for m in names)
                     + "); no coherent default cohort; select one explicitly"))
+    successive = _multi_epoch(present)
+    if successive:
+        names = sorted(successive)
+        return CohortSelection(
+            "AMBIGUOUS", (), alternatives=tuple(names),
+            reason=("a source reports in this window under more than one sequence epoch ("
+                    + ", ".join(f"{m.source_id}@{m.sequence_epoch}" for m in names)
+                    + "); central evidence does not attest that they are one physical stream, so the "
+                      "default cohort does not blend them; select one explicitly"))
     return CohortSelection("SELECTED_UNIQUE", tuple(present), limits=series_limits(readings))
+
+
+def _multi_epoch(members: list[CohortMember]) -> set[CohortMember]:
+    """Members of a source (same gateway and source) present under two or more epochs."""
+    by_source: dict[tuple, list[CohortMember]] = defaultdict(list)
+    for m in members:
+        by_source[(m.gateway_id, m.source_id)].append(m)
+    return {m for group in by_source.values() if len(group) > 1 for m in group}
 
 
 def _clashing(readings: tuple[AcceptedReading, ...]) -> set[CohortMember]:

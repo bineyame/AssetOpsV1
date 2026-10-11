@@ -177,8 +177,16 @@ class PostgresAssessmentStore:
 
     # --- jobs -------------------------------------------------------------------
 
-    def lease_job(self, domain: str, now: datetime, lease: timedelta) -> JobLease | None:
+    def lease_job(self, domain: str, now: datetime, lease: timedelta, *,
+                  max_attempts: int = 3) -> JobLease | None:
         def work(c: Connection) -> JobLease | None:
+            # A lease that expired on its last allowed attempt (the worker crashed or always outlives
+            # its lease) is FAILED with a reason instead of being re-leased forever (phase-2 F6).
+            c.execute(text(
+                "UPDATE recompute_job SET status = 'FAILED', lease_until = NULL, last_error = "
+                "'lease expired on attempt ' || attempts || ' of ' || CAST(:max AS integer) || "
+                "' without completing' WHERE domain = :d AND status = 'LEASED' AND lease_until < :now "
+                "AND attempts >= :max"), {"d": domain, "now": now, "max": max_attempts})
             row = c.execute(text(
                 "UPDATE recompute_job SET status = 'LEASED', lease_until = :until, attempts = attempts + 1 "
                 "WHERE id = (SELECT id FROM recompute_job WHERE domain = :d AND ((status = 'PENDING' AND "

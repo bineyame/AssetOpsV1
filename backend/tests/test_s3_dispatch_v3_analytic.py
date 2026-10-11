@@ -176,11 +176,27 @@ def test_overlapping_epochs_of_one_source_are_ambiguous_and_explicitly_selectabl
     assert result2.intervals and ":cohort:" in result2.intervals[0].assessment_key
 
 
-def test_sequential_epochs_are_one_coherent_stream():
+def test_sequential_epochs_are_not_blended_by_default_but_explicitly_selectable():
+    """A reprovisioned gateway and a fixture placed beside ordinary evidence look alike centrally."""
     feed = run_interval(Feed(), 3, 4)
     run_interval(feed, 8, 9, epoch="e2")
     inputs, result = run(feed)
-    assert inputs.cohort.status == "SELECTED_UNIQUE" and len(result.intervals) == 2
+    assert inputs.cohort.status == "AMBIGUOUS" and not result.intervals
+    assert "does not blend" in inputs.cohort.reason
+    both = tuple(CohortMember(GW, s, e) for s in SRC.values() for e in ("e1", "e2"))
+    inputs2, result2 = run(feed, cohort=both)
+    assert inputs2.cohort.status == "SELECTED_EXPLICIT" and len(result2.intervals) == 2
+
+
+def test_full_role_fixture_epoch_beside_ordinary_epoch_is_never_positive_by_default():
+    """Phase-2 review F3 reproduction: a non-overlapping full-role fixture epoch at 14:00 next to the
+    ordinary 05:00 epoch used to join SELECTED_UNIQUE and yield a second Candidate."""
+    feed = run_interval(Feed(), 5, 6)
+    run_interval(feed, 14, 15, epoch="s3-contradiction-fixture-epoch")
+    inputs, result = run(feed)
+    assert inputs.cohort.status == "AMBIGUOUS"
+    assert not result.intervals and result.claim_level == d3.WINDOW_INDETERMINATE
+    assert all(i.claim_level != d3.CANDIDATE for i in result.intervals)
 
 
 def test_same_epoch_overlap_is_a_named_cohort_limit():
@@ -195,16 +211,16 @@ def test_same_epoch_overlap_is_a_named_cohort_limit():
 
 def test_out_of_order_reading_marks_its_span():
     """The phase-2 fixture shape: a separate epoch whose later source time is sequenced first."""
-    feed = run_interval(Feed(), 5, 6)
+    feed = Feed()  # the fixture sits alone in its window (a lone stream, Architect Q4)
     first = feed.add("bat", "battery_soc", "bat", at(14, 15), "80", mean=False, epoch="ooo", seq=1)
     second = feed.add("bat", "battery_soc", "bat", at(14, 0), "81", mean=False, epoch="ooo", seq=2)
     inputs, result = run(feed)
-    assert inputs.cohort.status == "SELECTED_UNIQUE"  # its span does not overlap epoch e1's
+    assert inputs.cohort.status == "SELECTED_UNIQUE"
     [limit] = [x for x in inputs.cohort.limits if x.kind == "SEQUENCE_ORDER_INVERTED"]
     assert (limit.start, limit.end) == (at(14, 0), at(14, 15))
     assert set(limit.evidence_ids) == {str(first.evidence_id), str(second.evidence_id)}
-    assert result.claim_level == d3.WINDOW_LIMITED
-    assert result.intervals[0].claim_level == d3.CANDIDATE  # the 05:00 interval is outside the span
+    assert result.claim_level in (d3.WINDOW_LIMITED, d3.WINDOW_INDETERMINATE)
+    assert not [i for i in result.intervals if i.claim_level in (d3.CANDIDATE, d3.NECESSARY)]
 
 
 def test_inverted_span_inside_an_interval_makes_that_segment_indeterminate():

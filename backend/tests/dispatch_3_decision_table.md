@@ -29,11 +29,11 @@ Readings are placed by source time (an interval mean at its interval end), never
 | Interval ownership | an interval belongs to the window containing its first ON report | a neighbour window assesses intervals that start there |
 | Default cohort | the streams `(gateway, source, sequence epoch)` with a reading inside the window | a stream seen only in the bracket is neither pulled in nor named (it would change the window's basis whenever a neighbour day receives evidence) |
 | Ambiguous cohort | one source reports overlapping source-time spans under two or more epochs | window `INDETERMINATE`, `AMBIGUOUS_COHORT` names each epoch; no interval is assessed; an explicit cohort selection assesses one choice under a cohort-suffixed key |
-| Sequential epochs | non-overlapping epochs of one source | one coherent stream |
+| Successive epochs (phase-3 amendment, review F3) | non-overlapping epochs of one source inside one window | `AMBIGUOUS` like overlap: central evidence has no attested marker separating a reprovisioned gateway from a labelled fault fixture placed beside ordinary evidence, so the default cohort never blends epochs; an explicit selection may name several non-overlapping epochs |
 | `REPORTS_OVERLAP` | two readings at one channel-time in one stream | span unusable (covers same-role contradictions and same-epoch run overlap) |
 | `SEQUENCE_ORDER_INVERTED` | a reading sequenced after another of its channel but placed earlier | span `[earlier, later]` unusable; never re-sorted by receipt |
 
-The cohort never uses an epoch name, a manifest label, a Lab run ID or receipt order. Same-epoch overlapping runs (Q3) show up as `SEQUENCE_ORDER_INVERTED` and `REPORTS_OVERLAP` over the overlapped span. A labelled fault-fixture epoch is a separate stream. If it overlaps an ordinary epoch, the cohort is `AMBIGUOUS`. If it stands alone, its readings are assessed with the same limits and are never blended into another stream.
+The cohort never uses an epoch name, a manifest label, a Lab run ID or receipt order. Same-epoch overlapping runs (Q3) show up as `SEQUENCE_ORDER_INVERTED` and `REPORTS_OVERLAP` over the overlapped span. A labelled fault-fixture epoch is a separate stream. If it shares a window with an ordinary epoch of the same source (overlapping or not), the cohort is `AMBIGUOUS`. If it stands alone, its readings are assessed with the same limits and are never blended into another stream.
 
 ## Interval reconstruction (carried from `dispatch-2`, re-keyed)
 

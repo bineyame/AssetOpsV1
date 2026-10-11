@@ -113,7 +113,7 @@ class DispatchAssessmentWorker:
 
     # -- jobs -------------------------------------------------------------------
     def run_once(self) -> JobOutcome | None:
-        lease = self.store.lease_job(DOMAIN, self.clock(), self.lease)
+        lease = self.store.lease_job(DOMAIN, self.clock(), self.lease, max_attempts=self.max_attempts)
         if lease is None:
             return None
         try:
