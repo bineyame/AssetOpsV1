@@ -1997,3 +1997,14 @@ The carried review findings above are unchanged.
 
 - C2: `frontend/src/.../SiteOverview.tsx:241` "No window: no evidence has been accepted for this site." is stale since S2-02; fold into a later truthfulness sweep (S5-01 Overview work).
 - `backend/tests/test_s2_site_evidence_postgres.py:51` uses `RECEIVED` at module level but imports it only when `ASSETOPS_TEST_DATABASE_URL` is set, so a run without Postgres fails at collection instead of skipping (present on main since S2-02). Guard the module-level constants with `if URL:`.
+
+### W1 mapping review carries (2026-10-11, `.agent/W1-mapping-review.md`, fresh Claude)
+
+- C1 (Architect question): S4-03 bundles Finding Evidence/History with the Site Finding index, so those panels (and `mini:1/2/4` via S5-01) wait on undecided `A-finding-index`; accept or split.
+- C2: `mini:3#a` labelled "bounded" but is the empty/Unknown variant (Q3).
+- C3: 25 portions keep placeholder claim text; all 37 share boilerplate `mapping_target`; reused task nodes lack acceptance targets.
+- C4: task-node effort inconsistent (e.g. `I-S6-01` M over 4 M + 7 S open subnodes).
+- C5 (Architect question): `A-action-index` gates all 14 Action panels; Architect scoped it to the Site list only.
+- C6 (Architect question): S6 panels disagree on needing the S4-01 Finding closeout.
+- C7: S3-02 reviewer must verify reusing `I-sim-dispatch-cases` for the coverage fixture.
+
