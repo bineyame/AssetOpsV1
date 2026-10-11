@@ -1985,3 +1985,11 @@ The carried review findings above are unchanged.
 - Before S7 health uses diagnostic facts, separate contact freshness from the age of the reported facts (backlogged diagnostic beside CURRENT).
 - Other S2-02 carries confirmed as recorded above (NO_DATA wording, Evidence read scale, chunked body limit, non-gap refusal note on restart, Q37/Q38, owner proof limits, fault-fixture sibling never S3 input).
 
+### PRE-S3-03 review carries (2026-10-11, `.agent/PRE-S3-03-review.md`, fresh Claude)
+
+- C1: the 14 `reviewed_mapping:true` rows still say "independent review pending"; cite `.agent/PRE-S3-03-review.md` at the next registry edit.
+- C2: delivered portions depending on S1-02, S1-03, S2-01a, S2-01b cite only implementer packets; add the independent verdict files.
+- C3: registry text contradictions: `lab:3#a` boundary still says "awaits S2-02"; capability/claim-lineage IDs listed as superseded on `evidence:1#a` / `evidence-analysis:2#a` but live proposed gates on their `#b` portions.
+- C4: stale Readiness text ("awaiting credentials, not sending data") at `StoredFoundationViews.tsx:433-436`, `foundation_api.py:295-298`, `FoundationRevisionPanel.tsx:323-324` - user-visible since S2-02; needs an owning slice (PRE-S3-03 Q8, Architect).
+- C5: the checker never reads `delivery_plan.enables`; fail closed or implement before anyone fills it.
+
