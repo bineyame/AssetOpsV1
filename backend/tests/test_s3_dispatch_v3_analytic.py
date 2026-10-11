@@ -187,6 +187,7 @@ def test_same_epoch_overlap_is_a_named_cohort_limit():
     feed = run_interval(Feed(), 5, 6)
     run_interval(feed, 5, 6, soc="50")  # a second run on the same epoch: later sequences, same times
     _, result = run(feed)
+    assert result.claim_level == d3.WINDOW_INDETERMINATE
     kinds = {x.split(":")[0] for x in result.result["limitations"]}
     assert {"SEQUENCE_ORDER_INVERTED", "REPORTS_OVERLAP"} <= kinds
     assert all(i.claim_level == d3.INDETERMINATE for i in result.intervals)
@@ -256,3 +257,17 @@ def test_wrong_model_version_is_refused():
     inputs, _ = run(run_interval(Feed(), 5, 6))
     with pytest.raises(ValueError):
         d3.assess(replace(inputs, model_version="dispatch-2"))
+
+
+def test_window_names_the_span_where_a_capability_role_is_unbound():
+    feed = run_interval(Feed(), 14, 15)
+    query = EvidenceQuery(UUID(int=7), UUID(int=8), "dispatch", WINDOW, at(23))
+    late_bound = tuple(replace(b, valid_from=at(12)) if b.role in ("pv_available_power", "pcs_discharge_capability")
+                       else b for b in bindings())
+    result = EvidenceQueryResult(query, tuple(feed.readings), late_bound, controls(), (ROLE_SET_MINIGRID_2,))
+    inputs = build_input_set(result, select_cohort(result.readings, WINDOW), analytic_id=d3.ANALYTIC_ID,
+                             model_version=d3.MODEL_VERSION, roles_by_set=ROLES_BY_SET)
+    window = d3.assess(inputs)
+    missing = [x for x in window.result["limitations"] if x.startswith("MISSING_ROLE")]
+    assert len(missing) == 2 and all("2026-10-02T00:00:00.000000Z..2026-10-02T12:00:00.000000Z" in x for x in missing)
+    assert window.intervals[0].claim_level == d3.CANDIDATE  # the 14:00 interval is after the binding

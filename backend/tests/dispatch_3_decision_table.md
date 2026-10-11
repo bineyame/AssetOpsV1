@@ -27,7 +27,7 @@ Readings are placed by source time (an interval mean at its interval end), never
 | Assessment window | UTC day `[00:00, 24:00)` | worker unit; an explicit window may be any half-open range |
 | `BRACKET` | 6 h each side | bracketing evidence for bounds and continuity; also the neighbour-window reach of a recompute job |
 | Interval ownership | an interval belongs to the window containing its first ON report | a neighbour window assesses intervals that start there |
-| Default cohort | the streams `(gateway, source, sequence epoch)` with a reading inside the window | a stream seen only in the bracket is not pulled in |
+| Default cohort | the streams `(gateway, source, sequence epoch)` with a reading inside the window | a stream seen only in the bracket is neither pulled in nor named (it would change the window's basis whenever a neighbour day receives evidence) |
 | Ambiguous cohort | one source reports overlapping source-time spans under two or more epochs | window `INDETERMINATE`, `AMBIGUOUS_COHORT` names each epoch; no interval is assessed; an explicit cohort selection assesses one choice under a cohort-suffixed key |
 | Sequential epochs | non-overlapping epochs of one source | one coherent stream |
 | `REPORTS_OVERLAP` | two readings at one channel-time in one stream | span unusable (covers same-role contradictions and same-epoch run overlap) |
@@ -68,7 +68,7 @@ Segments use the both-ends rule: Candidate only if both ends are Candidate; Nece
 | any Candidate | `CANDIDATE_AVOIDABLE`, bounded to the sum of Candidate segment durations; Necessary and Indeterminate portions listed separately; no edge allowance (changed: `dispatch-2` added edges for fuel) |
 | otherwise | `INDETERMINATE` |
 
-Confidence is carried: High, dropping one level each for an Indeterminate portion, a margin below `STRONG_MARGIN` (25 % of load), and transition uncertainty above `TRANSITION_LIMIT` (15 min) or an open bound. The open bound is a new drop reason. The window claim is `COMPLETE` with no limitation, `LIMITED` when any limitation is named (missing role, cohort limit, open bound, configuration), and `INDETERMINATE` when no cohort could be selected. No Finding, fuel quantity, saving or money is produced (S4).
+Confidence is carried: High, dropping one level each for an Indeterminate portion, a margin below `STRONG_MARGIN` (25 % of load), and transition uncertainty above `TRANSITION_LIMIT` (15 min) or an open bound. The open bound is a new drop reason. The window claim is `COMPLETE` with no limitation, `LIMITED` when any limitation is named (missing role, cohort limit, open bound, configuration), and `INDETERMINATE` when no cohort could be selected or the generator series itself carries a cohort limit (`GENERATOR_SERIES_AMBIGUOUS`: intervals cannot be reconstructed there). A capability role unbound over part of the window is named with its span (`MISSING_ROLE ... over start..end`). No Finding, fuel quantity, saving or money is produced (S4).
 
 ## Basis, runs and revisions
 

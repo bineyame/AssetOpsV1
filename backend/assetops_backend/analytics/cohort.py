@@ -57,7 +57,8 @@ def select_cohort(readings: tuple[AcceptedReading, ...], window: Window,
                                limits=series_limits(mine), reason=reason)
     if not present:
         return CohortSelection("EMPTY", (), reason="no accepted reading in the window")
-    others = tuple(sorted({r.member for r in readings} - set(present)))
+    # Streams seen only in the bracket are not candidates and are not named: naming them would
+    # change this window's basis whenever a neighbour day receives evidence.
     readings = tuple(r for r in readings if r.member in set(present))
     clashing = _clashing(readings)
     if clashing:
@@ -67,8 +68,7 @@ def select_cohort(readings: tuple[AcceptedReading, ...], window: Window,
             reason=("a source reports the same time span under more than one sequence epoch ("
                     + ", ".join(f"{m.source_id}@{m.sequence_epoch}" for m in names)
                     + "); no coherent default cohort; select one explicitly"))
-    return CohortSelection("SELECTED_UNIQUE", tuple(present), alternatives=others,
-                           limits=series_limits(readings))
+    return CohortSelection("SELECTED_UNIQUE", tuple(present), limits=series_limits(readings))
 
 
 def _clashing(readings: tuple[AcceptedReading, ...]) -> set[CohortMember]:

@@ -483,6 +483,23 @@ def _interval(inputs: AnalyticInputSet, asset: str, first_on: datetime, last_on:
     return IntervalAssessment(key, inputs.window.start, inputs.window.end, claim, result, evidence, basis)
 
 
+def _unbound_spans(inputs: AnalyticInputSet, role: str) -> list[tuple[datetime, datetime]]:
+    """Parts of the window where no selected binding set binds `role` (a missing-role limit)."""
+    spans, cursor = [], inputs.window.start
+    bound = sorted((b.valid_from, b.valid_to or inputs.window.end) for b in inputs.bindings if b.role == role)
+    for lo, hi in bound:
+        if hi <= cursor:
+            continue
+        if lo > cursor:
+            spans.append((cursor, min(lo, inputs.window.end)))
+        cursor = max(cursor, hi)
+        if cursor >= inputs.window.end:
+            break
+    if cursor < inputs.window.end:
+        spans.append((cursor, inputs.window.end))
+    return [(lo, hi) for lo, hi in spans if lo < hi]
+
+
 def assess(inputs: AnalyticInputSet) -> WindowAssessment:
     """The `dispatch-3` window and interval assessments for one input set."""
     if inputs.model_version != MODEL_VERSION:
@@ -497,16 +514,20 @@ def assess(inputs: AnalyticInputSet) -> WindowAssessment:
         limitations.append(f"AMBIGUOUS_COHORT: {inputs.cohort.reason}" if inputs.cohort.status == "AMBIGUOUS"
                            else f"NO_COHORT: {inputs.cohort.reason}")
     for role in (PV_AVAILABLE, DISCHARGE):
-        coverage = inputs.role_coverage.get(role)
-        if coverage is None or coverage["status"] == "UNBOUND":
-            limitations.append(f"MISSING_ROLE: {role} is not bound in the selected role set(s) "
-                               f"{', '.join(inputs.role_sets) or 'none'}; Candidate is unavailable")
+        for lo, hi in _unbound_spans(inputs, role):
+            limitations.append(f"MISSING_ROLE: {role} is not bound in the selected role set over "
+                               f"{iso(lo)}..{iso(hi)}; Candidate is unavailable there")
     for limit in inputs.cohort.limits:
         limitations.append(f"{limit.kind}: {limit.role} {iso(limit.start)}..{iso(limit.end)} "
                            f"({', '.join(limit.evidence_ids)})")
     if inputs.cohort.usable and not any(r.role in (GEN_STATE, GEN_POWER) for r in inputs.readings):
         limitations.append("NO_GENERATOR_STATE: no accepted generator state or output in the cohort")
-    if not inputs.cohort.usable:
+    generator_ambiguous = any(x.role in (GEN_STATE, GEN_POWER) and x.start < inputs.window.end
+                              and inputs.window.start <= x.end for x in inputs.cohort.limits)
+    if generator_ambiguous:
+        limitations.append("GENERATOR_SERIES_AMBIGUOUS: generator state reports are out of sequence order or "
+                           "overlapping; intervals cannot be reconstructed over those spans")
+    if not inputs.cohort.usable or generator_ambiguous:
         claim = WINDOW_INDETERMINATE
     elif limitations or any(i.result["limitations"] for i in intervals):
         claim = WINDOW_LIMITED

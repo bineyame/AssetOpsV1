@@ -533,7 +533,7 @@ class Cases(s2.Demo):
         say(f"  worker: {len(outcomes)} job(s): " + ", ".join(sorted({o['status'] for o in outcomes})))
         for case in self.cases:
             start = (case["window"] or {"start": window("06")[0]})["start"]
-            read = self.window_read(start.replace("Z", "+00:00"))
+            read = self.window_read(start[:10] + "T00:00:00+00:00")
             case["assessment"] = read
             case["assessment_check"] = self.check(case["case_id"], read)
             say(f"  {case['case_id']}: window {read.get('window', {}).get('claim_level')}, intervals "
@@ -571,7 +571,8 @@ class Cases(s2.Demo):
             "missing-poor-quality": any(s <= "2026-10-03T06:45" and e >= "2026-10-03T06:00"
                                         for s, e in read.get("indeterminate_segments", [])),
             "late-publication": read.get("run_id") is not None,
-            "overlap-same-epoch": (bool(claims) and set(claims) == {"INDETERMINATE"}
+            "overlap-same-epoch": (read.get("window", {}).get("claim_level") == "INDETERMINATE"
+                                   and not set(claims) - {"INDETERMINATE"}
                                    and "SEQUENCE_ORDER_INVERTED" in limits),
             "overlap-separable-epoch": read.get("cohort_status") == "AMBIGUOUS" and not claims,
             "contradiction-fault-fixture": "REPORTS_OVERLAP" in limits and not claims,
@@ -604,7 +605,7 @@ class Cases(s2.Demo):
         say(f"  delivered {first['acked']} of {len(sealed)} sealed batches; {len(sealed) - len(delivered_a)} held")
         rows_a = self.accepted(delivered_a)
         self.worker("run-pending")
-        read_a = self.window_read(start.replace("Z", "+00:00"))
+        read_a = self.window_read(start[:10] + "T00:00:00+00:00")
         say(f"  cutoff A {read_a['knowledge_cutoff']}: run {read_a['run_id']}, window rev "
             f"{read_a['window']['revision_no']}, intervals {[i['claim_level'] for i in read_a['intervals']]}")
         self.deliver_all("late-central-held")
@@ -613,7 +614,7 @@ class Cases(s2.Demo):
         jobs = self.pg("SELECT id::text, created_at, window_start, window_end FROM recompute_job "
                        "WHERE status = 'PENDING' ORDER BY created_at")
         self.worker("run-pending")
-        read_b = self.window_read(start.replace("Z", "+00:00"))
+        read_b = self.window_read(start[:10] + "T00:00:00+00:00")
         say(f"  cutoff B {read_b['knowledge_cutoff']}: run {read_b['run_id']}, window rev "
             f"{read_b['window']['revision_no']}, intervals {[i['claim_level'] for i in read_b['intervals']]}")
         late_ids = sorted(r["evidence_id"] for r in late_rows)
