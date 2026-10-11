@@ -108,6 +108,17 @@ def _requests(current: Sequence[Any], add: Sequence[Mapping[str, Any]], asset_id
     return requests
 
 
+def _properties_in_effect(store, tenant, site, props, at, far) -> bool:
+    revision = revision_at(store.revisions(tenant.id, site.id), at, far)
+    if revision is None:
+        return False
+    for component in revision.content["components"]:
+        if component["component_id"] == props["asset_code"]:
+            have = {p["property_key"] for p in component.get("properties") or ()}
+            return {p["property_key"] for p in props["properties"]} <= have
+    return False
+
+
 def apply_demo_configuration(
     store: FoundationStore,
     foundation: FoundationService,
@@ -121,6 +132,7 @@ def apply_demo_configuration(
 
     `steps` may name only `properties` so a producer can run a roles-1 case
     after the generator values exist and before any capability channel does.
+    `bindings` alone is refused unless the generator values are already in effect.
     """
     _check(fixture, site)
     if not steps or set(steps) - set(STEPS):
@@ -147,6 +159,11 @@ def apply_demo_configuration(
     far = datetime(9999, 1, 1, tzinfo=bindings_from.tzinfo)  # below the open-ended sentinel
     bindings_published = False
     if "bindings" in steps:
+        if "properties" not in steps and not _properties_in_effect(store, tenant, site, props, bindings_from, far):
+            raise DemoConfigurationConflict(
+                "The bindings step needs the generator values in effect at "
+                f"{utc_text(bindings_from)}; run the properties step first (or together with bindings)."
+            )
         current = binding_set_at(store.binding_sets(tenant.id, site.id), bindings_from, far)
         if current is None:
             raise DemoConfigurationConflict(

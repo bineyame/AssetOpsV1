@@ -100,6 +100,19 @@ class TestInMemory:
         assert not both.properties_published and both.bindings_published
         assert_configured(store, result, both)
 
+    def test_bindings_step_alone_is_refused_until_properties_are_in_effect(self) -> None:
+        store, result, _ = converted()
+        before = (len(store.revisions(result.tenant.id, result.site.id)),
+                  len(store.binding_sets(result.tenant.id, result.site.id)))
+        with pytest.raises(DemoConfigurationConflict, match="properties step first"):
+            apply(store, result, CONVERTED_AT + timedelta(minutes=10), steps=("bindings",))
+        assert before == (len(store.revisions(result.tenant.id, result.site.id)),
+                          len(store.binding_sets(result.tenant.id, result.site.id)))
+        apply(store, result, CONVERTED_AT + timedelta(minutes=20), steps=("properties",))
+        done = apply(store, result, CONVERTED_AT + timedelta(minutes=30), steps=("bindings",))
+        assert done.bindings_published
+        assert_configured(store, result, done)
+
     def test_a_fixture_for_another_site_or_unlabelled_writes_nothing(self) -> None:
         store, result, _ = converted()
         before = len(store.revisions(result.tenant.id, result.site.id))

@@ -46,7 +46,7 @@ A registered KOBO-001 gains `minigrid-roles-2` and a labelled simulated demo con
 | late-out-of-order | 10-03 03-11 | epoch-1 | 322 | late SOC 07:00 published 07:10 |
 | overlap-same-epoch | 10-04 03-11 | epoch-1 x2 runs | 654 | Limited/Indeterminate, ambiguity named (325 doubled channel-times, 42 differing) |
 | overlap-separable-epoch | 10-05 03-11 | epoch-1 + epoch-2 | 656 | one cohort per epoch |
-| contradiction-fault-fixture | 10-06 05:00 | fixture epoch | 2 | Indeterminate: contradictory SOC 91.75 / 99.25 |
+| contradiction-fault-fixture | 10-06 05:00 | fixture epoch | 2 | Indeterminate: contradictory SOC 69.1875 / 76.6875 |
 
 Preconditions are computed from accepted public values only (`classify_public`: dispatch-2 rows 3/4/5a/5b at 15-min instants while generator status is RUNNING; reserve from the selected Foundation revision, 30 %). They are fixture checks, not the `dispatch-3` analytic.
 
@@ -81,3 +81,11 @@ Preconditions are computed from accepted public values only (`classify_public`: 
 2. Q1-Q6 defaults, especially the fault-fixture contradiction and the absent out-of-order case.
 3. Private oracle separation in the manifest (`private_oracle` only holds Lab run IDs and the Lab store path).
 4. `registered-kobo-publication` v3 contents (`profiles.py`, after v2) and that v1/v2 are untouched.
+
+## Fix round 1
+
+Against `.agent/S3-01-phase-1-review.md`; only F1 and F2 (F3-F6 carried).
+
+- **F1:** the contradiction-case row now reads SOC 69.1875 / 76.6875, from the committed manifest (`contradiction-fault-fixture`, `precondition.values`). Evidence counts, ceilings and the other case rows were re-checked against the manifest: they match.
+- **F2:** `apply_demo_configuration` (`backend/assetops_backend/sites/demo_configuration.py`) refuses `--steps bindings` without `properties` unless the generator values are already in effect at `bindings.effective_from` (new `_properties_in_effect`); it raises `DemoConfigurationConflict` ("run the properties step first") and writes nothing. Test `test_bindings_step_alone_is_refused_until_properties_are_in_effect` failed against the old code and passes now; `properties` then `bindings` as separate runs still works.
+- Checks: S3 backend tests with Postgres (`test_s3_demo_configuration.py`, `test_s3_role_vocabulary.py`): 11 passed. `tools/check-all.ps1`: see the commit report.
