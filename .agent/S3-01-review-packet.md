@@ -55,7 +55,7 @@ V-01 (mock `dispatch:1-3` versus app):
 
 - No list of assessed days: `?day=` absent opens on today UTC (usually "Not assessed"). Q17.
 - Older-rule label and late-evidence history proven by tests only; the fixture has no `dispatch-3` run. Q18.
-- Demonstration notes do not show on walkthrough data (fault-fixture days are AMBIGUOUS). Q19.
+- (Superseded by the fix round below: demonstration notes now show on the Overview. Q19 answered.)
 - Staged FAILED/STALE days have no interval; "prior result kept" is the window assessment. Q20.
 - `classified_revision_ids` rechecks are skipped for empty-set reports by design.
 - The committed `.agent/S3-01-dispatch-cases-v1.manifest.json` was refreshed from the producer work-dir manifest at closeout. Evidence IDs are per run: a new producer run changes every ID and the committed copy goes stale. Q21.
@@ -70,3 +70,19 @@ V-01 (mock `dispatch:1-3` versus app):
 ## User-review focus
 
 Run the walkthrough (`tools/s3_dispatch_walkthrough.py prepare`, `serve`; steps in `.agent/S3-01-owner-walkthrough.md`) and judge: plain wording, the "Not assessed" default day, the Analysis gating of fuel/money/Finding, and Q17-Q22.
+
+## Fix round (3b)
+
+Against `.agent/S3-01-phase-3b-review.md`. C3 and C4 not worked (carried).
+
+- **B1** `PerformanceDispatch.tsx`: window `demo_annotations` render on the Overview/Analysis whenever non-empty (`WindowView`), independent of any selection; the records panel shows only per-result notes not already shown. Test: window with notes and no periods. Guide and Q19 corrected, known-deviation line superseded.
+- **B2** coverage row relabelled "Reported battery reserve level (the reserve used comes from site settings)". Test added.
+- **C1** `CAPABILITY_SHORTFALL`, `OPERATOR_OVERRIDE`, `MINIMUM_RUNTIME` and `NO_COHORT` have plain words; the never-emitted `LOAD_ABOVE_CAPABILITY` entry removed.
+- **C2** selected block shows one plain "missing or limited" line (the exact strings stay in Analysis); quality "Good" and UTC stamps replace `GOOD`/raw ISO; "Stored result" id removed from the Overview (kept in Analysis); the closed-cutover default view is plain, with the class codes, lineage dump and backend reason only in the Analysis view.
+- **C5** no-series day says records exist but none is used; MISSING_ROLE says "for part of the day".
+- **C6** `prepare` now stops on a failed comparison and on missing prerequisites; the guide lists prerequisites and the stop behaviour.
+- **C7** day-total cards and a note are marked not current on a stale or failed day.
+- New/changed tests: 9 (8 failed before the change, as run; the Analysis-closed-path test is a guard). `performanceDispatch.test.tsx` 20 passed.
+- Evidence: `tools/s3-dispatch-evidence.mjs` re-run on its own ports (8820/5320, stopped): 32/32, `.agent/S3-01-phase-3b-dispatch-evidence.txt`. `prepare` run once on HEAD: comparison PASSED, cutover permitted.
+- Still needs a fresh re-review; Status stays `in_review`.
+

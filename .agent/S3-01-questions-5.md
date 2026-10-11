@@ -8,9 +8,9 @@ None blocks review. Context: `.agent/S3-01-phase-3b-handoff.md`, `.agent/S3-01-r
 2. **Q18: older-rule label and late-evidence history are proven by tests only.** The rebuilt fixture holds no `dispatch-3` run, and the walkthrough does not stage an older-rule result (labelling a 3.1 run "dispatch-3" would be dishonest). The older-rule note and the revision history appear only in `performanceDispatch.test.tsx` and the Postgres read tests.
    - *Default built:* tests only.
    - *Ask:* should the owner walkthrough get a genuine older-model run (fixture regenerated under `dispatch-3`)?
-3. **Q19: demonstration notes are absent from walkthrough data.** The fault-fixture days are AMBIGUOUS and carry no run evidence, so the demo annotation (kept apart from provenance) never shows live.
-   - *Default built:* shown only when a manifest annotation matches exact evidence IDs; proven by test.
-   - *Ask:* add a fault-fixture day with an interval so the note can be shown in the walkthrough?
+3. **Q19: demonstration notes (answered in the 3b fix round).** The earlier premise was wrong: 6 and 7 Oct are not ambiguous and their window reads carry the fault-fixture annotation. The note now shows on the Overview whenever the day's read carries any, even with no period to select (test in `performanceDispatch.test.tsx`).
+   - *Default built:* window notes shown above the result, apart from the records; per-result notes shown in the records panel when not already shown.
+   - *Ask:* none.
 4. **Q20: staged FAILED and STALE days have no interval.** "Prior result kept" is the window assessment only.
    - *Default built:* state it as such; no invented interval.
    - *Ask:* stage the failure on a day that already has a stored interval?

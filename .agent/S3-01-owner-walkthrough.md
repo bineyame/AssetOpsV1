@@ -2,6 +2,14 @@
 
 What this shows: for one chosen day, whether Kobo's generator was needed, possibly avoidable, or cannot be determined, and which accepted records each answer rests on. It runs on a private copy of the reviewed dispatch-case data. Your own servers and databases are not touched.
 
+## Before you start
+
+- Local Postgres is running on port 55432 (the same one used by the earlier S2 demo).
+- The database `assetops_s3cases` exists and its manifest is at `%LOCALAPPDATA%\AssetOps\s3-dispatch-cases\s3-dispatch-cases-v1.json` (made by `tools\s3_dispatch_cases.py`).
+- `var\sites\kobo-001.yaml` exists in the repository.
+
+`prepare` stops with a "Missing prerequisite" or "FAILED" message if one is missing or the check against the earlier results does not pass; in that case do not start `serve`. It prints "Prepared" only when everything worked.
+
 ## Start (about two minutes)
 
 From the repository root, in PowerShell:
@@ -58,6 +66,6 @@ Optional: `.venv\Scripts\python.exe tools\s3_dispatch_walkthrough.py recover` ru
 
   Their 6-hour look-around also marks the neighbouring days (4, 6 and 8 Oct). 1, 2, 3 and 9 Oct are untouched.
 - **No older-rule result in this data.** The dispatch-case data was rebuilt under the current rules (dispatch-3.1), so no older-rule result exists here. The "Older rule result" label and the late-record revision history are covered by automated tests, not by this data.
-- **The demonstration-data notes do not appear here.** These notes are labelled and kept apart from the records, but they only attach to a result that uses a labelled fault case's records. In this data those cases fall on days where the two overlapping series leave nothing assessed.
+- **Demonstration-data notes do show.** Days 6 and 7 Oct rest on records that the demonstration data labels as fault cases (for example records that arrived in a different order). The Overview shows a "Note supplied with the demonstration data" box on those days, apart from the records and without changing the result. Day 7 Oct has no generator period to select, and the box still appears.
 - **There is no list of assessed days yet.** You choose a day with the date box or Previous/Next. Opening Dispatch without a day shows today (UTC), which normally reads "Not assessed".
 - **The mock is a reference, not the target.** Compare it with the app in `.agent/S3-01-phase-3b-shots/`: `mock-dispatch-*` against `app-dispatch-*`, at desktop and narrow widths. The mock's single selected hour, fuel note and EAT times are deliberately not reproduced.

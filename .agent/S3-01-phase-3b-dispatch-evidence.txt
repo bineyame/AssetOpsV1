@@ -31,4 +31,4 @@ PASS  narrow: a pinned stored revision on another day is labelled as not current
 PASS  narrow: Analysis shows constraint rows and names unavailable portions  {"constraintRows":22,"unavailable":["alternatives","policy_necessary","fuel_and_money","finding"],"gated":true,"comparison":"true"}
 PASS  narrow: Analysis has no sideways page scroll  {"scrollWidth":390,"clientWidth":390,"wide":[]}
 
-32/32 claims passed; screenshots in C:/Users/assef/AppData/Local/Temp/claude/C--Users-assef-Bineyame-AssetOpsV1/2ea95ed4-aa1c-4a2e-a62b-91185bbd6986/scratchpad/shots
+32/32 claims passed; screenshots in C:/Users/assef/AppData/Local/Temp/claude/C--Users-assef-Bineyame-AssetOpsV1/2ea95ed4-aa1c-4a2e-a62b-91185bbd6986/scratchpad/shots2
