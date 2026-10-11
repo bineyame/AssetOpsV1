@@ -14,7 +14,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-ROLE_SET_MINIGRID = "minigrid-roles-1"
+#: S1-02's vocabulary. Kept readable for every binding set recorded under it.
+ROLE_SET_MINIGRID_1 = "minigrid-roles-1"
+#: S3-01 (`D-2026-10-11-s3-dispatch-interval-assessment`, Architect batch 5
+#: "S3-01 Planner questions"): roles-1 plus the two optional capability
+#: channels a dispatch Candidate needs. Observed `pv_power` and
+#: `battery_power` are not these capabilities.
+ROLE_SET_MINIGRID_2 = "minigrid-roles-2"
+#: The set a new MINIGRID binding publication is recorded under.
+ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
 
 #: The canonical generator states an ENUM conversion may map to.
 GENERATOR_STATES: tuple[str, ...] = ("STOPPED", "STARTING", "RUNNING", "FAILED")
@@ -53,8 +61,31 @@ MINIGRID_ROLES: tuple[Role, ...] = (
     Role("fuel_level", "Fuel level", "FUEL_TANK", "L", "NUMBER", ONE, False),
 )
 
-ROLES_BY_SET: dict[str, tuple[Role, ...]] = {ROLE_SET_MINIGRID: MINIGRID_ROLES}
+MINIGRID_ROLES_2: tuple[Role, ...] = MINIGRID_ROLES + (
+    Role("pv_available_power", "Solar available power", "INVERTER", "kW", "NUMBER", ONE, False),
+    Role(
+        "pcs_discharge_capability", "Battery converter discharge capability",
+        "POWER_CONVERSION_SYSTEM", "kW", "NUMBER", ONE, False,
+    ),
+)
+
+ROLES_BY_SET: dict[str, tuple[Role, ...]] = {
+    ROLE_SET_MINIGRID_1: MINIGRID_ROLES,
+    ROLE_SET_MINIGRID_2: MINIGRID_ROLES_2,
+}
+#: The role set a new publication for a Site type is recorded under.
 ROLE_SET_BY_SITE_TYPE: dict[str, str] = {"MINIGRID": ROLE_SET_MINIGRID}
+#: Every role set a Site type still serves: a binding set recorded under an
+#: older version stays interpretable (and selectable as a historical basis)
+#: under the role definitions it was published with, never today's.
+SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
+    "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2}),
+}
+
+
+def serves(site_type: str, role_set: str) -> bool:
+    """Whether a Site of `site_type` can read bindings recorded under `role_set`."""
+    return role_set in SERVED_ROLE_SETS_BY_SITE_TYPE.get(site_type, frozenset())
 
 #: S1 publishes numeric IDENTITY and generator-state ENUM only (decision Q4).
 #: LINEAR is deferred until supported unit pairs, coefficients and

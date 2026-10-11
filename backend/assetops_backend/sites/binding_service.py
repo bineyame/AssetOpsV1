@@ -35,6 +35,7 @@ from assetops_backend.sites.binding_alignment import (
 )
 from assetops_backend.sites.binding_roles import (
     ROLE_SET_BY_SITE_TYPE,
+    serves,
     Role,
     conversion_problem,
     roles_for,
@@ -429,9 +430,20 @@ class BindingService:
         note: str | None,
         declare: Sequence[DeclaredSignal] = (),
         origin: str = "PUBLISH",
+        role_set: str | None = None,
     ) -> BindingPublishResult:
         now = self._clock()
-        role_set = ROLE_SET_BY_SITE_TYPE.get(site.site_type)
+        # S3-01: the Site type's current vocabulary unless the caller names an
+        # older version that type still serves (a replayed historical
+        # conversion records the version its fixture was written for).
+        if role_set is None:
+            role_set = ROLE_SET_BY_SITE_TYPE.get(site.site_type)
+        elif not serves(site.site_type, role_set):
+            raise BindingRefused(
+                "BINDING_ROLE_SET_UNKNOWN",
+                f"{site.site_type} Sites do not serve role set {role_set!r}.",
+                status=422,
+            )
         if role_set is None:
             raise BindingRefused(
                 "BINDING_ROLE_SET_UNKNOWN", f"No role set is defined for {site.site_type} Sites.", status=422
@@ -632,7 +644,9 @@ def readiness(
     `foundation_gaps`, apart from the roles; neither is observed health.
     """
     gaps = configuration_gaps(site, revision, registrations)
-    role_set = ROLE_SET_BY_SITE_TYPE.get(site.site_type)
+    # A selected binding set is read under the role-set version it was
+    # recorded with (S3-01); with none, the Site type's current vocabulary.
+    role_set = binding_set.role_set if binding_set else ROLE_SET_BY_SITE_TYPE.get(site.site_type)
     roles = roles_for(role_set) if role_set else {}
     bindings = binding_set.bindings if binding_set else ()
     asset_by_id = {a.id: a for a in registrations.assets}
