@@ -1,6 +1,6 @@
 # PRE-S3-04 — Foundation Readiness truthfulness
 
-Status: authorized corrective slice; open before W1 autonomous loop
+Status: in_review
 USER_REVIEW_REQUIRED: false
 Depends on: merged S1 Foundation/Readiness and S2 Evidence/central diagnostics
 Branch when activated: task/PRE-S3-04-readiness-truthfulness

@@ -216,7 +216,7 @@ export interface FoundationReadModel {
   bindings: FoundationBindings;
   readiness: ConfigurationReadiness;
   acquisition_snapshot: AcquisitionSnapshotSummary;
-  evidence: { state: string; statement: string };
+  evidence: { statement: string };
   configuration_gaps: FoundationGap[];
 }
 

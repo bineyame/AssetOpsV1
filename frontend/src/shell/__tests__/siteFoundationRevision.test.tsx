@@ -118,7 +118,7 @@ function foundation(
       code: "ACQUISITION_SNAPSHOT_UNAVAILABLE",
       reason: "No signal binding set is in effect for the period shown.",
     },
-    evidence: { state: "NONE", statement: "No accepted evidence is linked to this Foundation." },
+    evidence: { statement: "Operational status (contact, credentials, data received, accepted evidence) is not assessed here." },
     configuration_gaps: [],
     ...over,
   };
@@ -319,7 +319,9 @@ describe("the persisted Foundation version", () => {
     await settledScreen();
     expect(screen.getByText("No signal binding set is in effect for the period shown.")).toBeInTheDocument();
     expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
-    expect(screen.getByText(/awaiting credentials, not sending data/)).toBeInTheDocument();
+    expect(screen.getByText(/registered\. Whether it has made contact or sent data is not assessed here/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/awaiting credentials|not sending data|no accepted evidence/i);
+    expect(screen.getAllByRole("link", { name: "Site Evidence" }).length).toBeGreaterThan(0);
     expect(screen.queryByText(/^(Online|Connected|Reporting|Healthy)$/)).toBeNull();
   });
 

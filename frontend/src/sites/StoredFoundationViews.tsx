@@ -428,11 +428,11 @@ function ReadinessView(props: StoredFoundationViewsProps) {
       <ReadinessVerdictPanel foundation={foundation} />
       <RoleCoveragePanel foundation={foundation} />
       <SignalBindingsPanel foundation={foundation} onPublishBindings={onPublishBindings} />
-      <RegisteredSourcesPanel foundation={foundation} />
+      <RegisteredSourcesPanel foundation={foundation} evidenceHref={evidenceHref} />
       <AcquisitionDetailsPanel foundation={foundation} snapshotHref={snapshotHref} />
       <p className="note" data-readiness-scope="">
         This view assesses configuration only: roles, bindings, Foundation gaps and registrations.{" "}
-        {foundation.evidence.statement} Claim readiness and accepted evidence are on{" "}
+        {foundation.evidence.statement} Claim readiness, accepted evidence and diagnostics are on{" "}
         <Link to={evidenceHref}>Site Evidence</Link>.
       </p>
     </>

@@ -140,6 +140,14 @@ test('unmapped approved panel fails closed', () => {
   assert.ok(r.refusals.some((x) => x.type === 'unmapped_approved_panel' && x.reason.includes('work:1')));
 });
 
+test('non-empty delivery_plan.enables is refused with a typed reason; empty stays valid (review C5)', () => {
+  const r = run(({registry}) => { registry.delivery_plan.enables = [{from: 'I-S4-02', to: 'I-S5-01'}]; });
+  assert.equal(r.status, 'refused');
+  assert.ok(refusalTypes(r).includes('unsupported_enables'));
+  const ok = run(({registry}) => { registry.delivery_plan.enables = []; });
+  assert.notEqual(ok.status, 'refused');
+});
+
 test('proposed-only node is not a reviewed path', () => {
   const r = run(({registry}) => {
     registry.delivery_plan.w1_panel_mapping[2].claim_portions[0] = portion('work:1#a', {technical_requires: ['I-S6-01'], proposed_gates: ['R-work']});

@@ -293,8 +293,10 @@ def foundation_payload(view: FoundationView) -> dict[str, Any]:
         "readiness": readiness(site, revision, regs, view.binding_set),
         "acquisition_snapshot": _snapshot_summary(view),
         "evidence": {
-            "state": "NONE",
-            "statement": "No accepted evidence is linked to this Foundation and no live source is claimed.",
+            "statement": (
+                "Operational status (contact, credentials, data received, accepted evidence) "
+                "is not assessed here."
+            ),
         },
         "configuration_gaps": [item.to_wire() for item in gaps],
     }

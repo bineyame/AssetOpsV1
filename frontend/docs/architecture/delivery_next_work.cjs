@@ -80,6 +80,10 @@ function validateMapping(registry, contracts) {
   const {nodes} = graph(registry);
   const plan = registry.delivery_plan;
   const visualGates = plan.visual_gates || {};
+  // Fail closed (Architect C5 ruling): `enables` edges are not parsed or scored, so a non-empty list may not be silently ignored.
+  if (plan.enables !== undefined && !(Array.isArray(plan.enables) && plan.enables.length === 0)) {
+    err('unsupported_enables', 'delivery_plan.enables', 'non-empty enables edges are not supported by the next-work parser; keep the list empty until a reviewed parser, path rule and tests exist');
+  }
   for (const [id, gate] of Object.entries(visualGates)) {
     if (nodes.has(id)) err('visual_gate', id, 'visual gate id collides with a technical node');
     if (!['open', 'accepted'].includes(gate.status)) err('visual_gate', id, 'status must be open or accepted');

@@ -82,6 +82,14 @@ class TestBeforeConversion:
         text = json.dumps(body["readiness"]).lower()
         assert "healthy" not in text.replace("not mean any device is connected, reporting or healthy", "")
 
+        # PRE-S3-04: configuration only; no stale claim about evidence or contact.
+        assert "state" not in body["evidence"]
+        claim = json.dumps(body["evidence"]).lower()
+        assert "not assessed here" in claim
+        assert "no accepted evidence" not in claim and "awaiting credentials" not in claim
+        assert "not sending data" not in claim
+        assert all(g["status"] == "PENDING" for g in body["gateways"])
+
 
 class TestConversion:
     def test_first_conversion_is_one_atomic_foundation_plus_binding_publish(self) -> None:
@@ -138,6 +146,14 @@ class TestReadAndTrace:
         body = client.get("/api/sites/KOBO-001/foundation").json()
         assert body["readiness"]["state"] == "READY_TO_REPORT"
         assert body["readiness"]["missing_roles"] == []
+
+        # PRE-S3-04: configuration only; no stale claim about evidence or contact.
+        assert "state" not in body["evidence"]
+        claim = json.dumps(body["evidence"]).lower()
+        assert "not assessed here" in claim
+        assert "no accepted evidence" not in claim and "awaiting credentials" not in claim
+        assert "not sending data" not in claim
+        assert all(g["status"] == "PENDING" for g in body["gateways"])
         assert {r["role"] for r in body["readiness"]["roles"] if r["required"] and r["status"] == "CONFIGURED"} == REQUIRED
         sources = {s["source_external_id"]: s["source_id"] for s in body["sources"]}
         assets = {a["asset_code"]: a["asset_id"] for a in body["assets"]}
