@@ -498,6 +498,33 @@ class PostgresAssessmentStore:
 
         return self._snapshot(work)
 
+    def accepted_message_ids(self, tenant_id: UUID, site_id: UUID, message_ids: list[str]) -> set[str]:
+        if not message_ids:
+            return set()
+        return self._snapshot(lambda c: set(c.execute(text(
+            "SELECT e.message_id FROM accepted_evidence e JOIN ingestion_disposition d ON d.accepted_evidence_id = e.id "
+            "AND d.decision = 'ACCEPTED' WHERE e.tenant_id = :t AND e.site_id = :s AND e.message_id = ANY(:m)"),
+            {"t": tenant_id, "s": site_id, "m": list(message_ids)}).scalars().all()))
+
+    def selected_intervals(self, tenant_id: UUID, site_id: UUID, analytic_id: str) -> list[dict[str, Any]]:
+        """INTERVAL revisions of each window's last DEFAULT selection, with that run's window limitations."""
+        def work(c: Connection) -> list[dict[str, Any]]:
+            heads = c.execute(text(
+                "SELECT DISTINCT ON (window_start, window_end) run_id FROM analytic_run_selection "
+                "WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+                "ORDER BY window_start, window_end, seq DESC"), {"t": tenant_id, "s": site_id, "a": analytic_id})
+            out = []
+            for run_id in heads.scalars().all():
+                revisions = [_revision_row(r) for r in c.execute(text(
+                    f"SELECT {_REVISION_COLUMNS}, l.scope FROM analytic_run_assessment l JOIN assessment_revision v "
+                    "ON v.id = l.assessment_revision_id WHERE l.run_id = :r"), {"r": run_id}).all()]
+                limits = [x for r in revisions if r["scope"] == "WINDOW"
+                          for x in (r["result"] or {}).get("limitations", [])]
+                out += [{**r, "window_limitations": limits} for r in revisions if r["scope"] == "INTERVAL"]
+            return out
+
+        return self._snapshot(work)
+
 
 _REVISION_NAMES = ("id", "analytic_id", "model_version", "assessment_key", "revision_no", "analytic_run_id",
                    "window_start", "window_end", "claim_level", "result", "evidence_ids", "basis_sha256",

@@ -37,6 +37,13 @@ def build_comparison_reports() -> ComparisonReportFiles:
     return ComparisonReportFiles()
 
 
+def build_performance_comparison_reports() -> ComparisonReportFiles:
+    """Immutable S3-01 Performance comparison reports, beside (never mixed with) the Evidence ones."""
+    from assetops_backend.evidence.adapters.json_evidence_store import EVIDENCE_STORE_ROOT
+
+    return ComparisonReportFiles(EVIDENCE_STORE_ROOT / "migration-performance")
+
+
 # The protected gateway credential file: prepare (new unique versioned protected
 # path, durable and verified owner-only; it is the final issued path) -> caller
 # commits, or discards the unissued file. No post-commit rename (Q16).

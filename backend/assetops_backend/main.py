@@ -25,6 +25,8 @@ in both gate states beside them. No configuration editing is served.
 
 from __future__ import annotations
 
+import os
+
 from datetime import datetime
 
 from typing import Callable, Sequence
@@ -34,6 +36,10 @@ from fastapi import APIRouter, FastAPI
 from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
+from assetops_backend.analytics.composition import build_dispatch_read_service, build_lineage_reader
+from assetops_backend.analytics.performance_comparison import permits_performance_cutover
+from assetops_backend.performance_api import build_performance_router
+from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
 from assetops_backend.config import (
     DEVELOPMENT_TENANT_SLUG,
@@ -43,6 +49,7 @@ from assetops_backend.config import (
 )
 from assetops_backend.evidence.composition import (
     build_comparison_reports,
+    build_performance_comparison_reports,
     build_evidence_ledger,
     build_evidence_store,
     build_gateway_access,
@@ -301,6 +308,23 @@ def create_app(
         )
     )
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
+    # S3-01 phase 3: imported-Site Performance > Dispatch over the durable dispatch-3 store, closed
+    # until the newest file-backed comparison and the live lineage pass (performance_comparison).
+    performance_reads = (build_dispatch_read_service(database_url(), os.environ.get("ASSETOPS_DEMO_FIXTURE_MANIFEST"))
+                         if database_url() else None)
+    performance_reports = build_performance_comparison_reports() if evidence_store is None else None
+    lineage = build_lineage_reader(database_url()) if database_url() else None
+
+    def performance_gate(site_code: str, tenant_id, site_id) -> tuple[bool, str]:
+        if performance_reports is None or lineage is None:
+            return False, "No Performance comparison report store or product database is configured."
+        return permits_performance_cutover(
+            performance_reports.latest(site_code), site_code, str(site_id), tenant_id=str(tenant_id),
+            environment=environment_identity(database_url()),
+            legacy_claims=legacy_dispatch_claims(assessments.store, site_code),
+            live_lineage=lineage.lineage_breaks(tenant_id, site_id, "dispatch"))
+
+    app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (
