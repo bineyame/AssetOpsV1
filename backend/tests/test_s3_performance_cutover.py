@@ -90,6 +90,10 @@ class TestComparison:
                           [interval("INDETERMINATE", missing=(PV_MISSING,), evidence_ids=("m1",))])["claims"][0]
         assert row["class"] == "UNPROVEN" and "not all in the selected interval's evidence" in row["reason"]
 
+    def test_a_match_needs_the_claim_records_in_the_selected_interval(self) -> None:
+        row = run_compare([legacy("NECESSARY")], [interval("NECESSARY", evidence_ids=("m2",))])["claims"][0]
+        assert row["class"] == "UNPROVEN" and "claim levels agree" in row["reason"]
+
     def test_a_delta_rule_only_explains_its_own_claim_change(self) -> None:
         row = run_compare([legacy("NECESSARY")], [interval("INDETERMINATE", missing=(PV_MISSING,))])["claims"][0]
         assert row["class"] == "UNPROVEN"

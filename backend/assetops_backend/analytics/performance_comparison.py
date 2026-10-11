@@ -6,9 +6,9 @@ baseline (`dispatch-2` lineages) are compared with the selected current-model
 switches to Postgres (`D-2026-10-11-s3-phase-3a-version-and-cutover`). Each
 legacy claim is one of:
 
-- MATCH: its cited records are accepted centrally and the one selected
-  current-model interval over the same running span, with no outstanding or
-  failed recompute job, has the same claim level;
+- MATCH: its cited records are accepted centrally and are all in the evidence
+  of the one selected current-model interval over the same running span, which
+  has no outstanding or failed recompute job and the same claim level;
 - INTENTIONAL_DELTA: only through a `DOCUMENTED_DELTAS` entry: the claim change
   is the one that entry names, the selected interval itself (not the window)
   carries the entry's limitation, and every record the legacy claim cites is
@@ -112,15 +112,19 @@ def classify(claim: dict, accepted_evidence: dict[str, str], intervals: list[dic
     if jobs:
         return {**out, "class": "UNPROVEN", "reason": "STALE_PROJECTION: RECOMPUTE_OUTSTANDING over the selected "
                 "window: " + ", ".join(f"job {j['id']} {j['status']}" for j in jobs)}
+    compared = sorted(accepted_evidence[m] for m in cited)
+    comparable = set(compared) <= {str(e) for e in hit.get("evidence_ids") or []}
     if hit["claim_level"] == out["legacy_claim"]:
-        return {**out, "class": "MATCH"}
+        if not comparable:
+            return {**out, "class": "UNPROVEN", "reason": "claim levels agree, but the records the legacy claim "
+                    "cites are not all in the selected interval's evidence (no comparable basis)"}
+        return {**out, "class": "MATCH", "compared_evidence_ids": compared}
     found = _delta((out["legacy_claim"], hit["claim_level"]), hit)
     if found is None:
         return {**out, "class": "UNPROVEN", "reason": f"claim levels differ and no documented dispatch-2 to "
                 f"{model_version} rule difference names a limitation of this interval"}
     entry, named = found
-    compared = sorted(accepted_evidence[m] for m in cited)
-    if not set(compared) <= {str(e) for e in hit.get("evidence_ids") or []}:
+    if not comparable:
         return {**out, "class": "UNPROVEN", "reason": f"{entry['rule']} would explain the change, but the records "
                 "the legacy claim cites are not all in the selected interval's evidence (no comparable basis)"}
     return {**out, "class": "INTENTIONAL_DELTA", "rule": entry["rule"],
