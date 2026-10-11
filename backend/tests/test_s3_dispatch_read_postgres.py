@@ -99,3 +99,27 @@ class TestDispatchRead:
         body = reads().window(site.tenant, site.site, DAY)
         assert body["status"] == "FAILED" and body["stale"] and body["selection"] is not None
         assert any("model crashed" in r for r in body["status_reasons"])
+
+    def test_routes_serve_the_pinned_drill_down_only_through_the_open_gate(self, site) -> None:
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        from assetops_backend.performance_api import build_performance_router
+
+        site.feed.deliver(interval_rows(5, 6), T1)
+        worker(T1 + timedelta(minutes=1)).run_pending()
+        state = {"open": False}
+        scope = lambda code: ("KOBO-T", site.tenant, site.site) if code == "KOBO-T" else None  # noqa: E731
+        app = FastAPI()
+        app.include_router(build_performance_router(reads(), scope, lambda *_: (state["open"], "gate")))
+        c, base = TestClient(app), "/api/sites/KOBO-T/performance/dispatch"
+        assert c.get(f"{base}/windows/{DAY}").status_code == 409
+        state["open"] = True
+        window = c.get(f"{base}/windows/{DAY}").json()
+        assert window["status"] == "CURRENT" and window["site_code"] == "KOBO-T"
+        [interval] = window["intervals"]
+        detail = c.get(f"{base}/revisions/{interval['id']}").json()
+        assert {e["evidence_id"] for e in detail["evidence"]} == {str(x) for x in interval["evidence_ids"]}
+        assert all(e["as_accepted"]["foundation_revision_id"] for e in detail["evidence"])
+        assert c.get(f"{base}/runs/{window['selection']['run_id']}").status_code == 200
+        assert c.get(f"/api/sites/OTHER-1/performance/dispatch/revisions/{interval['id']}").status_code == 404
