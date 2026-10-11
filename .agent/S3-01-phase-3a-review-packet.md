@@ -66,3 +66,83 @@ USER_REVIEW_REQUIRED: not at this phase; the owner checkpoint closes the whole t
 - `dispatch_read.derive_status` against the "Read states" paragraph and Q12.
 - `permits_performance_cutover` refusal order and the `main.py` gate wiring (environment identity, lineage reader).
 - The `INTERVAL_LIMITED` lift (`dispatch_v3.assess`) and Q13.
+
+## dispatch-3.1 (version bump required before phase 3b)
+
+Ruling `D-2026-10-11-s3-phase-3a-version-and-cutover` (`.agent/architect-S3-answers-3.md`, Q9-Q13). Commits `05f9b4d`..HEAD. Handoff to 3b, with the list of what the UI must show: `.agent/S3-01-dispatch-3-1-handoff.md`. Questions: `.agent/S3-01-questions-4.md` (Q14-Q16, with fail-closed defaults built). This section supersedes the Q9/Q13 "Known deviations" above.
+
+### Delivered
+
+- `dispatch_v3.MODEL_VERSION = "dispatch-3.1"` covers Q9 (multi-epoch default `AMBIGUOUS`) and Q13 (`INTERVAL_LIMITED` lifted into the window). The version is in every input and basis digest, so new revisions append under the same keys.
+- Stored `dispatch-3` default windows are reassessed by the existing worker reconcile (`run_pending`, CLI `assess_dispatch process-jobs`). `dispatch-3` runs and revisions are untouched and stay readable. `run` and `revision` carry `model_note: OLDER_RULE_RESULT ...`. A `dispatch-3` head reads `STALE_PROJECTION` with `MODEL_VERSION_CHANGED` and is never CURRENT. Explicit selections are not remapped.
+- Comparison (report schema v2, which records `model_version`):
+  - `STALE_MODEL` is `UNPROVEN`.
+  - `STALE_PROJECTION` is `UNPROVEN`. It applies when a PENDING, LEASED or FAILED job overlaps the window's read range, so a matching prior result stays stale.
+  - `MISSING_SOURCE` gives `EXCEPTIONS`, so the gate stays closed.
+  - `INTENTIONAL_DELTA` applies only through `DOCUMENTED_DELTAS`, which has one entry: `CAPABILITY_CHANNELS_REQUIRED`, rows 5a/5b, legacy Candidate to Indeterminate. The interval's own segments must name the limitation, and the cited records must be in the interval's evidence. A window-level limitation does not qualify.
+  - `MATCH` also needs that comparable basis (Q15 default).
+  - The gate refuses a report made under another model version. It also refuses while any head is still on another model (lineage `selected_heads_other_model`).
+  - An empty-set statement says "a zero-inventory statement, not claim parity". The statement names any lineage breaks.
+- Labels:
+  - The cutover read label is `POSTGRES_DISPATCH_3_1`.
+  - The window calendar names the model.
+  - The decision table `backend/tests/dispatch_3_decision_table.md` gains "Model versions" and "Comparison" sections.
+
+### Tests (each failed before its change)
+
+- Analytic `test_corrected_rules_publish_as_dispatch_3_1_and_refuse_a_dispatch_3_input_set`: 1 failed, then passed.
+- Postgres `test_stored_dispatch_3_windows_are_reassessed_under_dispatch_3_1_and_kept_as_history` failed, then passed. It writes the stored rows with the pre-bump `MODEL_VERSION`, then checks:
+  - the window reads stale;
+  - lineage counts 1 head on the old model;
+  - the normal worker pass leaves the window CURRENT on `dispatch-3.1`, with the same key and a higher `revision_no`;
+  - the old revision and run stay addressable with an unchanged basis and an `OLDER_RULE_RESULT` note;
+  - a second reconcile is empty.
+- Cutover tests (`test_s3_performance_cutover.py`, 20): the window-limitation-elsewhere delta is now `UNPROVEN`; plus the delta's comparable basis, `MATCH` comparable basis, delta claim specificity, stale model, outstanding job (PENDING, LEASED, FAILED), and refusals for a `MISSING_SOURCE` report, another model version, a report model and stale heads. 12 failed before the change, then all passed.
+
+### Non-vacuity proofs (each mutation on committed code, reverted with `git checkout --`; `git status` clean)
+
+| Mutation | Result |
+| --- | --- |
+| `MODEL_VERSION` back to `dispatch-3` | 2 failed |
+| stale-model check removed | 1 failed |
+| outstanding-job check removed | 1 failed |
+| delta comparable-basis check removed | 1 failed |
+| delta reads window limitations | 2 failed |
+| `MATCH` comparable-basis check removed | 1 failed |
+| report-model refusal removed | 1 failed |
+| stale-heads refusal removed | 1 failed |
+| `selected_heads_other_model` SQL neutralised | 1 failed (Postgres) |
+| `model_note` removed | 1 failed (Postgres) |
+
+### Stored-window migration and the rerun comparison gate (`.agent/S3-01-dispatch-3-1-migration-run.txt`)
+
+The phase-3a `assetops_s3cases` held 9 `dispatch-3` heads (12 runs, 18 revisions). The commands ran in the producer tree with the backend at `05f9b4d`.
+
+1. Before:
+   - The phase-3a report (v1) is refused.
+   - `performance_migration run` gives FAILED with `selected_heads_other_model: 9` and keeps the gate closed (exit 1).
+2. `assess_dispatch process-jobs` exits 0.
+3. After:
+   - All 9 heads are `dispatch-3.1`.
+   - The `dispatch-3` runs and revisions are retained: 12 runs and 18 revisions, beside 9 runs and 13 revisions on `dispatch-3.1`.
+   - The 10-09 window is `LIMITED` and names `INTERVAL_LIMITED ... OPEN_BOUND ...`.
+4. `performance_migration run` gives PASSED (empty set, zero-inventory) with "Performance cutover: permitted" (exit 0).
+
+On the rebuilt fixture (commit `2dd90ec`), all heads are `dispatch-3.1` and the gate goes from "No report" (closed) to PASSED (permitted).
+
+### Checks run (final code `2dd90ec`)
+
+- Backend with Postgres (isolated `assetops_s31_test`, dropped afterwards): `pytest backend/tests` 1826 passed (337 s).
+- Host 667 passed. Gateway 164 passed. Simulator 265 passed (from `simulator/`).
+- `tools/check-all.ps1` (`-ExecutionPolicy Bypass`): 6 of 6 PASS.
+- Producer `tools/s3_dispatch_cases.py run`:
+  - First attempt: VERIFY FAILED on `overlap-separable-epoch`, because the epoch-2 upload pass hit `TIMEOUT` with one batch retrying (656 rows reloaded against 498). That run overlapped my concurrent test and proof runs; the upload fault came before any analytic step.
+  - Rerun with no other load: 322 s, `VERIFY PASSED`, exit 0. Its log is `.agent/S3-01-dispatch-cases-run.txt`. No listener remains on 8710 or 8743.
+- Frontend: not run (no frontend change). Layout evidence: not applicable.
+- Housekeeping: dropped the leftover agent databases `assetops_s3p2_test` and `assetops_s3p3arev_test`. No producer process was on 8710 or 8743. The processes on 8610 (Lab) and 8643 (S2 demo TLS) were left alone. The workspace `var/` and the owner's servers were not touched.
+
+### Known deviations and residual risk
+
+- `DOCUMENTED_DELTAS` holds one rule (Q14). Every other legacy mismatch is `UNPROVEN`. KOBO-001 has no legacy claims, so the classification paths are proven by unit tests only.
+- The cutover route returns `permitted` and `reason` only. Phase 3b must expose the report summary (counts, missing IDs, delta rule and IDs, `model_version`) before the UI can show it.
+- The producer's own manifest status text still says "phase 2 adds the persisted dispatch-3 result". It was left unchanged so the manifest does not change.
