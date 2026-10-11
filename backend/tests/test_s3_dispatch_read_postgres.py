@@ -140,6 +140,36 @@ class TestDispatchRead:
         assert "FAILED" in [j[0] for j in jobs(site.engine)]
         assert not any(j["status"] == "FAILED" for r in self._intervals(site) for j in r["window_jobs"])
 
+    @staticmethod
+    def _classify_against_selection(site):
+        """Classify a file-backed claim built from the selected interval itself (same level, span and cited
+        records), so the only thing that can make it UNPROVEN is the projection's freshness."""
+        from sqlalchemy import text
+
+        from assetops_backend.analytics.performance_comparison import _pg_span, classify
+        [hit] = TestDispatchRead._intervals(site)
+        lo, hi = _pg_span(hit)
+        with site.engine.connect() as c:
+            messages = [r[0] for r in c.execute(text("SELECT message_id FROM accepted_evidence WHERE id = ANY(:i)"),
+                                                {"i": [str(e) for e in hit["evidence_ids"]]}).all()]
+        claim = {"assessment_id": "legacy-1", "revisions": [{"revision": 1, "model_version": "dispatch-2",
+                 "assessment": {"claim_level": hit["claim_level"], "evidence_basis": {"message_ids": messages},
+                                "interval": {"first_running_observed": lo, "last_running_observed": hi}}}]}
+        accepted = PostgresAssessmentStore(URL).accepted_evidence(site.tenant, site.site, messages)
+        return classify(claim, accepted, [hit], hit["model_version"])
+
+    def test_comparison_classifies_a_recovered_interval_after_a_superseded_failed_job_r1_c1(self, site) -> None:
+        now = self._exhaust_a_recompute(site)
+        stale = self._classify_against_selection(site)
+        assert stale["class"] == "UNPROVEN" and stale["reason"].startswith("STALE_PROJECTION"), stale
+        site.feed.deliver([("battery-pcs-controller", "state-of-charge", datetime(2026, 10, 6, 5, 50,
+                                                                                    tzinfo=timezone.utc), "30")],
+                          now + timedelta(minutes=1))
+        worker(now + timedelta(minutes=2)).run_pending(reconcile=False)
+        assert "FAILED" in [j[0] for j in jobs(site.engine)]
+        recovered = self._classify_against_selection(site)
+        assert recovered["class"] == "MATCH", recovered
+
     def test_a_neighbouring_window_in_the_bracket_recovers_with_it(self, site) -> None:
         now = self._exhaust_a_recompute(site, interval_rows(22, 23) + interval_rows(25, 26),
                                        late=(23, 50))

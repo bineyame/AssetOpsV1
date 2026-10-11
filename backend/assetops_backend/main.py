@@ -37,8 +37,9 @@ from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.analytics.composition import build_dispatch_read_service, build_lineage_reader
-from assetops_backend.analytics.performance_comparison import permits_performance_cutover
+from assetops_backend.analytics.performance_comparison import comparison_summary, permits_performance_cutover
 from assetops_backend.analytics import dispatch_v3
+from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -324,9 +325,15 @@ def create_app(
             environment=environment_identity(database_url()),
             legacy_claims=legacy_dispatch_claims(assessments.store, site_code),
             live_lineage=lineage.lineage_breaks(tenant_id, site_id, "dispatch", dispatch_v3.MODEL_VERSION),
-            model_version=dispatch_v3.MODEL_VERSION)
+            model_version=dispatch_v3.MODEL_VERSION,
+            selected_revision_ids=lambda: {str(r["id"]) for r in lineage.selected_intervals(
+                tenant_id, site_id, "dispatch", "dispatch", ASSESSMENT_BRACKET)})
 
-    app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate))
+    def performance_report(site_code: str) -> dict | None:
+        return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))
+
+    app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate,
+                                                performance_report))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (

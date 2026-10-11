@@ -22,8 +22,10 @@ legacy claim is one of:
 Outcome FAILED on any UNPROVEN claim or lineage break (a window still selected
 under another model version counts as one), EXCEPTIONS on any MISSING_SOURCE,
 else PASSED. The gate opens only on PASSED for the current model version, a
-current legacy claim digest, the same tenant/Site/environment, and zero live
-lineage breaks.
+current legacy claim digest, the same tenant/Site/environment, zero live
+lineage breaks, and every interval revision the report classified (MATCH or
+INTENTIONAL_DELTA) still selected (review R2: a reassessment after the report
+makes it describe another read, so the comparison must rerun).
 """
 
 from __future__ import annotations
@@ -31,7 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable
 from uuid import uuid4
 
 SCHEMA = "s3-performance-comparison-v2"
@@ -156,9 +158,33 @@ def compare(*, site_code: str, tenant_id: str, site_id: str, environment: str, l
             "selected_postgres_intervals": len(intervals)}
 
 
+_CLASSIFIED = ("MATCH", "INTENTIONAL_DELTA")
+SUMMARY_FIELDS = ("report_id", "compared_at", "model_version", "outcome", "empty_set", "statement", "counts",
+                  "lineage_breaks", "selected_postgres_intervals")
+
+
+def classified_revision_ids(report: dict) -> list[str]:
+    """Selected interval revisions a report's MATCH/INTENTIONAL_DELTA claims rest on."""
+    return sorted({str(c["postgres_revision_id"]) for c in report.get("claims") or []
+                   if c.get("class") in _CLASSIFIED and c.get("postgres_revision_id")})
+
+
+def comparison_summary(report: dict | None) -> dict[str, Any] | None:
+    """What the Performance screen shows of the newest report: outcome, statement, counts, model version,
+    each MISSING_SOURCE with its missing message IDs, each INTENTIONAL_DELTA with its rule, rule change,
+    interval limitations and compared Evidence IDs, and each UNPROVEN reason. Never a parity claim."""
+    if report is None:
+        return None
+    keep = ("class", "legacy_assessment_id", "legacy_claim", "legacy_span", "postgres_claim", "postgres_revision_id",
+            "missing_message_ids", "rule", "rule_change", "interval_limitations", "compared_evidence_ids", "reason")
+    return {**{k: report.get(k) for k in SUMMARY_FIELDS},
+            "claims": [{k: c[k] for k in keep if k in c} for c in report.get("claims") or []]}
+
+
 def permits_performance_cutover(report: dict | None, site_code: str, site_id: str, *, tenant_id: str,
                                 environment: str | None, legacy_claims: list[dict],
-                                live_lineage: dict[str, int] | None, model_version: str) -> tuple[bool, str]:
+                                live_lineage: dict[str, int] | None, model_version: str,
+                                selected_revision_ids: Callable[[], set[str]] | None = None) -> tuple[bool, str]:
     if report is None:
         return False, "No Performance comparison report exists for this Site; the file-backed comparison must run."
     if report.get("schema") != SCHEMA or report.get("site_uuid") != site_id or report.get("site_id") != site_code:
@@ -180,4 +206,12 @@ def permits_performance_cutover(report: dict | None, site_code: str, site_id: st
     breaks = {k: v for k, v in live_lineage.items() if k != "selected_runs" and v}
     if breaks:
         return False, f"Assessment lineage is broken: {breaks}"
+    classified = classified_revision_ids(report)
+    if classified:
+        if selected_revision_ids is None:
+            return False, "The selected interval revisions could not be read to recheck the comparison."
+        moved = [r for r in classified if r not in selected_revision_ids()]
+        if moved:
+            return False, (f"{len(moved)} interval revisions the comparison classified are no longer selected "
+                           "(reassessed since the comparison); rerun it.")
     return True, report["statement"]

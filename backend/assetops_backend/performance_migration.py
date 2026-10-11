@@ -76,7 +76,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     path = reports.write(json.loads(json.dumps(report, default=str)))
     allowed, reason = permits_performance_cutover(
         report, args.site, str(site_id), tenant_id=str(tenant_id), environment=environment, legacy_claims=claims,
-        live_lineage=store.lineage_breaks(tenant_id, site_id, ANALYTIC_ID, MODEL), model_version=MODEL)
+        live_lineage=store.lineage_breaks(tenant_id, site_id, ANALYTIC_ID, MODEL), model_version=MODEL,
+        selected_revision_ids=lambda: {str(r["id"]) for r in store.selected_intervals(
+            tenant_id, site_id, ANALYTIC_ID, "dispatch", BRACKET)})
     print(f"{report['outcome']}: {report['statement']}")
     print(f"Lineage: {report['lineage']}")
     print(f"Report: {path}")
