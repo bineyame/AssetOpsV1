@@ -587,6 +587,13 @@ function Invoke-ConfigurationPersistenceCheck {
     #    its only updates are the operator-mutable registration fields listed in
     #    $accessUpdates (credential rotation/revocation and enablement). No other
     #    writer touches its tables.
+    #
+    #    S3-01 phase 2 adds a fourth, the dispatch assessment store (migration
+    #    0007). It inserts only analytic runs, their evidence sets, assessment
+    #    revisions and run-to-revision links, plus scheduling rows in the S2
+    #    recompute_job table; its only updates are a job's lease/retry status
+    #    and the widening of a PENDING job's window. No other writer touches the
+    #    assessment tables.
     $pgWriter = "$backendRoot/sites/adapters/postgres_foundation_store.py"
     $ledgerWriter = "$backendRoot/evidence/adapters/postgres_evidence_ledger.py"
     $accessWriter = "$backendRoot/evidence/adapters/postgres_gateway_access.py"
@@ -598,12 +605,18 @@ function Invoke-ConfigurationPersistenceCheck {
         '(?i)\bUPDATE\s+gateway_credential\s+SET\s+revoked_at\s*=\s*:[a-z_]+\s+WHERE\b',
         '(?i)\bUPDATE\s+gateway\s+SET\s+(?:credential_ref|disabled_at|diagnostic_cadence_seconds)\s*=\s*:[a-z_]+\s+WHERE\b',
         '(?i)\bUPDATE\s+source\s+SET\s+disabled_at\s*=\s*:[a-z_]+\s+WHERE\b')
-    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter)
+    $assessWriter = "$backendRoot/analytics/adapters/postgres_assessment_store.py"
+    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment')
+    $assessInserts = $assessTables + @('recompute_job')
+    $assessUpdates = @(
+        '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',
+        '(?i)\bUPDATE\s+recompute_job\s+SET\s+window_start\s*=\s*:start,\s*window_end\s*=\s*:end\s+WHERE\b')
+    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
-    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0 }
-    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false }
+    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0 }
+    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
@@ -632,6 +645,21 @@ function Invoke-ConfigurationPersistenceCheck {
                             "updates only credential revocation and gateway/source enablement fields; " +
                             "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     }
+                }
+                if ($module.Path -eq $assessWriter) {
+                    $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
+                    $insertOk = $isInsert -and $assessInserts -contains $Matches[1].ToLowerInvariant()
+                    $updateOk = $false
+                    foreach ($allowed in $assessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+                    if (-not ($insertOk -or $updateOk)) {
+                        $failures.Add(("The assessment store inserts only $($assessInserts -join ', ') and updates " +
+                            "only a recompute job's lease/retry status or a PENDING job's window; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($module.Path -ne $assessWriter -and $null -ne $target -and $assessTables -contains $target) {
+                    $failures.Add(("Only $assessWriter writes assessment table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($module.Path -ne $accessWriter -and $null -ne $target -and $accessInserts -contains $target) {
                     $failures.Add(("Only $accessWriter writes gateway access table '$target'; " +

@@ -17,3 +17,11 @@ def build_assessment_store(persistent: bool = True) -> AssessmentStore:
     store: its assessments must not land in the shared `var/assessments`.
     """
     return JsonAssessmentStore() if persistent else MemoryAssessmentStore()
+
+
+def build_dispatch_assessment_worker(database_url: str | None, **options):
+    """The S3-01 dispatch recompute worker over the PostgreSQL assessment store."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.assessment_worker import DispatchAssessmentWorker
+
+    return DispatchAssessmentWorker(PostgresAssessmentStore(database_url), **options)

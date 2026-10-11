@@ -87,6 +87,8 @@ class EvidenceQuery:
     knowledge_at: datetime
     #: None = default selection (a unique coherent cohort, else ambiguity).
     cohort: tuple[CohortMember, ...] | None = None
+    #: Canonical roles the domain reads (empty = every role).
+    roles: tuple[str, ...] = ()
     bracket: timedelta = BRACKET
 
     def __post_init__(self) -> None:
@@ -194,14 +196,17 @@ class EvidenceQueryResult:
     configuration_limits: tuple[str, ...] = ()
 
     def watermarks(self) -> dict[str, str | None]:
-        """Source, publication and receipt/acceptance watermarks, kept separate."""
-        r = self.readings
-        return {
-            "source_time": iso(max((x.placed_at for x in r), default=None)),
-            "published_at": iso(max((x.published_at for x in r), default=None)),
-            "received_at": iso(max((x.received_at for x in r), default=None)),
-            "accepted_at": iso(max((x.accepted_at for x in r), default=None)),
-        }
+        return watermarks(self.readings)
+
+
+def watermarks(r: tuple[AcceptedReading, ...]) -> dict[str, str | None]:
+    """Source, publication and receipt/acceptance watermarks, kept separate."""
+    return {
+        "source_time": iso(max((x.placed_at for x in r), default=None)),
+        "published_at": iso(max((x.published_at for x in r), default=None)),
+        "received_at": iso(max((x.received_at for x in r), default=None)),
+        "accepted_at": iso(max((x.accepted_at for x in r), default=None)),
+    }
 
 
 @dataclass(frozen=True)
