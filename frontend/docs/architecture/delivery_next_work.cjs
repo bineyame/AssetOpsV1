@@ -35,7 +35,8 @@ const packetPhase = (status) => {
 
 // ---- fingerprints ----------------------------------------------------------
 
-const sha = (text) => crypto.createHash('sha256').update(text).digest('hex').slice(0, 16);
+// Line endings are normalised so a CRLF checkout and an LF working copy agree.
+const sha = (text) => crypto.createHash('sha256').update(text.replace(/\r\n/g, '\n')).digest('hex').slice(0, 16);
 function fingerprints(inputs) {
   // inputs: {registry, queue, packet_status, panel_contracts, manifest, owner_input} as raw strings
   return Object.fromEntries(Object.entries(inputs).map(([key, text]) => [key, sha(text)]));

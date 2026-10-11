@@ -151,6 +151,8 @@ test('stale fingerprint refuses to rank', () => {
   assert.equal(r.status, 'refused');
   assert.ok(r.refusals.some((x) => x.type === 'stale_input' && x.reason.includes('registry')));
   assert.equal(run((ctx) => { ctx.expected_fingerprints = {...ctx.fingerprints}; }).status, 'ranked');
+  assert.deepEqual(nw.fingerprints({a: 'x\r\ny'}), nw.fingerprints({a: 'x\ny'}), 'line endings alone do not make inputs stale');
+  assert.notDeepEqual(nw.fingerprints({a: 'x'}), nw.fingerprints({a: 'y'}));
   assert.deepEqual(nw.staleInputs({a: '1', b: '2'}, {a: '1', b: '3', c: '4'}), ['b', 'c']);
 });
 
