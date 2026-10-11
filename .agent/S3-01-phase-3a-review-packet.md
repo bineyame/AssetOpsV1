@@ -146,3 +146,12 @@ On the rebuilt fixture (commit `2dd90ec`), all heads are `dispatch-3.1` and the 
 - `DOCUMENTED_DELTAS` holds one rule (Q14). Every other legacy mismatch is `UNPROVEN`. KOBO-001 has no legacy claims, so the classification paths are proven by unit tests only.
 - The cutover route returns `permitted` and `reason` only. Phase 3b must expose the report summary (counts, missing IDs, delta rule and IDs, `model_version`) before the UI can show it.
 - The producer's own manifest status text still says "phase 2 adds the persisted dispatch-3 result". It was left unchanged so the manifest does not change.
+
+## Fix round (R1)
+
+R1 (review `.agent/S3-01-phase-3a-review.md`): a FAILED recompute job no longer makes a window read FAILED forever.
+
+- `postgres_assessment_store.py`: new `_LIVE_JOBS` predicate used by `window_snapshot` and `selected_intervals`. PENDING/LEASED jobs always count; a FAILED job counts only until a later DEFAULT selection of the analytic (`selected_at` after the failure) overlaps the job's window. `fail_job` now stores the failure instant in `available_at` on final failure (no backoff offset; no migration) so "later" is well defined. A superseded job is ignored for every window in its bracket, so `derive_status` returns CURRENT and the comparison no longer classifies the intervals STALE_PROJECTION. The FAILED row stays as history.
+- Tests (`backend/tests/test_s3_dispatch_read_postgres.py`): `test_a_later_successful_reassessment_supersedes_the_failed_job` (FAILED, then CURRENT after a successful matching reassessment; `selected_intervals` shows no FAILED `window_jobs` afterwards) and `test_a_neighbouring_window_in_the_bracket_recovers_with_it` (next-day window reads FAILED via the bracket, then CURRENT). Both fail before the fix (`FAILED == CURRENT` assertion, fix stashed) and pass after.
+- Checks: S3 Postgres files plus `test_s3_performance_cutover.py` pass; full backend 1828 passed (isolated DB `assetops_s3r1_test`, dropped afterwards); `tools/check-all.ps1` all 6 guards passed.
+- Known: jobs that already failed before this change have `available_at` offset by backoff, so their recovery is delayed by that offset at most. R2-R5 untouched.

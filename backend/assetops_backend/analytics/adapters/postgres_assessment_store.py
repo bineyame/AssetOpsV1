@@ -83,6 +83,14 @@ def _minutes(item: dict[str, Any]) -> str | None:
     return format(value.normalize(), "f")
 
 
+# Unfinished jobs always count; a FAILED job counts only until a later DEFAULT selection of the analytic
+# covers its window (the reassessment succeeded; the failure is history, not a permanent mark).
+_LIVE_JOBS = ("(status IN ('PENDING', 'LEASED') OR (status = 'FAILED' AND NOT EXISTS (SELECT 1 FROM "
+              "analytic_run_selection x WHERE x.tenant_id = recompute_job.tenant_id AND x.site_id = "
+              "recompute_job.site_id AND x.analytic_id = :a AND x.selected_at > recompute_job.available_at "
+              "AND x.window_start < recompute_job.window_end AND x.window_end > recompute_job.window_start)))")
+
+
 class PostgresAssessmentStore:
     def __init__(self, database_url: str | None) -> None:
         self._database_url = database_url
@@ -229,7 +237,10 @@ class PostgresAssessmentStore:
             c.execute(text(
                 "UPDATE recompute_job SET status = :st, lease_until = NULL, available_at = :at, last_error = :e "
                 "WHERE id = :id"),
-                {"st": "FAILED" if final else "PENDING", "at": now + backoff * lease.attempts, "e": error,
+                # A FAILED job keeps its failure instant in available_at (never reused): a later DEFAULT
+                # selection covering its window supersedes it (_LIVE_JOBS).
+                {"st": "FAILED" if final else "PENDING", "at": now if final else now + backoff * lease.attempts,
+                 "e": error,
                  "id": lease.job_id})
             return "FAILED" if final else "RETRY"
 
@@ -396,7 +407,7 @@ class PostgresAssessmentStore:
             jobs = c.execute(text(
                 "SELECT id, status, window_start, window_end, attempts, last_error, created_at, available_at "
                 "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
-                "AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi AND window_end >= :lo "
+                f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
                 "ORDER BY created_at, id"), p).all()
             run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
             keys = c.execute(text(
@@ -528,8 +539,8 @@ class PostgresAssessmentStore:
             for run_id, ws, we in heads.all():
                 jobs = [{"id": str(j[0]), "status": j[1]} for j in c.execute(text(
                     "SELECT id, status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
-                    "AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi AND window_end >= :lo "
-                    "ORDER BY created_at, id"), {"t": tenant_id, "s": site_id, "d": domain, "lo": ws - bracket,
+                    f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
+                    "ORDER BY created_at, id"), {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "lo": ws - bracket,
                                                  "hi": we + bracket}).all()]
                 revisions = [_revision_row(r) for r in c.execute(text(
                     f"SELECT {_REVISION_COLUMNS}, l.scope FROM analytic_run_assessment l JOIN assessment_revision v "

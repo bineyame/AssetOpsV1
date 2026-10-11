@@ -100,6 +100,58 @@ class TestDispatchRead:
         assert body["status"] == "FAILED" and body["stale"] and body["selection"] is not None
         assert any("model crashed" in r for r in body["status_reasons"])
 
+    @staticmethod
+    def _exhaust_a_recompute(site, rows=None, late=(5, 40)):
+        site.feed.deliver(rows or interval_rows(5, 6), T1)
+        worker(T1 + timedelta(minutes=1)).run_pending()
+        site.feed.deliver([("battery-pcs-controller", "state-of-charge", datetime(2026, 10, 6, *late,
+                                                                                    tzinfo=timezone.utc), "31")],
+                          T1 + timedelta(hours=1))
+
+        class Broken:
+            ANALYTIC_ID, MODEL_VERSION = "dispatch", "dispatch-3"
+
+            @staticmethod
+            def assess(_inputs):
+                raise RuntimeError("model crashed")
+
+        now = T1 + timedelta(hours=2)
+        for _ in range(3):
+            worker(now, model=Broken, backoff=timedelta(0)).run_pending(reconcile=False)
+            now += timedelta(minutes=1)
+        assert "FAILED" in [j[0] for j in jobs(site.engine)]
+        return now
+
+    @staticmethod
+    def _intervals(site):
+        return PostgresAssessmentStore(URL).selected_intervals(site.tenant, site.site, "dispatch", "dispatch",
+                                                               timedelta(hours=6))
+
+    def test_a_later_successful_reassessment_supersedes_the_failed_job(self, site) -> None:
+        now = self._exhaust_a_recompute(site)
+        assert reads().window(site.tenant, site.site, DAY)["status"] == "FAILED"
+        assert any(j["status"] == "FAILED" for r in self._intervals(site) for j in r["window_jobs"])
+        site.feed.deliver([("battery-pcs-controller", "state-of-charge", datetime(2026, 10, 6, 5, 50,
+                                                                                    tzinfo=timezone.utc), "30")],
+                          now + timedelta(minutes=1))
+        worker(now + timedelta(minutes=2)).run_pending(reconcile=False)
+        body = reads().window(site.tenant, site.site, DAY)
+        assert body["status"] == "CURRENT" and not body["stale"], body["status_reasons"]
+        assert "FAILED" in [j[0] for j in jobs(site.engine)]
+        assert not any(j["status"] == "FAILED" for r in self._intervals(site) for j in r["window_jobs"])
+
+    def test_a_neighbouring_window_in_the_bracket_recovers_with_it(self, site) -> None:
+        now = self._exhaust_a_recompute(site, interval_rows(22, 23) + interval_rows(25, 26),
+                                       late=(23, 50))
+        nxt = DAY + timedelta(days=1)
+        assert reads().window(site.tenant, site.site, nxt)["status"] == "FAILED"
+        site.feed.deliver([("battery-pcs-controller", "state-of-charge", datetime(2026, 10, 6, 23, 55,
+                                                                                    tzinfo=timezone.utc), "30")],
+                          now + timedelta(minutes=1))
+        worker(now + timedelta(minutes=2)).run_pending(reconcile=False)
+        assert reads().window(site.tenant, site.site, nxt)["status"] == "CURRENT"
+        assert reads().window(site.tenant, site.site, DAY)["status"] == "CURRENT"
+
     def test_routes_serve_the_pinned_drill_down_only_through_the_open_gate(self, site) -> None:
         from fastapi import FastAPI
         from fastapi.testclient import TestClient
