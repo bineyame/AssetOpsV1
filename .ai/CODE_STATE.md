@@ -5051,3 +5051,22 @@ Built on `task/S3-01-dispatch-assessment` (`05f9b4d`..HEAD) under `D-2026-10-11-
 
 - Phase 3b UI. Its required displays are listed in the handoff, and the cutover route does not yet expose the report summary.
 - Q14-Q16 are open, with fail-closed defaults built.
+
+## S3-01 phase 3b - Performance > Dispatch UI, cutover summary, walkthrough (in review)
+
+Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `.agent/S3-01-review-packet.md`; questions Q17-Q22 in `.agent/S3-01-questions-5.md`.
+
+### What it settled in code
+
+- `performance_comparison.comparison_summary` and `classified_revision_ids`. `permits_performance_cutover(..., selected_revision_ids=)` refuses when a classified MATCH or INTENTIONAL_DELTA revision is no longer selected or the selection is unreadable (R2). An empty-set report needs no recheck.
+- The cutover route returns `comparison`. File-store errors give a 503 with a closed body (`read: CLOSED`, `permitted: false`, `unavailable.code` COMPARISON_STORE_UNAVAILABLE or ASSESSMENT_STORE_UNAVAILABLE) (R3). `main.py` wires the live `selected_intervals`.
+- Frontend: `sites/PerformanceDispatch.tsx` (Overview and Analysis views), `performanceDispatchClient.ts`, `dispatchWords.ts`; `SitePerformance.tsx` renders it when the legacy declaration is AWAITING_EVIDENCE_MIGRATION. Address state `?day=&revision=&block=&view=`. Without `?day=` the screen opens on today UTC.
+- Fuel, money and Finding panels are gated and typed unavailable. Demo annotations are shown apart from provenance.
+- `tools/s3_dispatch_walkthrough.py` (prepare/serve/recover; private DB `assetops_s3walk`, port 8820) and `tools/s3-dispatch-evidence.mjs` (32 claims at 1440 and 390).
+- Comparison recovery test closes R1-C1.
+
+### Open
+
+- No list of assessed days; older-rule label and late-evidence history proven by tests only; demo notes absent from walkthrough data; staged FAILED/STALE days have no interval.
+- Carries: R1-C2, 3a R4/R5. Committed fixture manifest is per run (evidence IDs change on a new producer run).
+- Owner checkpoint pending.
