@@ -18,6 +18,14 @@ function parseQueue(readme) {
     .map((m) => ({task: m[1], packet: m[2]}));
 }
 
+// Gate packets (PRE-S3-NN) are linked anywhere in tasks/README.md. They are not registry task nodes, but an
+// active or in-review one stops selection (Architect Q7).
+function parseGateQueue(readme) {
+  const seen = new Map();
+  for (const m of readme.matchAll(/\[(PRE-S\d-\d{2}[a-z]?)\]\(([^)]+\.md)\)/g)) if (!seen.has(m[1])) seen.set(m[1], {task: m[1], packet: m[2]});
+  return [...seen.values()];
+}
+
 function packetMeta(text) {
   const status = (text.match(/^Status:\s*(.*)$/m) || [])[1];
   const review = (text.match(/^USER_REVIEW_REQUIRED:\s*(.*)$/m) || [])[1];
@@ -297,7 +305,9 @@ function nextWork(ctx) {
   }
   const eligible = candidates.filter((c) => !c.blocked.length && c.score);
   eligible.sort(rankOrder);
-  const activeTasks = [...taskInfo.values()].filter((t) => ['active', 'in_review'].includes(t.phase));
+  const gateInfo = (ctx.gate_queue || []).map((q) => ({...q, phase: packetPhase(q.meta?.status)}));
+  for (const q of gateInfo) if (!q.meta || q.phase === 'unknown') refuse('queue_mismatch', `${q.task}: gate packet ${q.packet} missing or has an unrecognised Status`);
+  const activeTasks = [...taskInfo.values(), ...gateInfo].filter((t) => ['active', 'in_review'].includes(t.phase));
   const globalStops = activeTasks.map((t) => ({stop: t.phase === 'active' ? 'active_task' : 'review',
     reason: `${t.task} is ${t.phase}; finish or review it before selecting new work`}));
   const decision = globalStops.length ? {action: 'stop', reason: globalStops.map((s) => s.reason).join('; ')} : decide(eligible);
@@ -361,4 +371,4 @@ function formatReport(report) {
   return lines.join('\n');
 }
 
-module.exports = {parseQueue, packetMeta, packetPhase, fingerprints, staleInputs, validateMapping, nextWork, decide, formatReport};
+module.exports = {parseQueue, parseGateQueue, packetMeta, packetPhase, fingerprints, staleInputs, validateMapping, nextWork, decide, formatReport};

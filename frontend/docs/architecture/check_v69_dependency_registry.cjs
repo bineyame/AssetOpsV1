@@ -14,6 +14,7 @@ const taskQueue = fs.readFileSync(path.resolve(here, '../../../tasks/README.md')
 const fail = (message) => { throw new Error(message); };
 const delivery = require('./delivery_next_work.cjs');
 const queueRows = delivery.parseQueue(taskQueue);
+const gateRows = delivery.parseGateQueue(taskQueue);
 
 if (registry.schema !== 'assetops.v69.dependency-registry.pilot.v2') fail('Wrong schema');
 if (registry.s2_device_input_in_effect !== 'SIMULATED_ONLY' || !registry.physical_peer_gate?.includes('First real pilot')) {
@@ -417,7 +418,7 @@ for (const screen of pilotScreens) {
 if (nextWorkMode) {
   const root = path.resolve(here, '../../..');
   const readText = (rel) => fs.readFileSync(path.resolve(root, rel), 'utf8');
-  const packets = [...queueRows, ...Object.values(plan.visual_gates || {}).map((gate) => ({task: null, packet: gate.packet}))];
+  const packets = [...queueRows, ...gateRows, ...Object.values(plan.visual_gates || {}).map((gate) => ({task: null, packet: gate.packet}))];
   const packetText = (packet) => { try { return readText(path.join('tasks', packet)); } catch { return null; } };
   const ownerEvidence = plan.owner_inputs?.[plan.active_wave]?.evidence;
   const currentPrints = delivery.fingerprints({
@@ -436,6 +437,10 @@ if (nextWorkMode) {
   if (verifyIndex > 0) expected = JSON.parse(fs.readFileSync(process.argv[verifyIndex + 1], 'utf8')).fingerprints;
   const report = delivery.nextWork({registry, contracts, briefs, fingerprints: currentPrints, expected_fingerprints: expected,
     queue: queueRows.map((row) => {
+      const text = packetText(row.packet);
+      return {...row, meta: text === null ? null : delivery.packetMeta(text)};
+    }),
+    gate_queue: gateRows.map((row) => {
       const text = packetText(row.packet);
       return {...row, meta: text === null ? null : delivery.packetMeta(text)};
     })});

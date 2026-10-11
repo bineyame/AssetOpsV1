@@ -205,6 +205,23 @@ test('active task and review stops apply before ranking', () => {
   assert.ok(cand(r2, 'I-S7-01').blocked.some((b) => b.stop === 'active_task'));
 });
 
+test('a PRE-S3 gate packet in review or active stops selection (Q7)', () => {
+  const gate = (status) => ({task: 'PRE-S3-09', packet: 'PRE-S3-09.md', meta: {status, user_review_required: false}});
+  assert.notEqual(run(({}) => {}).decision.action, 'stop');
+  const done = run((ctx) => { ctx.gate_queue = [gate('done (accepted 2026-10-11)')]; });
+  assert.notEqual(done.decision.action, 'stop', 'a done (...) gate packet does not stop');
+  const r = run((ctx) => { ctx.gate_queue = [gate('in_review')]; });
+  assert.equal(r.decision.action, 'stop');
+  assert.ok(r.global_stops.some((s) => s.reason.includes('PRE-S3-09')));
+  const r2 = run((ctx) => { ctx.gate_queue = [gate('active')]; });
+  assert.equal(r2.decision.action, 'stop');
+});
+
+test('gate packet discovery reads PRE-S3 links', () => {
+  assert.deepEqual(nw.parseGateQueue('x [PRE-S3-03](a.md) y [PRE-S3-04](b.md) [PRE-S3-03](a.md) [S1-01](c.md)'),
+    [{task: 'PRE-S3-03', packet: 'a.md'}, {task: 'PRE-S3-04', packet: 'b.md'}]);
+});
+
 test('outside-ranking shared contract is listed but not eligible', () => {
   const r = run(({registry}) => { registry.delivery_plan.outside_ranking = [{id: 'I-S6-01', reason: 'mandatory'}]; });
   assert.ok(cand(r, 'I-S6-01').blocked.some((b) => b.stop === 'outside_ranking'));
