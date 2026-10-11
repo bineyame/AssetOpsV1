@@ -2019,3 +2019,11 @@ The carried review findings above are unchanged.
 - G5: `I-sim-dispatch-cases` and `I-sim-verification-cases` lack acceptance targets in the registry (fix before activating the first selection's refinement).
 - Residual: S3-01 sized S may undercount Performance cutover + legacy-exception review; sitework:1 has one claim portion, so the S6-03 reviewer checks empty and positive states.
 
+### S3-01 phase 1 review carries (2026-10-11, `.agent/S3-01-phase-1-review.md`, fresh Claude)
+
+- F3 (phase 2): the "late" case is late only in publication time; central receives it in one delivery in source order, so it cannot prove "late accepted record yields a new revision". Phase 2 must produce real late arrival (or per Architect Q5). Scenario header comment is wrong.
+- F4 (phase 3, needs Q1 ruling): the fault-fixture label lives only in the epoch name/manifest; central evidence has no fixture marker, so a phase-3 Evidence drill-down would show it as ordinary gateway evidence.
+- F5: fixture reserve lookup (`tools/s3_dispatch_cases.py:162-182`) has no tenant/site filter and reads today's revision; phase 2 `EvidenceQuery` must not copy this.
+- F6 (info): Foundation-UI binding edits now record roles-2 (accepted; invisible version change risk).
+- Residual: each producer `run` recreates `assetops_s3cases`, so committed manifest IDs stop existing after the next run.
+
