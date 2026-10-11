@@ -80,6 +80,7 @@ class Cases(s2.Demo):
         self.cases: list[dict[str, Any]] = []
         self.private_runs: dict[str, list[str]] = {}
         self.periods: list[dict[str, Any]] = []
+        self.period_history: list[dict[str, Any]] = []
 
     def gateway_address(self) -> str:
         if sys.platform == "win32":
@@ -109,6 +110,7 @@ class Cases(s2.Demo):
             say(f"  from {period['at']}: Foundation v{period['foundation_version']}, binding set "
                 f"v{period['binding_version']} {period['role_set']}, snapshot {period['snapshot_sha256'][:16]}..")
         self.periods = result["periods"]
+        self.period_history.append({"steps": steps, "periods": result["periods"]})
         return result
 
     def basis(self, start: str) -> dict[str, Any]:
@@ -316,11 +318,13 @@ class Cases(s2.Demo):
         late = []
         for r in soc:
             lag = (r["published_at"] - r["source_time"]).total_seconds()
-            overtaken = [o for o in rows if o["source_time"] > r["source_time"] and o["sequence"] < r["sequence"]]
+            # sequences are per (source, epoch): compare only within the SOC reading's own source
+            overtaken = [o for o in rows if o["source_id"] == r["source_id"] and o["epoch"] == r["epoch"]
+                         and o["source_time"] > r["source_time"] and o["sequence"] < r["sequence"]]
             if lag >= 600 and overtaken:
                 late.append({"evidence_id": r["evidence_id"], "source_time": r["source_time"].isoformat(),
                              "published_at": r["published_at"].isoformat(), "sequence": r["sequence"],
-                             "later_source_times_sequenced_before_it": len(overtaken)})
+                             "same_source_later_readings_sequenced_before_it": len(overtaken)})
         self.record("late-out-of-order", "One battery SOC publication held ten minutes; later readings were "
                     "sequenced before it", "03", batches, rows,
                     "Late evidence: a new revision when it arrives after an assessment; never silently reordered",
@@ -429,7 +433,10 @@ class Cases(s2.Demo):
                             "gateway_epochs": [EPOCH_1, EPOCH_2], "fault_fixture_epoch": FIXTURE_EPOCH},
             "demo_configuration": {"fixture": DEMO_CONFIG,
                                    "fixture_sha256": hashlib.sha256(config_bytes).hexdigest(),
-                                   "periods": self.periods},
+                                   "periods": self.periods,
+                                   # the roles-1 case froze the first step's basis; the second step
+                                   # split and re-aligned that period (bitemporal, never rewritten)
+                                   "as_published": self.period_history},
             "cases": self.cases,
             "all_evidence_id_sha256": id_digest([i for c in self.cases for i in c["evidence_ids"]]),
             "private_oracle": {
