@@ -158,7 +158,10 @@ class Cases(s2.Demo):
         return [dict(zip(keys, r)) for r in rows]
 
     def reserve(self, at: str) -> Decimal:
-        status, snap = self.call("GET", f"/api/sites/{s2.SITE}/foundation/snapshot?at={at}")
+        """The selected Foundation revision's battery reserve control at `at` (public configuration)."""
+        rows = self.pg("SELECT content FROM foundation_revision WHERE superseded_at IS NULL AND valid_from <= %s "
+                       "AND (valid_to IS NULL OR valid_to > %s)", at, at)
+        snap, status = [r[0] for r in rows], len(rows)
         found: list[Any] = []
 
         def walk(node: Any) -> None:
@@ -172,7 +175,7 @@ class Cases(s2.Demo):
                     walk(value)
 
         walk(snap)
-        if status != 200 or len(set(map(str, found))) != 1:
+        if status != 1 or len(set(map(str, found))) != 1:
             raise SystemExit(f"reserve not readable at {at}: {status} {found}")
         return Decimal(str(found[0]))
 
