@@ -29,7 +29,7 @@ Each card carries selected claim IDs and resolves their accepted SourceEnvelope 
 
 ## Review and refinement
 
-S5-01 owns `I-site-overview-read/ui` for `mini:1-4`, composing accepted selected-window S3 assessment and S4 Finding/financial records with source/analytic watermarks. `mini:3` has distinct empty and positive Site FindingIndex fixtures/read paths from [S4-03](S4-03-site-finding-index-history.md); both are required W1 core variants. No new Overview record is assumed. Keep the W3 global Findings index separate.
+S5-01 owns `I-site-overview-read/ui` for selected-window context, timeline and bounded money (`mini:1/2/4`), composing accepted S3 assessment and S4 Finding/financial records with source/analytic watermarks. Until the Site index exists, `mini:3` is honestly unavailable. [S5-02](S5-02-overview-finding-list.md) owns its separate empty and positive variants after [S4-04](S4-04-site-finding-index.md). No new Overview record is assumed. Keep the W3 global Findings index separate.
 
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 

@@ -9,11 +9,11 @@ Planner: Codex, 2026-10-07
 
 ## Visible outcome
 
-Site changes/recommendation/sitework show one accepted Action and its applied Foundation reserve-SOC change.
+Site changes, recommendation and Action detail show one Finding-linked accepted Action and its applied Foundation reserve-SOC change.
 
 ## Persisted object and read contract
 
-Action, ActionEvent and immutable policy-change artifact linked to a newly published Foundation revision; Site Work read API. Use the S1 Foundation publish path for the supported reserve-SOC change, not a Lab-only override. Apply the recorded actor identity and Finding/Action route contracts.
+Action, ActionEvent and immutable policy-change artifact linked to a newly published Foundation revision and reviewed `I-S4-01` FindingRevision. Stable Action detail read is by Action ID; [S6-03](S6-03-site-work-list.md) owns the Site Work list and `A-action-index`. Use the S1 Foundation publish path for the supported reserve-SOC change, not a Lab-only override. Apply the recorded actor identity and Finding/Action route contracts.
 
 ## Demo acceptance
 
@@ -29,7 +29,7 @@ Action links Finding basis and configuration artifact; later accepted envelope I
 
 ## Review and refinement
 
-S6-01 owns `I-action-store/read/ui`, `D-action-records`, `I-recommendation-read/ui`, `I-configuration-change-read/ui`, `I-action-overview-ui`, `I-action-execution-ui` and `I-action-history-ui`. These close `sitework:1`, `action-overview:1`, `recommendation:1`, applied-change `changes:1#a`, `action-execution:1` and `action-history:1` only after review. The moved child views require ActionEvent IDs, actor/provenance, applied or failed policy activity, exact event/cutoff selection, pending state, stable Site Action navigation and app/mock desktop/narrow comparison. Activity and event history do not imply a verified outcome or human attestation.
+S6-01 owns `I-action-store/read/ui`, `D-action-records`, `I-recommendation-read/ui`, `I-configuration-change-read/ui`, `I-action-overview-ui`, `I-action-execution-ui` and `I-action-history-ui`. These close `action-overview:1`, `recommendation:1`, applied-change `changes:1#a`, `action-execution:1` and `action-history:1` only after review. The child views require ActionEvent IDs, actor/provenance, applied or failed policy activity, exact event/cutoff selection, pending state, stable Site Action navigation and app/mock desktop/narrow comparison. Activity and event history do not imply a verified outcome or human attestation. `sitework:1` closes only in S6-03.
 
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 

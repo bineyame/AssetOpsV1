@@ -29,7 +29,7 @@ Drawer traverses FindingRevision to assessment, analytic run and exact AcceptedE
 
 ## Review and refinement
 
-S4-01 owns `I-finding-store/read/ui` and `D-finding-revisions`: exact `finding_revision_id`, `knowledge_at`, episode/recurrence and late-evidence append are its reviewable detail closeout. [S4-03](S4-03-site-finding-index-history.md) owns the separate Site index plus Finding Evidence/History child views. S4-01 detail does not complete those moved W1 panels.
+S4-01 owns `I-finding-store/read/ui` and `D-finding-revisions`: exact `finding_revision_id`, `knowledge_at`, episode/recurrence and late-evidence append are its reviewable detail closeout. [S4-03](S4-03-finding-evidence-history.md) owns Finding Evidence/History child views; [S4-04](S4-04-site-finding-index.md) owns the Site list. S4-01 detail does not complete those moved W1 panels.
 
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 
