@@ -2033,4 +2033,4 @@ The carried review findings above are unchanged.
 - F4 (before cutover): backdated configuration and model-version changes are only picked up by a manual `reconcile`; a stale assessment would read CURRENT under the derived phase-3 read. Needs an automatic trigger or a staleness check in the read.
 - F5 (phase 3): no assessed interval in the fixture is NECESSARY (the check looks only at segments); the phase-3 reviewer path needs a Necessary interval.
 - F6 (low): an expired lease is re-leased with no attempts cap; a job that always outlives its lease never reaches FAILED.
-
+- S3-01 phase 2 fix re-review carry (`.agent/S3-01-phase-2-fix-rereview.md`): the contradiction fixture picks its template SOC envelope by batch walk order, so its value varies between runs; pick by minimum `(source_time, sequence)` and state in the manifest that evidence IDs are per-run (replayable by procedure + seed + verify, not byte-for-byte). The cause of the differing Lab SOC value between runs is not established; investigate in phase 3.
