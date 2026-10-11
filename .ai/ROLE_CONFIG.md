@@ -186,6 +186,10 @@ Two classification traps worth naming, both seen on T020B:
   lists above.** The question is not how many lines changed. It is whether a
   reader had to decide anything.
 
+## Owner Review Routing From S3 Onward (2026-10-11)
+
+Owner (verbatim, `.agent/owner-review-routing-and-merge-2026-10-11.md`): "codex usage optimizaion is important, so keep the same arragment for S2 going forward". For every slice from S3 onward: a fresh Claude `assetops-reviewer` does the slice's first review and every re-review; small written-list fix rounds run on a Sonnet implementer; one batched Codex review covers each milestone's slices together at the milestone's end; Codex Architect/Planner questions are batched rather than sent per question file. This overrides "Codex reviews discovery" below for per-slice first reviews; Codex remains the Architect, the Planner and the milestone reviewer.
+
 ## Do Not Write The Review In The Brief
 
 Recorded on 2026-09-26 at the user's instruction, because this project had
