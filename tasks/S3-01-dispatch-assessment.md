@@ -1,42 +1,59 @@
 # S3-01 — Typed dispatch assessment and interval detail
 
-Status: outline; refine after preceding task review, before activation
+Status: implementation-ready packet; **not activated** until PRE-S3-03 and startup guards pass
 USER_REVIEW_REQUIRED: true
 Milestone: S3 Performance / Dispatch
-Depends on: S2-02
-Branch: task/S3-01-dispatch-assessment
-Planner: Codex, 2026-10-07
+Depends on: merged S2-02 (`I-S2-02`), time-valid S1 bindings (`I-S1-02`), resolved `A-S3-dispatch`, and `I-sim-dispatch-cases` delivered in this task
+Branch when activated: task/S3-01-dispatch-assessment
+Planner: Codex, 2026-10-11
 
-## Visible outcome
+## Outcome and authority
 
-Site dispatch and selected-interval analysis classify a generator interval as Necessary, Candidate or Indeterminate.
+For one selected Kobo Site UTC window, Performance > Dispatch (`dispatch:1-3`) shows generator intervals as Necessary, bounded Candidate avoidable, or Indeterminate, with source coverage, exact selected revision and accepted Evidence drill-down after reload. Its Analysis child view supplies the S3-supported constraint and coverage portions of `analysis:1,3`; Finding-level comparison, alternatives and fuel money remain gated by later work. W1 owner approval names core targets, not delivered panels or full Real status.
 
-## Persisted object and read contract
+Use `D-2026-10-11-s3-dispatch-interval-assessment`, `.agent/architect-S3-dispatch-answers.md`, technical design §§3–4 and `backend/tests/dispatch_decision_table.md` (`dispatch-2`). The pre-S3 route/actor/readiness decisions are recorded shared boundaries, not extra dispatch implementation `requires`. S2-02r credential rotation is a separate carry. This task has no S4 Finding, financial consequence, global index, cold-chain/EV analytic or asset-condition write.
 
-Pre-activation decisions `D-2026-10-09-pre-s3-claim-routes-and-actor`, `D-2026-10-09-pre-s3-evidence-readiness-health` and `D-2026-10-09-pre-s3-shared-contract-scope` are recorded. They define shared routes, actors and readiness/health boundaries; they do not add dispatch implementation dependencies. Activation still waits for `A-S3-dispatch` and normal-ingestion `I-sim-dispatch-cases`, plus accepted S2-02 and time-valid S1 bindings. W1 owner core-panel/demo-value input and startup guards are separate planning stops.
+Built seams to inspect: `backend/assetops_backend/sites/binding_roles.py`, `analytics/dispatch.py`, `analytics/service.py`, `analytics_api.py`, `evidence/adapters/postgres_evidence_ledger.py` (accepted rows/jobs), `evidence/legacy_comparison.py`, and `frontend/src/sites/SitePerformance.tsx` with `siteAnalyticsClient.ts`. Use S2's accepted ledger and recompute jobs; file-backed dispatch remains read-only comparison input until the Performance cutover gate passes.
 
-Typed EvidenceQuery/AnalyticInputSet over Postgres accepted records and time-valid role bindings, a durable consumer of S2-02 recompute jobs, versioned dispatch analytic, persisted AnalyticRun/AssessmentRevision and window Performance read model. Replace hard-coded demo device keys in `backend/assetops_backend/analytics/dispatch.py` and JSON assessment persistence with role-bound inputs and Postgres revisions; no raw envelope, SQL row or Lab world object crosses the analytic boundary.
+## Rule and input contract
 
-Refinement must bind tenant/Site/domain, half-open window, knowledge cutoff, accepted evidence IDs/digests, Foundation/binding revisions and role coverage. Select a run/epoch basis for overlapping same-time simulated reports (including the S2 demo's two runs and fault epoch) or return Limited/Indeterminate; never sum them as one physical stream. Distinguish source-time overlap, server receipt and virtual publication time. Compare representative file-backed dispatch claims before read cutover; persist input hash/run/assessment revisions, consume recompute jobs and prove late-evidence revision selection. Necessary/Candidate/Indeterminate uses accepted lineage, not diagnostic contact or readiness as dispatch proof.
+1. Name the new mini-grid role vocabulary `minigrid-roles-2` and analytic model `dispatch-3`. Keep `minigrid-roles-1` and `dispatch-2` readable for historical bases. Publish optional channel roles `pv_available_power` (INVERTER, kW, ONE) and `pcs_discharge_capability` (POWER_CONVERSION_SYSTEM, kW, ONE), each with a registered simulated binding/source and accepted report. Observed `pv_power` and `battery_power` are not those capabilities. An unbound or unaccepted capability channel gives a missing-role limit and Indeterminate, never Candidate. No static mock or Lab-world value fills it.
+2. `EvidenceQuery` selects tenant/Site/domain, UTC half-open window, `knowledge_at`, one coherent public gateway/source/sequence-epoch/batch/evidence cohort, source-time overlap and bracketing records. Return exact accepted evidence IDs/digests, quality, normalized units, role/asset coverage, missingness, as-accepted Foundation/binding revisions, source watermark and receive/publication times separately. Rejected/duplicate/held rows do not supply measurements. The pure analytic receives a typed `AnalyticInputSet` of public normalized roles and effective public controls; it never sees SQL rows, raw envelopes, Lab run/oracle state or today's reinterpreted mapping.
+3. Persist cohort identity and canonical `input_sha256` over sorted evidence IDs plus digests, configuration/binding revisions, window, role coverage and model version. `AnalyticRun` is idempotent for that basis. Append immutable `AssessmentRevision`s under a stable interval assessment key, preserving selected old revisions after a late report, backdated configuration or model update. Overlapping S2 demo runs and the labelled fault epoch are separate cohorts; if no coherent choice can be justified, return Limited/Indeterminate with the ambiguity named. Never sum them by timestamp or latest receipt.
 
-## Demo acceptance
+### `dispatch-3` comparison table to publish before classifier cutover
 
-Planner names the Lab scenario producer `I-sim-dispatch-cases`: reproducible complete, missing, contradictory and late public-report intervals from the registered Kobo basis through the durable gateway and normal ingestion. Record the scenario manifest and expected claim ceilings; private world truth is for Lab comparison only. This producer is part of the S3-01 review, not an assumed fixture supplied by the central analytic.
+| `dispatch-2` portion | `dispatch-3` boundary and acceptance |
+| --- | --- |
+| Interval reconstruction, source-time placement, 20-minute continuity and 10-minute instant tolerance | Carry only where accepted public generator status/power and bracketing evidence support them; retain open bounds and gaps. A positive 5-minute mean is not a whole interval of runtime. |
+| Row 1 operator override | No S2 V3 command record exists. Do not invent an override or assert its absence; mark that alternative unavailable. A later authenticated command contract needs its own rule revision. |
+| Row 2 minimum runtime | Only use the selected time-valid Foundation minimum-runtime control if the table maps its public effective basis and uncertain first-ON bound. Otherwise withhold this alternative and name the limit. No measurement-only POLICY reading is invented. |
+| Rows 3–4 reserve and capability constraints | Reserve comes from selected Foundation control; physical Necessary requires accepted load/PV capability/SOC/PCS capability evidence as the applicable row requires. Carry 10-point SOC headroom only with the exact public roles and comparison stated. |
+| Rows 5a/5b Candidate | Require accepted available-PV and PCS-discharge-capability channels from `minigrid-roles-2`; carry the 10% capability headroom and both-end segment rule only after mapping is proven. Bound Candidate duration; never label the whole interval avoidable from one segment. |
+| Row 6, conflicts, alternatives and fuel | Missing, poor-quality, contradictory or mixed-cohort inputs are Indeterminate with reason. Preserve equal-rank conflict behavior and policy-boundary splits where public inputs exist. S3 shows evidence/constraint explanation; no unsupported alternative, monetary or fuel-saving claim. |
 
-Choose a window, inspect generator/load/PV/battery evidence IDs and quality limits; compare representative dispatch claims with the file-backed S2-02 baseline before switching Performance reads to Postgres-derived revisions. Add late evidence, recompute and reopen old/new revisions.
+Record every numeric threshold and carried/changed branch in a versioned `dispatch-3` decision table beside the existing baseline before implementation. A proposed semantic branch without public role/control proof stays unavailable. The rule version is stored with each run/revision.
 
-## Missing/conflicting evidence
+## Fixture `I-sim-dispatch-cases` and phases
 
-A missing role, contradictory samples or weak quality yields an explicit Indeterminate/Unknown limit.
+The fixture is **phase 1 of this S3-01 packet**, owned by the separately selectable registry node `I-sim-dispatch-cases`; the main `I-S3-01` gate remains blocked until this phase is reviewed. It is not an assumed S2 artifact or a second queue task. A versioned `s3-dispatch-cases-v1` manifest names the registered Foundation/binding revisions, simulated gateway/source IDs, public batch/envelope/evidence IDs, cohort/epoch, expected claim ceiling and private Lab oracle location separately. Produce: complete physical-constraint Necessary, supported two-capability Candidate, missing/poor-quality, contradictory same-role, late/out-of-order, and overlapping-run/fault-epoch isolation cases. Every public report goes through the durable registered gateway, sealed Batch V2 upload and central acceptance; the fault fixture is labelled and never blended into ordinary source truth. The manifest is replayable and compares accepted IDs after reload.
 
-## Evidence lineage
+| Phase (each bounded below ~120k Implementer context) | Reviewable handoff |
+| --- | --- |
+| 1. Role vocabulary and fixture | `minigrid-roles-2` registration/binding plus versioned manifest and normal-ingestion accepted records for the cases above. Show Candidate is blocked before both capability channels exist and available after acceptance. No analytic cutover. |
+| 2. Typed seam and durable assessment | Query/input DTO, cohort selection, `dispatch-3` table/pure analytic, run/revision persistence, recompute worker. Lease/retry S2 jobs and coalesce dirty windows without losing a new event during a worker run; recompute affected and continuity-neighbor windows for late evidence/backdated configuration/model version. |
+| 3. Read, comparison and UI cutover | Selected-window/interval read API and Dispatch/Analysis portions, file-backed comparison report, Postgres Performance read cutover, V-01 comparison evidence and reviewer walkthrough. Keep the cutover closed if comparison or lineage proof fails. |
 
-Interval detail resolves accepted evidence IDs and exact Foundation/binding basis. The S3 demo uses simulated input only; the first real pilot later compares captured physical inputs after normalization.
+## Read states and acceptance
 
-## Review and refinement
+- Read API returns Site/domain/window, `knowledge_at`, selected assessment/run/model/cohort IDs, evidence IDs, coverage and limitation reasons, input/source/analytic watermarks, `built_at`, and `UNASSESSED | PENDING | CURRENT | STALE_PROJECTION | FAILED`. `NO_PENDING_DISPATCH` alone is not CURRENT. A current claim matches the source/input watermark and has no overlapping pending/leased/failed recompute job. While stale, preserve the prior revision as inspectable but visibly stale. Unbuilt Analysis portions and alternatives are hidden or typed unavailable.
+- UI shows interval list, bounded segment durations, selected interval/revision and its AcceptedEvidence drill-down. Missing role/configuration, contradictory samples, weak quality, ambiguous cohort and worker failure each have an honest state; none defaults to zero, healthy, Necessary or Candidate. Site/window/revision selection and reload preserve exact IDs.
+- Compare representative public-record dispatch claims from the read-only file-backed baseline with Postgres results before switching the imported Site Performance read. Report matching claims, intentional `dispatch-3` deltas, missing-source migration exceptions and source IDs; an unproven case keeps cutover closed. Historical file and Lab stores remain comparison inputs only.
+- A late accepted record yields a new revision and job; old selected revision remains addressable. Replaying the same accepted basis does not duplicate a run/revision. A failed worker retries; an acceptance racing a leased worker leaves a dirty job/new watermark and cannot publish stale output as CURRENT.
+- Compare app `dispatch` route with `frontend/mockups/v69/index.html#/dispatch` and its three core panels at desktop and narrow widths under V-01: panel hierarchy, labels, density, selected interval, keyboard/drill-down behavior, populated and missing/late states. Document supported claim portions and deliberate omissions; screenshot similarity alone is not panel Real acceptance. `analysis:1,3` receive the same honest-gap review for their S3-supported portions.
 
-Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
+## Reviewer path and checks
 
-## Defer
+From a clean branch, inspect the `s3-dispatch-cases-v1` manifest and central accepted IDs, open a Necessary, Candidate and Indeterminate interval after reload, follow one displayed value through analytic run, assessment, accepted Evidence, envelope and as-accepted Foundation/binding revision, then inspect old/new revisions after late evidence. Verify the overlap/fault epoch remains isolated, the failed/retried worker race, and the file-backed comparison gate before/after cutover. Review the `dispatch-3` versus `dispatch-2` table, role bindings and missing-command/minimum-runtime limits. Record API response and app/mock viewport evidence for `dispatch:1-3` and supported `analysis:1,3` portions.
 
-Other domain analytics, direct JSON-file analytic reads and invented service status.
+Run focused backend analytic/ledger/Postgres and simulator/gateway tests for the new roles, cohorts, revisions and job race; frontend tests, typecheck/build and layout evidence for changed Dispatch/Analysis UI; registry, ledger, navigation, architecture and agent-workflow guards. Record exact commands, fixture IDs, results and unresolved panel gaps in the review packet. Independent review and owner checkpoint close the task; the coordinator alone activates and records closeout.
