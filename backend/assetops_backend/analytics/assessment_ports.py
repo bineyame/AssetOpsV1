@@ -75,6 +75,22 @@ class RunHead:
     configuration_sha256: str
 
 
+@dataclass(frozen=True)
+class WindowSnapshot:
+    """One consistent read of a window (phase 3): the current accepted basis, the last DEFAULT
+    selection with its run and revisions, every overlapping unfinished or failed job, and the
+    newest revision of each key ever assessed in the window (for supersession history)."""
+
+    reading_count: int
+    current_input_sha256: str | None
+    current_configuration_sha256: str
+    head: dict[str, Any] | None
+    run: dict[str, Any] | None
+    jobs: list[dict[str, Any]]
+    key_heads: list[dict[str, Any]]
+    read_at: datetime
+
+
 class AssessmentStore(Protocol):
     def query_evidence(self, query: EvidenceQuery) -> EvidenceQueryResult: ...
 
@@ -98,3 +114,5 @@ class AssessmentStore(Protocol):
     def run_heads(self, tenant_id: UUID, site_id: UUID, analytic_id: str) -> list[RunHead]: ...
 
     def enqueue(self, tenant_id: UUID, site_id: UUID, domain: str, window: Window, now: datetime) -> None: ...
+
+    def assessed_sites(self, analytic_id: str) -> list[tuple[UUID, UUID]]: ...

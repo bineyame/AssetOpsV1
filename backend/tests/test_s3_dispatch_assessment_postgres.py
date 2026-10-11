@@ -211,6 +211,19 @@ class TestDurableAssessment:
             store.complete_job(slow, [out], T1 + timedelta(minutes=2))
         assert rows(site.engine, "SELECT count(*) FROM analytic_run")[0][0] == 1
 
+    def test_a_lease_that_always_expires_reaches_failed(self, site) -> None:
+        """Phase-2 review F6: an expired lease on the last allowed attempt is FAILED, not re-leased."""
+        site.feed.deliver(interval_rows(5, 6), T1)
+        store = PostgresAssessmentStore(URL)
+        now = T1
+        for attempt in (1, 2, 3):
+            lease = store.lease_job("dispatch", now, timedelta(seconds=10), max_attempts=3)
+            assert lease is not None and lease.attempts == attempt
+            now += timedelta(minutes=1)  # the worker never completes: its lease expires
+        assert store.lease_job("dispatch", now, timedelta(seconds=10), max_attempts=3) is None
+        [(status, attempts, _, _, error)] = jobs(site.engine)
+        assert (status, attempts) == ("FAILED", 3) and "lease expired on attempt 3 of 3" in error
+
     def test_backdated_configuration_and_model_version_schedule_reassessment(self, site) -> None:
         site.feed.deliver(interval_rows(5, 6), T1)
         worker(T1 + timedelta(minutes=1)).run_pending()

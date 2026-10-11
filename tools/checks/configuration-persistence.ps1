@@ -606,7 +606,7 @@ function Invoke-ConfigurationPersistenceCheck {
         '(?i)\bUPDATE\s+gateway\s+SET\s+(?:credential_ref|disabled_at|diagnostic_cadence_seconds)\s*=\s*:[a-z_]+\s+WHERE\b',
         '(?i)\bUPDATE\s+source\s+SET\s+disabled_at\s*=\s*:[a-z_]+\s+WHERE\b')
     $assessWriter = "$backendRoot/analytics/adapters/postgres_assessment_store.py"
-    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment')
+    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection')
     $assessInserts = $assessTables + @('recompute_job')
     $assessUpdates = @(
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',

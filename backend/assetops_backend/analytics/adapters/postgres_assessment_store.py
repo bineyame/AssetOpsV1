@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import Any, Callable
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
@@ -41,6 +41,7 @@ from assetops_backend.analytics.assessment_ports import (
     PersistedRun,
     RunHead,
     RunOutput,
+    WindowSnapshot,
 )
 
 _EVIDENCE = (
@@ -54,6 +55,9 @@ _EVIDENCE = (
     "AND COALESCE(e.interval_start, e.source_time) < :hi AND (:any_role OR e.role = ANY(:roles)) "
     "ORDER BY e.source_time, e.id"
 )
+_REVISION_COLUMNS = ("v.id, v.analytic_id, v.model_version, v.assessment_key, v.revision_no, "
+                     "v.analytic_run_id, v.window_start, v.window_end, v.claim_level, v.result, v.evidence_ids, "
+                     "v.basis_sha256, v.created_at")
 _KNOWN = "recorded_at <= :k AND (superseded_at IS NULL OR superseded_at > :k)"
 _OVERLAPS = "valid_from < :hi AND (valid_to IS NULL OR valid_to > :lo)"
 _ASSESS_LOCK = "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || :suffix, 0))"
@@ -268,11 +272,12 @@ class PostgresAssessmentStore:
             "AND window_start = :ws AND window_end = :we AND input_sha256 = :h"),
             {"s": i.site_id, "a": i.analytic_id, "m": i.model_version, "ws": i.window.start, "we": i.window.end,
              "h": i.input_sha256}).first()
+        tenant = c.execute(text("SELECT tenant_id FROM site WHERE id = :s"), {"s": i.site_id}).scalar_one()
         if existing is not None:
             linked = c.execute(text("SELECT assessment_revision_id FROM analytic_run_assessment WHERE run_id = :r"),
                                {"r": existing[0]}).scalars().all()
+            self._select(c, out, tenant, existing[0], job_id, now)
             return PersistedRun(existing[0], False, tuple(linked), ())
-        tenant = c.execute(text("SELECT tenant_id FROM site WHERE id = :s"), {"s": i.site_id}).scalar_one()
         run_id = uuid4()
         c.execute(text(
             "INSERT INTO analytic_run (id, tenant_id, site_id, analytic_id, model_version, window_start, window_end, "
@@ -320,15 +325,215 @@ class PostgresAssessmentStore:
                            "scope) VALUES (:r, :rev, :t, :s, :scope)"),
                       {"r": run_id, "rev": rev_id, "t": tenant, "s": i.site_id, "scope": scope})
             revision_ids.append(rev_id)
+        self._select(c, out, tenant, run_id, job_id, now)
         return PersistedRun(run_id, True, tuple(revision_ids), tuple(new_ids))
+
+    @staticmethod
+    def _select(c: Connection, out: RunOutput, tenant: UUID, run_id: UUID, job_id: UUID | None,
+                now: datetime) -> None:
+        """Log a DEFAULT selection (created or reused run) in commit order (migration 0008)."""
+        if out.selection != "DEFAULT":
+            return
+        i = out.inputs
+        c.execute(text(
+            "INSERT INTO analytic_run_selection (tenant_id, site_id, analytic_id, window_start, window_end, run_id, "
+            "job_id, selected_at) VALUES (:t, :s, :a, :ws, :we, :r, :job, :now)"),
+            {"t": tenant, "s": i.site_id, "a": i.analytic_id, "ws": i.window.start, "we": i.window.end,
+             "r": run_id, "job": job_id, "now": now})
 
     def run_heads(self, tenant_id: UUID, site_id: UUID, analytic_id: str) -> list[RunHead]:
         def work(c: Connection) -> list[RunHead]:
+            # The head is the last selection in commit order, not the newest run (a reverted input
+            # reuses an older run; migration 0008).
             rows = c.execute(text(
-                "SELECT DISTINCT ON (window_start, window_end) window_start, window_end, model_version, "
-                "configuration_sha256 FROM analytic_run WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
-                "AND selection = 'DEFAULT' ORDER BY window_start, window_end, completed_at DESC, id"),
+                "SELECT DISTINCT ON (x.window_start, x.window_end) x.window_start, x.window_end, r.model_version, "
+                "r.configuration_sha256 FROM analytic_run_selection x JOIN analytic_run r ON r.id = x.run_id "
+                "WHERE x.tenant_id = :t AND x.site_id = :s AND x.analytic_id = :a "
+                "ORDER BY x.window_start, x.window_end, x.seq DESC"),
                 {"t": tenant_id, "s": site_id, "a": analytic_id}).all()
             return [RunHead(Window(r[0], r[1]), r[2], r[3]) for r in rows]
 
         return self._run(work)
+
+    def assessed_sites(self, analytic_id: str) -> list[tuple[UUID, UUID]]:
+        return self._run(lambda c: [(r[0], r[1]) for r in c.execute(text(
+            "SELECT DISTINCT tenant_id, site_id FROM analytic_run_selection WHERE analytic_id = :a "
+            "ORDER BY tenant_id, site_id"), {"a": analytic_id}).all()])
+
+    # --- phase-3 reads: selected window, pinned run, revision drill-down -----------
+
+    def _snapshot(self, work):
+        """One REPEATABLE READ transaction: every part of a read sees one committed state."""
+        engine = self._connect_engine()
+        try:
+            with engine.connect().execution_options(isolation_level="REPEATABLE READ") as connection:
+                with connection.begin():
+                    return work(connection)
+        except (OperationalError, ProgrammingError) as error:
+            raise AssessmentStoreUnavailable(f"The assessment store failed: {error.orig}") from error
+
+    def window_snapshot(self, query: EvidenceQuery, analytic_id: str,
+                        basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> WindowSnapshot:
+        """The current accepted basis, the last DEFAULT selection, its revisions and every overlapping
+        unfinished or failed job of one window, read in one snapshot (Architect Q7)."""
+        w = query.window
+
+        def work(c: Connection) -> WindowSnapshot:
+            rng = query.read_range
+            rows = c.execute(text(_EVIDENCE), {
+                "t": query.tenant_id, "s": query.site_id, "k": query.knowledge_at, "lo": rng.start, "hi": rng.end,
+                "any_role": not query.roles, "roles": list(query.roles)}).all()
+            readings = tuple(_reading(r) for r in rows)
+            config = self._configuration(c, query.tenant_id, query.site_id, rng, query.knowledge_at)
+            input_sha, config_sha = basis(EvidenceQueryResult(query, readings, config.bindings, config.controls,
+                                                              config.role_sets, config.limits))
+            p = {"t": query.tenant_id, "s": query.site_id, "a": analytic_id, "ws": w.start, "we": w.end,
+                 "d": query.domain, "lo": rng.start, "hi": rng.end}
+            head = c.execute(text(
+                "SELECT seq, selected_at, job_id, run_id FROM analytic_run_selection WHERE tenant_id = :t "
+                "AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we "
+                "ORDER BY seq DESC LIMIT 1"), p).first()
+            jobs = c.execute(text(
+                "SELECT id, status, window_start, window_end, attempts, last_error, created_at, available_at "
+                "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
+                "AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi AND window_end >= :lo "
+                "ORDER BY created_at, id"), p).all()
+            run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
+            keys = c.execute(text(
+                "SELECT DISTINCT ON (assessment_key) assessment_key, id, revision_no, claim_level, created_at "
+                "FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+                "AND window_start = :ws AND window_end = :we ORDER BY assessment_key, revision_no DESC"), p).all()
+            read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            return WindowSnapshot(
+                reading_count=len(readings), current_input_sha256=input_sha, current_configuration_sha256=config_sha,
+                head=None if head is None else {"seq": head[0], "selected_at": head[1], "job_id": head[2]},
+                run=run,
+                jobs=[dict(zip(("id", "status", "window_start", "window_end", "attempts", "last_error",
+                                "created_at", "available_at"), j)) for j in jobs],
+                key_heads=[dict(zip(("assessment_key", "id", "revision_no", "claim_level", "created_at"), k))
+                           for k in keys],
+                read_at=read_at)
+
+        return self._snapshot(work)
+
+    def run_detail(self, tenant_id: UUID, site_id: UUID, run_id: UUID) -> dict[str, Any] | None:
+        return self._snapshot(lambda c: self._run_detail(c, tenant_id, site_id, run_id))
+
+    def _run_detail(self, c: Connection, tenant_id: UUID, site_id: UUID, run_id: UUID) -> dict[str, Any] | None:
+        p = {"t": tenant_id, "s": site_id, "r": run_id}
+        row = c.execute(text(
+            "SELECT id, analytic_id, model_version, window_start, window_end, knowledge_cutoff, input_sha256, "
+            "cohort_status, cohort_sha256, cohort, configuration_sha256, foundation_revision_ids, "
+            "binding_set_revision_ids, role_coverage, watermarks, selection, job_id, started_at, completed_at "
+            "FROM analytic_run WHERE tenant_id = :t AND site_id = :s AND id = :r"), p).first()
+        if row is None:
+            return None
+        run = dict(zip(("id", "analytic_id", "model_version", "window_start", "window_end", "knowledge_cutoff",
+                        "input_sha256", "cohort_status", "cohort_sha256", "cohort", "configuration_sha256",
+                        "foundation_revision_ids", "binding_set_revision_ids", "role_coverage", "watermarks",
+                        "selection", "job_id", "started_at", "completed_at"), row))
+        run["revisions"] = [_revision_row(r) for r in c.execute(text(
+            f"SELECT {_REVISION_COLUMNS}, l.scope FROM analytic_run_assessment l JOIN assessment_revision v "
+            "ON v.id = l.assessment_revision_id WHERE l.tenant_id = :t AND l.site_id = :s AND l.run_id = :r "
+            "ORDER BY l.scope DESC, v.assessment_key"), p).all()]
+        run["evidence"] = _evidence(c, tenant_id, site_id, c.execute(text(
+            "SELECT evidence_id FROM analytic_run_evidence WHERE tenant_id = :t AND site_id = :s AND run_id = :r"),
+            p).scalars().all())
+        return run
+
+    def revision_detail(self, tenant_id: UUID, site_id: UUID, revision_id: UUID) -> dict[str, Any] | None:
+        def work(c: Connection) -> dict[str, Any] | None:
+            p = {"t": tenant_id, "s": site_id, "r": revision_id}
+            row = c.execute(text(
+                f"SELECT {_REVISION_COLUMNS}, NULL FROM assessment_revision v WHERE v.tenant_id = :t "
+                "AND v.site_id = :s AND v.id = :r"), p).first()
+            if row is None:
+                return None
+            revision = _revision_row(row)
+            revision["history"] = [_revision_row(r) for r in c.execute(text(
+                f"SELECT {_REVISION_COLUMNS}, NULL FROM assessment_revision v WHERE v.tenant_id = :t "
+                "AND v.site_id = :s AND v.analytic_id = :a AND v.assessment_key = :k ORDER BY v.revision_no"),
+                {**p, "a": revision["analytic_id"], "k": revision["assessment_key"]}).all()]
+            revision["selected_by_runs"] = [str(x) for x in c.execute(text(
+                "SELECT run_id FROM analytic_run_assessment WHERE tenant_id = :t AND site_id = :s "
+                "AND assessment_revision_id = :r ORDER BY run_id"), p).scalars().all()]
+            revision["run"] = self._run_detail(c, tenant_id, site_id, revision["analytic_run_id"])
+            revision["evidence"] = _evidence(c, tenant_id, site_id, revision["evidence_ids"])
+            return revision
+
+        return self._snapshot(work)
+
+    def lineage_breaks(self, tenant_id: UUID, site_id: UUID, analytic_id: str) -> dict[str, int]:
+        """Counts of lineage breaks for the Performance cutover gate; every break count must be zero."""
+        def work(c: Connection) -> dict[str, int]:
+            p = {"t": tenant_id, "s": site_id, "a": analytic_id}
+
+            def count(sql: str) -> int:
+                return int(c.execute(text(sql), p).scalar_one())
+
+            return {
+                "selected_runs": count(
+                    "SELECT count(DISTINCT run_id) FROM analytic_run_selection WHERE tenant_id = :t "
+                    "AND site_id = :s AND analytic_id = :a"),
+                "run_evidence_not_accepted": count(
+                    "SELECT count(*) FROM analytic_run_evidence x JOIN analytic_run r ON r.id = x.run_id "
+                    "WHERE r.tenant_id = :t AND r.site_id = :s AND r.analytic_id = :a AND NOT EXISTS ("
+                    "SELECT 1 FROM ingestion_disposition d WHERE d.accepted_evidence_id = x.evidence_id "
+                    "AND d.decision = 'ACCEPTED')"),
+                "revision_evidence_outside_run": count(
+                    "SELECT count(*) FROM assessment_revision v CROSS JOIN LATERAL "
+                    "jsonb_array_elements_text(v.evidence_ids) AS ev(id) WHERE v.tenant_id = :t AND v.site_id = :s "
+                    "AND v.analytic_id = :a AND NOT EXISTS (SELECT 1 FROM analytic_run_evidence x WHERE "
+                    "x.run_id = v.analytic_run_id AND x.evidence_id = CAST(ev.id AS uuid))"),
+                "runs_without_window_revision": count(
+                    "SELECT count(*) FROM analytic_run r WHERE r.tenant_id = :t AND r.site_id = :s "
+                    "AND r.analytic_id = :a AND NOT EXISTS (SELECT 1 FROM analytic_run_assessment l "
+                    "WHERE l.run_id = r.id AND l.scope = 'WINDOW')"),
+                "foundation_revisions_missing": count(
+                    "SELECT count(*) FROM analytic_run r CROSS JOIN LATERAL "
+                    "jsonb_array_elements_text(r.foundation_revision_ids) AS f(id) WHERE r.tenant_id = :t "
+                    "AND r.site_id = :s AND r.analytic_id = :a AND NOT EXISTS (SELECT 1 FROM foundation_revision "
+                    "x WHERE x.tenant_id = :t AND x.site_id = :s AND x.id = CAST(f.id AS uuid))"),
+            }
+
+        return self._snapshot(work)
+
+
+_REVISION_NAMES = ("id", "analytic_id", "model_version", "assessment_key", "revision_no", "analytic_run_id",
+                   "window_start", "window_end", "claim_level", "result", "evidence_ids", "basis_sha256",
+                   "created_at", "scope")
+_EVIDENCE_NAMES = ("evidence_id", "envelope_sha256", "message_id", "batch_id", "external_batch_id", "gateway_id",
+                   "source_id", "sequence_epoch", "sequence", "device_id", "signal_id", "role", "asset_id",
+                   "source_time", "interval_start", "interval_end", "published_at", "received_at", "accepted_at",
+                   "quality", "unavailable_reason", "value", "unit", "source_mode", "foundation_revision_id",
+                   "binding_set_revision_id", "binding_revision_id", "disposition")
+
+
+def _reading(r) -> AcceptedReading:
+    return AcceptedReading(
+        evidence_id=r[0], envelope_sha256=r[1], batch_id=r[2], gateway_id=r[3], source_id=r[4],
+        sequence_epoch=r[5], sequence=r[6], role=r[7], asset_id=r[8], source_time=r[9],
+        interval_start=r[10], interval_end=r[11], published_at=r[12], received_at=r[13], accepted_at=r[14],
+        quality=r[15], value=r[16], unit=r[17], foundation_revision_id=r[18],
+        binding_set_revision_id=r[19], binding_revision_id=r[20], source_mode=r[21])
+
+
+def _revision_row(r) -> dict[str, Any]:
+    return dict(zip(_REVISION_NAMES, r))
+
+
+def _evidence(c: Connection, tenant_id: UUID, site_id: UUID, ids) -> list[dict[str, Any]]:
+    """Exact accepted Evidence by stored ID (never re-selected by time or `knowledge_at`)."""
+    if not ids:
+        return []
+    rows = c.execute(text(
+        "SELECT e.id, e.envelope_sha256, e.message_id, e.batch_id, b.external_batch_id, e.gateway_id, "
+        "e.source_id, e.sequence_epoch, e.sequence, e.device_id, e.signal_id, e.role, e.asset_id, "
+        "e.source_time, e.interval_start, e.interval_end, e.published_at, e.received_at, d.decided_at, "
+        "e.quality, e.unavailable_reason, e.normalized_value_text, e.normalized_unit, e.source_mode, "
+        "e.foundation_revision_id, e.binding_set_revision_id, e.binding_revision_id, d.decision "
+        "FROM accepted_evidence e JOIN ingestion_batch b ON b.id = e.batch_id "
+        "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+        "WHERE e.tenant_id = :t AND e.site_id = :s AND e.id = ANY(:ids) ORDER BY e.source_time, e.id"),
+        {"t": tenant_id, "s": site_id, "ids": [UUID(str(i)) for i in ids]}).all()
+    return [dict(zip(_EVIDENCE_NAMES, r)) for r in rows]

@@ -11,9 +11,10 @@ An acceptance that arrives while a job is leased cannot widen that job (S2
 coalesces only into PENDING jobs), so it creates a new PENDING job: the next
 pass reassesses with the new evidence and nothing is lost.
 
-`reconcile` schedules windows whose latest default run used another model
-version or a configuration that the current selection no longer gives (a
-backdated Foundation or binding publication).
+`reconcile` schedules windows whose last selected default run used another
+model version or a configuration that the current selection no longer gives (a
+backdated Foundation or binding publication); every `run_pending` pass runs it
+for each assessed Site first.
 """
 
 from __future__ import annotations
@@ -27,8 +28,10 @@ from uuid import UUID
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import (
     BRACKET,
+    AnalyticInputSet,
     CohortMember,
     EvidenceQuery,
+    EvidenceQueryResult,
     Window,
     build_input_set,
     sha256_json,
@@ -76,6 +79,16 @@ def configuration_sha256(config: Configuration) -> str:
     })
 
 
+def input_basis(result: EvidenceQueryResult, model: ModuleType | Any = dispatch_v3) -> tuple[AnalyticInputSet, str]:
+    """Cohort selection and the frozen input set of one query result, with its configuration digest.
+    The worker assesses it; the phase-3 read compares its `input_sha256` with the selected run."""
+    selection = select_cohort(result.readings, result.query.window, result.query.cohort)
+    inputs = build_input_set(result, selection, analytic_id=model.ANALYTIC_ID, model_version=model.MODEL_VERSION,
+                             roles_by_set=ROLES_BY_SET)
+    config = Configuration(result.bindings, result.controls, result.role_sets, result.configuration_limits)
+    return inputs, configuration_sha256(config)
+
+
 @dataclass(frozen=True)
 class JobOutcome:
     job_id: UUID
@@ -96,13 +109,9 @@ class DispatchAssessmentWorker:
                 cohort: tuple[CohortMember, ...] | None = None) -> RunOutput:
         started = self.clock()
         query = EvidenceQuery(tenant_id, site_id, DOMAIN, window, knowledge_at, cohort=cohort, roles=DISPATCH_ROLES)
-        result = self.store.query_evidence(query)
-        selection = select_cohort(result.readings, window, query.cohort)
-        inputs = build_input_set(result, selection, analytic_id=self.model.ANALYTIC_ID,
-                                 model_version=self.model.MODEL_VERSION, roles_by_set=ROLES_BY_SET)
+        inputs, config_sha = input_basis(self.store.query_evidence(query), self.model)
         assessment = self.model.assess(inputs)
-        config = Configuration(result.bindings, result.controls, result.role_sets, result.configuration_limits)
-        return RunOutput(inputs, assessment, configuration_sha256(config), watermarks(inputs.readings),
+        return RunOutput(inputs, assessment, config_sha, watermarks(inputs.readings),
                          "DEFAULT" if cohort is None else "EXPLICIT", started)
 
     def assess_explicit(self, tenant_id: UUID, site_id: UUID, window: Window,
@@ -132,7 +141,11 @@ class DispatchAssessmentWorker:
                                          backoff=self.backoff)
             return JobOutcome(lease.job_id, status, error=reason)
 
-    def run_pending(self, limit: int = 1000) -> list[JobOutcome]:
+    def run_pending(self, limit: int = 1000, *, reconcile: bool = True) -> list[JobOutcome]:
+        """Each pass first reconciles every assessed Site, so a backdated Foundation/binding
+        publication or a model-version change is enqueued without an operator (phase-2 F4)."""
+        if reconcile:
+            self.reconcile_all()
         outcomes = []
         for _ in range(limit):
             outcome = self.run_once()
@@ -140,6 +153,12 @@ class DispatchAssessmentWorker:
                 break
             outcomes.append(outcome)
         return outcomes
+
+    def reconcile_all(self) -> list[Window]:
+        scheduled: list[Window] = []
+        for tenant_id, site_id in self.store.assessed_sites(self.model.ANALYTIC_ID):
+            scheduled += self.reconcile(tenant_id, site_id)
+        return scheduled
 
     def reconcile(self, tenant_id: UUID, site_id: UUID) -> list[Window]:
         """Enqueue windows whose latest default run used another model version or a configuration
