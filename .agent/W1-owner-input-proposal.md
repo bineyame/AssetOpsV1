@@ -1,5 +1,7 @@
 # W1 owner input proposal — revised 27 screens / 64 panels
 
+Recorded outcome: the owner confirmed this revised W1 target on 2026-10-11 in `.agent/owner-W1-confirmation-2026-10-11.md`. The registry now holds 27 W1 screens, 64 proposed panel paths and exact owner core/demo values. Panel mapping review and delivery remain open; the proposal text below preserves the recommendation and its boundary reasoning.
+
 ## Wave boundary review, 2026-10-11 — Codex Architect recommendation
 
 Move six mini-grid screens from W4 into W1: `sitefindings`, `finding-history`, `action-plan`, `action-execution`, `action-evidence`, and `action-history`. This keeps the Finding and one Action's tabs coherent in the S3–S7 walkthrough while using the FindingIndex, immutable Finding revisions, ActionEvents, frozen plan and verification evidence those slices already need. Each screen still needs a refined read/projection, honest missing state and visual check; this is a proposed owner wave choice, not authority to count an unresolved gate as built. Keep the three battery detail tabs in W6; S7's bounded `asset` view can say Unknown, but it does not produce weekly battery-use or positive condition evidence. W2 remains cold-chain/EV-only.

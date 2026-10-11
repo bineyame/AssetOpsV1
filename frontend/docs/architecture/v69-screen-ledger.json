@@ -1,7 +1,7 @@
 {
   "schema": "assetops.v69.screen-ledger.v2",
   "manifest": "../../mockups/v69/screen-manifest.json",
-  "rules": "Status is planned coverage, not implemented state. Manifest models and screen copy remain authoritative for mock intent; this overlay records product commitments. Proposed fidelity tiers require owner approval; no tier is accepted by this ledger. Promotion dependencies state what permits a deferred screen to become a task candidate and what must close before full Real fidelity; null to_candidate means an S task already names the screen, not that it is implemented.",
+  "rules": "Status is planned coverage, not implemented state. Manifest and panel copy remain mock intent. Owner-confirmed W1 target tiers are recorded per screen; technical claim mapping, UI delivery and full Real acceptance remain separate gates. Deferred coverage can remain while a W1 outline is refined. Promotion dependencies still govern candidate and full Real work.",
   "screens": [
     {
       "id": "portfolio",
@@ -57,7 +57,7 @@
       "unknown_or_empty": "Unavailable store is error, not empty estate.",
       "visual_reference": "index.html#/sites",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -67,7 +67,9 @@
           "remaining_work": "Broader directory and product Site setup require SiteDraft/Template/ImportBatch contracts, multi-Site records and honest mixed-store states.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "mini",
@@ -82,7 +84,7 @@
       "unknown_or_empty": "Unassessed objective is Unknown; lag is Pending.",
       "visual_reference": "index.html#/mini",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -92,7 +94,9 @@
           "remaining_work": "Complete the unassessed service, renewable, fuel, backup and asset objectives; add comparable windows and drill-downs before the whole Overview matches the mock.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "foundation",
@@ -107,7 +111,7 @@
       "unknown_or_empty": "Missing required value is a named configuration gap.",
       "visual_reference": "index.html#/foundation",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -115,7 +119,9 @@
           "remaining_work": "Resolve every remaining mock control/topology panel against a persisted Foundation field; field commissioning needs an independent confirmation contract.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "readiness",
@@ -130,7 +136,7 @@
       "unknown_or_empty": "Unbound roles remain unready; absence is never confirmed.",
       "visual_reference": "index.html#/readiness",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -141,7 +147,9 @@
           "remaining_work": "Add accepted gateway/source status and a separate field-confirmation basis; do not infer readiness from configured bindings alone.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "changes",
@@ -156,7 +164,7 @@
       "unknown_or_empty": "No later evidence means outcome pending.",
       "visual_reference": "index.html#/changes",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -164,7 +172,9 @@
           "remaining_work": "Persist and display the wider change history and policy authority, not only one reserve change and its later check.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "dispatch",
@@ -179,7 +189,7 @@
       "unknown_or_empty": "Missing/contradictory role yields Indeterminate.",
       "visual_reference": "index.html#/dispatch",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -187,7 +197,9 @@
           "remaining_work": "Support the mock's wider interval set and comparative states with accepted evidence, revisioned analytics and explicit coverage.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "renewable",
@@ -239,7 +251,7 @@
       "unknown_or_empty": "No accepted record or lag is explicit; no inferred healthy state.",
       "visual_reference": "index.html#/evidence",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -247,11 +259,22 @@
           "remaining_work": "Expand the source/role matrix and quality explanations only after all shown source streams, receipts and gap denominators are defined.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "finding",
-      "registry_dependencies": {"product_node_id": "P-finding", "node_ids": ["I-finding-read", "I-finding-ui", "D-finding-revisions", "I-action-read", "D-action-records"]},
+      "registry_dependencies": {
+        "product_node_id": "P-finding",
+        "node_ids": [
+          "I-finding-read",
+          "I-finding-ui",
+          "D-finding-revisions",
+          "I-action-read",
+          "D-action-records"
+        ]
+      },
       "mock_route": "#/finding",
       "product_destination": "Findings > Overview",
       "coverage": "bounded",
@@ -263,7 +286,7 @@
       "unknown_or_empty": "No defensible episode gives no Finding; reassessment preserves history.",
       "visual_reference": "index.html#/finding",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -273,7 +296,9 @@
           "remaining_work": "Resolve Finding-root navigation, alternatives, history and recurrence from stable Finding/revision IDs and additional assessed episodes.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "analysis",
@@ -288,7 +313,7 @@
       "unknown_or_empty": "Missing input names its effect on classification.",
       "visual_reference": "index.html#/analysis",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -296,7 +321,9 @@
           "remaining_work": "Define and populate the broader alternatives/context analysis from accepted inputs; preserve the selected assessment revision in links.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "financials",
@@ -311,7 +338,7 @@
       "unknown_or_empty": "Missing price means unpriced, never zero.",
       "visual_reference": "index.html#/financials",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -319,7 +346,9 @@
           "remaining_work": "Add the remaining priced categories and periods only with assumption revisions, compatible units/currency and non-overlap rules.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "assumptions",
@@ -334,7 +363,7 @@
       "unknown_or_empty": "Absent price leaves consequence unpriced.",
       "visual_reference": "index.html#/assumptions",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -342,7 +371,9 @@
           "remaining_work": "Support the mock's wider assumption set and revision/edit history with an explicit authority and effective-time contract.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "recommendation",
@@ -357,7 +388,7 @@
       "unknown_or_empty": "No supported Finding means no recommendation.",
       "visual_reference": "index.html#/recommendation",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -365,7 +396,9 @@
           "remaining_work": "Settle Finding-to-Action root navigation and support the fuller recommendation/Action lifecycle beyond one proposed change.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "verification",
@@ -380,7 +413,7 @@
       "unknown_or_empty": "Weak comparison/failed guardrail yields Inconclusive or Ineffective.",
       "visual_reference": "index.html#/verification",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -388,7 +421,9 @@
           "remaining_work": "Support the fuller Action-root verification history with multiple later windows, failed guardrails and inconclusive outcomes.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "asset",
@@ -403,7 +438,7 @@
       "unknown_or_empty": "No capacity/thermal evidence cannot yield RUL.",
       "visual_reference": "index.html#/asset",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -413,7 +448,9 @@
           "remaining_work": "Define capacity evidence and battery usage/life claims, then asset registration and warranty links before presenting the full asset detail.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "health",
@@ -428,7 +465,7 @@
       "unknown_or_empty": "Missing cadence/evidence is Unknown, not healthy.",
       "visual_reference": "index.html#/health",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -438,7 +475,9 @@
           "remaining_work": "Broaden source and asset health across declared roles/assets, keeping source freshness distinct from equipment condition.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "lab",
@@ -453,7 +492,7 @@
       "unknown_or_empty": "Offline queue and refused receipt remain inspectable.",
       "visual_reference": "index.html#/lab",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -461,7 +500,9 @@
           "remaining_work": "Extend the durable gateway/Commit views and physical-adapter diagnostics with private Lab truth isolated from product claims.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "cold",
@@ -942,19 +983,26 @@
     },
     {
       "id": "sitefindings",
-      "registry_dependencies": {"product_node_id": "P-claims-area", "node_ids": ["I-finding-index", "I-site-findings-ui", "D-finding-revisions"]},
+      "registry_dependencies": {
+        "product_node_id": "P-sitefindings",
+        "node_ids": [
+          "I-finding-index",
+          "I-site-findings-ui",
+          "D-finding-revisions"
+        ]
+      },
       "mock_route": "#/sitefindings",
       "product_destination": "Sites > Findings",
       "coverage": "deferred",
       "task": null,
-      "follow_on": "post-S7 mini-grid breadth",
+      "follow_on": "W1 S5-01 outline refinement; no activated task yet",
       "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. FindingIndex needs a reviewed data and claim contract.",
+      "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
       "interaction": "Open Sites > Findings and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/sitefindings",
-      "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review",
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": {
           "architecture_decisions": [],
@@ -962,7 +1010,7 @@
             "FindingIndex"
           ],
           "fixture_or_record_gate": "Persisted records and complete/missing/conflicting states for the named read models and selected window.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+          "task_gate": "Owner W1 target recorded; Planner must refine S5-01 or a bounded companion slice with reviewed read, fixture and visual path before activation."
         },
         "to_real": {
           "unresolved_panels": [
@@ -971,11 +1019,20 @@
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "sitework",
-      "registry_dependencies": {"product_node_id": "P-sitework", "node_ids": ["I-action-read", "I-action-ui", "D-action-records"]},
+      "registry_dependencies": {
+        "product_node_id": "P-sitework",
+        "node_ids": [
+          "I-action-read",
+          "I-action-ui",
+          "D-action-records"
+        ]
+      },
       "mock_route": "#/sitework",
       "product_destination": "Sites > Work",
       "coverage": "bounded",
@@ -987,7 +1044,7 @@
       "unknown_or_empty": "No Action gives a truthful empty Work state.",
       "visual_reference": "index.html#/sitework",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -995,7 +1052,9 @@
           "remaining_work": "Define Incident and Maintenance identities, indexes and work events before their Site Work tabs can join the Action list.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "sitework-incidents",
@@ -1074,7 +1133,7 @@
       "unknown_or_empty": "No records gives an empty coverage set and claim ceiling.",
       "visual_reference": "index.html#/evidence-analysis",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -1082,7 +1141,9 @@
           "remaining_work": "Complete source/role coverage, rejected/duplicate/late decisions and lineage views for every shown evidence group.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "assets",
@@ -1119,7 +1180,14 @@
     },
     {
       "id": "findings",
-      "registry_dependencies": {"product_node_id": "P-claims-area", "node_ids": ["I-finding-index", "I-estate-finding-root", "D-finding-revisions"]},
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-finding-index",
+          "I-estate-finding-root",
+          "D-finding-revisions"
+        ]
+      },
       "mock_route": "#/findings",
       "product_destination": "Findings",
       "coverage": "deferred",
@@ -1154,7 +1222,14 @@
     },
     {
       "id": "actions",
-      "registry_dependencies": {"product_node_id": "P-work-area", "node_ids": ["I-action-read", "I-estate-action-root", "D-action-records"]},
+      "registry_dependencies": {
+        "product_node_id": "P-work-area",
+        "node_ids": [
+          "I-action-read",
+          "I-estate-action-root",
+          "D-action-records"
+        ]
+      },
       "mock_route": "#/actions",
       "product_destination": "Actions",
       "coverage": "deferred",
@@ -1188,7 +1263,14 @@
     },
     {
       "id": "incidents",
-      "registry_dependencies": {"product_node_id": "P-work-cases", "node_ids": ["I-incident-read", "I-incident-ui", "D-work-records"]},
+      "registry_dependencies": {
+        "product_node_id": "P-work-cases",
+        "node_ids": [
+          "I-incident-read",
+          "I-incident-ui",
+          "D-work-records"
+        ]
+      },
       "mock_route": "#/incidents",
       "product_destination": "Incidents",
       "coverage": "deferred",
@@ -1222,7 +1304,14 @@
     },
     {
       "id": "maintenance",
-      "registry_dependencies": {"product_node_id": "P-work-cases", "node_ids": ["I-maintenance-read", "I-maintenance-ui", "D-work-records"]},
+      "registry_dependencies": {
+        "product_node_id": "P-work-cases",
+        "node_ids": [
+          "I-maintenance-read",
+          "I-maintenance-ui",
+          "D-work-records"
+        ]
+      },
       "mock_route": "#/maintenance",
       "product_destination": "Maintenance",
       "coverage": "deferred",
@@ -2171,7 +2260,7 @@
       "unknown_or_empty": "Unresolved evidence link blocks claim presentation.",
       "visual_reference": "index.html#/finding-evidence",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -2179,7 +2268,9 @@
           "remaining_work": "Populate each evidence bundle section from exact accepted envelopes and source/assessment revision IDs across the supported Finding types.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "alternatives",
@@ -2219,20 +2310,20 @@
       "product_destination": "Findings > History",
       "coverage": "deferred",
       "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "follow_on": "W1 S4-01 outline refinement; no activated task yet",
       "data_owner": "Unassigned Findings read model",
-      "supported_claim": "No S1-S7 product claim. FindingRevision needs a reviewed data and claim contract.",
+      "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
       "interaction": "Open Findings > History and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until FindingRevision is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/finding-history",
-      "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review",
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": {
           "architecture_decisions": [],
           "projection_contracts": [],
           "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+          "task_gate": "Owner W1 target recorded; Planner must refine S4-01 or a bounded companion slice with reviewed read, fixture and visual path before activation."
         },
         "to_real": {
           "unresolved_panels": [
@@ -2241,7 +2332,9 @@
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "action-overview",
@@ -2256,7 +2349,7 @@
       "unknown_or_empty": "No verified outcome remains pending or inconclusive.",
       "visual_reference": "index.html#/action-overview",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -2264,7 +2357,9 @@
           "remaining_work": "Support the full Action event, plan, execution and outcome history under a stable Action-root route.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "action-plan",
@@ -2272,20 +2367,20 @@
       "product_destination": "Actions > Plan",
       "coverage": "deferred",
       "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "follow_on": "W1 S6-02 outline refinement; no activated task yet",
       "data_owner": "Unassigned Actions read model",
-      "supported_claim": "No S1-S7 product claim. Action needs a reviewed data and claim contract.",
+      "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
       "interaction": "Open Actions > Plan and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-plan",
-      "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review",
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": {
           "architecture_decisions": [],
           "projection_contracts": [],
           "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+          "task_gate": "Owner W1 target recorded; Planner must refine S6-02 or a bounded companion slice with reviewed read, fixture and visual path before activation."
         },
         "to_real": {
           "unresolved_panels": [
@@ -2294,7 +2389,9 @@
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "action-execution",
@@ -2302,20 +2399,20 @@
       "product_destination": "Actions > Execution",
       "coverage": "deferred",
       "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "follow_on": "W1 S6-01 outline refinement; no activated task yet",
       "data_owner": "Unassigned Actions read model",
-      "supported_claim": "No S1-S7 product claim. Action needs a reviewed data and claim contract.",
+      "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
       "interaction": "Open Actions > Execution and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-execution",
-      "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review",
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": {
           "architecture_decisions": [],
           "projection_contracts": [],
           "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+          "task_gate": "Owner W1 target recorded; Planner must refine S6-01 or a bounded companion slice with reviewed read, fixture and visual path before activation."
         },
         "to_real": {
           "unresolved_panels": [
@@ -2324,7 +2421,9 @@
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "action-evidence",
@@ -2332,20 +2431,20 @@
       "product_destination": "Actions > Evidence",
       "coverage": "deferred",
       "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "follow_on": "W1 S6-02 outline refinement; no activated task yet",
       "data_owner": "Unassigned Actions read model",
-      "supported_claim": "No S1-S7 product claim. Action needs a reviewed data and claim contract.",
+      "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
       "interaction": "Open Actions > Evidence and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-evidence",
-      "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review",
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": {
           "architecture_decisions": [],
           "projection_contracts": [],
           "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+          "task_gate": "Owner W1 target recorded; Planner must refine S6-02 or a bounded companion slice with reviewed read, fixture and visual path before activation."
         },
         "to_real": {
           "unresolved_panels": [
@@ -2354,7 +2453,9 @@
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "action-history",
@@ -2362,20 +2463,20 @@
       "product_destination": "Actions > History",
       "coverage": "deferred",
       "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "follow_on": "W1 S6-01 outline refinement; no activated task yet",
       "data_owner": "Unassigned Actions read model",
-      "supported_claim": "No S1-S7 product claim. Action needs a reviewed data and claim contract.",
+      "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
       "interaction": "Open Actions > History and follow its primary record or selected window; interaction contract pending.",
       "unknown_or_empty": "Show unavailable/Unknown until Action is backed by accepted records; no mock value is product evidence.",
       "visual_reference": "index.html#/action-history",
-      "proposed_fidelity_tier": "Deferred",
-      "tier_approval": "pending owner review",
+      "proposed_fidelity_tier": "Real with honest gaps",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": {
           "architecture_decisions": [],
           "projection_contracts": [],
           "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
+          "task_gate": "Owner W1 target recorded; Planner must refine S6-01 or a bounded companion slice with reviewed read, fixture and visual path before activation."
         },
         "to_real": {
           "unresolved_panels": [
@@ -2384,7 +2485,9 @@
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "opportunity-finding",
@@ -2672,7 +2775,7 @@
       "unknown_or_empty": "Unbound/offline elements are Unknown, not energized.",
       "visual_reference": "index.html#/sld",
       "proposed_fidelity_tier": "Real with honest gaps",
-      "tier_approval": "pending owner review",
+      "tier_approval": "owner approved",
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
@@ -2680,7 +2783,9 @@
           "remaining_work": "Observed status and flow require accepted measurements and binding-time lineage; configured topology alone cannot show live behavior.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
-      }
+      },
+      "planned_wave": "W1",
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "id": "cold-sld",

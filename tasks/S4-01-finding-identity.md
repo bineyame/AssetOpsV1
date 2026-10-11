@@ -29,6 +29,8 @@ Drawer traverses FindingRevision to assessment, analytic run and exact AcceptedE
 
 ## Review and refinement
 
+W1 owner confirmation adds `finding-history:1` as a bounded target. Refinement must expose immutable Finding revisions, exact `finding_revision_id` and `knowledge_at` selection, the late-evidence append path, an honest single/no-history state and a Site-scoped child view with a visual comparison. The recorded target does not expand this outline's current acceptance until its read, fixture and panel path are reviewed.
+
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 
 ## Defer

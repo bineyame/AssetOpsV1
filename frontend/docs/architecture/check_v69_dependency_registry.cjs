@@ -231,6 +231,23 @@ if (mappedKeys.length !== w1Keys.size || new Set(mappedKeys).size !== mappedKeys
       row.title !== contracts.find((panel) => `${panel.screen_id}:${panel.panel_index}` === row.key)?.panel_title)) {
   fail('W1 panel mapping differs from panel contracts');
 }
+const ownerW1 = plan.owner_inputs?.W1;
+if (plan.active_wave === 'W1') {
+  const movedW1 = ['sitefindings', 'finding-history', 'action-plan', 'action-execution', 'action-evidence', 'action-history'];
+  if (w1Ids.size !== 27 || plan.waves.W4?.manifest_ids?.length !== 9 || w1Keys.size !== 64 ||
+      movedW1.some((id) => !w1Ids.has(id) || plan.waves.W4.manifest_ids.includes(id)) ||
+      plan.waves.W1.k !== 10 || !plan.waves.W1.owner_start?.evidence ||
+      JSON.stringify(ownerW1?.approved_manifest_ids) !== JSON.stringify(plan.waves.W1.manifest_ids) ||
+      ownerW1?.k !== 10 || ownerW1.evidence !== plan.waves.W1.owner_start.evidence ||
+      Object.keys(ownerW1.core_panels || {}).length !== w1Ids.size ||
+      Object.keys(ownerW1.demo_values || {}).length !== w1Ids.size) fail('Recorded W1 owner input or revised allocation incomplete');
+  for (const screen of w1Ids) {
+    const core = ownerW1.core_panels[screen];
+    const value = ownerW1.demo_values[screen];
+    if (!Array.isArray(core) || !core.length || core.some((key) => !w1Keys.has(key) || !key.startsWith(`${screen}:`)) ||
+        !Number.isInteger(value) || value < 1 || value > 5) fail(`${screen}: invalid approved W1 core or demo value`);
+  }
+}
 if (process.argv.includes('--next-work')) {
   const input = plan.owner_inputs?.W1;
   if (!input?.approved_manifest_ids || !input?.core_panels || !input?.demo_values || !input?.evidence) {
@@ -265,9 +282,13 @@ for (const [screen, area] of screenAreas) {
 }
 for (const node of nodes.values()) if (node.kind === 'product' && node.status === 'recorded') {
   const effectiveScreens = [...governed].filter(([, id]) => id === node.id).map(([screen]) => screen);
-  const allowed = new Set(effectiveScreens.flatMap((screen) => registry.panels
-    .filter((panel) => panel.screen_id === screen).map((panel) => `${screen}:${panel.panel_index}`)));
+  const allowed = new Set(effectiveScreens.flatMap((screen) => plan.w1_panel_mapping
+    .filter((panel) => panel.key.startsWith(`${screen}:`)).map((panel) => panel.key)));
   if (node.core_panels.some((key) => !allowed.has(key))) fail(`${node.id}: unknown core panel`);
+  if (node.priority === 'W1' && (effectiveScreens.length !== 1 ||
+      JSON.stringify(node.core_panels) !== JSON.stringify(ownerW1?.core_panels?.[effectiveScreens[0]]) ||
+      node.demo_value !== ownerW1?.demo_values?.[effectiveScreens[0]] ||
+      node.evidence !== ownerW1.evidence)) fail(`${node.id}: differs from recorded owner W1 input`);
   if (node.target_tier === 'Real with honest gaps' && effectiveScreens.some((screen) =>
     !node.core_panels.some((key) => key.startsWith(`${screen}:`)))) {
     fail(`${node.id}: Real with honest gaps requires core panels for every governed screen`);
@@ -353,7 +374,7 @@ if (process.argv.includes('--json')) {
   for (const fact of byReach.slice(0, 12)) console.log(
     `${fact.id} | ${fact.ready_now} | ${fact.closure_unlock} | ${fact.pilot_panel_reach} | ${fact.pilot_area_reach} | ${fact.open_upstream} | ${fact.effort}`);
 }
-console.log('Newly promotable screens: 0; owner core-panel choices and priority ranking remain pending.');
+console.log(`Newly promotable screens: 0; W1 owner target ${plan.active_wave === 'W1' ? 'recorded' : 'pending'}; priority ranking awaits reviewed claim paths and PRE-S3-03.`);
 const effortPoints = {S: 1, M: 3, L: 5};
 const openForPanel = (panel) => [...new Set(panel.requires.flatMap((id) => [id, ...ancestors(id)]))]
   .filter((id) => nodes.get(id).status === 'open').sort();

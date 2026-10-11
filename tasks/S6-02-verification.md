@@ -31,6 +31,8 @@ Outcome resolves plan, baseline/later assessments and accepted SourceEnvelope ID
 
 ## Review and refinement
 
+W1 owner confirmation moves `action-plan:1` and `action-evidence:1` into this verification story. Refinement must expose the frozen `plan_revision_id`, predeclared target/guardrails and required evidence, accepted later-window IDs, missing/inconclusive states, exact Action child-view selection and visual comparison. The owner target does not count these panels delivered until their read and fixture paths are reviewed.
+
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 
 ## Defer

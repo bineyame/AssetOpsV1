@@ -29,6 +29,8 @@ Action links Finding basis and configuration artifact; later accepted envelope I
 
 ## Review and refinement
 
+W1 owner confirmation moves `action-execution:1` and `action-history:1` into this Action story. Refinement must supply ActionEvent IDs, actor/provenance, applied or failed policy activity, exact event/cutoff selection, pending state and child-view navigation under the stable Site Action route. Activity and event history do not imply a verified outcome or a human attestation. Review bounded panel paths and visual comparison before selecting the added UI work.
+
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 
 ## Defer

@@ -29,6 +29,8 @@ Each card carries selected claim IDs and resolves their accepted SourceEnvelope 
 
 ## Review and refinement
 
+W1 owner confirmation adds `sitefindings:1` and makes the positive `mini:3` Finding list a bounded W1 target. Refinement must cover Site/window-scoped `A-finding-index`, persisted rows with stable Finding/revision links, a distinct honest empty state, selected-window/reload behavior and visual comparison. Keep the W3 global Findings index separate. This outline does not claim the moved panel delivered.
+
 Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
 
 ## Defer
