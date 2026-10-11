@@ -4954,3 +4954,13 @@ Packet `.agent/S2-02-review-packet.md`; walkthrough `.agent/S2-02-owner-walkthro
 - C3/N2 full seeded layout run still unverified.
 - Crash/resume 202 and closing-boundary rejection are Postgres test evidence only; the rejected sibling is live via the labelled fault fixture.
 - Generator-status run and capability channels unconfigured; no S3 projection; physical devices remain a pilot gate.
+
+## PRE-S3-03 - Delivery checker and next-work report (in review)
+
+Built on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, questions `.agent/PRE-S3-03-questions.md`.
+
+- `frontend/docs/architecture/delivery_next_work.cjs` owns delivery-plan validation and the `next-work` report; `check_v69_dependency_registry.cjs --next-work [--out f]` / `--verify-report f` drive it (exit 3 on refusal or stale inputs). Fixtures: `test_delivery_next_work.cjs` (node:test).
+- Registry claim portions now carry `id`, `core`, `variant` (bounded/positive/unknown) and `state` (delivered/open/unmapped/excluded). Only `open` portions with real-node `technical_requires` and no proposed IDs are reviewed paths; `delivered` needs resolved `delivered_by` plus evidence. `real` panels need every portion delivered and an accepted visual gate.
+- 15 S1/S2 bounded portions recorded delivered (14 panels `reviewed_mapping:true`, all `partial`); V-01 is `delivery_plan.visual_gates.V-01` (effort unrecorded, so blocked); `outside_ranking` holds A-finding-index and A-money-comparability.
+- `tools/check-all.ps1` is the normal check command (architecture, navigation, workflow, registry, delivery fixtures, ledger).
+- Open: the live report refuses (37 approved core panels unmapped: evidence-analysis:2 and all S3-S7 cores still name proposed R-/UI-/D- IDs). Independent mapping review pending. Stale Readiness text after S2-02 (foundation_api.py:270,286,295-298; FoundationRevisionPanel.tsx:318-353) is unowned (Q8).
