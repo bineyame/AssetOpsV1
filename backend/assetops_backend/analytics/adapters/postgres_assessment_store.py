@@ -463,10 +463,12 @@ class PostgresAssessmentStore:
 
         return self._snapshot(work)
 
-    def lineage_breaks(self, tenant_id: UUID, site_id: UUID, analytic_id: str) -> dict[str, int]:
-        """Counts of lineage breaks for the Performance cutover gate; every break count must be zero."""
+    def lineage_breaks(self, tenant_id: UUID, site_id: UUID, analytic_id: str,
+                       model_version: str) -> dict[str, int]:
+        """Counts of lineage breaks for the Performance cutover gate; every break count must be zero.
+        A window whose last DEFAULT selection used another model version is one (not yet reassessed)."""
         def work(c: Connection) -> dict[str, int]:
-            p = {"t": tenant_id, "s": site_id, "a": analytic_id}
+            p = {"t": tenant_id, "s": site_id, "a": analytic_id, "m": model_version}
 
             def count(sql: str) -> int:
                 return int(c.execute(text(sql), p).scalar_one())
@@ -475,6 +477,11 @@ class PostgresAssessmentStore:
                 "selected_runs": count(
                     "SELECT count(DISTINCT run_id) FROM analytic_run_selection WHERE tenant_id = :t "
                     "AND site_id = :s AND analytic_id = :a"),
+                "selected_heads_other_model": count(
+                    "SELECT count(*) FROM (SELECT DISTINCT ON (x.window_start, x.window_end) r.model_version "
+                    "FROM analytic_run_selection x JOIN analytic_run r ON r.id = x.run_id WHERE x.tenant_id = :t "
+                    "AND x.site_id = :s AND x.analytic_id = :a ORDER BY x.window_start, x.window_end, x.seq DESC"
+                    ") h WHERE h.model_version <> :m"),
                 "run_evidence_not_accepted": count(
                     "SELECT count(*) FROM analytic_run_evidence x JOIN analytic_run r ON r.id = x.run_id "
                     "WHERE r.tenant_id = :t AND r.site_id = :s AND r.analytic_id = :a AND NOT EXISTS ("
@@ -498,29 +505,39 @@ class PostgresAssessmentStore:
 
         return self._snapshot(work)
 
-    def accepted_message_ids(self, tenant_id: UUID, site_id: UUID, message_ids: list[str]) -> set[str]:
+    def accepted_evidence(self, tenant_id: UUID, site_id: UUID, message_ids: list[str]) -> dict[str, str]:
+        """Accepted Evidence ID of each cited message ID that is accepted centrally in this Site."""
         if not message_ids:
-            return set()
-        return self._snapshot(lambda c: set(c.execute(text(
-            "SELECT e.message_id FROM accepted_evidence e JOIN ingestion_disposition d ON d.accepted_evidence_id = e.id "
-            "AND d.decision = 'ACCEPTED' WHERE e.tenant_id = :t AND e.site_id = :s AND e.message_id = ANY(:m)"),
-            {"t": tenant_id, "s": site_id, "m": list(message_ids)}).scalars().all()))
+            return {}
+        return self._snapshot(lambda c: {r[0]: str(r[1]) for r in c.execute(text(
+            "SELECT e.message_id, e.id FROM accepted_evidence e JOIN ingestion_disposition d "
+            "ON d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' WHERE e.tenant_id = :t AND e.site_id = :s "
+            "AND e.message_id = ANY(:m)"), {"t": tenant_id, "s": site_id, "m": list(message_ids)}).all()})
 
-    def selected_intervals(self, tenant_id: UUID, site_id: UUID, analytic_id: str) -> list[dict[str, Any]]:
-        """INTERVAL revisions of each window's last DEFAULT selection, with that run's window limitations."""
+    def selected_intervals(self, tenant_id: UUID, site_id: UUID, analytic_id: str, domain: str,
+                           bracket: timedelta) -> list[dict[str, Any]]:
+        """INTERVAL revisions of each window's last DEFAULT selection, with that run's window limitations
+        and every unfinished or failed recompute job overlapping the window's read range (the read's
+        freshness rule: a matching prior result stays stale while a job is outstanding)."""
         def work(c: Connection) -> list[dict[str, Any]]:
             heads = c.execute(text(
-                "SELECT DISTINCT ON (window_start, window_end) run_id FROM analytic_run_selection "
-                "WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+                "SELECT DISTINCT ON (window_start, window_end) run_id, window_start, window_end "
+                "FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
                 "ORDER BY window_start, window_end, seq DESC"), {"t": tenant_id, "s": site_id, "a": analytic_id})
             out = []
-            for run_id in heads.scalars().all():
+            for run_id, ws, we in heads.all():
+                jobs = [{"id": str(j[0]), "status": j[1]} for j in c.execute(text(
+                    "SELECT id, status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
+                    "AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi AND window_end >= :lo "
+                    "ORDER BY created_at, id"), {"t": tenant_id, "s": site_id, "d": domain, "lo": ws - bracket,
+                                                 "hi": we + bracket}).all()]
                 revisions = [_revision_row(r) for r in c.execute(text(
                     f"SELECT {_REVISION_COLUMNS}, l.scope FROM analytic_run_assessment l JOIN assessment_revision v "
                     "ON v.id = l.assessment_revision_id WHERE l.run_id = :r"), {"r": run_id}).all()]
                 limits = [x for r in revisions if r["scope"] == "WINDOW"
                           for x in (r["result"] or {}).get("limitations", [])]
-                out += [{**r, "window_limitations": limits} for r in revisions if r["scope"] == "INTERVAL"]
+                out += [{**r, "window_limitations": limits, "window_jobs": jobs}
+                        for r in revisions if r["scope"] == "INTERVAL"]
             return out
 
         return self._snapshot(work)

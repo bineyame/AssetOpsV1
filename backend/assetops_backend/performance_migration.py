@@ -1,4 +1,4 @@
-"""The explicit S3-01 Performance comparison: file-backed dispatch claims vs selected dispatch-3 revisions.
+"""The explicit S3-01 Performance comparison: file-backed dispatch claims vs selected dispatch-3.1 revisions.
 
     python -m assetops_backend.performance_migration run --tenant demo --site KOBO-001
     python -m assetops_backend.performance_migration show --site KOBO-001
@@ -17,6 +17,8 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from typing import Sequence
 
+from assetops_backend.analytics import dispatch_v3
+from assetops_backend.analytics.assessment_inputs import BRACKET
 from assetops_backend.analytics.composition import build_assessment_store, build_lineage_reader
 from assetops_backend.analytics.performance_comparison import compare, permits_performance_cutover
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
@@ -24,6 +26,7 @@ from assetops_backend.evidence.composition import build_evidence_ledger, build_p
 from assetops_backend.evidence.legacy_comparison import environment_identity
 
 ANALYTIC_ID = "dispatch"
+MODEL = dispatch_v3.MODEL_VERSION
 
 
 def legacy_dispatch_claims(assessments, site_code: str) -> list[dict]:
@@ -46,7 +49,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if report is None:
             print(f"No Performance comparison report exists for {args.site}.")
             return 2
-        print(json.dumps({k: report.get(k) for k in ("report_id", "outcome", "empty_set", "statement", "counts",
+        print(json.dumps({k: report.get(k) for k in ("report_id", "model_version", "outcome", "empty_set", "statement", "counts",
                                                      "lineage_breaks", "compared_at")}, indent=2))
         return 0 if report.get("outcome") == "PASSED" else 1
     if args.tenant != DEVELOPMENT_TENANT_SLUG:
@@ -66,14 +69,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     cited = sorted({m for c in claims for m in (c["revisions"][-1]["assessment"].get("evidence_basis") or {})
                     .get("message_ids", [])})
     report = compare(site_code=args.site, tenant_id=str(tenant_id), site_id=str(site_id), environment=environment,
-                     legacy_claims=claims, accepted_message_ids=store.accepted_message_ids(tenant_id, site_id, cited),
-                     intervals=store.selected_intervals(tenant_id, site_id, ANALYTIC_ID),
-                     lineage=store.lineage_breaks(tenant_id, site_id, ANALYTIC_ID),
-                     compared_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"))
+                     legacy_claims=claims, accepted_evidence=store.accepted_evidence(tenant_id, site_id, cited),
+                     intervals=store.selected_intervals(tenant_id, site_id, ANALYTIC_ID, "dispatch", BRACKET),
+                     lineage=store.lineage_breaks(tenant_id, site_id, ANALYTIC_ID, MODEL),
+                     compared_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), model_version=MODEL)
     path = reports.write(json.loads(json.dumps(report, default=str)))
     allowed, reason = permits_performance_cutover(
         report, args.site, str(site_id), tenant_id=str(tenant_id), environment=environment, legacy_claims=claims,
-        live_lineage=store.lineage_breaks(tenant_id, site_id, ANALYTIC_ID))
+        live_lineage=store.lineage_breaks(tenant_id, site_id, ANALYTIC_ID, MODEL), model_version=MODEL)
     print(f"{report['outcome']}: {report['statement']}")
     print(f"Lineage: {report['lineage']}")
     print(f"Report: {path}")

@@ -24,28 +24,48 @@ def legacy(claim: str, lo: str = "2026-10-06T05:00:00Z", hi: str = "2026-10-06T0
         "evidence_basis": {"message_ids": list(ids)}}}]}
 
 
+MODEL = "dispatch-3.1"
+
+
+def evidence(message_id: str) -> str:
+    return f"ev-{message_id}"
+
+
 def interval(claim: str, lo: str = "2026-10-06T05:00:00+00:00", hi: str = "2026-10-06T06:00:00+00:00",
-             limits: tuple[str, ...] = ()) -> dict:
-    return {"id": uuid4(), "claim_level": claim, "result": {"interval": {"first_on": lo, "last_on": hi}},
-            "window_limitations": list(limits)}
+             limits: tuple[str, ...] = (), *, model: str = MODEL, missing: tuple[str, ...] = (),
+             evidence_ids: tuple[str, ...] = ("m1", "m2"), jobs: tuple[str, ...] = ()) -> dict:
+    segments = [{"classification": claim if claim != "CANDIDATE_AVOIDABLE" else "CANDIDATE_AVOIDABLE",
+                 "missing": list(missing)}]
+    return {"id": uuid4(), "claim_level": claim, "model_version": model,
+            "result": {"interval": {"first_on": lo, "last_on": hi}, "segments": segments, "limitations": []},
+            "evidence_ids": [evidence(m) for m in evidence_ids], "window_limitations": list(limits),
+            "window_jobs": [{"id": str(uuid4()), "status": s} for s in jobs]}
 
 
-def run_compare(claims: list[dict], intervals: list[dict], accepted=("m1", "m2"), lineage=CLEAN) -> dict:
+def run_compare(claims: list[dict], intervals: list[dict], accepted=("m1", "m2"), lineage=CLEAN,
+                model: str = MODEL) -> dict:
     return compare(site_code="KOBO-001", tenant_id=TENANT, site_id=SITE, environment="demo", legacy_claims=claims,
-                   accepted_message_ids=set(accepted), intervals=intervals, lineage=dict(lineage),
-                   compared_at="2026-10-11T00:00:00Z")
+                   accepted_evidence={m: evidence(m) for m in accepted}, intervals=intervals, lineage=dict(lineage),
+                   compared_at="2026-10-11T00:00:00Z", model_version=model)
 
 
-def gate(report, claims, lineage=CLEAN, *, site_code="KOBO-001", site_id=SITE, tenant_id=TENANT, env="demo"):
+def gate(report, claims, lineage=CLEAN, *, site_code="KOBO-001", site_id=SITE, tenant_id=TENANT, env="demo",
+         model: str = MODEL):
     return permits_performance_cutover(report, site_code, site_id, tenant_id=tenant_id, environment=env,
-                                       legacy_claims=claims, live_lineage=lineage)
+                                       legacy_claims=claims, live_lineage=lineage, model_version=model)
+
+
+PV_MISSING = "PV available power: not bound in the selected role set (missing role)"
 
 
 class TestComparison:
     def test_each_class(self) -> None:
         assert run_compare([legacy("NECESSARY")], [interval("NECESSARY")])["claims"][0]["class"] == "MATCH"
-        delta = run_compare([legacy("CANDIDATE_AVOIDABLE")], [interval("INDETERMINATE", limits=("MISSING_ROLE: x",))])
-        assert delta["claims"][0]["class"] == "INTENTIONAL_DELTA" and "MISSING_ROLE" in delta["claims"][0]["reason"]
+        delta = run_compare([legacy("CANDIDATE_AVOIDABLE")], [interval("INDETERMINATE", missing=(PV_MISSING,))])
+        row = delta["claims"][0]
+        assert row["class"] == "INTENTIONAL_DELTA" and row["rule"] == "CAPABILITY_CHANNELS_REQUIRED"
+        assert row["rule_change"]["from"] == "dispatch-2" and row["rule_change"]["to"] == MODEL
+        assert row["interval_limitations"] == [PV_MISSING] and row["compared_evidence_ids"] == ["ev-m1", "ev-m2"]
         missing = run_compare([legacy("NECESSARY", ids=("m1", "m9"))], [interval("NECESSARY")])
         assert missing["claims"][0]["class"] == "MISSING_SOURCE" and missing["claims"][0]["missing_message_ids"] == ["m9"]
         assert missing["outcome"] == "EXCEPTIONS"
@@ -58,6 +78,33 @@ class TestComparison:
     def test_indeterminate_without_named_limitation_is_not_an_intentional_delta(self) -> None:
         assert run_compare([legacy("NECESSARY")], [interval("INDETERMINATE")])["claims"][0]["class"] == "UNPROVEN"
 
+    def test_a_window_limitation_elsewhere_does_not_prove_a_delta(self) -> None:
+        """Q11: an Indeterminate interval in a window that names any limitation is not causation."""
+        row = run_compare([legacy("CANDIDATE_AVOIDABLE")],
+                          [interval("INDETERMINATE", limits=("MISSING_ROLE: pv_available_power over x..y",))])
+        assert row["claims"][0]["class"] == "UNPROVEN" and row["outcome"] == "FAILED"
+        assert "no documented dispatch-2 to dispatch-3.1 rule difference" in row["claims"][0]["reason"]
+
+    def test_a_delta_needs_the_claim_records_in_the_selected_interval(self) -> None:
+        row = run_compare([legacy("CANDIDATE_AVOIDABLE")],
+                          [interval("INDETERMINATE", missing=(PV_MISSING,), evidence_ids=("m1",))])["claims"][0]
+        assert row["class"] == "UNPROVEN" and "not all in the selected interval's evidence" in row["reason"]
+
+    def test_a_delta_rule_only_explains_its_own_claim_change(self) -> None:
+        row = run_compare([legacy("NECESSARY")], [interval("INDETERMINATE", missing=(PV_MISSING,))])["claims"][0]
+        assert row["class"] == "UNPROVEN"
+
+    def test_a_selected_dispatch_3_interval_is_stale_not_a_match(self) -> None:
+        row = run_compare([legacy("NECESSARY")], [interval("NECESSARY", model="dispatch-3")])["claims"][0]
+        assert row["class"] == "UNPROVEN" and row["reason"].startswith("STALE_MODEL")
+
+    def test_an_outstanding_job_keeps_a_matching_prior_result_stale(self) -> None:
+        for status in ("PENDING", "LEASED", "FAILED"):
+            report = run_compare([legacy("NECESSARY")], [interval("NECESSARY", jobs=(status,))])
+            row = report["claims"][0]
+            assert row["class"] == "UNPROVEN" and row["reason"].startswith("STALE_PROJECTION"), status
+            assert report["outcome"] == "FAILED"
+
     def test_a_claim_citing_no_record_is_a_missing_source(self) -> None:
         row = run_compare([legacy("NECESSARY", ids=())], [interval("NECESSARY")])["claims"][0]
         assert row["class"] == "MISSING_SOURCE" and row["reason"] == "the claim cites no record"
@@ -65,6 +112,7 @@ class TestComparison:
     def test_empty_set_is_stated_as_such(self) -> None:
         report = run_compare([], [interval("NECESSARY")])
         assert report["empty_set"] is True and report["outcome"] == "PASSED"
+        assert report["model_version"] == MODEL and report["schema"] == "s3-performance-comparison-v2"
         assert report["statement"].startswith("Empty-set comparison") and "no claim is said to match" in report["statement"]
         assert report["counts"] == {"MATCH": 0, "INTENTIONAL_DELTA": 0, "MISSING_SOURCE": 0, "UNPROVEN": 0}
         assert gate(report, []) == (True, report["statement"])
@@ -100,11 +148,19 @@ class TestGate:
             "digest": gate(report, [legacy("CANDIDATE_AVOIDABLE")]),
             "lineage unread": gate(report, self.claims, lineage=None),
             "lineage break": gate(report, self.claims, lineage={**CLEAN, "unselected_heads": 2}),
+            "missing source": gate(run_compare([legacy("NECESSARY", ids=("m1", "m9"))], [interval("NECESSARY")]),
+                                   [legacy("NECESSARY", ids=("m1", "m9"))]),
+            "model": gate(report, self.claims, model="dispatch-3.2"),
+            "report model": gate({**report, "model_version": "dispatch-3"}, self.claims),
+            "stale heads": gate(report, self.claims, lineage={**CLEAN, "selected_heads_other_model": 1}),
         }
         assert all(allowed is False for allowed, _ in refusals.values()), refusals
         assert "changed after the comparison" in refusals["digest"][1]
         assert "lineage is broken" in refusals["lineage break"][1]
         assert "FAILED" in refusals["outcome"][1]
+        assert "EXCEPTIONS" in refusals["missing source"][1]
+        assert "another model version" in refusals["model"][1] and "another model version" in refusals["report model"][1]
+        assert "still selected under another model version" in refusals["stale heads"][1]
         assert claims_digest(self.claims) == report["legacy_claims_sha256"]
 
 

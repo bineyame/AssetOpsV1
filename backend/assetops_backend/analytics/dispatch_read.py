@@ -111,6 +111,12 @@ class DispatchReadService:
                  annotations: DemoAnnotations | None = None) -> None:
         self.store, self.model, self.annotations = store, model, annotations
 
+    def _model_note(self, model_version: str) -> str | None:
+        """A pinned run/revision of another model version is an older rule result, never current."""
+        return None if model_version == self.model.MODEL_VERSION else (
+            f"OLDER_RULE_RESULT: produced by {model_version}; the current model is {self.model.MODEL_VERSION}. "
+            "Kept unchanged as history; it is never selected as current under the current model.")
+
     def _annotate(self, evidence_ids: set[str]) -> list[dict[str, Any]]:
         return [] if self.annotations is None or not evidence_ids else self.annotations.annotate(evidence_ids)
 
@@ -133,7 +139,8 @@ class DispatchReadService:
         evidence_ids = {str(e["evidence_id"]) for e in (run or {}).get("evidence", [])}
         return {
             "domain": DOMAIN, "analytic_id": self.model.ANALYTIC_ID, "model_version": self.model.MODEL_VERSION,
-            "window": {"start": window.start, "end": window.end, "calendar": "UTC day (dispatch-3)"},
+            "window": {"start": window.start, "end": window.end,
+                       "calendar": f"UTC day ({self.model.MODEL_VERSION})"},
             "status": projection.status, "status_reasons": list(projection.reasons),
             "stale": projection.status in (STALE, FAILED) and run is not None,
             "current_basis": {"read_at": snap.read_at, "accepted_reading_count": snap.reading_count,
@@ -164,6 +171,7 @@ class DispatchReadService:
         if run is None:
             return None
         run["knowledge_cutoff_label"] = CUTOFF_LABEL
+        run["model_note"] = self._model_note(run["model_version"])
         run["demo_annotations"] = self._annotate({str(e["evidence_id"]) for e in run["evidence"]})
         return run
 
@@ -188,6 +196,7 @@ class DispatchReadService:
         revision["selected_configuration"] = {"foundation_revision_ids": sorted(selected_foundation),
                                               "binding_set_revision_ids": sorted(selected_sets)}
         revision["knowledge_cutoff_label"] = CUTOFF_LABEL
+        revision["model_note"] = self._model_note(revision["model_version"])
         revision["demo_annotations"] = self._annotate({str(e["evidence_id"]) for e in revision["evidence"]}
                                                       | {str(e["evidence_id"]) for e in run["evidence"]})
         revision["unavailable"] = UNAVAILABLE

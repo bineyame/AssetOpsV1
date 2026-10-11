@@ -1,4 +1,4 @@
-"""Mini-grid dispatch analytic, model `dispatch-3` (pure; S3-01 phase 2).
+"""Mini-grid dispatch analytic, model `dispatch-3.1` (pure; S3-01 phase 2, version bump phase 3a).
 
 Input: one `AnalyticInputSet` (selected public cohort, selected Foundation
 controls, selected role bindings). Output: a window assessment plus one
@@ -33,7 +33,10 @@ from assetops_backend.analytics.assessment_inputs import (
 )
 from assetops_backend.analytics.dispatch import ANALYTIC_ID, CANDIDATE, INDETERMINATE, NECESSARY
 
-MODEL_VERSION = "dispatch-3"
+#: `dispatch-3.1` (D-2026-10-11-s3-phase-3a-version-and-cutover) = `dispatch-3` plus the stricter
+#: default multi-epoch cohort (Q9) and interval limitations lifted into the window list (Q13).
+#: Stored `dispatch-3` runs stay readable history; the worker reassesses their windows.
+MODEL_VERSION = "dispatch-3.1"
 
 CONTINUITY_TOLERANCE = timedelta(minutes=20)
 INSTANT_TOLERANCE = timedelta(minutes=10)
@@ -506,7 +509,7 @@ _NOT_EVIDENCE_GAPS = ("transition inside the segment", "possibly within the conf
 
 
 def assess(inputs: AnalyticInputSet) -> WindowAssessment:
-    """The `dispatch-3` window and interval assessments for one input set."""
+    """The `dispatch-3.1` window and interval assessments for one input set."""
     if inputs.model_version != MODEL_VERSION:
         raise ValueError(f"input set is for {inputs.model_version}, not {MODEL_VERSION}")
     index = _Index(inputs)

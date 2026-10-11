@@ -38,6 +38,7 @@ from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.analytics.composition import build_dispatch_read_service, build_lineage_reader
 from assetops_backend.analytics.performance_comparison import permits_performance_cutover
+from assetops_backend.analytics import dispatch_v3
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -308,7 +309,7 @@ def create_app(
         )
     )
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
-    # S3-01 phase 3: imported-Site Performance > Dispatch over the durable dispatch-3 store, closed
+    # S3-01 phase 3: imported-Site Performance > Dispatch over the durable dispatch-3.1 store, closed
     # until the newest file-backed comparison and the live lineage pass (performance_comparison).
     performance_reads = (build_dispatch_read_service(database_url(), os.environ.get("ASSETOPS_DEMO_FIXTURE_MANIFEST"))
                          if database_url() else None)
@@ -322,7 +323,8 @@ def create_app(
             performance_reports.latest(site_code), site_code, str(site_id), tenant_id=str(tenant_id),
             environment=environment_identity(database_url()),
             legacy_claims=legacy_dispatch_claims(assessments.store, site_code),
-            live_lineage=lineage.lineage_breaks(tenant_id, site_id, "dispatch"))
+            live_lineage=lineage.lineage_breaks(tenant_id, site_id, "dispatch", dispatch_v3.MODEL_VERSION),
+            model_version=dispatch_v3.MODEL_VERSION)
 
     app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate))
 

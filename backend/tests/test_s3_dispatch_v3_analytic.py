@@ -312,3 +312,14 @@ def test_open_bound_interval_makes_window_limited_and_names_it():
     assert any(x.startswith("OPEN_BOUND") for x in interval.result["limitations"])
     assert result.claim_level == d3.WINDOW_LIMITED
     assert any(x.startswith("INTERVAL_LIMITED:") and "OPEN_BOUND" in x for x in result.result["limitations"])
+
+
+def test_corrected_rules_publish_as_dispatch_3_1_and_refuse_a_dispatch_3_input_set():
+    """D-2026-10-11-s3-phase-3a-version-and-cutover: the stricter multi-epoch default (Q9) and the
+    interval-to-window limitation lift (Q13) are a new model version, not a silent `dispatch-3` change."""
+    assert d3.MODEL_VERSION == "dispatch-3.1"
+    inputs, result = run(run_interval(Feed(), 5, 6))
+    assert result.result["model_version"] == "dispatch-3.1"
+    assert all(i.result["model_version"] == "dispatch-3.1" for i in result.intervals)
+    with pytest.raises(ValueError, match="not dispatch-3.1"):
+        d3.assess(replace(inputs, model_version="dispatch-3"))

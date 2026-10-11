@@ -1,8 +1,17 @@
-# Dispatch analytic decision table (S3-01, model `dispatch-3`)
+# Dispatch analytic decision table (S3-01, model `dispatch-3.1`)
 
-Authority: `D-2026-10-11-s3-dispatch-interval-assessment`, `D-2026-10-11-s3-phase-1-fixture-and-late-evidence`, task `tasks/S3-01-dispatch-assessment.md` ("`dispatch-3` comparison table"). Baseline: `backend/tests/dispatch_decision_table.md` (`dispatch-2`, kept unchanged and readable for historical file-backed revisions).
+Authority: `D-2026-10-11-s3-dispatch-interval-assessment`, `D-2026-10-11-s3-phase-1-fixture-and-late-evidence`, task `tasks/S3-01-dispatch-assessment.md` ("`dispatch-3` comparison table"). Baseline: `backend/tests/dispatch_decision_table.md` (`dispatch-2`, kept unchanged and readable for historical file-backed revisions). Version bump: `D-2026-10-11-s3-phase-3a-version-and-cutover`.
 
 Analytic: `backend/assetops_backend/analytics/dispatch_v3.py` (pure). Inputs: `analytics/assessment_inputs.py` (`EvidenceQuery`, `AnalyticInputSet`). Cohort: `analytics/cohort.py`. Tests: `backend/tests/test_s3_dispatch_v3_analytic.py`, `test_s3_dispatch_assessment_postgres.py`. Every threshold below is a named constant; changing one is a new model version and therefore new revisions.
+
+## Model versions
+
+| Version | Differs from the previous version | Status |
+| --- | --- | --- |
+| `dispatch-3` | first durable model (phase 2) | historical: stored runs, revisions and URLs stay unchanged and readable; a pinned run/revision carries `model_note: OLDER_RULE_RESULT ...`; never selected as CURRENT under `dispatch-3.1` |
+| `dispatch-3.1` | (Q9) two or more sequence epochs of one source in a UTC window give a default `AMBIGUOUS` cohort even when the spans do not overlap ("Successive epochs"); (Q13) every interval limitation is lifted into the window list as `INTERVAL_LIMITED: ...`, so a `LIMITED` window always names its reason ("Claims") | current. The worker's reconcile pass enqueues every window whose last DEFAULT selection used another version and reassesses it through the normal job path; explicit cohort selections are point-in-time choices and are not remapped |
+
+Every rule, threshold and branch below is the `dispatch-3.1` rule. The model version is in every `input_sha256` and `basis_sha256`, so a version change always appends new revisions under the same keys.
 
 ## Inputs (accepted public evidence and selected public configuration only)
 
@@ -75,3 +84,13 @@ Confidence is carried: High, dropping one level each for an Indeterminate portio
 - `input_sha256` covers the window, read range, cohort selection and limits, sorted evidence IDs with their envelope digests, as-accepted revision triples, selected controls (value and validity), selected bindings, role coverage, configuration limits and model version. It does not cover `knowledge_at`, so replaying the same basis at a later cutoff gives the same run.
 - An interval `basis_sha256` covers the model version, the interval's evidence IDs and digests, the selected controls and its result. A window `basis_sha256` covers the model version, the input hash and the window result. A new revision is appended only when the basis differs from the latest revision under the same key.
 - Keys: `dispatch:window:<window start>` and `dispatch:interval:<generator asset>:<first ON report>`. An explicitly selected cohort adds `:cohort:<identity prefix>`.
+
+## Comparison with the file-backed `dispatch-2` claims (Performance cutover)
+
+`analytics/performance_comparison.py`. A legacy claim is compared with the one selected `dispatch-3.1` interval overlapping its running span. A selected interval of another model version (`STALE_MODEL`) or one whose window has a PENDING, LEASED or FAILED recompute job (`STALE_PROJECTION`) is `UNPROVEN`, even when the claim levels match. A cited record not accepted centrally is `MISSING_SOURCE`, which keeps the gate closed; it is not parity. A claim change is `INTENTIONAL_DELTA` only through a documented, claim-specific rule difference below. The selected interval's own segments must name the limitation, and every record the legacy claim cites must be accepted and in that interval's evidence. A limitation elsewhere in the window does not qualify. Anything else is `UNPROVEN`. There is no catch-all.
+
+| Rule | Legacy claim | `dispatch-3.1` claim | Interval limitation required | Table row and change |
+| --- | --- | --- | --- | --- |
+| `CAPABILITY_CHANNELS_REQUIRED` | `CANDIDATE_AVOIDABLE` | `INDETERMINATE` | a segment names `PV available power: ...` or `PCS discharge capability: ...` | rows 5a/5b: `dispatch-2` inferred available PV and discharge from observed `pv_power`/`battery_power`; `dispatch-3.1` requires the accepted `minigrid-roles-2` capability channels |
+
+The gate also refuses if the report was made under another model version, or if any window is still selected under another model version (lineage `selected_heads_other_model`). An empty legacy-claim set passes only as a zero-inventory statement, not as claim parity.
