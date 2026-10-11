@@ -329,4 +329,4 @@ code.
 `check-agent-workflow.ps1` validates the repository's agent-workflow governance
 files and task metadata.
 
-No CI runner is configured; `toolseck-all.ps1` is the command a CI job would run.
+No CI runner is configured; `tools\check-all.ps1` is the command a CI job would run.
