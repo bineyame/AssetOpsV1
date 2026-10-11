@@ -2,6 +2,7 @@
 
     .venv/Scripts/python.exe tools/s3_dispatch_walkthrough.py prepare   # copy DB, run comparison, stage states
     .venv/Scripts/python.exe tools/s3_dispatch_walkthrough.py serve     # API on 8820 until Ctrl+C
+    .venv/Scripts/python.exe tools/s3_dispatch_walkthrough.py recover   # optional: real worker clears staged days
 
 Isolation (like the S2 demo):
 - Database `assetops_s3walk` is dropped and recreated as a copy of `assetops_s3cases`
@@ -38,7 +39,10 @@ if not PY.exists():  # POSIX venv layout
     PY = REPO / ".venv" / "bin" / "python"
 WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "s3-dispatch-walkthrough"
 SOURCE_DB, DB = "assetops_s3cases", "assetops_s3walk"
-MANIFEST = REPO / ".agent" / "S3-01-dispatch-cases-v1.manifest.json"
+PRODUCER_MANIFEST = WORK.parent / "s3-dispatch-cases" / "s3-dispatch-cases-v1.json"
+# The producer's own manifest names the evidence IDs of the database copied here (the committed
+# `.agent/S3-01-dispatch-cases-v1.manifest.json` is from an earlier producer run and matches no ID).
+MANIFEST = WORK / "s3-dispatch-cases-v1.json"
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 DB_URL = f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{DB}"
@@ -68,6 +72,13 @@ class StagedFailure:
     @staticmethod
     def assess(_inputs):
         raise RuntimeError("walkthrough staged failure: the assessment could not be computed")
+
+if len(sys.argv) > 4 and sys.argv[4] == "recover":
+    for d in (failed_day, stale_day):
+        store.enqueue(tenant, site, "dispatch", day(d), now)
+    done = DispatchAssessmentWorker(store).run_pending(reconcile=False)
+    print("recovered: the real worker ran", len(done), "jobs")
+    raise SystemExit(0)
 
 store.enqueue(tenant, site, "dispatch", day(failed_day), now)
 for attempt in range(3):
@@ -122,6 +133,9 @@ def prepare() -> None:
     if str(tree).lower() not in probe.lower():
         raise SystemExit(f"Isolation failed: assetops_backend resolves to {probe}")
 
+    shutil.copy2(PRODUCER_MANIFEST, MANIFEST)
+    say(f"  demo manifest: {MANIFEST} (copied from the producer work directory)")
+
     say(f"=== 2. Database {DB} as a copy of {SOURCE_DB} ===")
     with psycopg.connect(f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops", autocommit=True) as c:
         c.execute(f"DROP DATABASE IF EXISTS {DB} WITH (FORCE)")
@@ -163,10 +177,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="tools/s3_dispatch_walkthrough.py")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("prepare")
+    sub.add_parser("recover", help="run the real worker over the staged days (FAILED and STALE become CURRENT)")
     s = sub.add_parser("serve")
     s.add_argument("--port", type=int, default=8820)
     args = parser.parse_args()
-    prepare() if args.command == "prepare" else serve(args.port)
+    if args.command == "prepare":
+        prepare()
+    elif args.command == "recover":
+        say(py("-c", STAGE, DB_URL, STALE_DAY, FAILED_DAY, "recover").stdout.strip())
+    else:
+        serve(args.port)
 
 
 if __name__ == "__main__":
