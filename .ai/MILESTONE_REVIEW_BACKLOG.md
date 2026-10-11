@@ -2027,3 +2027,10 @@ The carried review findings above are unchanged.
 - F6 (info): Foundation-UI binding edits now record roles-2 (accepted; invisible version change risk).
 - Residual: each producer `run` recreates `assetops_s3cases`, so committed manifest IDs stop existing after the next run.
 
+### S3-01 phase 2 review carries (2026-10-11, `.agent/S3-01-phase-2-review.md`, fresh Claude)
+
+- F3 (phase 3; conflicts with `D-2026-10-11-s3-phase-2-selection-and-read`): `cohort.py` blends a non-overlapping fixture epoch sharing a window into the default cohort (reproduced producing Candidate); fixture isolation must be enforced in code, not by producer placement.
+- F4 (before cutover): backdated configuration and model-version changes are only picked up by a manual `reconcile`; a stale assessment would read CURRENT under the derived phase-3 read. Needs an automatic trigger or a staleness check in the read.
+- F5 (phase 3): no assessed interval in the fixture is NECESSARY (the check looks only at segments); the phase-3 reviewer path needs a Necessary interval.
+- F6 (low): an expired lease is re-leased with no attempts cap; a job that always outlives its lease never reaches FAILED.
+
