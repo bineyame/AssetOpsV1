@@ -20,4 +20,4 @@ Task: Foundation Readiness truthfulness (Architect batch 5 Q8; PRE-S3-03 review 
 - Honest limit: the read API has no Evidence/diagnostic input, so output is identical in post-S2 and pre-S2 states by design; that identity is what the tests pin (an accepted-evidence state cannot contradict the copy).
 
 ## Checks
-tsc clean. check-all result appended below by the implementer run.
+tsc clean. tools/check-all.ps1: all 6 guards passed (architecture, navigation, workflow, registry, delivery fixtures, ledger).
