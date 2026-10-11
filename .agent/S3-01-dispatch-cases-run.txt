@@ -1,19 +1,19 @@
 
 === 1. Isolated work directory, database and TLS material ===
-Work directory: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases (code from git HEAD 2f716d8; own var/)
+Work directory: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases (code from git HEAD 1522565; own var/)
 Database: assetops_s3cases (dropped and recreated; the developer database is not touched)
-Imported KOBO-001: Imported KOBO-001 site=e0b10515-0471-427d-8914-f96971154873 revision=f9fa466c-e076-42f7-b1e7-4c5f787028bd v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Imported KOBO-001: Imported KOBO-001 site=699a736c-f373-47a0-894d-ab61a46d5803 revision=0747d322-2a0d-409f-bea0-22c721bef480 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
 Published bindings: Foundation revisions inserted: v2; superseded: 1.
-New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tls\server.crt (sha256 Fingerprint=38:DA:6F:98:09:92:6B:55:35:6C:53:80:47:75:2A:18:86:3E:C8:AD:99:00:C1:21:69:B6:A8:DB:67:91:44:EB); key restricted to the current user
+New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tls\server.crt (sha256 Fingerprint=A3:D2:B1:4C:7E:DD:7C:77:09:71:C6:A4:FA:E6:3C:8F:68:A8:D8:52:6D:D8:A8:D8:56:AC:00:F0:DE:13:65:BE); key restricted to the current user
 
 === 2. Lab/product API, provisioned gateway (epoch s3-cases-epoch-1), TLS upload server ===
-  Issued aog1.8a5eef25afc2e225e0cbf5691d8e88bd.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
-  Credential file: upload.credential.8a5eef25afc2e225e0cbf5691d8e88bd (in C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\credentials)
+  Issued aog1.1cc4b51d5dfb597dd5abac3ce219ca38.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.1cc4b51d5dfb597dd5abac3ce219ca38 (in C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\credentials)
 
 === 3. SIMULATED DEMO CONFIGURATION, step 1 only: generator values from 2026-10-01 (no capability channel yet) ===
   SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
-  from 2026-10-01T00:00:00Z: Foundation v4, binding set v3 minigrid-roles-1, snapshot 74117043a80fe066..
-  from 2026-10-02T00:00:00Z: Foundation v4, binding set v3 minigrid-roles-1, snapshot 74117043a80fe066..
+  from 2026-10-01T00:00:00Z: Foundation v4, binding set v3 minigrid-roles-1, snapshot 5ff2be9b195bc119..
+  from 2026-10-02T00:00:00Z: Foundation v4, binding set v3 minigrid-roles-1, snapshot 5ff2be9b195bc119..
 
 === 4. Candidate blocked BEFORE: a roles-1 run (2026-10-01); capability channels are unbound ===
   pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 25, READY 173
@@ -30,8 +30,8 @@ New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tls\
 
 === 5. SIMULATED DEMO CONFIGURATION, step 2: minigrid-roles-2 with both capability channels from 2026-10-02 ===
   SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
-  from 2026-10-01T00:00:00Z: Foundation v5, binding set v4 minigrid-roles-1, snapshot 3e2542aabc138ca0..
-  from 2026-10-02T00:00:00Z: Foundation v6, binding set v5 minigrid-roles-2, snapshot 25eb47fdd671c7b0..
+  from 2026-10-01T00:00:00Z: Foundation v5, binding set v4 minigrid-roles-1, snapshot a04e5e5c89e7e71f..
+  from 2026-10-02T00:00:00Z: Foundation v6, binding set v5 minigrid-roles-2, snapshot 52800a2130d6064c..
 
 === 6. Necessary and two-capability Candidate (2026-10-02, roles-2) ===
   pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 223, READY 173
@@ -110,11 +110,11 @@ New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tls\
   CASE overlap-separable-epoch: 656 accepted readings, epochs ['s3-cases-epoch-1', 's3-cases-epoch-2'], roles 8, precondition met=True; expected ceiling: Each epoch is its own cohort; an assessment selects one and names the other (no blending)
 
 === 10. FAULT FIXTURE (labelled, not gateway output): contradictory same-role readings (Q1 default) ===
-  fault-fixture batch bebf9a5ecf4a96e5bb60f53c39ac2b285b94b344dba24baefa0a017d4f88ebb4: 200 counts={'accepted': 2, 'conflict': 0, 'duplicate': 0, 'processed': 2, 'rejected': 0, 'total': 2}
+  fault-fixture batch 1b7b12d096ec620fe1ab79fa2aba3f5578a4c8b65c23417b31792120a6875f28: 200 counts={'accepted': 2, 'conflict': 0, 'duplicate': 0, 'processed': 2, 'rejected': 0, 'total': 2}
   CASE contradiction-fault-fixture: 2 accepted readings, epochs ['s3-contradiction-fixture-epoch'], roles 1, precondition met=True; expected ceiling: Indeterminate: contradictory same-role samples (equal rank); never blended into source truth
 
 === 11. PHASE 2 FAULT FIXTURE (labelled): later source time accepted first, earlier second (2026-10-07) ===
-  out-of-order fixture batches 0f982b6aa11857f7da71fe77fc42b15a049cfdccd336ee337a1748b3918dbefe (200) then 04c85dd9f86a56298fe70772f47d510a0f024de35adcbe1631f408cb7fe9a3a1 (200); inverted=True
+  out-of-order fixture batches fd542674b8d94bdcda8dc04d306f0d930e5c7520e75cc884598d0c9952114af9 (200) then 5fde03a74b906beacb50b782d029e51a375767a3b18a61c721b2cf84eed55f95 (200); inverted=True
   CASE out-of-order-fault-fixture: 2 accepted readings, epochs ['s3-out-of-order-fixture-epoch'], roles 1, precondition met=True; expected ceiling: Limited: SEQUENCE_ORDER_INVERTED over 05:00-05:15 names both IDs; never re-sorted by receipt
 
 === 12. PHASE 2: the dispatch-3 worker consumes the S2 recompute jobs; every case window assessed ===
@@ -128,15 +128,15 @@ New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tls\
   overlap-separable-epoch: window INDETERMINATE, intervals [], check={'met': True}
   contradiction-fault-fixture: window LIMITED, intervals [], check={'met': True}
   out-of-order-fault-fixture: window LIMITED, intervals [], check={'met': True}
-  explicit cohort s3-cases-epoch-1: run 3b30fd64-b9b1-4ed7-afb2-53cd6cb40076 SELECTED_EXPLICIT, intervals ['CANDIDATE_AVOIDABLE']
-  explicit cohort s3-cases-epoch-2: run 97187b74-a122-4fb9-911c-f047cdcfb8f2 SELECTED_EXPLICIT, intervals ['CANDIDATE_AVOIDABLE']
+  explicit cohort s3-cases-epoch-1: run 890f334d-0f99-447d-8072-2357ad10f6f6 SELECTED_EXPLICIT, intervals ['CANDIDATE_AVOIDABLE']
+  explicit cohort s3-cases-epoch-2: run 763fb24e-e98e-4272-9e60-444d13b01922 SELECTED_EXPLICIT, intervals ['CANDIDATE_AVOIDABLE']
 
 === 13. PHASE 2: late CENTRAL acceptance (2026-10-08): cutoff A, held batches accepted, cutoff B ===
   delivered 196 of 198 sealed batches; 2 held
-  cutoff A 2026-10-11T18:01:51.135731+00:00: run 2190b1ff-552a-4363-90ed-439eb58ca9c2, window rev 1, intervals ['CANDIDATE_AVOIDABLE']
+  cutoff A 2026-10-11T18:37:19.027819+00:00: run 368f7534-ce55-4e75-b4ea-5dd29ed9b323, window rev 1, intervals ['CANDIDATE_AVOIDABLE']
   pass  1: attempted  2 acked  2 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1585
   pass  2: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 1585
-  cutoff B 2026-10-11T18:01:55.401046+00:00: run e17cfbbd-ffea-42df-89f1-08545cafd0ae, window rev 2, intervals ['CANDIDATE_AVOIDABLE']
+  cutoff B 2026-10-11T18:37:23.389260+00:00: run 1daa571f-b2ab-4e92-b492-47989f2ac0d3, window rev 2, intervals ['CANDIDATE_AVOIDABLE']
   CASE late-central-acceptance: 327 accepted readings, epochs ['s3-cases-epoch-2'], roles 8, precondition met=True; expected ceiling: A new recompute job and new revision(s) at cutoff B; the cutoff-A revision stays addressable
 
 === 14. Manifest ===
@@ -144,7 +144,7 @@ New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tls\
 
 === Stopping every process this script started ===
   stopped: tls-server, lab-api, gateway
-Produced in 238 s. Verifying after reload:
+Produced in 227 s. Verifying after reload:
   verify candidate-blocked-before: 260 reloaded, match=True, precondition met=True
   verify physical-necessary: 326 reloaded, match=True, precondition met=True
   verify two-capability-candidate: 326 reloaded, match=True, precondition met=True
@@ -156,6 +156,6 @@ Produced in 238 s. Verifying after reload:
   verify out-of-order-fault-fixture: 2 reloaded, match=True, precondition met=True
   verify late-central-acceptance: 327 reloaded, match=True, precondition met=True
   all evidence digest match=True
-  verify late-central-acceptance: cutoff A run 2190b1ff-552a-4363-90ed-439eb58ca9c2 still selects window revision 1 = True
+  verify late-central-acceptance: cutoff A run 368f7534-ce55-4e75-b4ea-5dd29ed9b323 still selects window revision 1 = True
 VERIFY PASSED
-exit 0
+EXIT 0
