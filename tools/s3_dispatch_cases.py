@@ -412,7 +412,7 @@ class Cases(s2.Demo):
                 "sequence_epoch": FIXTURE_EPOCH, "sequence": sequence}
             envelope["timing"]["source_time"] = source_time
             envelope["timing"]["published_at"] = plus(source_time, 1)
-            envelope["payload"]["value"] = f"{value:f}"
+            envelope["payload"]["value"] = f"{value.normalize():f}"  # canonical decimal: no trailing zero
             envelope_texts.append(canonical_json(envelope))
         batch_id, body = seal_batch_v2(
             site_id=batch["site_id"], gateway_id=batch["gateway_id"], source_id=batch["source_id"],
