@@ -266,6 +266,27 @@ inside the truth barrier.
 
 ### Guards
 
+The normal local/CI check command runs every repository guard and reports each
+one: architecture seams, navigation truthfulness, agent workflow, the v6.9
+dependency registry (including the delivery-plan claim-portion mapping), the
+delivery checker fixtures and the v6.9 screen ledger. A failing guard or a
+missing tool (Node, or the `.venv` Python; override with `-Python`/`-Node`)
+exits nonzero.
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-all.ps1
+```
+
+The delivery `next-work` report (PRE-S3-03) is run separately by the
+coordinator; it exits 3 when it refuses to rank:
+
+```
+node frontend\docs\architecture\check_v69_dependency_registry.cjs --next-work --out next-work.json
+node frontend\docs\architecture\check_v69_dependency_registry.cjs --verify-report next-work.json
+```
+
+The individual guards remain runnable on their own:
+
 ```
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-architecture.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-agent-workflow.ps1
@@ -308,4 +329,4 @@ code.
 `check-agent-workflow.ps1` validates the repository's agent-workflow governance
 files and task metadata.
 
-Neither guard is wired to a CI runner yet; both must be invoked manually.
+No CI runner is configured; `toolseck-all.ps1` is the command a CI job would run.
