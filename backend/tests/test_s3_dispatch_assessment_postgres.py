@@ -34,7 +34,7 @@ if URL:
     from assetops_backend.sites.foundation_service import FoundationService
 
 DAY = datetime(2026, 10, 6, tzinfo=timezone.utc)
-WINDOW = Window(DAY, DAY + timedelta(days=1))
+WINDOW = Window(DAY, DAY + timedelta(days=1)) if URL else None
 T1 = datetime(2026, 10, 9, 8, 0, tzinfo=timezone.utc)
 FEEDERS = ("residential-meter", "clinic-meter", "mill-meter")
 

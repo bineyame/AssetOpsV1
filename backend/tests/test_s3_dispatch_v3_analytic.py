@@ -271,3 +271,14 @@ def test_window_names_the_span_where_a_capability_role_is_unbound():
     missing = [x for x in window.result["limitations"] if x.startswith("MISSING_ROLE")]
     assert len(missing) == 2 and all("2026-10-02T00:00:00.000000Z..2026-10-02T12:00:00.000000Z" in x for x in missing)
     assert window.intervals[0].claim_level == d3.CANDIDATE  # the 14:00 interval is after the binding
+
+
+def test_in_interval_capability_gap_makes_window_limited_and_names_it():
+    feed = run_interval(Feed(), 5, 7)
+    feed.readings = [x for x in feed.readings
+                     if not (x.role == "pv_available_power" and at(5, 30) <= x.source_time < at(6, 15))]
+    _, result = run(feed)
+    [interval] = result.intervals
+    assert interval.result["portions_minutes"]["indeterminate"] != "0"
+    assert result.claim_level == d3.WINDOW_LIMITED
+    assert any(x.startswith("EVIDENCE_GAP:") for x in result.result["limitations"])

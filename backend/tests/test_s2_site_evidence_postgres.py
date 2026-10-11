@@ -48,7 +48,7 @@ if URL:
     from assetops_backend.evidence_api import build_evidence_router
     from assetops_backend.evidence_migration import main as comparison_cli
 
-LATER = RECEIVED + timedelta(minutes=7)
+LATER = RECEIVED + timedelta(minutes=7) if URL else None
 ENV = environment_identity(URL) if URL else None
 ROOT = store_root_identity("c:\ws-a\var\evidence", "c:\ws-a\var\commits") if URL else None
 

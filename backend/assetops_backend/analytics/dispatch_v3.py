@@ -500,6 +500,11 @@ def _unbound_spans(inputs: AnalyticInputSet, role: str) -> list[tuple[datetime, 
     return [(lo, hi) for lo, hi in spans if lo < hi]
 
 
+# Indeterminate for a modelling reason, not for missing, poor-quality or conflicting evidence.
+_NOT_EVIDENCE_GAPS = ("transition inside the segment", "possibly within the configured minimum runtime",
+                      "battery inside the 10-point", "capability margin inside")
+
+
 def assess(inputs: AnalyticInputSet) -> WindowAssessment:
     """The `dispatch-3` window and interval assessments for one input set."""
     if inputs.model_version != MODEL_VERSION:
@@ -522,6 +527,12 @@ def assess(inputs: AnalyticInputSet) -> WindowAssessment:
                            f"({', '.join(limit.evidence_ids)})")
     if inputs.cohort.usable and not any(r.role in (GEN_STATE, GEN_POWER) for r in inputs.readings):
         limitations.append("NO_GENERATOR_STATE: no accepted generator state or output in the cohort")
+    for i in intervals:
+        for seg in i.result["segments"]:
+            gaps = [m for m in seg["missing"] if not m.startswith(_NOT_EVIDENCE_GAPS)]
+            if seg["classification"] == INDETERMINATE and gaps:
+                limitations.append(f"EVIDENCE_GAP: interval from {i.result['interval']['first_on']} is "
+                                   f"Indeterminate over {seg['start']}..{seg['end']}: {'; '.join(gaps)}")
     generator_ambiguous = any(x.role in (GEN_STATE, GEN_POWER) and x.start < inputs.window.end
                               and inputs.window.start <= x.end for x in inputs.cohort.limits)
     if generator_ambiguous:
