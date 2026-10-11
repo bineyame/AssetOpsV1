@@ -142,6 +142,8 @@ def compare(*, site_code: str, tenant_id: str, site_id: str, environment: str, l
     statement = (f"Empty-set comparison: the file-backed baseline holds no dispatch claim for {site_code}, so no "
                  "claim is said to match; a zero-inventory statement, not claim parity." if empty else
                  f"{len(rows)} file-backed dispatch claims: " + ", ".join(f"{v} {k}" for k, v in count.items()))
+    if breaks:
+        statement += f" Lineage breaks: {breaks}."
     return {"schema": SCHEMA, "report_id": str(uuid4()), "site_id": site_code, "site_uuid": site_id,
             "tenant_id": tenant_id, "environment": environment, "compared_at": compared_at,
             "model_version": model_version, "outcome": outcome,

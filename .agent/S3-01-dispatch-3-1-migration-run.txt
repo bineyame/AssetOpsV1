@@ -1,0 +1,74 @@
+# S3-01 dispatch-3.1 migration of stored assetops_s3cases windows (producer tree backend = HEAD 05f9b4d, 2026-10-11T19:56:31Z)
+
+## 1. Before: stored heads, phase-3a report and live gate
+head 2026-10-01 dispatch-3 e5af6525-86a1-4609-a8ef-bdccb26f7c39
+head 2026-10-02 dispatch-3 bb8d9b32-ed4d-438e-85aa-048e7ff803f0
+head 2026-10-03 dispatch-3 a639add8-ae48-452d-8b84-c1c6ee2228d8
+head 2026-10-04 dispatch-3 ecea7a50-1465-4d8f-aec0-82207f879c9f
+head 2026-10-05 dispatch-3 38474b0d-ffc9-412a-bb1a-0c1a66ff3835
+head 2026-10-06 dispatch-3 9aa2b632-2323-4d5d-acd1-4cdeeb308ec4
+head 2026-10-07 dispatch-3 00b31b74-6f92-4989-a36e-0e408742d1fc
+head 2026-10-08 dispatch-3 44ca56fe-021b-4121-b3f3-a786488e59a5
+head 2026-10-09 dispatch-3 bf90281f-01d0-441d-95f8-74d6ce931b98
+runs by model: [('dispatch-3', 12)]
+revisions by model: [('dispatch-3', 18)]
+10-09 window limitations (selected head):
+  dispatch-3 LIMITED ['INTERVAL_LIMITED: interval from 2026-10-09T03:30:00.000000Z: OPEN_BOUND: no OFF evidence after the interval in the read range']
+latest report: ('2de83c21-ef68-483d-a760-5162ab08f174', 's3-performance-comparison-v1', None, 'PASSED')
+live lineage: {'selected_runs': 10, 'selected_heads_other_model': 9, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}
+gate: (False, 'The newest Performance comparison report names another schema or Site.')
+exit 0
+
+## 2. performance_migration run BEFORE reassessment
+FAILED: Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.
+Lineage: {'selected_runs': 10, 'selected_heads_other_model': 9, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}
+Report: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tree\var\evidence\migration-performance\kobo-001\20261011T195634029769Z-8da1efe6-cbb7-401d-aa57-0932b655a467.json
+Performance cutover: closed. The newest Performance comparison report is FAILED: Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.
+exit 1
+
+## 3. Normal worker pass (reconcile + jobs): assess_dispatch process-jobs
+exit 0
+(The per-job JSON summary was written to a POSIX /tmp path the Windows interpreter could not open, so it is not reproduced; the worker exited 0, and section 4 shows its effect: every head is now dispatch-3.1, the dispatch-3 runs/revisions are retained.)
+
+## 4. After: heads, live gate (phase-3a report still newest)
+head 2026-10-01 dispatch-3.1 c3486a82-8c6a-440e-9322-0db918e0f9dc
+head 2026-10-02 dispatch-3.1 3194cd25-7e1f-4cb4-bbf3-865820f18164
+head 2026-10-03 dispatch-3.1 aba03fe5-e4b7-4423-9be3-8bfd8486f307
+head 2026-10-04 dispatch-3.1 e5d981a4-0d1f-48f3-a572-f97af7b9cbd9
+head 2026-10-05 dispatch-3.1 4307d95b-3f99-43c6-a210-aa2795b54b1f
+head 2026-10-06 dispatch-3.1 670c141a-8b6a-4acf-9b29-ca3577ffc0ca
+head 2026-10-07 dispatch-3.1 48a74400-a928-4f4e-84a2-a11fa4a2b21a
+head 2026-10-08 dispatch-3.1 a8c0dad3-328c-49f4-8977-b9f405ea70ac
+head 2026-10-09 dispatch-3.1 338568eb-e51b-4fd4-a7de-75d27122034b
+runs by model: [('dispatch-3', 12), ('dispatch-3.1', 9)]
+revisions by model: [('dispatch-3', 18), ('dispatch-3.1', 13)]
+10-09 window limitations (selected head):
+  dispatch-3.1 LIMITED ['INTERVAL_LIMITED: interval from 2026-10-09T03:30:00.000000Z: OPEN_BOUND: no OFF evidence after the interval in the read range']
+latest report: ('8da1efe6-cbb7-401d-aa57-0932b655a467', 's3-performance-comparison-v2', 'dispatch-3.1', 'FAILED')
+live lineage: {'selected_runs': 19, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}
+gate: (False, 'The newest Performance comparison report is FAILED: Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.')
+exit 0
+
+## 5. performance_migration run AFTER reassessment
+PASSED: Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.
+Lineage: {'selected_runs': 19, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}
+Report: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-cases\tree\var\evidence\migration-performance\kobo-001\20261011T195638092534Z-97a5a04f-8e14-49c0-ae0d-9d06781d64bf.json
+Performance cutover: permitted
+exit 0
+
+## 6. Live gate after the rerun
+head 2026-10-01 dispatch-3.1 c3486a82-8c6a-440e-9322-0db918e0f9dc
+head 2026-10-02 dispatch-3.1 3194cd25-7e1f-4cb4-bbf3-865820f18164
+head 2026-10-03 dispatch-3.1 aba03fe5-e4b7-4423-9be3-8bfd8486f307
+head 2026-10-04 dispatch-3.1 e5d981a4-0d1f-48f3-a572-f97af7b9cbd9
+head 2026-10-05 dispatch-3.1 4307d95b-3f99-43c6-a210-aa2795b54b1f
+head 2026-10-06 dispatch-3.1 670c141a-8b6a-4acf-9b29-ca3577ffc0ca
+head 2026-10-07 dispatch-3.1 48a74400-a928-4f4e-84a2-a11fa4a2b21a
+head 2026-10-08 dispatch-3.1 a8c0dad3-328c-49f4-8977-b9f405ea70ac
+head 2026-10-09 dispatch-3.1 338568eb-e51b-4fd4-a7de-75d27122034b
+runs by model: [('dispatch-3', 12), ('dispatch-3.1', 9)]
+revisions by model: [('dispatch-3', 18), ('dispatch-3.1', 13)]
+latest report: ('97a5a04f-8e14-49c0-ae0d-9d06781d64bf', 's3-performance-comparison-v2', 'dispatch-3.1', 'PASSED')
+live lineage: {'selected_runs': 19, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}
+gate: (True, 'Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.')
+exit 0

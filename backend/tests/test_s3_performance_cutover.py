@@ -120,6 +120,7 @@ class TestComparison:
     def test_lineage_break_fails_the_comparison(self) -> None:
         report = run_compare([legacy("NECESSARY")], [interval("NECESSARY")], lineage={**CLEAN, "orphan_revisions": 1})
         assert report["outcome"] == "FAILED" and report["lineage_breaks"] == {"orphan_revisions": 1}
+        assert report["statement"].endswith("Lineage breaks: {'orphan_revisions': 1}.")
 
 
 class TestGate:
