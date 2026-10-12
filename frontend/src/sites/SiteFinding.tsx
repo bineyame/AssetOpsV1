@@ -202,7 +202,7 @@ function LeadState({ body, links }: { body: FindingDetailBody; links: SiteFindin
       <p data-finding-lifecycle-sentence>
         {lifecycle.sentence}
         {selected.lifecycle === "UNCONFIRMED"
-          ? ` ${unconfirmedCause(selected.limitations, selected.indeterminate_reasons)}`
+          ? ` ${unconfirmedCause(selected.indeterminate_cause)}`
           : ""}
       </p>
       {afterClosure ? (
@@ -397,6 +397,8 @@ function Card({ label, value, note, code }: { label: string; value: string; note
 function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
   const selected = body.revision;
   const groups = groupLimitations(selected.limitations);
+  // Segment-level record gaps never reach a revision's limitations; the read classifies them (re-review C8).
+  const recordGap = selected.indeterminate_cause?.kind === "RECORD_GAP";
   const stops = (selected.claim.continuity ?? []).flatMap((gap) => gap.stops ?? []);
   const joined = (selected.claim.continuity ?? []).filter((gap) => !(gap.stops ?? []).length);
   const recurrence = body.relations.recurrence;
@@ -408,8 +410,14 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
           The estimate uses the records sent from site. Solar and battery capacity are as reported; nothing was
           measured directly at the fuel tank.
         </li>
+        {recordGap ? (
+          <li data-finding-record-gap>
+            Some records this version needs are missing or conflict over part of the period, so that part could not
+            be decided.
+          </li>
+        ) : null}
         {groups.length === 0 ? (
-          <li data-finding-limitations="none">No record gaps or conflicts were found over this period.</li>
+          recordGap ? null : <li data-finding-limitations="none">No record gaps or conflicts were found over this period.</li>
         ) : (
           groups.map((g) => (
             <li key={g.code} data-limitation={g.code}>
@@ -767,6 +775,31 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
             ))}
           </tbody>
         </DataTable>
+        {(r.indeterminate_reasons ?? []).length > 0 ? (
+          <>
+            <h3 className="site-finding__subheading" id="site-finding-tech-undecided">Portions that could not be decided</h3>
+            <DataTable labelledBy="site-finding-tech-undecided">
+              <thead>
+                <tr>
+                  <th scope="col">From</th>
+                  <th scope="col">To</th>
+                  <th scope="col">Cause kind</th>
+                  <th scope="col">Assessment words</th>
+                </tr>
+              </thead>
+              <tbody data-tech-undecided>
+                {(r.indeterminate_reasons ?? []).map((p, i) => (
+                  <tr key={`${p.assessment_revision_id}-${p.start ?? i}`}>
+                    <td>{p.start ? stamp(p.start) : "–"}</td>
+                    <td>{p.end ? stamp(p.end) : "–"}</td>
+                    <td><Code value={p.kind} /></td>
+                    <td><Code value={[...p.missing, ...p.reasons].join("; ")} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </>
+        ) : null}
         <h3 className="site-finding__subheading" id="site-finding-tech-currentness">Up-to-date check by day</h3>
         <DataTable labelledBy="site-finding-tech-currentness">
           <thead>

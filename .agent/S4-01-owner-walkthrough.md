@@ -56,9 +56,10 @@ walkthrough also marks 9 Oct as waiting for reassessment, so you can see an "Out
    version. Both versions have the same Finding address; only the version differs.
 3. **Repeat after a recorded stop (F03 recurrence).** "What limits this conclusion" says this happened before,
    links the earlier Finding, and says the link does not mean the earlier one is still open.
-4. **Not confirmed, then no longer supported (F05).** The version 2 address (`links` prints every version) reads "Not confirmed". It says no records are missing;
-   it could not decide because the generator may be within the configured minimum runtime (it cites the 20 % battery
-   reserve), and that this is not a new issue. The latest version reads "No longer supported". It says
+4. **Not confirmed, then no longer supported (F05).** The version 2 address (`links` prints every version) reads "Not confirmed", followed by one sentence:
+   "No records are missing. It could not decide because the generator may still have been inside its 120-minute
+   minimum operating time after starting." It then says this is not a new issue. The assessment's own wording is
+   only under **Analysis** ("Portions that could not be decided"). The latest version reads "No longer supported". It says
    this does not mean the generator was repaired or that money was saved.
 5. **Out of date (F02, across midnight 8 to 9 Oct).** The status reads "Out of date" and the recorded version
    stays visible. It reads "ran between ... with one short stop", links both Dispatch days and names the stop.
@@ -67,8 +68,9 @@ walkthrough also marks 9 Oct as waiting for reassessment, so you can see an "Out
 7. **One record's lineage.** On any Finding open **Analysis**. It lists every cited record with its delivery
    batch, gateway, source and sequence, the assessment revisions and passes used, the site settings revisions,
    and every version's ID. On the Dispatch day, select the same block to see the same records.
-8. **Days without a Finding.** Use the three Dispatch day addresses `links` prints. 19 Oct reads "could not decide, so this is not a no-Finding result".
-   7 Oct reads "No assessment exists for this day". The fixture has no fully assessed day with no Finding; the
+8. **Days without a Finding.** `links` prints four Dispatch day addresses: 6 Oct belongs to step 1 (it links F01);
+   use the other three. 19 Oct reads "could not decide, so this is not a no-Finding result". 7 Oct and 25 Oct
+   (labelled not assessed) read "No assessment exists for this day". The fixture has no fully assessed day with no Finding; the
    tests cover that wording ("fully assessed and has no Finding").
 
 ## Mock comparison

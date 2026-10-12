@@ -12,6 +12,20 @@
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { hasKeys, isObject } from "./evidenceRead";
 
+export type UndecidedKind = "RECORD_GAP" | "MODELLING" | "UNSTATED";
+
+export type UndecidedPortion = {
+  assessment_revision_id: string;
+  start: string | null;
+  end: string | null;
+  kind: UndecidedKind;
+  plain: string[];
+  reasons: string[];
+  missing: string[];
+};
+
+export type UndecidedCause = { kind: UndecidedKind; sentence: string };
+
 export type FindingReadResult<T> =
   | { status: "loaded"; value: T }
   | { status: "not_found"; message: string | null }
@@ -210,8 +224,11 @@ export interface FindingDetailBody {
     off_reports: { assessment_revision_id: string; at: string; evidence_ids: string[] }[];
     previous_revision_id: string | null;
     currentness: Currentness;
-    /** Read-time reasons from the cited interval assessments for portions that could not be decided. */
-    indeterminate_reasons?: { assessment_revision_id: string; start: string | null; end: string | null; reasons: string[]; missing: string[] }[];
+    /** Read-time portions of the cited interval assessments that could not be decided, each classified by the
+     * backend (dispatch-3.1 `_NOT_EVIDENCE_GAPS` rule); `reasons`/`missing` are the assessment's own words. */
+    indeterminate_reasons?: UndecidedPortion[];
+    /** The backend's one plain cause for the undecided portions; null when none were read. */
+    indeterminate_cause?: UndecidedCause | null;
   };
   state: {
     lifecycle: Lifecycle;

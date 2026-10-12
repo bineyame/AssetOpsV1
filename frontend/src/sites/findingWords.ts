@@ -5,7 +5,7 @@
  * attributes and appear verbatim only in the Technical detail view.
  */
 import { OUTCOME_WORDS } from "./findingPresentation";
-import type { FindingDetailBody, Lifecycle, RevisionSummary } from "./findingClient";
+import type { FindingDetailBody, Lifecycle, RevisionSummary, UndecidedCause } from "./findingClient";
 
 export const LIFECYCLE_WORDS: Record<Lifecycle, { label: string; title: string; sentence: string }> = {
   SUPPORTED: {
@@ -188,26 +188,10 @@ export function spanMinutes(start: string, end: string): number {
 }
 
 /**
- * Why a Not confirmed version could not decide, from what the version itself records: a recorded record gap or
- * conflict, else the reason the assessment gave for each undecided portion. Never assumes missing records.
+ * Why a Not confirmed version could not decide: the backend's plain cause, classified from the cited assessment
+ * with the same rule the assessment uses for its own record gaps. Never assumes missing records, never echoes
+ * assessment wording (that stays in Analysis).
  */
-export function unconfirmedCause(
-  limitations: string[],
-  reasons: { reasons: string[]; missing: string[] }[] | undefined,
-): string {
-  const list = reasons ?? [];
-  // `missing` on a portion names what is undecided (it can be a setting such as a minimum runtime), so only the
-  // assessment's own "missing or conflicting" reason or a recorded limitation says that records are missing.
-  const gap = limitations.length > 0 || list.some((r) => r.reasons.some((t) => /missing or conflicting/.test(t)));
-  if (gap) {
-    return "Some records it needs are missing or conflict.";
-  }
-  const clean = (t: string) => t.replace(/\s*\(Foundation revision [^)]*\)/g, "").replace(/[.;\s]+$/, "").trim();
-  const texts = [...new Set(list.flatMap((r) => [...r.reasons, ...r.missing]).map(clean))]
-    .filter((t) => t.length > 0)
-    .slice(0, 3);
-  if (texts.length > 0) {
-    return `No records are missing. It could not decide under the settings now in force: ${texts.join("; ")}.`;
-  }
-  return "No missing or conflicting records are recorded; the reason it could not be decided is under Technical detail.";
+export function unconfirmedCause(cause: UndecidedCause | null | undefined): string {
+  return cause?.sentence ?? "Why it could not decide is not available in this read.";
 }

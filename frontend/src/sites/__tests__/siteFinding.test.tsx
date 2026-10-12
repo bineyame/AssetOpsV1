@@ -355,30 +355,60 @@ describe("Site Finding detail (S4-01 phase 3 fix round 3)", () => {
     return value;
   };
 
-  it("B1: Not confirmed states the recorded reason and does not claim missing records when coverage is complete", async () => {
-    const value = unconfirmed((b) => {
-      b.revision.indeterminate_reasons = [{ assessment_revision_id: I1, start: null, end: null,
-        missing: ["possibly within the configured minimum runtime (120 min from the first ON report); Candidate withheld"],
-        reasons: ["PV available plus PCS discharge capability covers load with 10 % headroom", "reserve 20.0 % (Foundation revision e41a0085)"] }];
-    });
-    const { container } = mount(fake({ status: "loaded", value }));
+  const RUNTIME_RAW = "possibly within the configured minimum runtime (120 min from the first ON report); Candidate withheld, no policy Necessary claimed";
+  const RUNTIME_SENTENCE = "No records are missing. It could not decide because the generator may still have been inside its 120-minute minimum operating time after starting.";
+  const settingCause = (b: FindingDetailBody) => {
+    b.revision.limitations = ["OPEN_BOUND: interval end not observed"];
+    b.revision.indeterminate_reasons = [{ assessment_revision_id: I1, start: null, end: null, kind: "MODELLING",
+      plain: ["the generator may still have been inside its 120-minute minimum operating time after starting"],
+      missing: [RUNTIME_RAW],
+      reasons: ["PV available plus PCS discharge capability covers load with 10 % headroom", "reserve 20.0 % (Foundation revision e41a0085)"] }];
+    b.revision.indeterminate_cause = { kind: "MODELLING", sentence: RUNTIME_SENTENCE };
+  };
+  const gapCause = (b: FindingDetailBody) => {
+    b.revision.limitations = [];
+    b.revision.indeterminate_reasons = [{ assessment_revision_id: I1, start: null, end: null, kind: "RECORD_GAP", plain: [],
+      missing: ["PV available power: no accepted reading"], reasons: [] }];
+    b.revision.indeterminate_cause = { kind: "RECORD_GAP", sentence: "Some records it needs are missing or conflict over part of the period." };
+  };
+
+  it("R1: Not confirmed names only the real cause in one plain sentence, on an earlier version too; raw words stay in Analysis", async () => {
+    for (const latest of [true, false]) {
+      const value = unconfirmed((b) => { settingCause(b); b.selection.is_latest = latest; });
+      const { container, unmount } = mount(fake({ status: "loaded", value }));
+      await settledScreen();
+      const lead = container.querySelector("[data-finding-lifecycle-sentence]")?.textContent ?? "";
+      expect(lead).toContain(RUNTIME_SENTENCE);
+      expect(lead).not.toMatch(/PV|PCS|Candidate|Necessary|reserve|headroom|settings now in force|Foundation revision/);
+      expect(lead).not.toMatch(/records it needs are missing/);
+      expect(container.textContent).not.toMatch(/configured minimum runtime/);
+      const { violations } = scanProductVocabulary(container, "finding not confirmed");
+      expect(violations, describeViolations(violations)).toEqual([]);
+      expect(container.querySelector("[data-finding-card='INDETERMINATE']")?.textContent).not.toMatch(/missing/);
+      expect(container.querySelector("[data-finding-sentence]")?.textContent).toMatch(/cannot decide whether any of that time was possibly avoidable/);
+      unmount();
+    }
+    const value = unconfirmed(settingCause);
+    const { container } = mount(fake({ status: "loaded", value }), "?view=analysis");
     await settledScreen();
-    const lead = container.querySelector("[data-finding-lifecycle-sentence]")?.textContent ?? "";
-    expect(lead).toMatch(/reserve 20\.0 %/);
-    expect(lead).toMatch(/minimum runtime/);
-    expect(lead).toMatch(/No records are missing/);
-    expect(lead).not.toMatch(/Foundation revision/);
-    expect(container.textContent).not.toMatch(/records (it needs )?(were|are) missing or unclear/);
-    expect(container.querySelector("[data-finding-card='INDETERMINATE']")?.textContent).not.toMatch(/missing/);
-    expect(container.querySelector("[data-finding-sentence]")?.textContent).toMatch(/cannot decide whether any of that time was possibly avoidable/);
-    expect(container.querySelector("[data-finding-sentence]")?.textContent).not.toMatch(/counts no possibly avoidable/);
+    expect(container.querySelector("[data-tech-undecided]")?.textContent).toContain(RUNTIME_RAW);
   });
 
-  it("B1: Not confirmed says records are missing only when a limitation records it", async () => {
-    const value = unconfirmed((b) => { b.revision.limitations = ["EVIDENCE_GAP: generator_power missing"]; });
+  it("R2/C8: a record-gap cause from the read says records are missing, and the limits do not say none were found", async () => {
+    const value = unconfirmed(gapCause);
     const { container } = mount(fake({ status: "loaded", value }));
     await settledScreen();
     expect(container.querySelector("[data-finding-lifecycle-sentence]")?.textContent).toMatch(/records it needs are missing or conflict/);
+    expect(container.querySelector("[data-finding-limitations='none']")).toBeNull();
+    expect(container.querySelector("[data-finding-record-gap]")?.textContent).toMatch(/missing or conflict/);
+  });
+
+  it("R2: an OPEN_BOUND limitation alone does not read as missing records", async () => {
+    const value = unconfirmed(settingCause);
+    const { container } = mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    expect(container.querySelector("[data-finding-lifecycle-sentence]")?.textContent).not.toMatch(/missing or conflict/);
+    expect(container.querySelector("[data-finding-record-gap]")).toBeNull();
   });
 
   it("B2: a bridged stop is not described as the generator staying on throughout", async () => {

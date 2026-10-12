@@ -24,12 +24,14 @@
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timedelta
 from typing import Any, Protocol
 from uuid import UUID
 
 from assetops_backend.analytics.dispatch import CANDIDATE
 from assetops_backend.analytics.dispatch_read import CURRENT, FAILED, PENDING, STALE, UNASSESSED, DispatchReadService
+from assetops_backend.analytics.dispatch_v3 import _NOT_EVIDENCE_GAPS
 
 REPLAY = ("Exact stored revisions only. The S3 knowledge cutoff is a worker selection timestamp, not a "
           "commit-ordered acceptance fence, so no arbitrary knowledge_at replay is offered.")
@@ -49,6 +51,54 @@ UNAVAILABLE = {
 _PROJECTION = {UNASSESSED: "NOT_ASSESSED", PENDING: "PENDING", STALE: "STALE", FAILED: "FAILED"}
 _ORDER = ("FAILED", "PENDING", "STALE", "NOT_ASSESSED")
 PAGE_LIMIT = 500
+
+
+# Why a portion could not be decided, in plain words, per dispatch-3.1 modelling prefix (`_NOT_EVIDENCE_GAPS`).
+# Every other `missing` entry on an Indeterminate portion is a record gap: the same rule the window assessment
+# uses for its own `EVIDENCE_GAP` limitation. A revision's `limitations` (OPEN_BOUND, ANCHOR_OUTSIDE_SUPPORT)
+# never decide this: they do not carry segment-level record gaps.
+_MODELLING_WORDS = {
+    "transition inside the segment": "conditions changed part-way through a stretch of the period, and that "
+                                     "stretch only counts when both of its ends could have done without the "
+                                     "generator",
+    "possibly within the configured minimum runtime": "the generator may still have been inside its {runtime}"
+                                                      "minimum operating time after starting",
+    "battery inside the 10-point": "battery charge was within 10 points of its minimum reserve, so the battery "
+                                   "was not counted on",
+    "capability margin inside": "solar power and the battery together only just covered site demand, inside the "
+                                "10 % safety margin",
+}
+assert set(_MODELLING_WORDS) == set(_NOT_EVIDENCE_GAPS), "plain words must cover every dispatch-3.1 modelling cause"
+_RUNTIME = re.compile(r"minimum runtime \((\d+(?:\.\d+)?) min")
+RECORD_GAP, MODELLING, UNSTATED = "RECORD_GAP", "MODELLING", "UNSTATED"
+RECORD_GAP_SENTENCE = "Some records it needs are missing or conflict over part of the period."
+
+
+def portion_cause(missing: list[str]) -> tuple[str, list[str]]:
+    """(kind, plain fragments) for one Indeterminate portion's `missing` list."""
+    if any(not m.startswith(_NOT_EVIDENCE_GAPS) for m in missing):
+        return RECORD_GAP, []
+    words: list[str] = []
+    for m in missing:
+        prefix = next(p for p in _NOT_EVIDENCE_GAPS if m.startswith(p))
+        runtime = _RUNTIME.search(m)
+        words.append(_MODELLING_WORDS[prefix].format(
+            runtime=f"{runtime.group(1)}-minute " if runtime else ""))
+    return (MODELLING, list(dict.fromkeys(words))) if words else (UNSTATED, [])
+
+
+def indeterminate_cause(portions: list[dict[str, Any]]) -> dict[str, str] | None:
+    """One plain cause for a revision's undecided portions; a record gap anywhere wins. None without portions."""
+    if not portions:
+        return None
+    if any(p["kind"] == RECORD_GAP for p in portions):
+        return {"kind": RECORD_GAP, "sentence": RECORD_GAP_SENTENCE}
+    words = list(dict.fromkeys(w for p in portions for w in p["plain"]))
+    if words:
+        return {"kind": MODELLING, "sentence": "No records are missing. It could not decide because "
+                + "; and ".join(words) + "."}
+    return {"kind": UNSTATED, "sentence": "The assessment this version cites does not say why it could not "
+            "decide; its own words are in Analysis."}
 
 
 class FindingReadStore(Protocol):
@@ -135,9 +185,11 @@ class FindingReadService:
             segments = ((read or {}).get("result") or {}).get("segments") or []
             for seg in segments:
                 if seg.get("classification") == "INDETERMINATE":
+                    missing = list(seg.get("missing") or [])
+                    kind, plain = portion_cause(missing)
                     out.append({"assessment_revision_id": str(cite["assessment_revision_id"]),
-                                "start": seg.get("start"), "end": seg.get("end"),
-                                "reasons": list(seg.get("reasons") or []), "missing": list(seg.get("missing") or [])})
+                                "start": seg.get("start"), "end": seg.get("end"), "kind": kind, "plain": plain,
+                                "reasons": list(seg.get("reasons") or []), "missing": missing})
         return out
 
     def _currentness(self, tenant_id: UUID, site_id: UUID, rev: dict[str, Any]) -> dict[str, Any]:
@@ -206,6 +258,7 @@ class FindingReadService:
             latest_current = selected_current = {
                 "state": "SOURCE_CLOSED", "windows": [],
                 "basis": "the Performance source is closed: no current S3 selection is read or claimed"}
+        portions = self._indeterminate_reasons(tenant_id, site_id, selected) if source_open else []
         groups: dict[tuple, int] = {}
         for e in lineage["evidence"]:
             key = (str(e["gateway_id"]), str(e["source_id"]), e["sequence_epoch"], e["source_mode"])
@@ -235,8 +288,8 @@ class FindingReadService:
                 "off_reports": lineage["off_reports"],
                 "previous_revision_id": None if prior is None else prior["id"],
                 "currentness": selected_current,
-                "indeterminate_reasons": self._indeterminate_reasons(tenant_id, site_id, selected)
-                if source_open else [],
+                "indeterminate_reasons": portions,
+                "indeterminate_cause": indeterminate_cause(portions),
             },
             "state": {
                 "lifecycle": latest["lifecycle"], "latest_transition": latest["transition"],
