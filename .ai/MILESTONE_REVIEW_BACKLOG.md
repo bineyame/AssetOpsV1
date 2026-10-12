@@ -2050,3 +2050,10 @@ The carried review findings above are unchanged.
 - S3-01u (assessed-day discovery, paged evidence) exists only in the decision/answers; the Planner must create its task file and registry node.
 - S4-01 refinement: its multi-revision fixture must cover a model-upgrade revision explicitly; record the optional bridge/merge case as tested or explicitly deferred.
 
+### S4-01 phase 1 review carries (2026-10-12, `.agent/S4-01-phase-1-review.md`, fresh Claude)
+
+- C2 (Q1): idempotency skips a basis matching any earlier revision, not just the latest, so an A->B->A reselection leaves the Finding showing B.
+- C3: a closed (NO_LONGER_SUPPORTED) Finding silently reopens as UNCONFIRMED/SUPPORTED (confirmed by probe) — check against the decision in the fix round; Architect question if not covered.
+- C5 (Q8): fixture publishes minimum runtime with source TEMPLATE; SITE would be honest.
+- C6: on merge the matcher prefers an episode whose anchor is inside the cluster over the earlier anchor the decision names.
+
