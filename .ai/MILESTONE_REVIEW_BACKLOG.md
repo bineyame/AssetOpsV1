@@ -2078,3 +2078,12 @@ The carried review findings above are unchanged.
 - C9 (S4-04): `finding_match_pass` gains a row every pass even when nothing is written; bound it.
 - Residual (phase 3 wording): a long stop with sparse reporting still bridges when both OFF endpoints are present and nothing contrary lies between; consider labelling in the walkthrough.
 - S4-01 phase 3 review carry C5 (`.agent/S4-01-phase-3-review.md`): the Dispatch link carrying the primary assessment revision is always attached to the first day without checking which day that revision belongs to (correct in every live case today).
+
+### S4-01 fix round 4 re-review carries (2026-10-12, `.agent/S4-01-fix4-rereview.md`)
+
+- K1: guide step 4 order of the cause sentence vs "not a new issue" is reversed vs the live page.
+- K2: with the Performance source closed, a Not confirmed version still says "No record gaps or conflicts were found" (`SiteFinding.tsx:417-420`), untested.
+- K3: the plain-words table check is a bare `assert` (removed under `python -O`); pin with a pytest.
+- K4 (dispatch model owner): a block with an unneeded missing reading held back by minimum runtime reads as records missing rather than naming the runtime (same rule as the window assessment).
+- K5: no test for the plain wording of battery, capability-margin and transition-only causes.
+
