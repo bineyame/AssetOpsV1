@@ -15,7 +15,8 @@ Executes the committed specification `backend/conversions/s4-finding-cases-v1.js
   precedent);
 - one ordinary-path case, `F01-gateway` (Architect Q6): a registered KOBO-001
   Lab run (`kobo-mini-grid-prolonged` v2 on `mini-grid` v3, roles-2, published
-  through `registered-kobo-publication` v3) on 2026-10-04, sealed by the durable
+  through `registered-kobo-publication` v3) on 2026-10-02 (template minimum
+  runtime; the Lab refuses the 0-minute setup control), sealed by the durable
   registered gateway (epoch `s4-gateway-epoch-1`) and delivered over direct TLS,
   exactly as `tools/s3_dispatch_cases.py` does; then `process-jobs` and
   `match-findings`;
@@ -65,7 +66,9 @@ DEMO_CONFIG = "backend/conversions/kobo-001-s3-dispatch-demo-config.json"
 ASSESS = ("-m", "assetops_backend.analytics.assess_dispatch")
 EPOCH_PREFIX = "s4-fixture-"
 GATEWAY_EPOCH = "s4-gateway-epoch-1"
-GATEWAY_DAY = "04"  # judged under the 10-03 setup controls; no fixture case uses 10-03..10-05
+GATEWAY_DAY = "02"  # roles-2 day before the 10-03 setup controls: the Lab refuses a 0-minute generator
+# minimum runtime (LIFECYCLE_TIMING_NOT_ALIGNED: mini-grid v3 needs a positive multiple of the 5-minute step),
+# and the setup controls set it to 0 from 10-03. Run last, so no fixture case sees it.
 MODEL = {"profile_id": "mini-grid", "profile_version": 3}
 PUBLICATION = {"profile_id": "registered-kobo-publication", "profile_version": 3}
 SCENARIO = ("kobo-mini-grid-prolonged", 2)
