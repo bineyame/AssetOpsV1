@@ -1,4 +1,4 @@
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 
 import { Badge, DataTable } from "../ui";
 import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape } from "./componentIcons";
@@ -1148,12 +1148,15 @@ export function SiteSldPrimary({
   boundDevices,
   headingId,
   selection = null,
+  strip = null,
 }: {
   site: SiteDetailReadModel;
   boundDevices: ReadonlySet<string> | null;
   headingId: string;
   /** V-01a round 2: drawn parts become toggles that choose by component ID. */
   selection?: SldSelection | null;
+  /** V-01a round 3: the in-context selected-part strip, below the drawing and outside its scroll area. */
+  strip?: ReactNode;
 }) {
   const view: SiteSldView = deriveSiteSldView(site);
   return (
@@ -1173,6 +1176,7 @@ export function SiteSldPrimary({
       ) : (
         <SldUnavailable reason={view.reason} />
       )}
+      {strip}
       <p>{SITE_SLD_INTRODUCTION}</p>
       {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
     </div>

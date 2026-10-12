@@ -47,6 +47,8 @@ import {
   type SignalMappingBasis,
 } from "./SiteConfiguration";
 import { ComponentTypeIcon } from "./componentIcons";
+import type { GatewayHealthClient } from "./gatewayHealthClient";
+import { GatewayStatusPanel, ReadinessEvidenceTable } from "./ReadinessOverview";
 import { SITE_SLD_HEADING_ID, SiteSldDetails, SiteSldPrimary } from "./SiteSingleLineDiagram";
 import type {
   BindingPublishOutcome,
@@ -67,6 +69,8 @@ export interface StoredFoundationViewsProps {
   onSelectAt: (at: string | null) => void;
   /** The address of a view, carrying the selected period. Built by the shell. */
   viewHref: (view: FoundationView) => string;
+  /** Performance › Dispatch for this Site (V-01a round 3 control-table link). */
+  dispatchHref?: string;
   /** The Site's Evidence address, where claim readiness lives. */
   evidenceHref: string;
   snapshotHref: string;
@@ -80,6 +84,8 @@ export interface StoredFoundationViewsProps {
   /** A part chosen earlier that this period does not declare; selection was cleared. */
   missingComponent?: string | null;
   onSelectComponent?: (componentId: string | null) => void;
+  /** The S2 central gateway-contact read, composed on Readiness (V-01a round 3). */
+  gatewayHealth?: GatewayHealthClient;
   /** The operator Site tab row, placed under the page header. */
   tabs?: ReactNode;
   parentTrail: (siteId: string) => Crumb[];
@@ -135,17 +141,18 @@ export function StoredFoundationViews(props: StoredFoundationViewsProps) {
           the selection was cleared. No other part was chosen in its place.
         </p>
       ) : null}
-      <SelectedPartPanel {...props} site={site} configuration={configuration} />
       {view === "model" ? (
         <SiteModelView {...props} site={site} configuration={configuration} />
       ) : view === "sld" ? (
         <SldView {...props} site={site} configuration={configuration} />
       ) : (
-        <ReadinessView {...props} />
+        <ReadinessView {...props} site={site} configuration={configuration} />
       )}
     </div>
   );
 }
+
+const READINESS_ADVANCED = "readiness-advanced";
 
 interface ViewProps extends StoredFoundationViewsProps {
   site: SiteDetailReadModel;
@@ -187,17 +194,27 @@ function SiteModelView(props: ViewProps) {
           </p>
         </Panel>
       )}
-      <div className="panel-pair">
+      <div className="panel-pair panel-pair--balanced">
         <ConfiguredTopologyPanel
           site={props.site}
           sldHref={viewHref("sld")}
-          selection={{ selected: props.selectedComponent ?? null, onSelect: props.onSelectComponent }}
+          selection={{
+            selected: props.selectedComponent ?? null,
+            onSelect: props.onSelectComponent,
+            controls: stripId("model"),
+          }}
+          strip={<SelectedPartStrip {...props} scope="model" />}
         />
-        <IdentityPanel foundation={foundation} configuration={configuration} />
+        <IdentityPanel foundation={foundation} configuration={configuration} site={props.site} />
       </div>
-      <FoundationControlsPanel foundation={foundation} versions={versions} onPublish={onPublish} />
-      <Panel heading="Record and inventory details" headingId="foundation-details-heading">
-        <p>Kept for audit. Open a section to see its records.</p>
+      <FoundationControlsPanel
+        foundation={foundation}
+        versions={versions}
+        onPublish={onPublish}
+        dispatchHref={props.dispatchHref}
+      />
+      <Disclosure name="foundation-advanced" summary="Advanced details — Foundation records">
+        <p>Record IDs, the import path and digest, raw component and property tables, and control assumptions, kept for audit.</p>
         <FoundationRecordDetails foundation={foundation} versions={versions} />
         <Disclosure name="foundation-summary" summary="Configuration document summary">
           <p>{configuration.foundationSummary}</p>
@@ -211,7 +228,7 @@ function SiteModelView(props: ViewProps) {
           <SiteControlsTable section={configuration.siteControls} />
           <SiteControlAssumptions section={configuration.controlAssumptions} />
         </Disclosure>
-      </Panel>
+      </Disclosure>
     </>
   );
 }
@@ -270,6 +287,8 @@ function topologyCards(site: SiteDetailReadModel, configuration: SiteConfigurati
 interface PartSelection {
   selected: string | null;
   onSelect?: (componentId: string | null) => void;
+  /** The id of the selected-part strip region this choice updates. */
+  controls?: string;
 }
 
 /**
@@ -292,6 +311,7 @@ function PartChoice({
       type="button"
       className="part-choice"
       aria-pressed={pressed}
+      aria-controls={selection.controls}
       data-part-choice={componentId}
       onClick={() => selection.onSelect?.(pressed ? null : componentId)}
     >
@@ -334,10 +354,12 @@ function ConfiguredTopologyPanel({
   site,
   sldHref,
   selection,
+  strip,
 }: {
   site: SiteDetailReadModel;
   sldHref: string;
   selection: PartSelection;
+  strip?: ReactNode;
 }) {
   const configuration = deriveSiteConfigurationView(site);
   const cards = topologyCards(site, configuration);
@@ -366,42 +388,80 @@ function ConfiguredTopologyPanel({
           <TopologyCards cards={cards.loads} selection={selection} />
         </div>
       )}
+      {strip}
     </Panel>
   );
 }
 
+/** The named loads and the first critical-load member, from stored records only. */
+export function loadFacts(foundation: FoundationReadModel, site: SiteDetailReadModel) {
+  const assetNames = new Map(foundation.assets.map((asset) => [asset.asset_code, asset.display_name]));
+  const componentNames = new Map(site.foundation.components.map((c) => [c.component_id, c.display_name]));
+  const nameOf = (code: string) => assetNames.get(code) ?? componentNames.get(code) ?? code;
+  const members = foundation.controls.critical_load_priority.members ?? [];
+  return {
+    firstCritical: members.length === 0 ? null : nameOf(members[0]),
+    criticalOrder: members.map(nameOf),
+    loads: site.foundation.components
+      .filter((component) => component.component_type === "LOAD")
+      .map((component) => component.display_name),
+  };
+}
+
+export const PRODUCTIVE_USE_NOT_DECLARED = "Not declared";
+export const FINANCIAL_ASSUMPTIONS_NOT_AVAILABLE = "Financial assumptions not available here";
+export const CRITICAL_LOAD_NOT_CONFIGURED = "Critical-load priority not configured";
+
 function IdentityPanel({
   foundation,
   configuration,
+  site,
 }: {
   foundation: FoundationReadModel;
   configuration: SiteConfigurationView;
+  site: SiteDetailReadModel;
 }) {
-  const names = new Map(foundation.assets.map((asset) => [asset.asset_code, asset.display_name ?? asset.asset_code]));
-  const critical = foundation.controls.critical_load_priority;
+  const facts = loadFacts(foundation, site);
   return (
     <Panel heading="Identity & operating obligations" headingId="foundation-identity-heading">
       <FactList>
-        <Fact term="Site code">{foundation.site.site_code}</Fact>
-        <Fact term="Name">{configuration.displayName}</Fact>
+        <Fact term="Site identity">{`${configuration.displayName} · ${foundation.site.site_code}`}</Fact>
         <Fact term="Archetype">{configuration.siteType}</Fact>
         <Fact term="Location">{configuration.location}</Fact>
         <Fact term="Timezone">{configuration.timezone}</Fact>
         <Fact term="Critical-load priority">
-          {critical.members === undefined || critical.members.length === 0
-            ? "Not configured in this Foundation"
-            : critical.members.map((code) => names.get(code) ?? code).join(" → ")}
+          {facts.firstCritical === null ? (
+            <span data-critical-load="not-configured">{CRITICAL_LOAD_NOT_CONFIGURED}</span>
+          ) : (
+            <span data-critical-load="configured">
+              First in critical-load priority: <strong>{facts.firstCritical}</strong>
+              {facts.criticalOrder.length > 1 ? (
+                <small className="muted"> Order: {facts.criticalOrder.join(" → ")}. An order, not a service designation.</small>
+              ) : null}
+            </span>
+          )}
         </Fact>
-        <Fact term="Lifecycle status">
-          <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>
+        <Fact term="Configured loads">
+          <span data-configured-loads="">{facts.loads.length === 0 ? "No load declared" : facts.loads.join(", ")}</span>
+        </Fact>
+        <Fact term="Productive-use designation">
+          <span className="not-available-yet" data-productive-use="not-declared">
+            {PRODUCTIVE_USE_NOT_DECLARED}
+          </span>
         </Fact>
         <Fact term="Evidence mode">
           <Badge tone="provenance">{configuration.sourceMode}</Badge>
+        </Fact>
+        <Fact term="Lifecycle status">
+          <Badge tone="lifecycle">{configuration.lifecycleStatus}</Badge>
         </Fact>
         <Fact term="Configuration origin">
           <Badge tone="origin">{configuration.configurationOrigin}</Badge>
         </Fact>
       </FactList>
+      <p className="not-available-yet" data-financial-assumptions="not-available">
+        {FINANCIAL_ASSUMPTIONS_NOT_AVAILABLE}. Physical ratings here are not financial assumptions.
+      </p>
     </Panel>
   );
 }
@@ -436,16 +496,30 @@ function SldView(props: ViewProps) {
               ? null
               : { selected: props.selectedComponent ?? null, onSelect: props.onSelectComponent }
           }
+          strip={<SelectedPartStrip {...props} scope="sld" />}
         />
+        <p className="not-available-yet" data-sld-missing="">
+          {SLD_NOT_DECLARED_NOTE} <Link to={props.evidenceHref}>Site Evidence →</Link>
+        </p>
       </Panel>
       <ConfiguredPartsPanel
         foundation={foundation}
         site={site}
         configuration={configuration}
-        selection={{ selected: props.selectedComponent ?? null, onSelect: props.onSelectComponent }}
+        selection={{
+          selected: props.selectedComponent ?? null,
+          onSelect: props.onSelectComponent,
+          controls: stripId("sld"),
+        }}
       />
-      <Panel heading="Diagram detail" headingId="foundation-sld-detail-heading">
-        <p>The same configuration in rows, kept for audit.</p>
+      <Disclosure name="sld-advanced" summary="Advanced details — diagram records">
+        <p>
+          The same configuration in rows, kept for audit: each part&apos;s channels, topology node and connection
+          IDs, devices and the mapping basis.
+        </p>
+        <Disclosure name="sld-part-channels" summary="Channels of each part">
+          <PartChannelsTable foundation={foundation} site={site} configuration={configuration} />
+        </Disclosure>
         <Disclosure name="sld-contents" summary="Diagram contents and open review questions">
           <SiteSldDetails site={site} boundDevices={boundDevices} />
         </Disclosure>
@@ -457,10 +531,13 @@ function SldView(props: ViewProps) {
           <SiteFoundationDevices section={configuration.devices} />
           <SiteSignalMappings section={configuration.signalMappings} basis={basis} />
         </Disclosure>
-      </Panel>
+      </Disclosure>
     </>
   );
 }
+
+export const SLD_NOT_DECLARED_NOTE =
+  "Protection and meter positions are not declared in this Foundation topology; monitoring links and reporting status are not assessed on this diagram. See Site Evidence for reported records.";
 
 /**
  * A part's channels for the selected period: bound channels whose binding names
@@ -494,41 +571,73 @@ function PartChannelList({ bound, missing }: ReturnType<typeof partChannels>) {
   );
 }
 
-/** The chosen part, on every view, with its channels for the period shown. */
-function SelectedPartPanel(props: ViewProps) {
-  const { foundation, site, configuration, selectedComponent, onSelectComponent } = props;
-  if (!selectedComponent) return null;
-  const component = configuration.components.find((c) => c.componentId === selectedComponent);
-  if (component === undefined) return null;
-  const channels = partChannels(foundation, site, component.componentId);
+function stripId(scope: "model" | "sld"): string {
+  return `selected-part-strip-${scope}`;
+}
+
+function channelCounts({ bound, missing }: ReturnType<typeof partChannels>): string {
+  if (bound.length === 0 && missing.length === 0) return "No channel declared";
+  return `${bound.length} bound; ${missing.length} not bound`;
+}
+
+/**
+ * The chosen part beside its drawing (V-01a round 3, item 4): name, declared
+ * type and rating, its bound and unbound channel counts for the period shown,
+ * Clear, and the full channel list behind an Advanced disclosure. The region
+ * is always present and polite, so a changed selection is announced without
+ * moving focus.
+ */
+function SelectedPartStrip(props: ViewProps & { scope: "model" | "sld" }) {
+  const { foundation, site, configuration, selectedComponent, onSelectComponent, scope } = props;
+  const component =
+    selectedComponent == null ? undefined : configuration.components.find((c) => c.componentId === selectedComponent);
+  const channels = component === undefined ? null : partChannels(foundation, site, component.componentId);
+  const clear = () => {
+    if (component === undefined || onSelectComponent === undefined) return;
+    const id = component.componentId;
+    onSelectComponent(null);
+    // Return focus to the part's own choice, a stable control that stays on the page.
+    window.setTimeout(() => {
+      document.querySelector<HTMLElement>(`[data-part-choice="${id}"]`)?.focus();
+    }, 0);
+  };
   return (
-    <Panel
-      heading={`Selected part: ${component.displayName}`}
-      headingId="foundation-selected-part-heading"
-      description={`Configuration for Foundation v${foundation.revision.version}; channels from the binding set in effect for this period. Not readings.`}
-    >
-      <div className="selected-part" data-selected-part={component.componentId}>
-        <FactList>
-          <Fact term="Component ID">
-            <code>{component.componentId}</code>
-          </Fact>
-          <Fact term="Type">{component.componentType}</Fact>
-          <Fact term="Declared rating">{component.rating}</Fact>
-          <Fact term="Channels">
-            <PartChannelList {...channels} />
-          </Fact>
-        </FactList>
-        {onSelectComponent ? (
-          <button type="button" className="part-clear" onClick={() => onSelectComponent(null)}>
-            Clear selected part
-          </button>
-        ) : null}
-      </div>
-    </Panel>
+    <div id={stripId(scope)} className="part-strip-region" aria-live="polite" data-part-strip-region={scope}>
+      {component === undefined || channels === null ? null : (
+        <div
+          className="part-strip"
+          role="group"
+          aria-label={`Selected part: ${component.displayName}`}
+          data-selected-part={component.componentId}
+        >
+          <div className="part-strip__summary">
+            <strong>{`Selected: ${component.displayName}`}</strong>
+            <span>{`${component.componentType} · ${component.rating}`}</span>
+            <span data-part-channel-counts="">{channelCounts(channels)}</span>
+            <span className="muted">{`Foundation v${foundation.revision.version}; configuration, not readings`}</span>
+            {onSelectComponent ? (
+              <button type="button" className="part-clear" onClick={clear}>
+                Clear selected part
+              </button>
+            ) : null}
+          </div>
+          <Disclosure name={`selected-part-channels-${scope}`} summary="Advanced details — selected part channels">
+            <FactList>
+              <Fact term="Component ID">
+                <code>{component.componentId}</code>
+              </Fact>
+              <Fact term="Channels">
+                <PartChannelList {...channels} />
+              </Fact>
+            </FactList>
+          </Disclosure>
+        </div>
+      )}
+    </div>
   );
 }
 
-/** What each configured part is, and which of its channels are bound. */
+/** What each configured part is, and how many of its channels are bound. */
 function ConfiguredPartsPanel({
   foundation,
   site,
@@ -544,10 +653,9 @@ function ConfiguredPartsPanel({
     <Panel heading="What each configured part is" headingId="foundation-sld-parts-heading">
       <DataTable labelledBy="foundation-sld-parts-heading">
         <caption>
-          Each declared component, its declared rating, and its channels. A bound channel describes this
-          part: the binding set shown names it as the asset. An unbound channel (marked Not bound) is only
-          one declared on a device attached to this part; it has no published meaning and is not a report
-          from the part. Configuration, not readings. Choose a part to keep it selected across views.
+          Each declared component, its declared rating and how many of its channels are bound for the period
+          shown. Configuration, not readings. Choose a part to see it beside the drawing; the channel list is under
+          Advanced details.
         </caption>
         <thead>
           <tr>
@@ -569,9 +677,7 @@ function ConfiguredPartsPanel({
               </th>
               <td>{component.componentType}</td>
               <td>{component.rating}</td>
-              <td>
-                <PartChannelList {...partChannels(foundation, site, component.componentId)} />
-              </td>
+              <td>{channelCounts(partChannels(foundation, site, component.componentId))}</td>
             </tr>
           ))}
         </tbody>
@@ -580,21 +686,95 @@ function ConfiguredPartsPanel({
   );
 }
 
+/** Every part's bound and unbound channels, for audit under Advanced details. */
+function PartChannelsTable({
+  foundation,
+  site,
+  configuration,
+}: {
+  foundation: FoundationReadModel;
+  site: SiteDetailReadModel;
+  configuration: SiteConfigurationView;
+}) {
+  return (
+    <DataTable labelledBy="foundation-sld-parts-heading">
+      <caption>
+        A bound channel describes this part: the binding set shown names it as the asset. An unbound channel
+        (marked Not bound) is only one declared on a device attached to this part; it has no published meaning and
+        is not a report from the part.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Part</th>
+          <th scope="col">Channels</th>
+        </tr>
+      </thead>
+      <tbody>
+        {configuration.components.map((component) => (
+          <tr key={component.componentId} data-part-channels={component.componentId}>
+            <th scope="row">{component.displayName}</th>
+            <td>
+              <PartChannelList {...partChannels(foundation, site, component.componentId)} />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </DataTable>
+  );
+}
+
 /* Readiness ------------------------------------------------------------------ */
 
-function ReadinessView(props: StoredFoundationViewsProps) {
-  const { foundation, viewHref, snapshotHref, onPublishBindings, evidenceHref } = props;
+function ReadinessView(props: ViewProps) {
+  const { foundation, viewHref, snapshotHref, onPublishBindings, evidenceHref, configuration } = props;
+  const reviewBindings = () => {
+    const advanced = document.querySelector<HTMLDetailsElement>(`details[data-disclosure="${READINESS_ADVANCED}"]`);
+    if (advanced === null) return;
+    advanced.open = true;
+    const control =
+      advanced.querySelector<HTMLElement>('form[aria-label="Remove a binding"] select') ??
+      advanced.querySelector<HTMLElement>("summary");
+    control?.focus();
+    control?.scrollIntoView?.({ block: "center" });
+  };
+  const selected =
+    props.selectedComponent == null
+      ? undefined
+      : configuration.components.find((c) => c.componentId === props.selectedComponent);
   return (
     <>
       {strip(props, <Link to={viewHref("sld")}>Single line diagram →</Link>)}
+      {selected === undefined ? null : (
+        <p className="part-chip" data-selected-part-chip={selected.componentId}>
+          Selected part: <strong>{selected.displayName}</strong> · details beside the part in{" "}
+          <Link to={viewHref("model")}>Site model</Link> or <Link to={viewHref("sld")}>Single line diagram</Link>
+        </p>
+      )}
       <ReadinessVerdictPanel foundation={foundation} />
-      <RoleCoveragePanel foundation={foundation} />
-      <SignalBindingsPanel foundation={foundation} onPublishBindings={onPublishBindings} />
-      <RegisteredSourcesPanel foundation={foundation} evidenceHref={evidenceHref} />
-      <AcquisitionDetailsPanel foundation={foundation} snapshotHref={snapshotHref} />
+      <ReadinessEvidenceTable
+        foundation={foundation}
+        links={{ model: viewHref("model"), sld: viewHref("sld"), evidence: evidenceHref }}
+        onReviewBindings={reviewBindings}
+      />
+      <GatewayStatusPanel
+        foundation={foundation}
+        siteId={configuration.siteId}
+        gatewayHealth={props.gatewayHealth}
+        evidenceHref={evidenceHref}
+      />
+      <Disclosure name={READINESS_ADVANCED} summary="Advanced details — roles, channels and records">
+        <p>
+          The full role coverage, every binding and its IDs, the binding change form, source registrations and
+          the pinned acquisition snapshot. Kept for configuration work and audit.
+        </p>
+        <RoleCoveragePanel foundation={foundation} />
+        <SignalBindingsPanel foundation={foundation} onPublishBindings={onPublishBindings} />
+        <RegisteredSourcesPanel foundation={foundation} evidenceHref={evidenceHref} />
+        <AcquisitionDetailsPanel foundation={foundation} snapshotHref={snapshotHref} />
+      </Disclosure>
       <p className="note" data-readiness-scope="">
-        This view assesses configuration only: roles, bindings, Foundation gaps and registrations.{" "}
-        {foundation.evidence.statement} Claim readiness, accepted evidence and diagnostics are on{" "}
+        This view assesses configuration: roles, bindings, Foundation gaps and registrations. Gateway status reports
+        central server contact only. Claim readiness, accepted evidence and source diagnostics are on{" "}
         <Link to={evidenceHref}>Site Evidence</Link>.
       </p>
     </>

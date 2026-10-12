@@ -21,6 +21,7 @@ import type {
   SignalBinding,
 } from "./siteFoundationClient";
 import { formatInstant, utcInstantFromLocal } from "./FoundationRevisionPanel";
+import { ReadinessCards } from "./ReadinessOverview";
 
 export const FOUNDATION_READINESS_HEADING_ID = "foundation-readiness-heading";
 export const FOUNDATION_ROLES_HEADING_ID = "foundation-roles-heading";
@@ -135,17 +136,14 @@ function verdictSentence(readiness: ConfigurationReadiness): string {
  * counts of configuration, never of readings.
  */
 export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationReadModel }) {
-  const { readiness, bindings } = foundation;
-  const required = readiness.roles.filter((role) => role.required);
-  const configured = required.filter((role) => role.status === "CONFIGURED").length;
+  const { readiness } = foundation;
   const missing = readiness.roles.filter((role) => role.required && role.status !== "CONFIGURED");
-  const unboundChannels = readiness.channels.filter((channel) => channel.status !== "BOUND").length;
 
   return (
     <Panel
       heading="Configuration readiness"
       headingId={FOUNDATION_READINESS_HEADING_ID}
-      description="Configuration readiness is distinct from claim readiness and from operational status, which are not assessed here."
+      description="Configuration readiness is distinct from claim readiness, which is on Site Evidence, and from gateway contact, which is reported separately below."
     >
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
@@ -153,25 +151,8 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
         </p>
         <p className="verdict__sentence">{verdictSentence(readiness)}</p>
       </div>
+      <ReadinessCards foundation={foundation} />
       <ReadinessLegend />
-      <dl className="metric-row">
-        <div className="metric">
-          <dt>Required roles configured</dt>
-          <dd>{`${configured} of ${required.length}`}</dd>
-        </div>
-        <div className="metric">
-          <dt>Foundation gaps</dt>
-          <dd>{readiness.foundation_gaps.length}</dd>
-        </div>
-        <div className="metric">
-          <dt>Binding set</dt>
-          <dd>{bindings.binding_set === null ? "None" : `v${bindings.binding_set.version}`}</dd>
-        </div>
-        <div className="metric">
-          <dt>Declared channels not bound</dt>
-          <dd>{unboundChannels}</dd>
-        </div>
-      </dl>
       {missing.length > 0 ? (
         <div data-readiness-missing="">
           <h3 className="subsection__heading">What is missing</h3>

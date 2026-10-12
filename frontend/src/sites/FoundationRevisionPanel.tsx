@@ -257,10 +257,38 @@ export interface FoundationControlsPanelProps {
   foundation: FoundationReadModel;
   versions: FoundationVersionsReadModel | null;
   onPublish: (assetCode: string, value: number, validFrom: string) => Promise<PublishOutcome>;
+  /** Performance › Dispatch, a separate selected-window assessment (V-01a round 3). */
+  dispatchHref?: string;
+}
+
+/**
+ * What each mock "Evidence / change" position can truthfully offer
+ * (D-2026-10-12-v01a-round3-readiness-and-organization item 3): the published
+ * version, the Dispatch route, or a named missing destination. No dummy link.
+ */
+function evidenceOrChange(key: string, version: number, dispatchHref: string | undefined) {
+  switch (key) {
+    case "reserve":
+    case "critical":
+      return <span data-control-link="published">{`Published configuration · Foundation v${version}`}</span>;
+    case "start-stop":
+      return <span data-control-link="no-change-record" className="not-available-yet">No proposed-change record here</span>;
+    case "runtime":
+      return <span data-control-link="no-constraint-evidence" className="not-available-yet">No linked constraint evidence</span>;
+    default:
+      return dispatchHref === undefined ? (
+        <span data-control-link="no-dispatch">Dispatch not available here</span>
+      ) : (
+        <span data-control-link="dispatch">
+          <Link to={dispatchHref}>Open Dispatch; choose an assessed day</Link>
+          <small className="muted"> A separate selected-window assessment, not proof of this control&apos;s effect.</small>
+        </span>
+      );
+  }
 }
 
 /** The time-valid controls of the version shown, with the one reserve change. */
-export function FoundationControlsPanel({ foundation, versions, onPublish }: FoundationControlsPanelProps) {
+export function FoundationControlsPanel({ foundation, versions, onPublish, dispatchHref }: FoundationControlsPanelProps) {
   const { revision, controls } = foundation;
   const { current } = selectablePeriods(versions);
   const reserve = controls.battery_reserve;
@@ -282,22 +310,24 @@ export function FoundationControlsPanel({ foundation, versions, onPublish }: Fou
             <th scope="col">Control</th>
             <th scope="col">Configured value</th>
             <th scope="col">Authority</th>
+            <th scope="col">Evidence / change</th>
           </tr>
         </thead>
         <tbody>
           {(
             [
-              ["Battery reserve", reserve],
-              ["Generator start / stop", controls.generator_start_stop],
-              ["Minimum generator runtime", controls.generator_minimum_runtime],
-              ["Source priority (read-only)", controls.source_priority],
-              ["Critical-load priority (read-only)", controls.critical_load_priority],
+              ["Battery reserve", reserve, "reserve"],
+              ["Generator start / stop", controls.generator_start_stop, "start-stop"],
+              ["Minimum generator runtime", controls.generator_minimum_runtime, "runtime"],
+              ["Source priority (read-only)", controls.source_priority, "source"],
+              ["Critical-load priority (read-only)", controls.critical_load_priority, "critical"],
             ] as const
-          ).map(([label, control]) => (
+          ).map(([label, control, key]) => (
             <tr key={label}>
               <th scope="row">{label}</th>
               <td data-control-state={control.state}>{controlValue(control, assetNames)}</td>
               <td>{control.authority ?? "None"}</td>
+              <td>{evidenceOrChange(key, revision.version, dispatchHref)}</td>
             </tr>
           ))}
         </tbody>
@@ -334,9 +364,9 @@ export function RegisteredSourcesPanel({
     <Panel heading="Registered gateway and sources" headingId="foundation-sources-heading">
       {foundation.gateways.map((gateway) => (
         <p key={gateway.gateway_id}>
-          Gateway <code>{gateway.gateway_external_id}</code>: registered. Whether it has made
-          contact or sent data is not assessed here
-          {evidenceHref === undefined ? "." : <>; see <Link to={evidenceHref}>Site Evidence</Link>.</>}
+          Gateway <code>{gateway.gateway_external_id}</code>: registered. Registration is configuration;
+          central contact is under Gateway status, and whether data is accepted is on{" "}
+          {evidenceHref === undefined ? "Site Evidence." : <><Link to={evidenceHref}>Site Evidence</Link>.</>}
         </p>
       ))}
       <Disclosure name="foundation-sources" summary={`Registered sources (${foundation.sources.length})`}>

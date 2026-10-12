@@ -54,7 +54,7 @@ const ENABLED = featureFlagsWith(true);
  * "Setup details" disclosure. No fact was dropped; `Last analysed` was an
  * all-dash column and is explained beside the table instead.
  */
-const SITES_INDEX_COLUMNS = ["Site", "Type", "Mode", "Setup details", "Actions"];
+const SITES_INDEX_COLUMNS = ["Site", "Type", "Mode", "Operating view", "Setup details", "Actions"];
 
 /**
  * The rendered Site tabs, written out rather than imported

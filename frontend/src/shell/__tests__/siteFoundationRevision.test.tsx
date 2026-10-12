@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -18,6 +18,9 @@ import type {
 } from "../../sites/siteFoundationClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import type { SiteOverviewClient } from "../../sites/siteOverviewClient";
+import type { EvidenceRead } from "../../sites/evidenceRead";
+import type { GatewayHealth, GatewayHealthClient, GatewayHealthEntry } from "../../sites/gatewayHealthClient";
+import { createSiteEvidenceClient } from "../../sites/siteEvidenceClient";
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
@@ -319,7 +322,7 @@ describe("the persisted Foundation version", () => {
     await settledScreen();
     expect(screen.getByText("No signal binding set is in effect for the period shown.")).toBeInTheDocument();
     expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
-    expect(screen.getByText(/registered\. Whether it has made contact or sent data is not assessed here/)).toBeInTheDocument();
+    expect(screen.getByText(/registered\. Registration is configuration; central contact is under Gateway status/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/awaiting credentials|not sending data|no accepted evidence|no evidence has been accepted|nothing is reporting|accepted against/i);
     expect(document.body.textContent).toMatch(/Operational status is not assessed here/);
     expect(screen.getAllByRole("link", { name: "Site Evidence" }).length).toBeGreaterThan(0);
@@ -606,9 +609,9 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       const scope = readiness.querySelector("[data-readiness-colour-scope]")?.textContent ?? "";
       expect(scope).toMatch(/configuration of the selected Foundation version only/);
       expect(scope).toMatch(/does not mean a device is connected, records have arrived, Evidence is accepted/);
-      // PRE-S3-04 separation sentence survives.
+      // PRE-S3-04 separation sentence survives (round 3: gateway contact is now a separate panel).
       expect(readiness.textContent).toContain(
-        "Configuration readiness is distinct from claim readiness and from operational status, which are not assessed here.",
+        "Configuration readiness is distinct from claim readiness, which is on Site Evidence, and from gateway contact, which is reported separately below.",
       );
       // A publication/version badge is never coloured as health.
       const version = within(panel("Signal bindings")).getByText(/^Binding v\d+$/);
@@ -985,7 +988,7 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
       "Configured topology",
       "Identity & operating obligations",
       "Time-valid control configuration",
-      "Record and inventory details",
+      "Advanced details — Foundation records",
     ]);
     expect(order[0]).toBe("Foundation version");
     const controls = screen.getByRole("heading", { name: "Time-valid control configuration" }).closest("section");
@@ -1010,7 +1013,7 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
       "Foundation version",
       "Kalangala Mini-Grid · configured single line diagram",
       "What each configured part is",
-      "Diagram detail",
+      "Advanced details — diagram records",
     ]);
   });
 
@@ -1024,11 +1027,16 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     const parts = panel("What each configured part is");
     expect(within(parts).getByRole("columnheader", { name: "Channels" })).toBeInTheDocument();
     expect(within(parts).queryByRole("columnheader", { name: "Bound channels" })).toBeNull();
-    const caption = parts.querySelector("caption")?.textContent ?? "";
+    // V-01a round 3: the plain table counts channels; the full split is under Advanced details.
+    expect(within(parts).getByRole("row", { name: /Diesel generator/ }).textContent).toMatch(/\d+ bound; \d+ not bound/);
+    expect(parts.querySelector('[data-part-channel]')).toBeNull();
+    const advanced = document.querySelector('[data-disclosure="sld-part-channels"]') as HTMLElement;
+    expect(advanced.closest('[data-disclosure="sld-advanced"]')).not.toBeNull();
+    const caption = advanced.querySelector("caption")?.textContent ?? "";
     expect(caption).toMatch(/bound channel describes this part/i);
     expect(caption).toMatch(/unbound channel .* attached to this part/i);
-    const bound = Array.from(parts.querySelectorAll('[data-part-channel="bound"]'));
-    const unbound = Array.from(parts.querySelectorAll('[data-part-channel="unbound"]'));
+    const bound = Array.from(advanced.querySelectorAll('[data-part-channel="bound"]'));
+    const unbound = Array.from(advanced.querySelectorAll('[data-part-channel="unbound"]'));
     expect(bound.length).toBeGreaterThan(0);
     expect(unbound.length).toBeGreaterThan(0);
     for (const item of unbound) {
@@ -1104,7 +1112,9 @@ describe("V-01a round 2: a chosen part stays chosen by component ID", () => {
     fireEvent.click(within(nav).getByRole("link", { name: /Readiness/ }));
     await settledScreen();
     expect(location()).toBe(`/sites/${ID}/foundation/readiness?at=${pastAt}&component=c-storage`);
-    expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
+    // V-01a round 3: Readiness keeps only a compact chip back to the part's drawing.
+    expect(selectedPanel()).toBeNull();
+    expect(document.querySelector("[data-selected-part-chip]")?.getAttribute("data-selected-part-chip")).toBe("c-storage");
     fireEvent.click(within(screen.getByRole("navigation", { name: "Foundation views" })).getAllByRole("link")[0]);
     await settledScreen();
     expect(location()).toBe(`/sites/${ID}/foundation?at=${pastAt}&component=c-storage`);
@@ -1122,14 +1132,14 @@ describe("V-01a round 2: a chosen part stays chosen by component ID", () => {
   });
 
   it("keeps the part across a period change while it is declared, with that period's channels", async () => {
-    renderAt(`/sites/${ID}/foundation/readiness?at=${pastAt}&component=c-storage`, fakeFoundation(withSoc));
+    renderAt(`/sites/${ID}/foundation/sld?at=${pastAt}&component=c-storage`, fakeFoundation(withSoc));
     await settledScreen();
     expect(selectedPanel()?.querySelector('[data-part-channel="bound"]')?.textContent).toContain("state-of-charge");
     fireEvent.change(screen.getByRole("combobox", { name: "Foundation period" }), {
       target: { value: FUTURE.valid_from },
     });
     await settledScreen();
-    expect(location()).toBe(`/sites/${ID}/foundation/readiness?at=${futureAt}&component=c-storage`);
+    expect(location()).toBe(`/sites/${ID}/foundation/sld?at=${futureAt}&component=c-storage`);
     expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
     // The binding changed, the identity did not: no bound channel in v3.
     expect(selectedPanel()?.querySelector('[data-part-channel="bound"]')).toBeNull();
@@ -1267,5 +1277,424 @@ describe("V-01a round 2: the configured drawing in the bus-bar grammar, with typ
         );
       });
     }
+  });
+});
+
+// --- V-01a round 3 (D-2026-10-12-v01a-round3-readiness-and-organization) ------------
+
+const HEALTH_READ_AT = "2026-10-12T09:15:00Z";
+
+function gatewayEntry(over: Partial<GatewayHealthEntry> = {}): GatewayHealthEntry {
+  return {
+    gateway_id: "g1",
+    gateway_external_id: "edge-kobo-001",
+    mode: "SIMULATED",
+    registration: "ENABLED",
+    declared_cadence_seconds: 60,
+    status: "CURRENT",
+    status_basis: "SERVER_RECEIVED_AT",
+    last_server_contact: "2026-10-12T09:14:30Z",
+    diagnostic_id: "diag-0001",
+    gateway_observed_at: "2026-10-12T09:14:29Z",
+    observed_at_clock: "GATEWAY_REAL_UTC",
+    queue_count: 4,
+    oldest_queue_age_seconds: 12,
+    disk_pressure: "OK",
+    disk_pressure_provenance: "REPORTED_SIMULATED_GATEWAY",
+    clock_offset_ms: 120,
+    mapping_error_count: 0,
+    source_contacts: [
+      { source_id: "s1", source_external_id: "generator-controller", registration: "ENABLED", last_contact: "2026-10-12T09:14:00Z", contact_provenance: "OBSERVED_SIMULATED_REPORT" },
+    ],
+    ...over,
+  };
+}
+
+function healthOf(...gateways: GatewayHealthEntry[]): EvidenceRead<GatewayHealth> {
+  return {
+    status: "loaded",
+    value: { site_id: "site-uuid-1", read_at: HEALTH_READ_AT, read_at_clock: "SERVER_REAL_UTC", claim_scope: "GATEWAY_OPERATIONAL_REPORT", gateways },
+  };
+}
+
+function renderWithGateway(
+  path: string,
+  client: SiteFoundationClient,
+  health: EvidenceRead<GatewayHealth> | "pending",
+) {
+  const gatewayHealth: GatewayHealthClient = {
+    getGatewayHealth: vi.fn(() => (health === "pending" ? new Promise<never>(() => undefined) : Promise.resolve(health))),
+  };
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <App
+        flags={featureFlagsWith(false)}
+        siteDirectory={directory}
+        siteDetail={detail}
+        siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+        siteFoundation={client}
+        siteEvidence={{ ...createSiteEvidenceClient(), gatewayHealth }}
+      />
+      <Location />
+    </MemoryRouter>,
+  );
+}
+
+const READY = (): FoundationRead<FoundationReadModel> => ({
+  status: "loaded",
+  value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [])),
+});
+
+function withGaps(...gaps: FoundationGap[]) {
+  return (): FoundationRead<FoundationReadModel> => ({
+    status: "loaded",
+    value: foundation(PAST, { ...published([BATTERY_SOC, GENSET_POWER], [], gaps), configuration_gaps: gaps }),
+  });
+}
+
+const regionNamed = (name: string) => screen.getByRole("heading", { name }).closest("section") as HTMLElement;
+
+describe("V-01a round 3: Readiness leads with four configuration cards", () => {
+  const cardState = (key: string) =>
+    document.querySelector(`[data-readiness-card="${key}"]`)?.getAttribute("data-card-state");
+
+  it("shows Definition, Topology, Specifications and Controls in the mock's order, green when configured", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const cards = Array.from(document.querySelectorAll("[data-readiness-card]"));
+    expect(cards.map((card) => card.getAttribute("data-readiness-card"))).toEqual([
+      "definition",
+      "topology",
+      "specifications",
+      "controls",
+    ]);
+    for (const card of cards) {
+      expect(card.querySelector(".badge")?.textContent).toBe("Configured");
+      expect(card.querySelector(".badge")?.className).toContain("badge--configured");
+      expect(card.textContent).not.toMatch(/commissioned|healthy|online|reporting|(?<!not )field-verified/i);
+    }
+    expect(cards[2].textContent).toContain("declared, not field-verified");
+    // The cards come before the commissioning table and gateway panel.
+    const order = Array.from(screen.getByRole("main").querySelectorAll("h2")).map((h) => h.textContent);
+    expect(order.indexOf("Configuration readiness")).toBeLessThan(order.indexOf("Readiness and commissioning evidence"));
+    expect(order.indexOf("Readiness and commissioning evidence")).toBeLessThan(order.indexOf("Gateway status"));
+  });
+
+  it("turns only the category with a typed gap amber, by gap code", async () => {
+    renderWithGateway(
+      `/sites/${ID}/foundation/readiness`,
+      fakeFoundation(
+        withGaps(
+          { code: "COMPONENT_RATING_MISSING", subject: "c-genset", message: "Diesel generator declares no rating." },
+          { code: "SITE_CONTROL_MISSING", subject: "critical-load-priority", message: "The Site Control 'critical-load-priority' is not declared." },
+        ),
+      ),
+      healthOf(gatewayEntry()),
+    );
+    await settledScreen();
+    expect(cardState("definition")).toBe("CONFIGURED");
+    expect(cardState("topology")).toBe("CONFIGURED");
+    expect(cardState("specifications")).toBe("NEEDS_CONFIGURATION");
+    expect(cardState("controls")).toBe("NEEDS_CONFIGURATION");
+    const specifications = document.querySelector('[data-readiness-card="specifications"]') as HTMLElement;
+    expect(specifications.querySelector(".badge")?.className).toContain("badge--config-gap");
+    expect(specifications.textContent).toContain("Required ratings missing");
+    expect(document.querySelector('[data-readiness-card="controls"]')?.textContent).toContain("Controls need configuration");
+  });
+
+  it("says Unknown, neutral, on every card when no effective Foundation version resolves", async () => {
+    renderWithGateway(
+      `/sites/${ID}/foundation/readiness`,
+      fakeFoundation(withGaps({ code: "NO_EFFECTIVE_REVISION", subject: "foundation", message: "No Foundation revision is effective at this time." })),
+      healthOf(gatewayEntry()),
+    );
+    await settledScreen();
+    for (const key of ["definition", "topology", "specifications", "controls"]) {
+      expect(cardState(key)).toBe("UNKNOWN");
+      expect(document.querySelector(`[data-readiness-card="${key}"] .badge`)?.className).toContain("badge--neutral");
+    }
+  });
+});
+
+describe("V-01a round 3: the Readiness and commissioning evidence table", () => {
+  it("has the mock's columns with Next step, one row per area, and Not recorded confirmation throughout", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const table = regionNamed("Readiness and commissioning evidence");
+    expect(within(table).getAllByRole("columnheader").map((h) => h.textContent)).toEqual([
+      "Area",
+      "Declared",
+      "Confirmed",
+      "What is needed",
+      "Next step",
+    ]);
+    expect(within(table).queryByRole("columnheader", { name: "Owner" })).toBeNull();
+    const rows = Array.from(table.querySelectorAll("[data-readiness-row]"));
+    expect(rows.map((row) => row.getAttribute("data-readiness-row"))).toEqual([
+      "definition",
+      "topology",
+      "controls",
+      "roles",
+      "gateway",
+      "commissioning",
+    ]);
+    for (const row of rows) {
+      expect(row.querySelector("[data-confirmed]")?.textContent).toBe("Not recorded");
+      expect(row.querySelector("[data-confirmed] .badge")?.className).toContain("badge--neutral");
+      expect(row.textContent).toContain("Commissioning confirmation not recorded");
+      for (const cell of Array.from(row.querySelectorAll("td"))) expect(cell.textContent?.trim()).not.toMatch(/^[—-]$/);
+    }
+    expect(rows[0].textContent).toContain("Foundation v2 published");
+    expect(rows[2].textContent).toContain("Reserve 30%; priorities declared");
+    expect(rows[3].textContent).toContain("2 of 2 required roles configured");
+    expect(rows[4].textContent).toContain("Gateway registered (edge-kobo-001)");
+    expect(rows[5].textContent).toContain("No commissioning record available");
+    expect(within(rows[5] as HTMLElement).queryByRole("link")).toBeNull();
+    expect(within(rows[0] as HTMLElement).getByRole("link", { name: "Site model →" })).toBeInTheDocument();
+    expect(within(rows[4] as HTMLElement).getByRole("link", { name: "Site Evidence →" })).toBeInTheDocument();
+  });
+
+  it("lists the actual gaps and missing roles as what is needed", async () => {
+    const gap = { code: "AC_BUS_PATH_MISSING", subject: "n-load", message: "Node 'n-load' has no path to the AC bus." };
+    const incomplete = (): FoundationRead<FoundationReadModel> => ({
+      status: "loaded",
+      value: foundation(PAST, { ...published([GENSET_POWER], ["Battery state of charge"], [gap]), configuration_gaps: [gap] }),
+    });
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(incomplete), healthOf(gatewayEntry()));
+    await settledScreen();
+    const topology = document.querySelector('[data-readiness-row="topology"]') as HTMLElement;
+    expect(topology.textContent).toContain("Node 'n-load' has no path to the AC bus.");
+    expect(topology.textContent).toContain("topology incomplete");
+    const roles = document.querySelector('[data-readiness-row="roles"]') as HTMLElement;
+    expect(roles.textContent).toContain("1 of 2 required roles configured");
+    expect(roles.textContent).toContain("Not configured: Battery state of charge.");
+  });
+
+  it("keeps roles, channels and records behind one labelled Advanced disclosure, opened by Review or change bindings", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const advanced = document.querySelector('details[data-disclosure="readiness-advanced"]') as HTMLDetailsElement;
+    expect(advanced.open).toBe(false);
+    expect(advanced.querySelector("summary")?.textContent).toBe("Advanced details — roles, channels and records");
+    for (const heading of ["Role coverage", "Signal bindings", "Registered gateway and sources", "Acquisition details"]) {
+      expect(screen.getByRole("heading", { name: heading }).closest("details")).toBe(advanced);
+    }
+    expect(advanced.textContent).toContain("b-battery-soc");
+    expect(advanced.querySelector('form[aria-label="Remove a binding"]')).not.toBeNull();
+    // The plain layer names no binding ID.
+    const plain = regionNamed("Readiness and commissioning evidence");
+    expect(plain.textContent).not.toContain("b-battery-soc");
+    fireEvent.click(screen.getByRole("button", { name: "Review or change bindings" }));
+    expect(advanced.open).toBe(true);
+    expect(document.activeElement).toBe(advanced.querySelector('form[aria-label="Remove a binding"] select'));
+  });
+});
+
+describe("V-01a round 3: the bounded gateway status panel", () => {
+  const gateway = () => regionNamed("Gateway status");
+  const NOT_YET =
+    "Not available yet: uptime trend, expected-versus-delivered completeness, signal strength and firmware. No reviewed source for these fields.";
+
+  it("shows registration and central contact separately, with server times and the not-available-yet line", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const panel = gateway();
+    const entry = panel.querySelector("[data-gateway-status]") as HTMLElement;
+    expect(entry.getAttribute("data-gateway-status")).toBe("CURRENT");
+    expect(within(entry).getByText("Enabled")).toBeInTheDocument();
+    expect(entry.querySelector(".badge")?.textContent).toBe("Current");
+    expect(entry.querySelector(".badge")?.className).toContain("badge--neutral");
+    expect(panel.textContent).toContain("Read at 2026-10-12 09:15 UTC (server clock).");
+    expect(panel.textContent).toContain("2026-10-12 09:14 UTC");
+    expect(panel.textContent).toContain("not a live device connection, accepted readings or equipment condition");
+    expect(panel.textContent).toContain("Device connection not established here.");
+    expect(panel.textContent).toContain(NOT_YET);
+    expect(panel.textContent).not.toMatch(/Online|uptime \d|%|firmware v|signal strength:/i);
+    expect(within(panel).getByRole("link", { name: "Site Evidence →" })).toBeInTheDocument();
+    // Diagnostic records stay behind a closed Advanced disclosure.
+    const records = panel.querySelector('details[data-disclosure^="gateway-diagnostic"]') as HTMLDetailsElement;
+    expect(records.open).toBe(false);
+    expect(records.querySelector("summary")?.textContent).toBe("Advanced details — gateway diagnostic records");
+    expect(records.textContent).toContain("diag-0001");
+    expect(records.textContent).toContain("120 ms");
+  });
+
+  it("says Loading while the read is in flight", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), "pending");
+    await screen.findByRole("heading", { name: "Gateway status" });
+    expect(gateway().textContent).toContain("Loading the site's gateway contact.");
+  });
+
+  it("says Gateway contact unavailable on a failed read, never falling back to registration as contact", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), { status: "unavailable", message: null });
+    await settledScreen();
+    const panel = gateway();
+    expect(panel.querySelector("[data-gateway-panel-state]")?.getAttribute("data-gateway-panel-state")).toBe("unavailable");
+    expect(panel.textContent).toContain("Gateway contact unavailable.");
+    expect(panel.textContent).toContain("Registration is configuration and is not taken as contact.");
+    expect(panel.textContent).toContain("Device connection not established here.");
+    expect(panel.textContent).toContain(NOT_YET);
+    expect(panel.querySelector(".badge")).toBeNull();
+    expect(panel.textContent).not.toMatch(/\bCurrent\b|Online|Connected/);
+  });
+
+  it("says no gateway is registered when the read lists none", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf());
+    await settledScreen();
+    expect(gateway().querySelector("[data-gateway-panel-state]")?.getAttribute("data-gateway-panel-state")).toBe("none");
+    expect(gateway().textContent).toContain("No gateway is registered for this Site, so there is no central contact to report.");
+  });
+
+  it("says Contact unknown when no central diagnostic was received, and Stale when it is old", async () => {
+    const first = renderWithGateway(
+      `/sites/${ID}/foundation/readiness`,
+      fakeFoundation(READY),
+      healthOf(gatewayEntry({ status: "UNKNOWN", last_server_contact: null, diagnostic_id: null })),
+    );
+    await settledScreen();
+    expect(gateway().textContent).toContain("Contact unknown — no central diagnostic received");
+    expect(gateway().textContent).toContain("None received");
+    first.unmount();
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry({ status: "STALE" })));
+    await settledScreen();
+    expect(gateway().querySelector(".badge")?.textContent).toBe("Stale");
+    expect(gateway().textContent).toContain("longer ago than two reporting intervals");
+  });
+
+  it("shows a disabled registration apart from contact", async () => {
+    renderWithGateway(
+      `/sites/${ID}/foundation/readiness`,
+      fakeFoundation(READY),
+      healthOf(gatewayEntry({ registration: "DISABLED", status: "STALE" })),
+    );
+    await settledScreen();
+    const entry = gateway().querySelector("[data-gateway-registration]") as HTMLElement;
+    expect(entry.getAttribute("data-gateway-registration")).toBe("DISABLED");
+    expect(entry.textContent).toContain("Disabled — switched off for this Site");
+    expect(entry.querySelector(".badge")?.textContent).toBe("Stale");
+  });
+
+  it("labels server-time contact as separate from a past or scheduled Foundation period", async () => {
+    const OLD = revision({ revision_id: "rev-0", version: 1, valid_to: "2026-10-01T00:00:00Z", period_state: "PAST" });
+    const old = (at: string | null): FoundationRead<FoundationReadModel> =>
+      at === FUTURE.valid_from
+        ? { status: "loaded", value: foundation(FUTURE, published([BATTERY_SOC, GENSET_POWER], [])) }
+        : { status: "loaded", value: foundation(OLD, published([BATTERY_SOC, GENSET_POWER], [])) };
+    const first = renderWithGateway(
+      `/sites/${ID}/foundation/readiness?at=${encodeURIComponent(OLD.valid_from)}`,
+      fakeFoundation(old),
+      healthOf(gatewayEntry()),
+    );
+    await settledScreen();
+    const note = gateway().querySelector("[data-gateway-period-note]") as HTMLElement;
+    expect(note.getAttribute("data-gateway-period-note")).toBe("PAST");
+    expect(note.textContent).toContain("a past Foundation period (v1");
+    expect(note.textContent).toContain("checked now on the server clock; it did not occur in that period");
+    first.unmount();
+    renderWithGateway(
+      `/sites/${ID}/foundation/readiness?at=${encodeURIComponent(FUTURE.valid_from)}`,
+      fakeFoundation(old),
+      healthOf(gatewayEntry()),
+    );
+    await settledScreen();
+    expect(gateway().querySelector("[data-gateway-period-note]")?.textContent).toContain("a scheduled Foundation period (v3");
+  });
+});
+
+describe("V-01a round 3: Site model obligations, policy positions and Advanced records", () => {
+  it("names the first critical load, the configured loads and the missing productive-use designation", async () => {
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const identity = regionNamed("Identity & operating obligations");
+    expect(identity.querySelector("[data-critical-load]")?.textContent).toContain("First in critical-load priority: load-clinic");
+    expect(identity.querySelector("[data-configured-loads]")?.textContent).toBe("Distribution load");
+    expect(identity.querySelector("[data-productive-use]")?.textContent).toBe("Not declared");
+    expect(identity.textContent).not.toMatch(/Productive use:\s*\w/);
+    expect(identity.textContent).toContain("Financial assumptions not available here");
+    expect(within(identity).queryByRole("link")).toBeNull();
+  });
+
+  it("says Critical-load priority not configured when the control names no member", async () => {
+    const none = (): FoundationRead<FoundationReadModel> => {
+      const base = foundation(PAST, published([BATTERY_SOC, GENSET_POWER], []));
+      return {
+        status: "loaded",
+        value: { ...base, controls: { ...base.controls, critical_load_priority: { state: "NOT_CONFIGURED", editable: false } } },
+      };
+    };
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(none), healthOf(gatewayEntry()));
+    await settledScreen();
+    expect(regionNamed("Identity & operating obligations").querySelector("[data-critical-load]")?.textContent).toBe(
+      "Critical-load priority not configured",
+    );
+  });
+
+  it("gives each control's Evidence / change position its real destination or a named missing state", async () => {
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const controls = regionNamed("Time-valid control configuration");
+    const cell = (row: RegExp) => within(controls).getByRole("row", { name: row }).querySelector("[data-control-link]") as HTMLElement;
+    expect(cell(/Battery reserve/).textContent).toBe("Published configuration · Foundation v2");
+    expect(cell(/Generator start/).textContent).toBe("No proposed-change record here");
+    expect(cell(/Minimum generator runtime/).textContent).toBe("No linked constraint evidence");
+    const dispatch = within(cell(/Source priority/)).getByRole("link", { name: "Open Dispatch; choose an assessed day" });
+    expect(dispatch.getAttribute("href")).toBe(`/sites/${ID}/performance/dispatch`);
+    expect(cell(/Source priority/).textContent).toContain("not proof of this control's effect");
+    expect(within(controls).getAllByRole("link")).toHaveLength(1);
+  });
+
+  it("keeps record IDs, the import path and raw tables under Advanced details — Foundation records", async () => {
+    renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const advanced = document.querySelector('details[data-disclosure="foundation-advanced"]') as HTMLDetailsElement;
+    expect(advanced.open).toBe(false);
+    expect(advanced.querySelector("summary")?.textContent).toBe("Advanced details — Foundation records");
+    expect(advanced.textContent).toContain("var/sites/kobo-001.yaml");
+    expect(advanced.querySelector('[data-disclosure="foundation-record"]')).not.toBeNull();
+    expect(screen.queryByRole("heading", { name: "Record and inventory details" })).toBeNull();
+  });
+});
+
+describe("V-01a round 3: the chosen part sits beside its drawing", () => {
+  const strip = () => document.querySelector("[data-selected-part]") as HTMLElement | null;
+
+  it("renders a compact strip under the topology, not a page-wide panel under the header", async () => {
+    renderWithGateway(`/sites/${ID}/foundation?component=c-storage`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    expect(screen.queryByRole("heading", { name: /^Selected part:/ })).toBeNull();
+    const topology = regionNamed("Configured topology");
+    expect(strip()?.closest("section")).toBe(topology);
+    expect(strip()?.textContent).toContain("Selected: Battery energy storage");
+    expect(strip()?.querySelector("[data-part-channel-counts]")?.textContent).toBe("1 bound; 0 not bound");
+    const channels = strip()?.querySelector('details[data-disclosure="selected-part-channels-model"]') as HTMLDetailsElement;
+    expect(channels.open).toBe(false);
+    expect(channels.querySelector("summary")?.textContent).toBe("Advanced details — selected part channels");
+    expect(channels.textContent).toContain("d-storage-controller / state-of-charge");
+    // The strip region is polite and named by every part choice that updates it.
+    const region = document.getElementById("selected-part-strip-model") as HTMLElement;
+    expect(region.getAttribute("aria-live")).toBe("polite");
+    expect(document.querySelector('[data-part-choice="c-storage"]')?.getAttribute("aria-controls")).toBe("selected-part-strip-model");
+  });
+
+  it("places the SLD strip in the diagram panel below the drawing, outside its scroll area, with the not-declared note", async () => {
+    renderWithGateway(`/sites/${ID}/foundation/sld?component=c-storage`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    expect(strip()).not.toBeNull();
+    expect(strip()?.closest(".sld__scroll")).toBeNull();
+    expect(strip()?.closest("[data-sld-region]")).not.toBeNull();
+    const note = document.querySelector("[data-sld-missing]") as HTMLElement;
+    expect(note.textContent).toContain(
+      "Protection and meter positions are not declared in this Foundation topology; monitoring links and reporting status are not assessed on this diagram. See Site Evidence for reported records.",
+    );
+  });
+
+  it("clears from the strip and returns focus to the part's own choice", async () => {
+    renderWithGateway(`/sites/${ID}/foundation?component=c-storage`, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: "Clear selected part" }));
+    await settledScreen();
+    expect(strip()).toBeNull();
+    expect(screen.getByTestId("location").textContent).toBe(`/sites/${ID}/foundation`);
+    await waitFor(() => expect(document.activeElement?.getAttribute("data-part-choice")).toBe("c-storage"));
   });
 });

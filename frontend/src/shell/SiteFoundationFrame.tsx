@@ -5,6 +5,7 @@ import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteC
 import { FOUNDATION_SUBTABS, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
 import { StoredFoundationViews } from "../sites/StoredFoundationViews";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
@@ -17,6 +18,7 @@ import {
   siteEvidenceHref,
   siteFoundationHref,
   siteFoundationViewHref,
+  sitePerformanceHref,
 } from "./operatorSiteRoutes";
 
 export interface SiteFoundationFrameProps {
@@ -25,6 +27,8 @@ export interface SiteFoundationFrameProps {
   foundation: SiteFoundationClient;
   sitesPath: string;
   templateLineage?: SiteTemplateLineageClient;
+  /** V-01a round 3: the S2 central gateway-contact read shown on Readiness. */
+  gatewayHealth?: GatewayHealthClient;
 }
 
 /**
@@ -45,6 +49,7 @@ export function SiteFoundationFrame({
   foundation,
   sitesPath,
   templateLineage,
+  gatewayHealth,
 }: SiteFoundationFrameProps) {
   const { siteId, foundationView } = useParams<{ siteId: string; foundationView?: string }>();
   const view: FoundationView | null = foundationViewFor(foundationView);
@@ -138,6 +143,8 @@ export function SiteFoundationFrame({
             siteFoundationViewHref(siteId, segmentOf(target), at, partDeclared === true ? component : null)
           }
           evidenceHref={siteEvidenceHref(siteId)}
+          gatewayHealth={gatewayHealth}
+          dispatchHref={sitePerformanceHref(siteId, "dispatch")}
           tabs={tabs}
           parentTrail={parentTrail}
           snapshotHref={foundation.snapshotUrl(siteId, loaded.resolved.at)}

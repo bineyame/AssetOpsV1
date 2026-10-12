@@ -408,6 +408,7 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
       "Site",
       "Type",
       "Mode",
+      "Operating view",
       "Setup details",
       "Actions",
     ]);
@@ -563,6 +564,27 @@ describe("the index shows no capability the product lacks", () => {
       "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments.",
     );
     expect(note.textContent).not.toMatch(/\d|healthy|no issue/i);
+  });
+
+  it("states one grouped Operating view cell per Site as not available yet, and the aggregate gap once (V-01a round 3)", async () => {
+    renderIndex({
+      status: "loaded",
+      sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
+    });
+    const table = await screen.findByRole("table");
+    const headers = within(table).getAllByRole("columnheader").map((h) => (h.textContent ?? "").trim());
+    expect(headers).toEqual(["Site", "Type", "Mode", "Operating view", "Setup details", "Actions"]);
+    const cells = Array.from(table.querySelectorAll("[data-operating-view]"));
+    expect(cells).toHaveLength(2);
+    for (const cell of cells) {
+      expect(cell.querySelector(".not-available-yet")?.textContent).toBe("Not available yet");
+      expect(cell.querySelector(".cell-secondary")?.textContent).toBe("Assessment · top issue · evidence limit · last analysed");
+      expect(cell.textContent).not.toMatch(/\d|healthy|needs attention|limited/i);
+    }
+    const aggregate = screen.getByTestId("sites-aggregate-absent");
+    expect(aggregate.textContent).toBe(
+      "2 registered Sites listed. Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them. Setup progress not tracked yet.",
+    );
   });
 
   it("puts identity and location in the Site cell's secondary line", async () => {

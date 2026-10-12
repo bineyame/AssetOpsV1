@@ -310,11 +310,22 @@ export interface SiteTableProps {
  * labelled entries, and the row's View link. No analytical column: see
  * `DIRECTORY_ANALYSIS_ABSENT`.
  */
-const COLUMNS = ["Site", "Type", "Mode", "Setup details", "Actions"] as const;
+const COLUMNS = ["Site", "Type", "Mode", "Operating view", "Setup details", "Actions"] as const;
 
 /** Why the mock's four analytical columns are absent from this directory. */
 export const DIRECTORY_ANALYSIS_ABSENT =
   "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments.";
+
+/**
+ * V-01a round 3 addendum: one grouped cell per Site names what is missing,
+ * instead of four identical placeholder columns or an invented value.
+ */
+export const OPERATING_VIEW_NOT_AVAILABLE = "Not available yet";
+export const OPERATING_VIEW_PARTS = "Assessment · top issue · evidence limit · last analysed";
+
+/** The mock's aggregate tiles and setup area, named once beside the inventory. */
+export const DIRECTORY_AGGREGATE_ABSENT =
+  "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them. Setup progress not tracked yet.";
 
 export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
   return (
@@ -342,6 +353,10 @@ export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
       </DataTable>
       <p className="panel__body panel__note" data-testid="sites-analysis-absent">
         {DIRECTORY_ANALYSIS_ABSENT}
+      </p>
+      <p className="panel__body panel__note" data-testid="sites-aggregate-absent">
+        {`${sites.length} registered Site${sites.length === 1 ? "" : "s"} listed. `}
+        {DIRECTORY_AGGREGATE_ABSENT}
       </p>
     </>
   );
@@ -375,6 +390,10 @@ export function SiteRow({ site, siteHref, lineage }: SiteRowProps) {
       <td>{view.siteType}</td>
       <td>
         <Badge tone="provenance">{view.sourceMode}</Badge>
+      </td>
+      <td data-operating-view="not-available">
+        <span className="not-available-yet">{OPERATING_VIEW_NOT_AVAILABLE}</span>
+        <span className="cell-secondary">{OPERATING_VIEW_PARTS}</span>
       </td>
       {/*
        * Three vocabularies, three labelled entries, three tones, and never one
