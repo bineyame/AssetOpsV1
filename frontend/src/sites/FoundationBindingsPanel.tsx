@@ -12,7 +12,7 @@
 
 import { useState, type FormEvent } from "react";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import { Badge, DataTable, Disclosure, Fact, FactList, Panel, type BadgeTone } from "../ui";
 import type {
   BindingPublishOutcome,
   ConfigurationReadiness,
@@ -32,6 +32,51 @@ const READINESS_WORD: Record<ConfigurationReadiness["state"], string> = {
   INCOMPLETE: "Incomplete",
   UNKNOWN: "Unknown",
 };
+
+/**
+ * Configuration-only colour (D-2026-10-12-v01a-owner-visual-rulings): green
+ * when every required role is configured with no Foundation gap, amber for a
+ * known configuration gap, neutral when the basis cannot be resolved. Colour
+ * never asserts contact, received records, accepted Evidence or health.
+ */
+const READINESS_TONE: Record<ConfigurationReadiness["state"], BadgeTone> = {
+  READY_TO_REPORT: "configured",
+  INCOMPLETE: "config-gap",
+  UNKNOWN: "neutral",
+};
+
+/**
+ * A role row's tone. An optional role that is not bound is neutral: it is not
+ * a gap, and it must not read amber beside a complete required verdict.
+ */
+export function roleTone(role: ReadinessRole): BadgeTone {
+  if (role.status === "CONFIGURED") return "configured";
+  return role.required ? "config-gap" : "neutral";
+}
+
+/** The legend and scope line shown beside the verdict. */
+export function ReadinessLegend() {
+  return (
+    <>
+      <ul className="readiness-legend" aria-label="Readiness colour legend" data-readiness-legend="">
+        <li>
+          <Badge tone="configured">Configured</Badge> required configuration complete for this version
+        </li>
+        <li>
+          <Badge tone="config-gap">Needs configuration</Badge> a known required role, control or declaration is missing
+        </li>
+        <li>
+          <Badge tone="neutral">Unknown</Badge> the configuration basis cannot be resolved
+        </li>
+      </ul>
+      <p className="readiness-scope" data-readiness-scope="">
+        Colours describe configuration of the selected Foundation version only. Green does not mean
+        a device is connected, records have arrived, Evidence is accepted or equipment is in good
+        condition.
+      </p>
+    </>
+  );
+}
 
 const ROLE_STATUS_WORD: Record<ReadinessRole["status"], string> = {
   CONFIGURED: "Configured",
@@ -102,10 +147,11 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
     >
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
-          <Badge tone="neutral">{READINESS_WORD[readiness.state]}</Badge>
+          <Badge tone={READINESS_TONE[readiness.state]}>{READINESS_WORD[readiness.state]}</Badge>
         </p>
         <p className="verdict__sentence">{verdictSentence(readiness)}</p>
       </div>
+      <ReadinessLegend />
       <dl className="metric-row">
         <div className="metric">
           <dt>Required roles configured</dt>
@@ -179,7 +225,9 @@ export function RoleCoveragePanel({ foundation }: { foundation: FoundationReadMo
             <tr key={role.role} data-readiness-role={role.role}>
               <th scope="row">{role.label}</th>
               <td>{role.required ? "Required" : "Optional"}</td>
-              <td data-readiness-status={role.status}>{ROLE_STATUS_WORD[role.status]}</td>
+              <td data-readiness-status={role.status}>
+                <Badge tone={roleTone(role)}>{ROLE_STATUS_WORD[role.status]}</Badge>
+              </td>
               <td>{roleCoverage(role, bindings.mappings)}</td>
             </tr>
           ))}

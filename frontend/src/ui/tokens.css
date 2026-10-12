@@ -99,6 +99,16 @@
   --badge-neutral-text: #334155;
   --badge-neutral-border: #cbd5e1;
 
+  /* V-01a round 2: configuration-only Readiness (mock .badge.green/.amber).
+     Green = required configuration complete for the selected version; amber =
+     a known configuration gap. Never health, contact or evidence. */
+  --badge-configured-bg: #e3f4ed;
+  --badge-configured-text: #166b50;
+  --badge-configured-border: #b5dfcd;
+  --badge-config-gap-bg: #fff1d9;
+  --badge-config-gap-text: #8e580c;
+  --badge-config-gap-border: #f0cf98;
+
   /* Chart series (T025c) -------------------------------------------------- */
   /* The first four slots of the dataviz reference categorical order, in fixed
      order and never cycled; a Lab chart panel carries at most four truth

@@ -17,7 +17,15 @@ import type { ReactNode } from "react";
  * The value is always the visible text. The tone reinforces it and never
  * replaces it, so meaning survives without colour.
  */
-export type BadgeTone = "provenance" | "lifecycle" | "origin" | "neutral";
+export type BadgeTone =
+  | "provenance"
+  | "lifecycle"
+  | "origin"
+  | "neutral"
+  /** Configuration Readiness only: required configuration complete. */
+  | "configured"
+  /** Configuration Readiness only: a known configuration gap. */
+  | "config-gap";
 
 export interface BadgeProps {
   tone: BadgeTone;
@@ -26,5 +34,7 @@ export interface BadgeProps {
 }
 
 export function Badge({ tone, children }: BadgeProps) {
+  // The two Readiness tones carry a CSS shape mark (see primitives.css), so
+  // the visible word stays the whole text content.
   return <span className={`badge badge--${tone}`}>{children}</span>;
 }

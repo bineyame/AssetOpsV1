@@ -982,6 +982,60 @@ button:focus-visible {
   border-radius: var(--radius-sm);
 }
 
+/* Configuration Readiness (V-01a round 2). A leading mark (tick / bang) keeps
+   the two distinguishable from provenance and lifecycle in greyscale. */
+.badge--configured {
+  background: var(--badge-configured-bg);
+  color: var(--badge-configured-text);
+  border-color: var(--badge-configured-border);
+  border-radius: var(--radius-sm);
+}
+
+.badge--config-gap {
+  background: var(--badge-config-gap-bg);
+  color: var(--badge-config-gap-text);
+  border-color: var(--badge-config-gap-border);
+  border-radius: var(--radius-sm);
+}
+
+.badge--configured::before,
+.badge--config-gap::before {
+  margin-right: 4px;
+  font-weight: var(--weight-bold);
+}
+
+.badge--configured::before {
+  content: "\2713" / "";
+}
+
+.badge--config-gap::before {
+  content: "!" / "";
+}
+
+.readiness-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.readiness-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.readiness-scope {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
 /* Toolbar and form controls ----------------------------------------------- */
 
 /*
@@ -2433,10 +2487,20 @@ input:focus-visible,
   background: var(--surface-sunken);
 }
 
-.verdict[data-readiness-state="INCOMPLETE"],
-.verdict[data-readiness-state="UNKNOWN"] {
+.verdict[data-readiness-state="READY_TO_REPORT"] {
+  border-left-color: var(--badge-configured-text);
+  background: var(--badge-configured-bg);
+}
+
+.verdict[data-readiness-state="INCOMPLETE"] {
   border-left-color: var(--attention-border);
-  background: var(--attention-bg);
+  background: var(--badge-config-gap-bg);
+}
+
+/* Unknown stays neutral: no basis, no colour claim. */
+.verdict[data-readiness-state="UNKNOWN"] {
+  border-left-color: var(--border-strong);
+  background: var(--surface-sunken);
 }
 
 .verdict > p {

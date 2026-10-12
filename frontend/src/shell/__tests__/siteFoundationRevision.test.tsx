@@ -586,6 +586,81 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect(ids.sort()).toEqual(["b-battery-soc", "b-genset-power"]);
   });
 
+  describe("V-01a round 2: configuration-only green, amber and neutral", () => {
+    const toneOf = (el: Element | null | undefined) =>
+      (el?.className ?? "").split(" ").find((c) => c.startsWith("badge--"));
+
+    it("colours a complete verdict and configured roles green, with a legend and scope line", async () => {
+      renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(bound));
+      await settledScreen();
+      const readiness = panel("Configuration readiness");
+      expect(toneOf(readiness.querySelector(".verdict__state .badge"))).toBe("badge--configured");
+      const roles = Array.from(panel("Role coverage").querySelectorAll("[data-readiness-status] .badge"));
+      expect(roles.map(toneOf)).toEqual(["badge--configured", "badge--configured"]);
+      const legend = readiness.querySelector("[data-readiness-legend]") as HTMLElement;
+      expect(Array.from(legend.querySelectorAll(".badge")).map((b) => [b.textContent, toneOf(b)])).toEqual([
+        ["Configured", "badge--configured"],
+        ["Needs configuration", "badge--config-gap"],
+        ["Unknown", "badge--neutral"],
+      ]);
+      const scope = readiness.querySelector("[data-readiness-scope]")?.textContent ?? "";
+      expect(scope).toMatch(/configuration of the selected Foundation version only/);
+      expect(scope).toMatch(/does not mean a device is connected, records have arrived, Evidence is accepted/);
+      // PRE-S3-04 separation sentence survives.
+      expect(readiness.textContent).toContain(
+        "Configuration readiness is distinct from claim readiness and from operational status, which are not assessed here.",
+      );
+      // A publication/version badge is never coloured as health.
+      const version = within(panel("Signal bindings")).getByText(/^Binding v\d+$/);
+      expect(toneOf(version)).toBe("badge--neutral");
+    });
+
+    it("colours a missing required role amber, in the verdict and its row", async () => {
+      const incomplete = (): FoundationRead<FoundationReadModel> => ({
+        status: "loaded",
+        value: foundation(PAST, published([GENSET_POWER], ["Battery state of charge"])),
+      });
+      renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(incomplete));
+      await settledScreen();
+      expect(toneOf(panel("Configuration readiness").querySelector(".verdict__state .badge"))).toBe("badge--config-gap");
+      const soc = within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ });
+      expect(toneOf(soc.querySelector("[data-readiness-status] .badge"))).toBe("badge--config-gap");
+    });
+
+    it("keeps Unknown neutral when no binding basis resolves", async () => {
+      renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(byAt));
+      await settledScreen();
+      const badge = document.querySelector(".verdict__state .badge");
+      expect(badge?.textContent).toBe("Unknown");
+      expect(toneOf(badge)).toBe("badge--neutral");
+    });
+
+    it("does not colour an optional unbound role amber beside a complete verdict", async () => {
+      const withOptional = (): FoundationRead<FoundationReadModel> => {
+        const base = published([BATTERY_SOC, GENSET_POWER], []);
+        const readiness = base.readiness!;
+        return {
+          status: "loaded",
+          value: foundation(PAST, {
+            ...base,
+            readiness: {
+              ...readiness,
+              roles: [
+                ...readiness.roles,
+                { role: "pv_power", label: "PV power", required: false, canonical_unit: "kW", covered_by: "CHANNEL", status: "UNBOUND", subjects: [] },
+              ],
+            },
+          }),
+        };
+      };
+      renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(withOptional));
+      await settledScreen();
+      expect(toneOf(panel("Configuration readiness").querySelector(".verdict__state .badge"))).toBe("badge--configured");
+      const pv = within(panel("Role coverage")).getByRole("row", { name: /PV power/ });
+      expect(toneOf(pv.querySelector("[data-readiness-status] .badge"))).toBe("badge--neutral");
+    });
+  });
+
   it("names a missing required role as not bound", async () => {
     const incomplete = (): FoundationRead<FoundationReadModel> => ({
       status: "loaded",
@@ -618,6 +693,12 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     expect(readiness.textContent).toContain("but this Foundation has configuration gaps");
     const listed = readiness.querySelector('[data-readiness-gap="COMPONENT_RATING_MISSING"]');
     expect(listed?.textContent).toBe("Diesel generator declares no rating.");
+    // V-01a round 2: a Foundation gap alone is amber, with a configured role still green.
+    expect(readiness.querySelector(".verdict__state .badge")?.className).toContain("badge--config-gap");
+    const socStatus = within(panel("Role coverage"))
+      .getByRole("row", { name: /Battery state of charge/ })
+      .querySelector("[data-readiness-status] .badge");
+    expect(socStatus?.className).toContain("badge--configured");
     expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
       "c-storage: d-storage-controller / state-of-charge",
     );
