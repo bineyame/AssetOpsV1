@@ -611,12 +611,16 @@ function Invoke-ConfigurationPersistenceCheck {
     $assessUpdates = @(
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+window_start\s*=\s*:start,\s*window_end\s*=\s*:end\s+WHERE\b')
-    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter)
+    $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
+    $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
+        'finding_merge', 'finding_match_pass')
+    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
-    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0 }
-    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false }
+    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0 }
+    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
+        $findingWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
@@ -656,6 +660,15 @@ function Invoke-ConfigurationPersistenceCheck {
                             "only a recompute job's lease/retry status or a PENDING job's window; " +
                             "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     }
+                }
+                if ($module.Path -eq $findingWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $findingTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The Finding store only inserts into $($findingTables -join ', ') (append-only); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $findingWriter -and $null -ne $target -and $findingTables -contains $target) {
+                    $failures.Add(("Only $findingWriter writes Finding table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($module.Path -ne $assessWriter -and $null -ne $target -and $assessTables -contains $target) {
                     $failures.Add(("Only $assessWriter writes assessment table '$target'; " +

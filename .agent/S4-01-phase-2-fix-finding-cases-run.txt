@@ -1,0 +1,110 @@
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases (code from git HEAD 254b843; own var/)
+Database: assetops_s4cases (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=c01583e6-a63c-4a8c-ae6b-03581e5900ee revision=abd34e49-4221-46df-a663-d9ccd985d065 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases\tls\server.crt (sha256 Fingerprint=A4:FB:58:67:9B:02:DE:6A:73:6A:DF:16:71:26:59:32:19:6D:0A:5D:F2:16:36:2F:0F:2B:69:60:C0:C7:82:0B); key restricted to the current user
+
+=== 2. TLS product server, registered gateway credential, demo configuration (roles-2) ===
+  Issued aog1.3fecc77e063e95cbb87790511c5fed7c.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.3fecc77e063e95cbb87790511c5fed7c (in C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases\credentials)
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  sealing basis: binding set v5 (b43909dd-8786-4a69-b3ee-589103b252d1), Foundation v6, snapshot 505af91077ec22f6..
+
+=== 3. Setup controls (labelled fixture controls) ===
+  setup: reserve = 20 from 2026-10-03T00:00:00Z (Foundation revision 5c98a1b9-0408-40dd-920b-5a8b7678ddd4)
+  setup: runtime = 0 from 2026-10-03T00:00:00Z (Foundation revision 332e0f80-090a-4dfa-84f7-0fba4deaa24a)
+
+=== 4. F01 candidate-open (2026-10-06) ===
+  F01 deliver (s4-fixture-epoch-1): 93 readings in 6 batches; held []
+  F01 assess: 1 job(s), 1 run(s)
+  F01 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+
+=== 5. F02 overlap-adjacent-cross-day (2026-10-08) ===
+  F02 deliver (s4-fixture-epoch-1): 94 readings in 6 batches; held []
+  F02 assess: 1 job(s), 2 run(s)
+  F02 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F02 deliver (s4-fixture-epoch-1): 36 readings in 6 batches; held []
+  F02 assess: 1 job(s), 2 run(s)
+  F02 match: planned 1, new Findings 0, new revisions 1, expected 1 OK
+
+=== 6. F03 recurrence (2026-10-11) ===
+  F03 deliver (s4-fixture-epoch-1): 102 readings in 6 batches; held []
+  F03 assess: 1 job(s), 1 run(s)
+  F03 match: planned 2, new Findings 2, new revisions 2, expected 2 OK
+
+=== 7. F04 late-earlier-acceptance (2026-10-13) ===
+  F04 deliver (s4-fixture-epoch-1): 50 readings in 6 batches; held ['earlier']
+  F04 assess: 1 job(s), 1 run(s)
+  F04 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F04 release earlier: 6 batches (earlier-sequenced reports held at the gateway, accepted late)
+  F04 assess: 1 job(s), 1 run(s)
+  F04 match: planned 1, new Findings 0, new revisions 1, expected 1 OK
+
+=== 8. F06 split-and-bridge (2026-10-15) ===
+  F06 deliver (s4-fixture-epoch-1): 228 readings in 6 batches; held ['bridge', 'contradiction']
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 3, new Findings 3, new revisions 3, expected 3 OK
+  F06 release contradiction: 1 batches (second PV report at the same instants (REPORTS_OVERLAP), accepted late)
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 4, new Findings 1, new revisions 4, expected 4 OK
+  F06 release bridge: 6 batches (reports filling the unobserved gap, accepted late)
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 4, new Findings 0, new revisions 4, expected 4 OK
+
+=== 9. F08 retry-and-absent-basis (2026-10-19) ===
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+  F08 deliver (s4-fixture-epoch-1): 51 readings in 6 batches; held []
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+  F08 deliver (s4-fixture-epoch-2): 1 readings in 1 batches; held []
+  F08 assess: 1 job(s), 1 run(s)
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+
+=== 10. F05 limitation-and-closure (2026-10-21) ===
+  F05 deliver (s4-fixture-epoch-1): 93 readings in 6 batches; held []
+  F05 assess: 1 job(s), 1 run(s)
+  F05 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F05: runtime = 120 from 2026-10-21T00:00:00Z (Foundation revision 5d2b8172-d5b1-419b-b024-619082da94e5)
+  F05 assess: 7 job(s), 8 run(s)
+  F05 match: planned 9, new Findings 0, new revisions 9, expected 1 + collateral OK
+  F05: runtime = 0 from 2026-10-21T00:00:00Z (Foundation revision 291cecda-13b3-4c5a-a81a-0a5cc88a9053)
+  F05: reserve = 45 from 2026-10-21T00:00:00Z (Foundation revision 8c475e58-e372-4412-8258-ce0dd872afba)
+  F05 assess: 1 job(s), 1 run(s)
+  F05 match: planned 1, new Findings 0, new revisions 1, expected 1 + collateral OK
+  F05 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+
+=== 11. F01-gateway: ordinary registered gateway path (Lab run, durable gateway, TLS) ===
+  pass  1: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 25, READY 173
+  pass  2: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 50, READY 148
+  pass  3: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 75, READY 123
+  pass  4: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 100, READY 98
+  pass  5: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 125, READY 73
+  pass  6: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 150, READY 48
+  pass  7: attempted 25 acked 25 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 175, READY 23
+  pass  8: attempted 23 acked 23 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  pass  9: attempted  0 acked  0 in_progress 0 refused 0 retrying 0 | gateway batches: ACKED 198
+  F01-gateway: kobo-mini-grid-prolonged v2 2026-10-02T03:00:00Z..2026-10-02T11:00:00Z on Foundation v7; 198 sealed batches delivered; accepted (epoch, gateway, readings) [('s4-gateway-epoch-1', '2365b659-c8e6-4812-be0c-d827c246f04a', 329)]
+  F01-gateway match: planned 1, new Findings 1, Findings anchored 2026-10-02: [('2026-10-02 05:15:00+00:00', None)] OK
+  F01-gateway cited evidence: 102 IDs, 0 outside the gateway-sealed batches OK
+
+=== 12. Run artifact ===
+  case manifest (read annotations by exact evidence IDs): C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases\s4-finding-cases-manifest.json
+  run artifact: C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases\s4-finding-cases-run.json (11 Findings, 30 revisions; failures 0)
+
+=== Stopping every process this script started ===
+  stopped: tls-server, lab-api, gateway
+Produced in 238 s (0 check failures). Verifying after reload in a fresh process:
+  verify F01: 93 accepted readings reloaded, match=True
+  verify F02: 130 accepted readings reloaded, match=True
+  verify F03: 102 accepted readings reloaded, match=True
+  verify F04: 93 accepted readings reloaded, match=True
+  verify F06: 277 accepted readings reloaded, match=True
+  verify F08: 52 accepted readings reloaded, match=True
+  verify F05: 93 accepted readings reloaded, match=True
+  verify F01-gateway: 329 accepted readings reloaded, match=True
+  verify Findings: 11 Findings, 30 revisions reloaded, match=True
+  replay match-findings: planned 0, new revisions 0
+  verify reads: 11 Findings read; gateway-case Findings 1; problems 0
+VERIFY PASSED
+exit 0

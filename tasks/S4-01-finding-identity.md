@@ -1,38 +1,68 @@
-﻿# S4-01 — Stable Finding identity and evidence detail
+# S4-01 — Candidate generator-support Finding
 
-Status: outline; refine after preceding task review, before activation
+Status: done (owner checkpoint passed 2026-10-12 `.agent/owner-S4-01-acceptance-2026-10-12.md`; fresh Claude reviews accepted; merged to main)
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
-Depends on: S3-01
+Depends on: merged S3-01 (`I-S3-01`), resolved `A-finding-episode` and `A-claim-work-routes`, accepted S2 Evidence
 Branch: task/S4-01-finding-identity
-Planner: Codex, 2026-10-07
+Planner: Codex, 2026-10-12
 
-## Visible outcome
+## Outcome and authority
 
-Open a candidate interval as Site finding/finding-evidence with a durable episode and evidence drawer.
+Open a persisted mini-grid candidate generator-support Finding from a CURRENT, coherent `dispatch-3.1` selected assessment containing at least one bounded `CANDIDATE_AVOIDABLE` segment. The Site-scoped Finding detail (`finding:1,2,4`) shows its exact selected revision, bounded duration/limitations, lifecycle state and accepted-source drill-down after reload. Necessary and Indeterminate portions remain distinct facts; a candidate segment does not make a whole generator interval avoidable. Owner W1 core approval is a target, not panel delivery or whole-screen Real status.
 
-## Persisted object and read contract
+Use `D-2026-10-12-finding-episode-and-revisions` and `.agent/architect-A-finding-episode-answers.md`, the S3-01 reviewed `dispatch-3.1` selected-revision/read contract, technical design §§1/3–4, and `D-2026-10-09-pre-s3-claim-routes-and-actor`. Existing file-backed/T028 Findings are comparison history only; their assessment IDs are not durable Finding identity. `A-finding-index` and the S3-01u assessed-day/paged-evidence carry are separate and are not S4-01 technical gates.
 
-Finding and immutable FindingRevision linked to AssessmentRevision; Site Finding read API and episode matching rule. Apply `A-claim-work-routes` for stable detail identity, revision selection and unavailable/forbidden behavior before fixing the UI route.
+## Write, matching and lineage contract
 
-## Demo acceptance
+- Allocate `finding.id` and immutable `finding_key` once for tenant, Site, mini-grid, generator asset and candidate-support episode. Persist the first accepted candidate anchor, selected public cohort, supported bounds/window IDs and matcher version. Never key ongoing identity from a mutable first-ON time, UTC day, assessment hash or private Lab run.
+- Match a CURRENT selected candidate span to persisted episodes across UTC-day boundaries. Supported overlap or a gap ≤20 minutes may extend one episode only when every instant of the gap has observed coherent segment coverage: Necessary or Indeterminate for documented modelling uncertainty only, with no missing/contradictory/ambiguous input. Window coverage or an empty segment list is insufficient. A supported separation >20 minutes starts a new Finding; link `recurs_after_finding_id` only when an observed generator OFF establishes the break, otherwise leave the recurrence relation unknown. Late earlier accepted evidence may move the bound/first-ON key without renaming the Finding.
+- On a split, retain the original ID for the part containing its immutable anchor, append a revision explaining changed support, and link a new Finding for each other supported part. On a later bridge between two persisted IDs, preserve both old URLs/revisions, choose the earlier stable anchor (then UUID) as canonical, record a durable merge/supersession relation, and show only the canonical active episode. Do not silently delete or reuse either ID.
+- Persist Finding and append-only FindingRevision. Idempotency is `(finding, canonical selected assessment basis, transition)`: retry of one basis adds no revision. Each revision cites exact selected interval AssessmentRevision, its AnalyticRun/model/cohort/window and selected window AssessmentRevision; cross-window episodes also cite every supporting interval revision, using a relation when one FK is insufficient. Keep the technical design's primary assessment FK. Preserve the complete analytic input set separately from accepted evidence IDs/digests actually cited by candidate segments, plus as-accepted Foundation/binding and selected control revisions, source/batch/envelope lineage.
+- Phase-1 clarification `D-2026-10-12-s4-finding-phase-1-clarifications`: use unique `(finding_id,revision_no)` and `(finding_id,basis_sha256,transition)` rather than the technical design's insufficient primary-assessment uniqueness; include selected window and interval revision IDs, cited evidence, control/binding provenance, bounds/limitations and rule versions in the canonical basis. A provenance-only revision is `BASIS_REFRESHED`, while a changed supported span/claim/limit is `SUPPORT_CHANGED`. Phase 2 must show the selected window basis for every revision and preserve old pinned lineage.
+- A changed accepted basis, candidate duration/limit, backdated control or reviewed model version appends a revision. Historical `dispatch-3` may be pinned for audit but cannot create/refresh a CURRENT `dispatch-3.1` Finding; later reviewed `dispatch-3.x` is a new basis, never a relabel. An Indeterminate CURRENT reassessment may append `UNCONFIRMED` to an existing episode but creates no new avoidability Finding. A complete CURRENT no-Candidate/Necessary-only reassessment can append `NO_LONGER_SUPPORTED`; it does not say repaired or savings realised. STALE/FAILED/UNASSESSED changes read status without manufacturing a revision.
+- Phase-1 fix clarification `D-2026-10-12-s4-finding-phase-1-fix-clarifications`: after `NO_LONGER_SUPPORTED`, a current Indeterminate basis may append `UNCONFIRMED` while preserving the prior closure in history; a Candidate on the same unsupported span without proven separation appends `REOPENED` to the same Finding. A ≤20-minute bounded stop may bridge episode identity only with ordered accepted OFF reports at both ends and no contrary report; it adds no Candidate minutes. Recurrence needs assessed separation plus an OFF after the prior run and before the new run. Merge canonical choice remains earliest stable anchor/UUID even when the anchor is only historical.
+- Phase-2 clarification `D-2026-10-12-s4-finding-phase-2-read-boundaries`: the stop-bridge proof must inspect typed accepted generator-state records from the exact selected AnalyticRun over the stop, under the same fence, because the interval result alone hides an intervening contradiction. A contradictory/non-GOOD/wrong-cohort record vetoes the bridge; if full proof is unavailable, disable stop bridging and name the limit. Include endpoint/intervening evidence and `claim.continuity`/`claim.recurrence` facts in the canonical Finding basis; preserve stored revisions under a new matcher version if the basis rule changes after persistence.
 
-Exercise extension, adjacent interval within declared tolerance, separated recurrence and late reassessment; same episode revises one Finding, recurrence links a new Finding.
+## Detail read and visible states
 
-## Missing/conflicting evidence
+Implement canonical `/sites/{site_code}/findings/{finding_id}` and `GET /api/sites/{site_code}/findings/{finding_id}` with optional exact `revision_id`, tenant/Site scope and `A-claim-work-routes` status semantics (401 unauthenticated, 403 unauthorized known scope, 404 foreign/nonexistent root or revision). Omitted revision selects latest permitted recorded revision; exact ID pins history after late evidence. Return stable Finding UUID/key, selected FindingRevision, episode relationship IDs, selected dispatch/run/model/cohort/window and supporting revision IDs, claim and limitations, cited accepted evidence IDs/digests, projection state and source/analytic watermarks. Preserve Site/window/revision in back-links. The S3 worker-clock `knowledge_at` is not a commit-ordered audit fence: advertise exact stored revision/IDs, not arbitrary historical replay.
 
-Indeterminate intervals do not assert an avoidable operational episode.
+The pilot's configured development-tenant access context is not deployed human sign-in; label its access basis and describe 401/403 as seam-tested until a real authorization provider is installed. For imported Sites, the product Finding detail and bounded `finding-windows/{day}` read must honor the existing S3 Performance cutover gate before exposing a CURRENT Finding or assessed `NO_FINDING`; a closed gate yields a typed unavailable state. Keep `finding-windows/{day}` as a scoped discovery read, separate from the later S4-04 Site index.
 
-## Evidence lineage
+Return every `BASIS_REFRESHED` revision as an exact selectable ID with its prior/current selected assessment IDs, triggering basis and unchanged support fields. Phase-3 detail may group consecutive provenance-only entries in the visible summary, but must disclose the count and expand exact revisions; S4-03 History owns the full chronological view. Never label a basis refresh as a new issue or changed candidate duration.
 
-Drawer traverses FindingRevision to assessment, analytic run and exact AcceptedEvidence/SourceEnvelope IDs.
+Distinguish `NOT_ASSESSED`, `PENDING`, `STALE`, `FAILED`, assessed `NO_FINDING`, current supported, existing `UNCONFIRMED`, and `NO_LONGER_SUPPORTED`/recurrence. No Finding row alone is not a healthy verdict; no current assessed basis cannot become `NO_FINDING`. Show supported claim, confidence/limitations and workflow state separately. Keep unsupported money, recommendations and full Evidence/History tabs hidden or typed unavailable. S4-03 owns those child views, S4-04 the Site list, S4-02 money and S6 Action/verification.
 
-## Review and refinement
+## `D-finding-revisions` acceptance fixture
 
-S4-01 owns `I-finding-store/read/ui` and `D-finding-revisions`: exact `finding_revision_id`, `knowledge_at`, episode/recurrence and late-evidence append are its reviewable detail closeout. [S4-03](S4-03-finding-evidence-history.md) owns Finding Evidence/History child views; [S4-04](S4-04-site-finding-index.md) owns the Site list. S4-01 detail does not complete those moved W1 panels.
+Use versioned `s4-finding-cases-v1` labels below. The stable fixture specification records producer version, seed, public source/binding/control IDs, selected S3 model/version and expected transition; per-run generated batch/evidence/run/Finding IDs live in an environment-bound verified artifact, not a committed “current” snapshot. Prove F01 through the ordinary S2 registered simulated gateway, gateway-sealed Batch V2, central acceptance and S3 recompute/read (a verified reuse of the S3 normal-path Candidate case is acceptable). Later cases needing held, contradictory or bridge reports may use separately labelled authenticated fault-fixture Batch V2 under the registered credential; those are not gateway-sealed and must remain distinguishable from ordinary publication. Never insert Finding rows directly as fixture truth.
 
-Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
+The ordinary `F01-gateway` proof uses 2026-10-02 roles-2 and the then-effective positive template generator minimum runtime. The later fixture control sets runtime to zero from 10-03 and Lab refuses that basis; keep the two case bases/dates distinct in the run artifact, phase-2 read and owner walkthrough, with exact selected Foundation revisions.
 
-## Defer
+| Case | Expected Finding transition and proof |
+| --- | --- |
+| F01 candidate/open | CURRENT coherent candidate segment opens one ID; persist bounded candidate duration, distinct Necessary/Indeterminate facts and exact cited accepted IDs. |
+| F02 overlap/adjacent/cross-day | Same ID extends across overlap and a ≤20-minute coherent gap, including UTC midnight; a changed basis appends a revision. |
+| F03 recurrence | Supported >20-minute separation opens a new ID with `recurs_after_finding_id`; both old URLs reload. |
+| F04 late earlier acceptance | Later accepted source record shifts first-ON/coverage; original immutable anchor/ID survives and revision 2 selects new S3 revision while revision 1 remains readable. |
+| F05 limitation and closure | A CURRENT Indeterminate reassessment limits an existing episode as UNCONFIRMED, creating no new Finding; a later complete CURRENT no-Candidate basis closes support as NO_LONGER_SUPPORTED, not repair. |
+| F06 split and bridge | Accepted reassessment splits one episode around its anchor; other supported part gets a linked ID. A later coherent bridge merges two persisted IDs via canonical/supersession relation while both histories remain addressable and only one active claim appears. |
+| F07 model upgrade | A genuinely versioned, reviewed later `dispatch-3.x` re-evaluation appends a new FindingRevision; old `dispatch-3`/`3.1` lineage stays pinned. If no reviewed later model exists during implementation, prove the version-change path with a clearly labelled test-scoped rule fixture and withhold a live upgraded claim; record this limit at review. |
+| F08 retry and absent basis | Replaying the same selected basis adds no row; stale/failed/unassessed or ambiguous cohort does not create or close a Finding. |
 
-Global Findings index and broad lifecycle UI.
+## Phases and reviewer handoffs
+
+Each phase is a bounded Implementer context below ~120k and has its own reviewable evidence; `I-S4-01` closes only after all phases, independent review and owner checkpoint.
+
+| Phase | Reviewable result |
+| --- | --- |
+| 1. `I-finding-store` and `D-finding-revisions` | Migration for Finding/revision and supporting assessment/evidence/episode relations; idempotent matcher/transitions; F01–F08 public fixture specification and accepted IDs. Verify same-ID extension, recurrence, split/merge, upgrade and retry with Postgres reload before proceeding. |
+| 2. `I-finding-read` | Tenant/Site-scoped exact root/revision API, selected S3/currentness read, 401/403/404/typed unavailable matrix and old/new pinned lineage. No arbitrary `knowledge_at` replay claim. |
+| 3. `I-finding-ui` and closeout | `finding:1,2,4` detail and concise evidence summary, honest empty/lag/closed states, stable route/back-links, app/mock comparison, end-to-end walkthrough and cutover proof. |
+
+Reviewer follows F01, F04, F05, F06 and F07 after reload: verify selected IDs, immutable old/new revisions, model/cohort/window, cited versus full input evidence, accepted envelope and as-accepted binding/selected Foundation control. Exercise recurrence, cross-day continuity and no-new-row states; compare returned API IDs with stored relations. A positive claim from private Lab oracle, a stale selected model or an unresolved merge blocks closeout. Inspect migrations and focused Postgres matcher/revision/route tests; run normal backend/frontend checks and registry, ledger, navigation, workflow and architecture guards. Record fixture/run IDs and exact commands in the review packet.
+
+Compare app `/sites/{site_code}/findings/{finding_id}` with v6.9 `index.html#/finding` at 1440px desktop and 390px narrow (or documented equivalents) for `finding:1,2,4`: hierarchy, labels, bounded claim, limitations, status, evidence drill-down, keyboard selection and reload. Capture populated, unconfirmed, no-finding and pending/stale states; document supported portions and deliberately unavailable mock content. App screenshots plus interaction/API lineage evidence are required; visual similarity alone does not make a panel Real. Use `tools/layout-evidence.mjs` for layout-sensitive work.
+
+Owner checkpoint: prepare a repeatable walkthrough from a clean fixture run showing open candidate, same-ID late revision, recurrence, unconfirmed/no-longer-supported states, exact old revision URL and one accepted-source lineage trace; show mock/app desktop and narrow comparisons and name withheld money/Action/child-list content. State whether F07 was a live reviewed upgrade or test-scoped proof. The coordinator records the owner's words; the Implementer and Reviewer do not pre-record approval.

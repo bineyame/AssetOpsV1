@@ -123,6 +123,18 @@ export function siteFindingsHref(siteId: string): string {
 }
 
 /**
+ * S4-01: one durable Finding of a Site (`A-claim-work-routes`). An exact
+ * version is `?revision_id=`, the same parameter the API takes, so a reload
+ * reopens that stored version.
+ */
+export const SITE_FINDING_ROUTE_PATH = `${SITE_FINDINGS_ROUTE_PATH}/:findingId`;
+
+export function siteFindingHref(siteId: string, findingId: string, revisionId?: string | null): string {
+  const base = `${siteFindingsHref(siteId)}/${encodeURIComponent(findingId)}`;
+  return revisionId ? `${base}?revision_id=${encodeURIComponent(revisionId)}` : base;
+}
+
+/**
  * The Findings rail root (T028): the global index. A Finding is a first-class
  * object under this root, so opening one from a Site changes the root to the
  * Finding; its claim drawer is a query parameter and never changes it.

@@ -5070,3 +5070,123 @@ Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `.agent
 - No list of assessed days; older-rule label and late-evidence history proven by tests only; demo notes absent from walkthrough data; staged FAILED/STALE days have no interval.
 - Carries: R1-C2, 3a R4/R5. Committed fixture manifest is per run (evidence IDs change on a new producer run).
 - Owner checkpoint pending.
+
+## S4-01 phase 1 - Finding store, episode matcher, `s4-finding-cases-v1` (active, review pending)
+
+Built on `task/S4-01-finding-identity` (`bcbc3f4`, `6b891ef`, closeout; fix round 1 `7781821`..`71dd0b6`). Packet `.agent/S4-01-phase-1-review-packet.md` (Fix round 1 section); questions Q1-Q9 in `.agent/S4-01-questions-1.md`, Q10-Q15 in `.agent/S4-01-questions-2.md`.
+
+### What it settled in code
+
+- Migration 0009: `finding` (immutable key/anchor/cohort/matcher version, `recurs_after_finding_id`, `split_from_finding_id`), `finding_revision` (UNIQUE `(finding_id, revision_no)` and `(finding_id, basis_sha256, transition)`, primary `assessment_revision_id`), `finding_revision_assessment`, `finding_revision_evidence` (cited only), `finding_merge`; all append-only. Alembic head is 0009.
+- `analytics/finding_episode.py` (pure, `finding-episode-1`): CURRENT windows of the current model only; <=20-min bridges only through observed Necessary or modelling-reason Indeterminate; recurrence link only across an observed OFF; window revision cited but not in the basis hash.
+- `analytics/finding_service.FindingMatcher` reads via `DispatchReadService.window` under a fence; `adapters/postgres_finding_store.py` is the fifth guarded writer (INSERT-only, advisory lock, `FindingFenceMoved`, `rows()` reload).
+- Composition `build_finding_matcher` / `build_finding_store`; CLI `assess_dispatch match-findings|finding-rows`.
+- `tools/checks/configuration-persistence.ps1`: only the Finding store writes Finding tables, insert-only.
+- `backend/conversions/s4-finding-cases-v1.json` + `tools/s4_finding_cases.py run|verify` (DB `assetops_s4cases`, TLS 8763; labelled authenticated Batch V2; per-run IDs in `%LOCALAPPDATA%/AssetOps/s4-finding-cases/s4-finding-cases-run.json`). Run on `6b891ef`: all checks OK, VERIFY PASSED (`.agent/S4-01-finding-cases-run.txt`).
+- `backend/tests/test_s4_finding_store_postgres.py`: all cases in one Site, stale window, F07 test-scoped upgrade, append-only, moved fence.
+- Fix round 1: anchor-first split ownership (B1); fence counts the Site's `finding_revision` rows (B2); recurrence only with proven gap coverage and both OFFs observed (B3); bridges need full observed coverage incl. stop spans (Q2); basis includes window revision IDs and input digests (Q4); `support_sha256` + `BASIS_REFRESHED` for provenance-only changes (Q5); `REOPENED` after NO_LONGER_SUPPORTED (C3). Pure `tests/test_s4_finding_episode.py` (16).
+- Producer `F01-gateway` (Q6): a Lab run sealed by the durable registered gateway (epoch `s4-gateway-epoch-1`) over TLS on 2026-10-02 opens a SUPPORTED Finding. Run on `71dd0b6`: 11 Findings / 30 revisions, VERIFY PASSED.
+
+### Open
+
+- No Finding read API/UI yet (phases 2-3). F07 is test-scoped: no reviewed later `dispatch-3.x`.
+- Backdated controls append collateral BASIS_REFRESHED to Findings on earlier days; every same-day reassessment appends BASIS_REFRESHED to that day's Findings - phase 2/3 History must group them (Q14).
+- Lab refuses a 0-minute minimum runtime, so the gateway case runs on 10-02, outside the fixture controls (Q15).
+- 3+-way merge untested by fixture (pure test only); matcher is linear in assessed days.
+
+## S4-01 phase 2 - Exact Finding root/revision read (active, review pending)
+
+Packet `.agent/S4-01-phase-2-review-packet.md`; questions `.agent/S4-01-questions-3.md` (Q16-Q20).
+
+- Read service `backend/assetops_backend/analytics/finding_read.py` (`FindingReadService.finding`,
+  `.window_state`, `revision_groups`); routes `backend/assetops_backend/finding_api.py`:
+  `GET /api/sites/{site_code}/findings/{finding_id}?revision_id=&after_revision_no=&limit=` and
+  `GET /api/sites/{site_code}/finding-windows/{day}`; wired in `main.py` via
+  `composition.build_finding_read_service` (manifest env `ASSETOPS_FINDING_CASES_MANIFEST`, else
+  `ASSETOPS_DEMO_FIXTURE_MANIFEST`).
+- Status matrix: `access` seam gives 401/403 before lookup (default admits the development tenant's operator
+  context and says so in `access_basis`, Q16); unknown/foreign Site, root or revision 404; malformed ID 422;
+  no DB or store failure typed 503 `FINDING_STORE_UNAVAILABLE`.
+- Selection: omitted revision = latest recorded; exact ID pins; `selection.replay` states no `knowledge_at`
+  replay. Every revision returned in `revision_no` order (paged) with prior/new window and interval IDs,
+  Foundation/binding revisions of the cited runs, basis/support digests, `support_changed`; groups are a hint.
+- Currentness compares the revision's own cited WINDOW assessments with the S3 read's current selection
+  (`CURRENT`, `FINDING_MATCH_PENDING`, `STALE`, `PENDING`, `FAILED`, `NOT_ASSESSED`; merged =
+  `MERGED_INTO_CANONICAL`). `window_state` returns `NO_FINDING` only for a CURRENT window without Candidate or
+  Finding.
+- Matcher (`finding_episode.py`) now records `claim.continuity` (bridged gaps: segments+reasons, observed stops
+  with both OFF times, `candidate_minutes_added "0"`) and `claim.recurrence` (LINKED with both OFF bounds and
+  covered windows, or NOT_ESTABLISHED + reason; split parts NOT_APPLICABLE). Not in the basis digest. The read
+  resolves OFF evidence IDs from the cited interval revision's evidence at the recorded time
+  (`PostgresFindingStore.revision_lineage`).
+- Store reads added: `finding_detail`, `revision_lineage`, `findings_over` (SELECT only; the existing
+  persistence guard still limits Finding writes to the store - proven by a write in `finding_read.py`).
+- `DemoManifestAnnotations` also labels an opt-in `gateway_sealed` case (`DEMO_MANIFEST_GATEWAY_CASE`).
+- Producer: R2 asserts F01-gateway cites only gateway-sealed batch evidence (102 IDs, 0 outside); writes
+  `s4-finding-cases-manifest.json`; `verify` reads every Finding through `assess_dispatch finding-reads`.
+- Open: Q17 (contradictory report between stop OFFs is invisible to the matcher); Q18 window-state route vs
+  S4-04; no UI (phase 3); R1 gateway-day labelling for the owner walkthrough.
+
+### S4-01 phase 2 fix round 1 (review B1/B2/C3; Q17-Q20)
+
+Commit `254b843`; packet "Fix round 1" section; questions `.agent/S4-01-questions-4.md` (Q21-Q24).
+- Matcher `finding-episode-2`: `FindingMatcher.bases` reads each CURRENT window's selected run input evidence
+  once per run (`DispatchReadService.run`) into typed `StateReport`s; `_stop_proof` confirms a stop only when both
+  OFF endpoints are in the run evidence and every report between last ON and next first ON is accepted, GOOD,
+  in-cohort and OFF, in CURRENT non-Indeterminate windows with no generator cohort limit; otherwise the stop does
+  not bridge (two Findings) and recurrence is `NOT_ESTABLISHED: SEPARATION_STOP_NOT_CONFIRMED: <reason>` (Q21).
+  Continuity stops carry `proof` (evidence IDs, run/window IDs, `reports_sha256`).
+- Q20: relation facts in `support_sha256`, full continuity/recurrence records in `basis_sha256`; the opening
+  recurrence record is carried on `Episode.recurrence` into every later revision. Old v1 rows would get an
+  appended revision (basis includes the matcher version); 0009 reached only disposable DBs.
+- Q18: `finding_match_pass` (append-only, added to unmerged 0009; persistence guard table list extended) records
+  each committed pass's fenced `selection_seq`; `window_state` says `NO_FINDING` only when a v2 pass covers the
+  window's current selection, else `FINDING_MATCH_PENDING`. B1: Indeterminate window = `NOT_DETERMINABLE`; body
+  has `window_claim_level`, `window_limitations`, `selected_run_id`, watermarks, `finding_match`.
+- B2: a pinned non-latest revision's currentness is `SUPERSEDED_BY_LATER_REVISION` + `latest_revision_id`;
+  `state.claim_is_current_refers_to = LATEST_REVISION`.
+- Q19: `build_finding_router(gate=...)` reuses `main.performance_gate`; an unconfigured gate is closed. Closed:
+  default detail and window reads 409 `PERFORMANCE_CUTOVER_CLOSED`; pinned `revision_id` 200 with
+  `audit_only`, `SOURCE_CLOSED` projection, no S3 read and S3 links withheld (`links.performance`). The
+  `finding-reads` operator CLI is ungated (Q23).
+- Open: Q21-Q24; phase 3 UI.
+
+
+## S4-01 phase 3 - Site Finding detail UI and closeout (in_review)
+
+Task `tasks/S4-01-finding-identity.md`; packet `.agent/S4-01-review-packet.md` (all phases); questions
+`.agent/S4-01-questions-5.md` (Q25-Q30); owner steps `.agent/S4-01-owner-walkthrough.md`.
+
+### What it settled in code
+
+- Route `SITE_FINDING_ROUTE_PATH` = `/sites/:siteId/findings/:findingId`, exact version `?revision_id=` (the API
+  parameter), view `?view=analysis`, block `?portion=` (`frontend/src/shell/operatorSiteRoutes.ts`,
+  `siteFindingHref`). Frame `SiteFindingFrame` (`frontend/src/shell/SiteAnalyticsFrames.tsx`): trail Sites > site >
+  Findings > Finding, Findings tab current, h1 from the lifecycle. The T028 file-backed `/findings/:siteId/:assessmentId`
+  stays as it was.
+- `frontend/src/sites/findingClient.ts`: the 401/403/404/409 `PERFORMANCE_CUTOVER_CLOSED`/503 responses map to
+  named states, plus `getFindingWindow` for `finding-windows/{day}`. `findingWords.ts` holds the plain words for
+  lifecycle, transition, currentness and window states.
+- `frontend/src/sites/SiteFinding.tsx` leads with the most limiting state, in this order: closed source (audit
+  record only, C7), merged, earlier version, lifecycle, then currentness. It then shows the panels:
+  - What happened: separate minutes cards, money "Not yet available", and a keyboard-selectable block bar.
+  - What limits this conclusion: limitations, joined gaps and stop bridges with the sparse-reporting caveat, and
+    recurrence that never implies the earlier Finding is open.
+  - What to do next: not yet available.
+  - Where to look next: Dispatch days carrying the interval revision, records, related Findings.
+  - Versions: BASIS_REFRESHED runs grouped with count and exact links.
+  - Records summary: demo-manifest kind in plain words.
+  The Analysis view holds the full IDs and codes behind `data-vocabulary-exempt`.
+- Dispatch day (`PerformanceDispatch` `DayFindings`) reads `finding-windows/{day}`. It links non-merged Findings
+  and names NO_FINDING / NOT_DETERMINABLE / FINDING_MATCH_PENDING / NOT_ASSESSED without a link.
+- Tools: `tools/s4_finding_walkthrough.py` (DB `assetops_s4walk` copied from `assetops_s4cases`, API 8840, web
+  5340, staged PENDING 2026-10-09; `links` prints this run's addresses) and `tools/s4-finding-evidence.mjs`
+  (CDP 9343; 36 claims at 1440/390; run record `.agent/S4-01-phase-3-evidence-run.txt`).
+
+### Open
+
+- Q25 the S3 `unavailable.finding` text remains; Q27 no priority/confidence chip; Q28 the generic
+  `layout-evidence.mjs` needs a Lab backend and was not run to completion; Q29 ledger row unchanged.
+- Carries still open: C5 one-hop canonical, C6/C9 read and pass cost (S4-04), C8 recurrence record only on the
+  opening revision.
+- `?portion=` is an index into the selected version's blocks (Q30).

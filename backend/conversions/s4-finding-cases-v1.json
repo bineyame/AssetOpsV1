@@ -1,0 +1,120 @@
+{
+  "schema": {"id": "assetops.s4-finding-cases", "version": 1},
+  "label": "s4-finding-cases-v1",
+  "status": "LABELLED AUTHENTICATED FIXTURE SPECIFICATION - S4-01 D-finding-revisions under D-2026-10-12-finding-episode-and-revisions. Readings are authored public Batch V2 content posted by the registered gateway credential to central acceptance (S2 fault-fixture precedent); they are not gateway-sealed Lab output and not operator truth. Generated batch/evidence/run/Finding IDs live only in the environment-bound run artifact.",
+  "producer_version": 1,
+  "seed": 20261012,
+  "site_code": "KOBO-001",
+  "selected_model_version": "dispatch-3.1",
+  "matcher_version": "finding-episode-1",
+  "demo_configuration": "kobo-001-s3-dispatch-demo-config.json (properties, bindings: minigrid-roles-2)",
+  "reading_rules": {
+    "step_minutes": 5,
+    "feeders": ["residential-meter", "clinic-meter", "mill-meter"],
+    "feeder_kw": "10",
+    "signals": {"state": ["generator-controller", "status"], "pv": ["pv-inverter-controller", "available-power"],
+                "dis": ["battery-pcs-controller", "discharge-capability"], "soc": ["battery-pcs-controller", "state-of-charge"]},
+    "collateral": "a match step after a backdated control: the Foundation splits its open revision, so unchanged episodes on earlier days append a provenance-only BASIS_REFRESHED (identical bounds/minutes/support digest, new selected window and interval revisions), never SUPPORT_CHANGED",
+    "held": "rows sequenced with the step in source-time order but delivered by a later release step (late central acceptance)",
+    "block": "RUNNING state, three feeders, pv, dis and soc at every step from..to inclusive; stop_before/stop_after add a STOPPED state 5 minutes outside; only=[...] limits the signals"
+  },
+  "setup": [{"do": "reserve", "value": 20, "effective_from": "2026-10-03T00:00:00Z"},
+            {"do": "runtime", "value": 0, "effective_from": "2026-10-03T00:00:00Z", "note": "no configured minimum runtime, so Candidate segments start at the first ON report"}],
+  "cases": [
+    {"case_id": "F01", "label": "candidate-open", "day": "2026-10-06",
+     "steps": [
+       {"do": "deliver", "decided": "2026-10-30T08:00:00Z", "blocks": [
+         {"from": "2026-10-06T08:00:00Z", "to": "2026-10-06T08:20:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true},
+         {"from": "2026-10-06T08:25:00Z", "to": "2026-10-06T08:30:00Z", "pv": "5", "dis": "5", "soc": "80"},
+         {"from": "2026-10-06T08:35:00Z", "to": "2026-10-06T09:00:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_after": true}]},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-06T08:00:00Z", "new": true, "transition": "OPENED", "lifecycle": "SUPPORTED",
+                                   "episode": ["2026-10-06T08:00:00Z", "2026-10-06T09:00:00Z"], "necessary_minutes_gt": 0}]}]},
+    {"case_id": "F02", "label": "overlap-adjacent-cross-day", "day": "2026-10-08",
+     "steps": [
+       {"do": "deliver", "decided": "2026-10-30T09:00:00Z", "blocks": [
+         {"from": "2026-10-08T23:20:00Z", "to": "2026-10-08T23:50:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true, "stop_after": true},
+         {"from": "2026-10-09T00:05:00Z", "to": "2026-10-09T00:30:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true}]},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-08T23:20:00Z", "new": true, "transition": "OPENED", "lifecycle": "SUPPORTED",
+                                   "episode": ["2026-10-08T23:20:00Z", "2026-10-09T00:30:00Z"], "interval_citations": 2}]},
+       {"do": "deliver", "decided": "2026-10-30T09:30:00Z", "blocks": [
+         {"from": "2026-10-09T00:35:00Z", "to": "2026-10-09T00:55:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_after": true}]},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-08T23:20:00Z", "transition": "SUPPORT_CHANGED", "lifecycle": "SUPPORTED", "revision_no": 2,
+                                   "episode": ["2026-10-08T23:20:00Z", "2026-10-09T00:55:00Z"]}]}]},
+    {"case_id": "F03", "label": "recurrence", "day": "2026-10-11",
+     "steps": [
+       {"do": "deliver", "decided": "2026-10-30T10:00:00Z", "blocks": [
+         {"from": "2026-10-11T08:00:00Z", "to": "2026-10-11T08:30:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true, "stop_after": true},
+         {"from": "2026-10-11T09:30:00Z", "to": "2026-10-11T10:00:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true, "stop_after": true}]},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-11T08:00:00Z", "new": true, "transition": "OPENED"},
+                                  {"anchor": "2026-10-11T09:30:00Z", "new": true, "transition": "OPENED", "recurs_after": "2026-10-11T08:00:00Z"}]}]},
+    {"case_id": "F04", "label": "late-earlier-acceptance", "day": "2026-10-13",
+     "steps": [
+       {"do": "deliver", "decided": "2026-10-30T11:00:00Z", "blocks": [
+         {"from": "2026-10-13T08:30:00Z", "to": "2026-10-13T09:00:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_after": true}],
+        "held": {"earlier": [
+         {"from": "2026-10-13T08:00:00Z", "to": "2026-10-13T08:25:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true}]}},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-13T08:30:00Z", "new": true, "transition": "OPENED",
+                                   "episode": ["2026-10-13T08:30:00Z", "2026-10-13T09:00:00Z"]}]},
+       {"do": "release", "name": "earlier", "decided": "2026-10-30T11:30:00Z", "label": "earlier-sequenced reports held at the gateway, accepted late"},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-13T08:30:00Z", "transition": "SUPPORT_CHANGED", "revision_no": 2,
+                                   "episode": ["2026-10-13T08:00:00Z", "2026-10-13T09:00:00Z"]}]}]},
+    {"case_id": "F06", "label": "split-and-bridge", "day": "2026-10-15",
+     "steps": [
+       {"do": "deliver", "decided": "2026-10-30T12:00:00Z", "blocks": [
+         {"from": "2026-10-15T08:00:00Z", "to": "2026-10-15T09:30:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true, "stop_after": true},
+         {"from": "2026-10-15T12:00:00Z", "to": "2026-10-15T12:25:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true},
+         {"from": "2026-10-15T13:00:00Z", "to": "2026-10-15T13:30:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_after": true}],
+        "held": {"contradiction": [{"from": "2026-10-15T08:30:00Z", "to": "2026-10-15T09:00:00Z", "pv": "38", "only": ["pv"]}],
+                 "bridge": [{"from": "2026-10-15T12:30:00Z", "to": "2026-10-15T12:55:00Z", "pv": "40", "dis": "20", "soc": "80"}]}},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-15T08:00:00Z", "new": true, "transition": "OPENED"},
+                                  {"anchor": "2026-10-15T12:00:00Z", "new": true, "transition": "OPENED"},
+                                  {"anchor": "2026-10-15T13:00:00Z", "new": true, "transition": "OPENED", "recurs_after": null}]},
+       {"do": "release", "name": "contradiction", "decided": "2026-10-30T12:30:00Z", "label": "second PV report at the same instants (REPORTS_OVERLAP), accepted late"},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-15T08:00:00Z", "transition": "SPLIT", "revision_no": 2},
+                                  {"anchor": "SPLIT_PART", "new": true, "transition": "OPENED", "split_from": "2026-10-15T08:00:00Z"},
+                                  {"anchor": "2026-10-15T12:00:00Z", "transition": "BASIS_REFRESHED", "revision_no": 2, "note": "same-day window revision changed; support unchanged"},
+                                  {"anchor": "2026-10-15T13:00:00Z", "transition": "BASIS_REFRESHED", "revision_no": 2}]},
+       {"do": "release", "name": "bridge", "decided": "2026-10-30T13:00:00Z", "label": "reports filling the unobserved gap, accepted late"},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-15T12:00:00Z", "transition": "MERGED", "revision_no": 3},
+                                  {"anchor": "2026-10-15T13:00:00Z", "transition": "MERGED_INTO", "lifecycle": "MERGED",
+                                   "merged_into": "2026-10-15T12:00:00Z"},
+                                  {"anchor": "2026-10-15T08:00:00Z", "transition": "BASIS_REFRESHED", "revision_no": 3, "note": "same-day window revision changed; support unchanged"},
+                                  {"anchor": "SPLIT_PART", "transition": "BASIS_REFRESHED"}]}]},
+    {"case_id": "F08", "label": "retry-and-absent-basis", "day": "2026-10-19",
+     "steps": [
+       {"do": "match", "expect": []},
+       {"do": "deliver", "decided": "2026-10-30T14:00:00Z", "blocks": [
+         {"from": "2026-10-19T08:00:00Z", "to": "2026-10-19T08:30:00Z", "pv": "40", "dis": "20", "soc": "80", "stop_before": true, "stop_after": true}]},
+       {"do": "match", "expect": [], "note": "accepted but not yet assessed: no Finding"},
+       {"do": "deliver", "decided": "2026-10-30T14:10:00Z", "epoch": "epoch-2", "label": "second epoch makes the default cohort ambiguous", "blocks": [
+         {"from": "2026-10-19T08:10:00Z", "to": "2026-10-19T08:10:00Z", "soc": "79", "only": ["soc"]}]},
+       {"do": "assess"},
+       {"do": "match", "expect": [], "note": "ambiguous cohort: no Finding"}]},
+    {"case_id": "F05", "label": "limitation-and-closure", "day": "2026-10-21",
+     "steps": [
+       {"do": "deliver", "decided": "2026-10-30T15:00:00Z", "blocks": [
+         {"from": "2026-10-21T08:00:00Z", "to": "2026-10-21T09:00:00Z", "pv": "29", "dis": "20", "soc": "50", "stop_before": true, "stop_after": true}]},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-21T08:00:00Z", "new": true, "transition": "OPENED", "lifecycle": "SUPPORTED"}]},
+       {"do": "runtime", "value": 120, "effective_from": "2026-10-21T00:00:00Z", "decided": "2026-10-30T15:10:00Z"},
+       {"do": "assess"},
+       {"do": "match", "collateral": true, "expect": [{"anchor": "2026-10-21T08:00:00Z", "transition": "UNCONFIRMED", "lifecycle": "UNCONFIRMED", "revision_no": 2}]},
+       {"do": "runtime", "value": 0, "effective_from": "2026-10-21T00:00:00Z", "decided": "2026-10-30T15:20:00Z"},
+       {"do": "reserve", "value": 45, "effective_from": "2026-10-21T00:00:00Z", "decided": "2026-10-30T15:21:00Z"},
+       {"do": "assess"},
+       {"do": "match", "collateral": true, "expect": [{"anchor": "2026-10-21T08:00:00Z", "transition": "NO_LONGER_SUPPORTED", "lifecycle": "NO_LONGER_SUPPORTED", "revision_no": 3}]},
+       {"do": "match", "expect": [], "note": "retry of the same basis adds nothing"}]}
+  ],
+  "test_scoped": {
+    "F07": "model-upgrade: no reviewed later dispatch-3.x exists. backend/tests/test_s4_finding_store_postgres.py proves the version-change path with a clearly labelled test model version; no live upgraded claim is produced."
+  }
+}

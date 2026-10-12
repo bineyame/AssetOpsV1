@@ -1,0 +1,8 @@
+# S4-01 Planner questions and fail-closed defaults (2026-10-12)
+
+The Architect's `D-2026-10-12-finding-episode-and-revisions` resolves the Finding semantics, so no owner or Architect answer is required before phase 1. These are the implementation/review checks to bundle if the built seams expose ambiguity.
+
+1. **F07 model-upgrade fixture:** Is a genuinely reviewed later `dispatch-3.x` model available in the branch? Default: prove the revision path with a clearly labelled test-scoped version transition, keep old production model provenance immutable, and withhold any live upgraded Finding claim. Do not relabel `dispatch-3.1` or fabricate an obsolete run.
+2. **F06 bridge/merge cost:** Can the normal accepted-evidence/S3 path produce two persisted IDs and a later supported bridge within the phase budget? Default: retain the architectural merge rule and a durable relationship; if the fixture cannot prove it, mark bridge/merge unverified, prevent duplicate active claims, and ask the Architect to size a follow-up before claiming full S4-01 acceptance. Split remains mandatory in F06.
+3. **Selected-history access:** Does the existing S3 read provide a commit-ordered fence for arbitrary historical `knowledge_at`? Default: no. S4-01 exposes exact stored `revision_id`, selected assessment and evidence IDs as the reproducible audit path. A foreign revision is 404; a pending/lagging source is typed unavailable, not an empty Finding.
+4. **S3-01u scheduling:** Does assessed-day discovery or >60 Evidence pagination block a truthful S4-01 detail? Default: no. S4-01 links the exact selected assessment/evidence IDs and labels any partial record view; S3-01u remains a follow-up packet with no technical edge to S4-01.

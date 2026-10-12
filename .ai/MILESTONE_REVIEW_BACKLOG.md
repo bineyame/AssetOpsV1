@@ -2050,3 +2050,40 @@ The carried review findings above are unchanged.
 - S3-01u (assessed-day discovery, paged evidence) exists only in the decision/answers; the Planner must create its task file and registry node.
 - S4-01 refinement: its multi-revision fixture must cover a model-upgrade revision explicitly; record the optional bridge/merge case as tested or explicitly deferred.
 
+### S4-01 phase 1 review carries (2026-10-12, `.agent/S4-01-phase-1-review.md`, fresh Claude)
+
+- C2 (Q1): idempotency skips a basis matching any earlier revision, not just the latest, so an A->B->A reselection leaves the Finding showing B.
+- C3: a closed (NO_LONGER_SUPPORTED) Finding silently reopens as UNCONFIRMED/SUPPORTED (confirmed by probe) — check against the decision in the fix round; Architect question if not covered.
+- C5 (Q8): fixture publishes minimum runtime with source TEMPLATE; SITE would be honest.
+- C6: on merge the matcher prefers an episode whose anchor is inside the cluster over the earlier anchor the decision names.
+
+### S4-01 phase 1 fix re-review carries (2026-10-12, `.agent/S4-01-phase-1-fix-rereview.md`) — fold into S4-01 phases 2/3
+
+- R1 (before owner walkthrough): the gateway F01 case runs on 10-02 template runtime; use a positive multiple-of-5-minute setup control (Q15 alternative) or label the 10-02 Finding as the gateway path on template runtime.
+- R2: the gateway case should assert the opened Finding's cited evidence all comes from the gateway-sealed batches (`tools/s4_finding_cases.py:418-428`).
+- R3: packet residual-risk text (`.agent/S4-01-phase-1-review-packet.md:86-91`) is stale (cross-day recurrence, no pure tests).
+- Phase 3 wording: an UNCONFIRMED revision replacing a NO_LONGER_SUPPORTED conclusion must not read as a new active issue (Q10 condition); a recurrence link to a now-unsupported prior Finding must not imply that issue is still active.
+- Phase 2: the "currently selected window" read must use the same window set the Finding basis uses (supported vs unsupported paths differ).
+
+### S4-01 phase 2 review carries (2026-10-12, `.agent/S4-01-phase-2-review.md`)
+
+- C5 (low): the canonical link follows only one merge; merge chains are not resolved.
+- C6 (low): `findings_over` loads every Site Finding with one query per row; an episode ending exactly at midnight counts as overlapping the next day.
+- C4 detail: OFF reports are matched by role and exact time, so another generator report at the same instant could be listed.
+
+### S4-01 phase 2 fix re-review carries (2026-10-12, `.agent/S4-01-phase-2-fix-rereview.md`)
+
+- C7 (phase 3): a pinned audit read under a closed gate still carries `lifecycle: SUPPORTED` and Candidate minutes; the UI must lead with the closed-source, audit-only state (UI test).
+- C8: UNCONFIRMED/NO_LONGER_SUPPORTED revisions don't carry the recurrence record (read takes it from the opening revision).
+- C9 (S4-04): `finding_match_pass` gains a row every pass even when nothing is written; bound it.
+- Residual (phase 3 wording): a long stop with sparse reporting still bridges when both OFF endpoints are present and nothing contrary lies between; consider labelling in the walkthrough.
+- S4-01 phase 3 review carry C5 (`.agent/S4-01-phase-3-review.md`): the Dispatch link carrying the primary assessment revision is always attached to the first day without checking which day that revision belongs to (correct in every live case today).
+
+### S4-01 fix round 4 re-review carries (2026-10-12, `.agent/S4-01-fix4-rereview.md`)
+
+- K1: guide step 4 order of the cause sentence vs "not a new issue" is reversed vs the live page.
+- K2: with the Performance source closed, a Not confirmed version still says "No record gaps or conflicts were found" (`SiteFinding.tsx:417-420`), untested.
+- K3: the plain-words table check is a bare `assert` (removed under `python -O`); pin with a pytest.
+- K4 (dispatch model owner): a block with an unneeded missing reading held back by minimum runtime reads as records missing rather than naming the runtime (same rule as the window assessment).
+- K5: no test for the plain wording of battery, capability-margin and transition-only causes.
+

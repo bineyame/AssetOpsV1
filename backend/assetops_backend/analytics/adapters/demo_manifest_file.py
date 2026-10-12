@@ -19,6 +19,11 @@ STATEMENT = ("Labelled fault fixture in the demo manifest, matched by exact acce
              "the gateway, source, sequence epoch, batch and accepted IDs shown are the recorded provenance.")
 
 
+GATEWAY_STATEMENT = ("The demo manifest records these exact accepted evidence IDs as a Lab run sealed by the "
+                     "registered gateway and delivered over its credential (the ordinary path). The central "
+                     "ledger's own provenance - gateway, source, sequence epoch, batch - is shown beside it.")
+
+
 class DemoManifestAnnotations:
     def __init__(self, path: str | None) -> None:
         self.path = Path(path) if path else None
@@ -36,9 +41,18 @@ class DemoManifestAnnotations:
         manifest, digest = loaded
         out = []
         for case in manifest.get("cases", []):
+            matched = sorted(evidence_ids & set(case.get("evidence_ids", [])))
+            if matched and case.get("gateway_sealed") and not case.get("fault_fixture"):
+                # Opt-in (S4-01 Q6/Q15): the producer's ordinary registered-gateway case, named as such.
+                out.append({
+                    "kind": "DEMO_MANIFEST_GATEWAY_CASE", "label": "ordinary registered gateway path in demo manifest",
+                    "statement": GATEWAY_STATEMENT, "case_id": case.get("case_id"), "case_label": case.get("label"),
+                    "manifest_epochs": case.get("epochs", []), "matched_evidence_ids": matched,
+                    "source": {"manifest": manifest.get("label"), "path": str(self.path), "sha256": digest},
+                })
+                continue
             if not case.get("fault_fixture"):
                 continue
-            matched = sorted(evidence_ids & set(case.get("evidence_ids", [])))
             if matched:
                 out.append({
                     "kind": "DEMO_MANIFEST_FAULT_FIXTURE", "label": "labelled fault fixture in demo manifest",
