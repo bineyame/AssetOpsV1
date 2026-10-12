@@ -92,8 +92,9 @@ export const SITE_SLD_INTRODUCTION =
   "This is the configured single line diagram: the components this site's " +
   "foundation declares, arranged by the hybrid mini-grid archetype, with the " +
   "connections the document declares between them. It is a picture of the " +
-  "configuration and never of the site's behaviour - no reading has arrived, " +
-  "and every value slot on it is empty.";
+  "configuration and never of the site's behaviour. Whether " +
+  "any reading has arrived is not assessed in this view, so every value slot " +
+  "on it is empty.";
 
 /** What the unavailable state must not be read as saying. */
 export const SITE_SLD_UNAVAILABLE_NOTE =

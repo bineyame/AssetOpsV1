@@ -1242,6 +1242,14 @@ describe("declared topology content states nothing operational", () => {
     expect(spacedText(container)).not.toMatch(/none has reported/i);
   });
 
+  it("does not claim that no reading has arrived; reporting is not assessed in the diagram view", async () => {
+    const { container } = renderConfiguration(DECLARED_SITE);
+    await settledScreen();
+
+    expect(spacedText(container)).toMatch(/whether any reading has arrived is not assessed in this view/i);
+    expect(spacedText(container)).not.toMatch(/no reading has arrived/i);
+  });
+
   it("names no control state, setpoint, or breaker position outside the question that asks for one", async () => {
     const { container } = renderConfiguration(DECLARED_SITE);
     await settledScreen();

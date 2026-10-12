@@ -43,12 +43,16 @@ PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 API_PORT, WEB_PORT, EMPTY_API_PORT, EMPTY_WEB_PORT = 8860, 5360, 8861, 5361
 
-# Selected Foundation periods in the copied database (valid_from of each stored period).
+# Instants chosen INSIDE each stored period (none is a period's valid_from). Today the period in
+# effect is v10; the "21 Oct 2026 onward" period (v13) is SCHEDULED until that date, so its instant
+# shows a "Scheduled period ... not the configuration in effect now" strip. After 21 Oct 2026 it
+# becomes the current period and these labels need revisiting. The first link (no ?at=) is the
+# configuration actually in effect now.
 PERIODS = (
     ("Imported period (29 Sep 2026)", "2026-09-30T00:00:00Z"),
     ("Demo configuration period (1 Oct 2026)", "2026-10-01T12:00:00Z"),
     ("Capability channels added (2 Oct 2026)", "2026-10-02T12:00:00Z"),
-    ("Current period (21 Oct 2026 onward)", "2026-10-22T00:00:00Z"),
+    ("Scheduled period v13 (starts 21 Oct 2026; not in effect yet)", "2026-10-22T00:00:00Z"),
     ("Before any stored version (missing state)", "2026-09-01T00:00:00Z"),
 )
 
@@ -124,6 +128,10 @@ def links(web: int, empty_web: int) -> None:
     site = f"http://localhost:{web}/sites/KOBO-001"
     say(f"- Sites (populated): http://localhost:{web}/sites")
     say(f"- Sites (no Site stored): http://localhost:{empty_web}/sites")
+    say("- In effect now (no ?at=; this is the route a user lands on):")
+    for view, path in (("Site model", "foundation"), ("Single line diagram", "foundation/sld"),
+                       ("Readiness", "foundation/readiness")):
+        say(f"    {view}: {site}/{path}")
     for label, at in PERIODS:
         say(f"- {label}:")
         for view, path in (("Site model", "foundation"), ("Single line diagram", "foundation/sld"),

@@ -117,9 +117,10 @@ const overflow = () =>
 
 const EMPTY = process.argv[4] ?? "http://localhost:5361";
 const MOCK = (id) => `${BASE}/mockups/v69/index.html#/${id}`;
-const CURRENT = "2026-10-22T00:00:00Z"; // inside the open period v13 (from 2026-10-21), not a period start
+const CURRENT = "2026-10-22T00:00:00Z"; // inside the SCHEDULED period v13 (from 2026-10-21); not in effect until then
 const IMPORTED = "2026-09-30T00:00:00Z"; // inside the imported period (2026-09-29 to 2026-10-01)
 const NONE = "2026-09-01T00:00:00Z"; // before any stored version
+const nowView = (path) => `${BASE}/sites/${SITE}/${path}`; // no ?at=: the configuration in effect now
 const view = (path, at) => `${BASE}/sites/${SITE}/${path}?at=${encodeURIComponent(at)}`;
 const H2 = `[...document.querySelectorAll('main h2')].map(h => h.textContent.trim())`;
 const SEL = `(() => { const s = document.querySelector('select[aria-label="Foundation period"]');
@@ -185,6 +186,17 @@ async function main() {
     await shot(`app-sites-empty-${label}`);
 
     // --- foundation:1-3 ----------------------------------------------------------------------
+    // --- in effect now (no ?at=): the configuration a user lands on ---------------------------
+    for (const [name, path, text] of [["foundation", "foundation", "Time-valid control configuration"],
+      ["sld", "foundation/sld", "What each configured part is"], ["readiness", "foundation/readiness", "Role coverage"]]) {
+      await go(nowView(path), loaded(text));
+      const n = await js(`({ sel: ${SEL}, text: document.body.innerText })`);
+      claim(`${label}: ${name} with no ?at= is the configuration in effect now`,
+        /in effect now/i.test(n.sel?.label ?? "") && /configuration in effect now/i.test(n.text) && !/Scheduled period/i.test(n.text), n.sel);
+      await layout(`${label}: ${name} (in effect now)`);
+      await shot(`app-${name}-now-${label}`);
+    }
+
     await go(view("foundation", CURRENT), loaded("Time-valid control configuration"));
     const model = await js(`({ h2: ${H2}, sel: ${SEL}, bus: document.querySelector('[data-topology-bus]')?.textContent,
       cards: document.querySelectorAll('.plant-card').length })`);
@@ -198,7 +210,7 @@ async function main() {
     claim(`${label}: an address instant stays the selected period (never "In effect now")`,
       model.sel?.value === CURRENT && /from the address/.test(model.sel?.label ?? ""), model.sel);
     await layout(`${label}: Site model`);
-    await shot(`app-foundation-${label}`);
+    await shot(`app-foundation-scheduled-${label}`);
     await go(view("foundation", NONE), loaded("No stored version for this period"));
     claim(`${label}: a period before any stored version is stated, not filled with current data`,
       await js(`${H2}.includes("No stored version for this period") && !document.body.innerText.includes("Configured topology")`));
@@ -217,7 +229,7 @@ async function main() {
       { boundParts, parts: Object.keys(sld.parts).length, unchanneled: sld.unchanneled },
     );
     await layout(`${label}: SLD`);
-    await shot(`app-sld-${label}`);
+    await shot(`app-sld-scheduled-${label}`);
     // Devices caption (backlog carry): open the device disclosure and read it.
     const caption = await js(`(() => { const d = [...document.querySelectorAll('details')].find(x => x.innerText.includes('Devices and the binding set'));
       if (!d) return null; d.open = true;
@@ -234,6 +246,7 @@ async function main() {
       JSON.stringify(reloaded.parts) === JSON.stringify(sld.parts) && reloaded.sel?.value === CURRENT, { url: reloaded.url, sel: reloaded.sel });
     await go(view("foundation/sld", IMPORTED), loaded("What each configured part is"));
     const early = await js(PARTS);
+    await shot(`app-sld-imported-${label}`);
     const differs = Object.keys(sld.parts).filter((k) => early[k] !== sld.parts[k]);
     claim(`${label}: another selected period shows that period's bindings (set differs)`, differs.length >= 1, { differs });
 
@@ -255,7 +268,7 @@ async function main() {
       wording.every((w) => lower.includes(w.toLowerCase())) && healthWords.length === 0,
       { missing: wording.filter((w) => !lower.includes(w.toLowerCase())), healthWords });
     await layout(`${label}: Readiness`);
-    await shot(`app-readiness-${label}`);
+    await shot(`app-readiness-scheduled-${label}`);
 
     // --- keyboard: focus the Site model subtab, Enter, period carried -----------------------
     // Reach the subtab by keyboard: focus the element before it, then Tab (so :focus-visible applies).
