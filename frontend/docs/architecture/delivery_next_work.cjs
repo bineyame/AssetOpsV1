@@ -233,9 +233,22 @@ function nextWork(ctx) {
     refuse('unmapped_approved_panel', `${unmapped.length} approved core panel(s) lack a reviewed claim-portion path: ${unmapped.join(', ')}`);
   }
 
+  // Explicit unscored packets have no path to an approved core panel and would
+  // otherwise disappear from the report. This list is information for the
+  // coordinator's recorded activation rule, never a scored candidate.
+  const unscored_work = (plan.outside_ranking || [])
+    .filter((entry) => /^I-G-0[1-5]$/.test(entry.id))
+    .map((entry) => {
+      const node = g.nodes.get(entry.id);
+      const packet = (ctx.gate_queue || []).find((q) => q.task === node?.task);
+      return {id: entry.id, task: node?.task ?? null, node_status: node?.status ?? null,
+        packet_phase: packetPhase(packet?.meta?.status), reason: entry.reason,
+        open_prerequisites: (node?.requires || []).filter((id) => g.isOpen(id)).sort()};
+    });
   const report = {
     schema: 'assetops.next-work.v1', wave, k: owner?.k ?? null, fingerprints: ctx.fingerprints,
     authority: 'Non-authoritative until mapped paths and scoring are independently reviewed; never clears USER_REVIEW_REQUIRED.',
+    unscored_work,
   };
   if (refusals.length) return {...report, status: 'refused', refusals, decision: {action: 'none', reason: 'fail closed; no task selected'}};
 
