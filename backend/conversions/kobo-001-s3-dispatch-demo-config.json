@@ -1,0 +1,30 @@
+{
+  "schema": {"id": "assetops.demo-configuration", "version": 1},
+  "status": "SIMULATED DEMO CONFIGURATION - D-2026-10-08-s2-registered-kobo-demo-configuration; D-2026-10-11-s3-dispatch-interval-assessment (S3-01 phase 1). Not operator-entered Site truth.",
+  "label": "s3-dispatch-demo-config-v1",
+  "site_code": "KOBO-001",
+  "component_properties": {
+    "effective_from": "2026-10-01T00:00:00Z",
+    "asset_code": "generator",
+    "note": "S3-01 simulated demo configuration (s3-dispatch-demo-config-v1): the kobo-mini-grid-60kw template v2 generator control values, TEMPLATE provenance, under D-2026-10-08-s2-registered-kobo-demo-configuration.",
+    "properties": [
+      {"property_key": "generator-rated-power", "value": 40, "unit": "kW", "source": "TEMPLATE", "source_version": 2},
+      {"property_key": "start-soc-threshold", "value": 35, "unit": "%", "source": "TEMPLATE", "source_version": 2},
+      {"property_key": "stop-soc-threshold", "value": 90, "unit": "%", "source": "TEMPLATE", "source_version": 2},
+      {"property_key": "start-delay", "value": 5, "unit": "min", "source": "TEMPLATE", "source_version": 2}
+    ]
+  },
+  "bindings": {
+    "effective_from": "2026-10-02T00:00:00Z",
+    "role_set": "minigrid-roles-2",
+    "note": "S3-01 simulated demo configuration (s3-dispatch-demo-config-v1): every current minigrid-roles-1 binding carried unchanged, plus the two simulated capability channels of minigrid-roles-2.",
+    "declare_signals": [
+      {"device_id": "pv-inverter-controller", "signal_id": "available-power", "display_name": "PV available power (simulated capability)", "unit": "kW"},
+      {"device_id": "battery-pcs-controller", "signal_id": "discharge-capability", "display_name": "PCS discharge capability (simulated capability)", "unit": "kW"}
+    ],
+    "add": [
+      {"device_id": "pv-inverter-controller", "signal_id": "available-power", "asset_code": "pv-inverter", "role": "pv_available_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "battery-pcs-controller", "signal_id": "discharge-capability", "asset_code": "battery-pcs", "role": "pcs_discharge_capability", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}}
+    ]
+  }
+}

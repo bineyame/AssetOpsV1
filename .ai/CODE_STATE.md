@@ -4964,3 +4964,109 @@ Built on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, ques
 - 15 S1/S2 bounded portions recorded delivered (14 panels `reviewed_mapping:true`, all `partial`); V-01 is `delivery_plan.visual_gates.V-01` (effort unrecorded, so blocked); `outside_ranking` holds A-finding-index and A-money-comparability.
 - `tools/check-all.ps1` is the normal check command (architecture, navigation, workflow, registry, delivery fixtures, ledger).
 - Open: the live report refuses (37 approved core panels unmapped: evidence-analysis:2 and all S3-S7 cores still name proposed R-/UI-/D- IDs). Independent mapping review pending. Stale Readiness text after S2-02 (foundation_api.py:270,286,295-298; FoundationRevisionPanel.tsx:318-353) is unowned (Q8).
+
+## S3-01 phase 1 - Role vocabulary and `s3-dispatch-cases-v1` fixture (reviewed, accepted with carries)
+
+Built on `task/S3-01-dispatch-assessment` (1a `e68da1c`, 1b `7e9da8c`..`f508bae`); packet `.agent/S3-01-phase-1-review-packet.md`, questions `.agent/S3-01-questions-1.md`.
+
+### What it settled in code
+
+- `sites/binding_roles.py`: `minigrid-roles-2` = roles-1 + optional `pv_available_power` (INVERTER) and `pcs_discharge_capability` (POWER_CONVERSION_SYSTEM), kW, ONE. MINIGRID publishes roles-2 and still serves roles-1; `BindingService.publish(role_set=)` refuses an unserved set; the replayed Kobo conversion records roles-1.
+- `FoundationService.publish_component_properties` (no API route) and `sites/demo_configuration.py` (CLI `python -m assetops_backend.sites.demo_configuration --fixture backend/conversions/kobo-001-s3-dispatch-demo-config.json --tenant demo [--steps properties]`): labelled SIMULATED demo configuration - generator rated power/start 35/stop 90/start-delay 5 (TEMPLATE v2) from 2026-10-01, roles-2 bindings with both declared capability channels from 2026-10-02. Idempotent; earlier periods split, never rewritten.
+- `runs/profiles.py` `registered-kobo-publication` v3: v2 + generator status (STATE_SIGNAL), generator power at 15 min, both capability signals at resolution 0.000001, discharge-capability reporting gap; `record_channels=()`. v1/v2 unchanged.
+- The Lab publishes a declared signal only where the frozen basis maps it (`host/execution_adapter.py:690-705`), so on a roles-1 basis capability readings never exist on the public path (not a gateway hold).
+- Scenario `config/scenarios/kobo-s3-dispatch-degraded-reporting.yaml` v1 (prolonged world, 1 h discharge-capability gap, 10-min SOC hold, no override/record); fingerprint pinned.
+- `tools/s3_dispatch_cases.py run|verify` (reuses S2 `Demo`; DB `assetops_s3cases`, ports 8710/8743, own pipe): 8 cases, 2868 accepted readings; manifest with public IDs only, Lab run IDs under `private_oracle`; `verify` reloads accepted IDs from Postgres and fails on any mismatch or unmet precondition. Run output `.agent/S3-01-dispatch-cases-run.txt`, manifest copy `.agent/S3-01-dispatch-cases-v1.manifest.json`.
+- Registry `I-sim-dispatch-cases` has an `acceptance_target`; status stays `open` (tied to `I-S3-01`).
+
+### Open
+
+- No analytic, `EvidenceQuery`, cohort selection or persistence yet (phase 2); no UI (phase 3).
+- Q1-Q6 unanswered: contradiction is a labelled fault-fixture batch; poor quality = UNAVAILABLE readings + gap (no SUSPECT); same-epoch overlap is ambiguous by construction; the ordinary path produces late but not out-of-order-within-source readings; `fuel_level` is not published by `mini-grid` v3 registered runs.
+- Any Foundation-UI binding edit on a MINIGRID Site now records roles-2 (risk noted in packet).
+- The manifest's IDs are environment-specific (fresh import UUIDs per run); replay regenerates, `verify` compares within one environment.
+
+## S3-01 phase 2 - Typed seam and durable dispatch assessment (active, phase review pending)
+
+Built on `task/S3-01-dispatch-assessment` (`75886d1`..HEAD); packet `.agent/S3-01-phase-2-review-packet.md`, questions `.agent/S3-01-questions-2.md`, table `backend/tests/dispatch_3_decision_table.md`.
+
+### What it settled in code
+
+- `analytics/assessment_inputs.py`: `EvidenceQuery` (tenant/Site/domain, UTC half-open `Window`, `knowledge_at`, optional explicit cohort, roles, 6 h `BRACKET`), `AcceptedReading`, `RoleBinding`, `ControlValue`, `EvidenceQueryResult`, `CohortSelection`/`CohortLimit`, `AnalyticInputSet` with canonical `input_sha256` (evidence IDs + digests, cohort, as-accepted and selected revisions, controls, bindings, coverage, window, model; not `knowledge_at`).
+- `analytics/cohort.py`: default cohort = streams `(gateway, source, epoch)` with a reading in the window; overlapping epochs of one source -> `AMBIGUOUS`; explicit selection; per-channel `SEQUENCE_ORDER_INVERTED` / `REPORTS_OVERLAP` limits. No epoch-name, manifest or receipt-order logic.
+- `analytics/dispatch_v3.py` (`MODEL_VERSION = "dispatch-3"`, reuses `dispatch.ANALYTIC_ID`, no own declaration): pure; window + interval assessments; rows 3/4/5a/5b carried; row 1 unavailable; row 2 = Candidate-blocking minimum runtime only; window `COMPLETE|LIMITED|INDETERMINATE`. `dispatch.py` (`dispatch-2`) untouched.
+- Migration `0007_dispatch_assessment`: `analytic_run` (idempotent basis key), `analytic_run_evidence`, `assessment_revision`, `analytic_run_assessment` (all append-only), `recompute_job.last_error`.
+- `analytics/adapters/postgres_assessment_store.py`: the fourth product DB writer (guard rule 8 extended: own tables plus `recompute_job` lease/retry/scheduling only). Evidence read joins the ACCEPTED disposition; cutoff on `decided_at`; Foundation/binding selected bitemporally at the cutoff, tenant/Site scoped.
+- `analytics/assessment_worker.py` + CLI `python -m assetops_backend.analytics.assess_dispatch process-jobs|reconcile|assess`: lease (SKIP LOCKED, expired leases reclaimed), UTC-day windows over job window +/- bracket, one commit for runs + revisions + DONE under a lease token; retry with back-off, FAILED after 3 with `last_error`; `reconcile` enqueues windows whose latest default run has another model version or configuration digest.
+- `tools/s3_dispatch_cases.py`: case `late-out-of-order` renamed `late-publication`; new `out-of-order-fault-fixture` (10-07, labelled epoch) and `late-central-acceptance` (10-08, two batches held at the gateway; cutoff A/B); each case carries its persisted `dispatch-3` result and a check; `verify` reloads runs and the cutoff-A revision.
+
+### Open
+
+- No read API, projection table, UI or Performance cutover (phase 3); phase 3 derives `CURRENT/STALE_PROJECTION/...` from runs + overlapping jobs unless Q7 rules otherwise.
+- Questions Q1-Q8 in `.agent/S3-01-questions-2.md` (controls at cutoff vs as-accepted, minimum runtime mapping, day windows, fixture-epoch default read, in-flight cutoff, interval key anchoring).
+- Same-epoch overlap (10-04) yields a window `INDETERMINATE` with no intervals (generator series ambiguous).
+
+## S3-01 phase 3a - Durable dispatch read, comparison and cutover gate (active, phase review pending)
+
+Built on `task/S3-01-dispatch-assessment` (`aaa47ae`..HEAD); packet `.agent/S3-01-phase-3a-review-packet.md`, questions `.agent/S3-01-questions-3.md` (Q9-Q13), handoff `.agent/S3-01-phase-3a-handoff.md`.
+
+### What it settled in code
+
+- `analytics/cohort.py` `_multi_epoch`: two or more epochs of one source in a window make the default cohort `AMBIGUOUS`, overlapping or not (F3).
+- `postgres_assessment_store.lease_job(max_attempts)`: an expired lease on its last attempt is `FAILED` with "lease expired on attempt N of M" (F6). Worker `run_pending(reconcile=True)` reconciles every assessed Site (F4).
+- Migration `0008_assessment_selection`: append-only `analytic_run_selection` (commit order `seq`), written per DEFAULT run; `run_heads` reads it. Guard rule 8 lists it.
+- `analytics/dispatch_v3.py`: a `LIMITED` window always names its limitation; interval limitations are lifted as `INTERVAL_LIMITED: interval from <first_on>: ...` (the necessary-interval open-bound anomaly; Q13).
+- `analytics/dispatch_read.py`: `derive_status` (UNASSESSED/PENDING/CURRENT/STALE_PROJECTION/FAILED + reasons) over one REPEATABLE READ `window_snapshot`; `window`/`run`/`revision` with as-accepted revisions, `selection_note`, `CUTOFF_LABEL`, typed `UNAVAILABLE`, `superseded_keys`, demo annotations kept apart from provenance (`adapters/demo_manifest_file.py`, env `ASSETOPS_DEMO_FIXTURE_MANIFEST`).
+- `performance_api.py` (mounted in `main.py`): `/api/sites/{code}/performance/dispatch/cutover` always; `windows/{day}`, `runs/{id}`, `revisions/{id}` 409 `PERFORMANCE_CUTOVER_CLOSED` until the gate opens, 404 unknown/foreign, 503 store unavailable.
+- `analytics/performance_comparison.py` + CLI `python -m assetops_backend.performance_migration run|show`: MATCH / INTENTIONAL_DELTA / MISSING_SOURCE / UNPROVEN; gate opens only on PASSED, current legacy digest, same tenant/Site/environment, zero live lineage breaks. Reports under `<EVIDENCE_STORE_ROOT>/migration-performance/<site>/`.
+- Fixture: case `necessary-interval` (scenario `kobo-s3-dispatch-necessary-run` v1, 10-09); fault-fixture SOC template chosen by minimum `(source_time, sequence)`.
+
+### Open
+
+- No UI yet (phase 3b): `SitePerformance.tsx` `DispatchView` still reads the file-backed `/dispatch`; anchors in the 3a handoff.
+- Q9-Q13 resolved by `D-2026-10-11-s3-phase-3a-version-and-cutover`; built as `dispatch-3.1` (next entry).
+- A window read evaluates the full input basis per request; `run_pending` reconciles every assessed Site per pass.
+
+## S3-01 dispatch-3.1 - Model version bump, stored-window reassessment, stricter comparison (active, review pending)
+
+Built on `task/S3-01-dispatch-assessment` (`05f9b4d`..HEAD) under `D-2026-10-11-s3-phase-3a-version-and-cutover`. Packet: the "dispatch-3.1" section of `.agent/S3-01-phase-3a-review-packet.md`. Handoff to 3b: `.agent/S3-01-dispatch-3-1-handoff.md`. Questions: `.agent/S3-01-questions-4.md` (Q14-Q16).
+
+### What it settled in code
+
+- `dispatch_v3.MODEL_VERSION = "dispatch-3.1"` covers Q9 and Q13. Stored `dispatch-3` runs and revisions are immutable history. The worker reconcile, already keyed on `model_version`, reassesses their windows; `assess_dispatch process-jobs` runs it. Explicit selections are not remapped.
+- `dispatch_read`: `run` and `revision` carry `model_note` (`OLDER_RULE_RESULT ...` for a non-current model); a `dispatch-3` head reads `STALE_PROJECTION` with `MODEL_VERSION_CHANGED`.
+- `postgres_assessment_store`:
+  - `lineage_breaks(..., model_version)` counts `selected_heads_other_model`;
+  - `accepted_evidence` maps a message ID to its evidence ID;
+  - `selected_intervals(..., domain, bracket)` adds the overlapping `window_jobs`.
+- `performance_comparison` (report schema v2, which records `model_version`):
+  - `STALE_MODEL` and `STALE_PROJECTION` are `UNPROVEN`.
+  - `MATCH` and `INTENTIONAL_DELTA` need the cited records in the interval's evidence.
+  - `INTENTIONAL_DELTA` applies only through `DOCUMENTED_DELTAS` (`CAPABILITY_CHANNELS_REQUIRED`, rows 5a/5b), and only on the interval's own limitation.
+  - `MISSING_SOURCE` gives `EXCEPTIONS`, which keeps the gate closed.
+  - The gate refuses a report made under another model, and refuses while any head uses another model.
+- The cutover route's read label is now `POSTGRES_DISPATCH_3_1`. The decision table has "Model versions" and "Comparison" sections.
+
+### Open
+
+- Phase 3b UI. Its required displays are listed in the handoff, and the cutover route does not yet expose the report summary.
+- Q14-Q16 are open, with fail-closed defaults built.
+
+## S3-01 phase 3b - Performance > Dispatch UI, cutover summary, walkthrough (in review)
+
+Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `.agent/S3-01-review-packet.md`; questions Q17-Q22 in `.agent/S3-01-questions-5.md`.
+
+### What it settled in code
+
+- `performance_comparison.comparison_summary` and `classified_revision_ids`. `permits_performance_cutover(..., selected_revision_ids=)` refuses when a classified MATCH or INTENTIONAL_DELTA revision is no longer selected or the selection is unreadable (R2). An empty-set report needs no recheck.
+- The cutover route returns `comparison`. File-store errors give a 503 with a closed body (`read: CLOSED`, `permitted: false`, `unavailable.code` COMPARISON_STORE_UNAVAILABLE or ASSESSMENT_STORE_UNAVAILABLE) (R3). `main.py` wires the live `selected_intervals`.
+- Frontend: `sites/PerformanceDispatch.tsx` (Overview and Analysis views), `performanceDispatchClient.ts`, `dispatchWords.ts`; `SitePerformance.tsx` renders it when the legacy declaration is AWAITING_EVIDENCE_MIGRATION. Address state `?day=&revision=&block=&view=`. Without `?day=` the screen opens on today UTC.
+- Fuel, money and Finding panels are gated and typed unavailable. Demo annotations are shown apart from provenance.
+- `tools/s3_dispatch_walkthrough.py` (prepare/serve/recover; private DB `assetops_s3walk`, port 8820) and `tools/s3-dispatch-evidence.mjs` (32 claims at 1440 and 390).
+- Comparison recovery test closes R1-C1.
+
+### Open
+
+- No list of assessed days; older-rule label and late-evidence history proven by tests only; demo notes absent from walkthrough data; staged FAILED/STALE days have no interval.
+- Carries: R1-C2, 3a R4/R5. Committed fixture manifest is per run (evidence IDs change on a new producer run).
+- Owner checkpoint pending.

@@ -442,7 +442,7 @@ class TestIdentityHardening:
         finally:
             command.upgrade(config, "head")
         with engine.connect() as connection:
-            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0006_gateway_access"
+            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0008_assessment_selection"
 
     def test_registration_affiliation_and_mode_are_immutable(self, kit, engine) -> None:
         source_id = kit.binding("pv-inverter-controller")["source_id"]

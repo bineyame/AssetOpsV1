@@ -1,3 +1,84 @@
+# Coordinator handoff (2026-10-09, S2 complete; pre-S3 startup)
+
+A fresh coordinator starts from this file; do not re-derive what it states.
+
+## Current state (supersedes everything below)
+- main at `82ba6cd` (S1, S2 complete). Branch `plan/pre-S3-startup` (37 commits, HEAD `2aedea7`) holds all pre-loop work, all independently reviewed: pre-S3 decisions; owner W1 confirmation (27 screens/64 panels, K=10); registry reconciliation + delivery_plan; PRE-S3-03 checker/next-work (+ C9 discovery fixes); PRE-S3-04 Readiness wording; W1 64-panel mapping incl. graph pass (S4-03/S4-04/S5-02/S6-03 split, ActionIndex scoped, S6-01 requires S4-01); V-01a/V-01b; S2-02r; S3-01 refined; `.ai/COORDINATOR_LOOP.md` (Architect-reviewed).
+- check-all: 6/6 guards pass. Live next-work ranks: select `I-sim-dispatch-cases` 3.028 vs `A-finding-episode` 2.691 (gap 11.1%, no notice; S3-01 USER_REVIEW_REQUIRED).
+- 2026-10-11: owner approved; `plan/pre-S3-startup` merged to main at `6660990`. Owner rule: keep S2 review routing from S3 onward (`.agent/owner-review-routing-and-merge-2026-10-11.md`; recorded in ROLE_CONFIG, COORDINATOR_LOOP, memory).
+- LOOP RUNNING: verified next-work on main (`.agent/next-work-2026-10-11.json`) selected `I-sim-dispatch-cases`; S3-01 active on `task/S3-01-dispatch-assessment` (activation `b020bff`); phase 1 implementer dispatched; handoff expected `.agent/S3-01-phase-1-handoff.md`. Then phases 2, 3, fresh Claude review, owner S3-01 checkpoint (USER_REVIEW_REQUIRED), merge; Codex review batched at the end of S3.
+- (superseded) WAITING ON OWNER: approval to merge `plan/pre-S3-startup` to main. Optional owner question: keep S2 review routing (fresh Claude per slice + one batched Codex review) for S3-S7, or use ROLE_CONFIG default (Codex first reviews)?
+- After merge: per `.ai/COORDINATOR_LOOP.md` — rerun check-all + next-work --out + --verify-report on main; fix carry G5 (fixture acceptance targets) before refining the selected S3-01 phase-1 fixture work; then activate.
+- Routing: decisions to Codex Architect (session `01a11a84-c2ea-7443-884d-0d5544355e9f`); Planner `01a11c16-72df-7bb0-a825-60c7d83c1d82`; Codex cannot write .git; batch Codex questions; fix rounds on Sonnet; re-reviews by fresh Claude.
+
+### Ranking notices
+(none yet)
+
+---
+Older history follows.
+
+# Coordinator handoff (2026-10-08, S1 merged; S2-01a planning next)
+
+A fresh coordinator starts from this file; do not re-derive what it states.
+
+## Current state (supersedes everything below)
+
+- **S1 is merged into main** at `26d013b` (S1-01 persisted Foundation, S1-02 bindings/Readiness/SLD, S1-03 Foundation organization). Nothing pushed.
+- Reviews: Codex Reviewer joint review (`.agent/S1-codex-review.md`): S1-01 accept with carries, S1-02 changes required, fixed; fresh Claude re-reviews closed everything (`.agent/S1-02-fix-rereview.md`, `.agent/S1-03-review.md`, `.agent/S1-fix-rereview.md`, `.agent/S1-fix-rereview-2.md`, final verdict accept with carries).
+- Owner UI check accepted (`.agent/owner-S1-acceptance-2026-10-08.md`): "looks ok for now"; owner plans a later UI/UX modernization round after functional slices (relates to V-01).
+- Architect (Codex, session `01a11a84-c2ea-7443-884d-0d5544355e9f`) decisions: `D-2026-10-08-s1-bindings-roles-and-snapshot`, `D-2026-10-08-s1-foundation-organization` (in `.ai/DECISIONS.md`); answer files `.agent/architect-S1-*`.
+- Owner routing rules (memory): re-reviews by fresh Claude reviewer; small fix rounds by Sonnet implementer; decisions to the Codex Architect; Codex reviews new slices (batched where the owner says).
+- Carries (all in `.agent/S1-01-review-packet.md`, `.agent/S1-02-review-packet.md`, `.agent/S1-03-review-packet.md`): notably registration identity mutability (m4/N2), snapshot download availability depends on current registrations (S1-02 n5, carry before S2), 0004 downgrade drops bytes (n1), Lab phone layout and Lab layout claims unmeasured, `/api/sites` latency (m7), no DB connection timeout (N7), R1 carry-side tests (N1), nav-guard shapes (N2).
+- Dev DB `assetops`: KOBO-001 imported and converted, with several reserve/binding versions from testing; KOBO-GAP-001 test Site.
+
+## Owner rule 2026-10-09 (verbatim): "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use"
+- Remaining S2 slices (S2-01c, S2-02): a fresh Claude reviewer per slice; one Codex review over S2-01c + S2-02 together at the end of S2. Architect questions are batched (implementers proceed on fail-closed defaults); call Codex immediately only for a genuine blocker.
+- S2-01a+S2-01b merged to main at `7c10283` (owner approved). S2-01c in progress on `task/S2-01c-gateway-diagnostics-faults` (phases 1, 2 built; 3a dispatched; 3b next).
+
+## S2-02 status (2026-10-09, latest — supersedes S2 notes below)
+- S2-02 built (phases 1, 2, 3a, 3a2, 3b, corrections, 3c), fresh Claude review -> Architect batch 4 -> fix round -> fresh Claude re-review accept (`.agent/S2-02-fix-rereview.md`) -> walkthrough doc fix (R1/R2). Branch `task/S2-02-ingestion-site-evidence`. S2-01c merged at `b4006d1`.
+- WAITING ON OWNER: S2 Evidence walkthrough per `.agent/S2-02-owner-walkthrough.md` (USER_REVIEW_REQUIRED). Owner servers on old code show KOBO-001 awaiting migration until restarted on this branch.
+- Running: one Codex review of S2-01c+S2-02 (`.agent/S2-codex-review-brief.md` -> `.agent/S2-codex-review.md`).
+- Next Architect batch: `.agent/S2-02-questions-7.md` (Q37-Q40) + re-review R3 + any Codex review findings needing decisions.
+- After S2 closeout: V-01 adoption decision (owner), delivery-strategy startup prerequisites (drafts in `.agent/delivery-drafts/`, Architect batch-4 Part B answers), pre-S3 shared-contract decisions.
+
+## Delivery strategy (owner-confirmed 2026-10-09) and ranking notices
+- `D-2026-10-09-owner-delivery-strategy` recorded in `.ai/DECISIONS.md` (`f5d35c0`); working plan and phased prerequisites in `.agent/D-2026-10-09-owner-delivery-strategy-proposal.md`.
+- Planning-only drafts allowed during S2-02 (no tracked registry/workflow/checker changes until S2-02 closeout). Loop activates only after S2-02 closeout + startup prerequisites + owner W1 input.
+- **Ranking notices (5%<gap<=10% "notify and continue") are recorded in this file under a "Ranking notices" heading.**
+
+### Ranking notices
+(none yet)
+
+## S2-01c (2026-10-09, latest)
+- Built (phases 1, 2, 3a, 3b), fresh Claude first review -> Architect batch -> fix round 1 -> re-review (R1 block) -> batched Architect (`a2d409d`) -> fix round 2 -> fresh Claude re-review ACCEPT (`.agent/S2-01c-fix2-rereview.md`). Awaiting owner merge decision.
+- S2-02 refined (planning commit before `a2d409d`; packet amended by Architect). Open questions to batch for the next Architect call: `.agent/S2-01c-questions-6.md` plus any S2-02 implementer questions.
+- Codex reviews S2-01c + S2-02 together at end of S2.
+
+## S2 status (2026-10-09) — supersedes the S2 progress notes below
+
+- S2-01a: built, Codex first review ACCEPT WITH CARRIES. S2-01b: built (phases 1, 2, 3a, 3b), Codex first review RETURN (F1) -> fix round 1 -> fresh Claude re-review accept -> Architect fix-round choices -> fix round 2 (Sonnet) -> fresh Claude re-review accept (`.agent/S2-01b-fix-rereview-2.md`). Packet `.agent/S2-01b-review-packet.md`.
+- Neither merged to main. S2-01b branch contains S2-01a. Awaiting owner's merge decision.
+- Carries in `.ai/MILESTONE_REVIEW_BACKLOG.md`: S2-01a F1 (closed in S2-01b), F3; S2-01b F2, F3, R1, layout note. Q4/Q5 demo config and asset-code identity are S2-02 prerequisites.
+- Codex sessions: Architect `01a11a84-c2ea-7443-884d-0d5544355e9f`; Planner `01a11c16-72df-7bb0-a825-60c7d83c1d82`; S2-01b reviewer `01a11e95-bb1c-7992-9491-9859b4d1abd1`. Codex sandbox cannot write `.git`; the coordinator commits its edits.
+- Next: owner merge decision; then Planner refines S2-01c (after S2-01b review, now done).
+
+## S2 progress (2026-10-08, later)
+
+- Branch `task/S2-01a-registered-lab-basis`: Codex Planner refined S2 (`b322843`; session `01a11c16-72df-7bb0-a825-60c7d83c1d82`; questions `.agent/planner-S2-questions-2026-10-08.md`). Codex Architect answered (`8544549`; `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary`; `.agent/architect-S2-answers-2026-10-08.md`; no owner input needed).
+- Codex sandbox cannot write `.git`; the coordinator commits Codex edits.
+- Phase 1 built (`ce65b8d`..`a736be7`, handoff `.agent/S2-01a-phase-1-handoff.md`); implementer questions answered by Architect (`684aa91`, `.agent/architect-S2-01a-answers-2.md`, no owner input). Phase 2 dispatched to a fresh implementer; packet expected at `.agent/S2-01a-review-packet.md`; then first review by Codex.
+- S2-01a built (phase 2 `8d0e1d3`..`145ca18`; packet `.agent/S2-01a-review-packet.md`; task in_review). Two Codex runs were killed by Claude Code for low system memory before producing output, not restarted pending owner: (1) Architect on Q4/Q5 (`.agent/architect-S2-01a-request-3.md`, resume Architect session `01a11a84-c2ea-7443-884d-0d5544355e9f`); (2) Codex first review (`.agent/S2-01a-review-brief.md`, cold session `01a11c82-0853-7653-842d-b405b88adf76` started, can be resumed). Full layout-evidence run incomplete (browser stalled after 132 PASS).
+- (superseded) S2-01a phase 1 (selection and freeze) dispatched to a fresh Claude implementer; handoff expected at `.agent/S2-01a-phase-1-handoff.md`. Phase 2 (execution, guards, frontend) goes to a fresh implementer from that handoff; then first review by Codex.
+
+## Next actions (older, done through planning)
+
+1. S2-01a is an outline: Planner (Codex) refines it against the S1 result and the carries that S2 consumes (n5 snapshot availability, gateway auth) before any implementation.
+2. Then Implementer on S2-01a; Codex review per owner; re-reviews by fresh Claude.
+
+---
+Older history follows.
+
 # Coordinator handoff (2026-10-04, T028 merged; owner-led roadmap review next)
 
 A fresh coordinator starts from this file; do not re-derive what it states.

@@ -1,0 +1,7 @@
+# Architect request: S3-01 batched questions (2026-10-11)
+
+Owner routing (verbatim, 2026-10-11): "codex usage optimizaion is important, so keep the same arragment for S2 going forward" — batched Codex questions, fresh Claude reviews per slice, one Codex review per milestone.
+
+S3-01 phase 1 (`I-sim-dispatch-cases`) is built on `task/S3-01-dispatch-assessment` (packet `.agent/S3-01-phase-1-review-packet.md`) and passed its fresh Claude review (`.agent/S3-01-phase-1-review.md`, accept with findings). Phase 2 (typed seam, durable assessment, recompute, late-evidence revisions) is next and needs your ruling first on Q5.
+
+One batched call: rule on `.agent/S3-01-questions-1.md` Q1-Q6 (each built on a fail-closed default), and on review carries F3 (the "late" case is late only in publication time — how phase 2 must prove a late accepted record yields a new revision) and F4 (fault-fixture batches carry no central fixture marker — what phase 3's Evidence drill-down must show, and whether central evidence needs a marker). Say for each what phase 2 or phase 3 must change. Record material decisions in `.ai/DECISIONS.md`, amend `tasks/S3-01-dispatch-assessment.md` if needed, write `.agent/architect-S3-answers-1.md`, and say whether you want the owner to weigh in. No product code; leave edits uncommitted (a Sonnet implementer is concurrently making two small fixes in `backend/assetops_backend/sites/demo_configuration.py` and the phase-1 packet; do not touch those).

@@ -159,6 +159,7 @@ def convert(
         published = service.publish(
             tenant, site, requests=requests, effective_from=effective_from,
             note=fixture["note"], declare=declared, origin="CONVERSION",
+            role_set=fixture["role_set"],
         )
     except BindingRefused as error:
         raise ConversionConflict(f"{error.code}: {error.message}") from error

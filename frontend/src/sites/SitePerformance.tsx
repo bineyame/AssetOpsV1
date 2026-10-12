@@ -13,6 +13,11 @@
  * recomputed: each row is the backend assessment by its `assessment_id`.
  */
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
+import { PerformanceDispatch } from "./PerformanceDispatch";
+import {
+  createPerformanceDispatchClient,
+  type PerformanceDispatchClient,
+} from "./performanceDispatchClient";
 import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -63,7 +68,14 @@ export interface SitePerformanceProps {
   recordHref: (link: EvidenceLink) => string;
   /** One assessed period's record coverage on Site Evidence > Analysis. */
   coverageHref?: (assessmentId: string) => string;
+  /**
+   * S3-01: an imported Site's durable Dispatch reads. Used when the legacy
+   * file-backed declaration answers AWAITING_EVIDENCE_MIGRATION.
+   */
+  performance?: PerformanceDispatchClient;
 }
+
+const DEFAULT_PERFORMANCE = createPerformanceDispatchClient();
 
 export function SitePerformance({
   siteId,
@@ -75,6 +87,7 @@ export function SitePerformance({
   findingAnalysisHref,
   recordHref,
   coverageHref,
+  performance = DEFAULT_PERFORMANCE,
 }: SitePerformanceProps) {
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
 
@@ -95,7 +108,31 @@ export function SitePerformance({
     return <p>Loading the site&apos;s assessments.</p>;
   }
   if (awaitingMigration(declaration)) {
-    return <AwaitingEvidenceMigration surface="performance" />;
+    // An imported Site: the file-backed declaration is retired; Dispatch reads the durable
+    // assessment through its cutover gate (S3-01). It is the only Performance section served.
+    return (
+      <div className="site-performance">
+        <nav className="site-tabs site-subtabs" aria-label={PERFORMANCE_SUBTABS_LABEL}>
+          <ol className="site-tabs__list">
+            <li className="site-tabs__item">
+              <Link
+                className="site-tabs__link"
+                to={subtabHref("dispatch")}
+                data-performance-subtab="dispatch"
+                aria-current="page"
+              >
+                Dispatch
+              </Link>
+            </li>
+          </ol>
+        </nav>
+        {capabilityId === undefined || capabilityId === "dispatch" ? (
+          <PerformanceDispatch siteId={siteId} client={performance} />
+        ) : (
+          <AwaitingEvidenceMigration surface="performance" />
+        )}
+      </div>
+    );
   }
   if (declaration.status !== "loaded") {
     return (

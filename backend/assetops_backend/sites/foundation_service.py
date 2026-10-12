@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, Sequence
+from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
 from assetops_backend.sites.binding_alignment import finalize
@@ -24,6 +24,7 @@ from assetops_backend.sites.foundation_content import (
     parse_utc_text,
     record_at,
     with_battery_reserve,
+    with_component_properties,
 )
 from assetops_backend.sites.foundation_records import (
     AssetRow,
@@ -368,6 +369,59 @@ class FoundationService:
         effective_from: datetime,
         note: str | None,
     ) -> PublishResult:
+        def unchanged(content: Mapping[str, Any]) -> str | None:
+            reserve = battery_reserve(content)
+            if reserve is not None and reserve["asset_code"] == asset_code and float(reserve["value"]) == value:
+                return f"The battery reserve is already {value:g}{RESERVE_UNIT}"
+            return None
+
+        return self._publish_content_change(
+            tenant, site, effective_from=effective_from, note=note, unchanged=unchanged,
+            change=lambda content, version: with_battery_reserve(
+                content, asset_code=asset_code, value=value, source_version=version
+            ),
+        )
+
+    def publish_component_properties(
+        self,
+        tenant: TenantRef,
+        site: StoredSite,
+        *,
+        asset_code: str,
+        properties: Sequence[Mapping[str, Any]],
+        effective_from: datetime,
+        note: str,
+    ) -> PublishResult:
+        """A later-effective revision declaring typed properties on one component.
+
+        Not an operator route: S3-01's labelled simulated demo configuration
+        (`D-2026-10-08-s2-registered-kobo-demo-configuration`) publishes the
+        template's generator values with their TEMPLATE provenance. Earlier
+        revisions are split, never rewritten; the strict parser re-validates
+        every key, unit and source.
+        """
+        def unchanged(content: Mapping[str, Any]) -> str | None:
+            return "These properties are already declared" if with_component_properties(
+                content, asset_code=asset_code, properties=properties
+            ) == content else None
+
+        return self._publish_content_change(
+            tenant, site, effective_from=effective_from, note=note, unchanged=unchanged,
+            change=lambda content, _version: with_component_properties(
+                content, asset_code=asset_code, properties=properties
+            ),
+        )
+
+    def _publish_content_change(
+        self,
+        tenant: TenantRef,
+        site: StoredSite,
+        *,
+        effective_from: datetime,
+        note: str | None,
+        unchanged: Callable[[Mapping[str, Any]], str | None],
+        change: Callable[[Mapping[str, Any], int], dict[str, Any]],
+    ) -> PublishResult:
         now = self._clock()
         changed_holder: dict[str, RevisionRow] = {}
 
@@ -399,12 +453,10 @@ class FoundationService:
                     status=422,
                 )
             replaced = covering[0]
-            reserve = battery_reserve(replaced.content)
-            if reserve is not None and reserve["asset_code"] == asset_code and float(reserve["value"]) == value:
+            same = unchanged(replaced.content)
+            if same is not None:
                 raise FoundationRefused(
-                    "FOUNDATION_NO_CHANGE",
-                    f"The battery reserve is already {value:g}{RESERVE_UNIT} in v{replaced.version}.",
-                    status=422,
+                    "FOUNDATION_NO_CHANGE", f"{same} in v{replaced.version}.", status=422
                 )
             next_version = max(row.version for row in rows) + 1
             inserts: list[RevisionRow] = []
@@ -427,9 +479,7 @@ class FoundationService:
                 )
                 next_version += 1
             try:
-                content = with_battery_reserve(
-                    replaced.content, asset_code=asset_code, value=value, source_version=next_version
-                )
+                content = change(replaced.content, next_version)
             except SiteConfigurationInvalid as error:
                 raise FoundationRefused("FOUNDATION_VALUE_INVALID", str(error), status=422) from error
             changed = RevisionRow(

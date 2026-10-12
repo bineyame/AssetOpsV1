@@ -17,3 +17,28 @@ def build_assessment_store(persistent: bool = True) -> AssessmentStore:
     store: its assessments must not land in the shared `var/assessments`.
     """
     return JsonAssessmentStore() if persistent else MemoryAssessmentStore()
+
+
+def build_dispatch_assessment_worker(database_url: str | None, **options):
+    """The S3-01 dispatch recompute worker over the PostgreSQL assessment store."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.assessment_worker import DispatchAssessmentWorker
+
+    return DispatchAssessmentWorker(PostgresAssessmentStore(database_url), **options)
+
+
+def build_dispatch_read_service(database_url: str | None, demo_manifest_path: str | None = None):
+    """The S3-01 phase-3 selected-window/interval read over the PostgreSQL assessment store.
+    `demo_manifest_path` (env `ASSETOPS_DEMO_FIXTURE_MANIFEST`) only annotates exact matching IDs."""
+    from assetops_backend.analytics.adapters.demo_manifest_file import DemoManifestAnnotations
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.dispatch_read import DispatchReadService
+
+    return DispatchReadService(PostgresAssessmentStore(database_url),
+                               annotations=DemoManifestAnnotations(demo_manifest_path))
+
+
+def build_lineage_reader(database_url: str | None):
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+
+    return PostgresAssessmentStore(database_url)

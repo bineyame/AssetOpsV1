@@ -2019,3 +2019,28 @@ The carried review findings above are unchanged.
 - G5: `I-sim-dispatch-cases` and `I-sim-verification-cases` lack acceptance targets in the registry (fix before activating the first selection's refinement).
 - Residual: S3-01 sized S may undercount Performance cutover + legacy-exception review; sitework:1 has one claim portion, so the S6-03 reviewer checks empty and positive states.
 
+### S3-01 phase 1 review carries (2026-10-11, `.agent/S3-01-phase-1-review.md`, fresh Claude)
+
+- F3 (phase 2): the "late" case is late only in publication time; central receives it in one delivery in source order, so it cannot prove "late accepted record yields a new revision". Phase 2 must produce real late arrival (or per Architect Q5). Scenario header comment is wrong.
+- F4 (phase 3, needs Q1 ruling): the fault-fixture label lives only in the epoch name/manifest; central evidence has no fixture marker, so a phase-3 Evidence drill-down would show it as ordinary gateway evidence.
+- F5: fixture reserve lookup (`tools/s3_dispatch_cases.py:162-182`) has no tenant/site filter and reads today's revision; phase 2 `EvidenceQuery` must not copy this.
+- F6 (info): Foundation-UI binding edits now record roles-2 (accepted; invisible version change risk).
+- Residual: each producer `run` recreates `assetops_s3cases`, so committed manifest IDs stop existing after the next run.
+
+### S3-01 phase 2 review carries (2026-10-11, `.agent/S3-01-phase-2-review.md`, fresh Claude)
+
+- F3 (phase 3; conflicts with `D-2026-10-11-s3-phase-2-selection-and-read`): `cohort.py` blends a non-overlapping fixture epoch sharing a window into the default cohort (reproduced producing Candidate); fixture isolation must be enforced in code, not by producer placement.
+- F4 (before cutover): backdated configuration and model-version changes are only picked up by a manual `reconcile`; a stale assessment would read CURRENT under the derived phase-3 read. Needs an automatic trigger or a staleness check in the read.
+- F5 (phase 3): no assessed interval in the fixture is NECESSARY (the check looks only at segments); the phase-3 reviewer path needs a Necessary interval.
+- F6 (low): an expired lease is re-leased with no attempts cap; a job that always outlives its lease never reaches FAILED.
+- S3-01 phase 2 fix re-review carry (`.agent/S3-01-phase-2-fix-rereview.md`): the contradiction fixture picks its template SOC envelope by batch walk order, so its value varies between runs; pick by minimum `(source_time, sequence)` and state in the manifest that evidence IDs are per-run (replayable by procedure + seed + verify, not byte-for-byte). The cause of the differing Lab SOC value between runs is not established; investigate in phase 3.
+
+### S3-01 phase 3a + dispatch-3.1 review carries (2026-10-11, `.agent/S3-01-phase-3a-review.md`, fresh Claude) — fold R2/R3 into phase 3b's cutover-summary work
+
+- R2: the gate does not check a PASSED report against the current selection; after a reassessment it would stay open on a stale classification (no live effect for KOBO-001's empty legacy set).
+- R3: unreadable report file or file-backed legacy baseline gives 500, not 503, on the cutover/window routes.
+- R4: migration 0008 does not backfill selections for runs written under 0007 (theoretical; no DB sits at 0007).
+- R5: the producer's first-run timeout looks like harness load, not a product defect (deliver_all stops after one pass; VERIFY fails safe); failed-run log not kept.
+- R1 re-review carries (`.agent/S3-01-R1-rereview.md`): C1 add a direct comparison-classification recovery test (coverage is indirect via `window_jobs`); C2 (low) FAILED-job supersession is overlap-based, so a partial-window selection clears the whole job (likely moot with daily windows).
+- S3-01 phase 3b review carries (`.agent/S3-01-phase-3b-review.md`): C3 the R2 recheck re-reads every selected interval once per classified revision on each gated read (performance); C4 the cutover route reads the comparison report twice, so the summary shown can differ from the one that opened the gate.
+- S3-01 3b fix re-review carries (`.agent/S3-01-phase-3b-fix-rereview.md`): N1 an unassessed day still says "0 accepted records behind this day's result" and "No limitation is recorded" (guide says it shows no zero); N2 demonstration notes are quoted verbatim with technical terms ("battery SOC", "Batch V2") — add a one-line plain explanation later.

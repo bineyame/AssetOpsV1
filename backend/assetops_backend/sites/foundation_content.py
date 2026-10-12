@@ -18,7 +18,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 from zoneinfo import available_timezones
 
 from assetops_backend.sites.foundation_records import Registrations, RevisionRow, StoredSite
@@ -157,6 +157,37 @@ def with_battery_reserve(
         else:
             properties.append(replacement)
         component["properties"] = properties
+        return updated
+    raise SiteConfigurationInvalid(
+        f"This Site's Foundation declares no component {asset_code!r}."
+    )
+
+
+def with_component_properties(
+    content: Mapping[str, Any], *, asset_code: str, properties: Sequence[Mapping[str, Any]]
+) -> dict[str, Any]:
+    """A copy of `content` with each property set on one component.
+
+    Each item carries `property_key`, `value`, `unit`, `source` and
+    `source_version`; an existing property of the same key is replaced in
+    place. The caller re-validates the result through the strict parser.
+    """
+    updated = json.loads(json.dumps(content))
+    for component in updated.get("components") or ():
+        if component.get("component_id") != asset_code:
+            continue
+        current = list(component.get("properties") or [])
+        for item in properties:
+            replacement = {
+                key: item[key] for key in ("property_key", "value", "unit", "source", "source_version")
+            }
+            for index, existing in enumerate(current):
+                if existing.get("property_key") == replacement["property_key"]:
+                    current[index] = replacement
+                    break
+            else:
+                current.append(replacement)
+        component["properties"] = current
         return updated
     raise SiteConfigurationInvalid(
         f"This Site's Foundation declares no component {asset_code!r}."
