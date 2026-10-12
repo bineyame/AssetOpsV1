@@ -37,6 +37,20 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 
+## Mock-gap closure queue
+
+Owner confirmed the catalogue and orphan guard on 2026-10-12 (`D-2026-10-12-mock-gap-closure-mechanism` sections 1–2). The non-core ranking and per-screen completion policy wait for W1 exit. These G packets are planning/backfill work and add no scored W1 core paths. G-01 does not gate V-01a's current owner review or merge. The normal single-active-task and owner checkpoints still apply.
+
+| Batch | Packet | Manifest scope | Dependency | Size / status |
+| --- | --- | --- | --- | --- |
+| Shared | [G-01 catalogue and guard](G-01-mock-gap-catalogue-and-guard.md) | Versioned registry, checker, typed missing state and orphan guard | Confirmed mechanism | M; open planning packet |
+| Pilot | [G-02 V-01a gap pilot](G-02-v01a-gap-pilot.md) | `sites`, `foundation`, `readiness`, `sld` | Reviewed G-01 and V-01a merged | M; open planning packet |
+| Backfill | [G-03 Lab/Evidence](G-03-lab-evidence-gap-backfill.md) | `lab`, `evidence`, `evidence-analysis` | Reviewed G-02; merged V-01b UI | M; outline |
+| Backfill | [G-04 Dispatch/Finding](G-04-dispatch-finding-gap-backfill.md) | Dispatch, Analysis, Finding family | Reviewed G-02; merged claim UI | M; outline |
+| Backfill | [G-05 Money/Overview/Work/Health](G-05-money-overview-work-health-gap-backfill.md) | Remaining W1 screens | Reviewed G-02; merged owner UI | M; outline, split if refinement exceeds M |
+
+The dependency registry carries `I-G-01`–`I-G-05` as unscored technical packet nodes. They have no reviewed path to an approved W1 core panel, so `next-work` cannot select them through current core scoring. Coordinate the batches after their dependencies and the active-wave gate; no gap node inherits a W1 demo value. The screen ledger's `gap_backfill_task` is a planning pointer, not a delivered gap ID. G-01 introduces the catalogue schema; G-02 and later batches fill `gap_ids` after the relevant UI is merged and reviewed.
+
 ## Screen-outward planning gate
 
 The [v6.9 screen realization map](../frontend/docs/architecture/v69-screen-realization-map.md), [screen ledger](../frontend/docs/architecture/v69-screen-ledger.json), [model homes](../frontend/docs/architecture/v69-model-homes.json) and [panel contracts](../frontend/docs/architecture/v69-panel-contracts.json) are Architect planning overlays, not accepted screen completion. They account for 110 manifest IDs, 88 model names and 258 visible panels. The owner approved `Real with honest gaps` as the W1 target for 27 screens, including six moved from W4, and their exact core keys/values; later-wave tiers remain pending. The manifest ID and its `visual_reference` key each later comparison; `GAP` in a panel contract means no supported claim yet. Run `python frontend/docs/architecture/check_v69_ledger.py` after ledger changes.
