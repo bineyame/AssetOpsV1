@@ -32,6 +32,7 @@ if URL:
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
     from assetops_backend.analytics.adapters.postgres_finding_store import FindingFenceMoved, PostgresFindingStore
     from assetops_backend.analytics.assessment_worker import DispatchAssessmentWorker
+    from assetops_backend.analytics.finding_episode import plan, window_basis
     from assetops_backend.analytics.finding_service import FindingMatcher
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_service import BatchIngestionService
@@ -157,6 +158,15 @@ class CaseRunner:
             return self.match()
         return None
 
+    def stale_plan(self):
+        """A matcher pass stopped between its read and its write: the fence it read and the writes it planned."""
+        matcher = FindingMatcher(PostgresAssessmentStore(URL), self.findings, model=self.model)
+        fence = self.findings.fence(self.tenant, self.site, "dispatch")
+        reads = [matcher.read.window(self.tenant, self.site, d)
+                 for d in self.findings.assessed_days(self.tenant, self.site, "dispatch")]
+        return fence, plan([window_basis(r) for r in reads], self.findings.episodes(self.tenant, self.site),
+                           self.model.MODEL_VERSION)
+
     def match(self):
         matcher = FindingMatcher(PostgresAssessmentStore(URL), self.findings, model=self.model,
                                  now=lambda: self.tick(), fence_moved=FindingFenceMoved)
@@ -172,14 +182,16 @@ def check(runner: CaseRunner, outcome, expect: list[dict], case_id: str, collate
     by_id = {f["id"]: f for f in rows["findings"]}
     new_revisions = [r for r in rows["revisions"] if str(r["id"]) in outcome.revision_ids]
     if collateral:
-        # A backdated control splits the open Foundation revision, so every later window selects a new
-        # control revision ID: unchanged episodes append SUPPORT_CHANGED with the same bounds and minutes.
+        # A backdated control splits the open Foundation revision, so every window from 10-03 selects a new
+        # control revision ID: unchanged episodes append BASIS_REFRESHED (provenance only) with the same
+        # bounds and minutes, never SUPPORT_CHANGED (D-2026-10-12-s4-finding-phase-1-clarifications).
         named = {_t(e["anchor"]) for e in expect if e["anchor"] != "SPLIT_PART"}
         anchors = {f["id"]: f["anchor_start"] for f in rows["findings"]}
         for r in [r for r in new_revisions if anchors[r["finding_id"]] not in named]:
             [prior] = [p for p in rows["revisions"] if p["finding_id"] == r["finding_id"]
                        and p["revision_no"] == r["revision_no"] - 1]
-            assert r["transition"] == "SUPPORT_CHANGED" and r["lifecycle"] == prior["lifecycle"], (case_id, r)
+            assert r["transition"] == "BASIS_REFRESHED" and r["lifecycle"] == prior["lifecycle"], (case_id, r)
+            assert r["support_sha256"] == prior["support_sha256"] and r["basis_sha256"] != prior["basis_sha256"]
             assert (r["episode_start"], r["episode_end"], r["candidate_minutes"]) == (
                 prior["episode_start"], prior["episode_end"], prior["candidate_minutes"]), (case_id, r)
             assert r["assessment_revision_id"] != prior["assessment_revision_id"]
@@ -288,9 +300,24 @@ class TestFindingCases:
 
     def test_a_moved_fence_writes_nothing(self, runner) -> None:
         run_case(runner, {**SPEC["cases"][0], "steps": SPEC["cases"][0]["steps"][:2]})
-        stale = runner.findings.fence(runner.tenant, runner.site, "dispatch")
+        stale, writes = runner.stale_plan()
+        assert [w.transition for w in writes] == ["OPENED"]  # a real planned write, not an empty list
         runner.step({"do": "deliver", "decided": "2026-10-31T09:00:00Z", "blocks": [
             {"from": "2026-10-06T10:00:00Z", "to": "2026-10-06T10:00:00Z", "soc": "70", "only": ["soc"]}]})
         with pytest.raises(FindingFenceMoved):
-            runner.findings.apply(runner.tenant, runner.site, "dispatch", [], stale, runner.tick())
-        assert runner.reload()["revisions"] == []
+            runner.findings.apply(runner.tenant, runner.site, "dispatch", writes, stale, runner.tick())
+        rows = runner.reload()
+        assert rows["findings"] == [] and rows["revisions"] == []
+
+    def test_a_pass_planned_before_another_pass_committed_opens_no_duplicate(self, runner) -> None:
+        """Two interleaved passes over one unchanged selection: the second, planned before the first committed,
+        must not open a second Finding for the same episode (the fence covers the Site's Finding state)."""
+        run_case(runner, {**SPEC["cases"][0], "steps": SPEC["cases"][0]["steps"][:2]})
+        stale, writes = runner.stale_plan()
+        assert [w.transition for w in writes] == ["OPENED"]
+        assert len(runner.match().finding_ids) == 1
+        with pytest.raises(FindingFenceMoved):
+            runner.findings.apply(runner.tenant, runner.site, "dispatch", writes, stale, runner.tick())
+        rows = runner.reload()
+        assert len(rows["findings"]) == 1 and len(rows["revisions"]) == 1
+        assert runner.match().revision_ids == ()  # the re-planned pass sees the episode and adds nothing

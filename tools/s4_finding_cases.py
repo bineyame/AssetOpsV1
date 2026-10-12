@@ -250,11 +250,12 @@ class Cases(s2.Demo):
             for r in [r for r in new if instant(by_id[r["finding_id"]]["anchor_start"]) not in named]:
                 [prior] = [p for p in rows["revisions"] if p["finding_id"] == r["finding_id"]
                            and p["revision_no"] == r["revision_no"] - 1]
-                if not (r["transition"] == "SUPPORT_CHANGED" and r["lifecycle"] == prior["lifecycle"]
+                if not (r["transition"] == "BASIS_REFRESHED" and r["lifecycle"] == prior["lifecycle"]
+                        and r["support_sha256"] == prior["support_sha256"]
                         and (r["episode_start"], r["episode_end"], str(r["candidate_minutes"]))
                         == (prior["episode_start"], prior["episode_end"], str(prior["candidate_minutes"]))
                         and r["assessment_revision_id"] != prior["assessment_revision_id"]):
-                    problems.append(f"collateral revision {r['id']} is not an unchanged SUPPORT_CHANGED")
+                    problems.append(f"collateral revision {r['id']} is not a provenance-only BASIS_REFRESHED")
                 new.remove(r)
         if len(new) != len(expect):
             return problems + [f"{len(new)} new revisions, expected {len(expect)}: "
