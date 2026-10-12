@@ -1888,7 +1888,9 @@ for (const [label, width, height] of [
         foundation.railLeftBefore === foundation.railLeftAfterAll,
         `left ${foundation.railLeftBefore} -> ${foundation.railLeftAfterAll}`,
       ],
-      ...(width <= 640 && foundationView.dense
+      // V-01a round 2: at the mock's 11px table type the Readiness tables fit at 640px, so the
+      // non-empty proof is made at phone width, where all three overflow.
+      ...(width <= 390 && foundationView.dense
         ? [
             [
               "at least one table overflows here, so the claim above is not vacuous",
