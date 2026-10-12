@@ -11,3 +11,7 @@ Decisions on `.agent/V-01a-questions-1.md`:
 - Q4: infer what "chosen/selected component stays stable" means from the context (mock and spec).
 - Q5: add icons (topology cards).
 Plus: make the Site inventory panel more space-efficient, closer to the mock.
+
+## Follow-up (verbatim, 2026-10-12)
+
+"also paye attetnion to color and font size, in the built screen all tab header text was blue unlike the mockup which is much better"
