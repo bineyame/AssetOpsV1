@@ -137,6 +137,17 @@ def links(web: int, empty_web: int) -> None:
         for view, path in (("Site model", "foundation"), ("Single line diagram", "foundation/sld"),
                            ("Readiness", "foundation/readiness")):
             say(f"    {view}: {site}/{path}?at={at}")
+    # V-01a round 2: a chosen part travels in the address beside `at`. Every stored KOBO-001 period
+    # declares the same ten components, so no stored period change removes a part; the missing state
+    # is shown with an address naming a part this period does not declare (as a link copied from
+    # another Site would).
+    scheduled = PERIODS[3][1]
+    say("- A chosen part (battery) in the scheduled period, kept across views and reload:")
+    for view, path in (("Single line diagram", "foundation/sld"), ("Readiness", "foundation/readiness"),
+                       ("Site model", "foundation")):
+        say(f"    {view}: {site}/{path}?at={scheduled}&component=battery")
+    say(f"- A part this period does not declare (cleared, with a notice): {site}/foundation/sld?at={scheduled}"
+        "&component=no-such-part")
 
 
 def serve(port: int, web: int, empty_port: int, empty_web: int) -> None:

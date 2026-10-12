@@ -183,3 +183,10 @@
     --tab-gap: 1.125rem;
   }
 }
+
+/* ...and the page title below 760px. */
+@media (max-width: 760px) {
+  :root {
+    --text-page-title: 1.4375rem;
+  }
+}

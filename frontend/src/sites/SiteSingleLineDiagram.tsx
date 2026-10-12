@@ -416,6 +416,9 @@ function SldNode({
 }) {
   const content = slots?.nodes.get(node.componentId) ?? null;
   const text = box.y + ICON_H + 17;
+  const nameLines = wrapName(node.displayName);
+  // The lines under the name follow it, so a one-line name leaves no gap.
+  const rating = text + 15 * (nameLines.length - 1) + 16;
 
   return (
     <g
@@ -446,17 +449,17 @@ function SldNode({
         * would then have to know how this component chose to break it.
         */}
       <text className="sld-node__name" x={box.x} y={text}>
-        {wrapName(node.displayName).map((line, index) => (
+        {nameLines.map((line, index) => (
           <tspan key={line} x={box.x} dy={index === 0 ? 0 : 15}>
             {line}
           </tspan>
         ))}
       </text>
-      <text className="sld-node__rating" x={box.x} y={text + 32}>
+      <text className="sld-node__rating" x={box.x} y={rating}>
         {ratingText(node)}
       </text>
       {node.candidate === null ? null : (
-        <text className="sld-node__candidate" x={box.x} y={text + 47}>
+        <text className="sld-node__candidate" x={box.x} y={rating + 15}>
           Proposed treatment
         </text>
       )}
@@ -464,7 +467,7 @@ function SldNode({
         className="sld-node__slot"
         data-sld-slot={content === null ? "unfilled" : "filled"}
         x={box.x}
-        y={text + 62}
+        y={rating + (node.candidate === null ? 15 : 30)}
       >
         {content?.text ?? slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
       </text>

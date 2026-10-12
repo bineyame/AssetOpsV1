@@ -171,10 +171,14 @@ async function main() {
     // --- sites:1 -----------------------------------------------------------------------------
     await go(`${BASE}/sites`, loaded("Site inventory"));
     const sites = await js(`({ h2: ${H2}, rows: [...document.querySelectorAll('main tbody tr')].map(r => r.innerText.split('\\n')[0]),
-      sub: document.querySelector('.panel__description')?.textContent })`);
+      columns: [...document.querySelectorAll('main thead th')].map(t => t.textContent.trim()),
+      note: document.querySelector('[data-testid="sites-analysis-absent"]')?.textContent ?? null,
+      setup: document.querySelectorAll('main details.site-setup').length })`);
     claim(
-      `${label}: app /sites lists the stored Site under "Site inventory" with its sub-line`,
-      sites.h2.includes("Site inventory") && sites.rows.length === 1 && /Kobo/i.test(sites.rows[0]) && /Mode is provenance/.test(sites.sub ?? ""),
+      `${label}: app /sites lists the stored Site compactly (Site, Type, Mode, Setup details) with the analysis-absent note`,
+      sites.h2.includes("Site inventory") && sites.rows.length === 1 && /Kobo/i.test(sites.rows[0])
+        && JSON.stringify(sites.columns) === JSON.stringify(["Site", "Type", "Mode", "Setup details", "Actions"])
+        && /not available in this directory/.test(sites.note ?? "") && sites.setup === 1,
       sites,
     );
     await layout(`${label}: /sites`);
@@ -208,6 +212,12 @@ async function main() {
     );
     claim(`${label}: topology draws declared cards on a bus labelled with its declared rating`,
       model.cards >= 4 && /AC bus · 400 V/.test(model.bus ?? ""), { cards: model.cards, bus: model.bus });
+    const icons = await js(`(() => { const cards = [...document.querySelectorAll('.plant-card')];
+      return { cards: cards.length, parts: cards.reduce((n, c) => n + c.querySelectorAll('[data-part-choice]').length, 0),
+        icons: cards.reduce((n, c) => n + c.querySelectorAll('svg[role="img"][aria-label] [data-component-icon]').length, 0),
+        names: [...new Set([...document.querySelectorAll('.plant-card svg[role="img"]')].map(i => i.getAttribute('aria-label')))] }; })()`);
+    claim(`${label}: every topology-card part carries a type icon named by its declared type`,
+      icons.parts >= 4 && icons.icons === icons.parts, icons);
     claim(`${label}: an address instant stays the selected period (never "In effect now")`,
       model.sel?.value === CURRENT && /from the address/.test(model.sel?.label ?? ""), model.sel);
     await layout(`${label}: Site model`);
@@ -251,6 +261,62 @@ async function main() {
     const differs = Object.keys(sld.parts).filter((k) => early[k] !== sld.parts[k]);
     claim(`${label}: another selected period shows that period's bindings (set differs)`, differs.length >= 1, { differs });
 
+    // --- sld: bus-bar grammar, selection by keyboard, missing part -----------------------------
+    await go(view("foundation/sld", CURRENT), loaded("What each configured part is"));
+    const bus = await js(`(() => { const svg = document.querySelector('[data-sld-region] svg');
+      const bar = svg?.querySelector('.sld-node__bar'); const x = Number(bar?.getAttribute('x1'));
+      const runs = [...(svg?.querySelectorAll('[data-sld-connection]') ?? [])];
+      const atBar = runs.filter(r => r.getAttribute('points').split(' ').some(p => Number(p.split(',')[0]) === x));
+      const texts = [...(svg?.querySelectorAll('text') ?? [])];
+      const sc = svg?.closest('.sld__scroll');
+      return { layout: svg?.dataset.sldLayout, role: svg?.getAttribute('role'), bars: svg?.querySelectorAll('.sld-node__bar').length,
+        nodes: svg?.querySelectorAll('[data-sld-node]').length, buttons: svg?.querySelectorAll('[data-sld-node][role="button"]').length,
+        runs: runs.length, runsAtBar: atBar.length,
+        stray: texts.filter(t => !t.matches('.sld-node__name, .sld-node__rating, .sld-node__slot, .sld-node__candidate')).map(t => t.textContent),
+        label: document.querySelector('[data-sld-configured]')?.textContent ?? null,
+        drawing: Math.round(svg?.getBoundingClientRect().width ?? 0), region: sc?.clientWidth, scrolls: sc ? sc.scrollWidth > sc.clientWidth + 1 : null }; })()`);
+    claim(`${label}: SLD is drawn in the bus-bar grammar from the declared topology only, labelled "Configured, not live"`,
+      bus.layout === "bus-bar" && bus.bars === 1 && bus.nodes === 10 && bus.runs === 9 && bus.runsAtBar >= 4
+        && bus.stray.length === 0 && /Configured, not live/.test(bus.label ?? "") && bus.role === "group" && bus.buttons === bus.nodes, bus);
+    // Reach the part by keyboard: focus the drawing's scroll region, then Tab through the parts.
+    await js(`document.querySelector('[data-sld-region] .sld__scroll').focus()`);
+    for (let i = 0; i < 12; i += 1) {
+      await key("Tab", "Tab", 9);
+      if ((await js(`document.activeElement?.getAttribute('data-sld-component')`)) === "battery") break;
+    }
+    const ring = await js(`(() => { const h = document.activeElement?.querySelector('.sld-node__halo'); const cs = h && getComputedStyle(h);
+      return { focused: document.activeElement?.getAttribute('data-sld-component'), stroke: cs?.stroke, width: cs?.strokeWidth }; })()`);
+    await key("Enter", "Enter", 13, "\r");
+    await waitFor(`location.search.includes('component=battery')`);
+    await sleep(300);
+    const picked = await js(`({ url: location.pathname + location.search,
+      pressed: document.querySelector('[data-sld-region] [data-sld-component="battery"]')?.getAttribute('aria-pressed'),
+      panel: document.querySelector('[data-selected-part]')?.getAttribute('data-selected-part') })`);
+    claim(`${label}: a drawn part takes visible keyboard focus and Enter chooses it by component ID`,
+      ring.focused === "battery" && ring.stroke !== "none" && picked.url.includes(`at=${encodeURIComponent(CURRENT)}`)
+        && picked.url.includes("component=battery") && picked.pressed === "true" && picked.panel === "battery", { ring, picked });
+    await layout(`${label}: SLD (part selected)`);
+    await shot(`app-sld-selected-${label}`);
+    const panelBox = await js(`(() => { const r = document.querySelector('[data-selected-part]').getBoundingClientRect();
+      return { left: Math.round(r.left), right: Math.round(r.right), vw: document.documentElement.clientWidth }; })()`);
+    claim(`${label}: the chosen part and its channels are readable without horizontal scrolling`,
+      panelBox.left >= 0 && panelBox.right <= panelBox.vw + 1, panelBox);
+    await send("Page.reload");
+    await waitFor(loaded("What each configured part is"));
+    await sleep(300);
+    const afterReload = await js(`document.querySelector('[data-selected-part]')?.getAttribute('data-selected-part')`);
+    await go(view("foundation/readiness", CURRENT) + "&component=battery", loaded("Role coverage"));
+    const kept = await js(`document.querySelector('[data-selected-part]')?.getAttribute('data-selected-part')`);
+    claim(`${label}: the chosen part survives reload and the Readiness view`, afterReload === "battery" && kept === "battery", { afterReload, kept });
+    await go(view("foundation/sld", CURRENT) + "&component=no-such-part", loaded("What each configured part is"));
+    await waitFor(`!location.search.includes('component=')`);
+    await sleep(300);
+    const missing = await js(`({ url: location.pathname + location.search, notice: document.querySelector('[data-selected-part-missing]')?.textContent ?? null,
+      chosen: document.querySelectorAll('[data-sld-region] [data-selected]').length })`);
+    claim(`${label}: an address naming a part this period does not declare clears it and says so`,
+      /Selected part is not in this Foundation period/.test(missing.notice ?? "") && !missing.url.includes("component=") && missing.chosen === 0, missing);
+    await shot(`app-sld-missing-part-${label}`);
+
     // --- readiness:1 -------------------------------------------------------------------------
     await go(view("foundation/readiness", CURRENT), loaded("Role coverage"));
     const ready = await js(`({ h2: ${H2}, state: document.querySelector('[data-readiness-state]')?.dataset.readinessState,
@@ -268,6 +334,12 @@ async function main() {
     claim(`${label}: Readiness separates configuration from operational status (PRE-S3-04 wording)`,
       wording.every((w) => lower.includes(w.toLowerCase())) && healthWords.length === 0,
       { missing: wording.filter((w) => !lower.includes(w.toLowerCase())), healthWords });
+    const green = await js(`(() => { const c = document.querySelector('.badge--configured'); const m = document.querySelector('.badge--provenance');
+      const st = (e) => e && { bg: getComputedStyle(e).backgroundColor, fg: getComputedStyle(e).color, mark: getComputedStyle(e, '::before').content };
+      return { configured: st(c), mode: st(m) }; })()`);
+    claim(`${label}: the configuration green carries a tick mark the Mode badge's green does not`,
+      green.configured !== null && !["none", "normal"].includes(green.configured.mark)
+        && (green.mode === null || ["none", "normal"].includes(green.mode.mark)), green);
     await layout(`${label}: Readiness`);
     await shot(`app-readiness-scheduled-${label}`);
 
@@ -289,6 +361,66 @@ async function main() {
     await key("Tab", "Tab", 9);
     const next = await js(`document.activeElement?.textContent`);
     claim(`${label}: Tab moves on to the next subtab`, next === "Single line diagram", { next });
+
+    // --- owner follow-ups: tab headers, type scale and the rail, app vs mock computed style --
+    const STYLE = `(() => { const cs = (sel) => { const e = document.querySelector(sel); if (!e) return null; const s = getComputedStyle(e);
+        return { size: s.fontSize, weight: s.fontWeight, color: s.color, bg: s.backgroundColor }; };
+      return { h1: cs('main h1, .canvas h1'), panel: cs('main .panel__heading, .panel .panel-head h2'),
+        note: cs('main .panel__description, .panel .panel-head p'), td: cs('main td'), th: cs('main th'),
+        tab: cs('.site-tabs:not(.site-subtabs) .site-tabs__link:not([aria-current]), .tabs:not(.subtabs) a:not(.active)'),
+        tabOn: cs('.site-tabs:not(.site-subtabs) .site-tabs__link[aria-current="page"], .tabs:not(.subtabs) a.active'),
+        sub: cs('.site-subtabs .site-tabs__link:not([aria-current]), .tabs.subtabs a:not(.active)'),
+        rail: cs('.nav-rail__link:not([aria-current]), .rail-group a:not(.active)'), railOn: cs('.nav-rail__link[aria-current="page"], .rail a.active'),
+        railIcons: document.querySelectorAll('.nav-rail__link .nav-rail__icon').length,
+        railLinks: document.querySelectorAll('.nav-rail__link').length }; })()`;
+    await go(view("foundation/sld", CURRENT), loaded("What each configured part is"));
+    const app = await js(STYLE);
+    await go(MOCK("sld"), `document.body && document.body.innerText.includes("What each part does")`);
+    const mock = await js(STYLE);
+    const same = (k, f) => app[k] !== null && mock[k] !== null && app[k][f] === mock[k][f];
+    claim(`${label}: tab headers are neutral ink with only the current tab accented, as in the mock`,
+      same("tab", "color") && same("tab", "size") && same("tabOn", "color") && app.tab.color !== app.tabOn.color && same("sub", "size"),
+      { app: [app.tab, app.tabOn, app.sub], mock: [mock.tab, mock.tabOn, mock.sub] });
+    claim(`${label}: page title, panel title, panel note and table type match the mock's sizes`,
+      ["h1", "panel", "note", "td", "th"].every((k) => same(k, "size")),
+      Object.fromEntries(["h1", "panel", "note", "td", "th"].map((k) => [k, [app[k]?.size, mock[k]?.size]])));
+    if (width > 760) {
+      claim(`${label}: the rail matches the mock's type, ink and active fill, with one icon per root`,
+        same("rail", "size") && same("rail", "color") && same("railOn", "bg") && app.railIcons === app.railLinks && app.railLinks >= 2,
+        { app: [app.rail, app.railOn, app.railIcons, app.railLinks], mock: [mock.rail, mock.railOn] });
+    } else {
+      await go(nowView("foundation"), loaded("Time-valid control configuration"));
+      const narrowRail = await js(`({ icons: document.querySelectorAll('.nav-rail__link .nav-rail__icon').length,
+        links: [...document.querySelectorAll('.nav-rail__link')].filter(a => { const r = a.getBoundingClientRect();
+          return r.width > 0 && r.right <= document.documentElement.clientWidth + 1; }).length })`);
+      claim(`${label}: every rail root and its icon stay visible at phone width (the mock hides its rail below 760px)`,
+        narrowRail.icons === narrowRail.links && narrowRail.links >= 2, narrowRail);
+      await layout(`${label}: rail at phone width`);
+      await shot(`app-rail-${label}`);
+    }
+
+    // --- regression: the shared tab, type and rail changes on Dispatch, Finding, Evidence, Lab --
+    const firstFinding = async () => {
+      await go(`${BASE}/findings`, `!document.querySelector('[aria-busy="true"]') && document.querySelector('main h1')`);
+      await sleep(600);
+      return js(`[...document.querySelectorAll('main a[href^="/findings/"]')].map(a => a.getAttribute('href'))[0] ?? null`);
+    };
+    const finding = await firstFinding();
+    for (const [name, path] of [["Findings index", "/findings"], ["Finding detail", finding],
+      ["Performance › Dispatch", `/sites/${SITE}/performance`], ["Site Evidence", `/sites/${SITE}/evidence`],
+      ["Simulator Lab", "/simulator-lab"], ["Lab runs", "/simulator-lab/runs"]]) {
+      if (path === null) {
+        claim(`${label}: regression ${name} reachable`, false, { reason: "no Finding link on /findings" });
+        continue;
+      }
+      const ok = await go(`${BASE}${path}`, `!document.querySelector('[aria-busy="true"]') && document.querySelector('main h1')`);
+      await sleep(600);
+      const seen = await js(`({ h1: document.querySelector('main h1')?.textContent ?? null,
+        icons: document.querySelectorAll('.nav-rail__icon').length, links: document.querySelectorAll('.nav-rail__link').length })`);
+      claim(`${label}: regression ${name} renders with its rail icons`, ok && !!seen.h1 && seen.icons === seen.links && seen.links >= 2, { path, ...seen });
+      await layout(`${label}: regression ${name}`);
+      await shot(`app-regression-${name.replace(/[^A-Za-z]+/g, "-").toLowerCase()}-${label}`);
+    }
   }
 }
 

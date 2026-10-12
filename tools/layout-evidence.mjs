@@ -1950,7 +1950,7 @@ for (const [label, width, height] of [
       [
         "every drawn node carries an empty slot and nothing else",
         foundation.slots.length === (foundation.diagrams[0]?.nodes ?? -1) &&
-          foundation.slots.every((slot) => slot === "Awaiting runtime/evidence"),
+          foundation.slots.every((slot) => slot === "Readings not assessed here"),
         `${foundation.slots.length} slots: ${[...new Set(foundation.slots)].join(" | ")}`,
       ],
       [
