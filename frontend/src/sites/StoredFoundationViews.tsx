@@ -71,6 +71,14 @@ export interface StoredFoundationViewsProps {
   snapshotHref: string;
   onPublish: (assetCode: string, value: number, validFrom: string) => Promise<PublishOutcome>;
   onPublishBindings: (validFrom: string, bindings: SignalBinding[], note: string) => Promise<BindingPublishOutcome>;
+  /**
+   * The selected part's stable component ID, already checked against this
+   * period's declared components by the shell (null when none is chosen).
+   */
+  selectedComponent?: string | null;
+  /** A part chosen earlier that this period does not declare; selection was cleared. */
+  missingComponent?: string | null;
+  onSelectComponent?: (componentId: string | null) => void;
   /** The operator Site tab row, placed under the page header. */
   tabs?: ReactNode;
   parentTrail: (siteId: string) => Crumb[];
@@ -119,6 +127,14 @@ export function StoredFoundationViews(props: StoredFoundationViewsProps) {
       />
       {tabs}
       <FoundationSubtabs current={view} hrefFor={viewHref} />
+      {props.missingComponent ? (
+        <p className="notice notice--attention" role="status" data-selected-part-missing={props.missingComponent}>
+          <strong>Selected part is not in this Foundation period.</strong> Part{" "}
+          <code>{props.missingComponent}</code> is not declared in Foundation v{foundation.revision.version}, so
+          the selection was cleared. No other part was chosen in its place.
+        </p>
+      ) : null}
+      <SelectedPartPanel {...props} site={site} configuration={configuration} />
       {view === "model" ? (
         <SiteModelView {...props} site={site} configuration={configuration} />
       ) : view === "sld" ? (
@@ -171,7 +187,11 @@ function SiteModelView(props: ViewProps) {
         </Panel>
       )}
       <div className="panel-pair">
-        <ConfiguredTopologyPanel site={props.site} sldHref={viewHref("sld")} />
+        <ConfiguredTopologyPanel
+          site={props.site}
+          sldHref={viewHref("sld")}
+          selection={{ selected: props.selectedComponent ?? null, onSelect: props.onSelectComponent }}
+        />
         <IdentityPanel foundation={foundation} configuration={configuration} />
       </div>
       <FoundationControlsPanel foundation={foundation} versions={versions} onPublish={onPublish} />
@@ -197,7 +217,7 @@ function SiteModelView(props: ViewProps) {
 
 interface TopologyCard {
   key: string;
-  names: string[];
+  parts: { componentId: string; name: string }[];
   ratings: string[];
 }
 
@@ -220,7 +240,7 @@ function topologyCards(site: SiteDetailReadModel, configuration: SiteConfigurati
   };
   const card = (chain: string[]): TopologyCard => ({
     key: chain.join(">"),
-    names: chain.map(name),
+    parts: chain.map((nodeId) => ({ componentId: nodes.get(nodeId)?.component_id ?? nodeId, name: name(nodeId) })),
     ratings: chain.map(rating).filter((r): r is string => r !== null),
   });
   const supplies: TopologyCard[] = [];
@@ -242,12 +262,56 @@ function topologyCards(site: SiteDetailReadModel, configuration: SiteConfigurati
   return { busName: name(bus.node_id), busRating: rating(bus.node_id), supplies, loads };
 }
 
-function TopologyCards({ cards }: { cards: TopologyCard[] }) {
+interface PartSelection {
+  selected: string | null;
+  onSelect?: (componentId: string | null) => void;
+}
+
+/**
+ * A declared part's name as a toggle that chooses it by component ID. Without
+ * a selection handler it is the plain name.
+ */
+function PartChoice({
+  componentId,
+  name,
+  selection,
+}: {
+  componentId: string;
+  name: string;
+  selection: PartSelection;
+}) {
+  if (selection.onSelect === undefined) return <>{name}</>;
+  const pressed = selection.selected === componentId;
+  return (
+    <button
+      type="button"
+      className="part-choice"
+      aria-pressed={pressed}
+      data-part-choice={componentId}
+      onClick={() => selection.onSelect?.(pressed ? null : componentId)}
+    >
+      {name}
+    </button>
+  );
+}
+
+function TopologyCards({ cards, selection }: { cards: TopologyCard[]; selection: PartSelection }) {
   return (
     <ul className="plant-cards">
       {cards.map((item) => (
-        <li className="plant-card" key={item.key}>
-          <strong>{item.names.join(" → ")}</strong>
+        <li
+          className="plant-card"
+          key={item.key}
+          data-selected={item.parts.some((p) => p.componentId === selection.selected) ? "" : undefined}
+        >
+          <strong>
+            {item.parts.map((part, index) => (
+              <span key={part.componentId}>
+                {index > 0 ? " → " : null}
+                <PartChoice componentId={part.componentId} name={part.name} selection={selection} />
+              </span>
+            ))}
+          </strong>
           <small>{item.ratings.length === 0 ? "No rating declared" : item.ratings.join(" · ")}</small>
         </li>
       ))}
@@ -255,7 +319,15 @@ function TopologyCards({ cards }: { cards: TopologyCard[] }) {
   );
 }
 
-function ConfiguredTopologyPanel({ site, sldHref }: { site: SiteDetailReadModel; sldHref: string }) {
+function ConfiguredTopologyPanel({
+  site,
+  sldHref,
+  selection,
+}: {
+  site: SiteDetailReadModel;
+  sldHref: string;
+  selection: PartSelection;
+}) {
   const configuration = deriveSiteConfigurationView(site);
   const cards = topologyCards(site, configuration);
   return (
@@ -275,12 +347,12 @@ function ConfiguredTopologyPanel({ site, sldHref }: { site: SiteDetailReadModel;
         </p>
       ) : (
         <div className="plant-map" data-topology="declared">
-          <TopologyCards cards={cards.supplies} />
+          <TopologyCards cards={cards.supplies} selection={selection} />
           <p className="plant-bus" data-topology-bus>
             {cards.busName}
             {cards.busRating === null ? "" : ` · ${cards.busRating}`} · configured electrical connections
           </p>
-          <TopologyCards cards={cards.loads} />
+          <TopologyCards cards={cards.loads} selection={selection} />
         </div>
       )}
     </Panel>
@@ -346,7 +418,12 @@ function SldView(props: ViewProps) {
       >
         <SiteSldPrimary site={site} boundDevices={boundDevices} headingId={SITE_SLD_HEADING_ID} />
       </Panel>
-      <ConfiguredPartsPanel foundation={foundation} site={site} configuration={configuration} />
+      <ConfiguredPartsPanel
+        foundation={foundation}
+        site={site}
+        configuration={configuration}
+        selection={{ selected: props.selectedComponent ?? null, onSelect: props.onSelectComponent }}
+      />
       <Panel heading="Diagram detail" headingId="foundation-sld-detail-heading">
         <p>The same configuration in rows, kept for audit.</p>
         <Disclosure name="sld-contents" summary="Diagram contents and open review questions">
@@ -365,18 +442,84 @@ function SldView(props: ViewProps) {
   );
 }
 
+/**
+ * A part's channels for the selected period: bound channels whose binding names
+ * this component as the asset, and declared-but-unbound channels on a device
+ * attached to it. Always from the selected effective binding set.
+ */
+function partChannels(foundation: FoundationReadModel, site: SiteDetailReadModel, componentId: string) {
+  const deviceComponent = new Map((site.foundation.devices ?? []).map((device) => [device.device_id, device.component_id]));
+  const bound = foundation.bindings.mappings.filter((m) => m.asset_code === componentId);
+  const missing = foundation.readiness.channels.filter(
+    (c) => c.status !== "BOUND" && deviceComponent.get(c.device_id) === componentId,
+  );
+  return { bound, missing };
+}
+
+function PartChannelList({ bound, missing }: ReturnType<typeof partChannels>) {
+  if (bound.length === 0 && missing.length === 0) return <>No channel declared for this part</>;
+  return (
+    <ul className="plain-list">
+      {bound.map((m) => (
+        <li key={m.binding_revision_id} data-part-channel="bound">
+          {m.role_label}: <code>{`${m.device_id} / ${m.signal_id}`}</code>
+        </li>
+      ))}
+      {missing.map((c) => (
+        <li key={`${c.device_id}/${c.signal_id}`} data-part-channel="unbound" className="muted">
+          Not bound: <code>{`${c.device_id} / ${c.signal_id}`}</code>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** The chosen part, on every view, with its channels for the period shown. */
+function SelectedPartPanel(props: ViewProps) {
+  const { foundation, site, configuration, selectedComponent, onSelectComponent } = props;
+  if (!selectedComponent) return null;
+  const component = configuration.components.find((c) => c.componentId === selectedComponent);
+  if (component === undefined) return null;
+  const channels = partChannels(foundation, site, component.componentId);
+  return (
+    <Panel
+      heading={`Selected part: ${component.displayName}`}
+      headingId="foundation-selected-part-heading"
+      description={`Configuration for Foundation v${foundation.revision.version}; channels from the binding set in effect for this period. Not readings.`}
+    >
+      <div className="selected-part" data-selected-part={component.componentId}>
+        <FactList>
+          <Fact term="Component ID">
+            <code>{component.componentId}</code>
+          </Fact>
+          <Fact term="Type">{component.componentType}</Fact>
+          <Fact term="Declared rating">{component.rating}</Fact>
+          <Fact term="Channels">
+            <PartChannelList {...channels} />
+          </Fact>
+        </FactList>
+        {onSelectComponent ? (
+          <button type="button" className="part-clear" onClick={() => onSelectComponent(null)}>
+            Clear selected part
+          </button>
+        ) : null}
+      </div>
+    </Panel>
+  );
+}
+
 /** What each configured part is, and which of its channels are bound. */
 function ConfiguredPartsPanel({
   foundation,
   site,
   configuration,
+  selection,
 }: {
   foundation: FoundationReadModel;
   site: SiteDetailReadModel;
   configuration: SiteConfigurationView;
+  selection: PartSelection;
 }) {
-  const deviceComponent = new Map((site.foundation.devices ?? []).map((device) => [device.device_id, device.component_id]));
-  const unbound = foundation.readiness.channels.filter((channel) => channel.status !== "BOUND");
   return (
     <Panel heading="What each configured part is" headingId="foundation-sld-parts-heading">
       <DataTable labelledBy="foundation-sld-parts-heading">
@@ -384,7 +527,7 @@ function ConfiguredPartsPanel({
           Each declared component, its declared rating, and its channels. A bound channel describes this
           part: the binding set shown names it as the asset. An unbound channel (marked Not bound) is only
           one declared on a device attached to this part; it has no published meaning and is not a report
-          from the part. Configuration, not readings.
+          from the part. Configuration, not readings. Choose a part to keep it selected across views.
         </caption>
         <thead>
           <tr>
@@ -395,35 +538,22 @@ function ConfiguredPartsPanel({
           </tr>
         </thead>
         <tbody>
-          {configuration.components.map((component) => {
-            const bound = foundation.bindings.mappings.filter((m) => m.asset_code === component.componentId);
-            const missing = unbound.filter((c) => deviceComponent.get(c.device_id) === component.componentId);
-            return (
-              <tr key={component.componentId} data-sld-part={component.componentId}>
-                <th scope="row">{component.displayName}</th>
-                <td>{component.componentType}</td>
-                <td>{component.rating}</td>
-                <td>
-                  {bound.length === 0 && missing.length === 0 ? (
-                    "No channel declared for this part"
-                  ) : (
-                    <ul className="plain-list">
-                      {bound.map((m) => (
-                        <li key={m.binding_revision_id} data-part-channel="bound">
-                          {m.role_label}: <code>{`${m.device_id} / ${m.signal_id}`}</code>
-                        </li>
-                      ))}
-                      {missing.map((c) => (
-                        <li key={`${c.device_id}/${c.signal_id}`} data-part-channel="unbound" className="muted">
-                          Not bound: <code>{`${c.device_id} / ${c.signal_id}`}</code>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
+          {configuration.components.map((component) => (
+            <tr
+              key={component.componentId}
+              data-sld-part={component.componentId}
+              data-selected={selection.selected === component.componentId ? "" : undefined}
+            >
+              <th scope="row">
+                <PartChoice componentId={component.componentId} name={component.displayName} selection={selection} />
+              </th>
+              <td>{component.componentType}</td>
+              <td>{component.rating}</td>
+              <td>
+                <PartChannelList {...partChannels(foundation, site, component.componentId)} />
+              </td>
+            </tr>
+          ))}
         </tbody>
       </DataTable>
     </Panel>

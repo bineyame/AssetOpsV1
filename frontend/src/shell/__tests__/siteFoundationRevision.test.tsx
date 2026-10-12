@@ -603,7 +603,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
         ["Needs configuration", "badge--config-gap"],
         ["Unknown", "badge--neutral"],
       ]);
-      const scope = readiness.querySelector("[data-readiness-scope]")?.textContent ?? "";
+      const scope = readiness.querySelector("[data-readiness-colour-scope]")?.textContent ?? "";
       expect(scope).toMatch(/configuration of the selected Foundation version only/);
       expect(scope).toMatch(/does not mean a device is connected, records have arrived, Evidence is accepted/);
       // PRE-S3-04 separation sentence survives.
@@ -1062,5 +1062,111 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     const firstParagraph = region.querySelector(":scope > p") as Element;
     expect(drawing).not.toBeNull();
     expect(drawing.compareDocumentPosition(firstParagraph) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
+
+describe("V-01a round 2: a chosen part stays chosen by component ID", () => {
+  const pastAt = encodeURIComponent(PAST.valid_from);
+  const futureAt = encodeURIComponent(FUTURE.valid_from);
+  const withSoc = (at: string | null): FoundationRead<FoundationReadModel> =>
+    at === FUTURE.valid_from
+      ? { status: "loaded", value: foundation(FUTURE, published([GENSET_POWER], ["Battery state of charge"])) }
+      : { status: "loaded", value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [])) };
+  const location = () => screen.getByTestId("location").textContent ?? "";
+  const selectedPanel = () => document.querySelector("[data-selected-part]");
+
+  it("selects a part from the parts list into the address, beside at, and keeps it across reload and view switches", async () => {
+    const client = fakeFoundation(withSoc);
+    const first = renderAt(`/sites/${ID}/foundation/sld?at=${pastAt}`, client);
+    await settledScreen();
+    expect(selectedPanel()).toBeNull();
+    const row = document.querySelector('[data-sld-part="c-storage"]') as HTMLElement;
+    fireEvent.click(within(row).getByRole("button", { name: "Battery energy storage" }));
+    await settledScreen();
+    expect(location()).toBe(`/sites/${ID}/foundation/sld?at=${pastAt}&component=c-storage`);
+    expect(within(row).getByRole("button", { name: "Battery energy storage" }).getAttribute("aria-pressed")).toBe("true");
+    expect(row.hasAttribute("data-selected")).toBe(true);
+    expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
+    expect(selectedPanel()?.textContent).toContain("d-storage-controller / state-of-charge");
+    const reloadedAt = location();
+    first.unmount();
+
+    // Reload: a fresh render at the same address keeps the part.
+    renderAt(reloadedAt, client);
+    await settledScreen();
+    expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
+
+    // View switches carry both `at` and the part.
+    const nav = screen.getByRole("navigation", { name: "Foundation views" });
+    fireEvent.click(within(nav).getByRole("link", { name: /Readiness/ }));
+    await settledScreen();
+    expect(location()).toBe(`/sites/${ID}/foundation/readiness?at=${pastAt}&component=c-storage`);
+    expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
+    fireEvent.click(within(screen.getByRole("navigation", { name: "Foundation views" })).getAllByRole("link")[0]);
+    await settledScreen();
+    expect(location()).toBe(`/sites/${ID}/foundation?at=${pastAt}&component=c-storage`);
+    expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
+    // The topology card for the part is distinguished too.
+    const choice = document.querySelector('[data-part-choice="c-storage"]') as HTMLElement;
+    expect(choice.getAttribute("aria-pressed")).toBe("true");
+    expect(choice.closest("li")?.hasAttribute("data-selected")).toBe(true);
+
+    // Clearing removes it from the address and leaves `at`.
+    fireEvent.click(screen.getByRole("button", { name: "Clear selected part" }));
+    await settledScreen();
+    expect(location()).toBe(`/sites/${ID}/foundation?at=${pastAt}`);
+    expect(selectedPanel()).toBeNull();
+  });
+
+  it("keeps the part across a period change while it is declared, with that period's channels", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness?at=${pastAt}&component=c-storage`, fakeFoundation(withSoc));
+    await settledScreen();
+    expect(selectedPanel()?.querySelector('[data-part-channel="bound"]')?.textContent).toContain("state-of-charge");
+    fireEvent.change(screen.getByRole("combobox", { name: "Foundation period" }), {
+      target: { value: FUTURE.valid_from },
+    });
+    await settledScreen();
+    expect(location()).toBe(`/sites/${ID}/foundation/readiness?at=${futureAt}&component=c-storage`);
+    expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
+    // The binding changed, the identity did not: no bound channel in v3.
+    expect(selectedPanel()?.querySelector('[data-part-channel="bound"]')).toBeNull();
+    expect(document.querySelector("[data-selected-part-missing]")).toBeNull();
+  });
+
+  it("clears a part the new period does not declare and says so, choosing no other part", async () => {
+    const withoutStorage = (at: string | null): FoundationRead<FoundationReadModel> => {
+      if (at !== FUTURE.valid_from) return withSoc(at);
+      const detail = {
+        ...SITE,
+        foundation: {
+          ...SITE.foundation,
+          components: SITE.foundation.components.filter((c) => c.component_id !== "c-storage"),
+        },
+      };
+      return { status: "loaded", value: foundation(FUTURE, { detail }) };
+    };
+    renderAt(`/sites/${ID}/foundation/sld?at=${pastAt}&component=c-storage`, fakeFoundation(withoutStorage));
+    await settledScreen();
+    expect(selectedPanel()?.getAttribute("data-selected-part")).toBe("c-storage");
+    fireEvent.change(screen.getByRole("combobox", { name: "Foundation period" }), {
+      target: { value: FUTURE.valid_from },
+    });
+    await settledScreen();
+    expect(location()).toBe(`/sites/${ID}/foundation/sld?at=${futureAt}`);
+    const notice = document.querySelector("[data-selected-part-missing]") as HTMLElement;
+    expect(notice.getAttribute("data-selected-part-missing")).toBe("c-storage");
+    expect(notice.textContent).toContain("Selected part is not in this Foundation period");
+    expect(selectedPanel()).toBeNull();
+    expect(document.querySelectorAll('[aria-pressed="true"]')).toHaveLength(0);
+  });
+
+  it("does not select an undeclared part named in the address on first load", async () => {
+    renderAt(`/sites/${ID}/foundation?at=${pastAt}&component=c-nowhere`, fakeFoundation(withSoc));
+    await settledScreen();
+    expect(selectedPanel()).toBeNull();
+    expect(location()).toBe(`/sites/${ID}/foundation?at=${pastAt}`);
+    expect(document.querySelector("[data-selected-part-missing]")?.textContent).toContain(
+      "Selected part is not in this Foundation period",
+    );
   });
 });

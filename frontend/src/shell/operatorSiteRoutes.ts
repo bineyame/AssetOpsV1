@@ -68,11 +68,27 @@ export function siteFoundationHref(siteId: string): string {
  */
 export const SITE_FOUNDATION_VIEW_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/foundation/:foundationView`;
 
-/** The address of one Foundation view, carrying the selected period. */
-export function siteFoundationViewHref(siteId: string, segment: string, at: string | null): string {
+/**
+ * The address of one Foundation view, carrying the selected period and, when
+ * one is chosen, the selected part by its stable component ID (V-01a round 2,
+ * `D-2026-10-12-v01a-owner-visual-rulings`). The two are independent.
+ */
+export function siteFoundationViewHref(
+  siteId: string,
+  segment: string,
+  at: string | null,
+  component: string | null = null,
+): string {
   const base = segment === "" ? siteFoundationHref(siteId) : `${siteFoundationHref(siteId)}/${segment}`;
-  return at === null ? base : `${base}?at=${encodeURIComponent(at)}`;
+  const query = new URLSearchParams();
+  if (at !== null) query.set("at", at);
+  if (component !== null) query.set(FOUNDATION_COMPONENT_PARAM, component);
+  const search = query.toString();
+  return search === "" ? base : `${base}?${search}`;
 }
+
+/** The query key that carries the selected part's component ID. */
+export const FOUNDATION_COMPONENT_PARAM = "component";
 
 /** The route pattern for one site's Evidence. */
 export const SITE_EVIDENCE_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/evidence`;

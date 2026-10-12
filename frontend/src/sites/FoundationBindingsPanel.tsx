@@ -69,7 +69,7 @@ export function ReadinessLegend() {
           <Badge tone="neutral">Unknown</Badge> the configuration basis cannot be resolved
         </li>
       </ul>
-      <p className="readiness-scope" data-readiness-scope="">
+      <p className="readiness-scope" data-readiness-colour-scope="">
         Colours describe configuration of the selected Foundation version only. Green does not mean
         a device is connected, records have arrived, Evidence is accepted or equipment is in good
         condition.
