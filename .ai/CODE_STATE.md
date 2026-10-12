@@ -5151,3 +5151,42 @@ Commit `254b843`; packet "Fix round 1" section; questions `.agent/S4-01-question
   `finding-reads` operator CLI is ungated (Q23).
 - Open: Q21-Q24; phase 3 UI.
 
+
+## S4-01 phase 3 - Site Finding detail UI and closeout (in_review)
+
+Task `tasks/S4-01-finding-identity.md`; packet `.agent/S4-01-review-packet.md` (all phases); questions
+`.agent/S4-01-questions-5.md` (Q25-Q30); owner steps `.agent/S4-01-owner-walkthrough.md`.
+
+### What it settled in code
+
+- Route `SITE_FINDING_ROUTE_PATH` = `/sites/:siteId/findings/:findingId`, exact version `?revision_id=` (the API
+  parameter), view `?view=analysis`, block `?portion=` (`frontend/src/shell/operatorSiteRoutes.ts`,
+  `siteFindingHref`). Frame `SiteFindingFrame` (`frontend/src/shell/SiteAnalyticsFrames.tsx`): trail Sites > site >
+  Findings > Finding, Findings tab current, h1 from the lifecycle. The T028 file-backed `/findings/:siteId/:assessmentId`
+  stays as it was.
+- `frontend/src/sites/findingClient.ts`: the 401/403/404/409 `PERFORMANCE_CUTOVER_CLOSED`/503 responses map to
+  named states, plus `getFindingWindow` for `finding-windows/{day}`. `findingWords.ts` holds the plain words for
+  lifecycle, transition, currentness and window states.
+- `frontend/src/sites/SiteFinding.tsx` leads with the most limiting state, in this order: closed source (audit
+  record only, C7), merged, earlier version, lifecycle, then currentness. It then shows the panels:
+  - What happened: separate minutes cards, money "Not yet available", and a keyboard-selectable block bar.
+  - What limits this conclusion: limitations, joined gaps and stop bridges with the sparse-reporting caveat, and
+    recurrence that never implies the earlier Finding is open.
+  - What to do next: not yet available.
+  - Where to look next: Dispatch days carrying the interval revision, records, related Findings.
+  - Versions: BASIS_REFRESHED runs grouped with count and exact links.
+  - Records summary: demo-manifest kind in plain words.
+  The Analysis view holds the full IDs and codes behind `data-vocabulary-exempt`.
+- Dispatch day (`PerformanceDispatch` `DayFindings`) reads `finding-windows/{day}`. It links non-merged Findings
+  and names NO_FINDING / NOT_DETERMINABLE / FINDING_MATCH_PENDING / NOT_ASSESSED without a link.
+- Tools: `tools/s4_finding_walkthrough.py` (DB `assetops_s4walk` copied from `assetops_s4cases`, API 8840, web
+  5340, staged PENDING 2026-10-09; `links` prints this run's addresses) and `tools/s4-finding-evidence.mjs`
+  (CDP 9343; 36 claims at 1440/390; run record `.agent/S4-01-phase-3-evidence-run.txt`).
+
+### Open
+
+- Q25 the S3 `unavailable.finding` text remains; Q27 no priority/confidence chip; Q28 the generic
+  `layout-evidence.mjs` needs a Lab backend and was not run to completion; Q29 ledger row unchanged.
+- Carries still open: C5 one-hop canonical, C6/C9 read and pass cost (S4-04), C8 recurrence record only on the
+  opening revision.
+- `?portion=` is an index into the selected version's blocks (Q30).

@@ -1,6 +1,6 @@
 # S4-01 — Candidate generator-support Finding
 
-Status: active (selected 2026-10-12 via owner contest choice `.agent/owner-contest-rule-2026-10-12.md`; phase 1)
+Status: in_review (selected 2026-10-12 via owner contest choice `.agent/owner-contest-rule-2026-10-12.md`; phases 1-3 built; packet `.agent/S4-01-review-packet.md`)
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
 Depends on: merged S3-01 (`I-S3-01`), resolved `A-finding-episode` and `A-claim-work-routes`, accepted S2 Evidence
