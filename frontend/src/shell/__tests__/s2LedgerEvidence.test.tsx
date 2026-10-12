@@ -70,12 +70,12 @@ afterEach(() => {
 });
 
 describe("Site Evidence from the central ledger: overview", () => {
-  it("states what arrived, graphs the outcomes and shows the gateway contact in plain words", async () => {
+  it("states what arrived, counts the outcomes and shows the gateway contact in plain words", async () => {
     renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }));
     await settledScreen();
     expect(body().getAttribute("data-evidence-state")).toBe("ACCEPTED");
     expect(screen.getByText(/288 readings were accepted for this period from 1 source\./)).toBeTruthy();
-    const outcomes = document.querySelectorAll("[data-graphic='evidence-outcomes'] [data-evidence-outcome]");
+    const outcomes = document.querySelectorAll("[data-evidence-outcome-facts] [data-evidence-outcome]");
     expect(Array.from(outcomes).map((row) => row.getAttribute("data-evidence-outcome"))).toEqual([
       "accepted",
       "duplicates",
@@ -212,7 +212,7 @@ describe("Site Evidence from the central ledger: analysis", () => {
     await settledScreen();
     expect(client.recordQueries.at(-1)?.cursor).toMatch(/~/);
 
-    fireEvent.click(screen.getByRole("button", { name: `Show reading ${EVIDENCE_UUID}` }));
+    fireEvent.click(screen.getByRole("button", { name: `Open record ${EVIDENCE_UUID}` }));
     await settledScreen();
     expect(client.recordKeys.at(-1)).toBe(EVIDENCE_UUID);
     const detail = document.querySelector(`[data-record-detail='${EVIDENCE_UUID}']`) as HTMLElement;
