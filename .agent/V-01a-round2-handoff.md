@@ -1,4 +1,4 @@
-# V-01a round 2 handoff: phase 2a landed, 2b next
+# V-01a round 2 handoff: phase 2a and 2b landed (round complete, in review)
 
 Branch `task/V-01a-foundation-visual`. Round-2 base: `13620b6`. Authority: `.agent/architect-V-01a-answers.md` items 1-5, `D-2026-10-12-v01a-owner-visual-rulings`, owner text `.agent/owner-V-01a-feedback-2026-10-12.md` (including "Follow-up" and "Follow-up 2" at lines 15 and 19, added mid-round by the coordinator: match the mock's tab-header styling, colours and type sizes; restyle the left navigation like the mock, with icons).
 
@@ -73,3 +73,13 @@ Branch `task/V-01a-foundation-visual`. Round-2 base: `13620b6`. Authority: `.age
 - The `missingPart` notice is component state. It disappears on reload, by design, once the address no longer names the part.
 - The parts table at 390 px already scrolls horizontally (accepted difference C2). The new selection buttons sit in the first column, so they stay reachable.
 - The `configured` green is close to the provenance badge green. The tick mark and the context (Readiness only) distinguish them; recheck this visually in 2b.
+
+## Phase 2b landed (`4b9cd68..16d1095`)
+
+- Item 4: bus-bar SLD, type icons (SLD and cards), "Configured, not live", keyboard-selectable parts. See
+  the packet's "Round 2" section and the `.ai/CODE_STATE.md` entry "V-01a round 2".
+- Follow-ups 1-2: mock tabs, type, colours and rail with icons, in shared tokens. Item 5: evidence tool
+  105/105, walkthrough links and owner guide refreshed. Closeout: packet, CODE_STATE, ACTIVE_CONTEXT.
+- Next: a fresh independent fix re-review over `git diff 13620b6..HEAD`, then the owner's visual checkpoint.
+  No phase 2c.
+

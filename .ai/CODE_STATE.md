@@ -5208,7 +5208,29 @@ Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. V
 - Tools: `tools/v01a_foundation_walkthrough.py` (copy of `assetops_s4cases`, plus an empty migrated DB;
   API 8860/8861, web 5360/5361) and `tools/v01a-foundation-evidence.mjs` (25 claims at each of 1440 and
   390 = 50; CDP port 9361).
-- Open: Q1-Q5 in `.agent/V-01a-questions-1.md` (SLD bus-bar redraw, Site-name h1, readiness tones,
-  selected-part state, card icons), all defaulted to the current app.
+- Q1-Q5 were answered by the owner and ruled in `D-2026-10-12-v01a-owner-visual-rulings` (round 2 below).
 - Open: `SiteOverview.tsx:241` stale "No window" text stays with S5-01 (backlog C2).
 - Open: the shell-wide `layout-evidence.mjs` stops at the Lab run-setup precondition in the walkthrough tree.
+
+### V-01a round 2 (owner rulings; packet section "Round 2")
+
+- `SitesIndex.tsx`: columns Site / Type / Mode / Setup details / Actions; `Last analysed` and
+  `NO_ANALYSIS_IN_WINDOW` removed; `DIRECTORY_ANALYSIS_ABSENT` note under the table.
+- Readiness: Badge tones `configured` (green, tick) and `config-gap` (amber, "!"), configuration-only;
+  `ReadinessLegend` in `FoundationBindingsPanel.tsx`.
+- Part selection: `component=` beside `at` (`FOUNDATION_COMPONENT_PARAM`, `siteFoundationViewHref`);
+  `SiteFoundationFrame` clears an undeclared part and shows `[data-selected-part-missing]`;
+  `SelectedPartPanel` on all three views.
+- SLD (`SiteSingleLineDiagram.tsx`): bus-bar layout (`latticeFor`, `runPoints`, `SldBus`, `SldNode`),
+  `data-sld-layout="bus-bar"`, `SLD_CONFIGURED_NOT_LIVE`, optional `SldSelection` (svg becomes a named
+  `group`, parts are `role="button"` toggles). The slot text is now "Readings not assessed here"; the constant
+  name `AWAITING_RUNTIME_OR_EVIDENCE` is unchanged. The view model is unchanged except `sldSymbolFor`.
+- Icons: `sites/componentIcons.tsx` (one icon family per type, used by the SLD and `ComponentTypeIcon` on the
+  topology cards); `ui/RailIcon.tsx` (mock line icons; `NavRailItem.icon`).
+- Shared type, colour, tab and rail tokens follow the mock (`ui/tokens.css`). This affects every screen.
+- Guard: `shell-overflow.ps1` allows fixed-size icon svgs in exactly those two modules.
+- Open: bus-bar routing has no detour for a supply that bypasses an occupied conversion row. No stored topology
+  has one.
+- Open: the Finding-detail regression was not run in the v01a store, which has no Finding.
+- Open: `layout-evidence.mjs` still stops at the Lab run-setup precondition.
+
