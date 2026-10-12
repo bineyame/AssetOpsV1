@@ -15,6 +15,15 @@ Isolation (like the S3/S4 walkthroughs):
   Site file.
 - Ports: populated API 8860 / web 5360, empty API 8861 / web 5361. No other port is used.
 
+A second copy (for example an implementer's or reviewer's private run) must not reuse the owner's
+databases, tree or ports. Global options, given before the command, override the defaults:
+
+    tools/v01a_foundation_walkthrough.py --db assetops_v01ar3walk --empty-db assetops_v01ar3empty         --work-name v01a-round3-impl prepare
+    tools/v01a_foundation_walkthrough.py --db ... --empty-db ... --work-name ... serve         --port 8880 --web-port 5380 --empty-port 8881 --empty-web-port 5381
+    tools/v01a_foundation_walkthrough.py --db ... --empty-db ... drop   # drop that copy's databases
+
+`drop` refuses the owner's default database names unless `--allow-default` is given.
+
 Nothing is staged: every screen reads persisted rows as the producer left them.
 """
 
@@ -36,6 +45,7 @@ if not PY.exists():  # POSIX venv layout
     PY = REPO / ".venv" / "bin" / "python"
 WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "v01a-foundation-walkthrough"
 SOURCE_DB, DB, EMPTY_DB = "assetops_s4cases", "assetops_v01awalk", "assetops_v01aempty"
+DEFAULT_DB, DEFAULT_EMPTY_DB, DEFAULT_WORK_NAME = DB, EMPTY_DB, WORK.name
 PRODUCER = WORK.parent / "s4-finding-cases"
 PRODUCER_MANIFEST = PRODUCER / "s4-finding-cases-manifest.json"
 MANIFEST = WORK / "s4-finding-cases-manifest.json"
@@ -55,6 +65,33 @@ PERIODS = (
     ("Scheduled period v13 (starts 21 Oct 2026; not in effect yet)", "2026-10-22T00:00:00Z"),
     ("Before any stored version (missing state)", "2026-09-01T00:00:00Z"),
 )
+
+
+def configure(db: str, empty_db: str, work_name: str) -> None:
+    """Point this run at its own databases and work tree; defaults are the owner's walkthrough."""
+    global WORK, DB, EMPTY_DB, MANIFEST
+    for name in (db, empty_db):
+        if not name.isidentifier() or not name.startswith("assetops_") or name == SOURCE_DB:
+            raise SystemExit(f"Refusing database name {name!r}: use assetops_<name>, not the producer database")
+    if not work_name or any(ch in work_name for ch in "/\\:") or work_name in (".", ".."):
+        raise SystemExit(f"Refusing work-tree name {work_name!r}")
+    WORK = WORK.parent / work_name
+    DB, EMPTY_DB = db, empty_db
+    MANIFEST = WORK / "s4-finding-cases-manifest.json"
+
+
+def drop(allow_default: bool) -> None:
+    import psycopg
+
+    if not allow_default and (DB == DEFAULT_DB or EMPTY_DB == DEFAULT_EMPTY_DB):
+        raise SystemExit("Refusing to drop the owner's walkthrough databases without --allow-default")
+    with psycopg.connect(f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops", autocommit=True) as c:
+        for name in (DB, EMPTY_DB):
+            c.execute(f"DROP DATABASE IF EXISTS {name} WITH (FORCE)")
+            say(f"dropped {name}")
+    if WORK.exists() and WORK.name != DEFAULT_WORK_NAME:
+        shutil.rmtree(WORK, ignore_errors=True)
+        say(f"removed {WORK}")
 
 
 def say(text: str = "") -> None:
@@ -180,8 +217,13 @@ def serve(port: int, web: int, empty_port: int, empty_web: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="tools/v01a_foundation_walkthrough.py")
+    parser.add_argument("--db", default=DB, help="populated copy of the producer database")
+    parser.add_argument("--empty-db", default=EMPTY_DB, help="empty migrated database")
+    parser.add_argument("--work-name", default=WORK.name, help="work-tree folder under %%LOCALAPPDATA%%/AssetOps")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("prepare")
+    d = sub.add_parser("drop")
+    d.add_argument("--allow-default", action="store_true")
     for name in ("links", "serve"):
         s = sub.add_parser(name)
         s.add_argument("--port", type=int, default=API_PORT)
@@ -189,8 +231,11 @@ def main() -> None:
         s.add_argument("--empty-port", type=int, default=EMPTY_API_PORT)
         s.add_argument("--empty-web-port", type=int, default=EMPTY_WEB_PORT)
     args = parser.parse_args()
+    configure(args.db, args.empty_db, args.work_name)
     if args.command == "prepare":
         prepare()
+    elif args.command == "drop":
+        drop(args.allow_default)
     elif args.command == "links":
         links(args.web_port, args.empty_web_port)
     else:
