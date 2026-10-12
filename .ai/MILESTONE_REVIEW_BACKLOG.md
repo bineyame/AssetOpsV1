@@ -2044,3 +2044,9 @@ The carried review findings above are unchanged.
 - R1 re-review carries (`.agent/S3-01-R1-rereview.md`): C1 add a direct comparison-classification recovery test (coverage is indirect via `window_jobs`); C2 (low) FAILED-job supersession is overlap-based, so a partial-window selection clears the whole job (likely moot with daily windows).
 - S3-01 phase 3b review carries (`.agent/S3-01-phase-3b-review.md`): C3 the R2 recheck re-reads every selected interval once per classified revision on each gated read (performance); C4 the cutover route reads the comparison report twice, so the summary shown can differ from the one that opened the gate.
 - S3-01 3b fix re-review carries (`.agent/S3-01-phase-3b-fix-rereview.md`): N1 an unassessed day still says "0 accepted records behind this day's result" and "No limitation is recorded" (guide says it shows no zero); N2 demonstration notes are quoted verbatim with technical terms ("battery SOC", "Batch V2") — add a one-line plain explanation later.
+
+### A-finding-episode review carries (2026-10-12, `.agent/A-finding-episode-review.md`)
+
+- S3-01u (assessed-day discovery, paged evidence) exists only in the decision/answers; the Planner must create its task file and registry node.
+- S4-01 refinement: its multi-revision fixture must cover a model-upgrade revision explicitly; record the optional bridge/merge case as tested or explicitly deferred.
+
