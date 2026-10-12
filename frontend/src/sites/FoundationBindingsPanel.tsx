@@ -95,7 +95,11 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
   const unboundChannels = readiness.channels.filter((channel) => channel.status !== "BOUND").length;
 
   return (
-    <Panel heading="Configuration readiness" headingId={FOUNDATION_READINESS_HEADING_ID}>
+    <Panel
+      heading="Configuration readiness"
+      headingId={FOUNDATION_READINESS_HEADING_ID}
+      description="Configuration readiness is distinct from claim readiness and from operational status, which are not assessed here."
+    >
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
           <Badge tone="neutral">{READINESS_WORD[readiness.state]}</Badge>

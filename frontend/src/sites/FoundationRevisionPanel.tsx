@@ -172,6 +172,13 @@ export function FoundationPeriodStrip({
             onChange={(event) => onSelectAt(event.target.value === "" ? null : event.target.value)}
           >
             <option value="">In effect now</option>
+            {selectedAt !== null && !selectable.has(selectedAt) ? (
+              // An instant from a link or reload that is not a period start:
+              // name it, so the selector never falls back to "In effect now".
+              <option value={selectedAt} data-period-option="instant">
+                {`At ${formatInstant(foundation.resolved.at)} (from the address)`}
+              </option>
+            ) : null}
             {current.map((row) => (
               <option key={row.revision_id} value={row.valid_from}>
                 {`v${row.version} · ${period(row)} (${PERIOD_WORD[row.period_state]})`}

@@ -239,7 +239,7 @@ function topologyCards(site: SiteDetailReadModel, configuration: SiteConfigurati
   const loads = topology.connections
     .filter((connection) => connection.from_node === bus.node_id)
     .map((connection) => card([connection.to_node]));
-  return { busName: name(bus.node_id), supplies, loads };
+  return { busName: name(bus.node_id), busRating: rating(bus.node_id), supplies, loads };
 }
 
 function TopologyCards({ cards }: { cards: TopologyCard[] }) {
@@ -259,11 +259,16 @@ function ConfiguredTopologyPanel({ site, sldHref }: { site: SiteDetailReadModel;
   const configuration = deriveSiteConfigurationView(site);
   const cards = topologyCards(site, configuration);
   return (
-    <Panel heading="Configured topology" headingId="foundation-configured-topology-heading">
-      <p className="panel-lede">
-        Declared ratings and configured connections; not live energy flows.{" "}
-        <Link to={sldHref}>Single line diagram →</Link>
-      </p>
+    <Panel
+      heading="Configured topology"
+      headingId="foundation-configured-topology-heading"
+      description={
+        <>
+          Declared ratings and configured connections; not live energy flows.{" "}
+          <Link to={sldHref}>Single line diagram →</Link>
+        </>
+      }
+    >
       {cards === null ? (
         <p data-topology="not-declared">
           This Foundation version declares no topology with a bus, so no arrangement is drawn.
@@ -271,7 +276,10 @@ function ConfiguredTopologyPanel({ site, sldHref }: { site: SiteDetailReadModel;
       ) : (
         <div className="plant-map" data-topology="declared">
           <TopologyCards cards={cards.supplies} />
-          <p className="plant-bus">{cards.busName} · configured electrical connections</p>
+          <p className="plant-bus" data-topology-bus>
+            {cards.busName}
+            {cards.busRating === null ? "" : ` · ${cards.busRating}`} · configured electrical connections
+          </p>
           <TopologyCards cards={cards.loads} />
         </div>
       )}
@@ -331,7 +339,11 @@ function SldView(props: ViewProps) {
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Configuration readiness →</Link>)}
-      <Panel heading={`${configuration.displayName} · configured single line diagram`} headingId={SITE_SLD_HEADING_ID}>
+      <Panel
+        heading={`${configuration.displayName} · configured single line diagram`}
+        headingId={SITE_SLD_HEADING_ID}
+        description="Configured equipment and declared connections for the period shown; not live power flow, and not reporting status."
+      >
         <SiteSldPrimary site={site} boundDevices={boundDevices} headingId={SITE_SLD_HEADING_ID} />
       </Panel>
       <ConfiguredPartsPanel foundation={foundation} site={site} configuration={configuration} />

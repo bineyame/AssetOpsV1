@@ -1231,14 +1231,15 @@ describe("declared topology content states nothing operational", () => {
     expect(spacedText(container)).not.toMatch(ASSESSMENT_VOCABULARY);
   });
 
-  it("says devices are configured and awaiting runtime, not operating", async () => {
+  it("says devices are configured assets and does not assess reporting either way", async () => {
     const { container } = renderConfiguration(DECLARED_SITE);
     await settledScreen();
 
-    expect(spacedText(container)).toMatch(
-      /configured assets awaiting runtime and evidence/i,
-    );
-    expect(spacedText(container)).toMatch(/none has reported/i);
+    expect(spacedText(container)).toMatch(/configured assets, not reports from them/i);
+    expect(spacedText(container)).toMatch(/whether any of them is reporting is not assessed here/i);
+    // V-01a: the caption no longer asserts that none has reported while also
+    // saying nothing states whether any is reporting (MILESTONE_REVIEW_BACKLOG carry).
+    expect(spacedText(container)).not.toMatch(/none has reported/i);
   });
 
   it("names no control state, setpoint, or breaker position outside the question that asks for one", async () => {

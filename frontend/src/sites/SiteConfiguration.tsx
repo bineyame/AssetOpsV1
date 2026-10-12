@@ -799,7 +799,7 @@ export function SiteFoundationDevices({
       name="Devices"
       headingId="foundation-devices-heading"
       section={section}
-      caption="The devices this site's foundation declares. These are configured assets awaiting runtime and evidence: none has reported, and nothing here states that any of them is reporting or that any is not."
+      caption="The devices this site's foundation declares. These are configured assets, not reports from them: whether any of them is reporting is not assessed here."
       columns={["Device", "Type", "Attached to", "Signals it can report", "Device ID"]}
       row={(device) => ({
         key: device.deviceId,

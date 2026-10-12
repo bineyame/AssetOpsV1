@@ -392,6 +392,13 @@ button:focus-visible {
   color: var(--text-primary);
 }
 
+.panel__description {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
 .panel__body {
   padding: var(--space-4);
 }

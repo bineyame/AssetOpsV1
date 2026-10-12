@@ -348,6 +348,16 @@ describe("the persisted Foundation version", () => {
     expect(screen.getByRole("combobox", { name: "Foundation period" })).toHaveValue(FUTURE.valid_from);
   });
 
+  it("keeps an address instant that is not a period start selected, never 'In effect now' (V-01a)", async () => {
+    const inside = new Date(Date.parse(FUTURE.valid_from) + 3_600_000).toISOString();
+    renderAt(`/sites/${ID}/foundation?at=${encodeURIComponent(inside)}`, fakeFoundation(byAt));
+    await settledScreen();
+    const picker = screen.getByRole("combobox", { name: "Foundation period" }) as HTMLSelectElement;
+    expect(picker).toHaveValue(inside);
+    expect(picker.selectedOptions[0].textContent).toMatch(/from the address/);
+    expect(picker.selectedOptions[0].textContent).not.toMatch(/In effect now/);
+  });
+
   it("publishes a reserve change and re-reads the versions", async () => {
     const client = fakeFoundation(byAt);
     renderAt(`/sites/${ID}/foundation`, client);

@@ -131,7 +131,12 @@ export function SitesIndex({
   }
 
   return (
-    <Panel heading="Configured sites" headingId="sites-list-heading" flush>
+    <Panel
+      heading="Site inventory"
+      headingId="sites-list-heading"
+      description="Mode is provenance. A row is a configured Site, never a simulation run."
+      flush
+    >
       <SiteFilters sites={result.sites} siteHref={siteHref} lineage={lineage} />
     </Panel>
   );
