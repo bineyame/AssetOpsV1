@@ -94,6 +94,10 @@ def indeterminate_cause(portions: list[dict[str, Any]]) -> dict[str, str] | None
     if any(p["kind"] == RECORD_GAP for p in portions):
         return {"kind": RECORD_GAP, "sentence": RECORD_GAP_SENTENCE}
     words = list(dict.fromkeys(w for p in portions for w in p["plain"]))
+    # A transition portion is undecided because its other end is; name that end's cause when one is known.
+    transition = _MODELLING_WORDS["transition inside the segment"]
+    if len(words) > 1:
+        words = [w for w in words if w != transition]
     if words:
         return {"kind": MODELLING, "sentence": "No records are missing. It could not decide because "
                 + "; and ".join(words) + "."}

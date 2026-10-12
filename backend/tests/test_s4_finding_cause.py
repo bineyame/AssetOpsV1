@@ -108,7 +108,8 @@ def test_read_classifies_the_selected_revision_not_the_latest_and_ignores_open_b
     assert [p["kind"] for p in r["indeterminate_reasons"]] == [MODELLING]
     assert r["indeterminate_reasons"][0]["missing"] == [RUNTIME, TRANSITION]
     assert r["indeterminate_cause"]["kind"] == MODELLING
-    assert "minimum operating time" in r["indeterminate_cause"]["sentence"]
+    assert r["indeterminate_cause"]["sentence"] == ("No records are missing. It could not decide because the "
+        "generator may still have been inside its 120-minute minimum operating time after starting.")
 
     body = service.finding(T, S, uuid4())
     assert body["revision"]["indeterminate_cause"] == {
