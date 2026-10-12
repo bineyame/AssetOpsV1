@@ -1,6 +1,6 @@
 # S3-01 — Typed dispatch assessment and interval detail
 
-Status: in_review (all phases built; phase 3b UI, cutover summary and walkthrough added; review packet `.agent/S3-01-review-packet.md`; owner checkpoint pending)
+Status: done (owner checkpoint passed 2026-10-12 `.agent/owner-S3-01-acceptance-2026-10-12.md`; fresh Claude reviews accepted; merged to main)
 USER_REVIEW_REQUIRED: true
 Milestone: S3 Performance / Dispatch
 Depends on: merged S2-02 (`I-S2-02`), time-valid S1 bindings (`I-S1-02`), resolved `A-S3-dispatch`, and `I-sim-dispatch-cases` delivered in this task
