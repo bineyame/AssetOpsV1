@@ -329,15 +329,18 @@ describe("one draft run", () => {
     // called, which is the lesson a word ban learnt when "Execute this run now"
     // walked past one. T025d adds exactly two: auto-play of the guarded Step
     // and its pause, which stops the browser's scheduling and nothing else.
+    // V-01b: the Commit panel sits under "Release and ingestion" in the
+    // "Gateway & Ingestion" overview, above "Execution and recorded history",
+    // so it is now first in document order. The set stays closed.
     expect(buttons).toEqual([
+      // T027: Commit is built; on a stage that is not release-eligible it is
+      // disabled with the blockers named, never hidden as if it did not exist.
+      "Commit and release",
       "Start this run",
       "Step",
       "Run to the end",
       "Play",
       "Pause",
-      // T027: Commit is built; on a stage that is not release-eligible it is
-      // disabled with the blockers named, never hidden as if it did not exist.
-      "Commit and release",
     ]);
   });
 
