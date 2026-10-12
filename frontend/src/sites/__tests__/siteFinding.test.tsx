@@ -284,6 +284,17 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(container.querySelector(`[data-finding-related='${PRIOR}']`)).not.toBeNull();
   });
 
+  it.each([
+    ["NO_EARLIER_FINDING", false],
+    ["SEPARATION_NOT_ASSESSED", true],
+  ])("a recurrence not established for %s is named only when an earlier Finding exists", async (reason, shown) => {
+    const value = body([summary(1, "OPENED")]);
+    value.relations.recurrence = { status: "NOT_ESTABLISHED", reason };
+    const { container } = mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    expect(container.querySelector("[data-finding-recurrence='NOT_ESTABLISHED']") !== null).toBe(shown);
+  });
+
   it("a merged Finding leads with the Finding that carries the review", async () => {
     const value = body([summary(1, "OPENED"), summary(2, "MERGED_INTO", "MERGED")]);
     value.state.merged_into_finding_id = CANON;

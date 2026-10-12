@@ -420,9 +420,10 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
             recorded stop. That link says the pattern recurred; it does not say the earlier Finding is still open.{" "}
             <Link to={links.finding(prior)}>Open the earlier Finding to see its own state</Link>
           </li>
-        ) : recurrence.status !== "LINKED" && recurrence.status !== "NOT_RECORDED" ? (
+        ) : recurrence.status === "NOT_ESTABLISHED" && recurrence.reason !== "NO_EARLIER_FINDING" ? (
           <li data-finding-recurrence={recurrence.status}>
-            Whether this repeats an earlier Finding is not established: no recorded generator stop separates them.
+            An earlier Finding exists for this generator, but whether this repeats it is not established: the time
+            between them is not fully assessed or no recorded generator stop separates them.
           </li>
         ) : null}
         <li>
