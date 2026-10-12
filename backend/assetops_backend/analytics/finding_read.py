@@ -13,8 +13,13 @@
   `BASIS_REFRESHED` entries are grouped only as a presentation hint.
 - Currentness compares the window AssessmentRevisions the revision itself cites (the exact basis window set,
   for supported and unsupported paths alike) with the S3 read's current selection of those windows.
-- No Finding is never a healthy verdict: `window_state` says `NO_FINDING` only for a CURRENT window with no
-  Candidate segment and no Finding over it.
+- A pinned non-latest revision is `SUPERSEDED_BY_LATER_REVISION`; the Finding's current state (`state`) is
+  always its latest revision's (phase-2 review B2).
+- No Finding is never a healthy verdict: `window_state` says `NO_FINDING` only for a CURRENT window whose
+  window assessment is not Indeterminate, with no Candidate segment and no Finding over it; an Indeterminate
+  (e.g. ambiguous-cohort) window is `NOT_DETERMINABLE` (review B1). Claim level and limitations are returned.
+- With the Performance source closed (Q19) the router refuses default reads; a pinned revision is served with
+  `source_open=False`: audit material only, no S3 currentness read, never a current claim.
 """
 
 from __future__ import annotations
@@ -53,6 +58,9 @@ class FindingReadStore(Protocol):
                          off_bounds: list[tuple[str, str]]) -> dict[str, Any]: ...
 
     def findings_over(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> list[dict[str, Any]]: ...
+
+    def match_state(self, tenant_id: UUID, site_id: UUID, analytic_id: str, window_start: datetime
+                    ) -> dict[str, Any]: ...
 
 
 def _ids(rows: list[dict[str, Any]], scope: str) -> list[str]:
@@ -145,7 +153,8 @@ class FindingReadService:
                 "basis": "the window AssessmentRevisions this revision cites (its exact basis window set)"}
 
     def finding(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, revision_id: UUID | None = None, *,
-                after_revision_no: int = 0, limit: int = PAGE_LIMIT) -> dict[str, Any] | None:
+                after_revision_no: int = 0, limit: int = PAGE_LIMIT, source_open: bool = True
+                ) -> dict[str, Any] | None:
         detail = self.store.finding_detail(tenant_id, site_id, finding_id)
         if detail is None:
             return None
@@ -173,7 +182,17 @@ class FindingReadService:
         root = detail["finding"]
         relations = detail["relations"]
         merged_into = relations["merged_into"][0]["canonical_finding_id"] if relations["merged_into"] else None
-        latest_current = self._currentness(tenant_id, site_id, latest)
+        if source_open:
+            latest_current = self._currentness(tenant_id, site_id, latest)
+            selected_current = latest_current if selected is latest else {
+                **self._currentness(tenant_id, site_id, selected), "state": "SUPERSEDED_BY_LATER_REVISION",
+                "latest_revision_id": latest["id"],
+                "note": "a later recorded revision supersedes this one; the Finding's current state is under "
+                        "`state`, from its latest revision"}
+        else:
+            latest_current = selected_current = {
+                "state": "SOURCE_CLOSED", "windows": [],
+                "basis": "the Performance source is closed: no current S3 selection is read or claimed"}
         groups: dict[tuple, int] = {}
         for e in lineage["evidence"]:
             key = (str(e["gateway_id"]), str(e["source_id"]), e["sequence_epoch"], e["source_mode"])
@@ -202,14 +221,14 @@ class FindingReadService:
                 "cited_evidence": lineage["evidence"],
                 "off_reports": lineage["off_reports"],
                 "previous_revision_id": None if prior is None else prior["id"],
-                "currentness": latest_current if selected is latest else self._currentness(tenant_id, site_id,
-                                                                                           selected),
+                "currentness": selected_current,
             },
             "state": {
                 "lifecycle": latest["lifecycle"], "latest_transition": latest["transition"],
                 # A superseded Finding is history: the canonical Finding carries the current claim (Q12).
                 "projection": "MERGED_INTO_CANONICAL" if latest["lifecycle"] == "MERGED" else latest_current["state"],
                 "claim_is_current": latest_current["state"] == "CURRENT" and latest["lifecycle"] == "SUPPORTED",
+                "claim_is_current_refers_to": "LATEST_REVISION", "latest_revision_id": latest["id"],
                 "merged_into_finding_id": merged_into,
                 "note": ("A recorded Finding's lifecycle is shown as recorded; it is a current claim only when its "
                          "basis windows are CURRENT and still the selected assessments."),
@@ -249,12 +268,21 @@ class FindingReadService:
         current_id = None if current is None else str(current["id"])
         for f in findings:
             f["cites_current_window_selection"] = current_id in {str(x) for x in f["window_assessment_revision_ids"]}
+        claim_level = None if current is None else current["claim_level"]
+        match = self.store.match_state(tenant_id, site_id, read["analytic_id"], lo)
         candidate = any(s.get("classification") == CANDIDATE for i in read.get("intervals") or ()
                         for s in (i.get("result") or {}).get("segments") or ())
         if read["status"] != CURRENT:
             state, note = _PROJECTION[read["status"]], "no current assessed basis; this is not a no-Finding verdict"
+        elif claim_level == "INDETERMINATE" and not findings:
+            state, note = "NOT_DETERMINABLE", ("the current selected assessment cannot determine this window "
+                                               "(Indeterminate); this is not a no-Finding verdict")
+        elif not candidate and not findings and not match["matched"]:
+            state, note = "FINDING_MATCH_PENDING", ("no completed Finding match at the current selection yet; this "
+                                                    "is not a no-Finding verdict")
         elif not candidate and not findings:
-            state, note = "NO_FINDING", "the current selected assessment has no Candidate segment and no Finding"
+            state, note = "NO_FINDING", ("the current selected assessment has no Candidate segment and no Finding, "
+                                         "and a completed Finding match covers that selection")
         elif (candidate and not any(f["cites_current_window_selection"] for f in findings)) or any(
                 not f["cites_current_window_selection"] for f in findings if f["lifecycle"] != "MERGED"):
             state, note = "FINDING_MATCH_PENDING", ("the current selected assessment is newer than the recorded "
@@ -264,4 +292,7 @@ class FindingReadService:
         return {"day": lo.date().isoformat(), "state": state, "note": note, "assessment_status": read["status"],
                 "assessment_status_reasons": read["status_reasons"],
                 "selected_window_assessment_revision_id": current_id,
+                "selected_run_id": (read.get("selection") or {}).get("run_id"),
+                "window_claim_level": claim_level, "window_limitations": list(read.get("limitations") or []),
+                "watermarks": read.get("watermarks"), "finding_match": match,
                 "has_candidate_segment": candidate, "findings": findings, "unavailable": UNAVAILABLE}

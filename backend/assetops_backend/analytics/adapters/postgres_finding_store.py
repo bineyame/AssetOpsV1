@@ -106,11 +106,13 @@ class PostgresFindingStore:
     def episodes(self, tenant_id: UUID, site_id: UUID) -> list[Episode]:
         rows = self._read(lambda c: c.execute(text(
             "SELECT DISTINCT ON (f.id) f.id, f.generator_asset_id, f.anchor_start, r.lifecycle, r.episode_start, "
-            "r.episode_end, r.basis_sha256, r.model_version, r.support_sha256 FROM finding f "
+            "r.episode_end, r.basis_sha256, r.model_version, r.support_sha256, "
+            "(SELECT o.claim -> 'recurrence' FROM finding_revision o WHERE o.finding_id = f.id "
+            "ORDER BY o.revision_no LIMIT 1) FROM finding f "
             "JOIN finding_revision r "
             "ON r.finding_id = f.id WHERE f.tenant_id = :t AND f.site_id = :s ORDER BY f.id, r.revision_no DESC"),
             {"t": tenant_id, "s": site_id}).all())
-        return [Episode(str(r[0]), r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]) for r in rows]
+        return [Episode(str(r[0]), r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]) for r in rows]
 
     def apply(self, tenant_id: UUID, site_id: UUID, analytic_id: str, writes: list[Write], fence: Fence,
               now: datetime) -> Applied:
@@ -127,6 +129,12 @@ class PostgresFindingStore:
                 rid = self._insert_revision(c, tenant_id, site_id, analytic_id, w, now)
                 if rid is not None:
                     revisions.append(rid)
+            # Q18: the pass itself is recorded, so "no Finding" can cite a completed match at that selection.
+            c.execute(text("INSERT INTO finding_match_pass (id, tenant_id, site_id, analytic_id, selection_seq, "
+                           "matcher_version, revisions_written, completed_at) VALUES (:id, :t, :s, :a, :seq, "
+                           ":matcher, :n, :now)"),
+                      {"id": uuid4(), "t": tenant_id, "s": site_id, "a": analytic_id, "seq": fence.selection_seq,
+                       "matcher": MATCHER_VERSION, "n": len(revisions), "now": now})
             return Applied(tuple(findings), tuple(revisions))
 
         try:
@@ -293,6 +301,24 @@ class PostgresFindingStore:
                 offs.append({"assessment_revision_id": revision_id, "at": at, "evidence_ids": found})
             return {"evidence": _evidence(c, tenant_id, site_id, ids), "runs": runs, "off_reports": offs}
 
+        return self._read(work)
+
+    def match_state(self, tenant_id: UUID, site_id: UUID, analytic_id: str, window_start: datetime
+                    ) -> dict[str, Any]:
+        """The window's current selection sequence and the latest completed pass of this matcher version."""
+        def work(c: Connection) -> dict[str, Any]:
+            seq = c.execute(text("SELECT max(seq) FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
+                                 "AND analytic_id = :a AND window_start = :w"),
+                            {"t": tenant_id, "s": site_id, "a": analytic_id, "w": window_start}).scalar_one()
+            row = c.execute(text("SELECT id, selection_seq, completed_at FROM finding_match_pass WHERE tenant_id = :t "
+                                 "AND site_id = :s AND analytic_id = :a AND matcher_version = :m "
+                                 "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"),
+                            {"t": tenant_id, "s": site_id, "a": analytic_id, "m": MATCHER_VERSION}).one_or_none()
+            return {"window_selection_seq": seq, "matcher_version": MATCHER_VERSION,
+                    "match_pass_id": None if row is None else str(row[0]),
+                    "matched_through_selection_seq": None if row is None else row[1],
+                    "match_completed_at": None if row is None else row[2],
+                    "matched": seq is not None and row is not None and row[1] >= seq}
         return self._read(work)
 
     def findings_over(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> list[dict[str, Any]]:

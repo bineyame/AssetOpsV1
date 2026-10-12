@@ -613,7 +613,7 @@ function Invoke-ConfigurationPersistenceCheck {
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+window_start\s*=\s*:start,\s*window_end\s*=\s*:end\s+WHERE\b')
     $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
     $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
-        'finding_merge')
+        'finding_merge', 'finding_match_pass')
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'

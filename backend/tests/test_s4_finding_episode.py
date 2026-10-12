@@ -16,6 +16,7 @@ from assetops_backend.analytics.finding_episode import (
     Episode,
     IntervalBasis,
     Seg,
+    StateReport,
     WindowBasis,
     Write,
     plan,
@@ -42,10 +43,26 @@ def run(segments: list[Seg], off_before: datetime | None, off_after: datetime | 
                          tuple(segments), (), segments[-1].end)
 
 
-def day(d: int, *intervals: IntervalBasis, status: str = "CURRENT", rev: str | None = None) -> WindowBasis:
+MEMBER = ("gw", "src", "epoch-1")
+
+
+def report(t: datetime, value: str = "STOPPED", *, quality: str = "GOOD", member: tuple = MEMBER,
+           role: str = "generator_state", asset: str = "G1", eid: str | None = None) -> StateReport:
+    return StateReport(eid or f"st-{t:%d%H%M}-{value}", role, asset, t, None, quality, value, member, "ACCEPTED")
+
+
+def day(d: int, *intervals: IntervalBasis, status: str = "CURRENT", rev: str | None = None,
+        extra: tuple = (), reports: tuple | None = (), limits: tuple = (), claim: str | None = None) -> WindowBasis:
+    """A selected window; its run's accepted generator reports are the OFF bounds of its intervals (inside the
+    window) plus `extra`, or None when `reports` is None (not read)."""
     start = datetime(2026, 10, d, tzinfo=timezone.utc)
-    return WindowBasis(start, start + timedelta(days=1), status, MODEL, f"wrun-{d}", f"in-{d}", "cohort",
-                       rev or f"win-{d}-{next(_ids)}", CANDIDATE if intervals else NECESSARY, tuple(intervals))
+    end = start + timedelta(days=1)
+    offs = {t for i in intervals for t in (i.off_before, i.off_after) if t is not None and start <= t < end}
+    typed = None if reports is None else tuple(report(t, asset=i.asset) for i in intervals
+                                              for t in (i.off_before, i.off_after) if t in offs) + tuple(extra)
+    return WindowBasis(start, end, status, MODEL, f"wrun-{d}", f"in-{d}", "cohort",
+                       rev or f"win-{d}-{next(_ids)}", claim or (CANDIDATE if intervals else NECESSARY),
+                       tuple(intervals), typed, frozenset({MEMBER}), limits)
 
 
 def persisted(writes: list[Write], before: list[Episode] = ()) -> list[Episode]:
@@ -55,7 +72,8 @@ def persisted(writes: list[Write], before: list[Episode] = ()) -> list[Episode]:
         prior = out.get(w.finding_id)
         anchor = prior.anchor_start if prior else w.new_finding["anchor_start"]
         out[w.finding_id] = Episode(w.finding_id, w.asset or prior.asset, anchor, w.lifecycle, w.episode_start,
-                                    w.episode_end, w.basis_sha256, w.model_version, w.support_sha256)
+                                    w.episode_end, w.basis_sha256, w.model_version, w.support_sha256,
+                                    prior.recurrence if prior else w.claim.get("recurrence"))
     return list(out.values())
 
 
@@ -256,3 +274,83 @@ class TestRelationRecords:
         [w] = [w for w in plan(windows, eps, MODEL) if w.new_finding]
         assert w.claim["recurrence"] == {"status": "NOT_ESTABLISHED", "reason": "SEPARATION_NOT_ASSESSED",
                                          "nearest_earlier_finding_id": eps[0].finding_id}
+
+
+class TestStopProof:
+    """Q17 (`D-2026-10-12-s4-finding-phase-2-read-boundaries`): a stop bridges only when the selected runs'
+    accepted generator reports confirm it; anything contrary or unread leaves two Findings, not a silent bridge."""
+
+    def _two(self, *, extra: tuple = (), reports: tuple | None = (), limits: tuple = (),
+             claim: str | None = None, runs: tuple | None = None) -> list[WindowBasis]:
+        a, b = runs or (run([seg(at("23:20", 8), at("23:50", 8))], at("23:15", 8), at("23:55", 8)),
+                        run([seg(at("00:05", 9), at("00:30", 9))], at("00:00", 9), at("00:35", 9)))
+        return [day(8, a, extra=extra, reports=reports, limits=limits, claim=claim, rev="win-8"),
+                day(9, b, rev="win-9")]
+
+    def _refused(self, windows: list[WindowBasis], reason: str) -> None:
+        writes = plan(windows, [], MODEL)
+        assert len(writes) == 2 and all(w.transition == "OPENED" for w in writes)
+        assert all(w.claim["continuity"] == [] for w in writes)
+        rec = writes[1].claim["recurrence"]
+        assert rec["status"] == "NOT_ESTABLISHED" and rec["reason"] == f"SEPARATION_STOP_NOT_CONFIRMED: {reason}"
+        assert writes[1].new_finding["recurs_after_finding_id"] is None
+
+    def test_a_confirmed_stop_cites_its_checked_reports(self) -> None:
+        mid = report(at("23:57", 8), eid="mid-off")
+        [w] = plan(self._two(extra=(mid,)), [], MODEL)
+        proof = w.claim["continuity"][0]["stops"][0]["proof"]
+        assert proof["status"] == "CONFIRMED" and proof["off_after_evidence_ids"] == ["st-082355-STOPPED"]
+        assert proof["off_before_evidence_ids"] == ["st-090000-STOPPED"]
+        assert proof["checked_evidence_ids"] == ["mid-off", "st-082355-STOPPED", "st-090000-STOPPED"]
+        assert proof["run_ids"] == ["wrun-8", "wrun-9"] and proof["reports_sha256"]
+
+    def test_a_contradictory_state_between_two_valid_offs_refuses_the_bridge(self) -> None:
+        self._refused(self._two(extra=(report(at("23:57", 8), "UNKNOWN_STATE", eid="contrary"),)),
+                      "CONTRARY_REPORT")
+
+    def test_a_non_good_report_between_the_offs_refuses_the_bridge(self) -> None:
+        self._refused(self._two(extra=(report(at("23:57", 8), quality="SUSPECT"),)), "NOT_GOOD_REPORT")
+
+    def test_a_report_from_outside_the_selected_cohort_refuses_the_bridge(self) -> None:
+        self._refused(self._two(extra=(report(at("23:57", 8), member=("gw", "src", "epoch-0")),)),
+                      "WRONG_COHORT_REPORT")
+
+    def test_a_positive_power_report_between_the_offs_refuses_the_bridge(self) -> None:
+        self._refused(self._two(extra=(report(at("23:57", 8), "4.2", role="generator_power"),)), "CONTRARY_REPORT")
+
+    def test_unread_reports_never_bridge(self) -> None:
+        self._refused(self._two(reports=None), "NO_TYPED_GENERATOR_REPORTS")
+
+    def test_a_generator_series_limit_over_the_stop_refuses_the_bridge(self) -> None:
+        self._refused(self._two(limits=((at("23:50", 8), at("23:59", 8)),)), "GENERATOR_SERIES_AMBIGUOUS")
+
+    def test_an_indeterminate_window_refuses_the_bridge(self) -> None:
+        writes = plan(self._two(claim=INDETERMINATE), [], MODEL)
+        assert len(writes) == 2 and writes[1].claim["recurrence"]["reason"] == (
+            "SEPARATION_STOP_NOT_CONFIRMED: WINDOW_INDETERMINATE")
+
+
+class TestRelationsInTheBasis:
+    """Q20: relation facts are claim lineage; a changed stop proof or recurrence appends a revision."""
+
+    def test_a_changed_stop_proof_appends_a_revision_with_equal_minutes(self) -> None:
+        t = TestStopProof()
+        first = t._two()
+        runs = (first[0].intervals[0], first[1].intervals[0])
+        eps = persisted(plan(first, [], MODEL))
+        assert plan(t._two(runs=runs), eps, MODEL) == []  # same basis and relations: idempotent
+        # same windows and minutes, one more checked OFF report inside the stop: the proof digest moves
+        windows = t._two(runs=runs, extra=(report(at("23:57", 8), eid="late-off"),))
+        again = plan(windows, eps, MODEL)
+        assert [w.transition for w in again] == ["BASIS_REFRESHED"]
+        assert again[0].basis_sha256 != eps[0].basis_sha256 and again[0].support_sha256 == eps[0].support_sha256
+
+    def test_a_refused_proof_is_support_not_provenance(self) -> None:
+        bridged = plan(TestStopProof()._two(), [], MODEL)[0]
+        assert bridged.claim["continuity"][0]["stops"][0]["proof"]["status"] == "CONFIRMED"
+        refused = plan(TestStopProof()._two(extra=(report(at("23:57", 8), "X"),)), [], MODEL)[0]
+        assert refused.support_sha256 != bridged.support_sha256
+
+    def test_matcher_version_names_the_relation_proof(self) -> None:
+        from assetops_backend.analytics.finding_episode import MATCHER_VERSION
+        assert MATCHER_VERSION == "finding-episode-2"

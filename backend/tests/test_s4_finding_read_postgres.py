@@ -28,12 +28,38 @@ if URL:
     from assetops_backend.finding_api import build_finding_router
 
 
-def client_for(runner: "CaseRunner") -> "TestClient":
+def client_for(runner: "CaseRunner", gate_open: bool = True) -> "TestClient":
     reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)))
     scope = {"KOBO-001": ("KOBO-001", runner.tenant, runner.site)}
     app = FastAPI()
-    app.include_router(build_finding_router(reads, scope.get))
+    app.include_router(build_finding_router(reads, scope.get, gate=lambda code, t, s: (
+        gate_open, "test: gate open" if gate_open else "test: Performance comparison has not passed")))
     return TestClient(app)
+
+
+# Every fixture day 10-05..10-23 (review B1). The fixture has no complete assessed day without Candidate, so
+# NO_FINDING is pinned by `test_a_complete_day_without_candidate_is_no_finding`.
+EXPECTED_DAYS = {
+    "2026-10-05": "NOT_ASSESSED",
+    "2026-10-06": "FINDINGS_RECORDED",
+    "2026-10-07": "NOT_ASSESSED",
+    "2026-10-08": "FINDINGS_RECORDED",
+    "2026-10-09": "FINDINGS_RECORDED",
+    "2026-10-10": "NOT_ASSESSED",
+    "2026-10-11": "FINDINGS_RECORDED",
+    "2026-10-12": "NOT_ASSESSED",
+    "2026-10-13": "FINDINGS_RECORDED",
+    "2026-10-14": "NOT_ASSESSED",
+    "2026-10-15": "FINDINGS_RECORDED",
+    "2026-10-16": "NOT_ASSESSED",
+    "2026-10-17": "NOT_ASSESSED",
+    "2026-10-18": "NOT_ASSESSED",
+    "2026-10-19": "NOT_DETERMINABLE",
+    "2026-10-20": "NOT_ASSESSED",
+    "2026-10-21": "FINDINGS_RECORDED",
+    "2026-10-22": "NOT_ASSESSED",
+    "2026-10-23": "NOT_ASSESSED",
+}
 
 
 def by_anchor(rows: dict, at: str) -> dict:
@@ -92,6 +118,21 @@ class TestFindingRead:
         assert r2["primary_assessment_revision_id"] != r1["primary_assessment_revision_id"]
         assert r2["prior_interval_assessment_revision_ids"] == r1["interval_assessment_revision_ids"]
         assert pinned["finding"]["anchor_start"] == latest["finding"]["anchor_start"]
+        # Review B2: a pinned non-latest revision is superseded, not "match pending"; the current state is the
+        # latest revision's and says so.
+        assert pinned["revision"]["currentness"]["state"] == "SUPERSEDED_BY_LATER_REVISION"
+        assert pinned["revision"]["currentness"]["latest_revision_id"] == latest["selection"]["revision_id"]
+        assert pinned["revision"]["currentness"]["windows"]
+        assert pinned["state"]["claim_is_current_refers_to"] == "LATEST_REVISION"
+        assert pinned["state"]["projection"] == latest["state"]["projection"] == "CURRENT"
+        assert latest["revision"]["currentness"]["state"] == "CURRENT"
+        # Q19: with the Performance source closed, the default read is 409 and the pinned one is audit-only.
+        closed = client_for(runner, gate_open=False)
+        assert closed.get(f"/api/sites/KOBO-001/findings/{f04['id']}").status_code == 409
+        audit = get(closed, f04["id"], revision_id=r1["id"])
+        assert audit["state"]["projection"] == "SOURCE_CLOSED" and not audit["state"]["claim_is_current"]
+        assert audit["audit_only"]["non_current"] and audit["links"]["assessment_revisions"] == {}
+        assert closed.get("/api/sites/KOBO-001/finding-windows/2026-10-06").status_code == 409
 
         # F05: UNCONFIRMED then NO_LONGER_SUPPORTED on one ID; provenance-only entries grouped, never squashed.
         f05 = by_anchor(rows, "2026-10-21T08:00:00Z") if any(
@@ -138,6 +179,10 @@ class TestFindingRead:
         f02 = next(f for f in rows["findings"] if f["anchor_start"].date() == date(2026, 10, 8))
         gaps = get(client, f02["id"])["revision"]["claim"]["continuity"]
         assert gaps and all(g["candidate_minutes_added"] == "0" and g["bridged_by"] for g in gaps)
+        # Q17: every bridging stop is confirmed by the selected runs' accepted generator reports.
+        stops = [x for g in gaps for x in g["stops"]]
+        assert all(x["proof"]["status"] == "CONFIRMED" and x["proof"]["checked_evidence_ids"]
+                   and x["proof"]["off_after_evidence_ids"] and x["proof"]["off_before_evidence_ids"] for x in stops)
 
         # 404 matrix: unknown/foreign root, a revision of another Finding, unknown Site; malformed ID is 422.
         assert client.get(f"/api/sites/KOBO-001/findings/{uuid4()}").status_code == 404
@@ -151,9 +196,17 @@ class TestFindingRead:
         # Window states: recorded Findings, an assessed day with none, and a day never assessed.
         assert client.get("/api/sites/KOBO-001/finding-windows/2026-10-06").json()["state"] == "FINDINGS_RECORDED"
         assert client.get("/api/sites/KOBO-001/finding-windows/2026-09-01").json()["state"] == "NOT_ASSESSED"
-        states = {d: client.get(f"/api/sites/KOBO-001/finding-windows/{d}").json()["state"]
-                  for d in (f"2026-10-{n:02d}" for n in range(5, 24))}
-        assert "NO_FINDING" in states.values(), states
+        windows = {d: client.get(f"/api/sites/KOBO-001/finding-windows/{d}").json()
+                   for d in (f"2026-10-{n:02d}" for n in range(5, 24))}
+        states = {d: w["state"] for d, w in windows.items()}
+        # Review B1: each day's expected state is pinned; F08's ambiguous-cohort day is not an empty verdict.
+        assert states == EXPECTED_DAYS, states
+        assert windows["2026-10-15"]["window_claim_level"] == "LIMITED" and windows["2026-10-15"]["window_limitations"]
+        assert windows["2026-10-19"]["window_claim_level"] == "INDETERMINATE"
+        assert any(x.startswith("AMBIGUOUS_COHORT") for x in windows["2026-10-19"]["window_limitations"])
+        for d, w in windows.items():
+            if w["state"] == "NO_FINDING":
+                assert w["assessment_status"] == "CURRENT" and w["window_claim_level"] != "INDETERMINATE"
 
     def test_stale_and_match_pending_are_not_verdicts(self, store, engine) -> None:
         runner = CaseRunner(store, engine)
@@ -172,3 +225,20 @@ class TestFindingRead:
         assert client.get("/api/sites/KOBO-001/finding-windows/2026-10-06").json()["state"] == "FINDING_MATCH_PENDING"
         runner.match()
         assert get(client, f["id"])["state"]["projection"] == "CURRENT"
+
+    def test_a_complete_day_without_candidate_is_no_finding(self, store, engine) -> None:
+        runner = CaseRunner(store, engine)
+        runner.step({"do": "deliver", "decided": "2026-10-30T08:00:00Z", "blocks": [
+            {"from": "2026-10-25T08:00:00Z", "to": "2026-10-25T09:00:00Z", "pv": "5", "dis": "5", "soc": "80",
+             "stop_before": True, "stop_after": True}]})
+        runner.step({"do": "assess"})
+        client = client_for(runner)
+        before = client.get("/api/sites/KOBO-001/finding-windows/2026-10-25").json()
+        runner.match()
+        window = client.get("/api/sites/KOBO-001/finding-windows/2026-10-25").json()
+        assert not window["has_candidate_segment"] and window["findings"] == [], window
+        assert window["assessment_status"] == "CURRENT" and window["window_claim_level"] != "INDETERMINATE"
+        # Q18: before any matcher pass covers the selection it is not yet a no-Finding verdict
+        assert before["state"] == "FINDING_MATCH_PENDING" and not before["finding_match"]["matched"]
+        assert window["state"] == "NO_FINDING" and window["finding_match"]["matched"]
+        assert window["selected_window_assessment_revision_id"] and window["selected_run_id"]

@@ -341,7 +341,7 @@ def create_app(
         "ASSETOPS_DEMO_FIXTURE_MANIFEST")
     app.include_router(build_finding_router(
         build_finding_read_service(database_url(), finding_manifest) if database_url() else None,
-        registry.ledger_scope, finding_store_unavailable()))
+        registry.ledger_scope, finding_store_unavailable(), gate=performance_gate))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (

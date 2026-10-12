@@ -32,7 +32,7 @@ if URL:
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
     from assetops_backend.analytics.adapters.postgres_finding_store import FindingFenceMoved, PostgresFindingStore
     from assetops_backend.analytics.assessment_worker import DispatchAssessmentWorker
-    from assetops_backend.analytics.finding_episode import plan, window_basis
+    from assetops_backend.analytics.finding_episode import plan
     from assetops_backend.analytics.finding_service import FindingMatcher
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_service import BatchIngestionService
@@ -162,10 +162,8 @@ class CaseRunner:
         """A matcher pass stopped between its read and its write: the fence it read and the writes it planned."""
         matcher = FindingMatcher(PostgresAssessmentStore(URL), self.findings, model=self.model)
         fence = self.findings.fence(self.tenant, self.site, "dispatch")
-        reads = [matcher.read.window(self.tenant, self.site, d)
-                 for d in self.findings.assessed_days(self.tenant, self.site, "dispatch")]
-        return fence, plan([window_basis(r) for r in reads], self.findings.episodes(self.tenant, self.site),
-                           self.model.MODEL_VERSION)
+        _, bases = matcher.bases(self.tenant, self.site)
+        return fence, plan(bases, self.findings.episodes(self.tenant, self.site), self.model.MODEL_VERSION)
 
     def match(self):
         matcher = FindingMatcher(PostgresAssessmentStore(URL), self.findings, model=self.model,

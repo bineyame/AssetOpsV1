@@ -151,13 +151,27 @@ CREATE TABLE finding_merge (
         REFERENCES finding_revision(tenant_id, site_id, id),
     CONSTRAINT finding_merge_distinct CHECK (superseded_finding_id <> canonical_finding_id)
 );
+
+-- One row per committed matcher pass (S4-01 phase-2 fix, Q18): the selection sequence it matched through,
+-- so a window read says NO_FINDING only after a completed match at that exact selection.
+CREATE TABLE finding_match_pass (
+    id uuid PRIMARY KEY,
+    tenant_id uuid NOT NULL,
+    site_id uuid NOT NULL,
+    analytic_id text NOT NULL,
+    selection_seq bigint NOT NULL,
+    matcher_version text NOT NULL,
+    revisions_written integer NOT NULL,
+    completed_at timestamptz NOT NULL
+);
+CREATE INDEX finding_match_pass_site ON finding_match_pass (tenant_id, site_id, analytic_id, selection_seq DESC);
 """
 
 APPEND_ONLY = "".join(
     f"CREATE TRIGGER {t}_append_only BEFORE UPDATE OR DELETE ON {t} "
     "FOR EACH ROW EXECUTE FUNCTION ledger_append_only();\n"
     for t in ("finding", "finding_revision", "finding_revision_assessment", "finding_revision_evidence",
-              "finding_merge"))
+              "finding_merge", "finding_match_pass"))
 
 
 def upgrade() -> None:
@@ -166,5 +180,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.execute("DROP TABLE IF EXISTS finding_merge, finding_revision_evidence, finding_revision_assessment, "
+    op.execute("DROP TABLE IF EXISTS finding_match_pass, finding_merge, finding_revision_evidence, finding_revision_assessment, "
                "finding_revision, finding CASCADE;")

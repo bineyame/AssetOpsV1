@@ -17,7 +17,7 @@ from uuid import UUID
 
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.dispatch_read import DispatchReadService
-from assetops_backend.analytics.finding_episode import plan, window_basis
+from assetops_backend.analytics.finding_episode import WindowBasis, plan, window_basis
 
 
 @dataclass(frozen=True)
@@ -36,14 +36,30 @@ class FindingMatcher:
         self.findings, self.model, self.now = findings, model, now
         self.fence_moved, self.attempts = fence_moved, attempts
 
+    def bases(self, tenant_id: UUID, site_id: UUID) -> tuple[list[dict[str, Any]], list[WindowBasis]]:
+        """Every assessed window read, with the selected run's exact accepted input evidence for CURRENT windows
+        (typed generator reports for the Q17 stop proof; read once per run)."""
+        reads = [self.read.window(tenant_id, site_id, day)
+                 for day in self.findings.assessed_days(tenant_id, site_id, self.model.ANALYTIC_ID)]
+        runs: dict[str, list[dict[str, Any]] | None] = {}
+        bases = []
+        for r in reads:
+            run_id = (r.get("selection") or {}).get("run_id")
+            evidence = None
+            if r["status"] == "CURRENT" and run_id is not None:
+                if str(run_id) not in runs:
+                    detail = self.read.run(tenant_id, site_id, UUID(str(run_id)))
+                    runs[str(run_id)] = None if detail is None else detail["evidence"]
+                evidence = runs[str(run_id)]
+            bases.append(window_basis(r, evidence))
+        return reads, bases
+
     def match(self, tenant_id: UUID, site_id: UUID) -> MatchOutcome:
         for attempt in range(self.attempts):
             analytic = self.model.ANALYTIC_ID
             fence = self.findings.fence(tenant_id, site_id, analytic)
-            reads = [self.read.window(tenant_id, site_id, day)
-                     for day in self.findings.assessed_days(tenant_id, site_id, analytic)]
-            writes = plan([window_basis(r) for r in reads], self.findings.episodes(tenant_id, site_id),
-                          self.model.MODEL_VERSION)
+            reads, bases = self.bases(tenant_id, site_id)
+            writes = plan(bases, self.findings.episodes(tenant_id, site_id), self.model.MODEL_VERSION)
             statuses = {r["window"]["start"].date().isoformat(): r["status"] for r in reads}
             try:
                 applied = self.findings.apply(tenant_id, site_id, analytic, writes, fence, self.now())
