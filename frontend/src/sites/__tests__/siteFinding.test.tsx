@@ -347,6 +347,71 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
   });
 });
 
+describe("Site Finding detail (S4-01 phase 3 fix round 3)", () => {
+  const unconfirmed = (patch: (b: FindingDetailBody) => void) => {
+    const value = body([summary(1, "OPENED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")]);
+    value.revision.limitations = [];
+    patch(value);
+    return value;
+  };
+
+  it("B1: Not confirmed states the recorded reason and does not claim missing records when coverage is complete", async () => {
+    const value = unconfirmed((b) => {
+      b.revision.indeterminate_reasons = [{ assessment_revision_id: I1, start: null, end: null, missing: [],
+        reasons: ["PV available plus PCS discharge capability covers load with 10 % headroom; reserve 20.0 % (Foundation revision e41a0085)"] }];
+    });
+    const { container } = mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    const lead = container.querySelector("[data-finding-lifecycle-sentence]")?.textContent ?? "";
+    expect(lead).toMatch(/reserve 20\.0 %/);
+    expect(lead).toMatch(/No records are missing/);
+    expect(lead).not.toMatch(/Foundation revision/);
+    expect(container.textContent).not.toMatch(/records (it needs )?(were|are) missing or unclear/);
+    expect(container.querySelector("[data-finding-card='INDETERMINATE']")?.textContent).not.toMatch(/missing/);
+    expect(container.querySelector("[data-finding-sentence]")?.textContent).toMatch(/cannot decide whether any of that time was possibly avoidable/);
+    expect(container.querySelector("[data-finding-sentence]")?.textContent).not.toMatch(/counts no possibly avoidable/);
+  });
+
+  it("B1: Not confirmed says records are missing only when a limitation records it", async () => {
+    const value = unconfirmed((b) => { b.revision.limitations = ["EVIDENCE_GAP: generator_power missing"]; });
+    const { container } = mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    expect(container.querySelector("[data-finding-lifecycle-sentence]")?.textContent).toMatch(/records it needs are missing or conflict/);
+  });
+
+  it("B2: a bridged stop is not described as the generator staying on throughout", async () => {
+    const value = body([summary(1, "OPENED")]);
+    value.revision.claim.continuity = [{ bridged_by: ["x"], stops: [{ off_after: "2026-10-06T08:50:00Z", off_before: "2026-10-06T08:55:00Z" }] } as never];
+    const { container } = mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    const sentence = container.querySelector("[data-finding-sentence]")?.textContent ?? "";
+    expect(sentence).toMatch(/ran between .* one short stop/);
+    expect(sentence).not.toMatch(/stayed on/);
+  });
+
+  it("C2/C3/C4: counts wording, out-of-date heading, and the earlier-version lead is not duplicated", async () => {
+    const stale = body([summary(1, "OPENED")]);
+    stale.revision.currentness = { ...stale.revision.currentness, state: "STALE" };
+    const a = mount(fake({ status: "loaded", value: stale }));
+    await settledScreen();
+    expect(screen.getByRole("heading", { name: "Open · out of date" })).toBeTruthy();
+    a.unmount();
+
+    const none = unconfirmed(() => {});
+    const b = mount(fake({ status: "loaded", value: none }));
+    await settledScreen();
+    expect(b.container.textContent).toMatch(/accepted records are cited by this version/);
+    expect(b.container.textContent).not.toMatch(/support the counted blocks/);
+    b.unmount();
+
+    const revs = [summary(1, "OPENED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")];
+    const client = fake((rid) => ({ status: "loaded", value: body(revs, rid === "rev-1" ? 1 : 2) }));
+    const c = mount(client, "?revision_id=rev-1");
+    await settledScreen();
+    expect((c.container.textContent?.match(/A later version replaces/g) ?? []).length).toBe(1);
+  });
+});
+
 describe("Finding client status mapping", () => {
   afterEach(() => vi.unstubAllGlobals());
 

@@ -127,6 +127,19 @@ class FindingReadService:
     def __init__(self, store: FindingReadStore, dispatch: DispatchReadService) -> None:
         self.store, self.dispatch = store, dispatch
 
+    def _indeterminate_reasons(self, tenant_id: UUID, site_id: UUID, rev: dict[str, Any]) -> list[dict[str, Any]]:
+        """Read-time only: why the selected revision's cited interval assessments could not decide a portion."""
+        out: list[dict[str, Any]] = []
+        for cite in (x for x in rev["assessments"] if x["scope"] == "INTERVAL"):
+            read = self.dispatch.revision(tenant_id, site_id, UUID(str(cite["assessment_revision_id"])))
+            segments = ((read or {}).get("result") or {}).get("segments") or []
+            for seg in segments:
+                if seg.get("classification") == "INDETERMINATE":
+                    out.append({"assessment_revision_id": str(cite["assessment_revision_id"]),
+                                "start": seg.get("start"), "end": seg.get("end"),
+                                "reasons": list(seg.get("reasons") or []), "missing": list(seg.get("missing") or [])})
+        return out
+
     def _currentness(self, tenant_id: UUID, site_id: UUID, rev: dict[str, Any]) -> dict[str, Any]:
         """The revision's own cited window set against the S3 read's current selection of those windows."""
         windows = []
@@ -222,6 +235,8 @@ class FindingReadService:
                 "off_reports": lineage["off_reports"],
                 "previous_revision_id": None if prior is None else prior["id"],
                 "currentness": selected_current,
+                "indeterminate_reasons": self._indeterminate_reasons(tenant_id, site_id, selected)
+                if source_open else [],
             },
             "state": {
                 "lifecycle": latest["lifecycle"], "latest_transition": latest["transition"],

@@ -19,8 +19,8 @@ export const LIFECYCLE_WORDS: Record<Lifecycle, { label: string; title: string; 
     label: "Not confirmed",
     title: "Generator support review: not confirmed",
     sentence:
-      "The latest assessment of this period cannot confirm the earlier result, because records it needs are " +
-      "missing or unclear. This is not a new issue; the earlier versions stay available below.",
+      "This assessment of the period cannot confirm the earlier result. This is not a new issue; the earlier " +
+      "versions stay available below.",
   },
   NO_LONGER_SUPPORTED: {
     label: "No longer supported",
@@ -185,4 +185,26 @@ export function daysBetween(start: string, end: string): string[] {
 /** Whole minutes between two ISO instants. */
 export function spanMinutes(start: string, end: string): number {
   return Math.max(0, Math.round((Date.parse(end) - Date.parse(start)) / 60000));
+}
+
+/**
+ * Why a Not confirmed version could not decide, from what the version itself records: a recorded record gap or
+ * conflict, else the reason the assessment gave for each undecided portion. Never assumes missing records.
+ */
+export function unconfirmedCause(
+  limitations: string[],
+  reasons: { reasons: string[]; missing: string[] }[] | undefined,
+): string {
+  const list = reasons ?? [];
+  const gap = limitations.length > 0 || list.some((r) => r.missing.length > 0);
+  if (gap) {
+    return "Some records it needs are missing or conflict.";
+  }
+  const texts = [...new Set(list.flatMap((r) => r.reasons).map((t) => t.replace(/\s*\(Foundation revision [^)]*\)/g, "").trim()))]
+    .filter((t) => t.length > 0)
+    .slice(0, 2);
+  if (texts.length > 0) {
+    return `No records are missing; the margin could not be decided under the settings now in force. The assessment says: ${texts.join(" ")}`;
+  }
+  return "No missing or conflicting records are recorded; the reason it could not be decided is under Technical detail.";
 }

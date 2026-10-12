@@ -77,7 +77,8 @@ def block_rows(block: dict, rules: dict) -> list[tuple]:
 class CaseRunner:
     """Executes specification steps through the S2 ingestion service, the S3 worker and the matcher."""
 
-    def __init__(self, store, engine, model=dispatch_v3) -> None:
+    def __init__(self, store, engine, model=None) -> None:
+        model = dispatch_v3 if model is None else model
         result, outcome = converted_enabled(store, engine)
         clock = Clock(SETUP_AT)
         apply_demo_configuration(store, FoundationService(store, "demo", clock), BindingService(store, clock),

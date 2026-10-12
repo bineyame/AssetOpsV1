@@ -210,6 +210,8 @@ export interface FindingDetailBody {
     off_reports: { assessment_revision_id: string; at: string; evidence_ids: string[] }[];
     previous_revision_id: string | null;
     currentness: Currentness;
+    /** Read-time reasons from the cited interval assessments for portions that could not be decided. */
+    indeterminate_reasons?: { assessment_revision_id: string; start: string | null; end: string | null; reasons: string[]; missing: string[] }[];
   };
   state: {
     lifecycle: Lifecycle;

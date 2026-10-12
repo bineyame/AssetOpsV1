@@ -172,11 +172,14 @@ def links(web: int) -> None:
         say(f"- {label}: {base}/{f['finding_id']}")
         revisions = f["revisions"]
         if len(revisions) > 1:
-            first = revisions[0]
-            say(f"    version 1 ({first['transition']}): {base}/{f['finding_id']}?revision_id={first['revision_id']}")
-    say(f"- Dispatch day with a Finding link: http://localhost:{web}/sites/KOBO-001/performance/dispatch?day=2026-10-06")
-    say(f"- Dispatch day with no Finding (assessed): http://localhost:{web}/sites/KOBO-001/performance/dispatch"
-        f"?day=2026-10-25")
+            for n, rev in enumerate(revisions, start=1):
+                say(f"    version {n} ({rev['transition']}): {base}/{f['finding_id']}?revision_id={rev['revision_id']}")
+    dispatch = f"http://localhost:{web}/sites/KOBO-001/performance/dispatch"
+    say(f"- Dispatch day with a Finding link: {dispatch}?day=2026-10-06")
+    say(f"- Dispatch day that could not be decided (not a no-Finding result): {dispatch}?day=2026-10-19")
+    say(f"- Dispatch day with no assessment, so a Finding is not known either way: {dispatch}?day=2026-10-07")
+    say(f"- Another day with no assessment in this fixture: {dispatch}?day=2026-10-25")
+    say("  (The fixture has no fully assessed day with no Finding; 2026-10-25 is NOT_ASSESSED, not 'no Finding'.)")
 
 
 def serve(port: int, web: int) -> None:

@@ -27,6 +27,7 @@ import type {
 import { LocalViews, localView } from "./findingPresentation";
 import {
   currentnessWords,
+  unconfirmedCause,
   dayOf,
   daysBetween,
   followsClosure,
@@ -177,7 +178,9 @@ function LeadState({ body, links }: { body: FindingDetailBody; links: SiteFindin
             ? "Joined into an earlier Finding"
             : !body.selection.is_latest
               ? `Earlier version ${body.selection.revision_no} of ${body.revision_page.total}`
-              : lifecycle.label}
+              : currentness.attention && selected.currentness.state !== "CURRENT"
+                ? `${lifecycle.label} · ${currentness.label.toLowerCase()}`
+                : lifecycle.label}
       </h2>
       {body.audit_only ? (
         <p data-finding-audit-only>
@@ -196,7 +199,12 @@ function LeadState({ body, links }: { body: FindingDetailBody; links: SiteFindin
           A later version replaces this one. <Link to={links.finding(body.finding.id)}>Open the latest version</Link>
         </p>
       ) : null}
-      <p data-finding-lifecycle-sentence>{lifecycle.sentence}</p>
+      <p data-finding-lifecycle-sentence>
+        {lifecycle.sentence}
+        {selected.lifecycle === "UNCONFIRMED"
+          ? ` ${unconfirmedCause(selected.limitations, selected.indeterminate_reasons)}`
+          : ""}
+      </p>
       {afterClosure ? (
         <p data-finding-after-closure>
           {selected.lifecycle === "UNCONFIRMED"
@@ -204,7 +212,7 @@ function LeadState({ body, links }: { body: FindingDetailBody; links: SiteFindin
             : "This review had been closed as no longer supported; a later assessment supports it again for the same period."}
         </p>
       ) : null}
-      {body.audit_only || merged ? null : (
+      {body.audit_only || merged || !body.selection.is_latest ? null : (
         <p data-finding-currentness={selected.currentness.state}>{currentness.sentence}</p>
       )}
     </div>
@@ -267,6 +275,14 @@ function portionsOf(body: FindingDetailBody): Portion[] {
   return [...spans, ...others].sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
 }
 
+function runWords(body: FindingDetailBody): string {
+  const { start, end } = body.revision.episode;
+  const stops = (body.revision.claim.continuity ?? []).flatMap((gap) => gap.stops ?? []).length;
+  return stops > 0
+    ? `The generator ran between ${periodWords(start, end)}, with ${stops === 1 ? "one short stop" : `${stops} short stops`} recorded in that time.`
+    : `The generator stayed on from ${periodWords(start, end)}.`;
+}
+
 function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
   const [params, setParams] = useSearchParams();
   const selected = body.revision;
@@ -293,10 +309,12 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
     <Panel heading="What happened" headingId="site-finding-happened-heading">
       <p className="site-finding__big" data-finding-sentence>
         {supported
-          ? `The generator stayed on from ${periodWords(selected.episode.start, selected.episode.end)}. For ${durationText(avoidable)} of that time, solar power and the battery reported enough capacity to meet site demand, so the generator was possibly avoidable.`
+          ? `${runWords(body)} For ${durationText(avoidable)} of that time, solar power and the battery reported enough capacity to meet site demand, so the generator was possibly avoidable.`
           : selected.lifecycle === "MERGED"
             ? `This Finding covered ${periodWords(selected.episode.start, selected.episode.end)} before it was joined into an earlier Finding.`
-            : `This Finding covers ${periodWords(selected.episode.start, selected.episode.end)}. The latest assessment of that period counts no possibly avoidable time.`}
+            : selected.lifecycle === "UNCONFIRMED"
+              ? `This Finding covers ${periodWords(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} cannot decide whether any of that time was possibly avoidable.`
+              : `This Finding covers ${periodWords(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} of that period counts no possibly avoidable time.`}
       </p>
       <p>
         Only the possibly avoidable blocks are counted. Needed time and time that cannot be determined stay separate,
@@ -306,7 +324,7 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
       <ul className="dispatch-cards" aria-label="Time in this Finding">
         <Card label="Possibly avoidable" value={durationText(avoidable)} note="Counted in this Finding" code="CANDIDATE_AVOIDABLE" />
         <Card label="Needed" value={durationText(needed)} note="A recorded reason required the generator" code="NECESSARY" />
-        <Card label="Cannot determine" value={durationText(unknown)} note="Records needed were missing or unclear" code="INDETERMINATE" />
+        <Card label="Cannot determine" value={durationText(unknown)} note="Could not be decided either way" code="INDETERMINATE" />
         <Card label="Period covered" value={durationText(period)} note="From first to last block in this Finding" code="PERIOD" />
         <Card label="Fuel and cost" value="Not yet available" note="No fuel or money estimate is made here" code="MONEY" />
       </ul>
@@ -478,7 +496,7 @@ function WhereToLook({ body, links }: { body: FindingDetailBody; links: SiteFind
         <li>
           <h3>Accepted records</h3>
           <p>
-            {selected.cited_evidence.length} accepted records support the counted blocks. They are listed below and
+            {selected.cited_evidence.length} accepted records {minutes(selected.minutes.candidate) ? "support the counted blocks" : "are cited by this version"}. They are listed below and
             on the site&apos;s records page.
           </p>
           <Link to={links.evidence}>Open the site&apos;s records →</Link>
@@ -601,7 +619,7 @@ function RecordsSummary({ body, links }: { body: FindingDetailBody; links: SiteF
   return (
     <Panel heading="Records behind this version" headingId="site-finding-records-heading">
       <p>
-        {evidence.length} accepted records support the counted blocks
+        {evidence.length} accepted records {minutes(body.revision.minutes.candidate) ? "support the counted blocks" : "are cited by this version"}
         {byRole.size > 0
           ? `: ${[...byRole.entries()].map(([role, n]) => `${roleWords(role)} ${n}`).join(", ")}`
           : ""}
