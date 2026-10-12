@@ -1,0 +1,95 @@
+# S4-01 phase 1: tools/s4_finding_cases.py run (commit 6b891ef), full console output, 2026-10-12T05:49Z
+# command: .venv/Scripts/python.exe tools/s4_finding_cases.py run   (run then a fresh-process verify)
+
+=== 1. Isolated work directory, database and TLS material ===
+Work directory: C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases (code from git HEAD 6b891ef; own var/)
+Database: assetops_s4cases (dropped and recreated; the developer database is not touched)
+Imported KOBO-001: Imported KOBO-001 site=a9c3dfba-80da-4959-a0f0-fc8916656a49 revision=ee2bd2a3-605a-42c1-ba48-d776bda955e7 v1 assets=10 sources=8 sha256=459e0b70a0ba461a59d80525
+Published bindings: Foundation revisions inserted: v2; superseded: 1.
+New TLS certificate C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases\tls\server.crt (sha256 Fingerprint=C4:62:1D:04:32:0D:A4:31:69:00:7C:45:F4:F0:E5:7C:53:EF:BD:EB:2B:98:E1:19:D0:58:57:82:3F:83:4E:3D); key restricted to the current user
+
+=== 2. TLS product server, registered gateway credential, demo configuration (roles-2) ===
+  Issued aog1.7aadc50a9b9af3a599620cfe13e698f0.<redacted> for gateway 'edge-kobo-001'; revoked 0 earlier credential(s); enabled the gateway and 8 named source(s). The secret was written only to C:\Users
+  Credential file: upload.credential.7aadc50a9b9af3a599620cfe13e698f0 (in C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases\credentials)
+  SIMULATED DEMO CONFIGURATION s3-dispatch-demo-config-v1 from `backend/conversions/kobo-001-s3-dispatch-demo-config.json` (sha256 0cc67a9e60909d5a0536cf4dfd3023d575978f7eb138158e892b58350f0400f6).
+  sealing basis: binding set v5 (6c0ae3c7-78a8-488b-9e83-d1a592ed3f7d), Foundation v6, snapshot 845066aafd8bea20..
+
+=== 3. Setup controls (labelled fixture controls) ===
+  setup: reserve = 20 from 2026-10-03T00:00:00Z (Foundation revision 9611e8f5-d833-464c-b2ce-d41cb4ab80b2)
+  setup: runtime = 0 from 2026-10-03T00:00:00Z (Foundation revision 6c73183a-db2c-4a50-834b-9194a2dbeb5c)
+
+=== 4. F01 candidate-open (2026-10-06) ===
+  F01 deliver (s4-fixture-epoch-1): 93 readings in 6 batches; held []
+  F01 assess: 1 job(s), 1 run(s)
+  F01 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+
+=== 5. F02 overlap-adjacent-cross-day (2026-10-08) ===
+  F02 deliver (s4-fixture-epoch-1): 94 readings in 6 batches; held []
+  F02 assess: 1 job(s), 2 run(s)
+  F02 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F02 deliver (s4-fixture-epoch-1): 36 readings in 6 batches; held []
+  F02 assess: 1 job(s), 2 run(s)
+  F02 match: planned 1, new Findings 0, new revisions 1, expected 1 OK
+
+=== 6. F03 recurrence (2026-10-11) ===
+  F03 deliver (s4-fixture-epoch-1): 102 readings in 6 batches; held []
+  F03 assess: 1 job(s), 1 run(s)
+  F03 match: planned 2, new Findings 2, new revisions 2, expected 2 OK
+
+=== 7. F04 late-earlier-acceptance (2026-10-13) ===
+  F04 deliver (s4-fixture-epoch-1): 50 readings in 6 batches; held ['earlier']
+  F04 assess: 1 job(s), 1 run(s)
+  F04 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F04 release earlier: 6 batches (earlier-sequenced reports held at the gateway, accepted late)
+  F04 assess: 1 job(s), 1 run(s)
+  F04 match: planned 1, new Findings 0, new revisions 1, expected 1 OK
+
+=== 8. F06 split-and-bridge (2026-10-15) ===
+  F06 deliver (s4-fixture-epoch-1): 228 readings in 6 batches; held ['bridge', 'contradiction']
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 3, new Findings 3, new revisions 3, expected 3 OK
+  F06 release contradiction: 1 batches (second PV report at the same instants (REPORTS_OVERLAP), accepted late)
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 2, new Findings 1, new revisions 2, expected 2 OK
+  F06 release bridge: 6 batches (reports filling the unobserved gap, accepted late)
+  F06 assess: 1 job(s), 1 run(s)
+  F06 match: planned 2, new Findings 0, new revisions 2, expected 2 OK
+
+=== 9. F08 retry-and-absent-basis (2026-10-19) ===
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+  F08 deliver (s4-fixture-epoch-1): 51 readings in 6 batches; held []
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+  F08 deliver (s4-fixture-epoch-2): 1 readings in 1 batches; held []
+  F08 assess: 1 job(s), 1 run(s)
+  F08 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+
+=== 10. F05 limitation-and-closure (2026-10-21) ===
+  F05 deliver (s4-fixture-epoch-1): 93 readings in 6 batches; held []
+  F05 assess: 1 job(s), 1 run(s)
+  F05 match: planned 1, new Findings 1, new revisions 1, expected 1 OK
+  F05: runtime = 120 from 2026-10-21T00:00:00Z (Foundation revision d9246453-dbb3-4b98-8b3f-76962f1ef4af)
+  F05 assess: 7 job(s), 8 run(s)
+  F05 match: planned 9, new Findings 0, new revisions 9, expected 1 + collateral OK
+  F05: runtime = 0 from 2026-10-21T00:00:00Z (Foundation revision 434a0f1f-9147-4787-92e1-8feba6a798ff)
+  F05: reserve = 45 from 2026-10-21T00:00:00Z (Foundation revision 269c4f5b-4ffc-4140-b7fb-119e90392c98)
+  F05 assess: 1 job(s), 1 run(s)
+  F05 match: planned 1, new Findings 0, new revisions 1, expected 1 + collateral OK
+  F05 match: planned 0, new Findings 0, new revisions 0, expected 0 OK
+
+=== 11. Run artifact ===
+  run artifact: C:\Users\assef\AppData\Local\AssetOps\s4-finding-cases\s4-finding-cases-run.json (10 Findings, 25 revisions; failures 0)
+
+=== Stopping every process this script started ===
+  stopped: tls-server
+Produced in 161 s (0 check failures). Verifying after reload in a fresh process:
+  verify F01: 93 accepted readings reloaded, match=True
+  verify F02: 130 accepted readings reloaded, match=True
+  verify F03: 102 accepted readings reloaded, match=True
+  verify F04: 93 accepted readings reloaded, match=True
+  verify F06: 277 accepted readings reloaded, match=True
+  verify F08: 52 accepted readings reloaded, match=True
+  verify F05: 93 accepted readings reloaded, match=True
+  verify Findings: 10 Findings, 25 revisions reloaded, match=True
+  replay match-findings: planned 0, new revisions 0
+VERIFY PASSED
+EXIT 0 (process exit code of run, including the fresh-process verify)

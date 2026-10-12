@@ -5070,3 +5070,23 @@ Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `.agent
 - No list of assessed days; older-rule label and late-evidence history proven by tests only; demo notes absent from walkthrough data; staged FAILED/STALE days have no interval.
 - Carries: R1-C2, 3a R4/R5. Committed fixture manifest is per run (evidence IDs change on a new producer run).
 - Owner checkpoint pending.
+
+## S4-01 phase 1 - Finding store, episode matcher, `s4-finding-cases-v1` (active, review pending)
+
+Built on `task/S4-01-finding-identity` (`bcbc3f4`, `6b891ef`, closeout). Packet `.agent/S4-01-phase-1-review-packet.md`; questions Q1-Q9 in `.agent/S4-01-questions-1.md`.
+
+### What it settled in code
+
+- Migration 0009: `finding` (immutable key/anchor/cohort/matcher version, `recurs_after_finding_id`, `split_from_finding_id`), `finding_revision` (UNIQUE `(finding_id, revision_no)` and `(finding_id, basis_sha256, transition)`, primary `assessment_revision_id`), `finding_revision_assessment`, `finding_revision_evidence` (cited only), `finding_merge`; all append-only. Alembic head is 0009.
+- `analytics/finding_episode.py` (pure, `finding-episode-1`): CURRENT windows of the current model only; <=20-min bridges only through observed Necessary or modelling-reason Indeterminate; recurrence link only across an observed OFF; window revision cited but not in the basis hash.
+- `analytics/finding_service.FindingMatcher` reads via `DispatchReadService.window` under a fence; `adapters/postgres_finding_store.py` is the fifth guarded writer (INSERT-only, advisory lock, `FindingFenceMoved`, `rows()` reload).
+- Composition `build_finding_matcher` / `build_finding_store`; CLI `assess_dispatch match-findings|finding-rows`.
+- `tools/checks/configuration-persistence.ps1`: only the Finding store writes Finding tables, insert-only.
+- `backend/conversions/s4-finding-cases-v1.json` + `tools/s4_finding_cases.py run|verify` (DB `assetops_s4cases`, TLS 8763; labelled authenticated Batch V2; per-run IDs in `%LOCALAPPDATA%/AssetOps/s4-finding-cases/s4-finding-cases-run.json`). Run on `6b891ef`: all checks OK, VERIFY PASSED (`.agent/S4-01-finding-cases-run.txt`).
+- `backend/tests/test_s4_finding_store_postgres.py`: all cases in one Site, stale window, F07 test-scoped upgrade, append-only, moved fence.
+
+### Open
+
+- No Finding read API/UI yet (phases 2-3). F07 is test-scoped: no reviewed later `dispatch-3.x`.
+- Backdated controls append collateral SUPPORT_CHANGED to later Findings (Q5); recurrence links chain across fixture days.
+- No pure unit tests for `finding_episode.plan`; 3+-way merge untested by fixture; matcher is linear in assessed days.

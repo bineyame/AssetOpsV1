@@ -14,6 +14,8 @@ Pre-S3 startup: [PRE-S3-03](../tasks/PRE-S3-03-delivery-checker-report.md) (deli
 
 S3-01 ([typed dispatch assessment](../tasks/S3-01-dispatch-assessment.md)) is `in_review` on `task/S3-01-dispatch-assessment` (USER_REVIEW_REQUIRED: owner checkpoint). Phases 1, 2 and 3a (with `dispatch-3.1` and fix R1) are reviewed and accepted; phase 3b (Performance > Dispatch and Analysis UI, cutover summary, walkthrough, V-01 evidence 32/32) is built and awaits a fresh Claude review. Packet `.agent/S3-01-review-packet.md`, built state in `.ai/CODE_STATE.md` "S3-01 phase 3b", questions `.agent/S3-01-questions-5.md` (Q17-Q22), owner steps `.agent/S3-01-owner-walkthrough.md`.
 
+S4-01 ([candidate generator-support Finding](../tasks/S4-01-finding-identity.md)) is `active` on `task/S4-01-finding-identity` (USER_REVIEW_REQUIRED: owner checkpoint after phase 3). Phase 1 (`I-finding-store`, `D-finding-revisions`) is built and awaits a fresh Claude review: packet `.agent/S4-01-phase-1-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-01 phase 1", questions `.agent/S4-01-questions-1.md` (Q1-Q9), producer output `.agent/S4-01-finding-cases-run.txt`. Phase 2 (`I-finding-read`) starts after that review.
+
 The only executable queue is [tasks/README.md](../tasks/README.md). The current [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md) own the current direction. The [open T0xx archive](../tasks/archive/pre-site-first-2026-10-07/README.md) is superseded historical reference. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and old scoped handoffs do not route current work.
 
 The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-01 addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) control the first slice. Their decision status is distinct from owner acceptance; no owner sign-off on the three Site-first documents or S1-01 is recorded here.
@@ -23,6 +25,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (S4-01 phase 1): read the task's phase 1 row and fixture table, `.agent/S4-01-phase-1-review-packet.md`, `.agent/S4-01-phase-1-handoff.md` and `.agent/S4-01-questions-1.md`, then `git diff 5f7cd4c..HEAD`; rerun `tools/s4_finding_cases.py run` (DB `assetops_s4cases`, TLS 8763) and `backend/tests/test_s4_finding_store_postgres.py` on an isolated `_test` DB.
 
 Reviewer (S3-01 phase 3b): read the task's phase 3 row and "Read states and acceptance", `.agent/S3-01-review-packet.md`, `.agent/S3-01-phase-3b-handoff.md` and `.agent/S3-01-questions-5.md`, then `git diff cdc24f7..HEAD`; walk it with `tools/s3_dispatch_walkthrough.py` (isolated DBs `assetops_s3cases`, `assetops_s3walk`; API port 8820).
 
