@@ -1,6 +1,6 @@
 # V-01a — Site and Foundation visual fidelity
 
-Status: active (selected 2026-10-12 by next-work tie-break, gap 6.97% notice in `.agent/coordinator-handoff.md`)
+Status: in_review (selected 2026-10-12 by next-work tie-break, gap 6.97% notice in `.agent/coordinator-handoff.md`; built on `task/V-01a-foundation-visual`, packet `.agent/V-01a-review-packet.md`)
 USER_REVIEW_REQUIRED: true
 Depends on: merged S1-03 Site/Foundation/Readiness/SLD surfaces
 Branch when activated: task/V-01a-foundation-visual

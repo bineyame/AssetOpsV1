@@ -5190,3 +5190,25 @@ Task `tasks/S4-01-finding-identity.md`; packet `.agent/S4-01-review-packet.md` (
 - Carries still open: C5 one-hop canonical, C6/C9 read and pass cost (S4-04), C8 recurrence record only on the
   opening revision.
 - `?portion=` is an index into the selected version's blocks (Q30).
+
+## V-01a - Site and Foundation visual fidelity (in_review)
+
+Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. Visual gate only; no new data claim.
+
+- `FoundationPeriodStrip` (`FoundationRevisionPanel.tsx`): an `?at=` instant that is not a period start now
+  gets its own selected option ("At ... (from the address)"). Before this, the controlled select fell back to
+  "In effect now" on reload or shared links while showing another period.
+- `Panel` takes an optional `description` (the v6.9 `.panel-head p` sub-line, CSS `.panel__description`).
+  It is used on Site inventory, Configured topology, the SLD panel and Configuration readiness. The Readiness
+  sub-line carries the PRE-S3-04 separation at the top of the view.
+- Sites list panel retitled "Site inventory" (v6.9 label). The topology bus label carries the bus's declared
+  rating (`data-topology-bus`, e.g. "AC bus · 400 V").
+- Devices caption (`SiteConfiguration.tsx` `SiteFoundationDevices`) no longer says "none has reported". It
+  states only that reporting is not assessed here (backlog carry).
+- Tools: `tools/v01a_foundation_walkthrough.py` (copy of `assetops_s4cases`, plus an empty migrated DB;
+  API 8860/8861, web 5360/5361) and `tools/v01a-foundation-evidence.mjs` (25 claims at each of 1440 and
+  390 = 50; CDP port 9361).
+- Open: Q1-Q5 in `.agent/V-01a-questions-1.md` (SLD bus-bar redraw, Site-name h1, readiness tones,
+  selected-part state, card icons), all defaulted to the current app.
+- Open: `SiteOverview.tsx:241` stale "No window" text stays with S5-01 (backlog C2).
+- Open: the shell-wide `layout-evidence.mjs` stops at the Lab run-setup precondition in the walkthrough tree.
