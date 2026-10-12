@@ -461,7 +461,7 @@ const MEASURE = `(() => {
     viewportHeight: window.innerHeight,
     headerCount: document.querySelectorAll("table thead th").length,
     // V-01a round 2: a part-choice toggle chooses which declared part is shown (address
-    // state, `component=`), it changes nothing, so it is not counted as an action.
+    // state, the component address parameter), it changes nothing, so it is not counted as an action.
     buttons: Array.from(document.querySelectorAll("main button:not(.part-choice)")).map((b) => ({
       label: (b.textContent || "").trim(),
       disabled: b.disabled,
