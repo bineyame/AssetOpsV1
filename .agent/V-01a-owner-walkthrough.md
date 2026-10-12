@@ -9,7 +9,7 @@ This check covers four screens: the Sites list, the Foundation Site model, the s
 3. From `frontend/`: `$env:ASSETOPS_API_PORT="8860"; npm.cmd run dev -- --port 5360 --strictPort`
 4. From `frontend/`: `$env:ASSETOPS_API_PORT="8861"; npm.cmd run dev -- --port 5361 --strictPort`
 
-`tools/v01a_foundation_walkthrough.py links` prints every address. To repeat the measured checks, run `node tools/v01a-foundation-evidence.mjs http://localhost:5360 <folder> http://localhost:5361`. It should print 50/50. Press Ctrl+C in each terminal to stop.
+`tools/v01a_foundation_walkthrough.py links` prints every address. To repeat the measured checks, run `node tools/v01a-foundation-evidence.mjs http://localhost:5360 <folder> http://localhost:5361`. It should print 62/62. Press Ctrl+C in each terminal to stop.
 
 The mock pages are at `http://localhost:5360/mockups/v69/index.html#/sites`, `#/foundation`, `#/readiness` and `#/sld`.
 
@@ -17,7 +17,7 @@ The mock pages are at `http://localhost:5360/mockups/v69/index.html#/sites`, `#/
 
 1. **Sites** (`http://localhost:5360/sites`): one real Site appears under "Site inventory", with a one-line note that Mode means provenance. The mock's three summary tiles, filter chips, "In setup" panel and setup tabs are not built. Setup is later work (W6), and the counts have no source.
    Then open `http://localhost:5361/sites`. It shows "No sites configured" with no example rows.
-2. **Site model, in effect now** (`/sites/KOBO-001/foundation`, no `?at=`; this is where a user lands): the selector reads "In effect now" and the strip says this is the configuration in effect now (today v10). Then "Configured topology" (cards on a bus labelled "AC bus · 400 V"), "Identity & operating obligations" and "Time-valid control configuration". For comparison, the scheduled period (`?at=2026-10-22T00:00:00Z`, v13, starts 21 Oct 2026) says it is a scheduled period and not in effect yet. Below, the status strip, then "Configured topology" (cards on a bus labelled "AC bus · 400 V"), "Identity & operating obligations" and "Time-valid control configuration".
+2. **Site model, in effect now** (`/sites/KOBO-001/foundation`, no `?at=`; this is where a user lands): the selector reads "In effect now" and the strip says this is the configuration in effect now (today v10). Then "Configured topology" (cards on a bus labelled "AC bus · 400 V"), "Identity & operating obligations" and "Time-valid control configuration". For comparison, the scheduled period (`?at=2026-10-22T00:00:00Z`, v13, starts 21 Oct 2026) says it is a scheduled period and not in effect yet.
    The period selector now names the instant from the address ("At ... (from the address)"). Before this change it wrongly showed "In effect now".
    The mock's "Evidence / change" column and its policy links have no source in the app, so they are left out.
 3. **Missing period** (`...foundation?at=2026-09-01T00:00:00Z`): the screen says "No stored version for this period". It does not fall back to the configuration in effect now.
