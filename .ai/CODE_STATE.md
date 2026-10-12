@@ -5231,6 +5231,7 @@ Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. V
 - Guard: `shell-overflow.ps1` allows fixed-size icon svgs in exactly those two modules.
 - Open: bus-bar routing has no detour for a supply that bypasses an occupied conversion row. No stored topology
   has one.
-- Open: the Finding-detail regression was not run in the v01a store, which has no Finding.
+- Open: the V-01a evidence tool does not exercise Finding detail. The store holds 11 Findings, but its prepare skips the comparison step, so the index is empty and detail answers PERFORMANCE_CUTOVER_CLOSED. The reviewer verified detail at 1440/390 by hand on a private copy.
+- Open: the Lab run interval drawing now uses the bus-bar geometry; its browser label-collision check (layout-evidence T025d) is unverified behind the Lab precondition.
 - Open: `layout-evidence.mjs` still stops at the Lab run-setup precondition.
 
