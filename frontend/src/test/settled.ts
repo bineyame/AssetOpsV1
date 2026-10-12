@@ -19,7 +19,7 @@ import { waitFor } from "@testing-library/react";
  * Performance, Dispatch, Finding detail and both Findings indexes.
  */
 const LOADING =
-  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|the site's Foundation revision|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the site's overview|the inspected records|the inspected record|the site's analytics|the site's assessments|the assessment|the findings|the site's findings|the publication schedule|the gateway diagnostics|the site's gateway contact|the refused readings)\./;
+  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|the site's Foundation revision|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the site's overview|the inspected records|the inspected record|the site's analytics|the site's assessments|the assessment|the findings|the site's findings|the publication schedule|the gateway diagnostics|the site's gateway contact|the refused readings|the Finding)./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.

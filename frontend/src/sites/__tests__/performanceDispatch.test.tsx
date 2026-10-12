@@ -12,6 +12,7 @@ import type {
   RevisionDetail,
 } from "../performanceDispatchClient";
 import type { EvidenceRead } from "../siteEvidenceClient";
+import type { FindingClient, FindingWindowBody } from "../findingClient";
 
 const EMPTY_SET = {
   report_id: "r1",
@@ -323,5 +324,58 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
       .toEqual(["alternatives", "fuel_and_money", "finding"]);
     expect(container.querySelector("[data-dispatch-gated]")?.textContent).toMatch(/Not yet available/);
     expect(container.querySelector("[data-history-revision='rev-current']")).not.toBeNull();
+  });
+});
+
+describe("Dispatch day Finding links (S4-01 phase 3)", () => {
+  function findingsFake(state: string, findings: FindingWindowBody["findings"]): FindingClient & { days: string[] } {
+    const days: string[] = [];
+    return {
+      days,
+      getFinding: async () => ({ status: "not_found", message: null }),
+      getFindingWindow: async (_site, day) => {
+        days.push(day);
+        return { status: "loaded", value: { day, state, note: "", assessment_status: "CURRENT", findings } };
+      },
+    };
+  }
+
+  function mountWith(findings: FindingClient) {
+    return render(
+      <MemoryRouter initialEntries={["/sites/KOBO-001/performance/dispatch?day=2026-10-02"]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/performance/dispatch"
+            element={<PerformanceDispatch siteId="KOBO-001" client={fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() })}
+              findings={findings} findingHref={(id) => `/sites/KOBO-001/findings/${id}`} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("links each recorded Finding over the day and hides one joined into another", async () => {
+    const findings = findingsFake("FINDINGS_RECORDED", [
+      { finding_id: "f-1", lifecycle: "SUPPORTED", episode_start: "2026-10-02T05:15:00+00:00", episode_end: "2026-10-02T09:15:00+00:00", cites_current_window_selection: true },
+      { finding_id: "f-2", lifecycle: "MERGED", episode_start: "2026-10-02T10:00:00+00:00", episode_end: "2026-10-02T10:30:00+00:00", cites_current_window_selection: true },
+    ]);
+    const { container } = mountWith(findings);
+    await settledScreen();
+    const link = await screen.findByRole("link", { name: /Open: 05:15–09:15 UTC/ });
+    expect(link.getAttribute("href")).toBe("/sites/KOBO-001/findings/f-1");
+    expect(findings.days).toEqual(["2026-10-02"]);
+    expect(container.querySelector("[data-dispatch-finding='f-2']")).toBeNull();
+  });
+
+  it.each([
+    ["NO_FINDING", /fully assessed and has no Finding/],
+    ["NOT_DETERMINABLE", /not a no-Finding result/],
+    ["FINDING_MATCH_PENDING", /not yet been compared/],
+  ])("names a %s day without a Finding link", async (state, words) => {
+    const { container } = mountWith(findingsFake(state, []));
+    await settledScreen();
+    await screen.findByText(words);
+    expect(container.querySelector(`[data-day-findings='${state}']`)).not.toBeNull();
+    expect(container.querySelector("[data-dispatch-finding]")).toBeNull();
   });
 });

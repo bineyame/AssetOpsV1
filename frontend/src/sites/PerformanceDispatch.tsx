@@ -35,6 +35,8 @@ import {
 } from "./dispatchWords";
 import { ClaimBadge, LocalViews, localView, localViewSearch, OUTCOME_WORDS } from "./findingPresentation";
 import type { EvidenceRead } from "./siteEvidenceClient";
+import type { FindingClient, FindingReadResult, FindingWindowBody } from "./findingClient";
+import { LIFECYCLE_WORDS, WINDOW_STATE_WORDS } from "./findingWords";
 import type {
   AcceptedEvidenceItem,
   AssessmentRevision,
@@ -66,9 +68,14 @@ function outcome(level: string): string {
 export function PerformanceDispatch({
   siteId,
   client,
+  findings,
+  findingHref,
 }: {
   siteId: string;
   client: PerformanceDispatchClient;
+  /** S4-01: the day's Findings, linked when both are given. */
+  findings?: FindingClient;
+  findingHref?: (findingId: string) => string;
 }) {
   const [params, setParams] = useSearchParams();
   const day = isDay(params.get("day")) ? (params.get("day") as string) : todayUtc();
@@ -162,6 +169,7 @@ export function PerformanceDispatch({
           block={params.get("block")}
           choose={choose}
           params={params}
+          findings={findings && findingHref ? { client: findings, href: findingHref } : null}
         />
       )}
     </section>
@@ -238,9 +246,11 @@ function WindowView({
   block,
   choose,
   params,
+  findings,
 }: {
   siteId: string;
   client: PerformanceDispatchClient;
+  findings: { client: FindingClient; href: (findingId: string) => string } | null;
   read: DispatchWindow;
   comparison: ComparisonSummary | null;
   view: "overview" | "analysis";
@@ -293,6 +303,7 @@ function WindowView({
             (records needed are missing or conflicting). Times are UTC.
           </p>
           <DayTotals read={read} />
+          {findings ? <DayFindings siteId={siteId} day={read.window.start.slice(0, 10)} findings={findings} /> : null}
           <div className="durable-dispatch__pair">
             <Panel heading="Generator periods and 15-minute blocks" headingId="durable-dispatch-blocks-heading">
               <PeriodsAndBlocks
@@ -321,6 +332,65 @@ function WindowView({
       )}
       {loaded !== null && view === "overview" ? (
         <EvidencePanel detail={loaded} segment={segment} windowNote={read.demo_annotations} />
+      ) : null}
+    </div>
+  );
+}
+
+/** S4-01: the Findings recorded over this day, or why there is no settled answer. */
+function DayFindings({
+  siteId,
+  day,
+  findings,
+}: {
+  siteId: string;
+  day: string;
+  findings: { client: FindingClient; href: (findingId: string) => string };
+}) {
+  const [state, setState] = useState<FindingReadResult<FindingWindowBody> | null>(null);
+  useEffect(() => {
+    let active = true;
+    setState(null);
+    void findings.client.getFindingWindow(siteId, day).then((loaded) => {
+      if (active) {
+        setState(loaded);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [findings.client, siteId, day]);
+  if (state === null) {
+    return null;
+  }
+  if (state.status !== "loaded") {
+    return (
+      <p className="overview-note" data-day-findings="unavailable">
+        Findings for this day could not be read.
+      </p>
+    );
+  }
+  const shown = state.value.findings.filter((f) => f.lifecycle !== "MERGED");
+  return (
+    <div className="overview-note" data-day-findings={state.value.state}>
+      <p>
+        <strong>Findings: </strong>
+        {WINDOW_STATE_WORDS[state.value.state] ?? "The Finding state of this day is not known."}
+      </p>
+      {shown.length > 0 ? (
+        <ul className="site-finding__inline">
+          {shown.map((f) => {
+            const id = String(f.finding_id ?? f.id ?? "");
+            return (
+              <li key={id}>
+                <Link to={findings.href(id)} data-dispatch-finding={id}>
+                  {LIFECYCLE_WORDS[f.lifecycle]?.label ?? "Finding"}: {clock(f.episode_start)}–{clock(f.episode_end)}{" "}
+                  UTC →
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       ) : null}
     </div>
   );
@@ -932,7 +1002,8 @@ function AnalysisView({
       <Panel heading="Fuel, money and Finding comparison" headingId="durable-dispatch-gated-heading">
         <p data-dispatch-gated>
           Not yet available. This assessment makes no fuel quantity, saving or money claim, and an interval result
-          is not a Finding. Those need later, separately reviewed work.
+          is not itself a Finding; Findings recorded over this day are linked in Overview. Fuel and money need
+          later, separately reviewed work.
         </p>
       </Panel>
       <Panel heading="Stored assessment record" headingId="durable-dispatch-record-heading">

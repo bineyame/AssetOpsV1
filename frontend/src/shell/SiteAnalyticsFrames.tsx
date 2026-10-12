@@ -1,8 +1,10 @@
-import { useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
+import { createFindingClient, type FindingClient } from "../sites/findingClient";
+import { SiteFinding } from "../sites/SiteFinding";
 import { SitePerformance } from "../sites/SitePerformance";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
@@ -19,6 +21,7 @@ import {
   siteEvidenceHref,
   siteEvidenceAssessmentHref,
   siteEvidenceRecordHref,
+  siteFindingHref,
   siteFindingsHref,
   sitePerformanceHref,
   type FindingTab,
@@ -119,6 +122,8 @@ export function SitePerformanceFrame({
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}
             findingHref={(id) => findingHref(site.site_id, id)}
+            findings={DEFAULT_FINDINGS}
+            siteFindingHref={(id) => siteFindingHref(site.site_id, id)}
             findingAnalysisHref={(id) => findingHref(site.site_id, id, "analysis")}
             recordHref={(link) =>
               siteEvidenceRecordHref(
@@ -258,6 +263,63 @@ export function FindingDetailFrame({
                   : `Finding: ${loaded.reading?.outcome ?? "Assessed period"}`,
               )
             }
+          />
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+const SITE_FINDING_HEADING_ID = "site-finding-heading";
+const DEFAULT_FINDINGS = createFindingClient();
+
+/**
+ * S4-01: one durable Finding of an imported Site, at
+ * `/sites/{site}/findings/{finding}[?revision_id=]`. The trail returns to the
+ * Site and its Findings tab; the body links to the Dispatch days it covers.
+ */
+export function SiteFindingFrame({
+  detail,
+  sitesPath,
+  findings = DEFAULT_FINDINGS,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  findings?: FindingClient;
+}) {
+  const { siteId, findingId } = useParams<{ siteId: string; findingId: string }>();
+  const [title, setTitle] = useState("Finding");
+  const onTitle = useCallback((next: string) => setTitle(next), []);
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Finding" headingId={SITE_FINDING_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_FINDING_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Findings", to: siteFindingsHref(site.site_id) },
+              { label: "Finding" },
+            ]}
+          />
+          <PageHeader
+            title={title}
+            headingId={SITE_FINDING_HEADING_ID}
+            subtitle={`${site.display_name} · ${site.site_id} · generator support`}
+          />
+          <OperatorSiteTabs siteId={siteId} current="Findings" />
+          <SiteFinding
+            siteId={site.site_id}
+            findingId={findingId ?? ""}
+            client={findings}
+            onTitle={onTitle}
+            links={{
+              finding: (id, revisionId) => siteFindingHref(site.site_id, id, revisionId),
+              dispatch: (day, intervalRevisionId) =>
+                `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
+                (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : ""),
+              evidence: siteEvidenceHref(site.site_id),
+            }}
           />
         </main>
       )}

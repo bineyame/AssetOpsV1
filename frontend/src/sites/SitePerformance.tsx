@@ -12,6 +12,7 @@
  * period (no Finding, owner ruling 2026-10-03) needs most. Nothing is
  * recomputed: each row is the backend assessment by its `assessment_id`.
  */
+import type { FindingClient } from "./findingClient";
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { PerformanceDispatch } from "./PerformanceDispatch";
 import {
@@ -73,6 +74,9 @@ export interface SitePerformanceProps {
    * file-backed declaration answers AWAITING_EVIDENCE_MIGRATION.
    */
   performance?: PerformanceDispatchClient;
+  /** S4-01: an imported Site's durable Findings, linked from the Dispatch day. */
+  findings?: FindingClient;
+  siteFindingHref?: (findingId: string) => string;
 }
 
 const DEFAULT_PERFORMANCE = createPerformanceDispatchClient();
@@ -88,6 +92,8 @@ export function SitePerformance({
   recordHref,
   coverageHref,
   performance = DEFAULT_PERFORMANCE,
+  findings,
+  siteFindingHref,
 }: SitePerformanceProps) {
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
 
@@ -127,7 +133,12 @@ export function SitePerformance({
           </ol>
         </nav>
         {capabilityId === undefined || capabilityId === "dispatch" ? (
-          <PerformanceDispatch siteId={siteId} client={performance} />
+          <PerformanceDispatch
+            siteId={siteId}
+            client={performance}
+            findings={findings}
+            findingHref={siteFindingHref}
+          />
         ) : (
           <AwaitingEvidenceMigration surface="performance" />
         )}
