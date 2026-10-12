@@ -8,3 +8,9 @@ Rule on, with exact truthful content and states, so one implementer round can bu
 3. **Site model.** Mock is more space-efficient and calls out "Productive use" (Grain mill) and "Critical service" (Clinic feeder) in Identity & obligations, plus a "Site Financials" assumptions link and per-control "Evidence / change" links (Published policy, Review proposed change, Constraint evidence, See actual operation). Earlier ruling left "Productive use"/"Critical service" phrasing and policy links out (no source). Re-rule: is productive/critical-load designation derivable from stored Foundation (critical-load priority, load component types/names)? Which policy/change links have a real destination now (e.g. Dispatch view exists since S3) vs honest "not available"? Layout guidance for the mock's two-column topology + identity pairing.
 4. **Selected-part detail UX.** Owner likes the part detail but the panel crowds the page. Define a space-efficient pattern (e.g. inline expansion in the parts list, a side drawer/popover on the drawing, or a compact detail strip) that keeps the `component=` URL semantics, keyboard/focus accessibility and 390 px behaviour.
 Record material decisions in `.ai/DECISIONS.md`, amend `tasks/V-01a-foundation-visual-fidelity.md` if scope changes, write `.agent/architect-V-01a-round3-answers.md` with an exact fix-round list, and say whether anything needs the owner before building. No product code; leave edits uncommitted.
+
+## Owner follow-up (verbatim, added while you were working)
+
+"if there is data missing to show yet, it should be stated as such in the UI to avoid drift and highlight things are accepted conditionally for now"
+
+Rule on how each mock panel/column without a source yet is shown in the UI (visible, plain "not available yet" state naming what is missing, rather than omission), and how the owner's visual acceptance of such panels is recorded as conditional in the packet/registry until the source exists.
