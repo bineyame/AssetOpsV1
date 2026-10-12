@@ -214,7 +214,8 @@ const MEASURE = `(() => {
         connections: svg ? svg.querySelectorAll("[data-sld-connection]").length : 0,
         named:
           svg !== null &&
-          svg.getAttribute("role") === "img" &&
+          // A drawing whose parts can be chosen is a named group (V-01a round 2).
+          ["img", "group"].includes(svg.getAttribute("role") ?? "") &&
           (svg.getAttribute("aria-labelledby") || "").length > 0,
       };
     },
@@ -459,7 +460,9 @@ const MEASURE = `(() => {
     frameHeight: frame ? Math.round(frame.getBoundingClientRect().height) : null,
     viewportHeight: window.innerHeight,
     headerCount: document.querySelectorAll("table thead th").length,
-    buttons: Array.from(document.querySelectorAll("main button")).map((b) => ({
+    // V-01a round 2: a part-choice toggle chooses which declared part is shown (address
+    // state, `component=`), it changes nothing, so it is not counted as an action.
+    buttons: Array.from(document.querySelectorAll("main button:not(.part-choice)")).map((b) => ({
       label: (b.textContent || "").trim(),
       disabled: b.disabled,
     })),
@@ -1709,8 +1712,9 @@ for (const [label, width, height] of [
         `left ${sites.railLeftBefore} -> ${sites.railLeftAfter}, table scrolled by ${sites.scrolledBy}px`,
       ],
       [
-        "all nine columns are still rendered",
-        sites.headerCount === 9,
+        // V-01a round 2 compacted the inventory to Site, Type, Mode, Setup details, Actions.
+        "all five inventory columns are still rendered",
+        sites.headerCount === 5,
         `${sites.headerCount} headers`,
       ],
     ]) && allPass;
