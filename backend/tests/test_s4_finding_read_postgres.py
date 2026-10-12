@@ -168,6 +168,7 @@ class TestFindingRead:
         window = client.get("/api/sites/KOBO-001/finding-windows/2026-10-06").json()
         assert window["state"] == "STALE" and "not a no-Finding verdict" in window["note"]
         runner.step({"do": "assess"})
-        assert get(client, f["id"])["state"]["projection"] in ("FINDING_MATCH_PENDING", "CURRENT")
+        assert get(client, f["id"])["state"]["projection"] == "FINDING_MATCH_PENDING"
+        assert client.get("/api/sites/KOBO-001/finding-windows/2026-10-06").json()["state"] == "FINDING_MATCH_PENDING"
         runner.match()
         assert get(client, f["id"])["state"]["projection"] == "CURRENT"

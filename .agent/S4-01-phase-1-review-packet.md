@@ -83,12 +83,13 @@ citations, 1680 cited evidence rows, 1 merge. The TLS server was stopped (no lis
 
 ## Residual risk
 
-- Recurrence links chain across case days in the one fixture Site (each case is bounded by observed OFF), e.g. the
-  10-08 Finding `recurs_after` the 10-06 one; the spec asserts links only for F03/F06. Correct under Q3, but visible
-  in phase 2 reads.
-- Backdated controls append collateral revisions to Findings on earlier days (10-06..10-19 after the 10-21 control; F05: 8 collateral + 1 named). Fix round 1 labels them BASIS_REFRESHED (Q5/C1).
-- Matcher reads every assessed day per pass (linear); 3+-way merges and mixed split+merge are implemented but only
-  two-way cases are fixture-tested. No pure unit tests for `finding_episode.plan` (handoff optional item 2 not done).
+- (Updated in phase 2, carry R3.) The cross-day recurrence chain described in the original packet is gone after
+  fix round 1 (B3): links need assessed separation and OFF on both sides, and the fixture links only same-day
+  (F03, F06). Phase 2 returns each link's OFF bounds/evidence or a named NOT_ESTABLISHED reason.
+- Backdated controls append collateral revisions to Findings on earlier days; fix round 1 labels them
+  BASIS_REFRESHED (Q5/C1); phase 2 returns each one with `support_changed: false` and a grouping hint (Q14).
+- Matcher reads every assessed day per pass (linear). Fix round 1 added pure `tests/test_s4_finding_episode.py`
+  (3-way merge and mixed split+merge included); phase 2 adds relation-record tests there.
 - Producer DB `assetops_s4cases` was dropped after the run; rerun `run` (about 3 minutes) to re-create and verify.
 
 ## User-review focus
