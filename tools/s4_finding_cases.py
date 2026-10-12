@@ -8,10 +8,17 @@ Executes the committed specification `backend/conversions/s4-finding-cases-v1.js
   KOBO-001 imported, bindings converted, `demo_configuration --steps
   properties,bindings` (minigrid-roles-2);
 - a registered gateway credential issued by `provision_gateway issue`; every
-  reading is a LABELLED AUTHENTICATED FIXTURE Batch V2 (authored public content,
-  sealed with the registered binding snapshot, posted with that credential to
-  `POST /api/ingestion/batches` over TLS). It is not gateway-sealed Lab output
-  and not operator truth (S2/S3 fault-fixture precedent; question Q6);
+  F01-F08 reading is a LABELLED AUTHENTICATED FIXTURE Batch V2 (authored public
+  content, sealed with the registered binding snapshot, posted with that
+  credential to `POST /api/ingestion/batches` over TLS). Those readings are not
+  gateway-sealed Lab output and not operator truth (S2/S3 fault-fixture
+  precedent);
+- one ordinary-path case, `F01-gateway` (Architect Q6): a registered KOBO-001
+  Lab run (`kobo-mini-grid-prolonged` v2 on `mini-grid` v3, roles-2, published
+  through `registered-kobo-publication` v3) on 2026-10-04, sealed by the durable
+  registered gateway (epoch `s4-gateway-epoch-1`) and delivered over direct TLS,
+  exactly as `tools/s3_dispatch_cases.py` does; then `process-jobs` and
+  `match-findings`;
 - the battery reserve control through the product API
   `POST /api/sites/KOBO-001/foundation/revisions`; the generator minimum-runtime
   control (no product route in this release) through `FoundationService` in the
@@ -57,6 +64,11 @@ SPEC_PATH = "backend/conversions/s4-finding-cases-v1.json"
 DEMO_CONFIG = "backend/conversions/kobo-001-s3-dispatch-demo-config.json"
 ASSESS = ("-m", "assetops_backend.analytics.assess_dispatch")
 EPOCH_PREFIX = "s4-fixture-"
+GATEWAY_EPOCH = "s4-gateway-epoch-1"
+GATEWAY_DAY = "04"  # judged under the 10-03 setup controls; no fixture case uses 10-03..10-05
+MODEL = {"profile_id": "mini-grid", "profile_version": 3}
+PUBLICATION = {"profile_id": "registered-kobo-publication", "profile_version": 3}
+SCENARIO = ("kobo-mini-grid-prolonged", 2)
 RUNTIME_CONTROL = r"""
 import json, sys
 from datetime import datetime
@@ -122,8 +134,15 @@ class Cases(s2.Demo):
         self.controls: list[dict[str, Any]] = []
         self.failures: list[str] = []
 
-    def gateway_address(self) -> str:  # never started here; kept distinct from every other producer
+    def gateway_address(self) -> str:  # started only for F01-gateway; distinct from every other producer
         return r"\\.\pipe\assetops-s4-cases-gateway" if sys.platform == "win32" else str(self.gw / "gw.sock")
+
+    def write_gateway_config(self, snap: dict[str, Any], credential: Path) -> None:
+        super().write_gateway_config(snap, credential)
+        path = self.gw / "gateway.json"
+        config = json.loads(path.read_text(encoding="utf-8"))
+        config["provisioning"]["sequence_epoch"] = GATEWAY_EPOCH
+        path.write_text(json.dumps(config, indent=2), encoding="utf-8")
 
     # ------------------------------------------------------------ helpers
     def pg(self, sql: str, *params: Any) -> list[tuple]:
@@ -352,6 +371,70 @@ class Cases(s2.Demo):
         record["evidence_count"], record["evidence_id_sha256"] = len(ids), digest(ids)
         self.cases.append(record)
 
+    # ------------------------------------------------------------ ordinary gateway path (Architect Q6)
+    def gateway_case(self) -> None:
+        """One registered Lab run sealed by the durable gateway and delivered over TLS (S3 `run_case` pattern)."""
+        self.start_lab()
+        snap = self.snapshot()
+        self.write_gateway_config(snap, self.credential)
+        self.start_gateway()
+        start, end = f"2026-10-{GATEWAY_DAY}T03:00:00Z", f"2026-10-{GATEWAY_DAY}T11:00:00Z"
+        status, at = self.call("GET", f"/api/sites/{s2.SITE}/foundation/snapshot?at={start}")
+        if status != 200:
+            raise SystemExit(f"Foundation snapshot at {start}: {status} {at}")
+        foundation_version = at["foundation"]["version"]
+        body = {"site_id": s2.SITE, "foundation_version": foundation_version, "scenario_id": SCENARIO[0],
+                "scenario_version": SCENARIO[1], "interval": {"start_time": start, "end_time": end},
+                "timestep_minutes": 5, "seed": self.spec["seed"], "model_profile": MODEL,
+                "publication_profile": PUBLICATION, "run_inputs": []}
+        run = self.lab("POST", "/runs", body, expect=201)["run"]
+        if run.get("execution_status") != "READY":
+            raise SystemExit(f"F01-gateway: run {run['run_id']} is {run.get('execution_status')}: "
+                             f"{json.dumps(run.get('blocking_reasons'))[:600]}")
+        before = set(self.sealed_inventory())
+        self.lab("POST", f"/runs/{run['run_id']}/execution/start")
+        self.lab("POST", f"/runs/{run['run_id']}/execution/run-to-end")
+        published_to = z(instant(end) + timedelta(minutes=15))
+        self.lab("POST", f"/runs/{run['run_id']}/publication/advance", {"instant": published_to}, expect=None)
+        self.lab("POST", f"/runs/{run['run_id']}/commit", expect=None)
+        self.deliver_all("F01-gateway")
+        batches = sorted(set(self.sealed_inventory()) - before)
+        accepted = self.pg("SELECT e.sequence_epoch, e.gateway_id::text, COUNT(*) FROM accepted_evidence e "
+                           "JOIN ingestion_batch b ON b.id = e.batch_id WHERE b.external_batch_id = ANY(%s) "
+                           "GROUP BY 1, 2", batches)
+        say(f"  F01-gateway: {SCENARIO[0]} v{SCENARIO[1]} {start}..{end} on Foundation v{foundation_version}; "
+            f"{len(batches)} sealed batches delivered; accepted (epoch, gateway, readings) {accepted}")
+        record: dict[str, Any] = {
+            "case_id": "F01-gateway", "label": "ordinary registered gateway path: Lab run sealed by the durable "
+            "gateway, delivered over direct TLS (Architect Q6)", "day": start[:10], "batch_ids": batches,
+            "sequence_epochs": sorted({r[0] for r in accepted}), "gateway_ids": sorted({r[1] for r in accepted}),
+            "foundation_version": foundation_version, "matches": []}
+        problems = []
+        if [r[0] for r in accepted] != [GATEWAY_EPOCH] or [r[1] for r in accepted] != [self.identity["gateway_id"]]:
+            problems.append(f"accepted evidence is not sealed by the registered gateway under {GATEWAY_EPOCH}")
+        outcomes = self.cli("process-jobs")
+        if [o for o in outcomes if o["status"] != "DONE"]:
+            problems.append(f"assess: {outcomes}")
+        outcome = self.cli("match-findings", *self.site_args())
+        rows = self.rows()
+        opened = [f for f in rows["findings"] if f["anchor_start"][:10] == start[:10]]
+        revs = [r for r in rows["revisions"] if r["finding_id"] in {f["id"] for f in opened}]
+        if not opened or any(r["transition"] != "OPENED" or r["lifecycle"] != "SUPPORTED" for r in revs):
+            problems.append(f"expected OPENED SUPPORTED Finding(s) on {start[:10]}: "
+                            f"{[(r['transition'], r['lifecycle']) for r in revs]}")
+        record["matches"].append({"planned": outcome["planned"], "finding_ids": outcome["finding_ids"],
+                                  "revision_ids": outcome["revision_ids"], "opened_on_day": [
+                                      {"finding_id": f["id"], "anchor_start": f["anchor_start"]} for f in opened],
+                                  "problems": problems})
+        say(f"  F01-gateway match: planned {outcome['planned']}, new Findings {len(outcome['finding_ids'])}, "
+            f"Findings anchored {start[:10]}: {[(f['anchor_start'], f['recurs_after_finding_id']) for f in opened]}"
+            + (" OK" if not problems else f" FAILED {problems}"))
+        self.failures += [f"F01-gateway: {p}" for p in problems]
+        ids = [r[0] for r in self.pg("SELECT e.id::text FROM accepted_evidence e JOIN ingestion_batch b ON "
+                                     "b.id = e.batch_id WHERE b.external_batch_id = ANY(%s)", batches)]
+        record["evidence_count"], record["evidence_id_sha256"] = len(ids), digest(ids)
+        self.cases.append(record)
+
     # ------------------------------------------------------------ artifact
     @staticmethod
     def finding_listing(rows: dict[str, Any]) -> list[dict[str, Any]]:
@@ -425,12 +508,14 @@ class Cases(s2.Demo):
             for n, case in enumerate(self.spec["cases"], start=4):
                 step(f"{n}. {case['case_id']} {case['label']} ({case['day']})")
                 self.run_case(case)
-            step(f"{n + 1}. Run artifact")
+            step(f"{n + 1}. F01-gateway: ordinary registered gateway path (Lab run, durable gateway, TLS)")
+            self.gateway_case()
+            step(f"{n + 2}. Run artifact")
             self.write_artifact()
         finally:
             step("Stopping every process this script started")
             self.stop_all()
-            say("  stopped: tls-server")
+            say("  stopped: tls-server, lab-api, gateway")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -439,7 +524,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--work", default=str(DEFAULT_WORK))
     parser.add_argument("--artifact", default=None, help=f"default: <work>/{ARTIFACT_NAME}")
     parser.add_argument("--tls-port", type=int, default=8763)
-    parser.add_argument("--http-port", type=int, default=8730)  # unused: no plain-HTTP server is started
+    parser.add_argument("--http-port", type=int, default=8730)  # Lab/product API for F01-gateway
     parser.add_argument("--cadence-seconds", type=int, default=60)
     args = parser.parse_args(argv)
     if args.command == "run":
