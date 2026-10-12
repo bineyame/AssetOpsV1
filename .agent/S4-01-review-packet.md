@@ -167,3 +167,36 @@ Code `60aae53` plus a follow-up commit (see git log). Against `.agent/S4-01-phas
   stopped, test DB dropped; owner ports and `var/` untouched.
 - Open: C5 (first-day Dispatch pin) carried; the new backend read field has no dedicated backend test (covered by
   the live run and the Postgres read tests passing unchanged); layout evidence still not run (Q28).
+
+## Fix round 4 - re-review R1, R2, C7, C8 (`.agent/S4-01-phase-3-fix-rereview.md`)
+
+Code `00109b1`, `5df3460`.
+
+- **R2** The backend now decides the cause. `finding_read.portion_cause` classifies each Indeterminate portion
+  of the selected revision's cited interval assessments with the dispatch-3.1 window rule: any `missing` entry not
+  starting with `_NOT_EVIDENCE_GAPS` is a record gap (`"…: no accepted reading"`, `"generator state not observed
+  …"`, etc.). A revision's `limitations` (OPEN_BOUND, ANCHOR_OUTSIDE_SUPPORT) no longer influence the result. The read adds
+  `indeterminate_reasons[].kind/plain` and `revision.indeterminate_cause = {kind: RECORD_GAP|MODELLING|UNSTATED,
+  sentence}` (null with no portions or with the source closed). Plain words per modelling prefix sit in one map,
+  and an import-time assert keeps it equal to `_NOT_EVIDENCE_GAPS`. A transition cause is dropped when the other
+  end's cause is known.
+- **R1** The default view shows only `indeterminate_cause.sentence`. Live F05 v2: "No records are missing. It
+  could not decide because the generator may still have been inside its 120-minute minimum operating time after
+  starting." The page has no "settings now in force" and no PV/PCS/reserve/headroom words. The raw words appear
+  only in Analysis, under "Portions that could not be decided" (`data-tech-undecided`). Guide step 4 is updated.
+- **C8** Yes, the same blind spot existed. On a RECORD_GAP cause, "What limits this conclusion" now shows a
+  record-gap line and no longer shows "No record gaps or conflicts were found".
+- **C7** Guide step 8 says `links` prints four Dispatch days; 6 Oct belongs to step 1.
+- Tests: `backend/tests/test_s4_finding_cause.py` (5, no DB, real shapes via `dispatch_v3._missing`, full
+  `finding()` with fakes: selected-not-latest, OPEN_BOUND-only reads as setting, source-closed gate). It fails on
+  the old `finding_read.py` (collection error: no classification), and the transition rule fails without
+  `5df3460` (1 failed, 4 passed). vitest: R1 (latest and earlier version, vocabulary scan, Analysis raw), R2/C8,
+  and R2 OPEN_BOUND-only replace the two old B1 cases. All 3 failed before the UI change and pass now.
+- Checks: vitest 55 files / 1325 passed; `tsc` clean; build ok; no-DB `pytest backend/tests -q` 1771 passed /
+  127 skipped. S4 Postgres store/read/api/cause on the isolated `assetops_s4r4_test` (created, then dropped):
+  30 passed. `tools/check-all.ps1`: all 6 guards passed. Walkthrough `prepare` (cutover permitted, 10-09 staged
+  PENDING), `links` (4 Dispatch days), `serve` 8840 + Vite 5340, then `s4-finding-evidence.mjs`: 36/36 claims passed.
+  Headless F05 v2 default and Analysis were checked as above. Servers stopped; ports 8840/5340/9343 free. Owner
+  ports and `var/` untouched.
+- Open: C5 carried; layout evidence not run (Q28). The fixture still has no record-gap Not confirmed case, so that
+  path is proven by tests only.
