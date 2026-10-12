@@ -310,6 +310,9 @@ describe("the shell keeps its shape in both gate states", () => {
     );
     expect(container.querySelector(".app-frame")).not.toBeNull();
     expect(container.querySelector(".app-frame--operator")).toBeNull();
+    // V-01b: the Lab's own phone-width rules key on this class (S1-03 Q1
+    // carry); without it the Lab's main column gets ~95px at 390px.
+    expect(container.querySelector(".app-frame")).toHaveClass("app-frame--lab");
   });
 
   it("renders the Lab frame standalone, outside the shell", async () => {

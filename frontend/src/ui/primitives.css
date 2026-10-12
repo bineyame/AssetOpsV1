@@ -2731,47 +2731,55 @@ input:focus-visible,
  * destination and group caption stays visible and reachable. Above 640px the
  * shell is unchanged.
  *
- * Scoped to the operator shell (`.app-frame--operator`, set by
- * OperatorShellLayout). The Simulator Lab shares `.app-frame` and is NOT
- * changed by this block; its phone layout is an open carry (Architect Q1,
- * S1-03 fix round).
+ * Scoped to the two named shells: the operator shell (`.app-frame--operator`,
+ * set by OperatorShellLayout) and, since V-01b, the Simulator Lab shell
+ * (`.app-frame--lab`, set by SimulatorLabShell), whose phone layout V-01b
+ * verifies in the browser (closing the S1-03 Q1 carry). A bare `.app-frame`
+ * or `.nav-rail` selector here would still change an unnamed frame unreviewed.
  */
 @media (max-width: 640px) {
-  .app-frame--operator {
+  .app-frame--operator,
+  .app-frame--lab {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-frame--operator .app-frame__side {
+  .app-frame--operator .app-frame__side,
+  .app-frame--lab .app-frame__side {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0 var(--space-3);
   }
 
-  .app-frame--operator .app-frame__side .nav-rail {
+  .app-frame--operator .app-frame__side .nav-rail,
+  .app-frame--lab .app-frame__side .nav-rail {
     display: flex;
     flex-wrap: wrap;
     gap: 0 var(--space-3);
     padding: var(--space-1) var(--space-2);
   }
 
-  .app-frame--operator .app-frame__side .nav-rail__group + .nav-rail__group {
+  .app-frame--operator .app-frame__side .nav-rail__group + .nav-rail__group,
+  .app-frame--lab .app-frame__side .nav-rail__group + .nav-rail__group {
     margin-top: 0;
   }
 
-  .app-frame--operator .app-frame__side .nav-rail__group {
+  .app-frame--operator .app-frame__side .nav-rail__group,
+  .app-frame--lab .app-frame__side .nav-rail__group {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0 var(--space-2);
   }
 
-  .app-frame--operator .app-frame__side .nav-rail__list {
+  .app-frame--operator .app-frame__side .nav-rail__list,
+  .app-frame--lab .app-frame__side .nav-rail__list {
     flex-direction: row;
     flex-wrap: wrap;
   }
 
-  .app-frame--operator .app-frame__content {
+  .app-frame--operator .app-frame__content,
+  .app-frame--lab .app-frame__content {
     padding: var(--space-4) var(--space-4) var(--space-5);
   }
 }
