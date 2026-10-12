@@ -50,6 +50,21 @@ const run = (mutate = () => {}) => { const ctx = fixture(); mutate(ctx); return 
 const cand = (report, id) => report.candidates.find((c) => c.id === id);
 const refusalTypes = (report) => report.refusals.map((r) => r.type);
 
+test('unscored G work is reported without entering the core ranking', () => {
+  const baseline = run();
+  const withGapPacket = run((ctx) => {
+    ctx.registry.nodes.push(node('I-G-01', 'open', ['A-root'], {task: 'G-01'}));
+    ctx.registry.delivery_plan.outside_ranking.push({id: 'I-G-01', reason: 'catalogue at next free slot'});
+    ctx.gate_queue = [{task: 'G-01', packet: 'G-01.md', meta: {status: 'open planning packet', user_review_required: true}}];
+  });
+  assert.deepEqual(withGapPacket.decision, baseline.decision);
+  assert.deepEqual(withGapPacket.eligible, baseline.eligible);
+  assert.deepEqual(withGapPacket.candidates.map((c) => [c.id, c.score]), baseline.candidates.map((c) => [c.id, c.score]));
+  assert.equal(cand(withGapPacket, 'I-G-01'), undefined);
+  assert.deepEqual(withGapPacket.unscored_work, [{id: 'I-G-01', task: 'G-01', node_status: 'open',
+    packet_phase: 'not_started', reason: 'catalogue at next free slot', open_prerequisites: []}]);
+});
+
 test('valid fixture ranks with raw facts, path proof and stops', () => {
   const r = run();
   assert.equal(r.status, 'ranked');
