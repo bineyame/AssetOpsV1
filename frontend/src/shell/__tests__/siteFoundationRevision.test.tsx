@@ -599,7 +599,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       expect(roles.map(toneOf)).toEqual(["badge--configured", "badge--configured"]);
       const legend = readiness.querySelector("[data-readiness-legend]") as HTMLElement;
       expect(Array.from(legend.querySelectorAll(".badge")).map((b) => [b.textContent, toneOf(b)])).toEqual([
-        ["Configured", "badge--configured"],
+        ["Configured / Ready to report", "badge--configured"],
         ["Needs configuration", "badge--config-gap"],
         ["Unknown", "badge--neutral"],
       ]);
