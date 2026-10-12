@@ -5256,3 +5256,36 @@ Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. V
 - Open: registry `readiness:2#a/2#b/3#a` and the ledger/registry conditional caveats wait for independent review
   and the owner's decision; nothing was edited.
 - Open: `.readiness-cards` 2-column band (480-900 px) unmeasured; `layout-evidence.mjs` still stops at the Lab precondition.
+
+## V-01b - Lab and Evidence visual fidelity (in_review)
+
+Task `tasks/V-01b-evidence-lab-visual-fidelity.md`, branch `task/V-01b-evidence-lab-visual`, diff base `b1ac0a8`.
+Packet `.agent/V-01b-review-packet.md`, handoff `.agent/V-01b-handoff.md`, questions `.agent/V-01b-questions-1.md`
+(Q1-Q8, fail-closed defaults shipped), owner guide `.agent/V-01b-owner-walkthrough.md`. No backend change.
+
+- Site Evidence (`frontend/src/sites/LedgerSiteEvidence.tsx`, `ui/primitives.css` "V-01b Evidence" block): status bar
+  of window facts with neutral "No capability conclusion yet" badge and "Analysis →"; `evidence:1` "What we can
+  conclude now"; `evidence:2` "Data sources" table beside `evidence:3` "Most useful next evidence" (two-column
+  ≥1100px); each unsupported portion is a "Not available yet: ..." statement. Analysis: `evidence-analysis:1`
+  accepted records table (`listRecords`, "Open record" → "Exact message as received"), `evidence-analysis:2`
+  "How each limit is set" (Q4). Technical panels under closed "Advanced details — ..." disclosures.
+- Conflict original time: refused-readings table "Original reading" column renders `conflicts_with_source_time`
+  with a link to `conflicts_with_evidence_id` (S2-02 batch-4 carry closed).
+- Lab run (`shell/RunIngestionOverview.tsx`, `shell/runIngestion.css`, `RunFrame.tsx`, `RunCommitPanel.tsx` `onRead`):
+  h1 "Draft run" (Q2) then h2 "Gateway & Ingestion": status strip, four `[data-flow-box]`es, `lab:1` envelope `<pre>`,
+  `lab:2` truth vs observed, `lab:3` release and ingestion with the Commit panel, `lab:4` boundary; "Execution and
+  recorded history" below; seven "Advanced details — ..." disclosures. `GatewayLedgerView.tsx` Q1 Stage label.
+- Lab phone shell: `SimulatorLabShell.tsx` uses `app-frame app-frame--lab`; every <640px shell rule lists both
+  `.app-frame--operator` and `.app-frame--lab` (S1-03 Q1 carry closed). Guard `tools/checks/shell-overflow.ps1` 2b
+  requires each narrow selector part to start with one of the two and fails when either has no narrow rule
+  (non-vacuity proven in the packet). `overflowContainment.test.tsx` asserts the class.
+- Tests: `shell/__tests__/v01bEvidenceVisual.test.tsx` (10), `v01bLabIngestion.test.tsx` (9); order/name updates in
+  `cockpitLayout`, `runExecution`, `simulatorLabGate`, `s2LedgerEvidence`, `runsInventory` (Commit first).
+- Tools: `tools/v01b_lab_evidence_walkthrough.py` (prepare/links/serve/drop, `--db/--empty-db/--work-name`, owner
+  ports 8862/8863/5362/5363); `tools/v01b-lab-evidence-evidence.mjs` (101 claims at 1440/390, SourceEnvelope trace,
+  intercepted 503 gateway variant); `tools/layout-evidence.mjs` registered Lab Site/dates/profiles, Kobo registered run
+  section (`ASSETOPS_LAYOUT_V01B_ONLY`, `ASSETOPS_LAYOUT_V01B_RELEASED_RUN`), `ASSETOPS_CDP_PORT`, run-setup overflow
+  proof at 390px. Full run with KOBO-001: 398 PASS / 5 FAIL, all named preconditions.
+- Open: Q8 drawing precondition (T025d label claims unmeasured); Q1 stale Stage upload constant; `.action` cascade
+  over `.action--primary` elsewhere; layout tool creates a draft per run; ledger/registry caveats wait for owner
+  acceptance (nothing edited).

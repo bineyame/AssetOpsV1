@@ -1,6 +1,6 @@
 # V-01b — Lab and Evidence visual fidelity
 
-Status: active (selected 2026-10-12 by next-work on main `8d499a7`: V-01b 2.47 vs A-S4-financial 2.215, gap 10.3%, no notice)
+Status: in_review (built through phase c2 on `task/V-01b-evidence-lab-visual`; packet `.agent/V-01b-review-packet.md`; selected 2026-10-12 by next-work on main `8d499a7`)
 USER_REVIEW_REQUIRED: true
 Depends on: merged S2-02 Lab and Site Evidence surfaces
 Branch when activated: task/V-01b-evidence-lab-visual
