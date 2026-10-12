@@ -136,7 +136,7 @@ describe("operator route frame empty states", () => {
       const { container } = renderAt(path);
       await screen.findByRole("main");
 
-      expect(container.querySelectorAll("svg, canvas, img")).toHaveLength(0);
+      expect(container.querySelectorAll("svg:not(.nav-rail__icon), canvas, img")).toHaveLength(0);
       expect(screen.queryAllByRole("figure")).toHaveLength(0);
 
       // The digit rule stands where nothing truthful renders a number: these

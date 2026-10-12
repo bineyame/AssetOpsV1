@@ -17,6 +17,11 @@ export interface PanelProps {
   headingId?: string;
   /** Heading level, so a panel nests correctly under its page heading. */
   headingLevel?: 2 | 3;
+  /**
+   * One plain line under the heading (the v6.9 panel sub-line): what the panel
+   * shows and its claim limit. Optional; most panels keep their caption in the body.
+   */
+  description?: ReactNode;
   /** Removes body padding, for a panel whose body is a table. */
   flush?: boolean;
   children: ReactNode;
@@ -26,6 +31,7 @@ export function Panel({
   heading,
   headingId,
   headingLevel = 2,
+  description,
   flush = false,
   children,
 }: PanelProps) {
@@ -41,6 +47,7 @@ export function Panel({
           <Heading className="panel__heading" id={headingId}>
             {heading}
           </Heading>
+          {description === undefined ? null : <p className="panel__description">{description}</p>}
         </div>
       )}
       <div className="panel__body">{children}</div>

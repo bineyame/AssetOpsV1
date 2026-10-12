@@ -5190,3 +5190,69 @@ Task `tasks/S4-01-finding-identity.md`; packet `.agent/S4-01-review-packet.md` (
 - Carries still open: C5 one-hop canonical, C6/C9 read and pass cost (S4-04), C8 recurrence record only on the
   opening revision.
 - `?portion=` is an index into the selected version's blocks (Q30).
+
+## V-01a - Site and Foundation visual fidelity (in_review)
+
+Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. Visual gate only; no new data claim.
+
+- `FoundationPeriodStrip` (`FoundationRevisionPanel.tsx`): an `?at=` instant that is not a period start now
+  gets its own selected option ("At ... (from the address)"). Before this, the controlled select fell back to
+  "In effect now" on reload or shared links while showing another period.
+- `Panel` takes an optional `description` (the v6.9 `.panel-head p` sub-line, CSS `.panel__description`).
+  It is used on Site inventory, Configured topology, the SLD panel and Configuration readiness. The Readiness
+  sub-line carries the PRE-S3-04 separation at the top of the view.
+- Sites list panel retitled "Site inventory" (v6.9 label). The topology bus label carries the bus's declared
+  rating (`data-topology-bus`, e.g. "AC bus · 400 V").
+- Devices caption (`SiteConfiguration.tsx` `SiteFoundationDevices`) no longer says "none has reported". It
+  states only that reporting is not assessed here (backlog carry).
+- Tools: `tools/v01a_foundation_walkthrough.py` (copy of `assetops_s4cases`, plus an empty migrated DB;
+  API 8860/8861, web 5360/5361) and `tools/v01a-foundation-evidence.mjs` (25 claims at each of 1440 and
+  390 = 50; CDP port 9361).
+- Q1-Q5 were answered by the owner and ruled in `D-2026-10-12-v01a-owner-visual-rulings` (round 2 below).
+- Open: `SiteOverview.tsx:241` stale "No window" text stays with S5-01 (backlog C2).
+- Open: the shell-wide `layout-evidence.mjs` stops at the Lab run-setup precondition in the walkthrough tree.
+
+### V-01a round 2 (owner rulings; packet section "Round 2")
+
+- `SitesIndex.tsx`: columns Site / Type / Mode / Setup details / Actions; `Last analysed` and
+  `NO_ANALYSIS_IN_WINDOW` removed; `DIRECTORY_ANALYSIS_ABSENT` note under the table.
+- Readiness: Badge tones `configured` (green, tick) and `config-gap` (amber, "!"), configuration-only;
+  `ReadinessLegend` in `FoundationBindingsPanel.tsx`.
+- Part selection: `component=` beside `at` (`FOUNDATION_COMPONENT_PARAM`, `siteFoundationViewHref`);
+  `SiteFoundationFrame` clears an undeclared part and shows `[data-selected-part-missing]`;
+  `SelectedPartPanel` on all three views.
+- SLD (`SiteSingleLineDiagram.tsx`): bus-bar layout (`latticeFor`, `runPoints`, `SldBus`, `SldNode`),
+  `data-sld-layout="bus-bar"`, `SLD_CONFIGURED_NOT_LIVE`, optional `SldSelection` (svg becomes a named
+  `group`, parts are `role="button"` toggles). The slot text is now "Readings not assessed here"; the constant
+  name `AWAITING_RUNTIME_OR_EVIDENCE` is unchanged. The view model is unchanged except `sldSymbolFor`.
+- Icons: `sites/componentIcons.tsx` (one icon family per type, used by the SLD and `ComponentTypeIcon` on the
+  topology cards); `ui/RailIcon.tsx` (mock line icons; `NavRailItem.icon`).
+- Shared type, colour, tab and rail tokens follow the mock (`ui/tokens.css`). This affects every screen.
+- Guard: `shell-overflow.ps1` allows fixed-size icon svgs in exactly those two modules.
+- Open: bus-bar routing has no detour for a supply that bypasses an occupied conversion row. No stored topology
+  has one.
+- Open: the V-01a evidence tool does not exercise Finding detail. The store holds 11 Findings, but its prepare skips the comparison step, so the index is empty and detail answers PERFORMANCE_CUTOVER_CLOSED. The reviewer verified detail at 1440/390 by hand on a private copy.
+- Open: the Lab run interval drawing now uses the bus-bar geometry; its browser label-collision check (layout-evidence T025d) is unverified behind the Lab precondition.
+- Open: `layout-evidence.mjs` still stops at the Lab run-setup precondition.
+
+
+### V-01a round 3 (readiness and organization; packet section "Round 3")
+
+- `sites/ReadinessOverview.tsx` (new): `readinessCards()`/`ReadinessCards` (four cards from typed `configuration_gaps`;
+  Unknown only on `NO_EFFECTIVE_REVISION`), `ReadinessEvidenceTable` (six rows; Confirmed always "Not recorded"),
+  `GatewayStatusPanel` over the S2 `/gateway-health` read (`App.tsx` → `SiteFoundationFrame` `gatewayHealth`).
+  Gateway badges are neutral; contact is labelled as server-time, apart from the selected `at`.
+- Plain-first layers: `Disclosure` "Advanced details — Foundation records | diagram records | roles, channels and
+  records | selected part channels" (`foundation-advanced`, `sld-advanced`, `readiness-advanced`,
+  `selected-part-channels-{model,sld}`). "Review or change bindings" (`[data-review-bindings]`) opens the Readiness one.
+- Site model: `IdentityPanel` critical-load/loads/productive-use/financial facts; `FoundationControlsPanel`
+  "Evidence / change" column (`[data-control-link]`). SLD: `[data-sld-missing]` note; parts table shows counts only.
+- `SelectedPartStrip` replaces the global Selected part panel (topology panel and `SiteSldPrimary` `strip`);
+  Readiness shows `[data-selected-part-chip]`. Sites: "Operating view" column and `sites-aggregate-absent` note.
+- Tools: `v01a_foundation_walkthrough.py` gains `--db/--empty-db/--work-name` and `drop` (refuses owner defaults);
+  `v01a-foundation-evidence.mjs` 185 claims, gateway variants via DevTools `Fetch` interception (documented in its
+  header); `layout-evidence.mjs` expects six Sites columns and excludes `[data-review-bindings]` from actions.
+- Open: only STALE gateway contact is reachable on the stored copy; other states are intercepted-response evidence.
+- Open: registry `readiness:2#a/2#b/3#a` and the ledger/registry conditional caveats wait for independent review
+  and the owner's decision; nothing was edited.
+- Open: `.readiness-cards` 2-column band (480-900 px) unmeasured; `layout-evidence.mjs` still stops at the Lab precondition.

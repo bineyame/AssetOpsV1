@@ -214,7 +214,8 @@ const MEASURE = `(() => {
         connections: svg ? svg.querySelectorAll("[data-sld-connection]").length : 0,
         named:
           svg !== null &&
-          svg.getAttribute("role") === "img" &&
+          // A drawing whose parts can be chosen is a named group (V-01a round 2).
+          ["img", "group"].includes(svg.getAttribute("role") ?? "") &&
           (svg.getAttribute("aria-labelledby") || "").length > 0,
       };
     },
@@ -459,7 +460,11 @@ const MEASURE = `(() => {
     frameHeight: frame ? Math.round(frame.getBoundingClientRect().height) : null,
     viewportHeight: window.innerHeight,
     headerCount: document.querySelectorAll("table thead th").length,
-    buttons: Array.from(document.querySelectorAll("main button")).map((b) => ({
+    // V-01a round 2: a part-choice toggle chooses which declared part is shown (address
+    // state, the component address parameter), it changes nothing, so it is not counted as an action.
+    // V-01a round 3: "Review or change bindings" only opens the Advanced disclosure and focuses
+    // the binding form (navigation within the page); the form's own Publish button stays counted.
+    buttons: Array.from(document.querySelectorAll("main button:not(.part-choice):not([data-review-bindings])")).map((b) => ({
       label: (b.textContent || "").trim(),
       disabled: b.disabled,
     })),
@@ -1709,8 +1714,10 @@ for (const [label, width, height] of [
         `left ${sites.railLeftBefore} -> ${sites.railLeftAfter}, table scrolled by ${sites.scrolledBy}px`,
       ],
       [
-        "all nine columns are still rendered",
-        sites.headerCount === 9,
+        // V-01a round 2 compacted the inventory to Site, Type, Mode, Setup details, Actions;
+        // round 3 adds the grouped Operating view cell ("Not available yet").
+        "all six inventory columns are still rendered",
+        sites.headerCount === 6,
         `${sites.headerCount} headers`,
       ],
     ]) && allPass;
@@ -1884,7 +1891,9 @@ for (const [label, width, height] of [
         foundation.railLeftBefore === foundation.railLeftAfterAll,
         `left ${foundation.railLeftBefore} -> ${foundation.railLeftAfterAll}`,
       ],
-      ...(width <= 640 && foundationView.dense
+      // V-01a round 2: at the mock's 11px table type the Readiness tables fit at 640px, so the
+      // non-empty proof is made at phone width, where all three overflow.
+      ...(width <= 390 && foundationView.dense
         ? [
             [
               "at least one table overflows here, so the claim above is not vacuous",
@@ -1950,7 +1959,7 @@ for (const [label, width, height] of [
       [
         "every drawn node carries an empty slot and nothing else",
         foundation.slots.length === (foundation.diagrams[0]?.nodes ?? -1) &&
-          foundation.slots.every((slot) => slot === "Awaiting runtime/evidence"),
+          foundation.slots.every((slot) => slot === "Readings not assessed here"),
         `${foundation.slots.length} slots: ${[...new Set(foundation.slots)].join(" | ")}`,
       ],
       [

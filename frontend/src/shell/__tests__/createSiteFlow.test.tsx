@@ -451,7 +451,7 @@ describe("the create flow offers no capability beyond creating", () => {
     const { container } = renderCreateFlow();
     await screen.findByLabelText("Template");
 
-    expect(container.querySelectorAll("svg, canvas, img, table")).toHaveLength(
+    expect(container.querySelectorAll("svg:not(.nav-rail__icon), canvas, img, table")).toHaveLength(
       0,
     );
     expect(screen.getByRole("main").textContent).not.toMatch(

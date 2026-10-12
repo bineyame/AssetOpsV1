@@ -1,17 +1,25 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
 import { FOUNDATION_SUBTABS, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
 import { StoredFoundationViews } from "../sites/StoredFoundationViews";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
 import { PageHeader, Panel } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
-import { siteDetailHref, siteEvidenceHref, siteFoundationHref, siteFoundationViewHref } from "./operatorSiteRoutes";
+import {
+  FOUNDATION_COMPONENT_PARAM,
+  siteDetailHref,
+  siteEvidenceHref,
+  siteFoundationHref,
+  siteFoundationViewHref,
+  sitePerformanceHref,
+} from "./operatorSiteRoutes";
 
 export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
@@ -19,6 +27,8 @@ export interface SiteFoundationFrameProps {
   foundation: SiteFoundationClient;
   sitesPath: string;
   templateLineage?: SiteTemplateLineageClient;
+  /** V-01a round 3: the S2 central gateway-contact read shown on Readiness. */
+  gatewayHealth?: GatewayHealthClient;
 }
 
 /**
@@ -39,6 +49,7 @@ export function SiteFoundationFrame({
   foundation,
   sitesPath,
   templateLineage,
+  gatewayHealth,
 }: SiteFoundationFrameProps) {
   const { siteId, foundationView } = useParams<{ siteId: string; foundationView?: string }>();
   const view: FoundationView | null = foundationViewFor(foundationView);
@@ -46,6 +57,11 @@ export function SiteFoundationFrame({
   const at = params.get("at");
   const [refresh, setRefresh] = useState(0);
   const state = useSiteFoundation(siteId, at, foundation, refresh);
+
+  const component = params.get(FOUNDATION_COMPONENT_PARAM);
+  // A selected part that the newly selected period does not declare: its ID
+  // and the period it was missing from, so the notice is about this period only.
+  const [missingPart, setMissingPart] = useState<{ id: string; at: string | null } | null>(null);
 
   const selectAt = useCallback(
     (next: string | null) => {
@@ -56,6 +72,34 @@ export function SiteFoundationFrame({
     },
     [params, setParams],
   );
+
+  const selectComponent = useCallback(
+    (next: string | null) => {
+      const updated = new URLSearchParams(params);
+      if (next === null) updated.delete(FOUNDATION_COMPONENT_PARAM);
+      else updated.set(FOUNDATION_COMPONENT_PARAM, next);
+      setMissingPart(null);
+      setParams(updated);
+    },
+    [params, setParams],
+  );
+
+  const loadedRead = state.foundation?.status === "loaded" ? state.foundation.value : null;
+  const partDeclared =
+    loadedRead === null || component === null
+      ? null
+      : loadedRead.detail.foundation.components.some((c) => c.component_id === component);
+
+  // Retain the part across a period change only while that component ID is
+  // declared in the selected Foundation; otherwise clear it, and say so,
+  // rather than silently choosing another part.
+  useEffect(() => {
+    if (component === null || partDeclared !== false) return;
+    setMissingPart({ id: component, at });
+    const updated = new URLSearchParams(params);
+    updated.delete(FOUNDATION_COMPONENT_PARAM);
+    setParams(updated, { replace: true });
+  }, [component, partDeclared, at, params, setParams]);
 
   // `/foundation/` with an empty segment never reaches here as a view route;
   // any other segment that is not a view is not a destination.
@@ -92,8 +136,15 @@ export function SiteFoundationFrame({
           versions={versions}
           selectedAt={at}
           onSelectAt={selectAt}
-          viewHref={(target) => siteFoundationViewHref(siteId, segmentOf(target), at)}
+          selectedComponent={partDeclared === true ? component : null}
+          missingComponent={missingPart !== null && missingPart.at === at ? missingPart.id : null}
+          onSelectComponent={selectComponent}
+          viewHref={(target) =>
+            siteFoundationViewHref(siteId, segmentOf(target), at, partDeclared === true ? component : null)
+          }
           evidenceHref={siteEvidenceHref(siteId)}
+          gatewayHealth={gatewayHealth}
+          dispatchHref={sitePerformanceHref(siteId, "dispatch")}
           tabs={tabs}
           parentTrail={parentTrail}
           snapshotHref={foundation.snapshotUrl(siteId, loaded.resolved.at)}

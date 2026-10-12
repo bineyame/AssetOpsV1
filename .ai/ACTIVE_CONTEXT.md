@@ -4,6 +4,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**V-01a ([Site and Foundation visual fidelity](../tasks/V-01a-foundation-visual-fidelity.md)) is `in_review`** on `task/V-01a-foundation-visual` (USER_REVIEW_REQUIRED: owner visual checkpoint). Round 3 (owner feedback `.agent/owner-V-01a-round2-feedback-2026-10-12.md`, `D-2026-10-12-v01a-round3-readiness-and-organization`, Architect answers incl. Addendum) is built through `0f46fd8` and awaits a fresh independent re-review, then the owner's visual checkpoint with conditional acceptance per panel. Packet `.agent/V-01a-review-packet.md` (section "Round 3"), owner guide `.agent/V-01a-owner-walkthrough.md`, built state in `.ai/CODE_STATE.md` "V-01a round 3". The S2-S4 paragraphs below are earlier routing; S4-01 and its registry closeout are merged on main.
+
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
 S2-01a (registered Lab basis) and S2-01b (durable simulated gateway) are reviewed and merged to main at `7c10283`; their carries are in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
@@ -25,6 +27,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (V-01a round 3): read the task, `.agent/architect-V-01a-round3-answers.md` (with Addendum) and the packet's "Round 3" section, then `git diff b5a7a75..HEAD`; walk it on private ports with `tools/v01a_foundation_walkthrough.py --db assetops_<x>walk --empty-db assetops_<x>empty --work-name <x> prepare|serve --port 8880 --web-port 5380 --empty-port 8881 --empty-web-port 5381` and `node tools/v01a-foundation-evidence.mjs http://localhost:5380 <dir> http://localhost:5381`; `drop` cleans up. The owner's walkthrough keeps 8860/8861/5360/5361.
 
 Reviewer (S4-01 phase 3 and closeout): read the task's phase 3 row and "Detail read and visible states", `.agent/S4-01-review-packet.md` and `.agent/S4-01-questions-5.md`, then `git diff 0f4808b..HEAD`; walk it with `tools/s4_finding_cases.py run`, `tools/s4_finding_walkthrough.py prepare|links|serve` (DB `assetops_s4walk`, API 8840, web 5340) and `node tools/s4-finding-evidence.mjs http://localhost:5340`.
 
