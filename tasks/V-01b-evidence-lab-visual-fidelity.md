@@ -1,6 +1,6 @@
 # V-01b — Lab and Evidence visual fidelity
 
-Status: open W1 visual gate (L); activate after startup guards
+Status: active (selected 2026-10-12 by next-work on main `8d499a7`: V-01b 2.47 vs A-S4-financial 2.215, gap 10.3%, no notice)
 USER_REVIEW_REQUIRED: true
 Depends on: merged S2-02 Lab and Site Evidence surfaces
 Branch when activated: task/V-01b-evidence-lab-visual
