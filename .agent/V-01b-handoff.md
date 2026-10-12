@@ -93,3 +93,25 @@ is pending"; used `backend/assetops_backend/simulator_lab_api.py:1827`) while th
 - `lab:4` "What never crosses": prose + "The gateway observes, maps and publishes."; missing "Not available yet: a link from this run's accepted records to the Dispatch analysis that used them. No run-to-analysis read exists here."
 - Q1 label under Stage Upload fact: "This is the gateway's local Stage statement. Central receipt is shown under Release and ingestion."
 - Layout tool (`76832af`): Lab Site from `/api/sites`; registered dates 2026-10-04..05 (Foundation v10) and profiles by id@version; timeout prints `#run-setup-blocked-reason`; new registered Kobo section (`ASSETOPS_LAYOUT_V01B_ONLY=1`, `ASSETOPS_LAYOUT_V01B_RELEASED_RUN=<run>`), CDP port `ASSETOPS_CDP_PORT` (default 9333). Full run: 266 PASS / 32 FAIL. Lab FAILs are named preconditions: fuel-loss 430 L > KOBO tank 400 L; drawing unbound (current Foundation v10 ≠ frozen v7; v10 blocks mini-grid drafts, Q8) ×3; **Lab shell at phone width: main 95px of 375px (open carry S1-03 Q1)** ×2; legacy file Kobo Site absent. 26 non-Lab FAILs: operator Site sections measure `SITE` default MG-001 (absent here; pass KOBO-001 as 3rd arg).
+
+# Phase c1 (commits 437a1cb Lab phone shell, 28743ad Evidence primary button, 49e3b49 evidence tool)
+
+- Lab 390 root cause: the <640px shell rules applied only to `.app-frame--operator` (S1-03 Architect Q1 scoping, enforced by
+  `shell-overflow.ps1`); `SimulatorLabShell` used a bare `.app-frame`, so main got ~95 of 375 px. Fix: `app-frame app-frame--lab`,
+  every 640px rule lists both shells. Guard `shell-overflow.ps1` 2b now requires each narrow selector part to start with
+  `.app-frame--operator` or `.app-frame--lab` and fails when either shell has no narrow rule (needs a non-vacuity proof and a
+  reviewer note: it amends the S1-03 Q1 scoping because the Lab phone layout is now browser-verified).
+  `overflowContainment.test.tsx` asserts `app-frame--lab`.
+- Layout tool Lab section (V01B_ONLY): 71 PASS / 3 FAIL — the 3 are the Q8 drawing precondition only.
+- `.evidence-toolbar .action--primary`: a later generic `.action` block (~primitives.css:1439) overrides `.action--primary`
+  at equal specificity; same cascade probably affects other primary buttons (CreateSiteFrame ×3, RunSetupFrame "Create draft
+  run", SimulatorLabFrame, SitesFrame) — out of scope, backlog carry.
+- `tools/v01b-lab-evidence-evidence.mjs`: 101/101 claims at 1440 and 390 (screens: mock-lab, mock-evidence,
+  mock-evidence-analysis, app-evidence-{populated,empty,no-site,gateway-unavailable,record-detail},
+  app-evidence-analysis-{populated,empty,advanced-open}, app-lab-run(-top,-advanced-open,-not-committed), app-lab-runs-empty).
+  Value→SourceEnvelope trace: row "STOPPED state" equals the read API's value; API `envelope.text` equals displayed message;
+  `payload.value` equals `original.value`. Gateway unavailable is an intercepted 503 (response shape, not stored state).
+  Not-committed state uses a real draft created by the layout tool (executed, never committed). Missing-Site copy is
+  "No such site". The layout tool creates a draft per run (populated private store now has ~40 runs).
+- Review focus: Lab flow box 2 reads "321 reports published, 1 dropped / 329 admitted by the gateway" (two different reads'
+  counts side by side; the difference is not explained on screen).
