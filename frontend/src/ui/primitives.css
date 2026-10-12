@@ -3216,6 +3216,23 @@ tr[data-selected] > * {
   font-size: var(--text-sm);
 }
 
+/*
+ * "Show this period" is the toolbar's primary action. The later generic
+ * `.action` block (action lists) re-declares the background at the same
+ * specificity and wins over `.action--primary`, so the button rendered as a
+ * secondary one; this restores the primary look within the Evidence toolbar.
+ */
+.evidence-toolbar .action--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.evidence-toolbar .action--primary:hover {
+  background: var(--accent-hover);
+  color: var(--accent-contrast);
+}
+
 .evidence-toolbar__period {
   margin: var(--space-2) 0 0;
   font-size: var(--text-panel-note);
