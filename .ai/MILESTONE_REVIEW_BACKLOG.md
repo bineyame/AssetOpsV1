@@ -2071,3 +2071,10 @@ The carried review findings above are unchanged.
 - C6 (low): `findings_over` loads every Site Finding with one query per row; an episode ending exactly at midnight counts as overlapping the next day.
 - C4 detail: OFF reports are matched by role and exact time, so another generator report at the same instant could be listed.
 
+### S4-01 phase 2 fix re-review carries (2026-10-12, `.agent/S4-01-phase-2-fix-rereview.md`)
+
+- C7 (phase 3): a pinned audit read under a closed gate still carries `lifecycle: SUPPORTED` and Candidate minutes; the UI must lead with the closed-source, audit-only state (UI test).
+- C8: UNCONFIRMED/NO_LONGER_SUPPORTED revisions don't carry the recurrence record (read takes it from the opening revision).
+- C9 (S4-04): `finding_match_pass` gains a row every pass even when nothing is written; bound it.
+- Residual (phase 3 wording): a long stop with sparse reporting still bridges when both OFF endpoints are present and nothing contrary lies between; consider labelling in the walkthrough.
+
