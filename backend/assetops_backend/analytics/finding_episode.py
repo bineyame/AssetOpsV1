@@ -14,20 +14,30 @@ Rules (decision "Identity and continuity" and "Revisions and lifecycle"):
   episode; an episode or candidate cluster that reaches one is left unchanged.
 - A support cluster is a run of CANDIDATE segments of one generator. Two spans
   join when they overlap, or when the gap is at most 20 minutes and every
-  segment inside the gap is observed and Necessary, or Indeterminate only for
-  a modelling reason (dispatch-3.1 `_NOT_EVIDENCE_GAPS`) (a stop between two intervals
-  also needs observed OFF bounds on both sides). An INDETERMINATE or
-  unobserved segment (contradiction, ambiguity, missing data) never bridges.
+  instant of the gap is covered by an observed coherent segment (Necessary, or
+  Indeterminate only for a modelling reason, dispatch-3.1 `_NOT_EVIDENCE_GAPS`)
+  or by an observed stop (last ON, then OFF reports on both sides, then first
+  ON). Window coverage or an empty segment list proves nothing; an
+  INDETERMINATE or unobserved segment (contradiction, ambiguity, missing data)
+  never bridges (`D-2026-10-12-s4-finding-phase-1-clarifications`).
 - A cluster overlapping no episode opens a new Finding, linked by
   `recurs_after_finding_id` to the latest earlier episode of that generator
-  when an observed OFF report separates them (an unobserved gap links nothing).
+  only when the separation is assessed (CURRENT windows throughout) and
+  observed OFF reports end the earlier run and precede the new one; otherwise
+  it opens unlinked (recurrence relation unknown).
 - One cluster over several episodes merges them: the earliest anchor (then
   UUID) stays canonical and the others record MERGED_INTO.
 - One episode over several clusters splits: it keeps the cluster containing
-  its immutable anchor; each other cluster opens a Finding `split_from` it.
+  its immutable anchor (reserved before any other cluster is assigned); each
+  other cluster opens a Finding `split_from` it.
 - An episode with no cluster becomes UNCONFIRMED when the current basis over
   it is Indeterminate, and NO_LONGER_SUPPORTED when it is complete and has no
-  Candidate (never "repaired" or "saved").
+  Candidate (never "repaired" or "saved"). Candidate support over a
+  NO_LONGER_SUPPORTED episode appends REOPENED under the same ID.
+- The basis digest covers the selected window revisions and their input
+  digests as well as the interval revisions; a revision whose supported facts
+  (lifecycle, bounds, minutes, spans, limitations) are unchanged and whose
+  provenance alone moved is BASIS_REFRESHED, never SUPPORT_CHANGED.
 """
 
 from __future__ import annotations
@@ -51,6 +61,8 @@ SUPPORTED = "SUPPORTED"
 UNCONFIRMED = "UNCONFIRMED"
 NO_LONGER_SUPPORTED = "NO_LONGER_SUPPORTED"
 MERGED = "MERGED"
+BASIS_REFRESHED = "BASIS_REFRESHED"
+REOPENED = "REOPENED"
 
 TITLES = {
     SUPPORTED: "Generator support merits review: bounded candidate avoidable running",
@@ -101,6 +113,7 @@ class IntervalBasis:
     off_after: datetime | None
     segments: tuple[Seg, ...]
     limitations: tuple[str, ...]
+    last_on: datetime | None = None
 
     @staticmethod
     def from_revision(rev: dict[str, Any]) -> "IntervalBasis":
@@ -112,7 +125,8 @@ class IntervalBasis:
                          for s in result.get("segments") or ())
         return IntervalBasis(str(rev["id"]), str(rev["analytic_run_id"]), str(result.get("generator_asset_id")),
                              rev["claim_level"], _at(interval.get("first_on")), _at(interval.get("off_before")),
-                             _at(interval.get("off_after")), segments, tuple(result.get("limitations") or ()))
+                             _at(interval.get("off_after")), segments, tuple(result.get("limitations") or ()),
+                             _at(interval.get("last_on")))
 
 
 @dataclass(frozen=True)
@@ -140,6 +154,7 @@ class Episode:
     episode_end: datetime
     basis_sha256: str
     model_version: str
+    support_sha256: str = ""
 
 
 @dataclass
@@ -161,6 +176,7 @@ class Write:
     cited_evidence_ids: list[str]
     input_sha256s: list[str]
     basis_sha256: str
+    support_sha256: str = ""
     new_finding: dict[str, Any] | None = None
     merged_into: str | None = None
     asset: str = ""
@@ -214,18 +230,41 @@ def _segments_in(intervals: list[IntervalBasis], lo: datetime, hi: datetime) -> 
     return [(s, i) for i in intervals for s in i.segments if s.start < hi and lo < s.end]
 
 
+def _stops(site: _Site, asset: str) -> list[tuple[datetime, datetime]]:
+    """Observed stops between consecutive runs: last ON, the first OFF after it, the last OFF before the next
+    run, then its first ON - each bound an accepted report, in that order."""
+    runs = sorted(site.intervals(asset), key=lambda i: i.first_on)
+    return [(x.last_on, y.first_on) for x, y in zip(runs, runs[1:])
+            if x.last_on is not None and x.off_after is not None and y.off_before is not None
+            and x.last_on <= x.off_after <= y.off_before <= y.first_on]
+
+
+def _fully_covered(pieces: list[tuple[datetime, datetime]], lo: datetime, hi: datetime) -> bool:
+    """Every instant of [lo, hi] lies in one of the pieces (no empty or vacuous span)."""
+    t = lo
+    for a, b in sorted(p for p in pieces if p[0] < p[1] and p[1] > lo):
+        if a > t:
+            return False
+        t = max(t, b)
+        if t >= hi:
+            return True
+    return t >= hi
+
+
 def _bridges(site: _Site, asset: str, a: tuple[Seg, IntervalBasis], b: tuple[Seg, IntervalBasis]) -> bool:
     lo, hi = a[0].end, b[0].start
     if hi <= lo:
         return True
     if hi - lo > CONTINUITY_TOLERANCE or not site.covered(lo, hi):
         return False
-    inside = _segments_in(site.intervals(asset), lo, hi)
-    if any(not s.coherent for s, _ in inside if s.classification != CANDIDATE):
+    inside = [s for s, _ in _segments_in(site.intervals(asset), lo, hi)]
+    if any(not s.coherent for s in inside if s.classification != CANDIDATE):
         return False
     if a[1].revision_id != b[1].revision_id and (a[1].off_after is None or b[1].off_before is None):
         return False
-    return True
+    # Window coverage is not observation: every instant of the gap needs an observed segment or stop.
+    pieces = [(s.start, s.end) for s in inside if s.observed] + _stops(site, asset)
+    return _fully_covered(pieces, lo, hi)
 
 
 def _clusters(site: _Site) -> list[_Cluster]:
@@ -293,14 +332,19 @@ def _write(site: _Site, finding_id: str, transition: str, lifecycle: str, claim_
                     for w in windows if w.window_revision_id]
     assessments = sorted(set(assessments))
     inputs = sorted({w.input_sha256 for w in windows if w.input_sha256})
-    # The basis is the claim and its interval revisions. The selected window revision is cited, but a
-    # reassessment elsewhere in the same UTC day that leaves this episode's intervals unchanged is not
-    # a new Finding basis.
-    basis = sha256_json({"matcher": MATCHER_VERSION, "model": site.model, "lifecycle": lifecycle,
-                         "intervals": sorted(i.revision_id for i in intervals), "bounds": [iso(start), iso(end)],
-                         "minutes": {k: _num(v) for k, v in minutes.items()}, "cited": cited})
+    # The supported facts, which SUPPORT_CHANGED means; provenance (revision IDs, inputs) is not in it.
+    support = sha256_json({"lifecycle": lifecycle, "bounds": [iso(start), iso(end)],
+                           "minutes": {k: _num(v) for k, v in minutes.items()}, "limitations": sorted(limits),
+                           "spans": [[x["start"], x["end"], x["minutes"]] for x in claim.get("candidate_spans", [])]})
+    # The basis is the supported facts plus every selected interval and window revision, the window input
+    # digests (controls, bindings, evidence) and the cited evidence: a changed selected window revision
+    # appends a revision even with equal minutes (D-2026-10-12-s4-finding-phase-1-clarifications).
+    basis = sha256_json({"matcher": MATCHER_VERSION, "model": site.model, "support": support,
+                         "intervals": sorted(i.revision_id for i in intervals),
+                         "windows": sorted(w.window_revision_id for w in windows if w.window_revision_id),
+                         "inputs": inputs, "cited": cited})
     return Write(finding_id, transition, lifecycle, claim_level, site.model, primary_id, primary_run, window_rev,
-                 start, end, minutes, claim, limits, assessments, cited, inputs, basis)
+                 start, end, minutes, claim, limits, assessments, cited, inputs, basis, support)
 
 
 def _unsupported_write(site: _Site, e: Episode) -> Write | None:
@@ -315,8 +359,6 @@ def _unsupported_write(site: _Site, e: Episode) -> Write | None:
                      or any(i.claim_level == INDETERMINATE for i in intervals)
                      or any(w.window_claim == "INDETERMINATE" for w in windows))
     lifecycle = UNCONFIRMED if indeterminate else NO_LONGER_SUPPORTED
-    if lifecycle == NO_LONGER_SUPPORTED and e.lifecycle == NO_LONGER_SUPPORTED:
-        return None
     minutes = {c: sum((_minutes(max(s.start, e.episode_start), min(s.end, e.episode_end))
                        for s, _ in segs if s.classification == c), Fraction(0))
                for c in (CANDIDATE, NECESSARY, INDETERMINATE)}
@@ -339,8 +381,28 @@ def _unsupported_write(site: _Site, e: Episode) -> Write | None:
     if not intervals:
         limits.append("NO_INTERVAL: no current generator interval overlaps the episode bounds")
     cited = sorted({x for s, _ in segs for x in s.evidence_ids})
-    return _write(site, e.finding_id, lifecycle, lifecycle, INDETERMINATE if indeterminate else NECESSARY,
-                  primary, intervals, windows, e.episode_start, e.episode_end, minutes, claim, limits, cited)
+    w = _write(site, e.finding_id, lifecycle, lifecycle, INDETERMINATE if indeterminate else NECESSARY,
+               primary, intervals, windows, e.episode_start, e.episode_end, minutes, claim, limits, cited)
+    if e.lifecycle == lifecycle and e.support_sha256 == w.support_sha256:
+        w.transition = BASIS_REFRESHED
+    return w
+
+
+def _recurrence(site: _Site, c: _Cluster, known: list[Episode]) -> Episode | None:
+    """The earlier episode this cluster recurs after, only when an observed break is proven: the separation is
+    assessed throughout, the earlier run ends with an observed OFF and the new run starts after one."""
+    earlier = [k for k in known if k.asset == c.asset and k.episode_end < c.start]
+    prior = max(earlier, key=lambda k: (k.episode_end, k.finding_id), default=None)
+    if prior is None or not site.covered(prior.episode_end, c.start):
+        return None
+    ends = [i for i in site.intervals(c.asset)
+            if i.first_on <= prior.episode_end <= (i.last_on or i.first_on)]
+    if not ends or any(i.off_after is None or i.off_after > c.start for i in ends):
+        return None
+    off_before = c.spans[0][1].off_before
+    if off_before is None or off_before < prior.episode_end:
+        return None
+    return prior
 
 
 def _new(site: _Site, cluster: _Cluster, *, recurs_after: Episode | None, split_from: str | None) -> Write:
@@ -401,30 +463,30 @@ def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str
             continue
         if not es:
             for c in cs:
-                earlier = [k for k in known if k.asset == c.asset and k.episode_end < c.start]
-                prior = max(earlier, key=lambda k: (k.episode_end, k.finding_id), default=None)
-                off = c.spans[0][1].off_before
-                if prior is not None and (off is None or off < prior.episode_end):
-                    prior = None  # separation not evidenced by an observed OFF: no recurrence claim
-                w = _new(site, c, recurs_after=prior, split_from=None)
+                w = _new(site, c, recurs_after=_recurrence(site, c, known), split_from=None)
                 writes.append(w)
                 known.append(Episode(w.finding_id, c.asset, c.start, SUPPORTED, c.start, c.end, w.basis_sha256,
-                                     model_version))
+                                     model_version, w.support_sha256))
             continue
+        # Ownership: an episode is reserved for the cluster containing its immutable anchor, so an earlier
+        # cluster can never take it; each cluster goes to its earliest-anchor (then UUID) eligible episode.
+        by_anchor = sorted(es, key=lambda e: (e.anchor_start, e.finding_id))
+        home = {e.finding_id: next((i for i, c in enumerate(cs) if _overlaps(c, e)
+                                    and c.start <= e.anchor_start <= c.end), None) for e in es}
         owners: dict[str, _Cluster] = {}
         owned_by: list[tuple[_Cluster, Episode | None, Episode]] = []
-        for c in cs:
-            over = sorted((e for e in es if _overlaps(c, e)),
-                          key=lambda e: (not (c.start <= e.anchor_start <= c.end), e.anchor_start, e.finding_id))
-            owner = next((e for e in over if e.finding_id not in owners), None)
+        for i, c in enumerate(cs):
+            owner = next((e for e in by_anchor if _overlaps(c, e) and e.finding_id not in owners
+                          and home[e.finding_id] in (None, i)), None)
             if owner is not None:
                 owners[owner.finding_id] = c
-            owned_by.append((c, owner, over[0]))
+            owned_by.append((c, owner, next(e for e in by_anchor if _overlaps(c, e))))
         split_parents = {first.finding_id for c, owner, first in owned_by if owner is None}
         absorbed: dict[str, list[Episode]] = {}
         for e in es:
             if e.finding_id not in owners:
-                c = next(c for c in cs if _overlaps(c, e))
+                h = home[e.finding_id]
+                c = cs[h] if h is not None else next(c for c in cs if _overlaps(c, e))
                 canonical = next(o for o in es if owners.get(o.finding_id) is c)
                 absorbed.setdefault(canonical.finding_id, []).append(e)
         for c, owner, first in owned_by:
@@ -439,11 +501,15 @@ def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str
                 transition = "SPLIT"
             elif owner.model_version != model_version:
                 transition = "MODEL_REEVALUATED"
+            elif owner.lifecycle == NO_LONGER_SUPPORTED:
+                transition = REOPENED
             else:
                 transition = "SUPPORT_CHANGED"
             extra = {"merged_finding_ids": sorted(m.finding_id for m in merged),
                      "split_into_count": sum(1 for _, o, f in owned_by if o is None and f is owner)}
             w = _support_write(site, owner.finding_id, c, transition, anchor=owner.anchor_start, extra=extra)
+            if transition == "SUPPORT_CHANGED" and w.support_sha256 == owner.support_sha256:
+                w.transition = BASIS_REFRESHED
             if w.basis_sha256 != owner.basis_sha256 or merged or owner.finding_id in split_parents:
                 writes.append(w)
             for m in merged:

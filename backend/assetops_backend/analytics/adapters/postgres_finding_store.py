@@ -49,6 +49,7 @@ class Fence:
     selection_seq: int
     job_count: int
     job_marker: str
+    finding_revisions: int = 0
 
 
 @dataclass(frozen=True)
@@ -86,7 +87,12 @@ class PostgresFindingStore:
             "SELECT count(*), coalesce(max(created_at)::text, '') || '/' || "
             "coalesce(string_agg(status, ',' ORDER BY id), '') FROM recompute_job WHERE tenant_id = :t "
             "AND site_id = :s"), {"t": tenant_id, "s": site_id}).one()
-        return Fence(int(seq), int(count), marker)
+        # Finding state is part of the fence: a pass planned before another pass committed (whose episodes
+        # are stale) must re-plan instead of opening a second Finding for the same episode. Revisions are
+        # append-only, so their count only grows.
+        revisions = c.execute(text("SELECT count(*) FROM finding_revision WHERE tenant_id = :t AND site_id = :s"),
+                              {"t": tenant_id, "s": site_id}).scalar_one()
+        return Fence(int(seq), int(count), marker, int(revisions))
 
     def fence(self, tenant_id: UUID, site_id: UUID, analytic_id: str) -> Fence:
         return self._read(lambda c: self._fence(c, tenant_id, site_id, analytic_id))
@@ -100,17 +106,19 @@ class PostgresFindingStore:
     def episodes(self, tenant_id: UUID, site_id: UUID) -> list[Episode]:
         rows = self._read(lambda c: c.execute(text(
             "SELECT DISTINCT ON (f.id) f.id, f.generator_asset_id, f.anchor_start, r.lifecycle, r.episode_start, "
-            "r.episode_end, r.basis_sha256, r.model_version FROM finding f JOIN finding_revision r "
+            "r.episode_end, r.basis_sha256, r.model_version, r.support_sha256 FROM finding f "
+            "JOIN finding_revision r "
             "ON r.finding_id = f.id WHERE f.tenant_id = :t AND f.site_id = :s ORDER BY f.id, r.revision_no DESC"),
             {"t": tenant_id, "s": site_id}).all())
-        return [Episode(str(r[0]), r[1], r[2], r[3], r[4], r[5], r[6], r[7]) for r in rows]
+        return [Episode(str(r[0]), r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]) for r in rows]
 
     def apply(self, tenant_id: UUID, site_id: UUID, analytic_id: str, writes: list[Write], fence: Fence,
               now: datetime) -> Applied:
         def work(c: Connection) -> Applied:
             c.execute(text("SELECT pg_advisory_xact_lock(hashtext('finding:' || :s))"), {"s": str(site_id)})
             if self._fence(c, tenant_id, site_id, analytic_id) != fence:
-                raise FindingFenceMoved("a selection or recompute job changed since the matcher read; re-plan")
+                raise FindingFenceMoved("a selection, recompute job or Finding changed since the matcher read; "
+                                        "re-plan")
             findings, revisions = [], []
             for w in writes:
                 if w.new_finding is not None:
@@ -162,17 +170,18 @@ class PostgresFindingStore:
             "INSERT INTO finding_revision (id, tenant_id, site_id, finding_id, revision_no, transition, lifecycle, "
             "claim_level, title, mechanism, matcher_version, analytic_id, model_version, assessment_revision_id, "
             "analytic_run_id, window_assessment_revision_id, episode_start, episode_end, candidate_minutes, "
-            "necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, cited_evidence_sha256, "
-            "input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, :n, :tr, :lc, :cl, :title, :m, :mv, :a, "
+            "necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, support_sha256, "
+            "cited_evidence_sha256, input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, :n, :tr, :lc, "
+            ":cl, :title, :m, :mv, :a, "
             ":model, :primary, :run, :wrev, :es, :ee, :cand, :nec, :ind, CAST(:claim AS jsonb), "
-            "CAST(:limits AS jsonb), :basis, :cited, :inputs, :now)"),
+            "CAST(:limits AS jsonb), :basis, :support, :cited, :inputs, :now)"),
             {"id": rid, "t": tenant_id, "s": site_id, "f": w.finding_id, "n": number, "tr": w.transition,
              "lc": w.lifecycle, "cl": w.claim_level, "title": TITLES[w.lifecycle], "m": MECHANISM,
              "mv": MATCHER_VERSION, "a": analytic_id, "model": w.model_version, "primary": w.primary_revision_id,
              "run": w.primary_run_id, "wrev": w.window_revision_id, "es": w.episode_start, "ee": w.episode_end,
              "cand": _num(w.minutes[CANDIDATE]), "nec": _num(w.minutes[NECESSARY]),
              "ind": _num(w.minutes[INDETERMINATE]), "claim": json.dumps(w.claim, sort_keys=True),
-             "limits": json.dumps(w.limitations), "basis": w.basis_sha256,
+             "limits": json.dumps(w.limitations), "basis": w.basis_sha256, "support": w.support_sha256,
              "cited": sha256_json([[r[0], r[1]] for r in digests]), "inputs": sha256_json(w.input_sha256s),
              "now": now})
         for revision_id, run_id, scope, primary in w.assessments:
