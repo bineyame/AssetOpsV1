@@ -660,9 +660,11 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
 
     const buttons = Array.from(container.querySelectorAll("button"));
     // T027 adds Commit, disabled here (this stage is not release-eligible).
+    // V-01b b2 moves it into the Gateway & Ingestion overview above the
+    // execution controls; the set stays closed.
     expect(buttons.map((button) => (button.textContent ?? "").trim())).toEqual([
-      ...EXECUTION_CONTROLS,
       "Commit and release",
+      ...EXECUTION_CONTROLS,
     ]);
     // Enabled, not merely present. A disabled set would make the ban below a ban
     // over controls nobody could use.

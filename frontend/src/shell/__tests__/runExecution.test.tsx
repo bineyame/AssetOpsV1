@@ -656,14 +656,15 @@ describe("what executing a draft still is not", () => {
     // T025d adds exactly two: auto-play of the guarded Step and its pause,
     // which stops the browser's scheduling and does nothing to the run.
     // T027 adds Commit and release, disabled here because this stage is not
-    // release-eligible.
+    // release-eligible. V-01b b2 moves it into the Gateway & Ingestion
+    // overview above the execution controls; the list stays closed.
     expect(controls).toEqual([
+      "Commit and release",
       "Start this run",
       "Step",
       "Run to the end",
       "Play",
       "Pause",
-      "Commit and release",
       "Back to Runs",
       "Back to the Simulator Lab",
     ]);

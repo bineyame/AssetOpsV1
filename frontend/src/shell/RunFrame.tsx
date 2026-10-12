@@ -13,6 +13,7 @@ import {
 import { GatewayLedgerView } from "./GatewayLedgerView";
 import { GatewayDiagnosticsPanel, PublicationSchedulePanel } from "./GatewayPublicationPanels";
 import { RunCommitPanel } from "./RunCommitPanel";
+import { RunIngestionOverview } from "./RunIngestionOverview";
 import { RunHeader } from "./RunHeader";
 import {
   DEFAULT_PLAYBACK_DELAY_MS,
@@ -36,6 +37,7 @@ import {
   type RunFrameState,
 } from "./runFrameState";
 import type {
+  RunCommitResult,
   RunConfigurationBasis,
   RunDetailResult,
   RunExecutionResult,
@@ -207,6 +209,8 @@ export function RunFrame({
   const [pending, setPending] = useState(false);
   const [boundaries, setBoundaries] = useState("1");
   const [stage, setStage] = useState<RunStageResult | null>(null);
+  // V-01b b2: the Commit read the Commit panel holds, for the overview.
+  const [commitRead, setCommitRead] = useState<RunCommitResult | null>(null);
   const history = frameState.history;
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [drawingSite, setDrawingSite] = useState<SiteDetailResult | null>(null);
@@ -496,6 +500,25 @@ export function RunFrame({
 
   return frame(
     <>
+      <RunIngestionOverview
+        run={run}
+        execution={execution}
+        stage={stage}
+        commit={commitRead}
+        commitPanel={
+          runId === undefined ? null : (
+            <RunCommitPanel
+              runId={runId}
+              runSetup={runSetup}
+              stage={stage}
+              onRead={setCommitRead}
+            />
+          )
+        }
+      />
+      <h2 id="run-history-section-heading" className="run-section-heading">
+        Execution and recorded history
+      </h2>
       {blocked ? (
         <Panel
           heading="Why this draft cannot be executed"
@@ -720,7 +743,7 @@ export function RunFrame({
 
       <Disclosure
         name="run-identity"
-        summary={<span id="run-identity-heading">Run identity and frozen inputs</span>}
+        summary={<span id="run-identity-heading">Advanced details — Run identity and frozen inputs</span>}
       >
         <RunHeader
           run={run}
@@ -787,7 +810,7 @@ export function RunFrame({
         )}
       </Disclosure>
 
-      <Disclosure name="execution-provenance" summary="Execution provenance">
+      <Disclosure name="execution-provenance" summary="Advanced details — Execution provenance">
         {projection === null ? (
           <p>No execution is loaded.</p>
         ) : (
@@ -871,7 +894,7 @@ export function RunFrame({
 
       <Disclosure
         name="latest-step"
-        summary="Latest step on the execution clock: the world, electrical and generator panels, readings"
+        summary="Advanced details — Latest step on the execution clock: the world, electrical and generator panels, readings"
       >
         {projection === null || projection.private_state.length === 0 ? null : (
           <Panel
@@ -1023,7 +1046,7 @@ export function RunFrame({
         )}
       </Disclosure>
 
-      <Disclosure name="reporting-paths" summary="Reporting paths and declared gaps">
+      <Disclosure name="reporting-paths" summary="Advanced details — Reporting paths and declared gaps">
         {projection === null || projection.signals.length === 0 ? null : (
           <Panel
             heading="The configured reporting paths"
@@ -1129,11 +1152,11 @@ export function RunFrame({
         )}
       </Disclosure>
 
-      <Disclosure name="history-facts" summary="Recorded history: source, digest and coverage">
+      <Disclosure name="history-facts" summary="Advanced details — Recorded history: source, digest and coverage">
         <HistoryFacts held={history} />
       </Disclosure>
 
-      <Disclosure name="raw-records" summary="Raw records at the history cursor">
+      <Disclosure name="raw-records" summary="Advanced details — Raw records at the history cursor">
         <HistoryRecordsAtCursor
           held={history}
           selected={selectedOffset(frameState)}
@@ -1141,7 +1164,7 @@ export function RunFrame({
         />
       </Disclosure>
 
-      <Disclosure name="stage" summary="Stage and staged envelopes">
+      <Disclosure name="stage" summary="Advanced details — Stage and staged envelopes">
         <Panel
           heading="Staged source envelopes"
           headingId="run-stage-heading"
@@ -1342,10 +1365,6 @@ export function RunFrame({
           />
         )}
       </Disclosure>
-
-      {runId === undefined ? null : (
-        <RunCommitPanel runId={runId} runSetup={runSetup} stage={stage} />
-      )}
 
       <Disclosure name="run-not" summary="What this run is not, in full">
         <Panel heading="What this run is not" headingId="run-not-heading">

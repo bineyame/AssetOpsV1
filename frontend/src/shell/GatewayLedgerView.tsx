@@ -66,6 +66,12 @@ export function GatewayLedgerView({
         <Fact term="Upload">
           <span data-gateway-upload={stage.upload_state}>
             {`${stage.upload_state}. ${stage.upload_statement}`}
+          </span>{" "}
+          {/* V-01b Q1 default: this is the gateway's own local Stage line; the
+              central receipt is the Commit read's fact, stated above. */}
+          <span className="cell-note" data-gateway-upload-label>
+            This is the gateway&apos;s local Stage statement. Central receipt is shown under Release and
+            ingestion.
           </span>
         </Fact>
         <Fact term="Receipts">
