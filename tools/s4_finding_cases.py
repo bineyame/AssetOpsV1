@@ -61,6 +61,7 @@ import s2_demo_walkthrough as s2  # noqa: E402
 s2.DEMO_DB = "assetops_s4cases"  # read by Demo at call time; no other database is touched
 DEFAULT_WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "s4-finding-cases"
 ARTIFACT_NAME = "s4-finding-cases-run.json"
+MANIFEST_NAME = "s4-finding-cases-manifest.json"
 SPEC_PATH = "backend/conversions/s4-finding-cases-v1.json"
 DEMO_CONFIG = "backend/conversions/kobo-001-s3-dispatch-demo-config.json"
 ASSESS = ("-m", "assetops_backend.analytics.assess_dispatch")
@@ -130,6 +131,8 @@ class Cases(s2.Demo):
     def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(args)
         self.artifact_path = Path(args.artifact).resolve() if args.artifact else self.work / ARTIFACT_NAME
+        self.manifest_path = self.artifact_path.with_name(MANIFEST_NAME)
+        self.case_evidence: dict[str, list[str]] = {}
         self.spec = json.loads((s2.REPO / SPEC_PATH).read_text(encoding="utf-8"))
         self.seq: dict[tuple[str, str], int] = {}
         self.held: dict[str, list[tuple[str, str]]] = {}
@@ -372,6 +375,7 @@ class Cases(s2.Demo):
         ids = [r[0] for r in self.pg("SELECT e.id::text FROM accepted_evidence e JOIN ingestion_batch b ON "
                                      "b.id = e.batch_id WHERE b.external_batch_id = ANY(%s)", record["batch_ids"])]
         record["evidence_count"], record["evidence_id_sha256"] = len(ids), digest(ids)
+        self.case_evidence[record["case_id"]] = ids
         self.cases.append(record)
 
     # ------------------------------------------------------------ ordinary gateway path (Architect Q6)
@@ -436,6 +440,15 @@ class Cases(s2.Demo):
         ids = [r[0] for r in self.pg("SELECT e.id::text FROM accepted_evidence e JOIN ingestion_batch b ON "
                                      "b.id = e.batch_id WHERE b.external_batch_id = ANY(%s)", batches)]
         record["evidence_count"], record["evidence_id_sha256"] = len(ids), digest(ids)
+        # R2: every accepted ID the opened Finding cites came from these gateway-sealed batches.
+        cited = {x["evidence_id"] for x in rows["evidence"] if x["finding_revision_id"] in {r["id"] for r in revs}}
+        foreign = sorted(cited - set(ids))
+        record["cited_evidence_count"], record["cited_outside_gateway_batches"] = len(cited), len(foreign)
+        say(f"  F01-gateway cited evidence: {len(cited)} IDs, {len(foreign)} outside the gateway-sealed batches"
+            + (" OK" if cited and not foreign else " FAILED"))
+        if not cited or foreign:
+            self.failures.append(f"F01-gateway: cited evidence outside the gateway-sealed batches: {foreign[:5]}")
+        self.case_evidence[record["case_id"]] = ids
         self.cases.append(record)
 
     # ------------------------------------------------------------ artifact
@@ -475,7 +488,14 @@ class Cases(s2.Demo):
             "counts": {k: len(v) for k, v in rows.items()},
             "failures": self.failures,
         }
+        manifest = {"label": self.spec["label"], "status": artifact["status"], "cases": [
+            {"case_id": c["case_id"], "label": c["label"], "fault_fixture": c["case_id"] != "F01-gateway",
+             "gateway_sealed": c["case_id"] == "F01-gateway", "epochs": c.get("sequence_epochs", []),
+             "evidence_ids": sorted(self.case_evidence.get(c["case_id"], []))} for c in self.cases]}
+        self.manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        artifact["case_manifest"] = str(self.manifest_path)
         self.artifact_path.write_text(json.dumps(artifact, indent=2, default=str), encoding="utf-8")
+        say(f"  case manifest (read annotations by exact evidence IDs): {self.manifest_path}")
         say(f"  run artifact: {self.artifact_path} ({len(rows['findings'])} Findings, "
             f"{len(rows['revisions'])} revisions; failures {len(self.failures)})")
 
@@ -501,8 +521,31 @@ class Cases(s2.Demo):
         say(f"  replay match-findings: planned {replay['planned']}, new revisions {len(replay['revision_ids'])}")
         if replay["planned"] or replay["revision_ids"] or replay["finding_ids"]:
             failures.append("replay wrote")
+        failures += self.verify_reads(artifact)
         say("VERIFY " + ("PASSED" if not failures else f"FAILED: {failures}"))
         return 0 if not failures else 1
+
+    def verify_reads(self, artifact: dict[str, Any]) -> list[str]:
+        """Phase 2: every Finding through the exact read (latest selection, revision count, currentness, case
+        annotation by exact IDs: the gateway case as gateway-sealed, the others as fault fixtures)."""
+        reads = {r["finding_id"]: r for r in self.cli("finding-reads", *self.site_args(),
+                                                      "--manifest", str(self.manifest_path))}
+        gateway = {f["finding_id"] for c in artifact["cases"] if c["case_id"] == "F01-gateway"
+                   for m in c["matches"] for f in m["opened_on_day"]}
+        problems = []
+        for f in artifact["findings"]:
+            r = reads.get(f["finding_id"])
+            want = "MERGED_INTO_CANONICAL" if f["revisions"][-1]["lifecycle"] == "MERGED" else "CURRENT"
+            kinds = set(r["annotation_kinds"]) if r else set()
+            ok = (r is not None and r["latest_revision_id"] == f["revisions"][-1]["revision_id"]
+                  and r["revision_count"] == len(f["revisions"]) and r["projection"] == want
+                  and (kinds == {"DEMO_MANIFEST_GATEWAY_CASE"} if f["finding_id"] in gateway
+                       else "DEMO_MANIFEST_FAULT_FIXTURE" in kinds and "DEMO_MANIFEST_GATEWAY_CASE" not in kinds))
+            if not ok:
+                problems.append(f"read {f['finding_id']}: {r}")
+        say(f"  verify reads: {len(reads)} Findings read; gateway-case Findings {len(gateway)}; "
+            f"problems {len(problems)}")
+        return problems
 
     def run(self) -> None:
         self.setup()

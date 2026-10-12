@@ -24,7 +24,7 @@ from uuid import UUID
 
 from assetops_backend.analytics.assessment_inputs import CohortMember, Window
 from assetops_backend.analytics.composition import (build_dispatch_assessment_worker, build_finding_matcher,
-                                                     build_finding_store)
+                                                     build_finding_read_service, build_finding_store)
 
 
 def _instant(text: str) -> datetime:
@@ -38,12 +38,14 @@ def _run(run) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="assess_dispatch")
-    parser.add_argument("command", choices=("process-jobs", "reconcile", "assess", "match-findings", "finding-rows"))
+    parser.add_argument("command", choices=("process-jobs", "reconcile", "assess", "match-findings", "finding-rows",
+                                                "finding-reads"))
     parser.add_argument("--tenant-id")
     parser.add_argument("--site-id")
     parser.add_argument("--start")
     parser.add_argument("--end")
     parser.add_argument("--cohort", nargs="*", default=())
+    parser.add_argument("--manifest", default=None, help="finding-reads: case manifest for exact-ID annotations")
     args = parser.parse_args(argv)
     url = os.environ.get("DATABASE_URL")
     if args.command == "match-findings":
@@ -55,6 +57,21 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "finding-rows":
         json.dump(build_finding_store(url).rows(UUID(args.tenant_id), UUID(args.site_id)), sys.stdout, default=str)
+        sys.stdout.write("\n")
+        return 0
+    if args.command == "finding-reads":
+        tenant, site = UUID(args.tenant_id), UUID(args.site_id)
+        reads = build_finding_read_service(url, args.manifest)
+        out = []
+        for f in build_finding_store(url).rows(tenant, site)["findings"]:
+            body = reads.finding(tenant, site, f["id"])
+            out.append({"finding_id": str(f["id"]), "latest_revision_id": str(body["selection"]["latest_revision_id"]),
+                        "revision_count": body["revision_page"]["total"], "lifecycle": body["state"]["lifecycle"],
+                        "projection": body["state"]["projection"],
+                        "recurrence": body["relations"]["recurrence"]["status"],
+                        "cited_evidence_count": len(body["revision"]["cited_evidence"]),
+                        "annotation_kinds": sorted({a["kind"] for a in body["provenance"]["case_annotations"]})})
+        json.dump(out, sys.stdout)
         sys.stdout.write("\n")
         return 0
     worker = build_dispatch_assessment_worker(url)
