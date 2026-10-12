@@ -1170,3 +1170,99 @@ describe("V-01a round 2: a chosen part stays chosen by component ID", () => {
     );
   });
 });
+
+describe("V-01a round 2: the configured drawing in the bus-bar grammar, with type icons", () => {
+  const loadedFoundation = (): FoundationRead<FoundationReadModel> => ({
+    status: "loaded",
+    value: foundation(PAST, published([BATTERY_SOC, GENSET_POWER], [])),
+  });
+  const topology = HYBRID_MINI_GRID_SITE.foundation.topology!;
+  const bus = topology.nodes.find((node) => node.node_role === "BUS")!;
+  const points = (run: Element) =>
+    (run.getAttribute("points") ?? "").split(" ").map((pair) => pair.split(",").map(Number) as [number, number]);
+
+  it("draws every declared node and connection around one bus bar, labelled configured and not live", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(loadedFoundation));
+    await settledScreen();
+    const svg = document.querySelector("[data-sld-region] svg") as SVGElement;
+    expect(svg.getAttribute("data-sld-layout")).toBe("bus-bar");
+    expect(document.querySelector("[data-sld-configured]")?.textContent).toContain("Configured, not live");
+    expect(svg.querySelectorAll("[data-sld-node]")).toHaveLength(topology.nodes.length);
+    expect(svg.querySelectorAll("[data-sld-connection]")).toHaveLength(topology.connections.length);
+
+    // One bar, drawn by the one declared bus node.
+    const bars = svg.querySelectorAll(".sld-node__bar");
+    expect(bars).toHaveLength(1);
+    expect(bars[0].closest("[data-sld-node]")?.getAttribute("data-sld-node")).toBe(bus.node_id);
+    const barX = Number(bars[0].getAttribute("x1"));
+
+    // Every run to or from the bus is a straight horizontal line that meets the bar.
+    const busRuns = topology.connections.filter((c) => c.from_node === bus.node_id || c.to_node === bus.node_id);
+    expect(busRuns.length).toBeGreaterThan(0);
+    for (const connection of busRuns) {
+      const run = svg.querySelector(`[data-sld-connection="${connection.connection_id}"]`) as Element;
+      const vertices = points(run);
+      expect(vertices).toHaveLength(2);
+      expect(vertices[0][1]).toBe(vertices[1][1]);
+      expect(vertices.some(([x]) => x === barX)).toBe(true);
+    }
+
+    // Nothing is drawn as text but declared names, declared ratings, the slot and a candidate mark:
+    // no invented voltage, breaker, meter reading or status.
+    const texts = Array.from(svg.querySelectorAll("text"));
+    expect(texts.length).toBeGreaterThan(0);
+    for (const text of texts) {
+      expect(text.matches(".sld-node__name, .sld-node__rating, .sld-node__slot, .sld-node__candidate")).toBe(true);
+    }
+    for (const slot of Array.from(svg.querySelectorAll(".sld-node__slot"))) {
+      expect(slot.textContent).toBe("Readings not assessed here");
+    }
+    expect(svg.textContent).not.toMatch(/Awaiting/);
+  });
+
+  it("makes every drawn part a keyboard toggle that chooses it by component ID", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(loadedFoundation));
+    await settledScreen();
+    const svg = document.querySelector("[data-sld-region] svg") as SVGElement;
+    // A drawing with controls in it is a named group, not an image that hides them.
+    expect(svg.getAttribute("role")).toBe("group");
+    const part = within(svg as unknown as HTMLElement).getByRole("button", { name: "Battery energy storage, Battery" });
+    expect(part.getAttribute("tabindex")).toBe("0");
+    expect(part.getAttribute("data-sld-component")).toBe("c-storage");
+    expect(part.getAttribute("aria-pressed")).toBe("false");
+
+    fireEvent.keyDown(part, { key: "Enter" });
+    await settledScreen();
+    expect(screen.getByTestId("location").textContent).toBe(`/sites/${ID}/foundation/sld?component=c-storage`);
+    const chosen = document.querySelector('[data-sld-region] [data-sld-component="c-storage"]') as Element;
+    expect(chosen.getAttribute("aria-pressed")).toBe("true");
+    expect(chosen.hasAttribute("data-selected")).toBe(true);
+    expect(document.querySelector("[data-selected-part]")?.getAttribute("data-selected-part")).toBe("c-storage");
+
+    fireEvent.keyDown(chosen, { key: " " });
+    await settledScreen();
+    expect(screen.getByTestId("location").textContent).toBe(`/sites/${ID}/foundation/sld`);
+    expect(document.querySelector("[data-selected-part]")).toBeNull();
+  });
+
+  it("puts a type icon, named by the declared type, on every part of every topology card", async () => {
+    renderAt(`/sites/${ID}/foundation`, fakeFoundation(loadedFoundation));
+    await settledScreen();
+    const cards = Array.from(document.querySelectorAll(".plant-card"));
+    expect(cards.length).toBeGreaterThan(0);
+    const types = new Map(HYBRID_MINI_GRID_SITE.foundation.components.map((c) => [c.component_id, c.component_type]));
+    for (const card of cards) {
+      const parts = Array.from(card.querySelectorAll("[data-part-choice]")).map((p) => p.getAttribute("data-part-choice") ?? "");
+      const icons = within(card as HTMLElement).getAllByRole("img");
+      expect(icons).toHaveLength(parts.length);
+      icons.forEach((icon, index) => {
+        expect(icon.querySelector("[data-component-icon]")).not.toBeNull();
+        const type = types.get(parts[index]) ?? "";
+        expect(icon.getAttribute("aria-label")).toBe(
+          { PV_ARRAY: "PV array", INVERTER: "Inverter", BATTERY: "Battery", POWER_CONVERSION_SYSTEM: "Power conversion system",
+            GENERATOR: "Generator", FUEL_TANK: "Fuel tank", METER: "Meter", LOAD: "Load" }[type],
+        );
+      });
+    }
+  });
+});

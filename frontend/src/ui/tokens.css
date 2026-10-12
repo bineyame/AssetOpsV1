@@ -109,6 +109,20 @@
   --badge-config-gap-text: #8e580c;
   --badge-config-gap-border: #f0cf98;
 
+  /* Configured single line diagram (V-01a round 2, mock `.sld-*`). Families
+     of equipment, never operating state. */
+  --sld-ink: #16233f;
+  --sld-bus: #1d3f6e;
+  --sld-cell: #dfe9f6;
+  --sld-supply-fill: #fff8ee;
+  --sld-supply-stroke: #b4691f;
+  --sld-storage-fill: #ebf6f1;
+  --sld-storage-stroke: #1d7a58;
+  --sld-conversion-fill: #f1effb;
+  --sld-conversion-stroke: #5a46a8;
+  --sld-network-fill: #eef3fb;
+  --sld-load-fill: #f4f7fb;
+
   /* Chart series (T025c) -------------------------------------------------- */
   /* The first four slots of the dataviz reference categorical order, in fixed
      order and never cycled; a Lab chart panel carries at most four truth

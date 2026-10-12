@@ -327,9 +327,19 @@ button:focus-visible {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
+  column-gap: var(--tab-gap);
   margin: 0;
   padding: 0;
-  font-size: var(--text-base);
+  font-size: var(--text-tab);
+}
+
+/* Foundation subtabs: the mock's `.tabs.subtabs`, one step smaller. */
+.site-subtabs .site-tabs__list {
+  font-size: var(--text-subtab);
+}
+
+.site-subtabs .site-tabs__link {
+  padding: 7px 0 10px;
 }
 
 .site-tabs__item {
@@ -338,7 +348,7 @@ button:focus-visible {
 
 .site-tabs__link {
   display: block;
-  padding: var(--space-2) var(--space-3);
+  padding: 11px 0 12px;
   margin-bottom: -1px;
   border-bottom: 2px solid transparent;
   line-height: var(--leading-normal);
@@ -346,28 +356,35 @@ button:focus-visible {
 }
 
 /*
- * A destination looks like a link, because it is one.
+ * A destination is told apart by being one of the row, not by link blue.
  *
- * T011A styled these `--text-secondary` and the labels beside them
- * `--text-muted`: two greys about five percent apart. A reader saw the one
- * tab with an accent underline and took the other seven for disabled
- * controls, which is the opposite of what the row is for. The colour is not
- * overridden any more - these inherit the link colour every other link in the
- * product uses - and the current tab is told apart by its underline and its
- * weight rather than by being the only thing that is not grey.
+ * T011A styled these two greys about five percent apart and a reader took
+ * them for disabled controls; the answer then was link blue on every tab. The
+ * owner's V-01a follow-up ("all tab header text was blue unlike the mockup")
+ * settles it the mock's way: every tab is neutral readable ink (#58667f on
+ * white is 5.5:1, far from a disabled grey), hover turns it accent, and only
+ * the current tab is accent, semibold and underlined.
  */
 .site-tabs__link {
+  color: var(--tab-text);
   font-weight: var(--weight-medium);
   text-decoration: none;
 }
 
 .site-tabs__link:hover {
-  background: var(--surface-hover);
+  color: var(--accent);
+  text-decoration: none;
 }
 
 .site-tabs__link[aria-current="page"] {
+  color: var(--accent);
   font-weight: var(--weight-semibold);
   border-bottom-color: var(--accent);
+}
+
+.site-tabs__link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Panel ------------------------------------------------------------------- */
@@ -705,14 +722,115 @@ button:focus-visible {
 }
 
 /*
- * Colour is never the carrier. Every node renders its own name, its declared
- * rating and its slot in words, and the shapes distinguish the component types
- * in greyscale by outline rather than by fill.
+ * V-01a round 2: the bus-bar drawing (mock `.sld-*`). Each part is an icon
+ * block whose frame colour names its equipment family - supply, storage,
+ * conversion, network, load - never its state. Every node still renders its
+ * own name, declared rating and slot in words.
  */
-.sld-node__box {
+.component-icon__frame {
+  fill: var(--sld-load-fill);
+  stroke: var(--sld-ink);
+  stroke-width: 1.4;
+}
+
+.component-icon__mark {
+  fill: none;
+  stroke: var(--sld-ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.component-icon__cell {
+  fill: var(--sld-cell);
+  stroke-width: 0.9;
+}
+
+.component-icon__bar {
+  fill: var(--sld-bus);
+  stroke: none;
+}
+
+.component-icon--supply .component-icon__frame {
+  fill: var(--sld-supply-fill);
+  stroke: var(--sld-supply-stroke);
+}
+
+.component-icon--supply .component-icon__mark {
+  stroke: var(--sld-supply-stroke);
+}
+
+.component-icon--storage .component-icon__frame {
+  fill: var(--sld-storage-fill);
+  stroke: var(--sld-storage-stroke);
+}
+
+.component-icon--storage .component-icon__mark {
+  stroke: var(--sld-storage-stroke);
+}
+
+.component-icon--storage .component-icon__cell {
   fill: var(--surface-raised);
-  stroke: var(--border-strong);
-  stroke-width: 1;
+}
+
+.component-icon--conversion .component-icon__frame {
+  fill: var(--sld-conversion-fill);
+  stroke: var(--sld-conversion-stroke);
+}
+
+.component-icon--network .component-icon__frame {
+  fill: var(--sld-network-fill);
+}
+
+.component-icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+}
+
+.sld-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.sld-node__halo {
+  fill: transparent;
+  stroke: none;
+}
+
+.sld-node[role="button"] {
+  cursor: pointer;
+}
+
+.sld-node[role="button"]:hover .sld-node__halo {
+  fill: var(--surface-hover);
+}
+
+.sld-node[data-selected] .sld-node__halo {
+  fill: var(--accent-weak);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.sld-node:focus {
+  outline: none;
+}
+
+.sld-node:focus-visible .sld-node__halo {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-dasharray: 4 2;
+}
+
+.sld-node__bar {
+  stroke: var(--sld-bus);
+  stroke-width: 7;
+  stroke-linecap: round;
 }
 
 .sld-node__name {
@@ -721,17 +839,20 @@ button:focus-visible {
   fill: var(--text-primary);
 }
 
+.sld-node__name--bus {
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.04em;
+  fill: var(--sld-bus);
+}
+
 .sld-node__rating {
   font-size: var(--text-xs);
   fill: var(--text-secondary);
 }
 
 /*
- * The empty slot, drawn as quiet as it is empty.
- *
- * It is rendered rather than left blank on purpose: a gap beside a component
- * reads as a value that failed to arrive, and nothing here has failed. No run
- * has produced a runtime value and no evidence has been accepted.
+ * The empty slot, drawn as quiet as it is empty. It says this view does not
+ * assess readings; it is not a value that failed to arrive.
  */
 .sld-node__slot {
   font-size: var(--text-xs);
@@ -751,29 +872,18 @@ button:focus-visible {
   stroke-dasharray: 5 3;
 }
 
-.sld-glyph {
-  fill: none;
-  stroke: var(--text-secondary);
-  stroke-width: 1.5;
-  stroke-linejoin: round;
-}
-
-.sld-glyph--busbar rect,
-.sld-glyph--load path {
-  fill: var(--text-secondary);
-}
-
 /*
  * A run is drawn by what the document says it carries, and the legend below
  * the drawing names each medium in words. The dash pattern is reinforcement.
  */
 .sld-run {
-  stroke: var(--text-secondary);
-  stroke-width: 1.5;
+  stroke: var(--sld-ink);
+  stroke-width: 2;
 }
 
 .sld-run--dc {
-  stroke-dasharray: 6 4;
+  stroke: var(--sld-supply-stroke);
+  stroke-dasharray: 7 5;
 }
 
 .sld-run--fuel {
@@ -823,11 +933,12 @@ button:focus-visible {
 .sld-legend__run {
   display: inline-block;
   width: 2rem;
-  border-top: 2px solid var(--text-secondary);
+  border-top: 2px solid var(--sld-ink);
 }
 
 .sld-legend__run--dc {
   border-top-style: dashed;
+  border-top-color: var(--sld-supply-stroke);
 }
 
 .sld-legend__run--fuel {
@@ -2459,6 +2570,13 @@ input:focus-visible,
   background: var(--surface-sunken);
   text-align: center;
   overflow-wrap: anywhere;
+}
+
+.plant-card__icons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1);
 }
 
 .plant-card small {

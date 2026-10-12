@@ -46,6 +46,7 @@ import {
   SiteTopologyNodes,
   type SignalMappingBasis,
 } from "./SiteConfiguration";
+import { ComponentTypeIcon } from "./componentIcons";
 import { SITE_SLD_HEADING_ID, SiteSldDetails, SiteSldPrimary } from "./SiteSingleLineDiagram";
 import type {
   BindingPublishOutcome,
@@ -217,7 +218,7 @@ function SiteModelView(props: ViewProps) {
 
 interface TopologyCard {
   key: string;
-  parts: { componentId: string; name: string }[];
+  parts: { componentId: string; componentType: string; name: string }[];
   ratings: string[];
 }
 
@@ -238,9 +239,13 @@ function topologyCards(site: SiteDetailReadModel, configuration: SiteConfigurati
     const component = node === undefined ? undefined : components.get(node.component_id);
     return component === undefined ? null : component.rating;
   };
+  const types = new Map(site.foundation.components.map((c) => [c.component_id, c.component_type]));
   const card = (chain: string[]): TopologyCard => ({
     key: chain.join(">"),
-    parts: chain.map((nodeId) => ({ componentId: nodes.get(nodeId)?.component_id ?? nodeId, name: name(nodeId) })),
+    parts: chain.map((nodeId) => {
+      const componentId = nodes.get(nodeId)?.component_id ?? nodeId;
+      return { componentId, componentType: types.get(componentId) ?? "", name: name(nodeId) };
+    }),
     ratings: chain.map(rating).filter((r): r is string => r !== null),
   });
   const supplies: TopologyCard[] = [];
@@ -304,6 +309,12 @@ function TopologyCards({ cards, selection }: { cards: TopologyCard[]; selection:
           key={item.key}
           data-selected={item.parts.some((p) => p.componentId === selection.selected) ? "" : undefined}
         >
+          {/* V-01a round 2: one icon per declared part, named by its type. */}
+          <span className="plant-card__icons">
+            {item.parts.map((part) => (
+              <ComponentTypeIcon key={part.componentId} componentType={part.componentType} size={44} />
+            ))}
+          </span>
           <strong>
             {item.parts.map((part, index) => (
               <span key={part.componentId}>
@@ -416,7 +427,16 @@ function SldView(props: ViewProps) {
         headingId={SITE_SLD_HEADING_ID}
         description="Configured equipment and declared connections for the period shown; not live power flow, and not reporting status."
       >
-        <SiteSldPrimary site={site} boundDevices={boundDevices} headingId={SITE_SLD_HEADING_ID} />
+        <SiteSldPrimary
+          site={site}
+          boundDevices={boundDevices}
+          headingId={SITE_SLD_HEADING_ID}
+          selection={
+            props.onSelectComponent === undefined
+              ? null
+              : { selected: props.selectedComponent ?? null, onSelect: props.onSelectComponent }
+          }
+        />
       </Panel>
       <ConfiguredPartsPanel
         foundation={foundation}

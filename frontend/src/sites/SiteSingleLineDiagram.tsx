@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
+import type { KeyboardEvent } from "react";
 
-import { DataTable } from "../ui";
+import { Badge, DataTable } from "../ui";
+import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape } from "./componentIcons";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import {
+  COMPONENT_TYPE_LABELS,
   CONNECTION_MEDIUM_LABELS,
   NO_RATING_DECLARED,
   TOPOLOGY_NODE_ROLE_LABELS,
@@ -49,12 +51,12 @@ import {
  *
  * ## The two slots stay empty, visibly
  *
- * Every drawn node carries one line reading `Awaiting runtime/evidence`. That
- * is the whole of what the slots say in this build. It is rendered rather than
- * left blank because a blank space next to a component reads as a value that
- * failed to load, and this is not a failure: no run has produced a runtime
- * value and no evidence has been accepted, so there is nothing that could be
- * there yet.
+ * Every drawn node carries one line reading `Readings not assessed here`.
+ * That is the whole of what the slots say in this build. It is rendered rather
+ * than left blank because a blank space next to a component reads as a value
+ * that failed to load. V-01a round 2 (Architect item 4): it says this view
+ * does not assess readings, not that none has arrived - the former wording,
+ * "Awaiting runtime/evidence", read as a statement that nothing had.
  *
  * ## Two questions this screen asks rather than answers
  *
@@ -83,9 +85,10 @@ export const SITE_SLD_HEADING = "Single Line Diagram (Configured)";
  *
  * One string, exported, so the diagram, the contents table and every test read
  * the same words. Two surfaces spelling this differently would be two answers
- * to what an empty slot means.
+ * to what an empty slot means. The exported name is kept from S1 so every
+ * reader of it stays one search away.
  */
-export const AWAITING_RUNTIME_OR_EVIDENCE = "Awaiting runtime/evidence";
+export const AWAITING_RUNTIME_OR_EVIDENCE = "Readings not assessed here";
 
 /** What the diagram is, stated above it in both states. */
 export const SITE_SLD_INTRODUCTION =
@@ -152,40 +155,86 @@ export interface SldSlotContent {
   connections: ReadonlyMap<string, SldConnectionSlotContent>;
 }
 
-/** The layout lattice, in CSS pixels. The one thing this module decides. */
-const PADDING = 28;
-const COLUMN_PITCH = 260;
-const ROW_PITCH = 140;
-const NODE_WIDTH = 200;
-const NODE_HEIGHT = 108;
-const GLYPH = 26;
+/**
+ * The layout, in CSS pixels. The one thing this module decides.
+ *
+ * V-01a round 2 (Architect item 4, owner Q1): the v6.9 bus-bar grammar.
+ * Supplies sit in the lanes left of the bus, the one declared bus is drawn as
+ * a vertical bar spanning the rows, and what the bus feeds sits to its right.
+ * Each component is an icon block with its declared name, declared rating and
+ * slot underneath. Only declared nodes and connections are drawn: no breaker,
+ * meter, monitoring link, status dot or voltage appears unless the selected
+ * Foundation declares it as a component.
+ */
+const PADDING = 24;
+/** The band above the rows where the bus is named. */
+const HEADER = 64;
+/** A lane's width: the icon and the name under it. */
+const NODE_WIDTH = 156;
+const NODE_HEIGHT = 126;
+const ROW_PITCH = 144;
+const LANE_GAP = 64;
+/** How far a run between two nodes of one lane steps out to their left. */
+const BRACKET = 14;
+const ICON_W = COMPONENT_ICON_WIDTH;
+const ICON_H = COMPONENT_ICON_HEIGHT;
 
 /**
- * Where the text in a box starts, and how much of it fits on a line.
+ * Where the text under an icon wraps.
  *
- * SVG text does not wrap and does not clip, so a name longer than its box runs
- * out of the side of it and across whatever is drawn there - which is how
- * `Battery power conversion system` came to have a connection running through
- * it. The name is wrapped instead of shortened: a truncated component name is
- * a fact hidden to make a layout tidy, and this surface refuses that
- * everywhere else.
+ * SVG text does not wrap and does not clip, so a name longer than its lane
+ * runs into the next one. The name is wrapped instead of shortened: a
+ * truncated component name is a fact hidden to make a layout tidy, and this
+ * surface refuses that everywhere else.
  */
-const TEXT_LEFT = 14 + GLYPH + 10;
-const NAME_LINE_BUDGET = 18;
+const NAME_LINE_BUDGET = 20;
 const NAME_LINES = 2;
-
-/** The empty space between two lanes, which is where a run turns. */
-const LANE_GAP = COLUMN_PITCH - NODE_WIDTH;
 
 interface Box {
   x: number;
   y: number;
 }
 
-function boxFor(node: SldNodeView): Box {
+interface Placed {
+  box: Box;
+  bus: boolean;
+}
+
+interface Lattice {
+  columnX: number[];
+  width: number;
+  height: number;
+  busTop: number;
+  busBottom: number;
+}
+
+/** Lane positions: a bus lane is a line, every other lane an icon's width. */
+function latticeFor(diagram: SldDiagramView): Lattice {
+  const busColumns = new Set(
+    diagram.nodes.filter((node) => node.visualRole === "BUSBAR").map((node) => node.position.column),
+  );
+  const columnX: number[] = [];
+  let x = PADDING;
+  for (let column = 0; column < diagram.extent.columns; column += 1) {
+    columnX.push(x);
+    x += (busColumns.has(column) ? 0 : NODE_WIDTH) + LANE_GAP;
+  }
+  const rows = Math.max(1, diagram.extent.rows);
+  const busTop = PADDING + HEADER - 10;
+  const busBottom = PADDING + HEADER + (rows - 1) * ROW_PITCH + ICON_H + 10;
   return {
-    x: PADDING + node.position.column * COLUMN_PITCH,
-    y: PADDING + node.position.row * ROW_PITCH,
+    columnX,
+    width: x - LANE_GAP + PADDING,
+    height: PADDING * 2 + HEADER + (rows - 1) * ROW_PITCH + NODE_HEIGHT,
+    busTop,
+    busBottom,
+  };
+}
+
+function boxFor(node: SldNodeView, lattice: Lattice): Box {
+  return {
+    x: lattice.columnX[node.position.column] ?? PADDING,
+    y: PADDING + HEADER + node.position.row * ROW_PITCH,
   };
 }
 
@@ -193,7 +242,7 @@ function boxFor(node: SldNodeView): Box {
  * A display name broken onto at most two lines, on word boundaries.
  *
  * The remainder goes on the last line whole rather than being cut: a name too
- * long for two lines overflows its box, which is visible and fixable, where a
+ * long for two lines overflows its lane, which is visible and fixable, where a
  * name with its end removed looks deliberate and is not.
  */
 function wrapName(name: string): string[] {
@@ -226,145 +275,147 @@ function ratingText(node: SldNodeView): string {
     : `${node.rating.value} ${node.rating.unit}`;
 }
 
+const left = (box: Box) => ({ x: box.x, y: box.y + ICON_H / 2 });
+const right = (box: Box) => ({ x: box.x + ICON_W, y: box.y + ICON_H / 2 });
+
 /**
- * How a connection runs between two boxes.
+ * How a connection runs, in the bus-bar grammar.
  *
- * Orthogonal, and the turn is the view model's. Two nodes in one lane are
- * joined vertically; everything else leaves the right edge, turns at the
- * midpoint of the gap, and arrives at the left edge. There is no routing
- * search here and there is not meant to be: the archetype is a fixed
- * arrangement, and a router would be the auto-layout this slice must not
- * build.
+ * A run into or out of the bus meets the bar at the other end's own height,
+ * so a supply's line goes straight across to the bus and a feeder leaves it
+ * straight across to its load. Between two lanes the run turns in the gap
+ * before the destination lane; between two nodes of one lane (a fuel tank
+ * under the generator it feeds) it steps out to their left. There is no
+ * routing search: the archetype is a fixed arrangement, and a router would be
+ * the auto-layout this slice must not build.
  */
-function runPoints(from: Box, to: Box, turn: SldConnectionView["route"]["turn"]): string {
-  const fromMidY = from.y + NODE_HEIGHT / 2;
-  const toMidY = to.y + NODE_HEIGHT / 2;
-
-  if (turn === "ROW_FIRST") {
-    const x = from.x + NODE_WIDTH / 2;
-    const startY = from.y < to.y ? from.y + NODE_HEIGHT : from.y;
-    const endY = from.y < to.y ? to.y : to.y + NODE_HEIGHT;
-    return `${x},${startY} ${x},${endY}`;
+function runPoints(from: Placed, to: Placed, turn: SldConnectionView["route"]["turn"]): string {
+  if (to.bus) {
+    const start = from.box.x < to.box.x ? right(from.box) : left(from.box);
+    return `${start.x},${start.y} ${to.box.x},${start.y}`;
   }
-
-  // The turn happens in the gap immediately before the destination lane, not
-  // at the midpoint of the whole run. A run that skips a lane - the generator
-  // reaching the bus past the conversion lane - turns at the midpoint straight
-  // through whatever that lane is holding, and a line crossing a component box
-  // reads as a connection to it.
-  const rightward = to.x >= from.x;
-  const startX = rightward ? from.x + NODE_WIDTH : from.x;
-  const endX = rightward ? to.x : to.x + NODE_WIDTH;
-  const turnX = rightward ? endX - LANE_GAP / 2 : endX + LANE_GAP / 2;
-
-  return `${startX},${fromMidY} ${turnX},${fromMidY} ${turnX},${toMidY} ${endX},${toMidY}`;
+  if (from.bus) {
+    const end = to.box.x > from.box.x ? left(to.box) : right(to.box);
+    return `${from.box.x},${end.y} ${end.x},${end.y}`;
+  }
+  if (turn === "ROW_FIRST" || from.box.x === to.box.x) {
+    const a = left(from.box);
+    const b = left(to.box);
+    const x = a.x - BRACKET;
+    return `${a.x},${a.y} ${x},${a.y} ${x},${b.y} ${b.x},${b.y}`;
+  }
+  const rightward = to.box.x > from.box.x;
+  const start = rightward ? right(from.box) : left(from.box);
+  const end = rightward ? left(to.box) : right(to.box);
+  if (start.y === end.y) return `${start.x},${start.y} ${end.x},${end.y}`;
+  const turnX = rightward ? end.x - LANE_GAP / 2 : end.x + LANE_GAP / 2;
+  return `${start.x},${start.y} ${turnX},${start.y} ${turnX},${end.y} ${end.x},${end.y}`;
 }
 
-/**
- * The shape that stands for a component type.
- *
- * Geometry only: no text, no digit, no letter. A glyph that spelled its own
- * name would put the archetype's vocabulary on the screen through the back
- * door, and a glyph carrying a number would put a number on a diagram that has
- * none.
- */
-function Glyph({ symbol, x, y }: { symbol: SldNodeView["symbol"]; x: number; y: number }) {
-  const shape = (): ReactNode => {
-    switch (symbol) {
-      case "PV_ARRAY":
-        return (
-          <>
-            <rect x={0} y={4} width={GLYPH} height={GLYPH - 8} rx={2} />
-            <line x1={0} y1={12} x2={GLYPH} y2={12} />
-            <line x1={9} y1={4} x2={9} y2={GLYPH - 4} />
-            <line x1={17} y1={4} x2={17} y2={GLYPH - 4} />
-          </>
-        );
-      case "INVERTER":
-      case "POWER_CONVERSION_SYSTEM":
-        return (
-          <>
-            <rect x={1} y={1} width={GLYPH - 2} height={GLYPH - 2} rx={2} />
-            <line x1={1} y1={GLYPH - 1} x2={GLYPH - 1} y2={1} />
-          </>
-        );
-      case "BATTERY":
-        return (
-          <>
-            <rect x={1} y={6} width={GLYPH - 6} height={GLYPH - 12} rx={2} />
-            <rect x={GLYPH - 5} y={10} width={4} height={6} rx={1} />
-          </>
-        );
-      case "GENERATOR":
-        return (
-          <>
-            <circle cx={GLYPH / 2} cy={GLYPH / 2} r={GLYPH / 2 - 1} />
-            <path
-              d={`M4,${GLYPH / 2} q4,-7 8,0 q4,7 8,0`}
-              fill="none"
-            />
-          </>
-        );
-      case "FUEL_TANK":
-        return (
-          <>
-            <rect x={2} y={5} width={GLYPH - 4} height={GLYPH - 9} rx={6} />
-            <line x1={2} y1={GLYPH - 8} x2={GLYPH - 2} y2={GLYPH - 8} />
-          </>
-        );
-      case "BUSBAR":
-        return (
-          <>
-            <rect x={0} y={GLYPH / 2 - 4} width={GLYPH} height={8} rx={2} />
-          </>
-        );
-      case "METER":
-        return (
-          <>
-            <circle cx={GLYPH / 2} cy={GLYPH / 2} r={GLYPH / 2 - 1} />
-            <line x1={GLYPH / 2} y1={GLYPH / 2} x2={GLYPH - 5} y2={6} />
-          </>
-        );
-      case "LOAD":
-        return (
-          <>
-            <path d={`M${GLYPH / 2},${GLYPH - 2} L2,4 L${GLYPH - 2},4 Z`} />
-          </>
-        );
-      case "COLD_ROOM":
-        return (
-          <>
-            <rect x={1} y={1} width={GLYPH - 2} height={GLYPH - 2} rx={2} />
-            <line x1={GLYPH / 2} y1={5} x2={GLYPH / 2} y2={GLYPH - 5} />
-            <line x1={5} y1={GLYPH / 2} x2={GLYPH - 5} y2={GLYPH / 2} />
-            <line x1={7} y1={7} x2={GLYPH - 7} y2={GLYPH - 7} />
-            <line x1={GLYPH - 7} y1={7} x2={7} y2={GLYPH - 7} />
-          </>
-        );
-    }
-  };
+/** A configured part chosen by stable component ID (V-01a round 2, item 3). */
+export interface SldSelection {
+  selected: string | null;
+  onSelect: (componentId: string | null) => void;
+}
 
+/** What makes a drawn part a toggle, when the caller supplies a selection. */
+function choiceProps(node: SldNodeView, selection: SldSelection | null) {
+  if (selection === null) return {};
+  const pressed = selection.selected === node.componentId;
+  const toggle = () => selection.onSelect(pressed ? null : node.componentId);
+  return {
+    tabIndex: 0,
+    role: "button",
+    "aria-pressed": pressed,
+    "aria-label": `${node.displayName}, ${label(node.componentType, COMPONENT_TYPE_LABELS)}`,
+    "data-selected": pressed ? "" : undefined,
+    onClick: toggle,
+    onKeyDown: (event: KeyboardEvent<SVGGElement>) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggle();
+      }
+    },
+  };
+}
+
+/** The one declared bus: a bar spanning the rows, named above it. */
+function SldBus({
+  node,
+  box,
+  lattice,
+  slots,
+  selection,
+}: {
+  node: SldNodeView;
+  box: Box;
+  lattice: Lattice;
+  slots: SldSlotContent | null;
+  selection: SldSelection | null;
+}) {
+  const content = slots?.nodes.get(node.componentId) ?? null;
+  const top = PADDING + 14;
   return (
     <g
-      className={`sld-glyph sld-glyph--${symbol.toLowerCase().replace(/_/g, "-")}`}
-      data-sld-symbol={symbol}
-      transform={`translate(${x} ${y})`}
+      className="sld-node sld-node--bus"
+      data-sld-node={node.nodeId}
+      data-sld-component={node.componentId}
+      data-sld-visual-role={node.visualRole}
+      data-component-icon={node.symbol}
+      {...choiceProps(node, selection)}
     >
-      {shape()}
+      <rect
+        className="sld-node__halo"
+        x={box.x - 80}
+        y={PADDING}
+        width={160}
+        height={lattice.busBottom - PADDING + 6}
+        rx={6}
+      />
+      <text className="sld-node__name sld-node__name--bus" x={box.x} y={top} textAnchor="middle">
+        {wrapName(node.displayName).map((line, index) => (
+          <tspan key={line} x={box.x} dy={index === 0 ? 0 : 15}>
+            {line}
+          </tspan>
+        ))}
+      </text>
+      <text className="sld-node__rating" x={box.x} y={top + 16} textAnchor="middle">
+        {ratingText(node)}
+      </text>
+      <text
+        className="sld-node__slot"
+        data-sld-slot={content === null ? "unfilled" : "filled"}
+        x={box.x}
+        y={top + 31}
+        textAnchor="middle"
+      >
+        {content?.text ?? slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
+      </text>
+      <line
+        className="sld-node__bar"
+        x1={box.x}
+        x2={box.x}
+        y1={lattice.busTop}
+        y2={lattice.busBottom}
+      />
     </g>
   );
 }
 
-/** One drawn component: its shape, its declared name and rating, its slot. */
+/** One drawn component: its icon, its declared name and rating, its slot. */
 function SldNode({
   node,
+  box,
   slots,
+  selection,
 }: {
   node: SldNodeView;
+  box: Box;
   slots: SldSlotContent | null;
+  selection: SldSelection | null;
 }) {
-  const box = boxFor(node);
   const content = slots?.nodes.get(node.componentId) ?? null;
+  const text = box.y + ICON_H + 17;
 
   return (
     <g
@@ -373,53 +424,47 @@ function SldNode({
       data-sld-component={node.componentId}
       data-sld-visual-role={node.visualRole}
       data-sld-candidate={node.candidate === null ? undefined : "unsettled"}
+      {...choiceProps(node, selection)}
     >
       <rect
-        className="sld-node__box"
-        x={box.x}
-        y={box.y}
-        width={NODE_WIDTH}
-        height={NODE_HEIGHT}
+        className="sld-node__halo"
+        x={box.x - 6}
+        y={box.y - 6}
+        width={NODE_WIDTH + 12}
+        height={NODE_HEIGHT + 6}
         rx={6}
       />
-      <Glyph symbol={node.symbol} x={box.x + 14} y={box.y + 14} />
+      <g transform={`translate(${box.x} ${box.y})`}>
+        {/* The frame keeps `sld-node__box`: the Lab drawing's label-collision
+            measurement reads it as the part's drawn extent on the line. */}
+        <ComponentIconShape symbol={node.symbol} frameClassName="sld-node__box" />
+      </g>
       {/*
         * One `text` element holding the whole name, wrapped into `tspan`
         * lines. One element per line would put the name on the screen as two
         * separate strings, and an assertion comparing a label to the record
         * would then have to know how this component chose to break it.
         */}
-      <text className="sld-node__name" x={box.x + TEXT_LEFT} y={box.y + 26}>
+      <text className="sld-node__name" x={box.x} y={text}>
         {wrapName(node.displayName).map((line, index) => (
-          <tspan
-            key={line}
-            x={box.x + TEXT_LEFT}
-            dy={index === 0 ? 0 : 16}
-          >
+          <tspan key={line} x={box.x} dy={index === 0 ? 0 : 15}>
             {line}
           </tspan>
         ))}
       </text>
-      <text className="sld-node__rating" x={box.x + TEXT_LEFT} y={box.y + 64}>
+      <text className="sld-node__rating" x={box.x} y={text + 32}>
         {ratingText(node)}
       </text>
       {node.candidate === null ? null : (
-        // Inside the box, on its own line. Over the corner it sat on top of
-        // the component's name, which put the marking in the way of the thing
-        // it is a marking about.
-        <text
-          className="sld-node__candidate"
-          x={box.x + TEXT_LEFT}
-          y={box.y + 82}
-        >
+        <text className="sld-node__candidate" x={box.x} y={text + 47}>
           Proposed treatment
         </text>
       )}
       <text
         className="sld-node__slot"
         data-sld-slot={content === null ? "unfilled" : "filled"}
-        x={box.x + 14}
-        y={box.y + NODE_HEIGHT - 10}
+        x={box.x}
+        y={text + 62}
       >
         {content?.text ?? slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
       </text>
@@ -430,17 +475,17 @@ function SldNode({
 /** One declared connection, drawn as the archetype routes it. */
 function SldRun({
   connection,
-  boxes,
+  placed,
   slot,
   markerId,
 }: {
   connection: SldConnectionView;
-  boxes: Map<string, Box>;
+  placed: Map<string, Placed>;
   slot: SldConnectionSlotContent | null;
   markerId: string;
 }) {
-  const from = boxes.get(connection.fromNodeId);
-  const to = boxes.get(connection.toNodeId);
+  const from = placed.get(connection.fromNodeId);
+  const to = placed.get(connection.toNodeId);
   if (from === undefined || to === undefined) return null;
 
   const points = runPoints(from, to, connection.route.turn);
@@ -507,15 +552,18 @@ function midpointOf(points: string): { x: number; y: number } {
   return { x: vertices[0][0], y: vertices[0][1] };
 }
 
+/** What the Foundation's drawing says it is, above it (Architect item 4). */
+export const SLD_CONFIGURED_NOT_LIVE = "Configured, not live";
+
 /**
  * The drawing itself.
  *
- * `role="img"` with a title and a description, because the shapes and the
- * routing carry no meaning a screen reader can take from them. The description
- * does not try to narrate the topology: the same facts are in the tables
- * immediately below, in a form that can actually be read row by row, and
- * duplicating them into one long sentence would be worse for the reader who
- * needs them most.
+ * `role="img"` with a title and a description when nothing on it can be
+ * chosen, because the shapes and the routing carry no meaning a screen reader
+ * can take from them. When the caller passes a selection, the drawing is a
+ * named `group` instead and each part is a toggle button named by its declared
+ * name and type, because an image's children are hidden from assistive
+ * technology and a control nobody can reach is not a control.
  */
 function SldDrawing({
   diagram,
@@ -523,20 +571,20 @@ function SldDrawing({
   slots = null,
   idPrefix = "foundation-sld",
   labelledBy = SITE_SLD_HEADING_ID,
+  selection = null,
 }: {
   diagram: SldDiagramView;
   siteName: string;
   slots?: SldSlotContent | null;
   idPrefix?: string;
   labelledBy?: string;
+  selection?: SldSelection | null;
 }) {
-  const boxes = new Map<string, Box>();
+  const lattice = latticeFor(diagram);
+  const placed = new Map<string, Placed>();
   for (const node of diagram.nodes) {
-    boxes.set(node.nodeId, boxFor(node));
+    placed.set(node.nodeId, { box: boxFor(node, lattice), bus: node.visualRole === "BUSBAR" });
   }
-
-  const width = PADDING * 2 + (diagram.extent.columns - 1) * COLUMN_PITCH + NODE_WIDTH;
-  const height = PADDING * 2 + (diagram.extent.rows - 1) * ROW_PITCH + NODE_HEIGHT;
 
   const titleId = `${idPrefix}-title`;
   const descriptionId = `${idPrefix}-description`;
@@ -546,6 +594,14 @@ function SldDrawing({
 
   return (
     <>
+      {slots === null ? (
+        // A one-line label, not a paragraph: the drawing still leads the
+        // section at phone width (S1-03 review m2).
+        <div className="sld-status" data-sld-configured="">
+          <Badge tone="neutral">{SLD_CONFIGURED_NOT_LIVE}</Badge>
+          <span>Readings are not assessed in this view.</span>
+        </div>
+      ) : null}
       <div
         className="sld__scroll"
         role="region"
@@ -554,12 +610,13 @@ function SldDrawing({
       >
         <svg
           className="sld"
-          role="img"
+          role={selection === null ? "img" : "group"}
           aria-labelledby={`${titleId} ${descriptionId}`}
           data-sld-archetype={diagram.archetype}
-          width={width}
-          height={height}
-          viewBox={`0 0 ${width} ${height}`}
+          data-sld-layout="bus-bar"
+          width={lattice.width}
+          height={lattice.height}
+          viewBox={`0 0 ${lattice.width} ${lattice.height}`}
         >
           <title id={titleId}>
             Configured single line diagram for {siteName}
@@ -591,14 +648,31 @@ function SldDrawing({
             <SldRun
               key={connection.connectionId}
               connection={connection}
-              boxes={boxes}
+              placed={placed}
               slot={slots?.connections.get(connection.connectionId) ?? null}
               markerId={markerId}
             />
           ))}
-          {diagram.nodes.map((node) => (
-            <SldNode key={node.nodeId} node={node} slots={slots} />
-          ))}
+          {diagram.nodes.map((node) =>
+            node.visualRole === "BUSBAR" ? (
+              <SldBus
+                key={node.nodeId}
+                node={node}
+                box={(placed.get(node.nodeId) as Placed).box}
+                lattice={lattice}
+                slots={slots}
+                selection={selection}
+              />
+            ) : (
+              <SldNode
+                key={node.nodeId}
+                node={node}
+                box={(placed.get(node.nodeId) as Placed).box}
+                slots={slots}
+                selection={selection}
+              />
+            ),
+          )}
         </svg>
       </div>
 
@@ -616,6 +690,7 @@ function SldDrawing({
     </>
   );
 }
+
 
 /** The refusal, stated where the drawing would have been. */
 function SldUnavailable({ reason }: { reason: SldUnavailableReason }) {
@@ -1069,10 +1144,13 @@ export function SiteSldPrimary({
   site,
   boundDevices,
   headingId,
+  selection = null,
 }: {
   site: SiteDetailReadModel;
   boundDevices: ReadonlySet<string> | null;
   headingId: string;
+  /** V-01a round 2: drawn parts become toggles that choose by component ID. */
+  selection?: SldSelection | null;
 }) {
   const view: SiteSldView = deriveSiteSldView(site);
   return (
@@ -1081,7 +1159,12 @@ export function SiteSldPrimary({
           explanatory paragraphs used to push it below the first screen. */}
       {view.status === "compatible" ? (
         <>
-          <SldDrawing diagram={view.diagram} siteName={site.display_name} labelledBy={headingId} />
+          <SldDrawing
+            diagram={view.diagram}
+            siteName={site.display_name}
+            labelledBy={headingId}
+            selection={selection}
+          />
           <SldUnplaced diagram={view.diagram} />
         </>
       ) : (
