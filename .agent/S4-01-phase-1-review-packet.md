@@ -72,8 +72,8 @@ citations, 1680 cited evidence rows, 1 merge. The TLS server was stopped (no lis
 
 ## Known deviations
 
-- Fixture provenance (Q6): all cases are labelled authenticated Batch V2, not gateway-sealed Lab output; F01 is not
-  duplicated through a Lab run.
+- Fixture provenance (Q6): F01-F08 are labelled authenticated Batch V2 fault fixtures, not gateway-sealed. Fix round 1
+  adds `F01-gateway`, a baseline Candidate through the ordinary registered gateway path (see Fix round 1).
 - Minimum-runtime control has no product route; the producer publishes it through `FoundationService` in the copied
   tree, labelled (Q8). Reserve goes through the product API.
 - Spec `decided` instants are ordering labels over HTTP; the real server clock decides (Q9). The Postgres test applies
@@ -86,7 +86,7 @@ citations, 1680 cited evidence rows, 1 merge. The TLS server was stopped (no lis
 - Recurrence links chain across case days in the one fixture Site (each case is bounded by observed OFF), e.g. the
   10-08 Finding `recurs_after` the 10-06 one; the spec asserts links only for F03/F06. Correct under Q3, but visible
   in phase 2 reads.
-- Backdated controls append collateral SUPPORT_CHANGED to every later Finding (F05: 8 collateral + 1 named; Q5).
+- Backdated controls append collateral revisions to Findings on earlier days (10-06..10-19 after the 10-21 control; F05: 8 collateral + 1 named). Fix round 1 labels them BASIS_REFRESHED (Q5/C1).
 - Matcher reads every assessed day per pass (linear); 3+-way merges and mixed split+merge are implemented but only
   two-way cases are fixture-tested. No pure unit tests for `finding_episode.plan` (handoff optional item 2 not done).
 - Producer DB `assetops_s4cases` was dropped after the run; rerun `run` (about 3 minutes) to re-create and verify.
@@ -96,3 +96,48 @@ citations, 1680 cited evidence rows, 1 merge. The TLS server was stopped (no lis
 USER_REVIEW_REQUIRED: true for S4-01 at the owner checkpoint after phase 3; phase 1 needs an independent Claude review
 (store/matcher/fixture), not an owner check. Reviewer: F01, F04, F05, F06 and F07 after reload; Q1-Q9 defaults; the
 collateral-revision behaviour; the guard; rerun `tools/s4_finding_cases.py run` and the S4 Postgres tests.
+
+## Fix round 1 (review `.agent/S4-01-phase-1-review.md`; rulings `D-2026-10-12-s4-finding-phase-1-clarifications`)
+
+Commits `7781821`, `6bfd145`, `43d3268`, `db28578`, `71dd0b6`. Migration 0009 edited in place (unmerged).
+
+| Finding | Change | Anchor |
+|---|---|---|
+| B1 split ownership | Each episode is reserved for the cluster containing its anchor; each cluster then takes its earliest-anchor eligible episode; absorbed episodes merge into their home owner | `analytics/finding_episode.py` |
+| B2 interleaved passes | `Fence.finding_revisions` = count of the Site's `finding_revision` rows (append-only), so a pass planned before another pass committed refuses with `FindingFenceMoved` | `adapters/postgres_finding_store.py` |
+| B3 / Q3 recurrence | Link only when `site.covered(prior.end, new.start)`, prior OFF-after observed and new OFF-before observed; else unlinked | `_recurrence` |
+| B4 / Q2 bridges | A bridge also needs every gap instant in an observed segment or an observed stop (`_fully_covered`, `_stops`; `IntervalBasis.last_on`) | `_bridges` |
+| Q4 basis | basis = support digest + interval + selected window revision IDs + window input digests + cited | `window_basis` |
+| Q5 / C1 | `support_sha256` column; provenance-only change -> `BASIS_REFRESHED` (owner and unsupported paths) | 0009, matcher |
+| C3 reopen | Candidate over a NO_LONGER_SUPPORTED episode -> `REOPENED` | 0009 CHECK, matcher |
+| C7 moved fence | Postgres test applies a real planned OPENED write after the fence moves | `tests/test_s4_finding_store_postgres.py` |
+| Q6 gateway | `F01-gateway`: `kobo-mini-grid-prolonged` v2 Lab run, 2026-10-02 03:00-11:00Z, roles-2, sealed by the durable registered gateway (epoch `s4-gateway-epoch-1`), direct TLS, `process-jobs`, `match-findings` | `tools/s4_finding_cases.py gateway_case` |
+
+Tests that failed before the fix: new pure `tests/test_s4_finding_episode.py` (16). Against the pre-fix matcher
+(signature shim) 8 fail - B1 split, B3 unassessed-day and no-OFF recurrence, mixed split+merge, reopen,
+BASIS_REFRESHED, out-of-order OFF, empty span in gap - and 8 pass (regression coverage). New Postgres
+`test_a_pass_planned_before_another_pass_committed_opens_no_duplicate` (B2).
+
+Mutation proofs (committed first, reverted with `git checkout --`): fence without `finding_revisions` -> interleaving
+test "DID NOT RAISE FindingFenceMoved"; fence check disabled -> moved-fence test "DID NOT RAISE".
+
+Q6 note: the first attempt on 2026-10-04 was refused by the Lab: `LIFECYCLE_TIMING_NOT_ALIGNED`
+("generator-minimum-runtime@generator is 0 min ... must be a whole, positive multiple of the step"). The 10-03 setup
+control sets 0 minutes, so the gateway case runs on 10-02 (roles-2, template minimum runtime, before the setup
+controls) and runs after every fixture case, so no fixture expectation sees it. Architect may prefer a positive
+runtime setup control so the gateway day shares the fixture controls (question for the next batch).
+
+Producer (`.agent/S4-01-finding-cases-run.txt`, commit `71dd0b6`): every match step OK, 0 check failures, 195 s;
+F01-gateway 198 sealed batches, 329 accepted readings all under `s4-gateway-epoch-1` and the registered gateway ID,
+1 Finding OPENED SUPPORTED at 05:15Z. Verify: 8 case evidence digests match, 11 Findings / 30 revisions reloaded
+match, replay planned 0 -> `VERIFY PASSED`. Counts 11 / 30 / 66 citations / 1920 cited evidence / 1 merge
+(was 10 / 25 / 56 / 1680 / 1); BASIS_REFRESHED 12, SUPPORT_CHANGED 2. Recurrence links only same-day (F03, F06);
+the phase-1 cross-day chain is gone (B3). DB dropped; no listener on 8730/8763, no gateway pipe left.
+
+Checks (after `71dd0b6`): backend with Postgres (isolated `assetops_s4fix2_test`, dropped) `1858 passed, 19 warnings
+in 553.71s`; host `667 passed, 3 warnings in 579.55s`; gateway `164 passed in 52.71s`; simulator `265 passed in
+3.24s`; `check-all.ps1` `All 6 guards passed.`; `check-agent-workflow.ps1` `Agent workflow check passed.`
+(backend and host ran on `db28578`; `71dd0b6` changes only the producer's gateway day).
+
+New questions with fail-closed defaults: `.agent/S4-01-questions-2.md` (Q10-Q15; Q14 = BASIS_REFRESHED volume for
+phase 2/3 History grouping, Q15 = gateway case day).

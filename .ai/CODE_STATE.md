@@ -5073,7 +5073,7 @@ Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `.agent
 
 ## S4-01 phase 1 - Finding store, episode matcher, `s4-finding-cases-v1` (active, review pending)
 
-Built on `task/S4-01-finding-identity` (`bcbc3f4`, `6b891ef`, closeout). Packet `.agent/S4-01-phase-1-review-packet.md`; questions Q1-Q9 in `.agent/S4-01-questions-1.md`.
+Built on `task/S4-01-finding-identity` (`bcbc3f4`, `6b891ef`, closeout; fix round 1 `7781821`..`71dd0b6`). Packet `.agent/S4-01-phase-1-review-packet.md` (Fix round 1 section); questions Q1-Q9 in `.agent/S4-01-questions-1.md`, Q10-Q15 in `.agent/S4-01-questions-2.md`.
 
 ### What it settled in code
 
@@ -5084,9 +5084,12 @@ Built on `task/S4-01-finding-identity` (`bcbc3f4`, `6b891ef`, closeout). Packet 
 - `tools/checks/configuration-persistence.ps1`: only the Finding store writes Finding tables, insert-only.
 - `backend/conversions/s4-finding-cases-v1.json` + `tools/s4_finding_cases.py run|verify` (DB `assetops_s4cases`, TLS 8763; labelled authenticated Batch V2; per-run IDs in `%LOCALAPPDATA%/AssetOps/s4-finding-cases/s4-finding-cases-run.json`). Run on `6b891ef`: all checks OK, VERIFY PASSED (`.agent/S4-01-finding-cases-run.txt`).
 - `backend/tests/test_s4_finding_store_postgres.py`: all cases in one Site, stale window, F07 test-scoped upgrade, append-only, moved fence.
+- Fix round 1: anchor-first split ownership (B1); fence counts the Site's `finding_revision` rows (B2); recurrence only with proven gap coverage and both OFFs observed (B3); bridges need full observed coverage incl. stop spans (Q2); basis includes window revision IDs and input digests (Q4); `support_sha256` + `BASIS_REFRESHED` for provenance-only changes (Q5); `REOPENED` after NO_LONGER_SUPPORTED (C3). Pure `tests/test_s4_finding_episode.py` (16).
+- Producer `F01-gateway` (Q6): a Lab run sealed by the durable registered gateway (epoch `s4-gateway-epoch-1`) over TLS on 2026-10-02 opens a SUPPORTED Finding. Run on `71dd0b6`: 11 Findings / 30 revisions, VERIFY PASSED.
 
 ### Open
 
 - No Finding read API/UI yet (phases 2-3). F07 is test-scoped: no reviewed later `dispatch-3.x`.
-- Backdated controls append collateral SUPPORT_CHANGED to later Findings (Q5); recurrence links chain across fixture days.
-- No pure unit tests for `finding_episode.plan`; 3+-way merge untested by fixture; matcher is linear in assessed days.
+- Backdated controls append collateral BASIS_REFRESHED to Findings on earlier days; every same-day reassessment appends BASIS_REFRESHED to that day's Findings - phase 2/3 History must group them (Q14).
+- Lab refuses a 0-minute minimum runtime, so the gateway case runs on 10-02, outside the fixture controls (Q15).
+- 3+-way merge untested by fixture (pure test only); matcher is linear in assessed days.
