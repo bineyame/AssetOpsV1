@@ -2077,4 +2077,4 @@ The carried review findings above are unchanged.
 - C8: UNCONFIRMED/NO_LONGER_SUPPORTED revisions don't carry the recurrence record (read takes it from the opening revision).
 - C9 (S4-04): `finding_match_pass` gains a row every pass even when nothing is written; bound it.
 - Residual (phase 3 wording): a long stop with sparse reporting still bridges when both OFF endpoints are present and nothing contrary lies between; consider labelling in the walkthrough.
-
+- S4-01 phase 3 review carry C5 (`.agent/S4-01-phase-3-review.md`): the Dispatch link carrying the primary assessment revision is always attached to the first day without checking which day that revision belongs to (correct in every live case today).
