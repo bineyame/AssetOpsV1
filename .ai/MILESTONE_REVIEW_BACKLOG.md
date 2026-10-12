@@ -2057,3 +2057,11 @@ The carried review findings above are unchanged.
 - C5 (Q8): fixture publishes minimum runtime with source TEMPLATE; SITE would be honest.
 - C6: on merge the matcher prefers an episode whose anchor is inside the cluster over the earlier anchor the decision names.
 
+### S4-01 phase 1 fix re-review carries (2026-10-12, `.agent/S4-01-phase-1-fix-rereview.md`) — fold into S4-01 phases 2/3
+
+- R1 (before owner walkthrough): the gateway F01 case runs on 10-02 template runtime; use a positive multiple-of-5-minute setup control (Q15 alternative) or label the 10-02 Finding as the gateway path on template runtime.
+- R2: the gateway case should assert the opened Finding's cited evidence all comes from the gateway-sealed batches (`tools/s4_finding_cases.py:418-428`).
+- R3: packet residual-risk text (`.agent/S4-01-phase-1-review-packet.md:86-91`) is stale (cross-day recurrence, no pure tests).
+- Phase 3 wording: an UNCONFIRMED revision replacing a NO_LONGER_SUPPORTED conclusion must not read as a new active issue (Q10 condition); a recurrence link to a now-unsupported prior Finding must not imply that issue is still active.
+- Phase 2: the "currently selected window" read must use the same window set the Finding basis uses (supported vs unsupported paths differ).
+
