@@ -15,3 +15,7 @@ Plus: make the Site inventory panel more space-efficient, closer to the mock.
 ## Follow-up (verbatim, 2026-10-12)
 
 "also paye attetnion to color and font size, in the built screen all tab header text was blue unlike the mockup which is much better"
+
+## Follow-up 2 (verbatim, 2026-10-12)
+
+"also left navigation menu as well is not aligned(the mockup has icons and better looking)"
