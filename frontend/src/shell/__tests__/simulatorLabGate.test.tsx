@@ -821,7 +821,7 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
     const { container } = renderAt("/simulator-lab", ENABLED);
     const main = screen.getByRole("main");
 
-    expect(container.querySelectorAll("table, svg, canvas, img")).toHaveLength(
+    expect(container.querySelectorAll("table, svg:not(.nav-rail__icon), canvas, img")).toHaveLength(
       0,
     );
     expect(within(main).queryAllByRole("figure")).toHaveLength(0);

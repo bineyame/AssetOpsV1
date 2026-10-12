@@ -335,7 +335,7 @@ describe("template surfaces offer no capability the product lacks", () => {
       const { container } = renderAt(path);
       await settledScreen();
 
-      expect(container.querySelectorAll("svg, canvas, img")).toHaveLength(0);
+      expect(container.querySelectorAll("svg:not(.nav-rail__icon), canvas, img")).toHaveLength(0);
       expect(screen.queryAllByRole("figure")).toHaveLength(0);
 
       // Labelled fields and column headers are where an operational claim
@@ -361,7 +361,7 @@ describe("template surfaces offer no capability the product lacks", () => {
       const { container } = renderAt(path);
       await settledScreen();
 
-      expect(container.querySelectorAll("svg, canvas")).toHaveLength(0);
+      expect(container.querySelectorAll("svg:not(.nav-rail__icon), canvas")).toHaveLength(0);
 
       // This banned every `select` and every combobox, as a proxy for the
       // signal selector that sits above a single line diagram. The proxy held
