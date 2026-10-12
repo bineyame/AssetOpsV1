@@ -96,3 +96,54 @@ from gateway batches. Verify: 8 case digests match; 11 Findings / 30 revisions r
 USER_REVIEW_REQUIRED: true for S4-01 at the owner checkpoint after phase 3; phase 2 needs a fresh Claude review
 (no UI). Reviewer: rerun the producer and `test_s4_finding_read_postgres.py`; check Q16-Q20 defaults; compare
 returned IDs with stored relations for F01, F04, F05, F06 and the gateway case.
+
+## Fix round 1 (review `.agent/S4-01-phase-2-review.md`; Architect `.agent/architect-S4-01-answers-3.md`)
+
+Code commit `254b843`; closeout commit follows. Diff: `git diff d2599de..HEAD`. New questions: `.agent/S4-01-questions-4.md`
+(Q21-Q24, each with a built default). Producer output: `.agent/S4-01-phase-2-fix-finding-cases-run.txt`.
+
+| Item | Fix | Test that fails before it (proven by mutation on the committed code) |
+| --- | --- | --- |
+| B1 Indeterminate window read as NO_FINDING | `window_state`: Indeterminate window without Findings = `NOT_DETERMINABLE`; body adds `window_claim_level`, `window_limitations`, `selected_run_id`, watermarks | Postgres: every day 10-05..10-23 pinned (`EXPECTED_DAYS`); 10-19 `NOT_DETERMINABLE` with `AMBIGUOUS_COHORT`; 10-15 LIMITED discloses 17 limitations. Branch removed -> `{'2026-10-19': 'NO_FINDING'} != {'2026-10-19': 'NOT_DETERMINABLE'}` |
+| B1 "one complete no-Candidate day NO_FINDING" | the fixture has none (the old `in states.values()` hit was 10-19, the defect) | new `test_a_complete_day_without_candidate_is_no_finding` (10-25, Necessary-only run) |
+| Q18 completed match before NO_FINDING | `finding_match_pass` row per committed pass (fenced `selection_seq`, matcher version); NO_FINDING needs a v2 pass at or after the window's current selection, else `FINDING_MATCH_PENDING` | same test: before the pass `FINDING_MATCH_PENDING`, after it `NO_FINDING`. Check removed -> `'NO_FINDING' == 'FINDING_MATCH_PENDING'` fails |
+| B2 pinned old revision "match pending" | non-latest pin: currentness `SUPERSEDED_BY_LATER_REVISION` + `latest_revision_id` (windows kept); `state.claim_is_current_refers_to: LATEST_REVISION` | Postgres F04 r1 assertions. Mutated -> `'FINDING_MATCH_PENDING' == 'SUPERSEDED_BY_LATER_REVISION'` |
+| C3 window-route matrix | (no code defect) | `TestWindowRouteMatrix`: 401 + `WWW-Authenticate` before lookup, 403 before lookup, 404, 503 x2 |
+| Q17 stop proof | `FindingMatcher.bases` passes each CURRENT window's selected run input evidence (typed `StateReport`, one read per run) to the pure matcher. `_stop_proof` needs both OFF endpoints in that evidence and every report strictly between last ON and next first ON accepted, GOOD, in the window's cohort and OFF; windows CURRENT, not Indeterminate, no generator cohort limit over the stop. Refused = no bridge; the proof (evidence IDs, run/window IDs, `reports_sha256`) is cited on each bridging stop | `TestStopProof`: contradictory state between two valid OFFs, NOT_GOOD, wrong cohort, positive power, unread reports, series limit, Indeterminate window -> two Findings, empty continuity, recurrence `NOT_ESTABLISHED: SEPARATION_STOP_NOT_CONFIRMED: <reason>`. Bridging on unconfirmed stops -> 7 fail. Postgres F02: every bridging stop `CONFIRMED` with non-empty evidence |
+| Q19 cutover gate | `build_finding_router(gate=)` uses `main.performance_gate` (comparison, lineage breaks, other-model heads). An unconfigured gate is closed, and an unreadable one is a typed 503. Closed gate: default detail and window reads are 409 `PERFORMANCE_CUTOVER_CLOSED`. A pinned `revision_id` returns 200 `audit_only`, `SOURCE_CLOSED`, with no S3 read; S3 links are withheld and `links.performance` gives the reason | `TestPerformanceCutoverGate` (6) + Postgres F04 closed-gate asserts. Window gate removed -> 2 fail |
+| Q20 relations in the basis | `MATCHER_VERSION = finding-episode-2`. Normalized relation facts (gap bounds, bridged_by, stop OFF times and proof status, recurrence status/prior/OFF times) go into `support_sha256`, and the full continuity/recurrence records (evidence IDs, digests, assessment refs) into `basis_sha256`. The opening recurrence record is carried on `Episode.recurrence`, so replays stay idempotent | `TestRelationsInTheBasis`: one more checked OFF report -> `BASIS_REFRESHED` (basis moved, support equal); a refused proof changes support. Relations removed from basis -> fails |
+
+Q20 existing rows: 0009 is unmerged and has reached only disposable databases. These are the isolated `_test`
+databases and `assetops_s4cases`, which are dropped and recreated on every run. A `finding-episode-1` row would
+be kept: the basis includes the matcher version, so the next pass appends a revision. Q16 is unchanged
+(`DEVELOPMENT_TENANT_OPERATOR_CONTEXT`).
+
+### Checks (fix round)
+
+- Producer on `254b843`: `tools/s4_finding_cases.py run`: 0 check failures, produced in 238 s. F01-gateway: 198
+  sealed batches, 329 readings, 1 Finding at 05:15Z, 102 cited IDs with 0 outside gateway batches. Verify: 8
+  cases match, 11 Findings / 30 revisions match, replay planned 0, "verify reads: 11 Findings read;
+  gateway-case Findings 1; problems 0", `VERIFY PASSED`. The script stopped tls-server, lab-api and gateway, and
+  nothing listens on 8730/8763. `assetops_s4cases` dropped.
+- S4 tests with Postgres (isolated `assetops_s4p2fix_test`): `57 passed` (read, store, episode, API).
+- Backend with Postgres (isolated `assetops_s4p2fix_test`, dropped afterwards) on `254b843`: `1893 passed, 20 warnings in
+  621.89s`.
+- Host: `667 passed, 3 warnings in 545.72s`. Gateway: `164 passed in 55.09s`. Simulator: `265 passed in 4.17s`.
+- `tools/check-all.ps1 -ExecutionPolicy Bypass`: `All 6 guards passed.`; `check-architecture.ps1` passed;
+  `check-agent-workflow.ps1` passed.
+- Guard extension proof: dropping `finding_match_pass` from the Finding-store table list fails
+  `check-architecture.ps1` ("The Finding store only inserts into ... postgres_finding_store.py:133: INSERT INTO
+  finding_match_pass"). Reverted with `git checkout --`.
+- No frontend change. Layout evidence: not applicable.
+
+### Known deviations / residual risk (fix round)
+
+- Recurrence now uses the stop proof too (Q21). A non-GOOD or contrary report in either separation stop leaves
+  the two Findings unlinked.
+- `finding_match_pass` was added to the unmerged 0009 rather than a 0010 (Q22). The operator `finding-reads` CLI
+  is ungated (Q23).
+- The matcher now reads each selected run's full input evidence once per run per pass. That is fine at fixture
+  scale. S4-04 should bound it.
+- C5 (one-hop canonical) and C6 (window read cost, midnight boundary) still carry.
+
+USER_REVIEW_REQUIRED: owner checkpoint after phase 3. This fix round needs a fresh Claude re-review (no UI).

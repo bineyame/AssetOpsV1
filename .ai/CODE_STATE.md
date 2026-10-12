@@ -5127,3 +5127,27 @@ Packet `.agent/S4-01-phase-2-review-packet.md`; questions `.agent/S4-01-question
 - Open: Q17 (contradictory report between stop OFFs is invisible to the matcher); Q18 window-state route vs
   S4-04; no UI (phase 3); R1 gateway-day labelling for the owner walkthrough.
 
+### S4-01 phase 2 fix round 1 (review B1/B2/C3; Q17-Q20)
+
+Commit `254b843`; packet "Fix round 1" section; questions `.agent/S4-01-questions-4.md` (Q21-Q24).
+- Matcher `finding-episode-2`: `FindingMatcher.bases` reads each CURRENT window's selected run input evidence
+  once per run (`DispatchReadService.run`) into typed `StateReport`s; `_stop_proof` confirms a stop only when both
+  OFF endpoints are in the run evidence and every report between last ON and next first ON is accepted, GOOD,
+  in-cohort and OFF, in CURRENT non-Indeterminate windows with no generator cohort limit; otherwise the stop does
+  not bridge (two Findings) and recurrence is `NOT_ESTABLISHED: SEPARATION_STOP_NOT_CONFIRMED: <reason>` (Q21).
+  Continuity stops carry `proof` (evidence IDs, run/window IDs, `reports_sha256`).
+- Q20: relation facts in `support_sha256`, full continuity/recurrence records in `basis_sha256`; the opening
+  recurrence record is carried on `Episode.recurrence` into every later revision. Old v1 rows would get an
+  appended revision (basis includes the matcher version); 0009 reached only disposable DBs.
+- Q18: `finding_match_pass` (append-only, added to unmerged 0009; persistence guard table list extended) records
+  each committed pass's fenced `selection_seq`; `window_state` says `NO_FINDING` only when a v2 pass covers the
+  window's current selection, else `FINDING_MATCH_PENDING`. B1: Indeterminate window = `NOT_DETERMINABLE`; body
+  has `window_claim_level`, `window_limitations`, `selected_run_id`, watermarks, `finding_match`.
+- B2: a pinned non-latest revision's currentness is `SUPERSEDED_BY_LATER_REVISION` + `latest_revision_id`;
+  `state.claim_is_current_refers_to = LATEST_REVISION`.
+- Q19: `build_finding_router(gate=...)` reuses `main.performance_gate`; an unconfigured gate is closed. Closed:
+  default detail and window reads 409 `PERFORMANCE_CUTOVER_CLOSED`; pinned `revision_id` 200 with
+  `audit_only`, `SOURCE_CLOSED` projection, no S3 read and S3 links withheld (`links.performance`). The
+  `finding-reads` operator CLI is ungated (Q23).
+- Open: Q21-Q24; phase 3 UI.
+
