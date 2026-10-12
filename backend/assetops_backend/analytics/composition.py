@@ -42,3 +42,20 @@ def build_lineage_reader(database_url: str | None):
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
 
     return PostgresAssessmentStore(database_url)
+
+
+def build_finding_store(database_url: str | None):
+    """The S4-01 Finding store (append-only; the only Finding writer)."""
+    from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
+
+    return PostgresFindingStore(database_url)
+
+
+def build_finding_matcher(database_url: str | None):
+    """The S4-01 `finding-episode-1` matcher over the selected dispatch read and the Finding store."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.adapters.postgres_finding_store import FindingFenceMoved
+    from assetops_backend.analytics.finding_service import FindingMatcher
+
+    return FindingMatcher(PostgresAssessmentStore(database_url), build_finding_store(database_url),
+                          fence_moved=FindingFenceMoved)
