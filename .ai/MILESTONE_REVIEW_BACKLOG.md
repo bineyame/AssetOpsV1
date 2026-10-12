@@ -2105,3 +2105,10 @@ The carried review findings above are unchanged.
 - Gateway states other than STALE proven only by browser response substitution; run a stored Disabled/Unknown case end to end before marking `readiness:2#a/2#b` delivered.
 - Coordinator suggestion (owner discussion): gateway panel should point to Site Evidence for completeness and source status rather than only "Not available yet".
 - Earlier: `SiteOverview.tsx:241` stale "No window" copy stays with S5-01; Lab interval drawing label-collision check (T025d) unverified behind the Lab precondition.
+
+## G activation rule carries (2026-10-13)
+
+- Activation order for G-01..G-05 is coordinator rule text, not checker-enforced (checker can't see V-01b merge).
+- `/^I-G-0[1-5]$/` hard-coded in `delivery_next_work.cjs`; an I-G-06 would not appear in `unscored_work`.
+- G-03's V-01b-merged gate is not in `open_prerequisites`; coordinator checks by hand.
+- `unscored_work` test covers only the ranked path, not the refused path; text report unverified.
