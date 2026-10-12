@@ -2065,3 +2065,9 @@ The carried review findings above are unchanged.
 - Phase 3 wording: an UNCONFIRMED revision replacing a NO_LONGER_SUPPORTED conclusion must not read as a new active issue (Q10 condition); a recurrence link to a now-unsupported prior Finding must not imply that issue is still active.
 - Phase 2: the "currently selected window" read must use the same window set the Finding basis uses (supported vs unsupported paths differ).
 
+### S4-01 phase 2 review carries (2026-10-12, `.agent/S4-01-phase-2-review.md`)
+
+- C5 (low): the canonical link follows only one merge; merge chains are not resolved.
+- C6 (low): `findings_over` loads every Site Finding with one query per row; an episode ending exactly at midnight counts as overlapping the next day.
+- C4 detail: OFF reports are matched by role and exact time, so another generator report at the same instant could be listed.
+
