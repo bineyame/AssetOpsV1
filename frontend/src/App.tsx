@@ -200,6 +200,7 @@ export function App({
                 foundation={siteFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
+                gatewayHealth={siteEvidence.gatewayHealth}
               />
             }
           />
@@ -211,6 +212,7 @@ export function App({
                 foundation={siteFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
+                gatewayHealth={siteEvidence.gatewayHealth}
               />
             }
           />

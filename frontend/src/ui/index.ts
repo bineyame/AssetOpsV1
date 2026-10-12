@@ -26,6 +26,7 @@ export {
 } from "./DataTable";
 export { Disclosure, type DisclosureProps } from "./Disclosure";
 export { NavRail, type NavRailItem, type NavRailProps } from "./NavRail";
+export { RailIcon, type RailIconName } from "./RailIcon";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { Panel, type PanelProps } from "./Panel";
 export {

@@ -12,7 +12,7 @@
 
 import { useState, type FormEvent } from "react";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import { Badge, DataTable, Disclosure, Fact, FactList, Panel, type BadgeTone } from "../ui";
 import type {
   BindingPublishOutcome,
   ConfigurationReadiness,
@@ -21,6 +21,7 @@ import type {
   SignalBinding,
 } from "./siteFoundationClient";
 import { formatInstant, utcInstantFromLocal } from "./FoundationRevisionPanel";
+import { ReadinessCards } from "./ReadinessOverview";
 
 export const FOUNDATION_READINESS_HEADING_ID = "foundation-readiness-heading";
 export const FOUNDATION_ROLES_HEADING_ID = "foundation-roles-heading";
@@ -32,6 +33,53 @@ const READINESS_WORD: Record<ConfigurationReadiness["state"], string> = {
   INCOMPLETE: "Incomplete",
   UNKNOWN: "Unknown",
 };
+
+/**
+ * Configuration-only colour (D-2026-10-12-v01a-owner-visual-rulings): green
+ * when every required role is configured with no Foundation gap, amber for a
+ * known configuration gap, neutral when the basis cannot be resolved. Colour
+ * never asserts contact, received records, accepted Evidence or health.
+ */
+const READINESS_TONE: Record<ConfigurationReadiness["state"], BadgeTone> = {
+  READY_TO_REPORT: "configured",
+  INCOMPLETE: "config-gap",
+  UNKNOWN: "neutral",
+};
+
+/**
+ * A role row's tone. An optional role that is not bound is neutral: it is not
+ * a gap, and it must not read amber beside a complete required verdict.
+ */
+export function roleTone(role: ReadinessRole, state?: ConfigurationReadiness["state"]): BadgeTone {
+  // Architect ruling: an absent or unresolvable basis stays neutral.
+  if (state === "UNKNOWN") return "neutral";
+  if (role.status === "CONFIGURED") return "configured";
+  return role.required ? "config-gap" : "neutral";
+}
+
+/** The legend and scope line shown beside the verdict. */
+export function ReadinessLegend() {
+  return (
+    <>
+      <ul className="readiness-legend" aria-label="Readiness colour legend" data-readiness-legend="">
+        <li>
+          <Badge tone="configured">Configured / Ready to report</Badge> configured for this version (the verdict says Ready to report when every required role is)
+        </li>
+        <li>
+          <Badge tone="config-gap">Needs configuration</Badge> a known required role, control or declaration is missing
+        </li>
+        <li>
+          <Badge tone="neutral">Unknown</Badge> the configuration basis cannot be resolved
+        </li>
+      </ul>
+      <p className="readiness-scope" data-readiness-colour-scope="">
+        Colours describe configuration of the selected Foundation version only. Green does not mean
+        a device is connected, records have arrived, Evidence is accepted or equipment is in good
+        condition.
+      </p>
+    </>
+  );
+}
 
 const ROLE_STATUS_WORD: Record<ReadinessRole["status"], string> = {
   CONFIGURED: "Configured",
@@ -88,38 +136,23 @@ function verdictSentence(readiness: ConfigurationReadiness): string {
  * counts of configuration, never of readings.
  */
 export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationReadModel }) {
-  const { readiness, bindings } = foundation;
-  const required = readiness.roles.filter((role) => role.required);
-  const configured = required.filter((role) => role.status === "CONFIGURED").length;
+  const { readiness } = foundation;
   const missing = readiness.roles.filter((role) => role.required && role.status !== "CONFIGURED");
-  const unboundChannels = readiness.channels.filter((channel) => channel.status !== "BOUND").length;
 
   return (
-    <Panel heading="Configuration readiness" headingId={FOUNDATION_READINESS_HEADING_ID}>
+    <Panel
+      heading="Configuration readiness"
+      headingId={FOUNDATION_READINESS_HEADING_ID}
+      description="Configuration readiness is distinct from claim readiness, which is on Site Evidence, and from gateway contact, which is reported separately below."
+    >
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
-          <Badge tone="neutral">{READINESS_WORD[readiness.state]}</Badge>
+          <Badge tone={READINESS_TONE[readiness.state]}>{READINESS_WORD[readiness.state]}</Badge>
         </p>
         <p className="verdict__sentence">{verdictSentence(readiness)}</p>
       </div>
-      <dl className="metric-row">
-        <div className="metric">
-          <dt>Required roles configured</dt>
-          <dd>{`${configured} of ${required.length}`}</dd>
-        </div>
-        <div className="metric">
-          <dt>Foundation gaps</dt>
-          <dd>{readiness.foundation_gaps.length}</dd>
-        </div>
-        <div className="metric">
-          <dt>Binding set</dt>
-          <dd>{bindings.binding_set === null ? "None" : `v${bindings.binding_set.version}`}</dd>
-        </div>
-        <div className="metric">
-          <dt>Declared channels not bound</dt>
-          <dd>{unboundChannels}</dd>
-        </div>
-      </dl>
+      <ReadinessCards foundation={foundation} />
+      <ReadinessLegend />
       {missing.length > 0 ? (
         <div data-readiness-missing="">
           <h3 className="subsection__heading">What is missing</h3>
@@ -175,7 +208,9 @@ export function RoleCoveragePanel({ foundation }: { foundation: FoundationReadMo
             <tr key={role.role} data-readiness-role={role.role}>
               <th scope="row">{role.label}</th>
               <td>{role.required ? "Required" : "Optional"}</td>
-              <td data-readiness-status={role.status}>{ROLE_STATUS_WORD[role.status]}</td>
+              <td data-readiness-status={role.status}>
+                <Badge tone={roleTone(role, readiness.state)}>{ROLE_STATUS_WORD[role.status]}</Badge>
+              </td>
               <td>{roleCoverage(role, bindings.mappings)}</td>
             </tr>
           ))}

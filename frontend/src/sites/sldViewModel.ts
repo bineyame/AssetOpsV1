@@ -407,6 +407,17 @@ const ARCHETYPE_SYMBOLS: Record<string, SldSymbol> = {
   COLD_ROOM: "COLD_ROOM",
 };
 
+/**
+ * The symbol for a declared component type, or null when the archetype has
+ * none. V-01a round 2: the Foundation topology cards draw the same icon the
+ * diagram does, from this one table.
+ */
+export function sldSymbolFor(componentType: string): SldSymbol | null {
+  return Object.prototype.hasOwnProperty.call(ARCHETYPE_SYMBOLS, componentType)
+    ? ARCHETYPE_SYMBOLS[componentType]
+    : null;
+}
+
 /** How each component type is drawn, as opposed to which symbol it gets. */
 const ARCHETYPE_VISUAL_ROLES: Record<string, SldVisualRole> = {
   PV_ARRAY: "TERMINAL",
