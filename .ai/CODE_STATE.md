@@ -5235,3 +5235,24 @@ Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. V
 - Open: the Lab run interval drawing now uses the bus-bar geometry; its browser label-collision check (layout-evidence T025d) is unverified behind the Lab precondition.
 - Open: `layout-evidence.mjs` still stops at the Lab run-setup precondition.
 
+
+### V-01a round 3 (readiness and organization; packet section "Round 3")
+
+- `sites/ReadinessOverview.tsx` (new): `readinessCards()`/`ReadinessCards` (four cards from typed `configuration_gaps`;
+  Unknown only on `NO_EFFECTIVE_REVISION`), `ReadinessEvidenceTable` (six rows; Confirmed always "Not recorded"),
+  `GatewayStatusPanel` over the S2 `/gateway-health` read (`App.tsx` → `SiteFoundationFrame` `gatewayHealth`).
+  Gateway badges are neutral; contact is labelled as server-time, apart from the selected `at`.
+- Plain-first layers: `Disclosure` "Advanced details — Foundation records | diagram records | roles, channels and
+  records | selected part channels" (`foundation-advanced`, `sld-advanced`, `readiness-advanced`,
+  `selected-part-channels-{model,sld}`). "Review or change bindings" (`[data-review-bindings]`) opens the Readiness one.
+- Site model: `IdentityPanel` critical-load/loads/productive-use/financial facts; `FoundationControlsPanel`
+  "Evidence / change" column (`[data-control-link]`). SLD: `[data-sld-missing]` note; parts table shows counts only.
+- `SelectedPartStrip` replaces the global Selected part panel (topology panel and `SiteSldPrimary` `strip`);
+  Readiness shows `[data-selected-part-chip]`. Sites: "Operating view" column and `sites-aggregate-absent` note.
+- Tools: `v01a_foundation_walkthrough.py` gains `--db/--empty-db/--work-name` and `drop` (refuses owner defaults);
+  `v01a-foundation-evidence.mjs` 185 claims, gateway variants via DevTools `Fetch` interception (documented in its
+  header); `layout-evidence.mjs` expects six Sites columns and excludes `[data-review-bindings]` from actions.
+- Open: only STALE gateway contact is reachable on the stored copy; other states are intercepted-response evidence.
+- Open: registry `readiness:2#a/2#b/3#a` and the ledger/registry conditional caveats wait for independent review
+  and the owner's decision; nothing was edited.
+- Open: `.readiness-cards` 2-column band (480-900 px) unmeasured; `layout-evidence.mjs` still stops at the Lab precondition.
