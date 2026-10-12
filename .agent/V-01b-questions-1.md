@@ -26,3 +26,34 @@ heading. **Ask:** owner preference at the V-01b checkpoint.
 The mock's "Evidence limited" badge is a capability judgement (registry `evidence:1#b`, unmapped).
 **Default:** the status bar shows only window facts (accepted readings, sources reporting, not accepted) and a
 neutral "No capability conclusion yet" badge. It never shows "Evidence limited", "Full" or any score.
+
+## Q4. Mock heading "How a claim limit is set" versus the product vocabulary guard
+
+The product vocabulary guard (`frontend/src/test/productVocabulary.ts`) bans "claim" on product screens. The guard was
+not loosened. **Default:** `evidence-analysis:2` is titled "How each limit is set". **Ask:** keep that wording, or
+should the guard admit the mock wording?
+
+## Q5. "Sources reported" in the Evidence status bar
+
+A source can send only refused readings and still count as having reported. **Default:** "K of M sources with
+accepted readings", which counts accepted readings only.
+
+## Q6. Mock "Portfolio evidence →"
+
+No W1 route exists for it (the `globalevidence` screen is W3). **Default:** the status bar's right-hand link is
+"Analysis →". No placeholder link is shown.
+
+## Q7. Per-report product consequence in Lab "Truth versus observed"
+
+Joining envelope → batch (`message_ids`) → the batch's aggregate decisions gives the exact consequence only when every
+decision in the batch is the same. **Default:** "Not available yet: the product consequence of each report …". No
+per-report consequence is inferred.
+
+## Q8. Lab drawing for a registered run after a Foundation change
+
+The run's interval drawing binds only while the Site's current Foundation is the version the run froze. On the
+walkthrough copy KOBO-001 is now at Foundation v10, and v10 blocks every mini-grid draft
+(LIFECYCLE_TIMING_NOT_ALIGNED). So no runnable registered run can draw, and the T025d label-collision claims can only
+be reported as a named precondition. **Default:** no product change; this is recorded as a known deviation.
+**Ask:** should the Lab drawing bind to the run's frozen Foundation version, or should the walkthrough fixture
+provide a runnable current Foundation (a separate slice)?
