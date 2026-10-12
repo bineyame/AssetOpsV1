@@ -192,7 +192,8 @@ async function main() {
       await go(nowView(path), loaded(text));
       const n = await js(`({ sel: ${SEL}, text: document.body.innerText })`);
       claim(`${label}: ${name} with no ?at= is the configuration in effect now`,
-        /in effect now/i.test(n.sel?.label ?? "") && /configuration in effect now/i.test(n.text) && !/Scheduled period/i.test(n.text), n.sel);
+        /in effect now/i.test(n.sel?.label ?? "") && n.sel?.value === "" && (name === "foundation" || /configuration in effect now/i.test(n.text))
+          && !/(Scheduled|Historical) period:/.test(n.text), n.sel);
       await layout(`${label}: ${name} (in effect now)`);
       await shot(`app-${name}-now-${label}`);
     }

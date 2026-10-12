@@ -41,7 +41,7 @@ The page heading is the view name ("Foundation"), with the Site name and code be
 ## Acceptance criteria
 
 - **Compare by manifest ID and supported portion: met.** See the table above. `tools/v01a-foundation-evidence.mjs` asserts the mock panels and the app's supported panels per ID.
-- **1440 and 390 pairs for populated and missing states: met.** States covered: Sites populated and empty, Foundation current and no-stored-version, SLD current and imported period, and Readiness. Screenshots are written to the tool's output directory.
+- **1440 and 390 pairs for populated and missing states: met.** States covered: Sites populated and empty, Foundation, SLD and Readiness in effect now (no `?at=`, v10) and at the scheduled v13 period (`?at=2026-10-22`, not in effect until 21 Oct 2026), Foundation no-stored-version, the SLD imported period (captured in fix round 1), and Readiness. Screenshots are written to the tool's output directory.
 - **Hierarchy, density, labels, focus, keyboard, selection, route and reload: met.** Labels and sub-lines are fixed. Tab reaches the subtab with a visible focus style. Enter keeps `?at=`. Tab moves to the next subtab.
 - **Foundation revision and bound component stable: met.** The selected period survives reload and the subtab switch, and the selector now shows it truthfully. Each part's bound channels are identical after reload. They differ when the period changes (`pv-inverter` and `battery-pcs`, a non-empty set), which proves the check can tell periods apart. This uses the Q4 reading.
 - **Readiness distinguishes configuration from operational status, with PRE-S3-04 incorporated: met.** The wording is asserted. A health word may appear only inside a disclaiming sentence.
@@ -63,6 +63,7 @@ The page heading is the view name ("Foundation"), with the Site name and code be
 ## Known deviations
 
 - Q1-Q5 (`.agent/V-01a-questions-1.md`) are defaulted to the current app, and the owner decides them.
+- 390 px `sld:2`: the parts-list table is 433 px wide in a 309 px scroll region, so the Channels column and the caption scroll off-screen. Accepted narrow-width difference, no CSS change; the column is reachable by horizontal scroll and the claim (bound channels per part) is unchanged.
 - `SiteOverview.tsx:241` (backlog C2) is not a V-01a screen and stays with S5-01.
 
 ## Residual risk
@@ -76,3 +77,12 @@ The page heading is the view name ("Foundation"), with the Site name and code be
 - The four mock/app pairs at both widths.
 - Decide Q1 (bus-bar SLD redraw) and Q3 (neutral readiness tones). These are the two visible differences most likely to matter.
 - Confirm the period selector and devices caption fixes in steps 2 and 4 of the walkthrough.
+
+## Fix round 1 (against `.agent/V-01a-review.md`)
+
+- **B1:** walkthrough `PERIODS` relabelled (v13 is "Scheduled ... not in effect yet"; the comment now says the instants lie inside periods, not at `valid_from`). `links` prints the no-`?at=` in-effect-now routes first. The evidence tool adds in-effect-now app screenshots for Foundation, SLD and Readiness at both widths (`app-*-now-*`), with a claim that the selector reads "In effect now" and no "Scheduled/Historical period:" strip appears; the previous populated shots are renamed `app-*-scheduled-*`. Owner walkthrough and "States covered" corrected. The mock pair for in effect now is the same mock panel (the mock has one configuration).
+- **C1:** `SITE_SLD_INTRODUCTION` now says whether any reading has arrived is not assessed in this view. New vitest asserts it and the absence of "no reading has arrived"; it fails on the old copy (1 failed of 78) and passes now.
+- **C2:** recorded above as an accepted difference (no CSS change).
+- **C3:** imported-period SLD now captured (`app-sld-imported-*`).
+- Checks: vitest 55 files / 1327 passed; `tsc --noEmit` 0; `npm run build` exit 0; `tools/check-all.ps1` all 6 guards passed; `prepare` and `links` rerun on 8860/8861/5360/5361; evidence tool **62/62**, exit 0 (two claims initially failed on my own over-broad text match of unrelated form copy and were corrected). Servers stopped; those four ports are free.
+- Not re-run: `layout-evidence.mjs` (no layout CSS changed).
