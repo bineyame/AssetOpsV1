@@ -46,6 +46,7 @@
     },
     {
       "id": "sites",
+      "gap_backfill_task": "G-02",
       "mock_route": "#/sites",
       "product_destination": "Sites",
       "coverage": "partial",
@@ -73,6 +74,7 @@
     },
     {
       "id": "mini",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/mini",
       "product_destination": "Sites > Overview",
       "coverage": "bounded",
@@ -100,6 +102,7 @@
     },
     {
       "id": "foundation",
+      "gap_backfill_task": "G-02",
       "mock_route": "#/foundation",
       "product_destination": "Sites > Foundation",
       "coverage": "bounded",
@@ -125,6 +128,7 @@
     },
     {
       "id": "readiness",
+      "gap_backfill_task": "G-02",
       "mock_route": "#/readiness",
       "product_destination": "Sites > Foundation",
       "coverage": "bounded",
@@ -153,6 +157,7 @@
     },
     {
       "id": "changes",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/changes",
       "product_destination": "Sites > Foundation",
       "coverage": "bounded",
@@ -178,6 +183,7 @@
     },
     {
       "id": "dispatch",
+      "gap_backfill_task": "G-04",
       "mock_route": "#/dispatch",
       "product_destination": "Sites > Performance",
       "coverage": "bounded",
@@ -240,6 +246,7 @@
     },
     {
       "id": "evidence",
+      "gap_backfill_task": "G-03",
       "mock_route": "#/evidence",
       "product_destination": "Sites > Evidence",
       "coverage": "bounded",
@@ -265,6 +272,7 @@
     },
     {
       "id": "finding",
+      "gap_backfill_task": "G-04",
       "registry_dependencies": {
         "product_node_id": "P-finding",
         "node_ids": [
@@ -302,6 +310,7 @@
     },
     {
       "id": "analysis",
+      "gap_backfill_task": "G-04",
       "mock_route": "#/analysis",
       "product_destination": "Findings > Analysis",
       "coverage": "bounded",
@@ -327,6 +336,7 @@
     },
     {
       "id": "financials",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/financials",
       "product_destination": "Sites > Financials",
       "coverage": "bounded",
@@ -352,6 +362,7 @@
     },
     {
       "id": "assumptions",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/assumptions",
       "product_destination": "Sites > Financials",
       "coverage": "bounded",
@@ -377,6 +388,7 @@
     },
     {
       "id": "recommendation",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/recommendation",
       "product_destination": "Findings > Recommendation",
       "coverage": "bounded",
@@ -402,6 +414,7 @@
     },
     {
       "id": "verification",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/verification",
       "product_destination": "Actions > Verification",
       "coverage": "bounded",
@@ -427,6 +440,7 @@
     },
     {
       "id": "asset",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/asset",
       "product_destination": "Assets > Health",
       "coverage": "bounded",
@@ -454,6 +468,7 @@
     },
     {
       "id": "health",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/health",
       "product_destination": "Sites > Health",
       "coverage": "bounded",
@@ -481,6 +496,7 @@
     },
     {
       "id": "lab",
+      "gap_backfill_task": "G-03",
       "mock_route": "#/lab",
       "product_destination": "Simulator Lab > Gateway & Ingestion",
       "coverage": "bounded",
@@ -983,6 +999,7 @@
     },
     {
       "id": "sitefindings",
+      "gap_backfill_task": "G-04",
       "registry_dependencies": {
         "product_node_id": "P-sitefindings",
         "node_ids": [
@@ -1025,6 +1042,7 @@
     },
     {
       "id": "sitework",
+      "gap_backfill_task": "G-05",
       "registry_dependencies": {
         "product_node_id": "P-sitework",
         "node_ids": [
@@ -1122,6 +1140,7 @@
     },
     {
       "id": "evidence-analysis",
+      "gap_backfill_task": "G-03",
       "mock_route": "#/evidence-analysis",
       "product_destination": "Sites > Evidence",
       "coverage": "bounded",
@@ -2249,6 +2268,7 @@
     },
     {
       "id": "finding-evidence",
+      "gap_backfill_task": "G-04",
       "mock_route": "#/finding-evidence",
       "product_destination": "Findings > Evidence",
       "coverage": "bounded",
@@ -2306,6 +2326,7 @@
     },
     {
       "id": "finding-history",
+      "gap_backfill_task": "G-04",
       "mock_route": "#/finding-history",
       "product_destination": "Findings > History",
       "coverage": "deferred",
@@ -2338,6 +2359,7 @@
     },
     {
       "id": "action-overview",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/action-overview",
       "product_destination": "Actions > Overview",
       "coverage": "bounded",
@@ -2363,6 +2385,7 @@
     },
     {
       "id": "action-plan",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/action-plan",
       "product_destination": "Actions > Plan",
       "coverage": "deferred",
@@ -2395,6 +2418,7 @@
     },
     {
       "id": "action-execution",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/action-execution",
       "product_destination": "Actions > Execution",
       "coverage": "deferred",
@@ -2427,6 +2451,7 @@
     },
     {
       "id": "action-evidence",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/action-evidence",
       "product_destination": "Actions > Evidence",
       "coverage": "deferred",
@@ -2459,6 +2484,7 @@
     },
     {
       "id": "action-history",
+      "gap_backfill_task": "G-05",
       "mock_route": "#/action-history",
       "product_destination": "Actions > History",
       "coverage": "deferred",
@@ -2764,6 +2790,7 @@
     },
     {
       "id": "sld",
+      "gap_backfill_task": "G-02",
       "mock_route": "#/sld",
       "product_destination": "Sites > Foundation",
       "coverage": "bounded",
