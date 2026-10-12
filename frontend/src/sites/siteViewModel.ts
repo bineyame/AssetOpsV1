@@ -44,8 +44,6 @@ export interface SiteView {
   sourceMode: string;
   configurationOrigin: string;
   templateProvenance: string;
-  /** See `NO_ANALYSIS_IN_WINDOW`. Always that value in M1. */
-  lastAnalysed: string;
 }
 
 const SITE_TYPE_LABELS: Record<string, string> = {
@@ -76,20 +74,6 @@ const CONFIGURATION_ORIGIN_LABELS: Record<string, string> = {
 export const NO_TEMPLATE_PROVENANCE = "Not created from a template";
 
 /**
- * What the `Last analysed` column shows while no evidence has been analysed.
- *
- * This is v6.9's own rendering for a site with no data in the selected window,
- * not a placeholder standing in for a timestamp the product will fill in later.
- * The canonical mockup puts real timestamps in this column; those are evidence
- * the product does not have, and reproducing them would be the clearest case of
- * a mockup literal becoming content.
- *
- * It is a constant rather than a literal in the table so that the day evidence
- * exists, there is one place that stops being true.
- */
-export const NO_ANALYSIS_IN_WINDOW = "--";
-
-/**
  * A canonical value rendered in the words a reader sees, or the value itself.
  *
  * Exported because the diagram and the tables must spell a role and a medium
@@ -113,7 +97,6 @@ export function deriveSiteView(site: SiteSummary): SiteView {
       site.template === null
         ? NO_TEMPLATE_PROVENANCE
         : `${site.template.template_id} v${site.template.template_version}`,
-    lastAnalysed: NO_ANALYSIS_IN_WINDOW,
   };
 }
 

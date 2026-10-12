@@ -25,26 +25,23 @@ type LineageAnswers = ReadonlyMap<string, SiteTemplateLineageReadModel> | null;
  *
  * What it shows, and why each column exists separately:
  *
- * - Configuration origin, source mode, and lifecycle status are three
- *   independent facts in three separate columns. The canonical mockup puts
- *   `Simulated` and `Planned` in one `Status` column, which collapses
- *   provenance into status; that is a mockup error to correct rather than
- *   copy.
+ * - Site (name, identity and location), Type and Mode are the compact primary
+ *   row (V-01a round 2, `D-2026-10-12-v01a-owner-visual-rulings`). Mode is
+ *   provenance, never status.
+ * - Lifecycle, configuration origin and template provenance are three
+ *   independent facts, kept as three labelled entries in the row's "Setup
+ *   details" disclosure. The canonical mockup puts `Simulated` and `Planned`
+ *   in one `Status` column, which collapses provenance into status; that is a
+ *   mockup error to correct rather than copy.
  * - Template provenance says which template the foundation was copied from. It
  *   is provenance, not identity: the site is addressed by its site ID and
  *   never by the template it came from.
- * - `Last analysed` is evidence-derived and renders `--` for every site,
- *   because no evidence has been analysed in any window. Until T011 this
- *   column was absent on the grounds that a column of dashes teaches a
- *   capability the product lacks. v6.9 renders exactly that dash for a site
- *   with no data in the window, so the column states a fact about this build
- *   rather than promising one; what it replaces, the mockup's `Last Data`
- *   timestamps, would have been the fabrication.
  *
- * What it still does not show: canonical assessment, top issue, evidence
- * readiness, source health, charts, analytics, Replay, findings. Each needs an
- * accepted-evidence model that does not exist, and each arrives with the
- * evidence that fills it.
+ * What it does not show: the mock's Assessment, Top issue, Evidence limit and
+ * Last analysed columns. Each needs a selected-window, freshness or ranking
+ * contract this directory does not have (S2 Evidence and S3 assessment are
+ * per Site and window; S4-01 is Finding detail, not a ranked index). A
+ * sentence beside the table says so instead of a column of dashes.
  *
  * No edit, save, publish, rename, duplicate, delete, approve, diff, history,
  * or rollback control appears here, enabled or disabled, and the Actions
@@ -308,55 +305,45 @@ export interface SiteTableProps {
  * The column set, in one place so a test can assert it and a reader can see it
  * whole.
  *
- * Nine columns, which is two more than the settled Sites index inventory in
- * `.ai/FEATURE_MAP.md` lists. The inventory names seven and omits configuration
- * origin and template provenance entirely; the T006 user-review checkpoint
- * accepted "the eight Sites index columns with mode, lifecycle, configuration
- * origin, and template provenance as four separate columns". Where a user
- * review has already settled a surface, that decision settles it, so the two
- * the checkpoint named are kept.
- *
- * What is absent, and why, is as much the point as what is here. Canonical
- * assessment, top issue and evidence readiness are v6.9 columns with no source
- * in M1: no accepted evidence, no assessment derivation, no finding model. The
- * mockup's `Last Data` timestamps are evidence too, which is why the column
- * that replaces it renders `--` instead.
+ * Compact on purpose (owner feedback, V-01a round 2): the three primary facts,
+ * the setup disclosure holding lifecycle, origin and template as separate
+ * labelled entries, and the row's View link. No analytical column: see
+ * `DIRECTORY_ANALYSIS_ABSENT`.
  */
-const COLUMNS = [
-  "Name",
-  "Type",
-  "Location",
-  "Mode",
-  "Lifecycle",
-  "Configuration origin",
-  "Created from template",
-  "Last analysed",
-  "Actions",
-] as const;
+const COLUMNS = ["Site", "Type", "Mode", "Setup details", "Actions"] as const;
+
+/** Why the mock's four analytical columns are absent from this directory. */
+export const DIRECTORY_ANALYSIS_ABSENT =
+  "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments.";
 
 export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
   return (
-    <DataTable labelledBy="sites-list-heading">
-      <thead>
-        <tr>
-          {COLUMNS.map((column) => (
-            <th scope="col" key={column}>
-              {column}
-            </th>
+    <>
+      <DataTable labelledBy="sites-list-heading">
+        <thead>
+          <tr>
+            {COLUMNS.map((column) => (
+              <th scope="col" key={column}>
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {sites.map((site) => (
+            <SiteRow
+              key={site.site_id}
+              site={site}
+              siteHref={siteHref}
+              lineage={lineage?.get(site.site_id)}
+            />
           ))}
-        </tr>
-      </thead>
-      <tbody>
-        {sites.map((site) => (
-          <SiteRow
-            key={site.site_id}
-            site={site}
-            siteHref={siteHref}
-            lineage={lineage?.get(site.site_id)}
-          />
-        ))}
-      </tbody>
-    </DataTable>
+        </tbody>
+      </DataTable>
+      <p className="panel__body panel__note" data-testid="sites-analysis-absent">
+        {DIRECTORY_ANALYSIS_ABSENT}
+      </p>
+    </>
   );
 }
 
@@ -372,53 +359,58 @@ export function SiteRow({ site, siteHref, lineage }: SiteRowProps) {
   return (
     <tr>
       {/*
-       * Name and identity in one cell, as canonical screen 1 draws it. The
-       * link is still built from `site_id` and from nothing else: a site is
+       * Name, identity and location in one cell, as canonical screen 1 draws
+       * it. The link is built from `site_id` and nothing else: a site is
        * addressed by its identity, and the display name is what a reader
        * recognises rather than what resolves.
        */}
       <td>
         <Link to={siteHref(view.siteId)}>{view.displayName}</Link>
-        <span className="cell-secondary">{view.siteId}</span>
+        <span className="cell-secondary">
+          <span>{view.siteId}</span>
+          {" · "}
+          <span>{view.location}</span>
+        </span>
       </td>
       <td>{view.siteType}</td>
-      <td>{view.location}</td>
-      {/*
-       * Three vocabularies, three columns, three tones, and never one status
-       * pill. The canonical mockup puts `Simulated` and `Planned` in a single
-       * `Status` column; that collapses provenance into status, which v6.9
-       * forbids three separate times, and correcting it is the most
-       * consequential thing this screen does. A reader who learns
-       * `Status: Simulated` here carries that model into every screen after it.
-       *
-       * Each of the three is a badge because each is derived from a field the
-       * record always carries. Template provenance below is deliberately not:
-       * a site that came from no template renders `Not created from a
-       * template`, and a badge around an absence dresses it as a state the
-       * site is in.
-       */}
       <td>
         <Badge tone="provenance">{view.sourceMode}</Badge>
       </td>
-      <td>
-        <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
-      </td>
-      <td>
-        <Badge tone="origin">{view.configurationOrigin}</Badge>
-      </td>
-      <td>
-        <TemplateProvenanceText
-          site={site}
-          provenance={view.templateProvenance}
-          lineage={lineage}
-        />
-      </td>
       {/*
-       * Evidence-derived, and there is no evidence. `--` is v6.9's rendering
-       * for a site with no data in the window, not a placeholder for a
-       * timestamp arriving later.
+       * Three vocabularies, three labelled entries, three tones, and never one
+       * status pill. Template provenance is deliberately not a badge: a site
+       * that came from no template renders `Not created from a template`, and a
+       * badge around an absence dresses it as a state the site is in.
        */}
-      <td className="muted">{view.lastAnalysed}</td>
+      <td>
+        <details className="site-setup">
+          <summary className="site-setup__summary">Setup details</summary>
+          <dl className="site-setup__facts">
+            <div>
+              <dt>Lifecycle</dt>
+              <dd>
+                <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
+              </dd>
+            </div>
+            <div>
+              <dt>Configuration origin</dt>
+              <dd>
+                <Badge tone="origin">{view.configurationOrigin}</Badge>
+              </dd>
+            </div>
+            <div>
+              <dt>Created from template</dt>
+              <dd>
+                <TemplateProvenanceText
+                  site={site}
+                  provenance={view.templateProvenance}
+                  lineage={lineage}
+                />
+              </dd>
+            </div>
+          </dl>
+        </details>
+      </td>
       <td>
         <Link to={siteHref(view.siteId)}>View</Link>
       </td>

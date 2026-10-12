@@ -224,7 +224,13 @@ describe("the index filters over the sites it actually has", () => {
     return within(screen.getByRole("table"))
       .getAllByRole("row")
       .slice(1)
-      .map((row) => within(row).getAllByRole("cell")[0].textContent ?? "");
+      .map((row) => {
+        const cell = within(row).getAllByRole("cell")[0];
+        // Name plus identity; the location shares the secondary line.
+        const link = cell.querySelector("a")?.textContent ?? "";
+        const id = cell.querySelector(".cell-secondary span")?.textContent ?? "";
+        return link + id;
+      });
   }
 
   function optionsOf(id: string): string[] {
@@ -383,7 +389,7 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
     expect(within(shippedSimulated).queryByText("User")).toBeNull();
   });
 
-  it("gives mode, lifecycle, and origin three separate columns", async () => {
+  it("keeps mode primary and lifecycle, origin and template as separate labelled setup facts", async () => {
     renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
 
     const headers = within(await screen.findByRole("table"))
@@ -399,14 +405,10 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
     // that matters here. The mockup's single `Status` column is the error this
     // screen exists to correct.
     expect(headers).toEqual([
-      "Name",
+      "Site",
       "Type",
-      "Location",
       "Mode",
-      "Lifecycle",
-      "Configuration origin",
-      "Created from template",
-      "Last analysed",
+      "Setup details",
       "Actions",
     ]);
 
@@ -475,6 +477,8 @@ describe("the index shows no capability the product lacks", () => {
       ["SELECT", "sites-mode"],
       ["SELECT", "sites-lifecycle"],
       ["A", "/sites/MG-002"],
+      ["DETAILS", null],
+      ["SUMMARY", null],
       ["A", "/sites/MG-002"],
     ]);
     expect(spacedText(container)).not.toMatch(FORBIDDEN_ACTION_PATTERN);
@@ -533,7 +537,7 @@ describe("the index shows no capability the product lacks", () => {
     );
   });
 
-  it("renders Last analysed as a dash for every site, never a timestamp", async () => {
+  it("has no Last analysed dash column and explains the absent analytical columns", async () => {
     renderIndex({
       status: "loaded",
       sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
@@ -544,23 +548,34 @@ describe("the index shows no capability the product lacks", () => {
     const headers = within(table)
       .getAllByRole("columnheader")
       .map((header) => (header.textContent ?? "").trim());
-    const column = headers.indexOf("Last analysed");
-    expect(column).toBeGreaterThan(-1);
-
-    const cells = within(table)
-      .getAllByRole("row")
-      .slice(1)
-      .map((row) => (within(row).getAllByRole("cell")[column].textContent ?? "").trim());
-
-    // Every site, not just the first. `--` is v6.9's rendering for a site with
-    // no data in the window; the mockup's timestamps are evidence this build
-    // does not have, and reproducing one would be the clearest case of a
-    // mockup literal becoming content.
-    expect(cells).toEqual(["--", "--"]);
-    for (const cell of cells) {
-      expect(cell).not.toMatch(/\d/);
-      expect(cell).not.toMatch(/ago|min|hour|day|:/i);
+    expect(headers).not.toContain("Last analysed");
+    for (const header of headers) {
+      expect(header).not.toMatch(/assessment|top issue|evidence|last analys/i);
     }
+    // No cell is a bare dash standing in for an analysis that never happened.
+    for (const cell of within(table).getAllByRole("cell")) {
+      expect((cell.textContent ?? "").trim()).not.toBe("--");
+    }
+    // The four mock columns are explained once, beside the table, without a
+    // value, a count or a health word.
+    const note = screen.getByTestId("sites-analysis-absent");
+    expect(note.textContent).toBe(
+      "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments.",
+    );
+    expect(note.textContent).not.toMatch(/\d|healthy|no issue/i);
+  });
+
+  it("puts identity and location in the Site cell's secondary line", async () => {
+    renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
+    const row = within(await screen.findByRole("table")).getAllByRole("row")[1];
+    const siteCell = within(row).getAllByRole("cell")[0];
+    expect(siteCell.querySelector(".cell-secondary")?.textContent).toBe(
+      "MG-002 · Kalangala, Uganda",
+    );
+    const details = within(row).getByText("Setup details").closest("details");
+    expect(details).not.toBeNull();
+    const terms = Array.from(details!.querySelectorAll("dt")).map((dt) => dt.textContent);
+    expect(terms).toEqual(["Lifecycle", "Configuration origin", "Created from template"]);
   });
 });
 
