@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-import { AppHeader, NavRail } from "../ui";
+import { AppHeader, NavRail, type NavRailItem } from "../ui";
 
 /**
  * Operator navigation layout.
@@ -34,9 +34,9 @@ import { AppHeader, NavRail } from "../ui";
  * the group headers (`D-2026-10-02-grammar-ownership-test`): the grouped rail
  * is the target, filtered to live items, so each group here holds one item.
  */
-const operatorRoutes = [
-  { to: "/sites", label: "Sites", end: false, group: "OPERATE" },
-  { to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE" },
+const operatorRoutes: NavRailItem[] = [
+  { to: "/sites", label: "Sites", end: false, group: "OPERATE", icon: "site" },
+  { to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE", icon: "finding" },
 ];
 
 /**

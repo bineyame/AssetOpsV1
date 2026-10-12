@@ -47,17 +47,14 @@ const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
 /** T011's nine columns, written out rather than imported. */
-const SITES_INDEX_COLUMNS = [
-  "Name",
-  "Type",
-  "Location",
-  "Mode",
-  "Lifecycle",
-  "Configuration origin",
-  "Created from template",
-  "Last analysed",
-  "Actions",
-];
+/**
+ * V-01a round 2 (Architect item 1, `D-2026-10-12-v01a-owner-visual-rulings`)
+ * compacted the inventory: location sits under the Site name, and Lifecycle,
+ * Configuration origin and Created from template moved into the labelled
+ * "Setup details" disclosure. No fact was dropped; `Last analysed` was an
+ * all-dash column and is explained beside the table instead.
+ */
+const SITES_INDEX_COLUMNS = ["Site", "Type", "Mode", "Setup details", "Actions"];
 
 /**
  * The rendered Site tabs, written out rather than imported
@@ -231,14 +228,14 @@ describe.each(SURFACES_WITH_A_TABLE)(
 );
 
 describe("the correction buys no space from the inventories", () => {
-  it("leaves the Sites index with all nine columns", async () => {
+  it("leaves the Sites index with all its columns", async () => {
     renderAt("/sites");
     await screen.findByRole("table");
 
     // The M1 viewport policy is explicit that a column is never dropped
     // because the viewport is narrow: that would be a further state beside not
-    // rendered and disabled, and these nine were settled at
-    // the T006 user-review checkpoint. Containing the overflow is the layout
+    // rendered and disabled. The set itself was settled at T006 and compacted
+    // by the V-01a round 2 owner ruling. Containing the overflow is the layout
     // change; losing a column would have been a product change.
     expect(
       within(screen.getByRole("table"))

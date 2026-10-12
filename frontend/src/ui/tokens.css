@@ -35,23 +35,42 @@
   --weight-semibold: 600;
   --weight-bold: 700;
 
+  /* V-01a round 2 (owner follow-up: "pay attention to color and font size"):
+     the v6.9 mock's type scale, in one place. Page title 27px, panel title
+     15px, subsection 13px, panel note and table text 11px, table head 9px,
+     tabs 12px and subtabs 11px, rail 12px with a 9px group eyebrow. */
+  --text-page-title: 1.6875rem;
+  --text-panel-title: 0.9375rem;
+  --text-subsection-title: 0.8125rem;
+  --text-panel-note: 0.6875rem;
+  --text-table: 0.6875rem;
+  --text-table-head: 0.5625rem;
+  --text-cell-secondary: 0.625rem;
+  --text-tab: 0.75rem;
+  --text-subtab: 0.6875rem;
+  --text-rail: 0.75rem;
+  --text-rail-eyebrow: 0.5625rem;
+  --weight-heading: 650;
+
   --leading-tight: 1.25;
   --leading-normal: 1.5;
   --leading-relaxed: 1.65;
 
   /* Neutral surfaces ------------------------------------------------------ */
-  --surface-page: #f6f8fb;
+  --surface-page: #f5f7fb;
   --surface-raised: #ffffff;
   --surface-sunken: #f1f4f9;
   --surface-hover: #eef2f8;
 
   /* Borders --------------------------------------------------------------- */
-  --border-subtle: #e3e8ef;
+  --border-subtle: #e0e6ef;
   --border-strong: #cbd5e1;
 
   /* Text ------------------------------------------------------------------ */
-  --text-primary: #0f172a;
-  --text-secondary: #55617a;
+  /* Mock --ink and --muted. --text-muted stays darker than the mock's table
+     head grey (#758198), which is under 4.5:1 at its size. */
+  --text-primary: #17243b;
+  --text-secondary: #617087;
   --text-muted: #6b7690;
 
   /* Accent ---------------------------------------------------------------- */
@@ -68,10 +87,11 @@
 
   /* Navigation rail ------------------------------------------------------- */
   --rail-surface: #16233f;
-  --rail-surface-hover: #1f3157;
-  --rail-text: #c3cddf;
+  --rail-surface-hover: #243956;
+  --rail-text: #c5cfdf;
   --rail-text-strong: #ffffff;
-  --rail-active-surface: #2563eb;
+  --rail-eyebrow: #93a3bd;
+  --rail-active-surface: #285fcd;
   --rail-border: #24365c;
 
   /*
@@ -133,6 +153,10 @@
   --series-3: #1baf7a;
   --series-4: #eda100;
 
+  /* Tabs (mock `.tabs`): neutral ink, accent only on the current tab. */
+  --tab-text: #58667f;
+  --tab-gap: 1.5625rem;
+
   /* Spacing --------------------------------------------------------------- */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -151,4 +175,11 @@
 
   /* Layout ---------------------------------------------------------------- */
   --rail-width: 13.5rem;
+}
+
+/* The mock narrows the tab gap below 1100px. */
+@media (max-width: 1100px) {
+  :root {
+    --tab-gap: 1.125rem;
+  }
 }

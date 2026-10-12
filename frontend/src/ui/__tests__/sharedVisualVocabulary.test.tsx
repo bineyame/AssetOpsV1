@@ -201,3 +201,23 @@ describe("a badge renders only where a record supplies its value", () => {
     expect(document.querySelectorAll(".badge")).toHaveLength(0);
   });
 });
+
+describe("V-01a round 2: each rail root carries the mock's line icon, decoratively", () => {
+  it.each([
+    ["/sites", "Operator routes", [["Sites", "site"], ["Findings", "finding"]]],
+    [SIMULATOR_LAB_PATH, "Simulator Lab routes", [["Simulator Lab", "lab"], ["Site Templates", "book"], ["Scenarios", "log"], ["Runs", "clock"]]],
+  ] as const)("%s: one hidden icon per link, and the link is still named by its label", async (path, railName, expected) => {
+    renderAt(path, ENABLED);
+    await settledScreen();
+    const rail = screen.getByRole("navigation", { name: railName });
+    const links = within(rail).getAllByRole("link");
+    expect(links.map((link) => [link.textContent, link.querySelector("[data-rail-icon]")?.getAttribute("data-rail-icon")])).toEqual(
+      expected.map(([labelText, icon]) => [labelText, icon]),
+    );
+    for (const link of links) {
+      const icon = link.querySelector("svg") as SVGElement;
+      expect(icon.getAttribute("aria-hidden")).toBe("true");
+      expect(within(rail).getByRole("link", { name: link.textContent ?? "" })).toBe(link);
+    }
+  });
+});

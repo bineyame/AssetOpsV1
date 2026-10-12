@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom";
 
+import { RailIcon, type RailIconName } from "./RailIcon";
+
 /**
  * The left navigation rail, as a real component.
  *
@@ -27,6 +29,8 @@ export interface NavRailItem {
    * render with no header.
    */
   group?: string;
+  /** V-01a round 2: the root's line icon, decorative beside the label. */
+  icon?: RailIconName;
 }
 
 export interface NavRailProps {
@@ -58,7 +62,8 @@ export function NavRail({ label, items }: NavRailProps) {
             {section.items.map((item) => (
               <li key={item.to}>
                 <NavLink className="nav-rail__link" to={item.to} end={item.end}>
-                  {item.label}
+                  {item.icon === undefined ? null : <RailIcon name={item.icon} />}
+                  <span className="nav-rail__label">{item.label}</span>
                 </NavLink>
               </li>
             ))}

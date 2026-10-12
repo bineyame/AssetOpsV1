@@ -2,6 +2,7 @@ import type { SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { ReactElement } from "react";
 
 import type { FeatureFlags } from "../config/featureFlags";
+import type { NavRailItem } from "../ui";
 import { CreateSiteFrame } from "./CreateSiteFrame";
 import { RunFrame } from "./RunFrame";
 import { RunSetupFrame } from "./RunSetupFrame";
@@ -216,21 +217,21 @@ export function runHref(runId: string): string {
  * The create flow is not here. It is an action reached from a site index, not
  * a place, and it already has its entry points.
  */
-const SIMULATOR_LAB_RAIL_ITEMS = [
-  { to: SIMULATOR_LAB_PATH, label: "Simulator Lab", end: true },
-  { to: SITE_TEMPLATES_PATH, label: "Site Templates", end: false },
+const SIMULATOR_LAB_RAIL_ITEMS: NavRailItem[] = [
+  { to: SIMULATOR_LAB_PATH, label: "Simulator Lab", end: true, icon: "lab" },
+  { to: SITE_TEMPLATES_PATH, label: "Site Templates", end: false, icon: "book" },
   // T017 adds the third. The mockup rail has drawn `Scenarios` since the
   // beginning and it has been absent every time, because nothing stood behind
   // it. It appears now for the reason the other two did: the route renders
   // real scenario records from the real scenario store. The rail still lists
   // only what exists - `Devices`, `Ingestion`, `Events`, `Library`,
   // `Documentation` and `Settings` remain absent rather than dead.
-  { to: SCENARIOS_PATH, label: "Scenarios", end: false },
+  { to: SCENARIOS_PATH, label: "Scenarios", end: false, icon: "log" },
   // T020 adds the fourth, and for the reason the other three are here: the
   // route renders real run records from the real run store. `Devices`,
   // `Ingestion`, `Events`, `Library`, `Documentation` and `Settings` remain
   // absent rather than dead.
-  { to: RUNS_PATH, label: "Runs", end: false },
+  { to: RUNS_PATH, label: "Runs", end: false, icon: "clock" },
 ];
 
 export interface GatedRoute {

@@ -70,6 +70,18 @@ function Invoke-ShellOverflowCheck {
     $graphicsScrollClass = ".assessment-graphic"
     $graphicsModule = "frontend/src/sites/assessmentGraphics.tsx"
 
+    # V-01a round 2: fixed-size icons are the sixth, and the only svg allowed
+    # without a region. A rail or component-type icon is drawn at a fixed
+    # pixel size (18px rail icons; component icons at an explicit width no
+    # larger than a card's icon slot), so it has no intrinsic width to
+    # overflow. Only these two modules may draw one, and each must keep its
+    # fixed size declared on the element it draws.
+    $iconModules = @{
+        "frontend/src/ui/RailIcon.tsx"        = 'className="nav-rail__icon"'
+        "frontend/src/sites/componentIcons.tsx" = 'width={size}'
+    }
+    $iconSvgSeen = @{}
+
     if (-not (Test-Path -LiteralPath $primitivesCss -PathType Leaf)) {
         $failures.Add("Missing $primitivesCss, so every overflow rule below is unenforceable") | Out-Null
         return $failures
@@ -343,6 +355,15 @@ function Invoke-ShellOverflowCheck {
                 $graphicsSvgSeen = $true
                 continue
             }
+            if ($iconModules.ContainsKey($module.Path)) {
+                $iconSvgSeen[$module.Path] = $true
+                if (($module.Lines -join "`n") -notmatch [regex]::Escape($iconModules[$module.Path])) {
+                    $failures.Add(("The icon module $($module.Path) draws an svg at line " +
+                        "${lineNumber} without its fixed size ($($iconModules[$module.Path])). " +
+                        "An icon is allowed outside a region only because it cannot grow.")) | Out-Null
+                }
+                continue
+            }
 
             $failures.Add(("An svg element outside the diagram and chart modules at " +
                 "$($module.Path):${lineNumber}: $($line.Trim()). The " +
@@ -355,6 +376,12 @@ function Invoke-ShellOverflowCheck {
         }
     }
 
+    foreach ($iconModule in $iconModules.Keys) {
+        if (-not $iconSvgSeen.ContainsKey($iconModule)) {
+            $failures.Add(("$iconModule is allowed to draw a fixed-size icon svg but " +
+                "renders none, so its allowance is stale. Remove it from the icon list.")) | Out-Null
+        }
+    }
     if (-not $diagramSvgSeen) {
         $failures.Add(("$diagramModule renders no svg element, so the " +
             "one-diagram-pattern check is vacuous. Update the check, do not " +
