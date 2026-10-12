@@ -49,7 +49,7 @@ S2-02 refinement compared `queue_baseline_nodes`: `I-accepted-evidence-store`, `
 
 | Proposal | Manifest IDs | Dependency and review gate | Status |
 | --- | --- | --- | --- |
-| [V-01a Site/Foundation fidelity](V-01a-foundation-visual-fidelity.md) | `sites`, `foundation`, `readiness`, `sld` | Merged S1-03 surfaces, PRE-S3-04 correction; own app/mock desktop, narrow and interaction checkpoint | Open L visual gate; owner review required |
+| [V-01a Site/Foundation fidelity](V-01a-foundation-visual-fidelity.md) | `sites`, `foundation`, `readiness`, `sld` | Merged S1-03 surfaces, PRE-S3-04 correction; own app/mock desktop, narrow and interaction checkpoint | Done 2026-10-12: owner visual acceptance conditional on named data gaps; carries in backlog |
 | [V-01b Lab/Evidence fidelity](V-01b-evidence-lab-visual-fidelity.md) | `lab`, `evidence`, `evidence-analysis` | Merged S2-02 surfaces; own app/mock desktop, narrow and interaction checkpoint | Open L visual gate; owner review required |
 | S3/S4 first claim fixture | `dispatch`, `analysis`, `finding`, `finding-evidence`, `financials`, `assumptions` | [Demo-data plan](../frontend/docs/architecture/v69-demo-data-plan-proposal.md): complete, missing/contradictory and late Kobo intervals, one price revision, exact accepted evidence | Planning dependency |
 | S6 later-window fixture | `changes`, `recommendation`, `verification`, `sitework` | Baseline, applied change, later closed window, guardrail fail and inconclusive variant with lineage | Planning dependency |
