@@ -2200,7 +2200,10 @@ allPass =
 for (const [label, width, height] of [
   ["1280x800, the committed minimum", 1280, 800],
   ["1000x700, below the commitment", 1000, 700],
-  ["640x700, narrow enough that the summary cannot fit", 640, 700],
+  ["640x700, below the commitment", 640, 700],
+  // V-01b: the Lab shell now collapses its rail below 640px, so the summary fits
+  // at 640px; the non-empty overflow proof is made at phone width.
+  ["390x800, phone width, narrow enough that the summary cannot fit", 390, 800],
 ]) {
   const setup = await visit(
     cdp,
@@ -2318,7 +2321,7 @@ for (const [label, width, height] of [
           ? "no region named run-setup-blocked-heading"
           : `${blocked.name}: ${blocked.columnCount} columns, ${blocked.rowCount} rows`,
       ],
-      ...(width <= 640
+      ...(width <= 390
         ? [
             [
               "at least one table overflows here, so the claim above is not vacuous",
