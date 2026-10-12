@@ -56,17 +56,18 @@ walkthrough also marks 9 Oct as waiting for reassessment, so you can see an "Out
    version. Both versions have the same Finding address; only the version differs.
 3. **Repeat after a recorded stop (F03 recurrence).** "What limits this conclusion" says this happened before,
    links the earlier Finding, and says the link does not mean the earlier one is still open.
-4. **Not confirmed, then no longer supported (F05).** The version 2 address reads "Not confirmed": records
-   needed were missing, and this is not a new issue. The latest version reads "No longer supported". It says
+4. **Not confirmed, then no longer supported (F05).** The version 2 address (`links` prints every version) reads "Not confirmed". It says no records are missing;
+   it could not decide because the generator may be within the configured minimum runtime (it cites the 20 % battery
+   reserve), and that this is not a new issue. The latest version reads "No longer supported". It says
    this does not mean the generator was repaired or that money was saved.
 5. **Out of date (F02, across midnight 8 to 9 Oct).** The status reads "Out of date" and the recorded version
-   stays visible. It links both Dispatch days and names the short stop it joined.
+   stays visible. It reads "ran between ... with one short stop", links both Dispatch days and names the stop.
 6. **Joined Findings (F06 merged).** The joined Finding leads with "Joined into an earlier Finding" and links
    the one that now carries the review. Its own versions still open.
 7. **One record's lineage.** On any Finding open **Analysis**. It lists every cited record with its delivery
    batch, gateway, source and sequence, the assessment revisions and passes used, the site settings revisions,
    and every version's ID. On the Dispatch day, select the same block to see the same records.
-8. **Days without a Finding.** In Dispatch, 19 Oct reads "could not decide, so this is not a no-Finding result".
+8. **Days without a Finding.** Use the three Dispatch day addresses `links` prints. 19 Oct reads "could not decide, so this is not a no-Finding result".
    7 Oct reads "No assessment exists for this day". The fixture has no fully assessed day with no Finding; the
    tests cover that wording ("fully assessed and has no Finding").
 

@@ -132,3 +132,38 @@ Fresh Claude review of phase 3, then the owner checkpoint walkthrough. In the wa
 - check the wording of the Not confirmed, No longer supported and recurrence states;
 - check what is withheld (money, Action, child lists);
 - check the gateway case labelling and the F07 test-scoped limit.
+
+## Fix round (3) - phase 3 review B1-B4, C1-C4, C6 (C5 left)
+
+Code `60aae53` plus a follow-up commit (see git log). Against `.agent/S4-01-phase-3-review.md`.
+
+- **B1** Not confirmed no longer assumes missing records. The Finding read now adds a read-time, non-stored
+  `revision.indeterminate_reasons` (the cited interval assessments' undecided portions: reasons and what is
+  undecided; `finding_read.py`, none when the source is closed). The screen says records are missing only when a
+  limitation or the assessment's own "missing or conflicting" reason says so; otherwise it states the assessment's
+  reasons (Foundation ids stripped). Live F05 v2 now reads "No records are missing. It could not decide under the
+  settings now in force: ... reserve 20.0 %; possibly within the configured minimum runtime (120 min from the
+  first ON report); Candidate withheld...". Card note "Could not be decided either way"; headline "cannot decide
+  whether any of that time was possibly avoidable" (UNCONFIRMED only). Note: a portion's `missing` field can name
+  a setting (minimum runtime), so it is not treated as a record gap. Guide step 4 updated.
+- **B2** Headline reads "The generator ran between X and Y, with one short stop recorded" when a stop is bridged;
+  "stayed on" only without stops.
+- **B3** `links` prints every version of each multi-version Finding and the days 10-06, 10-19, 10-07 and 10-25,
+  with 10-25 labelled NOT_ASSESSED (no fully assessed no-Finding day exists in the fixture); guide step 8 matches.
+- **B4** `CaseRunner.__init__(model=None)` resolves `dispatch_v3` inside. Default
+  `pytest backend/tests -q` with no test DB URL: 1766 passed, 127 skipped (collects cleanly). The other S4
+  Postgres file only reads `dispatch_v3` inside guarded code.
+- **C1** `\.` restored in `settled.ts`. **C2** "are cited by this version" when no minutes are counted.
+  **C3** heading "Open · out of date" (lifecycle label plus attention currentness). **C4** the currentness
+  paragraph is omitted on a non-latest version (the lead already says a later version replaces it); "This version"
+  instead of "The latest assessment" there. **C6** evidence text regenerated into
+  `%LOCALAPPDATA%\AssetOps\s4-finding-walkthrough\evidence` (36/36), matching packet and guide.
+- Tests: 4 new vitest cases (B1 x2, B2, C2/C3/C4); all four fail on the old `SiteFinding.tsx`/`findingWords.ts`
+  and pass now. C1 is a helper regex with no behaviour test.
+- Checks: vitest 55 files / 1324 passed; `tsc` clean; build ok; default no-DB pytest 1766 passed / 127 skipped;
+  S4 Postgres files (store, read, api; isolated DB dropped) 25 passed; `tools/check-all.ps1` all 6 guards passed;
+  walkthrough `prepare` (comparison PASSED, cutover permitted, 10-09 staged PENDING) + `links` + `serve`
+  8840/5340 + `s4-finding-evidence.mjs`: 36/36 claims passed (`.agent/S4-01-phase-3-evidence-run.txt`). Servers
+  stopped, test DB dropped; owner ports and `var/` untouched.
+- Open: C5 (first-day Dispatch pin) carried; the new backend read field has no dedicated backend test (covered by
+  the live run and the Postgres read tests passing unchanged); layout evidence still not run (Q28).

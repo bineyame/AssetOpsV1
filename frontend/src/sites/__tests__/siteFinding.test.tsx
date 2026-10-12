@@ -357,13 +357,15 @@ describe("Site Finding detail (S4-01 phase 3 fix round 3)", () => {
 
   it("B1: Not confirmed states the recorded reason and does not claim missing records when coverage is complete", async () => {
     const value = unconfirmed((b) => {
-      b.revision.indeterminate_reasons = [{ assessment_revision_id: I1, start: null, end: null, missing: [],
-        reasons: ["PV available plus PCS discharge capability covers load with 10 % headroom; reserve 20.0 % (Foundation revision e41a0085)"] }];
+      b.revision.indeterminate_reasons = [{ assessment_revision_id: I1, start: null, end: null,
+        missing: ["possibly within the configured minimum runtime (120 min from the first ON report); Candidate withheld"],
+        reasons: ["PV available plus PCS discharge capability covers load with 10 % headroom", "reserve 20.0 % (Foundation revision e41a0085)"] }];
     });
     const { container } = mount(fake({ status: "loaded", value }));
     await settledScreen();
     const lead = container.querySelector("[data-finding-lifecycle-sentence]")?.textContent ?? "";
     expect(lead).toMatch(/reserve 20\.0 %/);
+    expect(lead).toMatch(/minimum runtime/);
     expect(lead).toMatch(/No records are missing/);
     expect(lead).not.toMatch(/Foundation revision/);
     expect(container.textContent).not.toMatch(/records (it needs )?(were|are) missing or unclear/);

@@ -196,15 +196,18 @@ export function unconfirmedCause(
   reasons: { reasons: string[]; missing: string[] }[] | undefined,
 ): string {
   const list = reasons ?? [];
-  const gap = limitations.length > 0 || list.some((r) => r.missing.length > 0);
+  // `missing` on a portion names what is undecided (it can be a setting such as a minimum runtime), so only the
+  // assessment's own "missing or conflicting" reason or a recorded limitation says that records are missing.
+  const gap = limitations.length > 0 || list.some((r) => r.reasons.some((t) => /missing or conflicting/.test(t)));
   if (gap) {
     return "Some records it needs are missing or conflict.";
   }
-  const texts = [...new Set(list.flatMap((r) => r.reasons).map((t) => t.replace(/\s*\(Foundation revision [^)]*\)/g, "").trim()))]
+  const clean = (t: string) => t.replace(/\s*\(Foundation revision [^)]*\)/g, "").replace(/[.;\s]+$/, "").trim();
+  const texts = [...new Set(list.flatMap((r) => [...r.reasons, ...r.missing]).map(clean))]
     .filter((t) => t.length > 0)
-    .slice(0, 2);
+    .slice(0, 3);
   if (texts.length > 0) {
-    return `No records are missing; the margin could not be decided under the settings now in force. The assessment says: ${texts.join(" ")}`;
+    return `No records are missing. It could not decide under the settings now in force: ${texts.join("; ")}.`;
   }
   return "No missing or conflicting records are recorded; the reason it could not be decided is under Technical detail.";
 }
