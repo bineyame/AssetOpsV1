@@ -20,6 +20,8 @@ export function RailIcon({ name }: { name: RailIconName }) {
   return (
     <svg
       className="nav-rail__icon"
+      width={18}
+      height={18}
       data-rail-icon={name}
       viewBox="0 0 24 24"
       fill="none"

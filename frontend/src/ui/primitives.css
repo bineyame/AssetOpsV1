@@ -595,6 +595,12 @@ button:focus-visible {
   color: var(--text-secondary);
 }
 
+/* A flush panel zeroes .panel__body padding; the note keeps the panel inset. */
+.panel--flush .panel__body.panel__note {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
 /* V-01a round 2: a row's secondary facts, one click away, each labelled. */
 .site-setup__summary {
   cursor: pointer;

@@ -49,7 +49,9 @@ const READINESS_TONE: Record<ConfigurationReadiness["state"], BadgeTone> = {
  * A role row's tone. An optional role that is not bound is neutral: it is not
  * a gap, and it must not read amber beside a complete required verdict.
  */
-export function roleTone(role: ReadinessRole): BadgeTone {
+export function roleTone(role: ReadinessRole, state?: ConfigurationReadiness["state"]): BadgeTone {
+  // Architect ruling: an absent or unresolvable basis stays neutral.
+  if (state === "UNKNOWN") return "neutral";
   if (role.status === "CONFIGURED") return "configured";
   return role.required ? "config-gap" : "neutral";
 }
@@ -60,7 +62,7 @@ export function ReadinessLegend() {
     <>
       <ul className="readiness-legend" aria-label="Readiness colour legend" data-readiness-legend="">
         <li>
-          <Badge tone="configured">Configured</Badge> required configuration complete for this version
+          <Badge tone="configured">Configured / Ready to report</Badge> configured for this version (the verdict says Ready to report when every required role is)
         </li>
         <li>
           <Badge tone="config-gap">Needs configuration</Badge> a known required role, control or declaration is missing
@@ -226,7 +228,7 @@ export function RoleCoveragePanel({ foundation }: { foundation: FoundationReadMo
               <th scope="row">{role.label}</th>
               <td>{role.required ? "Required" : "Optional"}</td>
               <td data-readiness-status={role.status}>
-                <Badge tone={roleTone(role)}>{ROLE_STATUS_WORD[role.status]}</Badge>
+                <Badge tone={roleTone(role, readiness.state)}>{ROLE_STATUS_WORD[role.status]}</Badge>
               </td>
               <td>{roleCoverage(role, bindings.mappings)}</td>
             </tr>

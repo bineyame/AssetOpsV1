@@ -633,6 +633,9 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       const badge = document.querySelector(".verdict__state .badge");
       expect(badge?.textContent).toBe("Unknown");
       expect(toneOf(badge)).toBe("badge--neutral");
+      const rows = document.querySelectorAll("[data-readiness-status] .badge");
+      expect(rows.length).toBeGreaterThan(0);
+      rows.forEach((row) => expect(toneOf(row)).toBe("badge--neutral"));
     });
 
     it("does not colour an optional unbound role amber beside a complete verdict", async () => {

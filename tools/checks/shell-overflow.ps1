@@ -77,7 +77,7 @@ function Invoke-ShellOverflowCheck {
     # overflow. Only these two modules may draw one, and each must keep its
     # fixed size declared on the element it draws.
     $iconModules = @{
-        "frontend/src/ui/RailIcon.tsx"        = 'className="nav-rail__icon"'
+        "frontend/src/ui/RailIcon.tsx"        = 'width={18}'
         "frontend/src/sites/componentIcons.tsx" = 'width={size}'
     }
     $iconSvgSeen = @{}
