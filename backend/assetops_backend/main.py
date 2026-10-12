@@ -36,10 +36,12 @@ from fastapi import APIRouter, FastAPI
 from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
-from assetops_backend.analytics.composition import build_dispatch_read_service, build_lineage_reader
+from assetops_backend.analytics.composition import (build_dispatch_read_service, build_finding_read_service,
+                                                     build_lineage_reader, finding_store_unavailable)
 from assetops_backend.analytics.performance_comparison import comparison_summary, permits_performance_cutover
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
+from assetops_backend.finding_api import build_finding_router
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -334,6 +336,12 @@ def create_app(
 
     app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate,
                                                 performance_report))
+    # S4-01 phase 2: exact Finding root/revision read (A-claim-work-routes); typed 503 without a database.
+    finding_manifest = os.environ.get("ASSETOPS_FINDING_CASES_MANIFEST") or os.environ.get(
+        "ASSETOPS_DEMO_FIXTURE_MANIFEST")
+    app.include_router(build_finding_router(
+        build_finding_read_service(database_url(), finding_manifest) if database_url() else None,
+        registry.ledger_scope, finding_store_unavailable()))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (

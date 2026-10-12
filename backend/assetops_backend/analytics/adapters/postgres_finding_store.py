@@ -219,3 +219,94 @@ class PostgresFindingStore:
             return {"findings": findings, "revisions": revisions, "assessments": cites, "evidence": evidence,
                     "merges": merges}
         return self._read(work)
+
+    # ---- S4-01 phase 2: exact Finding root / revision read (read-only) ----
+
+    def finding_detail(self, tenant_id: UUID, site_id: UUID, finding_id: UUID) -> dict[str, Any] | None:
+        """One Finding root under its tenant and Site, every immutable revision with its cited assessment
+        revisions (and their runs), and the stored relations. None for a foreign or unknown ID."""
+        def work(c: Connection) -> dict[str, Any] | None:
+            p = {"t": tenant_id, "s": site_id, "f": finding_id}
+            row = c.execute(text("SELECT * FROM finding WHERE tenant_id = :t AND site_id = :s AND id = :f"), p).first()
+            if row is None:
+                return None
+            revisions = [dict(r._mapping) for r in c.execute(text(
+                "SELECT r.*, (SELECT count(*) FROM finding_revision_evidence e WHERE e.finding_revision_id = r.id) "
+                "AS cited_evidence_count FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+                "AND r.finding_id = :f ORDER BY r.revision_no"), p)]
+            cites = [dict(r._mapping) for r in c.execute(text(
+                "SELECT a.finding_revision_id, a.assessment_revision_id, a.analytic_run_id, a.scope, a.is_primary, "
+                "v.window_start, v.window_end, v.claim_level, v.assessment_key, v.revision_no, v.model_version, "
+                "ar.foundation_revision_ids, ar.binding_set_revision_ids "
+                "FROM finding_revision_assessment a JOIN finding_revision r ON r.id = a.finding_revision_id "
+                "JOIN analytic_run ar ON ar.id = a.analytic_run_id "
+                "JOIN assessment_revision v ON v.id = a.assessment_revision_id WHERE r.tenant_id = :t "
+                "AND r.site_id = :s AND r.finding_id = :f ORDER BY a.scope DESC, v.window_start, "
+                "a.assessment_revision_id"), p)]
+            for rev in revisions:
+                rev["assessments"] = [x for x in cites if x["finding_revision_id"] == rev["id"]]
+            relations = {
+                "merged_into": [dict(r._mapping) for r in c.execute(text(
+                    "SELECT * FROM finding_merge WHERE tenant_id = :t AND site_id = :s "
+                    "AND superseded_finding_id = :f"), p)],
+                "merged_from": [dict(r._mapping) for r in c.execute(text(
+                    "SELECT * FROM finding_merge WHERE tenant_id = :t AND site_id = :s "
+                    "AND canonical_finding_id = :f ORDER BY created_at, superseded_finding_id"), p)],
+                "split_parts": [x for (x,) in c.execute(text(
+                    "SELECT id FROM finding WHERE tenant_id = :t AND site_id = :s AND split_from_finding_id = :f "
+                    "ORDER BY anchor_start, id"), p)],
+                "recurred_by": [x for (x,) in c.execute(text(
+                    "SELECT id FROM finding WHERE tenant_id = :t AND site_id = :s AND recurs_after_finding_id = :f "
+                    "ORDER BY anchor_start, id"), p)],
+            }
+            return {"finding": dict(row._mapping), "revisions": revisions, "relations": relations}
+
+        return self._read(work)
+
+    def revision_lineage(self, tenant_id: UUID, site_id: UUID, finding_revision_id: UUID,
+                         off_bounds: list[tuple[str, str]]) -> dict[str, Any]:
+        """The selected revision's cited accepted evidence (exact stored IDs), the analytic runs it cites, and
+        the accepted generator OFF reports placed at each `(assessment_revision_id, iso time)` bound."""
+        from assetops_backend.analytics.adapters.postgres_assessment_store import _evidence
+
+        def work(c: Connection) -> dict[str, Any]:
+            p = {"t": tenant_id, "s": site_id, "r": finding_revision_id}
+            ids = [x for (x,) in c.execute(text(
+                "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s "
+                "AND finding_revision_id = :r"), p)]
+            runs = [dict(r._mapping) for r in c.execute(text(
+                "SELECT id, analytic_id, model_version, window_start, window_end, knowledge_cutoff, input_sha256, "
+                "cohort_status, cohort_sha256, configuration_sha256, foundation_revision_ids, "
+                "binding_set_revision_ids, watermarks, completed_at, (SELECT count(*) FROM analytic_run_evidence "
+                "x WHERE x.run_id = analytic_run.id) AS input_evidence_count FROM analytic_run "
+                "WHERE tenant_id = :t AND site_id = :s AND id IN (SELECT analytic_run_id FROM "
+                "finding_revision_assessment WHERE finding_revision_id = :r) ORDER BY window_start, id"), p)]
+            offs = []
+            for revision_id, at in off_bounds:
+                found = [x for (x,) in c.execute(text(
+                    "SELECT e.id FROM assessment_revision v JOIN accepted_evidence e ON e.tenant_id = v.tenant_id "
+                    "AND e.site_id = v.site_id AND e.id::text IN (SELECT jsonb_array_elements_text(v.evidence_ids)) "
+                    "WHERE v.tenant_id = :t AND v.site_id = :s AND v.id = :v AND e.role IN "
+                    "('generator_state', 'generator_power') AND (e.source_time = :at OR e.interval_start = :at "
+                    "OR e.interval_end = :at) ORDER BY e.id"),
+                    {**p, "v": UUID(revision_id), "at": datetime.fromisoformat(at.replace("Z", "+00:00"))})]
+                offs.append({"assessment_revision_id": revision_id, "at": at, "evidence_ids": found})
+            return {"evidence": _evidence(c, tenant_id, site_id, ids), "runs": runs, "off_reports": offs}
+
+        return self._read(work)
+
+    def findings_over(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> list[dict[str, Any]]:
+        """Latest revision of every Finding whose latest bounds overlap [lo, hi), with its cited window IDs."""
+        def work(c: Connection) -> list[dict[str, Any]]:
+            rows = [dict(r._mapping) for r in c.execute(text(
+                "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS revision_id, r.lifecycle, r.transition, "
+                "r.episode_start, r.episode_end FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+                "ORDER BY r.finding_id, r.revision_no DESC"), {"t": tenant_id, "s": site_id})]
+            rows = [r for r in rows if r["episode_start"] < hi and lo <= r["episode_end"]]
+            for r in rows:
+                r["window_assessment_revision_ids"] = [x for (x,) in c.execute(text(
+                    "SELECT assessment_revision_id FROM finding_revision_assessment WHERE finding_revision_id = :r "
+                    "AND scope = 'WINDOW' ORDER BY assessment_revision_id"), {"r": r["revision_id"]})]
+            return sorted(rows, key=lambda r: (r["episode_start"], str(r["finding_id"])))
+
+        return self._read(work)

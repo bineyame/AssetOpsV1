@@ -230,13 +230,20 @@ def _segments_in(intervals: list[IntervalBasis], lo: datetime, hi: datetime) -> 
     return [(s, i) for i in intervals for s in i.segments if s.start < hi and lo < s.end]
 
 
-def _stops(site: _Site, asset: str) -> list[tuple[datetime, datetime]]:
+def _stop_records(site: _Site, asset: str) -> list[dict[str, Any]]:
     """Observed stops between consecutive runs: last ON, the first OFF after it, the last OFF before the next
-    run, then its first ON - each bound an accepted report, in that order."""
+    run, then its first ON - each bound an accepted report, in that order. A contrary (ON) report between the
+    OFFs would itself be a run, so consecutive runs never straddle one."""
     runs = sorted(site.intervals(asset), key=lambda i: i.first_on)
-    return [(x.last_on, y.first_on) for x, y in zip(runs, runs[1:])
+    return [{"start": x.last_on, "end": y.first_on, "off_after": x.off_after, "off_before": y.off_before,
+             "ended_assessment_revision_id": x.revision_id, "next_assessment_revision_id": y.revision_id}
+            for x, y in zip(runs, runs[1:])
             if x.last_on is not None and x.off_after is not None and y.off_before is not None
             and x.last_on <= x.off_after <= y.off_before <= y.first_on]
+
+
+def _stops(site: _Site, asset: str) -> list[tuple[datetime, datetime]]:
+    return [(r["start"], r["end"]) for r in _stop_records(site, asset)]
 
 
 def _fully_covered(pieces: list[tuple[datetime, datetime]], lo: datetime, hi: datetime) -> bool:
@@ -265,6 +272,35 @@ def _bridges(site: _Site, asset: str, a: tuple[Seg, IntervalBasis], b: tuple[Seg
     # Window coverage is not observation: every instant of the gap needs an observed segment or stop.
     pieces = [(s.start, s.end) for s in inside if s.observed] + _stops(site, asset)
     return _fully_covered(pieces, lo, hi)
+
+
+def _continuity(site: _Site, cluster: _Cluster) -> list[dict[str, Any]]:
+    """Each gap the cluster bridged between Candidate spans (Q2/Q11 read): its bounds, the observed coherent
+    segments and observed stops that cover it, and that it adds no Candidate minutes."""
+    out: list[dict[str, Any]] = []
+    spans = sorted(cluster.spans, key=lambda x: (x[0].start, x[0].end))
+    reach = spans[0][0].end
+    for s, _ in spans[1:]:
+        lo, hi = reach, s.start
+        reach = max(reach, s.end)
+        if hi <= lo:
+            continue
+        inside = [(x, i) for x, i in _segments_in(site.intervals(cluster.asset), lo, hi)
+                  if x.observed and x.classification != CANDIDATE]
+        stops = [r for r in _stop_records(site, cluster.asset) if r["start"] < hi and lo < r["end"]]
+        out.append({
+            "start": iso(lo), "end": iso(hi), "minutes": _num(_minutes(lo, hi)),
+            "bridged_by": sorted({"OBSERVED_SEGMENTS"} if inside else set()) + (["OBSERVED_STOP"] if stops else []),
+            "segments": [{"start": iso(max(x.start, lo)), "end": iso(min(x.end, hi)),
+                          "classification": x.classification, "reasons": list(x.missing),
+                          "assessment_revision_id": i.revision_id} for x, i in inside],
+            "stops": [{"start": iso(r["start"]), "end": iso(r["end"]), "off_after": iso(r["off_after"]),
+                       "off_before": iso(r["off_before"]),
+                       "ended_assessment_revision_id": r["ended_assessment_revision_id"],
+                       "next_assessment_revision_id": r["next_assessment_revision_id"]} for r in stops],
+            "candidate_minutes_added": "0",
+        })
+    return out
 
 
 def _clusters(site: _Site) -> list[_Cluster]:
@@ -312,6 +348,7 @@ def _support_write(site: _Site, finding_id: str, cluster: _Cluster, transition: 
                             "classification": s.classification, "observed": s.observed,
                             "assessment_revision_id": i.revision_id}
                            for s, i in segs if s.classification != CANDIDATE],
+        "continuity": _continuity(site, cluster),
         **extra,
     }
     return _write(site, finding_id, transition, SUPPORTED, CANDIDATE, primary, list(intervals.values()),
@@ -388,28 +425,46 @@ def _unsupported_write(site: _Site, e: Episode) -> Write | None:
     return w
 
 
-def _recurrence(site: _Site, c: _Cluster, known: list[Episode]) -> Episode | None:
+def _recurrence(site: _Site, c: _Cluster, known: list[Episode]) -> tuple[Episode | None, dict[str, Any]]:
     """The earlier episode this cluster recurs after, only when an observed break is proven: the separation is
-    assessed throughout, the earlier run ends with an observed OFF and the new run starts after one."""
+    assessed throughout, the earlier run ends with an observed OFF and the new run starts after one. The record
+    names both OFF bounds and the covered windows, or why the relation is not established (Q3/Q13)."""
     earlier = [k for k in known if k.asset == c.asset and k.episode_end < c.start]
     prior = max(earlier, key=lambda k: (k.episode_end, k.finding_id), default=None)
-    if prior is None or not site.covered(prior.episode_end, c.start):
-        return None
+
+    def unknown(reason: str) -> tuple[None, dict[str, Any]]:
+        return None, {"status": "NOT_ESTABLISHED", "reason": reason,
+                      "nearest_earlier_finding_id": None if prior is None else prior.finding_id}
+
+    if prior is None:
+        return unknown("NO_EARLIER_FINDING")
+    if not site.covered(prior.episode_end, c.start):
+        return unknown("SEPARATION_NOT_ASSESSED")
     ends = [i for i in site.intervals(c.asset)
             if i.first_on <= prior.episode_end <= (i.last_on or i.first_on)]
     if not ends or any(i.off_after is None or i.off_after > c.start for i in ends):
-        return None
-    off_before = c.spans[0][1].off_before
-    if off_before is None or off_before < prior.episode_end:
-        return None
-    return prior
+        return unknown("NO_OBSERVED_OFF_AFTER_EARLIER_RUN")
+    new_run = c.spans[0][1]
+    if new_run.off_before is None or new_run.off_before < prior.episode_end:
+        return unknown("NO_OBSERVED_OFF_BEFORE_NEW_RUN")
+    ended = min(ends, key=lambda i: i.off_after)
+    return prior, {
+        "status": "LINKED", "prior_finding_id": prior.finding_id, "prior_episode_end": iso(prior.episode_end),
+        "separation_minutes": _num(_minutes(prior.episode_end, c.start)),
+        "off_after_prior": {"at": iso(ended.off_after), "assessment_revision_id": ended.revision_id},
+        "off_before_new": {"at": iso(new_run.off_before), "assessment_revision_id": new_run.revision_id},
+        "covered_window_revision_ids": sorted(w.window_revision_id for w in site.windows_over(prior.episode_end,
+                                                                                              c.start)
+                                              if w.window_revision_id)}
 
 
-def _new(site: _Site, cluster: _Cluster, *, recurs_after: Episode | None, split_from: str | None) -> Write:
+def _new(site: _Site, cluster: _Cluster, *, recurrence: tuple[Episode | None, dict[str, Any]],
+         split_from: str | None) -> Write:
     finding_id = str(uuid4())
+    recurs_after, relation = recurrence
     gap = None if recurs_after is None else _num(_minutes(recurs_after.episode_end, cluster.start))
     extra = {"recurs_after_finding_id": None if recurs_after is None else recurs_after.finding_id,
-             "separation_minutes": gap, "split_from_finding_id": split_from}
+             "separation_minutes": gap, "split_from_finding_id": split_from, "recurrence": relation}
     w = _support_write(site, finding_id, cluster, "OPENED", anchor=cluster.start, extra=extra)
     anchor_rev = cluster.spans[0][1]
     w.new_finding = {
@@ -463,7 +518,7 @@ def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str
             continue
         if not es:
             for c in cs:
-                w = _new(site, c, recurs_after=_recurrence(site, c, known), split_from=None)
+                w = _new(site, c, recurrence=_recurrence(site, c, known), split_from=None)
                 writes.append(w)
                 known.append(Episode(w.finding_id, c.asset, c.start, SUPPORTED, c.start, c.end, w.basis_sha256,
                                      model_version, w.support_sha256))
@@ -491,7 +546,8 @@ def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str
                 absorbed.setdefault(canonical.finding_id, []).append(e)
         for c, owner, first in owned_by:
             if owner is None:
-                w = _new(site, c, recurs_after=None, split_from=first.finding_id)
+                w = _new(site, c, recurrence=(None, {"status": "NOT_APPLICABLE", "reason": "SPLIT_PART"}),
+                         split_from=first.finding_id)
                 writes.append(w)
                 continue
             merged = absorbed.get(owner.finding_id, [])

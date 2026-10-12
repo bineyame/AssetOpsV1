@@ -59,3 +59,18 @@ def build_finding_matcher(database_url: str | None):
 
     return FindingMatcher(PostgresAssessmentStore(database_url), build_finding_store(database_url),
                           fence_moved=FindingFenceMoved)
+
+
+def build_finding_read_service(database_url: str | None, demo_manifest_path: str | None = None):
+    """The S4-01 phase-2 exact Finding root/revision read over the Finding store and the S3 dispatch read.
+    `demo_manifest_path` only annotates exact matching evidence IDs (fixture or gateway case labels)."""
+    from assetops_backend.analytics.finding_read import FindingReadService
+
+    return FindingReadService(build_finding_store(database_url),
+                              build_dispatch_read_service(database_url, demo_manifest_path))
+
+
+def finding_store_unavailable() -> tuple[type, ...]:
+    from assetops_backend.analytics.adapters.postgres_finding_store import FindingStoreUnavailable
+
+    return (FindingStoreUnavailable,)

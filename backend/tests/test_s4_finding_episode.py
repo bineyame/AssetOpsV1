@@ -205,3 +205,54 @@ class TestBridges:
         bridged = run([seg(at("08:00"), at("08:10")), model, seg(at("08:20"), at("08:30"))], at("07:55"),
                       at("08:35"))
         assert len(plan([day(6, bridged)], [], MODEL)) == 1
+
+
+class TestRelationRecords:
+    """Phase-2 read records (Q2/Q3/Q11/Q13): what bridged a gap and why a recurrence is or is not linked."""
+
+    def test_a_bridged_stop_names_both_off_bounds_and_adds_no_candidate_minutes(self) -> None:
+        writes = plan(TestBridges()._two_runs(off_after=at("23:55", 8), off_before=at("00:00", 9)), [], MODEL)
+        [gap] = writes[0].claim["continuity"]
+        assert (gap["start"], gap["end"], gap["bridged_by"]) == ("2026-10-08T23:50:00.000000Z", "2026-10-09T00:05:00.000000Z",
+                                                                 ["OBSERVED_STOP"])
+        [stop] = gap["stops"]
+        assert (stop["off_after"], stop["off_before"]) == ("2026-10-08T23:55:00.000000Z", "2026-10-09T00:00:00.000000Z")
+        assert gap["candidate_minutes_added"] == "0"
+
+    def test_a_modelling_only_bridge_names_its_segments_and_reasons(self) -> None:
+        model = seg(at("08:10"), at("08:20"), INDETERMINATE, missing=("transition inside the segment",))
+        bridged = run([seg(at("08:00"), at("08:10")), model, seg(at("08:20"), at("08:30"))], at("07:55"),
+                      at("08:35"))
+        [w] = plan([day(6, bridged)], [], MODEL)
+        [gap] = w.claim["continuity"]
+        assert gap["bridged_by"] == ["OBSERVED_SEGMENTS"] and gap["stops"] == []
+        assert gap["segments"][0]["reasons"] == ["transition inside the segment"]
+
+    def test_an_intervening_on_report_is_its_own_run_not_one_stop(self) -> None:
+        # A contrary ON between the two OFFs is a run of its own: no single stop spans it.
+        a = run([seg(at("23:20", 8), at("23:50", 8))], at("23:15", 8), at("23:55", 8))
+        on = run([seg(at("23:58", 8), at("23:58", 8), INDETERMINATE, missing=("generator state not observed",))],
+                 at("23:55", 8), at("00:00", 9))
+        b = run([seg(at("00:05", 9), at("00:30", 9))], at("00:00", 9), at("00:35", 9))
+        writes = plan([day(8, a, on), day(9, b)], [], MODEL)
+        assert len(writes) == 2  # the incoherent point at 23:58 refuses the bridge
+        assert writes[0].claim["continuity"] == [] and writes[1].claim["continuity"] == []
+
+    def test_linked_recurrence_names_both_offs_and_covered_windows(self) -> None:
+        t = TestRecurrence()
+        eps = t._first()
+        windows = [day(6, run([seg(at("08:00"), at("08:30"))], at("07:55"), at("08:35"))), day(7), t._later()]
+        [w] = [w for w in plan(windows, eps, MODEL) if w.new_finding]
+        rec = w.claim["recurrence"]
+        assert rec["status"] == "LINKED" and rec["prior_finding_id"] == eps[0].finding_id
+        assert rec["off_after_prior"]["at"] == "2026-10-06T08:35:00.000000Z"
+        assert rec["off_before_new"]["at"] == "2026-10-08T07:55:00.000000Z"
+        assert len(rec["covered_window_revision_ids"]) == 3
+
+    def test_unlinked_recurrence_states_the_reason(self) -> None:
+        t = TestRecurrence()
+        eps = t._first()
+        windows = [day(6, run([seg(at("08:00"), at("08:30"))], at("07:55"), at("08:35"))), t._later()]
+        [w] = [w for w in plan(windows, eps, MODEL) if w.new_finding]
+        assert w.claim["recurrence"] == {"status": "NOT_ESTABLISHED", "reason": "SEPARATION_NOT_ASSESSED",
+                                         "nearest_earlier_finding_id": eps[0].finding_id}
