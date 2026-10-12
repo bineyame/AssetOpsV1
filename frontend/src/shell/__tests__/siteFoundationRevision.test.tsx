@@ -1176,11 +1176,14 @@ describe("V-01a round 2: a chosen part stays chosen by component ID", () => {
   it("does not select an undeclared part named in the address on first load", async () => {
     renderAt(`/sites/${ID}/foundation?at=${pastAt}&component=c-nowhere`, fakeFoundation(withSoc));
     await settledScreen();
-    expect(selectedPanel()).toBeNull();
-    expect(location()).toBe(`/sites/${ID}/foundation?at=${pastAt}`);
-    expect(document.querySelector("[data-selected-part-missing]")?.textContent).toContain(
-      "Selected part is not in this Foundation period",
-    );
+    // The address is rewritten by an effect after the read settles; wait for it rather than racing it.
+    await waitFor(() => {
+      expect(selectedPanel()).toBeNull();
+      expect(location()).toBe(`/sites/${ID}/foundation?at=${pastAt}`);
+      expect(document.querySelector("[data-selected-part-missing]")?.textContent).toContain(
+        "Selected part is not in this Foundation period",
+      );
+    });
   });
 });
 

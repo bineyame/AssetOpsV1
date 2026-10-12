@@ -462,7 +462,9 @@ const MEASURE = `(() => {
     headerCount: document.querySelectorAll("table thead th").length,
     // V-01a round 2: a part-choice toggle chooses which declared part is shown (address
     // state, the component address parameter), it changes nothing, so it is not counted as an action.
-    buttons: Array.from(document.querySelectorAll("main button:not(.part-choice)")).map((b) => ({
+    // V-01a round 3: "Review or change bindings" only opens the Advanced disclosure and focuses
+    // the binding form (navigation within the page); the form's own Publish button stays counted.
+    buttons: Array.from(document.querySelectorAll("main button:not(.part-choice):not([data-review-bindings])")).map((b) => ({
       label: (b.textContent || "").trim(),
       disabled: b.disabled,
     })),
@@ -1712,9 +1714,10 @@ for (const [label, width, height] of [
         `left ${sites.railLeftBefore} -> ${sites.railLeftAfter}, table scrolled by ${sites.scrolledBy}px`,
       ],
       [
-        // V-01a round 2 compacted the inventory to Site, Type, Mode, Setup details, Actions.
-        "all five inventory columns are still rendered",
-        sites.headerCount === 5,
+        // V-01a round 2 compacted the inventory to Site, Type, Mode, Setup details, Actions;
+        // round 3 adds the grouped Operating view cell ("Not available yet").
+        "all six inventory columns are still rendered",
+        sites.headerCount === 6,
         `${sites.headerCount} headers`,
       ],
     ]) && allPass;
