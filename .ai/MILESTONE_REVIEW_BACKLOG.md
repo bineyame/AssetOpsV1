@@ -2087,3 +2087,13 @@ The carried review findings above are unchanged.
 - K4 (dispatch model owner): a block with an unneeded missing reading held back by minimum runtime reads as records missing rather than naming the runtime (same rule as the window assessment).
 - K5: no test for the plain wording of battery, capability-margin and transition-only causes.
 
+
+## V-01a carries (2026-10-12, merged with owner conditional acceptance)
+
+- Round 3 review C1: at 390 px the Readiness table's "What is needed"/"Next step" need sideways scroll (`ReadinessOverview.tsx:259`); not in the packet's deviations.
+- Round 3 review C2: backend readiness sentence "operational status is not assessed here" (`binding_service.py:83-88`, `FoundationBindingsPanel.tsx:183`) sits above the gateway contact panel; reads as a contradiction.
+- Round 3 review C3: evidence tool screenshot name clash `app-readiness-gateway-current`.
+- Round 3 review C4: SLD drawn parts lack `aria-controls` to the selected-part strip.
+- Gateway states other than STALE proven only by browser response substitution; run a stored Disabled/Unknown case end to end before marking `readiness:2#a/2#b` delivered.
+- Coordinator suggestion (owner discussion): gateway panel should point to Site Evidence for completeness and source status rather than only "Not available yet".
+- Earlier: `SiteOverview.tsx:241` stale "No window" copy stays with S5-01; Lab interval drawing label-collision check (T025d) unverified behind the Lab precondition.

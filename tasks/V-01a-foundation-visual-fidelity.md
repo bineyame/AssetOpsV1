@@ -1,6 +1,6 @@
 # V-01a — Site and Foundation visual fidelity
 
-Status: in_review (selected 2026-10-12 by next-work tie-break, gap 6.97% notice in `.agent/coordinator-handoff.md`; built on `task/V-01a-foundation-visual`, packet `.agent/V-01a-review-packet.md`)
+Status: done (owner visual acceptance, conditional, 2026-10-12: "V-01a round 3 passes, accepted conditionally" — `.agent/owner-V-01a-acceptance-2026-10-12.md`; fresh Claude reviews accept, `.agent/V-01a-round3-review.md`; merged to main)
 USER_REVIEW_REQUIRED: true
 Depends on: merged S1-03 Site/Foundation/Readiness/SLD surfaces
 Branch when activated: task/V-01a-foundation-visual
@@ -30,3 +30,8 @@ The owner withheld visual acceptance after round 2 and asked for mock-shaped Rea
 Add four category cards and a plain Readiness/commissioning table derived from selected Foundation gaps, controls, topology, ratings and binding roles. “Confirmed” stays “Not recorded” without a commissioning source. Reuse the existing S2 gateway-health read for a separately time-labelled central contact summary, with unknown/unavailable/disabled states and no claim of device connection or accepted telemetry. This bounded read composition expands V-01a beyond a purely visual edit; independent review of the exact S2 read/UI path is required before noncore `readiness:2` registry portions can be marked delivered. Keep `readiness:1` W1 core mapping and whole-screen status unchanged.
 
 Move raw role/binding/channel and revision/provenance records into clearly named, keyboard-operable Advanced details while keeping meaningful values, configuration gaps and access to binding changes visible. In Foundation, show typed first critical-load priority and named loads, but identify productive-use designation as undeclared; only link to existing Foundation record, Site Evidence or selected-window Dispatch destinations with exact scope labels. Keep Financials/Change/constraint-proof links unavailable until their records/routes exist. Move selected-part detail into a compact in-context strip with expandable channels at desktop and 390px, preserving `component` URL selection, focus and missing-part behavior. Refresh owner evidence and obtain fresh independent re-review before the standing owner visual checkpoint.
+
+
+## Review outcome (coordinator, 2026-10-12)
+
+Fresh Claude reviews: round 1 accept with B1 fixed and re-reviewed; round 2 accept with B1 fixed and re-reviewed; round 3 accept, no block (`.agent/V-01a-round3-review.md`). Owner visual checkpoint: "V-01a round 3 passes, accepted conditionally". Acceptance is conditional on the packet's Round 3 named data gaps (layout/copy only); no panel becomes Real and no technical node closes from it. Carries C1-C4 of the round 3 review go to `.ai/MILESTONE_REVIEW_BACKLOG.md` and the G-02 gap pilot.
