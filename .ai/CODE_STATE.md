@@ -5093,3 +5093,37 @@ Built on `task/S4-01-finding-identity` (`bcbc3f4`, `6b891ef`, closeout; fix roun
 - Backdated controls append collateral BASIS_REFRESHED to Findings on earlier days; every same-day reassessment appends BASIS_REFRESHED to that day's Findings - phase 2/3 History must group them (Q14).
 - Lab refuses a 0-minute minimum runtime, so the gateway case runs on 10-02, outside the fixture controls (Q15).
 - 3+-way merge untested by fixture (pure test only); matcher is linear in assessed days.
+
+## S4-01 phase 2 - Exact Finding root/revision read (active, review pending)
+
+Packet `.agent/S4-01-phase-2-review-packet.md`; questions `.agent/S4-01-questions-3.md` (Q16-Q20).
+
+- Read service `backend/assetops_backend/analytics/finding_read.py` (`FindingReadService.finding`,
+  `.window_state`, `revision_groups`); routes `backend/assetops_backend/finding_api.py`:
+  `GET /api/sites/{site_code}/findings/{finding_id}?revision_id=&after_revision_no=&limit=` and
+  `GET /api/sites/{site_code}/finding-windows/{day}`; wired in `main.py` via
+  `composition.build_finding_read_service` (manifest env `ASSETOPS_FINDING_CASES_MANIFEST`, else
+  `ASSETOPS_DEMO_FIXTURE_MANIFEST`).
+- Status matrix: `access` seam gives 401/403 before lookup (default admits the development tenant's operator
+  context and says so in `access_basis`, Q16); unknown/foreign Site, root or revision 404; malformed ID 422;
+  no DB or store failure typed 503 `FINDING_STORE_UNAVAILABLE`.
+- Selection: omitted revision = latest recorded; exact ID pins; `selection.replay` states no `knowledge_at`
+  replay. Every revision returned in `revision_no` order (paged) with prior/new window and interval IDs,
+  Foundation/binding revisions of the cited runs, basis/support digests, `support_changed`; groups are a hint.
+- Currentness compares the revision's own cited WINDOW assessments with the S3 read's current selection
+  (`CURRENT`, `FINDING_MATCH_PENDING`, `STALE`, `PENDING`, `FAILED`, `NOT_ASSESSED`; merged =
+  `MERGED_INTO_CANONICAL`). `window_state` returns `NO_FINDING` only for a CURRENT window without Candidate or
+  Finding.
+- Matcher (`finding_episode.py`) now records `claim.continuity` (bridged gaps: segments+reasons, observed stops
+  with both OFF times, `candidate_minutes_added "0"`) and `claim.recurrence` (LINKED with both OFF bounds and
+  covered windows, or NOT_ESTABLISHED + reason; split parts NOT_APPLICABLE). Not in the basis digest. The read
+  resolves OFF evidence IDs from the cited interval revision's evidence at the recorded time
+  (`PostgresFindingStore.revision_lineage`).
+- Store reads added: `finding_detail`, `revision_lineage`, `findings_over` (SELECT only; the existing
+  persistence guard still limits Finding writes to the store - proven by a write in `finding_read.py`).
+- `DemoManifestAnnotations` also labels an opt-in `gateway_sealed` case (`DEMO_MANIFEST_GATEWAY_CASE`).
+- Producer: R2 asserts F01-gateway cites only gateway-sealed batch evidence (102 IDs, 0 outside); writes
+  `s4-finding-cases-manifest.json`; `verify` reads every Finding through `assess_dispatch finding-reads`.
+- Open: Q17 (contradictory report between stop OFFs is invisible to the matcher); Q18 window-state route vs
+  S4-04; no UI (phase 3); R1 gateway-day labelling for the owner walkthrough.
+
