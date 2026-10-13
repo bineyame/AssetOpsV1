@@ -3,7 +3,7 @@
   "wave": "W1",
   "k": 10,
   "fingerprints": {
-    "registry": "ccbdea0a50201503",
+    "registry": "0a5e5bd1d4a1dda5",
     "queue": "c239f8f39f2f18b5",
     "packet_status": "735efe0f739db4dd",
     "panel_contracts": "c6f0009bbbf68f61",
@@ -15,7 +15,7 @@
     {
       "id": "I-G-01",
       "task": "G-01",
-      "node_status": "open",
+      "node_status": "resolved",
       "packet_phase": "done",
       "reason": "Owner-confirmed catalogue/guard: activate at first free slot after accepted and merged V-01b, after refusals and owner stops; no core score.",
       "open_prerequisites": []
@@ -26,9 +26,7 @@
       "node_status": "open",
       "packet_phase": "not_started",
       "reason": "Four-screen pilot: activate at next free slot after reviewed/merged G-01 and accepted/merged V-01a; no core score.",
-      "open_prerequisites": [
-        "I-G-01"
-      ]
+      "open_prerequisites": []
     },
     {
       "id": "I-G-03",
