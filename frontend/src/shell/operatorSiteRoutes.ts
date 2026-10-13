@@ -151,6 +151,35 @@ export function siteFindingHref(siteId: string, findingId: string, revisionId?: 
 }
 
 /**
+ * S4-03: the named child views of the canonical Finding root. Each is
+ * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` and keeps the same
+ * exact-version parameter. Phase 3 adds "history" to this list; the frame's
+ * switch (`SiteFindingFrame`) renders each view from it.
+ */
+export const FINDING_CHILD_VIEWS = ["evidence"] as const;
+export type FindingChildView = (typeof FINDING_CHILD_VIEWS)[number];
+export const SITE_FINDING_VIEW_ROUTE_PATH = `${SITE_FINDING_ROUTE_PATH}/:findingView`;
+
+export function siteFindingViewHref(
+  siteId: string,
+  findingId: string,
+  view: FindingChildView,
+  revisionId?: string | null,
+): string {
+  const base = `${siteFindingsHref(siteId)}/${encodeURIComponent(findingId)}/${view}`;
+  return revisionId ? `${base}?revision_id=${encodeURIComponent(revisionId)}` : base;
+}
+
+/**
+ * The Site Evidence record inspector opened by one exact accepted evidence ID
+ * (the central-ledger inspector reads `record=` as that ID in Analysis). Never
+ * a message ID: a message ID can name more than one stored record.
+ */
+export function siteEvidenceAcceptedRecordHref(siteId: string, evidenceId: string): string {
+  return `${siteEvidenceHref(siteId)}?view=analysis&record=${encodeURIComponent(evidenceId)}`;
+}
+
+/**
  * The Findings rail root (T028): the global index. A Finding is a first-class
  * object under this root, so opening one from a Site changes the root to the
  * Finding; its claim drawer is a query parameter and never changes it.

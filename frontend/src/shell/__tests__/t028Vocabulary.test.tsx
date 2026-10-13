@@ -142,7 +142,8 @@ const STATES: Array<[string, string, Clients?, (() => Promise<void>)?]> = [
   ["Finding Overview", `/findings/${SITE_ID}/${CANDIDATE_ID}`],
   ["Finding Analysis", `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`],
   ["Finding Evidence", `/findings/${SITE_ID}/${CANDIDATE_ID}/evidence`],
-  ["Finding Evidence, record drawer open", `/findings/${SITE_ID}/${CANDIDATE_ID}/evidence`, {}, openFirstClaimRecord],
+  // S4-03: the old Evidence tab resolves to the saved Finding's Evidence view; its record drawer is gone.
+  ["Finding Alternatives, record drawer open", `/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives`, {}, openFirstClaimRecord],
   ["Finding Alternatives", `/findings/${SITE_ID}/${CANDIDATE_ID}/alternatives`],
   ["Finding, unknown assessment", `/findings/${SITE_ID}/dispatch-nope/analysis`],
   ["Finding, unavailable", `/findings/${SITE_ID}/${CANDIDATE_ID}`, { analytics: unavailableAnalytics }],

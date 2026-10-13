@@ -22,6 +22,7 @@ import {
   FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
+  SITE_FINDING_VIEW_ROUTE_PATH,
   SITE_FINDINGS_ROUTE_PATH,
   SITE_PERFORMANCE_ROUTE_PATH,
   SITE_PERFORMANCE_SUBTAB_ROUTE_PATH,
@@ -250,10 +251,13 @@ export function App({
               />
             }
           />
-          <Route
-            path={SITE_FINDING_ROUTE_PATH}
-            element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />}
-          />
+          {[SITE_FINDING_ROUTE_PATH, SITE_FINDING_VIEW_ROUTE_PATH].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />}
+            />
+          ))}
           <Route
             path={FINDINGS_PATH}
             element={<FindingsFrame analytics={siteAnalytics} />}

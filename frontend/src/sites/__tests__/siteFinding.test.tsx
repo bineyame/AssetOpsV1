@@ -135,6 +135,7 @@ function fake(result: FindingReadResult<FindingDetailBody> | ((revisionId: strin
       return typeof result === "function" ? result(revisionId) : result;
     },
     getFindingWindow: async () => ({ status: "not_found", message: null }),
+    getFindingEvidence: async () => ({ status: "not_found", message: null }),
   };
   return client;
 }

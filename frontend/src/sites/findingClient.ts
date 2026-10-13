@@ -292,15 +292,151 @@ export interface FindingWindowBody {
   }[];
 }
 
+/** S4-03: one link name of the Evidence read's lineage check (`finding_read.BROKEN_WORDS`). */
+export type LineageLink = string;
+
+export interface EvidenceRecord {
+  evidence_id: string;
+  resolved: boolean;
+  lineage_status: "RESOLVED" | "BROKEN";
+  broken_links: LineageLink[];
+  /** Present only when the accepted row does not resolve: why nothing else is shown. */
+  withheld?: string;
+  role?: string;
+  value?: string | null;
+  unit?: string | null;
+  quality?: string;
+  unavailable_reason?: string | null;
+  source_time?: string | null;
+  interval?: { start: string | null; end: string | null };
+  published_at?: string | null;
+  received_at?: string | null;
+  accepted_at?: string | null;
+  disposition?: string | null;
+  source?: {
+    gateway_id: string | null;
+    source_id: string | null;
+    sequence_epoch: string | null;
+    sequence: number | string | null;
+    device_id: string | null;
+    signal_id: string | null;
+    asset_id: string | null;
+    source_mode: string | null;
+  };
+  batch?: { batch_id: string | null; external_batch_id: string | null; resolved: boolean };
+  message_id?: string | null;
+  envelope?: { sha256: string | null; digest_verified: boolean };
+  accepted_as?: {
+    foundation_revision_id: string | null;
+    foundation_version: number | string | null;
+    foundation_resolved: boolean;
+    binding_set_revision_id: string | null;
+    binding_set_version: number | string | null;
+    binding_set_resolved: boolean;
+    binding_revision_id: string | null;
+    binding_resolved: boolean;
+    conversion_kind: string | null;
+    configuration_outdated: boolean | null;
+  };
+  used_by?: { assessment_revision_ids: string[]; run_ids: string[] };
+}
+
+export interface EvidenceAssessment {
+  assessment_revision_id: string;
+  scope: "WINDOW" | "INTERVAL";
+  is_primary: boolean;
+  assessment_key: string;
+  assessment_revision_no: number;
+  claim_level: string;
+  window: { start: string; end: string };
+  model_version: string;
+  analytic_run_id: string;
+  run_resolved: boolean;
+  cohort: { status: string; sha256: string } | null;
+  basis: {
+    foundation_revision_ids: string[];
+    binding_set_revision_ids: string[];
+    configuration_sha256: string;
+    control_basis: string;
+  } | null;
+  cited_records: number;
+}
+
+export interface FindingEvidenceBody {
+  site_code: string;
+  source_gate: { permitted: boolean; reason: string };
+  audit_only: { non_current: boolean; reason: string; statement: string } | null;
+  finding: FindingDetailBody["finding"];
+  selection: FindingDetailBody["selection"];
+  revision: RevisionSummary & {
+    minutes: { candidate: string; necessary: string; indeterminate: string };
+    analytic_run_id: string;
+    window_assessment_revision_id: string;
+    cited_evidence_sha256: string;
+    input_evidence_sha256: string;
+    limitations: string[];
+  };
+  counts: {
+    cited_total: number;
+    cited_resolved: number;
+    cited_unresolved: number;
+    cited_with_broken_lineage: number;
+    input_distinct_total: number;
+    input_by_run: { analytic_run_id: string; input_evidence_count: number; input_sha256: string }[];
+    statement: string;
+  };
+  lineage: {
+    status: "COMPLETE" | "BROKEN";
+    cited_set_digest: { status: "VERIFIED" | "MISMATCH" | "NOT_VERIFIED"; recorded?: string; recomputed?: string; reason?: string };
+    set_breaks: { link: LineageLink; detail: string; assessment_revision_id?: string; analytic_run_id?: string }[];
+    broken_records: { evidence_id: string; links: LineageLink[] }[];
+    statement: string;
+    words: Record<string, string>;
+  };
+  assessments: EvidenceAssessment[];
+  records: EvidenceRecord[];
+  page: { offset: number; limit: number; total: number; returned: number; next_offset: number | null };
+  provenance: {
+    statement: string;
+    cited_evidence_by_source: { gateway_id: string; source_id: string; sequence_epoch: string; source_mode: string; count: number }[];
+    case_annotations: { kind?: string; label?: string; note?: string; [key: string]: unknown }[];
+  };
+  currentness: { state: string; basis?: string } | null;
+  links: {
+    canonical: string;
+    evidence: string;
+    performance: { status: "OPEN" | "CLOSED"; note?: string };
+    /** Exact accepted evidence ID -> stored-record read, resolved records of this page only. */
+    records: Record<string, string>;
+    /** Assessment revision ID -> Dispatch read; empty while the Performance source is closed. */
+    assessment_revisions: Record<string, string>;
+  };
+}
+
 export interface FindingClient {
   getFinding(siteId: string, findingId: string, revisionId: string | null): Promise<FindingReadResult<FindingDetailBody>>;
   getFindingWindow(siteId: string, day: string): Promise<FindingReadResult<FindingWindowBody>>;
+  /** S4-03: one page of the selected revision's cited evidence, with whole-set counts and lineage. */
+  getFindingEvidence(
+    siteId: string,
+    findingId: string,
+    revisionId: string | null,
+    offset: number,
+    limit: number,
+  ): Promise<FindingReadResult<FindingEvidenceBody>>;
 }
 
 function isFinding(value: unknown): value is FindingDetailBody {
   return (
     hasKeys(value, ["finding", "selection", "revision", "state", "relations", "revisions", "revision_groups", "links"]) &&
     Array.isArray((value as { revisions: unknown }).revisions)
+  );
+}
+
+function isEvidence(value: unknown): value is FindingEvidenceBody {
+  return (
+    hasKeys(value, ["finding", "selection", "revision", "counts", "lineage", "assessments", "records", "page", "links"]) &&
+    Array.isArray((value as { records: unknown }).records)
   );
 }
 
@@ -357,6 +493,18 @@ export function createFindingClient(basePath: string = SITES_API_PATH): FindingC
     },
     getFindingWindow(siteId, day) {
       return readFinding(`${site(siteId)}/finding-windows/${encodeURIComponent(day)}`, isWindow);
+    },
+    getFindingEvidence(siteId, findingId, revisionId, offset, limit) {
+      const query = new URLSearchParams();
+      if (revisionId !== null) {
+        query.set("revision_id", revisionId);
+      }
+      query.set("offset", String(offset));
+      query.set("limit", String(limit));
+      return readFinding(
+        `${site(siteId)}/findings/${encodeURIComponent(findingId)}/evidence?${query.toString()}`,
+        isEvidence,
+      );
     },
   };
 }

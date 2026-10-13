@@ -421,23 +421,13 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
     expect(analysis.textContent ?? "").not.toMatch(/\bruntime\b|\brunning\b|binding|Indeterminate|segment|digest/i);
   });
 
-  it("the Evidence tab's record drawer reuses the record inspector and keeps the root", async () => {
+  it("the Evidence tab is not a second evidence source: it resolves the period's saved Finding (S4-03)", async () => {
     renderAt(`/findings/${SITE_ID}/${CANDIDATE_ID}/evidence`);
     await settledScreen();
-    const parts = document.querySelectorAll("[data-claim-segment]");
-    expect(parts).toHaveLength(1);
-    expect(parts[0]).toHaveTextContent("Possibly avoidable");
-    fireEvent.click(screen.getAllByRole("button", { name: /GEN-1 \/ output_kw, 22 Sep 2026/ })[0]);
-    await settledScreen();
-    const drawer = screen.getByRole("complementary", { name: "Supporting record" });
-    expect(drawer).toHaveAttribute("data-claim-drawer", RECORD_DETAIL.message_id);
-    expect(drawer.querySelector(`[data-evidence-record-detail="${RECORD_DETAIL.message_id}"]`)).not.toBeNull();
-    expect(drawer).toHaveTextContent("Assessment methoddispatch-2");
-    expect(location().startsWith(`/findings/${SITE_ID}/${CANDIDATE_ID}/evidence?`)).toBe(true);
-    expect(railCurrent()).toBe("Findings");
-    fireEvent.click(within(drawer).getByRole("button", { name: "Close record" }));
+    expect(document.querySelectorAll("[data-claim-segment]")).toHaveLength(0);
+    expect(document.querySelector("[data-legacy-evidence]")).not.toBeNull();
     expect(screen.queryByRole("complementary", { name: "Supporting record" })).toBeNull();
-    expect(location()).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}/evidence`);
+    expect(railCurrent()).toBe("Findings");
   });
 
   it("the Alternatives tab lists other possible explanations with plain status and their records", async () => {

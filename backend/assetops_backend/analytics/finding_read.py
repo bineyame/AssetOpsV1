@@ -46,7 +46,6 @@ PROVENANCE_STATEMENT = ("Central evidence carries no fixture or gateway-sealed m
 UNAVAILABLE = {
     "money": "UNAVAILABLE: no fuel, saving or monetary claim (S4-02)",
     "recommendation": "UNAVAILABLE: no recommendation or Action (S6)",
-    "evidence_tab": "UNAVAILABLE: the full Evidence child view is S4-03; the cited IDs are listed here",
     "history_tab": "UNAVAILABLE: the full chronological History child view is S4-03; every revision is listed here",
     "site_list": "UNAVAILABLE: the Site Findings list is S4-04",
     "control_route": "UNAVAILABLE: no product route edits the generator minimum runtime; fixture controls were "
