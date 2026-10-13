@@ -27,5 +27,5 @@ Independent Reviewer checks the graph, visible placements, 1440/390 pairs and so
 
 - Reviews read (both): `.agent/G-02-review.md` (no blocking finding; F1 walkthrough/packet overstated SLD coverage, F2 `sld:2` reporting column uncatalogued); `.agent/G-02-fix-rereview.md` ACCEPT with R1 (walkthrough evidence count) fixed on the branch `5ba5d38`. Browser evidence 321/322 at 1440/390; the one failure is the pre-existing 390 px SLD parts-table caption. Screenshots kept at %LOCALAPPDATA%/AssetOps/evidence/g02.
 - Architect: `.agent/architect-G-02-answers.md` (Q1, Q2 overruled and corrected in fix round 1; Q3-Q6 ratified; Lab entry labels accepted as developer affordances), decision `D-2026-10-13-g02-visible-placement-and-state-boundary`.
-- Owner checkpoint: `.agent/owner-G-02-acceptance-2026-10-13.md` — accepted conditionally; nothing becomes Real. The 390 px SLD caption item was not separately ruled on and stays an open owner carry.
+- Owner checkpoint: `.agent/owner-G-02-acceptance-2026-10-13.md` — accepted conditionally; nothing becomes Real. The 390 px SLD caption was then accepted as is for now (owner, after merge; same file).
 - Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "G-02 carries (2026-10-13)".
