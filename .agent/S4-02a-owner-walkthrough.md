@@ -69,11 +69,15 @@ The measured checks at 1440 and 390 pixels have already been run: **69/69 claims
    - "See the evidence for this finding version" opens that version's evidence. Back returns here.
 5. **No price recorded**: open `http://localhost:5371/sites/KOBO-001/financials/assumptions`. It says "No diesel price is recorded for today at this site. No default or company-wide price is used in its place." The greyed-out edit and its reason are still there.
 6. **Site model**: open `http://localhost:5370/sites/KOBO-001/foundation`. Under Identity, the financial-assumptions line now links to Financials › Assumptions.
+7. **Narrow window (about 390 px)**: on any Site page, the tab row now has six tabs (Financials is new) and wraps onto a second line, with "Evidence" below the others. The mock instead scrolls the tab row sideways. Say whether the wrap is fine or the row should scroll like the mock.
+8. **Version 1 in two places**: on Assumptions, Price history describes version 1 as "from 1 Jan 2026, with no end date" (what was originally recorded), while the Price schedule shows version 1 in shorter pieces because version 2 and the June correction cut into it. Say whether that reads clearly.
 
 ## What to decide
 
 - Is the disabled-edit wording acceptable?
 - Is "Not calculated" with that reason the right reading for a finding's cost today?
+- At 390 px: keep the wrapped tab row, or make it scroll like the mock (step 7)?
+- Do version 1's history line and its schedule rows read clearly together (step 8)?
 
 ## Stop and clean up
 
