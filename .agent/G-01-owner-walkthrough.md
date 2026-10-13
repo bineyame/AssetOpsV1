@@ -27,7 +27,7 @@ This uses private databases `assetops_g01walk` and `assetops_g01empty` and the o
 3. From `frontend/`: `$env:ASSETOPS_API_PORT="8864"; npm.cmd run dev -- --port 5364 --strictPort`
 4. From `frontend/` (optional, empty store): `$env:ASSETOPS_API_PORT="8865"; npm.cmd run dev -- --port 5365 --strictPort`
 
-To repeat the measured checks at 1440 and 390 pixels, run `node tools/g01-firmware-evidence.mjs http://localhost:5364 <folder>`. It prints `N/M claims passed`.
+The measured checks at 1440 and 390 pixels have already been run (113/113 claims passed, coordinator run, 2026-10-13). To repeat them, run `node tools/g01-firmware-evidence.mjs http://localhost:5364 <folder>`. It prints `N/M claims passed`.
 
 ## What to look at
 

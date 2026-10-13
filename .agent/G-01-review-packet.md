@@ -6,7 +6,7 @@ Branch `task/G-01-mock-gap-catalogue-and-guard`, diff base `db98e54` (activation
 Design and phase log: `.agent/G-01-handoff.md`. Questions: `.agent/G-01-questions-1.md` (Q1-Q4, defaults shipped).
 
 Commits: `825e62b` phase a (schema, validator, next-work invariance), `f2945bd` phase b (typed MissingClaim and the
-firmware placement), `87ccf63` phase c (orphan scan, baseline, check-all), `e976e08` evidence tool (not yet run),
+firmware placement), `87ccf63` phase c (orphan scan, baseline, check-all), `e976e08` evidence tool (run by the coordinator, see Layout evidence),
 plus the closeout records commit.
 
 ## Outcome delivered
@@ -34,7 +34,7 @@ plus the closeout records commit.
   "G-01: the catalogued gateway firmware missing state"; the existing `NOT_YET` constant is updated to the split copy).
 - `tools/checks/missing-claim-scan.mjs`, `missing-claim-baseline.json` and `test_missing_claim_scan.mjs` (new);
   `tools/check-all.ps1` gains 3 guards.
-- `tools/g01-firmware-evidence.mjs` (new; 1440/390 CDP evidence; not run, see Layout evidence).
+- `tools/g01-firmware-evidence.mjs` (new; 1440/390 CDP evidence; run, see Layout evidence).
 
 ## Acceptance criteria
 
@@ -91,19 +91,19 @@ plus the closeout records commit.
 
 ## Layout evidence
 
-**Layout evidence: not run.**
-- Blocking precondition: Postgres on 127.0.0.1:55432 accepted no connections ("Docker Desktop is unable to start"; connect timeouts, probed three times).
-- Because of that, `tools/v01a_foundation_walkthrough.py ... prepare` failed at its first connect. No private DB was created.
-- `tools/g01-firmware-evidence.mjs` is committed and passes `node --check`, but has never run. `tools/layout-evidence.mjs` was not run.
-- Unverified: the claim that the firmware line stays inside the panel with no page overflow at 1440 and 390 px, with populated (STALE/CURRENT) and unknown/unavailable contact.
-- jsdom proves presence, membership and text only. The reviewer or coordinator should run the evidence tool on private ports (commands in `.ai/ACTIVE_CONTEXT.md` "Next read" and in the owner guide) once Docker is back.
+**Run by the coordinator after Postgres returned; result `113/113 claims passed`.**
+- Store: `.venv/Scripts/python.exe tools/v01a_foundation_walkthrough.py --db assetops_g01evwalk --empty-db assetops_g01evempty --work-name g01-evidence prepare`, then `serve --port 8898 --web-port 5398 --empty-port 8899 --empty-web-port 5399` and Vite from `frontend/` (`$env:ASSETOPS_API_PORT="8898"; npm.cmd run dev -- --port 5398 --strictPort`).
+- Tool: `node tools/g01-firmware-evidence.mjs http://localhost:5398 <dir>`. Result line: `113/113 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\g01-evidence-run`.
+- Five contact shapes at 1440x1000 and 390x900: stale (a real stored read), and current, unknown, 503 and 404 (in-browser response substitutions, which prove only what the screen renders).
+- Per run: firmware element exactly once with the expected gap id, placement and status `open`; exact text; visible and inside the panel; no horizontal scroll (`scrollWidth` = `innerWidth`); page `data-gap-id` set exactly `["G-readiness-gateway-firmware"]`; gap id not in visible text; no firmware value.
+- Screenshots `g01-firmware-1440-stale.png` and `g01-firmware-390-unknown.png` were inspected: the firmware line is the last line inside the panel, with no clipping.
+- Cleanup: servers stopped; `drop` removed both databases and the work folder (verified by a `pg_database` listing). The kill used a loose command-line pattern and also ended some unrelated processes.
+- `tools/layout-evidence.mjs` was not run; the dedicated tool above covers the claim.
 
 ## Known deviations
 
-- The 1440/390 evidence required by the task is not yet produced (precondition above).
 - The firmware placement is one unconditional element, not one per branch (Q2). Every branch is still asserted.
 - The copy is reworded so that no test-guarded "firmware v" pattern appears. The new wording is "what firmware a gateway runs".
-- The `tasks/README.md` G-01 row still reads "open planning packet". The queue row is left for the coordinator's records step.
 
 ## Residual risk
 
@@ -115,3 +115,12 @@ plus the closeout records commit.
 
 - Owner: the separate firmware missing-state line in Gateway status (`.agent/G-01-owner-walkthrough.md`, ports 8864/8865/5364/5365, private `assetops_g01walk`/`assetops_g01empty`). Acceptance stays conditional and does not make the panel or the screen Real.
 - Reviewer: sample the catalogue -> ledger -> mirror -> `data-gap-id` joins, and re-run the mutation proofs above.
+
+## Fix round 1
+
+Against `.agent/G-01-review.md` (RETURN). Commits `fb8df38`, `68dfe64` plus the records commit.
+- Finding 1: `missing-claim-scan.mjs` now reports `ui_duplicate_placement` (both file:line locations) when a (gapId, placement) pair is used more than once. Fixture `mutation: a catalogued placement used twice fails, naming both locations` in `test_missing_claim_scan.mjs` (11 scan fixtures pass).
+- Demonstration on the real tree: a second `<MissingClaim gapId="G-readiness-gateway-firmware" placement="readiness.gateway.firmware">` wrapping "Uptime not available yet: probe." gave `[ui_duplicate_placement] frontend/src/sites/ReadinessOverview.tsx:492: G-readiness-gateway-firmware placement readiness.gateway.firmware is already used at frontend/src/sites/ReadinessOverview.tsx:491; ...`, `Missing-claim scan FAILED: 1 problem(s).`, exit 1. Reverted with `git checkout`; the scan then passed (1 tagged use, 16 baselined).
+- Finding 2: resolved by the coordinator's evidence run (Layout evidence above).
+- C8: `tasks/README.md` G-01 row set to in review. C1-C7 appended to `.ai/MILESTONE_REVIEW_BACKLOG.md` under "G-01 carries (2026-10-13)".
+- Checks: vitest 58 files / 1391 tests passed; `tsc --noEmit` exit 0; `tools/check-all.ps1` All 9 guards passed; `test_delivery_next_work.cjs` 35 pass; `test_mock_gaps.cjs` 13 pass; scan fixtures 11 pass.
