@@ -1,6 +1,6 @@
 # S4-03 — Finding Evidence and History
 
-Status: active (activated 2026-10-13 after G-01 merged; owner choice `.agent/owner-next-work-2026-10-13.md`; branch from main)
+Status: in_review (phase 3 and closeout built 2026-10-13; packet `.agent/S4-03-review-packet.md`)
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
 Depends on: merged S4-01 (`I-finding-read`, `D-finding-revisions`), accepted S2 Evidence and S3 Dispatch reads. S4-02 and S4-04 are not technical gates.

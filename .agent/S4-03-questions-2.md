@@ -1,0 +1,11 @@
+# S4-03 questions batch 2 (phase 3 closeout, 2026-10-13)
+
+For the Architect. Each question has the fail-closed default that is built, so none blocks the owner walkthrough.
+
+| # | Question | Built default |
+| --- | --- | --- |
+| Q4 (carry R1) | **Ratify the M4 shape of the Evidence "by measurement" summary.** It has two catalogued `<MissingClaim>` gaps for Coverage and Use: `G-finding-evidence-coverage` / `G-finding-evidence-use`, at placements `finding-evidence.bundle.coverage` / `.use`. It also has an Input / Source / Records table. Phase 3 (N1) made that table **whole-set**: the read now returns `provenance.cited_evidence_by_role` (`[{role, count, source_ids}]` over every resolved cited record of the selected version). The UI renders that, not a recount of the page. Is this the accepted shape for `finding-evidence:1#a`? | Whole-set table plus the two catalogued gaps (review N1, option 1). Records that do not resolve are excluded from the role counts and stated as a number. |
+| Q5 | **History rows and the mock's ActionEvent row.** Mock `finding-history:1` has three rows. Two of them, "Delayed SOC evidence accepted" and "Recommendation prepared", are events rather than FindingRevisions. The app lists stored revisions only. It notes late-accepted readings on the appended version, from stored times (cited `accepted_at` later than the previous version's `recorded_at`), and does not add a separate acceptance event row. Is the per-version note an acceptable stand-in for the mock's acceptance event? | The per-version note is built. The "Recommendation prepared" row is omitted and listed for G-04, with no catalogue entry and no new copy. |
+| Q6 | **History loads every page before rendering.** The view follows `next_after_revision_no` (100 per request) until the read reports no next page. It checks the loaded count against `page.total`. It says "incomplete" if a later page fails, and says a new version appeared if the total or latest changes between pages. There are no page controls. Is that acceptable at MVP scale? The read caps one request at 500, and the largest fixture Finding has 4 versions. | All pages are loaded, with the incomplete and changed-while-reading states. |
+
+No owner product choice is needed for Q4-Q6. The owner still decides visual acceptance at the walkthrough.

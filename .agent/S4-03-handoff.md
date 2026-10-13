@@ -220,3 +220,21 @@ Non-vacuity (mutation, then `git checkout --`): `overlapsWindow` returning true 
 Results: vitest 60 files, 1422 passed; tsc 0; build 0; `test_s4_finding_api.py` + `test_s4_finding_evidence_history_api.py` 23 passed; `test_s4_finding_evidence_history_postgres.py` 3 passed on `assetops_test` (run before the commit; no backend code changed after); `tools/check-all.ps1` 9 of 9 pass.
 
 Open: the Postgres test is not rerun after the final commit (only test and doc files changed since). The envelope/row comparison against Postgres owed by the re-reviewer is unchanged. G-04 list gains nothing new.
+
+## Phase 3 - `I-finding-history-ui`, phase-2 leftovers, closeout
+
+Implementer: Claude, 2026-10-13. Commits `65cc5c7` (History view, N1-N4), `66d001f` (browser suite, walkthrough
+links), closeout commit (packet, walkthrough, questions, context). Packet `.agent/S4-03-review-packet.md`.
+
+- History: `frontend/src/sites/SiteFindingHistory.tsx` (`HISTORY_PAGE_SIZE = 100`, loads all pages; `data-history-*`
+  hooks); client `getFindingHistory` (`findingClient.ts`); `FINDING_CHILD_VIEWS = ["evidence","history"]`; frame
+  branch in `SiteAnalyticsFrames.tsx`; Evidence `[data-evidence-to-history]`; S4-01 `[data-finding-history-link]`.
+- N1 `provenance.cited_evidence_by_role` (`finding_read.py` evidence(), whole set); N2 `EVIDENCE_LIFECYCLE_SENTENCE`;
+  N3 day/days wording; N4 `refuse_foreign_work()` in `tools/s4_finding_walkthrough.py`.
+- Retired `UNAVAILABLE.history_tab` and the S4-01 history placeholder (missing-claim baseline 16 -> 15).
+- Checks: vitest 61 files / 1439 passed; tsc 0; build 0; backend targeted 26 passed (private DB) + API 23 passed after
+  `history_tab` removal; `tools/check-all.ps1` 9/9; mutation proofs in the packet.
+- Browser: private `assetops_s403p3_walk`, API 8898, Vite 5398, CDP 9398; `all` 110/110, `closed` 8/8; screenshots
+  `%TEMP%\s403p3-evidence\`; DBs (`assetops_s403p3_walk`, `assetops_s403p3_test`) dropped, PIDs stopped.
+- Open: Q4-Q6 (`.agent/S4-03-questions-2.md`), registry/ledger proposals in the packet (not applied), legacy tab not
+  browser-captured, owner visual check of History vs the mock table.

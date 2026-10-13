@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**G-01 ([Mock-gap catalogue and orphan guard](../tasks/G-01-mock-gap-catalogue-and-guard.md)) is `in_review`** on `task/G-01-mock-gap-catalogue-and-guard` (USER_REVIEW_REQUIRED: fresh independent Claude review, then the owner check of the firmware missing-state treatment). Packet `.agent/G-01-review-packet.md`, owner guide `.agent/G-01-owner-walkthrough.md`, questions `.agent/G-01-questions-1.md` (Q1-Q4), handoff `.agent/G-01-handoff.md`, built state in `.ai/CODE_STATE.md` "G-01". V-01a and V-01b are merged on main (conditional owner acceptance); G-02 is due at the next free slot after G-01 merges. The S2-S4 paragraphs below are earlier routing; S4-01 and its registry closeout are merged on main.
+**S4-03 ([Finding Evidence and History](../tasks/S4-03-finding-evidence-history.md)) is `in_review`** on `task/S4-03-finding-evidence-history` (USER_REVIEW_REQUIRED: fresh independent Claude review of phase 3 + closeout, then the owner checkpoint). Phases 1-2 are reviewed ACCEPT. Packet `.agent/S4-03-review-packet.md`, owner guide `.agent/S4-03-owner-walkthrough.md`, questions `.agent/S4-03-questions-2.md` (Q4-Q6), handoff `.agent/S4-03-handoff.md`, built state in `.ai/CODE_STATE.md` "S4-03". G-01 is merged on main; G-02 is due at its next free slot. The S2-S4 paragraphs below are earlier routing; S4-01 is merged on main.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
@@ -28,7 +28,7 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 
 ## Next read
 
-Reviewer (G-01): read the task, `.agent/G-01-review-packet.md`, `.agent/G-01-questions-1.md` and `.agent/G-01-handoff.md`, then `git diff db98e54..HEAD`. Run `node frontend/docs/architecture/check_v69_dependency_registry.cjs`, `node --test frontend/docs/architecture/test_mock_gaps.cjs frontend/docs/architecture/test_delivery_next_work.cjs tools/checks/test_missing_claim_scan.mjs`, `node tools/checks/missing-claim-scan.mjs` and `tools/check-all.ps1`; 1440/390 evidence with `tools/g01-firmware-evidence.mjs` on private ports (walkthrough tool `--db/--empty-db/--work-name`, e.g. 8898/5398) needs Postgres and was not run at build time (packet). The owner keeps 8864/8865/5364/5365.
+Reviewer (S4-03 phase 3 and closeout): read the task's phase 3 row, `.agent/S4-03-review-packet.md`, `.agent/S4-03-handoff.md` "Phase 3", `.agent/architect-S4-03-answers.md` (Q3) and `.agent/S4-03-questions-2.md`, then `git diff 26b5e7a..HEAD`. Walk it on a private copy with `tools/s4_finding_walkthrough.py --db <private> --work <new folder> prepare|serve` and `node tools/s4-finding-evidence.mjs` (`ASSETOPS_S4_WALK_WORK`, `ASSETOPS_CDP_PORT`, suites all/history/closed) on ports 8898/5398; the owner keeps 8866/8867/5366/5367.
 
 Reviewer (S4-01 phase 3 and closeout): read the task's phase 3 row and "Detail read and visible states", `.agent/S4-01-review-packet.md` and `.agent/S4-01-questions-5.md`, then `git diff 0f4808b..HEAD`; walk it with `tools/s4_finding_cases.py run`, `tools/s4_finding_walkthrough.py prepare|links|serve` (DB `assetops_s4walk`, API 8840, web 5340) and `node tools/s4-finding-evidence.mjs http://localhost:5340`.
 
