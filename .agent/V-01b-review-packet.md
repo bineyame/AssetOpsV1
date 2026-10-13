@@ -91,3 +91,15 @@ Lab flow box 2 reads "321 reports published, 1 dropped / 329 admitted by the gat
 - Carry C2: `registeredKoboLab` in `tools/layout-evidence.mjs` needs `ASSETOPS_LAYOUT_CREATE_RUNS=1` and refuses ports 5173, 5183, 5199, 5213, 5291, 5360-5363; otherwise prints `not run` with the reason and returns false (never PASS). The recorded layout command above now carries the opt-in. Layout evidence was not re-run (no live server touched); the gate is checked by `node --check` only.
 - Carries C1, C3-C6 (C2 marked fixed) appended to `.ai/MILESTONE_REVIEW_BACKLOG.md`.
 - Checks: `npx vitest run` Test Files 57 passed, Tests 1383 passed; `npx tsc --noEmit` clean; `tools/check-all.ps1` "All 6 guards passed."
+
+## Fix round 2
+
+Owner chose this after the second RETURN (`.agent/V-01b-fix-rereview.md`). Commit `b205486`.
+
+- Finding A: `OWNER_PORTS` was a module-level const read from top-level await before its declaration (temporal dead zone). It is now declared inside `registeredRunGate()`. Observed, no server running, no owner port touched: `ASSETOPS_LAYOUT_V01B_ONLY=1 node tools/layout-evidence.mjs http://localhost:5399` printed
+  `=== V-01b registered Kobo Lab run (create + execute) ===` then
+  `  not run  run creation is opt-in: set ASSETOPS_LAYOUT_CREATE_RUNS=1 and point BASE at a private disposable store; its Draft, drawing and Gateway & Ingestion claims are unverified`,
+  then `AT LEAST ONE CLAIM FAILED` (exit 1: not run is never a pass). The script continued to its summary instead of crashing. No private servers were needed, so none were started and no database created.
+- Gate refusal on an owner port, via a harness that extracts and calls `registeredRunGate()` directly (no traffic sent): with `ASSETOPS_LAYOUT_CREATE_RUNS=1`, BASE 5173 returns "BASE http://localhost:5173 is a default/owner port (5173); run creation refused"; BASE 5399 returns null.
+- Finding B: `receivedStatement` now returns "Reports were received centrally, but the run's execution could not be read, so no Site Evidence link is offered." when receipts exist and the execution read failed. One test added in `v01bLabIngestion.test.tsx`: before the fix 1 failed | 11 passed (`expected 'The commit status could not be read, ...' to match /execution could not be read/`); after, 12 passed.
+- Checks: `npx.cmd vitest run` 57 files, 1384 tests passed; `npx.cmd tsc --noEmit` clean; `tools/check-all.ps1 -Python python` all 6 guards passed. Full (non-ONLY) layout evidence and the create-and-execute path with the opt-in were not run (no private store prepared).
