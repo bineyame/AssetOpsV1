@@ -106,6 +106,16 @@ class TestSelection:
             assert (after is None) == ("api_next_page" not in body["links"])
         assert seen == ids
 
+    def test_next_page_link_survives_a_recorded_cutoff(self, published) -> None:
+        client, _, _, ids = published
+        cutoff = recorded(client)[-1]
+        first = client.get(SERIES, params={"limit": 1, "recorded_at": cutoff.isoformat()}).json()
+        link = first["links"]["api_next_page"]
+        assert "%2B" in link or "Z" in link  # the offset is encoded, not a bare '+'
+        followed = client.get(link)
+        assert followed.status_code == 200, followed.text
+        assert [r["revision_id"] for r in followed.json()["revisions"]] == ids[1:2]
+
 
 class TestExactRevision:
     def test_an_exact_id_is_stable_after_later_writes(self, published) -> None:

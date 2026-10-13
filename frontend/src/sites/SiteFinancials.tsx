@@ -442,9 +442,9 @@ export function SiteFinancialsOverview({
       ) : bridge.value !== null ? (
         <FindingBridge body={bridge.value} links={links} />
       ) : (
-        <Panel heading="What a finding means in money" headingId="site-financials-bridge-heading">
+        <Panel heading="What this finding means in money" headingId="site-financials-bridge-heading">
           <p data-financials-bridge="none">
-            Open a finding and choose “What this means in money” to see its money view here.{" "}
+            Open a finding and choose “What this finding means in money” to see its money view here.{" "}
             <Link to={links.findings}>Go to this site's findings</Link>
           </p>
         </Panel>

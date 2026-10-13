@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Any, Callable
+from urllib.parse import urlencode
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -78,9 +79,10 @@ def build_financial_read_router(reads: AssumptionReadService | None, scope: Scop
             "assumptions": f"/sites/{code}/financials/assumptions",
             "revisions": {str(r["revision_id"]): f"{base}/{r['revision_id']}" for r in body["revisions"]}}
         if page["next_after_revision_no"] is not None:
-            links["api_next_page"] = (f"{base}?key={key}&after_revision_no={page['next_after_revision_no']}"
-                                      f"&limit={page['limit']}"
-                                      + ("" if recorded_at is None else f"&recorded_at={recorded_at.isoformat()}"))
+            query = {"key": key, "after_revision_no": page["next_after_revision_no"], "limit": page["limit"]}
+            if recorded_at is not None:
+                query["recorded_at"] = recorded_at.isoformat()
+            links["api_next_page"] = f"{base}?{urlencode(query)}"
         return jsonable_encoder({"site_code": code, "access_basis": access_basis, **body, "links": links})
 
     @router.get("/api/sites/{site_code}/financial-assumptions/{revision_id}")

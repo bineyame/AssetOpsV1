@@ -1890,8 +1890,8 @@ for (const [label, width, height] of [
       [
         // D-2026-10-02-rendered-tabs-per-capability (T027 AC23): only the
         // tabs whose capability exists render.
-        "the Site tab row is exactly Overview, Foundation, Evidence",
-        siteTabs.join("|") === "Overview|Foundation|Performance|Findings|Evidence",
+        "the Site tab row is exactly Overview, Foundation, Performance, Findings, Financials, Evidence",
+        siteTabs.join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence",
         siteTabs.join(" | "),
       ],
       [
@@ -4771,8 +4771,8 @@ const READ_T027_OVERVIEW = `(() => {
           read.charts.map((c) => `${c.width}px, ${c.marks} marks, right ${c.right}/${c.regionRight}/${read.viewport}, region ${c.overflows ? `overflows (${c.overflowX})` : "fits"}`).join("; "),
         ],
         [
-          "exactly Overview|Foundation|Performance|Findings|Evidence, Overview current",
-          page.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence" && read.currentTab === "Overview",
+          "exactly Overview|Foundation|Performance|Findings|Financials|Evidence, Overview current",
+          page.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence" && read.currentTab === "Overview",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
@@ -5043,8 +5043,8 @@ let t028AnyAssessment = null;
     const groups = rail.groups.map((g) => `${g.header}: ${g.items.map((i) => i.label).join(",")}`).join("; ");
     const claims = [
       [
-        "Site tabs Overview|Foundation|Performance|Findings|Evidence; Dispatch the only Performance subtab; Dispatch views Overview|Analysis",
-        page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
+        "Site tabs Overview|Foundation|Performance|Findings|Financials|Evidence; Dispatch the only Performance subtab; Dispatch views Overview|Analysis",
+        page.tabLabels.slice(0, 6).join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence" &&
           read.subtabs.join("|") === "Dispatch assessment" && read.views.join("|") === "Overview|Analysis",
         `${page.tabLabels.join(" | ")}; subtabs ${read.subtabs.join(",")}; views ${read.views.join("|")}`,
       ],
