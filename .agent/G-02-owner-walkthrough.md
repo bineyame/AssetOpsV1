@@ -2,7 +2,7 @@
 
 ## What changed
 
-- Every honest "not available" statement on these four pages is now linked to its own entry in the gap catalogue. The entry names the claim, why it is missing, who owns it and what would close it.
+- Every honest "not available" statement on these four pages that asserts an absent capability is now linked to its own entry in the gap catalogue. The entry names the claim, why it is missing, who owns it and what would close it.
   - The link sits in the page's HTML as `data-gap-id`. You never see it on screen.
   - No value is invented anywhere.
 - One visible change, on Readiness > **Gateway status**. The old combined line ("Not available yet: uptime trend, expected-versus-delivered completeness and signal strength...") is now three lines, one per missing fact, matching the firmware line you accepted in G-01:

@@ -26,3 +26,7 @@ Task `tasks/G-02-v01a-gap-pilot.md`; branch `task/G-02-v01a-gap-pilot` from `42b
 
 - SLD per-node slot text and captions restate the reporting-status fact untagged (Q1).
 - `tools/v01a-foundation-evidence.mjs` and `tools/g01-firmware-evidence.mjs` assert the pre-G-02 combined gateway copy; they are historical and would fail on rerun.
+
+## Fix round 1
+
+Q1 (SVG/table/intro/caption placements of `G-sld-reporting-status`, `MissingClaimSvg`), Q2 (exact scan cues + fixtures), F1/F2, evidence-tool headers: commit `c25b351` and following; detail in the packet's "Fix round 1". Open: evidence 321/322, the 390 SLD caption tail sits at 433px inside the parts table's inner scroll (pre-existing table width); needs an owner/reviewer decision. Needs independent re-review before merge.
