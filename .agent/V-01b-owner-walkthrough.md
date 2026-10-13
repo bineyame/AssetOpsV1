@@ -14,7 +14,7 @@ The data is a private copy, so nothing here touches your own servers or `var/`.
 4. From `frontend/`: `$env:ASSETOPS_API_PORT="8862"; npm.cmd run dev -- --port 5362 --strictPort`
 5. From `frontend/`: `$env:ASSETOPS_API_PORT="8863"; npm.cmd run dev -- --port 5363 --strictPort`
 
-`tools/v01b_lab_evidence_walkthrough.py links` prints every address. To repeat the measured checks: `node tools/v01b-lab-evidence-evidence.mjs http://localhost:5362 <folder> http://localhost:5363` (it should print 101/101). Ctrl+C stops each terminal.
+`tools/v01b_lab_evidence_walkthrough.py links` prints every address. To repeat the measured checks: `node tools/v01b-lab-evidence-evidence.mjs http://localhost:5362 <folder> http://localhost:5363` (on a freshly prepared store it prints `101/101 claims passed; 2 not run`: the not-committed Lab state needs a stored READY draft, which a fresh store does not have). Ctrl+C stops each terminal.
 
 The mock pages are `http://localhost:5362/mockups/v69/index.html#/lab`, `#/evidence` and `#/evidence-analysis`.
 
