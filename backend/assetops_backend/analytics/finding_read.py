@@ -572,7 +572,9 @@ class FindingReadService:
                 "previous_revision_id": revisions[i - 1]["id"] if i else None,
                 "is_selected": r is selected, "is_latest": r is latest,
                 "cited_evidence": {"count": cited, "resolved": resolved,
-                                   "lineage": "COMPLETE" if cited == resolved else "BROKEN"},
+                                   "accepted_rows": "ALL_RESOLVED" if cited == resolved else "UNRESOLVED_PRESENT",
+                                   "note": "counts accepted-evidence rows only; batch, envelope, basis and "
+                                           "digest lineage is checked in the Evidence read for this revision"},
                 "times": {"recorded_at": r["created_at"],
                           "analytic_completed_at": t.get("analytic_completed_latest"),
                           "source_time": {"first": t.get("source_first"), "last": t.get("source_last")},

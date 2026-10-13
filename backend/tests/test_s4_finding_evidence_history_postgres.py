@@ -127,7 +127,7 @@ class TestFindingEvidenceAndHistory:
                     "indeterminate": float(r["indeterminate_minutes"])}
                 assert _same_instant(h["times"]["recorded_at"], r["created_at"])
                 assert h["primary_assessment_revision_id"] == str(r["assessment_revision_id"])
-                assert h["cited_evidence"]["lineage"] == "COMPLETE"
+                assert h["cited_evidence"]["accepted_rows"] == "ALL_RESOLVED" and "lineage" not in h["cited_evidence"]
                 assert "knowledge_at" not in h and "knowledge_cutoff" not in h["times"]
 
             for r in stored:
@@ -273,4 +273,29 @@ class TestFindingEvidenceAndHistory:
         assert gone not in body["links"]["records"] and tampered in body["links"]["records"]
         history = _get(client, f"/api/sites/{SITE}/findings/{f['id']}/history")
         [h] = [x for x in history["revisions"] if x["id"] == rid]
-        assert h["cited_evidence"] == {"count": len(records), "resolved": len(records) - 1, "lineage": "BROKEN"}
+        assert h["cited_evidence"]["count"] == len(records) and h["cited_evidence"]["resolved"] == len(records) - 1
+        assert h["cited_evidence"]["accepted_rows"] == "UNRESOLVED_PRESENT" and "lineage" not in h["cited_evidence"]
+
+    def test_envelope_only_tamper_is_broken_in_evidence_and_not_complete_in_history(self, store, engine) -> None:
+        runner = CaseRunner(store, engine)
+        run_case(runner, SPEC["cases"][0])
+        rows = runner.reload()
+        [f] = rows["findings"]
+        rid = str(rows["revisions"][-1]["id"])
+        client = client_for(runner)
+        _, records = all_evidence(client, f["id"], rid, limit=500)
+        tampered = records[0]["evidence_id"]
+        with engine.begin() as c:
+            c.execute(text("SET LOCAL session_replication_role = replica"))
+            c.execute(text("UPDATE accepted_evidence SET envelope_text = envelope_text || ' ' WHERE id = :e"),
+                      {"e": UUID(tampered)})
+        body, _ = all_evidence(client, f["id"], rid, limit=500)
+        assert body["lineage"]["status"] == "BROKEN"
+        assert {b["evidence_id"]: b["links"] for b in body["lineage"]["broken_records"]} == {
+            tampered: ["ENVELOPE_DIGEST"]}
+        history = _get(client, f"/api/sites/{SITE}/findings/{f['id']}/history")
+        [h] = [x for x in history["revisions"] if x["id"] == rid]
+        # All accepted rows still resolve, so History says only that; it makes no lineage claim.
+        assert h["cited_evidence"]["accepted_rows"] == "ALL_RESOLVED"
+        assert "lineage" not in h["cited_evidence"] and "COMPLETE" not in str(h["cited_evidence"])
+        assert "Evidence read" in h["cited_evidence"]["note"]
