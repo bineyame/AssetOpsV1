@@ -1,6 +1,8 @@
 ﻿# S4-02 — Bounded Financials and assumptions
 
 Status: outline; refine after preceding task review, before activation
+
+Refinement inputs (2026-10-13): `D-2026-10-13-s4-bounded-financial-basis` (`.agent/architect-A-S4-financial-answers.md`) splits this outline into two M slices, S4-02a and S4-02b; review carries M1, M2 and L1-L7 are in `.agent/A-S4-financial-review.md` and `.ai/MILESTONE_REVIEW_BACKLOG.md` "A-S4-financial carries".
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
 Depends on: S4-01
