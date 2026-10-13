@@ -207,4 +207,51 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
         return {"site_code": code, "access_basis": access_basis, "source_gate": source,
                 "audit_only": audit_only(source), **body, "links": links}
 
+    # ---- S4-02a phase 2: the Financials bridge of the same exact Finding revision ----
+    # It holds the Finding ID and exact FindingRevision ID and states the typed consequence: until the
+    # `fuel-cost-1` technical quantity exists, QUANTITY_UNAVAILABLE with no amount, currency or price. No
+    # consequence revision is manufactured and no mock number is inferred.
+
+    @router.get("/api/sites/{site_code}/findings/{finding_id}/financials")
+    def finding_financials(request: Request, site_code: str, finding_id: UUID, revision_id: UUID | None = None
+                           ) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code)
+        source = source_gate(code, tenant_id, site_id)
+        if not source["permitted"] and revision_id is None:
+            raise closed(source)
+        body = served(lambda: reads.finding(tenant_id, site_id, finding_id, revision_id, limit=1,
+                                            source_open=source["permitted"]),
+                      "No such Finding or revision for this Site.")
+        selected = body["selection"]["revision_id"]
+        episode = body["revision"]["episode"]
+        links = child_links(code, finding_id, selected, source["permitted"])
+        links["financials"] = f"/sites/{code}/financials?finding_id={finding_id}&revision_id={selected}"
+        links["assumptions"] = f"/sites/{code}/financials/assumptions"
+        return jsonable_encoder({
+            "site_code": code, "access_basis": access_basis, "source_gate": source, "audit_only": audit_only(source),
+            "finding": body["finding"], "selection": body["selection"],
+            "revision": {"id": selected, "revision_no": body["selection"]["revision_no"],
+                         "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
+                         "claim_level": body["revision"]["claim_level"]},
+            "window": episode,
+            "consequence": consequence_state(quantity_available=False),
+            "links": links})
+
     return router
+
+
+QUANTITY_SOURCE = "fuel-cost-1"
+
+
+def consequence_state(*, quantity_available: bool, price_covers_window: bool = False) -> dict[str, Any]:
+    """The typed Finding consequence. Never zero, never a mock number; S4-02a has no technical quantity."""
+    if not quantity_available:
+        return {"state": "QUANTITY_UNAVAILABLE", "quantity_source": QUANTITY_SOURCE, "quantity": None,
+                "amount": None, "currency": None, "price_revision_id": None,
+                "reason": "No fuel quantity has been calculated for this finding yet, so no diesel price is "
+                          "applied and no cost is shown."}
+    if not price_covers_window:
+        return {"state": "UNPRICED", "quantity_source": QUANTITY_SOURCE, "amount": None, "currency": None,
+                "price_revision_id": None,
+                "reason": "No single Site diesel price covers this finding's whole window, so no cost is shown."}
+    raise NotImplementedError("Priced consequences are S4-02b; S4-02a never reports an amount.")

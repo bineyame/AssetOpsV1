@@ -43,6 +43,8 @@ from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
 from assetops_backend.finding_api import build_finding_router
 from assetops_backend.financial_api import build_financial_assumption_router
+from assetops_backend.financial_read_api import build_financial_read_router
+from assetops_backend.financials.composition import AssumptionStoreUnavailable, build_assumption_read_service
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -345,6 +347,10 @@ def create_app(
         registry.ledger_scope, finding_store_unavailable(), gate=performance_gate))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
+    # S4-02a phase 2: Site price reads (Finding-read scope semantics; typed 503 without a database).
+    app.include_router(build_financial_read_router(
+        build_assumption_read_service(database_url()) if database_url() else None,
+        registry.ledger_scope, (AssumptionStoreUnavailable,)))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (
