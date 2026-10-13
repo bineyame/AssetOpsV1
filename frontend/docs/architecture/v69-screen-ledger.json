@@ -128,7 +128,9 @@
     },
     {
       "id": "readiness",
-      "gap_ids": ["G-readiness-gateway-firmware"],
+      "gap_ids": [
+        "G-readiness-gateway-firmware"
+      ],
       "gap_backfill_task": "G-02",
       "mock_route": "#/readiness",
       "product_destination": "Sites > Foundation",
@@ -2273,7 +2275,7 @@
       "mock_route": "#/finding-evidence",
       "product_destination": "Findings > Evidence",
       "coverage": "bounded",
-      "task": "S4-01",
+      "task": "S4-03",
       "follow_on": null,
       "data_owner": "Finding / dispatch",
       "supported_claim": "Exact accepted records and configuration behind one Finding revision.",
@@ -2332,7 +2334,7 @@
       "product_destination": "Findings > History",
       "coverage": "deferred",
       "task": null,
-      "follow_on": "W1 S4-01 outline refinement; no activated task yet",
+      "follow_on": "S4-03 (reviewed packet, `.agent/S4-03-plan-review.md`; activation gate met 2026-10-13); coverage moves from deferred at S4-03 closeout",
       "data_owner": "Unassigned Findings read model",
       "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
       "interaction": "Open Findings > History and follow its primary record or selected window; interaction contract pending.",
