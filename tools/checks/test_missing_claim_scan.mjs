@@ -100,7 +100,7 @@ test('mutation: new untagged missing-capability copy fails with file:line', () =
 });
 
 test('mutation: a catalogued placement used twice fails, naming both locations', () => {
-  const r = world((w) => { w.files.push({ path: 'frontend/src/sites/Other.tsx', text: TAGGED.replace('FIRMWARE', 'OTHER') }); });
+  const r = world((w) => { w.files.push({ path: 'frontend/src/sites/Other.tsx', text: TAGGED.replaceAll('FIRMWARE', 'OTHER') }); });
   const e = r.errors.find((x) => x.type === 'ui_duplicate_placement');
   assert.ok(e, 'duplicate use must be reported');
   assert.match(e.where, /\.tsx:\d+$/);
