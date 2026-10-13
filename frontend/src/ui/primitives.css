@@ -2958,6 +2958,10 @@ input:focus-visible,
   --graphic-unknown: #7e8796;
   --graphic-ink: #334155;
 }
+/* S4-03: the Evidence child view's panels are direct grid items; let them shrink so dense tables scroll inside
+   their own scroller instead of widening the page. */
+.site-finding-evidence { grid-template-columns: minmax(0, 1fr); }
+.site-finding-evidence > * { min-width: 0; }
 .site-finding__body { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .site-finding__pair { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 1100px) {

@@ -509,7 +509,8 @@ describe("Old assessment-keyed Evidence tab (S4-03 phase 2)", () => {
     const client = windowClient({ status: "loaded", value: windowBody([F]) });
     await legacy(client);
     expect(client.days).toEqual(["2026-10-09"]);
-    expect(where()).toBe(`/sites/${SITE}/findings/${F}/evidence`);
+    // The redirect renders after the read settles; wait for the destination, not the loading screen.
+    expect((await screen.findByTestId("where")).textContent).toBe(`/sites/${SITE}/findings/${F}/evidence`);
   });
 
   it("offers a choice when several Findings are recorded, and a plain state when none or unreadable", async () => {

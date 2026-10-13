@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
-import { qualityWords, roleWords, stamp } from "./dispatchWords";
+import { durationText, minutes, qualityWords, roleWords, stamp } from "./dispatchWords";
 import type {
   EvidenceAssessment,
   EvidenceRecord,
@@ -328,7 +328,7 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
       <FactList>
         <Fact term="Cited records">{counts.cited_total}</Fact>
         <Fact term="Records the analysis read">{counts.input_distinct_total}</Fact>
-        <Fact term="Possibly avoidable minutes">{body.revision.minutes.candidate}</Fact>
+        <Fact term="Possibly avoidable time">{durationText(minutes(body.revision.minutes.candidate) ?? 0)}</Fact>
         <Fact term="Model">{body.revision.model_version}</Fact>
       </FactList>
       <h3 className="site-finding__subheading" id="finding-evidence-sources">
