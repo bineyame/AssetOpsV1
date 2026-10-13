@@ -1797,9 +1797,9 @@ for (const [label, width, height] of [
       [
         // D-2026-10-02-rendered-tabs-per-capability: Overview, Foundation and
         // Evidence render, and nothing else.
-        "exactly five tabs are rendered: Overview, Foundation, Performance, Findings, Evidence (T028)",
-        site.tabLabels.length === 5 &&
-          site.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Evidence",
+        "exactly six tabs are rendered: Overview, Foundation, Performance, Findings, Financials (S4-02a), Evidence",
+        site.tabLabels.length === 6 &&
+          site.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence",
         site.tabLabels.join(" | "),
       ],
       [
@@ -4568,9 +4568,9 @@ if (t027.run === null) {
       report(`T027 Site > Evidence populated, ${KOBO_SITE}, at ${label}`, page, [
         ["the Evidence body is populated", read.state === "populated", `${read.state}`],
         [
-          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current, then its local views Overview|Analysis",
-          page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
-            page.tabLabels.slice(5).join("|") === "Overview|Analysis" && read.currentTab === "Evidence",
+          "exactly Overview|Foundation|Performance|Findings|Financials|Evidence, Evidence current, then its local views Overview|Analysis",
+          page.tabLabels.slice(0, 6).join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence" &&
+            page.tabLabels.slice(6).join("|") === "Overview|Analysis" && read.currentTab === "Evidence",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
@@ -4664,9 +4664,9 @@ if (t027.run === null) {
           `${read.state}; ${read.sources} sources, ${read.coverage.length} coverage rows, ${read.coverage.filter((r) => r.status === "NOT_REPORTED").length} not reported`,
         ],
         [
-          "exactly Overview|Foundation|Performance|Findings|Evidence, Evidence current, then its local views Overview|Analysis",
-          page.tabLabels.slice(0, 5).join("|") === "Overview|Foundation|Performance|Findings|Evidence" &&
-            page.tabLabels.slice(5).join("|") === "Overview|Analysis" && read.currentTab === "Evidence",
+          "exactly Overview|Foundation|Performance|Findings|Financials|Evidence, Evidence current, then its local views Overview|Analysis",
+          page.tabLabels.slice(0, 6).join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence" &&
+            page.tabLabels.slice(6).join("|") === "Overview|Analysis" && read.currentTab === "Evidence",
           `${page.tabLabels.join(" | ")}; current ${read.currentTab}`,
         ],
         [
