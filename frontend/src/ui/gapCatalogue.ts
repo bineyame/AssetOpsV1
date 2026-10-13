@@ -11,6 +11,8 @@
  * A gap ID is inspection metadata. It is never product copy.
  */
 export const UI_GAP_CATALOGUE = {
+  "G-finding-evidence-coverage": { status: "open", placements: ["finding-evidence.bundle.coverage"] },
+  "G-finding-evidence-use": { status: "open", placements: ["finding-evidence.bundle.use"] },
   "G-readiness-gateway-firmware": { status: "open", placements: ["readiness.gateway.firmware"] },
 } as const satisfies Record<
   string,

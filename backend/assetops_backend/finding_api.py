@@ -11,6 +11,11 @@ lineage breaks, other-model heads) guards both routes. While it is closed a defa
 409 `PERFORMANCE_CUTOVER_CLOSED`, never a positive Finding or `NO_FINDING`; a pinned `revision_id` is served
 as non-current audit material (`SOURCE_CLOSED`), and S3 drill-down links are withheld with the reason.
 An unconfigured gate is closed.
+
+S4-03 phase 1 (`I-finding-evidence-read`, `I-finding-history-read`) adds two child reads of the same root,
+`.../findings/{finding_id}/evidence?revision_id=&offset=&limit=` and
+`.../history?revision_id=&after_revision_no=&limit=`,
+with the same scope, gate and refusal semantics; a broken lineage join is a named 200 state, a store failure 503.
 """
 
 from __future__ import annotations
@@ -134,5 +139,72 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
             "windows": {} if not source["permitted"] else {
                 w["day"]: f"/api/sites/{code}/performance/dispatch/windows/{w['day']}"
                 for w in body["revision"]["currentness"]["windows"]}}}
+
+    # ---- S4-03 phase 1: Evidence and History child reads of the same Finding root ----
+    # Same scope, gate and refusal semantics as the root read: an omitted revision is the latest at read time
+    # and is 409 while the Performance cutover is closed; a pinned revision is audit material then.
+
+    def child_links(code: str, finding_id: UUID, selected: Any, permitted: bool) -> dict[str, Any]:
+        base = f"/sites/{code}/findings/{finding_id}"
+        pin = f"?revision_id={selected}"
+        return {"canonical": base, "selected_revision": f"{base}{pin}",
+                "evidence": f"{base}/evidence{pin}", "history": f"{base}/history{pin}",
+                "api_finding": f"/api{base}{pin}", "api_evidence": f"/api{base}/evidence{pin}",
+                "api_history": f"/api{base}/history{pin}",
+                "performance": {"status": "OPEN" if permitted else "CLOSED",
+                                **({} if permitted else {"note": CLOSED_LINKS})}}
+
+    def audit_only(source: dict[str, Any]) -> dict[str, Any] | None:
+        return None if source["permitted"] else {
+            "non_current": True, "reason": source["reason"],
+            "statement": "Audit material only: the selected S3 source is closed, so this recorded revision is not "
+                         "a current claim and no live S3 drill-down is offered."}
+
+    @router.get("/api/sites/{site_code}/findings/{finding_id}/evidence")
+    def finding_evidence(request: Request, site_code: str, finding_id: UUID, revision_id: UUID | None = None,
+                         offset: int = Query(0, ge=0), limit: int = Query(200, ge=1, le=500)) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code)
+        source = source_gate(code, tenant_id, site_id)
+        if not source["permitted"] and revision_id is None:
+            raise closed(source)
+        body = served(lambda: reads.evidence(tenant_id, site_id, finding_id, revision_id, offset=offset,
+                                             limit=limit, source_open=source["permitted"]),
+                      "No such Finding or revision for this Site.")
+        links = child_links(code, finding_id, body["selection"]["revision_id"], source["permitted"])
+        # Exact accepted evidence ID, never the message ID (a message ID can be 409 RECORD_AMBIGUOUS).
+        links["records"] = {r["evidence_id"]: f"/api/sites/{code}/evidence/records/{r['evidence_id']}"
+                            for r in body["records"] if r["resolved"]}
+        links["assessment_revisions"] = {} if not source["permitted"] else {
+            a["assessment_revision_id"]:
+            f"/api/sites/{code}/performance/dispatch/revisions/{a['assessment_revision_id']}"
+            for a in body["assessments"]}
+        if body["page"]["next_offset"] is not None:
+            links["api_next_page"] = (f"{links['api_evidence']}&offset={body['page']['next_offset']}"
+                                      f"&limit={body['page']['limit']}")
+        return {"site_code": code, "access_basis": access_basis, "source_gate": source,
+                "audit_only": audit_only(source), **body, "links": links}
+
+    @router.get("/api/sites/{site_code}/findings/{finding_id}/history")
+    def finding_history(request: Request, site_code: str, finding_id: UUID, revision_id: UUID | None = None,
+                        after_revision_no: int = Query(0, ge=0), limit: int = Query(200, ge=1, le=500)
+                        ) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code)
+        source = source_gate(code, tenant_id, site_id)
+        if not source["permitted"] and revision_id is None:
+            raise closed(source)
+        body = served(lambda: reads.history(tenant_id, site_id, finding_id, revision_id,
+                                            after_revision_no=after_revision_no, limit=limit),
+                      "No such Finding or revision for this Site.")
+        links = child_links(code, finding_id, body["selection"]["revision_id"], source["permitted"])
+        base = f"/sites/{code}/findings/{finding_id}"
+        links["revisions"] = {r["id"]: {"finding": f"{base}?revision_id={r['id']}",
+                                        "evidence": f"{base}/evidence?revision_id={r['id']}",
+                                        "api_evidence": f"/api{base}/evidence?revision_id={r['id']}"}
+                              for r in body["revisions"]}
+        if body["page"]["next_after_revision_no"] is not None:
+            links["api_next_page"] = (f"{links['api_history']}&after_revision_no="
+                                      f"{body['page']['next_after_revision_no']}&limit={body['page']['limit']}")
+        return {"site_code": code, "access_basis": access_basis, "source_gate": source,
+                "audit_only": audit_only(source), **body, "links": links}
 
     return router

@@ -303,6 +303,100 @@ class PostgresFindingStore:
 
         return self._read(work)
 
+    # ---- S4-03 phase 1: Finding Evidence / History reads (read-only) ----
+
+    def revision_evidence(self, tenant_id: UUID, site_id: UUID, finding_revision_id: UUID) -> dict[str, Any]:
+        """The selected revision's complete cited set (`finding_revision_evidence`) with every recorded lineage
+        column, and the size of the run input set it is distinct from. Joins are LEFT so a cited ID whose accepted
+        row, batch, disposition or basis does not resolve is reported, never silently dropped. The envelope
+        digest is recomputed in SQL (SHA-256 over the stored text's UTF-8 bytes, as acceptance computed it)."""
+        def work(c: Connection) -> dict[str, Any]:
+            p = {"t": tenant_id, "s": site_id, "r": finding_revision_id}
+            rows = [dict(r._mapping) for r in c.execute(text(
+                "SELECT x.evidence_id AS cited_evidence_id, e.id AS evidence_id, e.envelope_sha256, "
+                "e.envelope_text IS NOT NULL AND e.envelope_text <> '' AS envelope_present, "
+                "encode(sha256(convert_to(e.envelope_text, 'UTF8')), 'hex') = e.envelope_sha256 AS envelope_digest_ok, "
+                "e.message_id, e.batch_id, b.id AS batch_found, b.external_batch_id, e.gateway_id, "
+                "e.source_id, e.sequence_epoch, e.sequence, e.device_id, e.signal_id, e.role, e.asset_id, "
+                "e.source_time, e.interval_start, e.interval_end, e.published_at, e.received_at, "
+                "d.decided_at AS accepted_at, d.decision AS disposition, "
+                "d.accepted_evidence_id AS disposition_evidence_id, "
+                "e.quality, e.unavailable_reason, e.normalized_value_text AS value, e.normalized_unit AS unit, "
+                "e.source_mode, e.conversion_kind, e.configuration_outdated, e.foundation_revision_id, "
+                "fr.id AS foundation_found, fr.version AS foundation_version, e.binding_set_revision_id, "
+                "bs.id AS binding_set_found, bs.version AS binding_set_version, e.binding_revision_id, "
+                "br.id AS binding_found "
+                "FROM finding_revision_evidence x "
+                "LEFT JOIN accepted_evidence e ON e.tenant_id = x.tenant_id AND e.site_id = x.site_id "
+                "AND e.id = x.evidence_id "
+                "LEFT JOIN ingestion_batch b ON b.tenant_id = e.tenant_id AND b.site_id = e.site_id "
+                "AND b.id = e.batch_id "
+                "LEFT JOIN ingestion_disposition d ON d.tenant_id = e.tenant_id AND d.site_id = e.site_id "
+                "AND d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+                "LEFT JOIN foundation_revision fr ON fr.tenant_id = e.tenant_id AND fr.site_id = e.site_id "
+                "AND fr.id = e.foundation_revision_id "
+                "LEFT JOIN signal_binding_set_revision bs ON bs.tenant_id = e.tenant_id AND bs.site_id = e.site_id "
+                "AND bs.id = e.binding_set_revision_id "
+                "LEFT JOIN signal_binding_revision br ON br.tenant_id = e.tenant_id AND br.site_id = e.site_id "
+                "AND br.id = e.binding_revision_id "
+                "WHERE x.tenant_id = :t AND x.site_id = :s AND x.finding_revision_id = :r "
+                "ORDER BY e.source_time NULLS LAST, x.evidence_id"), p)]
+            ids = [r["cited_evidence_id"] for r in rows]
+            used: dict[str, list[str]] = {}
+            for eid, aid in c.execute(text(
+                    "SELECT x.eid, a.assessment_revision_id::text FROM finding_revision_assessment a "
+                    "JOIN assessment_revision v ON v.tenant_id = a.tenant_id AND v.site_id = a.site_id "
+                    "AND v.id = a.assessment_revision_id "
+                    "CROSS JOIN LATERAL jsonb_array_elements_text(v.evidence_ids) AS x(eid) "
+                    "WHERE a.tenant_id = :t AND a.site_id = :s AND a.finding_revision_id = :r "
+                    "AND x.eid = ANY(:ids) ORDER BY 1, 2"), {**p, "ids": [str(i) for i in ids]}):
+                used.setdefault(eid, []).append(aid)
+            inputs: dict[str, list[str]] = {}
+            for eid, rid in c.execute(text(
+                    "SELECT x.evidence_id::text, x.run_id::text FROM analytic_run_evidence x WHERE x.tenant_id = :t "
+                    "AND x.site_id = :s AND x.run_id IN (SELECT analytic_run_id FROM finding_revision_assessment "
+                    "WHERE finding_revision_id = :r) AND x.evidence_id = ANY(:ids) ORDER BY 1, 2"),
+                    {**p, "ids": ids}):
+                inputs.setdefault(eid, []).append(rid)
+            for r in rows:
+                key = str(r["cited_evidence_id"])
+                r["cited_by_assessment_revision_ids"] = used.get(key, [])
+                r["input_of_run_ids"] = inputs.get(key, [])
+            distinct_inputs = c.execute(text(
+                "SELECT count(DISTINCT x.evidence_id) FROM analytic_run_evidence x WHERE x.tenant_id = :t "
+                "AND x.site_id = :s AND x.run_id IN (SELECT analytic_run_id FROM finding_revision_assessment "
+                "WHERE finding_revision_id = :r)"), p).scalar_one()
+            return {"rows": rows, "distinct_input_evidence_count": int(distinct_inputs)}
+
+        return self._read(work)
+
+    def revision_times(self, tenant_id: UUID, site_id: UUID, finding_id: UUID) -> dict[str, dict[str, Any]]:
+        """Per revision of one Finding: its cited set's source-time span, latest receipt and acceptance time, the
+        resolved cited count, and the latest completion of the analytic runs it cites. Distinct time kinds."""
+        def work(c: Connection) -> dict[str, dict[str, Any]]:
+            p = {"t": tenant_id, "s": site_id, "f": finding_id}
+            out = {str(r["id"]): dict(r) for r in (x._mapping for x in c.execute(text(
+                "SELECT r.id, count(x.evidence_id) AS cited, count(e.id) AS cited_resolved, "
+                "min(e.source_time) AS source_first, max(e.source_time) AS source_last, "
+                "max(e.received_at) AS received_latest, max(d.decided_at) AS accepted_latest "
+                "FROM finding_revision r LEFT JOIN finding_revision_evidence x ON x.tenant_id = r.tenant_id "
+                "AND x.site_id = r.site_id AND x.finding_revision_id = r.id "
+                "LEFT JOIN accepted_evidence e ON e.tenant_id = x.tenant_id AND e.site_id = x.site_id "
+                "AND e.id = x.evidence_id "
+                "LEFT JOIN ingestion_disposition d ON d.tenant_id = e.tenant_id AND d.site_id = e.site_id "
+                "AND d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+                "WHERE r.tenant_id = :t AND r.site_id = :s AND r.finding_id = :f GROUP BY r.id"), p))}
+            for rid, done in c.execute(text(
+                    "SELECT a.finding_revision_id::text, max(ar.completed_at) FROM finding_revision_assessment a "
+                    "JOIN finding_revision r ON r.id = a.finding_revision_id JOIN analytic_run ar "
+                    "ON ar.tenant_id = a.tenant_id AND ar.site_id = a.site_id AND ar.id = a.analytic_run_id "
+                    "WHERE r.tenant_id = :t AND r.site_id = :s AND r.finding_id = :f GROUP BY 1"), p):
+                if rid in out:
+                    out[rid]["analytic_completed_latest"] = done
+            return out
+
+        return self._read(work)
+
     def match_state(self, tenant_id: UUID, site_id: UUID, analytic_id: str, window_start: datetime
                     ) -> dict[str, Any]:
         """The window's current selection sequence and the latest completed pass of this matcher version."""

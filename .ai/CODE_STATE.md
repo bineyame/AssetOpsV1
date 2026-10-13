@@ -5316,3 +5316,30 @@ No backend change.
   "Missing-claim scan fixtures".
 - Open: baseline holds 16 legacy untagged strings for G-02..G-05; non-core ranking and per-screen completion remain
   W1-exit owner decisions; Q1 phrase set excludes `not recorded` (commissioning copy is for G-02).
+
+## S4-03 - Finding Evidence and History (in_review)
+
+- Reads (phase 1): `GET /api/sites/{code}/findings/{id}/evidence?revision_id=&offset=&limit=` and
+  `/history?revision_id=&after_revision_no=&limit=` (`finding_api.py:142-209`, `finding_read.py` `evidence()`/`history()`,
+  `postgres_finding_store.py` `revision_evidence`/`revision_times`). Same scope/gate/refusals as the S4-01 root;
+  unpinned read is 409 while the Performance cutover is closed; broken lineage is 200 `lineage.status=BROKEN` with
+  named link codes and product-safe words (`BROKEN_WORDS`, parity-tested against frontend `LINK_WORDS`).
+- Evidence membership is `finding_revision_evidence` (cited set), counted separately from the run input set;
+  `provenance.cited_evidence_by_source` and `cited_evidence_by_role` are whole-set aggregates (phase 3, N1).
+- History rows carry `cited_evidence.accepted_rows` (row existence only, never a lineage verdict) and five time kinds;
+  no `knowledge_at` replay anywhere.
+- UI: child views of the canonical Finding root, `FINDING_CHILD_VIEWS = ["evidence","history"]`
+  (`operatorSiteRoutes.ts`), rendered by `SiteFindingFrame` (`SiteAnalyticsFrames.tsx`); `SiteFindingEvidence.tsx`
+  (50-record pages, `offset`/`record` local to Evidence) and `SiteFindingHistory.tsx` (loads every page, 100 per
+  request, checks loaded == total, selected/latest marked separately, late-acceptance note from stored times).
+  `revision_id` is the only context carried between Finding, Evidence and History (Architect Q3).
+- Legacy `/findings/{site}/{assessment}/evidence` lists overlapping same-day Findings as a day-level aid, never a
+  redirect (Architect Q1).
+- Retired: `UNAVAILABLE.evidence_tab/history_tab`, S4-01 history placeholder (baseline 16 -> 15).
+- Tools: `tools/s4_finding_walkthrough.py --db/--work` (protected names refused; `prepare` refuses a foreign
+  non-empty folder; `drop` removes only a marked folder), `tools/s4-finding-evidence.mjs` suites
+  all/finding/evidence/history/closed/broken (110/110 + closed 8/8 at 1440/390 on phase 3).
+- Open: Architect Q4-Q6 (`.agent/S4-03-questions-2.md`, incl. M4 shape); registry "knowledge cutoff" rewording and
+  node/portion/ledger promotion proposed in the packet, not applied; legacy tab not browser-captured (no readable
+  assessment on KOBO-001); Coverage/Use stay catalogued gaps; ActionEvent/recommendation/Alternatives for G-04;
+  `ASSESSMENT_CITATION` assumption (phase-1 C1) carried.

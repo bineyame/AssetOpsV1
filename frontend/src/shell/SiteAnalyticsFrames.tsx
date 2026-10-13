@@ -1,10 +1,12 @@
 import { useCallback, useState, type ReactNode } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { SiteFinding } from "../sites/SiteFinding";
+import { FindingSections, SiteFindingEvidence } from "../sites/SiteFindingEvidence";
+import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
@@ -15,15 +17,19 @@ import { useSiteRecord } from "../sites/useSiteRecord";
 import { Breadcrumbs, PageHeader, Panel } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
+  FINDING_CHILD_VIEWS,
   FINDINGS_PATH,
   findingHref,
   siteDetailHref,
   siteEvidenceHref,
   siteEvidenceAssessmentHref,
   siteEvidenceRecordHref,
+  siteEvidenceAcceptedRecordHref,
   siteFindingHref,
+  siteFindingViewHref,
   siteFindingsHref,
   sitePerformanceHref,
+  type FindingChildView,
   type FindingTab,
 } from "./operatorSiteRoutes";
 
@@ -207,6 +213,7 @@ export function FindingsFrame({ analytics }: { analytics: SiteAnalyticsClient })
 }
 
 export const FINDING_HEADING_ID = "finding-heading";
+const DEFAULT_FINDINGS = createFindingClient();
 
 const FINDING_TABS: FindingTab[] = ["overview", "analysis", "evidence", "alternatives"];
 
@@ -214,10 +221,12 @@ export function FindingDetailFrame({
   detail,
   analytics,
   evidence,
+  findings = DEFAULT_FINDINGS,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   evidence: SiteEvidenceClient;
+  findings?: FindingClient;
 }) {
   const { siteId, assessmentId, findingTab } = useParams<{
     siteId: string;
@@ -256,6 +265,8 @@ export function FindingDetailFrame({
             dispatchHref={`${sitePerformanceHref(site.site_id, "dispatch")}?interval=${encodeURIComponent(assessmentId ?? "")}`}
             currentResultsHref={sitePerformanceHref(site.site_id, "dispatch")}
             evidencePageHref={siteEvidenceHref(site.site_id)}
+            findings={findings}
+            durableEvidenceHref={(findingId) => siteFindingViewHref(site.site_id, findingId, "evidence")}
             onLoaded={(loaded) =>
               setTitle(
                 loaded.finding_id === null
@@ -271,13 +282,18 @@ export function FindingDetailFrame({
 }
 
 const SITE_FINDING_HEADING_ID = "site-finding-heading";
-const DEFAULT_FINDINGS = createFindingClient();
 
 /**
  * S4-01: one durable Finding of an imported Site, at
  * `/sites/{site}/findings/{finding}[?revision_id=]`. The trail returns to the
  * Site and its Findings tab; the body links to the Dispatch days it covers.
+ *
+ * S4-03: the same frame renders the root's named child views at
+ * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` (`FINDING_CHILD_VIEWS`).
+ * The section links keep the exact selected version (Evidence and History).
  */
+const FINDING_SECTION_LABELS: Record<FindingChildView, string> = { evidence: "Evidence", history: "History" };
+
 export function SiteFindingFrame({
   detail,
   sitesPath,
@@ -287,42 +303,104 @@ export function SiteFindingFrame({
   sitesPath: string;
   findings?: FindingClient;
 }) {
-  const { siteId, findingId } = useParams<{ siteId: string; findingId: string }>();
+  const { siteId, findingId, findingView } = useParams<{ siteId: string; findingId: string; findingView?: string }>();
+  const [params] = useSearchParams();
+  const revisionId = params.get("revision_id");
   const [title, setTitle] = useState("Finding");
   const onTitle = useCallback((next: string) => setTitle(next), []);
+  const view: FindingChildView | "finding" | null =
+    findingView === undefined
+      ? "finding"
+      : (FINDING_CHILD_VIEWS as readonly string[]).includes(findingView)
+        ? (findingView as FindingChildView)
+        : null;
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Finding" headingId={SITE_FINDING_HEADING_ID}>
-      {(site) => (
-        <main aria-labelledby={SITE_FINDING_HEADING_ID}>
-          <Breadcrumbs
-            trail={[
-              { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
-              { label: "Findings", to: siteFindingsHref(site.site_id) },
-              { label: "Finding" },
-            ]}
-          />
-          <PageHeader
-            title={title}
-            headingId={SITE_FINDING_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id} · generator support`}
-          />
-          <OperatorSiteTabs siteId={siteId} current="Findings" />
-          <SiteFinding
-            siteId={site.site_id}
-            findingId={findingId ?? ""}
-            client={findings}
-            onTitle={onTitle}
-            links={{
-              finding: (id, revisionId) => siteFindingHref(site.site_id, id, revisionId),
-              dispatch: (day, intervalRevisionId) =>
-                `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
-                (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : ""),
-              evidence: siteEvidenceHref(site.site_id),
-            }}
-          />
-        </main>
-      )}
+      {(site) => {
+        const id = findingId ?? "";
+        const dispatch = (day: string, intervalRevisionId?: string | null) =>
+          `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
+          (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : "");
+        const sections = [
+          { id: "finding", label: "Finding", href: siteFindingHref(site.site_id, id, revisionId) },
+          ...FINDING_CHILD_VIEWS.map((child) => ({
+            id: child,
+            label: FINDING_SECTION_LABELS[child],
+            href: siteFindingViewHref(site.site_id, id, child, revisionId),
+          })),
+        ];
+        return (
+          <main aria-labelledby={SITE_FINDING_HEADING_ID}>
+            <Breadcrumbs
+              trail={[
+                { label: "Sites", to: sitesPath },
+                { label: site.site_id, to: siteDetailHref(site.site_id) },
+                { label: "Findings", to: siteFindingsHref(site.site_id) },
+                view === "finding" || view === null
+                  ? { label: "Finding" }
+                  : { label: "Finding", to: siteFindingHref(site.site_id, id, revisionId) },
+                ...(view === "finding" || view === null ? [] : [{ label: FINDING_SECTION_LABELS[view] }]),
+              ]}
+            />
+            <PageHeader
+              title={view === "evidence" ? "Finding evidence" : view === "history" ? "Finding history" : title}
+              headingId={SITE_FINDING_HEADING_ID}
+              subtitle={`${site.display_name} · ${site.site_id} · generator support`}
+            />
+            <OperatorSiteTabs siteId={siteId} current="Findings" />
+            {view === null ? (
+              <Panel heading="No such Finding section" headingId="site-finding-section-missing-heading">
+                <p data-finding-read="not_found">
+                  A Finding has no section with that name. <Link to={siteFindingHref(site.site_id, id, revisionId)}>Open the Finding</Link>
+                </p>
+              </Panel>
+            ) : (
+              <>
+                <FindingSections sections={sections} current={view} />
+                {view === "evidence" ? (
+                  <SiteFindingEvidence
+                    siteId={site.site_id}
+                    findingId={id}
+                    client={findings}
+                    links={{
+                      evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
+                      finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                      dispatch,
+                      record: (evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId),
+                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                    }}
+                  />
+                ) : view === "history" ? (
+                  <SiteFindingHistory
+                    siteId={site.site_id}
+                    findingId={id}
+                    client={findings}
+                    links={{
+                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                      evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
+                      finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                      otherHistory: (other) => siteFindingViewHref(site.site_id, other, "history"),
+                    }}
+                  />
+                ) : (
+                  <SiteFinding
+                    siteId={site.site_id}
+                    findingId={id}
+                    client={findings}
+                    onTitle={onTitle}
+                    links={{
+                      finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                      dispatch,
+                      evidence: siteEvidenceHref(site.site_id),
+                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </main>
+        );
+      }}
     </SiteScoped>
   );
 }

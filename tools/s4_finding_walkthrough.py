@@ -6,6 +6,18 @@
     .venv/Scripts/python.exe tools/s4_finding_walkthrough.py serve    # API on 8840 until Ctrl+C
     .venv/Scripts/python.exe tools/s4_finding_walkthrough.py recover  # optional: real worker clears the staged day
 
+A second, private walkthrough (for example an evidence-capture run) names its own database and work folder,
+before the subcommand or through the environment (ASSETOPS_S4_WALK_DB / ASSETOPS_S4_WALK_WORK); the defaults
+below are unchanged when neither is given:
+    python tools/s4_finding_walkthrough.py --db assetops_s403p2_walk --work <private folder> prepare
+    python tools/s4_finding_walkthrough.py --db ... --work ... close-gate  # move the private tree's comparison
+                                                                          # reports aside: the cutover reads closed
+    python tools/s4_finding_walkthrough.py --db ... --work ... open-gate   # undo close-gate
+    python tools/s4_finding_walkthrough.py --db ... --work ... drop        # DROP DATABASE ... WITH (FORCE), then
+                                                                          # remove the work folder if not the default
+Protected databases (developer, producer, other slices' walkthrough and test databases) are refused as --db,
+and a private work folder must name its own database (never the default assetops_s4walk).
+
 Isolation (like the S3 walkthrough):
 - Database `assetops_s4walk` is dropped and recreated as a copy of `assetops_s4cases` (the
   `s4-finding-cases-v1` producer output). The producer database and the developer database are only read.
@@ -24,6 +36,7 @@ import argparse
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -35,16 +48,45 @@ REPO = Path(__file__).resolve().parents[1]
 PY = REPO / ".venv" / "Scripts" / "python.exe"
 if not PY.exists():  # POSIX venv layout
     PY = REPO / ".venv" / "bin" / "python"
-WORK = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps" / "s4-finding-walkthrough"
-SOURCE_DB, DB = "assetops_s4cases", "assetops_s4walk"
-PRODUCER = WORK.parent / "s4-finding-cases"
+APPDATA = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "AssetOps"
+DEFAULT_WORK = APPDATA / "s4-finding-walkthrough"
+SOURCE_DB, DEFAULT_DB = "assetops_s4cases", "assetops_s4walk"
+# Never a walkthrough target: the developer, producer, other slices' walkthrough and the shared test databases.
+PROTECTED_DBS = {"assetops", "assetops_test", SOURCE_DB, "assetops_s3cases", "assetops_s3walk", "assetops_s2demo"}
+PROTECTED_DB_MARKERS = ("v01a", "v01b", "g01")
+PRODUCER = APPDATA / "s4-finding-cases"
 PRODUCER_MANIFEST = PRODUCER / "s4-finding-cases-manifest.json"
 PRODUCER_RUN = PRODUCER / "s4-finding-cases-run.json"
-MANIFEST = WORK / "s4-finding-cases-manifest.json"
-RUN = WORK / "s4-finding-cases-run.json"
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
+GATE_DIR = Path("var") / "evidence" / "migration-performance"
+# Set by configure(); module-level so every subcommand reads one place.
+WORK = DEFAULT_WORK
+WORK_MARKER = ".s4-walkthrough-work"  # written by `prepare`; `drop` deletes only a folder that has it
+DB = DEFAULT_DB
+MANIFEST = WORK / "s4-finding-cases-manifest.json"
+RUN = WORK / "s4-finding-cases-run.json"
 DB_URL = f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{DB}"
+
+
+def configure(db: str | None, work: str | None) -> None:
+    """Pick the walkthrough database and work folder: flag, then environment, then the defaults."""
+    global WORK, DB, MANIFEST, RUN, DB_URL
+    db = db or os.environ.get("ASSETOPS_S4_WALK_DB") or DEFAULT_DB
+    work_path = Path(work or os.environ.get("ASSETOPS_S4_WALK_WORK") or DEFAULT_WORK).resolve()
+    default_work = work_path == DEFAULT_WORK.resolve()
+    if not re.fullmatch(r"[a-z_][a-z0-9_]{0,62}", db):
+        raise SystemExit(f"Refused: database name {db!r} is not a plain lower-case identifier")
+    if db in PROTECTED_DBS or any(m in db for m in PROTECTED_DB_MARKERS):
+        raise SystemExit(f"Refused: {db} is a protected database and is never a walkthrough copy")
+    if db == DEFAULT_DB and not default_work:
+        raise SystemExit(f"Refused: a private work folder must name its own database, not {DEFAULT_DB}")
+    if not default_work and work_path in (PRODUCER.resolve(), APPDATA.resolve(), REPO.resolve()):
+        raise SystemExit(f"Refused: {work_path} is not a private work folder")
+    WORK, DB = work_path, db
+    MANIFEST = WORK / "s4-finding-cases-manifest.json"
+    RUN = WORK / "s4-finding-cases-run.json"
+    DB_URL = f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{DB}"
 STALE_DAY = "2026-10-09"
 API_PORT, WEB_PORT = 8840, 5340
 
@@ -108,6 +150,16 @@ def py(*argv: str, check: bool = True) -> subprocess.CompletedProcess:
     return done
 
 
+def refuse_foreign_work() -> None:
+    """Review N4: `prepare` marks only a folder it creates (or one it marked before). An existing non-empty
+    `--work` folder without the marker is someone else's folder, so it is refused before anything is written."""
+    if WORK == DEFAULT_WORK.resolve() or not WORK.exists() or (WORK / WORK_MARKER).is_file():
+        return
+    if not WORK.is_dir() or any(WORK.iterdir()):
+        raise SystemExit(f"Refusing --work {WORK}: it already exists, is not empty and has no {WORK_MARKER} marker, "
+                         "so this tool did not create it. Choose a new folder name.")
+
+
 def prepare() -> None:
     import psycopg
 
@@ -118,11 +170,13 @@ def prepare() -> None:
     ):
         if not needed.exists():
             raise SystemExit(f"Missing prerequisite {needed}: {hint}")
+    refuse_foreign_work()
     say("=== 1. Private work tree (git HEAD) with its own var/ ===")
     tree = WORK / "tree"
     if tree.exists():
         shutil.rmtree(tree)
     tree.mkdir(parents=True)
+    (WORK / WORK_MARKER).write_text("created by tools/s4_finding_walkthrough.py prepare\n", encoding="utf-8")
     archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", "backend", "gateway", "host", "simulator",
                               "contracts", "config", "contract-fixtures"], cwd=REPO, capture_output=True,
                              check=True).stdout
@@ -170,10 +224,16 @@ def links(web: int) -> None:
             say(f"- {label}: not in this run (anchor {anchor})")
             continue
         say(f"- {label}: {base}/{f['finding_id']}")
+        say(f"    Evidence (latest version at read time): {base}/{f['finding_id']}/evidence")
         revisions = f["revisions"]
         if len(revisions) > 1:
             for n, rev in enumerate(revisions, start=1):
                 say(f"    version {n} ({rev['transition']}): {base}/{f['finding_id']}?revision_id={rev['revision_id']}")
+        for n, rev in enumerate(revisions, start=1):
+            say(f"    version {n} Evidence: {base}/{f['finding_id']}/evidence?revision_id={rev['revision_id']}")
+        say(f"    History (latest version at read time): {base}/{f['finding_id']}/history")
+        for n, rev in enumerate(revisions, start=1):
+            say(f"    version {n} History: {base}/{f['finding_id']}/history?revision_id={rev['revision_id']}")
     dispatch = f"http://localhost:{web}/sites/KOBO-001/performance/dispatch"
     say(f"- Dispatch day with a Finding link: {dispatch}?day=2026-10-06")
     say(f"- Dispatch day that could not be decided (not a no-Finding result): {dispatch}?day=2026-10-19")
@@ -203,10 +263,49 @@ def serve(port: int, web: int) -> None:
     sys.exit(proc.returncode or 0)
 
 
+def gate(close: bool) -> None:
+    """Close (move the comparison reports aside) or reopen the private tree's Performance cutover gate."""
+    if WORK == DEFAULT_WORK.resolve():
+        raise SystemExit("Refused: close-gate/open-gate act only on a private (non-default) work folder")
+    live = WORK / "tree" / GATE_DIR
+    aside = live.with_name(live.name + ".closed")
+    src, dst = (live, aside) if close else (aside, live)
+    if not src.exists():
+        raise SystemExit(f"Nothing to move: {src} does not exist")
+    if dst.exists():
+        raise SystemExit(f"Refused: {dst} already exists")
+    src.rename(dst)
+    say(f"{'Closed' if close else 'Reopened'}: moved {src} -> {dst}")
+
+
+def drop(include_default: bool) -> None:
+    """Drop the walkthrough database WITH (FORCE); remove the work folder only when it is not the default."""
+    import psycopg
+
+    if DB == DEFAULT_DB and not include_default:
+        raise SystemExit(f"Refused: dropping the default {DEFAULT_DB} needs --include-default")
+    with psycopg.connect(f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops", autocommit=True) as c:
+        c.execute(f"DROP DATABASE IF EXISTS {DB} WITH (FORCE)")
+    say(f"Dropped database {DB}")
+    if WORK != DEFAULT_WORK.resolve() and WORK.exists() and (WORK / WORK_MARKER).is_file():
+        shutil.rmtree(WORK)
+        say(f"Removed work folder {WORK}")
+    elif WORK != DEFAULT_WORK.resolve() and WORK.exists():
+        say(f"Kept work folder {WORK}: it has no {WORK_MARKER} marker, so `prepare` did not create it")
+    else:
+        say(f"Kept work folder {WORK}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="tools/s4_finding_walkthrough.py")
+    parser.add_argument("--db", help=f"walkthrough database (env ASSETOPS_S4_WALK_DB; default {DEFAULT_DB})")
+    parser.add_argument("--work", help=f"work folder (env ASSETOPS_S4_WALK_WORK; default {DEFAULT_WORK})")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("prepare")
+    sub.add_parser("close-gate", help="private work folder only: the Performance cutover then reads closed")
+    sub.add_parser("open-gate", help="private work folder only: undo close-gate")
+    dr = sub.add_parser("drop", help="drop the walkthrough database, and the work folder unless it is the default")
+    dr.add_argument("--include-default", action="store_true", help=f"allow dropping {DEFAULT_DB}")
     sub.add_parser("recover", help="run the real worker over the staged day (it becomes current again)")
     lk = sub.add_parser("links")
     lk.add_argument("--web-port", type=int, default=WEB_PORT)
@@ -214,8 +313,14 @@ def main() -> None:
     s.add_argument("--port", type=int, default=API_PORT)
     s.add_argument("--web-port", type=int, default=WEB_PORT)
     args = parser.parse_args()
+    configure(args.db, args.work)
+    say(f"(walkthrough database {DB}, work folder {WORK})")
     if args.command == "prepare":
         prepare()
+    elif args.command in ("close-gate", "open-gate"):
+        gate(args.command == "close-gate")
+    elif args.command == "drop":
+        drop(args.include_default)
     elif args.command == "recover":
         say(py("-c", STAGE, DB_URL, STALE_DAY, "recover").stdout.strip())
     elif args.command == "links":

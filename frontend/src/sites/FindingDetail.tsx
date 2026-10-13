@@ -35,7 +35,9 @@ import {
   type NextStepHref,
   type OpenRecord,
 } from "./findingPresentation";
+import type { FindingClient } from "./findingClient";
 import type { DomainPresentationProfile } from "./presentationProfile";
+import { LegacyFindingEvidence } from "./SiteFindingEvidence";
 import { findingTypeLabel } from "./presentationProfile";
 import type {
   Assessment,
@@ -74,6 +76,13 @@ export interface FindingDetailProps {
   evidencePageHref: string;
   /** Lets the frame title the page once the assessment is read. */
   onLoaded?: (detail: AssessmentDetail) => void;
+  /**
+   * S4-03: the Evidence tab of this assessment-keyed page is not a second
+   * Evidence source. It resolves the period's saved Finding and opens that
+   * Finding's Evidence view (`LegacyFindingEvidence`).
+   */
+  findings: FindingClient;
+  durableEvidenceHref: (findingId: string) => string;
 }
 
 export function FindingDetail({
@@ -89,6 +98,8 @@ export function FindingDetail({
   currentResultsHref,
   evidencePageHref,
   onLoaded,
+  findings,
+  durableEvidenceHref,
 }: FindingDetailProps) {
   const [result, setResult] = useState<EvidenceRead<AssessmentDetail> | null>(null);
   const [params, setParams] = useSearchParams();
@@ -231,7 +242,13 @@ export function FindingDetail({
               }
             />
           ) : tab === "evidence" ? (
-            <FindingEvidence assessment={a} reading={detail.reading} open={open} />
+            <LegacyFindingEvidence
+              siteId={siteId}
+              assessedWindow={a.assessed_window}
+              findings={findings}
+              durableEvidenceHref={durableEvidenceHref}
+              recordsHref={evidencePageHref}
+            />
           ) : (
             <FindingAlternatives assessment={a} reading={detail.reading} open={open} />
           )}
@@ -387,52 +404,6 @@ function FindingOverview({
 /** The Alternatives tab anchor a next step links to. */
 export function alternativeAnchor(id: string): string {
   return `alternative-${id}`;
-}
-
-function FindingEvidence({
-  assessment,
-  reading,
-  open,
-}: {
-  assessment: Assessment;
-  reading: Reading | undefined;
-  open: OpenRecord;
-}) {
-  return (
-    <Section heading="Records behind each part of the period" id="finding-evidence-heading">
-      <p className="overview-note">
-        Each item below is one assessed part of the period, with the records it
-        was judged on. Open a record to see where it came from, how it was
-        interpreted and when it was sent and received; opening it does not leave
-        this Finding. Times are UTC.
-      </p>
-      <ol className="claim-list">
-        {assessment.segments.map((segment, index) => {
-          const plain = reading?.segments[index];
-          const outcome = plain?.outcome ?? OUTCOME_WORDS[segment.classification] ?? "Assessed";
-          const supports = `${outcome}, ${readablePeriod(segment.start, segment.end)}`;
-          return (
-            <li
-              key={`${segment.start}-${index}`}
-              className="claim-list__item"
-              data-claim-segment={segment.classification}
-            >
-              <p className="claim-list__head">
-                <ClaimBadge level={segment.classification} label={outcome} />{" "}
-                {`${readablePeriod(segment.start, segment.end)} (${segment.minutes} min)`}
-                {segment.observed ? "" : ", generator operation not recorded"}
-              </p>
-              <p>{plain?.reason ?? DETAIL_UNAVAILABLE}</p>
-              {plain === undefined || plain.missing.length === 0 ? null : (
-                <p data-claim-missing>{`Missing: ${plain.missing.join("; ")}.`}</p>
-              )}
-              <EvidenceLinks links={segment.evidence} claim={supports} open={open} />
-            </li>
-          );
-        })}
-      </ol>
-    </Section>
-  );
 }
 
 function FindingAlternatives({

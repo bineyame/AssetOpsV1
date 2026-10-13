@@ -195,3 +195,8 @@ export function spanMinutes(start: string, end: string): number {
 export function unconfirmedCause(cause: UndecidedCause | null | undefined): string {
   return cause?.sentence ?? "Why it could not decide is not available in this read.";
 }
+
+/** Where a record's data came from, in client words (the recorded mode stays on `data-` attributes). */
+export function sourceModeWords(mode: string): string {
+  return mode === "SIMULATED" ? "Demonstration data" : mode === "LIVE" ? "Live data" : "Data of unstated origin";
+}
