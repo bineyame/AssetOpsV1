@@ -2123,3 +2123,15 @@ The carried review findings above are unchanged.
 - `/^I-G-0[1-5]$/` hard-coded in `delivery_next_work.cjs`; an I-G-06 would not appear in `unscored_work`.
 - G-03's V-01b-merged gate is not in `open_prerequisites`; coordinator checks by hand.
 - `unscored_work` test covers only the ranked path, not the refused path; text report unverified.
+
+## G-01 carries (2026-10-13)
+
+- Fix re-review (`.agent/G-01-fix-rereview.md`, ACCEPT `e79ce8b`): C9 one placement can wrap extra copy inside its own children (scan passes; exact-text tests catch it) - G-02 reviewers check each element carries only its own claim; C10 optional check that a placement's first segment matches the owning screen; C11 G-01 evidence screenshots/log live outside the repo (copied to %LOCALAPPDATA%/AssetOps/evidence/g01).
+- Architect (`.agent/architect-G-01-answers.md`): G-02 must split `GATEWAY_NOT_AVAILABLE_YET` into uptime/completeness/signal-strength placements (C5) and widen the scan with reviewed specific cues (C7); add loading-branch firmware assertion (C6); surface skipped merge-base comparison (C1).
+- C1: `mergeBaseBaseline()` (`missing-claim-scan.mjs`) returns null silently on any git error (shallow clone, missing local `main`, timeout); the main comparison is then skipped and only the seed ceiling holds. On `main` the merge-base is HEAD. Print when the comparison is skipped.
+- C2: a resolved gap's prerequisites must have node `status === 'resolved'` (`mock_gaps.cjs:550`); `recorded` and `pending owner` nodes would be rejected. Settle at the first resolution.
+- C3: next-work validates against screens derived from contracts, the checker against ledger IDs; identical today. Pass `screenIds` from one source if they diverge.
+- C4: a ledger row without `gap_ids` is skipped, so a gap listing that screen is a one-way join until the screen is enrolled.
+- C5: G-02 seam: `GATEWAY_NOT_AVAILABLE_YET` bundles uptime, completeness and signal strength in one sentence; `MissingClaim` takes one `gapId`, so G-02 must split the copy per claim or the Architect must allow multi-gap elements.
+- C6: the firmware placement in the loading branch is claimed but not asserted in Vitest.
+- C7: the Q1 phrase set is narrow; copy such as "not tracked yet" or "not recorded" passes untagged. Widening it changes the guard and goes to review.

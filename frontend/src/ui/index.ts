@@ -34,3 +34,5 @@ export {
   type ReviewProposalProps,
   REVIEW_PROPOSAL_STATUS,
 } from "./ReviewProposal";
+export { MissingClaim, type MissingClaimProps } from "./MissingClaim";
+export { isKnownGapPlacement, UI_GAP_CATALOGUE, type GapId, type GapPlacement } from "./gapCatalogue";

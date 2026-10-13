@@ -43,8 +43,8 @@ def main() -> None:
     rendered_panels = read(RENDERED_PANELS)["panels"]
     panel_contracts = read(PANEL_CONTRACTS)["panels"]
     registry = read(REGISTRY)
-    if registry.get("schema") != "assetops.v69.dependency-registry.pilot.v2":
-        raise SystemExit("Dependency registry pilot schema must be v2")
+    if registry.get("schema") != "assetops.v69.dependency-registry.pilot.v3":
+        raise SystemExit("Dependency registry pilot schema must be v3")
     pilot_panels: dict[str, list[dict]] = {}
     for panel in registry["panels"]:
         pilot_panels.setdefault(panel["screen_id"], []).append(panel)

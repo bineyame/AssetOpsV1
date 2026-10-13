@@ -2,17 +2,26 @@
 
 A fresh coordinator starts from this file; do not re-derive what it states.
 
-## Current state (supersedes everything below)
-- main at `82ba6cd` (S1, S2 complete). Branch `plan/pre-S3-startup` (37 commits, HEAD `2aedea7`) holds all pre-loop work, all independently reviewed: pre-S3 decisions; owner W1 confirmation (27 screens/64 panels, K=10); registry reconciliation + delivery_plan; PRE-S3-03 checker/next-work (+ C9 discovery fixes); PRE-S3-04 Readiness wording; W1 64-panel mapping incl. graph pass (S4-03/S4-04/S5-02/S6-03 split, ActionIndex scoped, S6-01 requires S4-01); V-01a/V-01b; S2-02r; S3-01 refined; `.ai/COORDINATOR_LOOP.md` (Architect-reviewed).
-- check-all: 6/6 guards pass. Live next-work ranks: select `I-sim-dispatch-cases` 3.028 vs `A-finding-episode` 2.691 (gap 11.1%, no notice; S3-01 USER_REVIEW_REQUIRED).
-- 2026-10-11: owner approved; `plan/pre-S3-startup` merged to main at `6660990`. Owner rule: keep S2 review routing from S3 onward (`.agent/owner-review-routing-and-merge-2026-10-11.md`; recorded in ROLE_CONFIG, COORDINATOR_LOOP, memory).
-- LOOP RUNNING: verified next-work on main (`.agent/next-work-2026-10-11.json`) selected `I-sim-dispatch-cases`; S3-01 active on `task/S3-01-dispatch-assessment` (activation `b020bff`); phase 1 implementer dispatched; handoff expected `.agent/S3-01-phase-1-handoff.md`. Then phases 2, 3, fresh Claude review, owner S3-01 checkpoint (USER_REVIEW_REQUIRED), merge; Codex review batched at the end of S3.
-- (superseded) WAITING ON OWNER: approval to merge `plan/pre-S3-startup` to main. Optional owner question: keep S2 review routing (fresh Claude per slice + one batched Codex review) for S3-S7, or use ROLE_CONFIG default (Codex first reviews)?
-- After merge: per `.ai/COORDINATOR_LOOP.md` — rerun check-all + next-work --out + --verify-report on main; fix carry G5 (fixture acceptance targets) before refining the selected S3-01 phase-1 fixture work; then activate.
-- Routing: decisions to Codex Architect (session `01a11a84-c2ea-7443-884d-0d5544355e9f`); Planner `01a11c16-72df-7bb0-a825-60c7d83c1d82`; Codex cannot write .git; batch Codex questions; fix rounds on Sonnet; re-reviews by fresh Claude.
+## Current state (2026-10-13, supersedes everything below)
+- **UPDATE 2026-10-13 (latest):** main `d57c756`: V-01b merged `34b2a9f` (owner accepted conditionally), registry closeout merged `f024ddc` (review ACCEPT `b680990`), README S4-01/S4-02 rows corrected (41dba44 had written S4-01's done row on S4-02). Guards pass. **Active: G-01** on `task/G-01-mock-gap-catalogue-and-guard` (main directory, `db98e54`), implementer running; owner walkthrough ports 8864/8865/5364/5365. **Next after G-01:** owner chose I-finding-evidence-read / S4-03 over A-S4-financial (contest 2.215 vs 2.187, 1.26%; `.agent/owner-next-work-2026-10-13.md`). G-02 due at the free slot after G-01 merges — order G-02 vs S4-03 per D-2026-10-13-g-gap-packet-activation (G-02 'next free slot after G-01'), check with owner if ambiguous.
+- main at `660de99`: S3-01, I-finding-store, V-01a (owner accepted conditionally 2026-10-12, `.agent/owner-V-01a-acceptance-2026-10-12.md`), mock-gap planning (G-01..G-05 packets) and the G activation rule (`D-2026-10-13-g-gap-packet-activation`, merged `adeeca4`). Nothing pushed.
+- Active: **V-01b** on `task/V-01b-evidence-lab-visual` (main directory). Built, `in_review`; main merged at `8ab5589`. Reviews: V-01b-review (RETURN), fix-rereview (RETURN, owner chose fix round), fix2 (ACCEPT), Architect answers `.agent/architect-V-01b-answers.md` (Q1 fix required; draft decision D-2026-10-13-v01b-visual-and-lab-read-boundaries to commit at merge), fix3 (RETURN tool-only, owner option 1), fix4 (ACCEPT, `b8bc4ce`; evidence tool 101/101 + 2 not run reproduced). HEAD `bddf514`. NOW: waiting on owner walkthrough (`.agent/V-01b-owner-walkthrough.md`, owner ports 8862/8863/5362/5363). Architect batch pending: `.agent/V-01b-questions-1.md` Q1-Q8. Owner decision flagged: shell-overflow guard 2b change to S1-03 scoping rule.
+- After V-01b merges: G-01 at next free slot (manual order; checker does not enforce), G-02 after G-01, G-03 after V-01b.
+- Gap-planning worktree `AssetOpsV1-gap-planning` used for merges to main.
+
+## Earlier state
+- main at `bc78298`: S1, S2, pre-S3 startup, **S3-01 merged** (owner checkpoint passed 2026-10-12, `.agent/owner-S3-01-acceptance-2026-10-12.md`). Nothing pushed.
+- Loop running per `.ai/COORDINATOR_LOOP.md`. Review routing (owner 2026-10-11): fresh Claude per slice/phase, Sonnet fix rounds, one batched Codex review per milestone (S3 Codex review due at end of S3: covers S3-01 and S3-02), batched Architect questions.
+- (done, merged `79a0664`) branch `closeout/S3-01-registry` — Sonnet implementer recording S3-01's delivered W1 panel portions (next-work refused `[open_path] dispatch:1`). Then fresh review, merge, rerun next-work on main, select next task.
+- Pending Architect batch: `.agent/S3-01-questions-4.md` (Q14-16, reviewer judged safe) and `-5.md` (Q17-Q22) — send with the next natural batch.
+- Owner servers: 8000, 5173/5183/5199/5213/5291; S2 demo processes on 8610/8643 left alone. Walkthrough DBs `assetops_s2demo`, `assetops_s3cases`, `assetops_s3walk` kept.
+- Routing: Codex Architect session `01a11a84-c2ea-7443-884d-0d5544355e9f`; Planner `01a11c16-72df-7bb0-a825-60c7d83c1d82`; Codex cannot write .git.
 
 ### Ranking notices
-(none yet)
+- 2026-10-13 (main + V-01b closeout, `.agent/next-work-2026-10-13b.json`): A-S4-financial 2.215 vs I-finding-evidence-read 2.187, gap 1.26% (≤5%, story vs story; V-01 rule not applicable) → owner chose I-finding-evidence-read (S4-03), after G-01.
+- 2026-10-12 (main `e434cd7`): V-01a 2.655 vs V-01b 2.470, gap 6.97% (5-10% band) → V-01a selected by published tie-break, notice only. Story-path A-S4-financial 2.215 not in contest. Owner clarified the standing rule applies only to close calls (verbatim "story first in close calls").
+- 2026-10-12: contested ranking on main `79a0664` (`.agent/next-work-2026-10-12.json`): A-finding-episode 2.761 vs V-01a 2.655, gap 3.84% (≤5% → owner). Tool tie-break recommended V-01a; coordinator recommended A. **Owner chose A** (verbatim: "lets go with option A"). Started on branch `plan/A-finding-episode`.
+- 2026-10-12: decision merged `87c49ce`. Next contest: I-finding-store 2.785 vs V-01a 2.655 (4.67%). **Owner chose I-finding-store** and set a standing rule (verbatim "I-finding-store, and story path first until S4 is done"; `.agent/owner-contest-rule-2026-10-12.md`): until S4 is done, story-path beats V-01a/V-01b in ≤5% contests without stopping; log each such notice here.
 
 ---
 Older history follows.

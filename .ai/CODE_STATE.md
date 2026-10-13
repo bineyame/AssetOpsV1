@@ -5289,3 +5289,30 @@ Packet `.agent/V-01b-review-packet.md`, handoff `.agent/V-01b-handoff.md`, quest
 - Open: Q8 drawing precondition (T025d label claims unmeasured); Q1 stale Stage upload constant; `.action` cascade
   over `.action--primary` elsewhere; layout tool creates a draft per run; ledger/registry caveats wait for owner
   acceptance (nothing edited).
+
+## G-01 - Mock-gap catalogue and orphan guard (in_review)
+
+Task `tasks/G-01-mock-gap-catalogue-and-guard.md`, branch `task/G-01-mock-gap-catalogue-and-guard`, diff base `db98e54`.
+Packet `.agent/G-01-review-packet.md`, handoff `.agent/G-01-handoff.md` (design + phase log), questions
+`.agent/G-01-questions-1.md` (Q1-Q4, fail-closed defaults shipped), owner guide `.agent/G-01-owner-walkthrough.md`.
+No backend change.
+
+- Registry schema `assetops.v69.dependency-registry.pilot.v3` with top-level `mock_gaps` (version 1,
+  `gap_enrolled_screens: []`); one gap `G-readiness-gateway-firmware` (data_source/absent/open/unplanned, element
+  `readiness:2.firmware`, placement `readiness.gateway.firmware`). Ledger row `readiness.gap_ids`. Portions may carry
+  `gap_ids` (none yet). Readiness is not enrolled; G-02 enrolls `sites`, `foundation`, `readiness`, `sld`.
+- `frontend/docs/architecture/mock_gaps.cjs` `validateMockGaps(registry, {contracts, screenIds, screenLedger,
+  requirePresent})` returns typed errors (gap_shape/id/duplicate/reference/enum/combination/requires/cycle/placement/
+  join/ledger/enrollment). Registry checker runs it with `requirePresent: true`; `nextWork` with `false`, refusing on
+  errors (type `mock_gaps`) and adding an informational `gap_catalogue` summary; gaps never touch candidates/scores.
+- UI: `frontend/src/ui/gapCatalogue.ts` (`UI_GAP_CATALOGUE` typed mirror) and `frontend/src/ui/MissingClaim.tsx`
+  (`data-gap-id`/`data-gap-placement`/`data-gap-status`; unknown pair is a TS error and a runtime throw).
+  `ReadinessOverview.tsx` splits `GATEWAY_FIRMWARE_NOT_AVAILABLE_YET` out of `GATEWAY_NOT_AVAILABLE_YET` and renders it
+  through `MissingClaim` unconditionally in `GatewayStatusPanel`.
+- Guard: `tools/checks/missing-claim-scan.mjs` (TS AST) checks mirror == registry, literal catalogued MissingClaim
+  pairs, every placement used, and untagged copy (`not available yet`/`not yet available`/`no reviewed source`) equals
+  `tools/checks/missing-claim-baseline.json` exactly (dated 2026-10-13, 16 entries, shrink-only vs merge-base main
+  baseline, `SEED_CEILING = 16`). check-all guards: "Mock-gap catalogue fixtures", "Missing-claim orphan scan",
+  "Missing-claim scan fixtures".
+- Open: baseline holds 16 legacy untagged strings for G-02..G-05; non-core ranking and per-screen completion remain
+  W1-exit owner decisions; Q1 phrase set excludes `not recorded` (commissioning copy is for G-02).

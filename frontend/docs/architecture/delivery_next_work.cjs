@@ -3,6 +3,7 @@
 // Pure functions over already-loaded inputs, so fixtures can exercise every refusal;
 // check_v69_dependency_registry.cjs supplies the real files.
 const crypto = require('node:crypto');
+const mockGaps = require('./mock_gaps.cjs');
 
 const PORTION_STATES = ['delivered', 'open', 'unmapped', 'excluded'];
 const VARIANTS = ['bounded', 'positive', 'unknown'];
@@ -195,6 +196,9 @@ function nextWork(ctx) {
 
   // Structural mapping errors are typed refusals too.
   for (const e of validateMapping(registry, contracts)) refuse(e.type, `${e.key}: ${e.reason}`);
+  // Mock-gap catalogue (G-01): read and validated, never an input to candidates, scores, paths or the decision
+  // until an owner-approved W1-exit policy. An absent catalogue is an empty one here.
+  for (const e of mockGaps.validateMockGaps(registry, {contracts, requirePresent: false})) refuse('mock_gaps', `${e.id}: [${e.type}] ${e.reason}`);
 
   // Queue: tasks discovered from tasks/README.md must match registry task nodes and packet phase.
   const registryTasks = registry.nodes.filter((n) => n.kind === 'implementation' && n.layer === 'task' && /^S[1-7]-/.test(n.task || ''));
@@ -249,6 +253,7 @@ function nextWork(ctx) {
     schema: 'assetops.next-work.v1', wave, k: owner?.k ?? null, fingerprints: ctx.fingerprints,
     authority: 'Non-authoritative until mapped paths and scoring are independently reviewed; never clears USER_REVIEW_REQUIRED.',
     unscored_work,
+    gap_catalogue: mockGaps.summarizeMockGaps(registry),
   };
   if (refusals.length) return {...report, status: 'refused', refusals, decision: {action: 'none', reason: 'fail closed; no task selected'}};
 
