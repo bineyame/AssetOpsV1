@@ -203,3 +203,20 @@ Implementer: Claude, 2026-10-13. This phase is UI only, plus one backend placeho
 - The WINDOW assessment row shows 0 cited records when segments cite only interval revisions. That is accurate data but may read oddly.
 - The narrow pinned-record screenshot hits the script's 7000 px height cap. The image is cut off; the page is not clipped.
 - Phase 1 carry C1 (`ASSESSMENT_CITATION`) is unchanged.
+
+## Phase 2 fix round (review RETURN; Architect Q1, Q2 overruled, Q3 ratified)
+
+Commits: `bc9a602` (backend words, L4 tool), `3dc9806` (UI, tests, catalogue). Implementer: Claude, 2026-10-13. No server started; no browser evidence rerun (the Evidence view's layout changed by one table and two lines; 1440/390 remains for the owner walkthrough).
+
+- **Q1 + M1.** `LegacyFindingEvidence` (`SiteFindingEvidence.tsx`, end of file) no longer redirects. It reads every UTC day the assessed window touches (`daysTouched`), keeps Findings with `episode_start < window.end && window.start < episode_end` (`overlapsWindow`), and lists them as links under "Findings recorded for this day", worded as a day-level aid. No-result and unreadable states and the records link are kept.
+- **Q2.** `finding_read.BROKEN_WORDS`, `LINEAGE_STATEMENT` and the unresolved row's `withheld` now use the plain meanings; codes unchanged. UI: `LinkText` shows `LINK_WORDS` for a known code and "A record link could not be checked" with the code only in `[data-evidence-technical-detail]` for an unknown one; backend prose is never rendered. Parity: `frontend/src/sites/__tests__/findingLinkWordsParity.test.ts` reads `finding_read.py` as text (`src/test/rawSource.d.ts` types the `?raw` import) and requires equal keys and wording; backend `test_broken_lineage_words_are_product_safe_at_source` bans engineering words.
+- **M2.** `data-evidence-lifecycle` line from `revision.lifecycle` using `LIFECYCLE_WORDS`. Non-SUPPORTED states lead the panel; SUPPORTED reads after the version lines (so "Record only" still leads on a closed source).
+- **M3.** `sourceModeWords` (`findingWords.ts`) gives "Demonstration data" / "Live data"; the exact mode stays in `data-source-mode`. Both exemptions removed; column is "Kind of data".
+- **L1** dash for unreadable avoidable time. **L2** "(stored message missing)" for ENVELOPE. **L4** `prepare` writes `.s4-walkthrough-work`; `drop` removes a `--work` folder only if it holds it.
+- **M4.** `InputsByMeasurement` (Bundle): Input and Source and Records counted from the page's resolved records' `role` and source, labelled "on this page". Coverage and Use are two `<MissingClaim>` elements: gaps `G-finding-evidence-coverage` and `G-finding-evidence-use` (registry `mock_gaps`, `gapCatalogue.ts`, ledger `finding-evidence.gap_ids`), placements `finding-evidence.bundle.coverage` and `.use`. The scan reports 3 tagged, 16 baselined. Alternatives and Recommendation tabs stay omitted for G-04.
+
+Non-vacuity (mutation, then `git checkout --`): `overlapsWindow` returning true fails the two exclusion tests; hiding the lifecycle line fails the lifecycle test; changing a frontend word fails parity (2 tests); changing a backend word to "envelope" fails the backend test.
+
+Results: vitest 60 files, 1422 passed; tsc 0; build 0; `test_s4_finding_api.py` + `test_s4_finding_evidence_history_api.py` 23 passed; `test_s4_finding_evidence_history_postgres.py` 3 passed on `assetops_test` (run before the commit; no backend code changed after); `tools/check-all.ps1` 9 of 9 pass.
+
+Open: the Postgres test is not rerun after the final commit (only test and doc files changed since). The envelope/row comparison against Postgres owed by the re-reviewer is unchanged. G-04 list gains nothing new.
