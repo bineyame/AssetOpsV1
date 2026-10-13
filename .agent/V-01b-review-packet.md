@@ -73,7 +73,7 @@ Also: empty store `app-evidence-no-site` ("No such site"), `app-lab-runs-empty`.
 - `evidence-analysis:2` titled "How each limit is set" (Q4; vocabulary guard bans "claim").
 - No "Portfolio evidence →" (Q6); status bar badge is neutral "No capability conclusion yet" (Q3).
 - Q8: no runnable registered run can draw on current Foundation v10, so T025d label-collision claims are unmeasured (named precondition).
-- Q1: Stage "Upload pending" line is stale; labelled under Advanced details, not fixed (backlog carry).
+- Q1: Stage "Upload pending" line was labelled in earlier rounds; fixed in fix round 3 (the constant fields are no longer rendered). Backend retirement of the fields stays open.
 - Guard `shell-overflow.ps1` 2b amended (S1-03 Q1 scoping widened to the Lab shell now that its phone layout is browser-verified) — reviewer note required.
 - `layout-evidence.mjs` creates a Lab draft on the store it measures every run (backlog carry).
 
@@ -103,3 +103,14 @@ Owner chose this after the second RETURN (`.agent/V-01b-fix-rereview.md`). Commi
 - Gate refusal on an owner port, via a harness that extracts and calls `registeredRunGate()` directly (no traffic sent): with `ASSETOPS_LAYOUT_CREATE_RUNS=1`, BASE 5173 returns "BASE http://localhost:5173 is a default/owner port (5173); run creation refused"; BASE 5399 returns null.
 - Finding B: `receivedStatement` now returns "Reports were received centrally, but the run's execution could not be read, so no Site Evidence link is offered." when receipts exist and the execution read failed. One test added in `v01bLabIngestion.test.tsx`: before the fix 1 failed | 11 passed (`expected 'The commit status could not be read, ...' to match /execution could not be read/`); after, 12 passed.
 - Checks: `npx.cmd vitest run` 57 files, 1384 tests passed; `npx.cmd tsc --noEmit` clean; `tools/check-all.ps1 -Python python` all 6 guards passed. Full (non-ONLY) layout evidence and the create-and-execute path with the opt-in were not run (no private store prepared).
+
+
+## Fix round 3 (Architect Q1 ruling, carry D1)
+
+Commit af67dc8.
+- Q1: `GatewayLedgerView.tsx` no longer renders the Stage read's `upload_state`, `upload_statement` or "Receipts: None" (the replaced Upload row and the V-01b label). One row, "Upload and central receipt", says: "This Stage read does not establish upload or central receipt state. See Release and ingestion for what was released and received." Sealed-batch, queue, envelope and hold facts are unchanged. This is the only place the Stage text renders (also inside the Advanced details disclosure). `tools/layout-evidence.mjs` claim updated to match (not run; no servers).
+- D1: `receivedStatement` takes `execution`; receipts present and execution still loading returns "Loading the execution of the persisted run."
+- Tests: gatewayLedgerStage (fields absent, neutral copy present), v01bLabIngestion (registered run with central receipts: no "no receipt exists"/"Upload pending"/"Receipts None", neutral copy and "3 envelopes in 1 batches; 1 held reports" and Sealed batches present; new test with a never-resolving execution read).
+- Fail-before: with the two source files restored from HEAD~1, 3 tests failed (gatewayLedgerStage 1, v01bLabIngestion 2: the Q1 test and the D1 loading test); after, all pass.
+- Checks: `npx.cmd vitest run` 57 files, 1385 passed; `npx.cmd tsc --noEmit` clean; `check-all.ps1 -Python python` all 6 guards passed. Layout evidence: not run (no servers).
+- Open: backend carry to retire/rename the obsolete Stage fields.
