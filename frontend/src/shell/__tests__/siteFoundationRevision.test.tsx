@@ -24,6 +24,7 @@ import { createSiteEvidenceClient } from "../../sites/siteEvidenceClient";
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
+import { UI_GAP_CATALOGUE } from "../../ui";
 
 /**
  * S1-01: the persisted Foundation version on the Foundation route - period
@@ -1496,7 +1497,7 @@ describe("V-01a round 3: the Readiness and commissioning evidence table", () => 
 describe("V-01a round 3: the bounded gateway status panel", () => {
   const gateway = () => regionNamed("Gateway status");
   const NOT_YET =
-    "Not available yet: uptime trend, expected-versus-delivered completeness, signal strength and firmware. No reviewed source for these fields.";
+    "Not available yet: uptime trend, expected-versus-delivered completeness and signal strength. No reviewed source for these fields.";
 
   it("shows registration and central contact separately, with server times and the not-available-yet line", async () => {
     renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
@@ -1601,6 +1602,70 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
     );
     await settledScreen();
     expect(gateway().querySelector("[data-gateway-period-note]")?.textContent).toContain("a scheduled Foundation period (v3");
+  });
+});
+
+describe("G-01: the catalogued gateway firmware missing state", () => {
+  const gateway = () => regionNamed("Gateway status");
+  const FIRMWARE = "Firmware not available yet: no reviewed source reports what firmware a gateway runs.";
+  const READINESS = `/sites/${ID}/foundation/readiness`;
+  const gapIdsOnPage = () => [...document.querySelectorAll("[data-gap-id]")].map((el) => el.getAttribute("data-gap-id")).sort();
+  const firmwareOf = (panel: HTMLElement) =>
+    panel.querySelector('[data-gap-placement="readiness.gateway.firmware"]') as HTMLElement | null;
+  const expectFirmwareMissing = (panel: HTMLElement) => {
+    const el = firmwareOf(panel);
+    expect(el).not.toBeNull();
+    expect(el?.tagName).toBe("P");
+    expect(el?.getAttribute("data-gap-id")).toBe("G-readiness-gateway-firmware");
+    expect(el?.getAttribute("data-gap-status")).toBe("open");
+    expect(el?.textContent).toBe(FIRMWARE);
+    // The gap ID is metadata only, and no firmware value is invented anywhere in the panel.
+    expect(panel.textContent).not.toContain("G-readiness");
+    expect(panel.textContent).not.toMatch(/firmware v|firmware:\s*\S|version \d/i);
+  };
+  const expectedReadinessGapIds = Object.entries(UI_GAP_CATALOGUE)
+    .filter(([, entry]) => entry.placements.some((p) => p.startsWith("readiness.")))
+    .map(([id]) => id)
+    .sort();
+
+  it("tags firmware with a populated central-contact read, with exact data-gap-id membership", async () => {
+    renderWithGateway(READINESS, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const panel = gateway();
+    expect(panel.querySelector("[data-gateway-panel-state]")?.getAttribute("data-gateway-panel-state")).toBe("loaded");
+    expectFirmwareMissing(panel);
+    expect(gapIdsOnPage()).toEqual(expectedReadinessGapIds);
+    expect(gapIdsOnPage()).toEqual(["G-readiness-gateway-firmware"]);
+  });
+
+  it("keeps firmware explicitly missing when contact is unknown, unavailable, not found or empty", async () => {
+    const branches: [EvidenceRead<GatewayHealth>, string][] = [
+      [healthOf(gatewayEntry({ status: "UNKNOWN", last_server_contact: null, diagnostic_id: null })), "loaded"],
+      [{ status: "unavailable", message: null }, "unavailable"],
+      [{ status: "not_found" }, "unavailable"],
+      [healthOf(), "none"],
+    ];
+    for (const [health, state] of branches) {
+      const view = renderWithGateway(READINESS, fakeFoundation(READY), health);
+      await settledScreen();
+      const panel = gateway();
+      expect(panel.querySelector("[data-gateway-panel-state]")?.getAttribute("data-gateway-panel-state")).toBe(state);
+      expectFirmwareMissing(panel);
+      expect(gapIdsOnPage()).toEqual(["G-readiness-gateway-firmware"]);
+      view.unmount();
+    }
+  });
+
+  it("keeps the same tagged state after a reload of the Readiness address", async () => {
+    const first = renderWithGateway(READINESS, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    const before = firmwareOf(gateway())?.outerHTML;
+    first.unmount();
+    expect(document.querySelector("[data-gap-id]")).toBeNull();
+    renderWithGateway(READINESS, fakeFoundation(READY), healthOf(gatewayEntry()));
+    await settledScreen();
+    expect(firmwareOf(gateway())?.outerHTML).toBe(before);
+    expect(gapIdsOnPage()).toEqual(["G-readiness-gateway-firmware"]);
   });
 });
 

@@ -16,7 +16,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel, type BadgeTone } from "../ui";
+import { Badge, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel, type BadgeTone } from "../ui";
 import type { EvidenceRead } from "./evidenceRead";
 import { formatInstant } from "./FoundationRevisionPanel";
 import type { GatewayHealth, GatewayHealthClient, GatewayHealthEntry } from "./gatewayHealthClient";
@@ -294,7 +294,10 @@ export function ReadinessEvidenceTable({ foundation, links, onReviewBindings }: 
 /* Gateway status --------------------------------------------------------------- */
 
 export const GATEWAY_NOT_AVAILABLE_YET =
-  "Not available yet: uptime trend, expected-versus-delivered completeness, signal strength and firmware. No reviewed source for these fields.";
+  "Not available yet: uptime trend, expected-versus-delivered completeness and signal strength. No reviewed source for these fields.";
+/** Catalogued as G-readiness-gateway-firmware: no producer, edge field or read carries a firmware report. */
+export const GATEWAY_FIRMWARE_NOT_AVAILABLE_YET =
+  "Firmware not available yet: no reviewed source reports what firmware a gateway runs.";
 export const DEVICE_CONNECTION_NOT_ESTABLISHED = "Device connection not established here.";
 export const GATEWAY_CONTACT_UNAVAILABLE = "Gateway contact unavailable";
 export const GATEWAY_CONTACT_UNKNOWN = "Contact unknown — no central diagnostic received";
@@ -485,6 +488,14 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
       <p className="not-available-yet" data-not-available-yet="gateway">
         {GATEWAY_NOT_AVAILABLE_YET}
       </p>
+      <MissingClaim
+        as="p"
+        className="not-available-yet"
+        gapId="G-readiness-gateway-firmware"
+        placement="readiness.gateway.firmware"
+      >
+        {GATEWAY_FIRMWARE_NOT_AVAILABLE_YET}
+      </MissingClaim>
     </Panel>
   );
 }

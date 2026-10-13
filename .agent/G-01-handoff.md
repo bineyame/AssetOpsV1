@@ -72,3 +72,14 @@ ledger row has `gap_ids`.
 - Fixtures: `test_mock_gaps.cjs` (13, in check-all as "Mock-gap catalogue fixtures"); `test_delivery_next_work.cjs`
   F3 invariance + invalid-catalogue refusal (35 pass).
 - Next: phase b (UI mirror + MissingClaim + readiness firmware placement + Vitest).
+
+### Phase b (typed MissingClaim + firmware placement) - landed
+- `frontend/src/ui/gapCatalogue.ts` (`UI_GAP_CATALOGUE` mirror, `GapId`, `GapPlacement`, `isKnownGapPlacement`) and
+  `frontend/src/ui/MissingClaim.tsx` (`data-gap-id`/`data-gap-placement`/`data-gap-status`; unknown pair = TS error +
+  runtime throw), exported from `frontend/src/ui/index.ts`.
+- `ReadinessOverview.tsx`: `GATEWAY_FIRMWARE_NOT_AVAILABLE_YET` split from `GATEWAY_NOT_AVAILABLE_YET` (latter now
+  uptime/completeness/signal only, still untagged -> phase c baseline); firmware `<MissingClaim as="p">` rendered
+  unconditionally after the branch body in `GatewayStatusPanel` (so present in loaded/unknown/unavailable/not_found/none).
+- Tests: `src/ui/__tests__/MissingClaim.test.tsx` (3, incl. @ts-expect-error unknown id/placement);
+  `siteFoundationRevision.test.tsx` describe "G-01: the catalogued gateway firmware missing state" (3).
+- Next: phase c orphan scan `tools/checks/missing-claim-scan.mjs` + baseline + check-all + mutation tests.
