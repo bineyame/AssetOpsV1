@@ -63,7 +63,7 @@ Refusals (both routes): 401 `UNAUTHENTICATED`, 403 `SITE_SCOPE_FORBIDDEN` (acces
 
 - Targeted: `test_s4_finding_evidence_history_postgres.py`, `test_s4_finding_read_postgres.py`, `test_s4_finding_store_postgres.py`: 11 passed (203 s). `test_s4_finding_evidence_history_api.py` + `test_s4_finding_api.py`: 22 passed.
 - Full backend pytest (private `assetops_s403_test`): `3 failed, 1902 passed, 1 error in 831.78s`. All 4 are in `test_s4_finding_store_postgres.py` and every one is `FATAL: sorry, too many clients already`: another agent's suite held 82 of the server's 100 connections on `assetops_test` at the same time. Rerun of that file alone: `6 passed in 80.99s`. No assertion failure anywhere.
-- `tools/check-all.ps1`: 8 of 9 PASS. **FAIL: Delivery checker fixtures** - `test_delivery_next_work.cjs:358` asserts `S4-03` packet status `not_started`, actual `active`. Caused by the activation commit `2bb4f87` (`Status: active`), not by this phase (no task/registry/fixture file changed here). Left for the coordinator/Planner: the fixture's "real packets are not_started" expectation needs S4-03 removed or updated; I did not loosen it.
+- `tools/check-all.ps1`: first run 8 of 9 PASS; Delivery checker fixtures failed at `test_delivery_next_work.cjs:358` (expected S4-03 `not_started`, actual `active`), caused by activation `2bb4f87`, not this phase. After the coordinator's fixture fix `9b065fb` landed on the branch, rerun on `62f1ce8`: **9 of 9 PASS**.
 
 ### Open risks / deviations
 
