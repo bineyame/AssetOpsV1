@@ -34,6 +34,8 @@ export interface RunIngestionOverviewProps {
 const LOADING_EXECUTION = "Loading the execution of the persisted run.";
 const LOADING_STAGE = "Loading the staged source envelopes.";
 const LOADING_COMMIT = "Loading the commit status.";
+const COMMIT_UNREADABLE = "The commit status could not be read, so what was received centrally is not known.";
+const DELIVERY_UNREADABLE = "The gateway delivery could not be read, so what was received centrally is not known.";
 const NOTHING_RECEIVED = "Nothing from this run has been received centrally.";
 
 interface Delivery {
@@ -238,7 +240,16 @@ function receivedStatement(commit: RunCommitResult | null, delivery: Delivery | 
   if (commit === null) {
     return LOADING_COMMIT;
   }
-  return NOTHING_RECEIVED;
+  if (commit.status !== "loaded") {
+    return COMMIT_UNREADABLE;
+  }
+  if (delivery !== null) {
+    return delivery.withReceipt === 0 ? NOTHING_RECEIVED : COMMIT_UNREADABLE;
+  }
+  if (commit.commit.commit === "NOT_COMMITTED") {
+    return NOTHING_RECEIVED;
+  }
+  return DELIVERY_UNREADABLE;
 }
 
 function frozenLine(run: RunSummary, projection: RunExecution | null): string {

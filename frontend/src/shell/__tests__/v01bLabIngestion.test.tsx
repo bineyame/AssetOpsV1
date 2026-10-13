@@ -400,4 +400,27 @@ describe("the Gateway & Ingestion overview (V-01b b2)", () => {
     expect(document.querySelector("a[data-ingestion-evidence-link]")).toBeNull();
     expect(words("[data-ingestion-panel='truth']")).toMatch(/Execution not available/);
   });
+
+  it("does not claim nothing was received when the Commit read failed", async () => {
+    renderAt(client(EXECUTED, GATEWAY, Promise.resolve({ status: "not_found" } as RunCommitResult)));
+    await waitFor(() => expect(words("[data-ingestion-received]")).toMatch(/commit status could not be read/));
+    expect(words("[data-ingestion-received]")).not.toMatch(/Nothing from this run has been received/);
+  });
+
+  it("does not claim nothing was received when the gateway delivery is unreadable", async () => {
+    const base = released(null);
+    if (base.status !== "loaded" || base.commit.registered_release === undefined) {
+      throw new Error("fixture");
+    }
+    const unreadable: RunCommitResult = {
+      status: "loaded",
+      commit: {
+        ...base.commit,
+        registered_release: { ...base.commit.registered_release, status: "GATEWAY_UNAVAILABLE", delivery: null },
+      },
+    };
+    renderAt(client(EXECUTED, GATEWAY, Promise.resolve(unreadable)));
+    await waitFor(() => expect(words("[data-ingestion-received]")).toMatch(/gateway delivery could not be read/));
+    expect(words("[data-ingestion-received]")).not.toMatch(/Nothing from this run has been received/);
+  });
 });
