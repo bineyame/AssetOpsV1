@@ -30,6 +30,12 @@ Expiry: delete when the milestone review has closed it out.
 - Q8: the Lab interval drawing binds only while the Site's current Foundation is the run's frozen version; KOBO-001 is at v10 and v10 blocks mini-grid drafts, so the T025d label-collision claims stay unmeasured (named precondition in `tools/layout-evidence.mjs`).
 - `tools/layout-evidence.mjs` operator Site sections default `SITE` to `MG-001`; on a registered-only store pass `KOBO-001` as the third argument or they fail on an absent Site.
 - `tools/layout-evidence.mjs` creates a fresh Lab draft on the store it measures on every run (the V-01b private store holds ~40); runs should use a disposable copy or clean up.
+- V-01b review C1 (Architect): ratify the shell-overflow 2b amendment: phone rules may now name `.app-frame--lab` and the guard is anchored (each part must start with the shell class). The guard does not check that `SimulatorLabShell` carries the class; only `overflowContainment.test.tsx` does.
+- V-01b review C2 (FIXED, fix round 1): `layout-evidence.mjs` executed a registered run on whatever BASE pointed at. Now opt-in (`ASSETOPS_LAYOUT_CREATE_RUNS=1`) and refused on default/owner ports; otherwise reports `not run`.
+- V-01b review C3: the T022 and legacy-Kobo precondition FAILs in `layout-evidence.mjs` are unconditional on `LAB_REGISTERED`. Detect the precondition (tank capacity versus starting level) so a registered Site that could run is measured; executed-run (T022) coverage is absent on registered-only stores.
+- V-01b review C4: flow box 2 puts execution `reported_count` next to Stage `envelopes.length` ("321 ... / 329 admitted") with no explanation.
+- V-01b review C5: the Evidence heading "Data sources · data quality, not equipment condition" keeps the mock's "data quality" while the quality grade is "Not available yet"; mock wording, owner's call.
+- V-01b review C6: `runIngestion.css` hard-codes private/public flow-box colours as local custom properties rather than theme tokens (cosmetic).
 
 ### S2-02 rotation-recovery follow-up after owner closeout (2026-10-09)
 

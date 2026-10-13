@@ -64,7 +64,7 @@ Also: empty store `app-evidence-no-site` ("No such site"), `app-lab-runs-empty`.
 - `tools/check-architecture.ps1`: "Architecture check passed." `tools/check-agent-workflow.ps1`: "Agent workflow check passed."
 - `tools/check-all.ps1`: "All 6 guards passed." (architecture seams, navigation truthfulness, agent workflow, dependency registry, delivery checker fixtures, screen ledger "110 screens, 88 distinct models, 258 panels").
 - Backend `pytest backend/tests -q -x` (not covered by check-all): "1771 passed, 127 skipped, 2 warnings in 349.43s".
-- Layout: `ASSETOPS_CDP_PORT=9396 ASSETOPS_LAYOUT_V01B_RELEASED_RUN=run-234889a36d0a4333a1e8877bf5015762 node tools/layout-evidence.mjs http://localhost:5384 KOBO-001` → **398 PASS / 5 FAIL**, all named preconditions: fuel-loss 430 L > KOBO tank ×1; Q8 drawing unbound (Foundation v10 ≠ frozen) ×3; legacy file Kobo Site absent ×1. The first c2 run (388/6) also failed "at least one table overflows here" for run setup at 640x700 (0 of 2): with the Lab rail now collapsing below 640px the summary fits, so the proof moved to an added 390x800 pass (2 of 2 overflow; `9ad6406`, precedent `16d1095`).
+- Layout: `ASSETOPS_CDP_PORT=9396 ASSETOPS_LAYOUT_CREATE_RUNS=1 ASSETOPS_LAYOUT_V01B_RELEASED_RUN=run-234889a36d0a4333a1e8877bf5015762 node tools/layout-evidence.mjs http://localhost:5384 KOBO-001` → **398 PASS / 5 FAIL**, all named preconditions: fuel-loss 430 L > KOBO tank ×1; Q8 drawing unbound (Foundation v10 ≠ frozen) ×3; legacy file Kobo Site absent ×1. The first c2 run (388/6) also failed "at least one table overflows here" for run setup at 640x700 (0 of 2): with the Lab rail now collapsing below 640px the summary fits, so the proof moved to an added 390x800 pass (2 of 2 overflow; `9ad6406`, precedent `16d1095`).
 - Evidence tool (c1, unchanged product since): 101/101.
 
 ## Known deviations
@@ -84,3 +84,10 @@ Also: empty store `app-evidence-no-site` ("No such site"), `app-lab-runs-empty`.
 ## User-review focus
 
 Lab flow box 2 reads "321 reports published, 1 dropped / 329 admitted by the gateway": two reads' counts side by side, difference unexplained on screen. Density of the Evidence Overview two-column row at 1440. Q2 and Q4 wording.
+
+## Fix round 1
+
+- Finding 1 (`RunIngestionOverview.tsx` `receivedStatement`): "Nothing from this run has been received centrally." now only for a delivery with zero receipts or a loaded `NOT_COMMITTED` commit. Unread Commit says "The commit status could not be read, so what was received centrally is not known."; registered release with no delivery says "The gateway delivery could not be read, so what was received centrally is not known." Two tests added in `v01bLabIngestion.test.tsx` (Commit read resolves `not_found`; registered release `GATEWAY_UNAVAILABLE`, `delivery: null`). Both failed on the old code (2 failed | 9 passed) and pass now (11 passed).
+- Carry C2: `registeredKoboLab` in `tools/layout-evidence.mjs` needs `ASSETOPS_LAYOUT_CREATE_RUNS=1` and refuses ports 5173, 5183, 5199, 5213, 5291, 5360-5363; otherwise prints `not run` with the reason and returns false (never PASS). The recorded layout command above now carries the opt-in. Layout evidence was not re-run (no live server touched); the gate is checked by `node --check` only.
+- Carries C1, C3-C6 (C2 marked fixed) appended to `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+- Checks: `npx vitest run` Test Files 57 passed, Tests 1383 passed; `npx tsc --noEmit` clean; `tools/check-all.ps1` "All 6 guards passed."

@@ -5553,7 +5553,29 @@ function ingestionClaims(read, label) {
   ];
 }
 
+// Creating and executing a registered run writes to the measured store and
+// admits envelopes into its shared gateway ledger. It is opt-in
+// (ASSETOPS_LAYOUT_CREATE_RUNS=1) and refused on the default/owner ports, so a
+// default invocation can never mutate the owner's server. Not run is not a pass.
+const OWNER_PORTS = new Set([5173, 5183, 5199, 5213, 5291, 5360, 5361, 5362, 5363]);
+function registeredRunGate() {
+  const port = Number(new URL(BASE).port || 80);
+  if (OWNER_PORTS.has(port)) {
+    return `BASE ${BASE} is a default/owner port (${port}); run creation refused`;
+  }
+  if (process.env.ASSETOPS_LAYOUT_CREATE_RUNS !== "1") {
+    return "run creation is opt-in: set ASSETOPS_LAYOUT_CREATE_RUNS=1 and point BASE at a private disposable store";
+  }
+  return null;
+}
+
 async function registeredKoboLab(site) {
+  const refused = registeredRunGate();
+  if (refused !== null) {
+    console.log("=== V-01b registered Kobo Lab run (create + execute) ===");
+    console.log(`  not run  ${refused}; its Draft, drawing and Gateway & Ingestion claims are unverified`);
+    return false;
+  }
   const start = process.env.ASSETOPS_KOBO_START ?? "2026-10-02T03:00:00Z";
   const end = process.env.ASSETOPS_KOBO_END ?? "2026-10-02T11:00:00Z";
   let pass = true;
