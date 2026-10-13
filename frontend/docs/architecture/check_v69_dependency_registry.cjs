@@ -13,10 +13,11 @@ const modelHomes = read('v69-model-homes.json').models;
 const taskQueue = fs.readFileSync(path.resolve(here, '../../../tasks/README.md'), 'utf8');
 const fail = (message) => { throw new Error(message); };
 const delivery = require('./delivery_next_work.cjs');
+const mockGaps = require('./mock_gaps.cjs');
 const queueRows = delivery.parseQueue(taskQueue);
 const gateRows = delivery.parseGateQueue(taskQueue);
 
-if (registry.schema !== 'assetops.v69.dependency-registry.pilot.v2') fail('Wrong schema');
+if (registry.schema !== 'assetops.v69.dependency-registry.pilot.v3') fail('Wrong schema');
 if (registry.s2_device_input_in_effect !== 'SIMULATED_ONLY' || !registry.physical_peer_gate?.includes('First real pilot')) {
   fail('S2 demo source choice or first-pilot physical gate missing');
 }
@@ -254,6 +255,10 @@ if (plan.active_wave === 'W1') {
 // validated on every run; ranking refusals for unreviewed rows apply only to --next-work.
 const mappingErrors = delivery.validateMapping(registry, contracts);
 if (mappingErrors.length) fail(`Delivery mapping invalid:\n${mappingErrors.map((e) => `- [${e.type}] ${e.key}: ${e.reason}`).join('\n')}`);
+// Mock-gap catalogue (G-01): every present gap ID, portion/ledger gap_ids join and placement is validated;
+// complete coverage is required only for mock_gaps.gap_enrolled_screens.
+const gapErrors = mockGaps.validateMockGaps(registry, {contracts, screenIds: screenLedger.map((row) => row.id), screenLedger, requirePresent: true});
+if (gapErrors.length) fail(`Mock-gap catalogue invalid:\n${gapErrors.map((e) => `- [${e.type}] ${e.id}: ${e.reason}`).join('\n')}`);
 for (const [id, gate] of Object.entries(plan.visual_gates || {})) {
   const row = taskQueue.split(/\r?\n/).find((line) => line.startsWith('|') && line.includes(`(${gate.packet})`));
   if (!row || !fs.existsSync(path.resolve(here, '../../../tasks', gate.packet)) ||

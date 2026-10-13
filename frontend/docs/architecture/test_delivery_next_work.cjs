@@ -415,3 +415,45 @@ test('S6 ordering: I-S6-01 requires I-S4-01; I-S6-02 follows S6-01 not S6-03 (gr
   assert.deepEqual(realNodes.get('I-S6-03').sequenced_after, ['I-S6-02'], 'S6-03 is queue-ordered after S6-02, not technically dependent');
   assert.ok(!closure(['I-S6-03']).has('I-S6-02'));
 });
+
+// G-01 / D-2026-10-13-g-gap-packet-activation F3: the mock-gap catalogue is read and validated but never
+// changes the decision, eligible IDs, scores or path distances, including a gap linked to a W1 core portion.
+const gap = (id, extra = {}) => ({id, screen_ids: ['site'], panel_portion_ids: [], element_ids: ['site:1.metric'], claim: 'c',
+  boundary: {window: 'w', subject: 's', source: 'none', cannot_mean: 'n'}, missing_kind: 'data_source', status: 'open',
+  target_wave: 'unplanned', allocation: 'pending owner review', requires: [], source_status: 'absent',
+  ui_placements: [`site.${id.slice(7)}`], unplaced_reason: null, owner_or_role: 'Owner', review_trigger: 't',
+  evidence: {source: null, ui: null, visual: null, reviewed_by: null}, ...extra});
+const rankedFacts = (r) => ({status: r.status, decision: r.decision, eligible: [...r.eligible].sort(),
+  candidates: r.candidates.map((c) => [c.id, c.score, c.ready_now, c.closure_unlock, c.technical_reach, c.visual_reach,
+    c.blocked, c.paths.map((p) => [p.key, p.path, p.d, p.proof, p.portions])])});
+test('mock_gaps never changes decision, eligible IDs, scores or path distances (G-01 F3)', () => {
+  const without = run();
+  assert.equal(without.status, 'ranked');
+  assert.deepEqual(without.gap_catalogue, {present: false, gaps: 0, by_status: {}, enrolled_screens: [],
+    scoring: 'ignored for candidate scoring until an owner-approved W1-exit policy'});
+  const withGaps = run((ctx) => {
+    const corePortion = ctx.registry.delivery_plan.w1_panel_mapping[0].claim_portions[1]; // site:1#b, core and open
+    assert.equal(corePortion.core, true);
+    corePortion.gap_ids = ['G-site-core-linked'];
+    ctx.registry.mock_gaps = {version: 1, decision: 'D-2026-10-12-mock-gap-closure-mechanism', scoring: 'ignored',
+      gap_enrolled_screens: [], gaps: [
+        gap('G-site-core-linked', {panel_portion_ids: ['site:1#b'], element_ids: [], requires: ['I-S7-01']}),
+        gap('G-site-firmware'),
+        gap('G-site-signal', {ui_placements: [], unplaced_reason: 'Pending placement beside the gateway panel'}),
+      ]};
+  });
+  assert.equal(withGaps.status, 'ranked');
+  assert.deepEqual(rankedFacts(withGaps), rankedFacts(without));
+  assert.deepEqual(withGaps.gap_catalogue.by_status, {open: 3});
+  assert.ok(!withGaps.candidates.some((c) => c.id.startsWith('G-')), 'a gap is never a candidate');
+});
+
+test('an invalid mock_gaps catalogue refuses next-work with a typed mock_gaps reason', () => {
+  const r = run((ctx) => {
+    ctx.registry.mock_gaps = {version: 1, gap_enrolled_screens: [], gaps: [gap('G-site-firmware'), gap('G-site-firmware')]};
+  });
+  assert.equal(r.status, 'refused');
+  assert.ok(refusalTypes(r).length > 0 && refusalTypes(r).every((t) => t === 'mock_gaps'));
+  assert.ok(r.refusals.some((x) => /duplicate gap id/.test(x.reason)));
+  assert.equal(r.decision.action, 'none');
+});
