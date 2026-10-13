@@ -2126,6 +2126,8 @@ The carried review findings above are unchanged.
 
 ## G-01 carries (2026-10-13)
 
+- Fix re-review (`.agent/G-01-fix-rereview.md`, ACCEPT `e79ce8b`): C9 one placement can wrap extra copy inside its own children (scan passes; exact-text tests catch it) - G-02 reviewers check each element carries only its own claim; C10 optional check that a placement's first segment matches the owning screen; C11 G-01 evidence screenshots/log live outside the repo (copied to %LOCALAPPDATA%/AssetOps/evidence/g01).
+- Architect (`.agent/architect-G-01-answers.md`): G-02 must split `GATEWAY_NOT_AVAILABLE_YET` into uptime/completeness/signal-strength placements (C5) and widen the scan with reviewed specific cues (C7); add loading-branch firmware assertion (C6); surface skipped merge-base comparison (C1).
 - C1: `mergeBaseBaseline()` (`missing-claim-scan.mjs`) returns null silently on any git error (shallow clone, missing local `main`, timeout); the main comparison is then skipped and only the seed ceiling holds. On `main` the merge-base is HEAD. Print when the comparison is skipped.
 - C2: a resolved gap's prerequisites must have node `status === 'resolved'` (`mock_gaps.cjs:550`); `recorded` and `pending owner` nodes would be rejected. Settle at the first resolution.
 - C3: next-work validates against screens derived from contracts, the checker against ledger IDs; identical today. Pass `screenIds` from one source if they diverge.
