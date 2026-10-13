@@ -1,42 +1,12 @@
-﻿# S4-02 — Bounded Financials and assumptions
+# S4-02 — bounded Financials closeout
 
-Status: outline; refine after preceding task review, before activation
-
-Refinement inputs (2026-10-13): `D-2026-10-13-s4-bounded-financial-basis` (`.agent/architect-A-S4-financial-answers.md`) splits this outline into two M slices, S4-02a and S4-02b; review carries M1, M2 and L1-L7 are in `.agent/A-S4-financial-review.md` and `.ai/MILESTONE_REVIEW_BACKLOG.md` "A-S4-financial carries".
+Status: outline; closeout after [S4-02a](S4-02a-site-assumptions.md) and [S4-02b](S4-02b-fuel-consequence.md); no third implementation slice.
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
-Depends on: S4-01
-Branch: task/S4-02-bounded-financials
-Planner: Codex, 2026-10-07
+Branch when activated: `task/S4-02b-fuel-consequence` (closeout on the reviewed S4-02b result)
 
-## Visible outcome
+`D-2026-10-13-s4-bounded-financial-basis` and `.agent/architect-A-S4-financial-answers.md` govern both M packets. The owner chose this path in `.agent/owner-next-work-2026-10-13d.md`. `I-S4-02` and the four W1 core portions (`financials:1#a/2#a`, `assumptions:1#a/3#a`) close only after both slices have persisted/read/UI evidence, fresh reviews, a reproducible lineage walkthrough, and the owner checkpoint. The coordinator records the owner's words. `mini:4#a` remains S5-01 composition. No panel is marked delivered by planning alone.
 
-Site financials/assumptions show technical quantity, price/maintenance basis and bounded amount for one Finding.
+At closeout reconcile the registry, screen ledger and Foundation gap with reviewed implementation evidence. Keep G-05 ownership of the remaining non-core Money/Assumptions gaps and audit remaining `data_source` classifications under the decision's first-absent-authority rule during G-03–G-05 or W1 exit (review carry L7). Run `tools/check-all.ps1` and `--next-work` after any planning-status change; next-work ranking is not implied by this packet.
 
-## Persisted object and read contract
-
-Versioned FinancialAssumptionRevision and FinancialConsequenceRevision plus Site Financials read/write API. Apply `A-actor-identity` to `financial_assumption_revision.author_id`; persist the authenticated/system author under that contract, never a client-asserted ID.
-
-## Demo acceptance
-
-Change fuel price and see a new consequence revision while Finding claim/quantity stay fixed; inspect range and currency.
-
-## Missing/conflicting evidence
-
-No price yields unpriced amount, never zero; incompatible bases do not silently sum.
-
-## Evidence lineage
-
-Consequence resolves assumption version, FindingRevision, AssessmentRevision and accepted SourceEnvelope IDs.
-
-## W1 closeouts
-
-`I-financial-store` and `D-financial-basis` record the price, currency, authenticated author/basis and distinct assumption/consequence revision IDs. `I-financial-read/ui` owns the bounded Financials panels; `I-assumption-history-read/ui` owns current/prior Assumptions. The final `I-S4-02` closeout follows these real read/UI and fixture paths. The later cross-option/estate `A-money-comparability` contract does not gate one Site-bounded amount.
-
-## Review and refinement
-
-Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
-
-## Defer
-
-Portfolio rollup and speculative valuations.
+Planning metadata map (review carry L2): `I-assumption-history-read/ui` → S4-02a; `I-financial-store`, `D-financial-basis`, `I-financial-read/ui` → S4-02b; `I-S4-02` → final closeout. New `I-financial-assumption-store`, `D-financial-assumption-basis`, `I-S4-02a` belong to a; new `I-consequence-history-read`, `I-S4-02b` belong to b. `I-S4-02.effort` is M for the combined closeout gate; each build gate is M. The registry queue baseline contains the new nodes and keeps the reviewed four core panel mappings open until final closeout. The ledger's `financials` and `assumptions` task/claim/interaction/missing-state descriptions now name both slices. No panel state, approved owner tier, mock-gap enrolment, or `mini:4#a` was promoted by this planning edit. After S4-02a review, re-review `G-foundation-financial-assumptions` and link the Foundation line to the Site read before changing that gap's status; after S4-02b review, attach exact W1 portion evidence and only then change status.
