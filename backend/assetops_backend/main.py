@@ -42,6 +42,7 @@ from assetops_backend.analytics.performance_comparison import comparison_summary
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
 from assetops_backend.finding_api import build_finding_router
+from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -342,6 +343,8 @@ def create_app(
     app.include_router(build_finding_router(
         build_finding_read_service(database_url(), finding_manifest) if database_url() else None,
         registry.ledger_scope, finding_store_unavailable(), gate=performance_gate))
+    # S4-02a: the human price write route has no success path (no verified human principal yet).
+    app.include_router(build_financial_assumption_router(registry.ledger_scope))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (

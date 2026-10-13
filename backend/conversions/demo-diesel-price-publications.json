@@ -1,0 +1,45 @@
+{
+  "fixture": "demo-diesel-price-publications",
+  "version": 1,
+  "statement": "Illustrative demonstration prices published by the server-side SYSTEM publisher. They are not market quotes, purchases or contract rates. The Site is named on the command line, never here.",
+  "assumption_key": "diesel_price_per_litre",
+  "steps": [
+    {
+      "step": "v1",
+      "change_kind": "INITIAL",
+      "currency": "USD",
+      "value": "1.25",
+      "basis": "AUTHORED_ESTIMATE",
+      "source_reference": "AssetOps demonstration fixture demo-diesel-price-publications v1 (illustrative estimate, not a market quote)",
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_to": null,
+      "expected_prior_step": null,
+      "idempotency_key": "demo-diesel-price-v1"
+    },
+    {
+      "step": "v2",
+      "change_kind": "SUCCESSION",
+      "currency": "USD",
+      "value": "1.32",
+      "basis": "AUTHORED_ESTIMATE",
+      "source_reference": "AssetOps demonstration fixture demo-diesel-price-publications v2 (illustrative future estimate)",
+      "valid_from": "2027-01-01T00:00:00Z",
+      "valid_to": null,
+      "expected_prior_step": "v1",
+      "idempotency_key": "demo-diesel-price-v2"
+    },
+    {
+      "step": "v3",
+      "change_kind": "CORRECTION",
+      "correction_reason": "Demonstration correction: the June 2026 estimate in v1 is replaced for that month only.",
+      "currency": "USD",
+      "value": "1.19",
+      "basis": "AUTHORED_ESTIMATE",
+      "source_reference": "AssetOps demonstration fixture demo-diesel-price-publications v3 (illustrative corrected June estimate)",
+      "valid_from": "2026-06-01T00:00:00Z",
+      "valid_to": "2026-07-01T00:00:00Z",
+      "expected_prior_step": "v2",
+      "idempotency_key": "demo-diesel-price-v3"
+    }
+  ]
+}
