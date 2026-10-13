@@ -50,4 +50,4 @@ Accepting it does not make the Gateway status panel or the Readiness screen Real
 ## Stop
 
 - Press Ctrl+C in each terminal.
-- Then run `.venv/Scripts/python.exe tools/v01a_foundation_walkthrough.py --db assetops_g01walk --empty-db assetops_g01empty drop`.
+- Then run `.venv/Scripts/python.exe tools/v01a_foundation_walkthrough.py --db assetops_g01walk --empty-db assetops_g01empty --work-name g01-owner drop`.
