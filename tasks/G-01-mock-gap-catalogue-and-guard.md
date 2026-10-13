@@ -1,6 +1,6 @@
 # G-01 — Mock-gap catalogue and orphan guard
 
-Status: open planning packet (M); not activated
+Status: active (activated 2026-10-13 at the first free slot after V-01b merged, per `D-2026-10-13-g-gap-packet-activation`; branch from main `d57c756`)
 USER_REVIEW_REQUIRED: true
 Depends on: owner-confirmed `D-2026-10-12-mock-gap-closure-mechanism` sections 1–2
 Branch when activated: task/G-01-mock-gap-catalogue-and-guard
