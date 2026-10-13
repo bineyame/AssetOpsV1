@@ -1,6 +1,6 @@
 # G-02 — V-01a mock-gap pilot
 
-Status: in_review (built 2026-10-13 on `task/G-02-v01a-gap-pilot`; packet `.agent/G-02-review-packet.md`; activated 2026-10-13 per D-2026-10-13-g-gap-packet-activation from main `5625447`)
+Status: done (owner accepted conditionally 2026-10-13; reviews ACCEPT; merged to main by coordinator)
 USER_REVIEW_REQUIRED: true
 Depends on: merged V-01a and reviewed G-01 catalogue/guard
 Branch when activated: task/G-02-v01a-gap-pilot
@@ -22,3 +22,10 @@ Missing-capability states on `sites`, `foundation`, `readiness` and `sld` point 
 ## Review and checks
 
 Independent Reviewer checks the graph, visible placements, 1440/390 pairs and source-to-claim boundaries. Run focused frontend tests/build, registry and ledger checkers, delivery fixtures and `powershell -ExecutionPolicy Bypass -File tools/check-all.ps1`. Owner reviews the four visible missing-state treatments. G-02 closes the pilot mapping, not W1 non-core ranking or full mock completion.
+
+## Review Outcome (recorded by coordinator, 2026-10-13)
+
+- Reviews read (both): `.agent/G-02-review.md` (no blocking finding; F1 walkthrough/packet overstated SLD coverage, F2 `sld:2` reporting column uncatalogued); `.agent/G-02-fix-rereview.md` ACCEPT with R1 (walkthrough evidence count) fixed on the branch `5ba5d38`. Browser evidence 321/322 at 1440/390; the one failure is the pre-existing 390 px SLD parts-table caption. Screenshots kept at %LOCALAPPDATA%/AssetOps/evidence/g02.
+- Architect: `.agent/architect-G-02-answers.md` (Q1, Q2 overruled and corrected in fix round 1; Q3-Q6 ratified; Lab entry labels accepted as developer affordances), decision `D-2026-10-13-g02-visible-placement-and-state-boundary`.
+- Owner checkpoint: `.agent/owner-G-02-acceptance-2026-10-13.md` — accepted conditionally; nothing becomes Real. The 390 px SLD caption item was not separately ruled on and stays an open owner carry.
+- Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "G-02 carries (2026-10-13)".
