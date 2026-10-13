@@ -231,6 +231,9 @@ def links(web: int) -> None:
                 say(f"    version {n} ({rev['transition']}): {base}/{f['finding_id']}?revision_id={rev['revision_id']}")
         for n, rev in enumerate(revisions, start=1):
             say(f"    version {n} Evidence: {base}/{f['finding_id']}/evidence?revision_id={rev['revision_id']}")
+        say(f"    History (latest version at read time): {base}/{f['finding_id']}/history")
+        for n, rev in enumerate(revisions, start=1):
+            say(f"    version {n} History: {base}/{f['finding_id']}/history?revision_id={rev['revision_id']}")
     dispatch = f"http://localhost:{web}/sites/KOBO-001/performance/dispatch"
     say(f"- Dispatch day with a Finding link: {dispatch}?day=2026-10-06")
     say(f"- Dispatch day that could not be decided (not a no-Finding result): {dispatch}?day=2026-10-19")

@@ -14,7 +14,9 @@
  * Environment:
  *   ASSETOPS_S4_WALK_WORK      walkthrough work folder holding the run record (default: the S4-01 walkthrough's)
  *   ASSETOPS_CDP_PORT          Chrome DevTools port (default 9343)
- *   ASSETOPS_S4_EVIDENCE_SUITE all (default: finding + evidence) | finding | evidence | closed | broken
+ * S4-03 phase 3 adds the History child view (`finding-history:1`, `/sites/{site}/findings/{id}/history?revision_id=`)
+ * and the Architect's Q3 proof (old -> new -> Evidence -> old, reload, back/forward keep exact revision IDs).
+ *   ASSETOPS_S4_EVIDENCE_SUITE all (default: finding + evidence + history) | finding | evidence | history | closed | broken
  *     closed: run after `s4_finding_walkthrough.py --db .. --work .. close-gate` on a private copy (audit-only read)
  *     broken: run after deliberately tampering one envelope in a PRIVATE copy (ASSETOPS_S4_BROKEN_FINDING names
  *             the Finding ID whose latest version cites it)
@@ -249,6 +251,11 @@ async function evidenceSuite(label) {
     { rows: s.rows, firstRow: s.firstRow, apiFirst: a.body?.records?.[0]?.evidence_id, range: s.pageRange });
   claim(`${label} evidence latest: lineage COMPLETE matches the API`, s.lineage === a.body?.lineage?.status && s.lineage === "COMPLETE",
     { app: s.lineage, api: a.body?.lineage?.status });
+  const roles = await js(`[...document.querySelectorAll('[data-evidence-input-role]')].map(r => [r.dataset.evidenceInputRole, Number(r.dataset.evidenceInputCount)])`);
+  const apiRoles = (a.body?.provenance?.cited_evidence_by_role ?? []).map((g) => [g.role, g.count]);
+  claim(`${label} evidence latest: by-measurement table is the whole cited set (API cited_evidence_by_role), summing to the total`,
+    roles.length > 0 && JSON.stringify(roles) === JSON.stringify(apiRoles) && roles.reduce((n, r) => n + r[1], 0) === c.cited_total,
+    { roles, apiRoles, total: c.cited_total });
   let o = await evidenceOverflow();
   claim(`${label} evidence latest: no sideways overflow in .site-finding-evidence (outside table scrollers)`, noOverflow(o), o);
   await shot(`app-evidence-latest-${label}`);
@@ -398,6 +405,188 @@ async function brokenSuite(label) {
   await shot(`app-evidence-broken-${label}`);
 }
 
+
+// ---- S4-03 phase 3: the Finding History child view ----
+const historyUrl = (id, q = "") => `${BASE}/sites/${SITE}/findings/${id}/history${q}`;
+const HI_READY = "document.querySelector('[data-finding-history], [data-finding-read]')";
+const hapi = (id, q = "") =>
+  js(`fetch('/api/sites/${SITE}/findings/${id}/history${q}', { credentials: 'include' })
+    .then(async r => ({ status: r.status, body: await r.json().catch(() => null) }))`);
+const HI_STATE = `(() => {
+  const sec = document.querySelector('[data-finding-history]');
+  const ev = document.querySelector('[data-finding-evidence]');
+  const leads = [...document.querySelectorAll('.site-finding-history .site-finding__lead, .site-finding-history [data-history-latest-at-read], .site-finding-history [data-history-pinned-latest]')];
+  return {
+    url: location.pathname + location.search,
+    read: document.querySelector('[data-finding-read]')?.dataset.findingRead ?? null,
+    revision: sec?.dataset.findingRevision ?? null,
+    evidenceRevision: ev?.dataset.findingRevision ?? null,
+    selectedBy: sec?.dataset.historySelectedBy ?? null,
+    total: sec ? Number(sec.dataset.historyTotal) : null,
+    loaded: sec ? Number(sec.dataset.historyLoaded) : null,
+    rows: [...document.querySelectorAll('[data-history-revision]')].map(e => e.dataset.historyRevision),
+    selected: [...document.querySelectorAll('[data-history-selected]')].map(e => e.dataset.historyRevision),
+    latest: [...document.querySelectorAll('[data-history-latest]')].map(e => e.dataset.historyRevision),
+    cited: [...document.querySelectorAll('[data-history-cited]')].map(e => Number(e.dataset.historyCited)),
+    late: [...document.querySelectorAll('[data-history-late-evidence]')].map(e => e.closest('[data-history-revision]').dataset.historyRevision),
+    complete: Boolean(document.querySelector('[data-history-complete]')),
+    noEarlier: Boolean(document.querySelector('[data-history-no-earlier]')),
+    latestAtRead: Boolean(document.querySelector('[data-history-latest-at-read]')),
+    earlier: Boolean(document.querySelector('[data-history-earlier-version]')),
+    auditOnly: Boolean(document.querySelector('[data-history-audit-only]')),
+    lifecycle: document.querySelector('[data-history-lifecycle]')?.dataset.historyLifecycle ?? null,
+    related: [...document.querySelectorAll('[data-history-related]')].map(e => e.dataset.historyRelated),
+    firstLead: leads[0] ? Object.keys(leads[0].dataset).join(',') : null,
+    section: document.querySelector('[data-finding-section][aria-current="page"]')?.dataset.findingSection ?? null,
+    text: (document.querySelector('main')?.innerText ?? '').slice(0, 20000),
+  };
+})()`;
+const historyOverflow = () =>
+  js(`(() => { const d = document.documentElement;
+    const all = [...document.querySelectorAll('.site-finding-history *')].filter(e => !e.closest('.data-table__scroll'));
+    return { scrollWidth: d.scrollWidth, clientWidth: d.clientWidth, measured: all.length,
+      wide: all.filter(e => e.getBoundingClientRect().right > d.clientWidth + 1
+        && ![...e.children].some(c => c.getBoundingClientRect().right > d.clientWidth + 1))
+        .map(e => (e.className || e.tagName) + ':' + Math.round(e.getBoundingClientRect().right)).slice(0, 6) }; })()`);
+async function allHistory(id, q = "") {
+  const rows = [];
+  let after = 0;
+  for (;;) {
+    const sep = q ? "&" : "?";
+    const r = await hapi(id, `${q}${sep}after_revision_no=${after}&limit=2`);
+    if (r.status !== 200) return { status: r.status, rows, first: null };
+    rows.push(...r.body.revisions);
+    if (r.body.page.next_after_revision_no === null) return { status: 200, rows, first: r.body };
+    after = r.body.page.next_after_revision_no;
+  }
+}
+async function clickAndWait(selector, until) {
+  await js(`(document.querySelector(${JSON.stringify(selector)}).click(), true)`);
+  await waitFor(until, 15000);
+  await sleep(300);
+}
+
+async function historySuite(label) {
+  await go(`${BASE}/mockups/v69/index.html#/finding-history`, "document.body && document.body.innerText.includes('Revision history')");
+  const mock = await js(`({ panel: document.body.innerText.includes('Revision history'),
+    rows: ['Delayed SOC evidence accepted', 'F-104 revision 1 constructed', 'Recommendation prepared'].filter(p => document.body.innerText.includes(p)) })`);
+  claim(`${label}: mock #/finding-history renders finding-history:1`, mock.panel, mock);
+  await shot(`mock-finding-history-${label}`);
+
+  // F04 latest at read time: every version listed in order, equal to the API walked in 2-row pages.
+  const id = F04.finding_id;
+  const r1 = F04.revisions[0].revision_id;
+  const r2 = F04.revisions[F04.revisions.length - 1].revision_id;
+  await go(historyUrl(id), HI_READY);
+  const api = await allHistory(id);
+  const s = await js(HI_STATE);
+  claim(`${label} history latest: section current, every version listed in API order (2-row API pages)`,
+    api.status === 200 && s.section === "history" && JSON.stringify(s.rows) === JSON.stringify(api.rows.map((r) => r.id))
+      && s.total === api.first.page.total && s.loaded === s.total && s.complete,
+    { section: s.section, appRows: s.rows.length, apiRows: api.rows.length, total: s.total, loaded: s.loaded, complete: s.complete });
+  claim(`${label} history latest: labelled latest at read time; selected and latest are the same row`,
+    s.latestAtRead && s.selectedBy === "LATEST_RECORDED" && s.selected.length === 1 && s.selected[0] === s.latest[0] && s.latest[0] === r2,
+    { latestAtRead: s.latestAtRead, selected: s.selected, latest: s.latest, r2 });
+  claim(`${label} history latest: cited counts per version equal the API`,
+    s.cited.length > 1 && JSON.stringify(s.cited) === JSON.stringify(api.rows.map((r) => r.cited_evidence.count)), { app: s.cited });
+  const lateExpected = api.rows
+    .filter((r, i) => i > 0 && r.times.accepted_at && Date.parse(r.times.accepted_at) > Date.parse(api.rows[i - 1].times.recorded_at))
+    .map((r) => r.id);
+  claim(`${label} history latest: late-accepted readings noted exactly where cited acceptance follows the previous version`,
+    JSON.stringify(s.late) === JSON.stringify(lateExpected), { app: s.late, expected: lateExpected });
+  claim(`${label} history latest: no knowledge-at replay or lineage verdict in the copy`,
+    s.text.length > 0 && !/knowledge|lineage complete|fully traced/i.test(s.text), { chars: s.text.length });
+  let o = await historyOverflow();
+  claim(`${label} history latest: no sideways overflow in .site-finding-history`, noOverflow(o), o);
+  await shot(`app-history-latest-${label}`);
+
+  // Q3: old -> new -> Evidence -> old; reload; back/forward. Keyboard selects the new version.
+  await go(historyUrl(id, `?revision_id=${r1}`), HI_READY);
+  const old = await js(HI_STATE);
+  claim(`${label} history pinned old: earlier version leads; selected (v1) and latest marked separately`,
+    old.earlier && old.firstLead === "historyEarlierVersion" && JSON.stringify(old.selected) === JSON.stringify([r1])
+      && JSON.stringify(old.latest) === JSON.stringify([r2]),
+    { firstLead: old.firstLead, selected: old.selected, latest: old.latest });
+  o = await historyOverflow();
+  claim(`${label} history pinned old: no sideways overflow`, noOverflow(o), o);
+  await shot(`app-history-pinned-old-${label}`);
+  const presses = await tabTo(`[data-history-select="${r2}"]`);
+  await key("Enter", "Enter", 13);
+  await waitFor(`location.search.includes(${JSON.stringify(r2)}) && document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r2)}`, 15000);
+  const nw = await js(HI_STATE);
+  claim(`${label} Q3 old -> new: keyboard (Tab x${presses}, Enter) selects the new version by exact ID`,
+    presses > 0 && nw.url.endsWith(`/history?revision_id=${r2}`) && nw.revision === r2, { presses, url: nw.url });
+  await clickAndWait(`[data-finding-section="evidence"]`, `document.querySelector('[data-finding-evidence], [data-finding-read]')`);
+  const ev = await js(HI_STATE);
+  claim(`${label} Q3 new -> Evidence: same exact ID in the address and the Evidence read`,
+    ev.url.endsWith(`/evidence?revision_id=${r2}`) && ev.evidenceRevision === r2, { url: ev.url, evidenceRevision: ev.evidenceRevision });
+  await js(`(history.back(), true)`);
+  await waitFor(`location.pathname.endsWith('/history') && document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r2)}`, 15000);
+  await js(`(history.back(), true)`);
+  await waitFor(`document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r1)}`, 15000);
+  const back = await js(HI_STATE);
+  claim(`${label} Q3 Evidence -> old (back x2): exact old ID restored`, back.url.endsWith(`/history?revision_id=${r1}`) && back.revision === r1, { url: back.url });
+  await send("Page.reload");
+  await waitFor(`document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r1)}`, 30000);
+  await sleep(300);
+  const reload = await js(HI_STATE);
+  claim(`${label} Q3 reload: old exact ID kept`, reload.url.endsWith(`/history?revision_id=${r1}`) && reload.revision === r1 && reload.earlier, { url: reload.url });
+  await js(`(history.forward(), true)`);
+  await waitFor(`document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r2)}`, 15000);
+  const fwd = await js(HI_STATE);
+  claim(`${label} Q3 forward: new exact ID restored`, fwd.revision === r2 && fwd.url.endsWith(`/history?revision_id=${r2}`), { url: fwd.url });
+  await js(`(history.forward(), true)`);
+  await waitFor(`document.querySelector('[data-finding-evidence]')?.dataset.findingRevision === ${JSON.stringify(r2)}`, 15000);
+  const fwd2 = await js(HI_STATE);
+  claim(`${label} Q3 forward to Evidence: exact ID restored`, fwd2.evidenceRevision === r2 && fwd2.url.endsWith(`/evidence?revision_id=${r2}`), { url: fwd2.url });
+  // Evidence -> History link keeps the version.
+  await go(evidenceUrl(id, `?revision_id=${r1}`), EV_READY);
+  await clickAndWait(`[data-evidence-to-history]`, `document.querySelector('[data-finding-history], [data-finding-read]')`);
+  const toHist = await js(HI_STATE);
+  claim(`${label} Evidence -> History link keeps the exact old version`, toHist.revision === r1 && toHist.url.endsWith(`/history?revision_id=${r1}`), { url: toHist.url });
+
+  // One-version Finding: explicit no-earlier-versions state.
+  const single = run.findings.find((f) => f.revisions.length === 1);
+  if (single) {
+    await go(historyUrl(single.finding_id), HI_READY);
+    const one = await js(HI_STATE);
+    claim(`${label} history one version: "No earlier versions" stated with one row`, one.noEarlier && one.rows.length === 1, { rows: one.rows.length });
+    await shot(`app-history-one-version-${label}`);
+  }
+
+  // F05 lifecycle lead and F06 merge links.
+  await go(historyUrl(F05.finding_id), HI_READY);
+  const f5 = await js(HI_STATE);
+  const f5api = await allHistory(F05.finding_id);
+  claim(`${label} history F05: all versions listed; a non-supported latest state leads`,
+    f5.rows.length === f5api.rows.length && f5.lifecycle !== null && f5.lifecycle === f5api.first?.state?.lifecycle,
+    { rows: f5.rows.length, api: f5api.rows.length, lifecycle: f5.lifecycle });
+  await shot(`app-history-f05-${label}`);
+  await go(historyUrl(F06M.finding_id), HI_READY);
+  const f6 = await js(HI_STATE);
+  claim(`${label} history F06: merge/split relations listed as links to the other Findings' history`, f6.related.length > 0, { related: f6.related });
+
+  // Unknown version: refused, address kept.
+  const unknown = "00000000-0000-0000-0000-000000000001";
+  await go(historyUrl(id, `?revision_id=${unknown}`), HI_READY);
+  const miss = await js(HI_STATE);
+  claim(`${label} history unknown version: refused 404, URL kept, no rows`,
+    miss.read === "not_found" && miss.url.endsWith(`revision_id=${unknown}`) && miss.rows.length === 0, { read: miss.read, url: miss.url });
+}
+
+async function historyClosedSuite(label) {
+  const r1 = F04.revisions[0].revision_id;
+  await go(historyUrl(F04.finding_id), HI_READY);
+  const u = await js(HI_STATE);
+  const ua = await hapi(F04.finding_id);
+  claim(`${label} history closed: unpinned read refused as closed (API 409)`, u.read === "closed" && ua.status === 409, { read: u.read, apiStatus: ua.status });
+  await go(historyUrl(F04.finding_id, `?revision_id=${r1}`), HI_READY);
+  const p = await js(HI_STATE);
+  claim(`${label} history closed: pinned version leads with Record only and still lists every version`,
+    p.auditOnly && p.firstLead === "historyAuditOnly" && p.rows.length === F04.revisions.length, { firstLead: p.firstLead, rows: p.rows.length });
+  await shot(`app-history-closed-${label}`);
+}
+
 async function main() {
   ws = await connect();
   ws.addEventListener("message", (e) => {
@@ -414,7 +603,9 @@ async function main() {
     viewport = [width, height];
     await size(width, height);
     if (SUITE === "all" || SUITE === "evidence") await evidenceSuite(label);
+    if (SUITE === "all" || SUITE === "history") await historySuite(label);
     if (SUITE === "closed") await closedSuite(label);
+    if (SUITE === "closed") await historyClosedSuite(label);
     if (SUITE === "broken") await brokenSuite(label);
     if (SUITE !== "all" && SUITE !== "finding") continue;
     await go(`${BASE}/mockups/v69/index.html#/finding`, "document.body && document.body.innerText.includes('Where to look next')");
