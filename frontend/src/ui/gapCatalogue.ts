@@ -16,6 +16,7 @@ export const UI_GAP_CATALOGUE = {
   "G-foundation-change-record": { status: "open", placements: ["foundation.controls.change-record"] },
   "G-foundation-constraint-evidence": { status: "open", placements: ["foundation.controls.constraint-evidence"] },
   "G-foundation-financial-assumptions": { status: "open", placements: ["foundation.identity.financial-assumptions"] },
+  "G-assumptions-human-edit": { status: "open", placements: ["assumptions.price.human-edit"] },
   "G-foundation-productive-use": { status: "open", placements: ["foundation.identity.productive-use"] },
   "G-readiness-commissioning": { status: "open", placements: ["readiness.commissioning.definition", "readiness.commissioning.confirmed", "readiness.commissioning.needed", "readiness.commissioning.declared", "readiness.commissioning.next-step"] },
   "G-readiness-gateway-completeness": { status: "open", placements: ["readiness.gateway.completeness"] },

@@ -56,11 +56,12 @@ const RENDERED_TABS = [
   "Foundation",
   "Performance",
   "Findings",
+  "Financials",
   "Evidence",
 ];
 
 /** Canonical aspects with no capability in this build: not rendered. */
-const UNRENDERED_TABS = ["Health", "Work", "Financials"];
+const UNRENDERED_TABS = ["Health", "Work"];
 
 /**
  * The mockup's Site tabs from `ScreenMockups.png` screen 2, which are the
@@ -185,7 +186,7 @@ describe("the operator Site tab inventory is defined once", () => {
 describe.each(SITE_SURFACES)(
   "the Site tab row on %s",
   (_name, path, currentTab) => {
-    it("renders exactly Overview, Foundation, Performance, Findings, Evidence, in order", async () => {
+    it("renders exactly Overview, Foundation, Performance, Findings, Financials, Evidence, in order", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -219,6 +220,7 @@ describe.each(SITE_SURFACES)(
         ["Foundation", "/sites/MG-002/foundation"],
         ["Performance", "/sites/MG-002/performance"],
         ["Findings", "/sites/MG-002/findings"],
+        ["Financials", "/sites/MG-002/financials"],
         ["Evidence", "/sites/MG-002/evidence"],
       ]);
     });

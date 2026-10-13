@@ -413,3 +413,13 @@ describe("Q3: exact versions survive old -> new -> Evidence -> old, reload and b
     expect(after.asked[0]?.revisionId).toBeNull();
   });
 });
+
+describe("Finding to Financials bridge link (S4-02a)", () => {
+  it("carries the Finding ID and the pinned version", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(2)}`, client({ total: 3 }));
+    expect(q("[data-finding-financials-link] a")).toHaveAttribute(
+      "href",
+      `/sites/${SITE}/financials?finding_id=${F}&revision_id=${rid(2)}`,
+    );
+  });
+});

@@ -464,7 +464,12 @@ function IdentityPanel({
       <p className="not-available-yet" data-financial-assumptions="not-available">
         <MissingClaim gapId="G-foundation-financial-assumptions" placement="foundation.identity.financial-assumptions">
           {FINANCIAL_ASSUMPTIONS_NOT_AVAILABLE}. Physical ratings here are not financial assumptions.
-        </MissingClaim>
+        </MissingClaim>{" "}
+        {/* S4-02a: the reviewed Site price read lives on Financials; the gap stays open until this link is accepted. */}
+        <span data-financial-assumptions-link>
+          The site&apos;s diesel price is on{" "}
+          <Link to={`/sites/${encodeURIComponent(site.site_id)}/financials/assumptions`}>Financials › Assumptions</Link>.
+        </span>
       </p>
     </Panel>
   );

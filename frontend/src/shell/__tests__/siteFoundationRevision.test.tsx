@@ -1697,7 +1697,11 @@ describe("V-01a round 3: Site model obligations, policy positions and Advanced r
     expect(identity.querySelector("[data-productive-use]")?.textContent).toBe("Not declared");
     expect(identity.textContent).not.toMatch(/Productive use:\s*\w/);
     expect(identity.textContent).toContain("Financial assumptions not available here");
-    expect(within(identity).queryByRole("link")).toBeNull();
+    // S4-02a: the only link is to the Site price read; the gap line itself stays tagged and open.
+    expect(within(identity).getAllByRole("link").map((l) => l.getAttribute("href"))).toEqual([
+      expect.stringMatching(/^\/sites\/[^/]+\/financials\/assumptions$/),
+    ]);
+    expect(identity.querySelector("[data-financial-assumptions-link] a")?.closest("[data-gap-id]")).toBeNull();
   });
 
   it("says Critical-load priority not configured when the control names no member", async () => {

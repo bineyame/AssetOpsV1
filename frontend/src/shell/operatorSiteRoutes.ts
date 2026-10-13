@@ -151,6 +151,39 @@ export function siteFindingHref(siteId: string, findingId: string, revisionId?: 
 }
 
 /**
+ * S4-02a: Site > Financials. The Overview optionally carries a Finding bridge
+ * (`?finding_id=&revision_id=`, the exact FindingRevision); Assumptions takes
+ * an exact price version (`?revision_id=`) or a recorded cutoff
+ * (`?recorded_at=`), the same parameters the read API takes, so reload and
+ * back reopen the same stored selection.
+ */
+export const SITE_FINANCIALS_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/financials`;
+export const SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PATH}/assumptions`;
+
+export function siteFinancialsHref(
+  siteId: string,
+  bridge?: { findingId: string; revisionId?: string | null },
+): string {
+  const base = `${siteDetailHref(siteId)}/financials`;
+  if (!bridge) return base;
+  const query = new URLSearchParams({ finding_id: bridge.findingId });
+  if (bridge.revisionId) query.set("revision_id", bridge.revisionId);
+  return `${base}?${query.toString()}`;
+}
+
+export function siteFinancialAssumptionsHref(
+  siteId: string,
+  pin?: { revisionId?: string | null; recordedAt?: string | null },
+): string {
+  const base = `${siteDetailHref(siteId)}/financials/assumptions`;
+  const query = new URLSearchParams();
+  if (pin?.revisionId) query.set("revision_id", pin.revisionId);
+  if (pin?.recordedAt) query.set("recorded_at", pin.recordedAt);
+  const text = query.toString();
+  return text ? `${base}?${text}` : base;
+}
+
+/**
  * S4-03: the named child views of the canonical Finding root. Each is
  * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` and keeps the same
  * exact-version parameter. The frame's switch (`SiteFindingFrame`) renders
