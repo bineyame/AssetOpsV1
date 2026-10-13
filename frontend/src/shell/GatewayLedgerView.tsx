@@ -10,8 +10,8 @@ import type { GatewayLedgerStage, RunStageFrozenBasis } from "./runSetupClient";
  * Everything shown is read back from the gateway: the snapshot hash it
  * activated, the sequence epoch, every sealed SourceEnvelope V3 and Batch V2
  * with its stored SHA-256 and exact text, the queue state, and the reports it
- * held instead of sequencing. Upload is pending and there is no receipt in
- * this build, so nothing here says a batch was sent, accepted or delivered.
+ * held instead of sequencing. The constant upload and receipt fields of this
+ * read are not shown (V-01b Q1): nothing here says a batch was sent, accepted or delivered.
  */
 export function GatewayLedgerView({
   stage,
@@ -63,19 +63,14 @@ export function GatewayLedgerView({
         <Fact term="Where this Stage is read from">
           Gateway ledger: the local outbox of the separate gateway process
         </Fact>
-        <Fact term="Upload">
-          <span data-gateway-upload={stage.upload_state}>
-            {`${stage.upload_state}. ${stage.upload_statement}`}
-          </span>{" "}
-          {/* V-01b Q1 default: this is the gateway's own local Stage line; the
-              central receipt is the Commit read's fact, stated above. */}
-          <span className="cell-note" data-gateway-upload-label>
-            This is the gateway&apos;s local Stage statement. Central receipt is shown under Release and
-            ingestion.
+        <Fact term="Upload and central receipt">
+          {/* V-01b Q1 ruling: the Stage read's upload_state / upload_statement /
+              receipts are an S2-01b constant and are deliberately not rendered;
+              delivery is the Commit read's fact. */}
+          <span data-gateway-delivery-neutral>
+            This Stage read does not establish upload or central receipt state. See Release and
+            ingestion for what was released and received.
           </span>
-        </Fact>
-        <Fact term="Receipts">
-          <span data-gateway-receipts={stage.receipts.length}>None</span>
         </Fact>
         <Fact term="Snapshot SHA-256">
           <code data-gateway-snapshot>{stage.snapshot_sha256}</code>

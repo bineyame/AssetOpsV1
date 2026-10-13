@@ -151,7 +151,7 @@ export function RunIngestionOverview({
                 Open Site Evidence →
               </Link>
             ) : (
-              <span data-ingestion-received="none">{receivedStatement(commit, delivery)}</span>
+              <span data-ingestion-received="none">{receivedStatement(commit, delivery, execution)}</span>
             )}
           </p>
         </div>
@@ -229,7 +229,11 @@ export function RunIngestionOverview({
   );
 }
 
-function receivedStatement(commit: RunCommitResult | null, delivery: Delivery | null): string {
+function receivedStatement(
+  commit: RunCommitResult | null,
+  delivery: Delivery | null,
+  execution: RunIngestionOverviewProps["execution"],
+): string {
   if (
     delivery === null &&
     commit !== null &&
@@ -245,7 +249,10 @@ function receivedStatement(commit: RunCommitResult | null, delivery: Delivery | 
     return COMMIT_UNREADABLE;
   }
   if (delivery !== null) {
-    return delivery.withReceipt === 0 ? NOTHING_RECEIVED : RECEIVED_EXECUTION_UNREADABLE;
+    if (delivery.withReceipt === 0) {
+      return NOTHING_RECEIVED;
+    }
+    return execution === null ? LOADING_EXECUTION : RECEIVED_EXECUTION_UNREADABLE;
   }
   if (commit.commit.commit === "NOT_COMMITTED") {
     return NOTHING_RECEIVED;

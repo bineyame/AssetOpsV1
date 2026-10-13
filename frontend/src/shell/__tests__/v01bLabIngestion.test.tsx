@@ -324,7 +324,7 @@ describe("the Gateway & Ingestion overview (V-01b b2)", () => {
     expect(words("[data-ingestion-missing='product-consequence']")).toMatch(/^Not available yet: /);
   });
 
-  it("states release and ingestion from the Commit read, keeps the Commit panel there, and labels the Stage's upload line", async () => {
+  it("states release and ingestion from the Commit read, keeps the Commit panel there, and does not show the Stage's constant upload line", async () => {
     renderAt(client(EXECUTED, GATEWAY, Promise.resolve(released(RECEIPT))));
     await settledScreen();
 
@@ -342,10 +342,17 @@ describe("the Gateway & Ingestion overview (V-01b b2)", () => {
     expect(href.searchParams.get("from")).toBe(COMPLETED.interval_start_time);
     expect(one("[data-run-ingestion]").contains(one("[data-run-commit]"))).toBe(true);
 
-    // Q1: the Stage's own upload line stays, labelled as the gateway's local statement.
-    expect(one("[data-gateway-upload]").textContent).toMatch(/Upload pending/);
-    expect(words("[data-gateway-upload-label]")).toMatch(/gateway's local Stage statement/);
-    expect(words("[data-gateway-upload-label]")).toMatch(/Release and ingestion/);
+    // Q1 ruling: the Stage's constant upload/receipt fields are not shown as facts;
+    // neutral copy points to Release and ingestion, real sealed-batch facts stay.
+    const stageText = words("[data-disclosure='stage']");
+    expect(document.querySelector("[data-gateway-upload]")).toBeNull();
+    expect(document.querySelector("[data-gateway-receipts]")).toBeNull();
+    expect(stageText).not.toMatch(/no receipt exists|Upload pending|no batch has been sent|Receipts\s*None/);
+    expect(words("[data-gateway-delivery-neutral]")).toMatch(
+      /does not establish upload or central receipt state.*Release and ingestion/,
+    );
+    expect(stageText).toMatch(/Sealed batches/);
+    expect(stageText).toMatch(/3 envelopes in 1 batches; 1 held reports/);
     expect(one('[data-disclosure="stage"] > summary').textContent).toMatch(/^Advanced details — /);
     // What never crosses keeps the boundary and names the missing destination.
     expect(words("[data-ingestion-panel='boundary']")).toMatch(/The gateway observes, maps and publishes\./);
@@ -422,6 +429,13 @@ describe("the Gateway & Ingestion overview (V-01b b2)", () => {
     renderAt(client(EXECUTED, GATEWAY, Promise.resolve(unreadable)));
     await waitFor(() => expect(words("[data-ingestion-received]")).toMatch(/gateway delivery could not be read/));
     expect(words("[data-ingestion-received]")).not.toMatch(/Nothing from this run has been received/);
+  });
+
+  it("says the execution is loading, not unreadable, while it is still being read and reports were received", async () => {
+    const base = client(EXECUTED, GATEWAY, Promise.resolve(released(RECEIPT)));
+    renderAt({ ...base, getExecution: () => new Promise<RunExecutionResult>(() => undefined) } as RunSetupClient);
+    await waitFor(() => expect(words("[data-ingestion-received]")).toMatch(/Loading the execution/));
+    expect(words("[data-ingestion-received]")).not.toMatch(/could not be read/);
   });
 
   it("does not say the commit was unreadable when reports were received but the execution was not", async () => {
