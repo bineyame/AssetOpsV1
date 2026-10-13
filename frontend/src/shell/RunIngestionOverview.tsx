@@ -36,6 +36,7 @@ const LOADING_STAGE = "Loading the staged source envelopes.";
 const LOADING_COMMIT = "Loading the commit status.";
 const COMMIT_UNREADABLE = "The commit status could not be read, so what was received centrally is not known.";
 const DELIVERY_UNREADABLE = "The gateway delivery could not be read, so what was received centrally is not known.";
+const RECEIVED_EXECUTION_UNREADABLE = "Reports were received centrally, but the run's execution could not be read, so no Site Evidence link is offered.";
 const NOTHING_RECEIVED = "Nothing from this run has been received centrally.";
 
 interface Delivery {
@@ -244,7 +245,7 @@ function receivedStatement(commit: RunCommitResult | null, delivery: Delivery | 
     return COMMIT_UNREADABLE;
   }
   if (delivery !== null) {
-    return delivery.withReceipt === 0 ? NOTHING_RECEIVED : COMMIT_UNREADABLE;
+    return delivery.withReceipt === 0 ? NOTHING_RECEIVED : RECEIVED_EXECUTION_UNREADABLE;
   }
   if (commit.commit.commit === "NOT_COMMITTED") {
     return NOTHING_RECEIVED;

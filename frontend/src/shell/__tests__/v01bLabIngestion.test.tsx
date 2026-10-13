@@ -423,4 +423,12 @@ describe("the Gateway & Ingestion overview (V-01b b2)", () => {
     await waitFor(() => expect(words("[data-ingestion-received]")).toMatch(/gateway delivery could not be read/));
     expect(words("[data-ingestion-received]")).not.toMatch(/Nothing from this run has been received/);
   });
+
+  it("does not say the commit was unreadable when reports were received but the execution was not", async () => {
+    renderAt(client({ status: "unavailable", message: null }, GATEWAY, Promise.resolve(released(RECEIPT))));
+    await waitFor(() => expect(words("[data-ingestion-received]")).toMatch(/execution could not be read/));
+    expect(words("[data-ingestion-received]")).toMatch(/received centrally/);
+    expect(words("[data-ingestion-received]")).not.toMatch(/commit status could not be read/);
+    expect(document.querySelector("a[data-ingestion-evidence-link]")).toBeNull();
+  });
 });

@@ -5557,8 +5557,10 @@ function ingestionClaims(read, label) {
 // admits envelopes into its shared gateway ledger. It is opt-in
 // (ASSETOPS_LAYOUT_CREATE_RUNS=1) and refused on the default/owner ports, so a
 // default invocation can never mutate the owner's server. Not run is not a pass.
-const OWNER_PORTS = new Set([5173, 5183, 5199, 5213, 5291, 5360, 5361, 5362, 5363]);
+// Function-scoped: registeredKoboLab runs from top-level await above this text,
+// where a module-level const would still be in its temporal dead zone.
 function registeredRunGate() {
+  const OWNER_PORTS = new Set([5173, 5183, 5199, 5213, 5291, 5360, 5361, 5362, 5363]);
   const port = Number(new URL(BASE).port || 80);
   if (OWNER_PORTS.has(port)) {
     return `BASE ${BASE} is a default/owner port (${port}); run creation refused`;
