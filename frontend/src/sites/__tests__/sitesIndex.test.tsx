@@ -587,6 +587,46 @@ describe("the index shows no capability the product lacks", () => {
     );
   });
 
+  it("tags each Sites missing claim with its own catalogued gap, and none in the empty or unreadable states (G-02)", async () => {
+    const pairs = (root: ParentNode) =>
+      [...new Set([...root.querySelectorAll("[data-gap-id]")].map((el) => `${el.getAttribute("data-gap-id")}@${el.getAttribute("data-gap-placement")}`))].sort();
+    const TEXT: Record<string, string> = {
+      "sites.inventory.operating-view": "Not available yetAssessment · top issue · evidence limit · last analysed",
+      "sites.inventory.analysis-note":
+        "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments.",
+      "sites.inventory.attention-counts":
+        "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them.",
+      "sites.inventory.setup-progress": "Setup progress not tracked yet.",
+    };
+    const view = renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE] });
+    await screen.findByRole("table");
+    expect(pairs(document)).toEqual([
+      "G-sites-attention-counts@sites.inventory.attention-counts",
+      "G-sites-operating-view@sites.inventory.analysis-note",
+      "G-sites-operating-view@sites.inventory.operating-view",
+      "G-sites-setup-progress@sites.inventory.setup-progress",
+    ]);
+    const tagged = [...document.querySelectorAll("[data-gap-id]")];
+    expect(document.querySelectorAll('[data-gap-placement="sites.inventory.operating-view"]')).toHaveLength(2);
+    for (const el of tagged) {
+      expect(el.textContent).toBe(TEXT[el.getAttribute("data-gap-placement") as string]);
+      expect(el.getAttribute("data-gap-status")).toBe("open");
+      expect(el.querySelector("[data-gap-id]")).toBeNull();
+    }
+    // The aggregate note's two claims are separate elements; the registered count stays outside both.
+    const aggregate = screen.getByTestId("sites-aggregate-absent");
+    expect(aggregate.querySelectorAll("[data-gap-id]")).toHaveLength(2);
+    expect(document.body.textContent).not.toMatch(/G-sites-/);
+    view.unmount();
+
+    for (const result of [{ status: "loaded" as const, sites: [] }, { status: "unavailable" as const }]) {
+      const other = renderIndex(result);
+      await screen.findByRole("heading", { level: 2, name: result.status === "loaded" ? "No sites configured" : "Sites unavailable" });
+      expect(document.querySelector("[data-gap-id]")).toBeNull();
+      other.unmount();
+    }
+  });
+
   it("puts identity and location in the Site cell's secondary line", async () => {
     renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
     const row = within(await screen.findByRole("table")).getAllByRole("row")[1];

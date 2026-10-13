@@ -19,7 +19,7 @@
 import { useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, PageHeader, Panel, type Crumb } from "../ui";
+import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, MissingClaim, PageHeader, Panel, type Crumb } from "../ui";
 import {
   AcquisitionDetailsPanel,
   ReadinessVerdictPanel,
@@ -446,7 +446,9 @@ function IdentityPanel({
         </Fact>
         <Fact term="Productive-use designation">
           <span className="not-available-yet" data-productive-use="not-declared">
-            {PRODUCTIVE_USE_NOT_DECLARED}
+            <MissingClaim gapId="G-foundation-productive-use" placement="foundation.identity.productive-use">
+              {PRODUCTIVE_USE_NOT_DECLARED}
+            </MissingClaim>
           </span>
         </Fact>
         <Fact term="Evidence mode">
@@ -460,7 +462,9 @@ function IdentityPanel({
         </Fact>
       </FactList>
       <p className="not-available-yet" data-financial-assumptions="not-available">
-        {FINANCIAL_ASSUMPTIONS_NOT_AVAILABLE}. Physical ratings here are not financial assumptions.
+        <MissingClaim gapId="G-foundation-financial-assumptions" placement="foundation.identity.financial-assumptions">
+          {FINANCIAL_ASSUMPTIONS_NOT_AVAILABLE}. Physical ratings here are not financial assumptions.
+        </MissingClaim>
       </p>
     </Panel>
   );
@@ -499,7 +503,13 @@ function SldView(props: ViewProps) {
           strip={<SelectedPartStrip {...props} scope="sld" />}
         />
         <p className="not-available-yet" data-sld-missing="">
-          {SLD_NOT_DECLARED_NOTE} <Link to={props.evidenceHref}>Site Evidence →</Link>
+          <MissingClaim gapId="G-sld-protection-metering" placement="sld.diagram.protection-metering">
+            {SLD_PROTECTION_METERING_NOT_DECLARED}
+          </MissingClaim>{" "}
+          <MissingClaim gapId="G-sld-reporting-status" placement="sld.diagram.reporting-status">
+            {SLD_REPORTING_STATUS_NOT_ASSESSED}
+          </MissingClaim>{" "}
+          {SLD_SEE_SITE_EVIDENCE} <Link to={props.evidenceHref}>Site Evidence →</Link>
         </p>
       </Panel>
       <ConfiguredPartsPanel
@@ -536,8 +546,15 @@ function SldView(props: ViewProps) {
   );
 }
 
-export const SLD_NOT_DECLARED_NOTE =
-  "Protection and meter positions are not declared in this Foundation topology; monitoring links and reporting status are not assessed on this diagram. See Site Evidence for reported records.";
+/*
+ * The SLD note beside the drawing (V-01a round-3 Addendum), split per claim (G-02):
+ * protection/meter positions and per-part reporting status are separate gaps. The
+ * rendered sentence is unchanged.
+ */
+export const SLD_PROTECTION_METERING_NOT_DECLARED =
+  "Protection and meter positions are not declared in this Foundation topology;";
+export const SLD_REPORTING_STATUS_NOT_ASSESSED = "monitoring links and reporting status are not assessed on this diagram.";
+export const SLD_SEE_SITE_EVIDENCE = "See Site Evidence for reported records.";
 
 /**
  * A part's channels for the selected period: bound channels whose binding names

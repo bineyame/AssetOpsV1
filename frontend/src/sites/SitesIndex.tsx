@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Panel } from "../ui";
+import { Badge, DataTable, MissingClaim, Panel } from "../ui";
 import type { SiteDirectoryClient } from "./siteDirectoryClient";
 import type { SiteListResult, SiteSummary } from "./siteReadModel";
 import { deriveSiteView } from "./siteViewModel";
@@ -323,9 +323,14 @@ export const DIRECTORY_ANALYSIS_ABSENT =
 export const OPERATING_VIEW_NOT_AVAILABLE = "Not available yet";
 export const OPERATING_VIEW_PARTS = "Assessment · top issue · evidence limit · last analysed";
 
-/** The mock's aggregate tiles and setup area, named once beside the inventory. */
-export const DIRECTORY_AGGREGATE_ABSENT =
-  "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them. Setup progress not tracked yet.";
+/**
+ * The mock's aggregate tiles and setup area, named once beside the inventory.
+ * Two claims, two catalogued elements (G-02): the counts and setup progress
+ * have different sources and closure conditions.
+ */
+export const SITES_ATTENTION_COUNTS_ABSENT =
+  "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them.";
+export const SITES_SETUP_PROGRESS_NOT_TRACKED = "Setup progress not tracked yet.";
 
 export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
   return (
@@ -352,11 +357,18 @@ export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
         </tbody>
       </DataTable>
       <p className="panel__body panel__note" data-testid="sites-analysis-absent">
-        {DIRECTORY_ANALYSIS_ABSENT}
+        <MissingClaim gapId="G-sites-operating-view" placement="sites.inventory.analysis-note">
+          {DIRECTORY_ANALYSIS_ABSENT}
+        </MissingClaim>
       </p>
       <p className="panel__body panel__note" data-testid="sites-aggregate-absent">
         {`${sites.length} registered Site${sites.length === 1 ? "" : "s"} listed. `}
-        {DIRECTORY_AGGREGATE_ABSENT}
+        <MissingClaim gapId="G-sites-attention-counts" placement="sites.inventory.attention-counts">
+          {SITES_ATTENTION_COUNTS_ABSENT}
+        </MissingClaim>{" "}
+        <MissingClaim gapId="G-sites-setup-progress" placement="sites.inventory.setup-progress">
+          {SITES_SETUP_PROGRESS_NOT_TRACKED}
+        </MissingClaim>
       </p>
     </>
   );
@@ -392,8 +404,10 @@ export function SiteRow({ site, siteHref, lineage }: SiteRowProps) {
         <Badge tone="provenance">{view.sourceMode}</Badge>
       </td>
       <td data-operating-view="not-available">
-        <span className="not-available-yet">{OPERATING_VIEW_NOT_AVAILABLE}</span>
-        <span className="cell-secondary">{OPERATING_VIEW_PARTS}</span>
+        <MissingClaim gapId="G-sites-operating-view" placement="sites.inventory.operating-view">
+          <span className="not-available-yet">{OPERATING_VIEW_NOT_AVAILABLE}</span>
+          <span className="cell-secondary">{OPERATING_VIEW_PARTS}</span>
+        </MissingClaim>
       </td>
       {/*
        * Three vocabularies, three labelled entries, three tones, and never one

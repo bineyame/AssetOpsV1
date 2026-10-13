@@ -47,8 +47,24 @@ test('the real registry catalogue and ledger joins are valid', () => {
   assert.deepEqual(firmware.ui_placements, ['readiness.gateway.firmware']);
   assert.equal(firmware.status, 'open');
   assert.equal(firmware.source_status, 'absent');
-  assert.deepEqual(registry.mock_gaps.gap_enrolled_screens, [], 'G-01 enrolls no screen; G-02 enrolls the V-01a four');
-  assert.deepEqual(screenLedger.find((r) => r.id === 'readiness').gap_ids, ['G-readiness-gateway-firmware']);
+  // G-02 enrolls the V-01a four; their ledger rows list exactly the gaps naming each screen.
+  const four = ['sites', 'foundation', 'readiness', 'sld'];
+  assert.deepEqual(registry.mock_gaps.gap_enrolled_screens, four);
+  for (const screen of four) {
+    const expected = registry.mock_gaps.gaps.filter((g) => g.screen_ids.includes(screen)).map((g) => g.id).sort();
+    assert.ok(expected.length > 0, `${screen} has catalogued gaps`);
+    assert.deepEqual([...screenLedger.find((r) => r.id === screen).gap_ids].sort(), expected);
+  }
+  // C5: uptime, completeness and signal strength are three gaps with one placement each, beside firmware.
+  for (const claim of ['uptime', 'completeness', 'signal-strength', 'firmware']) {
+    const gap = registry.mock_gaps.gaps.find((g) => g.id === `G-readiness-gateway-${claim}`);
+    assert.deepEqual(gap.ui_placements, [`readiness.gateway.${claim}`]);
+    assert.deepEqual([gap.missing_kind, gap.source_status, gap.target_wave], ['data_source', 'absent', 'unplanned']);
+  }
+  // Every enrolled non-core undelivered portion names at least one gap.
+  for (const row of registry.delivery_plan.w1_panel_mapping.filter((r) => four.includes(r.key.split(':')[0]))) {
+    for (const p of row.claim_portions.filter((p) => !p.core && p.state !== 'delivered')) assert.ok(p.gap_ids?.length, p.id);
+  }
 });
 
 test('valid fixture passes; absent catalogue is an error only when required', () => {

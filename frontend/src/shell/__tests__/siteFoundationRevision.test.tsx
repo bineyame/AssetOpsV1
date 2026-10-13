@@ -1496,8 +1496,12 @@ describe("V-01a round 3: the Readiness and commissioning evidence table", () => 
 
 describe("V-01a round 3: the bounded gateway status panel", () => {
   const gateway = () => regionNamed("Gateway status");
-  const NOT_YET =
-    "Not available yet: uptime trend, expected-versus-delivered completeness and signal strength. No reviewed source for these fields.";
+  // G-02 (Architect C5): the former combined line is three catalogued claims, one element each.
+  const NOT_YET = [
+    "Uptime trend not available yet: no reviewed source reports a gateway's uptime over time.",
+    "Expected-versus-delivered completeness not available yet: no reviewed source compares the reports a gateway should send with those received.",
+    "Signal strength not available yet: no reviewed source reports a gateway's signal strength.",
+  ];
 
   it("shows registration and central contact separately, with server times and the not-available-yet line", async () => {
     renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
@@ -1512,7 +1516,7 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
     expect(panel.textContent).toContain("2026-10-12 09:14 UTC");
     expect(panel.textContent).toContain("not a live device connection, accepted readings or equipment condition");
     expect(panel.textContent).toContain("Device connection not established here.");
-    expect(panel.textContent).toContain(NOT_YET);
+    for (const line of NOT_YET) expect(panel.textContent).toContain(line);
     expect(panel.textContent).not.toMatch(/Online|uptime \d|%|firmware v|signal strength:/i);
     expect(within(panel).getByRole("link", { name: "Site Evidence →" })).toBeInTheDocument();
     // Diagnostic records stay behind a closed Advanced disclosure.
@@ -1537,7 +1541,7 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
     expect(panel.textContent).toContain("Gateway contact unavailable.");
     expect(panel.textContent).toContain("Registration is configuration and is not taken as contact.");
     expect(panel.textContent).toContain("Device connection not established here.");
-    expect(panel.textContent).toContain(NOT_YET);
+    for (const line of NOT_YET) expect(panel.textContent).toContain(line);
     expect(panel.querySelector(".badge")).toBeNull();
     expect(panel.textContent).not.toMatch(/\bCurrent\b|Online|Connected/);
   });
@@ -1609,7 +1613,9 @@ describe("G-01: the catalogued gateway firmware missing state", () => {
   const gateway = () => regionNamed("Gateway status");
   const FIRMWARE = "Firmware not available yet: no reviewed source reports what firmware a gateway runs.";
   const READINESS = `/sites/${ID}/foundation/readiness`;
-  const gapIdsOnPage = () => [...document.querySelectorAll("[data-gap-id]")].map((el) => el.getAttribute("data-gap-id")).sort();
+  // Distinct gap IDs on the page: a per-row placement (commissioning) renders once per row.
+  const gapIdsOnPage = () =>
+    [...new Set([...document.querySelectorAll("[data-gap-id]")].map((el) => el.getAttribute("data-gap-id")))].sort();
   const firmwareOf = (panel: HTMLElement) =>
     panel.querySelector('[data-gap-placement="readiness.gateway.firmware"]') as HTMLElement | null;
   const expectFirmwareMissing = (panel: HTMLElement) => {
@@ -1634,8 +1640,19 @@ describe("G-01: the catalogued gateway firmware missing state", () => {
     const panel = gateway();
     expect(panel.querySelector("[data-gateway-panel-state]")?.getAttribute("data-gateway-panel-state")).toBe("loaded");
     expectFirmwareMissing(panel);
+    // G-02 enrolled Readiness: every catalogued Readiness gap renders, and nothing else does.
     expect(gapIdsOnPage()).toEqual(expectedReadinessGapIds);
-    expect(gapIdsOnPage()).toEqual(["G-readiness-gateway-firmware"]);
+    expect(panel.querySelectorAll('[data-gap-id="G-readiness-gateway-firmware"]')).toHaveLength(1);
+  });
+
+  it("keeps firmware explicitly missing while the contact read is loading (C6)", async () => {
+    renderWithGateway(READINESS, fakeFoundation(READY), "pending");
+    await screen.findByRole("heading", { name: "Gateway status" });
+    const panel = gateway();
+    expect(panel.textContent).toContain("Loading the site's gateway contact.");
+    expectFirmwareMissing(panel);
+    expect(panel.querySelectorAll('[data-gap-id="G-readiness-gateway-firmware"]')).toHaveLength(1);
+    expect(gapIdsOnPage()).toContain("G-readiness-gateway-firmware");
   });
 
   it("keeps firmware explicitly missing when contact is unknown, unavailable, not found or empty", async () => {
@@ -1651,7 +1668,8 @@ describe("G-01: the catalogued gateway firmware missing state", () => {
       const panel = gateway();
       expect(panel.querySelector("[data-gateway-panel-state]")?.getAttribute("data-gateway-panel-state")).toBe(state);
       expectFirmwareMissing(panel);
-      expect(gapIdsOnPage()).toEqual(["G-readiness-gateway-firmware"]);
+      expect(panel.querySelectorAll('[data-gap-id="G-readiness-gateway-firmware"]')).toHaveLength(1);
+      expect(gapIdsOnPage()).toEqual(expectedReadinessGapIds);
       view.unmount();
     }
   });
@@ -1665,7 +1683,7 @@ describe("G-01: the catalogued gateway firmware missing state", () => {
     renderWithGateway(READINESS, fakeFoundation(READY), healthOf(gatewayEntry()));
     await settledScreen();
     expect(firmwareOf(gateway())?.outerHTML).toBe(before);
-    expect(gapIdsOnPage()).toEqual(["G-readiness-gateway-firmware"]);
+    expect(gapIdsOnPage()).toEqual(expectedReadinessGapIds);
   });
 });
 
@@ -1764,5 +1782,158 @@ describe("V-01a round 3: the chosen part sits beside its drawing", () => {
     expect(strip()).toBeNull();
     expect(screen.getByTestId("location").textContent).toBe(`/sites/${ID}/foundation`);
     await waitFor(() => expect(document.activeElement?.getAttribute("data-part-choice")).toBe("c-storage"));
+  });
+});
+
+describe("G-02: V-01a pilot missing-state placements", () => {
+  // Each catalogued element states only its own claim (Architect C5/C9): exact text per placement.
+  const TEXT: Record<string, string> = {
+    "readiness.commissioning.definition": "Confirmed means an independent commissioning or field record; none exists yet.",
+    "readiness.commissioning.confirmed": "Not recorded",
+    "readiness.commissioning.needed": "Commissioning confirmation not recorded",
+    "readiness.commissioning.declared": "No commissioning record type exists in this Foundation",
+    "readiness.commissioning.next-step": "No commissioning record available",
+    "readiness.gateway.uptime": "Uptime trend not available yet: no reviewed source reports a gateway's uptime over time.",
+    "readiness.gateway.completeness":
+      "Expected-versus-delivered completeness not available yet: no reviewed source compares the reports a gateway should send with those received.",
+    "readiness.gateway.signal-strength": "Signal strength not available yet: no reviewed source reports a gateway's signal strength.",
+    "readiness.gateway.firmware": "Firmware not available yet: no reviewed source reports what firmware a gateway runs.",
+    "readiness.gateway.source-connection": "Device connection not established here.",
+    "readiness.gateway.source-connection-registration": "Device connection not established here.",
+    "readiness.sources.arrival": "whether data is arriving is not assessed here.",
+    "foundation.identity.productive-use": "Not declared",
+    "foundation.identity.financial-assumptions":
+      "Financial assumptions not available here. Physical ratings here are not financial assumptions.",
+    "foundation.controls.change-record": "No proposed-change record here",
+    "foundation.controls.constraint-evidence": "No linked constraint evidence",
+    "sld.diagram.protection-metering": "Protection and meter positions are not declared in this Foundation topology;",
+    "sld.diagram.reporting-status": "monitoring links and reporting status are not assessed on this diagram.",
+    "sld.diagram.readings-status": "Readings are not assessed in this view.",
+  };
+  const COMMISSIONING = [
+    "G-readiness-commissioning@readiness.commissioning.confirmed",
+    "G-readiness-commissioning@readiness.commissioning.declared",
+    "G-readiness-commissioning@readiness.commissioning.definition",
+    "G-readiness-commissioning@readiness.commissioning.needed",
+    "G-readiness-commissioning@readiness.commissioning.next-step",
+  ];
+  const GATEWAY_FIELDS = [
+    "G-readiness-gateway-completeness@readiness.gateway.completeness",
+    "G-readiness-gateway-firmware@readiness.gateway.firmware",
+    "G-readiness-gateway-signal-strength@readiness.gateway.signal-strength",
+    "G-readiness-gateway-uptime@readiness.gateway.uptime",
+  ];
+  const ARRIVAL = "G-readiness-source-contact@readiness.sources.arrival";
+  const CONNECTION = "G-readiness-source-contact@readiness.gateway.source-connection";
+  const CONNECTION_REGISTRATION = "G-readiness-source-contact@readiness.gateway.source-connection-registration";
+  const tagged = () => [...document.querySelectorAll<HTMLElement>("[data-gap-id]")];
+  const pairsOnPage = () =>
+    [...new Set(tagged().map((el) => `${el.getAttribute("data-gap-id")}@${el.getAttribute("data-gap-placement")}`))].sort();
+  /** Every tagged element is a known open pair, carries exactly its own claim text, and shows no gap ID. */
+  const expectExactClaims = () => {
+    expect(tagged().length).toBeGreaterThan(0);
+    for (const el of tagged()) {
+      const gapId = el.getAttribute("data-gap-id") as keyof typeof UI_GAP_CATALOGUE;
+      const placement = el.getAttribute("data-gap-placement") as string;
+      expect((UI_GAP_CATALOGUE[gapId].placements as readonly string[]).includes(placement)).toBe(true);
+      expect(el.getAttribute("data-gap-status")).toBe("open");
+      expect(el.textContent).toBe(TEXT[placement]);
+      expect(el.querySelector("[data-gap-id]")).toBeNull();
+    }
+    expect(document.body.textContent).not.toMatch(/G-(readiness|foundation|sld|sites)-/);
+  };
+  const sorted = (...lists: string[][]) => lists.flat().sort();
+  const byAt = (at: string | null): FoundationRead<FoundationReadModel> =>
+    at === FUTURE.valid_from ? { status: "loaded", value: foundation(FUTURE, published([BATTERY_SOC, GENSET_POWER], [])) } : READY();
+
+  it("renders Readiness placements per gateway-contact branch, each element carrying one claim", async () => {
+    const branches: [EvidenceRead<GatewayHealth> | "pending", string[]][] = [
+      [healthOf(gatewayEntry()), [CONNECTION]],
+      [healthOf(gatewayEntry({ status: "UNKNOWN", last_server_contact: null, diagnostic_id: null })), [CONNECTION]],
+      [{ status: "unavailable", message: null }, [CONNECTION_REGISTRATION]],
+      [{ status: "not_found" }, [CONNECTION_REGISTRATION]],
+      [healthOf(), []],
+      ["pending", []],
+    ];
+    for (const [health, branchPairs] of branches) {
+      const view = renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), health);
+      // A held contact read keeps its loading line, so only the Foundation read is awaited there.
+      if (health !== "pending") await settledScreen();
+      await screen.findByRole("heading", { name: "Gateway status" });
+      if (health === "pending") expect(regionNamed("Gateway status").textContent).toContain("Loading the site's gateway contact.");
+      expect(pairsOnPage()).toEqual(sorted(COMMISSIONING, GATEWAY_FIELDS, [ARRIVAL], branchPairs));
+      expectExactClaims();
+      // One rendered element per gateway field; per-row commissioning repeats once per table row.
+      for (const pair of GATEWAY_FIELDS) {
+        expect(document.querySelectorAll(`[data-gap-placement="${pair.split("@")[1]}"]`)).toHaveLength(1);
+      }
+      const rows = document.querySelectorAll("[data-readiness-row]").length;
+      expect(rows).toBeGreaterThan(1);
+      expect(document.querySelectorAll('[data-gap-placement="readiness.commissioning.confirmed"]')).toHaveLength(rows);
+      expect(document.querySelectorAll('[data-gap-placement="readiness.commissioning.needed"]')).toHaveLength(rows);
+      view.unmount();
+    }
+  });
+
+  it("keeps the same Readiness placements across a date change and a part selection", async () => {
+    const pairs: string[][] = [];
+    for (const path of [
+      `/sites/${ID}/foundation/readiness`,
+      `/sites/${ID}/foundation/readiness?at=${encodeURIComponent(FUTURE.valid_from)}`,
+      `/sites/${ID}/foundation/readiness?component=c-storage`,
+    ]) {
+      const view = renderWithGateway(path, fakeFoundation(byAt), healthOf(gatewayEntry()));
+      await settledScreen();
+      await screen.findByRole("heading", { name: "Gateway status" });
+      expectExactClaims();
+      pairs.push(pairsOnPage());
+      view.unmount();
+    }
+    expect(document.querySelector("[data-gap-id]")).toBeNull();
+    expect(pairs[0]).toEqual(sorted(COMMISSIONING, GATEWAY_FIELDS, [ARRIVAL, CONNECTION]));
+    expect(pairs[1]).toEqual(pairs[0]);
+    expect(pairs[2]).toEqual(pairs[0]);
+  });
+
+  it("renders the Site model placements, unchanged by a date change, selection and reload", async () => {
+    const expected = [
+      "G-foundation-change-record@foundation.controls.change-record",
+      "G-foundation-constraint-evidence@foundation.controls.constraint-evidence",
+      "G-foundation-financial-assumptions@foundation.identity.financial-assumptions",
+      "G-foundation-productive-use@foundation.identity.productive-use",
+    ];
+    for (const path of [
+      `/sites/${ID}/foundation`,
+      `/sites/${ID}/foundation?at=${encodeURIComponent(FUTURE.valid_from)}`,
+      `/sites/${ID}/foundation?component=c-storage`,
+      `/sites/${ID}/foundation`,
+    ]) {
+      const view = renderWithGateway(path, fakeFoundation(byAt), healthOf(gatewayEntry()));
+      await settledScreen();
+      await screen.findByRole("heading", { name: "Identity & operating obligations" });
+      expect(pairsOnPage()).toEqual(expected);
+      expectExactClaims();
+      view.unmount();
+    }
+  });
+
+  it("renders the SLD placements beside the drawing, never inside it, across selection and reload", async () => {
+    const expected = [
+      "G-sld-protection-metering@sld.diagram.protection-metering",
+      "G-sld-reporting-status@sld.diagram.readings-status",
+      "G-sld-reporting-status@sld.diagram.reporting-status",
+    ];
+    for (const path of [`/sites/${ID}/foundation/sld`, `/sites/${ID}/foundation/sld?component=c-storage`, `/sites/${ID}/foundation/sld`]) {
+      const view = renderWithGateway(path, fakeFoundation(READY), healthOf(gatewayEntry()));
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("[data-sld-missing]")).not.toBeNull());
+      expect(pairsOnPage()).toEqual(expected);
+      expectExactClaims();
+      for (const el of tagged()) expect(el.closest("svg")).toBeNull();
+      // The note keeps its V-01a sentence; the two claims are separate elements inside it.
+      const note = document.querySelector("[data-sld-missing]") as HTMLElement;
+      expect(note.querySelectorAll("[data-gap-id]")).toHaveLength(2);
+      view.unmount();
+    }
   });
 });

@@ -1,6 +1,6 @@
 import type { KeyboardEvent, ReactNode } from "react";
 
-import { Badge, DataTable } from "../ui";
+import { Badge, DataTable, MissingClaim } from "../ui";
 import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape } from "./componentIcons";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import {
@@ -602,7 +602,9 @@ function SldDrawing({
         // section at phone width (S1-03 review m2).
         <div className="sld-status" data-sld-configured="">
           <Badge tone="neutral">{SLD_CONFIGURED_NOT_LIVE}</Badge>
-          <span>Readings are not assessed in this view.</span>
+          <MissingClaim gapId="G-sld-reporting-status" placement="sld.diagram.readings-status">
+            Readings are not assessed in this view.
+          </MissingClaim>
         </div>
       ) : null}
       <div

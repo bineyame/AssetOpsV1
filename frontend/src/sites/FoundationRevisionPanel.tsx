@@ -12,7 +12,7 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import { Badge, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel } from "../ui";
 import type {
   FoundationControl,
   FoundationReadModel,
@@ -272,9 +272,21 @@ function evidenceOrChange(key: string, version: number, dispatchHref: string | u
     case "critical":
       return <span data-control-link="published">{`Published configuration · Foundation v${version}`}</span>;
     case "start-stop":
-      return <span data-control-link="no-change-record" className="not-available-yet">No proposed-change record here</span>;
+      return (
+        <span data-control-link="no-change-record" className="not-available-yet">
+          <MissingClaim gapId="G-foundation-change-record" placement="foundation.controls.change-record">
+            No proposed-change record here
+          </MissingClaim>
+        </span>
+      );
     case "runtime":
-      return <span data-control-link="no-constraint-evidence" className="not-available-yet">No linked constraint evidence</span>;
+      return (
+        <span data-control-link="no-constraint-evidence" className="not-available-yet">
+          <MissingClaim gapId="G-foundation-constraint-evidence" placement="foundation.controls.constraint-evidence">
+            No linked constraint evidence
+          </MissingClaim>
+        </span>
+      );
     default:
       return dispatchHref === undefined ? (
         <span data-control-link="no-dispatch">Dispatch not available here</span>
@@ -371,7 +383,12 @@ export function RegisteredSourcesPanel({
       ))}
       <Disclosure name="foundation-sources" summary={`Registered sources (${foundation.sources.length})`}>
         <DataTable labelledBy="foundation-sources-heading">
-          <caption>One source per configured device. Registrations only; whether data is arriving is not assessed here.</caption>
+          <caption>
+            One source per configured device. Registrations only;{" "}
+            <MissingClaim gapId="G-readiness-source-contact" placement="readiness.sources.arrival">
+              whether data is arriving is not assessed here.
+            </MissingClaim>
+          </caption>
           <thead>
             <tr>
               <th scope="col">Source</th>
