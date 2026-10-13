@@ -1,6 +1,6 @@
 # S4-02a — Site price publication and exact assumption history
 
-Status: implementation-ready after independent plan review; first M slice of S4-02
+Status: active (activated 2026-10-13 from main `58bb8ef`; owner choice `.agent/owner-next-work-2026-10-13e.md`); first M slice of S4-02
 USER_REVIEW_REQUIRED: true (owner walkthrough of the Assumptions page, the disabled edit and the Finding bridge; the S4-02 milestone checkpoint stays on S4-02b)
 Milestone: S4 Finding + Financials
 Depends on: merged S4-01/S4-03, resolved `A-S4-financial` and `A-actor-identity`; no S4-04 gate
