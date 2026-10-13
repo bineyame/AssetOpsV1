@@ -2135,3 +2135,10 @@ The carried review findings above are unchanged.
 - C5: G-02 seam: `GATEWAY_NOT_AVAILABLE_YET` bundles uptime, completeness and signal strength in one sentence; `MissingClaim` takes one `gapId`, so G-02 must split the copy per claim or the Architect must allow multi-gap elements.
 - C6: the firmware placement in the loading branch is claimed but not asserted in Vitest.
 - C7: the Q1 phrase set is narrow; copy such as "not tracked yet" or "not recorded" passes untagged. Widening it changes the guard and goes to review.
+
+### S4-03 carries (2026-10-13)
+
+- Phase 1: C1 `ASSESSMENT_CITATION` checked against assessment evidence_ids, not segment citations (false BROKEN only); C3 private `dispatch._annotate` call; C4/C5 each page reloads whole cited set / revision list.
+- Phase 2: legacy Evidence tab browser-uncaptured (tests only); refusal panels print backend message (inherited S4-01); parity test needs `backend/` present where frontend tests run.
+- Phase 3: C1 "Only 101 of 100 versions" wording under concurrent append (untested); C2 `settled.ts:22` lost `\.` escape; C4 walkthrough variable-scope confusion; C5 duplicate `aria-current`.
+- Architect Q4: gap `review_trigger` texts for `G-finding-evidence-coverage`/`-use` corrected at registry closeout; Q5 G-04 keeps acceptance-event row and Recommendation-prepared claim; Q6 History page controls a later usability slice if needed.

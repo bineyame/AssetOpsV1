@@ -1,6 +1,6 @@
 # S4-03 — Finding Evidence and History
 
-Status: in_review (phase 3 and closeout built 2026-10-13; packet `.agent/S4-03-review-packet.md`)
+Status: done (owner accepted conditionally 2026-10-13; reviews ACCEPT; merged to main by coordinator)
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
 Depends on: merged S4-01 (`I-finding-read`, `D-finding-revisions`), accepted S2 Evidence and S3 Dispatch reads. S4-02 and S4-04 are not technical gates.
@@ -45,3 +45,11 @@ Use S4-01 `D-finding-revisions` (`backend/conversions/s4-finding-cases-v1.json`,
 Routes: Evidence and History are child views of the canonical Finding route from S4-01; the older assessment-keyed Finding page's `evidence` tab (`frontend/src/shell/operatorSiteRoutes.ts:158-170`) must either redirect to or reuse the same read, never present a second Evidence source. Extend `tools/s4_finding_walkthrough.py` and `tools/s4-finding-evidence.mjs` for walkthrough and evidence. At closeout reword the three registry texts that still promise a "knowledge cutoff" (`I-S4-03`, `I-finding-history-read`, `finding-history:1#a` boundary; the last is a reviewed mapping, so the closeout reviewer notes it) to match the no-`knowledge_at`-replay rule of `D-2026-10-11-s3-phase-2-selection-and-read`. Then update S4-03 implementation nodes and only proven `finding-evidence:1#a`, `finding-evidence:2#a`, `finding-history:1#a` portions in `v69-dependency-registry-pilot.json`, with reviewer evidence, delivered IDs and exact anchors. Review `v69-screen-ledger.json` for S4-03 ownership, supported claim, interaction, unknown/empty and remaining G-04/Action gaps; preserve partial status and W1 core gates until evidence supports promotion. Keep the mock-gap catalogue and typed placement mirror consistent for new missing claims; G-04 owns broader non-core backfill. Independent review and owner checkpoint precede completion. Prepare a clean-fixture owner walkthrough: Finding → Evidence record/envelope → History old/new revisions → old Evidence after reload, plus closed/missing states and 1440/390 comparison. Coordinator records owner's words; Implementer/Reviewer do not pre-record acceptance.
 
 Out of scope: S4-02 financial basis/assumption history, S4-04 Site FindingIndex/list, S6 Action/recommendation history, alternatives, new ingestion/assessment/matcher rule, arbitrary historical replay, production authentication and full G-04 non-core backfill.
+
+## Review Outcome (recorded by coordinator, 2026-10-13)
+
+- Reviews read (all six): `.agent/S4-03-plan-review.md` ACCEPT; `S4-03-phase1-review.md` RETURN (F1) -> `S4-03-phase1-fix-rereview.md` ACCEPT; `S4-03-phase2-review.md` RETURN (M1-M4, L1-L4) -> `S4-03-phase2-fix-rereview.md` ACCEPT; `S4-03-phase3-review.md` ACCEPT (full backend 1908 passed). No unresolved disagreement.
+- Architect: `.agent/architect-S4-03-answers.md` (Q1, Q2 overruled; Q3 ratified), `.agent/architect-S4-03-answers-2.md` (Q4-Q6 ratified); decision `D-2026-10-13-s403-legacy-evidence-and-lineage-words`.
+- Owner checkpoint: `.agent/owner-S4-03-acceptance-2026-10-13.md` — accepted conditionally.
+- Registry/ledger closeout follows on a separate branch per the packet proposal, with phase-3 review carry C3 (`finding-history:1` gap -> partial, add `66d001f` to evidence) and Q4's correction of the two gap `review_trigger` texts.
+- Carries: phase reviews' carry lists; `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-03 carries".
