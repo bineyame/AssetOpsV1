@@ -70,9 +70,13 @@ Foundation's open financial-assumptions gap line gains a sibling link to Assumpt
 | 10 | Foundation `G-foundation-financial-assumptions` links to the Site read, or the gap stays open | Met: link added, gap stays open | browser claim; `siteFoundationRevision.test.tsx` |
 | 11 | No priced amount, maintenance, scenario, FX or extrapolation | Met | `consequence_state(..., True, True)` raises; no amount in the bridge DOM |
 
-**Itemized for G-05, not rendered:**
-- `financials`: Scenarios subtab; metric cards (operating-cost exposure, revenue/service, asset exposure, realized savings); panel 1's consequence table (beyond the one bridge state); the second (maintenance) line; panel 3 "Trade-offs and exclusions"; portfolio roll-up.
-- `assumptions`: panel 2 "Impact preview"; maintenance accrual; the interactive price input and "Apply example price"; "Proposed next version" history row.
+**Itemized for G-05, not rendered** (IDs are `v69-dependency-registry-pilot.json` panel keys and claim portions; the manifest/ledger carry no finer element IDs, so sub-panel items are named under their panel):
+- `financials:3` / `financials:3#a`, `financials:3#b` (Trade-offs and exclusions, both portions unmapped): not rendered.
+- `assumptions:2` / `assumptions:2#a` (Impact preview, unmapped): not rendered. This includes the interactive price input and "Apply example price" that feed it.
+- `financials:1` (core portion `financials:1#a` is served as the one bridge state only): the consequence table, the four metric cards (operating-cost exposure, revenue/service, asset exposure, realized savings), the second (maintenance) line and the portfolio roll-up are not rendered. No separate portion ID exists for the maintenance line; it sits under `financials:1`.
+- Scenarios subtab: screen `financials` (manifest `adapted` text: "Scenarios is a placeholder with an empty state"); it has no panel key or portion ID. Omitted, not an empty tab.
+- `assumptions:1` / `assumptions:3`: the "Proposed next version" history row and maintenance accrual are not rendered (no portion IDs); the served rows are `assumptions:1#a` and the revision history.
+- Manifest `deferred` (screen `financials`): cash flow, currency conversion and monthly extrapolation.
 
 ## Checks run (counts)
 
@@ -91,10 +95,8 @@ Foundation's open financial-assumptions gap line gains a sibling link to Assumpt
   - `S402A_ALTER=1` fails exactly the 2 schedule claims (67/69).
 - **Browser evidence:** `node tools/s402a-assumptions-evidence.mjs` at 1440/390 gave **69/69 PASS**, with screenshots (app and mock) in `%LOCALAPPDATA%/AssetOps/evidence/s402a`.
 - **Layout evidence:** `node tools/layout-evidence.mjs` on the Finding-case store gave 206 PASS / 28 FAIL.
-  - All 28 failures are fixture preconditions or claims older than this slice:
-    - no MG-001 Lab Site, so the Site-page tab claims read 0 tabs;
-    - no Foundation diagram;
-    - the T011A "Overview, Foundation, Evidence" claim.
+  - The 28 failures come from MG-001 being absent from this store and two Lab / legacy-Kobo preconditions (reviewer-confirmed); they are not claims made stale by this slice.
+  - Review M1: three claims still asserted the five-tab row and would have failed on a store with MG-001. They now name the six-tab list including Financials (see Fix round 1).
   - This store cannot exercise them, so the Site-page tab claim is **unverified by layout-evidence**. Six-tab rendering and no page overflow at 1440/390 are measured by the slice tool instead.
 
 ## Known deviations
@@ -118,3 +120,18 @@ Foundation's open financial-assumptions gap line gains a sibling link to Assumpt
 - "Not calculated" as a finding's cost today;
 - the plain first sentence of Assumptions;
 - whether the Schedule plus History reads clearly at 390 px.
+
+## Fix round 1 (review M1, L1, L3, L4, L6)
+
+- **Commits:** `778875d` (code, fixture, tool claims); the packet itemization and this section follow in a docs commit.
+- **M1:** three `tools/layout-evidence.mjs` claims (Foundation views, T027 Site Overview on KOBO, T028 Performance on KOBO) now use the six-tab list with Financials; the T028 slice is `slice(0, 6)`. The attribution sentence in "Checks run" now names MG-001 absent plus two Lab/legacy-Kobo preconditions. Layout evidence was not rerun (no MG-001 store).
+- **L1:** `financial_read_api.py` builds `api_next_page` with `urlencode`. New test `test_next_page_link_survives_a_recorded_cutoff` follows the link with a recorded cutoff and gets 200.
+- **L3:** the visible Source text derives from the fixture's `source_reference`; the three steps now read "Demonstration price set by the system (...)". The internal fixture name remains only in the stored provenance shown under "Record details". No test or evidence-tool claim asserted the old text. The scratch evidence DBs were re-prepared so the digest uses the new text.
+- **L4:** the empty-state Panel heading and its sentence now say "What this finding means in money", matching the Finding page link and the other heading.
+- **L6:** the G-05 list above now uses panel keys and claim portions (`financials:3#a/#b`, `assumptions:2#a`, `financials:1` sub-items). The manifest and ledger have no finer element IDs; Scenarios, the maintenance line and the metric cards are named under their panel or screen.
+- **Not changed:** L2 (390 px tab wrap, owner judgment) and L5 (S4-02b).
+- **Checks:**
+  - Backend, scratch DB `s402a_fix_test`: `test_s4_assumption_read_postgres.py` + `test_s4_assumptions_postgres.py` + `test_s4_assumption_publication.py` **53 passed**.
+  - `npx.cmd tsc --noEmit` clean. Full `npx.cmd vitest run`: 62 files, **1465 passed**.
+  - `node tools/s402a-assumptions-evidence.mjs` on `assetops_s402a_evwalk`/`_evempty` (ports 8900/8901/5400/5401, now stopped): **69/69 PASS**.
+  - `tools/check-all.ps1`: **all 9 guards passed**.
