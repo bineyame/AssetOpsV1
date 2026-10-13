@@ -93,3 +93,10 @@ ledger row has `gap_ids`.
 - `tools/checks/test_missing_claim_scan.mjs` (10 mutation fixtures). check-all guards: "Missing-claim orphan scan",
   "Missing-claim scan fixtures" (plus phase a's "Mock-gap catalogue fixtures").
 - Next: phase d (full suites, check-all, 1440/390 evidence, review packet, owner walkthrough, records).
+
+### Phase d (closeout) - landed except layout evidence
+- Evidence tool `tools/g01-firmware-evidence.mjs` committed (`e976e08`) but NOT run: Postgres 127.0.0.1:55432 refused
+  connections (Docker Desktop unable to start). Resume: walkthrough tool `--db assetops_g01evwalk --empty-db
+  assetops_g01evempty --work-name g01-evidence prepare|serve --port 8898 --web-port 5398 --empty-port 8899
+  --empty-web-port 5399`, Vite 5398, `node tools/g01-firmware-evidence.mjs http://localhost:5398 <dir>`, then `drop`.
+- Packet, owner walkthrough, questions, CODE_STATE, ACTIVE_CONTEXT, task Status in_review written.
