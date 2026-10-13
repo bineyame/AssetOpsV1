@@ -2282,9 +2282,9 @@
       "task": "S4-03",
       "follow_on": null,
       "data_owner": "Finding / dispatch",
-      "supported_claim": "Exact accepted records and configuration behind one Finding revision.",
-      "interaction": "Open exact envelope and binding/Foundation revisions.",
-      "unknown_or_empty": "Unresolved evidence link blocks claim presentation.",
+      "supported_claim": "Exact accepted records and configuration behind one Finding revision: whole-revision by-role count of resolved cited records, source-envelope and assessment lineage; no per-input coverage or use.",
+      "interaction": "Open exact envelope and binding/Foundation revisions; History link keeps the selected revision.",
+      "unknown_or_empty": "Unresolved evidence link blocks claim presentation; unresolved cited IDs are named separately. Owner accepted conditionally 2026-10-13 (.agent/owner-S4-03-acceptance-2026-10-13.md); named gaps stay open. Remaining gaps: G-finding-evidence-coverage and G-finding-evidence-use (need their own per-input source, read and UI contract); G-04 illustrative device rows.",
       "visual_reference": "index.html#/finding-evidence",
       "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "owner approved",
@@ -2336,28 +2336,23 @@
       "gap_backfill_task": "G-04",
       "mock_route": "#/finding-history",
       "product_destination": "Findings > History",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "S4-03 (reviewed packet, `.agent/S4-03-plan-review.md`; activation gate met 2026-10-13); coverage moves from deferred at S4-03 closeout",
+      "coverage": "bounded",
+      "task": "S4-03",
+      "follow_on": null,
       "data_owner": "Unassigned Findings read model",
-      "supported_claim": "W1 target only; no delivered product claim until a reviewed selected-window read and lineage exist.",
-      "interaction": "Open Findings > History and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until FindingRevision is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Every stored FindingRevision in order with exact selection, late-append note and links to that version's Finding and Evidence; no workflow or knowledge_at replay.",
+      "interaction": "Select a version (address keeps revision_id), open it or its Evidence; reload/back keep it.",
+      "unknown_or_empty": "One version reads 'No earlier versions'; refusals and closed source in plain words. Owner accepted conditionally 2026-10-13 (.agent/owner-S4-03-acceptance-2026-10-13.md); named gaps stay open. Remaining G-04 gaps: ActionEvent row (Recommendation prepared), separate 'Delayed SOC evidence accepted' event row (shown as a per-version late note), mock Alternatives and Recommendation tabs.",
       "visual_reference": "index.html#/finding-history",
       "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "owner approved",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Multiple persisted Finding or Action revisions/events with exact selected-window lineage.",
-          "task_gate": "Owner W1 target recorded; Planner must refine S4-01 or a bounded companion slice with reviewed read, fixture and visual path before activation."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Revision history"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Remaining G-04 content: ActionEvent rows, Alternatives and Recommendation; History panel stays partial.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       },
