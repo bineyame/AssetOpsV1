@@ -13,9 +13,9 @@
  * labelled so; an unknown or foreign version is refused, never replaced.
  */
 import { useEffect, useState } from "react";
-import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Fact, FactList, Panel } from "../ui";
+import { DataTable, Fact, FactList, MissingClaim, Panel } from "../ui";
 import { durationText, minutes, qualityWords, roleWords, stamp } from "./dispatchWords";
 import type {
   EvidenceAssessment,
@@ -25,7 +25,7 @@ import type {
   FindingReadResult,
   FindingWindowBody,
 } from "./findingClient";
-import { dayOf } from "./findingWords";
+import { dayOf, LIFECYCLE_WORDS, sourceModeWords } from "./findingWords";
 
 export const FINDING_SECTIONS_LABEL = "Finding sections";
 export const EVIDENCE_PAGE_SIZE = 50;
@@ -63,10 +63,11 @@ export function FindingSections({ sections, current }: { sections: FindingSectio
 
 /**
  * Plain words for each lineage link the read names (`finding_read.BROKEN_WORDS`
- * keys). The read's own `lineage.words` is the fallback for a link name this
- * list does not know, so a new link is still named, never hidden.
+ * keys; a test holds the two key sets and wordings equal). A link name this
+ * list does not know is never shown as engineering text: it reads "A record
+ * link could not be checked" with the code only as technical detail.
  */
-const LINK_WORDS: Record<string, string> = {
+export const LINK_WORDS: Record<string, string> = {
   ACCEPTED_EVIDENCE: "no accepted record with this reference exists for this site",
   BATCH: "the delivery batch it arrived in cannot be found",
   ACCEPTANCE_DISPOSITION: "no acceptance decision for this record can be found",
@@ -83,8 +84,35 @@ const LINK_WORDS: Record<string, string> = {
 
 const WITHHELD = "No accepted record with this reference exists for this site, so no measurement, source or message is shown.";
 
-function linkWords(body: FindingEvidenceBody, link: string): string {
-  return LINK_WORDS[link] ?? body.lineage.words[link] ?? link;
+export const UNKNOWN_LINK_WORDS = "A record link could not be checked";
+
+/** One lineage link in plain words; an unknown code is named only as technical detail. */
+function LinkText({ link }: { link: string }) {
+  const known = LINK_WORDS[link];
+  if (known !== undefined) {
+    return <>{known}</>;
+  }
+  return (
+    <span data-evidence-unknown-link={link}>
+      {UNKNOWN_LINK_WORDS}{" "}
+      <span className="site-finding__note" data-evidence-technical-detail>
+        (technical detail: <code data-vocabulary-exempt="source-reference">{link}</code>)
+      </span>
+    </span>
+  );
+}
+
+function LinkList({ links }: { links: string[] }) {
+  return (
+    <>
+      {links.map((link, index) => (
+        <span key={link}>
+          {index > 0 ? "; " : ""}
+          <LinkText link={link} />
+        </span>
+      ))}
+    </>
+  );
 }
 
 export interface SiteFindingEvidenceLinks {
@@ -224,8 +252,17 @@ function Refused({
 function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFindingEvidenceLinks }) {
   const { selection } = body;
   const no = selection.revision_no;
+  const lifecycle = LIFECYCLE_WORDS[body.revision.lifecycle];
   return (
     <Panel heading={`Evidence for version ${no}`} headingId="finding-evidence-selection-heading">
+      {lifecycle === undefined || body.revision.lifecycle === "SUPPORTED" ? null : (
+        <p
+          className="site-finding__lead"
+          data-evidence-lifecycle={body.revision.lifecycle}
+        >
+          State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
+        </p>
+      )}
       {body.audit_only ? (
         <p className="site-finding__lead" data-evidence-audit-only>
           Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a record,
@@ -246,6 +283,13 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
         </p>
       ) : (
         <p data-evidence-pinned-latest>Version {no}, the latest recorded version, opened by its exact reference.</p>
+      )}
+      {lifecycle === undefined || body.revision.lifecycle !== "SUPPORTED" ? null : (
+        <p
+          data-evidence-lifecycle={body.revision.lifecycle}
+        >
+          State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
+        </p>
       )}
       <p>
         <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
@@ -280,7 +324,7 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
         <ul data-evidence-set-breaks>
           {lineage.set_breaks.map((b, index) => (
             <li key={index} data-evidence-set-break={b.link}>
-              {LINK_WORDS[b.link] ?? lineage.words[b.link] ?? b.detail}
+              <LinkText link={b.link} />
               {b.assessment_revision_id ? ` (assessment ${b.assessment_revision_id.slice(0, 8)})` : ""}
             </li>
           ))}
@@ -299,7 +343,7 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
             {lineage.broken_records.map((r) => (
               <li key={r.evidence_id} data-evidence-broken-record={r.evidence_id}>
                 <code data-vocabulary-exempt="source-reference">{r.evidence_id.slice(0, 8)}</code>:{" "}
-                {r.links.map((link) => linkWords(body, link)).join("; ")}
+                <LinkList links={r.links} />
               </li>
             ))}
           </ul>
@@ -309,9 +353,9 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
   );
 }
 
-/** The gateway's registered source mode, shown as its exact recorded value. */
+/** Where the data came from, in plain words; the recorded mode stays in `data-source-mode`. */
 function Mode({ value }: { value: string | null | undefined }) {
-  return value ? <code data-vocabulary-exempt="source-reference">{value}</code> : <>–</>;
+  return value ? <span data-source-mode={value}>{sourceModeWords(value)}</span> : <>–</>;
 }
 
 /** Cited versus input, and where the cited records came from. */
@@ -328,9 +372,12 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
       <FactList>
         <Fact term="Cited records">{counts.cited_total}</Fact>
         <Fact term="Records the analysis read">{counts.input_distinct_total}</Fact>
-        <Fact term="Possibly avoidable time">{durationText(minutes(body.revision.minutes.candidate) ?? 0)}</Fact>
+        <Fact term="Possibly avoidable time">
+          {minutes(body.revision.minutes.candidate) === null ? "–" : durationText(minutes(body.revision.minutes.candidate) ?? 0)}
+        </Fact>
         <Fact term="Model">{body.revision.model_version}</Fact>
       </FactList>
+      <InputsByMeasurement body={body} />
       <h3 className="site-finding__subheading" id="finding-evidence-sources">
         Where the cited records came from
       </h3>
@@ -340,7 +387,7 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
             <th scope="col">Gateway</th>
             <th scope="col">Source</th>
             <th scope="col">Sequence epoch</th>
-            <th scope="col">Registered source mode</th>
+            <th scope="col">Kind of data</th>
             <th scope="col">Records</th>
           </tr>
         </thead>
@@ -378,6 +425,84 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
         </aside>
       ) : null}
     </Panel>
+  );
+}
+
+/**
+ * The mock's Input / Source / Coverage / Use summary. Input and Source are
+ * counted from the real records on this page only (their role and source);
+ * Coverage and Use have no source, so each is a catalogued missing claim.
+ */
+function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
+  const groups = new Map<string, { role: string; count: number; sources: Set<string> }>();
+  let unresolved = 0;
+  for (const r of body.records) {
+    if (!r.resolved || !r.role) {
+      unresolved += 1;
+      continue;
+    }
+    const g = groups.get(r.role) ?? { role: r.role, count: 0, sources: new Set<string>() };
+    g.count += 1;
+    if (r.source?.source_id) {
+      g.sources.add(r.source.source_id.slice(0, 8));
+    }
+    groups.set(r.role, g);
+  }
+  const { page } = body;
+  return (
+    <>
+      <h3 className="site-finding__subheading" id="finding-evidence-inputs">
+        Inputs on this page, by measurement
+      </h3>
+      <p className="site-finding__note" data-evidence-inputs-scope>
+        Counted from the {page.returned} cited records on this page (records {page.returned === 0 ? 0 : page.offset + 1}–
+        {page.offset + page.returned} of {page.total}); other pages are counted when opened.
+        {unresolved > 0 ? ` ${unresolved} on this page do not resolve to a record and are not counted.` : ""}
+      </p>
+      {groups.size === 0 ? null : (
+        <DataTable labelledBy="finding-evidence-inputs">
+          <thead>
+            <tr>
+              <th scope="col">Input</th>
+              <th scope="col">Source</th>
+              <th scope="col">Records</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...groups.values()].map((g) => (
+              <tr key={g.role} data-evidence-input-role={g.role}>
+                <td>{roleWords(g.role)}</td>
+                <td>
+                  {[...g.sources].map((id, index) => (
+                    <span key={id}>
+                      {index > 0 ? ", " : ""}
+                      <code data-vocabulary-exempt="source-reference">{id}</code>
+                    </span>
+                  ))}
+                </td>
+                <td>{g.count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      )}
+      <MissingClaim
+        as="p"
+        gapId="G-finding-evidence-coverage"
+        placement="finding-evidence.bundle.coverage"
+        className="site-finding__note"
+      >
+        How completely each input was reported over the assessed period is not available yet.
+      </MissingClaim>
+      <MissingClaim
+        as="p"
+        gapId="G-finding-evidence-use"
+        placement="finding-evidence.bundle.use"
+        className="site-finding__note"
+      >
+        What each input was used for in the analysis is not available yet.
+      </MissingClaim>
+    </>
   );
 }
 
@@ -425,7 +550,9 @@ function AssessmentRow({ a, body, links }: { a: EvidenceAssessment; body: Findin
       <td>{a.model_version}</td>
       <td>
         {a.basis === null ? (
-          <span data-evidence-basis-broken>{linkWords(body, "ANALYTIC_RUN")}</span>
+          <span data-evidence-basis-broken>
+            <LinkText link="ANALYTIC_RUN" />
+          </span>
         ) : (
           <>
             Foundation{" "}
@@ -516,7 +643,11 @@ function Records({
                   </td>
                   <td>
                     <code data-vocabulary-exempt="source-reference">{(r.envelope?.sha256 ?? "").slice(0, 10)}</code>
-                    {r.envelope?.digest_verified ? "" : " (does not match)"}
+                    {r.envelope?.digest_verified
+                      ? ""
+                      : r.broken_links.includes("ENVELOPE")
+                        ? " (stored message missing)"
+                        : " (does not match)"}
                   </td>
                 </>
               ) : (
@@ -527,7 +658,7 @@ function Records({
               <td>
                 {r.lineage_status === "RESOLVED"
                   ? "Complete"
-                  : r.broken_links.map((link) => linkWords(body, link)).join("; ")}
+                  : <LinkList links={r.broken_links} />}
               </td>
               <td>
                 <Link to={search({ record: r.evidence_id })} data-evidence-select={r.evidence_id}>
@@ -586,7 +717,7 @@ function RecordLineage({
     );
   }
   const inspector = body.links.records[r.evidence_id] === undefined ? null : links.record(r.evidence_id);
-  const words = (link: string) => linkWords(body, link);
+  const words = (link: string) => <LinkText link={link} />;
   return (
     <Panel heading="Selected record" headingId="finding-evidence-record-heading">
       <div data-evidence-record={r.evidence_id} data-evidence-record-lineage={r.lineage_status}>
@@ -617,7 +748,7 @@ function RecordLineage({
               <Fact term="Accepted (UTC)">{r.accepted_at ? stamp(r.accepted_at) : words("ACCEPTANCE_DISPOSITION")}</Fact>
               <Fact term="Source">
                 gateway <code data-vocabulary-exempt="source-reference">{r.source?.gateway_id ?? "–"}</code>, epoch{" "}
-                {r.source?.sequence_epoch ?? "–"}, sequence {String(r.source?.sequence ?? "–")}, registered mode{" "}
+                {r.source?.sequence_epoch ?? "–"}, sequence {String(r.source?.sequence ?? "–")},{" "}
                 <Mode value={r.source?.source_mode} />
               </Fact>
               <Fact term="Delivery batch">
@@ -647,7 +778,7 @@ function RecordLineage({
                 {r.accepted_as?.binding_set_resolved
                   ? `device links version ${String(r.accepted_as.binding_set_version)}`
                   : words("BINDING_SET_REVISION")}
-                {r.accepted_as?.binding_resolved ? "" : `; ${words("BINDING_REVISION")}`}
+                {r.accepted_as?.binding_resolved ? null : <>; {words("BINDING_REVISION")}</>}
                 {r.accepted_as?.configuration_outdated ? "; the site setup has changed since" : ""}
               </Fact>
               <Fact term="Used by">
@@ -683,10 +814,39 @@ function RecordLineage({
 /**
  * S4-03: the older assessment-keyed Finding page's Evidence tab
  * (`/findings/{site}/{assessment}/evidence`) is not a second Evidence source.
- * It reads the saved Findings recorded for the assessed period's day and opens
- * the Evidence view of that Finding: directly when there is exactly one, as a
- * choice when there are several, and as a plain state when there is none.
+ * It lists, as plain links, the saved Findings whose episode overlaps the
+ * assessed window (every UTC day the window touches is read). This is a
+ * day-level navigation aid: no link says the old assessment created or cites
+ * that Finding, and nothing is opened automatically, even for one result.
  */
+const DAY_MS = 86_400_000;
+
+/** Every UTC day (YYYY-MM-DD) a window touches; the end instant itself is excluded. */
+export function daysTouched(start: string, end: string): string[] {
+  const s = Date.parse(start);
+  const e = Date.parse(end);
+  if (!Number.isFinite(s) || !Number.isFinite(e) || e < s) {
+    return [dayOf(start)];
+  }
+  const days: string[] = [];
+  let cursor = Math.floor(s / DAY_MS) * DAY_MS;
+  const last = e > s ? e - 1 : s;
+  while (cursor <= last) {
+    days.push(new Date(cursor).toISOString().slice(0, 10));
+    cursor += DAY_MS;
+  }
+  return days;
+}
+
+/** Strict overlap: a Finding that only touches the window's start or end does not count. */
+function overlapsWindow(f: { episode_start: string; episode_end: string }, window: { start: string; end: string }): boolean {
+  const fs = Date.parse(f.episode_start);
+  const fe = Date.parse(f.episode_end);
+  const ws = Date.parse(window.start);
+  const we = Date.parse(window.end);
+  return fs < we && ws < fe;
+}
+
 export function LegacyFindingEvidence({
   siteId,
   assessedWindow,
@@ -700,51 +860,66 @@ export function LegacyFindingEvidence({
   durableEvidenceHref: (findingId: string) => string;
   recordsHref: string;
 }) {
-  const day = dayOf(assessedWindow.start);
-  const [read, setRead] = useState<FindingReadResult<FindingWindowBody> | null>(null);
+  const startKey = assessedWindow.start;
+  const endKey = assessedWindow.end;
+  const days = daysTouched(startKey, endKey);
+  const dayKey = days.join(",");
+  const [reads, setReads] = useState<FindingReadResult<FindingWindowBody>[] | null>(null);
   useEffect(() => {
     let active = true;
-    setRead(null);
-    void findings.getFindingWindow(siteId, day).then((loaded) => {
+    setReads(null);
+    void Promise.all(dayKey.split(",").map((d) => findings.getFindingWindow(siteId, d))).then((loaded) => {
       if (active) {
-        setRead(loaded);
+        setReads(loaded);
       }
     });
     return () => {
       active = false;
     };
-  }, [findings, siteId, day]);
+  }, [findings, siteId, dayKey]);
 
-  if (read === null) {
-    return <p>Loading the Finding&apos;s evidence.</p>;
+  if (reads === null) {
+    return <p>Loading the Findings recorded for this period.</p>;
   }
-  const ids =
-    read.status === "loaded"
-      ? read.value.findings.map((f) => String(f.finding_id ?? f.id ?? "")).filter((id) => id !== "")
-      : [];
-  if (ids.length === 1) {
-    return <Navigate replace to={durableEvidenceHref(ids[0])} />;
+  const failed = reads.some((r) => r.status !== "loaded");
+  const ids: string[] = [];
+  for (const r of reads) {
+    if (r.status !== "loaded") {
+      continue;
+    }
+    for (const f of r.value.findings) {
+      const id = String(f.finding_id ?? f.id ?? "");
+      if (id !== "" && !ids.includes(id) && overlapsWindow(f, { start: startKey, end: endKey })) {
+        ids.push(id);
+      }
+    }
   }
+  const label = days.length === 1 ? days[0] : `${days[0]} to ${days[days.length - 1]}`;
   return (
-    <Panel heading="Evidence for this Finding" headingId="legacy-finding-evidence-heading">
-      {read.status !== "loaded" ? (
-        <p data-legacy-evidence={read.status}>
-          The saved Finding for this period could not be read, so its evidence is not shown here. The period&apos;s
+    <Panel heading="Findings recorded for this day" headingId="legacy-finding-evidence-heading">
+      {failed && ids.length === 0 ? (
+        <p data-legacy-evidence="unavailable">
+          The saved Findings for this period could not be read, so no Finding evidence is offered here. The period&apos;s
           accepted records are on <Link to={recordsHref}>the site&apos;s records page</Link>.
         </p>
       ) : ids.length === 0 ? (
         <p data-legacy-evidence="none">
-          No saved Finding is recorded for {day}, so there is no Finding evidence to open. The period&apos;s accepted
-          records are on <Link to={recordsHref}>the site&apos;s records page</Link>.
+          No saved Finding overlaps this assessed period ({label}), so there is no Finding evidence to open. The period&apos;s
+          accepted records are on <Link to={recordsHref}>the site&apos;s records page</Link>.
         </p>
       ) : (
         <>
-          <p data-legacy-evidence="several">{ids.length} saved Findings are recorded for {day}. Open one&apos;s evidence:</p>
+          <p data-legacy-evidence="candidates">
+            {ids.length === 1 ? "One saved Finding overlaps" : `${ids.length} saved Findings overlap`} this assessed period
+            ({label}). This list only helps you find a Finding by its day: it does not say this assessment created or cites
+            it. Open one to see its own evidence:
+          </p>
+          {failed ? <p data-legacy-evidence="partial">Some days could not be read, so this list may be incomplete.</p> : null}
           <ul>
             {ids.map((id) => (
               <li key={id}>
                 <Link to={durableEvidenceHref(id)} data-legacy-evidence-link={id}>
-                  Finding <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code>
+                  Finding <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code> (recorded for the same day)
                 </Link>
               </li>
             ))}

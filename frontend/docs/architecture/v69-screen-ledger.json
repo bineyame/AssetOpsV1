@@ -2271,6 +2271,10 @@
     },
     {
       "id": "finding-evidence",
+      "gap_ids": [
+        "G-finding-evidence-coverage",
+        "G-finding-evidence-use"
+      ],
       "gap_backfill_task": "G-04",
       "mock_route": "#/finding-evidence",
       "product_destination": "Findings > Evidence",

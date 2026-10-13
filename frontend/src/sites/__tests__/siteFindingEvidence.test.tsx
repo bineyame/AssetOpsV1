@@ -266,7 +266,9 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
       "href",
       `/sites/${SITE}/performance/dispatch?day=2026-10-09&revision=${IA}`,
     );
-    expect(q("[data-evidence-source='s4-gateway-epoch-1']")).toHaveTextContent("SIMULATED");
+    expect(q("[data-evidence-source='s4-gateway-epoch-1']")).toHaveTextContent("Demonstration data");
+    expect(q("[data-evidence-source='s4-gateway-epoch-1']")).not.toHaveTextContent("SIMULATED");
+    expect(q("[data-source-mode='SIMULATED']")).not.toBeNull();
     const { violations, scanned } = scanProductVocabulary(container, "finding evidence");
     expect(scanned).toBeGreaterThan(0);
     expect(violations, describeViolations(violations)).toEqual([]);
@@ -350,7 +352,7 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
       resolved: false,
       lineage_status: "BROKEN",
       broken_links: ["ACCEPTED_EVIDENCE"],
-      withheld: "the cited ID has no accepted evidence row in this Site; no role, value, source or envelope is shown",
+      withheld: "no accepted record with this reference exists for this site, so no measurement, source or message is shown",
     });
     const tampered = record(2, { lineage_status: "BROKEN", broken_links: ["ENVELOPE_DIGEST"], envelope: { sha256: "ff", digest_verified: false } });
     const records = [record(1), tampered, missing];
@@ -382,6 +384,79 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
     const { violations } = scanProductVocabulary(document.body, "finding evidence broken");
     expect(violations, describeViolations(violations)).toEqual([]);
     expect(q("[data-evidence-inspector-withheld]")).not.toBeNull();
+  });
+
+  it("leads with the version's recorded state in plain words, for merged and not-confirmed versions", async () => {
+    const base = body();
+    for (const [lifecycle, words] of [
+      ["MERGED", "joined into an earlier Finding"],
+      ["UNCONFIRMED", "cannot confirm the earlier result"],
+      ["NO_LONGER_SUPPORTED", "finds no possibly avoidable time"],
+    ] as const) {
+      const value = body({ revision: { ...base.revision, lifecycle } });
+      const { unmount } = await mount(fake({ status: "loaded", value }));
+      const lead = q("[data-evidence-lifecycle]") as HTMLElement;
+      expect(lead).toHaveAttribute("data-evidence-lifecycle", lifecycle);
+      expect(lead).toHaveTextContent(words);
+      const panel = lead.parentElement as HTMLElement;
+      expect(panel.firstElementChild).toBe(lead);
+      unmount();
+    }
+  });
+
+  it("shows an unreadable avoidable-time value as a dash, not as zero minutes", async () => {
+    const base = body();
+    const value = body({ revision: { ...base.revision, minutes: { candidate: "not-a-number", necessary: "0", indeterminate: "0" } } });
+    await mount(fake({ status: "loaded", value }));
+    const fact = Array.from(document.querySelectorAll("dt")).find((d) => d.textContent === "Possibly avoidable time");
+    expect(fact?.nextElementSibling).toHaveTextContent("–");
+    expect(fact?.nextElementSibling).not.toHaveTextContent("0 min");
+  });
+
+  it("says a stored message is missing, not that it does not match", async () => {
+    const gone = record(2, { lineage_status: "BROKEN", broken_links: ["ENVELOPE"], envelope: { sha256: "ab12cd34ef56", digest_verified: false } });
+    const value = body({}, [record(1), gone]);
+    await mount(fake({ status: "loaded", value }));
+    const row = q(`tr[data-evidence-id='${gone.evidence_id}']`) as HTMLElement;
+    expect(row).toHaveTextContent("stored message missing");
+    expect(row).not.toHaveTextContent("(does not match)");
+  });
+
+  it("summarises inputs by measurement from the page's records and states coverage and use as missing", async () => {
+    const { container } = await mount(fake({ status: "loaded", value: body() }));
+    expect(document.querySelectorAll("tr[data-evidence-input-role]").length).toBeGreaterThan(0);
+    expect(q("[data-evidence-inputs-scope]")).toHaveTextContent("on this page");
+    const coverage = q("[data-gap-id='G-finding-evidence-coverage']") as HTMLElement;
+    const use = q("[data-gap-id='G-finding-evidence-use']") as HTMLElement;
+    expect(coverage).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.coverage");
+    expect(use).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.use");
+    expect(coverage).toHaveTextContent("not available yet");
+    expect(coverage.textContent).not.toContain("G-finding");
+    const { violations } = scanProductVocabulary(container, "finding evidence inputs");
+    expect(violations, describeViolations(violations)).toEqual([]);
+  });
+
+  it("never shows engineering text for an unknown link code and keeps the positive claim withheld", async () => {
+    const odd = record(2, { lineage_status: "BROKEN", broken_links: ["NEW_UNREVIEWED_LINK"] });
+    const base = body();
+    const value = body(
+      {
+        lineage: {
+          ...base.lineage,
+          status: "BROKEN",
+          words: { NEW_UNREVIEWED_LINK: "the envelope binding mapping cited_evidence_sha256 failed" },
+          set_breaks: [{ link: "ANOTHER_NEW_LINK", detail: "raw backend envelope text" }],
+          broken_records: [{ evidence_id: odd.evidence_id, links: ["NEW_UNREVIEWED_LINK"] }],
+        },
+      },
+      [record(1), odd],
+    );
+    await mount(fake({ status: "loaded", value }), `?record=${odd.evidence_id}`);
+    expect(q("[data-evidence-lineage-complete]")).toBeNull();
+    expect(document.body.textContent).toContain("A record link could not be checked");
+    expect(document.body.textContent).not.toMatch(/envelope|binding|mapping|cited_evidence_sha256/i);
+    expect(q("[data-evidence-unknown-link='NEW_UNREVIEWED_LINK'] [data-evidence-technical-detail]")).toHaveTextContent("NEW_UNREVIEWED_LINK");
+    expect(q("[data-evidence-set-break='ANOTHER_NEW_LINK']")).toHaveTextContent("A record link could not be checked");
   });
 
   it("does not show another record in place of one that is not on the page", async () => {
@@ -482,7 +557,10 @@ describe("Old assessment-keyed Evidence tab (S4-03 phase 2)", () => {
     })),
   });
 
-  async function legacy(client: FindingClient) {
+  async function legacy(
+    client: FindingClient,
+    window: { start: string; end: string } = { start: "2026-10-09T10:00:00+00:00", end: "2026-10-09T11:00:00+00:00" },
+  ) {
     render(
       <MemoryRouter initialEntries={[`/findings/${SITE}/assessment-1/evidence`]}>
         <Routes>
@@ -491,7 +569,7 @@ describe("Old assessment-keyed Evidence tab (S4-03 phase 2)", () => {
             element={
               <LegacyFindingEvidence
                 siteId={SITE}
-                assessedWindow={{ start: "2026-10-09T10:00:00+00:00", end: "2026-10-09T11:00:00+00:00" }}
+                assessedWindow={window}
                 findings={client}
                 durableEvidenceHref={(id) => `/sites/${SITE}/findings/${id}/evidence`}
                 recordsHref={`/sites/${SITE}/evidence`}
@@ -505,23 +583,100 @@ describe("Old assessment-keyed Evidence tab (S4-03 phase 2)", () => {
     await settledScreen();
   }
 
-  it("opens the one saved Finding's Evidence view, the same read", async () => {
+  it("shows a single day-level candidate as a labelled link and never redirects", async () => {
     const client = windowClient({ status: "loaded", value: windowBody([F]) });
     await legacy(client);
     expect(client.days).toEqual(["2026-10-09"]);
-    // The redirect renders after the read settles; wait for the destination, not the loading screen.
-    expect((await screen.findByTestId("where")).textContent).toBe(`/sites/${SITE}/findings/${F}/evidence`);
+    expect(screen.getByRole("heading", { name: "Findings recorded for this day" })).toBeInTheDocument();
+    expect(q("[data-legacy-evidence='candidates']")).toHaveTextContent("does not say this assessment created or cites it");
+    const link = q(`[data-legacy-evidence-link='${F}']`);
+    expect(link).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence`);
+    expect(link).not.toHaveTextContent("Evidence for this Finding");
+    // Still on the legacy route: nothing navigated.
+    expect(screen.queryByTestId("where")).toBeNull();
   });
 
-  it("offers a choice when several Findings are recorded, and a plain state when none or unreadable", async () => {
+  it("lists several overlapping Findings as links", async () => {
     await legacy(windowClient({ status: "loaded", value: windowBody([F, "other-finding"]) }));
-    expect(q("[data-legacy-evidence='several']")).not.toBeNull();
-    expect(q(`[data-legacy-evidence-link='${F}']`)).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence`);
+    expect(q("[data-legacy-evidence='candidates']")).toHaveTextContent("2 saved Findings overlap");
+    expect(document.querySelectorAll("[data-legacy-evidence-link]")).toHaveLength(2);
+  });
+
+  it("excludes an unrelated same-day Finding and one that only touches the window start", async () => {
+    const mk = (id: string, start: string, end: string) => ({
+      finding_id: id,
+      lifecycle: "SUPPORTED" as const,
+      episode_start: start,
+      episode_end: end,
+      cites_current_window_selection: false,
+    });
+    const value: FindingWindowBody = {
+      ...windowBody([]),
+      findings: [
+        mk("unrelated", "2026-10-09T14:00:00+00:00", "2026-10-09T15:00:00+00:00"),
+        mk("touches-start", "2026-10-09T09:00:00+00:00", "2026-10-09T10:00:00+00:00"),
+        mk("touches-end", "2026-10-09T11:00:00+00:00", "2026-10-09T12:00:00+00:00"),
+        mk("overlaps", "2026-10-09T10:30:00+00:00", "2026-10-09T12:00:00+00:00"),
+      ],
+    };
+    await legacy(windowClient({ status: "loaded", value }));
+    expect(Array.from(document.querySelectorAll("[data-legacy-evidence-link]")).map((e) => e.getAttribute("data-legacy-evidence-link"))).toEqual([
+      "overlaps",
+    ]);
+  });
+
+  it("excludes a Finding that ends exactly at 00:00 of the window's day", async () => {
+    const value: FindingWindowBody = {
+      ...windowBody([]),
+      findings: [
+        {
+          finding_id: "yesterday",
+          lifecycle: "SUPPORTED",
+          episode_start: "2026-10-08T22:00:00+00:00",
+          episode_end: "2026-10-09T00:00:00+00:00",
+          cites_current_window_selection: false,
+        },
+      ],
+    };
+    await legacy(windowClient({ status: "loaded", value }), { start: "2026-10-09T00:00:00+00:00", end: "2026-10-09T01:00:00+00:00" });
+    expect(q("[data-legacy-evidence='none']")).not.toBeNull();
+    expect(q("[data-legacy-evidence-link]")).toBeNull();
+  });
+
+  it("reads every UTC day a window crossing midnight touches", async () => {
+    const byDay: Record<string, string> = { "2026-10-09": "day-one", "2026-10-10": "day-two" };
+    const days: string[] = [];
+    const client: FindingClient = {
+      getFinding: async () => ({ status: "not_found", message: null }),
+      getFindingEvidence: async () => ({ status: "not_found", message: null }),
+      getFindingWindow: async (_s, day) => {
+        days.push(day);
+        return {
+          status: "loaded",
+          value: {
+            ...windowBody([]),
+            day,
+            findings: [
+              {
+                finding_id: byDay[day],
+                lifecycle: "SUPPORTED",
+                episode_start: day === "2026-10-09" ? "2026-10-09T23:30:00+00:00" : "2026-10-10T00:00:00+00:00",
+                episode_end: day === "2026-10-09" ? "2026-10-10T00:00:00+00:00" : "2026-10-10T00:20:00+00:00",
+                cites_current_window_selection: false,
+              },
+            ],
+          },
+        };
+      },
+    };
+    await legacy(client, { start: "2026-10-09T23:00:00+00:00", end: "2026-10-10T01:00:00+00:00" });
+    expect(days.sort()).toEqual(["2026-10-09", "2026-10-10"]);
+    expect(document.querySelectorAll("[data-legacy-evidence-link]")).toHaveLength(2);
   });
 
   it("states that no saved Finding is recorded for the period", async () => {
     await legacy(windowClient({ status: "loaded", value: windowBody([]) }));
-    expect(q("[data-legacy-evidence='none']")).toHaveTextContent("No saved Finding is recorded for 2026-10-09");
+    expect(q("[data-legacy-evidence='none']")).toHaveTextContent("No saved Finding overlaps this assessed period (2026-10-09)");
   });
 
   it("states an unreadable Finding read without showing a second evidence list", async () => {
