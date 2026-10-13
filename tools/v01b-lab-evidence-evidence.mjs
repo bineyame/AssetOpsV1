@@ -199,7 +199,7 @@ const E_TITLES = ["What we can conclude now", "Data sources · data quality, not
 const EA_TITLES = ["Accepted records behind the conclusions", "How each limit is set"];
 const LAB_TITLES = ["Selected canonical envelope", "Truth versus observed", "Release and ingestion", "What never crosses"];
 const NOTHING_RECEIVED = "Nothing from this run has been received centrally.";
-const STAGE_LABEL = "This is the gateway's local Stage statement. Central receipt is shown under Release and ingestion.";
+const STAGE_NEUTRAL = "does not establish upload or central receipt state";
 const GATEWAY_UNAVAILABLE = "The gateway contact record could not be read, so whether the gateway is in touch is not known.";
 const NO_SITE =
   "No site with that site ID is configured, so there is no evidence to read. This is a statement that the site does not exist, not a site with no evidence.";
@@ -382,8 +382,10 @@ async function labRun(label, released) {
   await topShot(`app-lab-run-top-${label}`);
 
   await js(`document.querySelector('details[data-disclosure="stage"] > summary')?.click()`);
-  const staged = await waitFor(`document.querySelector('details[data-disclosure="stage"]')?.innerText.includes(${JSON.stringify(STAGE_LABEL)})`, 20000);
-  claim(`${label}: the Stage disclosure, opened, carries the Q1 label`, staged);
+  const staged = await waitFor(`document.querySelector('details[data-disclosure="stage"] [data-gateway-delivery-neutral]')?.innerText.includes(${JSON.stringify(STAGE_NEUTRAL)})`, 20000);
+  claim(`${label}: the Stage disclosure, opened, carries the neutral upload/receipt row (Q1)`, staged);
+  const noUpload = await js(`!document.querySelector('details[data-disclosure="stage"] [data-gateway-upload], details[data-disclosure="stage"] [data-gateway-receipts]')`);
+  claim(`${label}: the Stage disclosure shows no upload or receipts field`, noUpload === true);
   await openAllAdvanced();
   await sleep(1500);
   const adv = await js(ADVANCED);

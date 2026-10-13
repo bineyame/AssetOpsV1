@@ -18,7 +18,7 @@ import "./runIngestion.css";
  * Built only from the reads the run page already makes - the persisted run,
  * the execution projection, the Stage and the Commit read - and nothing else.
  * Delivery and central receipt come from the Commit read alone (V-01b Q1: the
- * Stage's own upload line is the gateway's local statement). A read that is
+ * Stage's constant upload fields are not shown). A read that is
  * loading or absent is said so in its box or panel; a fact these reads do not
  * carry is a visible "Not available yet" statement, never a mock value.
  */
