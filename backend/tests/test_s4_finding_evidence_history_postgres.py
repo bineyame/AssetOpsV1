@@ -269,6 +269,11 @@ class TestFindingEvidenceAndHistory:
         assert broken == {gone: ["ACCEPTED_EVIDENCE"], tampered: ["ENVELOPE_DIGEST"]}
         row = {x["evidence_id"]: x for x in after}
         assert row[gone]["resolved"] is False and "role" not in row[gone] and "withheld" in row[gone]
+        # Q2: product-safe human words served with the stable codes (no engineering vocabulary).
+        assert body["lineage"]["words"]["ENVELOPE_DIGEST"] == "the stored original message does not match its saved fingerprint"
+        assert row[gone]["withheld"] == ("no accepted record with this reference exists for this site, "
+                                         "so no measurement, source or message is shown")
+        assert not any(w in row[gone]["withheld"].lower() for w in ("envelope", "binding", "mapping"))
         assert row[tampered]["envelope"]["digest_verified"] is False and row[tampered]["lineage_status"] == "BROKEN"
         assert gone not in body["links"]["records"] and tampered in body["links"]["records"]
         history = _get(client, f"/api/sites/{SITE}/findings/{f['id']}/history")

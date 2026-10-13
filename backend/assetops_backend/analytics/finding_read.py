@@ -59,23 +59,23 @@ PAGE_LIMIT = 500
 MEMBERSHIP = ("Membership is the selected revision's cited accepted evidence (finding_revision_evidence): the "
               "records its supported candidate segments cite. The input set of the analytic runs it cites is the "
               "full analytic input and is counted separately; it is not this bundle.")
-LINEAGE_STATEMENT = ("Every cited ID is checked through its accepted row, batch, acceptance disposition, stored "
-                     "envelope digest, accepted-as Foundation/binding revisions, citing assessment and run input "
-                     "set. A link that does not resolve is named and its positive lineage claim is withheld; a "
-                     "cited ID is never dropped or counted as zero evidence.")
+LINEAGE_STATEMENT = ("Every cited record is checked through its accepted record, delivery batch, acceptance decision, "
+                     "stored original message, the site setup and device links it was accepted under, the assessment "
+                     "that cites it and the analysis that read it. A link that does not resolve is named and its "
+                     "positive claim is withheld; a cited record is never dropped or counted as zero evidence.")
 BROKEN_WORDS = {
-    "ACCEPTED_EVIDENCE": "the cited ID has no accepted evidence row in this Site",
-    "BATCH": "the accepted row's ingestion batch does not resolve",
-    "ACCEPTANCE_DISPOSITION": "no ACCEPTED disposition for this record resolves at its batch ordinal",
-    "ENVELOPE": "the stored envelope text is missing",
-    "ENVELOPE_DIGEST": "the stored envelope text does not hash to the recorded envelope digest",
-    "FOUNDATION_REVISION": "the accepted-as Foundation revision does not resolve",
-    "BINDING_SET_REVISION": "the accepted-as binding set revision does not resolve",
-    "BINDING_REVISION": "the accepted-as binding revision does not resolve",
-    "ASSESSMENT_CITATION": "no assessment revision cited by this Finding revision lists this record",
-    "RUN_INPUT": "this record is not in the input set of any analytic run this Finding revision cites",
-    "ANALYTIC_RUN": "a cited assessment's analytic run does not resolve",
-    "CITED_SET_DIGEST": "the cited set does not hash to the revision's recorded cited_evidence_sha256",
+    "ACCEPTED_EVIDENCE": "no accepted record with this reference exists for this site",
+    "BATCH": "the delivery batch it arrived in cannot be found",
+    "ACCEPTANCE_DISPOSITION": "no acceptance decision for this record can be found",
+    "ENVELOPE": "the stored original message is missing",
+    "ENVELOPE_DIGEST": "the stored original message does not match its saved fingerprint",
+    "FOUNDATION_REVISION": "the site setup version it was accepted under cannot be found",
+    "BINDING_SET_REVISION": "the device links version it was accepted under cannot be found",
+    "BINDING_REVISION": "the device link it was accepted under cannot be found",
+    "ASSESSMENT_CITATION": "no assessment behind this version lists this record",
+    "RUN_INPUT": "this record is not among the records the analysis read",
+    "ANALYTIC_RUN": "the analysis behind an assessment cannot be found",
+    "CITED_SET_DIGEST": "the cited records do not match the fingerprint saved with this version",
 }
 TIME_KINDS = {
     "source_time": "when the device reported the reading (cited records' first/last source time)",
@@ -146,7 +146,7 @@ def _record(r: dict[str, Any], breaks: list[str]) -> dict[str, Any]:
     status = "BROKEN" if breaks else "RESOLVED"
     if "ACCEPTED_EVIDENCE" in breaks:
         return {"evidence_id": eid, "resolved": False, "lineage_status": status, "broken_links": breaks,
-                "withheld": BROKEN_WORDS["ACCEPTED_EVIDENCE"] + "; no role, value, source or envelope is shown"}
+                "withheld": BROKEN_WORDS["ACCEPTED_EVIDENCE"] + ", so no measurement, source or message is shown"}
     return {
         "evidence_id": eid, "resolved": True, "lineage_status": status, "broken_links": breaks,
         "role": r["role"], "value": r["value"], "unit": r["unit"], "quality": r["quality"],

@@ -62,6 +62,7 @@ PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 GATE_DIR = Path("var") / "evidence" / "migration-performance"
 # Set by configure(); module-level so every subcommand reads one place.
 WORK = DEFAULT_WORK
+WORK_MARKER = ".s4-walkthrough-work"  # written by `prepare`; `drop` deletes only a folder that has it
 DB = DEFAULT_DB
 MANIFEST = WORK / "s4-finding-cases-manifest.json"
 RUN = WORK / "s4-finding-cases-run.json"
@@ -164,6 +165,7 @@ def prepare() -> None:
     if tree.exists():
         shutil.rmtree(tree)
     tree.mkdir(parents=True)
+    (WORK / WORK_MARKER).write_text("created by tools/s4_finding_walkthrough.py prepare\n", encoding="utf-8")
     archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", "backend", "gateway", "host", "simulator",
                               "contracts", "config", "contract-fixtures"], cwd=REPO, capture_output=True,
                              check=True).stdout
@@ -271,9 +273,11 @@ def drop(include_default: bool) -> None:
     with psycopg.connect(f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops", autocommit=True) as c:
         c.execute(f"DROP DATABASE IF EXISTS {DB} WITH (FORCE)")
     say(f"Dropped database {DB}")
-    if WORK != DEFAULT_WORK.resolve() and WORK.exists():
+    if WORK != DEFAULT_WORK.resolve() and WORK.exists() and (WORK / WORK_MARKER).is_file():
         shutil.rmtree(WORK)
         say(f"Removed work folder {WORK}")
+    elif WORK != DEFAULT_WORK.resolve() and WORK.exists():
+        say(f"Kept work folder {WORK}: it has no {WORK_MARKER} marker, so `prepare` did not create it")
     else:
         say(f"Kept work folder {WORK}")
 

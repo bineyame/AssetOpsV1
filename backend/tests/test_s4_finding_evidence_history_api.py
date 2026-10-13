@@ -14,6 +14,9 @@ from uuid import UUID, uuid4
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+import re
+
+from assetops_backend.analytics import finding_read
 from assetops_backend.analytics.finding_read import FindingReadService
 from assetops_backend.finding_api import build_finding_router
 
@@ -139,3 +142,16 @@ def test_no_store_configured_is_503() -> None:
     app.include_router(build_finding_router(None, SCOPE.get))
     for child in ("evidence", "history"):
         assert TestClient(app).get(f"{BASE}/{child}").status_code == 503
+
+
+BANNED = re.compile(r"envelope|binding|mapping|cited_evidence|sha256|digest|foundation|[a-z]+_[a-z]+", re.IGNORECASE)
+
+
+def test_broken_lineage_words_are_product_safe_at_source() -> None:
+    """Q2: the human-facing words carry no engineering vocabulary; codes stay machine-readable."""
+    assert set(finding_read.BROKEN_WORDS) == {
+        "ACCEPTED_EVIDENCE", "BATCH", "ACCEPTANCE_DISPOSITION", "ENVELOPE", "ENVELOPE_DIGEST", "FOUNDATION_REVISION",
+        "BINDING_SET_REVISION", "BINDING_REVISION", "ASSESSMENT_CITATION", "RUN_INPUT", "ANALYTIC_RUN", "CITED_SET_DIGEST"}
+    for code, words in finding_read.BROKEN_WORDS.items():
+        assert not BANNED.search(words), (code, words)
+    assert not BANNED.search(finding_read.LINEAGE_STATEMENT)
