@@ -1,0 +1,3 @@
+I wrote the Q1 and C4 rulings in [architect-S4-02-answers.md](C:/Users/assef/Bineyame/AssetOpsV1/.agent/architect-S4-02-answers.md). The answer ratifies the conditional 1.10 model parameter, requires fail-closed containment for accepted power intervals, specifies the formula and fixtures, and includes a draft decision addendum for the coordinator.
+
+I edited no other files and made no commit.
