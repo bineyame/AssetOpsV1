@@ -26,7 +26,7 @@ These commands use private databases `assetops_g02walk` and `assetops_g02empty`,
 4. Optional, empty store:
    `cd C:\Users\assef\Bineyame\AssetOpsV1\frontend; $env:ASSETOPS_API_PORT="8869"; npm.cmd run dev -- --port 5369 --strictPort`
 
-The measured checks at 1440 and 390 pixels have already been run: 322/322 claims passed. Screenshots of the app and the mock are in `C:\Users\assef\AppData\Local\AssetOps\evidence\g02`.
+The measured checks at 1440 and 390 pixels have already been run: 321/322 claims passed (fix round 1). The one failure is the single-line diagram's parts-table caption at 390 px, described in step 5. Screenshots of the app and the mock are in `C:\Users\assef\AppData\Local\AssetOps\evidence\g02`.
 
 ## What to look at
 
@@ -46,7 +46,7 @@ The measured checks at 1440 and 390 pixels have already been run: 322/322 claims
    - Beside the drawing: "Protection and meter positions are not declared ...; monitoring links and reporting status are not assessed on this diagram. See Site Evidence ..."
    - Above it: "Configured, not live · Readings are not assessed in this view."
    - The drawing has no fake breakers, meters or status dots.
-5. Narrow the window to about 390 px. The lines wrap inside their panels. Wide tables scroll inside their own box, and the page does not scroll sideways.
+5. Narrow the window to about 390 px. The lines wrap inside their panels. Wide tables scroll inside their own box, and the page does not scroll sideways. One exception to judge: on the single-line diagram, the parts-table caption ("both are empty in this build…") is as wide as its table, so at 390 px its end is visible only by scrolling the table sideways. This was already so before G-02 (the same pattern as the Readiness table you accepted on V-01a). Say whether to accept it or have the sentence moved out of the table later.
 6. Optional: right-click any of these lines and choose Inspect to see its `data-gap-id`.
 
 ## Stop and clean up
