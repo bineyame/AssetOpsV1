@@ -145,7 +145,7 @@ export const COMMISSIONING_NOT_RECORDED = "Commissioning confirmation not record
 interface EvidenceRow {
   key: string;
   area: string;
-  declared: string;
+  declared: ReactNode;
   needed: string[];
   next: ReactNode;
 }
@@ -236,9 +236,19 @@ function rows(
     {
       key: "commissioning",
       area: "Commissioning",
-      declared: "No commissioning record type exists in this Foundation",
+      declared: (
+        <MissingClaim gapId="G-readiness-commissioning" placement="readiness.commissioning.declared">
+          No commissioning record type exists in this Foundation
+        </MissingClaim>
+      ),
       needed: [],
-      next: <span data-next-step="none">No commissioning record available</span>,
+      next: (
+        <span data-next-step="none">
+          <MissingClaim gapId="G-readiness-commissioning" placement="readiness.commissioning.next-step">
+            No commissioning record available
+          </MissingClaim>
+        </span>
+      ),
     },
   ];
 }
@@ -254,7 +264,14 @@ export function ReadinessEvidenceTable({ foundation, links, onReviewBindings }: 
     <Panel
       heading="Readiness and commissioning evidence"
       headingId={READINESS_TABLE_HEADING_ID}
-      description="Declared means published in the selected Foundation version. Confirmed means an independent commissioning or field record; none exists yet."
+      description={
+        <>
+          Declared means published in the selected Foundation version.{" "}
+          <MissingClaim gapId="G-readiness-commissioning" placement="readiness.commissioning.definition">
+            Confirmed means an independent commissioning or field record; none exists yet.
+          </MissingClaim>
+        </>
+      }
     >
       <DataTable labelledBy={READINESS_TABLE_HEADING_ID}>
         <thead>
@@ -272,14 +289,23 @@ export function ReadinessEvidenceTable({ foundation, links, onReviewBindings }: 
               <th scope="row">{row.area}</th>
               <td>{row.declared}</td>
               <td data-confirmed="not-recorded">
-                <Badge tone="neutral">{NOT_RECORDED}</Badge>
+                <MissingClaim gapId="G-readiness-commissioning" placement="readiness.commissioning.confirmed">
+                  <Badge tone="neutral">{NOT_RECORDED}</Badge>
+                </MissingClaim>
               </td>
               <td>
                 <ul className="plain-list">
                   {row.needed.map((text) => (
                     <li key={text}>{text}</li>
                   ))}
-                  <li className="muted">{COMMISSIONING_NOT_RECORDED}</li>
+                  <MissingClaim
+                    as="li"
+                    className="muted"
+                    gapId="G-readiness-commissioning"
+                    placement="readiness.commissioning.needed"
+                  >
+                    {COMMISSIONING_NOT_RECORDED}
+                  </MissingClaim>
                 </ul>
               </td>
               <td>{row.next}</td>
@@ -293,8 +319,17 @@ export function ReadinessEvidenceTable({ foundation, links, onReviewBindings }: 
 
 /* Gateway status --------------------------------------------------------------- */
 
-export const GATEWAY_NOT_AVAILABLE_YET =
-  "Not available yet: uptime trend, expected-versus-delivered completeness and signal strength. No reviewed source for these fields.";
+/*
+ * G-02 (Architect C5): uptime trend, expected-versus-delivered completeness and
+ * signal strength are separate claims with different producers and closure
+ * conditions, so each is its own catalogued line, like firmware.
+ */
+export const GATEWAY_UPTIME_NOT_AVAILABLE_YET =
+  "Uptime trend not available yet: no reviewed source reports a gateway's uptime over time.";
+export const GATEWAY_COMPLETENESS_NOT_AVAILABLE_YET =
+  "Expected-versus-delivered completeness not available yet: no reviewed source compares the reports a gateway should send with those received.";
+export const GATEWAY_SIGNAL_NOT_AVAILABLE_YET =
+  "Signal strength not available yet: no reviewed source reports a gateway's signal strength.";
 /** Catalogued as G-readiness-gateway-firmware: no producer, edge field or read carries a firmware report. */
 export const GATEWAY_FIRMWARE_NOT_AVAILABLE_YET =
   "Firmware not available yet: no reviewed source reports what firmware a gateway runs.";
@@ -350,7 +385,9 @@ function GatewayEntry({ entry, foundation }: { entry: GatewayHealthEntry; founda
         {sources === 0
           ? "No source is registered behind this gateway."
           : `${sources} source${sources === 1 ? "" : "s"} registered behind this gateway.`}{" "}
-        {DEVICE_CONNECTION_NOT_ESTABLISHED}
+        <MissingClaim gapId="G-readiness-source-contact" placement="readiness.gateway.source-connection">
+          {DEVICE_CONNECTION_NOT_ESTABLISHED}
+        </MissingClaim>
       </p>
       <Disclosure
         name={`gateway-diagnostic-${entry.gateway_external_id}`}
@@ -485,9 +522,30 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
         {periodNote}
       </p>
       {body}
-      <p className="not-available-yet" data-not-available-yet="gateway">
-        {GATEWAY_NOT_AVAILABLE_YET}
-      </p>
+      <MissingClaim
+        as="p"
+        className="not-available-yet"
+        gapId="G-readiness-gateway-uptime"
+        placement="readiness.gateway.uptime"
+      >
+        {GATEWAY_UPTIME_NOT_AVAILABLE_YET}
+      </MissingClaim>
+      <MissingClaim
+        as="p"
+        className="not-available-yet"
+        gapId="G-readiness-gateway-completeness"
+        placement="readiness.gateway.completeness"
+      >
+        {GATEWAY_COMPLETENESS_NOT_AVAILABLE_YET}
+      </MissingClaim>
+      <MissingClaim
+        as="p"
+        className="not-available-yet"
+        gapId="G-readiness-gateway-signal-strength"
+        placement="readiness.gateway.signal-strength"
+      >
+        {GATEWAY_SIGNAL_NOT_AVAILABLE_YET}
+      </MissingClaim>
       <MissingClaim
         as="p"
         className="not-available-yet"
@@ -506,7 +564,10 @@ function RegistrationOnly({ foundation }: { foundation: FoundationReadModel }) {
   return (
     <p data-gateway-sources="">
       Registered: {foundation.gateways.map((g) => g.gateway_external_id).join(", ")}, with {foundation.sources.length}{" "}
-      source{foundation.sources.length === 1 ? "" : "s"}. {DEVICE_CONNECTION_NOT_ESTABLISHED}
+      source{foundation.sources.length === 1 ? "" : "s"}.{" "}
+      <MissingClaim gapId="G-readiness-source-contact" placement="readiness.gateway.source-connection-registration">
+        {DEVICE_CONNECTION_NOT_ESTABLISHED}
+      </MissingClaim>
     </p>
   );
 }

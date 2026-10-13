@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, SVGProps } from "react";
 import { isKnownGapPlacement, UI_GAP_CATALOGUE, type GapId, type GapPlacement } from "./gapCatalogue";
 
 type MissingClaimTag = "p" | "span" | "div" | "li" | "dd" | "td";
@@ -31,6 +31,33 @@ export function MissingClaim<G extends GapId>({ gapId, placement, as = "span", c
       data-gap-placement={placement}
       data-gap-status={UI_GAP_CATALOGUE[gapId].status}
     >
+      {children}
+    </Tag>
+  );
+}
+
+type MissingClaimSvgTag = "text" | "tspan";
+
+export interface MissingClaimSvgProps<G extends GapId> extends Omit<SVGProps<SVGTextElement>, "children" | "ref"> {
+  gapId: G;
+  placement: GapPlacement<G>;
+  /** The SVG element that carries the words: a whole `<text>` or one `<tspan>`. */
+  as?: MissingClaimSvgTag;
+  children: ReactNode;
+}
+
+/**
+ * The SVG counterpart of `MissingClaim`: a `<text>` or `<tspan>` that carries
+ * the same gap metadata. HTML elements are never rendered inside an SVG;
+ * the words stay the element's own text, so assistive technology reads them.
+ */
+export function MissingClaimSvg<G extends GapId>({ gapId, placement, as = "text", children, ...rest }: MissingClaimSvgProps<G>) {
+  if (!isKnownGapPlacement(gapId, placement)) {
+    throw new Error(`MissingClaimSvg: ${String(gapId)} at ${String(placement)} is not a catalogued gap placement`);
+  }
+  const Tag = as;
+  return (
+    <Tag {...rest} data-gap-id={gapId} data-gap-placement={placement} data-gap-status={UI_GAP_CATALOGUE[gapId].status}>
       {children}
     </Tag>
   );

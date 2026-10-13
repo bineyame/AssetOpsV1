@@ -144,3 +144,107 @@ test('the baseline must match exactly: stale entries and a wrong total fail; shr
   const shrunk = world((w) => { w.files[1].text = 'export const Gone = 1;\n'; w.baseline = baselineOf([]); });
   assert.deepEqual(shrunk.errors, []);
 });
+
+// ---- G-02 carries: C7 reviewed cues and C1 visible merge-base skip ----
+
+const withCopy = (jsx) => (w) => { w.files.push({ path: 'frontend/src/sites/New.tsx', text: `export function New() {\n  return ${jsx};\n}\n` }); };
+
+test('C7 mutation: new untagged "not tracked yet" copy fails with file:line', () => {
+  const r = world(withCopy('<p>Setup progress not tracked yet.</p>'));
+  assert.ok(r.errors.some((e) => e.type === 'untagged_copy' && e.where === 'frontend/src/sites/New.tsx:2'), JSON.stringify(r.errors));
+});
+
+test('C7 mutation: new untagged commissioning-confirmation copy fails, also through an unwrapped const', () => {
+  const direct = world(withCopy('<li>Commissioning confirmation not recorded</li>'));
+  assert.ok(direct.errors.some((e) => e.type === 'untagged_copy' && e.where === 'frontend/src/sites/New.tsx:2'));
+  const viaConst = world((w) => {
+    w.files.push({ path: 'frontend/src/sites/New.tsx', text: 'export const C = "Commissioning confirmation not recorded";\nexport function New() {\n  return <li>{C}</li>;\n}\n' });
+  });
+  assert.ok(viaConst.errors.some((e) => e.type === 'untagged_copy' && e.where === 'frontend/src/sites/New.tsx:1'));
+});
+
+test('C7: the new cues pass when rendered through MissingClaim', () => {
+  const r = world((w) => {
+    w.files[0].text = TAGGED.replace('{FIRMWARE}', 'Setup progress not tracked yet. Commissioning confirmation not recorded.').replace(/^export const FIRMWARE.*$/m, '');
+  });
+  assert.deepEqual(r.errors.filter((e) => e.type === 'untagged_copy'), []);
+});
+
+test('C7: generic runtime copy stays outside the phrase set', () => {
+  for (const copy of ['<p>Not recorded</p>', '<p>Gateway contact unavailable</p>', '<p>No results</p>', '<p>Reading not recorded for this hour</p>']) {
+    const r = world(withCopy(copy));
+    assert.deepEqual(r.errors, [], copy);
+  }
+});
+
+test('C1: a failed merge-base makes the skip visible and leaves only the seed ceiling', async () => {
+  const { mergeBaseBaseline, baselineComparisonNote } = await import('./missing-claim-scan.mjs');
+  const failing = mergeBaseBaseline(() => { throw new Error('fatal: Not a valid object name main'); });
+  assert.equal(failing.baseline, null);
+  assert.match(failing.skipped, /merge-base HEAD main failed.*Not a valid object name main/);
+  assert.match(baselineComparisonNote(failing, 16), /comparison SKIPPED .*only the seed ceiling 16 limits growth/);
+
+  const noFile = mergeBaseBaseline((args) => {
+    if (args[0] === 'show') throw new Error("fatal: path 'tools/checks/missing-claim-baseline.json' does not exist");
+    return 'abc1234567890';
+  });
+  assert.equal(noFile.baseline, null);
+  assert.match(baselineComparisonNote(noFile, 16), /SKIPPED \(no readable tools\/checks\/missing-claim-baseline\.json at merge-base abc1234567/);
+
+  const ok = mergeBaseBaseline((args) => (args[0] === 'show' ? JSON.stringify(baselineOf([LEGACY_ENTRY])) : args[0] === 'rev-parse' ? 'def' : 'abc1234567890'));
+  assert.equal(ok.skipped, null);
+  assert.deepEqual(ok.baseline.entries, [LEGACY_ENTRY]);
+  assert.match(baselineComparisonNote(ok, 16), /^baseline compared with merge-base abc1234567 on main/);
+  const onMain = mergeBaseBaseline((args) => (args[0] === 'show' ? JSON.stringify(baselineOf([])) : 'abc1234567890'));
+  assert.match(baselineComparisonNote(onMain, 16), /which is HEAD/);
+});
+
+test('C1: the real scan result line names its baseline comparison', () => {
+  const out = execFileSync(process.execPath, [path.join(repoRoot, 'tools/checks/missing-claim-scan.mjs')], { encoding: 'utf8' });
+  assert.match(out, /; (baseline compared with merge-base [0-9a-f]{10}|merge-base baseline comparison SKIPPED)/);
+});
+
+// ---- G-02 Q2 cues and the SVG variant ----
+
+const SVG_TAGGED = `import { MissingClaimSvg } from "../ui";
+export function Slot() {
+  return <svg><MissingClaimSvg as="text" gapId="G-readiness-gateway-firmware" placement="readiness.gateway.firmware" x={1}>Readings not assessed here</MissingClaimSvg></svg>;
+}
+`;
+const svgWorld = (text) => world((w) => { w.files[0] = { path: 'frontend/src/sites/Svg.tsx', text }; });
+
+test('Q2 mutation: each narrow G-02 cue fails untagged and passes inside MissingClaim', () => {
+  const cues = [
+    ['p', 'Firmware not available here.'],
+    ['text', 'Readings not assessed here'],
+    ['p', 'Whether any reading has arrived is not assessed in this view.'],
+    ['p', 'Monitoring links and reporting status are not assessed on this diagram.'],
+    ['span', 'No proposed-change record here'],
+    ['span', 'No linked constraint evidence'],
+  ];
+  for (const [tag, copy] of cues) {
+    const bad = world(withCopy(`<${tag}>${copy}</${tag}>`));
+    assert.ok(bad.errors.some((e) => e.type === 'untagged_copy' && e.where === 'frontend/src/sites/New.tsx:2'), copy);
+    const ok = world(withCopy(`<MissingClaim gapId="G-readiness-gateway-firmware" placement="readiness.gateway.firmware">${copy}</MissingClaim>`));
+    assert.deepEqual(ok.errors.filter((e) => e.type === 'untagged_copy'), [], copy);
+  }
+});
+
+test('Q2: ordinary states and the Dispatch integration fallback stay outside the cues', () => {
+  for (const copy of ['<p>Dispatch not available here</p>', '<p>Not assessed</p>', '<p>Not declared</p>', '<p>No import record here</p>', '<p>The day is not assessed</p>', '<p>No balance identity is recorded</p>']) {
+    assert.deepEqual(world(withCopy(copy)).errors, [], copy);
+  }
+});
+
+test('SVG variant: MissingClaimSvg text is tagged, validated and unique', () => {
+  const single = svgWorld(SVG_TAGGED);
+  assert.deepEqual(single.errors, []);
+  assert.equal(single.usages.length, 1);
+  assert.deepEqual(single.untagged.filter((u) => u.file.endsWith('Svg.tsx')), []);
+  const dup = world((w) => { w.files.push({ path: 'frontend/src/sites/Svg.tsx', text: SVG_TAGGED }); });
+  assert.ok(types(dup).includes('ui_duplicate_placement'));
+  assert.ok(types(svgWorld(SVG_TAGGED.replace('G-readiness-gateway-firmware', 'G-nope'))).includes('ui_unknown_gap'));
+  assert.ok(types(svgWorld(SVG_TAGGED.replace('readiness.gateway.firmware', 'sld.nope'))).includes('ui_unknown_placement'));
+  assert.ok(types(svgWorld(SVG_TAGGED.replace('as="text"', 'as="p"'))).includes('ui_usage'));
+  assert.ok(types(svgWorld(TAGGED.replace('as="p"', 'as="text"'))).includes('ui_usage'));
+});

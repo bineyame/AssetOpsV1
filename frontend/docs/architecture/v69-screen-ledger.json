@@ -46,6 +46,11 @@
     },
     {
       "id": "sites",
+      "gap_ids": [
+        "G-sites-attention-counts",
+        "G-sites-operating-view",
+        "G-sites-setup-progress"
+      ],
       "gap_backfill_task": "G-02",
       "mock_route": "#/sites",
       "product_destination": "Sites",
@@ -102,6 +107,13 @@
     },
     {
       "id": "foundation",
+      "gap_ids": [
+        "G-foundation-change-record",
+        "G-foundation-constraint-evidence",
+        "G-foundation-financial-assumptions",
+        "G-foundation-obligation-policy",
+        "G-foundation-productive-use"
+      ],
       "gap_backfill_task": "G-02",
       "mock_route": "#/foundation",
       "product_destination": "Sites > Foundation",
@@ -129,7 +141,17 @@
     {
       "id": "readiness",
       "gap_ids": [
-        "G-readiness-gateway-firmware"
+        "G-readiness-commissioning",
+        "G-readiness-confidence-effect",
+        "G-readiness-evidence-capability",
+        "G-readiness-gateway-completeness",
+        "G-readiness-gateway-contact",
+        "G-readiness-gateway-firmware",
+        "G-readiness-gateway-registration",
+        "G-readiness-gateway-signal-strength",
+        "G-readiness-gateway-uptime",
+        "G-readiness-source-contact",
+        "G-readiness-source-registration"
       ],
       "gap_backfill_task": "G-02",
       "mock_route": "#/readiness",
@@ -2792,6 +2814,10 @@
     },
     {
       "id": "sld",
+      "gap_ids": [
+        "G-sld-protection-metering",
+        "G-sld-reporting-status"
+      ],
       "gap_backfill_task": "G-02",
       "mock_route": "#/sld",
       "product_destination": "Sites > Foundation",

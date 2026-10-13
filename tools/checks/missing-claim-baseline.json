@@ -90,13 +90,6 @@
       "backfill_packet": "G-04"
     },
     {
-      "file": "frontend/src/sites/ReadinessOverview.tsx",
-      "text": "Not available yet: uptime trend, expected-versus-delivered completeness and signal strength. No reviewed source for these fields.",
-      "count": 1,
-      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-02 registers its gap and renders it through MissingClaim.",
-      "backfill_packet": "G-02"
-    },
-    {
       "file": "frontend/src/sites/SiteFinding.tsx",
       "text": "Not yet available. Recommendations and actions, with fuel and money estimates, come later; nothing here asks you to change how the generator is operated.",
       "count": 1,
@@ -109,21 +102,7 @@
       "count": 1,
       "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
       "backfill_packet": "G-04"
-    },
-    {
-      "file": "frontend/src/sites/SitesIndex.tsx",
-      "text": "Not available yet",
-      "count": 1,
-      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-02 registers its gap and renders it through MissingClaim.",
-      "backfill_packet": "G-02"
-    },
-    {
-      "file": "frontend/src/sites/SitesIndex.tsx",
-      "text": "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them. Setup progress not t",
-      "count": 1,
-      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-02 registers its gap and renders it through MissingClaim.",
-      "backfill_packet": "G-02"
     }
   ],
-  "total": 15
+  "total": 12
 }

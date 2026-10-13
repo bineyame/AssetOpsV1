@@ -1,4 +1,7 @@
 /**
+ * SUPERSEDED for these screens by tools/g02-gap-evidence.mjs: this tool asserts pre-G-02 copy and will fail on
+ * the current tree. A failure here is not a regression; it is kept as the recorded historical evidence tool.
+ *
  * V-01a: app-vs-mock evidence for Sites, Foundation (Site model), Readiness and the single line
  * diagram (`sites:1`, `foundation:1-3`, `readiness:1`, `sld:1-2`), with layout measurements,
  * keyboard interaction, period selection and reload checks, from the installed Chrome over the

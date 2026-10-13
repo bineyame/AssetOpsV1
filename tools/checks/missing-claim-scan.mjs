@@ -28,7 +28,24 @@ export const SCAN_ROOT = 'frontend/src';
 export const SEED_CEILING = 16;
 // Missing-capability phrasing. Runtime zero/error copy ("unavailable", "not recorded", "no results") is not
 // matched: those are states of an existing capability, not catalogued gaps.
-export const PATTERNS = [/not available yet/i, /not yet available/i, /no reviewed source/i];
+// G-02 (Architect C7, D-2026-10-13-g01-placement-and-orphan-scan-boundary) adds two reviewed specific cues:
+// "not tracked yet" and the commissioning-specific "commissioning confirmation not recorded". Generic
+// "not recorded", "unavailable" and "no results" stay out. A new euphemism needs a reviewed cue here (with a
+// failing mutation fixture), never a silent baseline entry.
+export const PATTERNS = [
+  /not available yet/i,
+  /not yet available/i,
+  /no reviewed source/i,
+  /not tracked yet/i,
+  /commissioning confirmation not recorded/i,
+  // G-02 Q2 (Architect): exact/scoped cues only. "not assessed", "not declared" and "No ... record here" are
+  // NOT matched globally: they also describe ordinary selected-window, configuration or runtime states.
+  /(?<!dispatch )not\s+available\s+here/i, // "Dispatch not available here" is a component-integration state (Q6)
+  /\breadings?\b[^.]{0,40}\bnot\s+assessed\b/i, // SLD: "Readings not assessed here", "any reading has arrived is not assessed"
+  /not\s+assessed\s+on\s+this\s+diagram/i,
+  /no\s+proposed-change\s+record\s+here/i,
+  /no\s+linked\s+constraint\s+evidence/i,
+];
 
 const toPosix = (p) => p.split(path.sep).join('/');
 const normalize = (text) => text.replace(/\s+/g, ' ').trim().slice(0, 160);
@@ -44,7 +61,8 @@ const parse = (file) => ts.createSourceFile(file.path, file.text, ts.ScriptTarge
   file.path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
 const lineOf = (sf, node) => sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
 const tagName = (node) => (ts.isJsxElement(node) ? node.openingElement.tagName : ts.isJsxSelfClosingElement(node) ? node.tagName : null);
-const isMissingClaimElement = (node) => tagName(node)?.getText() === 'MissingClaim';
+// MissingClaim renders HTML; MissingClaimSvg renders an SVG <text>/<tspan>. Both carry the same checked pair.
+const isMissingClaimElement = (node) => ['MissingClaim', 'MissingClaimSvg'].includes(tagName(node)?.getText());
 function insideMissingClaim(node) {
   for (let cur = node.parent; cur; cur = cur.parent) if (ts.isJsxElement(cur) && isMissingClaimElement(cur)) return true;
   return false;
@@ -134,6 +152,11 @@ export function analyze({ files, registry, mirror, baseline, mainBaseline = null
         if (opening.attributes.properties.some((a) => ts.isJsxSpreadAttribute(a)) || gapId === null || placement === null) {
           err('ui_usage', where, 'MissingClaim needs literal gapId and placement attributes (no spread or expression)');
         } else {
+          const tag = tagName(node).getText();
+          const asValue = literal(attr('as'));
+          if (tag === 'MissingClaimSvg' && asValue !== null && !['text', 'tspan'].includes(asValue)) err('ui_usage', where, 'MissingClaimSvg as must be "text" or "tspan" (never an HTML element inside SVG)');
+          else if (tag === 'MissingClaimSvg' && attr('as') && asValue === null) err('ui_usage', where, 'MissingClaimSvg as must be a literal "text" or "tspan"');
+          if (tag === 'MissingClaim' && (asValue === 'text' || asValue === 'tspan')) err('ui_usage', where, 'MissingClaim renders HTML; use MissingClaimSvg for SVG text');
           usages.push({ file: file.path, line: lineOf(sf, node), gapId, placement });
           const entry = mirrorMap.get(gapId);
           if (!entry) err('ui_unknown_gap', where, `unknown gap ID ${gapId}; register it in mock_gaps and the UI mirror`);
@@ -225,30 +248,54 @@ function walk(dir, out = []) {
   return out;
 }
 
-function mergeBaseBaseline() {
+const gitRun = (args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 20000 }).trim();
+const firstLine = (e) => String(e?.message ?? e).split(/\r?\n/)[0].slice(0, 120);
+
+/**
+ * The baseline at the merge-base with main, or why the comparison is skipped (G-02 carry C1). A skip is never
+ * silent: the scan's result line names it, and only the seed ceiling then limits baseline growth.
+ * run: (gitArgs) => stdout, injectable for fixtures.
+ */
+export function mergeBaseBaseline(run = gitRun) {
+  let mergeBase;
   try {
-    const run = (args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 20000 }).trim();
-    const mergeBase = run(['merge-base', 'HEAD', 'main']);
-    return JSON.parse(run(['show', `${mergeBase}:${BASELINE_PATH}`]));
-  } catch {
-    return null; // first introduction (no baseline on main yet) or no main ref: the seed ceiling still applies
+    mergeBase = run(['merge-base', 'HEAD', 'main']);
+  } catch (e) {
+    return { baseline: null, ref: null, skipped: `git merge-base HEAD main failed (shallow clone, no local main or timeout): ${firstLine(e)}` };
   }
+  let head = null;
+  try { head = run(['rev-parse', 'HEAD']); } catch { /* informational only */ }
+  try {
+    return { baseline: JSON.parse(run(['show', `${mergeBase}:${BASELINE_PATH}`])), ref: mergeBase, skipped: null, atHead: head === mergeBase };
+  } catch (e) {
+    return { baseline: null, ref: mergeBase, skipped: `no readable ${BASELINE_PATH} at merge-base ${mergeBase.slice(0, 10)}: ${firstLine(e)}` };
+  }
+}
+
+/** One line for the scan result: what the shrink-only rule was compared against. */
+export function baselineComparisonNote(mb, seedCeiling = SEED_CEILING) {
+  if (mb.skipped) return `merge-base baseline comparison SKIPPED (${mb.skipped}); only the seed ceiling ${seedCeiling} limits growth`;
+  const where = `merge-base ${mb.ref.slice(0, 10)}`;
+  return mb.atHead ? `baseline compared with ${where}, which is HEAD (on main the comparison is with itself; the seed ceiling ${seedCeiling} still applies)`
+    : `baseline compared with ${where} on main and the seed ceiling ${seedCeiling}`;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const read = (rel) => fs.readFileSync(path.join(repoRoot, rel), 'utf8');
+  const mb = mergeBaseBaseline();
+  const note = baselineComparisonNote(mb);
   const result = analyze({
     files: walk(SCAN_ROOT),
     registry: JSON.parse(read(REGISTRY_PATH)),
     mirror: { path: MIRROR_PATH, text: read(MIRROR_PATH) },
     baseline: JSON.parse(read(BASELINE_PATH)),
-    mainBaseline: mergeBaseBaseline(),
+    mainBaseline: mb.baseline,
   });
   if (process.argv.includes('--list')) for (const u of result.untagged) console.log(`${u.file}:${u.line}\t${u.text}`);
   if (result.errors.length) {
     for (const e of result.errors) console.log(`- [${e.type}] ${e.where}: ${e.reason}`);
-    console.log(`Missing-claim scan FAILED: ${result.errors.length} problem(s).`);
+    console.log(`Missing-claim scan FAILED: ${result.errors.length} problem(s); ${note}.`);
     process.exit(1);
   }
-  console.log(`Missing-claim scan passed: ${result.usages.length} tagged placement use(s), ${result.untagged.length} baselined legacy occurrence(s).`);
+  console.log(`Missing-claim scan passed: ${result.usages.length} tagged placement use(s), ${result.untagged.length} baselined legacy occurrence(s); ${note}.`);
 }

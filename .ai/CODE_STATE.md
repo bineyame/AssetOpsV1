@@ -5343,3 +5343,27 @@ No backend change.
   node/portion/ledger promotion proposed in the packet, not applied; legacy tab not browser-captured (no readable
   assessment on KOBO-001); Coverage/Use stay catalogued gaps; ActionEvent/recommendation/Alternatives for G-04;
   `ASSESSMENT_CITATION` assumption (phase-1 C1) carried.
+
+## G-02 - V-01a mock-gap pilot (in_review)
+
+Task `tasks/G-02-v01a-gap-pilot.md`, branch `task/G-02-v01a-gap-pilot`, diff base `42bd74d` (main `5625447`).
+Packet `.agent/G-02-review-packet.md`, handoff `.agent/G-02-handoff.md`, questions `.agent/G-02-questions-1.md`
+(Q1-Q6, fail-closed defaults shipped), owner guide `.agent/G-02-owner-walkthrough.md`. No backend change.
+
+- Registry `mock_gaps.gap_enrolled_screens = [sites, foundation, readiness, sld]`; 20 new gaps (23 total). Every
+  non-core open portion of the four carries `gap_ids` (`sites:2#a`, `foundation:2#b`, `readiness:2#a/#b`, `3#a/#b`,
+  `4#a/#b`); ledger rows list their gaps. Core paths, `core`, `state`, `technical_requires`, `panel_status` unchanged.
+- Placed (17 gaps, 25 MissingClaim uses incl. firmware and S4-03's two): Sites operating view (cell + note), attention
+  counts, setup progress; Foundation productive use, financial assumptions, control change record, constraint evidence;
+  Readiness commissioning (5 placements), gateway uptime / completeness / signal strength (Architect C5 split, one
+  element each) + firmware, per-source contact (3 placements); SLD protection/metering and reporting status (2).
+  Unplaced with reasons: obligation policy, confidence effect, evidence capability, and three portion-review gaps.
+- Visible copy unchanged except the gateway split; bundled Sites/SLD notes are now one element per claim.
+- Scan: phrase set + `not tracked yet`, `commissioning confirmation not recorded` (C7); the result line names the
+  merge-base comparison or `SKIPPED (<reason>)` (C1). Baseline 15 -> 12 entries (G-03/G-04 remain).
+- Tests: `siteFoundationRevision.test.tsx` "G-02: V-01a pilot missing-state placements" (branch/date/selection/reload,
+  exact per-element text) and the G-01 block (C6 loading); `sitesIndex.test.tsx`; `test_mock_gaps.cjs`;
+  `test_missing_claim_scan.mjs` (17). Evidence tool `tools/g02-gap-evidence.mjs`.
+- Open: SLD per-node SVG slots/captions restate the reporting-status fact untagged (Q1); other euphemisms are tagged
+  but not scan cues (Q2); `tools/v01a-foundation-evidence.mjs` and `tools/g01-firmware-evidence.mjs` assert the
+  pre-split gateway copy (historical).
