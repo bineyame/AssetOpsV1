@@ -346,7 +346,7 @@ const panelsReaching = (nodeId) => realRegistry.delivery_plan.w1_panel_mapping
 const portionReaching = (key, nodeId) => realRegistry.delivery_plan.w1_panel_mapping.find((p) => p.key === key)
   .claim_portions.map((c) => closure(c.technical_requires).has(nodeId));
 
-test('real README links the new packets and the renamed S4-03; real packets are not_started (graph pass)', () => {
+test('real README links the new packets and the renamed S4-03; real packets have a recognised Status (graph pass)', () => {
   const gq = nw.parseGateQueue(realReadme);
   for (const [task, file] of [['S4-03', 'S4-03-finding-evidence-history.md'], ['S4-04', 'S4-04-site-finding-index.md'],
     ['S5-02', 'S5-02-overview-finding-list.md'], ['S6-03', 'S6-03-site-work-list.md']]) {
@@ -355,7 +355,8 @@ test('real README links the new packets and the renamed S4-03; real packets are 
     assert.equal(found.packet, file);
     assert.ok(fs.existsSync(path.join(repo, 'tasks', file)), `${file} exists`);
     const meta = nw.packetMeta(fs.readFileSync(path.join(repo, 'tasks', file), 'utf8'));
-    assert.equal(nw.packetPhase(meta.status), 'not_started', `${task} status "${meta.status}"`);
+    // Real packets move through their lifecycle; the graph pass only needs a recognised Status.
+    assert.notEqual(nw.packetPhase(meta.status), 'unknown', `${task} status "${meta.status}"`);
   }
   assert.ok(!gq.some((q) => q.packet === 'S4-03-finding-evidence.md'), 'no stale pre-rename S4-03 link');
 });
