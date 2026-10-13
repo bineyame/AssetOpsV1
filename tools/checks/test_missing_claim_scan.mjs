@@ -99,6 +99,15 @@ test('mutation: new untagged missing-capability copy fails with file:line', () =
   assert.ok(types(dup).includes('baseline_count'));
 });
 
+test('mutation: a catalogued placement used twice fails, naming both locations', () => {
+  const r = world((w) => { w.files.push({ path: 'frontend/src/sites/Other.tsx', text: TAGGED.replace('FIRMWARE', 'OTHER') }); });
+  const e = r.errors.find((x) => x.type === 'ui_duplicate_placement');
+  assert.ok(e, 'duplicate use must be reported');
+  assert.match(e.where, /\.tsx:\d+$/);
+  assert.match(e.reason, /already used at frontend\/src\/sites\/\w+\.tsx:\d+/);
+  assert.equal(r.errors.length, 1);
+});
+
 test('tests, test helpers and comments are outside the scan', () => {
   const r = world((w) => {
     w.files.push({ path: 'frontend/src/sites/Commented.tsx', text: '// Not available yet: this is a comment\nexport const Y = 1;\n' });

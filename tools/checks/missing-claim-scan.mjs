@@ -153,7 +153,16 @@ export function analyze({ files, registry, mirror, baseline, mainBaseline = null
     };
     visit(sf);
   }
-  const used = new Set(usages.map((u) => `${u.gapId}\u0000${u.placement}`));
+  const used = new Set();
+  const firstUse = new Map();
+  for (const u of usages) {
+    const k = `${u.gapId}\u0000${u.placement}`;
+    used.add(k);
+    if (firstUse.has(k)) {
+      const first = firstUse.get(k);
+      err('ui_duplicate_placement', `${u.file}:${u.line}`, `${u.gapId} placement ${u.placement} is already used at ${first.file}:${first.line}; a placement is rendered once, register another placement for a new claim`);
+    } else firstUse.set(k, u);
+  }
   for (const [id, entry] of mirrorMap) for (const placement of entry.placements) {
     if (!used.has(`${id}\u0000${placement}`)) err('unused_placement', MIRROR_PATH, `${id} placement ${placement} is never rendered; place it or give the gap an unplaced_reason`);
   }
