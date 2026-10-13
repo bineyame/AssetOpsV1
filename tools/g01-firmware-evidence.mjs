@@ -1,4 +1,7 @@
 /**
+ * SUPERSEDED for these screens by tools/g02-gap-evidence.mjs: this tool asserts pre-G-02 copy and will fail on
+ * the current tree. A failure here is not a regression; it is kept as the recorded historical evidence tool.
+ *
  * G-01: browser layout evidence for the catalogued Readiness gateway firmware missing state
  * (`G-readiness-gateway-firmware`, placement `readiness.gateway.firmware`) at 1440x1000 and 390x900,
  * from the installed Chrome over the DevTools Protocol (same no-dependency approach as

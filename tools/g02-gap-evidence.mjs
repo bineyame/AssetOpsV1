@@ -86,6 +86,13 @@ const SLD = [
     "Protection and meter positions are not declared in this Foundation topology;"),
   T("G-sld-reporting-status", "sld.diagram.reporting-status", "monitoring links and reporting status are not assessed on this diagram."),
   T("G-sld-reporting-status", "sld.diagram.readings-status", "Readings are not assessed in this view."),
+  // Q1 fix round: one placement per Site-only slot kind. SVG slots are <text> elements; counts follow the drawn nodes.
+  T("G-sld-reporting-status", "sld.diagram.bus-slot", "Readings not assessed here", "bus"),
+  T("G-sld-reporting-status", "sld.diagram.node-slot", "Readings not assessed here", "nodes-1"),
+  T("G-sld-reporting-status", "sld.contents.readings-slot", "Readings not assessed here", "nodes"),
+  T("G-sld-reporting-status", "sld.contents.caption", "both are empty in this build, for every component, and neither holds a reading."),
+  T("G-sld-reporting-status", "sld.intro.readings-status",
+    "Whether any reading has arrived is not assessed in this view, so every value slot on it is empty."),
 ];
 
 mkdirSync(OUT, { recursive: true });
@@ -216,7 +223,8 @@ const STRUCTURE = `(() => { const pair = ${PAIR}; const els = [...document.query
   return {
     pairs: [...new Set(els.map(pair))].sort(),
     counts: els.reduce((a, e) => { const k = pair(e); a[k] = (a[k] || 0) + 1; return a; }, {}),
-    texts: els.map(e => ({ pair: pair(e), text: e.textContent, status: e.getAttribute('data-gap-status'),
+    nodeCount: document.querySelectorAll('[data-sld-node]').length,
+    texts: els.map(e => ({ pair: pair(e), ln: e.localName, ns: e.namespaceURI, slot: e.getAttribute('data-sld-slot'), text: e.textContent, status: e.getAttribute('data-gap-status'),
       nested: !!e.querySelector('[data-gap-id]'), inSvg: !!e.closest('svg'),
       inClosedDetails: (() => { let p = e.parentElement; while (p) { if (p.tagName === 'DETAILS' && !p.open) return true; p = p.parentElement; } return false; })() })),
     siteRows: document.querySelectorAll('main tbody tr').length,
@@ -256,8 +264,9 @@ async function verify(label, expected) {
   claim(`${label}: (a) distinct gap pair set equals expected`, JSON.stringify(s.pairs) === JSON.stringify(want),
     { size: s.pairs.length, expectedSize: want.length, missing: want.filter((k) => !s.pairs.includes(k)), extra: s.pairs.filter((k) => !want.includes(k)) });
   const rowsFor = (t) => (t.gap.startsWith("G-sites") ? s.siteRows : s.readinessRows);
+  const wantCount = (t) => (t.count === "rows" ? rowsFor(t) : t.count === "nodes" ? s.nodeCount : t.count === "nodes-1" ? s.nodeCount - 1 : t.count === "bus" ? 1 : 1);
   const countBad = expected
-    .map((t) => ({ pair: key(t), want: t.count === "rows" ? rowsFor(t) : 1, got: s.counts[key(t)] ?? 0 }))
+    .map((t) => ({ pair: key(t), want: wantCount(t), got: s.counts[key(t)] ?? 0 }))
     .filter((c) => c.want !== c.got || c.want === 0);
   claim(`${label}: (a) each pair appears the expected number of times (rows: site ${s.siteRows}, readiness ${s.readinessRows})`,
     countBad.length === 0, { size: Object.keys(s.counts).length, bad: countBad });
@@ -279,9 +288,13 @@ async function verify(label, expected) {
     v.els.length > 0 && badVis.length === 0, { size: v.els.length, closedBefore: closed, viaInnerScroll: inner, bad: badVis });
   claim(`${label}: (d) no horizontal page scroll (disclosures open)`, v.scrollWidth <= v.innerWidth, { scrollWidth: v.scrollWidth, innerWidth: v.innerWidth });
   claim(`${label}: (e) no gap ID in visible text`, v.idInText.length === 0, { size: v.idInText.length, found: v.idInText });
-  const svg = s.texts.filter((x) => x.inSvg).map((x) => x.pair);
   if (expected.some((t) => t.gap.startsWith("G-sld"))) {
-    claim(`${label}: (f) SLD tagged elements are not inside an svg`, svg.length === 0, { size: s.texts.filter((x) => x.pair.startsWith("G-sld")).length, inSvg: svg });
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const inSvg = s.texts.filter((x) => x.inSvg);
+    const badSvg = inSvg.filter((x) => !(["text", "tspan"].includes(x.ln) && x.ns === SVG_NS && x.slot === "unfilled")).map((x) => x.pair);
+    const badHtml = s.texts.filter((x) => !x.inSvg && x.ns === SVG_NS).map((x) => x.pair);
+    claim(`${label}: (f) SLD SVG-tagged elements are SVG text/tspan in the SVG namespace (never HTML inside svg); the non-SVG ones are HTML`,
+      inSvg.length === s.nodeCount && badSvg.length === 0 && badHtml.length === 0, { size: inSvg.length, nodeCount: s.nodeCount, badSvg, badHtml });
   }
   return { pairs: s.pairs, containers: s.containers };
 }
