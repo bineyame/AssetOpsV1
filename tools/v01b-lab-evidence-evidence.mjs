@@ -11,10 +11,12 @@
  * Env: ASSETOPS_CDP_PORT (default 9362); V01B_RUN (released run id; otherwise the first run in
  * `GET <base>/api/simulator-lab/runs`, oldest first, whose Commit read is RELEASED_TO_GATEWAY with a registered
  * release). The not-committed state uses the newest stored READY draft whose Commit read is NOT_COMMITTED (the
- * layout tool's run-setup creates these); only if none exists is it shown via an intercepted `*commit*` response.
+ * layout tool's run-setup creates these). A freshly prepared walkthrough store holds no such draft: those claims
+ * then print `not run` with the reason. They are never intercepted or passed.
  *
- * Every claim is measured and printed; the run exits non-zero if any fails. Set-based claims report their size,
- * so a claim over an empty set is visible.
+ * Every claim is measured and printed; the run exits non-zero if any fails or is not run. Set-based claims report
+ * their size, so a claim over an empty set is visible. A page that never reaches its ready state is a FAIL that
+ * names the headings it did show, and the claims that depend on it are skipped (counted as not run), not thrown.
  *
  * Intercepted shapes (DevTools `Fetch`): Evidence "gateway contact unavailable" answers `*gateway-health*` with a
  * 503. It proves what the UI renders for that response shape; it is not a stored state.
@@ -47,6 +49,14 @@ function claim(name, ok, detail) {
   results.push({ name, ok, detail });
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail === undefined ? "" : `  ${JSON.stringify(detail)}`}`);
 }
+const notRun = [];
+function skipped(name, reason) {
+  notRun.push({ name, reason });
+  console.log(`not run  ${name}  (${reason})`);
+}
+/** What a page shows instead of its ready state: its h1 and panel headings. */
+const SHOWN = `({ h1: [...document.querySelectorAll('h1')].map(h => h.textContent.trim()),
+  panels: [...document.querySelectorAll('main .panel__heading')].map(h => h.textContent.trim()).slice(0, 6) })`;
 
 async function connect() {
   for (let i = 0; i < 80; i += 1) {
@@ -239,7 +249,12 @@ async function discoverRuns() {
 }
 
 async function evidenceOverview(label) {
-  await go(evidenceUrl(BASE, POPULATED), loaded("Most useful next evidence"));
+  const ready = await go(evidenceUrl(BASE, POPULATED), `${loaded("Most useful next evidence")} && ${panelOf(E_TITLES[1])} && ${panelOf(E_TITLES[2])}`);
+  claim(`${label}: Evidence overview (populated) reached its ready state`, ready, ready ? undefined : await js(SHOWN));
+  if (!ready) {
+    skipped(`${label}: Evidence overview (populated) claims`, "the page did not reach its ready state");
+    return;
+  }
   const s = await js(`({ bar: ${text("[data-evidence-statusbar]")}, titles: ${TITLES}, body: ${missingTexts},
     earlier: (() => { const d = document.querySelector('details[data-disclosure="evidence-earlier-store"]'); return d ? d.open : null; })() })`);
   claim(`${label}: Evidence status bar states window facts and no "Evidence limited"`,
@@ -264,7 +279,12 @@ async function evidenceOverview(label) {
 }
 
 async function evidenceAnalysis(label) {
-  await go(evidenceUrl(BASE, POPULATED, true), loaded("How each limit is set") + ` && document.querySelector('[data-evidence-record]')`);
+  const ready = await go(evidenceUrl(BASE, POPULATED, true), loaded("How each limit is set") + ` && document.querySelector('[data-evidence-record]')`);
+  claim(`${label}: Evidence analysis (populated) reached its ready state`, ready, ready ? undefined : await js(SHOWN));
+  if (!ready) {
+    skipped(`${label}: Evidence analysis (populated), record trace and advanced-details claims`, "the page did not reach its ready state");
+    return;
+  }
   const s = await js(`({ titles: ${TITLES}, rows: document.querySelectorAll('[data-evidence-record]').length, adv: ${ADVANCED}, body: ${missingTexts} })`);
   claim(`${label}: Evidence analysis shows the two mock panel titles in order`,
     s.titles.indexOf(EA_TITLES[0]) >= 0 && s.titles.indexOf(EA_TITLES[1]) > s.titles.indexOf(EA_TITLES[0]), { titles: s.titles });
@@ -417,7 +437,8 @@ async function labStates(label, draft) {
   if (draft !== null) {
     await check(`${BASE}/simulator-lab/runs/${draft.run_id}`, `stored draft ${draft.run_id}`);
   } else {
-    claim(`${label}: a stored READY draft exists for the not-committed state (else intercepted below)`, false, { draft: null });
+    skipped(`${label}: not-committed Lab run claims (2)`,
+      "fixture precondition: the store holds no READY draft whose Commit read is NOT_COMMITTED; a freshly prepared walkthrough store has none (the layout tool's run setup creates them)");
   }
 }
 
@@ -466,12 +487,13 @@ main()
   })
   .finally(() => {
     const failed = results.filter((r) => !r.ok).length;
-    console.log(`\n${results.length - failed}/${results.length} claims passed; screenshots in ${OUT}`);
+    console.log(`\n${results.length - failed}/${results.length} claims passed; ${notRun.length} not run; screenshots in ${OUT}`);
+    for (const n of notRun) console.log(`  not run: ${n.name} (${n.reason})`);
     chrome.kill();
     try {
       rmSync(profile, { recursive: true, force: true });
     } catch {
       /* Chrome may still hold the profile */
     }
-    process.exit(failed === 0 ? 0 : 1);
+    process.exit(failed === 0 && notRun.length === 0 ? 0 : 1);
   });
