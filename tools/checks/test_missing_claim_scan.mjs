@@ -203,3 +203,48 @@ test('C1: the real scan result line names its baseline comparison', () => {
   const out = execFileSync(process.execPath, [path.join(repoRoot, 'tools/checks/missing-claim-scan.mjs')], { encoding: 'utf8' });
   assert.match(out, /; (baseline compared with merge-base [0-9a-f]{10}|merge-base baseline comparison SKIPPED)/);
 });
+
+// ---- G-02 Q2 cues and the SVG variant ----
+
+const SVG_TAGGED = `import { MissingClaimSvg } from "../ui";
+export function Slot() {
+  return <svg><MissingClaimSvg as="text" gapId="G-readiness-gateway-firmware" placement="readiness.gateway.firmware" x={1}>Readings not assessed here</MissingClaimSvg></svg>;
+}
+`;
+const svgWorld = (text) => world((w) => { w.files[0] = { path: 'frontend/src/sites/Svg.tsx', text }; });
+
+test('Q2 mutation: each narrow G-02 cue fails untagged and passes inside MissingClaim', () => {
+  const cues = [
+    ['p', 'Firmware not available here.'],
+    ['text', 'Readings not assessed here'],
+    ['p', 'Whether any reading has arrived is not assessed in this view.'],
+    ['p', 'Monitoring links and reporting status are not assessed on this diagram.'],
+    ['span', 'No proposed-change record here'],
+    ['span', 'No linked constraint evidence'],
+  ];
+  for (const [tag, copy] of cues) {
+    const bad = world(withCopy(`<${tag}>${copy}</${tag}>`));
+    assert.ok(bad.errors.some((e) => e.type === 'untagged_copy' && e.where === 'frontend/src/sites/New.tsx:2'), copy);
+    const ok = world(withCopy(`<MissingClaim gapId="G-readiness-gateway-firmware" placement="readiness.gateway.firmware">${copy}</MissingClaim>`));
+    assert.deepEqual(ok.errors.filter((e) => e.type === 'untagged_copy'), [], copy);
+  }
+});
+
+test('Q2: ordinary states and the Dispatch integration fallback stay outside the cues', () => {
+  for (const copy of ['<p>Dispatch not available here</p>', '<p>Not assessed</p>', '<p>Not declared</p>', '<p>No import record here</p>', '<p>The day is not assessed</p>', '<p>No balance identity is recorded</p>']) {
+    assert.deepEqual(world(withCopy(copy)).errors, [], copy);
+  }
+});
+
+test('SVG variant: MissingClaimSvg text is tagged, validated and unique', () => {
+  const single = svgWorld(SVG_TAGGED);
+  assert.deepEqual(single.errors, []);
+  assert.equal(single.usages.length, 1);
+  assert.deepEqual(single.untagged.filter((u) => u.file.endsWith('Svg.tsx')), []);
+  const dup = world((w) => { w.files.push({ path: 'frontend/src/sites/Svg.tsx', text: SVG_TAGGED }); });
+  assert.ok(types(dup).includes('ui_duplicate_placement'));
+  assert.ok(types(svgWorld(SVG_TAGGED.replace('G-readiness-gateway-firmware', 'G-nope'))).includes('ui_unknown_gap'));
+  assert.ok(types(svgWorld(SVG_TAGGED.replace('readiness.gateway.firmware', 'sld.nope'))).includes('ui_unknown_placement'));
+  assert.ok(types(svgWorld(SVG_TAGGED.replace('as="text"', 'as="p"'))).includes('ui_usage'));
+  assert.ok(types(svgWorld(TAGGED.replace('as="p"', 'as="text"'))).includes('ui_usage'));
+});

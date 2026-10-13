@@ -38,6 +38,13 @@ export const PATTERNS = [
   /no reviewed source/i,
   /not tracked yet/i,
   /commissioning confirmation not recorded/i,
+  // G-02 Q2 (Architect): exact/scoped cues only. "not assessed", "not declared" and "No ... record here" are
+  // NOT matched globally: they also describe ordinary selected-window, configuration or runtime states.
+  /(?<!dispatch )not\s+available\s+here/i, // "Dispatch not available here" is a component-integration state (Q6)
+  /\breadings?\b[^.]{0,40}\bnot\s+assessed\b/i, // SLD: "Readings not assessed here", "any reading has arrived is not assessed"
+  /not\s+assessed\s+on\s+this\s+diagram/i,
+  /no\s+proposed-change\s+record\s+here/i,
+  /no\s+linked\s+constraint\s+evidence/i,
 ];
 
 const toPosix = (p) => p.split(path.sep).join('/');
@@ -54,7 +61,8 @@ const parse = (file) => ts.createSourceFile(file.path, file.text, ts.ScriptTarge
   file.path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
 const lineOf = (sf, node) => sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
 const tagName = (node) => (ts.isJsxElement(node) ? node.openingElement.tagName : ts.isJsxSelfClosingElement(node) ? node.tagName : null);
-const isMissingClaimElement = (node) => tagName(node)?.getText() === 'MissingClaim';
+// MissingClaim renders HTML; MissingClaimSvg renders an SVG <text>/<tspan>. Both carry the same checked pair.
+const isMissingClaimElement = (node) => ['MissingClaim', 'MissingClaimSvg'].includes(tagName(node)?.getText());
 function insideMissingClaim(node) {
   for (let cur = node.parent; cur; cur = cur.parent) if (ts.isJsxElement(cur) && isMissingClaimElement(cur)) return true;
   return false;
@@ -144,6 +152,11 @@ export function analyze({ files, registry, mirror, baseline, mainBaseline = null
         if (opening.attributes.properties.some((a) => ts.isJsxSpreadAttribute(a)) || gapId === null || placement === null) {
           err('ui_usage', where, 'MissingClaim needs literal gapId and placement attributes (no spread or expression)');
         } else {
+          const tag = tagName(node).getText();
+          const asValue = literal(attr('as'));
+          if (tag === 'MissingClaimSvg' && asValue !== null && !['text', 'tspan'].includes(asValue)) err('ui_usage', where, 'MissingClaimSvg as must be "text" or "tspan" (never an HTML element inside SVG)');
+          else if (tag === 'MissingClaimSvg' && attr('as') && asValue === null) err('ui_usage', where, 'MissingClaimSvg as must be a literal "text" or "tspan"');
+          if (tag === 'MissingClaim' && (asValue === 'text' || asValue === 'tspan')) err('ui_usage', where, 'MissingClaim renders HTML; use MissingClaimSvg for SVG text');
           usages.push({ file: file.path, line: lineOf(sf, node), gapId, placement });
           const entry = mirrorMap.get(gapId);
           if (!entry) err('ui_unknown_gap', where, `unknown gap ID ${gapId}; register it in mock_gaps and the UI mirror`);

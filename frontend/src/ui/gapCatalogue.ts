@@ -27,7 +27,7 @@ export const UI_GAP_CATALOGUE = {
   "G-sites-operating-view": { status: "open", placements: ["sites.inventory.operating-view", "sites.inventory.analysis-note"] },
   "G-sites-setup-progress": { status: "open", placements: ["sites.inventory.setup-progress"] },
   "G-sld-protection-metering": { status: "open", placements: ["sld.diagram.protection-metering"] },
-  "G-sld-reporting-status": { status: "open", placements: ["sld.diagram.reporting-status", "sld.diagram.readings-status"] },
+  "G-sld-reporting-status": { status: "open", placements: ["sld.diagram.reporting-status", "sld.diagram.readings-status", "sld.diagram.bus-slot", "sld.diagram.node-slot", "sld.contents.readings-slot", "sld.contents.caption", "sld.intro.readings-status"] },
 } as const satisfies Record<
   string,
   { readonly status: "open" | "resolved_transition"; readonly placements: readonly string[] }

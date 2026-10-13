@@ -1,6 +1,6 @@
 import type { KeyboardEvent, ReactNode } from "react";
 
-import { Badge, DataTable, MissingClaim } from "../ui";
+import { Badge, DataTable, MissingClaim, MissingClaimSvg } from "../ui";
 import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape } from "./componentIcons";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import {
@@ -91,13 +91,27 @@ export const SITE_SLD_HEADING = "Single Line Diagram (Configured)";
 export const AWAITING_RUNTIME_OR_EVIDENCE = "Readings not assessed here";
 
 /** What the diagram is, stated above it in both states. */
-export const SITE_SLD_INTRODUCTION =
+export const SITE_SLD_INTRODUCTION_SCOPE =
   "This is the configured single line diagram: the components this site's " +
   "foundation declares, arranged by the hybrid mini-grid archetype, with the " +
   "connections the document declares between them. It is a picture of the " +
-  "configuration and never of the site's behaviour. Whether " +
-  "any reading has arrived is not assessed in this view, so every value slot " +
-  "on it is empty.";
+  "configuration and never of the site's behaviour.";
+
+/** The introduction's one absent-readings claim (G-sld-reporting-status). */
+export const SITE_SLD_INTRODUCTION_READINGS =
+  "Whether any reading has arrived is not assessed in this view, so every " +
+  "value slot on it is empty.";
+
+function SiteSldIntroduction() {
+  return (
+    <p>
+      {SITE_SLD_INTRODUCTION_SCOPE}{" "}
+      <MissingClaim gapId="G-sld-reporting-status" placement="sld.intro.readings-status">
+        {SITE_SLD_INTRODUCTION_READINGS}
+      </MissingClaim>
+    </p>
+  );
+}
 
 /** What the unavailable state must not be read as saying. */
 export const SITE_SLD_UNAVAILABLE_NOTE =
@@ -382,15 +396,29 @@ function SldBus({
       <text className="sld-node__rating" x={box.x} y={top + 16} textAnchor="middle">
         {ratingText(node)}
       </text>
-      <text
-        className="sld-node__slot"
-        data-sld-slot={content === null ? "unfilled" : "filled"}
-        x={box.x}
-        y={top + 31}
-        textAnchor="middle"
-      >
-        {content?.text ?? slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
-      </text>
+      {slots === null ? (
+        <MissingClaimSvg
+          gapId="G-sld-reporting-status"
+          placement="sld.diagram.bus-slot"
+          className="sld-node__slot"
+          data-sld-slot="unfilled"
+          x={box.x}
+          y={top + 31}
+          textAnchor="middle"
+        >
+          {AWAITING_RUNTIME_OR_EVIDENCE}
+        </MissingClaimSvg>
+      ) : (
+        <text
+          className="sld-node__slot"
+          data-sld-slot={content === null ? "unfilled" : "filled"}
+          x={box.x}
+          y={top + 31}
+          textAnchor="middle"
+        >
+          {content?.text ?? slots.unfilled}
+        </text>
+      )}
       <line
         className="sld-node__bar"
         x1={box.x}
@@ -463,14 +491,27 @@ function SldNode({
           Proposed treatment
         </text>
       )}
-      <text
-        className="sld-node__slot"
-        data-sld-slot={content === null ? "unfilled" : "filled"}
-        x={box.x}
-        y={rating + (node.candidate === null ? 15 : 30)}
-      >
-        {content?.text ?? slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
-      </text>
+      {slots === null ? (
+        <MissingClaimSvg
+          gapId="G-sld-reporting-status"
+          placement="sld.diagram.node-slot"
+          className="sld-node__slot"
+          data-sld-slot="unfilled"
+          x={box.x}
+          y={rating + (node.candidate === null ? 15 : 30)}
+        >
+          {AWAITING_RUNTIME_OR_EVIDENCE}
+        </MissingClaimSvg>
+      ) : (
+        <text
+          className="sld-node__slot"
+          data-sld-slot={content === null ? "unfilled" : "filled"}
+          x={box.x}
+          y={rating + (node.candidate === null ? 15 : 30)}
+        >
+          {content?.text ?? slots.unfilled}
+        </text>
+      )}
     </g>
   );
 }
@@ -787,8 +828,11 @@ function SldContents({
             Every component the diagram draws, with the devices configured
             against it and the signals this site&apos;s foundation declares are
             available about it. The runtime and evidence column is the slot
-            each drawn component carries: both are empty in this build, for
-            every component, and neither holds a reading.
+            each drawn component carries:{" "}
+            <MissingClaim gapId="G-sld-reporting-status" placement="sld.contents.caption">
+              both are empty in this build, for every component, and neither
+              holds a reading.
+            </MissingClaim>
           </caption>
         ) : (
           <caption>
@@ -851,10 +895,13 @@ function SldContents({
                 )}
               </td>
               <td data-sld-row-slot={node.componentId}>
-                <SlotCell
-                  content={slots?.nodes.get(node.componentId) ?? null}
-                  unfilled={slots?.unfilled ?? AWAITING_RUNTIME_OR_EVIDENCE}
-                />
+                {slots === null ? (
+                  <MissingClaim gapId="G-sld-reporting-status" placement="sld.contents.readings-slot">
+                    {AWAITING_RUNTIME_OR_EVIDENCE}
+                  </MissingClaim>
+                ) : (
+                  <SlotCell content={slots.nodes.get(node.componentId) ?? null} unfilled={slots.unfilled} />
+                )}
               </td>
               <td>{node.nodeId}</td>
             </tr>
@@ -1119,7 +1166,7 @@ export function SiteSingleLineDiagram({
       <h3 className="subsection__heading" id={SITE_SLD_HEADING_ID}>
         {SITE_SLD_HEADING}
       </h3>
-      <p>{SITE_SLD_INTRODUCTION}</p>
+      <SiteSldIntroduction />
       {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
 
       {view.status === "compatible" ? (
@@ -1179,7 +1226,7 @@ export function SiteSldPrimary({
         <SldUnavailable reason={view.reason} />
       )}
       {strip}
-      <p>{SITE_SLD_INTRODUCTION}</p>
+      <SiteSldIntroduction />
       {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
     </div>
   );

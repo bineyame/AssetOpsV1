@@ -1809,6 +1809,11 @@ describe("G-02: V-01a pilot missing-state placements", () => {
     "sld.diagram.protection-metering": "Protection and meter positions are not declared in this Foundation topology;",
     "sld.diagram.reporting-status": "monitoring links and reporting status are not assessed on this diagram.",
     "sld.diagram.readings-status": "Readings are not assessed in this view.",
+    "sld.diagram.bus-slot": "Readings not assessed here",
+    "sld.diagram.node-slot": "Readings not assessed here",
+    "sld.contents.readings-slot": "Readings not assessed here",
+    "sld.contents.caption": "both are empty in this build, for every component, and neither holds a reading.",
+    "sld.intro.readings-status": "Whether any reading has arrived is not assessed in this view, so every value slot on it is empty.",
   };
   const COMMISSIONING = [
     "G-readiness-commissioning@readiness.commissioning.confirmed",
@@ -1917,11 +1922,16 @@ describe("G-02: V-01a pilot missing-state placements", () => {
     }
   });
 
-  it("renders the SLD placements beside the drawing, never inside it, across selection and reload", async () => {
+  it("renders the SLD placements: HTML beside the drawing, SVG text tagged on the text element, one placement per slot kind", async () => {
     const expected = [
       "G-sld-protection-metering@sld.diagram.protection-metering",
+      "G-sld-reporting-status@sld.contents.caption",
+      "G-sld-reporting-status@sld.contents.readings-slot",
+      "G-sld-reporting-status@sld.diagram.bus-slot",
+      "G-sld-reporting-status@sld.diagram.node-slot",
       "G-sld-reporting-status@sld.diagram.readings-status",
       "G-sld-reporting-status@sld.diagram.reporting-status",
+      "G-sld-reporting-status@sld.intro.readings-status",
     ];
     for (const path of [`/sites/${ID}/foundation/sld`, `/sites/${ID}/foundation/sld?component=c-storage`, `/sites/${ID}/foundation/sld`]) {
       const view = renderWithGateway(path, fakeFoundation(READY), healthOf(gatewayEntry()));
@@ -1929,7 +1939,30 @@ describe("G-02: V-01a pilot missing-state placements", () => {
       await waitFor(() => expect(document.querySelector("[data-sld-missing]")).not.toBeNull());
       expect(pairsOnPage()).toEqual(expected);
       expectExactClaims();
-      for (const el of tagged()) expect(el.closest("svg")).toBeNull();
+      // SVG claims are SVG text elements; no tagged HTML element sits inside an SVG.
+      const inSvg = tagged().filter((el) => el.closest("svg") !== null);
+      expect(inSvg.length).toBeGreaterThan(0);
+      for (const el of inSvg) {
+        expect(["text", "tspan"]).toContain(el.localName);
+        expect(el.namespaceURI).toBe("http://www.w3.org/2000/svg");
+        expect(el.closest("[data-sld-node]")).not.toBeNull();
+        expect(el.getAttribute("data-sld-slot")).toBe("unfilled");
+        expect(el.hasAttribute("aria-hidden")).toBe(false);
+      }
+      for (const el of tagged().filter((e) => e.closest("svg") === null)) expect(el.namespaceURI).toBe("http://www.w3.org/1999/xhtml");
+      // Every drawn node has one tagged slot; the bus uses its own placement, the rest share the node-slot kind.
+      const nodes = document.querySelectorAll("[data-sld-node]").length;
+      expect(document.querySelectorAll('[data-gap-placement="sld.diagram.bus-slot"]')).toHaveLength(1);
+      expect(document.querySelectorAll('[data-gap-placement="sld.diagram.node-slot"]').length).toBe(nodes - 1);
+      // Parts-table cells: the <td> keeps its row-slot hook and holds exactly the tagged words.
+      const cells = [...document.querySelectorAll<HTMLElement>("td[data-sld-row-slot]")];
+      expect(cells).toHaveLength(nodes);
+      for (const cell of cells) {
+        expect(cell.textContent).toBe("Readings not assessed here");
+        expect(cell.querySelector('[data-gap-placement="sld.contents.readings-slot"]')).not.toBeNull();
+      }
+      // Pure scope statements stay untagged.
+      for (const el of tagged()) expect(el.textContent).not.toMatch(/never of the site's behaviour/);
       // The note keeps its V-01a sentence; the two claims are separate elements inside it.
       const note = document.querySelector("[data-sld-missing]") as HTMLElement;
       expect(note.querySelectorAll("[data-gap-id]")).toHaveLength(2);
