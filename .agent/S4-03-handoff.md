@@ -77,3 +77,129 @@ Refusals (both routes): 401 `UNAUTHENTICATED`, 403 `SITE_SCOPE_FORBIDDEN` (acces
 ### Next
 
 Phase 2 (`I-finding-evidence-ui`): build the Evidence child view on `/sites/{code}/findings/{id}/evidence?revision_id=` over this API; page with `next_offset`; render `lineage.broken_records`/`set_breaks` with `lineage.words`; record links from `links.records`, Dispatch from `links.assessment_revisions`. Respect AC4 (`<MissingClaim>` for absent capabilities; mock ActionEvent/recommendation omitted by default and listed for G-04).
+
+## Phase 2 - `I-finding-evidence-ui`
+
+Implementer: Claude, 2026-10-13. This phase is UI only, plus one backend placeholder retirement. It adds no new read, no Finding writer and no registry or ledger edit.
+
+### What landed (commits)
+
+- `c4ea8f4`: the Evidence child view, the frame section switch, the client, the legacy-tab resolver, C6 `evidence_tab` retirement and tests.
+- `9d6108b`: `.agent/S4-03-questions-1.md` (Q1-Q3, each with its fail-closed default built).
+- `bfab6c8`: walkthrough and browser-evidence tool changes (made by the evidence subagent).
+- `6dd7823`: a fix for the 390 px overflow (`.site-finding-evidence > * { min-width: 0 }`), plain duration words, and a hardened redirect test.
+
+### Route and child-view structure (phase 3 plugs History in here)
+
+- `frontend/src/shell/operatorSiteRoutes.ts:159-180` defines:
+  - `FINDING_CHILD_VIEWS = ["evidence"]` and `FindingChildView`
+  - `SITE_FINDING_VIEW_ROUTE_PATH = /sites/:siteId/findings/:findingId/:findingView`
+  - `siteFindingViewHref(site, id, view, revisionId?)`
+  - `siteEvidenceAcceptedRecordHref(site, evidenceId)`, which builds `/sites/{s}/evidence?view=analysis&record=<accepted id>`. The ledger inspector reads `record` as the exact evidence ID.
+- `frontend/src/App.tsx:254`: both the root path and the child path render `SiteFindingFrame`.
+- `frontend/src/shell/SiteAnalyticsFrames.tsx:285-395` (`SiteFindingFrame`):
+  - It reads `findingView` and `revision_id`.
+  - `FINDING_SECTION_LABELS` is at :295.
+  - It builds the `FindingSections` links: Finding, then each child view, each keeping `revision_id`.
+  - The view switch is at :360. An unknown view name gets a `not_found` panel and no read.
+- What phase 3 needs to add:
+  - `"history"` in `FINDING_CHILD_VIEWS` and `FINDING_SECTION_LABELS`
+  - a branch at the switch
+  - `getFindingHistory` on `FindingClient` (`frontend/src/sites/findingClient.ts:418`)
+- `FindingSections` and `SiteFindingEvidence` are in `frontend/src/sites/SiteFindingEvidence.tsx` (:43, :107).
+- The Evidence view's address state:
+  - `revision_id`
+  - `offset`: the record page, 50 per page (`EVIDENCE_PAGE_SIZE`)
+  - `record`: the selected record (finding-evidence:2)
+- Section links keep `revision_id` only.
+
+### Behaviour (by AC)
+
+- **Selection.**
+  - An omitted version is labelled latest at read time, with a pin link (`[data-evidence-latest-at-read]`, `[data-evidence-pin]`).
+  - An earlier version leads with its non-current notice (`[data-evidence-earlier-version]`).
+  - A closed source leads with "Record only" (`[data-evidence-audit-only]`) and withholds Dispatch links.
+  - An unknown or foreign version gets a 404 panel and the URL is kept. The latest version is offered as a link only and is never substituted.
+- **Counts.**
+  - Cited and input totals are shown separately (`[data-evidence-cited-total]`, `[data-evidence-input-total]`).
+  - Sources are grouped by gateway, source and epoch. The registered source mode is shown as its exact recorded value.
+  - Case-manifest notes appear when present.
+- **Lineage.**
+  - The positive sentence ("every cited record traces…") appears only when `lineage.status == COMPLETE`.
+  - When BROKEN, the view lists `set_breaks` and `broken_records`. An unresolved row shows only the withheld sentence.
+  - Link words come from the frontend `LINK_WORDS` map (`SiteFindingEvidence.tsx:69`), falling back to `lineage.words` (Q2: the backend's words use banned product vocabulary).
+- **Links.**
+  - The record inspector link appears only when `links.records[id]` exists.
+  - A Dispatch link appears only when `links.assessment_revisions[id]` exists. An INTERVAL assessment links to `?day=&revision=`, a WINDOW assessment to `?day=`.
+- **Legacy tab** (`/findings/{site}/{assessment}/evidence`).
+  - `LegacyFindingEvidence` (`SiteFindingEvidence.tsx:690`, wired into `FindingDetail.tsx`) reads `finding-windows/{day}`.
+  - With exactly one saved Finding it redirects (replace) to that Finding's Evidence view. With several it offers a choice. With none, or when the read is refused, it says so in plain words.
+  - The old per-segment `FindingEvidence` list is removed (Q1).
+- **C6.** The `evidence_tab` key is removed from `finding_read.UNAVAILABLE`. Two placeholders remain for phase 3 to retire: `history_tab`, and the S4-01 page's history "Not yet available" text (`SiteFinding.tsx` WhereToLook, baselined).
+- **AC4.** No new absent-capability phrase and no `<MissingClaim>` were added. The missing-claim scan is unchanged: 1 tagged, 16 baselined.
+
+### G-04 list (mock content omitted, not rendered)
+
+- Mock `finding-evidence` has no ActionEvent or recommendation element (index.html:715-717), so nothing was omitted for that reason.
+- From the mock tab row (index.html:1106), "Alternatives" and "Recommendation" are not rendered in the app's Finding sections. "History" is phase 3.
+- The mock `finding-evidence:1` bundle summary rows are illustrative and are not rendered as rows:
+  - Generator state/power GEN-001
+  - Battery SOC BMS-001, "delayed report received 16:00"
+  - PCS capability PCS-001, "14:50 missing"
+  - PV/load INV-001/MTR-001
+
+  The app shows the actual cited records instead. It has no device-code summary and no coverage/use column.
+
+### Evidence
+
+- **Tools.**
+  - `tools/s4_finding_walkthrough.py` gains:
+    - `--db`/`--work` (env `ASSETOPS_S4_WALK_DB`/`_WORK`; protected names are refused)
+    - Evidence links
+    - `close-gate`/`open-gate`
+    - `drop`
+  - `tools/s4-finding-evidence.mjs` gains:
+    - env `ASSETOPS_S4_WALK_WORK` and `ASSETOPS_CDP_PORT`
+    - `ASSETOPS_S4_EVIDENCE_SUITE=all|finding|evidence|closed|broken`
+- **Setup for the final run on `6dd7823`.**
+  - Private DB `assetops_s403p2_walk`, a template copy of `assetops_s4cases`.
+  - API on 8898, Vite on 5398.
+  - Output in `%TEMP%\s403p2-evidence-r2\`: PNGs (`-desktop` = 1440, `-narrow` = 390) and `run-all.log`, `run-closed.log`, `run-broken.log`.
+  - Afterwards the DB and work folder were dropped and the PIDs stopped.
+- **all: 68/68 PASS.**
+  - F01-gateway `624f2558`: 102 cited and 263 input, both equal to the API. The first row, `42f8352e`, equals the API.
+  - Page 2 (offset 50): 50 rows. The first row, `79b569b0`, equals the API.
+  - F04 `d176a8f0` v1, pinned: the earlier-version notice leads and the total is 42 (v2 is 78).
+  - Unknown version: refused with 404 and the URL is unchanged.
+  - Keyboard: Tab×22 then Enter selects a record (`record=` appears in the URL). Reload keeps the URL and the record. Tab×72 then Enter on Next goes to `offset=50`.
+  - The mock `#/finding-evidence` was captured at both widths.
+- **closed: 4/4 PASS.** The unpinned read returns 409. Pinned F04 v1 leads with "Record only", has 0 Dispatch links, and its total is 42.
+- **broken: 6/6 PASS.** This used a deliberate tamper of the private DB only: one envelope of F03 `3a4affdc` was altered. Lineage is BROKEN, the broken records `[0430330d]` equal the API, and `ENVELOPE_DIGEST` is named.
+- **Overflow.** Measured element counts were 48, 85 and 90, all non-empty. Width was 390 vs 390 at 390 px and 1425 vs 1425 at 1440 px. Round 1 had 693 vs 390 at 390 px, which `6dd7823` fixed.
+- **Legacy tab not captured.** KOBO-001's legacy endpoints return `AWAITING_EVIDENCE_MIGRATION`, so no assessment ID exists to open. Unit tests cover it.
+- **Layout evidence: not run.**
+  - `tools/layout-evidence.mjs` creates Lab runs on its default path (lines 716 and 3121).
+  - It defaults to site MG-001, which is absent from this store.
+  - It never visits `/sites/<site>/findings/<id>/evidence`.
+
+  For this path, the S4 evidence script's overflow measurements above are the layout evidence.
+
+### Checks (actual)
+
+- `siteFindingEvidence.test.tsx`: 21 passed.
+- Full frontend vitest: 59 files, 1412 passed.
+- `tsc --noEmit`: clean.
+- `npm run build`: exit 0, with a chunk-size warning only.
+- Backend `test_s4_finding_evidence_history_api.py` + `test_s4_finding_api.py`: 22 passed.
+- `tools/check-all.ps1`: all 9 guards passed.
+- Non-vacuity proofs, on committed code, each reverted with `git checkout --`:
+  - Forcing the COMPLETE branch makes "names broken links… withholds the positive lineage claim" fail.
+  - `dispatchable = true` makes "closed source… no Dispatch link" fail.
+
+### Open risks
+
+- Q1-Q3 are still open; their defaults are built.
+- The legacy redirect matches by day, not by exact assessment.
+- The WINDOW assessment row shows 0 cited records when segments cite only interval revisions. That is accurate data but may read oddly.
+- The narrow pinned-record screenshot hits the script's 7000 px height cap. The image is cut off; the page is not clipped.
+- Phase 1 carry C1 (`ASSESSMENT_CITATION`) is unchanged.
