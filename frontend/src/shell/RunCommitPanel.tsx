@@ -17,6 +17,12 @@ export interface RunCommitPanelProps {
   runId: string;
   runSetup: RunSetupClient;
   stage: RunStageResult | null;
+  /**
+   * V-01b b2: told every Commit read this panel holds (null while loading), so
+   * the run page's Gateway & Ingestion overview states delivery from the same
+   * read instead of reading the Commit a second time.
+   */
+  onRead?: (read: RunCommitResult | null) => void;
 }
 
 /**
@@ -31,7 +37,7 @@ export interface RunCommitPanelProps {
  * Reload reads the persisted Commit, so a refreshed screen shows the same
  * outcome rather than a fresh Commit button.
  */
-export function RunCommitPanel({ runId, runSetup, stage }: RunCommitPanelProps) {
+export function RunCommitPanel({ runId, runSetup, stage, onRead }: RunCommitPanelProps) {
   const [read, setRead] = useState<RunCommitResult | null>(null);
   const [refusal, setRefusal] = useState<RunCommitResult | null>(null);
   const [pending, setPending] = useState(false);
@@ -48,6 +54,10 @@ export function RunCommitPanel({ runId, runSetup, stage }: RunCommitPanelProps) 
       active = false;
     };
   }, [runSetup, runId]);
+
+  useEffect(() => {
+    onRead?.(read);
+  }, [onRead, read]);
 
   const commit = useCallback(async () => {
     setPending(true);

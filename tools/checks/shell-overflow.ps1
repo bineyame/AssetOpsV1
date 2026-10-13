@@ -220,12 +220,17 @@ function Invoke-ShellOverflowCheck {
             "vertically when it is empty.")) | Out-Null
     }
 
-    # 2b. The phone-width shell rules belong to the operator Site shell
-    #     (`.app-frame--operator`). The Simulator Lab shares `.app-frame` and
-    #     its phone layout was never verified, so a bare `.app-frame` or
-    #     `.nav-rail` selector in a narrow media block silently changes it
-    #     (Architect Q1, S1-03 fix round).
+    # 2b. The phone-width shell rules belong to the two named shells: the
+    #     operator Site shell (`.app-frame--operator`) and the Simulator Lab
+    #     shell (`.app-frame--lab`, whose phone layout V-01b verifies in the
+    #     browser). Both share `.app-frame`, so a bare `.app-frame` or
+    #     `.nav-rail` selector in a narrow media block silently changes an
+    #     unnamed frame (Architect Q1, S1-03 fix round). Each selector part
+    #     must name one of the two shells, and each shell must have at least
+    #     one narrow rule, so neither half of the check is vacuous.
     $narrowRuleCount = 0
+    $narrowOperatorParts = 0
+    $narrowLabParts = 0
     foreach ($media in [regex]::Matches($css, '(?s)@media\s*\(\s*max-width\s*:\s*(\d+)px\s*\)\s*\{((?:[^{}]|\{[^{}]*\})*)\}')) {
         if ([int]$media.Groups[1].Value -gt 640) { continue }
         foreach ($rule in [regex]::Matches($media.Groups[2].Value, '(?s)([^{}]+)\{[^{}]*\}')) {
@@ -233,19 +238,28 @@ function Invoke-ShellOverflowCheck {
             if ($selector -notmatch 'app-frame|nav-rail') { continue }
             $narrowRuleCount++
             foreach ($part in ($selector -split ',')) {
-                if ($part -notmatch 'app-frame--operator') {
+                if ($part -match '^\s*\.app-frame--operator(?![\w-])') {
+                    $narrowOperatorParts++
+                } elseif ($part -match '^\s*\.app-frame--lab(?![\w-])') {
+                    $narrowLabParts++
+                } else {
                     $failures.Add(("'$($part.Trim())' in a max-width:$($media.Groups[1].Value)px " +
-                        "block of $primitivesCss is not scoped to .app-frame--operator. " +
-                        "The Simulator Lab shares these classes and its phone layout " +
-                        "is not verified, so a shell rule here changes it unreviewed.")) | Out-Null
+                        "block of $primitivesCss is not scoped to .app-frame--operator or " +
+                        ".app-frame--lab. Both shells share these classes, so an unscoped " +
+                        "shell rule here changes a frame unreviewed.")) | Out-Null
                 }
             }
         }
     }
-    if ($narrowRuleCount -eq 0) {
+    if ($narrowRuleCount -eq 0 -or $narrowOperatorParts -eq 0) {
         $failures.Add(("No narrow-width .app-frame--operator rule was found in " +
             "$primitivesCss, so the scoping check is vacuous. Update the check, " +
             "do not delete it.")) | Out-Null
+    }
+    if ($narrowLabParts -eq 0) {
+        $failures.Add(("No narrow-width .app-frame--lab rule was found in " +
+            "$primitivesCss. The Simulator Lab shell at phone width gave its " +
+            "main column about 95px of 375px (S1-03 Q1 carry, closed by V-01b).")) | Out-Null
     }
 
     # 3. Nobody hides page overflow instead of containing it.

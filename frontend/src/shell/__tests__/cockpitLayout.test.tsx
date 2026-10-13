@@ -119,7 +119,17 @@ describe("the organised run cockpit (T025e AC9)", () => {
     const cockpit = one("[data-cockpit]");
     const tables = Array.from(document.querySelectorAll("table"));
     expect(tables.length).toBeGreaterThan(10);
+    // V-01b b2: the one table above the cockpit is the Gateway & Ingestion
+    // overview's truth-versus-observed table, and it cannot grow with the run:
+    // it has exactly one reserved row per declared signal, from before the
+    // first step to the end.
+    const truth = document.querySelector("[data-ingestion-panel='truth'] table");
     for (const table of tables) {
+      if (table === truth) {
+        expect(before(table, cockpit)).toBe(true);
+        expect(table.querySelectorAll("tbody tr")).toHaveLength(EXECUTION.signals.length);
+        continue;
+      }
       expect(cockpit.contains(table) || before(cockpit, table)).toBe(true);
     }
     // The per-step tables and the newest attempts are in the closed latest-step

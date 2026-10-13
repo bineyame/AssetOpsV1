@@ -72,8 +72,51 @@ const IMPORTED_SITE_ACTIONS = new Set([PUBLISH_RESERVE_LABEL, PUBLISH_BINDING_LA
 // S1-01: the Site the Lab run setup binds to. Defaults to SITE; set it to an
 // unimported Site when SITE is imported, because the Lab refuses an imported
 // Site's Draft setup until S2.
-const LAB_SITE = process.env.ASSETOPS_LAB_SITE ?? SITE;
-const PORT = 9333;
+const LAB_SITE_REQUESTED = process.env.ASSETOPS_LAB_SITE ?? SITE;
+
+// V-01b: the Lab basis this store can answer. `/api/sites` lists only the
+// Sites the store holds; once the Lab's Sites are registered (POSTGRES) the
+// legacy MG-001 is not listed and its 2026-09-21/22 interval has no Foundation
+// revision, so Run setup rightly keeps "Create draft run" disabled. The tool,
+// not the product, adapts: it measures the Site the store lists, and on a
+// registered Site an interval and profiles inside that Site's registered
+// basis. Override with ASSETOPS_LAB_START / ASSETOPS_LAB_END.
+const LAB_SITE = await (async () => {
+  if (process.env.ASSETOPS_LAB_SITE) return process.env.ASSETOPS_LAB_SITE;
+  try {
+    const response = await fetch(`${BASE}/api/sites`);
+    const listed = response.ok ? ((await response.json()).sites ?? []).map((row) => row.site_id) : [];
+    if (listed.length > 0 && !listed.includes(LAB_SITE_REQUESTED)) {
+      console.log(`Lab Site ${LAB_SITE_REQUESTED} is not listed by this store; measuring ${listed[0]}.`);
+      return listed[0];
+    }
+  } catch {
+    /* an unreadable index leaves the requested Site; the page will say why */
+  }
+  return LAB_SITE_REQUESTED;
+})();
+const LAB_REGISTERED = (await configurationStore(LAB_SITE)) === "POSTGRES";
+const LEGACY_LAB_START = "2026-09-21T00:00:00Z";
+// Registered default: Foundation v10 of KOBO-001 is valid 2026-10-03..2026-10-21,
+// so the shipped Fuel Loss Event's 41-hour interval fits inside one basis.
+const LAB_START = process.env.ASSETOPS_LAB_START ?? (LAB_REGISTERED ? "2026-10-04T00:00:00Z" : LEGACY_LAB_START);
+const LAB_END = process.env.ASSETOPS_LAB_END ?? (LAB_REGISTERED ? "2026-10-05T17:00:00Z" : "2026-09-22T17:00:00Z");
+const LAB_SHIFT_MS = Date.parse(LAB_START) - Date.parse(LEGACY_LAB_START);
+/** A legacy-interval instant (`2026-09-22T00:50`) moved onto the measured interval, same precision. */
+const labAt = (legacy) =>
+  new Date(Date.parse(legacy.length === 16 ? `${legacy}:00Z` : legacy) + LAB_SHIFT_MS)
+    .toISOString()
+    .slice(0, legacy.length);
+// Profiles by `id@version` prefix on a registered Site (the registered Lab path
+// refuses unregistered publication); the first option otherwise, as before.
+const LAB_BLOCKED_PROFILES = LAB_REGISTERED ? ["mini-grid@3", "registered-kobo-publication@3"] : [null, null];
+const LAB_READY_PROFILES = LAB_REGISTERED ? ["minimal-fuel-tank@1", "registered-kobo-publication@3"] : [null, null];
+console.log(
+  `Lab basis: ${LAB_SITE} (${LAB_REGISTERED ? "registered" : "legacy file"}), ${LAB_START} to ${LAB_END}`,
+);
+// V-01b: overridable so two agents measuring different private servers do not
+// share one debugging port. 9361/9384 belong to other tooling.
+const PORT = Number(process.env.ASSETOPS_CDP_PORT ?? 9333);
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 
 const profile = mkdtempSync(join(tmpdir(), "assetops-cdp-"));
@@ -552,10 +595,21 @@ async function visit(cdp, path, width, height, waitFor, act) {
       acted = answer.result.value;
     }
     if (acted === "not-ready") {
+      // V-01b: say what the page says. Run setup names why Create is disabled
+      // in #run-setup-blocked-reason; a generic message hid an unconfigured
+      // Foundation instant behind "the page never became ready".
+      const reason = (
+        await cdp.send("Runtime.evaluate", {
+          expression: "document.getElementById('run-setup-blocked-reason')?.textContent?.trim() ?? null",
+          returnByValue: true,
+        })
+      ).result.value;
       throw new Error(
         `The page action for ${path} found its submit still disabled after ` +
-          "ten seconds, so nothing was submitted. The page never became " +
-          "ready; it is not that the form is wrong.",
+          "ten seconds, so nothing was submitted. " +
+          (reason
+            ? `The page says: ${reason}`
+            : "The page never became ready and named no reason; it is not that the form is wrong."),
       );
     }
     if (acted !== true) {
@@ -598,7 +652,7 @@ async function visit(cdp, path, width, height, waitFor, act) {
  * layout needs measuring: the frozen summary AND the reasons are both on the
  * page at once.
  */
-const SUBMIT_RUN_SETUP = `(() => {
+const submitRunSetup = ([modelProfile, publicationProfile]) => `(() => {
   const setNative = (prototype, element, value) => {
     const setter = Object.getOwnPropertyDescriptor(prototype, "value").set;
     setter.call(element, value);
@@ -618,10 +672,12 @@ const SUBMIT_RUN_SETUP = `(() => {
   // field that it did; choosing explicitly keeps this script measuring the
   // same submitted draft whether or not a second profile ever ships. The
   // first real option is taken - the leading one is the empty "choose" entry.
-  const chooseFirst = (id) => {
+  const chooseFirst = (id, prefix) => {
     const element = document.getElementById(id);
     if (!element) return false;
-    const option = Array.from(element.options).find((item) => item.value !== "");
+    const option = Array.from(element.options).find(
+      (item) => item.value !== "" && (prefix === null || item.value.startsWith(prefix)),
+    );
     if (!option) return false;
     setNative(window.HTMLSelectElement.prototype, element, option.value);
     return true;
@@ -649,12 +705,12 @@ const SUBMIT_RUN_SETUP = `(() => {
 
   const filled =
     chooseSite() &&
-    setValue("run-setup-start", "2026-09-21T00:00:00Z") &&
-    setValue("run-setup-end", "2026-09-22T17:00:00Z") &&
+    setValue("run-setup-start", ${JSON.stringify(LAB_START)}) &&
+    setValue("run-setup-end", ${JSON.stringify(LAB_END)}) &&
     setValue("run-setup-timestep", "15") &&
     setValue("run-setup-seed", "20260921") &&
-    chooseFirst("run-setup-model-profile") &&
-    chooseFirst("run-setup-publication-profile");
+    chooseFirst("run-setup-model-profile", ${JSON.stringify(modelProfile)}) &&
+    chooseFirst("run-setup-publication-profile", ${JSON.stringify(publicationProfile)});
 
   const submit = Array.from(document.querySelectorAll("main button")).find(
     (button) => (button.textContent || "").trim() === "Create draft run",
@@ -1151,6 +1207,13 @@ if (process.env.ASSETOPS_LAYOUT_T028_JOURNEY_ONLY === "1") {
   process.exit(allPass ? 0 : 1);
 }
 
+if (process.env.ASSETOPS_LAYOUT_V01B_ONLY === "1") {
+  // V-01b: the registered Kobo Lab section alone (Draft, T025d drawing claims,
+  // Gateway & Ingestion overview); nothing else in this file runs.
+  allPass = (await registeredKoboLab(process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001")) && allPass;
+  finishRun();
+}
+
 if (process.env.ASSETOPS_LAYOUT_S2_01A_RUN) {
   // S2-01a: a run set up from a registered basis, measured alone. The run ID
   // names an already created registered Draft; nothing else in this file runs.
@@ -1221,8 +1284,9 @@ if (process.env.ASSETOPS_LAYOUT_S2_01B_RUN) {
           status: ledger ? ledger.getAttribute("data-gateway-status") : null,
           snapshot: snap ? snap.textContent : "",
           snapshotRight: right(snap),
-          upload: document.querySelector("[data-gateway-upload]")?.getAttribute("data-gateway-upload") ?? null,
-          receipts: document.querySelector("[data-gateway-receipts]")?.textContent ?? null,
+          neutral: document.querySelector("[data-gateway-delivery-neutral]")?.textContent ?? null,
+          constantUpload: document.querySelector("[data-gateway-upload]") !== null,
+          constantReceipts: document.querySelector("[data-gateway-receipts]") !== null,
           batches: document.querySelectorAll("[data-gateway-batch]").length,
           envelopes: document.querySelectorAll("[data-gateway-envelope]").length,
           holds: document.querySelectorAll("[data-gateway-hold]").length,
@@ -1245,7 +1309,7 @@ if (process.env.ASSETOPS_LAYOUT_S2_01B_RUN) {
       ["the page does not scroll horizontally", m.scrollWidth <= m.clientWidth, `scrollWidth ${m.scrollWidth} vs clientWidth ${m.clientWidth}`],
       ["the Stage is the gateway ledger, staged", m.status === "STAGED", String(m.status)],
       ["the snapshot hash is drawn in full and ends inside the viewport", /^[0-9a-f]{64}$/.test(m.snapshot) && m.snapshotRight !== null && m.snapshotRight <= m.clientWidth, `right ${m.snapshotRight}`],
-      ["upload is pending with no receipt", m.upload === "PENDING" && m.receipts === "None", `${m.upload} / ${m.receipts}`],
+      ["upload and receipt state are not asserted by the Stage", /does not establish upload or central receipt/.test(m.neutral ?? "") && !m.constantUpload && !m.constantReceipts, `${m.neutral} / ${m.constantUpload} / ${m.constantReceipts}`],
       ["sealed batches are drawn, each with its full SHA-256 (set not empty)", m.batches > 0 && m.shaFull === m.batches, `${m.batches} batches, ${m.shaFull} full digests`],
       ["the batch table scrolls inside its own box", m.scrollersRight <= m.clientWidth, `right ${m.scrollersRight}`],
       ["sealed envelopes are drawn (set not empty)", m.envelopes > 0, `${m.envelopes} envelopes, ${m.holds} holds`],
@@ -2137,7 +2201,10 @@ allPass =
 for (const [label, width, height] of [
   ["1280x800, the committed minimum", 1280, 800],
   ["1000x700, below the commitment", 1000, 700],
-  ["640x700, narrow enough that the summary cannot fit", 640, 700],
+  ["640x700, below the commitment", 640, 700],
+  // V-01b: the Lab shell now collapses its rail below 640px, so the summary fits
+  // at 640px; the non-empty overflow proof is made at phone width.
+  ["390x800, phone width, narrow enough that the summary cannot fit", 390, 800],
 ]) {
   const setup = await visit(
     cdp,
@@ -2145,7 +2212,7 @@ for (const [label, width, height] of [
     width,
     height,
     "form",
-    { script: SUBMIT_RUN_SETUP, waitFor: ".data-table__scroll" },
+    { script: submitRunSetup(LAB_BLOCKED_PROFILES), waitFor: ".data-table__scroll" },
   );
 
   // The two tables by name. `scrollers.some(...)` would let one table's
@@ -2255,7 +2322,7 @@ for (const [label, width, height] of [
           ? "no region named run-setup-blocked-heading"
           : `${blocked.name}: ${blocked.columnCount} columns, ${blocked.rowCount} rows`,
       ],
-      ...(width <= 640
+      ...(width <= 390
         ? [
             [
               "at least one table overflows here, so the claim above is not vacuous",
@@ -2292,7 +2359,12 @@ for (const [label, width, height] of [
 // the inventory below then finds it as the newest READY row.
 const readySetup = await visit(
   cdp,
-  "/simulator-lab/scenarios/fuel-loss-event-mg006/run-setup",
+  // V-01b: the user's MG-006 scenario exists only beside the legacy MG-001; on
+  // a registered Site the shipped Fuel Loss Event reaches READY under the
+  // minimal fuel-tank profile and the registered publication profile.
+  LAB_REGISTERED
+    ? "/simulator-lab/scenarios/fuel-loss-event/run-setup"
+    : "/simulator-lab/scenarios/fuel-loss-event-mg006/run-setup",
   1280,
   800,
   "form",
@@ -2301,7 +2373,7 @@ const readySetup = await visit(
   // is exactly what happened the first time this ran, and the inventory below
   // then found a Draft from an earlier build instead of this one. The summary
   // table only exists after a Draft was created, so that is what is waited for.
-  { script: SUBMIT_RUN_SETUP, waitFor: ".data-table__scroll" },
+  { script: submitRunSetup(LAB_READY_PROFILES), waitFor: ".data-table__scroll" },
 );
 console.log(
   `\n=== Created a Draft for the execution measurements ===\n  ` +
@@ -2542,11 +2614,14 @@ for (const [state, href, expectBlockedTable] of [
               // nothing about a Lab that can execute. T025d adds exactly two:
               // auto-play of the guarded Step, and its pause.
               // T027 adds the Commit control, disabled until the run completes.
-              "a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit",
+              "a ready draft offers exactly the three execution controls and auto-play's two, at least one enabled, and a disabled Commit (none on a registered Site until its gateway can release)",
               run.buttons.filter((b) => b.label !== "Commit and release").map((b) => b.label).join("|") ===
                 "Start this run|Step|Run to the end|Play|Pause" &&
                 run.buttons.some((b) => b.label !== "Commit and release" && !b.disabled) &&
-                run.buttons.filter((b) => b.label === "Commit and release").length === 1 &&
+                // V-01b: a registered run's Commit panel (S2-02) offers
+                // "Commit and release" only once its gateway can release, so a
+                // ready registered Draft shows none; a legacy one shows one, disabled.
+                run.buttons.filter((b) => b.label === "Commit and release").length === (LAB_REGISTERED ? 0 : 1) &&
                 run.buttons.every((b) => b.label !== "Commit and release" || b.disabled),
               run.buttons
                 .map((b) => `${b.label}:${b.disabled ? "disabled" : "ENABLED"}`)
@@ -2584,6 +2659,27 @@ for (const [state, href, expectBlockedTable] of [
   }
 }
 
+// V-01b: a labelled block, so the executed-run sections can be reported as a
+// named precondition failure on a registered Lab Site and nothing below them
+// changes. On KOBO-001 (registered) the shipped Fuel Loss Event reaches READY
+// but cannot execute: its scenario-owned starting fuel level (430 L) is above
+// the registered tank capacity (400 L), so the kernel stops at offset 0 with a
+// balance-identity violation - correctly. The fuel event this section steps
+// across exists only on the legacy MG-001/MG-006 basis.
+t022: {
+if (LAB_REGISTERED) {
+  allPass =
+    report("The executed run (T022), Fuel Loss Event", null, [
+      [
+        "precondition: a Lab Site whose fuel tank holds the Fuel Loss Event's 430 L starting level. " +
+          `${LAB_SITE} is registered here and its tank capacity is lower, so the run fails at offset 0 ` +
+          "(BALANCE_IDENTITY_VIOLATION) and the stepped, staged and completed claims cannot be made",
+        false,
+        "not run",
+      ],
+    ]) && allPass;
+  break t022;
+}
 // --- The executed run, which is what T022 is for -------------------------
 //
 // jsdom has no layout, so no suite in this repository can see any of this. It is
@@ -2734,7 +2830,7 @@ for (const [label, width, height] of [
           fuel.sourceTime !== null &&
           fuel.sourceTime !== stepped.simulationTime &&
           fuel.sourceTime < (stepped.simulationTime ?? "") &&
-          fuel.sourceTime < "2026-09-22T00:50",
+          fuel.sourceTime < labAt("2026-09-22T00:50"),
         fuel === undefined
           ? "no fuel row"
           : `source ${fuel.sourceTime}, now ${stepped.simulationTime}`,
@@ -2756,7 +2852,7 @@ for (const [label, width, height] of [
       [
         "the newest staged envelope is the last reading before the gap, published after its source time",
         newestStaged !== undefined &&
-          newestStaged.sourceTime < "2026-09-22T00:50" &&
+          newestStaged.sourceTime < labAt("2026-09-22T00:50") &&
           newestStaged.publishedAt > newestStaged.sourceTime &&
           (newestStaged.value ?? "").startsWith("373.52"),
         newestStaged === undefined
@@ -2768,11 +2864,11 @@ for (const [label, width, height] of [
         stepped.stagedRows.every(
           (row) =>
             !(
-              row.sourceTime >= "2026-09-22T00:50" &&
-              row.sourceTime < "2026-09-22T02:20"
+              row.sourceTime >= labAt("2026-09-22T00:50") &&
+              row.sourceTime < labAt("2026-09-22T02:20")
             ),
         ),
-        `${stepped.stagedRows.filter((row) => row.sourceTime >= "2026-09-22T00:50").length} rows at or after the gap opened`,
+        `${stepped.stagedRows.filter((row) => row.sourceTime >= labAt("2026-09-22T00:50")).length} rows at or after the gap opened`,
       ],
       [
         "the exact canonical text is drawn, parses, wraps, and stays inside its box",
@@ -2938,6 +3034,7 @@ allPass =
     ],
   ]) && allPass;
 
+} // t022
 const lab = await visit(cdp, "/simulator-lab", 1280, 800, ".app-frame");
 allPass =
   report("Simulator Lab at 1280x800", lab, [
@@ -2955,11 +3052,23 @@ allPass =
 // product screens those commits fill, so they are reported as inapplicable -
 // not passed, not deleted - and run again unchanged when Kobo is not imported.
 if ((await configurationStore(process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001")) === "POSTGRES") {
-  console.log(
-    "\n=== Kobo Lab run and Commit sections (T024-T028) ===\n" +
-      "  SKIP  inapplicable until S2: KOBO-001 is imported into the stored Foundation and the Lab " +
-      "refuses Draft setup, start, step, run-to-end and Commit against it (S1-01). Not counted as passed.",
-  );
+  // V-01b: S2 restored the registered Lab path, so a registered Kobo Draft is
+  // created, executed and measured here: the T025d interval-drawing claims and
+  // the Gateway & Ingestion overview. The legacy T024-T028 sections below are
+  // written against a legacy file Kobo (2026-09-22 values, the file Stage and
+  // the legacy Commit); they cannot run on a registered Kobo and are reported
+  // as a named precondition failure - not passed, not silently skipped.
+  allPass = (await registeredKoboLab(process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001")) && allPass;
+  allPass =
+    report("Kobo Lab run and Commit sections (T024-T028), legacy file Kobo", null, [
+      [
+        "precondition: a legacy file Kobo Site. KOBO-001 is registered (POSTGRES) on this store, so these " +
+          "sections' legacy Stage, legacy Commit and 2026-09-22 values cannot be produced; the registered " +
+          "Kobo run above measures the T025d drawing claims and the Gateway & Ingestion overview instead",
+        false,
+        "not run",
+      ],
+    ]) && allPass;
   finishRun();
 }
 
@@ -5341,6 +5450,232 @@ async function t028Journey({ labOff }) {
 }
 
 finishRun();
+
+// --- V-01b: a registered Kobo Draft, its drawing and its Gateway & Ingestion --
+//
+// Created through Run setup inside the registered basis (Foundation v7,
+// 2026-10-02; `mini-grid@3` under `registered-kobo-publication@3`; override
+// with ASSETOPS_KOBO_START / ASSETOPS_KOBO_END), started and run to its end.
+// Then the T025d inspection claims at three widths on the interval that ended
+// at offset 65, and the Gateway & Ingestion overview at 1440 and 390 px - on
+// this fresh, unreleased run and, when ASSETOPS_LAYOUT_V01B_RELEASED_RUN names
+// one, on a released run with central receipts.
+// A function declaration, not a const: registeredKoboLab runs above where
+// this text sits, and a const here would not be initialised yet.
+function readIngestionScript() {
+  return `(() => {
+  const q = (s, root = document) => root.querySelector(s);
+  const all = (s, root = document) => Array.from(root.querySelectorAll(s));
+  const o = q('[data-run-ingestion]');
+  if (o === null) return { present: false };
+  const boxes = all('[data-flow-box]', o);
+  return {
+    present: true,
+    firstH2: (q('main h2')?.textContent || '').trim(),
+    boxes: boxes.map((b) => b.getAttribute('data-flow-box')),
+    boxTops: boxes.map((b) => Math.round(b.getBoundingClientRect().top)),
+    boxTexts: boxes.map((b) => (b.textContent || '').trim()),
+    titles: all('.panel__heading', o).map((h) => (h.textContent || '').trim()),
+    badges: all('[data-ingestion-status] .badge', o).map((b) => (b.textContent || '').trim()),
+    delivery: (q('[data-ingestion-delivery]', o)?.textContent || '').trim() || null,
+    evidenceLink: q('a[data-ingestion-evidence-link]', o)?.getAttribute('href') ?? null,
+    received: (q('[data-ingestion-received]', o)?.textContent || '').trim() || null,
+    missing: all('[data-ingestion-missing]', o).map((m) => (m.textContent || '').trim()),
+    envelope: q('[data-ingestion-envelope]', o)?.getAttribute('data-ingestion-envelope') ?? null,
+    commitInside: o.contains(q('[data-run-commit]')),
+    // A table scrolls inside its own region (T024 rule), so its cells are
+    // measured by the region's box, not their own.
+    right: Math.round(Math.max(...all('*', o).filter((e) => e.parentElement.closest('.data-table__scroll') === null).map((e) => e.getBoundingClientRect().right))),
+    widest: all('*', o).filter((e) => e.parentElement.closest('.data-table__scroll') === null).sort((a, b) => b.getBoundingClientRect().right - a.getBoundingClientRect().right).slice(0, 1).map((e) => e.tagName + '[' + Object.keys(e.dataset).join(',') + ']')[0] ?? '',
+    mainWidth: Math.round(q('main')?.getBoundingClientRect().width ?? 0),
+    viewport: document.documentElement.clientWidth,
+    pageScrolls: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  };
+})()`;
+}
+
+function ingestionClaims(read, label) {
+  const receipts = /^(\d+) of (\d+) batches have a central receipt$/.exec(read.delivery ?? "");
+  const received = receipts !== null && Number(receipts[1]) > 0;
+  return [
+    ["the overview is drawn", read.present === true, label],
+    ["the first section heading is Gateway & Ingestion", read.firstH2 === "Gateway & Ingestion", read.firstH2],
+    [
+      "the flow strip has the four boxes in order, each with a fact",
+      (read.boxes ?? []).join(",") === "world,reports,envelopes,accepted" &&
+        read.boxTexts.every((t) => t.length > 25),
+      (read.boxTexts ?? []).map((t) => t.slice(0, 60)).join(" | "),
+    ],
+    [
+      "the four lab panels are present",
+      ["Selected canonical envelope", "Truth versus observed", "Release and ingestion", "What never crosses"].every(
+        (t) => (read.titles ?? []).includes(t),
+      ),
+      (read.titles ?? []).join(", "),
+    ],
+    ["the status bar states commit and execution", (read.badges ?? []).length === 2, (read.badges ?? []).join(" / ")],
+    [
+      "Site Evidence is linked exactly when the Commit read has a central receipt",
+      received
+        ? read.evidenceLink !== null && read.evidenceLink.includes("/evidence?from=")
+        : read.evidenceLink === null && read.received !== null,
+      `${read.delivery ?? "no delivery fact"}; link ${read.evidenceLink ?? "none"}; ${read.received ?? ""}`,
+    ],
+    [
+      "missing facts are named, not filled",
+      (read.missing ?? []).length === 2 && read.missing.every((m) => m.startsWith("Not available yet:")),
+      `${(read.missing ?? []).length} named`,
+    ],
+    ["the Commit and release panel is kept in the overview", read.commitInside === true, ""],
+    // Below 640 px the Simulator Lab shell keeps its rail beside the content
+    // (the operator shell's S1-03 narrow layout is scoped away from the Lab;
+    // the Lab phone layout is an open carry, Architect Q1 of the S1-03 fix
+    // round), leaving <main> about 95 px. That is named, not passed.
+    ...(read.viewport < 640 && read.mainWidth < 200
+      ? [[
+          "precondition: the Lab shell gives the page its width at phone size (open carry: Lab phone layout, S1-03 Q1)",
+          false,
+          `main ${read.mainWidth}px of ${read.viewport}px; overview right ${read.right}`,
+        ]]
+      : [[
+          "nothing in the overview ends past the viewport, and the page never scrolls sideways",
+          read.right <= read.viewport && !read.pageScrolls,
+          `right ${read.right} vs ${read.viewport}; widest ${read.widest}`,
+        ]]),
+    ...(read.viewport < 700
+      ? [
+          [
+            "at phone width the flow boxes stack",
+            (read.boxTops ?? []).every((top, i, tops) => i === 0 || top > tops[i - 1]),
+            (read.boxTops ?? []).join(","),
+          ],
+        ]
+      : []),
+  ];
+}
+
+// Creating and executing a registered run writes to the measured store and
+// admits envelopes into its shared gateway ledger. It is opt-in
+// (ASSETOPS_LAYOUT_CREATE_RUNS=1) and refused on the default/owner ports, so a
+// default invocation can never mutate the owner's server. Not run is not a pass.
+// Function-scoped: registeredKoboLab runs from top-level await above this text,
+// where a module-level const would still be in its temporal dead zone.
+function registeredRunGate() {
+  const OWNER_PORTS = new Set([5173, 5183, 5199, 5213, 5291, 5360, 5361, 5362, 5363]);
+  const port = Number(new URL(BASE).port || 80);
+  if (OWNER_PORTS.has(port)) {
+    return `BASE ${BASE} is a default/owner port (${port}); run creation refused`;
+  }
+  if (process.env.ASSETOPS_LAYOUT_CREATE_RUNS !== "1") {
+    return "run creation is opt-in: set ASSETOPS_LAYOUT_CREATE_RUNS=1 and point BASE at a private disposable store";
+  }
+  return null;
+}
+
+async function registeredKoboLab(site) {
+  const refused = registeredRunGate();
+  if (refused !== null) {
+    console.log("=== V-01b registered Kobo Lab run (create + execute) ===");
+    console.log(`  not run  ${refused}; its Draft, drawing and Gateway & Ingestion claims are unverified`);
+    return false;
+  }
+  const start = process.env.ASSETOPS_KOBO_START ?? "2026-10-02T03:00:00Z";
+  const end = process.env.ASSETOPS_KOBO_END ?? "2026-10-02T11:00:00Z";
+  let pass = true;
+  const before = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+  const known = new Set(before.runRows.map((row) => row.href));
+  const script = submitRunSetup(["mini-grid@3", "registered-kobo-publication@3"])
+    .replace(
+      `radios.find((item) => item.value === ${JSON.stringify(LAB_SITE)})`,
+      `radios.find((item) => item.value === ${JSON.stringify(site)})`,
+    )
+    .replace(`setValue("run-setup-start", ${JSON.stringify(LAB_START)})`, `setValue("run-setup-start", ${JSON.stringify(start)})`)
+    .replace(`setValue("run-setup-end", ${JSON.stringify(LAB_END)})`, `setValue("run-setup-end", ${JSON.stringify(end)})`)
+    .replace('setValue("run-setup-timestep", "15")', 'setValue("run-setup-timestep", "5")');
+  await visit(cdp, "/simulator-lab/scenarios/kobo-mini-grid-stop-60/run-setup", 1280, 800, "form", {
+    script,
+    waitFor: ".data-table__scroll",
+  });
+  const after = await visit(cdp, "/simulator-lab/runs", 1280, 800, "table");
+  const created = after.runRows.find((row) => !known.has(row.href)) ?? null;
+  pass =
+    report(`V-01b registered Kobo Draft of kobo-mini-grid-stop-60, ${start} to ${end}`, null, [
+      [
+        "Run setup created a READY Draft inside the registered basis",
+        created !== null && created.status === "READY",
+        `${created?.href ?? "none"} ${created?.status ?? ""}`,
+      ],
+    ]) && pass;
+  if (created === null || created.status !== "READY") return false;
+  const href = created.href;
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Start this run"),
+    waitFor: "[data-execution-status='RUNNING']",
+  });
+  await visit(cdp, href, 1280, 800, "[data-execution-status]", {
+    script: clickControl("Run to the end"),
+    waitFor: "[data-execution-status='COMPLETED']",
+  });
+
+  for (const [label, width, height] of [
+    ["1280x800, the committed minimum", 1280, 800],
+    ["1000x700", 1000, 700],
+    ["640x700", 640, 700],
+  ]) {
+    await visit(cdp, href, width, height, "[data-drawing-boundary]");
+    await settledCockpit(cdp);
+    const moved = await selectBoundary(cdp, 13, 65);
+    await sleep(300);
+    const read = await readInspection(cdp);
+    // The run page binds a drawing only to the Foundation version the run
+    // froze (T025d). On this store the registered Kobo's current Foundation
+    // (v10, from 2026-10-03) blocks every mini-grid Draft (generator lifecycle
+    // timing not aligned), so a runnable Draft must freeze v7 and its drawing
+    // is - correctly - refused. That is a named precondition failure, not a
+    // geometry pass; the non-drawing claims are still measured.
+    const versionRefused = read.drawingBound === null && /now at Foundation version/.test(read.drawingUnavailable ?? "");
+    const claims = inspectionClaims(read, width);
+    pass =
+      report(`V-01b T025d the interval [60, 65) of the registered stop-60 run at ${label}`, null, [
+        ...(versionRefused
+          ? [
+              [
+                "precondition: the Site's current Foundation is the version this run froze, so the drawing can bind " +
+                  "(the four drawing and label claims are not measured)",
+                false,
+                read.drawingUnavailable,
+              ],
+              ...claims.slice(4),
+            ]
+          : claims),
+        [
+          "the drawing follows the cursor to boundary 65",
+          moved.follows && read.drawingBoundary === "65",
+          `${moved.ms} ms; ${read.drawingBoundary}`,
+        ],
+      ]) && pass;
+  }
+
+  const ingestionRuns = [["fresh, not released", href]];
+  if (process.env.ASSETOPS_LAYOUT_V01B_RELEASED_RUN) {
+    ingestionRuns.push(["released", `/simulator-lab/runs/${process.env.ASSETOPS_LAYOUT_V01B_RELEASED_RUN}`]);
+  }
+  for (const [kind, path] of ingestionRuns) {
+    for (const [width, height] of [
+      [1440, 900],
+      [640, 700],
+      [390, 844],
+    ]) {
+      await visit(cdp, path, width, height, "[data-run-ingestion]");
+      await waitForSelector(cdp, "[data-ingestion-release]");
+      await sleep(800);
+      const read = (await cdp.send("Runtime.evaluate", { expression: readIngestionScript(), returnByValue: true })).result
+        .value;
+      pass = report(`V-01b Gateway & Ingestion overview, ${kind} run, at ${width}x${height}`, null, ingestionClaims(read, path)) && pass;
+    }
+  }
+  return pass;
+}
 
 function finishRun() {
   console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);

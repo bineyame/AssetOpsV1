@@ -211,12 +211,11 @@ describe("the gateway-ledger Stage (S2-01b)", () => {
     expect(view.querySelector("[data-gateway-snapshot]")?.textContent).toBe(SNAPSHOT);
     expect(view.querySelector("[data-gateway-epoch]")?.textContent).toBe("1");
     expect(view.querySelector("[data-gateway-queue]")?.textContent).toBe("1 READY, 2 STAGED");
-    expect(view.querySelector("[data-gateway-upload]")?.getAttribute("data-gateway-upload")).toBe(
-      "PENDING",
-    );
-    expect(view.querySelector("[data-gateway-receipts]")?.textContent).toBe("None");
+    expect(view.querySelector("[data-gateway-upload]")).toBeNull();
+    expect(view.querySelector("[data-gateway-receipts]")).toBeNull();
     const words = spacedText(view);
-    expect(words).toMatch(/no receipt exists/);
+    expect(words).not.toMatch(/no receipt exists|Upload pending|Receipts\s*None/);
+    expect(words).toMatch(/does not establish upload or central receipt state/);
     expect(words).not.toMatch(/\b(accepted|delivered|acknowledged) (all|\d)/i);
 
     const batchRow = view.querySelector('[data-gateway-batch="batch-a-1"]') as HTMLElement;

@@ -42,7 +42,7 @@ export function SimulatorLabShell({
   children,
 }: SimulatorLabShellProps) {
   return (
-    <div className="app-frame">
+    <div className="app-frame app-frame--lab">
       <div className="app-frame__side">
         <AppHeader name="AssetOps" />
         <NavRail label="Simulator Lab routes" items={railItems} />
