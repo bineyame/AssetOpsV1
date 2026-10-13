@@ -399,6 +399,8 @@ export interface FindingEvidenceBody {
   provenance: {
     statement: string;
     cited_evidence_by_source: { gateway_id: string; source_id: string; sequence_epoch: string; source_mode: string; count: number }[];
+    /** Whole cited set by measurement role (resolved records only), with the distinct source IDs of each. */
+    cited_evidence_by_role: { role: string; count: number; source_ids: string[] }[];
     case_annotations: { kind?: string; label?: string; note?: string; [key: string]: unknown }[];
   };
   currentness: { state: string; basis?: string } | null;
@@ -413,6 +415,40 @@ export interface FindingEvidenceBody {
   };
 }
 
+/** One History row (`I-finding-history-read`): a stored revision summary with its time kinds. */
+export interface HistoryRevision extends RevisionSummary {
+  minutes: { candidate: string; necessary: string; indeterminate: string };
+  previous_revision_id: string | null;
+  is_selected: boolean;
+  is_latest: boolean;
+  /** Accepted-row existence only; lineage is checked by the Evidence read, never claimed here. */
+  cited_evidence: { count: number; resolved: number; accepted_rows: "ALL_RESOLVED" | "UNRESOLVED_PRESENT"; note: string };
+  times: {
+    recorded_at: string;
+    analytic_completed_at: string | null;
+    source_time: { first: string | null; last: string | null };
+    received_at: string | null;
+    accepted_at: string | null;
+  };
+}
+
+export interface FindingHistoryBody {
+  site_code: string;
+  source_gate: { permitted: boolean; reason: string };
+  audit_only: { non_current: boolean; reason: string; statement: string } | null;
+  finding: FindingDetailBody["finding"];
+  selection: FindingDetailBody["selection"] & { selected_note: string; latest_revision_no: number };
+  revisions: HistoryRevision[];
+  page: { after_revision_no: number; limit: number; total: number; returned: number; next_after_revision_no: number | null };
+  earlier_versions: "NONE" | "PRESENT";
+  revision_groups: RevisionGroup[];
+  state: { lifecycle: Lifecycle; latest_transition: string; note: string };
+  relations: FindingDetailBody["relations"];
+  time_kinds: Record<string, string>;
+  statement: string;
+  links: { canonical: string; evidence: string; history: string; performance: { status: "OPEN" | "CLOSED"; note?: string } };
+}
+
 export interface FindingClient {
   getFinding(siteId: string, findingId: string, revisionId: string | null): Promise<FindingReadResult<FindingDetailBody>>;
   getFindingWindow(siteId: string, day: string): Promise<FindingReadResult<FindingWindowBody>>;
@@ -424,6 +460,14 @@ export interface FindingClient {
     offset: number,
     limit: number,
   ): Promise<FindingReadResult<FindingEvidenceBody>>;
+  /** S4-03: one page of every stored revision in revision order, after `afterRevisionNo`. */
+  getFindingHistory(
+    siteId: string,
+    findingId: string,
+    revisionId: string | null,
+    afterRevisionNo: number,
+    limit: number,
+  ): Promise<FindingReadResult<FindingHistoryBody>>;
 }
 
 function isFinding(value: unknown): value is FindingDetailBody {
@@ -437,6 +481,13 @@ function isEvidence(value: unknown): value is FindingEvidenceBody {
   return (
     hasKeys(value, ["finding", "selection", "revision", "counts", "lineage", "assessments", "records", "page", "links"]) &&
     Array.isArray((value as { records: unknown }).records)
+  );
+}
+
+function isHistory(value: unknown): value is FindingHistoryBody {
+  return (
+    hasKeys(value, ["finding", "selection", "revisions", "page", "earlier_versions", "revision_groups", "links"]) &&
+    Array.isArray((value as { revisions: unknown }).revisions)
   );
 }
 
@@ -504,6 +555,18 @@ export function createFindingClient(basePath: string = SITES_API_PATH): FindingC
       return readFinding(
         `${site(siteId)}/findings/${encodeURIComponent(findingId)}/evidence?${query.toString()}`,
         isEvidence,
+      );
+    },
+    getFindingHistory(siteId, findingId, revisionId, afterRevisionNo, limit) {
+      const query = new URLSearchParams();
+      if (revisionId !== null) {
+        query.set("revision_id", revisionId);
+      }
+      query.set("after_revision_no", String(afterRevisionNo));
+      query.set("limit", String(limit));
+      return readFinding(
+        `${site(siteId)}/findings/${encodeURIComponent(findingId)}/history?${query.toString()}`,
+        isHistory,
       );
     },
   };

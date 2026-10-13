@@ -46,7 +46,6 @@ PROVENANCE_STATEMENT = ("Central evidence carries no fixture or gateway-sealed m
 UNAVAILABLE = {
     "money": "UNAVAILABLE: no fuel, saving or monetary claim (S4-02)",
     "recommendation": "UNAVAILABLE: no recommendation or Action (S6)",
-    "history_tab": "UNAVAILABLE: the full chronological History child view is S4-03; every revision is listed here",
     "site_list": "UNAVAILABLE: the Site Findings list is S4-04",
     "control_route": "UNAVAILABLE: no product route edits the generator minimum runtime; fixture controls were "
                      "published by the labelled fixture producer",
@@ -507,10 +506,14 @@ class FindingReadService:
                                     "input_sha256": v["input_sha256"]} for k, v in sorted(runs.items())],
                   "statement": MEMBERSHIP}
         by_source: dict[tuple, int] = {}
+        by_role: dict[str, dict[str, Any]] = {}  # whole cited set, resolved rows only (review N1)
         for r in rows:
             if r["evidence_id"] is not None:
                 key = (str(r["gateway_id"]), str(r["source_id"]), r["sequence_epoch"], r["source_mode"])
                 by_source[key] = by_source.get(key, 0) + 1
+                role = by_role.setdefault(r["role"], {"count": 0, "source_ids": set()})
+                role["count"] += 1
+                role["source_ids"].add(str(r["source_id"]))
         return {
             "finding": _root(detail),
             "selection": {"revision_id": selected["id"], "revision_no": selected["revision_no"],
@@ -540,6 +543,9 @@ class FindingReadService:
                 "cited_evidence_by_source": [
                     {"gateway_id": g, "source_id": s, "sequence_epoch": e, "source_mode": m, "count": n}
                     for (g, s, e, m), n in sorted(by_source.items())],
+                "cited_evidence_by_role": [
+                    {"role": k, "count": v["count"], "source_ids": sorted(v["source_ids"])}
+                    for k, v in sorted(by_role.items(), key=lambda kv: str(kv[0]))],
                 "case_annotations": self.dispatch._annotate(
                     {str(r["evidence_id"]) for r in page if r["evidence_id"] is not None})},
             "currentness": None if source_open else {

@@ -182,6 +182,10 @@ function body(patch: Partial<FindingEvidenceBody> = {}, records: EvidenceRecord[
       cited_evidence_by_source: [
         { gateway_id: "gw-0001-aaaa", source_id: "src-0001-bbbb", sequence_epoch: "s4-gateway-epoch-1", source_mode: "SIMULATED", count: total },
       ],
+      cited_evidence_by_role: [
+        { role: "generator_state", count: total - 1, source_ids: ["src-0001-bbbb"] },
+        { role: "battery_soc", count: 1, source_ids: ["src-0001-bbbb", "src-0002-cccc"] },
+      ],
       case_annotations: [],
     },
     currentness: null,
@@ -209,6 +213,7 @@ function fake(result: FindingReadResult<FindingEvidenceBody> | ((asked: Asked) =
       asked.push(a);
       return typeof result === "function" ? result(a) : result;
     },
+    getFindingHistory: async () => ({ status: "not_found", message: null }),
   };
   return client;
 }
@@ -398,6 +403,11 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
       const lead = q("[data-evidence-lifecycle]") as HTMLElement;
       expect(lead).toHaveAttribute("data-evidence-lifecycle", lifecycle);
       expect(lead).toHaveTextContent(words);
+      // N2: the Evidence page lists no versions below, so it never says so.
+      expect(lead).not.toHaveTextContent("available below");
+      if (lifecycle === "UNCONFIRMED") {
+        expect(lead).toHaveTextContent("stay available in this Finding's history");
+      }
       const panel = lead.parentElement as HTMLElement;
       expect(panel.firstElementChild).toBe(lead);
       unmount();
@@ -422,10 +432,18 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
     expect(row).not.toHaveTextContent("(does not match)");
   });
 
-  it("summarises inputs by measurement from the page's records and states coverage and use as missing", async () => {
-    const { container } = await mount(fake({ status: "loaded", value: body() }));
-    expect(document.querySelectorAll("tr[data-evidence-input-role]").length).toBeGreaterThan(0);
-    expect(q("[data-evidence-inputs-scope]")).toHaveTextContent("on this page");
+  it("summarises inputs by measurement over the whole cited set, not the page, and states coverage and use as missing", async () => {
+    // 102 cited records, 3 on this page: a page recount could never reach the whole-set totals.
+    const value = body({ page: { offset: 0, limit: 50, total: 102, returned: 3, next_offset: 50 } });
+    const { container } = await mount(fake({ status: "loaded", value }));
+    const rows = Array.from(document.querySelectorAll("tr[data-evidence-input-role]"));
+    // The read's whole-set aggregate, not a recount of the page's records.
+    expect(rows.map((r) => [r.getAttribute("data-evidence-input-role"), r.getAttribute("data-evidence-input-count")])).toEqual(
+      value.provenance.cited_evidence_by_role.map((g) => [g.role, String(g.count)]),
+    );
+    expect(rows.reduce((n, r) => n + Number(r.getAttribute("data-evidence-input-count")), 0)).toBe(value.counts.cited_total);
+    expect(q("[data-evidence-inputs-scope]")).toHaveTextContent(`all ${value.counts.cited_total} cited records`);
+    expect(q("[data-evidence-inputs-scope]")).not.toHaveTextContent("when opened");
     const coverage = q("[data-gap-id='G-finding-evidence-coverage']") as HTMLElement;
     const use = q("[data-gap-id='G-finding-evidence-use']") as HTMLElement;
     expect(coverage).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.coverage");
@@ -537,6 +555,7 @@ describe("Old assessment-keyed Evidence tab (S4-03 phase 2)", () => {
       days,
       getFinding: async () => ({ status: "not_found", message: null }),
       getFindingEvidence: async () => ({ status: "not_found", message: null }),
+      getFindingHistory: async () => ({ status: "not_found", message: null }),
       getFindingWindow: async (_s, day) => {
         days.push(day);
         return result;
@@ -649,6 +668,7 @@ describe("Old assessment-keyed Evidence tab (S4-03 phase 2)", () => {
     const client: FindingClient = {
       getFinding: async () => ({ status: "not_found", message: null }),
       getFindingEvidence: async () => ({ status: "not_found", message: null }),
+      getFindingHistory: async () => ({ status: "not_found", message: null }),
       getFindingWindow: async (_s, day) => {
         days.push(day);
         return {
@@ -672,6 +692,12 @@ describe("Old assessment-keyed Evidence tab (S4-03 phase 2)", () => {
     await legacy(client, { start: "2026-10-09T23:00:00+00:00", end: "2026-10-10T01:00:00+00:00" });
     expect(days.sort()).toEqual(["2026-10-09", "2026-10-10"]);
     expect(document.querySelectorAll("[data-legacy-evidence-link]")).toHaveLength(2);
+    // N3: two days are named as such, never "this day" / "the same day".
+    expect(screen.getByRole("heading", { name: "Findings recorded for these days" })).toBeInTheDocument();
+    for (const link of Array.from(document.querySelectorAll("[data-legacy-evidence-link]"))) {
+      expect(link).toHaveTextContent("(recorded for an overlapping day)");
+      expect(link).not.toHaveTextContent("same day");
+    }
   });
 
   it("states that no saved Finding is recorded for the period", async () => {

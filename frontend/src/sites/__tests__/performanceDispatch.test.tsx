@@ -334,6 +334,7 @@ describe("Dispatch day Finding links (S4-01 phase 3)", () => {
       days,
       getFinding: async () => ({ status: "not_found", message: null }),
       getFindingEvidence: async () => ({ status: "not_found", message: null }),
+      getFindingHistory: async () => ({ status: "not_found", message: null }),
       getFindingWindow: async (_site, day) => {
         days.push(day);
         return { status: "loaded", value: { day, state, note: "", assessment_status: "CURRENT", findings } };

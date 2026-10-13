@@ -143,6 +143,14 @@ class TestFindingEvidenceAndHistory:
                 assert {x["analytic_run_id"]: x["input_evidence_count"] for x in body["counts"]["input_by_run"]} == {
                     x: len(run_inputs.get(x, set())) for x in runs}
                 assert body["lineage"]["status"] == "COMPLETE", body["lineage"]
+                # N1: the by-measurement aggregate covers the whole cited set, equal to the stored rows' roles.
+                by_role: dict[str, set] = {}
+                for e in cited:
+                    by_role.setdefault(accepted[e]["role"], set()).add(e)
+                assert {g["role"]: g["count"] for g in body["provenance"]["cited_evidence_by_role"]} == {
+                    k: len(v) for k, v in by_role.items()}
+                assert {g["role"]: set(g["source_ids"]) for g in body["provenance"]["cited_evidence_by_role"]} == {
+                    k: {str(accepted[e]["source_id"]) for e in v} for k, v in by_role.items()}
                 assert body["lineage"]["cited_set_digest"]["status"] == "VERIFIED"
                 assert body["selection"] == {**body["selection"], "revision_id": rid,
                                              "selected_by": "EXACT_REVISION_ID"}
@@ -264,6 +272,7 @@ class TestFindingEvidenceAndHistory:
         assert body["counts"]["cited_total"] == len(records) and body["counts"]["cited_unresolved"] == 1
         assert body["counts"]["cited_resolved"] == len(records) - 1
         assert body["lineage"]["status"] == "BROKEN"
+        assert sum(g["count"] for g in body["provenance"]["cited_evidence_by_role"]) == len(records) - 1
         assert body["lineage"]["cited_set_digest"]["status"] == "NOT_VERIFIED"
         broken = {b["evidence_id"]: b["links"] for b in body["lineage"]["broken_records"]}
         assert broken == {gone: ["ACCEPTED_EVIDENCE"], tampered: ["ENVELOPE_DIGEST"]}

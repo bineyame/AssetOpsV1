@@ -153,10 +153,10 @@ export function siteFindingHref(siteId: string, findingId: string, revisionId?: 
 /**
  * S4-03: the named child views of the canonical Finding root. Each is
  * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` and keeps the same
- * exact-version parameter. Phase 3 adds "history" to this list; the frame's
- * switch (`SiteFindingFrame`) renders each view from it.
+ * exact-version parameter. The frame's switch (`SiteFindingFrame`) renders
+ * each view from this list (Evidence: phase 2, History: phase 3).
  */
-export const FINDING_CHILD_VIEWS = ["evidence"] as const;
+export const FINDING_CHILD_VIEWS = ["evidence", "history"] as const;
 export type FindingChildView = (typeof FINDING_CHILD_VIEWS)[number];
 export const SITE_FINDING_VIEW_ROUTE_PATH = `${SITE_FINDING_ROUTE_PATH}/:findingView`;
 

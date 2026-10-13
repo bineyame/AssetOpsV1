@@ -124,6 +124,8 @@ export interface SiteFindingEvidenceLinks {
   dispatch: (day: string, intervalRevisionId?: string | null) => string;
   /** The Site Evidence record inspector for one exact accepted evidence ID. */
   record: (evidenceId: string) => string;
+  /** This Finding's History, with the same exact version selected. */
+  history?: (revisionId: string | null) => string;
 }
 
 function pageOffset(params: URLSearchParams): number {
@@ -248,6 +250,16 @@ function Refused({
   );
 }
 
+/**
+ * Lifecycle sentences that name a place on the Finding root ("below") get a
+ * page-neutral form here: the Evidence page lists no versions (review N2).
+ */
+const EVIDENCE_LIFECYCLE_SENTENCE: Partial<Record<string, string>> = {
+  UNCONFIRMED:
+    "This assessment of the period cannot confirm the earlier result. This is not a new issue; the earlier " +
+    "versions stay available in this Finding's history.",
+};
+
 /** Which version is shown, and how it was chosen: non-current status first. */
 function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFindingEvidenceLinks }) {
   const { selection } = body;
@@ -260,7 +272,8 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
           className="site-finding__lead"
           data-evidence-lifecycle={body.revision.lifecycle}
         >
-          State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
+          State of this version: <strong>{lifecycle.label}</strong>.{" "}
+          {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
         </p>
       )}
       {body.audit_only ? (
@@ -295,6 +308,14 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
         <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
           Back to this version of the Finding
         </Link>
+        {links.history ? (
+          <>
+            {" · "}
+            <Link to={links.history(selection.revision_id)} data-evidence-to-history>
+              See version {no} in the Finding&apos;s history
+            </Link>
+          </>
+        ) : null}
       </p>
     </Panel>
   );
@@ -430,36 +451,25 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
 
 /**
  * The mock's Input / Source / Coverage / Use summary. Input and Source are
- * counted from the real records on this page only (their role and source);
- * Coverage and Use have no source, so each is a catalogued missing claim.
+ * counted over the whole cited set by the read (`cited_evidence_by_role`,
+ * review N1), never from one page; Coverage and Use have no source, so each
+ * is a catalogued missing claim.
  */
 function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
-  const groups = new Map<string, { role: string; count: number; sources: Set<string> }>();
-  let unresolved = 0;
-  for (const r of body.records) {
-    if (!r.resolved || !r.role) {
-      unresolved += 1;
-      continue;
-    }
-    const g = groups.get(r.role) ?? { role: r.role, count: 0, sources: new Set<string>() };
-    g.count += 1;
-    if (r.source?.source_id) {
-      g.sources.add(r.source.source_id.slice(0, 8));
-    }
-    groups.set(r.role, g);
-  }
-  const { page } = body;
+  const groups = body.provenance.cited_evidence_by_role;
+  const { counts } = body;
   return (
     <>
       <h3 className="site-finding__subheading" id="finding-evidence-inputs">
-        Inputs on this page, by measurement
+        Cited records by measurement
       </h3>
       <p className="site-finding__note" data-evidence-inputs-scope>
-        Counted from the {page.returned} cited records on this page (records {page.returned === 0 ? 0 : page.offset + 1}–
-        {page.offset + page.returned} of {page.total}); other pages are counted when opened.
-        {unresolved > 0 ? ` ${unresolved} on this page do not resolve to a record and are not counted.` : ""}
+        Counted over all {counts.cited_total} cited records of this version, not only the page shown below.
+        {counts.cited_unresolved > 0
+          ? ` ${counts.cited_unresolved} do not resolve to a record and are not counted by measurement.`
+          : ""}
       </p>
-      {groups.size === 0 ? null : (
+      {groups.length === 0 ? null : (
         <DataTable labelledBy="finding-evidence-inputs">
           <thead>
             <tr>
@@ -469,14 +479,14 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
             </tr>
           </thead>
           <tbody>
-            {[...groups.values()].map((g) => (
-              <tr key={g.role} data-evidence-input-role={g.role}>
+            {groups.map((g) => (
+              <tr key={g.role} data-evidence-input-role={g.role} data-evidence-input-count={g.count}>
                 <td>{roleWords(g.role)}</td>
                 <td>
-                  {[...g.sources].map((id, index) => (
+                  {g.source_ids.map((id, index) => (
                     <span key={id}>
                       {index > 0 ? ", " : ""}
-                      <code data-vocabulary-exempt="source-reference">{id}</code>
+                      <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code>
                     </span>
                   ))}
                 </td>
@@ -896,7 +906,10 @@ export function LegacyFindingEvidence({
   }
   const label = days.length === 1 ? days[0] : `${days[0]} to ${days[days.length - 1]}`;
   return (
-    <Panel heading="Findings recorded for this day" headingId="legacy-finding-evidence-heading">
+    <Panel
+      heading={days.length === 1 ? "Findings recorded for this day" : "Findings recorded for these days"}
+      headingId="legacy-finding-evidence-heading"
+    >
       {failed && ids.length === 0 ? (
         <p data-legacy-evidence="unavailable">
           The saved Findings for this period could not be read, so no Finding evidence is offered here. The period&apos;s
@@ -919,7 +932,7 @@ export function LegacyFindingEvidence({
             {ids.map((id) => (
               <li key={id}>
                 <Link to={durableEvidenceHref(id)} data-legacy-evidence-link={id}>
-                  Finding <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code> (recorded for the same day)
+                  Finding <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code> {days.length === 1 ? "(recorded for the same day)" : "(recorded for an overlapping day)"}
                 </Link>
               </li>
             ))}

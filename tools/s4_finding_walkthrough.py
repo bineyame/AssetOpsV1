@@ -150,6 +150,16 @@ def py(*argv: str, check: bool = True) -> subprocess.CompletedProcess:
     return done
 
 
+def refuse_foreign_work() -> None:
+    """Review N4: `prepare` marks only a folder it creates (or one it marked before). An existing non-empty
+    `--work` folder without the marker is someone else's folder, so it is refused before anything is written."""
+    if WORK == DEFAULT_WORK.resolve() or not WORK.exists() or (WORK / WORK_MARKER).is_file():
+        return
+    if not WORK.is_dir() or any(WORK.iterdir()):
+        raise SystemExit(f"Refusing --work {WORK}: it already exists, is not empty and has no {WORK_MARKER} marker, "
+                         "so this tool did not create it. Choose a new folder name.")
+
+
 def prepare() -> None:
     import psycopg
 
@@ -160,6 +170,7 @@ def prepare() -> None:
     ):
         if not needed.exists():
             raise SystemExit(f"Missing prerequisite {needed}: {hint}")
+    refuse_foreign_work()
     say("=== 1. Private work tree (git HEAD) with its own var/ ===")
     tree = WORK / "tree"
     if tree.exists():

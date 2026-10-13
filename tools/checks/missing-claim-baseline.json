@@ -111,13 +111,6 @@
       "backfill_packet": "G-04"
     },
     {
-      "file": "frontend/src/sites/SiteFinding.tsx",
-      "text": "Not yet available. Every version is listed below; a full history view, fuel and money estimates and actions come later.",
-      "count": 1,
-      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
-      "backfill_packet": "G-04"
-    },
-    {
       "file": "frontend/src/sites/SitesIndex.tsx",
       "text": "Not available yet",
       "count": 1,
@@ -132,5 +125,5 @@
       "backfill_packet": "G-02"
     }
   ],
-  "total": 16
+  "total": 15
 }

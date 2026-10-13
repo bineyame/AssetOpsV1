@@ -49,6 +49,8 @@ export interface SiteFindingLinks {
   dispatch: (day: string, intervalRevisionId?: string | null) => string;
   /** The Site's accepted records. */
   evidence: string;
+  /** S4-03: this Finding's History child view, with the exact version selected. */
+  history?: (revisionId: string | null) => string;
 }
 
 export function SiteFinding({
@@ -525,13 +527,15 @@ function WhereToLook({ body, links }: { body: FindingDetailBody; links: SiteFind
             </ul>
           )}
         </li>
-        <li>
-          <h3>Full history, fuel and money, actions</h3>
-          <p data-finding-unavailable="later">
-            Not yet available. Every version is listed below; a full history view, fuel and money estimates and
-            actions come later.
-          </p>
-        </li>
+        {links.history ? (
+          <li>
+            <h3>History</h3>
+            <p>Every recorded version of this Finding, oldest first, with what changed and when.</p>
+            <Link to={links.history(body.selection.revision_id)} data-finding-history-link>
+              Open the Finding&apos;s history →
+            </Link>
+          </li>
+        ) : null}
       </ol>
     </Panel>
   );

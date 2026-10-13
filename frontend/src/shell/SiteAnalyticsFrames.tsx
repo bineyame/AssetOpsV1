@@ -6,6 +6,7 @@ import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { SiteFinding } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence } from "../sites/SiteFindingEvidence";
+import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
@@ -289,10 +290,9 @@ const SITE_FINDING_HEADING_ID = "site-finding-heading";
  *
  * S4-03: the same frame renders the root's named child views at
  * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` (`FINDING_CHILD_VIEWS`).
- * The section links keep the exact selected version. Phase 3 plugs History
- * into `FINDING_CHILD_VIEWS`, `FINDING_SECTION_LABELS` and the switch below.
+ * The section links keep the exact selected version (Evidence and History).
  */
-const FINDING_SECTION_LABELS: Record<FindingChildView, string> = { evidence: "Evidence" };
+const FINDING_SECTION_LABELS: Record<FindingChildView, string> = { evidence: "Evidence", history: "History" };
 
 export function SiteFindingFrame({
   detail,
@@ -343,7 +343,7 @@ export function SiteFindingFrame({
               ]}
             />
             <PageHeader
-              title={view === "evidence" ? "Finding evidence" : title}
+              title={view === "evidence" ? "Finding evidence" : view === "history" ? "Finding history" : title}
               headingId={SITE_FINDING_HEADING_ID}
               subtitle={`${site.display_name} · ${site.site_id} · generator support`}
             />
@@ -367,6 +367,19 @@ export function SiteFindingFrame({
                       finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                       dispatch,
                       record: (evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId),
+                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                    }}
+                  />
+                ) : view === "history" ? (
+                  <SiteFindingHistory
+                    siteId={site.site_id}
+                    findingId={id}
+                    client={findings}
+                    links={{
+                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                      evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
+                      finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                      otherHistory: (other) => siteFindingViewHref(site.site_id, other, "history"),
                     }}
                   />
                 ) : (
@@ -379,6 +392,7 @@ export function SiteFindingFrame({
                       finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                       dispatch,
                       evidence: siteEvidenceHref(site.site_id),
+                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                     }}
                   />
                 )}
