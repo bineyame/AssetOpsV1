@@ -124,8 +124,23 @@ def validate(p: Publication) -> None:
         refuse("IDEMPOTENCY_KEY_REQUIRED", "An idempotency key is required.")
 
 
+# Stored provenance that describes the carrier of a publication, not the publication itself. It stays in the
+# stored row but is excluded from the retry digest, so appending a fixture step, re-encoding line endings or
+# bumping the fixture file version never turns an already-published step into an idempotency conflict.
+PROVENANCE_NOT_DIGESTED = frozenset({"fixture_sha256", "fixture_version"})
+
+
+def canonical_step_sha256(step: dict[str, Any]) -> str:
+    """Digest of one fixture step's canonical JSON: independent of file bytes, line endings and other steps."""
+    canonical = json.dumps(step, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def request_sha256(p: Publication, principal: SystemPrincipal, tenant_id: UUID, site_id: UUID) -> str:
-    """Digest of everything a retry must repeat exactly; the server instant and new IDs are excluded."""
+    """Digest of everything a retry must repeat exactly; the server instant and new IDs are excluded.
+
+    It covers the canonical publication step and the principal's stable identity. The principal's
+    `authorization_basis` prose and the carrier file's bytes/version are stored but not digested."""
     body = {
         "tenant_id": str(tenant_id), "site_id": str(site_id), "assumption_key": p.assumption_key,
         "currency": p.currency, "unit": UNIT, "value": str(p.value), "basis": p.basis,
@@ -133,9 +148,9 @@ def request_sha256(p: Publication, principal: SystemPrincipal, tenant_id: UUID, 
         "valid_from": p.valid_from.isoformat(), "valid_to": None if p.valid_to is None else p.valid_to.isoformat(),
         "change_kind": p.change_kind, "correction_reason": p.correction_reason,
         "expected_prior_revision_id": None if p.expected_prior_revision_id is None else str(p.expected_prior_revision_id),
-        "idempotency_key": p.idempotency_key, "channel": p.channel, "provenance": p.provenance,
+        "idempotency_key": p.idempotency_key, "channel": p.channel,
+        "provenance": {k: v for k, v in p.provenance.items() if k not in PROVENANCE_NOT_DIGESTED},
         "actor_kind": principal.actor_kind, "actor_id": principal.actor_id,
-        "authorization_basis": principal.authorization_basis,
     }
     canonical = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()

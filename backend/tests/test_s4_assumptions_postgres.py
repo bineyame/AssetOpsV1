@@ -42,6 +42,11 @@ def _t(y: int, m: int, d: int = 1) -> datetime:
     return datetime(y, m, d, tzinfo=UTC)
 
 
+# The future SUCCESSION's start, read from the fixture rather than repeated here (review M2).
+V2_START = datetime.fromisoformat(
+    json.loads(FIXTURE.read_text(encoding="utf-8"))["steps"][1]["valid_from"].replace("Z", "+00:00"))
+
+
 @pytest.fixture()
 def site(store):  # noqa: F811
     result = imported(store)
@@ -55,8 +60,8 @@ def prices():
     s.dispose()
 
 
-def run_fixture(prices, capsys, *steps: str) -> list[dict]:
-    args = ["fixture", "--site", "KOBO-001", "--file", str(FIXTURE)]
+def run_fixture(prices, capsys, *steps: str, file: Path = FIXTURE) -> list[dict]:
+    args = ["fixture", "--site", "KOBO-001", "--file", str(file)]
     for step in steps:
         args += ["--step", step]
     code = publish_main(args, store=prices)
@@ -123,10 +128,10 @@ class TestFixtureHistorySurvivesRestart:
                          a["recorded_to"]) for a in assignments), key=str)
         assert shape == sorted([
             (v1, _t(2026, 1), None, r1, r2),                 # original v1, closed by the succession
-            (v1, _t(2026, 1), _t(2027, 1), r2, r3),          # v1 truncated at v2, closed by the correction
-            (v2, _t(2027, 1), None, r2, None),               # future v2, still current
+            (v1, _t(2026, 1), V2_START, r2, r3),          # v1 truncated at v2, closed by the correction
+            (v2, V2_START, None, r2, None),               # future v2, still current
             (v1, _t(2026, 1), _t(2026, 6), r3, None),        # left remainder keeps v1
-            (v1, _t(2026, 7), _t(2027, 1), r3, None),        # right remainder keeps v1
+            (v1, _t(2026, 7), V2_START, r3, None),        # right remainder keeps v1
             (v3, _t(2026, 6), _t(2026, 7), r3, None),        # corrected middle
         ], key=str)
         ids = {str(r["id"]): r["id"] for r in revisions}
@@ -134,13 +139,13 @@ class TestFixtureHistorySurvivesRestart:
         assert selected(assignments, _t(2026, 5, 31)) == ids[v1]
         assert selected(assignments, _t(2026, 6)) == ids[v3]
         assert selected(assignments, _t(2026, 7)) == ids[v1]
-        assert selected(assignments, _t(2027, 1) - timedelta(microseconds=1)) == ids[v1]
-        assert selected(assignments, _t(2027, 1)) == ids[v2]
+        assert selected(assignments, V2_START - timedelta(microseconds=1)) == ids[v1]
+        assert selected(assignments, V2_START) == ids[v2]
         assert selected(assignments, _t(2025, 12, 31)) is None
         # Older recorded cutoffs still select what was known then.
         assert selected(assignments, _t(2026, 6, 15), r1) == ids[v1]
-        assert selected(assignments, _t(2027, 2), r1) == ids[v1]
-        assert selected(assignments, _t(2027, 2), r2) == ids[v2]
+        assert selected(assignments, V2_START + timedelta(days=31), r1) == ids[v1]
+        assert selected(assignments, V2_START + timedelta(days=31), r2) == ids[v2]
         assert selected(assignments, _t(2026, 6, 15), r2) == ids[v1]
         assert selected(assignments, _t(2026, 6, 15), r3) == ids[v3]
         assert selected(assignments, _t(2026, 6, 15), r1 - timedelta(microseconds=1)) is None
@@ -153,6 +158,40 @@ class TestFixtureHistorySurvivesRestart:
         assert sorted(map(str, (a["recorded_to"] for a in fresh.assignments(tenant_id, site_id, KEY)))) == \
             sorted(map(str, (a["recorded_to"] for a in assignments)))
         fresh.dispose()
+
+    def test_replay_from_a_modified_fixture_copy_returns_the_stored_ids(self, site, prices, engine, capsys,  # noqa: F811
+                                                                         tmp_path) -> None:
+        """Review M1: an appended step, a bumped version and CRLF line endings do not break replay."""
+        out = run_fixture(prices, capsys)
+        before = counts(engine)
+        doc = json.loads(FIXTURE.read_text(encoding="utf-8"))
+        doc["version"] += 1
+        doc["steps"].append({**doc["steps"][2], "step": "v4", "expected_prior_step": "v3",
+                             "idempotency_key": "demo-diesel-price-v4-test", "value": "1.21",
+                             "valid_from": "2026-08-01T00:00:00Z", "valid_to": "2026-09-01T00:00:00Z"})
+        copy = tmp_path / "modified.json"
+        copy.write_bytes(json.dumps(doc, indent=2).replace("\n", "\r\n").encode("utf-8"))
+        assert b"\r\n" in copy.read_bytes()
+        again = run_fixture(prices, capsys, "v1", "v2", "v3", file=copy)
+        assert [o["revision_id"] for o in again] == [o["revision_id"] for o in out]
+        assert all(o["replayed"] for o in again)
+        assert counts(engine) == before
+        # The appended step publishes normally after the replayed ones.
+        (v4,) = run_fixture(prices, capsys, "v4", file=copy)
+        assert (v4["revision_no"], v4["replayed"]) == (4, False)
+
+    def test_closing_a_current_row_before_the_series_latest_start_is_refused(self, site, prices, engine,  # noqa: F811
+                                                                              capsys) -> None:
+        """Review L1: a retroactive close at recorded_from + 1us would rewrite what earlier cutoffs select."""
+        run_fixture(prices, capsys)
+        with pytest.raises(DBAPIError, match="not later than the series"):
+            with engine.begin() as c:
+                c.execute(text("UPDATE financial_assumption_assignment SET recorded_to = recorded_from "
+                               "+ interval '1 microsecond' WHERE recorded_to IS NULL"))
+        with pytest.raises(DBAPIError, match="not later than the series"):
+            with engine.begin() as c:
+                c.execute(text("UPDATE financial_assumption_assignment SET recorded_to = (SELECT max(recorded_from) "
+                               "FROM financial_assumption_assignment) WHERE recorded_to IS NULL"))
 
     def test_database_refuses_rewrites_of_history(self, site, prices, engine, capsys) -> None:  # noqa: F811
         run_fixture(prices, capsys)
@@ -187,7 +226,9 @@ class TestNegativePerChangeKind:
                                                                                 capsys) -> None:
         out = run_fixture(prices, capsys, "v1", "v2")
         before = counts(engine)
-        soon = datetime.now(UTC) + timedelta(days=20)
+        # Before v2's start, so it overlaps the truncated v1 as well as v2's open tail.
+        soon = V2_START - timedelta(days=30)
+        assert soon > datetime.now(UTC) + timedelta(days=1), "fixture v2 must start well in the future"
         error = refused(lambda: prices.publish(*site, pub(UUID(out[1]["revision_id"]), "s",
                                                           kind="SUCCESSION", vf=soon), SYSTEM_PUBLISHER))
         assert (error.status, error.code) == (409, "SUCCESSION_OVERLAP_NOT_PERMITTED")

@@ -23,7 +23,7 @@
       "value": "1.32",
       "basis": "AUTHORED_ESTIMATE",
       "source_reference": "AssetOps demonstration fixture demo-diesel-price-publications v2 (illustrative future estimate)",
-      "valid_from": "2027-01-01T00:00:00Z",
+      "valid_from": "2030-01-01T00:00:00Z",
       "valid_to": null,
       "expected_prior_step": "v1",
       "idempotency_key": "demo-diesel-price-v2"

@@ -120,6 +120,8 @@ CREATE TRIGGER financial_assumption_revision_append_only BEFORE UPDATE OR DELETE
 -- Assignment rows: everything immutable except a set-once recorded_to.
 CREATE FUNCTION financial_assumption_assignment_immutable() RETURNS trigger
 LANGUAGE plpgsql AS $$
+DECLARE
+    latest timestamptz;
 BEGIN
     IF TG_OP = 'DELETE' THEN
         RAISE EXCEPTION 'financial_assumption_assignment rows are append-only; DELETE refused';
@@ -129,6 +131,15 @@ BEGIN
     END IF;
     IF OLD.recorded_to IS NOT NULL AND NEW.recorded_to IS DISTINCT FROM OLD.recorded_to THEN
         RAISE EXCEPTION 'financial_assumption_assignment recorded interval is already closed';
+    END IF;
+    -- A close happens at a fresh server instant later than every recorded start in the series, so it can
+    -- never retroactively change what an earlier recorded cutoff selects.
+    IF OLD.recorded_to IS NULL AND NEW.recorded_to IS NOT NULL THEN
+        SELECT max(recorded_from) INTO latest FROM financial_assumption_assignment
+            WHERE tenant_id = OLD.tenant_id AND site_id = OLD.site_id AND assumption_key = OLD.assumption_key;
+        IF NEW.recorded_to <= latest THEN
+            RAISE EXCEPTION 'financial_assumption_assignment close is not later than the series'' latest recorded start';
+        END IF;
     END IF;
     RETURN NEW;
 END;

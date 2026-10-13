@@ -33,6 +33,7 @@ from assetops_backend.financials.composition import (
 )
 from assetops_backend.financials.assumptions import (
     SYSTEM_PUBLISHER,
+    canonical_step_sha256,
     Publication,
     PublicationRefused,
     parse_value,
@@ -95,6 +96,7 @@ def fixture_publications(path: Path, steps: Sequence[str], resolve_prior) -> lis
             expected_prior_revision_id=prior, idempotency_key=s["idempotency_key"], channel="SYSTEM_FIXTURE",
             provenance={"service": SERVICE, "job": "fixture", "fixture": doc["fixture"],
                         "fixture_version": doc["version"], "fixture_step": name,
+                        "fixture_step_sha256": canonical_step_sha256(s),
                         "fixture_sha256": hashlib.sha256(raw).hexdigest()})))
     return out
 
