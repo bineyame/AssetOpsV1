@@ -156,16 +156,17 @@ class TestFixtureHistorySurvivesRestart:
 
     def test_database_refuses_rewrites_of_history(self, site, prices, engine, capsys) -> None:  # noqa: F811
         run_fixture(prices, capsys)
-        for sql in (
-            "UPDATE financial_assumption_revision SET value = 9 WHERE revision_no = 1",
-            "DELETE FROM financial_assumption_revision WHERE revision_no = 3",
-            "UPDATE financial_assumption_assignment SET recorded_to = recorded_to + interval '1 second' "
-            "WHERE recorded_to IS NOT NULL",
-            "UPDATE financial_assumption_assignment SET valid_to = valid_to + interval '1 day' "
-            "WHERE recorded_to IS NULL AND valid_to IS NOT NULL",
-            "DELETE FROM financial_assumption_assignment",
+        for sql, message in (
+            ("UPDATE financial_assumption_revision SET value = 9 WHERE revision_no = 1", "append-only"),
+            ("DELETE FROM financial_assumption_revision WHERE revision_no = 3", "append-only"),
+            # Moving a closed recorded_to earlier overlaps nothing, so only the set-once trigger refuses it.
+            ("UPDATE financial_assumption_assignment SET recorded_to = recorded_to - interval '1 microsecond' "
+             "WHERE recorded_to IS NOT NULL", "already closed"),
+            ("UPDATE financial_assumption_assignment SET valid_to = valid_to - interval '1 day' "
+             "WHERE recorded_to IS NULL AND valid_to IS NOT NULL", "immutable"),
+            ("DELETE FROM financial_assumption_assignment", "DELETE refused"),
         ):
-            with pytest.raises(DBAPIError):
+            with pytest.raises(DBAPIError, match=message):
                 with engine.begin() as c:
                     c.execute(text(sql))
 
