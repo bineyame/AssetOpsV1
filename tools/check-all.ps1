@@ -64,6 +64,8 @@ Write-Output "Navigation truthfulness check passed."
     Invoke-Guard "Dependency registry"           $Node @("frontend/docs/architecture/check_v69_dependency_registry.cjs")
     Invoke-Guard "Delivery checker fixtures"     $Node @("--test", "frontend/docs/architecture/test_delivery_next_work.cjs")
     Invoke-Guard "Mock-gap catalogue fixtures"   $Node @("--test", "frontend/docs/architecture/test_mock_gaps.cjs")
+    Invoke-Guard "Missing-claim orphan scan"     $Node @("tools/checks/missing-claim-scan.mjs")
+    Invoke-Guard "Missing-claim scan fixtures"   $Node @("--test", "tools/checks/test_missing_claim_scan.mjs")
     Invoke-Guard "Screen ledger"                 $Python @("frontend/docs/architecture/check_v69_ledger.py")
 
     $failed = @($results | Where-Object { $_.Status -ne "PASS" })

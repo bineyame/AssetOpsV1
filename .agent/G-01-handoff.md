@@ -83,3 +83,13 @@ ledger row has `gap_ids`.
 - Tests: `src/ui/__tests__/MissingClaim.test.tsx` (3, incl. @ts-expect-error unknown id/placement);
   `siteFoundationRevision.test.tsx` describe "G-01: the catalogued gateway firmware missing state" (3).
 - Next: phase c orphan scan `tools/checks/missing-claim-scan.mjs` + baseline + check-all + mutation tests.
+
+### Phase c (orphan scan + baseline + check-all) - landed
+- `tools/checks/missing-claim-scan.mjs` (pure `analyze()` + CLI; TypeScript AST via frontend/node_modules):
+  mirror == registry UI-referable placements; literal catalogued `<MissingClaim>` pairs; every mirror placement used;
+  untagged copy (patterns: not available yet / not yet available / no reviewed source) must equal the baseline exactly.
+- `tools/checks/missing-claim-baseline.json` dated 2026-10-13, 16 entries/16 occurrences, each with backfill packet;
+  shrink-only vs merge-base-with-main baseline (absent on main at G-01 -> skipped) and `SEED_CEILING = 16`.
+- `tools/checks/test_missing_claim_scan.mjs` (10 mutation fixtures). check-all guards: "Missing-claim orphan scan",
+  "Missing-claim scan fixtures" (plus phase a's "Mock-gap catalogue fixtures").
+- Next: phase d (full suites, check-all, 1440/390 evidence, review packet, owner walkthrough, records).

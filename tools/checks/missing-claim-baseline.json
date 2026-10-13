@@ -1,0 +1,136 @@
+{
+  "schema": "assetops.missing-claim-baseline.v1",
+  "dated": "2026-10-13",
+  "decision": "D-2026-10-12-mock-gap-closure-mechanism",
+  "scope": {
+    "include": "frontend/src/**/*.{ts,tsx} (product source)",
+    "exclude": [
+      "**/__tests__/**",
+      "**/*.test.ts(x)",
+      "frontend/src/test/**",
+      "comments, docs and mockups"
+    ],
+    "patterns": [
+      "not available yet",
+      "not yet available",
+      "no reviewed source"
+    ],
+    "not_matched": "runtime zero/loading/error copy such as unavailable, not recorded or no results of an existing capability"
+  },
+  "reason": "Dated, enumerated legacy untagged missing-capability copy at the G-01 seed. Exact counts; it may only shrink (entries removed or counts lowered) as G-02..G-05 tag copy. New untagged copy fails immediately.",
+  "entries": [
+    {
+      "file": "frontend/src/shell/RunCommitPanel.tsx",
+      "text": "and committing such runs is not available yet: its reports wait in the",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/shell/RunCommitPanel.tsx",
+      "text": "and committing such runs is not available yet: accepted Site evidence",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/shell/RunIngestionOverview.tsx",
+      "text": "Not available yet: the product consequence of each report (accepted, latency retained or indeterminate). These reads give central decisions per batch, not per d",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/shell/RunIngestionOverview.tsx",
+      "text": "Not available yet: a link from this run&apos;s accepted records to the Dispatch analysis that used them. No run-to-analysis read exists here.",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/sites/LedgerSiteEvidence.tsx",
+      "text": "Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessme",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/sites/LedgerSiteEvidence.tsx",
+      "text": "Not available yet: a status at the end of the period, a quality grade and which conclusions each source affects. No reviewed rule sets these.",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/sites/LedgerSiteEvidence.tsx",
+      "text": "Not available yet: ranking the next evidence needs a reviewed rule linking missing readings to conclusions.",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/sites/LedgerSiteEvidence.tsx",
+      "text": "Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-03 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-03"
+    },
+    {
+      "file": "frontend/src/sites/PerformanceDispatch.tsx",
+      "text": "Not yet available.",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-04"
+    },
+    {
+      "file": "frontend/src/sites/PerformanceDispatch.tsx",
+      "text": "Not yet available. This assessment makes no fuel quantity, saving or money claim, and an interval result is not itself a Finding; Findings recorded over this da",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-04"
+    },
+    {
+      "file": "frontend/src/sites/ReadinessOverview.tsx",
+      "text": "Not available yet: uptime trend, expected-versus-delivered completeness and signal strength. No reviewed source for these fields.",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-02 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-02"
+    },
+    {
+      "file": "frontend/src/sites/SiteFinding.tsx",
+      "text": "Not yet available. Recommendations and actions, with fuel and money estimates, come later; nothing here asks you to change how the generator is operated.",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-04"
+    },
+    {
+      "file": "frontend/src/sites/SiteFinding.tsx",
+      "text": "Not yet available",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-04"
+    },
+    {
+      "file": "frontend/src/sites/SiteFinding.tsx",
+      "text": "Not yet available. Every version is listed below; a full history view, fuel and money estimates and actions come later.",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-04"
+    },
+    {
+      "file": "frontend/src/sites/SitesIndex.tsx",
+      "text": "Not available yet",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-02 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-02"
+    },
+    {
+      "file": "frontend/src/sites/SitesIndex.tsx",
+      "text": "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them. Setup progress not t",
+      "count": 1,
+      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-02 registers its gap and renders it through MissingClaim.",
+      "backfill_packet": "G-02"
+    }
+  ],
+  "total": 16
+}
