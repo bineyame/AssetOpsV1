@@ -1,6 +1,6 @@
 # G-02 — V-01a mock-gap pilot
 
-Status: active (activated 2026-10-13 at the free slot after G-01 merged and S4-03 completed, per D-2026-10-13-g-gap-packet-activation and the owner's order; branch from main `5625447`)
+Status: in_review (built 2026-10-13 on `task/G-02-v01a-gap-pilot`; packet `.agent/G-02-review-packet.md`; activated 2026-10-13 per D-2026-10-13-g-gap-packet-activation from main `5625447`)
 USER_REVIEW_REQUIRED: true
 Depends on: merged V-01a and reviewed G-01 catalogue/guard
 Branch when activated: task/G-02-v01a-gap-pilot

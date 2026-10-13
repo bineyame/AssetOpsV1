@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**S4-03 ([Finding Evidence and History](../tasks/S4-03-finding-evidence-history.md)) is `in_review`** on `task/S4-03-finding-evidence-history` (USER_REVIEW_REQUIRED: fresh independent Claude review of phase 3 + closeout, then the owner checkpoint). Phases 1-2 are reviewed ACCEPT. Packet `.agent/S4-03-review-packet.md`, owner guide `.agent/S4-03-owner-walkthrough.md`, questions `.agent/S4-03-questions-2.md` (Q4-Q6), handoff `.agent/S4-03-handoff.md`, built state in `.ai/CODE_STATE.md` "S4-03". G-01 is merged on main; G-02 is due at its next free slot. The S2-S4 paragraphs below are earlier routing; S4-01 is merged on main.
+**G-02 ([V-01a mock-gap pilot](../tasks/G-02-v01a-gap-pilot.md)) is `in_review`** on `task/G-02-v01a-gap-pilot` (USER_REVIEW_REQUIRED: independent Reviewer for the catalogue/placement graph, the scan change (C7/C1) and the 1440/390 pairs, then the owner checkpoint on the four visible missing-state treatments). Packet `.agent/G-02-review-packet.md`, owner guide `.agent/G-02-owner-walkthrough.md`, questions `.agent/G-02-questions-1.md` (Q1-Q6), handoff `.agent/G-02-handoff.md`, built state in `.ai/CODE_STATE.md` "G-02". G-01 and S4-03 are merged on main; the owner chose A-S4-financial after G-02. The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 

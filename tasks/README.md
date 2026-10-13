@@ -44,7 +44,7 @@ Owner confirmed the catalogue and orphan guard on 2026-10-12 (`D-2026-10-12-mock
 | Batch | Packet | Manifest scope | Dependency | Size / status |
 | --- | --- | --- | --- | --- |
 | Shared | [G-01 catalogue and guard](G-01-mock-gap-catalogue-and-guard.md) | Versioned registry, checker, typed missing state and orphan guard | Confirmed mechanism | M; done; owner accepted conditionally 2026-10-13; merged |
-| Pilot | [G-02 V-01a gap pilot](G-02-v01a-gap-pilot.md) | `sites`, `foundation`, `readiness`, `sld` | Reviewed G-01 and V-01a merged | M; active |
+| Pilot | [G-02 V-01a gap pilot](G-02-v01a-gap-pilot.md) | `sites`, `foundation`, `readiness`, `sld` | Reviewed G-01 and V-01a merged | M; in review |
 | Backfill | [G-03 Lab/Evidence](G-03-lab-evidence-gap-backfill.md) | `lab`, `evidence`, `evidence-analysis` | Reviewed G-02; merged V-01b UI | M; outline |
 | Backfill | [G-04 Dispatch/Finding](G-04-dispatch-finding-gap-backfill.md) | Dispatch, Analysis, Finding family | Reviewed G-02; merged claim UI | M; outline |
 | Backfill | [G-05 Money/Overview/Work/Health](G-05-money-overview-work-health-gap-backfill.md) | Remaining W1 screens | Reviewed G-02; merged owner UI | M; outline, split if refinement exceeds M |
