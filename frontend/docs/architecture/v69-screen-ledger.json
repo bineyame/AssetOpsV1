@@ -370,7 +370,7 @@
       "data_owner": "Financial consequence",
       "supported_claim": "One reviewed fuel-cost-1 modelled potential fuel-cost exposure from an exact FindingRevision, with Site price and conditional upper bound; only after S4-02b review.",
       "interaction": "Open exact Finding, accepted quantity basis, selected Site price and pinned consequence revision; compare old and new price consequences.",
-      "unknown_or_empty": "Unsupported quantity is unavailable; supported quantity without a whole-window price is unpriced with null amount; stale/pending and historical are distinct.",
+      "unknown_or_empty": "Unsupported quantity is unavailable; supported quantity without a whole-window price is unpriced with null amount; stale/pending and historical are distinct. S4-02a delivers only the Finding bridge ('Not calculated' with reason) and the Site price in use; owner accepted conditionally 2026-10-14 (.agent/owner-S4-02a-acceptance-2026-10-14.md); money panels stay partial until S4-02b. Remaining G-05 gaps: consequence lines and old/new repricing lineage.",
       "visual_reference": "index.html#/financials",
       "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "owner approved",
@@ -394,9 +394,9 @@
       "task": "S4-02a + S4-02b (S4-02 closeout)",
       "follow_on": null,
       "data_owner": "Financial consequence",
-      "supported_claim": "Site diesel price has exact SYSTEM-published valid/recorded history; a backdated correction appends a consequence revision without changing the Finding or assessment.",
-      "interaction": "Inspect current and prior price/consequence IDs; human editing is unavailable until a verified operator principal exists.",
-      "unknown_or_empty": "Absent price leaves a supported quantity unpriced; absent quantity has no amount or consequence claim.",
+      "supported_claim": "Site diesel price has exact SYSTEM-published valid/recorded history: current price, schedule, version history and exact version with actor and basis; consequence revisions need S4-02b.",
+      "interaction": "Inspect current price, schedule, history and an exact version (address keeps revision and cutoff); human editing is unavailable until a verified operator principal exists.",
+      "unknown_or_empty": "No price reads 'no price published', never zero; edit control disabled with stated reason (G-assumptions-human-edit). Owner accepted S4-02a conditionally 2026-10-14 (.agent/owner-S4-02a-acceptance-2026-10-14.md): 390 px tab wrap and version-1 history wording accepted for now; not Real. Remaining G-05 gaps: wider assumption set (other prices, costs), consequence revisions at cutoff (S4-02b), human edit.",
       "visual_reference": "index.html#/assumptions",
       "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "owner approved",
@@ -409,7 +409,10 @@
         }
       },
       "planned_wave": "W1",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md",
+      "gap_ids": [
+        "G-assumptions-human-edit"
+      ]
     },
     {
       "id": "recommendation",
