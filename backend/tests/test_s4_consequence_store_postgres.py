@@ -22,6 +22,16 @@ URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
+
+@pytest.fixture(autouse=True)
+def _release_connections():
+    """Each case builds several short-lived stores (CaseRunner, workers); collect their engines promptly so a
+    full-suite run does not exhaust the server's connection slots."""
+    yield
+    import gc
+
+    gc.collect()
+
 if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError

@@ -23,6 +23,16 @@ POWER_SPEC = json.loads((BACKEND / "conversions" / "s4-power-demo-cases-v1.json"
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
+
+@pytest.fixture(autouse=True)
+def _release_connections():
+    """Each case builds several short-lived stores (CaseRunner, workers); collect their engines promptly so a
+    full-suite run does not exhaust the server's connection slots."""
+    yield
+    import gc
+
+    gc.collect()
+
 if URL:
     from sqlalchemy import text
     from test_s1_bindings_postgres import engine, store  # noqa: F401
