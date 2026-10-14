@@ -1,0 +1,8 @@
+# S4-02d Planner notes (2026-10-14)
+
+- Selected input: `.agent/next-work-2026-10-14i.json` selected `I-analytic-finding-worker-schedule` at 2.198 versus `I-action-store` at 2.016 (8.28%); this is the required 5–10% notice, not an owner stop.
+- Packet: `tasks/S4-02d-analytic-finding-worker-schedule.md`; registry `task` is `S4-02d`. `queue_baseline_nodes` already contains the node, so its membership stays unchanged. `I-site-overview-read` already requires it and the separate `I-late-reading-series-and-money-limit` node.
+- The existing S3 CLI drains up to 1000 jobs and reconciles all assessed Sites; the S4 CLI matches one explicit Site; S4-02c's consequence runner serves one named development Site. The packet therefore requires active persisted Site enumeration, fair bounds and a deployment-owned timer rather than assuming those current commands cover production tenants.
+- USER_REVIEW_REQUIRED is false only for an operator/read-contract implementation with no new owner UI or copy. S5-01 retains its owner checkpoint. F1 run-1 numbering and amount withholding belong to `I-late-reading-series-and-money-limit`.
+- Carry I1/I2 from the S4-02c backlog: uncapped failed consequence attempts and a hung runner masked by repeated skipped ticks must surface in health and recovery. The packet adds focused proof for both.
+- Verification: `node frontend/docs/architecture/check_v69_dependency_registry.cjs` passed (224 nodes); `--next-work --out .agent/next-work-2026-10-14j.json` and `--verify-report .agent/next-work-2026-10-14j.json` passed. The verified report still selects `I-analytic-finding-worker-schedule` 2.198 over `I-action-store` 2.016, with the 8.28% notice. `git diff --check` passed. No commit made.
