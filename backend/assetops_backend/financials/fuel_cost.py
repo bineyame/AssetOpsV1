@@ -465,10 +465,10 @@ def select_window_price(assignments: Sequence[dict[str, Any]], revisions: dict[A
 
 def clipped(hits: Sequence[dict[str, Any]], window_start: datetime,
             window_end: datetime) -> tuple[tuple[str, str, str], ...]:
-    """The window-clipped `(revision_id, from, to)` of each overlapping assignment, sorted (review M1)."""
-    return tuple(sorted((str(a["revision_id"]), iso(max(a["valid_from"], window_start)),
-                         iso(window_end if a["valid_to"] is None else min(a["valid_to"], window_end)))
-                        for a in hits))
+    """The window-clipped `(revision_id, from, to)` of each overlapping assignment, in time order (review M1)."""
+    rows = [(str(a["revision_id"]), iso(max(a["valid_from"], window_start)),
+             iso(window_end if a["valid_to"] is None else min(a["valid_to"], window_end))) for a in hits]
+    return tuple(sorted(rows, key=lambda x: (x[1], x[2], x[0])))
 
 
 # ---- consequence -----------------------------------------------------------------------------------------
