@@ -188,6 +188,17 @@ class TestHealthAndSeam:
         assert site_of(health(env), kobo.site)["state"] == "IDLE"
         assert seam(kobo.tenant, kobo.site, DAY_A, env=env)["eligibility"]["status"] == "CURRENT"
 
+        # A new selection whose match has not run (the S4 stage timed out once): not CURRENT, stage S4.
+        deliver(kobo, block(DAY_A, 12, 13), decided="2026-10-12T07:00:00Z")
+        tick.runner = InProcessRunner(tick.limits, results={"s4": [{"code": "TIMEOUT", "error": "lock timeout"}]})
+        assert by_site(tick.tick())[str(kobo.site)].stages["s4"]["code"] == "TIMEOUT"
+        e = seam(kobo.tenant, kobo.site, DAY_A, env=env)["eligibility"]
+        assert e["status"] == "STALE_PROJECTION" and e["stage"] == "S4" and "MATCH_PENDING" in e["reasons"], e
+        assert site_of(health(env), kobo.site)["s4"]["backlog"] is True
+        tick.runner = InProcessRunner(tick.limits)
+        assert by_site(tick.tick())[str(kobo.site)].stages["s4"]["code"] == "MATCHED"
+        assert seam(kobo.tenant, kobo.site, DAY_A, env=env)["eligibility"]["status"] == "CURRENT"
+
         # Terminal S3 failure on a first build (no usable prior result): FAILED, typed, with the job ID.
         deliver(kobo, block(DAY_B, 8, 9), decided="2026-10-12T08:00:00Z")
         (job,) = [j for j in jobs(engine, kobo.site) if j["status"] == "PENDING"]
@@ -213,6 +224,18 @@ class TestHealthAndSeam:
         assert tick.tick().outcome == "COMPLETED"
         assert site_of(health(env), kobo.site)["state"] == "IDLE"
         assert seam(kobo.tenant, kobo.site, DAY_B, env=env)["eligibility"]["status"] == "CURRENT"
+
+        # A Site that leaves the active set with an unmatched selection keeps its S4 backlog in the report.
+        deliver(kobo, block(DAY_A, 16, 17), decided="2026-10-12T10:00:00Z")
+        tick.runner = InProcessRunner(tick.limits, results={"s4": [{"code": "TIMEOUT", "error": "lock timeout"}]})
+        tick.tick()
+        with engine.begin() as c:
+            c.execute(text("UPDATE site SET lifecycle = 'DECOMMISSIONED' WHERE id = :s"), {"s": kobo.site})
+        tick.runner = InProcessRunner(tick.limits)
+        assert str(kobo.site) not in by_site(tick.tick())  # no live S3 or consequence work keeps it selected
+        s = site_of(health(env), kobo.site)
+        assert s["active"] is False and s["s4"]["backlog"] is True
+        assert "S4_BACKLOG_OUTSIDE_ACTIVE_SET" in codes(s["alarms"]) and s["state"] == "BACKLOG"
 
     def test_repeated_claim_skips_and_a_stale_claim_alarm_then_recovery(self, kobo, engine) -> None:  # noqa: F811
         tick, _ = make_tick(TickLimits(**FAST))
