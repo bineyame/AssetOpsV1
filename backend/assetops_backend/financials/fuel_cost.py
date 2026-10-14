@@ -49,7 +49,8 @@ SFC_PROPERTY = "specific-fuel-consumption"
 SFC_UNIT = "L/kWh"
 QUANTITY_DIGITS = 50
 
-CANDIDATE, NECESSARY, INDETERMINATE = "CANDIDATE", "NECESSARY", "INDETERMINATE"
+# The stored dispatch-3.1 segment classifications (`analytics/dispatch.py`).
+CANDIDATE, NECESSARY, INDETERMINATE = "CANDIDATE_AVOIDABLE", "NECESSARY", "INDETERMINATE"
 
 # The immutable, reviewed model parameter version (Architect Q1). Changing any field changes its digest and
 # needs a new version and review; it is never edited in place to reprice a pinned consequence.
@@ -302,9 +303,11 @@ def quantify(f: FindingInput) -> Quantity:
             return _unavailable("CANDIDATE_SPAN_UNVERIFIED",
                                 f"Candidate span {iso(span.start)}-{iso(span.end)} is not a stored observed "
                                 "CANDIDATE segment of its assessment.")
-        if not (f.window_start <= span.start < span.end <= f.window_end):
+        if not (f.window_start <= span.start <= span.end <= f.window_end):
             return _unavailable("CANDIDATE_SPAN_UNVERIFIED", "A Candidate span lies outside the finding window.")
-    raw_spans = [(s.start, s.end) for s in f.candidate_spans]
+    raw_spans = [(s.start, s.end) for s in f.candidate_spans if s.start < s.end]  # zero-width spans hold no time
+    if not raw_spans:
+        return _unavailable("NO_CANDIDATE_TIME", "The finding revision has no positive-duration Candidate span.")
     components = merge(raw_spans)
     spans = tuple(sorted(set(raw_spans)))
 
@@ -483,7 +486,10 @@ def consequence(f: FindingInput, q: Quantity, price: PriceSelection) -> Conseque
     elif price.state != "PRICED":
         state, low, high, currency = "UNPRICED", None, None, None
     else:
-        state, low, high, currency = "PRICED", Decimal(0), q.high * price.value, price.currency
+        with localcontext() as ctx:  # exact product: never rounded by the default 28-digit context
+            ctx.prec = 4 * QUANTITY_DIGITS + 100
+            amount = q.high * price.value
+        state, low, high, currency = "PRICED", Decimal(0), amount, price.currency
     tech = technical_input_sha256(f, q)
     basis = sha256_canonical({
         "consequence_type": CONSEQUENCE_TYPE, "basis_kind": BASIS_KIND, "formula_version": FORMULA_VERSION,

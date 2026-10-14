@@ -60,9 +60,14 @@ def prices():
     s.dispose()
 
 
-def run_fixture(prices, capsys, *steps: str, file: Path = FIXTURE) -> list[dict]:
+# The S4-02a history these tests prove. S4-02b appends v4 (an October 2026 correction, carry C3); a run of the
+# whole fixture is proved separately in `test_v4_october_correction_appends_and_replays_safely`.
+S4_02A_STEPS = ("v1", "v2", "v3")
+
+
+def run_fixture(prices, capsys, *steps: str, file: Path = FIXTURE, every_step: bool = False) -> list[dict]:
     args = ["fixture", "--site", "KOBO-001", "--file", str(file)]
-    for step in steps:
+    for step in steps or (() if every_step else S4_02A_STEPS):
         args += ["--step", step]
     code = publish_main(args, store=prices)
     out = capsys.readouterr()
@@ -159,6 +164,27 @@ class TestFixtureHistorySurvivesRestart:
             sorted(map(str, (a["recorded_to"] for a in assignments)))
         fresh.dispose()
 
+    def test_v4_october_correction_appends_and_replays_safely(self, site, prices, engine, capsys) -> None:  # noqa: F811
+        """S4-02a carry C3: a Site already published with v1-v3 takes the appended v4 Finding-window correction;
+        every earlier step replays with its stored ID and a second full run writes nothing."""
+        tenant_id, site_id = site
+        earlier = run_fixture(prices, capsys)
+        full = run_fixture(prices, capsys, every_step=True)
+        assert [o["step"] for o in full] == ["v1", "v2", "v3", "v4"]
+        assert [o["revision_id"] for o in full[:3]] == [o["revision_id"] for o in earlier]
+        assert [o["replayed"] for o in full] == [True, True, True, False]
+        assert (full[3]["change_kind"], full[3]["revision_no"]) == ("CORRECTION", 4)
+        before = counts(engine)
+        again = run_fixture(prices, capsys, every_step=True)
+        assert all(o["replayed"] for o in again) and counts(engine) == before
+        v1, v4 = UUID(full[0]["revision_id"]), UUID(full[3]["revision_id"])
+        current = sorted((a["revision_id"], a["valid_from"], a["valid_to"])
+                         for a in prices.assignments(tenant_id, site_id, KEY) if a["recorded_to"] is None
+                         if _t(2026, 7) <= a["valid_from"] < V2_START)
+        assert current == sorted([(v1, _t(2026, 7), _t(2026, 10)), (v4, _t(2026, 10), _t(2026, 11)),
+                                  (v1, _t(2026, 11), V2_START)])
+        assert selected(prices.assignments(tenant_id, site_id, KEY), datetime(2026, 10, 6, 8, tzinfo=UTC)) == v4
+
     def test_replay_from_a_modified_fixture_copy_returns_the_stored_ids(self, site, prices, engine, capsys,  # noqa: F811
                                                                          tmp_path) -> None:
         """Review M1: an appended step, a bumped version and CRLF line endings do not break replay."""
@@ -166,6 +192,7 @@ class TestFixtureHistorySurvivesRestart:
         before = counts(engine)
         doc = json.loads(FIXTURE.read_text(encoding="utf-8"))
         doc["version"] += 1
+        doc["steps"] = doc["steps"][:3]
         doc["steps"].append({**doc["steps"][2], "step": "v4", "expected_prior_step": "v3",
                              "idempotency_key": "demo-diesel-price-v4-test", "value": "1.21",
                              "valid_from": "2026-08-01T00:00:00Z", "valid_to": "2026-09-01T00:00:00Z"})

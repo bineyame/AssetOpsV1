@@ -1,0 +1,281 @@
+"""PostgreSQL financial consequence store (S4-02b phase 1, migration 0011).
+
+The seventh product database writer (architecture guard rule 8). It only INSERTs into
+`financial_consequence_revision`, its three link tables and `financial_consequence_work_attempt`; dirty work
+rows are written by the migration's triggers inside the assumption-publication or FindingRevision transaction,
+never here.
+
+`load_input` reads, in one REPEATABLE READ snapshot, the exact public inputs of one FindingRevision for
+`fuel_cost.quantify`: the revision and its Finding, its INTERVAL assessments (primary and every supporting)
+with stored segments and their analytic runs' accepted input sets and Foundation revisions, the accepted
+generator-power readings of that generator inside the Finding window, and the as-accepted Foundation and
+binding revisions those readings name. `append` stores a consequence idempotently: under a per-FindingRevision
+advisory lock, an identical consequence basis digest returns the stored ID (`replayed=True`); otherwise it
+appends revision `n+1` with its links, at one `clock_timestamp()` instant taken after the lock.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
+from uuid import UUID, uuid4
+
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Connection, Engine
+from sqlalchemy.exc import OperationalError, ProgrammingError
+
+from assetops_backend.financials import fuel_cost as fc
+
+RECOMPUTE_ACTOR = "service:assetops-consequence-recompute"
+
+
+class ConsequenceStoreUnavailable(RuntimeError):
+    pass
+
+
+@dataclass(frozen=True)
+class Appended:
+    consequence_revision_id: UUID
+    revision_no: int
+    recorded_at: datetime
+    replayed: bool
+
+
+def _at(value: str | None) -> datetime | None:
+    return None if value is None else datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+class PostgresConsequenceStore:
+    def __init__(self, database_url: str | None) -> None:
+        self._database_url = database_url
+        self._engine: Engine | None = None
+
+    def _connect(self) -> Engine:
+        if not self._database_url:
+            raise ConsequenceStoreUnavailable("DATABASE_URL is not set, so the consequence store cannot be reached.")
+        if self._engine is None:
+            self._engine = create_engine(self._database_url, pool_pre_ping=True)
+        return self._engine
+
+    def dispose(self) -> None:
+        if self._engine is not None:
+            self._engine.dispose()
+            self._engine = None
+
+    def _run(self, work, isolation: str = "READ COMMITTED"):
+        try:
+            with self._connect().connect().execution_options(isolation_level=isolation) as c:
+                with c.begin():
+                    return work(c)
+        except (OperationalError, ProgrammingError) as error:
+            raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+
+    # ---- exact inputs --------------------------------------------------------------------------------------
+
+    def load_input(self, tenant_id: UUID, site_id: UUID, finding_id: UUID,
+                   finding_revision_id: UUID) -> fc.FindingInput | None:
+        """The exact persisted inputs of one FindingRevision of this Site; None if it is not this Site's."""
+        scope = {"t": tenant_id, "s": site_id}
+
+        def work(c: Connection) -> fc.FindingInput | None:
+            head = c.execute(text(
+                "SELECT r.id, r.finding_id, r.episode_start, r.episode_end, r.lifecycle, r.claim, "
+                "f.generator_asset_id FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+                "AND f.tenant_id = r.tenant_id AND f.site_id = r.site_id "
+                "WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :r AND r.finding_id = :f"),
+                {**scope, "r": finding_revision_id, "f": finding_id}).first()
+            if head is None:
+                return None
+            asset = str(head.generator_asset_id)
+            links = c.execute(text(
+                "SELECT a.assessment_revision_id, a.analytic_run_id, a.scope, a.is_primary, v.result, "
+                "run.foundation_revision_ids FROM finding_revision_assessment a "
+                "JOIN assessment_revision v ON v.id = a.assessment_revision_id AND v.tenant_id = a.tenant_id "
+                "AND v.site_id = a.site_id JOIN analytic_run run ON run.id = a.analytic_run_id "
+                "AND run.tenant_id = a.tenant_id AND run.site_id = a.site_id "
+                "WHERE a.tenant_id = :t AND a.site_id = :s AND a.finding_revision_id = :r "
+                "ORDER BY a.scope, a.is_primary DESC, a.assessment_revision_id"),
+                {**scope, "r": finding_revision_id}).all()
+            runs = sorted({row.analytic_run_id for row in links if row.scope == "INTERVAL"}, key=str)
+            run_evidence: dict[str, set[str]] = {str(r): set() for r in runs}
+            for row in c.execute(text(
+                    "SELECT run_id, evidence_id FROM analytic_run_evidence WHERE tenant_id = :t AND site_id = :s "
+                    "AND run_id = ANY(:runs)"), {**scope, "runs": runs}):
+                run_evidence[str(row.run_id)].add(str(row.evidence_id))
+            assessments = []
+            for row in links:
+                result = row.result or {}
+                segments = tuple(fc.Segment(_at(s["start"]), _at(s["end"]), bool(s.get("observed")),
+                                            s["classification"]) for s in result.get("segments") or ())
+                assessments.append(fc.AssessmentInput(
+                    str(row.assessment_revision_id), str(row.analytic_run_id), row.scope, bool(row.is_primary),
+                    None if result.get("generator_asset_id") is None else str(result["generator_asset_id"]),
+                    segments, frozenset(run_evidence.get(str(row.analytic_run_id), ())),
+                    frozenset(str(x) for x in (row.foundation_revision_ids or ()))))
+            readings = [fc.PowerReading(str(r.id), str(r.asset_id), r.interval_start, r.interval_end,
+                                        r.normalized_value_text, r.normalized_unit, r.quality, r.envelope_sha256,
+                                        str(r.foundation_revision_id), str(r.binding_revision_id))
+                        for r in c.execute(text(
+                            "SELECT e.id, e.asset_id, e.interval_start, e.interval_end, e.normalized_value_text, "
+                            "e.normalized_unit, e.quality, e.envelope_sha256, e.foundation_revision_id, "
+                            "e.binding_revision_id FROM accepted_evidence e JOIN ingestion_disposition d "
+                            "ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+                            "WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
+                            "AND d.accepted_evidence_id = e.id AND e.role = :role "
+                            "AND CAST(e.asset_id AS text) = :asset AND e.interval_start IS NOT NULL "
+                            "AND e.interval_start < :hi AND e.interval_end > :lo ORDER BY e.interval_start, e.id"),
+                            {**scope, "role": fc.POWER_ROLE, "asset": asset, "lo": head.episode_start,
+                             "hi": head.episode_end})]
+            asset_code = c.execute(text(
+                "SELECT asset_code FROM asset WHERE tenant_id = :t AND site_id = :s AND CAST(id AS text) = :a"),
+                {**scope, "a": asset}).scalar_one_or_none()
+            foundation_ids = sorted({r.foundation_revision_id for r in readings}, key=str)
+            foundations = tuple(fc.FoundationRevision(
+                str(r.id), r.valid_from, r.valid_to,
+                tuple((p[0], p[1]) for p in (r.sfc or ()))) for r in c.execute(text(
+                    "SELECT f.id, f.valid_from, f.valid_to, (SELECT jsonb_agg(jsonb_build_array(p->>'value', "
+                    "p->>'unit')) FROM jsonb_array_elements(COALESCE(f.content->'components', '[]'::jsonb)) comp, "
+                    "jsonb_array_elements(COALESCE(comp->'properties', '[]'::jsonb)) p "
+                    "WHERE comp->>'component_id' = :code AND p->>'property_key' = :key) AS sfc "
+                    "FROM foundation_revision f WHERE f.tenant_id = :t AND f.site_id = :s "
+                    "AND CAST(f.id AS text) = ANY(:ids)"),
+                    {**scope, "code": asset_code, "key": fc.SFC_PROPERTY, "ids": foundation_ids}))
+            binding_ids = sorted({r.binding_revision_id for r in readings}, key=str)
+            bindings = tuple(fc.BindingRevision(str(r.id), r.valid_from, r.valid_to) for r in c.execute(text(
+                "SELECT id, valid_from, valid_to FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND CAST(id AS text) = ANY(:ids)"), {**scope, "ids": binding_ids}))
+            claim = head.claim or {}
+            spans = tuple(fc.CandidateSpan(_at(s["start"]), _at(s["end"]), str(s.get("assessment_revision_id")))
+                          for s in claim.get("candidate_spans") or ())
+            return fc.FindingInput(str(tenant_id), str(site_id), str(head.finding_id), str(head.id), asset,
+                                   head.episode_start, head.episode_end, head.lifecycle, spans, tuple(assessments),
+                                   tuple(readings), foundations, bindings)
+
+        return self._run(work, "REPEATABLE READ")
+
+    # ---- idempotent append ---------------------------------------------------------------------------------
+
+    def append(self, c_: fc.Consequence, actor_id: str = RECOMPUTE_ACTOR) -> Appended:
+        f, q, p = c_.finding, c_.quantity, c_.price
+        scope = {"t": UUID(f.tenant_id), "s": UUID(f.site_id)}
+        frid = UUID(f.finding_revision_id)
+
+        def work(c: Connection) -> Appended:
+            c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended("
+                           "'financial_consequence:' || :r || ':' || :k, 0))"),
+                      {"r": str(frid), "k": fc.CONSEQUENCE_TYPE})
+            same = c.execute(text(
+                "SELECT id, revision_no, recorded_at FROM financial_consequence_revision WHERE finding_revision_id = :r "
+                "AND consequence_type = :k AND consequence_basis_sha256 = :b"),
+                {"r": frid, "k": fc.CONSEQUENCE_TYPE, "b": c_.basis_sha256}).first()
+            if same is not None:
+                return Appended(same[0], same[1], same[2], True)
+            head = c.execute(text(
+                "SELECT id, revision_no FROM financial_consequence_revision WHERE finding_revision_id = :r "
+                "AND consequence_type = :k ORDER BY revision_no DESC LIMIT 1"),
+                {"r": frid, "k": fc.CONSEQUENCE_TYPE}).first()
+            at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            cid, no = uuid4(), 1 if head is None else head[1] + 1
+            c.execute(text(
+                "INSERT INTO financial_consequence_revision (id, tenant_id, site_id, finding_id, finding_revision_id, "
+                "consequence_type, revision_no, prior_consequence_revision_id, window_start, window_end, "
+                "overlap_group, basis_kind, model_id, formula_version, parameter_version, parameter_sha256, "
+                "sfc_upper_multiplier, state, quantity_state, quantity_reason, quantity_detail, quantity_unit, "
+                "quantity_low, quantity_high, quantity_high_exact, price_state, price_reason, price_revision_id, "
+                "price_value, price_currency, amount_low, amount_high, currency, limitations, "
+                "technical_input_sha256, consequence_basis_sha256, actor_id, recorded_at) VALUES (:id, :t, :s, :f, "
+                ":r, :k, :no, :prior, :ws, :we, :og, :bk, :model, :fv, :pv, :psha, :mult, :state, :qs, :qr, :qd, "
+                ":qu, :ql, :qh, :qx, :ps, :pr, :prev, :pval, :pcur, :al, :ah, :cur, CAST(:lim AS jsonb), :tech, "
+                ":basis, :actor, :at)"),
+                {**scope, "id": cid, "f": UUID(f.finding_id), "r": frid, "k": fc.CONSEQUENCE_TYPE, "no": no,
+                 "prior": None if head is None else head[0], "ws": f.window_start, "we": f.window_end,
+                 "og": f"{fc.CONSEQUENCE_TYPE}:finding:{f.finding_id}", "bk": fc.BASIS_KIND, "model": fc.MODEL_ID,
+                 "fv": fc.FORMULA_VERSION, "pv": fc.PARAMETER_VERSION["parameter_version"],
+                 "psha": fc.PARAMETER_SHA256, "mult": fc.MULTIPLIER, "state": c_.state, "qs": q.state,
+                 "qr": q.reason, "qd": q.detail, "qu": fc.QUANTITY_UNIT, "ql": q.low, "qh": q.high,
+                 "qx": None if q.high_exact is None else f"{q.high_exact.numerator}/{q.high_exact.denominator}",
+                 "ps": p.state, "pr": p.reason, "prev": None if p.revision_id is None else UUID(p.revision_id),
+                 "pval": p.value if p.state == "PRICED" else None,
+                 "pcur": p.currency if p.state == "PRICED" else None, "al": c_.amount_low, "ah": c_.amount_high,
+                 "cur": c_.currency, "lim": json.dumps(list(c_.limitations)), "tech": c_.technical_input_sha256,
+                 "basis": c_.basis_sha256, "actor": actor_id, "at": at})
+            for a in f.assessments:
+                if a.scope != "INTERVAL":
+                    continue
+                c.execute(text(
+                    "INSERT INTO financial_consequence_assessment_revision (consequence_revision_id, tenant_id, "
+                    "site_id, assessment_revision_id, analytic_run_id, is_primary) VALUES (:c, :t, :s, :a, :run, "
+                    ":p)"), {**scope, "c": cid, "a": UUID(a.assessment_revision_id),
+                             "run": UUID(a.analytic_run_id), "p": a.is_primary})
+            if c_.state == "PRICED":
+                c.execute(text(
+                    "INSERT INTO financial_consequence_assumption_revision (consequence_revision_id, tenant_id, "
+                    "site_id, assumption_revision_id, assignment_id, role) VALUES (:c, :t, :s, :a, :g, 'PRICE')"),
+                    {**scope, "c": cid, "a": UUID(p.revision_id), "g": UUID(p.assignment_id)})
+            for i in q.intervals:
+                c.execute(text(
+                    "INSERT INTO financial_consequence_power_interval (consequence_revision_id, tenant_id, site_id, "
+                    "evidence_id, interval_start, interval_end, mean_kw, duration_seconds, sfc_l_per_kwh, "
+                    "foundation_revision_id, binding_revision_id, envelope_sha256, covered_spans, containment) "
+                    "VALUES (:c, :t, :s, :e, :a, :b, :kw, :sec, :sfc, :fr, :br, :sha, CAST(:spans AS jsonb), :cont)"),
+                    {**scope, "c": cid, "e": UUID(i.evidence_id), "a": i.interval_start, "b": i.interval_end,
+                     "kw": i.mean_kw, "sec": i.duration_seconds, "sfc": i.sfc_l_per_kwh,
+                     "fr": UUID(i.foundation_revision_id), "br": UUID(i.binding_revision_id),
+                     "sha": i.envelope_sha256, "cont": i.containment,
+                     "spans": json.dumps([[fc.iso(s), fc.iso(e)] for s, e in i.covered_spans])})
+            return Appended(cid, no, at, False)
+
+        return self._run(work)
+
+    # ---- durable dirty work --------------------------------------------------------------------------------
+
+    def pending_work(self, tenant_id: UUID, site_id: UUID) -> list[dict[str, Any]]:
+        """Dirty work of this Site with no SUCCEEDED attempt, oldest first, with its attempt count."""
+        def work(c: Connection):
+            return [dict(r._mapping) for r in c.execute(text(
+                "SELECT w.*, (SELECT count(*) FROM financial_consequence_work_attempt a WHERE a.work_id = w.id) "
+                "AS attempts FROM financial_consequence_work w WHERE w.tenant_id = :t AND w.site_id = :s "
+                "AND NOT EXISTS (SELECT 1 FROM financial_consequence_work_attempt a WHERE a.work_id = w.id "
+                "AND a.outcome = 'SUCCEEDED') ORDER BY w.enqueued_at, w.id"), {"t": tenant_id, "s": site_id})]
+        return self._run(work, "REPEATABLE READ")
+
+    def record_attempt(self, tenant_id: UUID, site_id: UUID, work_id: UUID, *, succeeded: bool,
+                       consequence_revision_ids: tuple[UUID, ...] = (), error_code: str | None = None,
+                       error_detail: str | None = None, actor_id: str = RECOMPUTE_ACTOR) -> int:
+        """Append one attempt to a work item under its lock; returns the attempt number."""
+        def work(c: Connection) -> int:
+            c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('financial_consequence_work:' || :w, 0))"),
+                      {"w": str(work_id)})
+            n = c.execute(text("SELECT count(*) FROM financial_consequence_work_attempt WHERE work_id = :w"),
+                          {"w": work_id}).scalar_one() + 1
+            c.execute(text(
+                "INSERT INTO financial_consequence_work_attempt (id, work_id, tenant_id, site_id, attempt_no, outcome, "
+                "error_code, error_detail, consequence_revision_ids, actor_id, finished_at) VALUES (:id, :w, :t, :s, "
+                ":n, :o, :code, :detail, CAST(:ids AS jsonb), :actor, clock_timestamp())"),
+                {"id": uuid4(), "w": work_id, "t": tenant_id, "s": site_id, "n": n,
+                 "o": "SUCCEEDED" if succeeded else "FAILED", "code": None if succeeded else (error_code or "FAILED"),
+                 "detail": error_detail, "ids": json.dumps([str(x) for x in consequence_revision_ids]),
+                 "actor": actor_id})
+            return n
+        return self._run(work)
+
+    # ---- raw rows (phase 2a builds the read over these) ------------------------------------------------------
+
+    def rows(self, tenant_id: UUID, site_id: UUID) -> dict[str, list[dict[str, Any]]]:
+        scope = {"t": tenant_id, "s": site_id}
+
+        def work(c: Connection):
+            out = {}
+            for table, order in (("financial_consequence_revision", "finding_revision_id, revision_no"),
+                                 ("financial_consequence_assessment_revision", "consequence_revision_id, "
+                                                                               "assessment_revision_id"),
+                                 ("financial_consequence_assumption_revision", "consequence_revision_id"),
+                                 ("financial_consequence_power_interval", "consequence_revision_id, interval_start"),
+                                 ("financial_consequence_work", "enqueued_at, id"),
+                                 ("financial_consequence_work_attempt", "work_id, attempt_no")):
+                out[table] = [dict(r._mapping) for r in c.execute(text(
+                    f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s ORDER BY {order}"), scope)]
+            return out
+        return self._run(work, "REPEATABLE READ")

@@ -1,6 +1,6 @@
 {
   "fixture": "demo-diesel-price-publications",
-  "version": 1,
+  "version": 2,
   "statement": "Illustrative demonstration prices published by the server-side SYSTEM publisher. They are not market quotes, purchases or contract rates. The Site is named on the command line, never here.",
   "assumption_key": "diesel_price_per_litre",
   "steps": [
@@ -40,6 +40,19 @@
       "valid_to": "2026-07-01T00:00:00Z",
       "expected_prior_step": "v2",
       "idempotency_key": "demo-diesel-price-v3"
+    },
+    {
+      "step": "v4",
+      "change_kind": "CORRECTION",
+      "correction_reason": "Demonstration correction: the October 2026 estimate in v1 is replaced for that month only, so consequences of October findings can be shown before and after a price change.",
+      "currency": "USD",
+      "value": "1.28",
+      "basis": "AUTHORED_ESTIMATE",
+      "source_reference": "Demonstration price set by the system (illustrative corrected October estimate)",
+      "valid_from": "2026-10-01T00:00:00Z",
+      "valid_to": "2026-11-01T00:00:00Z",
+      "expected_prior_step": "v3",
+      "idempotency_key": "demo-diesel-price-v4"
     }
   ]
 }

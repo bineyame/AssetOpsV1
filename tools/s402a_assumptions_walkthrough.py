@@ -87,7 +87,7 @@ def prepare(db: str, empty: str, work: Path) -> None:
     say(f"=== 2. Upgrade {db} to the current migration head and publish the demonstration prices ===")
     tree_py(work, db, "-m", "alembic", "upgrade", "head")
     out = tree_py(work, db, "-m", "assetops_backend.publish_assumption", "fixture", "--site", "KOBO-001",
-                  "--file", str(FIXTURE))
+                  "--file", str(FIXTURE), "--step", "v1", "--step", "v2", "--step", "v3")  # S4-02a steps only (v4 is S4-02b)
     for line in out.splitlines():
         step = json.loads(line)
         say(f"  {step['step']}: {step['change_kind']} version {step['revision_no']} {step['revision_id']}"

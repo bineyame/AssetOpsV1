@@ -33,7 +33,7 @@ def build(case: dict) -> fc.FindingInput:
     d = SPEC["defaults"]
     segments = tuple(fc.Segment(at(s), at(e), observed, cls) for s, e, cls, observed in case["segments"])
     spans = case.get("spans") or [[s, e] for s, e, cls, observed in case["segments"]
-                                  if cls == "CANDIDATE" and observed]
+                                  if cls == fc.CANDIDATE and observed]
     readings, in_run = [], set()
     for i, row in enumerate(case["readings"], 1):
         start, end, value = row[:3]
