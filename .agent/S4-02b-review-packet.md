@@ -90,3 +90,32 @@ Non-vacuity, each on committed code reverted with `git checkout --`: backend 9/9
 ## User-review focus
 
 Owner checkpoint questions 1-6 in `.agent/S4-02b-owner-walkthrough.md`: final money copy, no-amount reasons, the demonstration label and 0/11 ordinary qualification, STALE/PENDING separation, the carried version-1 history item and 390 px tab wrap.
+
+## Fix round 1 (review `.agent/S4-02b-review.md`: H1, L1-L5)
+
+Commits: `fix round 1` (frontend, backend label, tests), then evidence tool and walkthrough, then this section.
+
+- **H1 fixed.** `FindingConsequence.tsx`: the money panel renders the stored head's table and "How this is worked out" only when the head is CURRENT and PRICED. Every other state (STALE, PENDING, HISTORICAL, AUDIT_ONLY, UNAVAILABLE, UNPRICED, QUANTITY_UNAVAILABLE) shows the state wording and a pointer line, with no amount and no stored price. Under AUDIT_ONLY the version list shows no amounts ("the source is closed, so this is audit material only") and an opened earlier version shows only a closed-source notice. With the source gate open, an explicitly opened earlier version (labelled "kept for the record") and the version list still show their own recorded amounts, as the review allowed; for a STALE head the list also shows the head's recorded amount labelled "kept for the record". A diesel price per litre (the "Price in use" panel, a price not a fuel cost) is left on screen; the "no amount" checks exclude `N.NN USD per litre`.
+- **Evidence claims.** `tools/s402b-fuel-cost-evidence.mjs` now measures visible text: `panelAmounts` (any `\d+.\d\d` or `USD` in the money panel) must be 0 for historical, pending, stale, unpriced and audit-only, and `mainAmounts` (any `N.NN USD` not per litre on the whole `main`) must be 0 for audit-only.
+- **L1** test: PRICED with currentness STALE shows no headline amount. **L2** test: the closed-source statement is asserted in the AUDIT_ONLY case. **L4**: history marks "the current fuel cost" only when the bridge currentness is CURRENT too; test with UNAVAILABLE bridge.
+- **L3.** `demonstration_label.py` fails closed: an unreadable or malformed spec gives a cautious "Source not confirmed" label (case_id `unverified`) rather than none; an open episode (no end) is labelled by its start day. Tests: open episode, unreadable spec (monkeypatched), shipped spec parses with a case.
+- **L5** left as a carry (no pager on the consequence history; unreachable at demonstration scale).
+- **Walkthrough** steps 5 and 6 corrected; added that PRICE_SPANS_WINDOW is tested, not walked (Q14), and the Q11 label limits (not tenant-scoped; decided by Site + day 2026-10-23).
+
+### Checks as observed
+- Frontend `tsc --noEmit`: exit 0. `npm test`: 62 files, **1478 passed**. `npm run build`: built.
+- Backend `pytest tests/test_s4_assumption_read_api.py -k Demonstration`: 5 passed (Postgres suites not rerun; backend change is the label module only).
+- `tools/check-all.ps1`: all 9 guards passed.
+- Evidence tool on my own DBs `assetops_s402bfix_walk`/`_empty` (APIs 8910/8911, web 5410/5411, CDP 9410): **90/90 claims passed**, including STALE (publish-v4 before recompute) and AUDIT_ONLY (close-gate). DBs and work folder dropped afterwards. Owner DBs untouched.
+
+### Non-vacuity (each reverted afterwards; tree clean)
+| Mutation | Result |
+| --- | --- |
+| money panel renders stored head table in every state | 7 unit failures; evidence 86/90 (stale and closed-source claims fail with `panelAmounts: 2`, desktop and narrow) |
+| Headline drops `currentness === "CURRENT"` (L1) | 1 failed |
+| closed-source notice removed (L2) | 1 failed |
+| history ignores bridge currentness (L4) | 2 failed |
+| version list shows amounts under AUDIT_ONLY | 2 failed |
+| pinned panel shows figures under AUDIT_ONLY | 1 failed |
+| label returns None on unreadable spec (L3) | 1 failed |
+| open episode never labelled (L3) | 1 failed |

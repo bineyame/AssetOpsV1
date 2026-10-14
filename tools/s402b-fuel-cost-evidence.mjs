@@ -151,7 +151,10 @@ const STATE = `(() => { const b = document.querySelector('[data-financials-bridg
   currentness: b.getAttribute('data-financials-currentness'), amount: b.getAttribute('data-financials-amount'), rev: b.getAttribute('data-finding-revision'),
   demo: b.querySelector('[data-financials-demonstration]')?.getAttribute('data-financials-demonstration') ?? null,
   why: b.querySelector('[data-financials-why]')?.innerText ?? null, range: b.querySelector('[data-financials-range]')?.innerText ?? null,
-  text: b.innerText }; })()`;
+  text: b.innerText,
+  // H1: visible text, not an attribute. Currency amounts in the money panel and (excluding a per-litre price) on the whole screen.
+  panelAmounts: (b.innerText.match(/\d+\.\d\d|USD/g) ?? []).length,
+  mainAmounts: (document.querySelector('main').innerText.match(/\d+\.\d\d USD(?! per litre)/g) ?? []).length }; })()`;
 const HISTORY = `[...document.querySelectorAll('[data-consequence-revision]')].map(li => li.getAttribute('data-consequence-revision') + '@' + li.getAttribute('data-consequence-current'))`;
 
 function walk(...argv) {
@@ -229,13 +232,13 @@ async function main() {
 
     claim(`${W}: earlier finding version loads`, await go(BASE + money(OLD, OLDREV), bridgeReady));
     s = await js(STATE);
-    claim(`${W} historical: HISTORICAL, no current amount`, s.currentness === "HISTORICAL" && s.amount === "none", { state: s.state });
+    claim(`${W} historical: HISTORICAL, no current amount`, s.currentness === "HISTORICAL" && s.amount === "none" && s.panelAmounts === 0, { state: s.state, panelAmounts: s.panelAmounts });
     await common(W, "historical");
     await shot(`s402b-historical-${W}`);
 
     claim(`${W}: empty store P01-power loads`, await go(EMPTY + money(P01, P01REV), bridgeReady));
     s = await js(STATE);
-    claim(`${W} pending: not worked out yet, no amount`, s.state === "PENDING" && s.amount === "none" && (await js(`document.querySelector('[data-consequence-history]').getAttribute('data-consequence-history')`)) === "empty");
+    claim(`${W} pending: not worked out yet, no amount`, s.state === "PENDING" && s.amount === "none" && s.panelAmounts === 0 && (await js(`document.querySelector('[data-consequence-history]').getAttribute('data-consequence-history')`)) === "empty");
     await shot(`s402b-pending-${W}`);
   }
 
@@ -245,7 +248,7 @@ async function main() {
     await size(width, height);
     await go(BASE + money(P01, P01REV), bridgeReady);
     const s = await js(STATE);
-    claim(`${W} stale: out of date, no current amount, stored version labelled`, s.state === "STALE" && s.amount === "none" && /not a current cost/.test(s.text), { state: s.state });
+    claim(`${W} stale: out of date, no current amount, stored version labelled`, s.state === "STALE" && s.amount === "none" && /not a current cost/.test(s.text) && s.panelAmounts === 0, { state: s.state, panelAmounts: s.panelAmounts });
     await shot(`s402b-stale-${W}`);
   }
   walk("recompute");
@@ -289,7 +292,7 @@ async function main() {
 
     await go(EMPTY + money(P01, P01REV), bridgeReady);
     s = await js(STATE);
-    claim(`${W} unpriced: empty store after recompute is no price for the whole window`, s.state === "UNPRICED" && s.amount === "none" && /No diesel price is recorded/.test(s.why ?? ""), { why: s.why });
+    claim(`${W} unpriced: empty store after recompute is no price for the whole window`, s.state === "UNPRICED" && s.amount === "none" && s.panelAmounts === 0 && /No diesel price is recorded/.test(s.why ?? ""), { why: s.why });
     await shot(`s402b-unpriced-${W}`);
   }
 
@@ -300,7 +303,7 @@ async function main() {
       await size(width, height);
       await go(BASE + money(P01, P01REV), bridgeReady);
       const s = await js(STATE);
-      claim(`${W} closed source: for the record only, no amount`, s.state === "AUDIT_ONLY" && s.amount === "none", { state: s.state });
+      claim(`${W} closed source: for the record only, no amount`, s.state === "AUDIT_ONLY" && s.amount === "none" && s.mainAmounts === 0 && s.panelAmounts === 0, { state: s.state, panelAmounts: s.panelAmounts, mainAmounts: s.mainAmounts });
       await shot(`s402b-audit-only-${W}`);
     }
   } finally {

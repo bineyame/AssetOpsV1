@@ -51,12 +51,17 @@ The measured checks at 1440 and 390 pixels were run on separate copies: **90/90 
    and reload: "No price for the whole window", because that copy has no price.
 5. **A price correction** (October price 1.28 instead of 1.25):
    `.\.venv\Scripts\python.exe tools\s402b_fuel_cost_walkthrough.py --db assetops_s402bwalk --empty-db assetops_s402bempty --work-name s402b-owner publish-v4`
-   - Reload view 1: "Out of date: no current cost". The stored figure is labelled "the stored version, not a current cost".
+   - Reload view 1: "Out of date: no current cost" and no amount in the money panel, only a line saying earlier versions are listed under "Fuel cost versions". (The older figure is still visible there, labelled "kept for the record", and the price in use shows 1.28 USD per litre.)
    - Then run `... recompute` (same command as above without `--empty`) and reload: **0.00 to 16.20 USD** at 1.28 USD per litre.
    - Under "Fuel cost versions": version 1 (15.82, kept for the record) and version 2 (16.20, the current fuel cost). Click "Open fuel cost version 1": it says the fuel amount is the same and only the price differs. Back and forward keep each version; reload keeps it.
    - Assumptions now lists four price versions.
-6. **Source not open** (optional): run `... close-gate`, reload view 1: "For the record only: no current cost". Run `... open-gate` to undo.
+6. **Source not open** (optional): run `... close-gate`, reload view 1: the note "Audit material only", then "For the record only: no current cost", and **no fuel-cost amount anywhere on the page**: the money panel says "No amount is shown while the source is closed", the Fuel cost versions list shows no amounts, and an opened earlier version says the source is closed with no figures. (The diesel price per litre in "Price in use" is a price, not a fuel cost, and stays.) Run `... open-gate` to undo.
 7. At 390 px (phone width) the same pages stack; the tables wrap inside the panel without sideways page scrolling.
+
+## Not walked, and limits of the demonstration label
+
+- **"The price changes part-way through this finding's time" (PRICE_SPANS_WINDOW) is tested, not walked.** It is covered by a Postgres test and a screen test; this walkthrough does not stage it, so you will not see that wording on screen.
+- **The "Demonstration data" label is decided by Site and day, not by who wrote the data.** It applies to any finding at KOBO-001 on 23 Oct 2026 (UTC), in any database, and it is not tenant-scoped. If live data lands on that day it would carry the label wrongly (an under-claim, never the reverse). If the label's source file cannot be read, findings show a cautious "Source not confirmed" note instead. Recording authorship at ingestion is an open Architect item.
 
 ## What to decide (S4-02 checkpoint)
 
