@@ -8,7 +8,7 @@
   "site_code": "KOBO-001",
   "power_rules": {"device": "generator-controller", "signal": "ac-power", "measurement": "INTERVAL_MEAN",
                   "mean_minutes": 5, "quality": "GOOD",
-                  "sequence_rule": "SOURCE_ORDER: every power mean of the case (delivered on time or late) is numbered in its source-time order within the epoch, as a store-and-forward gateway numbers readings when it takes them; the first delivery therefore leaves a gap at the withheld mean's sequence number, and the late delivery fills it. Appending the late mean after the last sequence instead inverts source order (S3 limitation SEQUENCE_ORDER_INVERTED)."},
+                  "sequence_rule": "SOURCE_ORDER: models a reading sequenced on time and uploaded late (a store-and-forward device that numbers readings when it takes them): every power mean of the case is numbered in its source-time order within the epoch, so the first delivery leaves a gap at the withheld mean's sequence number and the late delivery fills it. This is NOT how this project's own gateway numbers a late reading: the gateway assigns the next sequence on intake (gateway/assetops_gateway/service.py:9-11) and a Lab-delayed reading gets its sequence on release, so the project's own late path appends the late mean after the last sequence (S3 limitation SEQUENCE_ORDER_INVERTED); see .agent/S4-02c-walkthrough-evidence.md Run 1."},
   "cases": [
     {"case_id": "P02-power-late", "label": "authored late power-mean demonstration (S4-02c)", "day": "2026-10-24",
      "steps": [

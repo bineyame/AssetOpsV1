@@ -28,6 +28,9 @@ runs. Run 1 IDs: Finding `14a518ba-2538-4d6d-929b-0ac0ca7c3468`, r1 `5cdb19ca-86
 evidence `92260312-294f-435d-a6cd-808da0e0f0f8`, consequences `0f1217fd...` (r1 #1 POWER_COVERAGE_GAP),
 `9892eac3...` (r1 #2 POWER_NOT_IN_ASSESSMENT_INPUTS), `e9e6a130...` (r2 #1 PRICED).
 
+**Scope of this fixture and what run 1 means (fix round 1).** The `SOURCE_ORDER` rule models a reading *sequenced on time and uploaded late*. It is not how the project's own gateway numbers a late reading: the gateway assigns the next sequence on intake (`gateway/assetops_gateway/service.py:9-11`), and a Lab-delayed reading gets its sequence on release, so the project's own late path is run 1's numbering. Measured run-1 result: S3 window INDETERMINATE with SEQUENCE_ORDER_INVERTED / GENERATOR_SERIES_AMBIGUOUS; the revised Finding is still SUPPORTED with its episode shrunk to [06:05, 07:00); its only limitation is OPEN_BOUND; the consequence is CURRENT PRICED 7.5625 USD over 11 means and S5-eligible, versus 15.8125 USD in source order. Understated money arrives as current, without naming the inversion. This goes to the Architect (review Q1-Q3) before S5-01.
+
+
 ## Run 2 (accepted): 21 checks, 0 failed, tool exit 0
 
 ### 0. Price before both legs (N2)

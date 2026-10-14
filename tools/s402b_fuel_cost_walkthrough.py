@@ -164,6 +164,7 @@ def recompute(work: Path, db: str) -> None:
     # S4-02c: `run` needs the tenant, drains at most --limit items per call and ends with a summary line (no
     # `work_id`); repeat bounded runs until nothing due is left, and count only the per-item lines.
     items: list[dict] = []
+    due_left = False
     for _ in range(50):
         out = tree_py(work, db, "-m", "assetops_backend.recompute_consequences", "run", "--tenant", "demo",
                       "--site", SITE, check=False)
@@ -172,6 +173,7 @@ def recompute(work: Path, db: str) -> None:
         lines = [json.loads(x) for x in out.stdout.splitlines() if x.strip().startswith("{")]
         items += [x for x in lines if "work_id" in x]
         tail = [x for x in lines if "work_id" not in x]
+        due_left = bool(tail) and tail[-1]["backlog"] > 0
         if not tail or tail[-1]["selected"] == 0 or tail[-1]["backlog"] == 0 or tail[-1]["failed"]:
             break
     failed = [i for i in items if not i["succeeded"]]
@@ -181,6 +183,8 @@ def recompute(work: Path, db: str) -> None:
     for i in failed:
         say(f"  FAILED {i['work_id']}: {i['error_code']} {i['error_detail']}")
     summary(db)
+    if failed or due_left:
+        raise SystemExit(f"FAILED: {db}: {len(failed)} work item(s) failed, work still due: {due_left}")
 
 
 def summary(db: str) -> None:

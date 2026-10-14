@@ -79,7 +79,7 @@ on a new authored variant by `tools/s402c_late_power_walkthrough.py` (`.agent/S4
 - **Walkthrough fixture sequence rule.** Run 1 appended the late mean after the epoch's last sequence; S3
   reported `SEQUENCE_ORDER_INVERTED`, and the revised Finding ended at 07:00 and did not count the late mean (one
   check failed). The variant now numbers every mean in source order (`sequence_rule: SOURCE_ORDER`, the late mean
-  keeps sequence 14). This corrects the late mean's identity to how a store-and-forward gateway numbers it; it
+  keeps sequence 14). This models a reading sequenced on time and uploaded late (not the project's own gateway numbering, see Residual risk); it
   does not change Leg A or N5 (both passed in run 1). Run 1 is recorded in the evidence. Reviewer: judge whether
   this is an acceptable authoring correction under the packet's "do not change the fixture to force the result".
 - Reads pass `source_open=True` to the read service rather than running the file-backed Performance comparison.
@@ -92,9 +92,7 @@ on a new authored variant by `tools/s402c_late_power_walkthrough.py` (`.agent/S4
 
 - **R1:** S3 `process-jobs` and S4 `match-findings` remain one-shot and unscheduled; money after late evidence
   waits for them (Leg B ran them by hand). Architect may schedule them as a W1 follow-on.
-- **New (from run 1):** a late reading delivered with an appended sequence (not its source position) makes S3
-  treat the later series as ambiguous and shortens the revised Finding. Real gateway behaviour on replay/backfill
-  numbering is not proved here; it belongs with the owner's analysis-input backlog item.
+- **Late-reading sequencing (from run 1, review F1):** the fixture models a reading *sequenced on time and uploaded late*. The project's own gateway assigns the next sequence on intake (`gateway/assetops_gateway/service.py:9-11`) and Lab-delayed readings get theirs on release, so the project's own late path is run 1's numbering. Measured: S3 INDETERMINATE (SEQUENCE_ORDER_INVERTED, GENERATOR_SERIES_AMBIGUOUS); revised Finding still SUPPORTED, episode shrunk to [06:05, 07:00), only limitation OPEN_BOUND; consequence CURRENT PRICED 7.5625 USD over 11 means, S5-eligible, versus 15.8125 USD in source order. Understated money arrives as current. Architect question (review Q1-Q3) before S5-01.
 - **I1 (phase 2):** permanently failing rows accumulate attempts without a terminal state or alert (runbook).
 - **I2:** a hung runner shows only as repeated `skipped`, exit 0 (runbook alarm, no timeout).
 - **I3:** app/DB clock skew shifts retry timing only. **I4:** concurrent overlapping ingestion chunks under the
