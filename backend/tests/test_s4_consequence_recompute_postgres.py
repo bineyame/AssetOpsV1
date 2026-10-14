@@ -32,10 +32,14 @@ def _release_connections():
 if URL:
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
-    from test_s1_bindings_postgres import engine, store  # noqa: F401
+    from sqlalchemy import text
+    from test_s1_bindings_postgres import Clock, engine, store  # noqa: F401
     from test_s4_assumptions_postgres import pub
     from test_s4_consequence_store_postgres import KEY, POWER_DAY, STATE_DAY, PowerSite
 
+    from assetops_backend.analytics import dispatch_v3
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.assessment_worker import DispatchAssessmentWorker
     from assetops_backend.analytics.composition import build_finding_read_service
     from assetops_backend.financials import fuel_cost as fc
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
@@ -68,7 +72,7 @@ class Rig:
     def read(self, day=POWER_DAY, **kw) -> dict:
         rev = self.site.on(day)
         return self.reads.read(self.site.tenant, self.site.site, rev["finding_id"], rev["id"],
-                               finding_revision_is_latest=True, **kw)
+                               finding_revision_is_latest=True, **{"source_open": True, **kw})
 
     def chain(self, day=POWER_DAY) -> list[dict]:
         rev = self.site.on(day)
@@ -222,13 +226,68 @@ class TestDurableFailureAndRetry:
         assert not any(stored["id"] in o.appended for o in outs) and rig.chain() == [stored]
 
 
+def supersede(rig, monkeypatch) -> tuple[dict, dict]:
+    """TEST-SCOPED: the S4-01 F07 pattern (`dispatch-3.1-s4-test-upgrade`, a labelled test version of the same
+    rules) appends revision 2 of the power-day Finding, so revision 1 becomes a superseded FindingRevision."""
+    old = rig.site.on(POWER_DAY)
+    runner = rig.site.runner
+    monkeypatch.setattr(dispatch_v3, "MODEL_VERSION", "dispatch-3.1-s4-test-upgrade")
+    upgraded = DispatchAssessmentWorker(PostgresAssessmentStore(URL), clock=Clock(runner.tick()))
+    assert upgraded.reconcile(runner.tenant, runner.site)
+    assert all(o.status == "DONE" for o in upgraded.run_pending())
+    assert runner.match().revision_ids
+    new = rig.site.on(POWER_DAY)
+    assert (new["finding_id"], new["revision_no"]) == (old["finding_id"], 2) and new["id"] != old["id"]
+    return old, new
+
+
+def consequence_ids(rig, finding_revision_id) -> set:
+    return {r["id"] for r in rig.site.store.rows(rig.site.tenant, rig.site.site)["financial_consequence_revision"]
+            if r["finding_revision_id"] == finding_revision_id}
+
+
+class TestPhase2bCarries:
+    """Review of phase 2a: L3 (worker target selection, concurrent skip) and L4 (pending-work scope)."""
+
+    def test_l3_assumption_work_targets_only_the_latest_finding_revision(self, rig, monkeypatch) -> None:
+        old, new = supersede(rig, monkeypatch)
+        targets = rig.site.store.latest_revisions_overlapping(rig.site.tenant, rig.site.site, old["episode_start"],
+                                                              old["episode_end"])
+        assert (old["finding_id"], new["id"]) in targets and (old["finding_id"], old["id"]) not in targets
+        rig.run()  # FINDING_REVISION_APPENDED work for both revisions: each gets its own consequence
+        before = consequence_ids(rig, old["id"])
+        rig.site.publish("v1")
+        rig.run()
+        assert before and consequence_ids(rig, old["id"]) == before  # the superseded revision is never repriced
+
+    def test_l3_a_second_worker_on_finished_work_records_nothing(self, rig) -> None:
+        (first, *_) = rig.site.store.pending_work(rig.site.tenant, rig.site.site)
+        done = rig.worker.process(rig.site.tenant, rig.site.site, first)
+        assert done.succeeded and done.attempt_no == 1
+        late = rig.worker.process(rig.site.tenant, rig.site.site, first)  # the same item, as a racing worker sees it
+        assert late.succeeded and late.attempt_no == 0 and late.replayed == done.consequence_revision_ids
+        with rig.site.runner.engine.connect() as c:
+            n = c.execute(text("SELECT count(*) FROM financial_consequence_work_attempt WHERE work_id = :w"),
+                          {"w": first["id"]}).scalar_one()
+        assert n == 1
+
+    def test_l4_pending_work_lists_only_work_that_touches_this_finding(self, rig) -> None:
+        works = rig.site.store.pending_work(rig.site.tenant, rig.site.site)
+        assert len([w for w in works if w["cause"] == "FINDING_REVISION_APPENDED"]) >= 2  # both days have work
+        power, state = rig.read(), rig.read(STATE_DAY)
+        assert power["currentness"]["state"] == "PENDING" and len(power["currentness"]["pending_work"]) == 1
+        assert len(state["currentness"]["pending_work"]) == 1
+        assert power["currentness"]["pending_work"][0]["work_id"] != state["currentness"]["pending_work"][0][
+            "work_id"]
+
+
 class TestRoute:
-    def client(self, site, consequences=True) -> TestClient:
+    def client(self, site, consequences=True, gate_open=True) -> TestClient:
         app = FastAPI()
         scope = {"KOBO-001": ("KOBO-001", site.tenant, site.site)}
         app.include_router(build_finding_router(
             build_finding_read_service(URL), scope.get, CONSEQUENCE_UNAVAILABLE,
-            gate=lambda c, t, s: (True, "test gate open"),
+            gate=lambda c, t, s: (gate_open, "test gate open" if gate_open else "test gate closed"),
             consequences=ConsequenceReadService(site.store, site.prices) if consequences else None,
             consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
         return TestClient(app)
@@ -267,3 +326,43 @@ class TestRoute:
         assert (bridge["state"], bridge["amount"], bridge["currency"]) == (
             "PRICED", {"low": "0.00", "high": "3.52"}, "USD")
         assert Decimal(bridge["amount"]["high"]) >= Decimal(body["consequence"]["amount"]["high"])
+
+
+    def test_m1_a_closed_source_gate_never_presents_an_amount_as_current(self, rig) -> None:
+        rig.site.publish("v1")
+        rig.run()
+        rev = rig.site.on(POWER_DAY)
+        base = f"/api/sites/KOBO-001/findings/{rev['finding_id']}/financial-consequences"
+        assert self.client(rig.site).get(base).json()["consequence"]["presented_as_current"] is True  # gate open
+        api = self.client(rig.site, gate_open=False)
+        assert api.get(base).status_code == 409  # no implicit latest under a closed gate
+        body = api.get(base, params={"revision_id": str(rev["id"])}).json()
+        assert body["audit_only"]["non_current"] is True
+        assert (body["currentness"]["state"], body["currentness"]["reasons"]) == ("AUDIT_ONLY", ["SOURCE_CLOSED"])
+        assert body["currentness"]["current_amount_shown"] is False
+        assert body["consequence"]["presented_as_current"] is False and body["consequence"]["historical"] is True
+        assert body["consequence_selection"]["source_open"] is False
+        bridge = api.get(f"/api/sites/KOBO-001/findings/{rev['finding_id']}/financials",
+                         params={"revision_id": str(rev["id"])}).json()["consequence"]
+        assert (bridge["state"], bridge["amount"], bridge["currency"]) == ("AUDIT_ONLY", None, None)
+
+    def test_m2_a_superseded_finding_revision_reads_historical_with_no_current_amount(self, rig, monkeypatch) -> None:
+        rig.site.publish("v1")
+        rig.run()
+        old, new = supersede(rig, monkeypatch)
+        monkeypatch.undo()
+        rig.run()
+        api = self.client(rig.site)
+        base = f"/api/sites/KOBO-001/findings/{old['finding_id']}/financial-consequences"
+        body = api.get(base, params={"revision_id": str(old["id"])}).json()
+        assert body["selection"]["revision_id"] == str(old["id"])  # the exact old revision, no fallback
+        assert (body["currentness"]["state"], body["currentness"]["reasons"]) == (
+            "HISTORICAL", ["FINDING_REVISION_SUPERSEDED"])
+        assert body["consequence"]["state"] == "PRICED" and body["consequence"]["presented_as_current"] is False
+        assert body["currentness"]["current_amount_shown"] is False
+        bridge = api.get(f"/api/sites/KOBO-001/findings/{old['finding_id']}/financials",
+                         params={"revision_id": str(old["id"])}).json()["consequence"]
+        assert (bridge["state"], bridge["amount"]) == ("HISTORICAL", None)
+        latest = api.get(base).json()
+        assert latest["selection"]["revision_id"] == str(new["id"])
+        assert latest["currentness"]["state"] != "HISTORICAL"

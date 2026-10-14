@@ -159,7 +159,7 @@ class TestFindingFinancialsBridge:
                    "price": {"revision_id": "p1", "reason": None},
                    "amount": {"low": "0", "high": "3.4375", "currency": "USD"},
                    "display": {"state": "ROUNDED_OUTWARD", "amount_low": "0.00", "amount_high": "3.44"}}
-            return {"currentness": {"state": currentness}, "consequence": row}
+            return {"currentness": {"state": currentness, "reasons": [], "pending_work": []}, "consequence": row}
 
         class Consequences:
             def __init__(self, out=None, error=None):
@@ -186,3 +186,80 @@ class TestFindingFinancialsBridge:
         assert (down["state"], down["amount"]) == ("UNAVAILABLE", None)
         unpriced = bridge_consequence(result("CURRENT", "UNPRICED"))
         assert (unpriced["state"], unpriced["amount"], unpriced["currency"]) == ("UNPRICED", None, None)
+
+
+# ---- S4-02b phase 2b: review carries M1 (closed source), L1 (route refusals) and L4 (STALE wording) ----
+
+CONSEQUENCES = f"/api/sites/KOBO-001/findings/{FINDING}/financial-consequences"
+
+
+class Consequences:
+    def __init__(self, out=None, error=None):
+        self.out, self.error, self.calls = out, error, []
+
+    def read(self, *args, **kw):
+        self.calls.append(kw)
+        if self.error:
+            raise self.error
+        return self.out
+
+    def locate(self, *args):
+        self.calls.append(("locate", args))
+        if self.error:
+            raise self.error
+        return None
+
+
+def latest_reads() -> FindingReads:
+    return FindingReads({**finding_body(), "selection": {"revision_id": str(uuid4()), "revision_no": 2,
+                                                         "is_latest": True}})
+
+
+def stale(pending: list) -> dict:
+    return {"currentness": {"state": "STALE", "reasons": ["PRICE_SELECTION_CHANGED"], "pending_work": pending},
+            "consequence": {"id": "c1", "state": "PRICED"}}
+
+
+class TestConsequenceRouteCarries:
+    def test_l1_unauthenticated_and_forbidden_are_refused_before_any_lookup(self) -> None:
+        reads, store = latest_reads(), Consequences(stale([]))
+        for status in (401, 403):
+            client = bridge(reads, access=lambda r, s, x=status: x, consequences=store)
+            assert client.get(CONSEQUENCES).status_code == status
+        assert reads.calls == [] and store.calls == []
+
+    def test_l1_missing_or_failing_consequence_store_is_typed_503(self) -> None:
+        for client in (bridge(latest_reads()), bridge(latest_reads(), consequences=Consequences(error=Down("gone")))):
+            response = client.get(CONSEQUENCES)
+            assert response.status_code == 503
+            assert response.json()["detail"]["code"] == "CONSEQUENCE_STORE_UNAVAILABLE"
+
+    def test_m1_the_source_gate_is_passed_to_the_read_and_bridge(self) -> None:
+        closed = lambda c, t, s: (False, "no comparison report")  # noqa: E731
+        store = Consequences({"currentness": {"state": "AUDIT_ONLY", "reasons": ["SOURCE_CLOSED"],
+                                              "pending_work": []}, "consequence": None,
+                              "history": {"revisions": [], "page": {"next_after_revision_no": None}}})
+        client = bridge(latest_reads(), gate=closed, consequences=store)
+        assert client.get(BRIDGE, params={"revision_id": str(uuid4())}).status_code == 200
+        assert client.get(CONSEQUENCES, params={"revision_id": str(uuid4())}).status_code == 200
+        assert [c["source_open"] for c in store.calls] == [False, False]
+        open_store = Consequences(stale([]))
+        bridge(latest_reads(), consequences=open_store).get(BRIDGE)
+        assert open_store.calls[0]["source_open"] is True
+
+    def test_m1_audit_only_bridge_shows_no_amount(self) -> None:
+        audit = bridge_consequence({"currentness": {"state": "AUDIT_ONLY", "reasons": ["SOURCE_CLOSED"],
+                                                    "pending_work": []},
+                                    "consequence": {"id": "c1", "state": "PRICED"}})
+        assert (audit["state"], audit["amount"], audit["currency"], audit["quantity"]) == (
+            "AUDIT_ONLY", None, None, None)
+        assert audit["currentness_reasons"] == ["SOURCE_CLOSED"] and "for the record only" in audit["reason"]
+
+    def test_l4_stale_claims_a_queued_recalculation_only_when_work_exists(self) -> None:
+        idle = bridge_consequence(stale([]))
+        queued = bridge_consequence(stale([{"work_id": "w1", "cause": "ASSUMPTION_PUBLISHED"}]))
+        assert (idle["recalculation_queued"], queued["recalculation_queued"]) == (False, True)
+        assert "not been recalculated yet" in idle["reason"] and "waiting" not in idle["reason"]
+        assert "waiting to run" in queued["reason"]
+        for body in (idle, queued):
+            assert "being recalculated" not in body["reason"] and body["amount"] is None

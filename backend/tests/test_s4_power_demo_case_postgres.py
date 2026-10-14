@@ -120,7 +120,8 @@ def test_the_power_case_yields_a_positive_amount_then_a_second_revision_after_v4
         assert all(o.succeeded for o in worker.run_pending(runner.tenant, runner.site))
 
         def read() -> dict:
-            return reads.read(runner.tenant, runner.site, rev["finding_id"], rev["id"], finding_revision_is_latest=True)
+            return reads.read(runner.tenant, runner.site, rev["finding_id"], rev["id"], finding_revision_is_latest=True,
+                              source_open=True)
 
         first = read()
         c = first["consequence"]

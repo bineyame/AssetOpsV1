@@ -141,9 +141,12 @@ class ConsequenceReadService:
         return self._store.locate(tenant_id, site_id, finding_id, consequence_revision_id)
 
     def read(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, finding_revision_id: UUID, *,
-             finding_revision_is_latest: bool, consequence_revision_id: UUID | None = None,
+             finding_revision_is_latest: bool, source_open: bool, consequence_revision_id: UUID | None = None,
              after_revision_no: int = 0, limit: int = PAGE_LIMIT) -> dict[str, Any] | None:
-        """None when a pinned consequence revision is not this FindingRevision's (never a fallback)."""
+        """None when a pinned consequence revision is not this FindingRevision's (never a fallback).
+
+        `source_open` is the S3 source gate (review M1): while it is closed the Finding itself is audit-only, so
+        its consequence is `AUDIT_ONLY` and never presented as current, whatever its basis."""
         chain = self._store.chain(tenant_id, site_id, finding_id, finding_revision_id,
                                   consequence_revision_id=consequence_revision_id,
                                   after_revision_no=after_revision_no, limit=limit)
@@ -154,7 +157,12 @@ class ConsequenceReadService:
                  "last_error_code": w["last_error_code"], "enqueued_at": _iso(w["enqueued_at"])} for w in pending]
         reasons: list[str] = []
         now: fc.Consequence | None = None
-        if not finding_revision_is_latest:
+        if not source_open:
+            state = "AUDIT_ONLY"
+            reasons.append("SOURCE_CLOSED")
+            if not finding_revision_is_latest:
+                reasons.append("FINDING_REVISION_SUPERSEDED")
+        elif not finding_revision_is_latest:
             state = "HISTORICAL"
             reasons.append("FINDING_REVISION_SUPERSEDED")
         elif head is None:
@@ -188,7 +196,7 @@ class ConsequenceReadService:
                 "consequence_revision_id": None if selected is None else selected["id"],
                 "head_consequence_revision_id": None if head is None else str(head["id"]),
                 "finding_revision_id": str(finding_revision_id),
-                "finding_revision_is_latest": finding_revision_is_latest},
+                "finding_revision_is_latest": finding_revision_is_latest, "source_open": source_open},
             "currentness": {
                 "state": state, "reasons": reasons, "pending_work": work,
                 "current_amount_shown": selected is not None and selected["presented_as_current"],

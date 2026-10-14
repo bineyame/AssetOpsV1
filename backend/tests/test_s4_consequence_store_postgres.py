@@ -327,6 +327,14 @@ class TestDatabaseGuards:
         with pytest.raises(DBAPIError, match="PRICED without its PRICE link"):
             with engine.begin() as c:
                 c.execute(text(clone()), {"nid": str(uuid4()), "id": cid})
+        # Review 2a L2: the assessment-completeness half on its own. An UNPRICED clone needs no PRICE link, so only
+        # the missing assessment links can refuse it.
+        with pytest.raises(DBAPIError, match="does not link every INTERVAL assessment of its FindingRevision"):
+            with engine.begin() as c:
+                c.execute(text(clone(state="'UNPRICED'", price_state="'UNPRICED'", price_reason="'NO_PRICE'",
+                                     price_revision_id="NULL", price_value="NULL", price_currency="NULL",
+                                     amount_low="NULL", amount_high="NULL", currency="NULL",
+                                     price_considered="'[]'::jsonb")), {"nid": str(uuid4()), "id": cid})
         # A link to an assessment that is not one of the FindingRevision's INTERVAL assessments is refused.
         with engine.connect() as c:
             other = c.execute(text(

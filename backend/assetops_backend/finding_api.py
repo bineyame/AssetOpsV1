@@ -261,7 +261,7 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
         selection = body["selection"]
         result = consequence_call(lambda: consequences.read(
             tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
-            finding_revision_is_latest=bool(selection.get("is_latest")),
+            finding_revision_is_latest=bool(selection.get("is_latest")), source_open=bool(source["permitted"]),
             consequence_revision_id=consequence_revision_id, after_revision_no=after_revision_no, limit=limit))
         if result is None:
             raise HTTPException(status_code=404, detail="No such consequence revision for this FindingRevision.")
@@ -300,15 +300,17 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
                          "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
                          "claim_level": body["revision"]["claim_level"]},
             "window": episode,
-            "consequence": bridge(tenant_id, site_id, finding_id, body["selection"]),
+            "consequence": bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"])),
             "links": links})
 
-    def bridge(tenant_id: UUID, site_id: UUID, finding_id: UUID, selection: dict[str, Any]) -> dict[str, Any]:
+    def bridge(tenant_id: UUID, site_id: UUID, finding_id: UUID, selection: dict[str, Any],
+               source_open: bool) -> dict[str, Any]:
         if consequences is None:
             return bridge_consequence(None)
         try:
             result = consequences.read(tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
-                                       finding_revision_is_latest=bool(selection.get("is_latest")), limit=1)
+                                       finding_revision_is_latest=bool(selection.get("is_latest")),
+                                       source_open=source_open, limit=1)
         except consequence_down:
             return bridge_consequence(None)
         return bridge_consequence(result)
@@ -321,8 +323,13 @@ QUANTITY_SOURCE = "fuel-cost-1"
 REASONS = {
     "UNAVAILABLE": "The fuel-cost record could not be read just now, so no cost is shown.",
     "PENDING": "The fuel cost for this finding has not been calculated yet, so no cost is shown.",
-    "STALE": "The price or inputs changed since the fuel cost was calculated; it is being recalculated, so no "
-             "current cost is shown.",
+    # Review L4: STALE is worded from the read's pending work; nothing is claimed to be queued unless it is.
+    "STALE": "The price or inputs changed since the fuel cost was calculated, and it has not been recalculated "
+             "yet, so no current cost is shown.",
+    "STALE_QUEUED": "The price or inputs changed since the fuel cost was calculated; a recalculation is waiting "
+                    "to run, so no current cost is shown.",
+    "AUDIT_ONLY": "The finding's source is not open for current use, so its fuel cost is shown for the record "
+                  "only and no current cost is shown.",
     "HISTORICAL": "This is an earlier version of the finding; its fuel cost is kept for the record only.",
     "QUANTITY_UNAVAILABLE": "The fuel quantity could not be bounded from the accepted generator data, so no "
                             "diesel price is applied and no cost is shown.",
@@ -338,15 +345,18 @@ def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:
     an amount appears only for a CURRENT PRICED head, rounded outward for display."""
     empty = {"quantity_source": QUANTITY_SOURCE, "quantity": None, "amount": None, "currency": None,
              "price_revision_id": None, "consequence_revision_id": None, "quantity_reason": None,
-             "price_reason": None}
+             "price_reason": None, "recalculation_queued": False, "currentness_reasons": []}
     if result is None:
         return {**empty, "state": "UNAVAILABLE", "currentness": None, "reason": REASONS["UNAVAILABLE"]}
     currentness = result["currentness"]
     row = result["consequence"]
     if row is None or currentness["state"] != "CURRENT":
-        return {**empty, "state": currentness["state"], "currentness": currentness["state"],
+        state = currentness["state"]
+        queued = bool(currentness["pending_work"])
+        key = "STALE_QUEUED" if state == "STALE" and queued else state
+        return {**empty, "state": state, "currentness": state, "recalculation_queued": queued,
                 "consequence_revision_id": None if row is None else row["id"],
-                "reason": REASONS[currentness["state"]]}
+                "currentness_reasons": list(currentness["reasons"]), "reason": REASONS[key]}
     priced = row["state"] == "PRICED" and row["display"] and row["display"]["state"] == "ROUNDED_OUTWARD"
     return {**empty, "state": row["state"], "currentness": "CURRENT", "consequence_revision_id": row["id"],
             "quantity": None if row["quantity"]["high"] is None else {
