@@ -1,0 +1,1100 @@
+{
+  "spec": "s4-power-late-demo-cases-v1",
+  "case_id": "P02-power-late",
+  "database": "assetops_s402c3walk",
+  "commands": [
+    "python -m assetops_backend.publish_assumption fixture --site KOBO-001 --file conversions\\demo-diesel-price-publications.json --step v1",
+    "python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100",
+    "python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100",
+    "python -m assetops_backend.analytics.assess_dispatch process-jobs",
+    "python -m assetops_backend.analytics.assess_dispatch match-findings --tenant-id <tenant> --site-id <site>",
+    "python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100",
+    "python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100"
+  ],
+  "checks": [
+    {
+      "check": "first match created exactly the expected Finding",
+      "ok": true,
+      "detail": [
+        []
+      ]
+    },
+    {
+      "check": "N5 precondition: [07:00, 07:05) lies inside r1's observed Candidate time",
+      "ok": true,
+      "detail": {
+        "candidate_spans": [
+          [
+            "2026-10-24T06:05:00+00:00",
+            "2026-10-24T08:00:00+00:00"
+          ]
+        ],
+        "reason": "POWER_COVERAGE_GAP"
+      }
+    },
+    {
+      "check": "pre-late: consequence 1 is CURRENT",
+      "ok": true,
+      "detail": {
+        "id": "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "97b8076e8b69dcbfaeb15697379c01ff90a0d1d201db8518b792e091f3985c3c",
+        "consequence_basis_sha256": "763f7b0b6ae30d51a5fca4c3007252ed284e498a4e2a52fa289ad628d804149a",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "23a015c9-382e-4dc3-98b0-35782c3d60d0"
+        ]
+      }
+    },
+    {
+      "check": "exactly one EVIDENCE_ACCEPTED work row, for the late ID and r1, not yet attempted",
+      "ok": true,
+      "detail": [
+        {
+          "work_id": "c74fd0b9-2439-49a4-b29c-21cbf55e27f9",
+          "cause": "EVIDENCE_ACCEPTED",
+          "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+          "accepted_evidence_id": "a990d81c-c1d9-43b0-a8ae-1c9fda120f97",
+          "affected_from": "2026-10-24 07:00:00+00",
+          "affected_to": "2026-10-24 07:05:00+00",
+          "enqueued_at": "2026-10-14 11:59:49.974829+00",
+          "attempts": []
+        }
+      ]
+    },
+    {
+      "check": "before drain: STALE / TECHNICAL_INPUT_CHANGED",
+      "ok": true,
+      "detail": [
+        "TECHNICAL_INPUT_CHANGED"
+      ]
+    },
+    {
+      "check": "before drain: the queued work ID is the late mean's EVIDENCE_ACCEPTED row; bridge STALE_QUEUED",
+      "ok": true,
+      "detail": {
+        "pending": [
+          {
+            "work_id": "c74fd0b9-2439-49a4-b29c-21cbf55e27f9",
+            "cause": "EVIDENCE_ACCEPTED",
+            "accepted_evidence_id": "a990d81c-c1d9-43b0-a8ae-1c9fda120f97",
+            "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c"
+          }
+        ],
+        "bridge": {
+          "state": "STALE",
+          "reason_key": "STALE_QUEUED",
+          "recalculation_queued": true,
+          "amount": null,
+          "currency": null,
+          "currentness_reasons": [
+            "TECHNICAL_INPUT_CHANGED"
+          ]
+        }
+      }
+    },
+    {
+      "check": "before drain: the late ID is examined now but is not an input of r1's analytic run",
+      "ok": true,
+      "detail": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "examined_count": 23,
+        "examined_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "late_examined": true,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      }
+    },
+    {
+      "check": "after drain: same FindingRevision r1, consequence 2 CURRENT QUANTITY_UNAVAILABLE / POWER_NOT_IN_ASSESSMENT_INPUTS",
+      "ok": true,
+      "detail": {
+        "id": "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+        "revision_no": 2,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "de861f3bb0255ca6eb6e93b99389493d11baad872642a29eb643965236bc5cec",
+        "consequence_basis_sha256": "9e61faf542b02d616f7e6fb9f83e2e3e71ce30d8cefde36f9b3f1e7886c030b0",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "23a015c9-382e-4dc3-98b0-35782c3d60d0"
+        ]
+      }
+    },
+    {
+      "check": "after drain: consequence 1 retained in history",
+      "ok": true,
+      "detail": [
+        [
+          "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ],
+        [
+          "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+          2,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_NOT_IN_ASSESSMENT_INPUTS"
+        ]
+      ]
+    },
+    {
+      "check": "after drain: no S5 money (not CURRENT PRICED)",
+      "ok": true,
+      "detail": {
+        "state": "QUANTITY_UNAVAILABLE",
+        "reason_key": "QUANTITY_UNAVAILABLE",
+        "recalculation_queued": false,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": []
+      }
+    },
+    {
+      "check": "after drain: the evidence work SUCCEEDED with consequence 2",
+      "ok": true
+    },
+    {
+      "check": "a revised FindingRevision r2 was appended",
+      "ok": true,
+      "detail": [
+        [
+          "08ab98f3-b429-4152-8175-284cc722b82c",
+          1,
+          "SUPPORTED",
+          "OPENED"
+        ],
+        [
+          "5b0a3942-1fad-4770-8097-416f188f9c87",
+          2,
+          "SUPPORTED",
+          "SUPPORT_CHANGED"
+        ]
+      ]
+    },
+    {
+      "check": "r2's analytic run includes the late ID",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "check": "r2 has exactly one FINDING_REVISION_APPENDED work row",
+      "ok": true,
+      "detail": [
+        {
+          "work_id": "5f15e4bc-5607-4b08-95a3-bf32326956ec",
+          "cause": "FINDING_REVISION_APPENDED",
+          "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87",
+          "accepted_evidence_id": null,
+          "affected_from": "2026-10-24 06:05:00+00",
+          "affected_to": "2026-10-24 08:00:00+00",
+          "enqueued_at": "2026-10-14 11:59:57.264922+00",
+          "attempts": []
+        }
+      ]
+    },
+    {
+      "check": "before drain: r2 PENDING with its queued work",
+      "ok": true,
+      "detail": [
+        {
+          "work_id": "5f15e4bc-5607-4b08-95a3-bf32326956ec",
+          "cause": "FINDING_REVISION_APPENDED",
+          "accepted_evidence_id": null,
+          "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87"
+        }
+      ]
+    },
+    {
+      "check": "after drain: r2 CURRENT PRICED, priced by price v1",
+      "ok": true,
+      "detail": {
+        "id": "73bdcab5-952a-4f78-8605-39e91a05cb16",
+        "revision_no": 1,
+        "state": "PRICED",
+        "quantity": "AVAILABLE",
+        "quantity_reason": null,
+        "quantity_high": "12.65",
+        "price_state": "PRICED",
+        "price_reason": null,
+        "price_revision_id": "508b264a-848b-4198-8413-298bd6aca8cd",
+        "amount_high": "15.8125",
+        "display_amount_high": "15.82",
+        "technical_input_sha256": "d902ae7c88ef23e63d30d56253c8bb4e8f5d9f8874b748abbda1839c3501ce04",
+        "consequence_basis_sha256": "6147f8f8d0176f22fb17f6ddc90400840294279f7b3dfd2a420569055c14537f",
+        "counted_power_evidence": 23,
+        "counted_power_evidence_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "analytic_run_ids": [
+          "7355a96e-199e-470b-b75a-a04f96450f2e"
+        ]
+      }
+    },
+    {
+      "check": "after drain: r2 counts the late mean (late ID in run inputs and examined)",
+      "ok": true,
+      "detail": {
+        "quantity": "AVAILABLE",
+        "reason": null,
+        "examined_count": 23,
+        "examined_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "late_examined": true,
+        "late_in_run_inputs": true,
+        "run_input_count": 175
+      }
+    },
+    {
+      "check": "after drain: S5 money eligible (CURRENT PRICED, bridge amount shown)",
+      "ok": true,
+      "detail": {
+        "state": "PRICED",
+        "reason_key": "PRICED",
+        "recalculation_queued": false,
+        "amount": {
+          "low": "0.00",
+          "high": "15.82"
+        },
+        "currency": "USD",
+        "currentness_reasons": []
+      }
+    },
+    {
+      "check": "r1 is HISTORICAL and keeps both consequence revisions",
+      "ok": true,
+      "detail": [
+        [
+          "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ],
+        [
+          "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+          2,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_NOT_IN_ASSESSMENT_INPUTS"
+        ]
+      ]
+    },
+    {
+      "check": "replay selects nothing and leaves no backlog",
+      "ok": true,
+      "detail": {
+        "site_code": "KOBO-001",
+        "tenant": "demo",
+        "site_id": "6f8f6af0-40a7-4d0e-960a-9e67c4f64673",
+        "claimed": true,
+        "skipped": false,
+        "now": "2026-10-14T12:00:04.244497+00:00",
+        "limit": 100,
+        "selected": 0,
+        "appended": 0,
+        "replayed": 0,
+        "no_op": 0,
+        "failed": 0,
+        "deferred": 0,
+        "backlog": 0
+      }
+    },
+    {
+      "check": "no duplicate consequence basis",
+      "ok": true,
+      "detail": 0
+    }
+  ],
+  "price_v1": {
+    "site_code": "KOBO-001",
+    "step": "v1",
+    "revision_id": "508b264a-848b-4198-8413-298bd6aca8cd",
+    "revision_no": 1,
+    "change_kind": "INITIAL",
+    "recorded_at": "2026-10-14T11:59:40.347123+00:00",
+    "replayed": false,
+    "actor_id": "service:assetops-assumption-publisher"
+  },
+  "first_delivery": {
+    "batch_ids": [
+      "7c9007a36f63b67b63f855dfa18ed5693ae09fa46b0122c36cb38f8c5db22708",
+      "de41e59fc9cbf1bd9e8f08619f696797524bd4c62ab31fa56988bd62f2647575",
+      "1b2f8eba2e0a524f7fe8efcd67b189dae6b5ea37b9ba64264d38a96272637d69",
+      "56c6b9bf28dbe7b62b035a04ce5df635378214ef0446d9962f890ff77de42b3b",
+      "5dff3b68aeb73001e3c57cfeece008984b7f434359b83996ea7ad674bd56910e",
+      "130498cd63ccf55964e7c682dccccf6abafb9cd5118e5bd2b9166c4555899c3b"
+    ],
+    "evidence_count": 174,
+    "evidence_id_sha256": "a81678785e008bcfe784342cfe4bb0c6bacffc3e5991552e64fee723120b8170",
+    "generator_power_ids": 24,
+    "match_problems": [
+      []
+    ]
+  },
+  "finding_id": "f650c53b-50c2-403f-b25e-66b0fccc5a04",
+  "r1": {
+    "id": "08ab98f3-b429-4152-8175-284cc722b82c",
+    "revision_no": 1,
+    "lifecycle": "SUPPORTED",
+    "transition": "OPENED",
+    "analytic_run_ids": [
+      "23a015c9-382e-4dc3-98b0-35782c3d60d0"
+    ]
+  },
+  "drains": [
+    {
+      "label": "bootstrap: r1's FindingRevision work",
+      "exit": 0,
+      "items": [
+        {
+          "site_code": "KOBO-001",
+          "work_id": "8e9dde22-488a-4d8f-b5c4-abf0724d1699",
+          "cause": "ASSUMPTION_PUBLISHED",
+          "succeeded": true,
+          "attempt_no": 1,
+          "appended": [
+            "cc57a011-8323-48ce-ad4c-e220b50a87c1"
+          ],
+          "replayed": [],
+          "no_op_reason": null,
+          "error_code": null,
+          "error_detail": null
+        },
+        {
+          "site_code": "KOBO-001",
+          "work_id": "efab5899-d5b5-4191-99fa-d0c5c02e7431",
+          "cause": "FINDING_REVISION_APPENDED",
+          "succeeded": true,
+          "attempt_no": 1,
+          "appended": [],
+          "replayed": [
+            "cc57a011-8323-48ce-ad4c-e220b50a87c1"
+          ],
+          "no_op_reason": null,
+          "error_code": null,
+          "error_detail": null
+        }
+      ],
+      "summary": {
+        "site_code": "KOBO-001",
+        "tenant": "demo",
+        "site_id": "6f8f6af0-40a7-4d0e-960a-9e67c4f64673",
+        "claimed": true,
+        "skipped": false,
+        "now": "2026-10-14T11:59:47.736125+00:00",
+        "limit": 100,
+        "selected": 2,
+        "appended": 1,
+        "replayed": 1,
+        "no_op": 0,
+        "failed": 0,
+        "deferred": 0,
+        "backlog": 0
+      }
+    },
+    {
+      "label": "Leg A: EVIDENCE_ACCEPTED",
+      "exit": 0,
+      "items": [
+        {
+          "site_code": "KOBO-001",
+          "work_id": "c74fd0b9-2439-49a4-b29c-21cbf55e27f9",
+          "cause": "EVIDENCE_ACCEPTED",
+          "succeeded": true,
+          "attempt_no": 1,
+          "appended": [
+            "87a04e1a-f077-4c65-be88-62d170c9a7e1"
+          ],
+          "replayed": [],
+          "no_op_reason": null,
+          "error_code": null,
+          "error_detail": null
+        }
+      ],
+      "summary": {
+        "site_code": "KOBO-001",
+        "tenant": "demo",
+        "site_id": "6f8f6af0-40a7-4d0e-960a-9e67c4f64673",
+        "claimed": true,
+        "skipped": false,
+        "now": "2026-10-14T11:59:52.917769+00:00",
+        "limit": 100,
+        "selected": 1,
+        "appended": 1,
+        "replayed": 0,
+        "no_op": 0,
+        "failed": 0,
+        "deferred": 0,
+        "backlog": 0
+      }
+    },
+    {
+      "label": "Leg B: r2's FindingRevision work",
+      "exit": 0,
+      "items": [
+        {
+          "site_code": "KOBO-001",
+          "work_id": "5f15e4bc-5607-4b08-95a3-bf32326956ec",
+          "cause": "FINDING_REVISION_APPENDED",
+          "succeeded": true,
+          "attempt_no": 1,
+          "appended": [
+            "73bdcab5-952a-4f78-8605-39e91a05cb16"
+          ],
+          "replayed": [],
+          "no_op_reason": null,
+          "error_code": null,
+          "error_detail": null
+        }
+      ],
+      "summary": {
+        "site_code": "KOBO-001",
+        "tenant": "demo",
+        "site_id": "6f8f6af0-40a7-4d0e-960a-9e67c4f64673",
+        "claimed": true,
+        "skipped": false,
+        "now": "2026-10-14T12:00:00.118748+00:00",
+        "limit": 100,
+        "selected": 1,
+        "appended": 1,
+        "replayed": 0,
+        "no_op": 0,
+        "failed": 0,
+        "deferred": 0,
+        "backlog": 0
+      }
+    },
+    {
+      "label": "replay: nothing left",
+      "exit": 0,
+      "items": [],
+      "summary": {
+        "site_code": "KOBO-001",
+        "tenant": "demo",
+        "site_id": "6f8f6af0-40a7-4d0e-960a-9e67c4f64673",
+        "claimed": true,
+        "skipped": false,
+        "now": "2026-10-14T12:00:04.244497+00:00",
+        "limit": 100,
+        "selected": 0,
+        "appended": 0,
+        "replayed": 0,
+        "no_op": 0,
+        "failed": 0,
+        "deferred": 0,
+        "backlog": 0
+      }
+    }
+  ],
+  "reads": [
+    {
+      "label": "pre-late (r1)",
+      "finding_id": "f650c53b-50c2-403f-b25e-66b0fccc5a04",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "is_latest": true,
+      "currentness": "CURRENT",
+      "reasons": [],
+      "pending_work": [],
+      "head_consequence_revision_id": "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+      "consequence": {
+        "id": "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "97b8076e8b69dcbfaeb15697379c01ff90a0d1d201db8518b792e091f3985c3c",
+        "consequence_basis_sha256": "763f7b0b6ae30d51a5fca4c3007252ed284e498a4e2a52fa289ad628d804149a",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "23a015c9-382e-4dc3-98b0-35782c3d60d0"
+        ]
+      },
+      "history": [
+        [
+          "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ]
+      ],
+      "bridge": {
+        "state": "QUANTITY_UNAVAILABLE",
+        "reason_key": "QUANTITY_UNAVAILABLE",
+        "recalculation_queued": false,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": []
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_COVERAGE_GAP",
+        "examined_count": 22,
+        "examined_sha256": "82fe80bfcc6363b8c77293728098f479f5eb5d5eda4fc9d628556d3ee3b9daad",
+        "late_examined": false,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "Leg A before drain (r1)",
+      "finding_id": "f650c53b-50c2-403f-b25e-66b0fccc5a04",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "is_latest": true,
+      "currentness": "STALE",
+      "reasons": [
+        "TECHNICAL_INPUT_CHANGED"
+      ],
+      "pending_work": [
+        {
+          "work_id": "c74fd0b9-2439-49a4-b29c-21cbf55e27f9",
+          "cause": "EVIDENCE_ACCEPTED",
+          "accepted_evidence_id": "a990d81c-c1d9-43b0-a8ae-1c9fda120f97",
+          "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c"
+        }
+      ],
+      "head_consequence_revision_id": "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+      "consequence": {
+        "id": "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "97b8076e8b69dcbfaeb15697379c01ff90a0d1d201db8518b792e091f3985c3c",
+        "consequence_basis_sha256": "763f7b0b6ae30d51a5fca4c3007252ed284e498a4e2a52fa289ad628d804149a",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "23a015c9-382e-4dc3-98b0-35782c3d60d0"
+        ]
+      },
+      "history": [
+        [
+          "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ]
+      ],
+      "bridge": {
+        "state": "STALE",
+        "reason_key": "STALE_QUEUED",
+        "recalculation_queued": true,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": [
+          "TECHNICAL_INPUT_CHANGED"
+        ]
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "examined_count": 23,
+        "examined_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "late_examined": true,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "Leg A after drain (r1)",
+      "finding_id": "f650c53b-50c2-403f-b25e-66b0fccc5a04",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "is_latest": true,
+      "currentness": "CURRENT",
+      "reasons": [],
+      "pending_work": [],
+      "head_consequence_revision_id": "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+      "consequence": {
+        "id": "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+        "revision_no": 2,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "de861f3bb0255ca6eb6e93b99389493d11baad872642a29eb643965236bc5cec",
+        "consequence_basis_sha256": "9e61faf542b02d616f7e6fb9f83e2e3e71ce30d8cefde36f9b3f1e7886c030b0",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "23a015c9-382e-4dc3-98b0-35782c3d60d0"
+        ]
+      },
+      "history": [
+        [
+          "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ],
+        [
+          "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+          2,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_NOT_IN_ASSESSMENT_INPUTS"
+        ]
+      ],
+      "bridge": {
+        "state": "QUANTITY_UNAVAILABLE",
+        "reason_key": "QUANTITY_UNAVAILABLE",
+        "recalculation_queued": false,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": []
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "examined_count": 23,
+        "examined_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "late_examined": true,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "Leg B before drain (r2)",
+      "finding_id": "f650c53b-50c2-403f-b25e-66b0fccc5a04",
+      "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87",
+      "is_latest": true,
+      "currentness": "PENDING",
+      "reasons": [
+        "NOT_YET_COMPUTED"
+      ],
+      "pending_work": [
+        {
+          "work_id": "5f15e4bc-5607-4b08-95a3-bf32326956ec",
+          "cause": "FINDING_REVISION_APPENDED",
+          "accepted_evidence_id": null,
+          "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87"
+        }
+      ],
+      "head_consequence_revision_id": null,
+      "consequence": null,
+      "history": [],
+      "bridge": {
+        "state": "PENDING",
+        "reason_key": "PENDING",
+        "recalculation_queued": true,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": [
+          "NOT_YET_COMPUTED"
+        ]
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "AVAILABLE",
+        "reason": null,
+        "examined_count": 23,
+        "examined_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "late_examined": true,
+        "late_in_run_inputs": true,
+        "run_input_count": 175
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "Leg B after drain (r2)",
+      "finding_id": "f650c53b-50c2-403f-b25e-66b0fccc5a04",
+      "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87",
+      "is_latest": true,
+      "currentness": "CURRENT",
+      "reasons": [],
+      "pending_work": [],
+      "head_consequence_revision_id": "73bdcab5-952a-4f78-8605-39e91a05cb16",
+      "consequence": {
+        "id": "73bdcab5-952a-4f78-8605-39e91a05cb16",
+        "revision_no": 1,
+        "state": "PRICED",
+        "quantity": "AVAILABLE",
+        "quantity_reason": null,
+        "quantity_high": "12.65",
+        "price_state": "PRICED",
+        "price_reason": null,
+        "price_revision_id": "508b264a-848b-4198-8413-298bd6aca8cd",
+        "amount_high": "15.8125",
+        "display_amount_high": "15.82",
+        "technical_input_sha256": "d902ae7c88ef23e63d30d56253c8bb4e8f5d9f8874b748abbda1839c3501ce04",
+        "consequence_basis_sha256": "6147f8f8d0176f22fb17f6ddc90400840294279f7b3dfd2a420569055c14537f",
+        "counted_power_evidence": 23,
+        "counted_power_evidence_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "analytic_run_ids": [
+          "7355a96e-199e-470b-b75a-a04f96450f2e"
+        ]
+      },
+      "history": [
+        [
+          "73bdcab5-952a-4f78-8605-39e91a05cb16",
+          1,
+          "PRICED",
+          null
+        ]
+      ],
+      "bridge": {
+        "state": "PRICED",
+        "reason_key": "PRICED",
+        "recalculation_queued": false,
+        "amount": {
+          "low": "0.00",
+          "high": "15.82"
+        },
+        "currency": "USD",
+        "currentness_reasons": []
+      },
+      "s5_money_eligible": true,
+      "derived_now": {
+        "quantity": "AVAILABLE",
+        "reason": null,
+        "examined_count": 23,
+        "examined_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "late_examined": true,
+        "late_in_run_inputs": true,
+        "run_input_count": 175
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "Leg B: r1 after the revision (historical)",
+      "finding_id": "f650c53b-50c2-403f-b25e-66b0fccc5a04",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "is_latest": false,
+      "currentness": "HISTORICAL",
+      "reasons": [
+        "FINDING_REVISION_SUPERSEDED"
+      ],
+      "pending_work": [],
+      "head_consequence_revision_id": "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+      "consequence": {
+        "id": "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+        "revision_no": 2,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "de861f3bb0255ca6eb6e93b99389493d11baad872642a29eb643965236bc5cec",
+        "consequence_basis_sha256": "9e61faf542b02d616f7e6fb9f83e2e3e71ce30d8cefde36f9b3f1e7886c030b0",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "23a015c9-382e-4dc3-98b0-35782c3d60d0"
+        ]
+      },
+      "history": [
+        [
+          "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ],
+        [
+          "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+          2,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_NOT_IN_ASSESSMENT_INPUTS"
+        ]
+      ],
+      "bridge": {
+        "state": "HISTORICAL",
+        "reason_key": "HISTORICAL",
+        "recalculation_queued": false,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": [
+          "FINDING_REVISION_SUPERSEDED"
+        ]
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "examined_count": 23,
+        "examined_sha256": "917fd6a6cea897c7255973998e4af38cb9537be94505200690e323963adde539",
+        "late_examined": true,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    }
+  ],
+  "pre_late_s3_result": {
+    "quantity": "QUANTITY_UNAVAILABLE",
+    "reason": "POWER_COVERAGE_GAP",
+    "candidate_spans": [
+      [
+        "2026-10-24T06:05:00+00:00",
+        "2026-10-24T08:00:00+00:00"
+      ]
+    ]
+  },
+  "late": {
+    "batch_ids": [
+      "47751cc602710feb241601c491c9025967b74a0a50c7dcb5de2bd9caf9fcc4ab"
+    ],
+    "accepted_evidence_id": "a990d81c-c1d9-43b0-a8ae-1c9fda120f97",
+    "decided_label": "2026-11-02T10:00:00Z",
+    "source_sequence": [
+      14
+    ]
+  },
+  "leg_a_work_before": [
+    {
+      "work_id": "c74fd0b9-2439-49a4-b29c-21cbf55e27f9",
+      "cause": "EVIDENCE_ACCEPTED",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "accepted_evidence_id": "a990d81c-c1d9-43b0-a8ae-1c9fda120f97",
+      "affected_from": "2026-10-24 07:00:00+00",
+      "affected_to": "2026-10-24 07:05:00+00",
+      "enqueued_at": "2026-10-14 11:59:49.974829+00",
+      "attempts": []
+    }
+  ],
+  "leg_b_process_jobs": [
+    {
+      "job_id": "db1a54b8-8b8c-4099-99c6-6bb20832aef2",
+      "status": "DONE",
+      "error": null,
+      "runs": [
+        {
+          "run_id": "7355a96e-199e-470b-b75a-a04f96450f2e",
+          "created": true,
+          "revision_ids": [
+            "97589c30-f02f-45b5-8702-731239f54384",
+            "8ae2e9e2-479a-416e-beca-a8548455fa19"
+          ],
+          "new_revision_ids": [
+            "97589c30-f02f-45b5-8702-731239f54384",
+            "8ae2e9e2-479a-416e-beca-a8548455fa19"
+          ]
+        }
+      ]
+    }
+  ],
+  "leg_b_match": {
+    "planned": 1,
+    "finding_ids": [],
+    "revision_ids": [
+      "5b0a3942-1fad-4770-8097-416f188f9c87"
+    ],
+    "window_statuses": {
+      "2026-10-24": "CURRENT"
+    }
+  },
+  "r2": {
+    "id": "5b0a3942-1fad-4770-8097-416f188f9c87",
+    "revision_no": 2,
+    "lifecycle": "SUPPORTED",
+    "transition": "SUPPORT_CHANGED",
+    "analytic_run_ids": [
+      "7355a96e-199e-470b-b75a-a04f96450f2e"
+    ]
+  },
+  "leg_b_work_before": [
+    {
+      "work_id": "5f15e4bc-5607-4b08-95a3-bf32326956ec",
+      "cause": "FINDING_REVISION_APPENDED",
+      "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87",
+      "accepted_evidence_id": null,
+      "affected_from": "2026-10-24 06:05:00+00",
+      "affected_to": "2026-10-24 08:00:00+00",
+      "enqueued_at": "2026-10-14 11:59:57.264922+00",
+      "attempts": []
+    }
+  ],
+  "work_after": [
+    {
+      "work_id": "8e9dde22-488a-4d8f-b5c4-abf0724d1699",
+      "cause": "ASSUMPTION_PUBLISHED",
+      "finding_revision_id": null,
+      "accepted_evidence_id": null,
+      "affected_from": "2026-01-01 00:00:00+00",
+      "affected_to": null,
+      "enqueued_at": "2026-10-14 11:59:40.364023+00",
+      "attempts": [
+        {
+          "attempt_id": "5e595057-989c-4e36-af90-fe13d9f78990",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "cc57a011-8323-48ce-ad4c-e220b50a87c1"
+          ]
+        }
+      ]
+    },
+    {
+      "work_id": "efab5899-d5b5-4191-99fa-d0c5c02e7431",
+      "cause": "FINDING_REVISION_APPENDED",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "accepted_evidence_id": null,
+      "affected_from": "2026-10-24 06:05:00+00",
+      "affected_to": "2026-10-24 08:00:00+00",
+      "enqueued_at": "2026-10-14 11:59:44.997492+00",
+      "attempts": [
+        {
+          "attempt_id": "a1f0894d-4753-460b-af90-e81c622b9ccc",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "cc57a011-8323-48ce-ad4c-e220b50a87c1"
+          ]
+        }
+      ]
+    },
+    {
+      "work_id": "c74fd0b9-2439-49a4-b29c-21cbf55e27f9",
+      "cause": "EVIDENCE_ACCEPTED",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "accepted_evidence_id": "a990d81c-c1d9-43b0-a8ae-1c9fda120f97",
+      "affected_from": "2026-10-24 07:00:00+00",
+      "affected_to": "2026-10-24 07:05:00+00",
+      "enqueued_at": "2026-10-14 11:59:49.974829+00",
+      "attempts": [
+        {
+          "attempt_id": "b16f1339-d2c2-496f-9ddd-57ff643524a2",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "87a04e1a-f077-4c65-be88-62d170c9a7e1"
+          ]
+        }
+      ]
+    },
+    {
+      "work_id": "5f15e4bc-5607-4b08-95a3-bf32326956ec",
+      "cause": "FINDING_REVISION_APPENDED",
+      "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87",
+      "accepted_evidence_id": null,
+      "affected_from": "2026-10-24 06:05:00+00",
+      "affected_to": "2026-10-24 08:00:00+00",
+      "enqueued_at": "2026-10-14 11:59:57.264922+00",
+      "attempts": [
+        {
+          "attempt_id": "163d2ab0-c635-4fb9-98a4-02697514437e",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "73bdcab5-952a-4f78-8605-39e91a05cb16"
+          ]
+        }
+      ]
+    }
+  ],
+  "consequences": [
+    {
+      "id": "cc57a011-8323-48ce-ad4c-e220b50a87c1",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "revision_no": 1,
+      "state": "QUANTITY_UNAVAILABLE",
+      "reason": "POWER_COVERAGE_GAP",
+      "technical_input_sha256": "97b8076e8b69dcbfaeb15697379c01ff90a0d1d201db8518b792e091f3985c3c",
+      "consequence_basis_sha256": "763f7b0b6ae30d51a5fca4c3007252ed284e498a4e2a52fa289ad628d804149a"
+    },
+    {
+      "id": "87a04e1a-f077-4c65-be88-62d170c9a7e1",
+      "finding_revision_id": "08ab98f3-b429-4152-8175-284cc722b82c",
+      "revision_no": 2,
+      "state": "QUANTITY_UNAVAILABLE",
+      "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+      "technical_input_sha256": "de861f3bb0255ca6eb6e93b99389493d11baad872642a29eb643965236bc5cec",
+      "consequence_basis_sha256": "9e61faf542b02d616f7e6fb9f83e2e3e71ce30d8cefde36f9b3f1e7886c030b0"
+    },
+    {
+      "id": "73bdcab5-952a-4f78-8605-39e91a05cb16",
+      "finding_revision_id": "5b0a3942-1fad-4770-8097-416f188f9c87",
+      "revision_no": 1,
+      "state": "PRICED",
+      "reason": null,
+      "technical_input_sha256": "d902ae7c88ef23e63d30d56253c8bb4e8f5d9f8874b748abbda1839c3501ce04",
+      "consequence_basis_sha256": "6147f8f8d0176f22fb17f6ddc90400840294279f7b3dfd2a420569055c14537f"
+    }
+  ],
+  "failures": []
+}
