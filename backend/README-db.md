@@ -72,3 +72,30 @@ export ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-d
 Without `ASSETOPS_TEST_DATABASE_URL` those tests are reported as skipped, not
 passed. They refuse to run against a database whose name does not end in
 `_test`.
+
+## Consequence recompute runner (S4-02c)
+
+Financial consequence work (migration 0011/0012 triggers) is drained by a one-shot, bounded runner for one
+explicitly named tenant and Site. It is not an all-Site iterator and serves only the configured development
+tenant (`demo`); any other tenant is refused with exit code 2.
+
+```sh
+# from backend/, with DATABASE_URL set
+python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100
+python -m assetops_backend.recompute_consequences pending --tenant demo --site KOBO-001
+```
+
+- **Schedule:** an external timer runs it every minute, one task per Site. Windows Task Scheduler:
+  `schtasks /Create /TN "AssetOps consequence runner KOBO-001" /SC MINUTE /MO 1 /TR "<venv>\Scripts\python.exe -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100"`
+  with "Do not start a new instance" and a start-in directory of `backend/`. systemd: a `Type=oneshot`
+  `assetops-consequence-runner@.service` (`ExecStart=<venv>/bin/python -m assetops_backend.recompute_consequences run --tenant demo --site %i --limit 100`,
+  `EnvironmentFile` holding `DATABASE_URL`) and a matching `.timer` with `OnCalendar=*-*-* *:*:00`.
+- **Owner:** whoever operates the deployment's backend host.
+- **Overlap:** the run takes a session advisory lock `financial_consequence_runner:<site>` on a dedicated
+  connection; a second run for the same Site reports `"skipped": true` and exits 0.
+- **Recovery:** nothing manual. A failed item records a typed FAILED attempt and stays pending; it is retried
+  1, 2, 4, 8, 16 minutes after its last failure, then every 16 minutes, with no cap. A killed run's lock is
+  released with its connection; the next tick resumes, and an append-then-crash replays the same consequence ID.
+- **Output:** one JSON line per processed item, then a summary line with the Site scope and the `selected`,
+  `appended`, `replayed`, `no_op`, `failed`, `deferred` and `backlog` counts. Exit 1 when any item failed.
+- S3 `process-jobs` and S4 `match-findings` are not scheduled by this runner (packet risk R1).

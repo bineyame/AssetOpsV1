@@ -1,7 +1,8 @@
 """S4-02c review L3: the recompute worker dispatches each work cause explicitly.
 
-`EVIDENCE_ACCEPTED` (until its scoped drain exists) and any unknown cause record a typed FAILED attempt and stay
-pending; neither may fall through to the assumption-range recompute. No database needed.
+An unknown cause records a typed FAILED attempt and stays pending; it never falls through to the assumption-range
+recompute. (`EVIDENCE_ACCEPTED` is dispatched since S4-02c phase 2; see `test_s4_evidence_drain.py`.) No database
+needed.
 """
 
 from __future__ import annotations
@@ -32,7 +33,7 @@ class Store:
         return len(self.attempts)
 
 
-@pytest.mark.parametrize("cause", ["EVIDENCE_ACCEPTED", "SOMETHING_NEW"])
+@pytest.mark.parametrize("cause", ["SOMETHING_NEW", "evidence_accepted"])
 def test_an_unsupported_cause_records_a_typed_failure_and_never_falls_through(cause: str) -> None:
     store = Store()
     work = {"id": uuid4(), "cause": cause, "finding_id": uuid4(), "finding_revision_id": uuid4(),
