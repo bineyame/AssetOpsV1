@@ -17,7 +17,11 @@ States, per Site and in aggregate (worst first): `STOPPED`, `FAILED`, `RETRY_DUE
   `SITE_COMPLETION_STALE`) is reported by its failure state and still blocks the S5 seam.
 - Site `FAILED`: a terminal FAILED S3 job (ID and `last_error`; recovery `assess_dispatch requeue`), repeated Site
   stage failures, a repeated `FENCE_MOVED`, the deterministic `MATCH_EVIDENCE_NOT_ACCEPTED`, consequence work whose
-  uncapped attempts reached `consequence_attempt_alarm`, or `STALE_NO_WORK` heads.
+  uncapped attempts reached `consequence_attempt_alarm`, `STALE_NO_WORK` heads, or `S3_STALE_NO_JOB`: a selected
+  UTC day window whose S3 read is `STALE_PROJECTION` (for example `INPUT_BASIS_CHANGED`) while no live S3 job
+  intersects it, so nothing scheduled will rebuild it (phase-2 review F-A: an app-clock `decided_at` after the
+  DB-clock knowledge cutoff of a job it widened). Recovery: `assess_dispatch requeue --tenant-id T --site-id S
+  --day D` once the cause is understood.
 - `RETRY_DUE`: inside a schedule back-off. `RUNNING`: claim held within its lease. `BACKLOG`: live S3 jobs, an
   unmatched selection, or pending consequence work. A Site outside the active set keeps its S4 backlog in the
   report (`S4_BACKLOG_OUTSIDE_ACTIVE_SET`): the tick no longer visits it, so nothing will match it.
@@ -29,7 +33,7 @@ States, per Site and in aggregate (worst first): `STOPPED`, `FAILED`, `RETRY_DUE
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -149,13 +153,38 @@ class ScheduleHealth:
     """The operator report. Collaborators are the existing stores and reads, received from compositions."""
 
     def __init__(self, schedule: Any, assessments: Any, findings: Any, consequences: Any, consequence_read: Any,
-                 *, analytic_id: str, domain: str, thresholds: HealthThresholds = HealthThresholds()) -> None:
+                 *, analytic_id: str, domain: str, thresholds: HealthThresholds = HealthThresholds(),
+                 dispatch_read: Any = None) -> None:
         self.schedule, self.assessments, self.findings = schedule, assessments, findings
         self.consequences, self.consequence_read = consequences, consequence_read
         self.analytic_id, self.domain, self.th = analytic_id, domain, thresholds
+        self.dispatch_read = dispatch_read
 
     def dispose(self) -> None:
-        release(self.schedule, self.assessments, self.findings, self.consequences, self.consequence_read)
+        release(self.schedule, self.assessments, self.findings, self.consequences, self.consequence_read,
+                self.dispatch_read)
+
+    def stale_without_job(self, tenant_id: UUID, site_id: UUID, live: list[dict]) -> list[dict]:
+        """Selected UTC day windows read `STALE_PROJECTION` with no live S3 job intersecting them (review F-A).
+
+        One S3 read per selected day without a live job: cost grows with assessed days, like `stale_no_work`."""
+        if self.dispatch_read is None:
+            return []
+        out = []
+        for head in self.assessments.run_heads(tenant_id, site_id, self.analytic_id):
+            w0, w1 = head.window.start, head.window.end
+            day = w0.astimezone(timezone.utc).date()
+            if w1 - w0 != timedelta(days=1) or w0 != datetime(day.year, day.month, day.day, tzinfo=timezone.utc):
+                continue  # DEFAULT selections are UTC days; anything else is not this read's window
+            if any(j["window_start"] < w1 and j["window_end"] > w0 for j in live):
+                continue  # live work will rebuild it; that is backlog, not a stuck window
+            read = self.dispatch_read.window(tenant_id, site_id, day)
+            if read["status"] == "STALE_PROJECTION":
+                out.append({"code": "S3_STALE_NO_JOB", "day": day.isoformat(),
+                            "run_id": (read.get("selection") or {}).get("run_id"),
+                            "status_reasons": read.get("status_reasons"),
+                            "recovery": "assess_dispatch requeue --tenant-id T --site-id S --day " + day.isoformat()})
+        return out
 
     def stale_no_work(self, tenant_id: UUID, site_id: UUID, revisions: list[tuple[Any, Any]]) -> list[dict]:
         out = []
@@ -224,6 +253,8 @@ class ScheduleHealth:
             t, s, _EPOCH, datetime(9999, 1, 1, tzinfo=timezone.utc))] if inv is not None else []
         stale = self.stale_no_work(t, s, revisions)
         alarms += stale
+        stuck = self.stale_without_job(t, s, live) if inv is not None else []
+        alarms += stuck
 
         observation = site_observation(head, now, self.th) if scheduled else []
         alarms += observation
@@ -234,7 +265,7 @@ class ScheduleHealth:
         if scheduled and (env_state == "STOPPED" or codes & _STOPPING):
             state = "STOPPED"
         elif codes & {"S3_JOB_FAILED", "SITE_FAILING", "FENCE_MOVED_STREAK", "MATCH_EVIDENCE_NOT_ACCEPTED",
-                      "CONSEQUENCE_ATTEMPTS_GROWING", "STALE_NO_WORK"}:
+                      "CONSEQUENCE_ATTEMPTS_GROWING", "STALE_NO_WORK", "S3_STALE_NO_JOB"}:
             state = "FAILED"
         elif head is not None and head.get("retry_due_at") is not None and head["retry_due_at"] > now:
             state = "RETRY_DUE"
@@ -270,4 +301,5 @@ class ScheduleHealth:
                                       "last_outcome": w["last_outcome"],
                                       "age_seconds": _age(now, w["enqueued_at"])} for w in work]},
             "stale_no_work": stale,
+            "s3_stale_no_job": stuck,
         }

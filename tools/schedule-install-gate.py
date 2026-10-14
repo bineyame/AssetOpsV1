@@ -30,7 +30,7 @@ def decide(registry: dict, host_class: str) -> tuple[bool, str]:
     if host_class == "walkthrough":
         return False, "isolated walkthrough database: explicit tick invocations only, no persistent timer"
     needed = [F1] + (list(registry.get("real_pilot_requires") or []) if host_class == "pilot" else [])
-    needed = [n if isinstance(n, str) else n.get("id") for n in needed]
+    needed = list(dict.fromkeys(n if isinstance(n, str) else n.get("id") for n in needed))  # F1 is listed once
     open_ = [f"{n} ({status.get(n, 'missing')})" for n in needed if status.get(n) != "resolved"]
     if open_:
         return False, (f"{host_class} host is owner-visible or real: do not install the tick until resolved: "

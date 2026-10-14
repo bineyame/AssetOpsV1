@@ -382,6 +382,48 @@ class TestStaleNoWork:
         assert f["stale_no_work"] is True and f["consequence_state"] == "STALE"
 
 
+class TestStaleWithoutJob:
+    def test_a_decision_after_the_db_cutoff_widening_a_pending_job_raises_s3_stale_no_job_until_requeued(
+            self, kobo, engine, capsys, monkeypatch) -> None:  # noqa: F811
+        """Phase-2 review F-A: the ingestion clock runs ahead of the database. A chunk decided after the DB-clock
+        knowledge cutoff widens the PENDING job instead of creating one, the job completes without it, and the
+        window reads STALE (INPUT_BASIS_CHANGED) with no live job. Health must not report that Site IDLE."""
+        tick, _ = make_tick(TickLimits(**FAST))
+        env = tick.environment
+        deliver(kobo, block(DAY_A, 10, 12))  # job J, decided in the past
+        (job,) = [j for j in jobs(engine, kobo.site) if j["status"] == "PENDING"]
+        ahead = db_now(engine) + timedelta(seconds=20)  # the ingestion host's clock, ahead of the DB
+        deliver(kobo, block(DAY_A, 11, 13), decided=ahead.strftime("%Y-%m-%dT%H:%M:%SZ"))
+        pending = [j for j in jobs(engine, kobo.site) if j["status"] == "PENDING"]
+        assert [j["id"] for j in pending] == [job["id"]], pending  # widened J, no new job
+        assert tick.tick().outcome == "COMPLETED"
+        assert db_now(engine) < ahead, "the tick outlived the skew; widen it"
+
+        read = seam(kobo.tenant, kobo.site, DAY_A, env=env)
+        assert read["s3_jobs"] == [] and read["eligibility"]["status"] == "STALE_PROJECTION", read["eligibility"]
+        assert any("INPUT_BASIS_CHANGED" in r for r in read["days"][0]["s3_status_reasons"])
+        h = site_of(health(env), kobo.site)
+        assert h["s3"]["live_jobs"] == [] and h["state"] == "FAILED", h["state"]
+        (alarm,) = [a for a in h["alarms"] if a["code"] == "S3_STALE_NO_JOB"]
+        assert alarm["day"] == DAY_A.date().isoformat() and alarm["run_id"]
+        assert any("INPUT_BASIS_CHANGED" in r for r in alarm["status_reasons"])
+
+        # A live window is backlog, not this alarm: requeue --day refuses while a job is live and refuses a
+        # day that is not STALE; once the DB clock passes the decision, requeue + one tick reach CURRENT and clear it.
+        monkeypatch.setenv("DATABASE_URL", URL)
+        args = ["requeue", "--tenant-id", str(kobo.tenant), "--site-id", str(kobo.site)]
+        assert assess_dispatch.main(args + ["--day", DAY_B.date().isoformat()]) == 2
+        while db_now(engine) <= ahead:
+            time.sleep(1)
+        assert assess_dispatch.main(args + ["--day", DAY_A.date().isoformat()]) == 0
+        assert json.loads(capsys.readouterr().out.strip().splitlines()[-1])["pending_job_ids"]
+        assert assess_dispatch.main(args + ["--day", DAY_A.date().isoformat()]) == 2  # now live: refused
+        assert tick.tick().outcome == "COMPLETED"
+        assert seam(kobo.tenant, kobo.site, DAY_A, env=env)["eligibility"]["status"] == "CURRENT"
+        after = site_of(health(env), kobo.site)
+        assert "S3_STALE_NO_JOB" not in codes(after["alarms"]) and after["state"] == "IDLE", after["alarms"]
+
+
 class TestOverlappingIngestionRace:
     def test_two_overlapping_chunks_during_an_active_tick_never_read_current_and_are_reprocessed(
             self, kobo, engine) -> None:  # noqa: F811

@@ -136,4 +136,7 @@ def main(kind: str, only: str | None = None) -> int:
 
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2 or sys.argv[1] not in ("guard", "tests"):
+        print("usage: python .agent/S4-02d-phase-1-probes.py guard|tests [probe-name]", file=sys.stderr)
+        raise SystemExit(2)
     raise SystemExit(main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None))

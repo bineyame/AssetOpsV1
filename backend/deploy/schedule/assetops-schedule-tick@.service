@@ -12,5 +12,7 @@ Type=oneshot
 EnvironmentFile=/etc/assetops/schedule-tick.env
 WorkingDirectory=/opt/assetops/backend
 ExecStart=/opt/assetops/.venv/bin/python -m assetops_backend.scheduling.run tick --environment %i
-# Above the tick's own lease (discover + tick + Site bounds); the tick kills its stage children at their bounds.
-TimeoutStartSec=660
+# Above the tick's own lease with slack: TickLimits.tick_lease_seconds is discover 120 + tick 240 + Site lease 360
+# + 60 = 780 s, and the store calls between stages can each take up to the 30 s statement timeout. The tick kills
+# its stage children at their own bounds; systemd must never SIGTERM a tick still inside them (review F-C).
+TimeoutStartSec=900
