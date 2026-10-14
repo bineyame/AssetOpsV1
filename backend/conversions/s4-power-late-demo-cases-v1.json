@@ -1,0 +1,35 @@
+{
+  "schema": {"id": "assetops.s4-power-late-demo-cases", "version": 1},
+  "label": "s4-power-late-demo-cases-v1",
+  "status": "AUTHORED S4-02c DEMONSTRATION CASE (demonstration content under the owner ruling .agent/owner-S4-02b-money-demo-2026-10-14.md). A versioned variant of P01-power in s4-power-demo-cases-v1 (which it does not modify) with one 07:00-07:05 20 kW generator-power mean withheld from the first delivery and delivered later, so the late-power consequence walkthrough (tasks/S4-02c-evidence-consequence-work.md phase 3) can show a genuinely accepted late mean changing an existing Finding's fuel-cost-1 technical input.",
+  "statement": "Authored public Batch V2 content posted by the registered gateway credential over TLS, the same evidentiary class and delivery path as s4-power-demo-cases-v1. Generator-controller ac-power INTERVAL_MEAN envelopes (back-to-back 5-minute means) plus the ordinary Candidate context rows. No Lab private truth and no price; the price comes from the SYSTEM fixture backend/conversions/demo-diesel-price-publications.json. The `decided` instants are ordering labels only: central acceptance uses the server's real clock, in the same order.",
+  "base_spec": "s4-finding-cases-v1",
+  "derived_from": "s4-power-demo-cases-v1 P01-power",
+  "site_code": "KOBO-001",
+  "power_rules": {"device": "generator-controller", "signal": "ac-power", "measurement": "INTERVAL_MEAN",
+                  "mean_minutes": 5, "quality": "GOOD"},
+  "cases": [
+    {"case_id": "P02-power-late", "label": "authored late power-mean demonstration (S4-02c)", "day": "2026-10-24",
+     "steps": [
+       {"do": "deliver_power", "decided": "2026-10-31T10:00:00Z", "epoch": "late-power-epoch-1",
+        "label": "P01-power's shape on 2026-10-24 with the mean ending 07:05 withheld: a 0 kW mean ending 06:00, then 20 kW means ending 06:05..07:00 and 07:10..08:00",
+        "means": [{"first_end": "2026-10-24T06:00:00Z", "last_end": "2026-10-24T06:00:00Z", "kw": "0"},
+                  {"first_end": "2026-10-24T06:05:00Z", "last_end": "2026-10-24T07:00:00Z", "kw": "20"},
+                  {"first_end": "2026-10-24T07:10:00Z", "last_end": "2026-10-24T08:00:00Z", "kw": "20"}],
+        "context": {"from": "2026-10-24T06:00:00Z", "to": "2026-10-24T08:00:00Z", "pv": "40", "dis": "20",
+                    "soc": "80", "only": ["load", "pv", "dis", "soc"]}},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-24T06:05:00Z", "new": true, "transition": "OPENED",
+                                   "lifecycle": "SUPPORTED",
+                                   "episode": ["2026-10-24T06:05:00Z", "2026-10-24T08:00:00Z"]}]}],
+     "late": {"do": "deliver_power_late", "decided": "2026-11-02T10:00:00Z", "epoch": "late-power-epoch-1",
+              "label": "the withheld 20 kW mean [07:00, 07:05), accepted after the Finding and its consequence exist",
+              "withheld_interval": ["2026-10-24T07:00:00Z", "2026-10-24T07:05:00Z"],
+              "means": [{"first_end": "2026-10-24T07:05:00Z", "last_end": "2026-10-24T07:05:00Z", "kw": "20"}]}}
+  ],
+  "expected": {
+    "pre_late_quantity": "recorded, not assumed: the 07:00-07:10 state gap is shorter than CONTINUITY_TOLERANCE, so Candidate time should still cover [07:00, 07:05) and fuel-cost-1 should give POWER_COVERAGE_GAP",
+    "leg_a": "STALE/TECHNICAL_INPUT_CHANGED with an EVIDENCE_ACCEPTED work ID, then the same FindingRevision's consequence n+1 CURRENT QUANTITY_UNAVAILABLE/POWER_NOT_IN_ASSESSMENT_INPUTS",
+    "leg_b": "process-jobs + match-findings append a revised FindingRevision citing the late mean; its work drains to CURRENT PRICED (23 counted 20 kW means: 12.65 L at the v1 1.25 USD/L price)"
+  }
+}
