@@ -17,9 +17,10 @@ appends revision `n+1` with its links, at one `clock_timestamp()` instant taken 
 from __future__ import annotations
 
 import json
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Iterator
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
@@ -29,6 +30,7 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from assetops_backend.financials import fuel_cost as fc
 
 RECOMPUTE_ACTOR = "service:assetops-consequence-recompute"
+RUNNER_LOCK_PREFIX = "financial_consequence_runner:"
 
 
 class ConsequenceStoreUnavailable(RuntimeError):
@@ -234,21 +236,86 @@ class PostgresConsequenceStore:
     # ---- durable dirty work --------------------------------------------------------------------------------
 
     def pending_work(self, tenant_id: UUID, site_id: UUID) -> list[dict[str, Any]]:
-        """Dirty work of this Site with no SUCCEEDED attempt, oldest first, with its attempt count."""
+        """Dirty work of this Site with no SUCCEEDED attempt, oldest first, with its attempt count and its latest
+        attempt (`last_attempt_no`, `last_outcome`, `last_finished_at`; null before any attempt). With no success,
+        the latest attempt is the last FAILED one, which the runner's retry schedule reads (S4-02c item 4)."""
         def work(c: Connection):
             return [dict(r._mapping) for r in c.execute(text(
                 "SELECT w.*, (SELECT count(*) FROM financial_consequence_work_attempt a WHERE a.work_id = w.id) "
-                "AS attempts FROM financial_consequence_work w WHERE w.tenant_id = :t AND w.site_id = :s "
+                "AS attempts, last.attempt_no AS last_attempt_no, last.outcome AS last_outcome, "
+                "last.finished_at AS last_finished_at FROM financial_consequence_work w "
+                "LEFT JOIN LATERAL (SELECT a.attempt_no, a.outcome, a.finished_at FROM "
+                "financial_consequence_work_attempt a WHERE a.work_id = w.id ORDER BY a.attempt_no DESC LIMIT 1) last "
+                "ON true WHERE w.tenant_id = :t AND w.site_id = :s "
                 "AND NOT EXISTS (SELECT 1 FROM financial_consequence_work_attempt a WHERE a.work_id = w.id "
                 "AND a.outcome = 'SUCCEEDED') ORDER BY w.enqueued_at, w.id"), {"t": tenant_id, "s": site_id})]
         return self._run(work, "REPEATABLE READ")
 
+    def evidence_target(self, tenant_id: UUID, site_id: UUID, accepted_evidence_id: UUID, finding_id: UUID,
+                        finding_revision_id: UUID) -> dict[str, Any]:
+        """One snapshot of what an `EVIDENCE_ACCEPTED` work row names, read only inside this tenant/Site: the
+        accepted reading (stored role, asset, interval, and whether an ACCEPTED disposition binds it), the queued
+        FindingRevision of that Finding (episode, Candidate spans, generator) and the Finding's highest
+        `revision_no` in the same tenant/Site (the 0012 trigger's "latest"). A locator naming another Site's row
+        reads as None here; nothing falls back to an unscoped lookup."""
+        scope = {"t": tenant_id, "s": site_id}
+
+        def work(c: Connection) -> dict[str, Any]:
+            ev = c.execute(text(
+                "SELECT e.role, CAST(e.asset_id AS text) AS asset_id, e.interval_start, e.interval_end, "
+                "EXISTS (SELECT 1 FROM ingestion_disposition d WHERE d.batch_id = e.batch_id "
+                "AND d.ordinal = e.ordinal AND d.decision = 'ACCEPTED' AND d.accepted_evidence_id = e.id) "
+                "AS accepted FROM accepted_evidence e WHERE e.tenant_id = :t AND e.site_id = :s AND e.id = :e"),
+                {**scope, "e": accepted_evidence_id}).first()
+            rev = c.execute(text(
+                "SELECT r.revision_no, r.episode_start, r.episode_end, r.claim, "
+                "CAST(f.generator_asset_id AS text) AS generator_asset_id, (SELECT max(x.revision_no) FROM "
+                "finding_revision x WHERE x.tenant_id = r.tenant_id AND x.site_id = r.site_id "
+                "AND x.finding_id = r.finding_id) AS latest_revision_no FROM finding_revision r JOIN finding f "
+                "ON f.id = r.finding_id AND f.tenant_id = r.tenant_id AND f.site_id = r.site_id "
+                "WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :r AND r.finding_id = :f"),
+                {**scope, "r": finding_revision_id, "f": finding_id}).first()
+            return {"evidence": None if ev is None else dict(ev._mapping),
+                    "revision": None if rev is None else dict(rev._mapping)}
+
+        return self._run(work, "REPEATABLE READ")
+
+    @contextmanager
+    def claim_site(self, tenant_id: UUID, site_id: UUID) -> Iterator[bool]:
+        """The runner's Site claim (S4-02c item 4, re-review N3): a session `pg_try_advisory_lock` keyed by
+        `financial_consequence_runner:` plus the Site, on one dedicated connection held for the whole run. Yields
+        whether this run holds the claim. The lock is released explicitly in `finally`; if the unlock cannot run,
+        the connection is invalidated rather than returned to the pool still holding it. A killed runner's
+        connection closes and Postgres releases its session lock with it."""
+        try:
+            conn = self._connect().connect().execution_options(isolation_level="AUTOCOMMIT")
+        except (OperationalError, ProgrammingError) as error:
+            raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+        key = {"k": RUNNER_LOCK_PREFIX + str(site_id)}
+        held = False
+        try:
+            try:
+                held = bool(conn.execute(text("SELECT pg_try_advisory_lock(hashtextextended(:k, 0))"),
+                                         key).scalar_one())
+            except (OperationalError, ProgrammingError) as error:
+                raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+            yield held
+        finally:
+            try:
+                if held:
+                    conn.execute(text("SELECT pg_advisory_unlock(hashtextextended(:k, 0))"), key)
+            except Exception:  # noqa: BLE001 - never pool a connection that may still hold the claim
+                conn.invalidate()
+            finally:
+                conn.close()
+
     def record_attempt(self, tenant_id: UUID, site_id: UUID, work_id: UUID, *, succeeded: bool,
                        consequence_revision_ids: tuple[UUID, ...] = (), error_code: str | None = None,
                        error_detail: str | None = None, actor_id: str = RECOMPUTE_ACTOR,
-                       skip_if_succeeded: bool = False) -> int:
+                       skip_if_succeeded: bool = False, no_op_reason: str | None = None) -> int:
         """Append one attempt to a work item under its lock; returns the attempt number. With
-        `skip_if_succeeded`, a work item another worker already finished records nothing and returns 0."""
+        `skip_if_succeeded`, a work item another worker already finished records nothing and returns 0. A typed
+        `no_op_reason` marks a SUCCEEDED attempt that appended nothing (migration 0012's CHECK enforces both)."""
         def work(c: Connection) -> int:
             c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('financial_consequence_work:' || :w, 0))"),
                       {"w": str(work_id)})
@@ -260,12 +327,12 @@ class PostgresConsequenceStore:
                           {"w": work_id}).scalar_one() + 1
             c.execute(text(
                 "INSERT INTO financial_consequence_work_attempt (id, work_id, tenant_id, site_id, attempt_no, outcome, "
-                "error_code, error_detail, consequence_revision_ids, actor_id, finished_at) VALUES (:id, :w, :t, :s, "
-                ":n, :o, :code, :detail, CAST(:ids AS jsonb), :actor, clock_timestamp())"),
+                "error_code, error_detail, consequence_revision_ids, actor_id, finished_at, no_op_reason) VALUES (:id, "
+                ":w, :t, :s, :n, :o, :code, :detail, CAST(:ids AS jsonb), :actor, clock_timestamp(), :noop)"),
                 {"id": uuid4(), "w": work_id, "t": tenant_id, "s": site_id, "n": n,
                  "o": "SUCCEEDED" if succeeded else "FAILED", "code": None if succeeded else (error_code or "FAILED"),
                  "detail": error_detail, "ids": json.dumps([str(x) for x in consequence_revision_ids]),
-                 "actor": actor_id})
+                 "actor": actor_id, "noop": no_op_reason if succeeded else None})
             return n
         return self._run(work)
 
@@ -297,7 +364,11 @@ class PostgresConsequenceStore:
     def chain(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, finding_revision_id: UUID, *,
               consequence_revision_id: UUID | None, after_revision_no: int, limit: int) -> dict[str, Any]:
         """One snapshot of a FindingRevision's consequence chain: its head, an optional exact revision, a
-        keyset page, the lineage links of every returned revision and the pending work that touches it."""
+        keyset page, the lineage links of every returned revision and the pending work that touches it.
+
+        Pending work touches the read when it names this Finding (a FindingRevision append, or S4-02c accepted
+        evidence: matched by Finding, its queued revision is only a locator kept for diagnostics) or when an
+        assumption publication's affected range overlaps the FindingRevision's window."""
         scope = {"t": tenant_id, "s": site_id, "f": finding_id, "r": finding_revision_id,
                  "k": fc.CONSEQUENCE_TYPE}
 
@@ -327,13 +398,15 @@ class PostgresConsequenceStore:
             window = c.execute(text("SELECT episode_start, episode_end FROM finding_revision WHERE tenant_id = :t "
                                     "AND site_id = :s AND id = :r"), scope).first()
             pending = [] if window is None else [dict(x._mapping) for x in c.execute(text(
-                "SELECT w.id, w.cause, w.assumption_revision_id, w.finding_revision_id, w.affected_from, "
+                "SELECT w.id, w.cause, w.assumption_revision_id, w.finding_revision_id, w.accepted_evidence_id, "
+                "w.affected_from, "
                 "w.affected_to, w.enqueued_at, (SELECT count(*) FROM financial_consequence_work_attempt a "
                 "WHERE a.work_id = w.id) AS attempts, (SELECT a.error_code FROM financial_consequence_work_attempt a "
                 "WHERE a.work_id = w.id ORDER BY a.attempt_no DESC LIMIT 1) AS last_error_code "
                 "FROM financial_consequence_work w WHERE w.tenant_id = :t AND w.site_id = :s "
                 "AND NOT EXISTS (SELECT 1 FROM financial_consequence_work_attempt a WHERE a.work_id = w.id "
-                "AND a.outcome = 'SUCCEEDED') AND ((w.cause = 'FINDING_REVISION_APPENDED' AND w.finding_id = :f) "
+                "AND a.outcome = 'SUCCEEDED') AND ((w.cause IN ('FINDING_REVISION_APPENDED', 'EVIDENCE_ACCEPTED') "
+                "AND w.finding_id = :f) "
                 "OR (w.cause = 'ASSUMPTION_PUBLISHED' AND (w.affected_to IS NULL OR w.affected_to > :lo) "
                 "AND w.affected_from < :hi)) ORDER BY w.enqueued_at, w.id"),
                 {**scope, "lo": window[0], "hi": window[1]})]

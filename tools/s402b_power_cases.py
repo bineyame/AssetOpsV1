@@ -11,7 +11,8 @@ never touched, so S4-01/S4-03 evidence stays valid.
 
 The resulting database is the template for the S4-02b phase 2b owner walkthrough: copy it, publish the SYSTEM
 price fixture steps (`python -m assetops_backend.publish_assumption fixture ... --step v1 --step v2 --step v3`),
-then `python -m assetops_backend.recompute_consequences run --site KOBO-001`; publish `--step v4` and run the
+then `python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001` (S4-02c: bounded
+by `--limit`, repeat until the summary line's backlog is 0); publish `--step v4` and run the
 recompute again for the old/new consequence revisions. Its migration 0011 triggers enqueue a recompute for
 every FindingRevision, so P01-power gives a positive amount and F01-gateway stays `POWER_COVERAGE_GAP`.
 
