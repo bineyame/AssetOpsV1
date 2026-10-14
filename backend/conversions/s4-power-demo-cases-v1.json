@@ -1,0 +1,32 @@
+{
+  "schema": {"id": "assetops.s4-power-demo-cases", "version": 1},
+  "label": "s4-power-demo-cases-v1",
+  "status": "AUTHORED S4-02b DEMONSTRATION CASE. Owner ruling .agent/owner-S4-02b-money-demo-2026-10-14.md: one clearly labelled authored case with back-to-back 5-minute generator power means, so the S4-02b owner checkpoint can show a positive fuel-cost-1 amount beside the F01-gateway POWER_COVERAGE_GAP Finding.",
+  "statement": "Authored public Batch V2 content posted by the registered gateway credential, the same evidentiary class and delivery path as s4-finding-cases-v1 (which this spec does not modify; S4-01/S4-03 evidence stays valid). Its readings are generator-controller ac-power INTERVAL_MEAN envelopes (back-to-back 5-minute means) plus the ordinary Candidate context rows (three feeders, PV, battery discharge, SoC). No Lab private truth and no price; prices come from the SYSTEM fixture backend/conversions/demo-diesel-price-publications.json.",
+  "base_spec": "s4-finding-cases-v1",
+  "site_code": "KOBO-001",
+  "power_rules": {"device": "generator-controller", "signal": "ac-power", "measurement": "INTERVAL_MEAN",
+                  "mean_minutes": 5, "quality": "GOOD"},
+  "cases": [
+    {"case_id": "P01-power", "label": "authored power-mean demonstration (S4-02b)", "day": "2026-10-23",
+     "steps": [
+       {"do": "deliver_power", "decided": "2026-10-30T10:00:00Z", "epoch": "power-epoch-1",
+        "label": "a 0 kW mean ending 06:00 (generator off), then back-to-back 20 kW means ending 06:05..08:00; no stop mean after (open dispatch interval, quantified from stored Candidate endpoints)",
+        "means": [{"first_end": "2026-10-23T06:00:00Z", "last_end": "2026-10-23T06:00:00Z", "kw": "0"},
+                  {"first_end": "2026-10-23T06:05:00Z", "last_end": "2026-10-23T08:00:00Z", "kw": "20"}],
+        "context": {"from": "2026-10-23T06:00:00Z", "to": "2026-10-23T08:00:00Z", "pv": "40", "dis": "20",
+                    "soc": "80", "only": ["load", "pv", "dis", "soc"]}},
+       {"do": "assess"},
+       {"do": "match", "expect": [{"anchor": "2026-10-23T06:05:00Z", "new": true, "transition": "OPENED",
+                                   "lifecycle": "SUPPORTED",
+                                   "episode": ["2026-10-23T06:05:00Z", "2026-10-23T08:00:00Z"]}]}]}
+  ],
+  "expected_consequence": {
+    "model": "fuel-cost-1",
+    "note": "23 counted 20 kW means of 5 minutes inside Candidate [06:05, 08:00): 115/60 h x 20 kW = 38.333.. kWh x 0.3 L/kWh x 1.10 = 12.65 L. Priced over the whole window by the SYSTEM price fixture.",
+    "counted_intervals": 23,
+    "quantity_high_l": "12.65",
+    "amount_high": {"v1-v3": {"price": "1.25", "currency": "USD", "amount": "15.8125", "display": "15.82"},
+                    "v4": {"price": "1.28", "currency": "USD", "amount": "16.192", "display": "16.20"}}
+  }
+}

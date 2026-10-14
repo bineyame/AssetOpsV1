@@ -633,14 +633,22 @@ function Invoke-ConfigurationPersistenceCheck {
     $assumptionWriter = "$backendRoot/financials/adapters/postgres_assumption_store.py"
     $assumptionTables = @('financial_assumption_revision', 'financial_assumption_assignment')
     $assumptionUpdate = '(?i)\bUPDATE\s+financial_assumption_assignment\s+SET\s+recorded_to\s*=\s*:[a-z_]+\s+WHERE\b'
-    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter)
+    # S4-02b adds the seventh writer, the financial consequence store: INSERT-only into the consequence revision,
+    # its three link tables and work attempts. Dirty work rows are inserted only by migration 0011 triggers, so
+    # no module may write financial_consequence_work at all.
+    $consequenceWriter = "$backendRoot/financials/adapters/postgres_consequence_store.py"
+    $consequenceTables = @('financial_consequence_revision', 'financial_consequence_assessment_revision',
+        'financial_consequence_assumption_revision', 'financial_consequence_power_interval',
+        'financial_consequence_work_attempt')
+    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
+        $consequenceWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
-        $assumptionWriter = 0 }
+        $assumptionWriter = 0; $consequenceWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
-        $findingWriter = $false; $assumptionWriter = $false }
+        $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
@@ -691,6 +699,19 @@ function Invoke-ConfigurationPersistenceCheck {
                         $line -match $assumptionUpdate)) {
                     $failures.Add(("The assumption store only inserts into $($assumptionTables -join ', ') and only " +
                         "sets an assignment's recorded_to; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $consequenceWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $consequenceTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The consequence store only inserts into $($consequenceTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $consequenceWriter -and $null -ne $target -and $consequenceTables -contains $target) {
+                    $failures.Add(("Only $consequenceWriter writes consequence table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($target -eq 'financial_consequence_work') {
+                    $failures.Add(("Dirty consequence work is inserted only by the migration 0011 triggers; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($module.Path -ne $assumptionWriter -and $null -ne $target -and $assumptionTables -contains $target) {
                     $failures.Add(("Only $assumptionWriter writes assumption table '$target'; " +

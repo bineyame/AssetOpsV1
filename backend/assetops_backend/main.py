@@ -44,7 +44,12 @@ from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_B
 from assetops_backend.finding_api import build_finding_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
-from assetops_backend.financials.composition import AssumptionStoreUnavailable, build_assumption_read_service
+from assetops_backend.financials.composition import (
+    CONSEQUENCE_UNAVAILABLE,
+    AssumptionStoreUnavailable,
+    build_assumption_read_service,
+    build_consequence_read_service,
+)
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -344,7 +349,10 @@ def create_app(
         "ASSETOPS_DEMO_FIXTURE_MANIFEST")
     app.include_router(build_finding_router(
         build_finding_read_service(database_url(), finding_manifest) if database_url() else None,
-        registry.ledger_scope, finding_store_unavailable(), gate=performance_gate))
+        registry.ledger_scope, finding_store_unavailable(), gate=performance_gate,
+        # S4-02b phase 2a: the stored fuel-cost consequence read and the Financials bridge summary.
+        consequences=build_consequence_read_service(database_url()) if database_url() else None,
+        consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
     # S4-02a phase 2: Site price reads (Finding-read scope semantics; typed 503 without a database).

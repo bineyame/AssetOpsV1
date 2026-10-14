@@ -442,6 +442,8 @@ export function SiteFinancialsFrame({
           finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
           evidence: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "evidence", rev),
           assumptions: (pin) => siteFinancialAssumptionsHref(site.site_id, pin),
+          consequence: (findingId, revisionId, consequenceRevisionId) =>
+            siteFinancialsHref(site.site_id, { findingId, revisionId, consequenceRevisionId }),
           findings: siteFindingsHref(site.site_id),
         };
         return (

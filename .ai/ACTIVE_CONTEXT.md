@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**S4-02a ([Site price publication and exact assumption history](../tasks/S4-02a-site-assumptions.md)) is `done`**: fresh Claude reviews ACCEPT, owner accepted conditionally 2026-10-14 (`.agent/owner-S4-02a-acceptance-2026-10-14.md`), merged to main by the coordinator. Next: registry closeout for `I-S4-02a`, then rerun guards + next-work; the next slice is chosen from that report (owner contest if ≤5%). S4-02b (fuel consequence, S4-02 owner checkpoint) is implementation ready. Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02a carries (2026-10-14)". The S2-S4 paragraphs below are earlier routing.
+**S4-02b ([bounded fuel consequence and repricing](../tasks/S4-02b-fuel-consequence.md)) is `done`**: fresh Claude reviews ACCEPT, owner S4-02 checkpoint passed 2026-10-14 (`.agent/owner-S4-02b-acceptance-2026-10-14.md`), merged to main by the coordinator. Next: S4-02 registry closeout (`I-S4-02b`, `I-S4-02`, money nodes, `financials:1#a/2#a`, `assumptions:1#a`; `assumptions:3#a` waits on Architect Q12), Architect batch, then rerun guards + next-work (owner contest if <=5%). Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02b carries (2026-10-14)". The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
@@ -27,6 +27,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (S4-02b phase 2b and whole slice): read the task, `.agent/S4-02b-review-packet.md`, `.agent/S4-02b-phase-2b-handoff.md` and `.agent/S4-02b-phase-2a-review.md` carries, then `git diff 3793e4d..HEAD`. Use private DBs via `tools/s402b_fuel_cost_walkthrough.py --work-name <new> prepare` and `tools/s402b-fuel-cost-evidence.mjs`; the owner keeps 8872/8873/5372/5373 and `assetops_s402bwalk`/`assetops_s402bempty`.
 
 Reviewer (S4-02a phase 2 and closeout): read the task, `.agent/S4-02a-review-packet.md` and `.agent/S4-02a-phase-2-handoff.md`, then `git diff 5159b96..HEAD`. Walk it with `tools/s402a_assumptions_walkthrough.py --db assetops_s402a_<x> --empty-db assetops_s402a_<y> --work-name <new> prepare|links|serve|drop` and `node tools/s402a-assumptions-evidence.mjs <base> <empty-base> <finding-id> <out>`; the owner keeps 8870/8871/5370/5371.
 

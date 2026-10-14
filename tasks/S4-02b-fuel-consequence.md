@@ -1,6 +1,6 @@
 # S4-02b — bounded fuel consequence and repricing
 
-Status: implementation-ready after S4-02a independent review; second M slice of S4-02. Architect Q1/C4 answered 2026-10-13 (`.agent/architect-S4-02-answers.md`: conditional 1.10 multiplier ratified; fail-closed containment), applied in item 2
+Status: done (owner S4-02 checkpoint passed 2026-10-14, recorded conditional; reviews ACCEPT; merged to main by coordinator)
 USER_REVIEW_REQUIRED: true (S4-02 owner checkpoint after fresh review)
 Milestone: S4 Finding + Financials
 Depends on: reviewed/merged S4-02a, merged S4-01/S4-03, resolved `A-S4-financial`; S4-04 is not a technical gate
@@ -41,3 +41,11 @@ Each phase is below ~120k Claude Implementer context and goes to a fresh Reviewe
 Reviewer runs focused Postgres/API/model/frontend suites, typecheck/build, `tools/check-all.ps1` and `tools/layout-evidence.mjs` where supported. Check half-open boundaries, valid/recorded cutoff, actor refusal, concurrent/idempotent publication and recompute, unknown/foreign scope, broken lineage, Decimal outward rounding, zero-lower wording, no duplicate overlap and no unreviewed bound. Extend a repeatable owner walkthrough using ordinary accepted S4 Finding data and explicit SYSTEM price fixture; the fail-closed containment rule may leave many real Findings `QUANTITY_UNAVAILABLE`, so report how many ordinary Findings qualify and show at least one positive amount from ordinary accepted data, or state plainly that none qualified and why; owner sees bounded, unpriced, quantity-unavailable, pending/historical and old/new price views at 1440/390. After fresh review, the coordinator records the owner checkpoint. Only then close `I-S4-02`, four supported W1 core portions and ledger claims with exact evidence; no claim for non-core or S5 `mini:4#a`.
 
 Out of scope: tenant-wide policy, real human editor/authentication, maintenance without a rate and matching quantity, true expenditure/savings, arbitrary price partitioning, FX, scenarios, cross-Site/portfolio sums, cold-chain/EV quantity models, full G-05 backfill and private simulator truth.
+
+## Review Outcome (recorded by coordinator, 2026-10-14)
+
+- Reviews read (all four): `.agent/S4-02b-phase-1-review.md` ACCEPT with carries (M1 basis digest on raw assignment IDs, M2 Q9 wording, L1-L7: all landed in phase 2a); `.agent/S4-02b-phase-2a-review.md` ACCEPT with carries (M1 closed source gate presented as current, M2 HISTORICAL untested, L1-L4: landed first in phase 2b); `.agent/S4-02b-review.md` ACCEPT with carries, H1 (stored amount shown under AUDIT_ONLY/STALE headlines) fixed in Sonnet fix round 1 `6abb3f5c`/`68823f30`; `.agent/S4-02b-fix-rereview.md` ACCEPT (`29ae2abb`, info I1-I5). Browser evidence 90/90 at 1440/390 on visible text.
+- Owner rulings: `.agent/owner-S4-02b-money-demo-2026-10-14.md` (authored power-mean demo case; backlog item on analysis input data for simulated and real Sites). Owner checkpoint: `.agent/owner-S4-02b-acceptance-2026-10-14.md`.
+- Architect batch (sent after merge): S4-02a L2 (SUCCESSION at the start of the open assignment refused); S4-02b 2a Q2 (evidence acceptance enqueues no consequence work), Q11 (demonstration label from spec Site+day vs stored authorship), Q12 (Site-level consequence list; decides `assumptions:3#a`). Planner/ops: 2a Q6 scheduled recompute runner.
+- Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02b carries (2026-10-14)".
+
