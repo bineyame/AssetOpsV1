@@ -330,8 +330,8 @@ REASONS = {
     # Review L4: STALE is worded from the read's pending work; nothing is claimed to be queued unless it is.
     "STALE": "The price or inputs changed since the fuel cost was calculated, and it has not been recalculated "
              "yet, so no current cost is shown.",
-    "STALE_QUEUED": "The price or inputs changed since the fuel cost was calculated; a recalculation is waiting "
-                    "to run, so no current cost is shown.",
+    "STALE_QUEUED": "The price or inputs changed since the fuel cost was calculated; a recalculation is queued, "
+                    "so no current cost is shown.",
     "AUDIT_ONLY": "The finding's source is not open for current use, so its fuel cost is shown for the record "
                   "only and no current cost is shown.",
     "HISTORICAL": "This is an earlier version of the finding; its fuel cost is kept for the record only.",

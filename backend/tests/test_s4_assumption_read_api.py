@@ -259,8 +259,8 @@ class TestConsequenceRouteCarries:
         idle = bridge_consequence(stale([]))
         queued = bridge_consequence(stale([{"work_id": "w1", "cause": "ASSUMPTION_PUBLISHED"}]))
         assert (idle["recalculation_queued"], queued["recalculation_queued"]) == (False, True)
-        assert "not been recalculated yet" in idle["reason"] and "waiting" not in idle["reason"]
-        assert "waiting to run" in queued["reason"]
+        assert "not been recalculated yet" in idle["reason"] and "queued" not in idle["reason"]
+        assert "is queued" in queued["reason"]
         for body in (idle, queued):
             assert "being recalculated" not in body["reason"] and body["amount"] is None
 
