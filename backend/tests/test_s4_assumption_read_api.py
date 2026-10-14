@@ -269,7 +269,7 @@ class TestDemonstrationLabel:
     """Owner ruling 2026-10-14: the authored P01-power case is labelled as demonstration data; others are not."""
 
     def test_only_the_declared_demonstration_day_at_its_site_is_labelled(self) -> None:
-        from assetops_backend.financials.demonstration import demonstration_case
+        from assetops_backend.demonstration_label import demonstration_case
 
         demo = demonstration_case("KOBO-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00")
         assert demo is not None and demo["case_id"] == "P01-power" and demo["label"] == "Demonstration data"

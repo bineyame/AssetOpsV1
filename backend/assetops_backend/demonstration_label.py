@@ -17,7 +17,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-SPEC_PATH = Path(__file__).resolve().parents[2] / "conversions" / "s4-power-demo-cases-v1.json"
+SPEC_PATH = Path(__file__).resolve().parents[1] / "conversions" / "s4-power-demo-cases-v1.json"
 
 LABEL = "Demonstration data"
 STATEMENT = ("This finding comes from demonstration readings written by the AssetOps team to show a complete "

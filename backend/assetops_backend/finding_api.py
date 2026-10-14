@@ -31,7 +31,7 @@ from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailab
 from assetops_backend.analytics.finding_read import FindingReadService
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable as FileAssessmentStoreUnavailable
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
-from assetops_backend.financials.demonstration import demonstration_case
+from assetops_backend.demonstration_label import demonstration_case
 
 Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 # (request, site_code) -> None to admit, else 401 or 403.
