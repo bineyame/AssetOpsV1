@@ -20,6 +20,8 @@ from uuid import uuid4
 
 import pytest
 
+import pg_harness
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
     not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)"
@@ -65,14 +67,11 @@ class Clock:
 def engine():
     url = make_url(URL)
     assert url.database and url.database.endswith("_test"), "Refusing a database not named *_test"
+    # A fresh, fully migrated database per module: cloned from this run's migrated
+    # template, or reset and migrated in place when routing is off (pg_harness).
+    pg_harness.fresh_database()
     eng = create_engine(URL)
-    with eng.begin() as connection:
-        connection.execute(text("DROP SCHEMA public CASCADE"))
-        connection.execute(text("CREATE SCHEMA public"))
-        connection.execute(text("DROP EXTENSION IF EXISTS btree_gist"))
-    config = Config(str(BACKEND / "alembic.ini"))
-    config.attributes["database_url"] = URL
-    command.upgrade(config, "head")
+    pg_harness.assert_at_head(eng)
     yield eng
     eng.dispose()
 
@@ -83,7 +82,9 @@ def store(engine):
         connection.execute(
             text("TRUNCATE foundation_revision, source, gateway, asset, site_import, site, tenant CASCADE")
         )
-    return PostgresFoundationStore(URL)
+    owned = PostgresFoundationStore(URL)
+    yield owned
+    pg_harness.dispose(owned)
 
 
 def imported(store, code="KOBO-001", when=NOW - timedelta(hours=2)):

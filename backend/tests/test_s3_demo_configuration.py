@@ -129,29 +129,27 @@ URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 @pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 class TestPostgres:
     def test_same_publication_through_postgres(self) -> None:
-        from sqlalchemy import create_engine, text
+        from sqlalchemy import create_engine
         from sqlalchemy.engine import make_url
 
         from test_s1_bindings_postgres import NOW, converted as pg_converted, engine as _engine  # noqa: F401
         from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
         assert make_url(URL).database.endswith("_test")
-        from alembic import command
-        from alembic.config import Config
+        import pg_harness
 
+        # Fresh migrated database (run-owned clone, or in-place reset when unrouted).
+        pg_harness.fresh_database()
         eng = create_engine(URL)
-        with eng.begin() as connection:
-            connection.execute(text("DROP SCHEMA public CASCADE"))
-            connection.execute(text("CREATE SCHEMA public"))
-            connection.execute(text("DROP EXTENSION IF EXISTS btree_gist"))
-        config = Config(str(BACKEND / "alembic.ini"))
-        config.attributes["database_url"] = URL
-        command.upgrade(config, "head")
+        pg_harness.assert_at_head(eng)
         eng.dispose()
         store = PostgresFoundationStore(URL)
-        result, _ = pg_converted(store)
-        first = apply(store, result, NOW - timedelta(minutes=30))
-        assert first.properties_published and first.bindings_published
-        assert_configured(store, result, first)
-        again = apply(store, result, NOW - timedelta(minutes=20))
-        assert not again.properties_published and not again.bindings_published
+        try:
+            result, _ = pg_converted(store)
+            first = apply(store, result, NOW - timedelta(minutes=30))
+            assert first.properties_published and first.bindings_published
+            assert_configured(store, result, first)
+            again = apply(store, result, NOW - timedelta(minutes=20))
+            assert not again.properties_published and not again.bindings_published
+        finally:
+            pg_harness.dispose(store)

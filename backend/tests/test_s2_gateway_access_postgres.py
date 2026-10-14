@@ -13,6 +13,8 @@ from uuid import UUID
 
 import pytest
 
+import pg_harness
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 
 pytestmark = pytest.mark.skipif(
@@ -115,7 +117,9 @@ class Rig:
 
 @pytest.fixture()
 def rig(store, engine, tmp_path):
-    return Rig(store, engine, tmp_path)
+    owned = Rig(store, engine, tmp_path)
+    yield owned
+    pg_harness.dispose(owned.access)
 
 
 def bearer(token: str) -> dict[str, str]:

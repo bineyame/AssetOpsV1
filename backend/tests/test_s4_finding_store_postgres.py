@@ -18,6 +18,8 @@ from pathlib import Path
 
 import pytest
 
+import pg_harness
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -232,7 +234,9 @@ def check(runner: CaseRunner, outcome, expect: list[dict], case_id: str, collate
 
 @pytest.fixture()
 def runner(store, engine):
-    return CaseRunner(store, engine)
+    owned = CaseRunner(store, engine)
+    yield owned
+    pg_harness.dispose(owned.findings)
 
 
 def run_case(runner: CaseRunner, case: dict) -> None:

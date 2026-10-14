@@ -30,6 +30,10 @@ another identity - a process-unique sibling is used instead, because failing to
 find a temp directory should never be the reason a suite cannot run.
 
 An explicit `--basetemp` on the command line always wins.
+
+Its second job (OPS-01) is routing the real-Postgres tests to a run-owned
+database before any test module is imported; see `pg_harness.py` and
+`backend/TESTING.md`. `pytest_sessionfinish` drops what the run created.
 """
 
 from __future__ import annotations
@@ -39,6 +43,8 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
+import pg_harness
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE_BASE_TEMP = REPOSITORY_ROOT / ".pytest-basetemp"
@@ -71,6 +77,16 @@ def _default_basetemp() -> Path:
 
 
 def pytest_configure(config: pytest.Config) -> None:
+    # Before collection: module-level `URL` constants read the routed name.
+    pg_harness.route()
+    _choose_basetemp(config)
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    pg_harness.cleanup()
+
+
+def _choose_basetemp(config: pytest.Config) -> None:
     if config.option.basetemp is not None:
         return
 
