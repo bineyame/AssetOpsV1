@@ -134,6 +134,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # S4-02d: environment and Site schedule state. Database-only; rule 8 confines its PostgreSQL writer
+            # (the eighth). Only its composition imports the adapter; callers receive the ScheduleStore port.
+            Name        = "scheduling"
+            Package     = "$backendRoot/scheduling"
+            Composition = "$backendRoot/scheduling/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -641,15 +651,39 @@ function Invoke-ConfigurationPersistenceCheck {
     $consequenceTables = @('financial_consequence_revision', 'financial_consequence_assessment_revision',
         'financial_consequence_assumption_revision', 'financial_consequence_power_interval',
         'financial_consequence_work_attempt')
+    # S4-02d adds the eighth writer, the schedule store (D-2026-10-14-s402d-schedule-storage-and-install-gate):
+    # the sole runtime writer of the four migration-0013 schedule tables, and it writes no other table. It may
+    # INSERT into those tables and UPDATE only the named mutable schedule-state columns below (environment tick
+    # claim/lease, start/success/failure, heartbeat, retry due and last counts; Site claim/lease, stage,
+    # selected/processed/deferred counts, last failure, retry due and the completed matcher fence/skip state; the
+    # fair cursor position; explicit enrolment state). Each of its UPDATEs keeps table, SET list and WHERE on one
+    # line so every assigned column is checked; upserts (DO UPDATE), DELETE, TRUNCATE and DDL are refused. No other
+    # module writes a schedule table. Migration 0013 owns the DDL; no trigger is ratified.
+    $scheduleWriter = "$backendRoot/scheduling/adapters/postgres_schedule_store.py"
+    $scheduleTables = @('schedule_tick_head', 'schedule_site_head', 'schedule_cursor', 'schedule_enrolment')
+    $scheduleClaim = @('claim_token', 'claim_owner', 'claimed_at', 'lease_until')
+    $scheduleUpdates = @{
+        'schedule_tick_head' = $scheduleClaim + @('last_started_at', 'last_succeeded_at', 'last_failed_at',
+            'last_failure_code', 'last_failure_detail', 'heartbeat_at', 'retry_due_at', 'consecutive_failures',
+            'claim_skips', 'last_skipped_at', 'last_sites_selected', 'last_sites_processed', 'last_sites_deferred',
+            'last_excluded_with_work', 'last_reconcile_ms')
+        'schedule_site_head' = $scheduleClaim + @('stage', 'stage_started_at', 'selected_count', 'last_selected_at',
+            'last_completed_at', 's3_processed', 's3_deferred', 'consequence_processed', 'consequence_deferred',
+            's4_outcome', 's4_outcome_at', 'matched_fence', 'matched_version', 'matched_at', 'fence_moved_streak',
+            'last_failure_stage', 'last_failure_code', 'last_failure_detail', 'last_failed_at',
+            'consecutive_failures', 'retry_due_at', 'claim_skips', 'last_skipped_at')
+        'schedule_cursor' = @('after_tenant_id', 'after_site_id', 'updated_at')
+        'schedule_enrolment' = @('enrolled', 'changed_by', 'changed_at')
+    }
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
-        $consequenceWriter)
+        $consequenceWriter, $scheduleWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
-        $assumptionWriter = 0; $consequenceWriter = 0 }
+        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
-        $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false }
+        $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
@@ -710,6 +744,10 @@ function Invoke-ConfigurationPersistenceCheck {
                     $failures.Add(("Only $consequenceWriter writes consequence table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
+                if ($module.Path -ne $scheduleWriter -and $null -ne $target -and $scheduleTables -contains $target) {
+                    $failures.Add(("Only $scheduleWriter writes schedule table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($target -eq 'financial_consequence_work') {
                     $failures.Add(("Dirty consequence work is inserted only by the migration 0011/0012 triggers; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
@@ -733,6 +771,38 @@ function Invoke-ConfigurationPersistenceCheck {
                 if ($module.Path -eq $pgWriter -and $null -ne $target -and $ledgerTables -contains $target) {
                     $failures.Add(("The Foundation store must not write ledger table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+            }
+            if ($module.Path -eq $scheduleWriter) {
+                $where = "$($module.Path):${lineNumber}: $($line.Trim())"
+                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY)\b' -or $line -cmatch '\bDO\s+UPDATE\b') {
+                    $failures.Add("The schedule store never deletes, truncates, upserts or runs DDL; $where.") | Out-Null
+                }
+                if ($line -cmatch '\bINSERT\b' -and -not (
+                        $line -cmatch '\bINSERT INTO ([a-z_]+) \(' -and $scheduleTables -contains $Matches[1])) {
+                    $failures.Add(("The schedule store only inserts into $($scheduleTables -join ', '); $where.")) | Out-Null
+                }
+                if ($line -cmatch '\bUPDATE\b' -and -not ($line -cmatch '\bDO\s+UPDATE\b')) {
+                    if ($line -cmatch '\bUPDATE ([a-z_]+) SET (.+?) WHERE\b') {
+                        $updTable = $Matches[1]
+                        $setList = $Matches[2]
+                        if (-not $scheduleUpdates.ContainsKey($updTable)) {
+                            $failures.Add("The schedule store updates only $($scheduleTables -join ', '); $where.") | Out-Null
+                        } elseif ($setList -match '[{}]') {
+                            $failures.Add("A schedule UPDATE names its SET columns literally; $where.") | Out-Null
+                        } else {
+                            foreach ($assign in [regex]::Matches($setList, '\b([a-z_][a-z0-9_]*)\s*=(?!>)')) {
+                                $column = $assign.Groups[1].Value
+                                if ($scheduleUpdates[$updTable] -notcontains $column) {
+                                    $failures.Add(("The schedule store may not update $updTable.$column (not a " +
+                                        "named schedule-state column); $where.")) | Out-Null
+                                }
+                            }
+                        }
+                    } else {
+                        $failures.Add(("Every schedule UPDATE keeps its table, SET list and WHERE on one line so " +
+                            "the guard can check each column; $where.")) | Out-Null
+                    }
                 }
             }
             if ($line -match $dbDriver) {

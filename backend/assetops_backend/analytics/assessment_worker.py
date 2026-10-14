@@ -121,8 +121,10 @@ class DispatchAssessmentWorker:
         return self.store.record_runs([out], self.clock())[0]
 
     # -- jobs -------------------------------------------------------------------
-    def run_once(self) -> JobOutcome | None:
-        lease = self.store.lease_job(DOMAIN, self.clock(), self.lease, max_attempts=self.max_attempts)
+    def run_once(self, tenant_id: UUID | None = None, site_id: UUID | None = None) -> JobOutcome | None:
+        """Lease and process one due job: the global oldest, or with `tenant_id`/`site_id` that Site's oldest."""
+        scope = {} if site_id is None else {"tenant_id": tenant_id, "site_id": site_id}
+        lease = self.store.lease_job(DOMAIN, self.clock(), self.lease, max_attempts=self.max_attempts, **scope)
         if lease is None:
             return None
         try:
@@ -149,6 +151,20 @@ class DispatchAssessmentWorker:
         outcomes = []
         for _ in range(limit):
             outcome = self.run_once()
+            if outcome is None:
+                break
+            outcomes.append(outcome)
+        return outcomes
+
+    def run_site(self, tenant_id: UUID, site_id: UUID, limit: int) -> list[JobOutcome]:
+        """One Site's bounded S3 stage (S4-02d): reconcile this Site (a never-assessed Site has no heads and
+        enqueues nothing), then process at most `limit` of its due jobs, leased only from this Site."""
+        if limit < 1:
+            raise ValueError("A Site stage processes at least one job.")
+        self.reconcile(tenant_id, site_id)
+        outcomes = []
+        for _ in range(limit):
+            outcome = self.run_once(tenant_id, site_id)
             if outcome is None:
                 break
             outcomes.append(outcome)

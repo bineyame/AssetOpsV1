@@ -251,6 +251,19 @@ class PostgresConsequenceStore:
                 "AND a.outcome = 'SUCCEEDED') ORDER BY w.enqueued_at, w.id"), {"t": tenant_id, "s": site_id})]
         return self._run(work, "REPEATABLE READ")
 
+    def pending_work_sites(self) -> list[dict[str, Any]]:
+        """Every tenant/Site with dirty work and no SUCCEEDED attempt (the `pending_work` predicate), with its
+        pending count, total attempts and oldest enqueue instant (S4-02d Site inventory: a Site with pending
+        consequence work stays selected)."""
+        def work(c: Connection):
+            return [dict(r._mapping) for r in c.execute(text(
+                "SELECT w.tenant_id, w.site_id, count(*) AS pending, min(w.enqueued_at) AS oldest_enqueued_at, "
+                "coalesce(sum((SELECT count(*) FROM financial_consequence_work_attempt a WHERE a.work_id = w.id)), "
+                "0) AS attempts FROM financial_consequence_work w WHERE NOT EXISTS (SELECT 1 FROM "
+                "financial_consequence_work_attempt a WHERE a.work_id = w.id AND a.outcome = 'SUCCEEDED') "
+                "GROUP BY w.tenant_id, w.site_id ORDER BY w.tenant_id, w.site_id"))]
+        return self._run(work, "REPEATABLE READ")
+
     def evidence_target(self, tenant_id: UUID, site_id: UUID, accepted_evidence_id: UUID, finding_id: UUID,
                         finding_revision_id: UUID) -> dict[str, Any]:
         """One snapshot of what an `EVIDENCE_ACCEPTED` work row names, read only inside this tenant/Site: the
