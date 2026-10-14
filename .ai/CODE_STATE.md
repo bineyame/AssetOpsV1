@@ -5424,3 +5424,14 @@ Branch `task/S4-02c-evidence-consequence-work`, `5af9f214`..HEAD. Handoff `.agen
 - Guard rule 8 comment and message name 0011/0012 triggers; logic unchanged.
 - Tests: `backend/tests/test_s4_evidence_consequence_work_postgres.py` (12), `backend/tests/test_s4_consequence_cause_dispatch.py` (2).
 - Open (phase 2): scoped drain of `EVIDENCE_ACCEPTED` (recheck, typed no-op, N1 predicate), runner/Site claim/retry schedule; phase 3 walkthrough. Until phase 2, the CLI `run` records `CAUSE_NOT_SUPPORTED` attempts for evidence work and exits 1.
+
+## S4-02c phase 2 - scoped drain and run plan (built, review pending)
+
+Branch `task/S4-02c-evidence-consequence-work`, `0a79be14`..HEAD. Handoff `.agent/S4-02c-phase-2-handoff.md`; no questions file.
+
+- `recompute.py`: `EVIDENCE_ACCEPTED` dispatched via `PostgresConsequenceStore.evidence_target` (tenant/Site-scoped snapshot of accepted reading, queued revision, same tenant/Site/Finding max `revision_no`). Unreadable locator -> FAILED `EVIDENCE_LOCATOR_NOT_IN_SITE`; no ACCEPTED disposition -> FAILED `EVIDENCE_NOT_ACCEPTED`; other-Site work dict -> `WORK_SCOPE_MISMATCH` (unrecorded). `evidence_no_op` gives `FINDING_REVISION_SUPERSEDED` / `EVIDENCE_ROLE_NOT_RELEVANT` / `EVIDENCE_ASSET_NOT_RELEVANT` / `EVIDENCE_OUTSIDE_CANDIDATE_TIME` (strict overlap with merged positive-width claim spans), never quality; otherwise the same revision is derived from its own inputs.
+- No-ops: `record_attempt(..., no_op_reason=)` -> SUCCEEDED, `[]` IDs, typed reason.
+- Runner: `ConsequenceRecomputeWorker.run(tenant, site, limit, now=None)` with injectable `clock`; `claim_site` session lock `financial_consequence_runner:<site>` on a dedicated connection, unlocked in `finally`; due = never attempted or `now >= retry_due_at(last finished_at, last attempt_no)` (1/2/4/8/16 then 16 min, no cap); ordered by eligible-since instant (no starvation); `RunReport.counts()`. `run_pending` unchanged (unscheduled helper). `pending_work` returns last-attempt fields.
+- CLI `recompute_consequences run --tenant --site [--limit 100]`: tenant required, non-dev tenant exit 2, summary JSON line, skipped Site exit 0. Runbook in `backend/README-db.md`.
+- Tests: `test_s4_evidence_drain_postgres.py` (10), `test_s4_evidence_drain.py` (12); phase 1 file gains L3 no-op downgrade refusal and the L1-scoped race probe.
+- Open (phase 3): two-leg late-power walkthrough (N2 price, N5 precondition, C5 IDs). R1 (S3/S4 commands unscheduled) and I1 (concurrent overlapping chunks) remain named risks.

@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**S4-02c ([evidence-acceptance consequence work](../tasks/S4-02c-evidence-consequence-work.md)) is `active`** on `task/S4-02c-evidence-consequence-work` (from main `f9d6d1a5`; owner choice `.agent/owner-next-work-2026-10-14b.md`). Non-UI; USER_REVIEW_REQUIRED false under the packet's conditions (a)/(b). Plan re-review carries N1-N8 in `.agent/S4-02c-plan-fix-rereview.md`. **Phase 1 (migration 0012, locked enqueue triggers, `chain()` evidence match, `NO_WORK_RECORDED`, unknown-cause guard) is built and awaits a fresh Claude review**: handoff `.agent/S4-02c-phase-1-handoff.md`, built state `.ai/CODE_STATE.md` "S4-02c phase 1"; phases 2-3 follow review. S4-02 (a/b) is done and merged; A-S5-overview and A-action-lifecycle are resolved (`D-2026-10-14-s5-selected-window-overview`, `D-2026-10-14-action-lifecycle-and-policy-application`). The S2-S4 paragraphs below are earlier routing.
+**S4-02c ([evidence-acceptance consequence work](../tasks/S4-02c-evidence-consequence-work.md)) is `active`** on `task/S4-02c-evidence-consequence-work` (from main `f9d6d1a5`; owner choice `.agent/owner-next-work-2026-10-14b.md`). Non-UI; USER_REVIEW_REQUIRED false under the packet's conditions (a)/(b). Plan re-review carries N1-N8 in `.agent/S4-02c-plan-fix-rereview.md`. Phase 1 (migration 0012, locked enqueue triggers) is reviewed (`.agent/S4-02c-phase-1-review.md`, ACCEPT with carries). **Phase 2 (scoped `EVIDENCE_ACCEPTED` drain, typed no-ops, Site-claimed one-shot runner, attempt-derived retry) is built and awaits a fresh Claude review**: handoff `.agent/S4-02c-phase-2-handoff.md`, built state `.ai/CODE_STATE.md` "S4-02c phase 2"; phase 3 (walkthrough) follows review. S4-02 (a/b) is done and merged; A-S5-overview and A-action-lifecycle are resolved (`D-2026-10-14-s5-selected-window-overview`, `D-2026-10-14-action-lifecycle-and-policy-application`). The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
@@ -28,7 +28,7 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 
 ## Next read
 
-Reviewer (S4-02c phase 1): read the task's phase 1 row and contract items 1, 2, 5, `.agent/S4-02c-plan-fix-rereview.md` (N3/N4/N6/N8) and `.agent/S4-02c-phase-1-handoff.md`, then `git diff 5af9f214..HEAD`. Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB (`assetops_s402c_*_test`).
+Reviewer (S4-02c phase 2): read the task's phase 2 row and contract items 3-4, `.agent/S4-02c-plan-fix-rereview.md` (N1/N3/N4/N7), `.agent/S4-02c-phase-1-review.md` "Carries for phase 2" and `.agent/S4-02c-phase-2-handoff.md`, then `git diff 0a79be14..HEAD`. Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB (`assetops_s402c2_*_test`).
 
 Reviewer (S4-02b phase 2b and whole slice): read the task, `.agent/S4-02b-review-packet.md`, `.agent/S4-02b-phase-2b-handoff.md` and `.agent/S4-02b-phase-2a-review.md` carries, then `git diff 3793e4d..HEAD`. Use private DBs via `tools/s402b_fuel_cost_walkthrough.py --work-name <new> prepare` and `tools/s402b-fuel-cost-evidence.mjs`; the owner keeps 8872/8873/5372/5373 and `assetops_s402bwalk`/`assetops_s402bempty`.
 
