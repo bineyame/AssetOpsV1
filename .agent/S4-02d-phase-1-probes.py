@@ -52,6 +52,28 @@ GUARD = [
     ("adapter import outside composition", TICK, "import json\n",
      "import json\nfrom assetops_backend.scheduling.adapters.postgres_schedule_store import PostgresScheduleStore\n",
      "adapters"),
+    # Phase-1 review F1: lowercase / obfuscated forms the case-sensitive rules missed, plus the uppercase control.
+] + [
+    (name, STORE, "def db_now(self) -> datetime:", "def db_now(self) -> datetime:\n        _x = " + line, expect)
+    for name, line, expect in [
+        ("F1 lowercase other-table update", '"update site set lifecycle = :l where tenant_id = :t and id = :s"',
+         "The schedule store updates only"),
+        ("F1 lowercase other-table insert", '"insert into site_import (tenant_id, site_id) values (:t, :s)"',
+         "The schedule store only inserts into"),
+        ("F1 lowercase delete", '"delete from schedule_cursor where environment = :e"',
+         "never deletes, truncates, upserts or runs DDL"),
+        ("F1 lowercase unlisted column", '"update schedule_site_head set created_at = now() where tenant_id = :t"',
+         "may not update schedule_site_head.created_at"),
+        ("F1 tuple SET", '"UPDATE schedule_site_head SET (tenant_id, site_id) = (:t, :s) WHERE tenant_id = :t"',
+         "names its SET columns literally"),
+        ("F1 concatenated SET list", '"UPDATE schedule_site_head SET " + _COLS + " WHERE tenant_id = :t"',
+         "names its SET columns literally"),
+        ("F1 uppercase column", '"UPDATE schedule_site_head SET CREATED_AT = now() WHERE tenant_id = :t"',
+         "may not update schedule_site_head.CREATED_AT"),
+        ("F1 control uppercase", '"UPDATE schedule_site_head SET created_at = now() WHERE tenant_id = :t"',
+         "may not update schedule_site_head.created_at"),
+    ]
+] + [
     ("vacuous writer", STORE,
      "from sqlalchemy import create_engine, text\nfrom sqlalchemy.engine import Connection, Engine\n"
      "from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError\n", "",

@@ -774,26 +774,46 @@ function Invoke-ConfigurationPersistenceCheck {
                 }
             }
             if ($module.Path -eq $scheduleWriter) {
+                # Case-insensitive (phase-1 review F1): lowercase SQL is an ordinary way to write a statement, so
+                # every keyword rule here uses (?i); prose is excluded because each rule needs SQL shape.
                 $where = "$($module.Path):${lineNumber}: $($line.Trim())"
-                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY)\b' -or $line -cmatch '\bDO\s+UPDATE\b') {
+                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY)\b' -or
+                        $line -match '(?i)\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b') {
                     $failures.Add("The schedule store never deletes, truncates, upserts or runs DDL; $where.") | Out-Null
                 }
-                if ($line -cmatch '\bINSERT\b' -and -not (
-                        $line -cmatch '\bINSERT INTO ([a-z_]+) \(' -and $scheduleTables -contains $Matches[1])) {
+                if ($line -match '(?i)\binsert\s+into\b' -and -not (
+                        $line -match '(?i)\binsert\s+into\s+([a-z_]+)\s*\(' -and
+                        $scheduleTables -contains $Matches[1].ToLowerInvariant())) {
                     $failures.Add(("The schedule store only inserts into $($scheduleTables -join ', '); $where.")) | Out-Null
                 }
-                if ($line -cmatch '\bUPDATE\b' -and -not ($line -cmatch '\bDO\s+UPDATE\b')) {
-                    if ($line -cmatch '\bUPDATE ([a-z_]+) SET (.+?) WHERE\b') {
-                        $updTable = $Matches[1]
+                if ($line -match '(?i)\bupdate\s+\S+.*\bset\b') {
+                    if ($line -match '(?i)\bUPDATE\s+([a-z_]+)\s+SET\s+(.+?)\s+WHERE\b') {
+                        $updTable = $Matches[1].ToLowerInvariant()
                         $setList = $Matches[2]
                         if (-not $scheduleUpdates.ContainsKey($updTable)) {
                             $failures.Add("The schedule store updates only $($scheduleTables -join ', '); $where.") | Out-Null
-                        } elseif ($setList -match '[{}]') {
+                        } elseif ($setList -match '[{}"%`]' -or $setList -match '^\s*\(' -or
+                                ($setList.Split('(').Count -ne $setList.Split(')').Count)) {
+                            # Braces/format, double quotes (concatenation or quoted identifiers), %-formatting, a
+                            # tuple target or unbalanced parentheses (a nested WHERE cut the list short).
                             $failures.Add("A schedule UPDATE names its SET columns literally; $where.") | Out-Null
                         } else {
-                            foreach ($assign in [regex]::Matches($setList, '\b([a-z_][a-z0-9_]*)\s*=(?!>)')) {
-                                $column = $assign.Groups[1].Value
-                                if ($scheduleUpdates[$updTable] -notcontains $column) {
+                            # Split on top-level commas; each item must be `identifier = expression`.
+                            $items = New-Object System.Collections.Generic.List[string]
+                            $depth = 0; $current = ''
+                            foreach ($ch in $setList.ToCharArray()) {
+                                if ($ch -eq '(') { $depth++ } elseif ($ch -eq ')') { $depth-- }
+                                if ($ch -eq ',' -and $depth -eq 0) { $items.Add($current); $current = '' }
+                                else { $current += $ch }
+                            }
+                            $items.Add($current)
+                            foreach ($item in $items) {
+                                if ($item -notmatch '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=(?![=>])\s*\S') {
+                                    $failures.Add("A schedule UPDATE names its SET columns literally; $where.") | Out-Null
+                                    continue
+                                }
+                                $column = $Matches[1]
+                                if ($scheduleUpdates[$updTable] -cnotcontains $column) {
                                     $failures.Add(("The schedule store may not update $updTable.$column (not a " +
                                         "named schedule-state column); $where.")) | Out-Null
                                 }
