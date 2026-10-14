@@ -5470,3 +5470,13 @@ Branch `task/S4-02d-analytic-finding-worker-schedule`, `8cf2d147`..HEAD. Handoff
 - Tests: `test_s4_schedule_health_postgres.py` (10, incl. I3 skew and I4 two-chunk race), `test_s4_schedule_upstream_unit.py` (5), `test_s4_schedule_install_gate.py` (3). Tick cost: ~4-5 s per Site-visit tick on Windows (child start ~1 s x3), 4 Sites 12.6 s.
 - Checks: full backend pytest 2115 passed; `tools/check-all.ps1` 9/9; phase-2 probes 21/21, phase-1 guard probes 20/20.
 - Open: phase 3 walkthrough; I4 still needs the independent review's own race; one-off S3/S4 CLIs remain app clock and bypass the Site claim (runbook); health `STALE_NO_WORK` scan cost grows with Findings.
+
+## S4-02d phase 3 - tick-only late-power walkthrough and slice wrap-up (built, review pending)
+
+Branch `task/S4-02d-analytic-finding-worker-schedule`, `62581ecd`..HEAD. Handoff `.agent/S4-02d-phase-3-handoff.md`; slice packet `.agent/S4-02d-review-packet.md`.
+
+- Phase-2 review fixes: F-A health alarm `S3_STALE_NO_JOB` (selected UTC day `STALE_PROJECTION` with no live S3 job; Site `FAILED`) and `assess_dispatch requeue --day` (refused unless STALE with no live job); F-C service `TimeoutStartSec=900`; F-D install-gate dedupe; phase-1 probes usage.
+- I3 residual (open, evidence owner): scheduled S3 cutoff is DB time, `ingestion_disposition.decided_at` is the ingestion app clock; documented in `backend/README-db.md`; ingestion unchanged.
+- `tools/s402d_tick_walkthrough.py` (reuses `s402c_late_power_walkthrough.LateWalk`; DB `assetops_s402d3walk*`, environment `walkthrough`): five schedule ticks only, command-log grep for hand-run Leg B (mutation caught). Evidence `.agent/S4-02d-walkthrough-evidence.md`: 23/23; tick 3 rebuilt S3, appended r2 citing the late ID, r1's EVIDENCE_ACCEPTED attempt typed `FINDING_REVISION_SUPERSEDED` no-op, r2 CURRENT PRICED; seam CURRENT only after the tick; stopped worker blocks the seam.
+- I4: proved by the independent phase-2 review race (0 false CURRENT).
+- Open: F-B statement-level guard; evidence-owner `decided_at` packet; health scan cost; S5-01 seam carries; demo-host tick cost; no owner-visible install before F1.
