@@ -5457,3 +5457,15 @@ Branch `task/S4-02d-analytic-finding-worker-schedule`, `7851b4da`..HEAD. Handoff
 - S3: `lease_job` Site-scoped option, `run_site`, reads `live_jobs`/`job`. S4: `MatchOutcome.fence`. Consequence: `pending_work_sites()`. `assess_dispatch requeue --job-id` re-enqueues a live FAILED job's window.
 - Tests `backend/tests/test_s4_schedule_tick_postgres.py` (7).
 - Open (phase 2): health report and alarms, S5 seam, timer/runbook behind F1, I3 skew proof; I4 race proof at review. S3 cutoff and matcher `now` still app clock; one-off CLIs bypass the schedule Site claim.
+
+## S4-02d phase 2 - health, install gate and S5 currentness seam (built, review pending)
+
+Branch `task/S4-02d-analytic-finding-worker-schedule`, `8cf2d147`..HEAD. Handoff `.agent/S4-02d-phase-2-handoff.md`; probes `.agent/S4-02d-phase-2-probes.py`.
+
+- Phase-1 review fixes: F1 rule-8 schedule-writer rules case-insensitive with strict one-line SET-list parse (phase-1 guard probes 20/20 incl. seven bypass lines); F2 Site back-off test; F3 `CLAIM_LOST` stops a Site on a lost claim; `requeue` usage error.
+- `scheduling/health.py` read-only report (`run health`): environment and per-Site `STOPPED|FAILED|RETRY_DUE|BACKLOG|RUNNING|IDLE`, typed alarms (heartbeat/claim/skip/failure/fence-moved streaks, `S3_JOB_FAILED` with requeue, consequence attempt growth, `STALE_NO_WORK` IDs, S4 backlog outside the active set), all in DB time.
+- `scheduling/upstream.py` S5 seam (`UpstreamCurrentnessRead` port, `run upstream`): per-day S3 read status/limits/basis/watermark (selection seq), bracketed live jobs, `match_state`, latest Finding revisions with consequence reads, pending work, schedule state; eligibility CURRENT only with a healthy heartbeat AND Site head (Q1); before/after `match_state` comparison reports `SELECTION_MOVED_DURING_READ`.
+- I3: DB clock for discover reconcile, S3 worker, matcher `now` and drain; one-off `recompute_consequences run` defaults to DB time, `--now` override, `now_source` reported. `SKIPPED_UNCHANGED_FENCE` clears `fence_moved_streak`.
+- Gated install: `backend/deploy/schedule/assetops-schedule-tick@.service|.timer`, `tools/schedule-install-gate.py` (demo CLOSED until `I-late-reading-series-and-money-limit` resolved); `backend/README-db.md` runbook retires the per-Site consequence timer, covers `CONSEQUENCE_CLAIMED`, stop-the-tick before manual Leg B. Nothing installed.
+- Tests: `test_s4_schedule_health_postgres.py` (10, incl. I3 skew and I4 two-chunk race), `test_s4_schedule_upstream_unit.py` (5), `test_s4_schedule_install_gate.py` (3). Tick cost: ~4-5 s per Site-visit tick on Windows (child start ~1 s x3), 4 Sites 12.6 s.
+- Open: phase 3 walkthrough; I4 still needs the independent review's own race; one-off S3/S4 CLIs remain app clock and bypass the Site claim (runbook); health `STALE_NO_WORK` scan cost grows with Findings.
