@@ -26,6 +26,9 @@ class MatchOutcome:
     finding_ids: tuple[str, ...]
     revision_ids: tuple[str, ...]
     window_statuses: dict[str, str]
+    #: The matcher fence the successful pass applied under (S4-02d: the schedule records it, advanced by the
+    #: revisions this pass appended, as the Site's last completed fence).
+    fence: Any = None
 
 
 class FindingMatcher:
@@ -67,5 +70,5 @@ class FindingMatcher:
                 if attempt + 1 == self.attempts:
                     raise
                 continue
-            return MatchOutcome(len(writes), applied.finding_ids, applied.revision_ids, statuses)
+            return MatchOutcome(len(writes), applied.finding_ids, applied.revision_ids, statuses, fence)
         raise AssertionError("unreachable")

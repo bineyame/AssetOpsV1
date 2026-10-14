@@ -116,7 +116,7 @@ class TestMigration:
             tables = set(connection.execute(text(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
             )).scalars())
-        assert head == "0012_evidence_consequence_work"
+        assert head == "0013_schedule_state"
         assert {"signal_binding_set_revision", "signal_binding_revision"} <= tables
 
 

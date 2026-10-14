@@ -74,3 +74,15 @@ def finding_store_unavailable() -> tuple[type, ...]:
     from assetops_backend.analytics.adapters.postgres_finding_store import FindingStoreUnavailable
 
     return (FindingStoreUnavailable,)
+
+
+def build_postgres_assessment_store(database_url: str | None):
+    """The S3 assessment writer itself (job leasing, live-job and job reads) for the S4-02d schedule stages."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    return PostgresAssessmentStore(database_url)
+
+
+def finding_fence_moved_type() -> type:
+    """`FindingFenceMoved`, for a caller that classifies a failed match without importing the adapter."""
+    from assetops_backend.analytics.adapters.postgres_finding_store import FindingFenceMoved
+    return FindingFenceMoved

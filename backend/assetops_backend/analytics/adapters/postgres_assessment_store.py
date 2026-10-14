@@ -190,7 +190,16 @@ class PostgresAssessmentStore:
     # --- jobs -------------------------------------------------------------------
 
     def lease_job(self, domain: str, now: datetime, lease: timedelta, *,
-                  max_attempts: int = 3) -> JobLease | None:
+                  max_attempts: int = 3, tenant_id: UUID | None = None,
+                  site_id: UUID | None = None) -> JobLease | None:
+        """Lease the oldest due job of `domain`; with `tenant_id` and `site_id`, only that Site's jobs (S4-02d:
+        the schedule leases per Site, which the global FIFO cannot make fair). Both the expire-to-FAILED step and
+        the lease are scoped the same way."""
+        if (tenant_id is None) != (site_id is None):
+            raise ValueError("A Site-scoped lease names both the tenant and the Site.")
+        scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
+        scoped = {} if site_id is None else {"t": tenant_id, "s": site_id}
+
         def work(c: Connection) -> JobLease | None:
             # A lease that expired on its last allowed attempt (the worker crashed or always outlives
             # its lease) is FAILED with a reason instead of being re-leased forever (phase-2 F6).
@@ -198,14 +207,14 @@ class PostgresAssessmentStore:
                 "UPDATE recompute_job SET status = 'FAILED', lease_until = NULL, last_error = "
                 "'lease expired on attempt ' || attempts || ' of ' || CAST(:max AS integer) || "
                 "' without completing' WHERE domain = :d AND status = 'LEASED' AND lease_until < :now "
-                "AND attempts >= :max"), {"d": domain, "now": now, "max": max_attempts})
+                "AND attempts >= :max" + scope), {"d": domain, "now": now, "max": max_attempts, **scoped})
             row = c.execute(text(
                 "UPDATE recompute_job SET status = 'LEASED', lease_until = :until, attempts = attempts + 1 "
                 "WHERE id = (SELECT id FROM recompute_job WHERE domain = :d AND ((status = 'PENDING' AND "
-                "available_at <= :now) OR (status = 'LEASED' AND lease_until < :now)) "
-                "ORDER BY available_at, created_at LIMIT 1 FOR UPDATE SKIP LOCKED) "
+                "available_at <= :now) OR (status = 'LEASED' AND lease_until < :now))" + scope +
+                " ORDER BY available_at, created_at LIMIT 1 FOR UPDATE SKIP LOCKED) "
                 "RETURNING id, tenant_id, site_id, domain, window_start, window_end, attempts"),
-                {"d": domain, "now": now, "until": now + lease}).first()
+                {"d": domain, "now": now, "until": now + lease, **scoped}).first()
             if row is None:
                 return None
             return JobLease(row[0], row[1], row[2], row[3], Window(row[4], row[5]), row[6], now)
@@ -370,6 +379,26 @@ class PostgresAssessmentStore:
         return self._run(lambda c: [(r[0], r[1]) for r in c.execute(text(
             "SELECT DISTINCT tenant_id, site_id FROM analytic_run_selection WHERE analytic_id = :a "
             "ORDER BY tenant_id, site_id"), {"a": analytic_id}).all()])
+
+    def live_jobs(self, analytic_id: str, domain: str, tenant_id: UUID | None = None,
+                  site_id: UUID | None = None) -> list[dict[str, Any]]:
+        """Live jobs (unfinished, or FAILED and not yet superseded by a later DEFAULT selection over their window;
+        `_LIVE_JOBS`) of every Site, or of one Site, with status, window, attempts, lease and last error (S4-02d
+        Site inventory and backlog)."""
+        scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
+        return self._run(lambda c: [dict(r._mapping) for r in c.execute(text(
+            "SELECT id, tenant_id, site_id, status, window_start, window_end, attempts, available_at, lease_until, "
+            "last_error, created_at FROM recompute_job WHERE domain = :d AND " + _LIVE_JOBS + scope +
+            " ORDER BY tenant_id, site_id, available_at, created_at"),
+            {"a": analytic_id, "d": domain, "t": tenant_id, "s": site_id})])
+
+    def job(self, tenant_id: UUID, site_id: UUID, job_id: UUID, analytic_id: str) -> dict[str, Any] | None:
+        """One job of this tenant/Site (never another Site's), with whether it is still live (`_LIVE_JOBS`)."""
+        row = self._run(lambda c: c.execute(text(
+            "SELECT id, tenant_id, site_id, domain, status, window_start, window_end, attempts, available_at, "
+            "last_error, " + _LIVE_JOBS + " AS live FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
+            "AND id = :j"), {"a": analytic_id, "t": tenant_id, "s": site_id, "j": job_id}).first())
+        return None if row is None else dict(row._mapping)
 
     # --- phase-3 reads: selected window, pinned run, revision drill-down -----------
 

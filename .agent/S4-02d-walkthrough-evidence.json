@@ -1,0 +1,1699 @@
+{
+  "spec": "s4-power-late-demo-cases-v1",
+  "case_id": "P02-power-late",
+  "database": "assetops_s402d3walk",
+  "commands": [
+    "python -m assetops_backend.publish_assumption fixture --site KOBO-001 --file conversions\\demo-diesel-price-publications.json --step v1",
+    "python -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough",
+    "python -m assetops_backend.scheduling.run health --environment walkthrough",
+    "python -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100",
+    "python -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough",
+    "python -m assetops_backend.scheduling.run health --environment walkthrough",
+    "python -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100",
+    "python -m assetops_backend.scheduling.run health --environment walkthrough",
+    "python -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough",
+    "python -m assetops_backend.scheduling.run health --environment walkthrough",
+    "python -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100",
+    "python -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough",
+    "python -m assetops_backend.scheduling.run health --environment walkthrough",
+    "python -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100",
+    "python -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100",
+    "python -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough",
+    "python -m assetops_backend.scheduling.run health --environment walkthrough"
+  ],
+  "checks": [
+    {
+      "check": "tick 1 completed S3, matched S4 and drained the Site",
+      "ok": true,
+      "detail": {
+        "label": "1: first delivery",
+        "exit": 0,
+        "outcome": "COMPLETED",
+        "db_now": "2026-10-14 17:44:24.178147+00:00",
+        "reconcile_ms": 245,
+        "failure": null,
+        "site": {
+          "tenant_id": "2c5341dd-cba4-48b3-add3-d3751b88564f",
+          "site_id": "a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d",
+          "site_code": "KOBO-001",
+          "reason": "EVIDENCE",
+          "result": "COMPLETED",
+          "failure": null,
+          "stages": {
+            "s3": {
+              "code": "OK",
+              "processed": 1,
+              "deferred": 0,
+              "elapsed_ms": 1405
+            },
+            "s4": {
+              "code": "MATCHED",
+              "revision_ids": [
+                "7622d2e9-d1a3-4e67-af86-085014c3a9a7"
+              ],
+              "elapsed_ms": 1664
+            },
+            "consequence": {
+              "code": "OK",
+              "deferred": 0,
+              "selected": 2,
+              "failed": 0,
+              "backlog": 0,
+              "elapsed_ms": 1593
+            }
+          }
+        }
+      }
+    },
+    {
+      "check": "tick 1 created exactly one Finding",
+      "ok": true,
+      "detail": [
+        "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5"
+      ]
+    },
+    {
+      "check": "N5 precondition: [07:00, 07:05) lies inside r1's observed Candidate time",
+      "ok": true,
+      "detail": {
+        "candidate_spans": [
+          [
+            "2026-10-24T06:05:00+00:00",
+            "2026-10-24T08:00:00+00:00"
+          ]
+        ],
+        "reason": "POWER_COVERAGE_GAP"
+      }
+    },
+    {
+      "check": "pre-late: r1's consequence 1 is CURRENT after tick 1",
+      "ok": true,
+      "detail": {
+        "id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "17041d6b1f75af83f9654432a6714b24218aed182c6ca3f47b9977c76ab8be68",
+        "consequence_basis_sha256": "8b6c498215ea54255fbdcc658e73ef211ae6baa3165ee12017ebebc81f8ae167",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "4168fb05-b35e-46dc-93bd-77f236f236f8"
+        ]
+      }
+    },
+    {
+      "check": "after tick 1 the seam reads its true upstream state CURRENT (no live job, matched, drained)",
+      "ok": true,
+      "detail": {
+        "status": "CURRENT",
+        "stage": null,
+        "reasons": [],
+        "errors": []
+      }
+    },
+    {
+      "check": "idle tick 2: S4 skipped on an unchanged fence, no new pass row, heartbeat advanced",
+      "ok": true,
+      "detail": {
+        "s4": {
+          "code": "SKIPPED_UNCHANGED_FENCE",
+          "elapsed_ms": 999
+        },
+        "passes": 1
+      }
+    },
+    {
+      "check": "exactly one EVIDENCE_ACCEPTED work row, for the late ID and r1, not yet attempted",
+      "ok": true,
+      "detail": [
+        {
+          "work_id": "117df2d6-93c7-4b1e-b316-a03710ddc1aa",
+          "cause": "EVIDENCE_ACCEPTED",
+          "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+          "accepted_evidence_id": "4b39dd00-2da7-4e74-9e4b-c904fdf119ef",
+          "affected_from": "2026-10-24 07:00:00+00",
+          "affected_to": "2026-10-24 07:05:00+00",
+          "enqueued_at": "2026-10-14 17:44:43.689492+00",
+          "attempts": []
+        }
+      ]
+    },
+    {
+      "check": "pre-tick: STALE / TECHNICAL_INPUT_CHANGED with the late mean's work queued",
+      "ok": true,
+      "detail": {
+        "reasons": [
+          "TECHNICAL_INPUT_CHANGED"
+        ],
+        "pending": [
+          {
+            "work_id": "117df2d6-93c7-4b1e-b316-a03710ddc1aa",
+            "cause": "EVIDENCE_ACCEPTED",
+            "accepted_evidence_id": "4b39dd00-2da7-4e74-9e4b-c904fdf119ef",
+            "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7"
+          }
+        ]
+      }
+    },
+    {
+      "check": "pre-tick: the seam is not CURRENT while the late work is queued",
+      "ok": true,
+      "detail": {
+        "status": "STALE_PROJECTION",
+        "stage": "S3",
+        "reasons": [
+          "S3_STALE_PROJECTION",
+          "LIVE_JOB",
+          "CONSEQUENCE_STALE",
+          "WORK_OUTSTANDING"
+        ],
+        "errors": []
+      }
+    },
+    {
+      "check": "tick 3 appended a revised FindingRevision r2",
+      "ok": true,
+      "detail": [
+        [
+          "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+          1,
+          "SUPPORTED",
+          "OPENED"
+        ],
+        [
+          "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+          2,
+          "SUPPORTED",
+          "SUPPORT_CHANGED"
+        ]
+      ]
+    },
+    {
+      "check": "r2 cites the late ID (its analytic run includes it)",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "check": "r1's EVIDENCE_ACCEPTED attempt is the typed FINDING_REVISION_SUPERSEDED no-op",
+      "ok": true,
+      "detail": [
+        {
+          "attempt_id": "3e96c34d-566a-411e-87ca-dbd107a05906",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": "FINDING_REVISION_SUPERSEDED",
+          "error_code": null,
+          "consequence_revision_ids": []
+        }
+      ]
+    },
+    {
+      "check": "r2's FINDING_REVISION_APPENDED work SUCCEEDED in tick 3",
+      "ok": true,
+      "detail": [
+        {
+          "work_id": "82655ea6-4983-4020-a765-2b85e1e0a8ac",
+          "cause": "FINDING_REVISION_APPENDED",
+          "finding_revision_id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+          "accepted_evidence_id": null,
+          "affected_from": "2026-10-24 06:05:00+00",
+          "affected_to": "2026-10-24 08:00:00+00",
+          "enqueued_at": "2026-10-14 17:44:53.168365+00",
+          "attempts": [
+            {
+              "attempt_id": "a7a06c24-82fa-4776-a0ac-e641a52fbfef",
+              "attempt_no": 1,
+              "outcome": "SUCCEEDED",
+              "no_op_reason": null,
+              "error_code": null,
+              "consequence_revision_ids": [
+                "41623c49-ea73-444e-a410-58d87639c9fc"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check": "r2's consequence is CURRENT PRICED by price v1",
+      "ok": true,
+      "detail": {
+        "id": "41623c49-ea73-444e-a410-58d87639c9fc",
+        "revision_no": 1,
+        "state": "PRICED",
+        "quantity": "AVAILABLE",
+        "quantity_reason": null,
+        "quantity_high": "12.65",
+        "price_state": "PRICED",
+        "price_reason": null,
+        "price_revision_id": "79f9b407-e6aa-4f19-b35f-918aede7c217",
+        "amount_high": "15.8125",
+        "display_amount_high": "15.82",
+        "technical_input_sha256": "a0986381d837581baa269f398b9b6aa6ed203f1fdec9804defe98439c3c3227b",
+        "consequence_basis_sha256": "102722664141b77b2105685160799d04f42360a9719db701d29ef2637c42d7d4",
+        "counted_power_evidence": 23,
+        "counted_power_evidence_sha256": "3c0cfaf3369def30b553cbf8c5dcce845e4890b19718c1cd5cd7a70b82186f4d",
+        "analytic_run_ids": [
+          "6a77e15d-0a9b-44a6-a105-5e8955a81d56"
+        ]
+      }
+    },
+    {
+      "check": "r2 counts the late mean (late ID in run inputs and examined)",
+      "ok": true,
+      "detail": {
+        "quantity": "AVAILABLE",
+        "reason": null,
+        "examined_count": 23,
+        "examined_sha256": "3c0cfaf3369def30b553cbf8c5dcce845e4890b19718c1cd5cd7a70b82186f4d",
+        "late_examined": true,
+        "late_in_run_inputs": true,
+        "run_input_count": 175
+      }
+    },
+    {
+      "check": "r1 is HISTORICAL and keeps consequence 1 only (no same-revision Leg A append in this proof)",
+      "ok": true,
+      "detail": [
+        [
+          "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ]
+      ]
+    },
+    {
+      "check": "after tick 3 the seam is CURRENT only now that the work completed (no live job or work)",
+      "ok": true,
+      "detail": {
+        "status": "CURRENT",
+        "stage": null,
+        "reasons": [],
+        "errors": []
+      }
+    },
+    {
+      "check": "the seam's selected run is r2's run",
+      "ok": true,
+      "detail": {
+        "seam_run": "6a77e15d-0a9b-44a6-a105-5e8955a81d56",
+        "r2_runs": [
+          "6a77e15d-0a9b-44a6-a105-5e8955a81d56"
+        ]
+      }
+    },
+    {
+      "check": "replay tick 4 appends no pass, work or consequence revision",
+      "ok": true,
+      "detail": {
+        "before": [
+          [
+            [
+              "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+              1,
+              1,
+              "2026-10-14 17:44:28.039829+00"
+            ],
+            [
+              "bd1af84c-a15f-42b3-98ca-2ca05fa04067",
+              2,
+              1,
+              "2026-10-14 17:44:53.041268+00"
+            ]
+          ],
+          4,
+          2
+        ],
+        "after": [
+          [
+            [
+              "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+              1,
+              1,
+              "2026-10-14 17:44:28.039829+00"
+            ],
+            [
+              "bd1af84c-a15f-42b3-98ca-2ca05fa04067",
+              2,
+              1,
+              "2026-10-14 17:44:53.041268+00"
+            ]
+          ],
+          4,
+          2
+        ]
+      }
+    },
+    {
+      "check": "stopped worker: health STOPPED and the seam blocks CURRENT with empty queues",
+      "ok": true,
+      "detail": {
+        "thresholds": {
+          "stop_after_seconds": 1,
+          "site_stop_after_seconds": 1,
+          "claim_skip_alarm": 3,
+          "fence_moved_alarm": 3,
+          "failure_alarm": 3,
+          "consequence_attempt_alarm": 5
+        },
+        "health_state": "STOPPED",
+        "tick_alarms": [
+          "HEARTBEAT_STALE"
+        ],
+        "site_state": "STOPPED",
+        "site_alarms": [
+          "SITE_VISIT_STALE"
+        ],
+        "seam_eligibility": {
+          "status": "STALE_PROJECTION",
+          "stage": "SCHEDULE",
+          "reasons": [
+            "SCHEDULE_STOPPED",
+            "SITE_VISIT_STALE"
+          ],
+          "errors": []
+        },
+        "seam_s3_jobs": 0,
+        "seam_consequence_work": 0
+      }
+    },
+    {
+      "check": "a completed tick recovers the seam to CURRENT",
+      "ok": true,
+      "detail": {
+        "status": "CURRENT",
+        "stage": null,
+        "reasons": [],
+        "errors": []
+      }
+    },
+    {
+      "check": "no duplicate consequence basis",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "command log: no hand-run process-jobs / match-findings / recompute_consequences run (nor their Python entry points); every step was a schedule tick",
+      "ok": true,
+      "detail": {
+        "hits": [],
+        "ticks": 5
+      }
+    }
+  ],
+  "environment": "walkthrough",
+  "ticks": [
+    {
+      "label": "1: first delivery",
+      "exit": 0,
+      "outcome": "COMPLETED",
+      "db_now": "2026-10-14 17:44:24.178147+00:00",
+      "reconcile_ms": 245,
+      "failure": null,
+      "site": {
+        "tenant_id": "2c5341dd-cba4-48b3-add3-d3751b88564f",
+        "site_id": "a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d",
+        "site_code": "KOBO-001",
+        "reason": "EVIDENCE",
+        "result": "COMPLETED",
+        "failure": null,
+        "stages": {
+          "s3": {
+            "code": "OK",
+            "processed": 1,
+            "deferred": 0,
+            "elapsed_ms": 1405
+          },
+          "s4": {
+            "code": "MATCHED",
+            "revision_ids": [
+              "7622d2e9-d1a3-4e67-af86-085014c3a9a7"
+            ],
+            "elapsed_ms": 1664
+          },
+          "consequence": {
+            "code": "OK",
+            "deferred": 0,
+            "selected": 2,
+            "failed": 0,
+            "backlog": 0,
+            "elapsed_ms": 1593
+          }
+        }
+      }
+    },
+    {
+      "label": "2: idle",
+      "exit": 0,
+      "outcome": "COMPLETED",
+      "db_now": "2026-10-14 17:44:37.107264+00:00",
+      "reconcile_ms": 281,
+      "failure": null,
+      "site": {
+        "tenant_id": "2c5341dd-cba4-48b3-add3-d3751b88564f",
+        "site_id": "a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d",
+        "site_code": "KOBO-001",
+        "reason": "EVIDENCE",
+        "result": "COMPLETED",
+        "failure": null,
+        "stages": {
+          "s3": {
+            "code": "OK",
+            "processed": 0,
+            "deferred": 0,
+            "elapsed_ms": 1263
+          },
+          "s4": {
+            "code": "SKIPPED_UNCHANGED_FENCE",
+            "elapsed_ms": 999
+          },
+          "consequence": {
+            "code": "OK",
+            "deferred": 0,
+            "selected": 0,
+            "failed": 0,
+            "backlog": 0,
+            "elapsed_ms": 977
+          }
+        }
+      }
+    },
+    {
+      "label": "3: first post-release",
+      "exit": 0,
+      "outcome": "COMPLETED",
+      "db_now": "2026-10-14 17:44:49.124781+00:00",
+      "reconcile_ms": 297,
+      "failure": null,
+      "site": {
+        "tenant_id": "2c5341dd-cba4-48b3-add3-d3751b88564f",
+        "site_id": "a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d",
+        "site_code": "KOBO-001",
+        "reason": "EVIDENCE",
+        "result": "COMPLETED",
+        "failure": null,
+        "stages": {
+          "s3": {
+            "code": "OK",
+            "processed": 1,
+            "deferred": 0,
+            "elapsed_ms": 1386
+          },
+          "s4": {
+            "code": "MATCHED",
+            "revision_ids": [
+              "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47"
+            ],
+            "elapsed_ms": 1757
+          },
+          "consequence": {
+            "code": "OK",
+            "deferred": 0,
+            "selected": 2,
+            "failed": 0,
+            "backlog": 0,
+            "elapsed_ms": 1223
+          }
+        }
+      }
+    },
+    {
+      "label": "4: replay",
+      "exit": 0,
+      "outcome": "COMPLETED",
+      "db_now": "2026-10-14 17:45:03.294771+00:00",
+      "reconcile_ms": 386,
+      "failure": null,
+      "site": {
+        "tenant_id": "2c5341dd-cba4-48b3-add3-d3751b88564f",
+        "site_id": "a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d",
+        "site_code": "KOBO-001",
+        "reason": "EVIDENCE",
+        "result": "COMPLETED",
+        "failure": null,
+        "stages": {
+          "s3": {
+            "code": "OK",
+            "processed": 0,
+            "deferred": 0,
+            "elapsed_ms": 1196
+          },
+          "s4": {
+            "code": "SKIPPED_UNCHANGED_FENCE",
+            "elapsed_ms": 928
+          },
+          "consequence": {
+            "code": "OK",
+            "deferred": 0,
+            "selected": 0,
+            "failed": 0,
+            "backlog": 0,
+            "elapsed_ms": 945
+          }
+        }
+      }
+    },
+    {
+      "label": "5: recovery",
+      "exit": 0,
+      "outcome": "COMPLETED",
+      "db_now": "2026-10-14 17:45:14.946677+00:00",
+      "reconcile_ms": 409,
+      "failure": null,
+      "site": {
+        "tenant_id": "2c5341dd-cba4-48b3-add3-d3751b88564f",
+        "site_id": "a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d",
+        "site_code": "KOBO-001",
+        "reason": "EVIDENCE",
+        "result": "COMPLETED",
+        "failure": null,
+        "stages": {
+          "s3": {
+            "code": "OK",
+            "processed": 0,
+            "deferred": 0,
+            "elapsed_ms": 1466
+          },
+          "s4": {
+            "code": "SKIPPED_UNCHANGED_FENCE",
+            "elapsed_ms": 1122
+          },
+          "consequence": {
+            "code": "OK",
+            "deferred": 0,
+            "selected": 0,
+            "failed": 0,
+            "backlog": 0,
+            "elapsed_ms": 1285
+          }
+        }
+      }
+    }
+  ],
+  "price_v1": {
+    "site_code": "KOBO-001",
+    "step": "v1",
+    "revision_id": "79f9b407-e6aa-4f19-b35f-918aede7c217",
+    "revision_no": 1,
+    "change_kind": "INITIAL",
+    "recorded_at": "2026-10-14T17:44:17.912416+00:00",
+    "replayed": false,
+    "actor_id": "service:assetops-assumption-publisher"
+  },
+  "first_delivery": {
+    "batch_ids": [
+      "c1becf287bd57b93ab678c5623cdcdbac9bc9ed860747623ad42acb8a3590493",
+      "46ed2845b35be708cd789614a64d23545c74da60e16ee2e173f0ccca8c944110",
+      "77c4d989d81a15806c9bb254fc57077b7ff2240ed11d7ca9e77949289ee7b586",
+      "fd0724429bf72c2f47867ab32350e4adb5ede7b4aa0fb56d245436fb0757b696",
+      "db610e58b87ab545f09f972e4d799bbb1a6e3f3b41a98b9566cf421c8d5f2869",
+      "e6b037567d68568080024f4612dbec82d5c9c2f4e498d541f22f0f82c5360bc0"
+    ],
+    "evidence_count": 174,
+    "evidence_id_sha256": "55c725a71af7161e5cbcdc414d468e0369da2b0fc2f0e49e7cd1994596e1e03b",
+    "generator_power_ids": 24
+  },
+  "snapshots": [
+    {
+      "label": "after first delivery, before any tick",
+      "jobs": [
+        {
+          "id": "563c156d-bd35-478c-8a6a-be6ede6f5fa7",
+          "status": "PENDING",
+          "window_start": "2026-10-24 05:55:00+00",
+          "window_end": "2026-10-24 08:00:00.000001+00",
+          "attempts": 0,
+          "last_error": null
+        }
+      ],
+      "selections": [],
+      "match_passes": []
+    },
+    {
+      "label": "after tick 1",
+      "jobs": [
+        {
+          "id": "563c156d-bd35-478c-8a6a-be6ede6f5fa7",
+          "status": "DONE",
+          "window_start": "2026-10-24 05:55:00+00",
+          "window_end": "2026-10-24 08:00:00.000001+00",
+          "attempts": 1,
+          "last_error": null
+        }
+      ],
+      "selections": [
+        [
+          1,
+          "4168fb05-b35e-46dc-93bd-77f236f236f8",
+          "2026-10-24 00:00:00+00"
+        ]
+      ],
+      "match_passes": [
+        [
+          "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+          1,
+          1,
+          "2026-10-14 17:44:28.039829+00"
+        ]
+      ]
+    },
+    {
+      "label": "after late acceptance, before tick 3",
+      "jobs": [
+        {
+          "id": "563c156d-bd35-478c-8a6a-be6ede6f5fa7",
+          "status": "DONE",
+          "window_start": "2026-10-24 05:55:00+00",
+          "window_end": "2026-10-24 08:00:00.000001+00",
+          "attempts": 1,
+          "last_error": null
+        },
+        {
+          "id": "27b8d7ac-5a49-4fb0-959f-8d644a4fb701",
+          "status": "PENDING",
+          "window_start": "2026-10-24 07:00:00+00",
+          "window_end": "2026-10-24 07:05:00+00",
+          "attempts": 0,
+          "last_error": null
+        }
+      ],
+      "selections": [
+        [
+          1,
+          "4168fb05-b35e-46dc-93bd-77f236f236f8",
+          "2026-10-24 00:00:00+00"
+        ]
+      ],
+      "match_passes": [
+        [
+          "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+          1,
+          1,
+          "2026-10-14 17:44:28.039829+00"
+        ]
+      ]
+    },
+    {
+      "label": "after tick 3",
+      "jobs": [
+        {
+          "id": "563c156d-bd35-478c-8a6a-be6ede6f5fa7",
+          "status": "DONE",
+          "window_start": "2026-10-24 05:55:00+00",
+          "window_end": "2026-10-24 08:00:00.000001+00",
+          "attempts": 1,
+          "last_error": null
+        },
+        {
+          "id": "27b8d7ac-5a49-4fb0-959f-8d644a4fb701",
+          "status": "DONE",
+          "window_start": "2026-10-24 07:00:00+00",
+          "window_end": "2026-10-24 07:05:00+00",
+          "attempts": 1,
+          "last_error": null
+        }
+      ],
+      "selections": [
+        [
+          1,
+          "4168fb05-b35e-46dc-93bd-77f236f236f8",
+          "2026-10-24 00:00:00+00"
+        ],
+        [
+          2,
+          "6a77e15d-0a9b-44a6-a105-5e8955a81d56",
+          "2026-10-24 00:00:00+00"
+        ]
+      ],
+      "match_passes": [
+        [
+          "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+          1,
+          1,
+          "2026-10-14 17:44:28.039829+00"
+        ],
+        [
+          "bd1af84c-a15f-42b3-98ca-2ca05fa04067",
+          2,
+          1,
+          "2026-10-14 17:44:53.041268+00"
+        ]
+      ]
+    }
+  ],
+  "seam": [
+    {
+      "label": "before tick 1",
+      "db_now": "2026-10-14 17:44:22.028231+00:00",
+      "eligibility": {
+        "status": "PENDING",
+        "stage": "S3",
+        "reasons": [
+          "S3_PENDING",
+          "LIVE_JOB",
+          "WORK_OUTSTANDING",
+          "SCHEDULE_STOPPED",
+          "SITE_NOT_OBSERVED"
+        ],
+        "errors": []
+      },
+      "s3_status": "PENDING",
+      "s3_status_reasons": [
+        "RECOMPUTE_OUTSTANDING: job 563c156d-bd35-478c-8a6a-be6ede6f5fa7 PENDING"
+      ],
+      "limitations": [],
+      "watermark": {
+        "selection_seq": null,
+        "input_sha256": null,
+        "configuration_sha256": null
+      },
+      "run_id": null,
+      "s3_jobs": [
+        {
+          "id": "563c156d-bd35-478c-8a6a-be6ede6f5fa7",
+          "status": "PENDING",
+          "attempts": 0,
+          "last_error": null
+        }
+      ],
+      "match": [],
+      "findings": [],
+      "consequence_work": [
+        "52198ef2-ff7f-4b2a-ac78-fabd95daebeb"
+      ],
+      "schedule": {
+        "state": "STOPPED",
+        "heartbeat_at": null,
+        "heartbeat_age_seconds": null,
+        "site_last_completed_at": null
+      }
+    },
+    {
+      "label": "after tick 1",
+      "db_now": "2026-10-14 17:44:33.885541+00:00",
+      "eligibility": {
+        "status": "CURRENT",
+        "stage": null,
+        "reasons": [],
+        "errors": []
+      },
+      "s3_status": "CURRENT",
+      "s3_status_reasons": [],
+      "limitations": [
+        "INTERVAL_LIMITED: interval from 2026-10-24T06:05:00.000000Z: OPEN_BOUND: no OFF evidence after the interval in the read range"
+      ],
+      "watermark": {
+        "selection_seq": 1,
+        "input_sha256": "ce483befd6ea3055b962bb8e9d07bbce11987e53d5e76053aad268b41131cc9d",
+        "configuration_sha256": "608aab42534b9b7054019268bbc395062ccb42408e26f9bf486000207ba8fcdf"
+      },
+      "run_id": "4168fb05-b35e-46dc-93bd-77f236f236f8",
+      "s3_jobs": [],
+      "match": [
+        {
+          "day": "2026-10-24",
+          "window_selection_seq": 1,
+          "matcher_version": "finding-episode-2",
+          "match_pass_id": "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+          "matched_through_selection_seq": 1,
+          "match_completed_at": "2026-10-14 17:44:28.039829+00:00",
+          "matched": true
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+          "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+          "consequence_state": "CURRENT",
+          "consequence_reasons": [],
+          "head_consequence_revision_id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f"
+        }
+      ],
+      "consequence_work": [],
+      "schedule": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:44:30.199139+00:00",
+        "heartbeat_age_seconds": 3.686,
+        "site_last_completed_at": "2026-10-14 17:44:30.162895+00:00"
+      }
+    },
+    {
+      "label": "late, before tick 3",
+      "db_now": "2026-10-14 17:44:46.745979+00:00",
+      "eligibility": {
+        "status": "STALE_PROJECTION",
+        "stage": "S3",
+        "reasons": [
+          "S3_STALE_PROJECTION",
+          "LIVE_JOB",
+          "CONSEQUENCE_STALE",
+          "WORK_OUTSTANDING"
+        ],
+        "errors": []
+      },
+      "s3_status": "STALE_PROJECTION",
+      "s3_status_reasons": [
+        "RECOMPUTE_OUTSTANDING: job 27b8d7ac-5a49-4fb0-959f-8d644a4fb701 PENDING",
+        "INPUT_BASIS_CHANGED: the current accepted basis gives another input hash"
+      ],
+      "limitations": [
+        "INTERVAL_LIMITED: interval from 2026-10-24T06:05:00.000000Z: OPEN_BOUND: no OFF evidence after the interval in the read range"
+      ],
+      "watermark": {
+        "selection_seq": 1,
+        "input_sha256": "ce483befd6ea3055b962bb8e9d07bbce11987e53d5e76053aad268b41131cc9d",
+        "configuration_sha256": "608aab42534b9b7054019268bbc395062ccb42408e26f9bf486000207ba8fcdf"
+      },
+      "run_id": "4168fb05-b35e-46dc-93bd-77f236f236f8",
+      "s3_jobs": [
+        {
+          "id": "27b8d7ac-5a49-4fb0-959f-8d644a4fb701",
+          "status": "PENDING",
+          "attempts": 0,
+          "last_error": null
+        }
+      ],
+      "match": [
+        {
+          "day": "2026-10-24",
+          "window_selection_seq": 1,
+          "matcher_version": "finding-episode-2",
+          "match_pass_id": "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+          "matched_through_selection_seq": 1,
+          "match_completed_at": "2026-10-14 17:44:28.039829+00:00",
+          "matched": true
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+          "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+          "consequence_state": "STALE",
+          "consequence_reasons": [
+            "TECHNICAL_INPUT_CHANGED"
+          ],
+          "head_consequence_revision_id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f"
+        }
+      ],
+      "consequence_work": [
+        "117df2d6-93c7-4b1e-b316-a03710ddc1aa"
+      ],
+      "schedule": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:44:41.857946+00:00",
+        "heartbeat_age_seconds": 4.888,
+        "site_last_completed_at": "2026-10-14 17:44:41.833360+00:00"
+      }
+    },
+    {
+      "label": "after tick 3",
+      "db_now": "2026-10-14 17:45:00.283953+00:00",
+      "eligibility": {
+        "status": "CURRENT",
+        "stage": null,
+        "reasons": [],
+        "errors": []
+      },
+      "s3_status": "CURRENT",
+      "s3_status_reasons": [],
+      "limitations": [
+        "INTERVAL_LIMITED: interval from 2026-10-24T06:05:00.000000Z: OPEN_BOUND: no OFF evidence after the interval in the read range"
+      ],
+      "watermark": {
+        "selection_seq": 2,
+        "input_sha256": "f31b2ccb57b3a225a96a9da253d4500f2ac26414b74c975464441bad9820cedf",
+        "configuration_sha256": "608aab42534b9b7054019268bbc395062ccb42408e26f9bf486000207ba8fcdf"
+      },
+      "run_id": "6a77e15d-0a9b-44a6-a105-5e8955a81d56",
+      "s3_jobs": [],
+      "match": [
+        {
+          "day": "2026-10-24",
+          "window_selection_seq": 2,
+          "matcher_version": "finding-episode-2",
+          "match_pass_id": "bd1af84c-a15f-42b3-98ca-2ca05fa04067",
+          "matched_through_selection_seq": 2,
+          "match_completed_at": "2026-10-14 17:44:53.041268+00:00",
+          "matched": true
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+          "finding_revision_id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+          "consequence_state": "CURRENT",
+          "consequence_reasons": [],
+          "head_consequence_revision_id": "41623c49-ea73-444e-a410-58d87639c9fc"
+        }
+      ],
+      "consequence_work": [],
+      "schedule": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:44:54.795539+00:00",
+        "heartbeat_age_seconds": 5.488,
+        "site_last_completed_at": "2026-10-14 17:44:54.773120+00:00"
+      }
+    },
+    {
+      "label": "after recovery tick 5",
+      "db_now": "2026-10-14 17:45:22.569142+00:00",
+      "eligibility": {
+        "status": "CURRENT",
+        "stage": null,
+        "reasons": [],
+        "errors": []
+      },
+      "s3_status": "CURRENT",
+      "s3_status_reasons": [],
+      "limitations": [
+        "INTERVAL_LIMITED: interval from 2026-10-24T06:05:00.000000Z: OPEN_BOUND: no OFF evidence after the interval in the read range"
+      ],
+      "watermark": {
+        "selection_seq": 2,
+        "input_sha256": "f31b2ccb57b3a225a96a9da253d4500f2ac26414b74c975464441bad9820cedf",
+        "configuration_sha256": "608aab42534b9b7054019268bbc395062ccb42408e26f9bf486000207ba8fcdf"
+      },
+      "run_id": "6a77e15d-0a9b-44a6-a105-5e8955a81d56",
+      "s3_jobs": [],
+      "match": [
+        {
+          "day": "2026-10-24",
+          "window_selection_seq": 2,
+          "matcher_version": "finding-episode-2",
+          "match_pass_id": "bd1af84c-a15f-42b3-98ca-2ca05fa04067",
+          "matched_through_selection_seq": 2,
+          "match_completed_at": "2026-10-14 17:44:53.041268+00:00",
+          "matched": true
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+          "finding_revision_id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+          "consequence_state": "CURRENT",
+          "consequence_reasons": [],
+          "head_consequence_revision_id": "41623c49-ea73-444e-a410-58d87639c9fc"
+        }
+      ],
+      "consequence_work": [],
+      "schedule": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:45:20.576058+00:00",
+        "heartbeat_age_seconds": 1.993,
+        "site_last_completed_at": "2026-10-14 17:45:20.552384+00:00"
+      }
+    }
+  ],
+  "health": [
+    {
+      "label": "before tick 1",
+      "exit": 1,
+      "state": "STOPPED",
+      "db_now": "2026-10-14 17:44:23.044344+00:00",
+      "tick": {
+        "state": "STOPPED",
+        "heartbeat_at": null,
+        "heartbeat_age_seconds": null
+      },
+      "tick_alarms": [
+        "TICK_NEVER_COMPLETED"
+      ],
+      "site_state": "STOPPED",
+      "site_alarms": [
+        "SITE_NOT_OBSERVED"
+      ],
+      "backlog": {
+        "s3": 1,
+        "s4": true,
+        "consequence": 1,
+        "match_pass_id": null,
+        "selection_seq": 0
+      }
+    },
+    {
+      "label": "after tick 1",
+      "exit": 0,
+      "state": "IDLE",
+      "db_now": "2026-10-14 17:44:35.488112+00:00",
+      "tick": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:44:30.199139+00:00",
+        "heartbeat_age_seconds": 5.289
+      },
+      "tick_alarms": [],
+      "site_state": "IDLE",
+      "site_alarms": [],
+      "backlog": {
+        "s3": 0,
+        "s4": false,
+        "consequence": 0,
+        "match_pass_id": "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+        "selection_seq": 1
+      }
+    },
+    {
+      "label": "after idle tick 2",
+      "exit": 0,
+      "state": "IDLE",
+      "db_now": "2026-10-14 17:44:42.992391+00:00",
+      "tick": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:44:41.857946+00:00",
+        "heartbeat_age_seconds": 1.134
+      },
+      "tick_alarms": [],
+      "site_state": "IDLE",
+      "site_alarms": [],
+      "backlog": {
+        "s3": 0,
+        "s4": false,
+        "consequence": 0,
+        "match_pass_id": "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+        "selection_seq": 1
+      }
+    },
+    {
+      "label": "late, before tick 3",
+      "exit": 0,
+      "state": "BACKLOG",
+      "db_now": "2026-10-14 17:44:47.885609+00:00",
+      "tick": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:44:41.857946+00:00",
+        "heartbeat_age_seconds": 6.028
+      },
+      "tick_alarms": [],
+      "site_state": "BACKLOG",
+      "site_alarms": [],
+      "backlog": {
+        "s3": 1,
+        "s4": false,
+        "consequence": 1,
+        "match_pass_id": "95ad1958-be2f-4fe1-b6d8-f51a910f9440",
+        "selection_seq": 1
+      }
+    },
+    {
+      "label": "after tick 3",
+      "exit": 0,
+      "state": "IDLE",
+      "db_now": "2026-10-14 17:45:01.708311+00:00",
+      "tick": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:44:54.795539+00:00",
+        "heartbeat_age_seconds": 6.913
+      },
+      "tick_alarms": [],
+      "site_state": "IDLE",
+      "site_alarms": [],
+      "backlog": {
+        "s3": 0,
+        "s4": false,
+        "consequence": 0,
+        "match_pass_id": "bd1af84c-a15f-42b3-98ca-2ca05fa04067",
+        "selection_seq": 2
+      }
+    },
+    {
+      "label": "after recovery tick 5",
+      "exit": 0,
+      "state": "IDLE",
+      "db_now": "2026-10-14 17:45:24.205117+00:00",
+      "tick": {
+        "state": "IDLE",
+        "heartbeat_at": "2026-10-14 17:45:20.576058+00:00",
+        "heartbeat_age_seconds": 3.629
+      },
+      "tick_alarms": [],
+      "site_state": "IDLE",
+      "site_alarms": [],
+      "backlog": {
+        "s3": 0,
+        "s4": false,
+        "consequence": 0,
+        "match_pass_id": "bd1af84c-a15f-42b3-98ca-2ca05fa04067",
+        "selection_seq": 2
+      }
+    }
+  ],
+  "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+  "r1": {
+    "id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+    "revision_no": 1,
+    "lifecycle": "SUPPORTED",
+    "transition": "OPENED",
+    "analytic_run_ids": [
+      "4168fb05-b35e-46dc-93bd-77f236f236f8"
+    ]
+  },
+  "reads": [
+    {
+      "label": "pre-late (r1)",
+      "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "is_latest": true,
+      "currentness": "CURRENT",
+      "reasons": [],
+      "pending_work": [],
+      "head_consequence_revision_id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+      "consequence": {
+        "id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "17041d6b1f75af83f9654432a6714b24218aed182c6ca3f47b9977c76ab8be68",
+        "consequence_basis_sha256": "8b6c498215ea54255fbdcc658e73ef211ae6baa3165ee12017ebebc81f8ae167",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "4168fb05-b35e-46dc-93bd-77f236f236f8"
+        ]
+      },
+      "history": [
+        [
+          "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ]
+      ],
+      "bridge": {
+        "state": "QUANTITY_UNAVAILABLE",
+        "reason_key": "QUANTITY_UNAVAILABLE",
+        "recalculation_queued": false,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": []
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_COVERAGE_GAP",
+        "examined_count": 22,
+        "examined_sha256": "526bafbd56b3a711f18df252e47b4378dc1b56f8abc5257682413aa1cc065ad4",
+        "late_examined": false,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "late, before tick 3 (r1)",
+      "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "is_latest": true,
+      "currentness": "STALE",
+      "reasons": [
+        "TECHNICAL_INPUT_CHANGED"
+      ],
+      "pending_work": [
+        {
+          "work_id": "117df2d6-93c7-4b1e-b316-a03710ddc1aa",
+          "cause": "EVIDENCE_ACCEPTED",
+          "accepted_evidence_id": "4b39dd00-2da7-4e74-9e4b-c904fdf119ef",
+          "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7"
+        }
+      ],
+      "head_consequence_revision_id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+      "consequence": {
+        "id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "17041d6b1f75af83f9654432a6714b24218aed182c6ca3f47b9977c76ab8be68",
+        "consequence_basis_sha256": "8b6c498215ea54255fbdcc658e73ef211ae6baa3165ee12017ebebc81f8ae167",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "4168fb05-b35e-46dc-93bd-77f236f236f8"
+        ]
+      },
+      "history": [
+        [
+          "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ]
+      ],
+      "bridge": {
+        "state": "STALE",
+        "reason_key": "STALE_QUEUED",
+        "recalculation_queued": true,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": [
+          "TECHNICAL_INPUT_CHANGED"
+        ]
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "examined_count": 23,
+        "examined_sha256": "3c0cfaf3369def30b553cbf8c5dcce845e4890b19718c1cd5cd7a70b82186f4d",
+        "late_examined": true,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "after tick 3 (r2)",
+      "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+      "finding_revision_id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+      "is_latest": true,
+      "currentness": "CURRENT",
+      "reasons": [],
+      "pending_work": [],
+      "head_consequence_revision_id": "41623c49-ea73-444e-a410-58d87639c9fc",
+      "consequence": {
+        "id": "41623c49-ea73-444e-a410-58d87639c9fc",
+        "revision_no": 1,
+        "state": "PRICED",
+        "quantity": "AVAILABLE",
+        "quantity_reason": null,
+        "quantity_high": "12.65",
+        "price_state": "PRICED",
+        "price_reason": null,
+        "price_revision_id": "79f9b407-e6aa-4f19-b35f-918aede7c217",
+        "amount_high": "15.8125",
+        "display_amount_high": "15.82",
+        "technical_input_sha256": "a0986381d837581baa269f398b9b6aa6ed203f1fdec9804defe98439c3c3227b",
+        "consequence_basis_sha256": "102722664141b77b2105685160799d04f42360a9719db701d29ef2637c42d7d4",
+        "counted_power_evidence": 23,
+        "counted_power_evidence_sha256": "3c0cfaf3369def30b553cbf8c5dcce845e4890b19718c1cd5cd7a70b82186f4d",
+        "analytic_run_ids": [
+          "6a77e15d-0a9b-44a6-a105-5e8955a81d56"
+        ]
+      },
+      "history": [
+        [
+          "41623c49-ea73-444e-a410-58d87639c9fc",
+          1,
+          "PRICED",
+          null
+        ]
+      ],
+      "bridge": {
+        "state": "PRICED",
+        "reason_key": "PRICED",
+        "recalculation_queued": false,
+        "amount": {
+          "low": "0.00",
+          "high": "15.82"
+        },
+        "currency": "USD",
+        "currentness_reasons": []
+      },
+      "s5_money_eligible": true,
+      "derived_now": {
+        "quantity": "AVAILABLE",
+        "reason": null,
+        "examined_count": 23,
+        "examined_sha256": "3c0cfaf3369def30b553cbf8c5dcce845e4890b19718c1cd5cd7a70b82186f4d",
+        "late_examined": true,
+        "late_in_run_inputs": true,
+        "run_input_count": 175
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "r1 after tick 3 (historical)",
+      "finding_id": "97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "is_latest": false,
+      "currentness": "HISTORICAL",
+      "reasons": [
+        "FINDING_REVISION_SUPERSEDED"
+      ],
+      "pending_work": [],
+      "head_consequence_revision_id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+      "consequence": {
+        "id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "17041d6b1f75af83f9654432a6714b24218aed182c6ca3f47b9977c76ab8be68",
+        "consequence_basis_sha256": "8b6c498215ea54255fbdcc658e73ef211ae6baa3165ee12017ebebc81f8ae167",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "4168fb05-b35e-46dc-93bd-77f236f236f8"
+        ]
+      },
+      "history": [
+        [
+          "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ]
+      ],
+      "bridge": {
+        "state": "HISTORICAL",
+        "reason_key": "HISTORICAL",
+        "recalculation_queued": false,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": [
+          "FINDING_REVISION_SUPERSEDED"
+        ]
+      },
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "examined_count": 23,
+        "examined_sha256": "3c0cfaf3369def30b553cbf8c5dcce845e4890b19718c1cd5cd7a70b82186f4d",
+        "late_examined": true,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    }
+  ],
+  "pre_late_s3_result": {
+    "quantity": "QUANTITY_UNAVAILABLE",
+    "reason": "POWER_COVERAGE_GAP",
+    "candidate_spans": [
+      [
+        "2026-10-24T06:05:00+00:00",
+        "2026-10-24T08:00:00+00:00"
+      ]
+    ]
+  },
+  "late": {
+    "batch_ids": [
+      "babc9d87b9536e256a7753dac48ba898e9584d87a7e4569ddb3fdd7d0a96183a"
+    ],
+    "accepted_evidence_id": "4b39dd00-2da7-4e74-9e4b-c904fdf119ef",
+    "source_sequence": [
+      14
+    ]
+  },
+  "late_work_before_tick": [
+    {
+      "work_id": "117df2d6-93c7-4b1e-b316-a03710ddc1aa",
+      "cause": "EVIDENCE_ACCEPTED",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "accepted_evidence_id": "4b39dd00-2da7-4e74-9e4b-c904fdf119ef",
+      "affected_from": "2026-10-24 07:00:00+00",
+      "affected_to": "2026-10-24 07:05:00+00",
+      "enqueued_at": "2026-10-14 17:44:43.689492+00",
+      "attempts": []
+    }
+  ],
+  "tick3_completed_s3_and_s4": true,
+  "r2": {
+    "id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+    "revision_no": 2,
+    "lifecycle": "SUPPORTED",
+    "transition": "SUPPORT_CHANGED",
+    "analytic_run_ids": [
+      "6a77e15d-0a9b-44a6-a105-5e8955a81d56"
+    ]
+  },
+  "work_after_tick3": [
+    {
+      "work_id": "52198ef2-ff7f-4b2a-ac78-fabd95daebeb",
+      "cause": "ASSUMPTION_PUBLISHED",
+      "finding_revision_id": null,
+      "accepted_evidence_id": null,
+      "affected_from": "2026-01-01 00:00:00+00",
+      "affected_to": null,
+      "enqueued_at": "2026-10-14 17:44:17.92554+00",
+      "attempts": [
+        {
+          "attempt_id": "94629f7f-a3e0-408d-96ea-5f257d0b10d7",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "35cb1fad-c003-4940-b4f1-5c7be5b8e67f"
+          ]
+        }
+      ]
+    },
+    {
+      "work_id": "09755132-c1aa-40b1-b745-6667f1f24dc7",
+      "cause": "FINDING_REVISION_APPENDED",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "accepted_evidence_id": null,
+      "affected_from": "2026-10-24 06:05:00+00",
+      "affected_to": "2026-10-24 08:00:00+00",
+      "enqueued_at": "2026-10-14 17:44:28.080579+00",
+      "attempts": [
+        {
+          "attempt_id": "4d6a2ca4-f3bd-46b9-9446-a32ec38f297e",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "35cb1fad-c003-4940-b4f1-5c7be5b8e67f"
+          ]
+        }
+      ]
+    },
+    {
+      "work_id": "117df2d6-93c7-4b1e-b316-a03710ddc1aa",
+      "cause": "EVIDENCE_ACCEPTED",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "accepted_evidence_id": "4b39dd00-2da7-4e74-9e4b-c904fdf119ef",
+      "affected_from": "2026-10-24 07:00:00+00",
+      "affected_to": "2026-10-24 07:05:00+00",
+      "enqueued_at": "2026-10-14 17:44:43.689492+00",
+      "attempts": [
+        {
+          "attempt_id": "3e96c34d-566a-411e-87ca-dbd107a05906",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": "FINDING_REVISION_SUPERSEDED",
+          "error_code": null,
+          "consequence_revision_ids": []
+        }
+      ]
+    },
+    {
+      "work_id": "82655ea6-4983-4020-a765-2b85e1e0a8ac",
+      "cause": "FINDING_REVISION_APPENDED",
+      "finding_revision_id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+      "accepted_evidence_id": null,
+      "affected_from": "2026-10-24 06:05:00+00",
+      "affected_to": "2026-10-24 08:00:00+00",
+      "enqueued_at": "2026-10-14 17:44:53.168365+00",
+      "attempts": [
+        {
+          "attempt_id": "a7a06c24-82fa-4776-a0ac-e641a52fbfef",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "41623c49-ea73-444e-a410-58d87639c9fc"
+          ]
+        }
+      ]
+    }
+  ],
+  "s5_money_eligible_recorded_only": true,
+  "s3_limits_after_tick3": {
+    "status": "CURRENT",
+    "reasons": [],
+    "limitations": [
+      "INTERVAL_LIMITED: interval from 2026-10-24T06:05:00.000000Z: OPEN_BOUND: no OFF evidence after the interval in the read range"
+    ]
+  },
+  "stopped_worker": {
+    "thresholds": {
+      "stop_after_seconds": 1,
+      "site_stop_after_seconds": 1,
+      "claim_skip_alarm": 3,
+      "fence_moved_alarm": 3,
+      "failure_alarm": 3,
+      "consequence_attempt_alarm": 5
+    },
+    "health_state": "STOPPED",
+    "tick_alarms": [
+      "HEARTBEAT_STALE"
+    ],
+    "site_state": "STOPPED",
+    "site_alarms": [
+      "SITE_VISIT_STALE"
+    ],
+    "seam_eligibility": {
+      "status": "STALE_PROJECTION",
+      "stage": "SCHEDULE",
+      "reasons": [
+        "SCHEDULE_STOPPED",
+        "SITE_VISIT_STALE"
+      ],
+      "errors": []
+    },
+    "seam_s3_jobs": 0,
+    "seam_consequence_work": 0
+  },
+  "consequences": [
+    {
+      "id": "35cb1fad-c003-4940-b4f1-5c7be5b8e67f",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "revision_no": 1,
+      "state": "QUANTITY_UNAVAILABLE",
+      "reason": "POWER_COVERAGE_GAP"
+    },
+    {
+      "id": "41623c49-ea73-444e-a410-58d87639c9fc",
+      "finding_revision_id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+      "revision_no": 1,
+      "state": "PRICED",
+      "reason": null
+    }
+  ],
+  "work_final": [
+    {
+      "work_id": "52198ef2-ff7f-4b2a-ac78-fabd95daebeb",
+      "cause": "ASSUMPTION_PUBLISHED",
+      "finding_revision_id": null,
+      "accepted_evidence_id": null,
+      "affected_from": "2026-01-01 00:00:00+00",
+      "affected_to": null,
+      "enqueued_at": "2026-10-14 17:44:17.92554+00",
+      "attempts": [
+        {
+          "attempt_id": "94629f7f-a3e0-408d-96ea-5f257d0b10d7",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "35cb1fad-c003-4940-b4f1-5c7be5b8e67f"
+          ]
+        }
+      ]
+    },
+    {
+      "work_id": "09755132-c1aa-40b1-b745-6667f1f24dc7",
+      "cause": "FINDING_REVISION_APPENDED",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "accepted_evidence_id": null,
+      "affected_from": "2026-10-24 06:05:00+00",
+      "affected_to": "2026-10-24 08:00:00+00",
+      "enqueued_at": "2026-10-14 17:44:28.080579+00",
+      "attempts": [
+        {
+          "attempt_id": "4d6a2ca4-f3bd-46b9-9446-a32ec38f297e",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "35cb1fad-c003-4940-b4f1-5c7be5b8e67f"
+          ]
+        }
+      ]
+    },
+    {
+      "work_id": "117df2d6-93c7-4b1e-b316-a03710ddc1aa",
+      "cause": "EVIDENCE_ACCEPTED",
+      "finding_revision_id": "7622d2e9-d1a3-4e67-af86-085014c3a9a7",
+      "accepted_evidence_id": "4b39dd00-2da7-4e74-9e4b-c904fdf119ef",
+      "affected_from": "2026-10-24 07:00:00+00",
+      "affected_to": "2026-10-24 07:05:00+00",
+      "enqueued_at": "2026-10-14 17:44:43.689492+00",
+      "attempts": [
+        {
+          "attempt_id": "3e96c34d-566a-411e-87ca-dbd107a05906",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": "FINDING_REVISION_SUPERSEDED",
+          "error_code": null,
+          "consequence_revision_ids": []
+        }
+      ]
+    },
+    {
+      "work_id": "82655ea6-4983-4020-a765-2b85e1e0a8ac",
+      "cause": "FINDING_REVISION_APPENDED",
+      "finding_revision_id": "1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47",
+      "accepted_evidence_id": null,
+      "affected_from": "2026-10-24 06:05:00+00",
+      "affected_to": "2026-10-24 08:00:00+00",
+      "enqueued_at": "2026-10-14 17:44:53.168365+00",
+      "attempts": [
+        {
+          "attempt_id": "a7a06c24-82fa-4776-a0ac-e641a52fbfef",
+          "attempt_no": 1,
+          "outcome": "SUCCEEDED",
+          "no_op_reason": null,
+          "error_code": null,
+          "consequence_revision_ids": [
+            "41623c49-ea73-444e-a410-58d87639c9fc"
+          ]
+        }
+      ]
+    }
+  ],
+  "command_log": {
+    "path": "C:\\Users\\assef\\AppData\\Local\\AssetOps\\s402d3-tick-walk\\s402d-tick-walkthrough-commands.log",
+    "lines": 263,
+    "tick_invocations": 5,
+    "hand_run_hits": []
+  },
+  "failures": []
+}

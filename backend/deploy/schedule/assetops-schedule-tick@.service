@@ -1,0 +1,18 @@
+# S4-02d environment schedule tick (one per environment). DO NOT INSTALL on an owner-visible host (demo included)
+# until `python tools/schedule-install-gate.py --host-class demo` reports OPEN, i.e. registry node
+# I-late-reading-series-and-money-limit is resolved (D-2026-10-14-s402d-schedule-storage-and-install-gate).
+# Installing it retires every assetops-consequence-runner@<site>.timer (backend/README-db.md).
+[Unit]
+Description=AssetOps analytic/Finding/consequence schedule tick (%i)
+After=network-online.target
+
+[Service]
+Type=oneshot
+# The dedicated schedule credential for this environment's database: DATABASE_URL=postgresql+psycopg://...
+EnvironmentFile=/etc/assetops/schedule-tick.env
+WorkingDirectory=/opt/assetops/backend
+ExecStart=/opt/assetops/.venv/bin/python -m assetops_backend.scheduling.run tick --environment %i
+# Above the tick's own lease with slack: TickLimits.tick_lease_seconds is discover 120 + tick 240 + Site lease 360
+# + 60 = 780 s, and the store calls between stages can each take up to the 30 s statement timeout. The tick kills
+# its stage children at their own bounds; systemd must never SIGTERM a tick still inside them (review F-C).
+TimeoutStartSec=900

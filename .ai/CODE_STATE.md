@@ -5445,3 +5445,38 @@ Branch `task/S4-02c-evidence-consequence-work`, `6d4a1995`..HEAD. Packet `.agent
 - Tool `tools/s402c_late_power_walkthrough.py run|drop` (DB `assetops_s402c3walk*`, ports 8918/8919): price v1 first (N2); N5 asserted (stops otherwise); Leg A STALE/TECHNICAL_INPUT_CHANGED + STALE_QUEUED with the EVIDENCE_ACCEPTED work ID, runner drain -> same revision consequence 2 CURRENT POWER_NOT_IN_ASSESSMENT_INPUTS, not S5-eligible; Leg B process-jobs + match-findings -> r2 SUPPORT_CHANGED citing the late ID, its FRA work -> CURRENT PRICED 12.65 L / 15.8125 USD, S5-eligible; replay selects 0; no duplicate basis. Reads use `ConsequenceReadService.read` with `source_open=True`.
 - Finding: appending a late mean after the epoch's last sequence makes S3 dispatch-3.1 report `SEQUENCE_ORDER_INVERTED` and shortens the revised Finding (run 1, recorded).
 - Open: R1 (S3/S4 commands unscheduled), I1 (permanent-failure attempt growth), I2 (hung runner visible only as `skipped`), I3 clock skew, I4 concurrent overlapping chunks unmeasured; pre-0012 stale heads `NO_WORK_RECORDED` without backfill; late-delivery sequence numbering on real gateways unproved.
+
+## S4-02d phase 1 - bounded orchestration and schedule storage (built, review pending)
+
+Branch `task/S4-02d-analytic-finding-worker-schedule`, `7851b4da`..HEAD. Handoff `.agent/S4-02d-phase-1-handoff.md`; questions `.agent/S4-02d-questions-1.md` (conservative choices built).
+
+- Migration `0013_schedule_state` (head): `schedule_tick_head`, `schedule_site_head`, `schedule_cursor`, `schedule_enrolment`; one row per environment/Site, FK to `site(tenant_id, id)`, no trigger.
+- Eighth writer `scheduling/adapters/postgres_schedule_store.py` (D-2026-10-14-s402d-schedule-storage-and-install-gate): expiring DB-time claims for tick and Site, heartbeat only on a completed tick, back-off on failure, fair cursor, enrolment, `site_inventory` read. Port `scheduling/ports.py`; composition `scheduling/composition.py` (adapter-isolation domain `scheduling`).
+- Guard rule 8: schedule writer allowlist with named UPDATE columns per table, one-line UPDATE rule, no DELETE/TRUNCATE/DDL/upsert, reverse ownership; probes `.agent/S4-02d-phase-1-probes.py guard` all caught.
+- `scheduling/tick.py` `ScheduleTick.tick()`: discover child (`reconcile_all()` timed + inventory + live jobs + pending work) -> active predicate (imported, not DECOMMISSIONED/ARCHIVED, any `accepted_evidence` row or enrolment; PLANNED qualifies; Sites with live work kept as `EXCLUDED_WITH_WORK`) -> `max_sites` after the cursor -> per Site claim, `s3` -> `s4` (skipped unless matcher version/fence changed) -> `consequence` (DB `now`), each a killable child with `PGOPTIONS` statement/lock timeouts. CLI `python -m assetops_backend.scheduling.run tick|enrol|heads`. No timer installed.
+- S3: `lease_job` Site-scoped option, `run_site`, reads `live_jobs`/`job`. S4: `MatchOutcome.fence`. Consequence: `pending_work_sites()`. `assess_dispatch requeue --job-id` re-enqueues a live FAILED job's window.
+- Tests `backend/tests/test_s4_schedule_tick_postgres.py` (7).
+- Open (phase 2): health report and alarms, S5 seam, timer/runbook behind F1, I3 skew proof; I4 race proof at review. S3 cutoff and matcher `now` still app clock; one-off CLIs bypass the schedule Site claim.
+
+## S4-02d phase 2 - health, install gate and S5 currentness seam (built, review pending)
+
+Branch `task/S4-02d-analytic-finding-worker-schedule`, `8cf2d147`..HEAD. Handoff `.agent/S4-02d-phase-2-handoff.md`; probes `.agent/S4-02d-phase-2-probes.py`.
+
+- Phase-1 review fixes: F1 rule-8 schedule-writer rules case-insensitive with strict one-line SET-list parse (phase-1 guard probes 20/20 incl. seven bypass lines); F2 Site back-off test; F3 `CLAIM_LOST` stops a Site on a lost claim; `requeue` usage error.
+- `scheduling/health.py` read-only report (`run health`): environment and per-Site `STOPPED|FAILED|RETRY_DUE|BACKLOG|RUNNING|IDLE`, typed alarms (heartbeat/claim/skip/failure/fence-moved streaks, `S3_JOB_FAILED` with requeue, consequence attempt growth, `STALE_NO_WORK` IDs, S4 backlog outside the active set), all in DB time.
+- `scheduling/upstream.py` S5 seam (`UpstreamCurrentnessRead` port, `run upstream`): per-day S3 read status/limits/basis/watermark (selection seq), bracketed live jobs, `match_state`, latest Finding revisions with consequence reads, pending work, schedule state; eligibility CURRENT only with a healthy heartbeat AND Site head (Q1); before/after `match_state` comparison reports `SELECTION_MOVED_DURING_READ`.
+- I3: DB clock for discover reconcile, S3 worker, matcher `now` and drain; one-off `recompute_consequences run` defaults to DB time, `--now` override, `now_source` reported. `SKIPPED_UNCHANGED_FENCE` clears `fence_moved_streak`.
+- Gated install: `backend/deploy/schedule/assetops-schedule-tick@.service|.timer`, `tools/schedule-install-gate.py` (demo CLOSED until `I-late-reading-series-and-money-limit` resolved); `backend/README-db.md` runbook retires the per-Site consequence timer, covers `CONSEQUENCE_CLAIMED`, stop-the-tick before manual Leg B. Nothing installed.
+- Tests: `test_s4_schedule_health_postgres.py` (10, incl. I3 skew and I4 two-chunk race), `test_s4_schedule_upstream_unit.py` (5), `test_s4_schedule_install_gate.py` (3). Tick cost: ~4-5 s per Site-visit tick on Windows (child start ~1 s x3), 4 Sites 12.6 s.
+- Checks: full backend pytest 2115 passed; `tools/check-all.ps1` 9/9; phase-2 probes 21/21, phase-1 guard probes 20/20.
+- Open: phase 3 walkthrough; I4 still needs the independent review's own race; one-off S3/S4 CLIs remain app clock and bypass the Site claim (runbook); health `STALE_NO_WORK` scan cost grows with Findings.
+
+## S4-02d phase 3 - tick-only late-power walkthrough and slice wrap-up (built, review pending)
+
+Branch `task/S4-02d-analytic-finding-worker-schedule`, `62581ecd`..HEAD. Handoff `.agent/S4-02d-phase-3-handoff.md`; slice packet `.agent/S4-02d-review-packet.md`.
+
+- Phase-2 review fixes: F-A health alarm `S3_STALE_NO_JOB` (selected UTC day `STALE_PROJECTION` with no live S3 job; Site `FAILED`) and `assess_dispatch requeue --day` (refused unless STALE with no live job); F-C service `TimeoutStartSec=900`; F-D install-gate dedupe; phase-1 probes usage.
+- I3 residual (open, evidence owner): scheduled S3 cutoff is DB time, `ingestion_disposition.decided_at` is the ingestion app clock; documented in `backend/README-db.md`; ingestion unchanged.
+- `tools/s402d_tick_walkthrough.py` (reuses `s402c_late_power_walkthrough.LateWalk`; DB `assetops_s402d3walk*`, environment `walkthrough`): five schedule ticks only, command-log grep for hand-run Leg B (mutation caught). Evidence `.agent/S4-02d-walkthrough-evidence.md`: 23/23; tick 3 rebuilt S3, appended r2 citing the late ID, r1's EVIDENCE_ACCEPTED attempt typed `FINDING_REVISION_SUPERSEDED` no-op, r2 CURRENT PRICED; seam CURRENT only after the tick; stopped worker blocks the seam.
+- I4: proved by the independent phase-2 review race (0 false CURRENT).
+- Open: F-B statement-level guard; evidence-owner `decided_at` packet; health scan cost; S5-01 seam carries; demo-host tick cost; no owner-visible install before F1.
