@@ -245,11 +245,17 @@ class PostgresConsequenceStore:
 
     def record_attempt(self, tenant_id: UUID, site_id: UUID, work_id: UUID, *, succeeded: bool,
                        consequence_revision_ids: tuple[UUID, ...] = (), error_code: str | None = None,
-                       error_detail: str | None = None, actor_id: str = RECOMPUTE_ACTOR) -> int:
-        """Append one attempt to a work item under its lock; returns the attempt number."""
+                       error_detail: str | None = None, actor_id: str = RECOMPUTE_ACTOR,
+                       skip_if_succeeded: bool = False) -> int:
+        """Append one attempt to a work item under its lock; returns the attempt number. With
+        `skip_if_succeeded`, a work item another worker already finished records nothing and returns 0."""
         def work(c: Connection) -> int:
             c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('financial_consequence_work:' || :w, 0))"),
                       {"w": str(work_id)})
+            if skip_if_succeeded and c.execute(text(
+                    "SELECT 1 FROM financial_consequence_work_attempt WHERE work_id = :w AND outcome = 'SUCCEEDED'"),
+                    {"w": work_id}).first() is not None:
+                return 0
             n = c.execute(text("SELECT count(*) FROM financial_consequence_work_attempt WHERE work_id = :w"),
                           {"w": work_id}).scalar_one() + 1
             c.execute(text(
@@ -263,7 +269,81 @@ class PostgresConsequenceStore:
             return n
         return self._run(work)
 
-    # ---- raw rows (phase 2a builds the read over these) ------------------------------------------------------
+    # ---- phase 2a: recompute targets and the consequence read ------------------------------------------------
+
+    def latest_revisions_overlapping(self, tenant_id: UUID, site_id: UUID, lo: datetime,
+                                     hi: datetime | None) -> list[tuple[UUID, UUID]]:
+        """(finding_id, latest FindingRevision id) of every Finding of this Site whose latest revision's
+        episode overlaps `[lo, hi)` (half-open; `hi` None is open-ended)."""
+        def work(c: Connection):
+            return [(r[0], r[1]) for r in c.execute(text(
+                "SELECT r.finding_id, r.id FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+                "AND r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x WHERE x.finding_id = "
+                "r.finding_id) AND r.episode_end > :lo "
+                "AND (CAST(:hi AS timestamptz) IS NULL OR r.episode_start < CAST(:hi AS timestamptz)) "
+                "ORDER BY r.episode_start, r.id"), {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi})]
+        return self._run(work, "REPEATABLE READ")
+
+    def locate(self, tenant_id: UUID, site_id: UUID, finding_id: UUID,
+               consequence_revision_id: UUID) -> UUID | None:
+        """The FindingRevision of one exact consequence revision of this Site's Finding, else None."""
+        def work(c: Connection):
+            return c.execute(text(
+                "SELECT finding_revision_id FROM financial_consequence_revision WHERE tenant_id = :t "
+                "AND site_id = :s AND finding_id = :f AND id = :c"),
+                {"t": tenant_id, "s": site_id, "f": finding_id, "c": consequence_revision_id}).scalar_one_or_none()
+        return self._run(work)
+
+    def chain(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, finding_revision_id: UUID, *,
+              consequence_revision_id: UUID | None, after_revision_no: int, limit: int) -> dict[str, Any]:
+        """One snapshot of a FindingRevision's consequence chain: its head, an optional exact revision, a
+        keyset page, the lineage links of every returned revision and the pending work that touches it."""
+        scope = {"t": tenant_id, "s": site_id, "f": finding_id, "r": finding_revision_id,
+                 "k": fc.CONSEQUENCE_TYPE}
+
+        def work(c: Connection):
+            base = ("SELECT * FROM financial_consequence_revision WHERE tenant_id = :t AND site_id = :s "
+                    "AND finding_id = :f AND finding_revision_id = :r AND consequence_type = :k ")
+            head = c.execute(text(base + "ORDER BY revision_no DESC LIMIT 1"), scope).first()
+            exact = None if consequence_revision_id is None else c.execute(
+                text(base + "AND id = :c"), {**scope, "c": consequence_revision_id}).first()
+            page = c.execute(text(base + "AND revision_no > :after ORDER BY revision_no LIMIT :n"),
+                             {**scope, "after": after_revision_no, "n": limit + 1}).all()
+            total = c.execute(text(base.replace("SELECT *", "SELECT count(*)")), scope).scalar_one()
+            rows = [dict(x._mapping) for x in page]
+            ids = list({x["id"] for x in rows} | {x.id for x in (head, exact) if x is not None})
+            links: dict[str, dict[Any, list[dict[str, Any]]]] = {}
+            for name, table, order in (
+                    ("assessments", "financial_consequence_assessment_revision",
+                     "is_primary DESC, assessment_revision_id"),
+                    ("assumptions", "financial_consequence_assumption_revision", "assumption_revision_id"),
+                    ("intervals", "financial_consequence_power_interval", "interval_start, evidence_id")):
+                out: dict[Any, list[dict[str, Any]]] = {}
+                for x in c.execute(text(f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s "
+                                        f"AND consequence_revision_id = ANY(:ids) ORDER BY {order}"),
+                                   {**scope, "ids": ids}):
+                    out.setdefault(x.consequence_revision_id, []).append(dict(x._mapping))
+                links[name] = out
+            window = c.execute(text("SELECT episode_start, episode_end FROM finding_revision WHERE tenant_id = :t "
+                                    "AND site_id = :s AND id = :r"), scope).first()
+            pending = [] if window is None else [dict(x._mapping) for x in c.execute(text(
+                "SELECT w.id, w.cause, w.assumption_revision_id, w.finding_revision_id, w.affected_from, "
+                "w.affected_to, w.enqueued_at, (SELECT count(*) FROM financial_consequence_work_attempt a "
+                "WHERE a.work_id = w.id) AS attempts, (SELECT a.error_code FROM financial_consequence_work_attempt a "
+                "WHERE a.work_id = w.id ORDER BY a.attempt_no DESC LIMIT 1) AS last_error_code "
+                "FROM financial_consequence_work w WHERE w.tenant_id = :t AND w.site_id = :s "
+                "AND NOT EXISTS (SELECT 1 FROM financial_consequence_work_attempt a WHERE a.work_id = w.id "
+                "AND a.outcome = 'SUCCEEDED') AND ((w.cause = 'FINDING_REVISION_APPENDED' AND w.finding_id = :f) "
+                "OR (w.cause = 'ASSUMPTION_PUBLISHED' AND (w.affected_to IS NULL OR w.affected_to > :lo) "
+                "AND w.affected_from < :hi)) ORDER BY w.enqueued_at, w.id"),
+                {**scope, "lo": window[0], "hi": window[1]})]
+            return {"head": None if head is None else dict(head._mapping),
+                    "exact": None if exact is None else dict(exact._mapping),
+                    "page": rows[:limit], "has_more": len(rows) > limit, "total": total, "links": links,
+                    "pending": pending}
+        return self._run(work, "REPEATABLE READ")
+
+    # ---- raw rows (tests and diagnostics) -------------------------------------------------------------------
 
     def rows(self, tenant_id: UUID, site_id: UUID) -> dict[str, list[dict[str, Any]]]:
         scope = {"t": tenant_id, "s": site_id}

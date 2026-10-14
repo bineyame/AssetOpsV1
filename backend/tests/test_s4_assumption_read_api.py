@@ -12,7 +12,7 @@ from uuid import uuid4
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from assetops_backend.finding_api import ACCESS_BASIS, build_finding_router, consequence_state
+from assetops_backend.finding_api import ACCESS_BASIS, bridge_consequence, build_finding_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
 from assetops_backend.financials.assumption_read import AssumptionReadService
@@ -114,9 +114,11 @@ def finding_body(revision_id: str = "r2") -> dict:
                                                                  "end": "2026-10-19T09:00:00+00:00"}}}
 
 
-def bridge(reads, access=None, gate=None) -> TestClient:
+def bridge(reads, access=None, gate=None, consequences=None) -> TestClient:
     app = FastAPI()
     kwargs = {} if access is None else {"access": access}
+    if consequences is not None:
+        kwargs.update(consequences=consequences, consequence_unavailable=(Down,))
     app.include_router(build_finding_router(reads, SCOPE.get, (Down,),
                                             gate=gate or (lambda c, t, s: (True, "comparison passed")), **kwargs))
     return TestClient(app)
@@ -127,12 +129,12 @@ BRIDGE = f"/api/sites/KOBO-001/findings/{FINDING}/financials"
 
 
 class TestFindingFinancialsBridge:
-    def test_exact_revision_is_held_and_the_consequence_is_quantity_unavailable(self) -> None:
+    def test_exact_revision_is_held_and_without_a_consequence_store_nothing_is_priced(self) -> None:
         reads = FindingReads(finding_body("r1"))
         body = bridge(reads).get(BRIDGE, params={"revision_id": str(uuid4())}).json()
         assert reads.calls[0][1] is not None
         assert body["revision"]["id"] == "r1" and body["window"]["start"].startswith("2026-10-19")
-        assert body["consequence"] == {**body["consequence"], "state": "QUANTITY_UNAVAILABLE", "amount": None,
+        assert body["consequence"] == {**body["consequence"], "state": "UNAVAILABLE", "amount": None,
                                        "currency": None, "quantity": None, "price_revision_id": None}
         assert body["links"]["evidence"] == f"/sites/KOBO-001/findings/{FINDING}/evidence?revision_id=r1"
         assert body["links"]["financials"] == f"/sites/KOBO-001/financials?finding_id={FINDING}&revision_id=r1"
@@ -150,12 +152,37 @@ class TestFindingFinancialsBridge:
         pinned = bridge(FindingReads(finding_body()), gate=closed).get(BRIDGE, params={"revision_id": str(uuid4())})
         assert pinned.status_code == 200 and pinned.json()["audit_only"]["non_current"] is True
 
-    def test_unpriced_is_typed_and_a_priced_amount_does_not_exist_in_this_slice(self) -> None:
-        unpriced = consequence_state(quantity_available=True, price_covers_window=False)
+    def test_the_bridge_summarises_the_stored_consequence_and_shows_an_amount_only_when_current(self) -> None:
+        """S4-02b phase 2a replaced the S4-02a placeholder with the stored consequence read."""
+        def result(currentness: str, state: str = "PRICED") -> dict:
+            row = {"id": "c1", "state": state, "quantity": {"low": "0", "high": "2.75", "unit": "L", "reason": None},
+                   "price": {"revision_id": "p1", "reason": None},
+                   "amount": {"low": "0", "high": "3.4375", "currency": "USD"},
+                   "display": {"state": "ROUNDED_OUTWARD", "amount_low": "0.00", "amount_high": "3.44"}}
+            return {"currentness": {"state": currentness}, "consequence": row}
+
+        class Consequences:
+            def __init__(self, out=None, error=None):
+                self.out, self.error, self.calls = out, error, []
+
+            def read(self, *args, **kw):
+                self.calls.append(kw)
+                if self.error:
+                    raise self.error
+                return self.out
+
+        reads = FindingReads({**finding_body(), "selection": {"revision_id": str(uuid4()), "revision_no": 2,
+                                                              "is_latest": True}})
+        current = Consequences(result("CURRENT"))
+        body = bridge(reads, consequences=current).get(BRIDGE).json()["consequence"]
+        assert current.calls[0]["finding_revision_is_latest"] is True
+        assert (body["state"], body["amount"], body["currency"], body["consequence_revision_id"]) == (
+            "PRICED", {"low": "0.00", "high": "3.44"}, "USD", "c1")
+        assert "not measured fuel saved" in body["reason"]
+        for state in ("STALE", "PENDING", "HISTORICAL"):
+            stale = bridge(reads, consequences=Consequences(result(state))).get(BRIDGE).json()["consequence"]
+            assert (stale["state"], stale["amount"], stale["currency"], stale["quantity"]) == (state, None, None, None)
+        down = bridge(reads, consequences=Consequences(error=Down("x"))).get(BRIDGE).json()["consequence"]
+        assert (down["state"], down["amount"]) == ("UNAVAILABLE", None)
+        unpriced = bridge_consequence(result("CURRENT", "UNPRICED"))
         assert (unpriced["state"], unpriced["amount"], unpriced["currency"]) == ("UNPRICED", None, None)
-        try:
-            consequence_state(quantity_available=True, price_covers_window=True)
-        except NotImplementedError:
-            pass
-        else:
-            raise AssertionError("S4-02a must never report a priced amount")

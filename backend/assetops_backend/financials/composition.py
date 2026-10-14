@@ -13,10 +13,16 @@ from assetops_backend.financials.adapters.postgres_consequence_store import (
     PostgresConsequenceStore,
 )
 from assetops_backend.financials.assumption_read import AssumptionReadService
+from assetops_backend.financials.consequence_read import ConsequenceReadService
+from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
 __all__ = ["Appended", "AssumptionStoreUnavailable", "ConsequenceStoreUnavailable", "PostgresAssumptionStore",
            "PostgresConsequenceStore", "Published", "build_assumption_read_service", "build_assumption_store",
-           "build_consequence_store"]
+           "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
+           "CONSEQUENCE_UNAVAILABLE"]
+
+# Store failures the consequence read and the recompute worker report as typed unavailable.
+CONSEQUENCE_UNAVAILABLE = (ConsequenceStoreUnavailable, AssumptionStoreUnavailable)
 
 
 def build_assumption_store(database_url: str | None) -> PostgresAssumptionStore:
@@ -29,3 +35,12 @@ def build_assumption_read_service(database_url: str | None) -> AssumptionReadSer
 
 def build_consequence_store(database_url: str | None) -> PostgresConsequenceStore:
     return PostgresConsequenceStore(database_url)
+
+
+def build_consequence_read_service(database_url: str | None) -> ConsequenceReadService:
+    return ConsequenceReadService(PostgresConsequenceStore(database_url), PostgresAssumptionStore(database_url))
+
+
+def build_recompute_worker(database_url: str | None) -> ConsequenceRecomputeWorker:
+    return ConsequenceRecomputeWorker(PostgresConsequenceStore(database_url), PostgresAssumptionStore(database_url),
+                                      CONSEQUENCE_UNAVAILABLE)

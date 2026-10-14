@@ -53,9 +53,11 @@ def no_gate(site_code: str, tenant_id: UUID, site_id: UUID) -> tuple[bool, str]:
 
 def build_finding_router(reads: FindingReadService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                          access: Access = development_access, access_basis: str = ACCESS_BASIS,
-                         gate: Gate = no_gate) -> APIRouter:
+                         gate: Gate = no_gate, consequences: Any = None,
+                         consequence_unavailable: tuple[type, ...] = ()) -> APIRouter:
     router = APIRouter()
     down = (AssessmentStoreUnavailable, FileAssessmentStoreUnavailable, EvidenceStoreUnavailable, *unavailable)
+    consequence_down = (*down, *consequence_unavailable)
 
     def open_scope(request: Request, site_code: str) -> tuple[str, UUID, UUID]:
         refusal = access(request, site_code)
@@ -207,10 +209,74 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
         return {"site_code": code, "access_basis": access_basis, "source_gate": source,
                 "audit_only": audit_only(source), **body, "links": links}
 
-    # ---- S4-02a phase 2: the Financials bridge of the same exact Finding revision ----
-    # It holds the Finding ID and exact FindingRevision ID and states the typed consequence: until the
-    # `fuel-cost-1` technical quantity exists, QUANTITY_UNAVAILABLE with no amount, currency or price. No
-    # consequence revision is manufactured and no mock number is inferred.
+    # ---- S4-02b phase 2a: the stored `fuel-cost-1` consequence of the same exact Finding revision ----
+
+    def consequence_unavailable() -> HTTPException:
+        return HTTPException(status_code=503, detail={"code": "CONSEQUENCE_STORE_UNAVAILABLE",
+                                                      "message": "No consequence store is configured."})
+
+    def consequence_call(work: Callable[[], Any]) -> Any:
+        if consequences is None:
+            raise consequence_unavailable()
+        try:
+            return work()
+        except consequence_down as error:
+            raise HTTPException(status_code=503, detail={"code": "CONSEQUENCE_STORE_UNAVAILABLE",
+                                                         "message": str(error)}) from error
+
+    def consequence_links(code: str, finding_id: UUID, selected: Any, permitted: bool,
+                          result: dict[str, Any]) -> dict[str, Any]:
+        links = child_links(code, finding_id, selected, permitted)
+        base = f"/api/sites/{code}/findings/{finding_id}/financial-consequences?revision_id={selected}"
+        links["financials"] = f"/sites/{code}/financials?finding_id={finding_id}&revision_id={selected}"
+        links["api_consequences"] = base
+        rows = [r for r in [result["consequence"], *result["history"]["revisions"]] if r is not None]
+        links["consequence_revisions"] = {r["id"]: f"{base}&consequence_revision_id={r['id']}" for r in rows}
+        links["evidence_records"] = {e: f"/api/sites/{code}/evidence/records/{e}"
+                                     for r in rows for e in r["lineage"]["evidence_ids"]}
+        links["price_revisions"] = {r["price"]["revision_id"]:
+                                    f"/api/sites/{code}/financial-assumptions/{r['price']['revision_id']}"
+                                    for r in rows if r["price"]["revision_id"]}
+        nxt = result["history"]["page"]["next_after_revision_no"]
+        if nxt is not None:
+            links["api_next_page"] = f"{base}&after_revision_no={nxt}&limit={result['history']['page']['limit']}"
+        return links
+
+    @router.get("/api/sites/{site_code}/findings/{finding_id}/financial-consequences")
+    def finding_consequences(request: Request, site_code: str, finding_id: UUID, revision_id: UUID | None = None,
+                             consequence_revision_id: UUID | None = None, after_revision_no: int = Query(0, ge=0),
+                             limit: int = Query(50, ge=1, le=200)) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code)
+        source = source_gate(code, tenant_id, site_id)
+        if consequence_revision_id is not None and revision_id is None:
+            revision_id = consequence_call(lambda: consequences.locate(tenant_id, site_id, finding_id,
+                                                                       consequence_revision_id))
+            if revision_id is None:
+                raise HTTPException(status_code=404, detail="No such consequence revision for this Finding.")
+        if not source["permitted"] and revision_id is None:
+            raise closed(source)
+        body = served(lambda: reads.finding(tenant_id, site_id, finding_id, revision_id, limit=1,
+                                            source_open=source["permitted"]),
+                      "No such Finding or revision for this Site.")
+        selection = body["selection"]
+        result = consequence_call(lambda: consequences.read(
+            tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
+            finding_revision_is_latest=bool(selection.get("is_latest")),
+            consequence_revision_id=consequence_revision_id, after_revision_no=after_revision_no, limit=limit))
+        if result is None:
+            raise HTTPException(status_code=404, detail="No such consequence revision for this FindingRevision.")
+        return jsonable_encoder({
+            "site_code": code, "access_basis": access_basis, "source_gate": source, "audit_only": audit_only(source),
+            "finding": body["finding"], "selection": selection,
+            "revision": {"id": selection["revision_id"], "revision_no": selection["revision_no"],
+                         "lifecycle": body["revision"]["lifecycle"]},
+            "window": body["revision"]["episode"], **result,
+            "links": consequence_links(code, finding_id, selection["revision_id"], source["permitted"], result)})
+
+    # ---- S4-02a phase 2 bridge, S4-02b phase 2a consequence ----
+    # It holds the Finding ID and exact FindingRevision ID and summarises the stored consequence of that
+    # revision (`bridge_consequence`): a positive amount only when the head is CURRENT and PRICED, otherwise a
+    # typed state with no amount. No consequence revision is manufactured and no mock number is inferred.
 
     @router.get("/api/sites/{site_code}/findings/{finding_id}/financials")
     def finding_financials(request: Request, site_code: str, finding_id: UUID, revision_id: UUID | None = None
@@ -234,24 +300,59 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
                          "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
                          "claim_level": body["revision"]["claim_level"]},
             "window": episode,
-            "consequence": consequence_state(quantity_available=False),
+            "consequence": bridge(tenant_id, site_id, finding_id, body["selection"]),
             "links": links})
+
+    def bridge(tenant_id: UUID, site_id: UUID, finding_id: UUID, selection: dict[str, Any]) -> dict[str, Any]:
+        if consequences is None:
+            return bridge_consequence(None)
+        try:
+            result = consequences.read(tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
+                                       finding_revision_is_latest=bool(selection.get("is_latest")), limit=1)
+        except consequence_down:
+            return bridge_consequence(None)
+        return bridge_consequence(result)
 
     return router
 
 
 QUANTITY_SOURCE = "fuel-cost-1"
 
+REASONS = {
+    "UNAVAILABLE": "The fuel-cost record could not be read just now, so no cost is shown.",
+    "PENDING": "The fuel cost for this finding has not been calculated yet, so no cost is shown.",
+    "STALE": "The price or inputs changed since the fuel cost was calculated; it is being recalculated, so no "
+             "current cost is shown.",
+    "HISTORICAL": "This is an earlier version of the finding; its fuel cost is kept for the record only.",
+    "QUANTITY_UNAVAILABLE": "The fuel quantity could not be bounded from the accepted generator data, so no "
+                            "diesel price is applied and no cost is shown.",
+    "UNPRICED": "No single Site diesel price covers this finding's whole window, so no cost is shown.",
+    "MINOR_UNIT_UNKNOWN": "No rounding rule is known for this price currency, so no cost is shown.",
+    "PRICED": "Modelled potential fuel-cost exposure under the reviewed fuel-cost-1 assumptions. This is not "
+              "measured fuel saved or a physical maximum.",
+}
 
-def consequence_state(*, quantity_available: bool, price_covers_window: bool = False) -> dict[str, Any]:
-    """The typed Finding consequence. Never zero, never a mock number; S4-02a has no technical quantity."""
-    if not quantity_available:
-        return {"state": "QUANTITY_UNAVAILABLE", "quantity_source": QUANTITY_SOURCE, "quantity": None,
-                "amount": None, "currency": None, "price_revision_id": None,
-                "reason": "No fuel quantity has been calculated for this finding yet, so no diesel price is "
-                          "applied and no cost is shown."}
-    if not price_covers_window:
-        return {"state": "UNPRICED", "quantity_source": QUANTITY_SOURCE, "amount": None, "currency": None,
-                "price_revision_id": None,
-                "reason": "No single Site diesel price covers this finding's whole window, so no cost is shown."}
-    raise NotImplementedError("Priced consequences are S4-02b; S4-02a never reports an amount.")
+
+def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:
+    """The bridge's typed summary of one FindingRevision's stored consequence. Never zero, never a mock number:
+    an amount appears only for a CURRENT PRICED head, rounded outward for display."""
+    empty = {"quantity_source": QUANTITY_SOURCE, "quantity": None, "amount": None, "currency": None,
+             "price_revision_id": None, "consequence_revision_id": None, "quantity_reason": None,
+             "price_reason": None}
+    if result is None:
+        return {**empty, "state": "UNAVAILABLE", "currentness": None, "reason": REASONS["UNAVAILABLE"]}
+    currentness = result["currentness"]
+    row = result["consequence"]
+    if row is None or currentness["state"] != "CURRENT":
+        return {**empty, "state": currentness["state"], "currentness": currentness["state"],
+                "consequence_revision_id": None if row is None else row["id"],
+                "reason": REASONS[currentness["state"]]}
+    priced = row["state"] == "PRICED" and row["display"] and row["display"]["state"] == "ROUNDED_OUTWARD"
+    return {**empty, "state": row["state"], "currentness": "CURRENT", "consequence_revision_id": row["id"],
+            "quantity": None if row["quantity"]["high"] is None else {
+                "low": row["quantity"]["low"], "high": row["quantity"]["high"], "unit": row["quantity"]["unit"]},
+            "quantity_reason": row["quantity"]["reason"], "price_reason": row["price"]["reason"],
+            "price_revision_id": row["price"]["revision_id"],
+            "amount": {"low": row["display"]["amount_low"], "high": row["display"]["amount_high"]} if priced else None,
+            "currency": row["amount"]["currency"] if priced else None,
+            "reason": REASONS[row["state"]] if row["state"] != "PRICED" or priced else REASONS["MINOR_UNIT_UNKNOWN"]}

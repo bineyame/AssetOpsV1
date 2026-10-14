@@ -389,7 +389,7 @@ def quantify(f: FindingInput) -> Quantity:
             return _unavailable("BINDING_CHANGES_WITHIN_INTERVAL",
                                 f"Binding revision {br.revision_id} is not valid over reading {r.evidence_id}.",
                                 spans, examined)
-        if (b - a) % timedelta(seconds=1):  # review L3: never truncate an upper bound's duration
+        if (b - a) % timedelta(seconds=1):  # review L3: never shorten an upper bound's duration
             return _unavailable("INTERVAL_NOT_WHOLE_SECONDS",
                                 f"Reading {r.evidence_id} does not span a whole number of seconds.", spans, examined)
         covered = tuple(s for s in spans if _overlaps(s[0], s[1], a, b))
