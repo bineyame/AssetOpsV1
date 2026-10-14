@@ -87,5 +87,5 @@ does not decide S5 money.
   stage `SCHEDULE` (`SCHEDULE_STOPPED`, `SITE_VISIT_STALE`) with 0 live jobs and 0 work: queue-empty is not CURRENT.
 - **Tick 5** recovers: seam CURRENT, health IDLE, heartbeat 17:45:20.576Z.
 
-Tick wall time on this Windows host: 10-13 s each (three stage children of about 1-1.7 s, plus discover and store
-calls); reconcile 245-409 ms.
+Stage children on this Windows host took 0.9-1.8 s each (3.1-4.7 s per Site visit); reconcile 245-409 ms. Whole-tick
+wall time was not separately measured (ticks were 11-14 s apart including the reads between them).
