@@ -47,7 +47,23 @@ S3 `adapters/postgres_assessment_store.py`, `assessment_worker.py`, `assess_disp
 
 ## Checks run
 
-CHECKS_PLACEHOLDER
+Phase 3 (this round; phases 1-2 checks are in their handoffs and reviews):
+
+- New F-A test `TestStaleWithoutJob` passed; mutation (alarm condition disabled) **caught** (fails on
+  `h["state"] == "FAILED"`), reverted.
+- Walkthrough `tools/s402d_tick_walkthrough.py run`: **23 checks, 0 failed, exit 0** (DB `assetops_s402d3walk`,
+  dropped). Mutation (one hand-run `recompute_consequences run` after tick 3): exit 1, only the command-log check
+  failed, naming the line; reverted.
+- Focused (DB `assetops_s402d3_test`): schedule health/tick/upstream/install-gate + S3 dispatch assessment/read:
+  first run **43 passed, 1 failed**: the I4 race test's non-vacuity assertion `any(overlapped)` was
+  `[False, False, False]` (no chunk observed the Site claim after its commit). Reruns alone: 2 passed of 3 before
+  the fix. Fix `2288da6a`: round 2 joins the chunk threads inside the S4 hook, so its commits land inside the claim
+  deterministically (rounds 0-1 still race). After the fix: 3/3 passed (61 s, 384 s, 201 s wall).
+- `tools/check-all.ps1`: **All 9 guards passed.**
+- Full backend suite once at the end (DB `assetops_s402d3_full_test`, dropped): **2116 passed** in 37 min 35 s.
+- `.agent/S4-02d-phase-1-probes.py` with no argument prints usage, exit 2. Install gate `--host-class pilot`:
+  CLOSED, F1 listed once.
+- Frontend: no frontend change on the branch; suite, typecheck, build and layout evidence not applicable, not run.
 
 ## Known deviations
 
@@ -76,6 +92,10 @@ CHECKS_PLACEHOLDER
 7. Registry/CODE_STATE: record I4 as proved at the phase-2 review when the slice closes.
 
 ## Residual risk
+
+- The I4 race test's wall time varies widely on this host (31 s to 384 s alone; the full suite took 37 min against
+  16 min at phase 2). Not investigated: it may be ingestion lock waits under the overlapping chunks. The test
+  asserts every chunk finishes and nothing reads falsely CURRENT; the reviewer may want to time the chunk commits.
 
 - One-off S3/S4 CLIs still use the app clock and bypass the Site claim (runbook: stop the tick first).
 - S4-02c consequence retries have no terminal cap; alarmed at 5 attempts, not stopped.
