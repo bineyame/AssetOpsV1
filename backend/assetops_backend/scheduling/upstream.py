@@ -45,7 +45,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
-from assetops_backend.scheduling.health import HealthThresholds, environment_health, site_observation
+from assetops_backend.scheduling.health import HealthThresholds, environment_health, release, site_observation
 
 BRACKET = timedelta(hours=6)
 _ORDER = ("S3", "S4", "CONSEQUENCE", "SCHEDULE")
@@ -73,6 +73,9 @@ class UpstreamCurrentness:
         self.schedule, self.dispatch_read, self.findings = schedule, dispatch_read, findings
         self.consequences, self.consequence_read = consequences, consequence_read
         self.analytic_id, self.th = analytic_id, thresholds
+
+    def dispose(self) -> None:
+        release(self.schedule, self.dispatch_read, self.findings, self.consequences, self.consequence_read)
 
     def _match(self, t: UUID, s: UUID, days: list[date]) -> dict[date, dict[str, Any]]:
         return {d: self.findings.match_state(t, s, self.analytic_id, _start(d)) for d in days}

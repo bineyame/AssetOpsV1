@@ -49,6 +49,23 @@ class HealthThresholds:
     consequence_attempt_alarm: int = 5
 
 
+def release(*objects: Any) -> None:
+    """Dispose the database engines of these collaborators and the stores they wrap (callers that build a report
+    or seam per request release their connections instead of waiting for garbage collection)."""
+    seen: set[int] = set()
+    stack = list(objects)
+    while stack:
+        obj = stack.pop()
+        if obj is None or id(obj) in seen:
+            continue
+        seen.add(id(obj))
+        stack += [getattr(obj, name, None) for name in ("store", "_store", "_prices")]
+        if callable(getattr(obj, "dispose", None)):
+            obj.dispose()
+        elif getattr(obj, "_engine", None) is not None:
+            obj._engine.dispose()
+
+
 def _age(now: datetime, at: datetime | None) -> float | None:
     return None if at is None else round((now - at).total_seconds(), 3)
 
@@ -136,6 +153,9 @@ class ScheduleHealth:
         self.schedule, self.assessments, self.findings = schedule, assessments, findings
         self.consequences, self.consequence_read = consequences, consequence_read
         self.analytic_id, self.domain, self.th = analytic_id, domain, thresholds
+
+    def dispose(self) -> None:
+        release(self.schedule, self.assessments, self.findings, self.consequences, self.consequence_read)
 
     def stale_no_work(self, tenant_id: UUID, site_id: UUID, revisions: list[tuple[Any, Any]]) -> list[dict]:
         out = []

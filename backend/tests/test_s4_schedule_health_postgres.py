@@ -45,11 +45,19 @@ SKEW = timedelta(hours=3)
 
 
 def seam(tenant, site, day: datetime, th=None, env="default"):
-    return build_upstream_currentness(URL, th or NORMAL).window(tenant, site, day, day + timedelta(days=1), env)
+    read = build_upstream_currentness(URL, th or NORMAL)
+    try:
+        return read.window(tenant, site, day, day + timedelta(days=1), env)
+    finally:
+        read.dispose()
 
 
 def health(env, th=None) -> dict:
-    return build_schedule_health(URL, th or NORMAL).report(env)
+    report = build_schedule_health(URL, th or NORMAL)
+    try:
+        return report.report(env)
+    finally:
+        report.dispose()
 
 
 def site_of(report, site) -> dict:
@@ -427,7 +435,9 @@ class TestOverlappingIngestionRace:
             assert report.outcome == "COMPLETED"
             overlapped.append(any(held))
             mid = seam(kobo.tenant, kobo.site, DAY_A, env=env)
-            live = build_postgres_assessment_store(URL).live_jobs("dispatch", "dispatch", kobo.tenant, kobo.site)
+            assessments = build_postgres_assessment_store(URL)
+            live = assessments.live_jobs("dispatch", "dispatch", kobo.tenant, kobo.site)
+            assessments._engine.dispose()
             outcomes.append((mid["eligibility"]["status"], len(live)))
             if live:  # independent of the seam: live S3 work for the window is never CURRENT
                 assert mid["eligibility"]["status"] != "CURRENT", mid["eligibility"]
