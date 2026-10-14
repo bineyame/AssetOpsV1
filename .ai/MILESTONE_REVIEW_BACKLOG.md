@@ -2219,3 +2219,16 @@ Review `.agent/S4-02c-architect-closeout-review.md` ACCEPT with carries (`a88391
 - Worker-schedule Planner carries W1-W5: per-environment ownership/cadence and order (`process-jobs`, `match-findings`, consequence runner; fold or keep separate); I1 retry volume / hung-runner alarm / `NO_WORK_RECORDED` heads; prove stopped workers never look current at the projection inputs; replay Leg B without hand-run steps; record the 8.28% ranking notice in the handoff.
 - Late-reading Planner carries L-a..L-f: source-time cohort rule as a reviewed contract first (open choices to the Architect); new model version and reassessment keeping history; Finding series limit and end reason (not OPEN_BOUND alone); resolve L1; regression over run 1 and on-time-sequenced late upload; real gateway without validated clock semantics stays limited.
 - Residual risk: the gate covers S5 only; the S4-02b Finding money panel can show run 1's 7.5625 USD as current until the late-reading node lands. The late-reading Planner must cover that surface.
+
+### S4-02d carries (2026-10-14)
+
+Reviews `.agent/S4-02d-phase-1-review.md`, `.agent/S4-02d-phase-2-review.md`, `.agent/S4-02d-review.md` (all ACCEPT with carries; slice review `caa652ab`). F-A, F-C, F-D, phase-1 F1-F3 fixed on the branch. I4 (overlapping ingestion chunks vs an active tick) proved at the phase-2 review.
+- Install gate: do not install the schedule on any demo, walkthrough or pilot host. Demo/walkthrough stay CLOSED until `I-late-reading-series-and-money-limit`; pilot also on F1 and `I-stored-demo-provenance` (`tools/schedule-install-gate.py`).
+- I3: DB-clock knowledge cutoff vs app-clock evidence `decided_at` remains for that comparand; needs a scoped evidence-owner packet (DB-time `decided_at` or re-enqueue on late decisions). `S3_STALE_NO_JOB` alarm + `assess_dispatch requeue --day` are the operator recovery meanwhile.
+- F-B: rule-8 schedule-writer guard is line-based; misses multi-line and non-text SQL (11 probe forms). Needs a statement-level (AST) guard; the other writer rules share the limit.
+- Health scan cost: `STALE_NO_WORK` and `S3_STALE_NO_JOB` scans grow with Findings/assessed days; bound before any automated or API use.
+- Tick cost and `--max-sites` measured only on the Windows dev host; measure on the demo host before install.
+- S5-01 seam carries: present `S3_UNASSESSED` days as a gap (phase-2 deviation 5); apply the `source_open` gate and the F1 money rule on top of the seam; one seam instance per process.
+- R-1 (`backend/tests/test_s4_schedule_health_postgres.py:460-471`): round-1 comment claims a race that never overlapped; reword or gate on an S3-stage event. R-2 (`:395-400`): 20 s skew allowance trips on slow ticks (42-96 s seen); derive from a measured tick or ~120 s. R-3 (`scheduling/health.py:179`): alarm's live-job exclusion untested (mutation survived); add the live-FAILED-job-over-STALE-day assertion.
+- I4 race test wall time 26-384 s and the 16 -> 37 min full suite are host disk sync (`IO:DataFileImmediateSync` in per-test migration/TRUNCATE), not lock contention: input to OPS-01.
+- Info: phase-1 scratch DB `assetops_s402d_test` left on the shared server.
