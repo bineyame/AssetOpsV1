@@ -31,6 +31,7 @@ from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailab
 from assetops_backend.analytics.finding_read import FindingReadService
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable as FileAssessmentStoreUnavailable
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
+from assetops_backend.financials.demonstration import demonstration_case
 
 Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 # (request, site_code) -> None to admit, else 401 or 403.
@@ -271,6 +272,8 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
             "revision": {"id": selection["revision_id"], "revision_no": selection["revision_no"],
                          "lifecycle": body["revision"]["lifecycle"]},
             "window": body["revision"]["episode"], **result,
+            "demonstration": demonstration_case(code, body["revision"]["episode"]["start"],
+                                                body["revision"]["episode"]["end"]),
             "links": consequence_links(code, finding_id, selection["revision_id"], source["permitted"], result)})
 
     # ---- S4-02a phase 2 bridge, S4-02b phase 2a consequence ----
@@ -300,6 +303,7 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
                          "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
                          "claim_level": body["revision"]["claim_level"]},
             "window": episode,
+            "demonstration": demonstration_case(code, episode["start"], episode["end"]),
             "consequence": bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"])),
             "links": links})
 

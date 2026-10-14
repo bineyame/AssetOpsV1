@@ -263,3 +263,23 @@ class TestConsequenceRouteCarries:
         assert "waiting to run" in queued["reason"]
         for body in (idle, queued):
             assert "being recalculated" not in body["reason"] and body["amount"] is None
+
+
+class TestDemonstrationLabel:
+    """Owner ruling 2026-10-14: the authored P01-power case is labelled as demonstration data; others are not."""
+
+    def test_only_the_declared_demonstration_day_at_its_site_is_labelled(self) -> None:
+        from assetops_backend.financials.demonstration import demonstration_case
+
+        demo = demonstration_case("KOBO-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00")
+        assert demo is not None and demo["case_id"] == "P01-power" and demo["label"] == "Demonstration data"
+        assert "simulat" not in demo["statement"].lower()
+        assert demonstration_case("KOBO-001", "2026-10-19T06:00:00+00:00", "2026-10-19T09:00:00+00:00") is None
+        assert demonstration_case("OTHER-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00") is None
+        assert demonstration_case("KOBO-001", "2026-10-23T22:00:00+00:00", "2026-10-24T01:00:00+00:00") is None
+
+    def test_the_bridge_carries_the_label(self) -> None:
+        body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
+            "start": "2026-10-23T06:05:00+00:00", "end": "2026-10-23T08:00:00+00:00"}}}
+        assert bridge(FindingReads(body)).get(BRIDGE).json()["demonstration"]["case_id"] == "P01-power"
+        assert bridge(FindingReads(finding_body())).get(BRIDGE).json()["demonstration"] is None
