@@ -2188,3 +2188,11 @@ The carried review findings above are unchanged.
 - Phase 2a deviations: no consequence work is queued on evidence acceptance (head shows STALE until another trigger; Architect batch Q2); recompute is a one-shot CLI with no scheduler (Q6, Planner/ops).
 - Phase 2b: `layout-evidence.mjs` 206 PASS / 28 FAIL, same fixture-precondition failures as S4-02a; full backend suite not rerun after fix round 1 (only `demonstration_label.py` changed in backend).
 
+
+### A-S5-overview review carries (2026-10-14)
+
+Review `.agent/A-S5-overview-review.md` ACCEPT with carries (`07841a19`). L1 (cp1252 dash bytes in DECISIONS.md and the answers file) fixed by the coordinator.
+- L2: no checker reads `delivery_plan.waves.W1.exit_requires` / `real_pilot_requires`; a misspelled ID passes, and `I-stored-demo-provenance` / `I-price-equal-start-succession` never surface in next-work. Standing coordinator check at W1 exit and before any real-Site pilot until the checker validates them.
+- L3: `technical_requires` of `mini:1#a/2#a/3#a/4#a` omit `I-evidence-acceptance-consequence-work` (and `mini:3#a` omits `D-site-finding-index-rows`); scoring unaffected. Fix at the next registry edit.
+- I1: Q1/Q3 nodes are in `queue_baseline_nodes` with no scheduled task, while the assumption-history follow-on nodes are not; make consistent when packets land. I2: the owner-absent checkpoint rule was stated as standing; owner to confirm on return.
+- S5-01 Planner carries P1-P9: P1 depend on reviewed/merged Q2 packet and registry sequencing after S4-04; P2 which Finding the money card shows when a window has several (no sums); P3 selected date = UTC day; P4 replace "stale projection says pending" with Unknown/pending/stale/failed plus no-amount money states and wire fields; P5 `site_window_projection` lacks consequence IDs, analytic watermark, freshness reason: migrate or define CURRENT for a scoped read; P6 reuse S4-02b demonstration-label logic; P7 follow-on packets cite batch answers Q1-Q3 and restore dropped details (Q1 `valid_from >= recorded_at`, 409 on >1 overlap or bounded; Q2 keep FindingRevision-insert trigger, "queued" only with a work row; Q3 gateway credentials alone confer no authorship); P8 if S5-01 splits, move the Q2 gate to the money read; P9 no unsupported mock claims, Finding list shown unavailable not empty, keep USER_REVIEW_REQUIRED and merge hold.

@@ -1,10 +1,10 @@
-# Architect answers — A-S5-overview (2026-10-14)
+# Architect answers â€” A-S5-overview (2026-10-14)
 
 ## Registration and selection
 
 Registered three open, sized S4-02 follow-on nodes in the registry and its `queue_baseline_nodes`: `I-price-equal-start-succession` (S), `I-evidence-acceptance-consequence-work` (M), and `I-stored-demo-provenance` (M). Each needs a Planner-written bounded S4-02 follow-on packet; no packet is written here. The existing Assumptions-history follow-on remains separate; its read acceptance now explicitly requires foreign-Site refusal. Q1 preserves recorded cutoff history on an equal-start future price replacement. Q2 durably enqueues/retries consequence work on accepted evidence and is an AND prerequisite of `I-site-overview-read`; it must close before S5-01 consumes current money, but the architecture decision may proceed now. M reflects the transaction, selector/worker, idempotency and end-to-end late-power walkthrough, rather than a single small edit. Q3 stores server-authorized, tenant/Site-scoped authored source designation and traces accepted evidence into Finding/consequence reads. Registry `delivery_plan.waves.W1.exit_requires` and `real_pilot_requires`/`physical_peer_gate` name Q3 as a W1-exit and first-real-pilot gate. These metadata gates require coordinator enforcement at those checkpoints; the current checker validates node links but does not itself enforce either checkpoint.
 
-Registry validation passed (222 nodes). A fresh `--next-work` report at `.agent/next-work-2026-10-14c.json` was generated and `--verify-report` passed before resolving the selected architecture node. It selected `A-S5-overview` 2.198 versus `A-action-lifecycle` 2.009, gap 8.60%; the published 5–10% tie-break chooses S5 with notice. This is not a <=5% owner contest. The Q2 node was eligible at 1.998. The report is a pre-decision snapshot and must be regenerated after this decision before selecting another task.
+Registry validation passed (222 nodes). A fresh `--next-work` report at `.agent/next-work-2026-10-14c.json` was generated and `--verify-report` passed before resolving the selected architecture node. It selected `A-S5-overview` 2.198 versus `A-action-lifecycle` 2.009, gap 8.60%; the published 5â€“10% tie-break chooses S5 with notice. This is not a <=5% owner contest. The Q2 node was eligible at 1.998. The report is a pre-decision snapshot and must be regenerated after this decision before selecting another task.
 
 ## S5-01 contract and Planner handoff
 
