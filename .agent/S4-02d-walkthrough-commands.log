@@ -1,0 +1,263 @@
+20:43:59 py -c import assetops_backend,assetops_gateway;print(assetops_backend.__file__);print(assetops_gateway.__file__)
+20:43:59 py -m alembic upgrade head
+20:44:02 py -m assetops_backend.sites.import_kobo --source var/sites/kobo-001.yaml --tenant demo
+20:44:04 py -m assetops_backend.sites.convert_kobo_bindings --fixture backend/conversions/kobo-001-bindings.json --tenant demo
+20:44:06 py -c import sys;from pathlib import Path;from assetops_gateway.credential_protection import restrict_to_current_user as r;r(Path(sys.argv[1])) C:\Users\assef\AppData\Local\AssetOps\s402d3-tick-walk\tls\server.key
+20:44:06 start tls-server -m assetops_backend.serve_tls --cert C:\Users\assef\AppData\Local\AssetOps\s402d3-tick-walk\tls\server.crt --key C:\Users\assef\AppData\Local\AssetOps\s402d3-tick-walk\tls\server.key --port 8928
+20:44:12 py -m assetops_backend.evidence.provision_gateway issue --tenant demo --site KOBO-001 --gateway edge-kobo-001 --credential-out C:\Users\assef\AppData\Local\AssetOps\s402d3-tick-walk\credentials\upload.credential --cadence-seconds 60 --enable-source battery-pcs-controller --enable-source clinic-meter --enable-source fuel-level-sensor --enable-source generator-controller --enable-source mill-meter --enable-source pv-inverter-controller --enable-source pv-irradiance-sensor --enable-source residential-meter
+20:44:13 py -m assetops_backend.sites.demo_configuration --fixture backend/conversions/kobo-001-s3-dispatch-demo-config.json --tenant demo --steps properties,bindings
+20:44:15 py -c 
+import json, sys
+from datetime import datetime
+from assetops_backend.config import database_url
+from assetops_backend.sites.composition import build_foundation_store
+from assetops_backend.sites.foundation_service import FoundationService, utc_now
+value, effective_from, note = int(sys.argv[1]), datetime.fromisoformat(sys.argv[2].replace("Z", "+00:00")), sys.argv[3]
+service = FoundationService(build_foundation_store(database_url()), "demo", utc_now)
+tenant = service.tenant()
+site = service.site(tenant, "KOBO-001")
+result = service.publish_component_properties(tenant, site, asset_code="generator", properties=[
+    {"property_key": "minimum-runtime", "value": value, "unit": "min", "source": "TEMPLATE", "source_version": 2}],
+    effective_from=effective_from, note=note)
+print(json.dumps({"revision_id": str(result.changed.id)}))
+ 0 2026-10-03T00:00:00Z s4-finding-cases-v1: labelled fixture control
+20:44:17 py -m assetops_backend.publish_assumption fixture --site KOBO-001 --file conversions\demo-diesel-price-publications.json --step v1
+20:44:20 py -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough
+20:44:22 py -m assetops_backend.scheduling.run health --environment walkthrough
+20:44:23 py -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100
+20:44:30 py -c 
+import hashlib, json, sys
+from uuid import UUID
+from assetops_backend.config import database_url
+from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials.composition import build_consequence_read_service, build_consequence_store
+from assetops_backend.finding_api import REASONS, bridge_consequence
+t, s, f, r, latest, w0, w1, late = sys.argv[1:9]
+url = database_url()
+res = build_consequence_read_service(url).read(UUID(t), UUID(s), UUID(f), UUID(r),
+                                                 finding_revision_is_latest=latest == "1", source_open=True)
+fi = build_consequence_store(url).load_input(UUID(t), UUID(s), UUID(f), UUID(r))
+q = fc.quantify(fi)
+spans = fc.merge([(x.start, x.end) for x in fi.candidate_spans if x.start < x.end])
+from datetime import datetime
+lo, hi = (datetime.fromisoformat(x.replace("Z", "+00:00")) for x in (w0, w1))
+runs = frozenset().union(*(a.run_evidence_ids for a in fi.assessments if a.scope == "INTERVAL"))
+b = bridge_consequence(res)
+key = next((k for k, v in REASONS.items() if v == b["reason"]), None)
+cur, c = res["currentness"], res["consequence"]
+ex = sorted(q.examined_evidence_ids)
+print(json.dumps({
+    "currentness": cur["state"], "reasons": cur["reasons"],
+    "pending_work": [{"work_id": w["work_id"], "cause": w["cause"], "accepted_evidence_id": w["accepted_evidence_id"],
+                      "finding_revision_id": w["finding_revision_id"]} for w in cur["pending_work"]],
+    "head_consequence_revision_id": res["consequence_selection"]["head_consequence_revision_id"],
+    "consequence": None if c is None else {
+        "id": c["id"], "revision_no": c["revision_no"], "state": c["state"], "quantity": c["quantity"]["state"],
+        "quantity_reason": c["quantity"]["reason"], "quantity_high": c["quantity"]["high"],
+        "price_state": c["price"]["state"], "price_reason": c["price"]["reason"],
+        "price_revision_id": c["price"]["revision_id"], "amount_high": c["amount"]["high"],
+        "display_amount_high": (c["display"] or {}).get("amount_high"),
+        "technical_input_sha256": c["digests"]["technical_input_sha256"],
+        "consequence_basis_sha256": c["digests"]["consequence_basis_sha256"],
+        "counted_power_evidence": len(c["lineage"]["evidence_ids"]),
+        "counted_power_evidence_sha256": hashlib.sha256(",".join(sorted(c["lineage"]["evidence_ids"])).encode()).hexdigest(),
+        "analytic_run_ids": sorted({a["analytic_run_id"] for a in c["lineage"]["assessments"]})},
+    "history": [[h["id"], h["revision_no"], h["state"], h["quantity"]["reason"] or h["price"]["reason"]]
+                for h in res["history"]["revisions"]],
+    "bridge": {"state": b["state"], "reason_key": key, "recalculation_queued": b["recalculation_queued"],
+               "amount": b["amount"], "currency": b["currency"], "currentness_reasons": b["currentness_reasons"]},
+    "s5_money_eligible": cur["state"] == "CURRENT" and c is not None and c["state"] == "PRICED" and b["amount"] is not None,
+    "derived_now": {"quantity": q.state, "reason": q.reason, "examined_count": len(ex),
+                    "examined_sha256": hashlib.sha256(",".join(ex).encode()).hexdigest(),
+                    "late_examined": late in ex, "late_in_run_inputs": late in runs,
+                    "run_input_count": len(runs)},
+    "candidate_spans": [[x[0].isoformat(), x[1].isoformat()] for x in spans],
+    "withheld_inside_candidate": any(a <= lo and hi <= z for a, z in spans),
+}))
+ 2c5341dd-cba4-48b3-add3-d3751b88564f a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d 97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5 7622d2e9-d1a3-4e67-af86-085014c3a9a7 1 2026-10-24T07:00:00Z 2026-10-24T07:05:00Z -
+20:44:32 py -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough
+20:44:34 py -m assetops_backend.scheduling.run health --environment walkthrough
+20:44:36 py -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100
+20:44:42 py -m assetops_backend.scheduling.run health --environment walkthrough
+20:44:44 py -c 
+import hashlib, json, sys
+from uuid import UUID
+from assetops_backend.config import database_url
+from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials.composition import build_consequence_read_service, build_consequence_store
+from assetops_backend.finding_api import REASONS, bridge_consequence
+t, s, f, r, latest, w0, w1, late = sys.argv[1:9]
+url = database_url()
+res = build_consequence_read_service(url).read(UUID(t), UUID(s), UUID(f), UUID(r),
+                                                 finding_revision_is_latest=latest == "1", source_open=True)
+fi = build_consequence_store(url).load_input(UUID(t), UUID(s), UUID(f), UUID(r))
+q = fc.quantify(fi)
+spans = fc.merge([(x.start, x.end) for x in fi.candidate_spans if x.start < x.end])
+from datetime import datetime
+lo, hi = (datetime.fromisoformat(x.replace("Z", "+00:00")) for x in (w0, w1))
+runs = frozenset().union(*(a.run_evidence_ids for a in fi.assessments if a.scope == "INTERVAL"))
+b = bridge_consequence(res)
+key = next((k for k, v in REASONS.items() if v == b["reason"]), None)
+cur, c = res["currentness"], res["consequence"]
+ex = sorted(q.examined_evidence_ids)
+print(json.dumps({
+    "currentness": cur["state"], "reasons": cur["reasons"],
+    "pending_work": [{"work_id": w["work_id"], "cause": w["cause"], "accepted_evidence_id": w["accepted_evidence_id"],
+                      "finding_revision_id": w["finding_revision_id"]} for w in cur["pending_work"]],
+    "head_consequence_revision_id": res["consequence_selection"]["head_consequence_revision_id"],
+    "consequence": None if c is None else {
+        "id": c["id"], "revision_no": c["revision_no"], "state": c["state"], "quantity": c["quantity"]["state"],
+        "quantity_reason": c["quantity"]["reason"], "quantity_high": c["quantity"]["high"],
+        "price_state": c["price"]["state"], "price_reason": c["price"]["reason"],
+        "price_revision_id": c["price"]["revision_id"], "amount_high": c["amount"]["high"],
+        "display_amount_high": (c["display"] or {}).get("amount_high"),
+        "technical_input_sha256": c["digests"]["technical_input_sha256"],
+        "consequence_basis_sha256": c["digests"]["consequence_basis_sha256"],
+        "counted_power_evidence": len(c["lineage"]["evidence_ids"]),
+        "counted_power_evidence_sha256": hashlib.sha256(",".join(sorted(c["lineage"]["evidence_ids"])).encode()).hexdigest(),
+        "analytic_run_ids": sorted({a["analytic_run_id"] for a in c["lineage"]["assessments"]})},
+    "history": [[h["id"], h["revision_no"], h["state"], h["quantity"]["reason"] or h["price"]["reason"]]
+                for h in res["history"]["revisions"]],
+    "bridge": {"state": b["state"], "reason_key": key, "recalculation_queued": b["recalculation_queued"],
+               "amount": b["amount"], "currency": b["currency"], "currentness_reasons": b["currentness_reasons"]},
+    "s5_money_eligible": cur["state"] == "CURRENT" and c is not None and c["state"] == "PRICED" and b["amount"] is not None,
+    "derived_now": {"quantity": q.state, "reason": q.reason, "examined_count": len(ex),
+                    "examined_sha256": hashlib.sha256(",".join(ex).encode()).hexdigest(),
+                    "late_examined": late in ex, "late_in_run_inputs": late in runs,
+                    "run_input_count": len(runs)},
+    "candidate_spans": [[x[0].isoformat(), x[1].isoformat()] for x in spans],
+    "withheld_inside_candidate": any(a <= lo and hi <= z for a, z in spans),
+}))
+ 2c5341dd-cba4-48b3-add3-d3751b88564f a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d 97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5 7622d2e9-d1a3-4e67-af86-085014c3a9a7 1 2026-10-24T07:00:00Z 2026-10-24T07:05:00Z 4b39dd00-2da7-4e74-9e4b-c904fdf119ef
+20:44:45 py -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough
+20:44:47 py -m assetops_backend.scheduling.run health --environment walkthrough
+20:44:48 py -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100
+20:44:55 py -c 
+import hashlib, json, sys
+from uuid import UUID
+from assetops_backend.config import database_url
+from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials.composition import build_consequence_read_service, build_consequence_store
+from assetops_backend.finding_api import REASONS, bridge_consequence
+t, s, f, r, latest, w0, w1, late = sys.argv[1:9]
+url = database_url()
+res = build_consequence_read_service(url).read(UUID(t), UUID(s), UUID(f), UUID(r),
+                                                 finding_revision_is_latest=latest == "1", source_open=True)
+fi = build_consequence_store(url).load_input(UUID(t), UUID(s), UUID(f), UUID(r))
+q = fc.quantify(fi)
+spans = fc.merge([(x.start, x.end) for x in fi.candidate_spans if x.start < x.end])
+from datetime import datetime
+lo, hi = (datetime.fromisoformat(x.replace("Z", "+00:00")) for x in (w0, w1))
+runs = frozenset().union(*(a.run_evidence_ids for a in fi.assessments if a.scope == "INTERVAL"))
+b = bridge_consequence(res)
+key = next((k for k, v in REASONS.items() if v == b["reason"]), None)
+cur, c = res["currentness"], res["consequence"]
+ex = sorted(q.examined_evidence_ids)
+print(json.dumps({
+    "currentness": cur["state"], "reasons": cur["reasons"],
+    "pending_work": [{"work_id": w["work_id"], "cause": w["cause"], "accepted_evidence_id": w["accepted_evidence_id"],
+                      "finding_revision_id": w["finding_revision_id"]} for w in cur["pending_work"]],
+    "head_consequence_revision_id": res["consequence_selection"]["head_consequence_revision_id"],
+    "consequence": None if c is None else {
+        "id": c["id"], "revision_no": c["revision_no"], "state": c["state"], "quantity": c["quantity"]["state"],
+        "quantity_reason": c["quantity"]["reason"], "quantity_high": c["quantity"]["high"],
+        "price_state": c["price"]["state"], "price_reason": c["price"]["reason"],
+        "price_revision_id": c["price"]["revision_id"], "amount_high": c["amount"]["high"],
+        "display_amount_high": (c["display"] or {}).get("amount_high"),
+        "technical_input_sha256": c["digests"]["technical_input_sha256"],
+        "consequence_basis_sha256": c["digests"]["consequence_basis_sha256"],
+        "counted_power_evidence": len(c["lineage"]["evidence_ids"]),
+        "counted_power_evidence_sha256": hashlib.sha256(",".join(sorted(c["lineage"]["evidence_ids"])).encode()).hexdigest(),
+        "analytic_run_ids": sorted({a["analytic_run_id"] for a in c["lineage"]["assessments"]})},
+    "history": [[h["id"], h["revision_no"], h["state"], h["quantity"]["reason"] or h["price"]["reason"]]
+                for h in res["history"]["revisions"]],
+    "bridge": {"state": b["state"], "reason_key": key, "recalculation_queued": b["recalculation_queued"],
+               "amount": b["amount"], "currency": b["currency"], "currentness_reasons": b["currentness_reasons"]},
+    "s5_money_eligible": cur["state"] == "CURRENT" and c is not None and c["state"] == "PRICED" and b["amount"] is not None,
+    "derived_now": {"quantity": q.state, "reason": q.reason, "examined_count": len(ex),
+                    "examined_sha256": hashlib.sha256(",".join(ex).encode()).hexdigest(),
+                    "late_examined": late in ex, "late_in_run_inputs": late in runs,
+                    "run_input_count": len(runs)},
+    "candidate_spans": [[x[0].isoformat(), x[1].isoformat()] for x in spans],
+    "withheld_inside_candidate": any(a <= lo and hi <= z for a, z in spans),
+}))
+ 2c5341dd-cba4-48b3-add3-d3751b88564f a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d 97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5 1b8eb2ea-b54f-4f14-bfe3-ffe7d67a3f47 1 2026-10-24T07:00:00Z 2026-10-24T07:05:00Z 4b39dd00-2da7-4e74-9e4b-c904fdf119ef
+20:44:57 py -c 
+import hashlib, json, sys
+from uuid import UUID
+from assetops_backend.config import database_url
+from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials.composition import build_consequence_read_service, build_consequence_store
+from assetops_backend.finding_api import REASONS, bridge_consequence
+t, s, f, r, latest, w0, w1, late = sys.argv[1:9]
+url = database_url()
+res = build_consequence_read_service(url).read(UUID(t), UUID(s), UUID(f), UUID(r),
+                                                 finding_revision_is_latest=latest == "1", source_open=True)
+fi = build_consequence_store(url).load_input(UUID(t), UUID(s), UUID(f), UUID(r))
+q = fc.quantify(fi)
+spans = fc.merge([(x.start, x.end) for x in fi.candidate_spans if x.start < x.end])
+from datetime import datetime
+lo, hi = (datetime.fromisoformat(x.replace("Z", "+00:00")) for x in (w0, w1))
+runs = frozenset().union(*(a.run_evidence_ids for a in fi.assessments if a.scope == "INTERVAL"))
+b = bridge_consequence(res)
+key = next((k for k, v in REASONS.items() if v == b["reason"]), None)
+cur, c = res["currentness"], res["consequence"]
+ex = sorted(q.examined_evidence_ids)
+print(json.dumps({
+    "currentness": cur["state"], "reasons": cur["reasons"],
+    "pending_work": [{"work_id": w["work_id"], "cause": w["cause"], "accepted_evidence_id": w["accepted_evidence_id"],
+                      "finding_revision_id": w["finding_revision_id"]} for w in cur["pending_work"]],
+    "head_consequence_revision_id": res["consequence_selection"]["head_consequence_revision_id"],
+    "consequence": None if c is None else {
+        "id": c["id"], "revision_no": c["revision_no"], "state": c["state"], "quantity": c["quantity"]["state"],
+        "quantity_reason": c["quantity"]["reason"], "quantity_high": c["quantity"]["high"],
+        "price_state": c["price"]["state"], "price_reason": c["price"]["reason"],
+        "price_revision_id": c["price"]["revision_id"], "amount_high": c["amount"]["high"],
+        "display_amount_high": (c["display"] or {}).get("amount_high"),
+        "technical_input_sha256": c["digests"]["technical_input_sha256"],
+        "consequence_basis_sha256": c["digests"]["consequence_basis_sha256"],
+        "counted_power_evidence": len(c["lineage"]["evidence_ids"]),
+        "counted_power_evidence_sha256": hashlib.sha256(",".join(sorted(c["lineage"]["evidence_ids"])).encode()).hexdigest(),
+        "analytic_run_ids": sorted({a["analytic_run_id"] for a in c["lineage"]["assessments"]})},
+    "history": [[h["id"], h["revision_no"], h["state"], h["quantity"]["reason"] or h["price"]["reason"]]
+                for h in res["history"]["revisions"]],
+    "bridge": {"state": b["state"], "reason_key": key, "recalculation_queued": b["recalculation_queued"],
+               "amount": b["amount"], "currency": b["currency"], "currentness_reasons": b["currentness_reasons"]},
+    "s5_money_eligible": cur["state"] == "CURRENT" and c is not None and c["state"] == "PRICED" and b["amount"] is not None,
+    "derived_now": {"quantity": q.state, "reason": q.reason, "examined_count": len(ex),
+                    "examined_sha256": hashlib.sha256(",".join(ex).encode()).hexdigest(),
+                    "late_examined": late in ex, "late_in_run_inputs": late in runs,
+                    "run_input_count": len(runs)},
+    "candidate_spans": [[x[0].isoformat(), x[1].isoformat()] for x in spans],
+    "withheld_inside_candidate": any(a <= lo and hi <= z for a, z in spans),
+}))
+ 2c5341dd-cba4-48b3-add3-d3751b88564f a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d 97fdae9e-1a18-4fd9-89c4-b9cea4a31ab5 7622d2e9-d1a3-4e67-af86-085014c3a9a7 0 2026-10-24T07:00:00Z 2026-10-24T07:05:00Z 4b39dd00-2da7-4e74-9e4b-c904fdf119ef
+20:44:58 py -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough
+20:45:00 py -m assetops_backend.scheduling.run health --environment walkthrough
+20:45:02 py -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100
+20:45:08 py -c 
+import json, sys, time
+from datetime import datetime
+from uuid import UUID
+from assetops_backend.config import database_url
+from assetops_backend.scheduling.composition import build_schedule_health, build_upstream_currentness
+from assetops_backend.scheduling.health import HealthThresholds
+t, s, w0, w1, env = sys.argv[1:6]
+th = HealthThresholds(stop_after_seconds=1, site_stop_after_seconds=1)
+time.sleep(2.5)
+h, u = build_schedule_health(database_url(), th), build_upstream_currentness(database_url(), th)
+try:
+    rep = h.report(env)
+    seam = u.window(UUID(t), UUID(s), datetime.fromisoformat(w0), datetime.fromisoformat(w1), env)
+finally:
+    h.dispose(); u.dispose()
+site = next(x for x in rep["sites"] if x["site_id"] == s)
+print(json.dumps({"thresholds": th.__dict__, "health_state": rep["state"],
+                  "tick_alarms": [a["code"] for a in rep["tick"]["alarms"]], "site_state": site["state"],
+                  "site_alarms": [a["code"] for a in site["alarms"]], "seam_eligibility": seam["eligibility"],
+                  "seam_s3_jobs": len(seam["s3_jobs"]), "seam_consequence_work": len(seam["consequence_work"])},
+                 default=str))
+ 2c5341dd-cba4-48b3-add3-d3751b88564f a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d 2026-10-24T00:00:00+00:00 2026-10-25T00:00:00+00:00 walkthrough
+20:45:13 py -m assetops_backend.scheduling.run tick --environment walkthrough --max-sites 5 --s3-jobs 10 --consequence-items 100
+20:45:20 py -m assetops_backend.scheduling.run upstream --tenant-id 2c5341dd-cba4-48b3-add3-d3751b88564f --site-id a5313b40-b61d-4fa8-90f1-ff3b72c4ce3d --start 2026-10-24T00:00:00+00:00 --end 2026-10-25T00:00:00+00:00 --environment walkthrough
+20:45:23 py -m assetops_backend.scheduling.run health --environment walkthrough
