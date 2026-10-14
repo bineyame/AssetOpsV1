@@ -634,7 +634,8 @@ function Invoke-ConfigurationPersistenceCheck {
     $assumptionTables = @('financial_assumption_revision', 'financial_assumption_assignment')
     $assumptionUpdate = '(?i)\bUPDATE\s+financial_assumption_assignment\s+SET\s+recorded_to\s*=\s*:[a-z_]+\s+WHERE\b'
     # S4-02b adds the seventh writer, the financial consequence store: INSERT-only into the consequence revision,
-    # its three link tables and work attempts. Dirty work rows are inserted only by migration 0011 triggers, so
+    # its three link tables and work attempts. Dirty work rows are inserted only by migration triggers (0011:
+    # assumption publication and FindingRevision append; 0012, S4-02c: accepted generator-power disposition), so
     # no module may write financial_consequence_work at all.
     $consequenceWriter = "$backendRoot/financials/adapters/postgres_consequence_store.py"
     $consequenceTables = @('financial_consequence_revision', 'financial_consequence_assessment_revision',
@@ -710,7 +711,7 @@ function Invoke-ConfigurationPersistenceCheck {
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($target -eq 'financial_consequence_work') {
-                    $failures.Add(("Dirty consequence work is inserted only by the migration 0011 triggers; " +
+                    $failures.Add(("Dirty consequence work is inserted only by the migration 0011/0012 triggers; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($module.Path -ne $assumptionWriter -and $null -ne $target -and $assumptionTables -contains $target) {

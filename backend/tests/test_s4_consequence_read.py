@@ -43,21 +43,51 @@ class Prices:
 
 
 class Worker:
-    def __init__(self, outs):
-        self.outs = outs
+    def __init__(self, outs, claimed=True):
+        self.outs, self.claimed, self.calls = outs, claimed, []
 
-    def run_pending(self, tenant_id, site_id, limit):
-        return self.outs
+    def run(self, tenant_id, site_id, limit):
+        from datetime import datetime, timezone
+
+        from assetops_backend.financials.recompute import RunReport
+
+        self.calls.append(limit)
+        return RunReport(tenant_id, site_id, self.claimed, datetime(2026, 10, 14, tzinfo=timezone.utc),
+                         list(self.outs) if self.claimed else [], deferred=1, backlog=2)
 
 
-def test_cli_reports_each_work_item_and_fails_when_any_failed(capsys) -> None:
-    ok = SimpleNamespace(work_id=uuid4(), cause="ASSUMPTION_PUBLISHED", succeeded=True, attempt_no=1,
-                         appended=[uuid4()], replayed=[], error_code=None, error_detail=None)
-    bad = SimpleNamespace(work_id=uuid4(), cause="FINDING_REVISION_APPENDED", succeeded=False, attempt_no=2,
-                          appended=[], replayed=[], error_code="STORE_UNAVAILABLE", error_detail="down")
+def out(cause, succeeded, *, appended=(), no_op_reason=None, error_code=None):
+    return SimpleNamespace(work_id=uuid4(), cause=cause, succeeded=succeeded, attempt_no=1,
+                           appended=list(appended), replayed=[], no_op_reason=no_op_reason, error_code=error_code,
+                           error_detail=None if error_code is None else "down")
+
+
+def test_cli_reports_each_work_item_a_scoped_summary_and_fails_when_any_failed(capsys) -> None:
+    ok = out("ASSUMPTION_PUBLISHED", True, appended=[uuid4()])
+    noop = out("EVIDENCE_ACCEPTED", True, no_op_reason="FINDING_REVISION_SUPERSEDED")
+    bad = out("FINDING_REVISION_APPENDED", False, error_code="STORE_UNAVAILABLE")
     prices = Prices(("KOBO-001", uuid4(), uuid4()))
-    assert main(["run", "--site", "KOBO-001"], worker=Worker([ok]), prices=prices) == 0
-    assert main(["run", "--site", "KOBO-001"], worker=Worker([ok, bad]), prices=prices) == 1
+    w = Worker([ok, noop])
+    assert main(["run", "--tenant", "demo", "--site", "KOBO-001", "--limit", "7"], worker=w, prices=prices) == 0
+    assert w.calls == [7]
+    assert main(["run", "--tenant", "demo", "--site", "KOBO-001"], worker=Worker([ok, bad]), prices=prices) == 1
     lines = [json.loads(x) for x in capsys.readouterr().out.splitlines()]
-    assert [x["succeeded"] for x in lines] == [True, True, False] and lines[-1]["error_code"] == "STORE_UNAVAILABLE"
-    assert main(["run", "--site", "NOPE"], worker=Worker([]), prices=Prices(None)) == 2
+    summary = lines[2]
+    assert {k: summary[k] for k in ("site_code", "tenant", "claimed", "skipped", "limit", "selected", "appended",
+                                    "replayed", "no_op", "failed", "deferred", "backlog")} == {
+        "site_code": "KOBO-001", "tenant": "demo", "claimed": True, "skipped": False, "limit": 7, "selected": 2,
+        "appended": 1, "replayed": 0, "no_op": 1, "failed": 0, "deferred": 1, "backlog": 2}
+    assert lines[1]["no_op_reason"] == "FINDING_REVISION_SUPERSEDED"
+    assert lines[4]["error_code"] == "STORE_UNAVAILABLE" and lines[5]["failed"] == 1 and lines[5]["limit"] == 100
+    assert main(["run", "--tenant", "demo", "--site", "NOPE"], worker=Worker([]), prices=Prices(None)) == 2
+
+
+def test_cli_reports_a_claimed_site_as_skipped_and_refuses_other_tenants(capsys) -> None:
+    prices = Prices(("KOBO-001", uuid4(), uuid4()))
+    assert main(["run", "--tenant", "demo", "--site", "KOBO-001"], worker=Worker([], claimed=False),
+                prices=prices) == 0
+    (summary,) = [json.loads(x) for x in capsys.readouterr().out.splitlines()]
+    assert (summary["claimed"], summary["skipped"], summary["selected"]) == (False, True, 0)
+    # Item 4: explicit tenant and Site; another tenant is refused, never iterated as all-Site coverage.
+    assert main(["run", "--tenant", "acme", "--site", "KOBO-001"], worker=Worker([]), prices=prices) == 2
+    assert "does not cover other tenants" in capsys.readouterr().err

@@ -251,8 +251,8 @@ async function main() {
     claim(`${W} stale: out of date, no current amount, stored version labelled`, s.state === "STALE" && s.amount === "none" && /not a current cost/.test(s.text) && s.panelAmounts === 0, { state: s.state, panelAmounts: s.panelAmounts });
     await shot(`s402b-stale-${W}`);
   }
-  walk("recompute");
-  walk("recompute", "--empty");
+  claim("walkthrough recompute (recompute_consequences run --tenant demo) succeeded", walk("recompute"));
+  claim("walkthrough recompute --empty succeeded", walk("recompute", "--empty"));
   const after = await api(BASE, `/findings/${P01}/financial-consequences`);
   const [c1, c2] = after.history.revisions;
   claim("API: after the v4 recompute, two versions over the same finding version and fuel amount", after.history.total === 2 && c2.display.amount_high === "16.20" && c1.finding_revision_id === c2.finding_revision_id && c1.digests.technical_input_sha256 === c2.digests.technical_input_sha256, { total: after.history.total });

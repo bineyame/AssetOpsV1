@@ -8,7 +8,8 @@ revision, a complete keyset-paged history), the lineage of each revision, and a 
   derive now (review M1: the basis carries the selected price revision or the window-clipped price boundaries,
   never raw assignment IDs, so an unrelated later publication is not stale).
 - `STALE`: a head exists but its basis differs (named reasons: price selection, technical input). The head is
-  never presented as current; the work that will recompute it is listed.
+  never presented as current; the work that will recompute it is listed. Stale with no such work also carries
+  the typed code `NO_WORK_RECORDED` (S4-02c), never a claim that a recalculation is queued.
 - `PENDING`: no consequence exists yet for this FindingRevision (work pending, or none recorded: review L4
   reads "no consequence and no work" as pending, never as absent or zero).
 - `HISTORICAL`: the FindingRevision is not the Finding's latest; its consequences are audit material.
@@ -29,6 +30,7 @@ from assetops_backend.financials import fuel_cost as fc
 from assetops_backend.financials.recompute import ConsequenceStore, PriceStore, derive
 
 PAGE_LIMIT = 200
+NO_WORK_RECORDED = "NO_WORK_RECORDED"
 
 # ISO 4217 minor units for the currencies a Site price may plausibly use. Anything else: no display rounding.
 MINOR_UNITS: dict[str, int] = {
@@ -68,6 +70,10 @@ def display(row: dict[str, Any]) -> dict[str, Any] | None:
 
 def _text(value: Decimal | None) -> str | None:
     return None if value is None else format(value, "f")
+
+
+def _id(value: Any) -> str | None:
+    return None if value is None else str(value)
 
 
 def _iso(value: Any) -> str | None:
@@ -154,7 +160,9 @@ class ConsequenceReadService:
             return None
         head, links, pending = chain["head"], chain["links"], chain["pending"]
         work = [{"work_id": str(w["id"]), "cause": w["cause"], "attempts": w["attempts"],
-                 "last_error_code": w["last_error_code"], "enqueued_at": _iso(w["enqueued_at"])} for w in pending]
+                 "last_error_code": w["last_error_code"], "enqueued_at": _iso(w["enqueued_at"]),
+                 "finding_revision_id": _id(w.get("finding_revision_id")),
+                 "accepted_evidence_id": _id(w.get("accepted_evidence_id"))} for w in pending]
         reasons: list[str] = []
         now: fc.Consequence | None = None
         if not source_open:
@@ -182,6 +190,10 @@ class ConsequenceReadService:
                     reasons.append("PRICE_SELECTION_CHANGED")
                 if not reasons:
                     reasons.append("BASIS_CHANGED")
+                if not work:
+                    # S4-02c: stale with no unsucceeded work touching this read (e.g. a pre-0012 acceptance). A
+                    # typed discrepancy only; the bridge keeps the reviewed STALE sentence (no new copy).
+                    reasons.append(NO_WORK_RECORDED)
         selected_row = chain["exact"] if consequence_revision_id is not None else head
         selected = None if selected_row is None else dto(selected_row, links)
         is_head = selected_row is not None and head is not None and selected_row["id"] == head["id"]
