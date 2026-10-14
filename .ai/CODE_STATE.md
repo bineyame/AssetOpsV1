@@ -5381,3 +5381,13 @@ Branch `task/S4-02a-site-assumptions`; phase 1 `28668d9`..`5159b96`, phase 2 `40
 - Omitted for G-05: Scenarios subtab, Impact preview, maintenance line/accrual, metric cards, Trade-offs, cash flow, FX, extrapolation.
 - Walkthrough/evidence: `tools/s402a_assumptions_walkthrough.py` (private `assetops_s402a*` DBs), `tools/s402a-assumptions-evidence.mjs` (69/69 at 1440/390).
 - Open: L2 (SUCCESSION exactly at an open assignment's start is refused) for an Architect batch; C3 (S4-02b needs a Finding-window correction step); registry closeout for `I-S4-02a` and the Foundation gap is the coordinator's; `tools/layout-evidence.mjs` has pre-existing fixture-precondition failures on the Finding-case store.
+
+## S4-02b phase 1 - `fuel-cost-1` and the consequence store (active, review pending)
+
+Branch `task/S4-02b-fuel-consequence`, `7cbdef7`..HEAD. Handoff `.agent/S4-02b-phase-1-handoff.md`; questions `.agent/S4-02b-questions-1.md` (Q1-Q10).
+
+- Pure `financials/fuel_cost.py`: immutable conditional `PARAMETER_VERSION` (1.10, digest pinned in fixture), `quantify` (Architect C4 fail-closed containment over stored observed `CANDIDATE_AVOIDABLE` segments, cited-run input membership, as-accepted SFC/binding valid over each interval; exact Fraction, upper stored at 50 digits ceiling plus exact fraction), `select_window_price` (whole-window only, typed UNPRICED reasons), `consequence` (exact amount, basis digest incl. considered price assignments). Fixture `conversions/fuel-cost-1-cases-v1.json` (P1-P4, U1-U17).
+- Migration `0011_financial_consequences` (head): append-only `financial_consequence_revision` (number/amount CHECKs, window = FindingRevision episode, chain +1 trigger, unique revision_no and basis), assessment/assumption/power-interval links, trigger-only `financial_consequence_work` (on assumption publication and FindingRevision insert) and append-only `financial_consequence_work_attempt`.
+- Seventh product DB writer `financials/adapters/postgres_consequence_store.py` (`load_input`, idempotent `append`, `pending_work`, `record_attempt`, `rows`); guard rule 8 confines it and forbids any module writing work rows.
+- Carry C3: price fixture v4 CORRECTION 1.28 USD over October 2026; S4-02a tests and walkthrough pinned to v1-v3.
+- Open: no read/recompute worker (2a) or UI (2b); ordinary state-only Findings are all `QUANTITY_UNAVAILABLE` (`POWER_MISSING`) - only the power-mean Postgres case is positive (2.75 L; 3.4375 / 3.52 USD at v1 / v4); `finding_api.consequence_state` still the S4-02a placeholder; display rounding and STALE/PENDING are 2a.
