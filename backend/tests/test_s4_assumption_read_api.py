@@ -278,6 +278,28 @@ class TestDemonstrationLabel:
         assert demonstration_case("OTHER-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00") is None
         assert demonstration_case("KOBO-001", "2026-10-23T22:00:00+00:00", "2026-10-24T01:00:00+00:00") is None
 
+    def test_an_open_episode_on_a_declared_day_is_labelled(self) -> None:
+        from assetops_backend.demonstration_label import demonstration_case
+
+        demo = demonstration_case("KOBO-001", "2026-10-23T06:05:00+00:00", None)
+        assert demo is not None and demo["case_id"] == "P01-power"
+        assert demonstration_case("KOBO-001", "2026-10-19T06:05:00+00:00", None) is None
+
+    def test_an_unreadable_spec_fails_closed_with_a_cautious_label(self, monkeypatch) -> None:
+        from assetops_backend import demonstration_label as dl
+
+        def broken():
+            raise dl.SpecUnreadable("missing")
+
+        monkeypatch.setattr(dl, "_declared", broken)
+        demo = dl.demonstration_case("KOBO-001", "2026-10-19T06:00:00+00:00", "2026-10-19T09:00:00+00:00")
+        assert demo is not None and demo["case_id"] == "unverified" and demo["label"] == dl.UNVERIFIED_LABEL
+
+    def test_the_shipped_spec_parses_with_a_case(self) -> None:
+        from assetops_backend.demonstration_label import _declared
+
+        assert _declared()[2]
+
     def test_the_bridge_carries_the_label(self) -> None:
         body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
             "start": "2026-10-23T06:05:00+00:00", "end": "2026-10-23T08:00:00+00:00"}}}

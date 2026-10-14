@@ -354,7 +354,8 @@ function HowWorkedOut({
   );
 }
 
-function versionWords(rev: ConsequenceRevision): string {
+function versionWords(rev: ConsequenceRevision, hideAmount: boolean): string {
+  if (rev.state === "PRICED" && hideAmount) return "No cost shown: the source is closed, so this is audit material only";
   if (rev.state === "PRICED" && rev.display?.state === "ROUNDED_OUTWARD") {
     return `${range(rev.display.amount_low ?? "", rev.display.amount_high ?? "", rev.display.currency)}, at ${
       rev.price.value ?? ""
@@ -442,14 +443,20 @@ export function FindingBridge({
           {bridge.demonstration ? <Demonstration demo={bridge.demonstration} /> : null}
           {bridge.audit_only ? <p className="notice">{bridge.audit_only.statement}</p> : null}
           <Headline bridge={bridge} />
-          {head && body ? (
+          {head && body && shown ? (
             <>
               <h3 className="panel__subheading" id="site-financials-bridge-steps">
-                From finding to money{shown ? "" : ": the stored version, not a current cost"}
+                From finding to money
               </h3>
-              <BridgeTable rev={head} current={shown} links={links} headingId="site-financials-bridge-steps" />
+              <BridgeTable rev={head} current links={links} headingId="site-financials-bridge-steps" />
               <HowWorkedOut rev={head} body={body} findingId={findingId} findingRevisionId={rev} />
             </>
+          ) : head && body ? (
+            <p data-financials-recorded-pointer="true">
+              {bridge.audit_only
+                ? "No amount is shown while the source is closed."
+                : "No amount is shown here because this is not a current cost. Earlier fuel cost versions are listed under Fuel cost versions, kept for the record."}
+            </p>
           ) : null}
           <p>
             <Link to={links.evidence(findingId, rev)}>See the evidence for this finding version</Link>
@@ -458,7 +465,17 @@ export function FindingBridge({
           </p>
         </div>
       </Panel>
-      {pinned && body ? (
+      {pinned && body && bridge.audit_only ? (
+        <Panel
+          heading={`Fuel cost version ${pinned.revision_no}`}
+          headingId="site-financials-consequence-version-heading"
+          description="An earlier fuel cost version of the same finding version, kept for the record."
+        >
+          <p className="notice" data-consequence-pinned={pinned.id} data-consequence-pinned-current="false">
+            The source is closed, so no amount is shown for any version. This is audit material only.
+          </p>
+        </Panel>
+      ) : pinned && body ? (
         <Panel
           heading={`Fuel cost version ${pinned.revision_no}`}
           headingId="site-financials-consequence-version-heading"
@@ -488,6 +505,8 @@ export function FindingBridge({
         findingRevisionId={rev}
         links={links}
         selected={body?.consequence?.id ?? null}
+        bridgeCurrent={c.currentness === "CURRENT"}
+        hideAmounts={bridge.audit_only !== null && bridge.audit_only !== undefined}
       />
     </>
   );
@@ -499,7 +518,11 @@ function ConsequenceHistory({
   findingRevisionId,
   links,
   selected,
+  bridgeCurrent,
+  hideAmounts,
 }: {
+  bridgeCurrent: boolean;
+  hideAmounts: boolean;
   read: FinancialReadResult<FindingConsequencesBody> | null;
   findingId: string;
   findingRevisionId: string;
@@ -523,7 +546,7 @@ function ConsequenceHistory({
           <ol className="price-history" data-consequence-history="loaded">
             {read.value.history.revisions.map((r) => {
               const head = r.id === read.value.consequence_selection.head_consequence_revision_id;
-              const current = head && read.value.currentness.state === "CURRENT";
+              const current = head && bridgeCurrent && read.value.currentness.state === "CURRENT";
               return (
                 <li
                   key={r.id}
@@ -532,7 +555,7 @@ function ConsequenceHistory({
                   aria-current={r.id === selected ? "true" : undefined}
                 >
                   <p>
-                    <strong>Version {r.revision_no}</strong> · recorded {day(r.recorded_at)} · {versionWords(r)}
+                    <strong>Version {r.revision_no}</strong> · recorded {day(r.recorded_at)} · {versionWords(r, hideAmounts)}
                     {current ? " · the current fuel cost" : " · kept for the record"}
                   </p>
                   <p>

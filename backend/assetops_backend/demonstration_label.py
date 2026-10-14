@@ -24,14 +24,25 @@ STATEMENT = ("This finding comes from demonstration readings written by the Asse
              "fuel-cost calculation. They are not measurements from a working generator.")
 
 
+UNVERIFIED_LABEL = "Source not confirmed"
+UNVERIFIED_STATEMENT = ("Whether this finding comes from demonstration readings could not be checked, so treat any "
+                        "cost shown here with caution.")
+
+
+class SpecUnreadable(Exception):
+    pass
+
+
 @lru_cache(maxsize=1)
 def _declared() -> tuple[str, str, tuple[tuple[str, date], ...]]:
+    # Fails closed: an unreadable or malformed spec raises (and is therefore never cached), and the caller
+    # then labels the Finding cautiously rather than leaving possible demonstration money unlabelled.
     try:
         spec = json.loads(SPEC_PATH.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return ("", "", ())
-    return (spec["site_code"], spec["label"],
-            tuple((c["case_id"], date.fromisoformat(c["day"])) for c in spec["cases"]))
+        return (spec["site_code"], spec["label"],
+                tuple((c["case_id"], date.fromisoformat(c["day"])) for c in spec["cases"]))
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise SpecUnreadable(str(exc)) from exc
 
 
 def _instant(value: Any) -> datetime | None:
@@ -47,13 +58,20 @@ def _instant(value: Any) -> datetime | None:
 
 
 def demonstration_case(site_code: str, start: Any, end: Any) -> dict[str, str] | None:
-    """The declared demonstration case whose UTC day wholly holds `[start, end)` at this Site, else None."""
-    code, spec_label, cases = _declared()
+    """The declared demonstration case whose UTC day holds `[start, end)` at this Site, else None.
+
+    Fails closed: an unreadable spec gives a cautious "source not confirmed" label, and an open episode
+    (no end) is judged by its start day, so demonstration money is never shown unlabelled.
+    """
+    try:
+        code, spec_label, cases = _declared()
+    except SpecUnreadable:
+        return {"label": UNVERIFIED_LABEL, "statement": UNVERIFIED_STATEMENT, "case_id": "unverified", "spec": ""}
     lo, hi = _instant(start), _instant(end)
-    if site_code != code or lo is None or hi is None:
+    if site_code != code or lo is None:
         return None
     for case_id, day in cases:
         day_start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
-        if day_start <= lo and hi <= day_start + timedelta(days=1):
+        if day_start <= lo and (hi is None or hi <= day_start + timedelta(days=1)) and lo < day_start + timedelta(days=1):
             return {"label": LABEL, "statement": STATEMENT, "case_id": case_id, "spec": spec_label}
     return None

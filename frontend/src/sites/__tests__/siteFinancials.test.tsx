@@ -537,19 +537,22 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
   });
 
   it.each(["STALE", "PENDING", "HISTORICAL", "AUDIT_ONLY", "UNAVAILABLE"] as const)(
-    "a %s fuel cost shows no current amount even when a priced version is stored",
+    "a %s fuel cost shows no amount in the money panel even when a priced version is stored",
     async (state) => {
       const client = fake({
         bridge: {
           status: "loaded",
-          value: pricedBridge({
-            state,
-            currentness: state === "UNAVAILABLE" ? null : state,
-            amount: null,
-            currency: null,
-            quantity: null,
-            reason: "No current cost is shown.",
-          }),
+          value: {
+            ...pricedBridge({
+              state,
+              currentness: state === "UNAVAILABLE" ? null : state,
+              amount: null,
+              currency: null,
+              quantity: null,
+              reason: "No current cost is shown.",
+            }),
+            audit_only: state === "AUDIT_ONLY" ? { non_current: true, statement: "Audit material only: the source is closed." } : null,
+          },
         },
         consequences: {
           status: "loaded",
@@ -561,26 +564,64 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
       const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
       expect(bridge).toHaveAttribute("data-financials-amount", "none");
       expect(bridge.querySelector("[data-financials-headline='amount']")).toBeNull();
-      expect(bridge.querySelector("[data-bridge-amount='current']")).toBeNull();
-      expect(bridge.querySelector("[data-bridge-amount]")).toHaveAttribute("data-bridge-amount", "recorded");
-      expect(bridge).toHaveTextContent("the stored version, not a current cost");
+      expect(bridge.querySelector("[data-bridge-amount]")).toBeNull();
+      expect(bridge.querySelector("[data-financials-recorded-pointer]")).not.toBeNull();
+      // visible text: no currency amount anywhere in the money panel
+      expect(bridge.textContent ?? "").not.toMatch(/\d+\.\d\d|USD/);
+      if (state === "AUDIT_ONLY") {
+        // L2: the closed-source notice is shown, and no version carries an amount anywhere on the screen
+        expect(bridge).toHaveTextContent("Audit material only: the source is closed.");
+        expect(document.body.textContent ?? "").not.toMatch(/\d+\.\d\d USD(?! per litre)/);
+      }
       expect(document.querySelector(`[data-consequence-revision='${C1}']`)).toHaveAttribute(
         "data-consequence-current",
-        state === "UNAVAILABLE" ? "true" : "false",
+        "false",
       );
     },
   );
 
-  it("never presents an amount the bridge did not mark current and priced", async () => {
+  it("L4: when the bridge could not be read, no version is called the current fuel cost", async () => {
     mount(
-      fake({ bridge: { status: "loaded", value: pricedBridge({ state: "STALE", currentness: "STALE" }) } }),
+      fake({
+        bridge: { status: "loaded", value: pricedBridge({ state: "UNAVAILABLE", currentness: null, amount: null, currency: null }) },
+        consequences: { status: "loaded", value: consequencesBody([crev(1, C1)]) },
+      }),
       URL,
     );
+    await settledScreen();
+    expect(document.body.textContent ?? "").not.toMatch(/the current fuel cost/);
+    expect(document.querySelector(`[data-consequence-revision='${C1}']`)).toHaveAttribute("data-consequence-current", "false");
+  });
+
+  it("L1: a PRICED state with a stale currentness still shows no headline amount", async () => {
+    mount(fake({ bridge: { status: "loaded", value: pricedBridge({ currentness: "STALE" }) } }), URL);
     await settledScreen();
     const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
     expect(bridge).toHaveAttribute("data-financials-amount", "none");
     expect(bridge.querySelector("[data-financials-headline='amount']")).toBeNull();
-    expect(bridge).toHaveTextContent("Out of date: no current cost");
+    expect(bridge.textContent ?? "").not.toMatch(/\d+\.\d\d USD/);
+  });
+
+  it("under a closed source an opened earlier version shows no amount either", async () => {
+    mount(
+      fake({
+        bridge: {
+          status: "loaded",
+          value: {
+            ...pricedBridge({ state: "AUDIT_ONLY", currentness: "AUDIT_ONLY", amount: null, currency: null, quantity: null }),
+            audit_only: { non_current: true, statement: "Audit material only: the source is closed." },
+          },
+        },
+        consequences: (pin) => ({
+          status: "loaded",
+          value: consequencesBody([crev(1, C1), crev(2, C2)], { selected: pin.consequenceRevisionId ?? null }),
+        }),
+      }),
+      `${URL}&consequence_revision_id=${C1}`,
+    );
+    await settledScreen();
+    expect(document.querySelector(`[data-consequence-pinned='${C1}']`)).toHaveTextContent("The source is closed");
+    expect(document.body.textContent ?? "").not.toMatch(/\d+\.\d\d USD(?! per litre)/);
   });
 
   it("opens an earlier fuel cost version of the same finding version, labelled as kept for the record, and keeps it on reload", async () => {
