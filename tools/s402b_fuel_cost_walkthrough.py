@@ -48,6 +48,13 @@ FIXTURE = Path("conversions") / "demo-diesel-price-publications.json"
 GATE_DIR = Path("var") / "evidence" / "migration-performance"
 MARKER = ".s402b-walkthrough-work"
 SITE = "KOBO-001"
+# Each database gets its own code tree: the comparison reports (the source gate) live in the tree's var/, and
+# the newest report decides the gate, so two databases sharing one var/ would close each other's gate.
+EMPTY_DB: str | None = None
+
+
+def tree_of(work: Path, db: str) -> Path:
+    return work / ("tree-empty" if db == EMPTY_DB else "tree")
 
 
 def say(text: str = "") -> None:
@@ -75,7 +82,7 @@ def manifest() -> Path | None:
 
 
 def tree_env(work: Path, db: str) -> dict[str, str]:
-    tree = work / "tree"
+    tree = tree_of(work, db)
     out = dict(os.environ)
     out["PYTHONPATH"] = os.pathsep.join(str(tree / p) for p in ("backend", "gateway", "simulator", "contracts", "host"))
     out["DATABASE_URL"] = f"{PG}/{db}"
@@ -88,7 +95,7 @@ def tree_env(work: Path, db: str) -> dict[str, str]:
 
 
 def tree_py(work: Path, db: str, *argv: str, cwd: str = "backend", check: bool = True) -> subprocess.CompletedProcess:
-    done = subprocess.run([str(PY), *argv], cwd=str(work / "tree" / cwd), env=tree_env(work, db),
+    done = subprocess.run([str(PY), *argv], cwd=str(tree_of(work, db) / cwd), env=tree_env(work, db),
                           capture_output=True, text=True, timeout=900)
     if check and done.returncode != 0:
         raise SystemExit(f"FAILED: python {' '.join(argv[:3])}\n{done.stdout}\n{done.stderr}")
@@ -110,10 +117,10 @@ def query(db: str, sql: str, params: dict | None = None) -> list[dict]:
         return list(c.execute(sql, params or {}).fetchall())
 
 
-def stage_tree(work: Path) -> None:
+def stage_tree(work: Path, db: str) -> None:
     if work.exists() and any(work.iterdir()) and not (work / MARKER).is_file():
         raise SystemExit(f"Refusing {work}: it exists, is not empty and has no {MARKER} marker.")
-    tree = work / "tree"
+    tree = tree_of(work, db)
     if tree.exists():
         shutil.rmtree(tree)
     tree.mkdir(parents=True)
@@ -127,7 +134,7 @@ def stage_tree(work: Path) -> None:
     shutil.copy2(REPO / "var" / "sites" / "kobo-001.yaml", tree / "var" / "sites" / "kobo-001.yaml")
     head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, capture_output=True, text=True).stdout
     say(f"  {tree} (code from {head.strip()})")
-    probe = tree_py(work, "assetops", "-c", "import assetops_backend;print(assetops_backend.__file__)").stdout
+    probe = tree_py(work, db, "-c", "import assetops_backend;print(assetops_backend.__file__)").stdout
     if str(tree).lower() not in probe.lower():
         raise SystemExit(f"Isolation failed: assetops_backend resolves to {probe}")
 
@@ -181,8 +188,9 @@ def prepare(db: str, empty: str, work: Path) -> None:
     if not exists:
         raise SystemExit(f"Missing template {TEMPLATE_DB}: run `.venv/Scripts/python.exe tools/s402b_power_cases.py "
                          "run` first (about 2.5 minutes).")
-    say(f"=== 1. Private code tree in {work} ===")
-    stage_tree(work)
+    say(f"=== 1. Private code trees in {work} (one per database) ===")
+    stage_tree(work, db)
+    stage_tree(work, empty)
     say(f"=== 2. Walkthrough database {db} ===")
     copy_db(work, db)
     say("=== 3. SYSTEM diesel prices v1-v3 and the fuel cost recompute ===")
@@ -239,7 +247,7 @@ def serve(db: str, empty: str, work: Path, port: int, empty_port: int, web: int,
         log = (logs / f"api-{p}.log").open("a", encoding="utf-8")
         procs.append(subprocess.Popen(
             [str(PY), "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", str(p)],
-            cwd=str(work / "tree" / "host"), env=tree_env(work, name), stdout=log, stderr=subprocess.STDOUT))
+            cwd=str(tree_of(work, name) / "host"), env=tree_env(work, name), stdout=log, stderr=subprocess.STDOUT))
         say(f"API for {name} on http://127.0.0.1:{p} (log {logs / f'api-{p}.log'})")
     say(f'Frontends, from frontend/:  $env:ASSETOPS_API_PORT="{port}"; npm.cmd run dev -- --port {web} --strictPort')
     say(f'                       and  $env:ASSETOPS_API_PORT="{empty_port}"; npm.cmd run dev -- --port {empty_web} --strictPort')
@@ -257,7 +265,7 @@ def serve(db: str, empty: str, work: Path, port: int, empty_port: int, web: int,
 
 
 def gate(work: Path, close: bool) -> None:
-    """Close (move the comparison reports aside) or reopen the private tree's source gate, for both databases."""
+    """Close (move the comparison reports aside) or reopen the walkthrough database's source gate."""
     live = work / "tree" / GATE_DIR
     aside = live.with_name(live.name + ".closed")
     src, dst = (live, aside) if close else (aside, live)
@@ -300,7 +308,9 @@ def main() -> None:
     sub.add_parser("open-gate")
     sub.add_parser("drop")
     args = parser.parse_args()
+    global EMPTY_DB
     db, empty, work = checked_db(args.db), checked_db(args.empty_db), work_dir(args.work_name)
+    EMPTY_DB = empty
     if db == empty:
         raise SystemExit("--db and --empty-db must differ.")
     if args.command == "prepare":
