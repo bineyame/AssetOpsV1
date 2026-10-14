@@ -1,6 +1,6 @@
 # S4-02c — consequence work on accepted evidence
 
-Status: in_review (phase 3 built 2026-10-14, packet `.agent/S4-02c-review-packet.md`; activated 2026-10-14 from main `f9d6d1a5`; owner confirmed `.agent/owner-next-work-2026-10-14b.md`, 0.20% contest; plan review `.agent/S4-02c-plan-review.md` RETURN -> fix round -> `.agent/S4-02c-plan-fix-rereview.md` ACCEPT)
+Status: done (reviews ACCEPT; non-UI, no owner checkpoint per USER_REVIEW_REQUIRED false conditions (a)/(b); merged to main by coordinator 2026-10-14)
 USER_REVIEW_REQUIRED: false, conditional on (a) the stale-without-work discrepancy remaining a typed code/field with no new owner-facing sentence, and (b) Leg A using the existing reviewed `POWER_NOT_IN_ASSESSMENT_INPUTS` copy. Any new owner-facing text or panel reopens the flag and checkpoint. Independent implementation review is required.
 Milestone: S4 Finding + Financials
 Depends on: registry `requires` `A-S4-financial`, `I-S2-02`, `I-financial-store` (all resolved). S4-01, S4-03 and S4-02a/b are built context; `A-S5-overview` sets the downstream S5 read gate. S5-01's current money read depends on this packet's reviewed result.
@@ -66,3 +66,11 @@ Reviewer checks migration safety, DB transaction rollback, scope/foreign Site re
 | I1 | Depends distinguishes exact registry `requires` from built context and downstream S5 gate. |
 
 Out of scope: new fuel model or price semantics, altered S4-02b copy/layout, source-authorship provenance (separate `I-stored-demo-provenance`), equal-start price succession, Assumptions Site consequence history, S5 Overview implementation, private simulator truth, and the owner's broader [analysis input data for simulated and real Sites](../.ai/MILESTONE_REVIEW_BACKLOG.md#owner-analysis-input-data-for-simulated-and-real-sites-2026-10-14) backlog item. This packet proves a late accepted input changes a consequence; it does not fix ordinary gateway power cadence or real-Site input readiness.
+
+## Review Outcome (recorded by coordinator, 2026-10-14)
+
+- Plan: `.agent/S4-02c-plan-review.md` RETURN -> Codex Planner fix round -> `.agent/S4-02c-plan-fix-rereview.md` ACCEPT.
+- Build reviews: `.agent/S4-02c-phase-1-review.md` ACCEPT with carries (full backend 2066 passed); `.agent/S4-02c-phase-2-review.md` ACCEPT with carries (M1 S4-02b walkthrough CLI regression, fixed in phase 3); `.agent/S4-02c-review.md` ACCEPT with carries (late-power walkthrough 21/21 reproduced; S4-02b browser evidence 92/92; F2 fixed and F1 wording narrowed in Sonnet fix round 1 `8b4ebe00`/`a4d3b711`, checked by diff per the review).
+- F1 (Medium, residual): the project's own gateway numbers a late reading after the last sequence; S3 then reports the window INDETERMINATE while the revised Finding stays SUPPORTED with a shrunk episode and its consequence is CURRENT PRICED but too low (7.5625 vs 15.8125 USD) with no limitation naming it. Not an S4-02c acceptance gap; sent to the Architect (`.agent/architect-S4-02c-request.md`) before S5-01.
+- Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02c carries (2026-10-14)".
+

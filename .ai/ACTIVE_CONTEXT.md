@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**S4-02c ([evidence-acceptance consequence work](../tasks/S4-02c-evidence-consequence-work.md)) is `in_review`** on `task/S4-02c-evidence-consequence-work` (from main `f9d6d1a5`; owner choice `.agent/owner-next-work-2026-10-14b.md`). Non-UI; USER_REVIEW_REQUIRED false under the packet's conditions (a)/(b). Phases 1 and 2 are reviewed (ACCEPT with carries). **Phase 3 (phase-2 carries incl. merge gate M1, late-power variant and two-leg walkthrough) is built and awaits a fresh Claude review of phase 3 and the whole slice**: packet `.agent/S4-02c-review-packet.md`, handoff `.agent/S4-02c-phase-3-handoff.md`, evidence `.agent/S4-02c-walkthrough-evidence.md`, built state `.ai/CODE_STATE.md` "S4-02c phase 3". S4-02 (a/b) is done and merged; A-S5-overview and A-action-lifecycle are resolved (`D-2026-10-14-s5-selected-window-overview`, `D-2026-10-14-action-lifecycle-and-policy-application`). The S2-S4 paragraphs below are earlier routing.
+**S4-02c ([evidence-acceptance consequence work](../tasks/S4-02c-evidence-consequence-work.md)) is `done`** and merged (reviews ACCEPT; non-UI). Next: registry closeout of `I-evidence-acceptance-consequence-work`, the Architect ruling on S4-02c review F1 (late-reading sequence order and S5 money) and R1, then rerun guards + next-work (owner contest if <=5%). Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02c carries (2026-10-14)". The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 

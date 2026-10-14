@@ -2201,3 +2201,13 @@ Review `.agent/A-S5-overview-review.md` ACCEPT with carries (`07841a19`). L1 (cp
 
 Review `.agent/A-action-lifecycle-review.md` ACCEPT with carries (`478b4b83`). M1 (answers, log and next-work 14e never committed) fixed by the coordinator. L1 Action created on recommendation acceptance vs `PROPOSED` state: Planner picks one model and names the idempotency key (Architect if unsettled). L2 the later `A-S6-verification` decision cites this one and gives the full outcome vocabulary incl. `Ineffective`. I1 current Foundation publish differs (no expected-revision check, multi-row writes, past `effective_from`, `FOUNDATION_NO_CHANGE` 422).
 S6-01 Planner carries P1-P10 (detail in the review): P1 creation model, idempotency, `action_code`; P2 proposed reserve value source, no mock money as savings; P3 expected-revision check under Site lock, typed 409 + FAILED event; P4 change artifact records every row written, APPLIED only after commit; P5 no Action backdating of Foundation changes; retry vs `FOUNDATION_NO_CHANGE`; P6 pinned origin FindingRevision beside latest; P7 accept/apply SYSTEM demonstration commands, labelled; P8 `site_code` routes and which route shows `changes:1#a`; P9 fixtures for every state, 1440/390, owner merge hold; P10 new `action`/`action_event` columns.
+
+### S4-02c carries (2026-10-14)
+
+- F1 (`.agent/S4-02c-review.md`): gateway-sequenced late reading -> S3 INDETERMINATE (SEQUENCE_ORDER_INVERTED / GENERATOR_SERIES_AMBIGUOUS), revised Finding still SUPPORTED with shrunk episode and only OPEN_BOUND, consequence CURRENT PRICED too low and S5-eligible. Architect request `.agent/architect-S4-02c-request.md` (Q1 cohort ordering, Q2 Finding limitation and S5 money exclusion/label, Q3 node placement); must be settled before S5-01's money read.
+- R1: S3 `process-jobs` and S4 `match-findings` remain unscheduled; money after late evidence waits for them (Architect request).
+- Phase-2 review I1 (uncapped 16-minute retry, ~90 FAILED attempts/day per permanently failing row, no terminal state or alert), I2 (hung runner: repeated "skipped" ticks are the alarm; documented, no timeout), I3 (app/DB clock skew shifts retry timing), I4 (two concurrent overlapping ingestion chunks not measured; Site lock widens a deadlock window that rolls back cleanly).
+- Pre-0012 stale consequence heads report `NO_WORK_RECORDED` with no backfill.
+- Each runner run reads every pending row for the Site though it processes only `limit`.
+- S5-01 packet must carry R1 and F1 explicitly (review registry closeout notes).
+
