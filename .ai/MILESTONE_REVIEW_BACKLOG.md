@@ -2211,3 +2211,11 @@ S6-01 Planner carries P1-P10 (detail in the review): P1 creation model, idempote
 - Each runner run reads every pending row for the Site though it processes only `limit`.
 - S5-01 packet must carry R1 and F1 explicitly (review registry closeout notes).
 
+
+### S4-02c Architect closeout review carries (2026-10-14)
+
+Review `.agent/S4-02c-architect-closeout-review.md` ACCEPT with carries (`a88391f2`).
+- L1: the S5 "withhold the amount on generator-series ambiguity" rule is not in `I-site-overview-read`'s acceptance target; add it, or have the late-reading Planner define a concrete eligibility signal S5-01 must consume, named in both nodes. L2: registry `physical_peer_gate` text names only `I-stored-demo-provenance` though `real_pilot_requires` lists three nodes. I2: S4-02c residuals I1-I4 and pre-0012 `NO_WORK_RECORDED` heads have no owning node.
+- Worker-schedule Planner carries W1-W5: per-environment ownership/cadence and order (`process-jobs`, `match-findings`, consequence runner; fold or keep separate); I1 retry volume / hung-runner alarm / `NO_WORK_RECORDED` heads; prove stopped workers never look current at the projection inputs; replay Leg B without hand-run steps; record the 8.28% ranking notice in the handoff.
+- Late-reading Planner carries L-a..L-f: source-time cohort rule as a reviewed contract first (open choices to the Architect); new model version and reassessment keeping history; Finding series limit and end reason (not OPEN_BOUND alone); resolve L1; regression over run 1 and on-time-sequenced late upload; real gateway without validated clock semantics stays limited.
+- Residual risk: the gate covers S5 only; the S4-02b Finding money panel can show run 1's 7.5625 USD as current until the late-reading node lands. The late-reading Planner must cover that surface.
