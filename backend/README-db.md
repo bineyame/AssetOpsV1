@@ -85,18 +85,19 @@ python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-
 python -m assetops_backend.recompute_consequences pending --tenant demo --site KOBO-001
 ```
 
-- **Schedule:** an external timer runs it every minute, one task per Site. Windows Task Scheduler:
-  `schtasks /Create /TN "AssetOps consequence runner KOBO-001" /SC MINUTE /MO 1 /TR "<venv>\Scripts\python.exe -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100"`
-  with "Do not start a new instance" and a start-in directory of `backend/`. systemd: a `Type=oneshot`
-  `assetops-consequence-runner@.service` (`ExecStart=<venv>/bin/python -m assetops_backend.recompute_consequences run --tenant demo --site %i --limit 100`,
-  `EnvironmentFile` holding `DATABASE_URL`) and a matching `.timer` with `OnCalendar=*-*-* *:*:00`.
-- **Owner:** whoever operates the deployment's backend host.
+- **Schedule (retired by S4-02d):** the S4-02c one-timer-per-Site schedule (`assetops-consequence-runner@<site>.timer`
+  or the `AssetOps consequence runner <site>` scheduled task) is replaced by the environment tick below, which
+  drains each Site's consequence work by IDs at DB time. Remove every per-Site timer in the same change that installs
+  the tick; a legacy timer left running holds the Site advisory lock and makes the tick report `CONSEQUENCE_CLAIMED`.
+  The CLI stays for one-off operator recovery: `now` is the database clock by default, or `--now <ISO with offset>`
+  as an explicit override; the summary line reports `now_source` (`database` or `override`).
+- **Owner (one-off runs):** whoever operates the deployment's backend host.
 - **Overlap:** the run takes a session advisory lock `financial_consequence_runner:<site>` on a dedicated
   connection; a second run for the same Site reports `"skipped": true` and exits 0.
 - **Recovery:** nothing manual. A failed item records a typed FAILED attempt and stays pending; it is retried
   1, 2, 4, 8, 16 minutes after its last failure, then every 16 minutes, with no cap. A killed run's lock is
   released with its connection; the next tick resumes, and an append-then-crash replays the same consequence ID.
-- **Hung runner (alarm):** the run is not bounded by a timeout. A run that hangs (rather than dies) keeps its
+- **Hung runner (alarm, one-off CLI runs):** the CLI run is not bounded by a timeout (the S4-02d tick bounds its drain child). A run that hangs (rather than dies) keeps its
   connection and its Site claim, so every later tick prints `"skipped": true` and still exits 0, and "Do not
   start a new instance" hides it further. Repeated `skipped` across consecutive ticks for one Site is the alarm
   signal: find the holding session (`pg_locks` advisory lock on `financial_consequence_runner:<site>`, or the
@@ -109,4 +110,89 @@ python -m assetops_backend.recompute_consequences pending --tenant demo --site K
   grows).
 - **Output:** one JSON line per processed item, then a summary line with the Site scope and the `selected`,
   `appended`, `replayed`, `no_op`, `failed`, `deferred` and `backlog` counts. Exit 1 when any item failed.
-- S3 `process-jobs` and S4 `match-findings` are not scheduled by this runner (packet risk R1).
+- S3 `process-jobs` and S4 `match-findings` are not run by this CLI; the S4-02d tick runs all three stages.
+
+## Analytic and Finding worker schedule (S4-02d)
+
+One environment-owned tick runs, per selected Site: S3 `process-jobs` (Site-scoped), S4 `match-findings` only
+when the matcher fence or version moved, then the consequence drain, each in a killable child with server-side
+`statement_timeout`/`lock_timeout`. Claims, leases, back-off, heartbeat and every health threshold use database
+time (`clock_timestamp()`); the scheduled S3 worker, matcher and drain receive DB time as their `now`.
+
+```sh
+# from backend/, with DATABASE_URL set
+python -m assetops_backend.scheduling.run tick --environment demo        # one bounded tick (JSON report)
+python -m assetops_backend.scheduling.run health --environment demo      # read-only report; exit 1 on an alarm state
+python -m assetops_backend.scheduling.run heads --environment demo       # raw schedule heads
+python -m assetops_backend.scheduling.run upstream --environment demo --tenant-id T --site-id S \
+    --start 2026-10-06T00:00:00Z --end 2026-10-07T00:00:00Z               # S5 seam read of one window
+python -m assetops_backend.scheduling.run enrol --tenant-id T --site-id S --by NAME [--off]
+```
+
+### Installation gate (read before installing anything)
+
+**Do not install or enable the tick on any owner-visible host, including the demo host, until
+`I-late-reading-series-and-money-limit` is `resolved` in `frontend/docs/architecture/v69-dependency-registry-pilot.json`**
+(`D-2026-10-14-s402d-schedule-storage-and-install-gate`). An automatic tick would otherwise move the known run-1
+late reading to an apparently current, too-low amount on the S4-02b money panel. Check first:
+
+```sh
+python tools/schedule-install-gate.py --host-class demo      # exit 2 and the reason while the gate is closed
+```
+
+| Environment | Owner and identity | Cadence / gate |
+| --- | --- | --- |
+| Local development | Developer; local database credential | Optional one-minute tick on a private DB (`--host-class private`). |
+| Demo host | Deployment operator; a dedicated schedule credential scoped to that database | One minute, only after the F1 node is resolved. |
+| Isolated walkthrough DB | Walkthrough runner; isolated DB credential | Explicit `tick` invocations only; no timer. |
+| Real-Site pilot | Pilot deployment operator; separately provisioned schedule credential | Not installed until `real_pilot_requires` and the pilot gates close. |
+
+When the gate tool reports the host class open, install exactly one timer per environment:
+
+- **systemd:** copy `backend/deploy/schedule/assetops-schedule-tick@.service` and `@.timer` to `/etc/systemd/system/`,
+  set `WorkingDirectory` and the venv path, put `DATABASE_URL` (the schedule credential) in
+  `/etc/assetops/schedule-tick.env`, then `systemctl daemon-reload && systemctl enable --now assetops-schedule-tick@<env>.timer` (the instance
+  name is the `--environment`). Stop: `systemctl disable --now assetops-schedule-tick@<env>.timer`; restart: `enable --now` again.
+- **Windows Task Scheduler:** `schtasks /Create /TN "AssetOps schedule tick <env>" /SC MINUTE /MO 1 /TR "<venv>\Scripts\python.exe -m assetops_backend.scheduling.run tick --environment <env>"`
+  with "Do not start a new instance", start-in `backend/`, and `DATABASE_URL` in the task's environment.
+- **Retire the per-Site consequence timer in the same change** (below): `systemctl disable --now
+  assetops-consequence-runner@<site>.timer` for every Site, or `schtasks /Delete /TN "AssetOps consequence runner <site>" /F`.
+  A legacy timer left running holds the drain's Site advisory lock, and the tick then records `CONSEQUENCE_CLAIMED`
+  for that Site as a stage failure with back-off (an alarm, not a pass).
+
+**Bounds (defaults, `TickLimits`):** at most 20 Sites, 10 S3 jobs and 50 consequence items per Site per tick; stage
+bounds discover/S3/S4 120 s and consequence 60 s (the S3 bound stays under the five-minute S3 job lease);
+`statement_timeout` 30 s and `lock_timeout` 5 s on every stage connection; back-off 60 s doubling to 960 s. A
+tick visits Sites after a durable fair cursor; work beyond the bounds waits for later ticks.
+
+**Measured cost (Windows dev host, phase 2):** a tick spends about 1 s per stage child start, so roughly 3-4 s per
+Site visited plus a global `reconcile_all()` of ~0.2-0.3 s: 1 Site ~4-5 s, 4 Sites ~12.6 s. At one-minute cadence
+`max_sites` 20 fits only on a host whose child start is well under a second; measure on the target host and lower
+`--max-sites` (the cursor keeps the rotation fair) rather than shortening stage bounds.
+
+### Health, alarms and recovery
+
+`health` reports the environment and every Site as `STOPPED`, `FAILED`, `RETRY_DUE`, `BACKLOG`, `RUNNING` or
+`IDLE` (worst first), with typed alarms; all ages are DB time. Default stop thresholds: environment heartbeat older
+than 300 s (`HEARTBEAT_STALE`, `TICK_NEVER_COMPLETED`); a scheduled Site with no finished visit for 900 s
+(`SITE_VISIT_STALE`). Only a completed tick advances the heartbeat; `last_started_at` is stamped when a tick takes
+its claim (also one that returns `RETRY_DUE`) and is never read as liveness.
+
+| Alarm | Meaning | Recovery |
+| --- | --- | --- |
+| `HEARTBEAT_STALE` / `TICK_NEVER_COMPLETED` | The timer is stopped, failing in discovery, or never ran. | Check the timer and `heads`; `last_failure_code` on the tick head names the cause. |
+| `TICK_CLAIM_STALE` / `SITE_CLAIM_STALE` | A tick or Site claim outlived its lease (crashed holder). | None needed: the next tick takes the expired claim over; investigate the crashed host. |
+| `SITE_CLAIM_SKIPS` | The Site claim was held across three ticks (hung holder). | Find the holder in `heads` (`claim_owner` = host:pid) and end it; its lease then expires. |
+| `SITE_FAILING` | Three consecutive Site stage failures (`last_failure_stage/code/detail`). | Fix the named cause; back-off retries automatically. |
+| `FENCE_MOVED_STREAK` | Three `FENCE_MOVED` S4 outcomes running (concurrent writes keep moving the fence). | Usually clears on the next quiet tick; persistent: inspect concurrent writers. |
+| `MATCH_EVIDENCE_NOT_ACCEPTED` | Deterministic matcher defect: a cited evidence ID is not accepted in this Site. | Code/data defect; not retried into success. |
+| `S3_JOB_FAILED` | A terminal FAILED S3 job (ID, window, `last_error`); `reconcile` will not re-enqueue it. | After fixing the cause: `python -m assetops_backend.analytics.assess_dispatch requeue --tenant-id T --site-id S --job-id J`; the new DEFAULT selection supersedes the failure. `assess` is not recovery. |
+| `CONSEQUENCE_ATTEMPTS_GROWING` | Unsucceeded consequence work with 5+ attempts (no terminal cap; ~90/day). | Repair the cause; `recompute_consequences pending` lists the rows. |
+| `STALE_NO_WORK` | A pre-0012 consequence head is STALE with no recorded work (Finding/revision IDs given). | Reported only; not backfilled by this slice. |
+| `EXCLUDED_WITH_WORK` / `S4_BACKLOG_OUTSIDE_ACTIVE_SET` | A Site outside the active set still has work, or an unmatched selection the tick no longer visits. | Re-enrol (`enrol`) or resolve the work deliberately. |
+| `CONSEQUENCE_CLAIMED` (stage code) | The drain's Site lock is held elsewhere, usually a legacy per-Site timer. | Retire the per-Site timer. |
+
+**Manual Leg B commands:** `process-jobs`, `match-findings` and `recompute_consequences run` do not take the
+schedule's Site claim. **Stop the tick (disable the timer) and confirm `heads` shows no Site claim before running
+any of them by hand**, then re-enable it. The matcher fence still protects Finding writes, but S3/S4 serialisation
+is only guaranteed between scheduled stages.

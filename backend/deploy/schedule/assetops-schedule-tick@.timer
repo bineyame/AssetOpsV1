@@ -1,0 +1,11 @@
+# S4-02d: one-minute environment tick. Gated: see assetops-schedule-tick@.service and backend/README-db.md.
+[Unit]
+Description=AssetOps schedule tick every minute (%i)
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+AccuracySec=5s
+Persistent=false
+
+[Install]
+WantedBy=timers.target
