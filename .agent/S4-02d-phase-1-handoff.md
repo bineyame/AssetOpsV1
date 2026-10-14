@@ -62,3 +62,13 @@ seam depends on).
 - `reconcile_all()` stays global and unbounded; its time is recorded per tick (`last_reconcile_ms`).
 - One-off CLIs (`process-jobs`, `match-findings`, consequence `run`) bypass the schedule Site claim (Q5).
 - S3 lease/cutoff and matcher `now` remain app clock (Q4).
+
+## Checks (on `98cd5d6d`, then `51801480`)
+
+- Full backend pytest (DB `assetops_s402d_test`): 4 failed, 2093 passed. All 4 were alembic head pins on
+  `0012_evidence_consequence_work` (test_s1 `test_head_includes_the_binding_tables`, test_s2
+  `test_migration_0005_refuses_to_freeze_a_drifted_asset_code`, test_s4 two `TestMigrationPaths` downgrade-refusal
+  cases); moved to `0013_schedule_state` in `51801480`, and those three classes re-run: 8 passed.
+- `tools/check-all.ps1`: all 9 guards passed. Probes: guard 12/12 caught, tests 6/6 caught, tree restored.
+- CLI tick on the scratch DB (1 Site): COMPLETED, `reconcile_ms` 194, stage children s3 787 ms, s4 1152 ms,
+  consequence 848 ms. No frontend change; frontend suites, typecheck and build not run.
