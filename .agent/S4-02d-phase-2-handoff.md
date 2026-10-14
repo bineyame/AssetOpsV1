@@ -90,5 +90,9 @@ on this host. Measure on the target host before choosing `--max-sites`.
 
 ## Checks
 
-- Focused: new files 18 passed; phase-1 probes guard 20/20; phase-2 probes 21/21; `tools/check-all.ps1` all 9
-  guards passed. Full backend pytest: see `.ai/CODE_STATE.md` "S4-02d phase 2". Frontend unchanged.
+- Focused: new files 18 passed; phase-1 + phase-2 schedule Postgres files 17 passed; phase-1 probes guard 20/20;
+  phase-2 probes 21/21 (final run on HEAD); `tools/check-all.ps1` all 9 guards passed.
+- Full backend pytest (DB `assetops_s402d2_full_test`): first run 2 failed / 2113 passed, both new tests failing
+  with `FATAL: sorry, too many clients already` (each health/seam read built undisposed engines); fixed by
+  `release()`/`dispose()` on the report and seam and disposal in the tests; rerun **2115 passed** (15 min 54 s).
+- Frontend unchanged: no frontend suite, typecheck, build or layout evidence run (not applicable).
