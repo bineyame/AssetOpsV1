@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**S4-02c ([evidence-acceptance consequence work](../tasks/S4-02c-evidence-consequence-work.md)) is `done`** and merged (reviews ACCEPT; non-UI). Next: registry closeout of `I-evidence-acceptance-consequence-work`, the Architect ruling on S4-02c review F1 (late-reading sequence order and S5 money) and R1, then rerun guards + next-work (owner contest if <=5%). Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02c carries (2026-10-14)". The S2-S4 paragraphs below are earlier routing.
+**S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is `active`** on `task/S4-02d-analytic-finding-worker-schedule` (from main `0d137768`; next-work select, 8.28% notice). Non-UI; storage ratified `D-2026-10-14-s402d-schedule-storage-and-install-gate`; do NOT install the schedule on an owner-visible host before `I-late-reading-series-and-money-limit` lands. Carries: packet implementer carries and `.agent/S4-02d-plan-fix-rereview.md` N2-N6. S4-02c is done and merged (`68106bac`). The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 

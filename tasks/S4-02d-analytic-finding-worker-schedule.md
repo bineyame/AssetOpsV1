@@ -1,6 +1,6 @@
 # S4-02d — analytic and Finding worker schedule
 
-Status: implementation-ready after plan fix round 2 (re-review `.agent/S4-02d-plan-fix-rereview.md` RETURN for N1 only, with a targeted N1 check sufficient; N1 checked by the coordinator 2026-10-14). Architect ratified the bounded storage/guard amendment in `D-2026-10-14-s402d-schedule-storage-and-install-gate`.
+Status: active (activated 2026-10-14 from main `0d137768`; next-work `.agent/next-work-2026-10-14m.json` select with 8.28% notice over `I-action-store`; plan review RETURN -> fix rounds 1-2 -> N1 checked; storage ratified `D-2026-10-14-s402d-schedule-storage-and-install-gate`)
 USER_REVIEW_REQUIRED: false, provided this remains an operations/read-contract slice with no new owner-facing copy, panel, or visual state. If implementation changes any of those, reopen the flag and obtain the owner checkpoint. Fresh independent implementation review remains required.
 Milestone: S4 Finding + Financials, prerequisite of S5-01
 Depends on: registry `requires` `I-S3-01`, `I-S4-01`, `I-evidence-acceptance-consequence-work` (resolved). `I-late-reading-series-and-money-limit` is a separate S5-01 prerequisite, not an input to this schedule.
