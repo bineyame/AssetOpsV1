@@ -26,3 +26,12 @@ Branch `closeout/S4-02a-registry` (from main `2592c82`, which merges S4-02a). Re
 1. `assumptions:1#a` (versioned price, currency and author basis) was left `open`, not `delivered`: its mapping target and technical_requires name D-financial-basis, I-S4-02 and I-financial-ui. Should S4-02a's accepted price history deliver it now (owner said nothing becomes Real, panels stay partial)? `assumptions:3#a` also covers consequence revisions, so it needs S4-02b.
 2. `G-foundation-financial-assumptions` trigger wording: is "price value or accepted link treatment plus wider-set source or out-of-scope" the right close condition?
 3. `financials`/`assumptions` ledger `task` strings now read `S4-02a (S4-02b pending)`; confirm the validator-accepted form is the intended one.
+
+## Closeout review fixes (coordinator, 2026-10-14)
+
+Review `.agent/S4-02a-closeout-review.md` ACCEPT with carries; applied:
+- L1: `G-foundation-financial-assumptions` review_trigger now follows the task: closes when the owner or an independent reviewer accepts the line/link treatment; any wider assumption set splits into its own gap then (no new scope rule in metadata).
+- I1: its `boundary.source` names the reviewed read reachable by link.
+- I2: anchor labels corrected (`financial_read_api.py` next-page link :82-85, exact revision :88; `financial_api.py` refusal :83-86).
+- I3: ledger task strings restored to "S4-02a + S4-02b (S4-02 closeout)".
+- Rerun: registry checker 0, ledger valid, `--next-work` regenerated (decision unchanged: I-financial-store 2.229 vs A-S5-overview 2.148, 3.63%, stop_owner), `--verify-report` 0, check-all 9/9.
