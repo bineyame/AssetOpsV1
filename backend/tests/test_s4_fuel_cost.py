@@ -188,3 +188,15 @@ def test_overlapping_assignments_are_a_conflict_and_bad_units_refused() -> None:
     bad = {"v1": {**REVS["v1"], "unit": "currency/kWh"}}
     assert fc.select_window_price([assign("v1", W0, None)], bad, W0, W1).reason == "PRICE_UNIT_MISMATCH"
     assert fc.select_window_price([assign("vX", W0, None)], REVS, W0, W1).reason == "PRICE_REVISION_MISSING"
+
+
+def test_unpriced_bases_over_different_price_boundaries_differ() -> None:
+    """Review of idempotency: UNPRICED(PRICE_SPANS_WINDOW) twice over different boundaries is not one basis."""
+    f = build(CASES["P1"])
+    q = fc.quantify(f)
+    w0, w1 = f.window_start, f.window_end
+    mid1, mid2 = w0 + timedelta(minutes=10), w0 + timedelta(minutes=20)
+    a = fc.select_window_price([assign("v1", w0, mid1, "a1"), assign("v4", mid1, None, "a2")], REVS, w0, w1)
+    b = fc.select_window_price([assign("v1", w0, mid2, "a3"), assign("v4", mid2, None, "a4")], REVS, w0, w1)
+    assert a.reason == b.reason == "PRICE_SPANS_WINDOW"
+    assert fc.consequence(f, q, a).basis_sha256 != fc.consequence(f, q, b).basis_sha256

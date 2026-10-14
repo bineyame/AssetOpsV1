@@ -422,6 +422,10 @@ class PriceSelection:
     value: Decimal | None = None
     currency: str | None = None
     assignment_id: str | None = None
+    # Every assignment overlapping the window at the selection cutoff. Assignment IDs are unique per publication,
+    # so two UNPRICED selections over different price boundaries have different consequence bases (an older
+    # identical-looking basis is never replayed in place of a newer state).
+    considered_assignment_ids: tuple[str, ...] = ()
 
 
 NOT_EVALUATED = PriceSelection("NOT_EVALUATED", "QUANTITY_UNAVAILABLE")
@@ -432,24 +436,25 @@ def select_window_price(assignments: Sequence[dict[str, Any]], revisions: dict[A
     """One Site price valid for the entire `[window_start, window_end)`, from the assignments known at the
     selected recorded cutoff. Never partitions the window and never takes the current price for old time."""
     hits = [a for a in assignments if _overlaps(a["valid_from"], a["valid_to"], window_start, window_end)]
+    seen = tuple(sorted(str(a.get("id")) for a in hits))
     if not hits:
         return PriceSelection("UNPRICED", "NO_PRICE")
     ordered = sorted(hits, key=lambda a: a["valid_from"])
     for x, y in zip(ordered, ordered[1:]):
         if x["valid_to"] is None or y["valid_from"] < x["valid_to"]:
-            return PriceSelection("UNPRICED", "PRICE_CONFLICT")
+            return PriceSelection("UNPRICED", "PRICE_CONFLICT", considered_assignment_ids=seen)
     if len(hits) > 1 or not _contains(hits[0]["valid_from"], hits[0]["valid_to"], window_start, window_end):
-        return PriceSelection("UNPRICED", "PRICE_SPANS_WINDOW")
+        return PriceSelection("UNPRICED", "PRICE_SPANS_WINDOW", considered_assignment_ids=seen)
     a = hits[0]
     rev = revisions.get(a["revision_id"])
     if rev is None:
-        return PriceSelection("UNPRICED", "PRICE_REVISION_MISSING")
+        return PriceSelection("UNPRICED", "PRICE_REVISION_MISSING", considered_assignment_ids=seen)
     if rev.get("assumption_key", PRICE_KEY) != PRICE_KEY or rev.get("unit") != PRICE_UNIT:
-        return PriceSelection("UNPRICED", "PRICE_UNIT_MISMATCH")
+        return PriceSelection("UNPRICED", "PRICE_UNIT_MISMATCH", considered_assignment_ids=seen)
     value = _decimal(None if rev.get("value") is None else str(rev["value"]))
     if value is None or value < 0 or not isinstance(rev.get("currency"), str) or len(rev["currency"]) != 3:
-        return PriceSelection("UNPRICED", "PRICE_INVALID")
-    return PriceSelection("PRICED", None, str(rev["id"]), value, rev["currency"], str(a.get("id")))
+        return PriceSelection("UNPRICED", "PRICE_INVALID", considered_assignment_ids=seen)
+    return PriceSelection("PRICED", None, str(rev["id"]), value, rev["currency"], str(a.get("id")), seen)
 
 
 # ---- consequence -----------------------------------------------------------------------------------------
@@ -496,7 +501,8 @@ def consequence(f: FindingInput, q: Quantity, price: PriceSelection) -> Conseque
         "parameter_sha256": PARAMETER_SHA256, "finding_revision_id": f.finding_revision_id,
         "technical_input_sha256": tech, "state": state,
         "quantity": [q.state, q.reason, q.low, q.high],
-        "price": [price.state, price.reason, price.revision_id, price.value, price.currency],
+        "price": [price.state, price.reason, price.revision_id, price.value, price.currency,
+                  list(price.considered_assignment_ids)],
         "amount": [low, high, currency],
     })
     return Consequence(f, q, price, state, low, high, currency, tech, basis)
