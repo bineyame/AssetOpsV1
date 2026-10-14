@@ -277,7 +277,7 @@ class TestDatabaseTime:
 
         monkeypatch.setattr(assessment_worker, "datetime", Ahead)
         monkeypatch.setattr(finding_service, "datetime", Ahead)
-        monkeypatch.setattr(recompute, "_utc_now", lambda: datetime.now(UTC) + SKEW)
+        monkeypatch.setattr(recompute, "datetime", Ahead)  # the worker's default clock (`_utc_now`) reads this
         assert assessment_worker.utc_now() > datetime.now(UTC) + SKEW - timedelta(minutes=1)  # the skew is live
 
         tick, _ = make_tick(TickLimits(**FAST))
@@ -339,6 +339,14 @@ class TestDatabaseTime:
         # Heartbeat, claims and back-off were DB time throughout.
         head = tick.store.tick_head(env)
         assert abs((head["heartbeat_at"] - db_now(engine)).total_seconds()) < 120
+
+        # A backdated configuration change: the discover stage's reconcile enqueues the window at DB time, so the
+        # same tick's S3 stage (DB time) leases it; an app-clock enqueue would be three hours in the future.
+        kobo.step({"do": "reserve", "value": 30, "effective_from": "2026-10-03T00:00:00Z",
+                   "decided": "2026-10-12T11:00:00Z"})
+        r = by_site(tick.tick())[str(kobo.site)]
+        assert r.stages["s3"]["processed"] >= 1, r.stages["s3"]
+        assert seam(kobo.tenant, kobo.site, DAY_A, env=env)["eligibility"]["status"] == "CURRENT"
 
 
 class TestStaleNoWork:
