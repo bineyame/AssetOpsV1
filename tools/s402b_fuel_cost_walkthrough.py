@@ -168,9 +168,7 @@ def recompute(work: Path, db: str) -> None:
         out = tree_py(work, db, "-m", "assetops_backend.recompute_consequences", "run", "--tenant", "demo",
                       "--site", SITE, check=False)
         if out.returncode not in (0, 1):
-            raise SystemExit(f"FAILED: recompute_consequences run (exit {out.returncode})
-{out.stdout}
-{out.stderr}")
+            raise SystemExit(f"FAILED: recompute_consequences run (exit {out.returncode})\n{out.stdout}\n{out.stderr}")
         lines = [json.loads(x) for x in out.stdout.splitlines() if x.strip().startswith("{")]
         items += [x for x in lines if "work_id" in x]
         tail = [x for x in lines if "work_id" not in x]
