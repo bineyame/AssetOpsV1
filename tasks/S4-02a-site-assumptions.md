@@ -1,6 +1,6 @@
 # S4-02a — Site price publication and exact assumption history
 
-Status: in_review (activated 2026-10-13 from main `58bb8ef`; owner choice `.agent/owner-next-work-2026-10-13e.md`; phase 2 built 2026-10-13, packet `.agent/S4-02a-review-packet.md`); first M slice of S4-02
+Status: done (owner accepted conditionally 2026-10-14; reviews ACCEPT; merged to main by coordinator)
 USER_REVIEW_REQUIRED: true (owner walkthrough of the Assumptions page, the disabled edit and the Finding bridge; the S4-02 milestone checkpoint stays on S4-02b)
 Milestone: S4 Finding + Financials
 Depends on: merged S4-01/S4-03, resolved `A-S4-financial` and `A-actor-identity`; no S4-04 gate
@@ -40,3 +40,11 @@ Each phase fits one Claude Implementer context below ~120k; fresh Reviewer check
 Run focused backend/frontend suites, typecheck/build, `tools/check-all.ps1` (including registry, ledger, mock-gap/orphan guards). Use `tools/layout-evidence.mjs` where fixtures cover the path; document unsupported coverage. Reviewer follows Site price v1 → future v2 → old window still v1 → partial correction v3 → old pinned v1; compare API, DB and UI IDs and S4-03 Finding/Evidence links. Owner walkthrough (Assumptions page, disabled edit, Finding bridge) follows fresh review of this slice; keep it repeatable for S4-02b. The S4-02 milestone checkpoint stays on S4-02b. Registry closeout for `I-S4-02a`, assumption store/read/UI and any Foundation gap change needs fresh evidence; no W1 panel promotion yet because mapped paths still require S4-02b.
 
 Out of scope: human sign-in/editing, tenant policy, quantity/money derivation, consequence history, maintenance, scenario/FX/comparison, G-05 full catalogue backfill and private Lab truth.
+
+## Review Outcome (recorded by coordinator, 2026-10-14)
+
+- Reviews read (all three): `.agent/S4-02a-phase-1-review.md` ACCEPT with carries (M1 digest/fixture replay, M2 fixture time bomb: fixed as the first phase 2 commit; L1 set-once retroactive close fixed in 0010; L2 SUCCESSION-at-start refusal listed as deviation D2); `.agent/S4-02a-review.md` ACCEPT with carries (M1 layout-evidence five-tab claims, L1 next-page link with cutoff, L3 fixture name in Source, L4 copy mismatch, L6 G-05 itemization by ID: fixed in fix round 1 `778875d`/`fc8e03f`); `.agent/S4-02a-fix-rereview.md` ACCEPT (`3781195`). Browser evidence 69/69 at 1440/390, screenshots at %LOCALAPPDATA%/AssetOps/evidence/s402a.
+- Architect: no S4-02a question was raised during the build; L2 (SUCCESSION exactly at the start of the open-ended assignment is refused) goes to the next batched Architect request.
+- Owner checkpoint: `.agent/owner-S4-02a-acceptance-2026-10-14.md`. Accepted conditionally; 390 px wrapped tab row ok for now; version 1 in history vs schedule a minor owner carry; `G-foundation-financial-assumptions` stays open.
+- Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02a carries (2026-10-14)".
+

@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**S4-02a ([Site price publication and exact assumption history](../tasks/S4-02a-site-assumptions.md)) is `in_review`** on `task/S4-02a-site-assumptions` (from main `58bb8ef`). USER_REVIEW_REQUIRED (owner walkthrough after fresh review: `.agent/S4-02a-owner-walkthrough.md`). Phase 1 reviewed (`.agent/S4-02a-phase-1-review.md`); phase 2 (C1/C2 carries, read API, Financials/Assumptions UI, Finding bridge, Foundation link, gap `G-assumptions-human-edit`) built: packet `.agent/S4-02a-review-packet.md`, handoff `.agent/S4-02a-phase-2-handoff.md`, built state `.ai/CODE_STATE.md` "S4-02a". Governing: `D-2026-10-13-s4-bounded-financial-basis`. S4-02b follows after S4-02a review/merge. The S2-S4 paragraphs below are earlier routing.
+**S4-02a ([Site price publication and exact assumption history](../tasks/S4-02a-site-assumptions.md)) is `done`**: fresh Claude reviews ACCEPT, owner accepted conditionally 2026-10-14 (`.agent/owner-S4-02a-acceptance-2026-10-14.md`), merged to main by the coordinator. Next: registry closeout for `I-S4-02a`, then rerun guards + next-work; the next slice is chosen from that report (owner contest if ≤5%). S4-02b (fuel consequence, S4-02 owner checkpoint) is implementation ready. Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02a carries (2026-10-14)". The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 

@@ -2161,3 +2161,14 @@ The carried review findings above are unchanged.
 
 - Plan review C1-C9 applied (Sonnet fix round); Architect Q1/C4 (`.agent/architect-S4-02-answers.md`, DECISIONS addendum) applied to S4-02b item 2. Re-review R1-R5 applied by the coordinator (INITIAL change kind, `clock_timestamp()` after lock with non-empty ranges, two-table trigger, `G-assumptions-human-edit` missing_kind build, refusal order 401→422→403/404).
 - Residual (S4-02b walkthrough): fail-closed containment may leave many ordinary Findings `QUANTITY_UNAVAILABLE`; the walkthrough reports how many qualify and shows a positive amount from ordinary data, or says none did and why.
+
+### S4-02a carries (2026-10-14)
+
+- Owner (`.agent/owner-S4-02a-acceptance-2026-10-14.md`): version 1 appears in Price history as "from 1 Jan 2026, with no end date" while the Price schedule shows it cut into shorter pieces; "not ideal but fine for now", pick up later (S4-02b or a Financials usability pass). 390 px wrapped six-tab Site row (review L2) accepted for now; the mock scrolls the row sideways.
+- Review L5 (`.agent/S4-02a-review.md`), for S4-02b: cutoff replacement times and "Show later versions" replacing rather than appending the list.
+- Phase-1 review C3, for S4-02b: v3 corrects June 2026 only, so the demo Findings stay on v1; S4-02b needs a v4 Finding-window correction step to show a price-change revision (replays safely after M1).
+- Phase-1 review L2 (deviation D2), Architect batch: a SUCCESSION exactly at the start of the open-ended assignment is refused.
+- Phase-1 residual: the L1 set-once trigger reads `max(recorded_from)` without its own lock and relies on the publisher's series lock.
+- Fix re-review I2: the `SiteFinancials.tsx` header comment still itemizes G-05 by screen in prose; carry the IDs into the G-05 handoff.
+- Registry: `G-foundation-financial-assumptions` stays open (Site model line still reads "not available here", now with a link); correct its review trigger at registry closeout.
+
