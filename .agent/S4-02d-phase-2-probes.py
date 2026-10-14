@@ -63,6 +63,9 @@ PROBES = [
     ("I3 discover reconcile on the app clock", STAGES,
      "build_dispatch_assessment_worker(url, clock=db_clock(url)).reconcile_all()",
      "build_dispatch_assessment_worker(url).reconcile_all()", PG, "test_skewed"),
+    ("I4 seam ignores S3 (race reads falsely CURRENT)", UP,
+     ['                blockers.append(("S3", f"S3_{status}"))', '            blockers.append(("S3", "LIVE_JOB"))'],
+     ["                pass", "            pass"], PG, "Overlapping"),
     ("I3 one-off drain on the app clock", CLI, "elif db_clock is not None or worker is None:", "elif False:", PG,
      "test_skewed"),
 ]
@@ -79,8 +82,10 @@ def main(only: str | None = None) -> int:
             continue
         file = ROOT / path
         text = file.read_text(encoding="utf-8")
-        assert old in text, f"probe anchor not found in {path}: {old!r}"
-        file.write_text(text.replace(old, new, 1), encoding="utf-8")
+        for o, n in (zip(old, new) if isinstance(old, list) else [(old, new)]):
+            assert o in text, f"probe anchor not found in {path}: {o!r}"
+            text = text.replace(o, n, 1)
+        file.write_text(text, encoding="utf-8")
         try:
             out = subprocess.run([sys.executable, "-m", "pytest", tests, "-x", "-q", "-p", "no:cacheprovider",
                                   "-k", expr], cwd=ROOT, capture_output=True, text=True)

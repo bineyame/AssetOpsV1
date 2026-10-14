@@ -31,6 +31,7 @@ if URL:
 
     from assetops_backend import recompute_consequences
     from assetops_backend.analytics import assess_dispatch, assessment_worker, finding_service
+    from assetops_backend.analytics.composition import build_postgres_assessment_store
     from assetops_backend.financials import recompute
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
@@ -383,6 +384,8 @@ class TestOverlappingIngestionRace:
         env = tick.environment
         deliver(kobo, block(DAY_A, 6, 7))
         assert tick.tick().outcome == "COMPLETED"
+        overlapped: list[bool] = []
+        outcomes: list[tuple] = []
         for i, (a, b) in enumerate([((9, 11), (11, 13)), ((14, 16), (15, 17)), ((18, 19), (19, 20))]):
             envs = []
             for h0, h1 in (a, b):
@@ -391,24 +394,30 @@ class TestOverlappingIngestionRace:
                 now_, _ = kobo.seal(sorted(rows_, key=lambda x: x[0][2]), "epoch-1")
                 envs.append(now_)
             errors: list[BaseException] = []
+            held: list[bool] = []
             gate = threading.Barrier(3)
 
             def chunk(envelopes, k):
                 try:
                     gate.wait(10)
                     kobo.submit(envelopes, datetime(2026, 10, 12, 8, i, k, tzinfo=UTC))
+                    held.append(tick.store.site_head(kobo.tenant, kobo.site)["claim_token"] is not None)
                 except BaseException as error:  # noqa: BLE001 - reported below
                     errors.append(error)
 
             threads = [threading.Thread(target=chunk, args=(e, k)) for k, e in enumerate(envs)]
 
-            def during_s3(args) -> None:
+            # Round 0: the chunks commit as S3 starts (it then sees them); round 1: they race S3's lease and
+            # processing; round 2: they commit after S3, while the tick runs S4 and the drain.
+            stage, pause = (("s3", 0.2), ("s3", 0.0), ("s4", 0.5))[i]
+
+            def during(args) -> None:
                 for t in threads:
                     t.start()
-                gate.wait(10)  # both chunks start while this tick holds the Site and enters S3
-                time.sleep(0.2)
+                gate.wait(10)  # both chunks start while this tick holds the Site claim
+                time.sleep(pause)
 
-            tick.runner = InProcessRunner(tick.limits, before={"s3": during_s3})
+            tick.runner = InProcessRunner(tick.limits, before={stage: during})
             before = seam(kobo.tenant, kobo.site, DAY_A, env=env)["days"][0]["current_basis"]
             report = tick.tick()
             for t in threads:
@@ -416,11 +425,13 @@ class TestOverlappingIngestionRace:
             assert not any(t.is_alive() for t in threads), "an ingestion chunk did not finish (unresolved lock)"
             assert errors == [], f"ingestion defect under overlap (report to the evidence owner): {errors!r}"
             assert report.outcome == "COMPLETED"
+            overlapped.append(any(held))
             mid = seam(kobo.tenant, kobo.site, DAY_A, env=env)
-            if mid["eligibility"]["status"] == "CURRENT":
-                # Only possible when the tick's S3 already assessed both chunks; the basis must then include them.
-                assert mid["days"][0]["current_basis"]["accepted_reading_count"] > before["accepted_reading_count"]
-            else:
+            live = build_postgres_assessment_store(URL).live_jobs("dispatch", "dispatch", kobo.tenant, kobo.site)
+            outcomes.append((mid["eligibility"]["status"], len(live)))
+            if live:  # independent of the seam: live S3 work for the window is never CURRENT
+                assert mid["eligibility"]["status"] != "CURRENT", mid["eligibility"]
+            if mid["eligibility"]["status"] != "CURRENT":
                 assert mid["eligibility"]["stage"] in ("S3", "S4", "CONSEQUENCE")
             tick.runner = InProcessRunner(tick.limits)
             for _ in range(4):
@@ -431,6 +442,10 @@ class TestOverlappingIngestionRace:
             assert out["eligibility"]["status"] == "CURRENT", out["eligibility"]
             basis = out["days"][0]["current_basis"]
             assert basis["accepted_reading_count"] > before["accepted_reading_count"]
+        # The race was real: chunks committed while the tick held the Site claim, and at least one round left live
+        # work behind the tick (otherwise the no-false-CURRENT assertion had nothing to bite on).
+        assert any(overlapped), overlapped
+        assert any(n > 0 for _, n in outcomes), outcomes
 
 
 class TestTickCost:
