@@ -513,7 +513,7 @@ class TestMigrationPaths:
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0012_evidence_consequence_work")
+                    "0013_schedule_state")  # the whole downgrade rolled back: still head
             assert all_work(engine) == before
         finally:
             command.upgrade(config, "head")
@@ -536,7 +536,7 @@ class TestMigrationPaths:
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0012_evidence_consequence_work")
+                    "0013_schedule_state")  # the whole downgrade rolled back: still head
                 assert c.execute(text("SELECT no_op_reason FROM financial_consequence_work_attempt "
                                       "WHERE work_id = :w"), {"w": w["id"]}).scalar_one() == (
                     "FINDING_REVISION_SUPERSEDED")
