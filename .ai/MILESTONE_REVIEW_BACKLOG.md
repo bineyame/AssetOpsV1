@@ -2178,3 +2178,13 @@ The carried review findings above are unchanged.
 - Owner (verbatim, `.agent/owner-S4-02b-money-demo-2026-10-14.md`): "add a backlog item to ensure both simulated and real sites are supported to in terms of data required for the analysis".
 - Trigger: S4-02b phase 1 review Q9. The simulated gateway publishes a 5-minute generator power mean only every 15 minutes, so `fuel-cost-1` sees one third coverage of Candidate time and fails closed; S4-02b's positive amount comes from an authored demo case, not from ordinary gateway data.
 - Needed: for each W1 analytic (dispatch-3.1, `fuel-cost-1`, later verification and health), state its required inputs, cadence and coverage, and make sure (a) the simulated gateway / Lab publication profile produces them and (b) the real-Site onboarding path (bindings, gateway publication profile, ingestion) requires or reports them, with an honest "analysis not possible: missing X" state where they are absent. Candidate owners: Planner (publication-profile version, readiness check), Architect if a cross-analytic input contract is needed. Re-check at W1-exit review at the latest; consider before S6-02 verification.
+
+### S4-02b carries (2026-10-14)
+
+- Owner checkpoint items left as built (`.agent/owner-S4-02b-acceptance-2026-10-14.md`): money sentence, no-amount reasons, demonstration note, separate Out of date / Not worked out yet, version-1 history vs schedule, 390 px tab wrap, "kept for the record" figures in Fuel cost versions, price per litre under audit-only. Any may be reopened.
+- 0 of 11 ordinary Findings qualify for a fuel cost (8 POWER_MISSING, 2 FINDING_NOT_SUPPORTED, 1 F01-gateway POWER_COVERAGE_GAP: 5-minute means every 15 minutes). See "Owner: analysis input data for simulated and real Sites (2026-10-14)".
+- Slice review L5: Fuel cost versions list has no "show later versions" past 200 versions.
+- Fix re-review I1 (fail-closed spec path tested only by faking the read; point the spec path at a missing file), I2 (pointer wording "Earlier" vs "Recorded fuel cost versions"), I3 (open-episode start-in-day check untested), I4 (evidence whole-page amount count recognises only 2-decimal USD; widen for a second currency), I5 (demonstration label by Site+day, not tenant-scoped; 2026-10-23 is a real future date for KOBO-001).
+- Phase 2a deviations: no consequence work is queued on evidence acceptance (head shows STALE until another trigger; Architect batch Q2); recompute is a one-shot CLI with no scheduler (Q6, Planner/ops).
+- Phase 2b: `layout-evidence.mjs` 206 PASS / 28 FAIL, same fixture-precondition failures as S4-02a; full backend suite not rerun after fix round 1 (only `demonstration_label.py` changed in backend).
+

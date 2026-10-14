@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**S4-02b ([bounded fuel consequence and repricing](../tasks/S4-02b-fuel-consequence.md)) is `in_review`** on `task/S4-02b-fuel-consequence` (from main `14ad5ef`). USER_REVIEW_REQUIRED (S4-02 owner checkpoint after fresh review). Phases 1 and 2a reviewed (ACCEPT with carries); phase 2b (Financials fuel cost UI, owner walkthrough, evidence 90/90) built, fresh review next. Packet `.agent/S4-02b-review-packet.md`, handoff `.agent/S4-02b-phase-2b-handoff.md`, questions `.agent/S4-02b-questions-3.md`, owner steps `.agent/S4-02b-owner-walkthrough.md`, built state `.ai/CODE_STATE.md` "S4-02b phase 2b". Governing: `D-2026-10-13-s4-bounded-financial-basis`, `.agent/architect-S4-02-answers.md`. S4-02a is done and merged (`2592c82`, registry closeout `14ad5ef`). The S2-S4 paragraphs below are earlier routing.
+**S4-02b ([bounded fuel consequence and repricing](../tasks/S4-02b-fuel-consequence.md)) is `done`**: fresh Claude reviews ACCEPT, owner S4-02 checkpoint passed 2026-10-14 (`.agent/owner-S4-02b-acceptance-2026-10-14.md`), merged to main by the coordinator. Next: S4-02 registry closeout (`I-S4-02b`, `I-S4-02`, money nodes, `financials:1#a/2#a`, `assumptions:1#a`; `assumptions:3#a` waits on Architect Q12), Architect batch, then rerun guards + next-work (owner contest if <=5%). Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02b carries (2026-10-14)". The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
