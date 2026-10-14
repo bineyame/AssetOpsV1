@@ -466,6 +466,9 @@ class TestOverlappingIngestionRace:
                     t.start()
                 gate.wait(10)  # both chunks start while this tick holds the Site claim
                 time.sleep(pause)
+                if stage == "s4":  # round 2 commits deterministically inside the claim (rounds 0-1 still race)
+                    for t in threads:
+                        t.join(60)
 
             tick.runner = InProcessRunner(tick.limits, before={stage: during})
             before = seam(kobo.tenant, kobo.site, DAY_A, env=env)["days"][0]["current_basis"]
