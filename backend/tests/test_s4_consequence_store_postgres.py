@@ -365,3 +365,21 @@ class TestReviewCarries:
         (w,) = [w for w in site.store.rows(site.tenant, site.site)["financial_consequence_work"]
                 if w["finding_revision_id"] == nid]
         assert w["affected_from"] == w["affected_to"] == rev["episode_start"]
+
+    def test_upgrade_enqueues_finding_revisions_recorded_before_0011(self, site, engine) -> None:  # noqa: F811
+        """Review L4: a database upgraded from 0010 has work for every existing FindingRevision."""
+        from alembic import command
+        from alembic.config import Config
+        from test_s1_bindings_postgres import BACKEND
+
+        config = Config(str(BACKEND / "alembic.ini"))
+        config.attributes["database_url"] = URL
+        site.store.dispose()
+        command.downgrade(config, "0010_financial_assumptions")
+        command.upgrade(config, "head")
+        with engine.connect() as c:
+            revisions = set(c.execute(text("SELECT id FROM finding_revision WHERE site_id = :s"),
+                                      {"s": site.site}).scalars())
+        work = site.store.rows(site.tenant, site.site)["financial_consequence_work"]
+        assert revisions and {w["finding_revision_id"] for w in work} == revisions
+        assert all(w["cause"] == "FINDING_REVISION_APPENDED" for w in work)
