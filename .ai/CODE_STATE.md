@@ -5412,7 +5412,7 @@ Branch `task/S4-02b-fuel-consequence`, `dbaba10`..HEAD. Packet `.agent/S4-02b-re
 - Tools: `tools/s402b_fuel_cost_walkthrough.py` (one code tree per DB so each keeps its own source gate; prepare/links/serve/publish-v4/recompute/close-gate/open-gate/drop; `assetops_s402b*` non-test names only); `tools/s402b-fuel-cost-evidence.mjs` (90 claims at 1440/390, mutates its own evidence DBs).
 - Open: Site-level consequence list on Assumptions (Q12); authorship label at ingestion (Q11); Architect Q2 (evidence acceptance enqueues no work); G-05 itemization in the packet; owner checkpoint after fresh review.
 
-## S4-02c phase 1 - transactional acceptance work (built, review pending)
+## S4-02c phase 1 - transactional acceptance work (reviewed: ACCEPT with carries)
 
 Branch `task/S4-02c-evidence-consequence-work`, `5af9f214`..HEAD. Handoff `.agent/S4-02c-phase-1-handoff.md`; no open questions file.
 
@@ -5425,7 +5425,7 @@ Branch `task/S4-02c-evidence-consequence-work`, `5af9f214`..HEAD. Handoff `.agen
 - Tests: `backend/tests/test_s4_evidence_consequence_work_postgres.py` (12), `backend/tests/test_s4_consequence_cause_dispatch.py` (2).
 - Open (phase 2): scoped drain of `EVIDENCE_ACCEPTED` (recheck, typed no-op, N1 predicate), runner/Site claim/retry schedule; phase 3 walkthrough. Until phase 2, the CLI `run` records `CAUSE_NOT_SUPPORTED` attempts for evidence work and exits 1.
 
-## S4-02c phase 2 - scoped drain and run plan (built, review pending)
+## S4-02c phase 2 - scoped drain and run plan (reviewed: ACCEPT with carries)
 
 Branch `task/S4-02c-evidence-consequence-work`, `0a79be14`..HEAD. Handoff `.agent/S4-02c-phase-2-handoff.md`; no questions file.
 
@@ -5435,3 +5435,13 @@ Branch `task/S4-02c-evidence-consequence-work`, `0a79be14`..HEAD. Handoff `.agen
 - CLI `recompute_consequences run --tenant --site [--limit 100]`: tenant required, non-dev tenant exit 2, summary JSON line, skipped Site exit 0. Runbook in `backend/README-db.md`.
 - Tests: `test_s4_evidence_drain_postgres.py` (10), `test_s4_evidence_drain.py` (12); phase 1 file gains L3 no-op downgrade refusal and the L1-scoped race probe.
 - Open (phase 3): two-leg late-power walkthrough (N2 price, N5 precondition, C5 IDs). R1 (S3/S4 commands unscheduled) and I1 (concurrent overlapping chunks) remain named risks.
+
+## S4-02c phase 3 - late-power walkthrough and slice wrap-up (built, review pending)
+
+Branch `task/S4-02c-evidence-consequence-work`, `6d4a1995`..HEAD. Packet `.agent/S4-02c-review-packet.md`, handoff `.agent/S4-02c-phase-3-handoff.md`, evidence `.agent/S4-02c-walkthrough-evidence.md`; no questions file.
+
+- Phase-2 carries: `tools/s402b_fuel_cost_walkthrough.py` `recompute` now runs `recompute_consequences run --tenant demo --site KOBO-001` in bounded runs until backlog 0 and counts only `work_id` lines (M1, proved on private DBs); `tools/s402b-fuel-cost-evidence.mjs` claims the recompute exit status; runbook (`backend/README-db.md`) names repeated `skipped` as the hung-runner alarm (no timeout) and the uncapped permanent-failure retry volume; tests assert backlog after a failed run and the per-Site runner key.
+- Fixture `backend/conversions/s4-power-late-demo-cases-v1.json` (`P02-power-late`, 2026-10-24): P01-power's shape with the 20 kW mean `[07:00, 07:05)` withheld and delivered later; `power_rules.sequence_rule = SOURCE_ORDER` (the late mean keeps its source sequence, the first delivery leaves a gap). Existing S4/S4-02b specs unchanged.
+- Tool `tools/s402c_late_power_walkthrough.py run|drop` (DB `assetops_s402c3walk*`, ports 8918/8919): price v1 first (N2); N5 asserted (stops otherwise); Leg A STALE/TECHNICAL_INPUT_CHANGED + STALE_QUEUED with the EVIDENCE_ACCEPTED work ID, runner drain -> same revision consequence 2 CURRENT POWER_NOT_IN_ASSESSMENT_INPUTS, not S5-eligible; Leg B process-jobs + match-findings -> r2 SUPPORT_CHANGED citing the late ID, its FRA work -> CURRENT PRICED 12.65 L / 15.8125 USD, S5-eligible; replay selects 0; no duplicate basis. Reads use `ConsequenceReadService.read` with `source_open=True`.
+- Finding: appending a late mean after the epoch's last sequence makes S3 dispatch-3.1 report `SEQUENCE_ORDER_INVERTED` and shortens the revised Finding (run 1, recorded).
+- Open: R1 (S3/S4 commands unscheduled), I1 (permanent-failure attempt growth), I2 (hung runner visible only as `skipped`), I3 clock skew, I4 concurrent overlapping chunks unmeasured; pre-0012 stale heads `NO_WORK_RECORDED` without backfill; late-delivery sequence numbering on real gateways unproved.

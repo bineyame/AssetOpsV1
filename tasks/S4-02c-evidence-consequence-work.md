@@ -1,6 +1,6 @@
 # S4-02c — consequence work on accepted evidence
 
-Status: active (activated 2026-10-14 from main `f9d6d1a5`; owner confirmed `.agent/owner-next-work-2026-10-14b.md`, 0.20% contest; plan review `.agent/S4-02c-plan-review.md` RETURN -> fix round -> `.agent/S4-02c-plan-fix-rereview.md` ACCEPT)
+Status: in_review (phase 3 built 2026-10-14, packet `.agent/S4-02c-review-packet.md`; activated 2026-10-14 from main `f9d6d1a5`; owner confirmed `.agent/owner-next-work-2026-10-14b.md`, 0.20% contest; plan review `.agent/S4-02c-plan-review.md` RETURN -> fix round -> `.agent/S4-02c-plan-fix-rereview.md` ACCEPT)
 USER_REVIEW_REQUIRED: false, conditional on (a) the stale-without-work discrepancy remaining a typed code/field with no new owner-facing sentence, and (b) Leg A using the existing reviewed `POWER_NOT_IN_ASSESSMENT_INPUTS` copy. Any new owner-facing text or panel reopens the flag and checkpoint. Independent implementation review is required.
 Milestone: S4 Finding + Financials
 Depends on: registry `requires` `A-S4-financial`, `I-S2-02`, `I-financial-store` (all resolved). S4-01, S4-03 and S4-02a/b are built context; `A-S5-overview` sets the downstream S5 read gate. S5-01's current money read depends on this packet's reviewed result.
