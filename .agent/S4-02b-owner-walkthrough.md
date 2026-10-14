@@ -71,6 +71,8 @@ The measured checks at 1440 and 390 pixels were run on separate copies: **90/90 
 4. Should "Out of date" and "Not worked out yet" stay separate, or read as one "being updated" state? (They are separate now.)
 5. Carried from S4-02a: version 1 shown as "with no end date" in Price history next to shorter Price schedule pieces. Still unchanged; keep as a later Financials usability item?
 6. Carried: the six Site tabs wrap to a second line at 390 px; still accepted for now?
+7. Fuel cost versions keep an older or out-of-date figure visible, labelled "kept for the record", while the money panel above says there is no current cost. Is that clear, or should older figures be hidden until you open that version? (Re-review I2: the pointer line says "Earlier fuel cost versions"; "Recorded fuel cost versions" may read more exactly.)
+8. When the finding is shown for the record only (its source readings not yet confirmed by the comparison), no fuel cost appears, but the Site's diesel price for today ("Price in use ... USD per litre") still shows. Keep it, or hide it in that state too?
 
 ## Clean-up
 
