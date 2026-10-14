@@ -571,6 +571,18 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
     },
   );
 
+  it("never presents an amount the bridge did not mark current and priced", async () => {
+    mount(
+      fake({ bridge: { status: "loaded", value: pricedBridge({ state: "STALE", currentness: "STALE" }) } }),
+      URL,
+    );
+    await settledScreen();
+    const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
+    expect(bridge).toHaveAttribute("data-financials-amount", "none");
+    expect(bridge.querySelector("[data-financials-headline='amount']")).toBeNull();
+    expect(bridge).toHaveTextContent("Out of date: no current cost");
+  });
+
   it("opens an earlier fuel cost version of the same finding version, labelled as kept for the record, and keeps it on reload", async () => {
     const client = fake({
       bridge: { status: "loaded", value: pricedBridge() },
