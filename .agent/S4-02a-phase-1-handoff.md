@@ -120,7 +120,7 @@ The fixture produces six assignment rows:
   - Reads may use an access default like the Finding read's, but the write route must keep `no_verified_principal`.
   - Current selection uses `recorded_to IS NULL`; a cutoff `c` uses `recorded_from <= c < recorded_to`. Both are half-open.
   - Wire the store via `financials/composition.build_assumption_store(database_url())`.
-- **Walkthrough database.** Publish the demo with `python -m assetops_backend.publish_assumption fixture --site KOBO-001 --file backend/conversions/demo-diesel-price-publications.json` (with `DATABASE_URL` set).
+- **Walkthrough database.** Publish the demo with `python -m assetops_backend.publish_assumption fixture --site KOBO-001 --file backend/conversions/demo-diesel-price-publications.json` (with `DATABASE_URL` set). Note (S4-02b review L7, 2026-10-14): the fixture now has a v4 step, so without `--step` this also publishes v4; add `--step v1 --step v2 --step v3` for the S4-02a state.
 - **Still to build:**
   - the UI (Financials tab flip, Assumptions current/history, disabled edit through `G-assumptions-human-edit`);
   - the Finding bridge (`QUANTITY_UNAVAILABLE`/`UNPRICED`);

@@ -91,7 +91,8 @@ Phase 1 is packet row 1. Phase 2a (read and recompute worker) and 2b (UI) are no
 
 Q1-Q10 are in `.agent/S4-02b-questions-1.md`. The most consequential:
 
-- **Q9: ordinary Findings.** The S4 fixtures and walkthrough deliver only generator state, so every ordinary Finding is `QUANTITY_UNAVAILABLE` (`POWER_MISSING`). The positive Postgres case ingests generator-power interval means through the real Batch V2 path. It gives 2.75 L, which is 3.4375 USD at v1 and 3.52 USD at v4.
+- **Corrected 2026-10-14 (review M2):** this was wrong. Of the 11 latest FindingRevisions in the S4-02a walkthrough DB, 8 are `POWER_MISSING` (the authored state-only cases), 2 are `FINDING_NOT_SUPPORTED`, and 1 - the registered gateway Finding F01-gateway `[05:15, 09:15)` - has accepted generator power but fails `POWER_COVERAGE_GAP`: its 16 GOOD means are 5-minute means published every 15 minutes, covering one third of Candidate time. Interpolation is forbidden, so none qualified. Owner ruling `.agent/owner-S4-02b-money-demo-2026-10-14.md`: phase 2a adds one labelled authored power-mean case.
+  Original text, superseded: **Q9: ordinary Findings.** The S4 fixtures and walkthrough deliver only generator state, so every ordinary Finding is `QUANTITY_UNAVAILABLE` (`POWER_MISSING`). The positive Postgres case ingests generator-power interval means through the real Batch V2 path. It gives 2.75 L, which is 3.4375 USD at v1 and 3.52 USD at v4.
 - **Q1: window shape.** The window CHECK is `<=`, because a zero-width episode stores as `NO_CANDIDATE_TIME`.
 - **Q6: replay.** Replay of an identical earlier basis returns the older ID. Phase 2a must not treat that ID as current when the chain head differs.
 - **L1 divergence (packet).** The technical design's single-assessment, single-assumption, scalar-quantity row is superseded by the 0011 shape. This is stated in the migration docstring.

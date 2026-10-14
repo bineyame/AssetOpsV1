@@ -48,6 +48,8 @@ Therefore no `financial_consequence_assumption_revision` link exists for the par
 `quantify` requires lifecycle `SUPPORTED`. Whether the revision is the latest, and whether its dispatch windows are current (`FindingReadService._currentness`), is left to the phase 2a recompute and read (`STALE/PENDING`). The phase-1 store derives from whatever exact revision it is given.
 
 ## Q9. Ordinary Findings will be `QUANTITY_UNAVAILABLE`
+**Corrected 2026-10-14 (review M2):** this was wrong. Of the 11 latest FindingRevisions in the S4-02a walkthrough DB, 8 are `POWER_MISSING` (the authored state-only cases), 2 are `FINDING_NOT_SUPPORTED`, and 1 - the registered gateway Finding F01-gateway `[05:15, 09:15)` - has accepted generator power but fails `POWER_COVERAGE_GAP`: its 16 GOOD means are 5-minute means published every 15 minutes, covering one third of Candidate time. Interpolation is forbidden, so none qualified. Owner ruling `.agent/owner-S4-02b-money-demo-2026-10-14.md`: phase 2a adds one labelled authored power-mean case.
+
 The S4 Finding fixtures and walkthrough deliver generator **state** only, never `INTERVAL_MEAN` generator power. Every ordinary Finding is therefore `POWER_MISSING`; the Postgres test proves this for one. A positive amount needs accepted power means.
 - **Phase 2a/2b walkthrough:** either deliver power means through the registered gateway path, or report plainly that none qualified (packet "Visible acceptance").
 
