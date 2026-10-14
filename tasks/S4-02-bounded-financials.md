@@ -1,6 +1,6 @@
 # S4-02 — bounded Financials closeout
 
-Status: outline; closeout after [S4-02a](S4-02a-site-assumptions.md) and [S4-02b](S4-02b-fuel-consequence.md); no third implementation slice.
+Status: done (S4-02a and S4-02b merged and owner checkpoint passed 2026-10-14, conditional; registry closeout promotes three W1 portions, assumptions:3#a stays open pending a Site consequence-history-at-cutoff follow-on per Architect batch ruling)
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
 Branch when activated: `task/S4-02b-fuel-consequence` (closeout on the reviewed S4-02b result)
