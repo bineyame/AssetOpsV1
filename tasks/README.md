@@ -41,6 +41,10 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 
+| Tooling lane | Task | Activation | Status |
+| --- | --- | --- | --- |
+| Backend test turnaround | [OPS-01](OPS-01-backend-test-speed.md) | Immediately after reviewed/merged S4-02d, ahead of ordinary next-work ranking; outside W1 core scoring | Planned (implementation-ready); M in two phases; independent review, no owner UI checkpoint |
+
 ## Mock-gap closure queue
 
 Owner confirmed the catalogue and orphan guard on 2026-10-12 (`D-2026-10-12-mock-gap-closure-mechanism` sections 1–2). The non-core ranking and per-screen completion policy wait for W1 exit. These G packets are planning/backfill work and add no scored W1 core paths. G-01 does not gate V-01a's current owner review or merge. The normal single-active-task and owner checkpoints still apply.
