@@ -32,7 +32,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import ROUND_CEILING, Decimal, InvalidOperation, localcontext
 from fractions import Fraction
 from typing import Any, Iterable, Sequence
@@ -74,8 +74,9 @@ PARAMETER_VERSION: dict[str, Any] = {
                            "the reading's binding revision must also be valid over the whole interval"),
     "source": ".agent/architect-S4-02-answers.md (Q1, C4); addendum to D-2026-10-13-s4-bounded-financial-basis",
     "author": "Codex Architect",
-    "reviewer": "Codex Architect ruling; independent fresh Claude review of S4-02b phase 1 pending",
-    "review_date": "2026-10-13",
+    "reviewer": ("Codex Architect ruling 2026-10-13 (.agent/architect-S4-02-answers.md Q1, C4); independent fresh "
+                 "Claude review of the model and wording, ACCEPT, .agent/S4-02b-phase-1-review.md (2026-10-14)"),
+    "review_date": "2026-10-14",
 }
 MULTIPLIER = Decimal(PARAMETER_VERSION["value"])
 
@@ -388,8 +389,11 @@ def quantify(f: FindingInput) -> Quantity:
             return _unavailable("BINDING_CHANGES_WITHIN_INTERVAL",
                                 f"Binding revision {br.revision_id} is not valid over reading {r.evidence_id}.",
                                 spans, examined)
+        if (b - a) % timedelta(seconds=1):  # review L3: never truncate an upper bound's duration
+            return _unavailable("INTERVAL_NOT_WHOLE_SECONDS",
+                                f"Reading {r.evidence_id} does not span a whole number of seconds.", spans, examined)
         covered = tuple(s for s in spans if _overlaps(s[0], s[1], a, b))
-        counted.append(CountedInterval(r.evidence_id, a, b, mean, int((b - a).total_seconds()), sfc,
+        counted.append(CountedInterval(r.evidence_id, a, b, mean, (b - a) // timedelta(seconds=1), sfc,
                                        fr.revision_id, br.revision_id, r.envelope_sha256, covered))
     exact = Fraction(MULTIPLIER) * sum((c.litres for c in counted), Fraction(0))
     return Quantity("AVAILABLE", None, None, Decimal(0), to_decimal_ceiling(exact), exact, tuple(counted), spans,
@@ -421,11 +425,13 @@ class PriceSelection:
     revision_id: str | None = None
     value: Decimal | None = None
     currency: str | None = None
+    # Lineage only (the link table): assignment IDs are re-issued for unchanged remainders by every later
+    # publication (`assumptions.plan_assignments`), so they never enter the consequence basis (review M1).
     assignment_id: str | None = None
-    # Every assignment overlapping the window at the selection cutoff. Assignment IDs are unique per publication,
-    # so two UNPRICED selections over different price boundaries have different consequence bases (an older
-    # identical-looking basis is never replayed in place of a newer state).
-    considered_assignment_ids: tuple[str, ...] = ()
+    # The basis content of the selection: every assignment overlapping the window at the selection cutoff, as
+    # sorted `(revision_id, max(valid_from, window_start), min(valid_to, window_end))`. Stable under remainder
+    # re-IDing outside the window, yet two UNPRICED selections over different price boundaries still differ.
+    considered: tuple[tuple[str, str, str], ...] = ()
 
 
 NOT_EVALUATED = PriceSelection("NOT_EVALUATED", "QUANTITY_UNAVAILABLE")
@@ -436,25 +442,33 @@ def select_window_price(assignments: Sequence[dict[str, Any]], revisions: dict[A
     """One Site price valid for the entire `[window_start, window_end)`, from the assignments known at the
     selected recorded cutoff. Never partitions the window and never takes the current price for old time."""
     hits = [a for a in assignments if _overlaps(a["valid_from"], a["valid_to"], window_start, window_end)]
-    seen = tuple(sorted(str(a.get("id")) for a in hits))
+    seen = clipped(hits, window_start, window_end)
     if not hits:
         return PriceSelection("UNPRICED", "NO_PRICE")
     ordered = sorted(hits, key=lambda a: a["valid_from"])
     for x, y in zip(ordered, ordered[1:]):
         if x["valid_to"] is None or y["valid_from"] < x["valid_to"]:
-            return PriceSelection("UNPRICED", "PRICE_CONFLICT", considered_assignment_ids=seen)
+            return PriceSelection("UNPRICED", "PRICE_CONFLICT", considered=seen)
     if len(hits) > 1 or not _contains(hits[0]["valid_from"], hits[0]["valid_to"], window_start, window_end):
-        return PriceSelection("UNPRICED", "PRICE_SPANS_WINDOW", considered_assignment_ids=seen)
+        return PriceSelection("UNPRICED", "PRICE_SPANS_WINDOW", considered=seen)
     a = hits[0]
     rev = revisions.get(a["revision_id"])
     if rev is None:
-        return PriceSelection("UNPRICED", "PRICE_REVISION_MISSING", considered_assignment_ids=seen)
+        return PriceSelection("UNPRICED", "PRICE_REVISION_MISSING", considered=seen)
     if rev.get("assumption_key", PRICE_KEY) != PRICE_KEY or rev.get("unit") != PRICE_UNIT:
-        return PriceSelection("UNPRICED", "PRICE_UNIT_MISMATCH", considered_assignment_ids=seen)
+        return PriceSelection("UNPRICED", "PRICE_UNIT_MISMATCH", considered=seen)
     value = _decimal(None if rev.get("value") is None else str(rev["value"]))
     if value is None or value < 0 or not isinstance(rev.get("currency"), str) or len(rev["currency"]) != 3:
-        return PriceSelection("UNPRICED", "PRICE_INVALID", considered_assignment_ids=seen)
+        return PriceSelection("UNPRICED", "PRICE_INVALID", considered=seen)
     return PriceSelection("PRICED", None, str(rev["id"]), value, rev["currency"], str(a.get("id")), seen)
+
+
+def clipped(hits: Sequence[dict[str, Any]], window_start: datetime,
+            window_end: datetime) -> tuple[tuple[str, str, str], ...]:
+    """The window-clipped `(revision_id, from, to)` of each overlapping assignment, sorted (review M1)."""
+    return tuple(sorted((str(a["revision_id"]), iso(max(a["valid_from"], window_start)),
+                         iso(window_end if a["valid_to"] is None else min(a["valid_to"], window_end)))
+                        for a in hits))
 
 
 # ---- consequence -----------------------------------------------------------------------------------------
@@ -502,7 +516,7 @@ def consequence(f: FindingInput, q: Quantity, price: PriceSelection) -> Conseque
         "technical_input_sha256": tech, "state": state,
         "quantity": [q.state, q.reason, q.low, q.high],
         "price": [price.state, price.reason, price.revision_id, price.value, price.currency,
-                  list(price.considered_assignment_ids)],
+                  [list(x) for x in price.considered]],
         "amount": [low, high, currency],
     })
     return Consequence(f, q, price, state, low, high, currency, tech, basis)

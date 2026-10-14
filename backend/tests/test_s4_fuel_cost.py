@@ -191,12 +191,65 @@ def test_overlapping_assignments_are_a_conflict_and_bad_units_refused() -> None:
 
 
 def test_unpriced_bases_over_different_price_boundaries_differ() -> None:
-    """Review of idempotency: UNPRICED(PRICE_SPANS_WINDOW) twice over different boundaries is not one basis."""
+    """Idempotency: UNPRICED(PRICE_SPANS_WINDOW) twice over different boundaries is not one basis. The
+    assignment IDs are deliberately the same, so only the window-clipped boundary instants can differ."""
     f = build(CASES["P1"])
     q = fc.quantify(f)
     w0, w1 = f.window_start, f.window_end
     mid1, mid2 = w0 + timedelta(minutes=10), w0 + timedelta(minutes=20)
     a = fc.select_window_price([assign("v1", w0, mid1, "a1"), assign("v4", mid1, None, "a2")], REVS, w0, w1)
-    b = fc.select_window_price([assign("v1", w0, mid2, "a3"), assign("v4", mid2, None, "a4")], REVS, w0, w1)
+    b = fc.select_window_price([assign("v1", w0, mid2, "a1"), assign("v4", mid2, None, "a2")], REVS, w0, w1)
     assert a.reason == b.reason == "PRICE_SPANS_WINDOW"
+    assert a.considered == (("v1", fc.iso(w0), fc.iso(mid1)), ("v4", fc.iso(mid1), fc.iso(w1)))
     assert fc.consequence(f, q, a).basis_sha256 != fc.consequence(f, q, b).basis_sha256
+
+
+def test_reissued_assignment_ids_outside_the_window_leave_the_basis_unchanged() -> None:
+    """Review M1: a later publication re-IDs unchanged remainders; the same window price is the same basis."""
+    f = build(CASES["P1"])
+    q = fc.quantify(f)
+    w0, w1 = f.window_start, f.window_end
+    before = fc.select_window_price([assign("v1", datetime(2026, 1, 1, tzinfo=UTC), None, "old")], REVS, w0, w1)
+    after = fc.select_window_price([assign("v1", datetime(2026, 1, 1, tzinfo=UTC), datetime(2030, 1, 1, tzinfo=UTC),
+                                           "reissued"), assign("v4", datetime(2030, 1, 1, tzinfo=UTC), None, "new")],
+                                   REVS, w0, w1)
+    assert before.assignment_id != after.assignment_id and before.considered == after.considered
+    assert fc.consequence(f, q, before).basis_sha256 == fc.consequence(f, q, after).basis_sha256
+
+
+# ---- review L5 / L3: refusals the phase-1 mutations showed were untested --------------------------------------
+
+def test_exactly_one_primary_interval_assessment_is_required() -> None:
+    f = build(CASES["P1"])
+    (a,) = f.assessments
+    for assessments in ((replace(a, is_primary=False),), (a, replace(a, assessment_revision_id="A2"))):
+        q = fc.quantify(replace(f, assessments=assessments))
+        assert (q.state, q.reason, q.high) == ("QUANTITY_UNAVAILABLE", "ASSESSMENT_LINEAGE_INVALID", None)
+
+
+def test_an_assessment_of_another_generator_is_refused() -> None:
+    f = build(CASES["P1"])
+    q = fc.quantify(replace(f, assessments=(replace(f.assessments[0], generator_asset_id="gen-2"),)))
+    assert (q.state, q.reason, q.high) == ("QUANTITY_UNAVAILABLE", "ASSESSMENT_LINEAGE_INVALID", None)
+
+
+def test_a_candidate_span_outside_the_finding_window_is_refused() -> None:
+    f = build(CASES["P1"])
+    first = f.candidate_spans[0]
+    q = fc.quantify(replace(f, window_start=first.start + timedelta(minutes=1)))
+    assert (q.state, q.reason, q.high) == ("QUANTITY_UNAVAILABLE", "CANDIDATE_SPAN_UNVERIFIED", None)
+    assert "outside the finding window" in q.detail
+
+
+def test_a_sub_second_interval_is_refused_not_truncated() -> None:
+    f = build(CASES["P1"])
+    last = f.readings[-1]
+    moved = replace(f, readings=f.readings[:-1] + (replace(last, interval_end=last.interval_end
+                                                           + timedelta(microseconds=600000)),),
+                    window_end=f.window_end + timedelta(seconds=1))
+    spans = tuple(replace(s, end=last.interval_end + timedelta(microseconds=600000))
+                  if s.end == last.interval_end else s for s in moved.candidate_spans)
+    segs = tuple(replace(g, end=last.interval_end + timedelta(microseconds=600000))
+                 if g.end == last.interval_end else g for g in f.assessments[0].segments)
+    q = fc.quantify(replace(moved, candidate_spans=spans, assessments=(replace(f.assessments[0], segments=segs),)))
+    assert (q.state, q.reason, q.high) == ("QUANTITY_UNAVAILABLE", "INTERVAL_NOT_WHOLE_SECONDS", None)

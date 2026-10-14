@@ -299,13 +299,24 @@ class TestDatabaseGuards:
             ({"state": "'QUANTITY_UNAVAILABLE'", "quantity_state": "'QUANTITY_UNAVAILABLE'",
               "quantity_reason": "'POWER_MISSING'", "price_state": "'NOT_EVALUATED'", "price_revision_id": "NULL",
               "price_value": "NULL", "price_currency": "NULL", "amount_low": "NULL", "amount_high": "NULL",
-              "currency": "NULL"}, "financial_consequence_unavailable_has_no_number"),
+              "currency": "NULL", "price_considered": "'[]'::jsonb"}, "financial_consequence_unavailable_has_no_number"),
+            # Review L5: only `unpriced_has_no_amount` fails (UNPRICED with a valid reason but an amount).
+            ({"state": "'UNPRICED'", "price_state": "'UNPRICED'", "price_reason": "'NO_PRICE'",
+              "price_revision_id": "NULL", "price_value": "NULL", "price_currency": "NULL"},
+             "financial_consequence_unpriced_has_no_amount"),
+            # Review L6: a priced row's value must be its price revision's own.
+            ({"price_value": "price_value + 1", "amount_high": "quantity_high * (price_value + 1)"},
+             "not its price revision's value and currency"),
             ({"window_end": "window_end + interval '1 minute'"}, "not its FindingRevision window"),
             ({"revision_no": "3"}, "extend its chain by one"),
         ):
             with pytest.raises(DBAPIError, match=message):
                 with engine.begin() as c:
                     c.execute(text(clone(**changes)), {"nid": str(uuid4()), "id": cid})
+        # Review L6, at commit: a PRICED row without its PRICE link, or without its assessment links, is refused.
+        with pytest.raises(DBAPIError, match="PRICED without its PRICE link"):
+            with engine.begin() as c:
+                c.execute(text(clone()), {"nid": str(uuid4()), "id": cid})
         # A link to an assessment that is not one of the FindingRevision's INTERVAL assessments is refused.
         with engine.connect() as c:
             other = c.execute(text(
@@ -318,3 +329,39 @@ class TestDatabaseGuards:
                     "INSERT INTO financial_consequence_assessment_revision VALUES (:c, :t, :s, :a, :run, false)"),
                     {"c": cid, "t": site.tenant, "s": site.site, "a": other[0], "run": other[1]})
         assert UUID(str(cid))
+
+
+class TestReviewCarries:
+    def test_a_later_succession_leaves_the_october_basis_unchanged_and_append_replays(self, site) -> None:
+        """Review M1: v2 (SUCCESSION from 2030) re-IDs v1's assignment; October's consequence must replay."""
+        site.publish("v1")
+        rev = site.on(POWER_DAY)
+        first_c = site.derive(rev)
+        first = site.store.append(first_c)
+        (v2,) = site.publish("v2")
+        assert v2["change_kind"] == "SUCCESSION"
+        again = site.derive(rev)
+        assert again.price.assignment_id != first_c.price.assignment_id  # the assignment was re-issued
+        assert again.price.considered == first_c.price.considered and again.basis_sha256 == first_c.basis_sha256
+        replay = site.store.append(again)
+        assert replay.replayed and replay.consequence_revision_id == first.consequence_revision_id
+        (row,) = site.store.rows(site.tenant, site.site)["financial_consequence_revision"]
+        assert row["price_considered"] == [[list(x) for x in again.price.considered][0]]
+
+    def test_a_zero_width_finding_revision_is_not_blocked_by_its_work_row(self, site, engine) -> None:  # noqa: F811
+        """Review L1: 0009 allows `episode_start = episode_end`; the dirty-work trigger must accept it."""
+        rev = site.on(STATE_DAY)
+        with engine.connect() as c:
+            names = [r[0] for r in c.execute(text(
+                "SELECT column_name FROM information_schema.columns WHERE table_name = 'finding_revision' "
+                "ORDER BY ordinal_position"))]
+        cols = {"id": "CAST(:nid AS uuid)", "revision_no": "revision_no + 1000", "episode_end": "episode_start",
+                "basis_sha256": "repeat('c', 64)"}
+        nid = uuid4()
+        with engine.begin() as c:
+            c.execute(text(f"INSERT INTO finding_revision ({', '.join(names)}) SELECT "
+                           f"{', '.join(cols.get(n, n) for n in names)} FROM finding_revision WHERE id = :id"),
+                      {"nid": str(nid), "id": rev["id"]})
+        (w,) = [w for w in site.store.rows(site.tenant, site.site)["financial_consequence_work"]
+                if w["finding_revision_id"] == nid]
+        assert w["affected_from"] == w["affected_to"] == rev["episode_start"]

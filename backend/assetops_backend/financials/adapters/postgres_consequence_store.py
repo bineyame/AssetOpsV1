@@ -184,10 +184,11 @@ class PostgresConsequenceStore:
                 "overlap_group, basis_kind, model_id, formula_version, parameter_version, parameter_sha256, "
                 "sfc_upper_multiplier, state, quantity_state, quantity_reason, quantity_detail, quantity_unit, "
                 "quantity_low, quantity_high, quantity_high_exact, price_state, price_reason, price_revision_id, "
-                "price_value, price_currency, amount_low, amount_high, currency, limitations, "
+                "price_value, price_currency, price_considered, amount_low, amount_high, currency, limitations, "
                 "technical_input_sha256, consequence_basis_sha256, actor_id, recorded_at) VALUES (:id, :t, :s, :f, "
                 ":r, :k, :no, :prior, :ws, :we, :og, :bk, :model, :fv, :pv, :psha, :mult, :state, :qs, :qr, :qd, "
-                ":qu, :ql, :qh, :qx, :ps, :pr, :prev, :pval, :pcur, :al, :ah, :cur, CAST(:lim AS jsonb), :tech, "
+                ":qu, :ql, :qh, :qx, :ps, :pr, :prev, :pval, :pcur, CAST(:pcons AS jsonb), :al, :ah, :cur, "
+                "CAST(:lim AS jsonb), :tech, "
                 ":basis, :actor, :at)"),
                 {**scope, "id": cid, "f": UUID(f.finding_id), "r": frid, "k": fc.CONSEQUENCE_TYPE, "no": no,
                  "prior": None if head is None else head[0], "ws": f.window_start, "we": f.window_end,
@@ -198,7 +199,8 @@ class PostgresConsequenceStore:
                  "qx": None if q.high_exact is None else f"{q.high_exact.numerator}/{q.high_exact.denominator}",
                  "ps": p.state, "pr": p.reason, "prev": None if p.revision_id is None else UUID(p.revision_id),
                  "pval": p.value if p.state == "PRICED" else None,
-                 "pcur": p.currency if p.state == "PRICED" else None, "al": c_.amount_low, "ah": c_.amount_high,
+                 "pcur": p.currency if p.state == "PRICED" else None,
+                 "pcons": json.dumps([list(x) for x in p.considered]), "al": c_.amount_low, "ah": c_.amount_high,
                  "cur": c_.currency, "lim": json.dumps(list(c_.limitations)), "tech": c_.technical_input_sha256,
                  "basis": c_.basis_sha256, "actor": actor_id, "at": at})
             for a in f.assessments:

@@ -18,7 +18,8 @@ single-assessment / single-assumption / scalar-quantity sketch (review carry L1)
 - Dirty/outbox: `financial_consequence_work` rows are inserted only by triggers, in the same transaction as an
   assumption publication or a FindingRevision append, keyed by Site, key/revision or FindingRevision and the
   affected valid range. `financial_consequence_work_attempt` records each recompute attempt (phase 2a worker);
-  work without a SUCCEEDED attempt is pending.
+  work without a SUCCEEDED attempt is pending. FindingRevisions that predate this migration are enqueued once
+  by the upgrade itself (review L4), so no Finding is left with neither a consequence nor pending work.
 
 Revision ID: 0011_financial_consequences
 Revises: 0010_financial_assumptions
@@ -70,6 +71,9 @@ CREATE TABLE financial_consequence_revision (
     price_revision_id uuid NULL,
     price_value numeric NULL,
     price_currency text NULL CHECK (price_currency IS NULL OR price_currency ~ '^[A-Z]{3}$'),
+    -- Review M1: the basis content of the window price selection, sorted window-clipped
+    -- [revision_id, from, to] of every assignment overlapping the window (never raw assignment IDs).
+    price_considered jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(price_considered) = 'array'),
     amount_low numeric NULL,
     amount_high numeric NULL,
     currency text NULL CHECK (currency IS NULL OR currency ~ '^[A-Z]{3}$'),
@@ -95,7 +99,8 @@ CREATE TABLE financial_consequence_revision (
         state <> 'UNPRICED' OR (price_state = 'UNPRICED' AND price_reason IS NOT NULL AND price_revision_id IS NULL
             AND price_value IS NULL)),
     CONSTRAINT financial_consequence_not_evaluated_has_no_price CHECK (
-        price_state <> 'NOT_EVALUATED' OR (price_revision_id IS NULL AND price_value IS NULL AND price_currency IS NULL)),
+        price_state <> 'NOT_EVALUATED' OR (price_revision_id IS NULL AND price_value IS NULL AND price_currency IS NULL
+            AND price_considered = '[]'::jsonb)),
     -- Priced: one exact price revision, amount exactly 0 .. quantity_high x price, unrounded.
     CONSTRAINT financial_consequence_priced_amount CHECK (
         state <> 'PRICED' OR (price_state = 'PRICED' AND price_reason IS NULL AND price_revision_id IS NOT NULL
@@ -157,7 +162,7 @@ CREATE TABLE financial_consequence_power_interval (
     interval_start timestamptz NOT NULL,
     interval_end timestamptz NOT NULL,
     mean_kw numeric NOT NULL CHECK (mean_kw >= 0 AND mean_kw < 'Infinity'::numeric),
-    duration_seconds integer NOT NULL CHECK (duration_seconds > 0),
+    duration_seconds integer NOT NULL CHECK (duration_seconds > 0),  -- whole seconds only (review L3)
     sfc_l_per_kwh numeric NOT NULL CHECK (sfc_l_per_kwh > 0 AND sfc_l_per_kwh < 'Infinity'::numeric),
     foundation_revision_id uuid NOT NULL,
     binding_revision_id uuid NOT NULL,
@@ -167,7 +172,7 @@ CREATE TABLE financial_consequence_power_interval (
     PRIMARY KEY (consequence_revision_id, evidence_id),
     CONSTRAINT financial_consequence_interval_duration CHECK (
         interval_start < interval_end
-        AND duration_seconds = extract(epoch FROM interval_end - interval_start)::integer),
+        AND extract(epoch FROM interval_end - interval_start) = duration_seconds),
     CONSTRAINT financial_consequence_interval_consequence_fk FOREIGN KEY (tenant_id, site_id, consequence_revision_id)
         REFERENCES financial_consequence_revision(tenant_id, site_id, id),
     CONSTRAINT financial_consequence_interval_evidence_fk FOREIGN KEY (tenant_id, site_id, evidence_id)
@@ -196,7 +201,8 @@ CREATE TABLE financial_consequence_work (
             AND finding_id IS NULL AND finding_revision_id IS NULL)
         OR (cause = 'FINDING_REVISION_APPENDED' AND finding_id IS NOT NULL AND finding_revision_id IS NOT NULL
             AND assumption_key IS NULL AND assumption_revision_id IS NULL)),
-    CONSTRAINT financial_consequence_work_range CHECK (affected_to IS NULL OR affected_from < affected_to),
+    -- Review L1: `<=`, as 0009 allows a zero-width FindingRevision episode (the work row must never block it).
+    CONSTRAINT financial_consequence_work_range CHECK (affected_to IS NULL OR affected_from <= affected_to),
     CONSTRAINT financial_consequence_work_site_fk FOREIGN KEY (tenant_id, site_id) REFERENCES site(tenant_id, id),
     CONSTRAINT financial_consequence_work_assumption_fk FOREIGN KEY (tenant_id, site_id, assumption_revision_id)
         REFERENCES financial_assumption_revision(tenant_id, site_id, id),
@@ -261,6 +267,13 @@ BEGIN
     IF fr.episode_start IS DISTINCT FROM NEW.window_start OR fr.episode_end IS DISTINCT FROM NEW.window_end THEN
         RAISE EXCEPTION 'financial_consequence_revision window is not its FindingRevision window';
     END IF;
+    -- Review L6: a priced row's value and currency are its price revision's own.
+    IF NEW.price_revision_id IS NOT NULL AND NOT EXISTS (
+        SELECT 1 FROM financial_assumption_revision p WHERE p.tenant_id = NEW.tenant_id AND p.site_id = NEW.site_id
+          AND p.id = NEW.price_revision_id AND p.assumption_key = 'diesel_price_per_litre'
+          AND p.value = NEW.price_value AND p.currency = NEW.price_currency) THEN
+        RAISE EXCEPTION 'financial_consequence_revision price is not its price revision''s value and currency';
+    END IF;
     SELECT max(revision_no) INTO latest FROM financial_consequence_revision
         WHERE finding_revision_id = NEW.finding_revision_id AND consequence_type = NEW.consequence_type;
     IF NEW.revision_no <> coalesce(latest, 0) + 1 THEN
@@ -279,6 +292,29 @@ END;
 $$;
 CREATE TRIGGER financial_consequence_revision_lineage BEFORE INSERT ON financial_consequence_revision
     FOR EACH ROW EXECUTE FUNCTION financial_consequence_revision_lineage();
+
+-- Review L6, at commit: a priced row has its PRICE link, and the assessment links are exactly the
+-- FindingRevision's INTERVAL assessments.
+CREATE FUNCTION financial_consequence_links_complete() RETURNS trigger
+LANGUAGE plpgsql AS $$
+BEGIN
+    IF NEW.state = 'PRICED' AND NOT EXISTS (
+        SELECT 1 FROM financial_consequence_assumption_revision l WHERE l.consequence_revision_id = NEW.id
+          AND l.assumption_revision_id = NEW.price_revision_id AND l.role = 'PRICE') THEN
+        RAISE EXCEPTION 'financial_consequence_revision is PRICED without its PRICE link';
+    END IF;
+    IF EXISTS (
+        (SELECT a.assessment_revision_id, a.analytic_run_id, a.is_primary FROM finding_revision_assessment a
+          WHERE a.finding_revision_id = NEW.finding_revision_id AND a.scope = 'INTERVAL'
+         EXCEPT SELECT l.assessment_revision_id, l.analytic_run_id, l.is_primary
+          FROM financial_consequence_assessment_revision l WHERE l.consequence_revision_id = NEW.id)) THEN
+        RAISE EXCEPTION 'financial_consequence_revision does not link every INTERVAL assessment of its FindingRevision';
+    END IF;
+    RETURN NULL;
+END;
+$$;
+CREATE CONSTRAINT TRIGGER financial_consequence_links_complete AFTER INSERT ON financial_consequence_revision
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION financial_consequence_links_complete();
 
 -- A consequence may cite only assessments its FindingRevision itself links.
 CREATE FUNCTION financial_consequence_assessment_linked() RETURNS trigger
@@ -326,6 +362,13 @@ END;
 $$;
 CREATE TRIGGER financial_consequence_dirty_on_finding_revision AFTER INSERT ON finding_revision
     FOR EACH ROW EXECUTE FUNCTION financial_consequence_dirty_on_finding_revision();
+
+-- Review L4 (bootstrap): FindingRevisions recorded before this migration get the same work row the trigger
+-- would have written, so the recompute worker derives their consequences with the current price.
+INSERT INTO financial_consequence_work (tenant_id, site_id, cause, finding_id, finding_revision_id, affected_from,
+                                        affected_to)
+SELECT tenant_id, site_id, 'FINDING_REVISION_APPENDED', finding_id, id, episode_start, episode_end
+FROM finding_revision ORDER BY created_at, id;
 """
 
 
@@ -343,6 +386,7 @@ def downgrade() -> None:
         DROP FUNCTION IF EXISTS financial_consequence_dirty_on_finding_revision();
         DROP FUNCTION IF EXISTS financial_consequence_dirty_on_assumption();
         DROP FUNCTION IF EXISTS financial_consequence_assessment_linked();
+        DROP FUNCTION IF EXISTS financial_consequence_links_complete();
         DROP FUNCTION IF EXISTS financial_consequence_revision_lineage();
         ALTER TABLE financial_assumption_revision DROP CONSTRAINT IF EXISTS financial_assumption_revision_site_unique;
     """)

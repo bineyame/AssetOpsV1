@@ -2,7 +2,7 @@
   "fixture": "fuel-cost-1-cases",
   "version": 1,
   "statement": "Public-input specification for the fuel-cost-1 conditional quantity (packet tasks/S4-02b-fuel-consequence.md item 2; Architect rulings Q1/C4). Every value is an authored public input of the shape the consequence store reads from accepted evidence, stored dispatch-3.1 segments and as-accepted Foundation/binding revisions. No Lab private truth, no dispatch-2 fuel output, no price. Times are on the stated day, UTC, half-open.",
-  "parameter_sha256": "0bce07ea43a887bab56ee3caa104bfc532d34a48111e49916ac4bd22070019a7",
+  "parameter_sha256": "18595762dffe945a34c44412245dab23dd480b6b314733b12660c1e02c21f852",
   "day": "2026-10-06",
   "defaults": {
     "generator_asset_id": "gen-1",
