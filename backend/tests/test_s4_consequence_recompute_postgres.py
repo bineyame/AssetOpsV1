@@ -248,6 +248,9 @@ class TestRoute:
         state_base = f"/api/sites/KOBO-001/findings/{other['finding_id']}/financial-consequences"
         assert api.get(state_base, params={"revision_id": str(rev["id"]), "consequence_revision_id": old}
                        ).status_code == 404  # a consequence of another Finding never falls back
+        (foreign,) = rig.chain(STATE_DAY)
+        assert api.get(base, params={"revision_id": str(rev["id"]), "consequence_revision_id": str(foreign["id"])}
+                       ).status_code == 404  # an exact consequence of another FindingRevision never falls back
         assert api.get(f"/api/sites/NOPE/findings/{rev['finding_id']}/financial-consequences").status_code == 404
         assert self.client(rig.site, consequences=False).get(base).status_code == 503
         bridge = api.get(f"/api/sites/KOBO-001/findings/{rev['finding_id']}/financials").json()["consequence"]
