@@ -170,6 +170,9 @@ class TestTransactionalEnqueue:
         payload = body(site, [late])
         assert [d.decision for d in submit(site, payload).receipt.dispositions] == ["ACCEPTED"]
         (first,) = evidence_work(engine, site.site)
+        # A new latest revision: a later re-enqueue of the same accepted ID would now be a new row, so the checks
+        # below are observable (ON CONFLICT alone would hide a re-enqueue for the same revision).
+        clone_revision(engine, rev)
         # Exact replay of the same batch bytes: the stored receipt, no new disposition, no new work.
         assert [d.decision for d in submit(site, payload).receipt.dispositions] == ["ACCEPTED"]
         # New batches: the same envelope (DUPLICATE) with an unbound signal (REJECTED), then the same message
@@ -193,7 +196,17 @@ class TestTransactionalEnqueue:
                                           power(site, s1, s1 + timedelta(minutes=5))]))
         assert [d.decision for d in answer.receipt.dispositions] == ["ACCEPTED", "ACCEPTED"]
         assert evidence_work(engine, site.site) == []
-        # A non-power role inside the episode (stored binding role, not a client claim).
+        # A non-power interval mean inside the episode (stored binding role, not a client claim).
+        other = power(site, s0, s0 + timedelta(minutes=5), device="pv-inverter-controller",
+                      signal=site.runner.kit.binding("pv-inverter-controller")["signal_id"],
+                      epoch="epoch-pv-mean")
+        assert [d.decision for d in submit(site, body(site, [other])).receipt.dispositions] == ["ACCEPTED"]
+        with engine.connect() as c:
+            role = c.execute(text("SELECT role FROM accepted_evidence WHERE site_id = :s AND interval_start = :a "
+                                  "AND role <> 'generator_power'"), {"s": site.site, "a": s0}).scalar_one()
+        assert role != "generator_power"
+        assert evidence_work(engine, site.site) == []
+        # Non-power point readings inside the episode.
         rules = finding_cases.SPEC["reading_rules"]
         rows = finding_cases.block_rows({"from": _z(s0), "to": _z(s1), "pv": "41", "only": ["pv"]}, rules)
         now, _ = site.runner.seal([(r, False) for r in sorted(rows, key=lambda x: x[2])], "epoch-pv-late")
