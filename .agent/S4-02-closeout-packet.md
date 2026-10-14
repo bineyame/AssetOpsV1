@@ -23,8 +23,12 @@ Branch `closeout/S4-02-registry` (from main `a6c6a849`, which merges S4-02b). Re
 ## Next-work decision
 - `Decision: {"action":"select","selected":"A-S5-overview","top":"A-S5-overview","top_score":2.22,"second":"A-action-lifecycle","second_score":2.009,"gap":0.095,"notice":"Ranking notice: A-S5-overview 2.22 vs A-action-lifecycle 2.009 (gap 9.50%, within 5-10%); selected A-S5-overview by published tie-break (fewer unresolved technical gates, lower effort, stable ID). Record in .agent/coordinator-handoff.md.","reason":"gap within 5-10%: tie-break selection with owner notice","user_review_required":null}`
 - Top A-S5-overview 2.22, second A-action-lifecycle 2.009, gap 0.095 (9.50%), tie-break: fewer unresolved technical gates, lower effort, stable ID.
-- `unscored_work`: I-G-01, I-G-02 (resolved, packet done), I-G-03, I-G-04, I-G-05 (open, not_started). The two new follow-on nodes do not appear in candidates or unscored_work.
+- `unscored_work`: I-G-01, I-G-02 (resolved, packet done), I-G-03, I-G-04, I-G-05 (open, not_started). Correction (closeout review L1): `I-assumption-consequence-history-read` is an eligible candidate (1.373); the decision is unaffected.
 
 ## Questions
 1. Should the two new follow-on nodes join `queue_baseline_nodes`, and does the follow-on need its own task/slice before W1 exit (Architect Q4 says yes)?
 2. `assumptions:3` panel stays `gap` by the checker rule although the ruling says "panel partial"; accept, or change the checker?
+
+## Closeout review fixes (coordinator, 2026-10-14)
+
+Review `.agent/S4-02-closeout-review.md` ACCEPT with carries. Applied: L1 (packet correction above), L2 (ledger `assumptions` sentence separates the open W1 core obligation from G-05 gaps), I2 (anchor `PriceInUse:497`). M2: `plan/S4-02-architect-batch` (answers file) merged to main before this closeout. M1: the remaining Architect follow-ons (Q1 equal-start SUCCESSION, Q2 enqueue on evidence acceptance, Q3 stored demo provenance) are registered by the Architect in the next batched request, then next-work is rerun before acting on any selection. I1 (foreign-Site refusal in the new read node's target) goes into the same request.
