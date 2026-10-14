@@ -12,7 +12,8 @@ Commits:
 - `ed0ddf3`: producer.
 - `2caefdc`: questions.
 - `2b76286`: boundary ordering.
-- closeout: this file and `CODE_STATE`.
+- `c0530ec`: closeout (this file and `CODE_STATE`).
+- `1c68e70`: test engine release.
 
 No UI was changed. That is phase 2b.
 
@@ -107,7 +108,11 @@ No UI was changed. That is phase 2b.
   - 8 `POWER_MISSING`, 2 `FINDING_NOT_SUPPORTED`, 1 `POWER_COVERAGE_GAP` (F01-gateway 05:15);
   - P01-power **PRICED 15.8125**.
   - Then publish v4 and run: one appended revision, P01-power revision 2 at **16.1920**. Every other item replayed.
-- Full backend suite and `tools/check-all.ps1`: see the closeout section below.
+- **Full backend suite.**
+  - First run, on `c0530ec`: 1 failed, 2035 passed, 1 error. The cause was Postgres `too many clients already`: the new Postgres cases left short-lived engines for the garbage collector.
+  - The fix, `1c68e70`, adds an autouse `gc.collect()` after each case in the three S4-02b Postgres modules. Peak connections fell from about 22 to 7.
+  - Re-run: **2037 passed**, 28 warnings, in 616 s. DB `assetops_s402b2_full_test`.
+- **`tools/check-all.ps1`:** All 9 guards passed, both before and after `1c68e70`.
 - Frontend: no file changed, so neither the suite nor the build was run. Layout evidence: not run (no UI in this phase).
 - Non-vacuity. Each mutation was made on committed code and reverted with `git checkout --`:
 
