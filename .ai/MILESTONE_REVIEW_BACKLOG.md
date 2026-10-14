@@ -2172,3 +2172,9 @@ The carried review findings above are unchanged.
 - Fix re-review I2: the `SiteFinancials.tsx` header comment still itemizes G-05 by screen in prose; carry the IDs into the G-05 handoff.
 - Registry: `G-foundation-financial-assumptions` stays open (Site model line still reads "not available here", now with a link); correct its review trigger at registry closeout.
 
+
+### Owner: analysis input data for simulated and real Sites (2026-10-14)
+
+- Owner (verbatim, `.agent/owner-S4-02b-money-demo-2026-10-14.md`): "add a backlog item to ensure both simulated and real sites are supported to in terms of data required for the analysis".
+- Trigger: S4-02b phase 1 review Q9. The simulated gateway publishes a 5-minute generator power mean only every 15 minutes, so `fuel-cost-1` sees one third coverage of Candidate time and fails closed; S4-02b's positive amount comes from an authored demo case, not from ordinary gateway data.
+- Needed: for each W1 analytic (dispatch-3.1, `fuel-cost-1`, later verification and health), state its required inputs, cadence and coverage, and make sure (a) the simulated gateway / Lab publication profile produces them and (b) the real-Site onboarding path (bindings, gateway publication profile, ingestion) requires or reports them, with an honest "analysis not possible: missing X" state where they are absent. Candidate owners: Planner (publication-profile version, readiness check), Architect if a cross-analytic input contract is needed. Re-check at W1-exit review at the latest; consider before S6-02 verification.
