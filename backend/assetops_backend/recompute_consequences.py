@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime
 from typing import Sequence
 
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
@@ -57,11 +58,20 @@ def _limit(value: str) -> int:
     return n
 
 
-def main(argv: Sequence[str] | None = None, *, worker=None, store=None, prices=None) -> int:
+def _instant(value: str) -> datetime:
+    at = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if at.tzinfo is None:
+        raise argparse.ArgumentTypeError("--now needs an explicit UTC offset")
+    return at
+
+
+def main(argv: Sequence[str] | None = None, *, worker=None, store=None, prices=None, db_clock=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m assetops_backend.recompute_consequences")
     sub = parser.add_subparsers(dest="command", required=True)
     run = sub.add_parser("run")
     run.add_argument("--limit", type=_limit, default=DEFAULT_LIMIT)
+    run.add_argument("--now", type=_instant, default=None,
+                     help="override the database-clock `now` (reported as now_source=override)")
     pending = sub.add_parser("pending")
     for p in (run, pending):
         p.add_argument("--tenant", required=True)
@@ -86,8 +96,18 @@ def main(argv: Sequence[str] | None = None, *, worker=None, store=None, prices=N
                 print(json.dumps({"site_code": code, "work_id": str(w["id"]), "cause": w["cause"],
                                   "attempts": w["attempts"]}))
             return 0
+        # S4-02d phase 2 (I3): `now` (retry due times) is the database clock unless explicitly overridden, so an
+        # application-clock skew cannot shift retry timing; the summary reports which was used.
+        if args.now is not None:
+            now, now_source = args.now, "override"
+        elif db_clock is not None or worker is None:
+            now = (db_clock or (build_consequence_store(url) if store is None else store).db_now)()
+            now_source = "database"
+        else:
+            now, now_source = None, "worker"
         worker = build_recompute_worker(url) if worker is None else worker
-        report = worker.run(tenant_id, site_id, args.limit)
+        report = worker.run(tenant_id, site_id, args.limit) if now is None else worker.run(
+            tenant_id, site_id, args.limit, now=now)
         for out in report.outcomes:
             print(json.dumps({"site_code": code, "work_id": str(out.work_id), "cause": out.cause,
                               "succeeded": out.succeeded, "attempt_no": out.attempt_no,
@@ -97,7 +117,7 @@ def main(argv: Sequence[str] | None = None, *, worker=None, store=None, prices=N
         counts = report.counts()
         print(json.dumps({"site_code": code, "tenant": args.tenant, "site_id": str(site_id),
                           "claimed": report.claimed, "skipped": not report.claimed,
-                          "now": report.now.isoformat(), "limit": args.limit, **counts}))
+                          "now": report.now.isoformat(), "now_source": now_source, "limit": args.limit, **counts}))
         return 1 if counts["failed"] else 0
     except CONSEQUENCE_UNAVAILABLE as error:
         print(f"The consequence store is unavailable: {error}", file=sys.stderr)

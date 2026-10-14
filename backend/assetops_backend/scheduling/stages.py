@@ -56,6 +56,21 @@ def classify(error: BaseException) -> str:
     return "FAILED"
 
 
+def db_clock(url: str | None) -> Callable[[], datetime]:
+    """A clock that reads the database's `clock_timestamp()` on every call (S4-02d phase 2, I3), through the
+    schedule store's read; the stores' application-clock defaults are not used by scheduled stages."""
+    from assetops_backend.scheduling.composition import build_schedule_store
+
+    def clock() -> datetime:
+        store = build_schedule_store(url)
+        try:
+            return store.db_now()
+        finally:
+            store.dispose()
+
+    return clock
+
+
 def _uuid(value: Any) -> UUID:
     return value if isinstance(value, UUID) else UUID(str(value))
 
@@ -73,7 +88,7 @@ def discover(url: str, args: dict[str, Any]) -> dict[str, Any]:
     from assetops_backend.scheduling.composition import build_schedule_store
 
     started = time.perf_counter()
-    reconciled = build_dispatch_assessment_worker(url).reconcile_all()
+    reconciled = build_dispatch_assessment_worker(url, clock=db_clock(url)).reconcile_all()  # I3: DB time
     reconcile_ms = int((time.perf_counter() - started) * 1000)
     inventory = build_schedule_store(url).site_inventory()
     live = build_postgres_assessment_store(url).live_jobs(dispatch_v3.ANALYTIC_ID, DOMAIN)
@@ -92,7 +107,9 @@ def s3(url: str, args: dict[str, Any]) -> dict[str, Any]:
     )
 
     tenant_id, site_id = _uuid(args["tenant_id"]), _uuid(args["site_id"])
-    outcomes = build_dispatch_assessment_worker(url).run_site(tenant_id, site_id, int(args["limit"]))
+    # S4-02d phase 2 (I3): the S3 lease expiry, knowledge cutoff and job timestamps take DB time, not this host's.
+    outcomes = build_dispatch_assessment_worker(url, clock=db_clock(url)).run_site(
+        tenant_id, site_id, int(args["limit"]))
     live = build_postgres_assessment_store(url).live_jobs(dispatch_v3.ANALYTIC_ID, DOMAIN, tenant_id, site_id)
     return {"code": "OK", "processed": len(outcomes),
             "outcomes": [{"job_id": o.job_id, "status": o.status, "runs": len(o.runs), "error": o.error}
@@ -116,8 +133,10 @@ def s4(url: str, args: dict[str, Any]) -> dict[str, Any]:
     if args.get("matched_version") == MATCHER_VERSION and args.get("matched_fence") == current:
         return {"code": "SKIPPED_UNCHANGED_FENCE", "fence": current, "version": MATCHER_VERSION}
     fence_moved = finding_fence_moved_type()
+    matcher = build_finding_matcher(url)
+    matcher.now = db_clock(url)  # I3: the matcher's `now` (revision instants) is DB time
     try:
-        out = build_finding_matcher(url).match(tenant_id, site_id)
+        out = matcher.match(tenant_id, site_id)
     except fence_moved as moved:
         deterministic = "not accepted" in str(moved)
         return {"code": "MATCH_EVIDENCE_NOT_ACCEPTED" if deterministic else "FENCE_MOVED",

@@ -48,3 +48,10 @@ class ScheduleStore(Protocol):
 
     def release_site(self, tenant_id: UUID, site_id: UUID, token: UUID, *, failure: tuple[str, str, str] | None,
                      backoff_seconds: float = 0) -> bool: ...
+
+
+class UpstreamCurrentnessRead(Protocol):
+    """S5-01's selected-window upstream seam (S4-02d phase 2; contract in `scheduling/upstream.py`)."""
+
+    def window(self, tenant_id: UUID, site_id: UUID, window_start: datetime, window_end: datetime,
+               environment: str = "default") -> dict[str, Any]: ...

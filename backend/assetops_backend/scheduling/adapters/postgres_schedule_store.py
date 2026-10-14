@@ -225,7 +225,8 @@ class PostgresScheduleStore:
     def record_s4(self, tenant_id: UUID, site_id: UUID, token: UUID, outcome: str,
                   fence: dict[str, Any] | None = None, version: str | None = None) -> bool:
         """`MATCHED` stores the completed pass's fence and matcher version (the next tick skips S4 while both are
-        unchanged); `FENCE_MOVED` grows the streak an alarm reads; any other outcome records only itself."""
+        unchanged); `FENCE_MOVED` grows the streak an alarm reads and `SKIPPED_UNCHANGED_FENCE` clears it; any other
+        outcome records only itself."""
         p = {"t": tenant_id, "s": site_id, "k": token, "o": outcome,
              "f": None if fence is None else json.dumps(fence, sort_keys=True), "v": version}
         if outcome == "MATCHED":
@@ -233,6 +234,10 @@ class PostgresScheduleStore:
                    "AND claim_token = :k RETURNING site_id")
         elif outcome == "FENCE_MOVED":
             sql = ("UPDATE schedule_site_head SET s4_outcome = :o, s4_outcome_at = clock_timestamp(), fence_moved_streak = fence_moved_streak + 1 WHERE tenant_id = :t AND site_id = :s "  # noqa: E501
+                   "AND claim_token = :k RETURNING site_id")
+        elif outcome == "SKIPPED_UNCHANGED_FENCE":
+            # Phase 2: the stored fence is current again, so no move is pending; the streak alarm clears.
+            sql = ("UPDATE schedule_site_head SET s4_outcome = :o, s4_outcome_at = clock_timestamp(), fence_moved_streak = 0 WHERE tenant_id = :t AND site_id = :s "  # noqa: E501
                    "AND claim_token = :k RETURNING site_id")
         else:
             sql = ("UPDATE schedule_site_head SET s4_outcome = :o, s4_outcome_at = clock_timestamp() WHERE tenant_id = :t AND site_id = :s "  # noqa: E501

@@ -53,6 +53,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cohort", nargs="*", default=())
     parser.add_argument("--manifest", default=None, help="finding-reads: case manifest for exact-ID annotations")
     args = parser.parse_args(argv)
+    if args.command == "requeue" and not (args.tenant_id and args.site_id and args.job_id):
+        parser.error("requeue needs --tenant-id, --site-id and --job-id (the FAILED job to re-enqueue)")
     url = os.environ.get("DATABASE_URL")
     if args.command == "match-findings":
         outcome = build_finding_matcher(url).match(UUID(args.tenant_id), UUID(args.site_id))

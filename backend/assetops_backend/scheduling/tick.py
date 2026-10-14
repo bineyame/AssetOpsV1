@@ -267,7 +267,17 @@ class ScheduleTick:
         ids = {"tenant_id": str(t), "site_id": str(s)}
         failure: tuple[str, str, str] | None = None
 
-        self.store.set_stage(t, s, token, "S3")
+        def stage(name: str) -> bool:
+            # Phase-1 review F3: a lost Site claim (its lease expired and another host took it) stops this Site
+            # before its next stage, so S3 leasing and S4 matching never overlap across hosts.
+            if self.store.set_stage(t, s, token, name):
+                return True
+            site.result = "CLAIM_LOST"
+            site.failure = (name, "CLAIM_LOST", "the Site claim was taken over before this stage")
+            return False
+
+        if not stage("S3"):
+            return
         r3 = self.runner.run("s3", {**ids, "limit": self.limits.s3_jobs_per_site}, self.limits.s3_seconds)
         site.stages["s3"] = r3
         if r3["code"] == "OK":
@@ -275,7 +285,8 @@ class ScheduleTick:
         else:
             failure = ("S3", r3["code"], str(r3.get("error")))
 
-        self.store.set_stage(t, s, token, "S4")
+        if not stage("S4"):
+            return
         r4 = self.runner.run("s4", {**ids, "matched_fence": claim["matched_fence"],
                                     "matched_version": claim["matched_version"]}, self.limits.s4_seconds)
         site.stages["s4"] = r4
@@ -286,7 +297,8 @@ class ScheduleTick:
         if r4["code"] not in S4_OK:
             failure = failure or ("S4", r4["code"], str(r4.get("error")))
 
-        self.store.set_stage(t, s, token, "CONSEQUENCE")
+        if not stage("CONSEQUENCE"):
+            return
         now = self.store.db_now()
         rc = self.runner.run("consequence", {**ids, "limit": self.limits.consequence_items_per_site,
                                              "now": now.isoformat()}, self.limits.consequence_seconds)

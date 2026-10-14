@@ -251,6 +251,10 @@ class PostgresConsequenceStore:
                 "AND a.outcome = 'SUCCEEDED') ORDER BY w.enqueued_at, w.id"), {"t": tenant_id, "s": site_id})]
         return self._run(work, "REPEATABLE READ")
 
+    def db_now(self) -> datetime:
+        """The database's `clock_timestamp()`: the one-off runner's default `now` (S4-02d phase 2, I3)."""
+        return self._run(lambda c: c.execute(text("SELECT clock_timestamp()")).scalar_one())
+
     def pending_work_sites(self) -> list[dict[str, Any]]:
         """Every tenant/Site with dirty work and no SUCCEEDED attempt (the `pending_work` predicate), with its
         pending count, total attempts and oldest enqueue instant (S4-02d Site inventory: a Site with pending
