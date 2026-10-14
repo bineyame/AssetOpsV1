@@ -43,7 +43,7 @@ Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects 
 
 | Tooling lane | Task | Activation | Status |
 | --- | --- | --- | --- |
-| Backend test turnaround | [OPS-01](OPS-01-backend-test-speed.md) | Immediately after reviewed/merged S4-02d, ahead of ordinary next-work ranking; outside W1 core scoring | Planned (implementation-ready); M in two phases; independent review, no owner UI checkpoint |
+| Backend test turnaround | [OPS-01](OPS-01-backend-test-speed.md) | Immediately after reviewed/merged S4-02d, ahead of ordinary next-work ranking; outside W1 core scoring | Active 2026-10-14; M in two phases; independent review, no owner UI checkpoint |
 
 ## Mock-gap closure queue
 
