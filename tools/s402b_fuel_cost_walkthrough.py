@@ -155,7 +155,25 @@ def publish(work: Path, db: str, *steps: str) -> None:
 
 def recompute(work: Path, db: str) -> None:
     out = tree_py(work, db, "-m", "assetops_backend.recompute_consequences", "run", "--site", SITE).stdout
-    say("  " + out.strip().replace("\n", "\n  "))
+    items = [json.loads(x) for x in out.splitlines() if x.strip().startswith("{")]
+    failed = [i for i in items if not i["succeeded"]]
+    say(f"  {db}: {len(items)} work item(s), {len(failed)} failed, "
+        f"{sum(len(i['appended']) for i in items)} fuel cost version(s) appended, "
+        f"{sum(len(i['replayed']) for i in items)} replayed unchanged")
+    for i in failed:
+        say(f"  FAILED {i['work_id']}: {i['error_code']} {i['error_detail']}")
+    summary(db)
+
+
+def summary(db: str) -> None:
+    """The newest fuel cost of every Finding's latest version, counted by state and reason."""
+    rows = query(db, "SELECT c.state, coalesce(c.quantity_reason, c.price_reason) AS reason, count(*) AS n FROM "
+                     "financial_consequence_revision c JOIN finding_revision r ON r.id = c.finding_revision_id WHERE "
+                     "r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x WHERE x.finding_id = r.finding_id) "
+                     "AND c.revision_no = (SELECT max(y.revision_no) FROM financial_consequence_revision y WHERE "
+                     "y.finding_revision_id = c.finding_revision_id) GROUP BY 1, 2 ORDER BY 1, 2")
+    parts = [f"{r['n']} {r['state']}" + (f" ({r['reason']})" if r["reason"] else "") for r in rows]
+    say("  latest Finding versions: " + (", ".join(parts) or "no fuel cost recorded yet"))
 
 
 def prepare(db: str, empty: str, work: Path) -> None:
