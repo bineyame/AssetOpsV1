@@ -106,3 +106,28 @@ Phases 1-3 must not merge or deploy before the independent review of this phase.
 ## User-review focus
 
 None required (flag false). If the owner looks: the evidence's Leg A/Leg B values, and the run-1 sequence finding.
+
+## Fix round 1 (review F1, F2)
+
+- **F1 (documentation only):** the fixture's `sequence_rule` text, the walkthrough evidence (new scoped paragraph
+  after the Run 1 section), the Known deviation and the residual risk now say "sequenced on time, uploaded late",
+  state that the project's own gateway assigns the next sequence on intake (`gateway/assetops_gateway/service.py:9-11`)
+  and Lab-delayed readings on release (so the project's own late path is run 1's numbering), and record the measured
+  run-1 result (S3 INDETERMINATE, SEQUENCE_ORDER_INVERTED / GENERATOR_SERIES_AMBIGUOUS; Finding still SUPPORTED,
+  episode [06:05, 07:00), only limitation OPEN_BOUND; CURRENT PRICED 7.5625 USD over 11 means, S5-eligible, vs
+  15.8125 USD in source order). It goes to the Architect (review Q1-Q3) before S5-01. No reading, sequence or ID
+  changed; the JSON still parses; no test or digest pin references the file (grep of `backend/tests` and `tools/*.ps1`
+  found none), and `.agent/S4-02c-walkthrough-evidence.json` was not touched.
+- **F2:** `tools/s402b_fuel_cost_walkthrough.py` `recompute` now tracks whether the last summary still shows
+  `backlog > 0` and exits 1 (`SystemExit("FAILED: ...")`) after printing when any item failed or work is still due.
+  `tools/s402b-fuel-cost-evidence.mjs:254-255` records `walk(...)` success as `r.status === 0`, so exit 1 now fails
+  those two claims.
+
+Checks as observed:
+- `prepare` on scratch DBs, `recompute` and `recompute --empty`: exit 0 each (34 items 0 failed on prepare's own run;
+  recompute 0 items; empty 31 items 0 failed). Forced failing case (tree_py stubbed to return one failed item with
+  backlog 1): prints `FAILED w1: FORCED forced` and exit 1. DBs dropped (`drop` exit 0).
+- Deviation: the tool only accepts `assetops_s402b*` names, so the scratch DBs were `assetops_s402bfixwalk` and
+  `assetops_s402bfixempty` (not `assetops_s402cfix_*`); no serve ports were used (8922/8923 not opened).
+- Focused tests: none cover the changed files; `python -m pytest` is not installed in the system Python, not run.
+- `tools/check-all.ps1`: All 9 guards passed.
