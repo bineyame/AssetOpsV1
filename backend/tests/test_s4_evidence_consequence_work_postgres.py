@@ -4,7 +4,8 @@ Packet `tasks/S4-02c-evidence-consequence-work.md` items 1, 2 and 5 and carries 
 migration 0012's accepted-disposition trigger, its rollback atomicity, replay/duplicate/conflict/rejection,
 strict half-open and Site edges, the FindingRevision trigger still enqueuing exactly once beside evidence work,
 the shared Site enqueue lock under a two-connection race, 0011 bootstrap rows, both downgrade paths, the
-`chain()` evidence match with the typed `NO_WORK_RECORDED` discrepancy, and the unknown-cause guard.
+`chain()` evidence match with the typed `NO_WORK_RECORDED` discrepancy, and (phase 2, review L3) the no-op downgrade
+refusal.
 Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
@@ -35,7 +36,7 @@ if URL:
     from assetops_backend.evidence.ledger_service import BatchIngestionService
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
     from assetops_backend.financials.consequence_read import NO_WORK_RECORDED, ConsequenceReadService
-    from assetops_backend.financials.recompute import ERROR_CAUSE_NOT_SUPPORTED, ConsequenceRecomputeWorker
+    from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
     from assetops_backend.finding_api import REASONS, bridge_consequence
 
 LOCK_TEXT = "pg_advisory_xact_lock(hashtextextended('financial_consequence_enqueue:' || NEW.site_id::text, 0))"
@@ -386,7 +387,11 @@ class TestSiteEnqueueLock:
             while time.monotonic() < deadline and not waited:
                 with engine.connect() as c:
                     waited = c.execute(text(
-                        "SELECT count(*) FROM pg_locks WHERE locktype = 'advisory' AND NOT granted")).scalar_one() > 0
+                        "SELECT count(*) FROM pg_locks WHERE locktype = 'advisory' AND NOT granted AND database = "
+                        "(SELECT oid FROM pg_database WHERE datname = current_database()) AND objsubid = 1 AND "
+                        "((classid::bigint << 32) | objid::bigint) = "
+                        "hashtextextended('financial_consequence_enqueue:' || :s, 0)"),
+                        {"s": str(site.site)}).scalar_one() > 0
                 if not waited:
                     time.sleep(0.05)
             assert worker.is_alive() and "answer" not in result
@@ -402,7 +407,7 @@ class TestSiteEnqueueLock:
 
 
 class TestReadAndWorkerGuard:
-    def test_chain_matches_evidence_work_then_no_work_recorded_and_the_worker_never_falls_through(
+    def test_chain_matches_evidence_work_then_no_work_recorded(
             self, site, engine) -> None:  # noqa: F811
         site.publish("v1")
         worker = ConsequenceRecomputeWorker(site.store, site.prices, CONSEQUENCE_UNAVAILABLE)
@@ -427,17 +432,6 @@ class TestReadAndWorkerGuard:
             (str(ev["id"]), "EVIDENCE_ACCEPTED", str(ev["accepted_evidence_id"]), str(rev["id"]))]
         bridged = bridge_consequence(stale)
         assert bridged["reason"] == REASONS["STALE_QUEUED"] and bridged["recalculation_queued"] is True
-
-        # L3: before phase 2's scoped drain, the evidence cause records a typed FAILED attempt; it never runs an
-        # assumption-range recompute (which would append consequence revision 2 for this changed input).
-        count = len(site.store.rows(site.tenant, site.site)["financial_consequence_revision"])
-        (out,) = worker.run_pending(site.tenant, site.site)
-        assert (out.work_id, out.succeeded, out.error_code, out.consequence_revision_ids) == (
-            ev["id"], False, ERROR_CAUSE_NOT_SUPPORTED, [])
-        assert len(site.store.rows(site.tenant, site.site)["financial_consequence_revision"]) == count
-        again = read()["currentness"]
-        assert again["state"] == "STALE" and [w["last_error_code"] for w in again["pending_work"]] == [
-            ERROR_CAUSE_NOT_SUPPORTED]
 
         # Stale with no unsucceeded work touching the read: the typed discrepancy, with the reviewed STALE copy.
         site.store.record_attempt(site.tenant, site.site, ev["id"], succeeded=True)
@@ -521,5 +515,30 @@ class TestMigrationPaths:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
                     "0012_evidence_consequence_work")
             assert all_work(engine) == before
+        finally:
+            command.upgrade(config, "head")
+
+    def test_downgrade_refuses_while_a_no_op_reason_exists(self, site, engine) -> None:  # noqa: F811
+        """Phase 1 review L3: a typed no-op attempt on FindingRevision work alone blocks the downgrade."""
+        from alembic import command
+
+        (w,) = [x for x in all_work(engine) if x["cause"] == "FINDING_REVISION_APPENDED"
+                and x["finding_revision_id"] == site.on(POWER_DAY)["id"]]
+        site.store.record_attempt(site.tenant, site.site, w["id"], succeeded=True,
+                                  no_op_reason="FINDING_REVISION_SUPERSEDED")
+        assert not any(x["cause"] == "EVIDENCE_ACCEPTED" for x in all_work(engine))
+        config = self._config()
+        site.store.dispose()
+        site.prices.dispose()
+        engine.dispose()
+        try:
+            with pytest.raises(Exception, match="refused: work attempts record a no-op reason"):
+                command.downgrade(config, "0011_financial_consequences")
+            with engine.connect() as c:
+                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
+                    "0012_evidence_consequence_work")
+                assert c.execute(text("SELECT no_op_reason FROM financial_consequence_work_attempt "
+                                      "WHERE work_id = :w"), {"w": w["id"]}).scalar_one() == (
+                    "FINDING_REVISION_SUPERSEDED")
         finally:
             command.upgrade(config, "head")
