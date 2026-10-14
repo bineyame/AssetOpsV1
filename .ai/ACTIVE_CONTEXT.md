@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**A-S4-financial (Architect decision) is active** on `plan/A-S4-financial` (from main `9fde68f`): owner-chosen next work after G-02 (contest 3.21% vs A-S5-overview, `.agent/owner-next-work-2026-10-13c.md`). Request `.agent/architect-A-S4-financial-request.md`; answers `.agent/architect-A-S4-financial-answers.md`. No implementer: the Codex Architect records the decision and resolves the node, a fresh Claude reviewer checks it, then S4-02 ([bounded Financials](../tasks/S4-02-bounded-financials.md), outline) is refined by the Planner. G-01, S4-03 and G-02 are merged on main (G-02 owner-accepted conditionally 2026-10-13; I-G-02 resolved). G-03-G-05 are deferred while ready core work waits (D-2026-10-13-g-gap-packet-activation). The S2-S4 paragraphs below are earlier routing.
+**S4-02a ([Site price publication and exact assumption history](../tasks/S4-02a-site-assumptions.md)) is `done`**: fresh Claude reviews ACCEPT, owner accepted conditionally 2026-10-14 (`.agent/owner-S4-02a-acceptance-2026-10-14.md`), merged to main by the coordinator. Next: registry closeout for `I-S4-02a`, then rerun guards + next-work; the next slice is chosen from that report (owner contest if ≤5%). S4-02b (fuel consequence, S4-02 owner checkpoint) is implementation ready. Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02a carries (2026-10-14)". The S2-S4 paragraphs below are earlier routing.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
@@ -27,6 +27,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (S4-02a phase 2 and closeout): read the task, `.agent/S4-02a-review-packet.md` and `.agent/S4-02a-phase-2-handoff.md`, then `git diff 5159b96..HEAD`. Walk it with `tools/s402a_assumptions_walkthrough.py --db assetops_s402a_<x> --empty-db assetops_s402a_<y> --work-name <new> prepare|links|serve|drop` and `node tools/s402a-assumptions-evidence.mjs <base> <empty-base> <finding-id> <out>`; the owner keeps 8870/8871/5370/5371.
 
 Reviewer (S4-03 phase 3 and closeout): read the task's phase 3 row, `.agent/S4-03-review-packet.md`, `.agent/S4-03-handoff.md` "Phase 3", `.agent/architect-S4-03-answers.md` (Q3) and `.agent/S4-03-questions-2.md`, then `git diff 26b5e7a..HEAD`. Walk it on a private copy with `tools/s4_finding_walkthrough.py --db <private> --work <new folder> prepare|serve` and `node tools/s4-finding-evidence.mjs` (`ASSETOPS_S4_WALK_WORK`, `ASSETOPS_CDP_PORT`, suites all/history/closed) on ports 8898/5398; the owner keeps 8866/8867/5366/5367.
 

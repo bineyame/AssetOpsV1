@@ -4,6 +4,8 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
+import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
+import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
 import { SiteFinding } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
@@ -28,6 +30,8 @@ import {
   siteFindingHref,
   siteFindingViewHref,
   siteFindingsHref,
+  siteFinancialAssumptionsHref,
+  siteFinancialsHref,
   sitePerformanceHref,
   type FindingChildView,
   type FindingTab,
@@ -357,6 +361,11 @@ export function SiteFindingFrame({
             ) : (
               <>
                 <FindingSections sections={sections} current={view} />
+                <p className="finding-financials-link" data-finding-financials-link>
+                  <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
+                    What this finding means in money
+                  </Link>
+                </p>
                 {view === "evidence" ? (
                   <SiteFindingEvidence
                     siteId={site.site_id}
@@ -397,6 +406,87 @@ export function SiteFindingFrame({
                   />
                 )}
               </>
+            )}
+          </main>
+        );
+      }}
+    </SiteScoped>
+  );
+}
+
+export const SITE_FINANCIALS_HEADING_ID = "site-financials-heading";
+const DEFAULT_FINANCIALS = createFinancialsClient();
+const FINANCIALS_SECTIONS_LABEL = "Financials sections";
+
+/**
+ * S4-02a: Site > Financials (Overview with the Finding bridge) and Financials > Assumptions. The mock's
+ * Scenarios subtab is omitted for G-05, not rendered as an empty tab.
+ */
+export function SiteFinancialsFrame({
+  detail,
+  sitesPath,
+  view,
+  financials = DEFAULT_FINANCIALS,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  view: "overview" | "assumptions";
+  financials?: FinancialsClient;
+}) {
+  const { siteId } = useParams<{ siteId: string }>();
+  const title = view === "assumptions" ? "Financial assumptions" : "Financials";
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title={title} headingId={SITE_FINANCIALS_HEADING_ID}>
+      {(site) => {
+        const links: FinancialsLinks = {
+          finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
+          evidence: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "evidence", rev),
+          assumptions: (pin) => siteFinancialAssumptionsHref(site.site_id, pin),
+          findings: siteFindingsHref(site.site_id),
+        };
+        return (
+          <main aria-labelledby={SITE_FINANCIALS_HEADING_ID}>
+            <Breadcrumbs
+              trail={[
+                { label: "Sites", to: sitesPath },
+                { label: site.site_id, to: siteDetailHref(site.site_id) },
+                view === "overview"
+                  ? { label: "Financials" }
+                  : { label: "Financials", to: siteFinancialsHref(site.site_id) },
+                ...(view === "assumptions" ? [{ label: "Assumptions" }] : []),
+              ]}
+            />
+            <PageHeader
+              title={title}
+              headingId={SITE_FINANCIALS_HEADING_ID}
+              subtitle={`${site.display_name} · ${site.site_id} · diesel price per litre`}
+            />
+            <OperatorSiteTabs siteId={siteId} current="Financials" />
+            <nav className="site-tabs site-subtabs" aria-label={FINANCIALS_SECTIONS_LABEL}>
+              <ol className="site-tabs__list">
+                {(
+                  [
+                    ["overview", "Overview", siteFinancialsHref(site.site_id)],
+                    ["assumptions", "Assumptions", siteFinancialAssumptionsHref(site.site_id)],
+                  ] as const
+                ).map(([id, label, href]) => (
+                  <li className="site-tabs__item" key={id}>
+                    <Link
+                      className="site-tabs__link"
+                      to={href}
+                      data-financials-section={id}
+                      aria-current={id === view ? "page" : undefined}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+            {view === "assumptions" ? (
+              <SiteAssumptions siteId={site.site_id} client={financials} links={links} />
+            ) : (
+              <SiteFinancialsOverview siteId={site.site_id} client={financials} links={links} />
             )}
           </main>
         );

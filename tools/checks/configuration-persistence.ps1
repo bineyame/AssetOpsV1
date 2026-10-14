@@ -121,6 +121,18 @@ function Invoke-ConfigurationPersistenceCheck {
             Writer      = "$backendRoot/analytics/adapters/json_assessment_store.py"
             UserRootVar = "ASSESSMENT_STORE_ROOT"
             UserRootOwner = "$backendRoot/analytics/adapters/json_assessment_store.py"
+        },
+        @{
+            # S4-02a: Site financial assumptions. Database-only: no file writer and
+            # no writable file root (UserRootVar is null, so the user-root rule
+            # skips it); rule 8 confines its PostgreSQL writer. Adapter isolation
+            # still applies: only the composition module imports its adapters.
+            Name        = "financials"
+            Package     = "$backendRoot/financials"
+            Composition = "$backendRoot/financials/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
         }
     )
 
@@ -420,7 +432,9 @@ function Invoke-ConfigurationPersistenceCheck {
     #    A domain may own more than one writable root (`ExtraUserRoots`); each
     #    is held to the same single-owner and gitignore rules.
     $userRoots = @(foreach ($domain in $domains) {
-        @{ Name = $domain.Name; Var = $domain.UserRootVar; Owner = $domain.UserRootOwner }
+        if ($null -ne $domain.UserRootVar) {
+            @{ Name = $domain.Name; Var = $domain.UserRootVar; Owner = $domain.UserRootOwner }
+        }
         foreach ($extra in @($domain.ExtraUserRoots)) {
             if ($null -eq $extra) { continue }
             @{ Name = "$($domain.Name) ($($extra.Var))"; Var = $extra.Var; Owner = $extra.Owner }
@@ -614,13 +628,19 @@ function Invoke-ConfigurationPersistenceCheck {
     $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
     $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
         'finding_merge', 'finding_match_pass')
-    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter)
+    # S4-02a adds the sixth writer, the financial assumption store: it inserts its two tables and its only
+    # UPDATE closes an assignment's set-once recorded_to. No other module writes either table.
+    $assumptionWriter = "$backendRoot/financials/adapters/postgres_assumption_store.py"
+    $assumptionTables = @('financial_assumption_revision', 'financial_assumption_assignment')
+    $assumptionUpdate = '(?i)\bUPDATE\s+financial_assumption_assignment\s+SET\s+recorded_to\s*=\s*:[a-z_]+\s+WHERE\b'
+    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
-    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0 }
+    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
+        $assumptionWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
-        $findingWriter = $false }
+        $findingWriter = $false; $assumptionWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
@@ -664,6 +684,16 @@ function Invoke-ConfigurationPersistenceCheck {
                 if ($module.Path -eq $findingWriter -and -not (
                         $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $findingTables -contains $Matches[1].ToLowerInvariant())) {
                     $failures.Add(("The Finding store only inserts into $($findingTables -join ', ') (append-only); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $assumptionWriter -and -not (
+                        ($line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $assumptionTables -contains $Matches[1].ToLowerInvariant()) -or
+                        $line -match $assumptionUpdate)) {
+                    $failures.Add(("The assumption store only inserts into $($assumptionTables -join ', ') and only " +
+                        "sets an assignment's recorded_to; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $assumptionWriter -and $null -ne $target -and $assumptionTables -contains $target) {
+                    $failures.Add(("Only $assumptionWriter writes assumption table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($module.Path -ne $findingWriter -and $null -ne $target -and $findingTables -contains $target) {

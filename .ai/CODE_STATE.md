@@ -5367,3 +5367,17 @@ Packet `.agent/G-02-review-packet.md`, handoff `.agent/G-02-handoff.md`, questio
 - Open: SLD per-node SVG slots/captions restate the reporting-status fact untagged (Q1); other euphemisms are tagged
   but not scan cues (Q2); `tools/v01a-foundation-evidence.mjs` and `tools/g01-firmware-evidence.mjs` assert the
   pre-split gateway copy (historical).
+
+## S4-02a - Site price publication and exact assumption history (in_review)
+
+Branch `task/S4-02a-site-assumptions`; phase 1 `28668d9`..`5159b96`, phase 2 `408e9e6`..HEAD. Packet `.agent/S4-02a-review-packet.md`.
+
+- Store: migration `0010_financial_assumptions` (head). `financial_assumption_revision` (immutable, append-only) and `financial_assumption_assignment` (valid x recorded, GiST exclusion, set-once `recorded_to` that must be later than the series' latest `recorded_from`, containment trigger). Sixth product DB writer `financials/adapters/postgres_assumption_store.py` (guard rule 8).
+- Publication: SYSTEM only, `python -m assetops_backend.publish_assumption publish|fixture` (no actor flag). Retry digest = canonical publication step; fixture file bytes/version and authorization prose are stored in provenance but not digested (`PROVENANCE_NOT_DIGESTED`). Fixture `backend/conversions/demo-diesel-price-publications.json`: v1 INITIAL 1.25 from 2026-01-01, v2 SUCCESSION 1.32 from 2030-01-01, v3 CORRECTION 1.19 over June 2026.
+- Reads: `financial_read_api.py` `GET /api/sites/{site}/financial-assumptions?key=&valid_at=&recorded_at=&after_revision_no=&limit=` (PRICED/NO_PRICE/CONFLICT selection, timeline at cutoff, paged revisions) and `/{revision_id}` (exact, Site-scoped, 404 never latest); Finding read scope semantics, 503 `ASSUMPTION_STORE_UNAVAILABLE`. Write route `financial_api.py` keeps `no_verified_principal` (no success path).
+- Finding bridge: `GET /api/sites/{site}/findings/{id}/financials?revision_id=` in `finding_api.py`; `consequence_state` returns `QUANTITY_UNAVAILABLE` (always, until `fuel-cost-1`) or `UNPRICED`; a priced amount raises.
+- UI: Financials tab live; `/sites/{site}/financials` (bridge with `finding_id`+`revision_id`, pinned into the URL on first load; price in use) and `/financials/assumptions?revision_id=&recorded_at=` (`sites/SiteFinancials.tsx`, `sites/financialsClient.ts`, frame `SiteFinancialsFrame` in `shell/SiteAnalyticsFrames.tsx`). Finding frame links "What this finding means in money"; Foundation's open `G-foundation-financial-assumptions` line has a sibling link to Assumptions.
+- Gap: `G-assumptions-human-edit` (`build`, placement `assumptions.price.human-edit`) in `ui/gapCatalogue.ts` and registry `mock_gaps`.
+- Omitted for G-05: Scenarios subtab, Impact preview, maintenance line/accrual, metric cards, Trade-offs, cash flow, FX, extrapolation.
+- Walkthrough/evidence: `tools/s402a_assumptions_walkthrough.py` (private `assetops_s402a*` DBs), `tools/s402a-assumptions-evidence.mjs` (69/69 at 1440/390).
+- Open: L2 (SUCCESSION exactly at an open assignment's start is refused) for an Architect batch; C3 (S4-02b needs a Finding-window correction step); registry closeout for `I-S4-02a` and the Foundation gap is the coordinator's; `tools/layout-evidence.mjs` has pre-existing fixture-precondition failures on the Finding-case store.

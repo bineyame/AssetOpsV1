@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {
   siteDetailHref,
   siteEvidenceHref,
+  siteFinancialsHref,
   siteFindingsHref,
   siteFoundationHref,
   sitePerformanceHref,
@@ -79,7 +80,8 @@ export const CANONICAL_OPERATOR_SITE_TABS: OperatorSiteTab[] = [
   { label: "Performance", capability: true, href: (siteId) => sitePerformanceHref(siteId) },
   { label: "Findings", capability: true, href: siteFindingsHref },
   { label: "Work", capability: false, href: notYetRouted("Work") },
-  { label: "Financials", capability: false, href: notYetRouted("Financials") },
+  // S4-02a: Overview (Finding bridge, price in use) and Assumptions.
+  { label: "Financials", capability: true, href: (siteId) => siteFinancialsHref(siteId) },
   { label: "Evidence", capability: true, href: siteEvidenceHref },
 ];
 

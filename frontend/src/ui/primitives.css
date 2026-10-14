@@ -3333,3 +3333,44 @@ tr[data-selected] > * {
 .evidence-nowrap {
   white-space: nowrap;
 }
+
+
+/* S4-02a: Site > Financials and Assumptions. */
+.financials-lead {
+  margin: 0 0 var(--space-3);
+}
+
+.financials-edit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.financials-edit p {
+  flex: 1 1 18rem;
+  margin: 0;
+}
+
+.price-history {
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.price-history li + li {
+  margin-top: var(--space-3);
+}
+
+.price-history p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.site-financials .data-table tr.is-selected td {
+  background: var(--surface-sunken);
+}
+
+.site-financials code {
+  overflow-wrap: anywhere;
+}
