@@ -75,13 +75,41 @@ export interface AssumptionRevisionBody {
   recorded_by_this_publication: PriceAssignment[];
 }
 
+/** S4-02b: the read's currentness of one FindingRevision's stored consequence (review M1 adds AUDIT_ONLY). */
+export type ConsequenceCurrentness = "CURRENT" | "STALE" | "PENDING" | "HISTORICAL" | "AUDIT_ONLY";
+
+/** The bridge's typed summary: an amount only for a CURRENT PRICED head, rounded outward for display. */
 export interface FindingConsequence {
-  state: "QUANTITY_UNAVAILABLE" | "UNPRICED";
+  state:
+    | "PRICED"
+    | "UNPRICED"
+    | "QUANTITY_UNAVAILABLE"
+    | "STALE"
+    | "PENDING"
+    | "HISTORICAL"
+    | "AUDIT_ONLY"
+    | "UNAVAILABLE";
+  currentness: ConsequenceCurrentness | null;
   quantity_source: string;
-  amount: null;
-  currency: null;
-  price_revision_id: null;
+  quantity: { low: string; high: string; unit: string } | null;
+  /** Display strings, low rounded down and high rounded up; never parsed into a float. */
+  amount: { low: string; high: string } | null;
+  currency: string | null;
+  price_revision_id: string | null;
+  consequence_revision_id: string | null;
+  quantity_reason: string | null;
+  price_reason: string | null;
+  recalculation_queued?: boolean;
+  currentness_reasons?: string[];
   reason: string;
+}
+
+/** The owner-ruled label for authored demonstration content (S4-02b P01-power). */
+export interface DemonstrationLabel {
+  label: string;
+  statement: string;
+  case_id: string;
+  spec: string;
 }
 
 export interface FindingFinancialsBody {
@@ -91,7 +119,121 @@ export interface FindingFinancialsBody {
   selection: { revision_id: string; revision_no: number; is_latest: boolean; selected_by: string };
   revision: { id: string; revision_no: number; title: string; lifecycle: string; claim_level: string };
   window: { start: string; end: string | null };
+  demonstration?: DemonstrationLabel | null;
   consequence: FindingConsequence;
+}
+
+export interface PowerIntervalLineage {
+  evidence_id: string;
+  interval_start: string;
+  interval_end: string;
+  mean_kw: string;
+  duration_seconds: number;
+  sfc_l_per_kwh: string;
+  foundation_revision_id: string;
+  binding_revision_id: string;
+  envelope_sha256: string;
+  covered_spans: unknown;
+  containment: string;
+}
+
+/** One stored `fuel-cost-1` consequence revision, as the S4-02b read returns it. */
+export interface ConsequenceRevision {
+  id: string;
+  revision_no: number;
+  prior_consequence_revision_id: string | null;
+  finding_id: string;
+  finding_revision_id: string;
+  consequence_type: string;
+  basis_kind: string;
+  state: "PRICED" | "UNPRICED" | "QUANTITY_UNAVAILABLE" | string;
+  window: { start: string; end: string; bounds: string };
+  overlap_group: string;
+  recorded_at: string;
+  actor_id: string;
+  model: {
+    model_id: string;
+    formula_version: string;
+    parameter_version: string;
+    parameter_sha256: string;
+    sfc_upper_multiplier: string | null;
+    parameter_is_reviewed: boolean;
+  };
+  quantity: {
+    state: string;
+    reason: string | null;
+    detail: unknown;
+    unit: string;
+    low: string | null;
+    high: string | null;
+    high_exact: unknown;
+    high_display: string | null;
+  };
+  price: {
+    state: string;
+    reason: string | null;
+    revision_id: string | null;
+    value: string | null;
+    currency: string | null;
+    unit: string;
+    considered: string[][];
+  };
+  amount: { low: string | null; high: string | null; currency: string | null; unrounded: boolean };
+  display: {
+    state: string;
+    currency: string;
+    amount_low: string | null;
+    amount_high: string | null;
+  } | null;
+  limitations: string[];
+  digests: { technical_input_sha256: string; consequence_basis_sha256: string };
+  lineage: {
+    assessments: { assessment_revision_id: string; analytic_run_id: string; is_primary: boolean }[];
+    assumptions: { assumption_revision_id: string; assignment_id: string; role: string }[];
+    power_intervals: PowerIntervalLineage[];
+    evidence_ids: string[];
+  };
+  is_head?: boolean;
+  presented_as_current?: boolean;
+  historical?: boolean;
+}
+
+export interface FindingConsequencesBody {
+  site_code: string;
+  audit_only: { non_current: boolean; statement: string } | null;
+  finding: { id: string };
+  selection: { revision_id: string; revision_no: number; is_latest: boolean };
+  window: { start: string; end: string | null };
+  demonstration?: DemonstrationLabel | null;
+  consequence_selection: {
+    selected_by: "EXACT_CONSEQUENCE_REVISION_ID" | "HEAD";
+    consequence_revision_id: string | null;
+    head_consequence_revision_id: string | null;
+    finding_revision_id: string;
+    finding_revision_is_latest: boolean;
+    source_open?: boolean;
+  };
+  currentness: {
+    state: ConsequenceCurrentness;
+    reasons: string[];
+    pending_work: { work_id: string; cause: string; attempts: number; last_error_code: string | null }[];
+    current_amount_shown: boolean;
+    derived_now: unknown;
+  };
+  consequence: ConsequenceRevision | null;
+  history: {
+    revisions: ConsequenceRevision[];
+    total: number;
+    page: { after_revision_no: number; limit: number; next_after_revision_no: number | null };
+  };
+  exclusions: string[];
+  links: { evidence_records?: Record<string, string>; price_revisions?: Record<string, string> };
+}
+
+export interface ConsequencePin {
+  revisionId: string | null;
+  consequenceRevisionId?: string | null;
+  afterRevisionNo?: number;
 }
 
 export interface SeriesQuery {
@@ -109,6 +251,17 @@ export interface FinancialsClient {
     findingId: string,
     revisionId: string | null,
   ): Promise<FinancialReadResult<FindingFinancialsBody>>;
+  getFindingConsequences(
+    siteId: string,
+    findingId: string,
+    pin: ConsequencePin,
+  ): Promise<FinancialReadResult<FindingConsequencesBody>>;
+}
+
+function isConsequences(value: unknown): value is FindingConsequencesBody {
+  if (!hasKeys(value, ["selection", "consequence_selection", "currentness", "history"])) return false;
+  const history = (value as { history: unknown }).history;
+  return isObject(history) && Array.isArray(history.revisions) && isObject((value as { currentness: unknown }).currentness);
 }
 
 function isSeries(value: unknown): value is AssumptionSeriesBody {
@@ -191,6 +344,17 @@ export function createFinancialsClient(basePath: string = SITES_API_PATH): Finan
     getFindingFinancials(siteId, findingId, revisionId) {
       const pin = revisionId ? `?revision_id=${encodeURIComponent(revisionId)}` : "";
       return readFinancial(`${site(siteId)}/findings/${encodeURIComponent(findingId)}/financials${pin}`, isBridge);
+    },
+    getFindingConsequences(siteId, findingId, pin) {
+      const params = new URLSearchParams();
+      if (pin.revisionId) params.set("revision_id", pin.revisionId);
+      if (pin.consequenceRevisionId) params.set("consequence_revision_id", pin.consequenceRevisionId);
+      if (pin.afterRevisionNo) params.set("after_revision_no", String(pin.afterRevisionNo));
+      const query = params.toString();
+      return readFinancial(
+        `${site(siteId)}/findings/${encodeURIComponent(findingId)}/financial-consequences${query ? `?${query}` : ""}`,
+        isConsequences,
+      );
     },
   };
 }

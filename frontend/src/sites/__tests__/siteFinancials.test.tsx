@@ -10,7 +10,11 @@ import {
   type AssumptionRevisionBody,
   type AssumptionSeriesBody,
   type FinancialReadResult,
+  type ConsequencePin,
+  type ConsequenceRevision,
   type FinancialsClient,
+  type FindingConsequence,
+  type FindingConsequencesBody,
   type FindingFinancialsBody,
   type PriceRevision,
   type SeriesQuery,
@@ -91,11 +95,133 @@ function bridgeBody(state: "QUANTITY_UNAVAILABLE" | "UNPRICED" = "QUANTITY_UNAVA
     window: { start: "2026-10-06T08:00:00+00:00", end: "2026-10-06T09:30:00+00:00" },
     consequence: {
       state,
+      currentness: "CURRENT",
       quantity_source: "fuel-cost-1",
+      quantity: null,
       amount: null,
       currency: null,
       price_revision_id: null,
+      consequence_revision_id: null,
+      quantity_reason: state === "QUANTITY_UNAVAILABLE" ? "POWER_MISSING" : null,
+      price_reason: state === "UNPRICED" ? "NO_PRICE" : null,
       reason: "No fuel quantity has been calculated for this finding yet, so no diesel price is applied and no cost is shown.",
+    },
+  };
+}
+
+const C1 = "c1000000-0000-4000-8000-000000000001";
+const C2 = "c2000000-0000-4000-8000-000000000002";
+const V4 = "44444444-4444-4444-8444-444444444444";
+
+function crev(no: number, id: string, patch: Partial<ConsequenceRevision> = {}): ConsequenceRevision {
+  const priced = { value: no === 1 ? "1.25" : "1.28", high: no === 1 ? "15.8125" : "16.192", shown: no === 1 ? "15.82" : "16.20" };
+  return {
+    id,
+    revision_no: no,
+    prior_consequence_revision_id: no === 1 ? null : C1,
+    finding_id: FINDING,
+    finding_revision_id: FREV,
+    consequence_type: "POTENTIAL_FUEL_COST",
+    basis_kind: "MODELLED_CONDITIONAL",
+    state: "PRICED",
+    window: { start: "2026-10-23T06:05:00+00:00", end: "2026-10-23T08:00:00+00:00", bounds: "[start, end)" },
+    overlap_group: "g",
+    recorded_at: no === 1 ? "2026-10-14T09:00:00+00:00" : "2026-10-14T10:00:00+00:00",
+    actor_id: "service:assetops-consequence-recompute",
+    model: {
+      model_id: "fuel-cost-1",
+      formula_version: "fuel-cost-1",
+      parameter_version: "fuel-cost-1-sfc-upper-1",
+      parameter_sha256: "1".repeat(64),
+      sfc_upper_multiplier: "1.10",
+      parameter_is_reviewed: true,
+    },
+    quantity: { state: "AVAILABLE", reason: null, detail: null, unit: "L", low: "0", high: "12.65", high_exact: null, high_display: "12.65" },
+    price: { state: "PRICED", reason: null, revision_id: no === 1 ? V1 : V4, value: priced.value, currency: "USD", unit: "currency/L", considered: [] },
+    amount: { low: "0", high: priced.high, currency: "USD", unrounded: true },
+    display: { state: "ROUNDED_OUTWARD", currency: "USD", amount_low: "0.00", amount_high: priced.shown },
+    limitations: ["Necessary and Indeterminate time is never priced."],
+    digests: { technical_input_sha256: "t".repeat(64), consequence_basis_sha256: String(no).repeat(64) },
+    lineage: {
+      assessments: [{ assessment_revision_id: "a-1", analytic_run_id: "r-1", is_primary: true }],
+      assumptions: [{ assumption_revision_id: no === 1 ? V1 : V4, assignment_id: "as-1", role: "PRICE" }],
+      power_intervals: [
+        {
+          evidence_id: "ev-1",
+          interval_start: "2026-10-23T06:05:00+00:00",
+          interval_end: "2026-10-23T06:10:00+00:00",
+          mean_kw: "20",
+          duration_seconds: 300,
+          sfc_l_per_kwh: "0.3",
+          foundation_revision_id: "fr-1",
+          binding_revision_id: "br-1",
+          envelope_sha256: "e".repeat(64),
+          covered_spans: [],
+          containment: "CONTAINED",
+        },
+      ],
+      evidence_ids: ["ev-1"],
+    },
+    ...patch,
+  };
+}
+
+function consequencesBody(
+  revisions: ConsequenceRevision[],
+  opts: { state?: FindingConsequencesBody["currentness"]["state"]; selected?: string | null } = {},
+): FindingConsequencesBody {
+  const head = revisions.length ? revisions[revisions.length - 1] : null;
+  const selectedId = opts.selected ?? head?.id ?? null;
+  const selected = revisions.find((r) => r.id === selectedId) ?? null;
+  const state = opts.state ?? "CURRENT";
+  return {
+    site_code: "KOBO-001",
+    audit_only: null,
+    finding: { id: FINDING },
+    selection: { revision_id: FREV, revision_no: 2, is_latest: true },
+    window: { start: "2026-10-23T06:05:00+00:00", end: "2026-10-23T08:00:00+00:00" },
+    consequence_selection: {
+      selected_by: opts.selected ? "EXACT_CONSEQUENCE_REVISION_ID" : "HEAD",
+      consequence_revision_id: selectedId,
+      head_consequence_revision_id: head?.id ?? null,
+      finding_revision_id: FREV,
+      finding_revision_is_latest: true,
+    },
+    currentness: { state, reasons: [], pending_work: [], current_amount_shown: state === "CURRENT", derived_now: null },
+    consequence: selected
+      ? { ...selected, is_head: selected.id === head?.id, presented_as_current: selected.id === head?.id && state === "CURRENT" }
+      : null,
+    history: { revisions, total: revisions.length, page: { after_revision_no: 0, limit: 50, next_after_revision_no: null } },
+    exclusions: ["No total across Findings is computed."],
+    links: { evidence_records: { "ev-1": "/api/sites/KOBO-001/evidence/records/ev-1" }, price_revisions: {} },
+  };
+}
+
+function pricedBridge(patch: Partial<FindingConsequence> = {}): FindingFinancialsBody {
+  const base = bridgeBody();
+  return {
+    ...base,
+    window: { start: "2026-10-23T06:05:00+00:00", end: "2026-10-23T08:00:00+00:00" },
+    demonstration: {
+      label: "Demonstration data",
+      statement:
+        "This finding comes from demonstration readings written by the AssetOps team to show a complete fuel-cost calculation. They are not measurements from a working generator.",
+      case_id: "P01-power",
+      spec: "s4-power-demo-cases-v1",
+    },
+    consequence: {
+      ...base.consequence,
+      state: "PRICED",
+      currentness: "CURRENT",
+      quantity: { low: "0", high: "12.65", unit: "L" },
+      amount: { low: "0.00", high: "16.20" },
+      currency: "USD",
+      price_revision_id: V4,
+      consequence_revision_id: C2,
+      quantity_reason: null,
+      price_reason: null,
+      reason: "Modelled potential fuel-cost exposure under the reviewed fuel-cost-1 assumptions.",
+      ...patch,
     },
   };
 }
@@ -104,18 +230,22 @@ interface Asked {
   series: SeriesQuery[];
   exact: string[];
   bridge: (string | null)[];
+  consequences: ConsequencePin[];
 }
 
 function fake(opts: {
   series?: FinancialReadResult<AssumptionSeriesBody>;
   exact?: FinancialReadResult<AssumptionRevisionBody>;
   bridge?: FinancialReadResult<FindingFinancialsBody>;
+  consequences?: FinancialReadResult<FindingConsequencesBody> | ((pin: ConsequencePin) => FinancialReadResult<FindingConsequencesBody>);
+  seriesFor?: (query: SeriesQuery) => FinancialReadResult<AssumptionSeriesBody>;
 } = {}): FinancialsClient & { asked: Asked } {
-  const asked: Asked = { series: [], exact: [], bridge: [] };
+  const asked: Asked = { series: [], exact: [], bridge: [], consequences: [] };
   return {
     asked,
     async getAssumptions(_site, query) {
       asked.series.push(query);
+      if (opts.seriesFor) return opts.seriesFor(query);
       return opts.series ?? { status: "loaded", value: series() };
     },
     async getAssumptionRevision(_site, id) {
@@ -136,6 +266,12 @@ function fake(opts: {
     async getFindingFinancials(_site, _finding, rev) {
       asked.bridge.push(rev);
       return opts.bridge ?? { status: "loaded", value: bridgeBody() };
+    },
+    async getFindingConsequences(_site, _finding, pin) {
+      asked.consequences.push(pin);
+      const c = opts.consequences;
+      if (typeof c === "function") return c(pin);
+      return c ?? { status: "loaded", value: consequencesBody([]) };
     },
   };
 }
@@ -331,11 +467,155 @@ describe("financials client", () => {
     const client = createFinancialsClient("/api/sites");
     expect((await client.getAssumptionRevision("KOBO-001", "rev 1")).status).toBe(status);
     expect((await client.getFindingFinancials("KOBO-001", "f1", "r 1")).status).toBe(status);
+    expect(
+      (await client.getFindingConsequences("KOBO-001", "f1", { revisionId: "r 1", consequenceRevisionId: "c 1" })).status,
+    ).toBe(status);
     await client.getAssumptions("KOBO-001", { validAt: "2026-10-13T00:00:00Z", recordedAt: "2026-10-13T09:00:00+00:00" });
     expect(calls).toEqual([
       "/api/sites/KOBO-001/financial-assumptions/rev%201",
       "/api/sites/KOBO-001/findings/f1/financials?revision_id=r%201",
+      "/api/sites/KOBO-001/findings/f1/financial-consequences?revision_id=r+1&consequence_revision_id=c+1",
       "/api/sites/KOBO-001/financial-assumptions?key=diesel_price_per_litre&valid_at=2026-10-13T00%3A00%3A00Z&recorded_at=2026-10-13T09%3A00%3A00%2B00%3A00",
     ]);
+  });
+});
+
+describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
+  const URL = `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`;
+
+  it("shows a current priced range from zero, its bridge steps, and the demonstration label in plain words", async () => {
+    const client = fake({
+      bridge: { status: "loaded", value: pricedBridge() },
+      consequences: { status: "loaded", value: consequencesBody([crev(1, C1), crev(2, C2)]) },
+    });
+    const { container } = mount(client, URL);
+    await settledScreen();
+    const bridge = container.querySelector("[data-financials-bridge]") as HTMLElement;
+    expect(bridge).toHaveAttribute("data-financials-bridge", "PRICED");
+    expect(bridge).toHaveAttribute("data-financials-amount", "shown");
+    expect(bridge).toHaveTextContent("0.00 to 16.20 USD");
+    expect(bridge).toHaveTextContent(
+      "Modelled potential fuel-cost exposure: 0.00 to 16.20 USD, under the reviewed fuel-cost-1 assumptions. This is not measured fuel saved or a physical maximum.",
+    );
+    expect(bridge.querySelector("[data-financials-demonstration='P01-power']")).toHaveTextContent("Demonstration data");
+    expect(container.textContent ?? "").not.toMatch(/simulat/i);
+    expect(bridge.querySelector("[data-bridge-amount]")).toHaveAttribute("data-bridge-amount", "current");
+    expect(bridge.querySelector("[data-bridge-step='fuel']")).toHaveTextContent("0 to 12.65 litres");
+    expect(bridge.querySelector("[data-bridge-step='price']")).toHaveTextContent("1.28 USD per litre");
+    expect(within(bridge).getByRole("link", { name: "The site price version used" })).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001/financials/assumptions?revision_id=${V4}`,
+    );
+    // identifiers, the model version and enum names only inside the closed disclosure
+    const details = within(bridge).getByText("How this is worked out").closest("details") as HTMLElement;
+    expect(details).not.toHaveAttribute("open");
+    expect(details).toHaveTextContent("MODELLED_CONDITIONAL");
+    expect(details).toHaveTextContent("sfc_upper_multiplier = 1.10");
+    expect(details.querySelector("[data-consequence-reading='ev-1']")).not.toBeNull();
+    const outside = bridge.cloneNode(true) as HTMLElement;
+    outside.querySelectorAll("details").forEach((d) => d.remove());
+    expect(outside.textContent ?? "").not.toMatch(/MODELLED_CONDITIONAL|POTENTIAL_FUEL_COST|c2000000/);
+    const { violations } = scanProductVocabulary(container, "financials fuel cost");
+    expect(violations, describeViolations(violations)).toEqual([]);
+    expect(client.asked.consequences).toEqual([{ revisionId: FREV, consequenceRevisionId: null }]);
+  });
+
+  it.each([
+    ["QUANTITY_UNAVAILABLE", { quantity_reason: "POWER_COVERAGE_GAP" }, "cover too little of this finding's time"],
+    ["UNPRICED", { price_reason: "PRICE_SPANS_WINDOW" }, "changes part-way through this finding's time"],
+  ] as const)("states %s with its specific plain reason and no amount", async (state, reasons, words) => {
+    const client = fake({
+      bridge: { status: "loaded", value: pricedBridge({ state, amount: null, currency: null, quantity: null, ...reasons }) },
+    });
+    mount(client, URL);
+    await settledScreen();
+    const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
+    expect(bridge).toHaveAttribute("data-financials-bridge", state);
+    expect(bridge).toHaveAttribute("data-financials-amount", "none");
+    expect(bridge).toHaveTextContent(words);
+    expect(bridge.textContent ?? "").not.toMatch(/USD|\d+\.\d\d/);
+  });
+
+  it.each(["STALE", "PENDING", "HISTORICAL", "AUDIT_ONLY", "UNAVAILABLE"] as const)(
+    "a %s fuel cost shows no current amount even when a priced version is stored",
+    async (state) => {
+      const client = fake({
+        bridge: {
+          status: "loaded",
+          value: pricedBridge({
+            state,
+            currentness: state === "UNAVAILABLE" ? null : state,
+            amount: null,
+            currency: null,
+            quantity: null,
+            reason: "No current cost is shown.",
+          }),
+        },
+        consequences: {
+          status: "loaded",
+          value: consequencesBody([crev(1, C1)], { state: state === "UNAVAILABLE" ? "CURRENT" : state }),
+        },
+      });
+      mount(client, URL);
+      await settledScreen();
+      const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
+      expect(bridge).toHaveAttribute("data-financials-amount", "none");
+      expect(bridge.querySelector("[data-financials-headline='amount']")).toBeNull();
+      expect(bridge.querySelector("[data-bridge-amount='current']")).toBeNull();
+      expect(bridge.querySelector("[data-bridge-amount]")).toHaveAttribute("data-bridge-amount", "recorded");
+      expect(bridge).toHaveTextContent("the stored version, not a current cost");
+      expect(document.querySelector(`[data-consequence-revision='${C1}']`)).toHaveAttribute(
+        "data-consequence-current",
+        state === "UNAVAILABLE" ? "true" : "false",
+      );
+    },
+  );
+
+  it("opens an earlier fuel cost version of the same finding version, labelled as kept for the record, and keeps it on reload", async () => {
+    const client = fake({
+      bridge: { status: "loaded", value: pricedBridge() },
+      consequences: (pin) => ({
+        status: "loaded",
+        value: consequencesBody([crev(1, C1), crev(2, C2)], { selected: pin.consequenceRevisionId ?? null }),
+      }),
+    });
+    const first = mount(client, URL);
+    await settledScreen();
+    const history = document.querySelector("[data-consequence-history='loaded']") as HTMLElement;
+    expect(history.querySelectorAll("[data-consequence-revision]")).toHaveLength(2);
+    expect(history.querySelector(`[data-consequence-revision='${C2}']`)).toHaveAttribute("data-consequence-current", "true");
+    expect(history.querySelector(`[data-consequence-revision='${C1}']`)).toHaveTextContent("kept for the record");
+    expect(screen.getByText(/The fuel amount is the same in every version shown/)).toBeInTheDocument();
+    fireEvent.click(within(history).getByRole("link", { name: "Open fuel cost version 1" }));
+    await settledScreen();
+    expect(screen.getByTestId("where")).toHaveTextContent(`consequence_revision_id=${C1}`);
+    const pinned = document.querySelector(`[data-consequence-pinned='${C1}']`) as HTMLElement;
+    expect(pinned).toHaveTextContent("0.00 to 15.82 USD");
+    expect(pinned).toHaveTextContent("1.25 USD per litre");
+    expect(pinned.querySelector("[data-bridge-amount]")).toHaveAttribute("data-bridge-amount", "recorded");
+    expect(pinned).toHaveTextContent("Its fuel amount is the same as in the latest version; only the price applied differs.");
+    expect(document.querySelector("[data-financials-bridge]")).toHaveAttribute("data-finding-revision", FREV);
+    first.unmount();
+    mount(client, `${URL}&consequence_revision_id=${C1}`);
+    await settledScreen();
+    expect(document.querySelector(`[data-consequence-pinned='${C1}']`)).not.toBeNull();
+    expect(client.asked.consequences.at(-1)).toEqual({ revisionId: FREV, consequenceRevisionId: C1 });
+  });
+});
+
+describe("Site > Financials > Assumptions: later versions (S4-02a review L5)", () => {
+  it("appends the next page of versions rather than replacing the first", async () => {
+    const page1 = series({ revisions: [P1], revision_page: { after_revision_no: 0, limit: 1, total: 2, next_after_revision_no: 1 } });
+    const page2 = series({ revisions: [P3], revision_page: { after_revision_no: 1, limit: 1, total: 2, next_after_revision_no: null } });
+    mount(
+      fake({ seriesFor: (q) => ({ status: "loaded", value: q.afterRevisionNo ? page2 : page1 }) }),
+      "/sites/KOBO-001/financials/assumptions",
+    );
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: "Show later versions" }));
+    await settledScreen();
+    const items = document.querySelectorAll("[data-price-history-revision]");
+    expect([...items].map((i) => i.getAttribute("data-price-history-revision"))).toEqual([V1, V3]);
+    expect(screen.getByText(/Showing 2 of 2 versions/)).toBeInTheDocument();
   });
 });

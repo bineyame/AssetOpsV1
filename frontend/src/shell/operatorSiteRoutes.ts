@@ -162,12 +162,13 @@ export const SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PA
 
 export function siteFinancialsHref(
   siteId: string,
-  bridge?: { findingId: string; revisionId?: string | null },
+  bridge?: { findingId: string; revisionId?: string | null; consequenceRevisionId?: string | null },
 ): string {
   const base = `${siteDetailHref(siteId)}/financials`;
   if (!bridge) return base;
   const query = new URLSearchParams({ finding_id: bridge.findingId });
   if (bridge.revisionId) query.set("revision_id", bridge.revisionId);
+  if (bridge.consequenceRevisionId) query.set("consequence_revision_id", bridge.consequenceRevisionId);
   return `${base}?${query.toString()}`;
 }
 

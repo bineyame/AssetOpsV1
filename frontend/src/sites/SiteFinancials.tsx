@@ -7,21 +7,25 @@ import type {
   AssumptionSeriesBody,
   FinancialReadResult,
   FinancialsClient,
+  FindingConsequencesBody,
   FindingFinancialsBody,
   PriceAssignment,
   PriceRevision,
 } from "./financialsClient";
+import { FindingBridge } from "./FindingConsequence";
 import { formatInstant } from "./FoundationRevisionPanel";
 
 /**
- * S4-02a: Site > Financials. The Overview holds the Finding bridge (an exact Finding version and its typed
- * money state, never an amount here) and the Site diesel price in use; Assumptions holds the current price,
- * its schedule, its recorded versions and the disabled human edit. Plain words by default; identifiers,
- * digests and enum names sit in the record-details disclosure.
+ * S4-02a/S4-02b: Site > Financials. The Overview holds the Finding bridge (an exact Finding version, its typed
+ * `fuel-cost-1` money state, and an amount only for a current priced fuel cost; `FindingConsequence.tsx`), the
+ * fuel cost versions of that Finding version, and the Site diesel price in use; Assumptions holds the current
+ * price, its schedule, its recorded versions and the disabled human edit. Plain words by default; identifiers,
+ * digests and enum names sit in the record-details and "How this is worked out" disclosures.
  *
- * Omitted for G-05 (not rendered, not an empty tab): the mock's Scenarios subtab, the Impact preview panel,
- * the second (maintenance) consequence line and accrual, cash flow, FX and monthly extrapolation, the
- * metric cards and the Trade-offs panel.
+ * Omitted for G-05 by manifest element (not rendered, not an empty tab; `.agent/S4-02b-review-packet.md`):
+ * `financials:3#a`/`financials:3#b` (the Trade-offs panel), `assumptions:2#a` (the Impact preview), the
+ * `financials` metric cards other than the one exposure range, the second (maintenance accrual) consequence line,
+ * the Scenarios subtab, cash flow, FX and monthly extrapolation.
  */
 
 export interface FinancialsLinks {
@@ -31,6 +35,8 @@ export interface FinancialsLinks {
   evidence: (findingId: string, revisionId: string) => string;
   /** Assumptions, optionally pinned to an exact version or a recorded cutoff. */
   assumptions: (pin?: { revisionId?: string | null; recordedAt?: string | null }) => string;
+  /** The Overview pinned to one exact fuel cost version of the same Finding version (null: the latest). */
+  consequence: (findingId: string, revisionId: string, consequenceRevisionId: string | null) => string;
   findings: string;
 }
 
@@ -192,6 +198,8 @@ export function SiteAssumptions({
   const recordedAtRaw = params.get("recorded_at");
   const recordedAt = recordedAtRaw !== null && !Number.isNaN(new Date(recordedAtRaw).getTime()) ? recordedAtRaw : null;
   const [after, setAfter] = useState(0);
+  // Review L5 (S4-02a): "Show later versions" appends to the versions already shown rather than replacing them.
+  const [earlier, setEarlier] = useState<PriceRevision[]>([]);
   const [validAt] = useState(now);
   const series = useRead(
     () => client.getAssumptions(siteId, { validAt, recordedAt, afterRevisionNo: after }),
@@ -204,7 +212,10 @@ export function SiteAssumptions({
         : client.getAssumptionRevision(siteId, revisionId),
     [client, siteId, revisionId],
   );
-  useEffect(() => setAfter(0), [recordedAt]);
+  useEffect(() => {
+    setAfter(0);
+    setEarlier([]);
+  }, [recordedAt]);
 
   if (recordedAtRaw !== null && recordedAt === null) {
     return <ReadRefused read={{ status: "not_found", message: null }} what="recorded date" />;
@@ -229,7 +240,15 @@ export function SiteAssumptions({
       ) : null}
       <CurrentPrice body={body} />
       <Schedule body={body} links={links} selectedRevision={revisionId} />
-      <History body={body} links={links} onMore={(next) => setAfter(next)} />
+      <History
+        body={body}
+        shown={[...earlier, ...body.revisions]}
+        links={links}
+        onMore={(next) => {
+          setEarlier((prior) => [...prior, ...body.revisions]);
+          setAfter(next);
+        }}
+      />
     </section>
   );
 }
@@ -320,10 +339,12 @@ function Schedule({
 
 function History({
   body,
+  shown,
   links,
   onMore,
 }: {
   body: AssumptionSeriesBody;
+  shown: PriceRevision[];
   links: FinancialsLinks;
   onMore: (after: number) => void;
 }) {
@@ -334,11 +355,11 @@ function History({
       headingId="site-price-history-heading"
       description="Every recorded version, oldest first. Open a version to see exactly where it applied, or view the prices as they were recorded at that moment."
     >
-      {body.revisions.length === 0 ? (
+      {shown.length === 0 ? (
         <p data-price-history="empty">No price version had been recorded at this moment.</p>
       ) : (
         <ol className="price-history" data-price-history="loaded">
-          {body.revisions.map((r) => (
+          {shown.map((r) => (
             <li key={r.revision_id} data-price-history-revision={r.revision_id}>
               <p>
                 <strong>Version {r.revision_no}</strong> · {CHANGE_WORDS[r.change_kind] ?? "Change"} ·{" "}
@@ -357,7 +378,7 @@ function History({
         </ol>
       )}
       <p className="muted">
-        Showing {body.revisions.length} of {page.total} version{page.total === 1 ? "" : "s"}.{" "}
+        Showing {shown.length} of {page.total} version{page.total === 1 ? "" : "s"}.{" "}
         {page.next_after_revision_no !== null ? (
           <button type="button" className="link-button" onClick={() => onMore(page.next_after_revision_no ?? 0)}>
             Show later versions
@@ -419,6 +440,7 @@ export function SiteFinancialsOverview({
   const [params, setParams] = useSearchParams();
   const findingId = params.get("finding_id");
   const revisionId = params.get("revision_id");
+  const consequenceRevisionId = params.get("consequence_revision_id");
   const bridge = useRead<FindingFinancialsBody | null>(
     () =>
       findingId === null
@@ -426,12 +448,25 @@ export function SiteFinancialsOverview({
         : client.getFindingFinancials(siteId, findingId, revisionId),
     [client, siteId, findingId, revisionId],
   );
+  // The exact consequence read waits for the bridge's exact Finding version, so both name the same version.
+  const pinnedRevision = bridge?.status === "loaded" && bridge.value !== null ? bridge.value.selection.revision_id : null;
+  const consequences = useRead<FindingConsequencesBody | null>(
+    () =>
+      findingId === null || pinnedRevision === null
+        ? Promise.resolve({ status: "loaded", value: null } as const)
+        : client.getFindingConsequences(siteId, findingId, { revisionId: pinnedRevision, consequenceRevisionId }),
+    [client, siteId, findingId, pinnedRevision, consequenceRevisionId],
+  );
   // Hold the exact version in the address once it is known, so reload and back keep the same version.
   useEffect(() => {
     if (bridge?.status === "loaded" && bridge.value !== null && revisionId === null && findingId !== null) {
       setParams({ finding_id: findingId, revision_id: bridge.value.selection.revision_id }, { replace: true });
     }
   }, [bridge, revisionId, findingId, setParams]);
+  const consequenceRead =
+    consequences === null || (consequences.status === "loaded" && consequences.value === null)
+      ? null
+      : (consequences as FinancialReadResult<FindingConsequencesBody>);
 
   return (
     <section className="site-financials" aria-label="Site financials overview">
@@ -440,7 +475,12 @@ export function SiteFinancialsOverview({
       ) : bridge.status !== "loaded" ? (
         <ReadRefused read={bridge} what="finding version" />
       ) : bridge.value !== null ? (
-        <FindingBridge body={bridge.value} links={links} />
+        <FindingBridge
+          bridge={bridge.value}
+          consequences={consequenceRead}
+          links={links}
+          pinnedConsequence={consequenceRevisionId}
+        />
       ) : (
         <Panel heading="What this finding means in money" headingId="site-financials-bridge-heading">
           <p data-financials-bridge="none">
@@ -451,60 +491,6 @@ export function SiteFinancialsOverview({
       )}
       <PriceInUse siteId={siteId} client={client} links={links} />
     </section>
-  );
-}
-
-function FindingBridge({ body, links }: { body: FindingFinancialsBody; links: FinancialsLinks }) {
-  const c = body.consequence;
-  const findingId = body.finding.id;
-  const rev = body.selection.revision_id;
-  return (
-    <Panel
-      heading="What this finding means in money"
-      headingId="site-financials-bridge-heading"
-      description="Financials have no status of their own; the finding keeps its own status."
-    >
-      <div
-        data-financials-bridge={c.state}
-        data-finding-id={findingId}
-        data-finding-revision={rev}
-        data-financials-amount="none"
-      >
-        <p className="financials-lead">
-          <strong>{body.revision.title}</strong>, version {body.revision.revision_no}
-          {body.selection.is_latest ? " (latest)" : " (an earlier version)"}, {formatInstant(body.window.start)} to{" "}
-          {formatInstant(body.window.end)}.
-        </p>
-        {body.audit_only ? <p className="notice">{body.audit_only.statement}</p> : null}
-        <FactList>
-          <Fact term="Cost">
-            {c.state === "QUANTITY_UNAVAILABLE" ? "Not calculated" : "No price for the whole window"}
-          </Fact>
-          <Fact term="Why">{c.reason}</Fact>
-        </FactList>
-        <p>
-          <Link to={links.evidence(findingId, rev)}>See the evidence for this finding version</Link>
-          {" · "}
-          <Link to={links.finding(findingId, rev)}>Back to the finding</Link>
-        </p>
-        <Disclosure summary="Record details" name="finding-financials-record">
-          <FactList>
-            <Fact term="Finding ID">
-              <code data-vocabulary-exempt="source-reference">{findingId}</code>
-            </Fact>
-            <Fact term="Finding version ID">
-              <code data-vocabulary-exempt="source-reference">{rev}</code>
-            </Fact>
-            <Fact term="Money state">
-              <code data-vocabulary-exempt="source-reference">{c.state}</code>
-            </Fact>
-            <Fact term="Quantity source">
-              <code data-vocabulary-exempt="source-reference">{c.quantity_source}</code>
-            </Fact>
-          </FactList>
-        </Disclosure>
-      </div>
-    </Panel>
   );
 }
 
