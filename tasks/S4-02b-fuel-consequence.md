@@ -1,6 +1,6 @@
 # S4-02b — bounded fuel consequence and repricing
 
-Status: active (activated 2026-10-14 from main `14ad5ef`; owner choice `.agent/owner-next-work-2026-10-14.md`, 3.63% contest); second M slice of S4-02. Architect Q1/C4 answered 2026-10-13 (`.agent/architect-S4-02-answers.md`: conditional 1.10 multiplier ratified; fail-closed containment), applied in item 2
+Status: in_review (phases 1, 2a, 2b built 2026-10-14; packet `.agent/S4-02b-review-packet.md`). Activated 2026-10-14 from main `14ad5ef`; owner choice `.agent/owner-next-work-2026-10-14.md`, 3.63% contest); second M slice of S4-02. Architect Q1/C4 answered 2026-10-13 (`.agent/architect-S4-02-answers.md`: conditional 1.10 multiplier ratified; fail-closed containment), applied in item 2
 USER_REVIEW_REQUIRED: true (S4-02 owner checkpoint after fresh review)
 Milestone: S4 Finding + Financials
 Depends on: reviewed/merged S4-02a, merged S4-01/S4-03, resolved `A-S4-financial`; S4-04 is not a technical gate
