@@ -297,7 +297,11 @@ class PostgresConsequenceStore:
     def chain(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, finding_revision_id: UUID, *,
               consequence_revision_id: UUID | None, after_revision_no: int, limit: int) -> dict[str, Any]:
         """One snapshot of a FindingRevision's consequence chain: its head, an optional exact revision, a
-        keyset page, the lineage links of every returned revision and the pending work that touches it."""
+        keyset page, the lineage links of every returned revision and the pending work that touches it.
+
+        Pending work touches the read when it names this Finding (a FindingRevision append, or S4-02c accepted
+        evidence: matched by Finding, its queued revision is only a locator kept for diagnostics) or when an
+        assumption publication's affected range overlaps the FindingRevision's window."""
         scope = {"t": tenant_id, "s": site_id, "f": finding_id, "r": finding_revision_id,
                  "k": fc.CONSEQUENCE_TYPE}
 
@@ -327,13 +331,15 @@ class PostgresConsequenceStore:
             window = c.execute(text("SELECT episode_start, episode_end FROM finding_revision WHERE tenant_id = :t "
                                     "AND site_id = :s AND id = :r"), scope).first()
             pending = [] if window is None else [dict(x._mapping) for x in c.execute(text(
-                "SELECT w.id, w.cause, w.assumption_revision_id, w.finding_revision_id, w.affected_from, "
+                "SELECT w.id, w.cause, w.assumption_revision_id, w.finding_revision_id, w.accepted_evidence_id, "
+                "w.affected_from, "
                 "w.affected_to, w.enqueued_at, (SELECT count(*) FROM financial_consequence_work_attempt a "
                 "WHERE a.work_id = w.id) AS attempts, (SELECT a.error_code FROM financial_consequence_work_attempt a "
                 "WHERE a.work_id = w.id ORDER BY a.attempt_no DESC LIMIT 1) AS last_error_code "
                 "FROM financial_consequence_work w WHERE w.tenant_id = :t AND w.site_id = :s "
                 "AND NOT EXISTS (SELECT 1 FROM financial_consequence_work_attempt a WHERE a.work_id = w.id "
-                "AND a.outcome = 'SUCCEEDED') AND ((w.cause = 'FINDING_REVISION_APPENDED' AND w.finding_id = :f) "
+                "AND a.outcome = 'SUCCEEDED') AND ((w.cause IN ('FINDING_REVISION_APPENDED', 'EVIDENCE_ACCEPTED') "
+                "AND w.finding_id = :f) "
                 "OR (w.cause = 'ASSUMPTION_PUBLISHED' AND (w.affected_to IS NULL OR w.affected_to > :lo) "
                 "AND w.affected_from < :hi)) ORDER BY w.enqueued_at, w.id"),
                 {**scope, "lo": window[0], "hi": window[1]})]

@@ -10,6 +10,8 @@ FindingRevision that predates 0011). This worker drains them:
   consequence chain, even when a later revision has since superseded it).
 - `ASSUMPTION_PUBLISHED` recomputes the latest revision of every Finding whose episode overlaps the
   publication's affected valid range `[affected_from, affected_to)`.
+- Any other cause (S4-02c's `EVIDENCE_ACCEPTED` until its scoped drain lands, or an unknown one) records a typed
+  `CAUSE_NOT_SUPPORTED` FAILED attempt and stays pending; it never falls through to an assumption-range recompute.
 
 Each target is derived from the exact persisted inputs and the price timeline known now, and appended
 idempotently: an unchanged basis replays the stored ID (review M1 keeps an unrelated publication from
@@ -31,6 +33,15 @@ from assetops_backend.financials import fuel_cost as fc
 ERROR_STORE_UNAVAILABLE = "STORE_UNAVAILABLE"
 ERROR_FINDING_REVISION_NOT_FOUND = "FINDING_REVISION_NOT_FOUND"
 ERROR_RECOMPUTE_FAILED = "RECOMPUTE_FAILED"
+ERROR_CAUSE_NOT_SUPPORTED = "CAUSE_NOT_SUPPORTED"
+
+CAUSE_FINDING_REVISION = "FINDING_REVISION_APPENDED"
+CAUSE_ASSUMPTION = "ASSUMPTION_PUBLISHED"
+
+
+class CauseNotSupported(LookupError):
+    """A work cause this worker does not dispatch (S4-02c review L3): recorded as a typed FAILED attempt, never
+    treated as an assumption-range recompute. `EVIDENCE_ACCEPTED` stays here until its scoped drain exists."""
 
 
 class ConsequenceStore(Protocol):
@@ -94,10 +105,13 @@ class ConsequenceRecomputeWorker:
         self._unavailable = unavailable
 
     def targets(self, tenant_id: UUID, site_id: UUID, work: dict[str, Any]) -> list[tuple[UUID, UUID]]:
-        if work["cause"] == "FINDING_REVISION_APPENDED":
+        cause = work["cause"]
+        if cause == CAUSE_FINDING_REVISION:
             return [(work["finding_id"], work["finding_revision_id"])]
-        return self._store.latest_revisions_overlapping(tenant_id, site_id, work["affected_from"],
-                                                        work["affected_to"])
+        if cause == CAUSE_ASSUMPTION:
+            return self._store.latest_revisions_overlapping(tenant_id, site_id, work["affected_from"],
+                                                            work["affected_to"])
+        raise CauseNotSupported(f"Consequence work cause {cause!r} is not dispatched by this worker.")
 
     def process(self, tenant_id: UUID, site_id: UUID, work: dict[str, Any]) -> WorkOutcome:
         out = WorkOutcome(work["id"], work["cause"], False, 0)
@@ -107,6 +121,8 @@ class ConsequenceRecomputeWorker:
                                                      revision_id))
                 out.consequence_revision_ids.append(appended.consequence_revision_id)
                 (out.replayed if appended.replayed else out.appended).append(appended.consequence_revision_id)
+        except CauseNotSupported as error:
+            out.error_code, out.error_detail = ERROR_CAUSE_NOT_SUPPORTED, str(error)
         except FindingRevisionMissing as error:
             out.error_code, out.error_detail = ERROR_FINDING_REVISION_NOT_FOUND, str(error)
         except self._unavailable as error:
