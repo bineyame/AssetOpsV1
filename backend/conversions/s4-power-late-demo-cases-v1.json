@@ -7,7 +7,8 @@
   "derived_from": "s4-power-demo-cases-v1 P01-power",
   "site_code": "KOBO-001",
   "power_rules": {"device": "generator-controller", "signal": "ac-power", "measurement": "INTERVAL_MEAN",
-                  "mean_minutes": 5, "quality": "GOOD"},
+                  "mean_minutes": 5, "quality": "GOOD",
+                  "sequence_rule": "SOURCE_ORDER: every power mean of the case (delivered on time or late) is numbered in its source-time order within the epoch, as a store-and-forward gateway numbers readings when it takes them; the first delivery therefore leaves a gap at the withheld mean's sequence number, and the late delivery fills it. Appending the late mean after the last sequence instead inverts source order (S3 limitation SEQUENCE_ORDER_INVERTED)."},
   "cases": [
     {"case_id": "P02-power-late", "label": "authored late power-mean demonstration (S4-02c)", "day": "2026-10-24",
      "steps": [

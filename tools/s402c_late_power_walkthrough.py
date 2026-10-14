@@ -108,6 +108,39 @@ class LateWalk(p.PowerCases):
         self.out: dict[str, Any] = {"spec": self.power_spec["label"], "case_id": self.case["case_id"],
                                     "database": args.db, "commands": [], "checks": []}
 
+    def power_envelopes(self, step: dict[str, Any], epoch: str) -> list[tuple[str, str]]:
+        """The S4-02b envelopes, but numbered by the spec's SOURCE_ORDER rule: each mean's sequence is its
+        position in source-time order among ALL the case's means (on-time and late), so the late mean fills the
+        gap the first delivery left instead of being appended after the last sequence."""
+        from datetime import timedelta
+
+        mins = self.power_spec["power_rules"]["mean_minutes"]
+        ends = []
+        blocks = [b for st in self.case["steps"] if st["do"] == "deliver_power" for b in st["means"]]
+        for block in blocks + self.late["means"]:
+            end = s4.instant(block["first_end"])
+            while end <= s4.instant(block["last_end"]):
+                ends.append(end)
+                end += timedelta(minutes=mins)
+        order = {e: n for n, e in enumerate(sorted(ends), start=1)}
+        out = super().power_envelopes(step, epoch)  # S4-02b envelopes; only the sequence is renumbered
+        import dataclasses
+
+        from assetops_contracts.source_envelope_v3 import (canonical_envelope_v3_text,
+                                                           parse_canonical_envelope_v3_text,
+                                                           v3_message_id)
+
+        fixed, self.last_sequences = [], []
+        for device, text_ in out:
+            env = parse_canonical_envelope_v3_text(text_)
+            seq = order[s4.instant(env.interval_end)]
+            env = dataclasses.replace(env, sequence=seq, message_id=v3_message_id(
+                site_id=env.site_id, gateway_id=env.gateway_id, source_id=env.source_id,
+                sequence_epoch=env.sequence_epoch, sequence=seq))
+            self.last_sequences.append(seq)
+            fixed.append((device, canonical_envelope_v3_text(env)))
+        return fixed
+
     # ------------------------------------------------------------------ helpers
     def expect(self, name: str, ok: bool, detail: Any = None) -> bool:
         self.out["checks"].append({"check": name, "ok": bool(ok), **({"detail": detail} if detail is not None else {})})
@@ -220,9 +253,11 @@ class LateWalk(p.PowerCases):
 
         step("2. Leg A: the withheld mean is accepted late (same registered credential, TLS)")
         late_batches = self.post(self.power_envelopes(self.late, s4.EPOCH_PREFIX + self.late["epoch"]))
+        late_sequences = list(self.last_sequences)
         (late_id,) = self.accepted(late_batches)
         o["late"] = {"batch_ids": late_batches, "accepted_evidence_id": late_id,
-                     "decided_label": self.late["decided"]}
+                     "decided_label": self.late["decided"],
+                     "source_sequence": late_sequences}
         say(f"  late accepted evidence {late_id}")
         ev = [w for w in self.work_rows() if w["cause"] == "EVIDENCE_ACCEPTED"]
         o["leg_a_work_before"] = ev
