@@ -341,8 +341,11 @@ class TestRunner:
         failing = FailFor(site.store, {rev["id"]})
         run = worker(site, store=failing).run
         t0 = datetime.now(timezone.utc)
-        (o1,) = run(site.tenant, site.site, limit=10, now=t0).outcomes
+        r1 = run(site.tenant, site.site, limit=10, now=t0)
+        (o1,) = r1.outcomes
         assert (o1.succeeded, o1.error_code, o1.attempt_no) == (False, ERROR_STORE_UNAVAILABLE, 1)
+        # Phase 2 review L1: the failed item stays in the backlog after the run that failed it.
+        assert (r1.counts()["failed"], r1.counts()["backlog"]) == (1, 1)
         f1 = attempts(engine, w["id"])[-1]["finished_at"]
         early = run(site.tenant, site.site, limit=10, now=f1 + timedelta(seconds=59))
         assert early.counts() == {"selected": 0, "appended": 0, "replayed": 0, "no_op": 0, "failed": 0,
@@ -388,6 +391,16 @@ class TestRunner:
             assert held
             skipped = worker(site).run(site.tenant, site.site, limit=10)
             assert (skipped.claimed, skipped.outcomes) == (False, [])
+            # Phase 2 review L1: the claim is keyed per Site (the held lock is this Site's runner key), so a
+            # claim on another Site is not blocked by it.
+            with engine.connect() as c:
+                assert c.execute(text(
+                    "SELECT count(*) FROM pg_locks WHERE locktype = 'advisory' AND granted AND database = "
+                    "(SELECT oid FROM pg_database WHERE datname = current_database()) AND objsubid = 1 AND "
+                    "((classid::bigint << 32) | objid::bigint) = hashtextextended(:k, 0)"),
+                    {"k": "financial_consequence_runner:" + str(site.site)}).scalar_one() == 1
+            with site.store.claim_site(site.tenant, uuid4()) as other_site:
+                assert other_site
         assert len(site.store.pending_work(site.tenant, site.site)) == 1
         code = ("import sys, time\n"
                 "from uuid import UUID\n"
@@ -454,7 +467,8 @@ class TestRunner:
             drained += r["selected"]
             if r["backlog"] == 0:
                 break
-        print(f"R2 drain: {drained} rows in bounded runs of 100, {time.perf_counter() - t:.1f}s after the first run")
+        print(f"R2 drain: {drained} rows (incl. the first run of 100); the remaining {drained - c1['selected']} "
+              f"drained in {time.perf_counter() - t:.1f}s")
         assert drained == total and site.store.pending_work(site.tenant, site.site) == []
         no_duplicate_basis(engine)
         with engine.connect() as c:

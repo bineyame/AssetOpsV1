@@ -96,6 +96,17 @@ python -m assetops_backend.recompute_consequences pending --tenant demo --site K
 - **Recovery:** nothing manual. A failed item records a typed FAILED attempt and stays pending; it is retried
   1, 2, 4, 8, 16 minutes after its last failure, then every 16 minutes, with no cap. A killed run's lock is
   released with its connection; the next tick resumes, and an append-then-crash replays the same consequence ID.
+- **Hung runner (alarm):** the run is not bounded by a timeout. A run that hangs (rather than dies) keeps its
+  connection and its Site claim, so every later tick prints `"skipped": true` and still exits 0, and "Do not
+  start a new instance" hides it further. Repeated `skipped` across consecutive ticks for one Site is the alarm
+  signal: find the holding session (`pg_locks` advisory lock on `financial_consequence_runner:<site>`, or the
+  stuck process) and end it; its lock is released with its connection and the next tick resumes.
+- **Permanent failures (retry volume):** a deterministic failure (for example `EVIDENCE_NOT_ACCEPTED`,
+  `EVIDENCE_LOCATOR_NOT_IN_SITE` or a `RECOMPUTE_FAILED` code defect) fails on every retry and appends about 90
+  FAILED attempts per day per row, indefinitely; there is no terminal state or alert. Watch `pending` for rows
+  whose attempt count keeps growing and repair the cause. Past roughly 1600 such rows per Site at `--limit 100`
+  they alone would fill each run's capacity (FIFO-by-eligibility still bounds new work's delay, but the backlog
+  grows).
 - **Output:** one JSON line per processed item, then a summary line with the Site scope and the `selected`,
   `appended`, `replayed`, `no_op`, `failed`, `deferred` and `backlog` counts. Exit 1 when any item failed.
 - S3 `process-jobs` and S4 `match-findings` are not scheduled by this runner (packet risk R1).

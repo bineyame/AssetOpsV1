@@ -15,7 +15,7 @@ cases, the ordinary F01-gateway case and the authored P01-power demonstration ca
     python tools/s402b_fuel_cost_walkthrough.py ... links [--web-port 5372 --empty-web-port 5373]
     python tools/s402b_fuel_cost_walkthrough.py ... serve [--port 8872 --empty-port 8873]   # until Ctrl+C
     python tools/s402b_fuel_cost_walkthrough.py ... publish-v4      # the backdated October price correction
-    python tools/s402b_fuel_cost_walkthrough.py ... recompute [--empty]
+    python tools/s402b_fuel_cost_walkthrough.py ... recompute [--empty]   # recompute_consequences run --tenant demo
     python tools/s402b_fuel_cost_walkthrough.py ... close-gate | open-gate
     python tools/s402b_fuel_cost_walkthrough.py ... drop
 
@@ -161,8 +161,21 @@ def publish(work: Path, db: str, *steps: str) -> None:
 
 
 def recompute(work: Path, db: str) -> None:
-    out = tree_py(work, db, "-m", "assetops_backend.recompute_consequences", "run", "--site", SITE).stdout
-    items = [json.loads(x) for x in out.splitlines() if x.strip().startswith("{")]
+    # S4-02c: `run` needs the tenant, drains at most --limit items per call and ends with a summary line (no
+    # `work_id`); repeat bounded runs until nothing due is left, and count only the per-item lines.
+    items: list[dict] = []
+    for _ in range(50):
+        out = tree_py(work, db, "-m", "assetops_backend.recompute_consequences", "run", "--tenant", "demo",
+                      "--site", SITE, check=False)
+        if out.returncode not in (0, 1):
+            raise SystemExit(f"FAILED: recompute_consequences run (exit {out.returncode})
+{out.stdout}
+{out.stderr}")
+        lines = [json.loads(x) for x in out.stdout.splitlines() if x.strip().startswith("{")]
+        items += [x for x in lines if "work_id" in x]
+        tail = [x for x in lines if "work_id" not in x]
+        if not tail or tail[-1]["selected"] == 0 or tail[-1]["backlog"] == 0 or tail[-1]["failed"]:
+            break
     failed = [i for i in items if not i["succeeded"]]
     say(f"  {db}: {len(items)} work item(s), {len(failed)} failed, "
         f"{sum(len(i['appended']) for i in items)} fuel cost version(s) appended, "
