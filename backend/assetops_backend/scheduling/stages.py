@@ -147,7 +147,8 @@ def s4(url: str, args: dict[str, Any]) -> dict[str, Any]:
     completed = asdict(replace(out.fence, finding_revisions=out.fence.finding_revisions + len(out.revision_ids)))
     return {"code": "MATCHED", "fence": completed, "version": MATCHER_VERSION, "planned": out.planned,
             "finding_ids": list(out.finding_ids), "revision_ids": list(out.revision_ids),
-            "window_statuses": out.window_statuses}
+            "window_statuses": out.window_statuses,
+            "deferred_windows": [d.isoformat() for d in out.deferred_windows]}
 
 
 def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:

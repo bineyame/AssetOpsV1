@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Iterable
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
@@ -116,7 +116,7 @@ class PostgresFindingStore:
         return [Episode(str(r[0]), r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]) for r in rows]
 
     def apply(self, tenant_id: UUID, site_id: UUID, analytic_id: str, writes: list[Write], fence: Fence,
-              now: datetime) -> Applied:
+              now: datetime, *, deferred: Iterable[datetime] = ()) -> Applied:
         def work(c: Connection) -> Applied:
             c.execute(text("SELECT pg_advisory_xact_lock(hashtext('finding:' || :s))"), {"s": str(site_id)})
             if self._fence(c, tenant_id, site_id, analytic_id) != fence:
@@ -131,11 +131,14 @@ class PostgresFindingStore:
                 if rid is not None:
                     revisions.append(rid)
             # Q18: the pass itself is recorded, so "no Finding" can cite a completed match at that selection.
+            # The windows it deferred (a group touching a missing or non-CURRENT window within the continuity
+            # margin) are recorded on it: the pass did not match them, so `match_state` keeps them pending.
             c.execute(text("INSERT INTO finding_match_pass (id, tenant_id, site_id, analytic_id, selection_seq, "
-                           "matcher_version, revisions_written, completed_at) VALUES (:id, :t, :s, :a, :seq, "
-                           ":matcher, :n, :now)"),
+                           "matcher_version, revisions_written, completed_at, deferred_window_starts) VALUES "
+                           "(:id, :t, :s, :a, :seq, :matcher, :n, :now, CAST(:deferred AS timestamptz[]))"),
                       {"id": uuid4(), "t": tenant_id, "s": site_id, "a": analytic_id, "seq": fence.selection_seq,
-                       "matcher": MATCHER_VERSION, "n": len(revisions), "now": now})
+                       "matcher": MATCHER_VERSION, "n": len(revisions), "now": now,
+                       "deferred": sorted(deferred)})
             return Applied(tuple(findings), tuple(revisions))
 
         try:
@@ -403,20 +406,25 @@ class PostgresFindingStore:
 
     def match_state(self, tenant_id: UUID, site_id: UUID, analytic_id: str, window_start: datetime
                     ) -> dict[str, Any]:
-        """The window's current selection sequence and the latest completed pass of this matcher version."""
+        """The window's current selection sequence and the latest completed pass of this matcher version. The
+        window is matched only when that pass ran at or after its selection and did not defer it."""
         def work(c: Connection) -> dict[str, Any]:
             seq = c.execute(text("SELECT max(seq) FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
                                  "AND analytic_id = :a AND window_start = :w"),
                             {"t": tenant_id, "s": site_id, "a": analytic_id, "w": window_start}).scalar_one()
-            row = c.execute(text("SELECT id, selection_seq, completed_at FROM finding_match_pass WHERE tenant_id = :t "
+            row = c.execute(text("SELECT id, selection_seq, completed_at, :w = ANY(deferred_window_starts) "
+                                 "FROM finding_match_pass WHERE tenant_id = :t "
                                  "AND site_id = :s AND analytic_id = :a AND matcher_version = :m "
                                  "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"),
-                            {"t": tenant_id, "s": site_id, "a": analytic_id, "m": MATCHER_VERSION}).one_or_none()
+                            {"t": tenant_id, "s": site_id, "a": analytic_id, "m": MATCHER_VERSION,
+                             "w": window_start}).one_or_none()
+            deferred = row is not None and bool(row[3])
             return {"window_selection_seq": seq, "matcher_version": MATCHER_VERSION,
                     "match_pass_id": None if row is None else str(row[0]),
                     "matched_through_selection_seq": None if row is None else row[1],
                     "match_completed_at": None if row is None else row[2],
-                    "matched": seq is not None and row is not None and row[1] >= seq}
+                    "match_deferred": deferred,
+                    "matched": seq is not None and row is not None and row[1] >= seq and not deferred}
         return self._read(work)
 
     def findings_over(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> list[dict[str, Any]]:

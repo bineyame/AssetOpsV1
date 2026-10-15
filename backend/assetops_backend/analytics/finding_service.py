@@ -17,7 +17,7 @@ from uuid import UUID
 
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.dispatch_read import DispatchReadService
-from assetops_backend.analytics.finding_episode import WindowBasis, plan, window_basis
+from assetops_backend.analytics.finding_episode import WindowBasis, plan_pass, window_basis
 
 
 @dataclass(frozen=True)
@@ -29,6 +29,8 @@ class MatchOutcome:
     #: The matcher fence the successful pass applied under (S4-02d: the schedule records it, advanced by the
     #: revisions this pass appended, as the Site's last completed fence).
     fence: Any = None
+    #: Starts of the windows this pass deferred (recorded on the pass; `match_state` reads them as not matched).
+    deferred_windows: tuple[datetime, ...] = ()
 
 
 class FindingMatcher:
@@ -62,13 +64,16 @@ class FindingMatcher:
             analytic = self.model.ANALYTIC_ID
             fence = self.findings.fence(tenant_id, site_id, analytic)
             reads, bases = self.bases(tenant_id, site_id)
-            writes = plan(bases, self.findings.episodes(tenant_id, site_id), self.model.MODEL_VERSION)
+            writes, deferred = plan_pass(bases, self.findings.episodes(tenant_id, site_id),
+                                         self.model.MODEL_VERSION)
             statuses = {r["window"]["start"].date().isoformat(): r["status"] for r in reads}
             try:
-                applied = self.findings.apply(tenant_id, site_id, analytic, writes, fence, self.now())
+                applied = self.findings.apply(tenant_id, site_id, analytic, writes, fence, self.now(),
+                                              deferred=deferred)
             except self.fence_moved:
                 if attempt + 1 == self.attempts:
                     raise
                 continue
-            return MatchOutcome(len(writes), applied.finding_ids, applied.revision_ids, statuses, fence)
+            return MatchOutcome(len(writes), applied.finding_ids, applied.revision_ids, statuses, fence,
+                                tuple(sorted(deferred)))
         raise AssertionError("unreachable")
