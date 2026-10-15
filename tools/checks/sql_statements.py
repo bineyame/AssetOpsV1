@@ -30,20 +30,19 @@ import sys
 from pathlib import Path
 
 UNKNOWN = "{?}"
-_COMMENT_BLOCK = re.compile(r"/\*.*?\*/", re.S)
-_COMMENT_LINE = re.compile(r"--[^\n]*")
+# A comment marker inside a '...', "..." or $$...$$ literal is text, not a comment.
+_COMMENT = re.compile(r"""('[^']*(?:''[^']*)*'|"[^"]*(?:""[^"]*)*"|\$\$.*?\$\$)|/\*.*?\*/|--[^\n]*""", re.S)
 _SPACE = re.compile(r"\s+")
 # Write heads. Lookbehinds are fixed-width because whitespace is already collapsed to one space.
 _HEAD = re.compile(
-    r"(?i)(?<![\w.])(?<!\bDO )(?<!\bTHEN )(?<!\bFOR )(?<!\bKEY )(?:UPDATE\b|INSERT\s+INTO\b|DELETE\s+FROM\b|DELETE\b|TRUNCATE\b|"
+    r"(?i)(?<![\w.])(?<!\bDO )(?<!\bTHEN )(?<!\bFOR )(?<!\bKEY )(?<!\bAS )(?:UPDATE\b|INSERT\s+INTO\b|DELETE\s+FROM\b|DELETE\b|TRUNCATE\b|"
     r"MERGE\s+INTO\b|COPY\b|CREATE\b|ALTER\b|DROP\b|GRANT\b)")
 _CORE_VERBS = {"insert", "update", "delete"}
 _TABLE_CTORS = {"table", "Table"}
 
 
 def normalize(sql: str) -> str:
-    sql = _COMMENT_BLOCK.sub(" ", sql)
-    sql = _COMMENT_LINE.sub(" ", sql)
+    sql = _COMMENT.sub(lambda m: m.group(1) or " ", sql)
     return _SPACE.sub(" ", sql).strip()
 
 
@@ -67,9 +66,9 @@ class Renderer:
         self.consumed: set[int] = set()
 
     def render(self, node: ast.AST) -> str | None:
-        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        if isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes)):
             self.consumed.add(id(node))
-            return node.value
+            return node.value if isinstance(node.value, str) else node.value.decode("latin-1")
         if isinstance(node, ast.JoinedStr):
             self.consumed.add(id(node))
             parts = []
@@ -122,6 +121,8 @@ def _sqlalchemy_names(tree: ast.Module) -> tuple[dict[str, str], set[str], set[s
                     verbs[bound] = alias.name
                 elif alias.name in _TABLE_CTORS:
                     tables.add(bound)
+                else:  # `from sqlalchemy.dialects import postgresql`, `from sqlalchemy import sql`: a namespace
+                    modules.add(bound)
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 if alias.name.split(".")[0] == "sqlalchemy":
@@ -129,13 +130,19 @@ def _sqlalchemy_names(tree: ast.Module) -> tuple[dict[str, str], set[str], set[s
     return verbs, tables, modules
 
 
+def _root(node: ast.AST) -> str | None:
+    """The root name of a dotted chain: `sqlalchemy.dialects.postgresql` -> `sqlalchemy`."""
+    while isinstance(node, ast.Attribute):
+        node = node.value
+    return node.id if isinstance(node, ast.Name) else None
+
+
 def _literal_table(node: ast.AST, tables: set[str], modules: set[str]) -> str | None:
     if not isinstance(node, ast.Call) or not node.args:
         return None
     func = node.func
     is_ctor = (isinstance(func, ast.Name) and func.id in tables) or (
-        isinstance(func, ast.Attribute) and func.attr in _TABLE_CTORS and isinstance(func.value, ast.Name)
-        and func.value.id in modules)
+        isinstance(func, ast.Attribute) and func.attr in _TABLE_CTORS and _root(func.value) in modules)
     first = node.args[0]
     if is_ctor and isinstance(first, ast.Constant) and isinstance(first.value, str):
         return first.value
@@ -198,7 +205,7 @@ def extract(path: str, source: str) -> list[dict[str, object]]:
                 verb = verbs[func.id]
                 table = _literal_table(node.args[0], tables, modules) if node.args else None
             elif isinstance(func, ast.Attribute) and func.attr in _CORE_VERBS:
-                if isinstance(func.value, ast.Name) and func.value.id in modules:
+                if _root(func.value) in modules:
                     verb = func.attr
                     table = _literal_table(node.args[0], tables, modules) if node.args else None
                 elif (tables or modules) and not node.args and not node.keywords:
@@ -225,8 +232,9 @@ def extract(path: str, source: str) -> list[dict[str, object]]:
 def main() -> int:
     root = Path.cwd()
     results: list[dict[str, object]] = []
-    for raw in sys.stdin.read().splitlines():
-        rel = raw.strip()
+    # PowerShell 5.1 prefixes native stdin with a UTF-8 BOM under a UTF-8 console code page.
+    for raw in sys.stdin.buffer.read().decode("utf-8-sig").splitlines():
+        rel = raw.strip().lstrip("﻿")
         if not rel:
             continue
         try:

@@ -688,7 +688,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $sqlTarget = '(?i)^(?:INSERT\s+INTO|UPDATE(?:\s+ONLY)?|DELETE\s+FROM(?:\s+ONLY)?|TRUNCATE(?:\s+TABLE)?(?:\s+ONLY)?|MERGE\s+INTO|COPY)\s+(?:"?[a-z_][a-z0-9_]*"?\.)?"?([a-z_][a-z0-9_]*)"?(?=[\s(;]|$)'
     $sqlDml = '(?i)^(?:INSERT|UPDATE|DELETE|TRUNCATE|MERGE|COPY)\b'
     # A write head with nothing after its target was assembled outside one expression (`sql += ...`).
-    $sqlFragment = '^(?:UPDATE|INSERT INTO|DELETE FROM|MERGE INTO|insert into|delete from|merge into)(?: \S+)?$'
+    $sqlFragment = '^(?:UPDATE \S+|(?:INSERT INTO|DELETE FROM|MERGE INTO)(?: \S+)?)$'
     # The interpreter is found as tools/check-all.ps1 finds it (its -Python override arrives as
     # ASSETOPS_GUARD_PYTHON; default: the repository .venv). A guard that cannot run fails; it never skips.
     $guardPython = $env:ASSETOPS_GUARD_PYTHON
@@ -751,9 +751,9 @@ function Invoke-ConfigurationPersistenceCheck {
                 $failures.Add(("A product write names its target table literally (no format, concatenation or " +
                     "dynamic SQLAlchemy table); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
             }
-            if ($line -cmatch $sqlFragment) {
-                $failures.Add(("A product write statement is assembled in one expression so its table and columns " +
-                    "can be checked; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            if ($line -match $sqlFragment) {
+                $failures.Add(("A product write statement ends before its SET, VALUES or WHERE clause (an incomplete statement, " +
+                    "or one assembled across expressions); write it as one literal so its table and columns can be checked; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
             }
             if ($line -match $sqlWrite) {
                 if (-not $isWriter) {
