@@ -271,3 +271,46 @@ def test_on_time_sequenced_attested_upload_is_eligible_at_15_8125(store, engine,
         assert days and all(x["window_assessment_revision_id"] and x["analytic_run_id"] for x in days)
     finally:
         w.close()
+
+
+def test_production_composition_wires_the_persisted_gate_and_a_failed_gate_shows_no_amount(store, engine, capsys) -> None:  # noqa: F811
+    """Architect ruling 5: `build_consequence_read_service` carries the persisted S3/S4 gate; an unreadable gate
+    (or none) never shows a current amount."""
+    from assetops_backend.financials.composition import build_consequence_read_service
+
+    w = Walk(store, engine, capsys, on_time=True)
+    prod = build_consequence_read_service(URL)
+    try:
+        w.attest()
+        w.deliver_first()
+        run_fixture(w.prices, capsys, "v1")
+        w.settle()
+        w.deliver_late()
+        w.settle()
+        rev = w.latest()
+
+        def read(service):
+            return service.read(w.r.tenant, w.r.site, rev["finding_id"], rev["id"],
+                                finding_revision_is_latest=True, source_open=True)
+
+        assert isinstance(prod._eligibility, MoneyEligibility)
+        wired = read(prod)  # the production composition reads the same persisted lineage
+        assert wired["money_eligibility"]["state"] == "ELIGIBLE"
+        assert wired["currentness"]["current_amount_shown"] is True and amount(wired) == Decimal("15.8125")
+
+        class Broken:
+            def for_finding(self, *a, **k):
+                raise RuntimeError("gate storage unavailable")
+
+        prod._eligibility = Broken()  # a failed gate read
+        failed = read(prod)
+        assert failed["money_eligibility"]["state"] == "PENDING_REASSESSMENT"
+        assert "ELIGIBILITY_READ_FAILED" in json.dumps(failed["money_eligibility"])
+        assert failed["currentness"]["current_amount_shown"] is False
+        assert bridge_consequence(failed)["amount"] is None
+        prod._eligibility = None  # an unwired service
+        assert read(prod)["currentness"]["current_amount_shown"] is False
+    finally:
+        w.close()
+        prod._store.dispose()
+        prod._prices.dispose()
