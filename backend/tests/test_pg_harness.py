@@ -53,6 +53,37 @@ def test_the_template_switch_turns_routing_off(clean_env) -> None:
     assert pg_harness.route() is None
 
 
+class _Config:
+    """The two attributes the xdist checks read: a controller has `option.numprocesses`, a worker `workerinput`."""
+
+    def __init__(self, numprocesses=None, workerinput=None) -> None:
+        self.option = type("Option", (), {"numprocesses": numprocesses})()
+        if workerinput is not None:
+            self.workerinput = workerinput
+
+
+@pytest.mark.parametrize("config", [_Config(numprocesses=2), _Config(workerinput={"workerid": "gw0"})],
+                         ids=["controller", "worker"])
+def test_the_template_opt_out_is_a_usage_error_under_xdist(clean_env, config) -> None:
+    import conftest
+
+    clean_env.setenv(pg_harness.ENV, BASE)
+    clean_env.setenv(pg_harness.TEMPLATE_SWITCH, "0")
+    with pytest.raises(pytest.UsageError, match="cannot be combined with pytest-xdist"):
+        conftest.refuse_template_opt_out_under_xdist(config)
+    assert pg_harness.RUN_ENV not in __import__("os").environ  # refused before any routing
+
+
+@pytest.mark.parametrize("config", [_Config(), _Config(numprocesses=0)], ids=["serial", "n0"])
+def test_the_template_opt_out_stays_valid_serially(clean_env, config) -> None:
+    import conftest
+
+    clean_env.setenv(pg_harness.TEMPLATE_SWITCH, "0")
+    conftest.refuse_template_opt_out_under_xdist(config)
+    clean_env.setenv(pg_harness.TEMPLATE_SWITCH, "1")
+    conftest.refuse_template_opt_out_under_xdist(_Config(numprocesses=2))
+
+
 def test_an_xdist_worker_routes_to_its_own_database_in_the_controllers_run(clean_env) -> None:
     import os
 
