@@ -1,6 +1,6 @@
 # S4-06 — equal-start future price succession
 
-Status: active (activated 2026-10-15 from main under the owner-absence work order `D-2026-10-15-owner-absence-work-order`; plan review ACCEPT `.agent/small-followons-plan-review.md`); was implementation-ready
+Status: in_review (built 2026-10-15 on `task/S4-06-price-succession`; packet `.agent/S4-06-review-packet.md`; activated from main under `D-2026-10-15-owner-absence-work-order`, plan review ACCEPT `.agent/small-followons-plan-review.md`)
 Size: S; one build and one fresh independent review
 Branch when activated: `task/S4-06-price-succession`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; no owner-facing copy or visual change)
