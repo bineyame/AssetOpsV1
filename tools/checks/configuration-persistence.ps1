@@ -817,7 +817,13 @@ function Invoke-ConfigurationPersistenceCheck {
             # Phase-1 review L1: the write rules above need a whole statement on one line, so a split
             # "UPDATE evidence_publication" / "SET ..." would pass them. Refuse UPDATE, DELETE FROM or TRUNCATE
             # followed by a provenance table name in any module (the ledger included), whatever follows.
-            if ($line -match '(?i)\b(?:UPDATE|DELETE\s+FROM|TRUNCATE(?:\s+TABLE)?)\s+(?:ONLY\s+)?"?(?:evidence_publication|batch_publication_link)\b') {
+            # Phase-1 fix L1: also schema-qualified and quoted names, and the verb ending one line with the
+            # table name beginning the next.
+            $provName = '(?:"?[a-z_]+"?\s*\.\s*)?"?(?:evidence_publication|batch_publication_link)"?(?![a-z_])'
+            $provVerb = '(?i)\b(?:UPDATE|DELETE\s+FROM|TRUNCATE(?:\s+TABLE)?)(?:\s+ONLY)?'
+            $nextLine = if ($lineNumber -lt $module.Lines.Count) { [string]$module.Lines[$lineNumber] } else { '' }
+            if ($line -match "$provVerb\s+$provName" -or
+                    ($line -match "$provVerb\s*`$" -and $nextLine -match "(?i)^\s*$provName")) {
                 $failures.Add(("Source provenance is insert-only: no UPDATE, DELETE or TRUNCATE in any module " +
                     "(split statements included); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
             }

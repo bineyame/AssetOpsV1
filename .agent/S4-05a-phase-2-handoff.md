@@ -42,3 +42,9 @@ Branch `task/S4-05a-provenance-binding-resolver` (worktree `AssetOpsV1-review3`)
   baseline already includes the new 7-column unique index `ingestion_batch_commitment_unique`; the added cost
   of that index on batch INSERT is not separated out.
 - Migration re-chain (0014 vs LR-01/S6-01a) and the S5-01 amendment (N-L3) are unchanged from phase 1.
+
+## Fix-round amendment (S4-05b contract)
+
+`consequence_revision(...)["state"]` is UNKNOWN whenever `finding_revision_state` is UNKNOWN (including
+`EMPTY_CITATION_SET`), regardless of power inputs; the Finding part's reasons are carried first. S4-05b must not
+present a positive or MIXED consequence provenance beside an UNKNOWN Finding revision.

@@ -76,7 +76,14 @@ USER_REVIEW_REQUIRED: false (no UI). This phase-2 review is the slice review.
 - On UNKNOWN by precedence, `reasons` name only the UNKNOWN causes (the MIXED causes of the rest are not listed);
   per-ID `evidence[]` still shows every binding.
 - `CONSEQUENCE_POWER_INPUT_CONFLICT` is added whenever the union is MIXED and the FindingRevision set alone is not
-  (including a finding set that is UNKNOWN); its IDs are the power-only IDs.
+  MIXED and not UNKNOWN; its IDs are the power-only IDs.
+- Fix round L2 (supersedes the earlier "including UNKNOWN" wording): when the FindingRevision part resolves UNKNOWN
+  (incl. `EMPTY_CITATION_SET`), the consequence state is UNKNOWN, never positive or MIXED, and carries the finding
+  part's reasons first (then any further union reasons with other codes). Fail closed, consistent with
+  `D-2026-10-15-s405-stored-demo-provenance`. Tests: `test_unknown_finding_part_makes_the_consequence_unknown_never_positive`
+  (pure) and `test_unknown_finding_makes_its_consequence_unknown_even_with_bound_power_inputs` (Postgres).
+- Fix round L1: rule 8 refuses UPDATE/DELETE FROM/TRUNCATE on a provenance table when schema-qualified, quoted, or
+  split with the table name on the next line, in any module.
 - The packet said S4-05b owns the final full suite; the phase-2 dispatch asked for one here, so it was run.
 
 ## Residual risk
