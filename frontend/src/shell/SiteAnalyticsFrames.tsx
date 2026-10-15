@@ -1,8 +1,15 @@
 import { useCallback, useState, type ReactNode } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
+import {
+  createFindingIndexClient,
+  FINDING_INDEX_DOMAIN,
+  type FindingIndexClient,
+  type FindingIndexScope,
+} from "../sites/findingIndexClient";
+import { SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
@@ -152,16 +159,54 @@ export function SitePerformanceFrame({
 
 export const SITE_FINDINGS_HEADING_ID = "site-findings-page-heading";
 
+const DEFAULT_FINDING_INDEX = createFindingIndexClient();
+
+/** Today's UTC day, `[00:00Z, next 00:00Z)`: the window when the URL names none. */
+function todayWindow(now: Date = new Date()): { from: string; to: string } {
+  const day = now.toISOString().slice(0, 10);
+  const next = new Date(`${day}T00:00:00Z`);
+  next.setUTCDate(next.getUTCDate() + 1);
+  return { from: `${day}T00:00:00Z`, to: `${next.toISOString().slice(0, 10)}T00:00:00Z` };
+}
+
+/**
+ * S4-04: the index scope persisted in the URL (`?domain=&from=&to=&limit=&cursor=`),
+ * so reload, back and a shared link reopen the same window and page.
+ */
+export function findingIndexScopeQuery(scope: FindingIndexScope): string {
+  const query = new URLSearchParams({ domain: scope.domain, from: scope.from, to: scope.to });
+  if (scope.limit) query.set("limit", String(scope.limit));
+  if (scope.cursor) query.set("cursor", scope.cursor);
+  return query.toString();
+}
+
+function scopeFromQuery(params: URLSearchParams): FindingIndexScope {
+  const today = todayWindow();
+  const limit = Number(params.get("limit"));
+  return {
+    domain: params.get("domain") ?? FINDING_INDEX_DOMAIN,
+    from: params.get("from") ?? today.from,
+    to: params.get("to") ?? today.to,
+    limit: params.get("limit") === null || !Number.isFinite(limit) ? null : limit,
+    cursor: params.get("cursor"),
+  };
+}
+
 export function SiteFindingsFrame({
   detail,
   analytics,
   sitesPath,
+  findingIndex = DEFAULT_FINDING_INDEX,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
+  findingIndex?: FindingIndexClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const scope = scopeFromQuery(params);
   return (
     <SiteScoped
       siteId={siteId}
@@ -184,12 +229,24 @@ export function SiteFindingsFrame({
             subtitle={`${site.display_name} · ${site.site_id}`}
           />
           <OperatorSiteTabs siteId={siteId} current="Findings" />
-          <SiteFindings
+          <SiteFindingIndex
             siteId={site.site_id}
-            client={analytics}
-            profile={presentationProfileFor(site.site_type)}
-            findingHref={(id, tab) => findingHref(site.site_id, id, tab)}
-            dispatchHref={sitePerformanceHref(site.site_id, "dispatch")}
+            client={findingIndex}
+            scope={scope}
+            links={{
+              scope: (next) => `${siteFindingsHref(site.site_id)}?${findingIndexScopeQuery(next)}`,
+              finding: (id, revisionId) => siteFindingHref(site.site_id, id, revisionId),
+            }}
+            onScope={(next) => navigate(`${siteFindingsHref(site.site_id)}?${findingIndexScopeQuery(next)}`)}
+            fallback={
+              <SiteFindings
+                siteId={site.site_id}
+                client={analytics}
+                profile={presentationProfileFor(site.site_type)}
+                findingHref={(id, tab) => findingHref(site.site_id, id, tab)}
+                dispatchHref={sitePerformanceHref(site.site_id, "dispatch")}
+              />
+            }
           />
         </main>
       )}
