@@ -287,6 +287,17 @@ class TestRevisionSets:
             s.prices.dispose()
             s.store.dispose()
 
+    def test_unknown_finding_makes_its_consequence_unknown_even_with_bound_power_inputs(
+            self, store, engine, capsys, monkeypatch, resolver) -> None:  # noqa: F811
+        s, rev, cid = power_site(store, engine, capsys, monkeypatch, lambda d, t: P01 if is_power(t) else None)
+        try:
+            c = resolver.consequence_revision(s.tenant, s.site, cid)
+            assert c["finding_revision_state"] == sp.UNKNOWN and c["state"] == sp.UNKNOWN, c["reasons"]
+            assert codes(c)[0] == sp.NO_POSITIVE_BINDING
+        finally:
+            s.prices.dispose()
+            s.store.dispose()
+
     def test_consequence_only_power_input_is_mixed_beside_its_finding(
             self, store, engine, capsys, monkeypatch, resolver) -> None:  # noqa: F811
         s, rev, cid = power_site(store, engine, capsys, monkeypatch, lambda d, t: P02 if is_power(t) else P01)

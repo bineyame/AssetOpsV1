@@ -155,6 +155,20 @@ class TestRevisionSets:
         assert codes(consequence) == [sp.AUTHORED_FIXTURE_VERSION_CONFLICT, sp.CONSEQUENCE_POWER_INPUT_CONFLICT]
         assert consequence["reasons"][1]["accepted_evidence_ids"] == ["p"]
 
+    def test_unknown_finding_part_makes_the_consequence_unknown_never_positive(self) -> None:
+        # Empty citation set beside bound power inputs: the combined set alone would read AUTHORED.
+        empty = sp.SourceProvenanceResolver(Reads([bound("p")], [], ["p"])).consequence_revision("t", "s", "C")
+        assert empty["finding_revision_state"] == sp.UNKNOWN and empty["state"] == sp.UNKNOWN
+        assert codes(empty) == [sp.EMPTY_CITATION_SET]
+        # Unbound cited beside bound power: finding UNKNOWN (no positive binding), combined would be MIXED.
+        unb = sp.SourceProvenanceResolver(Reads([unbound("1"), bound("p")], ["1"], ["p"])).consequence_revision(
+            "t", "s", "C")
+        assert unb["finding_revision_state"] == sp.UNKNOWN and unb["state"] == sp.UNKNOWN
+        assert codes(unb)[0] == sp.NO_POSITIVE_BINDING
+        # Missing cited ID: the UNKNOWN cause is carried.
+        gone = sp.SourceProvenanceResolver(Reads([bound("p")], ["1"], ["p"])).consequence_revision("t", "s", "C")
+        assert gone["state"] == sp.UNKNOWN and sp.EVIDENCE_NOT_FOUND in codes(gone)
+
     def test_absent_revision_is_none_never_a_fallback(self) -> None:
         resolver = sp.SourceProvenanceResolver(Reads([], None, []))
         assert resolver.finding_revision("t", "s", "FR") is None

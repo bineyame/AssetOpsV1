@@ -272,8 +272,18 @@ class SourceProvenanceResolver:
         ids = sorted(set(cited_ids) | set(power_ids))
         rows = self._reads.link_rows(tenant_id, site_id, ids) if ids else []
         links = {r.requested_id: link_of(r) for r in rows}
-        finding_state = classify(cited_ids, links)["state"]
+        finding_part = classify(cited_ids, links)
+        finding_state = finding_part["state"]
         result = classify(ids, links)
+        if finding_state == UNKNOWN:
+            # Fail closed (D-2026-10-15-s405-stored-demo-provenance): a consequence whose Finding revision is
+            # UNKNOWN (incl. EMPTY_CITATION_SET) is never positive, whatever its power inputs resolve to.
+            seen = {r["code"] for r in finding_part["reasons"]}
+            result["state"] = UNKNOWN
+            result["reasons"] = finding_part["reasons"] + [
+                r for r in result["reasons"] if r["code"] not in seen]
+            result["problematic_accepted_evidence_ids"] = sorted(
+                {i for r in result["reasons"] for i in r["accepted_evidence_ids"]})
         if result["state"] == MIXED and finding_state != MIXED:
             power_only = sorted(set(power_ids) - set(cited_ids))
             result["reasons"].append(_reason(CONSEQUENCE_POWER_INPUT_CONFLICT, power_only,
