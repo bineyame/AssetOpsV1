@@ -1,6 +1,6 @@
 # S4-07 - evidence decision time at the scheduled cutoff
 
-Status: implementation-ready
+Status: active (activated 2026-10-15 from main under the owner-absence work order; plan re-review ACCEPT `.agent/S4-07-plan-rereview.md`); was implementation-ready
 Size: M; one bounded build and one fresh independent review (ledger clock contract, deterministic fixture updates, real-Postgres race/restart proof)
 Branch when activated: `task/S4-07-evidence-decided-at`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; no owner-facing copy or visual change)
