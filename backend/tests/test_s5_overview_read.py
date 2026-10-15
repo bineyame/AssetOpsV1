@@ -32,7 +32,8 @@ CURRENT = {"status": "CURRENT", "stage": None, "reasons": [], "errors": []}
 
 def finding(start: datetime, end: datetime, fid: str | None = None, head: str | None = "c-head") -> dict:
     return {"finding_id": fid or str(uuid4()), "finding_revision_id": str(uuid4()), "lifecycle": "SUPPORTED",
-            "episode_start": start, "episode_end": end, "head_consequence_revision_id": head}
+            "episode_start": start, "episode_end": end, "head_consequence_revision_id": head,
+            "upstream_status": {"status": "CURRENT", "reasons": []}, "current_amount_permitted": True}
 
 
 def priced(fid: str, rid: str, *, head="c-head", currency="USD", state="CURRENT", gate="ELIGIBLE",
@@ -175,6 +176,16 @@ def test_no_amount_states_from_the_exact_read(change, state) -> None:
     assert money["state"] == state
     assert money["amount_low"] is None and money["amount_high"] is None
     assert body["known_finding"]["id"] == f["finding_id"]  # the selected Finding and links stay
+
+
+def test_seam_that_does_not_permit_the_amount_fails_closed() -> None:
+    """LR-01 fix round: the seam's own `current_amount_permitted` is a further conjunct, never a bypass."""
+    f = {**finding(D0 + timedelta(hours=6), D0 + timedelta(hours=8)), "current_amount_permitted": False,
+         "upstream_status": {"status": "BLOCKED", "reasons": [{"stage": "CONSEQUENCE", "code": "CONSEQUENCE_STALE"}]}}
+    money = run(World([f]))["money"]
+    assert money["state"] == ms.CONSEQUENCE_STALE
+    assert money["amount_low"] is None and money["amount_high"] is None
+    assert money["seam_current_amount_permitted"] is False
 
 
 def test_unverified_demonstration_source_gives_no_amount(monkeypatch) -> None:

@@ -253,8 +253,11 @@ class SiteOverviewRead:
             eligibility=gate.get("state"), revision_is_latest=is_latest,
             merged=bool((root.get("relations") or {}).get("merged_into")),
             consequence_state=cur.get("state"),
+            # The seam row must describe the same Finding version and head, and (LR-01 fix round) its own
+            # `current_amount_permitted` (raw gate ELIGIBLE and per-Finding upstream CURRENT) must agree: a seam
+            # that observed a different gate or consequence state than this exact read fails closed as stale.
             head_matches_seam=head is not None and head == seam_row.get("head_consequence_revision_id")
-            and seam_row.get("finding_revision_id") == rid,
+            and seam_row.get("finding_revision_id") == rid and seam_row.get("current_amount_permitted") is True,
             consequence_row_state=row.get("state"), quantity_state=(row.get("quantity") or {}).get("state"),
             price_state=(row.get("price") or {}).get("state"),
             display_state=(row.get("display") or {}).get("state"),
@@ -271,6 +274,8 @@ class SiteOverviewRead:
             "consequence_currentness": {"state": cur.get("state"), "reasons": cur.get("reasons"),
                                         "pending_work": cur.get("pending_work")},
             "seam_head_consequence_revision_id": seam_row.get("head_consequence_revision_id"),
+            "seam_upstream_status": seam_row.get("upstream_status"),
+            "seam_current_amount_permitted": seam_row.get("current_amount_permitted"),
             "demonstration": demo,
             "limitation": None if state == ms.PRICED else (moved or [state]),
             "links": self._money_links(code, fid, rid, head, row)})
