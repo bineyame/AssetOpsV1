@@ -376,9 +376,11 @@ class ActionService:
         current = self.store.current_foundation(tenant_id, site_id, now)
         reserve = None if current is None else next(
             (r for r in current["reserves"] if str(r["asset_id"]) == str(action["asset_id"])), None)
-        return {"label": "Current Site Foundation at read time; an apply command names it as "
-                         "expected_foundation_revision_id and the server re-checks it under the Site lock.",
-                "read_at": now.isoformat(),
+        return {"label": "The Site Foundation revision covering the read time (covers_instant). An apply command names "
+                         "a revision as expected_foundation_revision_id and the server re-checks it under the Site "
+                         "lock against the revision covering the command's own effective_from, so a Foundation change "
+                         "dated between the read time and effective_from makes the apply ACTION_FOUNDATION_STALE.",
+                "read_at": now.isoformat(), "covers_instant": now.isoformat(),
                 "current_foundation_revision_id": None if current is None else str(current["id"]),
                 "current_reserve": None if reserve is None else {"value": _wire(reserve["value"]),
                                                                  "unit": reserve["unit"]},

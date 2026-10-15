@@ -106,11 +106,14 @@ The coordinator relayed the findings. The review file itself (`AssetOpsV1-review
 
 1. **Money consequence.** The recommendation carries a labelled link to the exact FindingRevision's stored S4 consequence, with no amount and with the statement that the trial predicts no saving. It does not embed the S4 money read.
 2. **Lowest usable SOC (review L2).** Per segment the rule selects the lowest usable reading. This is deliberately stricter than the ruling, which only requires some reading strictly above r+10.
-3. **`application_basis` is the covering Foundation at read time.** An apply whose effective time falls in an already-recorded future period must name that period's revision; the expectation is checked against the revision covering `effective_from`. The fixture's no-change case shows this.
+3. **`application_basis` is the covering Foundation at read time.** An apply whose effective time falls in an already-recorded future period must name that period's revision; the expectation is checked against the revision covering `effective_from`. The fixture's no-change case shows this. Fix round (review L2): the label now says so, `covers_instant` is exposed, and the contract fixture carries an `application_basis` note for S6-01b.
 4. **Reserve no longer matching the accepted basis.** The S1 seam is checked in this order: expected revision (409 stale), no-change (422), then expected reserve (409 stale, `foundation_code: FOUNDATION_EXPECTED_VALUE_STALE`).
 5. **Refusal order changed for commands.** An unknown Finding or Action now returns 404 before the capability's 403, because the capability now depends on the target record. Phase 1 had capability before 404.
 6. **Non-domain exceptions.** An internal error inside apply (not `ApplyFailed`) rolls back and writes no FAILED.
-7. **Phase-1 interpretations stand.** See `.agent/S6-01a-phase-1-handoff.md` "Choices to review" 1-7.
+7. **Accepted Low L3.** The persisted ineligible record is SOC-at-headroom (`SOC_NOT_ABOVE_HEADROOM`); missing/conflicting SOC is covered at rule level only. Add a persisted record if S6-01b needs that copy.
+8. **Accepted Low L4.** Unmapped S1 refusals are forced to 409 (`FAILURE_STATUS`), and non-`FoundationRefused` S1 errors roll back as 500 with no FAILED. Safe but untyped.
+9. **Fix round L1.** `FOUNDATION_CLOCK_BEHIND` maps to 409 `ACTION_FOUNDATION_STALE` (`foundation_code` keeps the S1 code), so a publish committed after the apply's server time is stale + FAILED and never an earlier-recorded APPLIED.
+10. **Phase-1 interpretations stand.** See `.agent/S6-01a-phase-1-handoff.md` "Choices to review" 1-7.
 
 ## Residual risk
 

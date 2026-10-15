@@ -24,6 +24,9 @@ __all__ = ["ACTION_UNAVAILABLE", "GRANTS_ENV", "build_action_service", "build_ac
 S1_FAILURES = {
     "FOUNDATION_EXPECTED_REVISION_STALE": (409, "ACTION_FOUNDATION_STALE"),
     "FOUNDATION_EXPECTED_VALUE_STALE": (409, "ACTION_FOUNDATION_STALE"),
+    # The apply's server time is taken before the Site lock; a publish that committed in that window is a
+    # change to the Foundation since the basis was read, so it is the stale basis (S6-01a review L1).
+    "FOUNDATION_CLOCK_BEHIND": (409, "ACTION_FOUNDATION_STALE"),
     "FOUNDATION_NO_CHANGE": (422, "ACTION_NO_CHANGE"),
     "FOUNDATION_VALUE_INVALID": (422, "ACTION_VALUE_INVALID"),
     "FOUNDATION_INTERVAL_INVALID": (422, "ACTION_EFFECTIVE_TIME_INVALID"),

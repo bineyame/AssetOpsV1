@@ -39,6 +39,11 @@ NOTES = {
               "returns the stored FAILED event (`replayed: true`); a fresh idempotency key may attempt again.",
     "selectors": "`event_id` selects the exact event and its (recorded_at, id) prefix; `recorded_at` selects every "
                  "event recorded through that server instant. Both together: 422 ACTION_SELECTOR_CONFLICT.",
+    "application_basis": "`application_basis.current_foundation_revision_id` is the Foundation revision covering "
+                         "`covers_instant` (the read time), not the revision covering the command's `effective_from`, "
+                         "which the server checks under the Site lock. A Foundation change dated between the two, or "
+                         "recorded after the apply's server time (S1 FOUNDATION_CLOCK_BEHIND, `foundation_code`), "
+                         "yields 409 ACTION_FOUNDATION_STALE + FAILED: re-read and retry with a new idempotency key.",
     "volatile": "IDs, digests and action codes differ per run; tests compare after replacing UUIDs, 64-hex digests "
                 "and ACT-nnnnnn codes with placeholders.",
 }

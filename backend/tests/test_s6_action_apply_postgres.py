@@ -554,3 +554,28 @@ class TestJustStaleBasis:
             assert kinds(h, action_id) == ["ACCEPTED", "FAILED"]
         finally:
             h.close()
+
+
+class TestClockBehindIsStale:
+    def test_publish_committed_after_the_apply_time_is_stale_not_clock_behind(self, runner) -> None:
+        """The apply's server time is taken before the Site lock. A Foundation change recorded after it (the
+        window) must give ACTION_FOUNDATION_STALE + FAILED, never an APPLIED event recorded earlier than a
+        Foundation revision it follows (S6-01a review L1)."""
+        run_case(runner, CASES["F01"])
+        h = applying(runner)
+        try:
+            action_id, _ = accepted(h, "2026-10-06")
+            expected = current_foundation(h, action_id)
+            runner.step({"do": "reserve", "value": 30, "effective_from": "2026-11-01T04:00:00Z",
+                         "decided": (T_APPLY + timedelta(hours=2)).isoformat()})
+            h.clock.at = T_APPLY
+            start = table_counts(runner)
+            refused = apply(h, action_id, expected, "apply-clock-window")
+            detail = refused.json()["detail"]
+            assert refused.status_code == 409 and detail["code"] == "ACTION_FOUNDATION_STALE"
+            assert detail["foundation_code"] == "FOUNDATION_CLOCK_BEHIND"
+            end = table_counts(runner)
+            assert {t: end[t] - start[t] for t in end} == {**{t: 0 for t in end}, "action_event": 1}
+            assert kinds(h, action_id) == ["ACCEPTED", "FAILED"]
+        finally:
+            h.close()
