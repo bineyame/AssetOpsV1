@@ -297,7 +297,6 @@ export interface WindowAssessment {
   window_assessment_revision_id: string | null;
   claim_level: string | null;
   limitations: unknown[];
-  objective?: unknown;
   coverage: unknown;
   dispatch_intervals: WindowAssessmentInterval[];
   links: Record<string, string>;

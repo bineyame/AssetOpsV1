@@ -323,6 +323,9 @@ def test_unreadable_seam_finding_is_not_called_merged() -> None:
     world.revisions.pop(f["finding_id"])
     body = run(world)
     assert body["known_finding"] is None
+    assert body["money"]["state"] != ms.ABSENT  # slice review L1: discovery incomplete
+    assert body["money"]["state"] == ms.UPSTREAM_PENDING
+    assert body["money"]["amount_high"] is None
 
 
 # ---- precedence (mutation-checked) ----

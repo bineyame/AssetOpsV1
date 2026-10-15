@@ -282,6 +282,9 @@ describe("S5-01 selected-window Overview: money states", () => {
     expect(card.getAttribute("data-money-state")).toBe("PRICED");
     expect(within(card).getByText("0.00 to 15.82 USD")).toBeTruthy();
     expect(card.querySelector('[data-financials-demonstration="P01-power"]')).not.toBeNull();
+    // Slice review L3: the Operating objective panel reads the day's claim level and coverage; no objective is implied.
+    expect(document.querySelector("[data-objective-statement]")?.textContent).toContain("does not state an operating objective");
+    expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Possibly avoidable");
     const financials = card.querySelector("[data-window-financials-link]")?.getAttribute("href");
     expect(financials).toContain(`finding_id=${FID}`);
     expect(financials).toContain(`revision_id=${RID}`);

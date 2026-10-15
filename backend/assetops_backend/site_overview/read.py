@@ -146,6 +146,7 @@ class SiteOverviewRead:
             root = self.findings.finding_detail(t, s, UUID(f["finding_id"]))
             if root is None:  # review L7: unreadable is not the same as merged
                 excluded.append({"finding_id": f["finding_id"], "reason": "FINDING_NOT_READABLE"})
+                discovery_complete = False  # slice review L1: cannot rule out a merge, so never ABSENT
                 continue
             if (root.get("relations") or {}).get("merged_into"):
                 excluded.append({"finding_id": f["finding_id"], "reason": "SUPERSEDED_BY_MERGE"})
@@ -351,8 +352,6 @@ class SiteOverviewRead:
             "run_id": None if run_id is None else str(run_id),
             "window_assessment_revision_id": None if wa_id is None else str(wa_id),
             "claim_level": up_day["claim_level"], "limitations": up_day["limitations"] or [],
-            "objective": None if not detail.get("window_assessment") else (detail["window_assessment"].get("result")
-                                                                           or {}).get("objective"),
             "coverage": detail.get("coverage"),
             # The stored interval's own observed span (`result.interval.first_on`/`last_on`), not the day window
             # the revision belongs to (phase-2 finding: the window bounds made every interval read 00:00-24:00).

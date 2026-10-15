@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import { clock, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
 import { portionWords } from "./findingWords";
+import { OUTCOME_WORDS } from "./findingPresentation";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
 
 export interface WindowOverviewLinks {
@@ -240,6 +241,12 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   );
 }
 
+function coverageRoles(coverage: unknown): string {
+  if (coverage === null || typeof coverage !== "object") return "assessment coverage is not available for this day.";
+  const n = Object.keys(coverage as Record<string, unknown>).length;
+  return n === 0 ? "assessment coverage is not available for this day." : `${n} measured ${n === 1 ? "role" : "roles"} covered.`;
+}
+
 function Objective({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const a = summary.assessment;
   const w = words(ASSESSMENT_WORDS, a.state);
@@ -249,6 +256,18 @@ function Objective({ summary, links }: { summary: SiteWindowSummary; links: Wind
       <p data-assessment-state={a.state}>
         <Badge tone="neutral">{w.label}</Badge> {w.sentence}
       </p>
+      {a.state === "CLOSED" ? null : (
+        <p data-objective-statement="not-stated">
+          The assessment does not state an operating objective for this day, so none is shown here.
+        </p>
+      )}
+      {a.state === "CLOSED" || a.claim_level === null ? null : (
+        <p data-assessment-claim={a.claim_level}>
+          Day reading: {OUTCOME_WORDS[a.claim_level] ?? "Assessed"}. {a.dispatch_intervals.length}{" "}
+          {a.dispatch_intervals.length === 1 ? "operating period" : "operating periods"} assessed;{" "}
+          {coverageRoles(a.coverage)}
+        </p>
+      )}
       {a.state === "CLOSED" ? null : (
         <p>
           <Link to={links.dispatchDay(day, a.window_assessment_revision_id)} data-window-dispatch-link={day}>
