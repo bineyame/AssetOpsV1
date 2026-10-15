@@ -6,6 +6,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 **S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
 
+**S4-07 ([evidence decided_at on DB time](../tasks/S4-07-evidence-decided-at.md)) is `in_review`** on `task/S4-07-evidence-decided-at` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-07-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-07".
+
 **S4-06 ([equal-start price succession](../tasks/S4-06-price-succession.md)) is `in_review`** on `task/S4-06-price-succession` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-06-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-06".
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
@@ -29,6 +31,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (S4-07): read the task (incl. coordinator note), `.agent/S4-07-review-packet.md` (Known Deviation 1: widened-job `available_at` lift), then `git diff 3ec3d765..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
 
 Reviewer (S4-06): read the task, `.agent/S4-06-review-packet.md`, then `git diff 7c72c6b3..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
 
