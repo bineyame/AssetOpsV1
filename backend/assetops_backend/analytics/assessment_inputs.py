@@ -194,6 +194,8 @@ class EvidenceQueryResult:
     role_sets: tuple[str, ...]
     #: Configuration problems found while selecting (e.g. no unique Foundation revision at an instant).
     configuration_limits: tuple[str, ...] = ()
+    #: Clock attestations effective at the knowledge cutoff for this Site (LR-01; `clock_attestation.py`).
+    attestations: tuple[Any, ...] = ()
 
     def watermarks(self) -> dict[str, str | None]:
         return watermarks(self.readings)
@@ -220,10 +222,18 @@ class CohortLimit:
     start: datetime
     end: datetime
     evidence_ids: tuple[str, ...]
+    #: Why source time could not order the span (cohort-4): NO_ATTESTATION, OUTSIDE_VALIDITY, ... or ATTESTED
+    #: for an overlap inside one attested series. None for a pre-LR-01 limit.
+    clock: str | None = None
+    #: The attestation versions involved (`<attestation_id>@v<version>`).
+    attestation_refs: tuple[str, ...] = ()
 
     def payload(self) -> dict[str, Any]:
-        return {"kind": self.kind, "role": self.role, "asset_id": self.asset_id, "member": self.member.payload(),
-                "start": iso(self.start), "end": iso(self.end), "evidence_ids": list(self.evidence_ids)}
+        out = {"kind": self.kind, "role": self.role, "asset_id": self.asset_id, "member": self.member.payload(),
+               "start": iso(self.start), "end": iso(self.end), "evidence_ids": list(self.evidence_ids)}
+        if self.clock is not None:
+            out.update(clock=self.clock, attestation_refs=list(self.attestation_refs))
+        return out
 
 
 @dataclass(frozen=True)
@@ -236,15 +246,23 @@ class CohortSelection:
     alternatives: tuple[CohortMember, ...] = ()
     limits: tuple[CohortLimit, ...] = ()
     reason: str | None = None
+    #: Cohort rule version; None for a pre-LR-01 selection (its payload keeps its old shape).
+    rules: str | None = None
+    #: The effective clock attestations of the selected members' streams (`ClockAttestation`), pinned in the
+    #: input basis by attestation ID, version and event ID.
+    clock_basis: tuple[Any, ...] = ()
 
     @property
     def usable(self) -> bool:
         return self.status in ("SELECTED_UNIQUE", "SELECTED_EXPLICIT")
 
     def payload(self) -> dict[str, Any]:
-        return {"status": self.status, "members": [m.payload() for m in self.members],
-                "alternatives": [m.payload() for m in self.alternatives],
-                "limits": [x.payload() for x in self.limits], "reason": self.reason}
+        out = {"status": self.status, "members": [m.payload() for m in self.members],
+               "alternatives": [m.payload() for m in self.alternatives],
+               "limits": [x.payload() for x in self.limits], "reason": self.reason}
+        if self.rules is not None:
+            out.update(rules=self.rules, clock_basis=[a.payload() for a in self.clock_basis])
+        return out
 
     def identity(self) -> str:
         """Stable cohort identity: status plus sorted members (and alternatives when ambiguous)."""

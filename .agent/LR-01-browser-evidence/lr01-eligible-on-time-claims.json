@@ -1,0 +1,80 @@
+[
+  {
+    "name": "desktop ELIGIBLE_ON_TIME: Financials loaded",
+    "ok": true
+  },
+  {
+    "name": "desktop ELIGIBLE_ON_TIME: current 15.82 USD headline",
+    "ok": true,
+    "detail": {
+      "state": "PRICED",
+      "amount": "shown",
+      "headline": "Modelled potential fuel-cost exposure\n0.00 to 15.82 USD\n\nModelled potential fuel-cost exposure: 0.00 to 15.82 USD, under the reviewed fuel-cost-1 assumptions. This is not measured fuel saved or a physical maximum."
+    }
+  },
+  {
+    "name": "desktop ELIGIBLE_ON_TIME: exactly one current row",
+    "ok": true,
+    "detail": [
+      "true"
+    ]
+  },
+  {
+    "name": "desktop ELIGIBLE_ON_TIME: no page-level horizontal overflow on Financials",
+    "ok": true,
+    "detail": -15
+  },
+  {
+    "name": "desktop ELIGIBLE_ON_TIME: Finding page loaded",
+    "ok": true
+  },
+  {
+    "name": "desktop ELIGIBLE_ON_TIME: no SERIES_LIMIT end on the full episode",
+    "ok": true,
+    "detail": null
+  },
+  {
+    "name": "desktop ELIGIBLE_ON_TIME: no page-level horizontal overflow on the Finding",
+    "ok": true,
+    "detail": -15
+  },
+  {
+    "name": "narrow ELIGIBLE_ON_TIME: Financials loaded",
+    "ok": true
+  },
+  {
+    "name": "narrow ELIGIBLE_ON_TIME: current 15.82 USD headline",
+    "ok": true,
+    "detail": {
+      "state": "PRICED",
+      "amount": "shown",
+      "headline": "Modelled potential fuel-cost exposure\n0.00 to 15.82 USD\n\nModelled potential fuel-cost exposure: 0.00 to 15.82 USD, under the reviewed fuel-cost-1 assumptions. This is not measured fuel saved or a physical maximum."
+    }
+  },
+  {
+    "name": "narrow ELIGIBLE_ON_TIME: exactly one current row",
+    "ok": true,
+    "detail": [
+      "true"
+    ]
+  },
+  {
+    "name": "narrow ELIGIBLE_ON_TIME: no page-level horizontal overflow on Financials",
+    "ok": true,
+    "detail": 0
+  },
+  {
+    "name": "narrow ELIGIBLE_ON_TIME: Finding page loaded",
+    "ok": true
+  },
+  {
+    "name": "narrow ELIGIBLE_ON_TIME: no SERIES_LIMIT end on the full episode",
+    "ok": true,
+    "detail": null
+  },
+  {
+    "name": "narrow ELIGIBLE_ON_TIME: no page-level horizontal overflow on the Finding",
+    "ok": true,
+    "detail": 0
+  }
+]

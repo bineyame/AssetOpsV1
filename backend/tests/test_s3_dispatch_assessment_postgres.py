@@ -8,10 +8,11 @@ append-only revisions. Requires ASSETOPS_TEST_DATABASE_URL (backend/README-db.md
 
 from __future__ import annotations
 
+import json
 import os
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -28,7 +29,15 @@ if URL:
     from assetops_backend.analytics import dispatch_v3
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
     from assetops_backend.analytics.assessment_inputs import EvidenceQuery, Window
-    from assetops_backend.analytics.assessment_worker import DISPATCH_ROLES, DispatchAssessmentWorker
+    from assetops_backend import record_clock_attestation as record_cli
+    from assetops_backend.analytics.assessment_worker import DISPATCH_ROLES, DispatchAssessmentWorker, day_windows
+    from assetops_backend.analytics.clock_attestation import (
+        SYSTEM_ATTESTER,
+        AttestationChange,
+        AttestationRefused,
+        AttesterPrincipal,
+    )
+    from assetops_backend.analytics.dispatch_read import STALE, DispatchReadService
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_service import BatchIngestionService
     from assetops_backend.sites.foundation_service import FoundationService
@@ -52,12 +61,14 @@ class Feeder:
 
     def deliver(self, rows, decided_at: datetime, epoch: str = "epoch-1") -> list[str]:
         by_device: dict[str, list[str]] = {}
-        for device, signal, when, value in rows:
+        for device, signal, when, value, *explicit in rows:
+            # An explicit fifth element is the source's own sequence number (on-time sequencing); otherwise the
+            # next one on intake, as this project's gateway numbers a delayed reading.
             source = self.kit.binding(device, signal)["source_id"]
-            self.seq[(source, epoch)] = self.seq.get((source, epoch), 0) + 1
+            seq = explicit[0] if explicit else self.seq.get((source, epoch), 0) + 1
+            self.seq[(source, epoch)] = max(seq, self.seq.get((source, epoch), 0))
             by_device.setdefault(device, []).append(self.kit.envelope(
-                device, self.seq[(source, epoch)], 0, value, source_time=_z(when), epoch=epoch,
-                bound_signal=signal))
+                device, seq, 0, value, source_time=_z(when), epoch=epoch, bound_signal=signal))
         ids = []
         # S4-07: fixture ordering pins the decision instant through the test-only override (never production).
         service = BatchIngestionService(
@@ -268,3 +279,232 @@ class TestDurableAssessment:
             with pytest.raises(DBAPIError):
                 with site.engine.begin() as c:
                     c.execute(text(f"DELETE FROM {table}"))
+
+
+# --- LR-01 phase 1: clock attestations, source-time reassessment and affected-window requeue -----------------
+
+ATTEST_ERROR = timedelta(seconds=30)
+
+
+def gen_source(site) -> str:
+    return site.kit.binding("generator-controller", "status")["source_id"]
+
+
+def attest(site, now, *, kind="RECORDED", key="a1", lo=None, hi=None, attestation=None, expected=None,
+           principal=None, reason=None, epoch="epoch-1", error=ATTEST_ERROR):
+    change = AttestationChange(
+        event_kind=kind, source_id=UUID(gen_source(site)), sequence_epoch=epoch, idempotency_key=key,
+        channel="SYSTEM_CLI", authority="lab-simulated-clock" if kind in ("RECORDED", "REPLACED") else None,
+        label="SIMULATED demonstration clock (LR-01)" if kind in ("RECORDED", "REPLACED") else None,
+        max_utc_error=error if kind in ("RECORDED", "REPLACED") else None,
+        valid_from=lo if kind in ("RECORDED", "REPLACED") else None, valid_to=hi, attestation_id=attestation,
+        expected_version=expected, reason=reason)
+    return PostgresAssessmentStore(URL).record_clock_attestation(site.tenant, site.site, change,
+                                                                 principal or SYSTEM_ATTESTER, now)
+
+
+def window_head(site, window=None):
+    """(run id, input sha, window claim, limitations, cohort payload) of the latest DEFAULT selection."""
+    w = window or WINDOW
+    run_id, sha, cohort = rows(site.engine, "SELECT r.id, r.input_sha256, r.cohort FROM analytic_run_selection x "
+                                            "JOIN analytic_run r ON r.id = x.run_id WHERE x.window_start = :ws "
+                                            "ORDER BY x.seq DESC LIMIT 1", ws=w.start)[0]
+    claim, result = rows(site.engine, "SELECT v.claim_level, v.result FROM analytic_run_assessment l JOIN "
+                                      "assessment_revision v ON v.id = l.assessment_revision_id WHERE l.run_id = :r "
+                                      "AND l.scope = 'WINDOW'", r=run_id)[0]
+    return run_id, sha, claim, result["limitations"], cohort
+
+
+def status_rows(skip=()):
+    """The generator status rows of `interval_rows(5, 6)` with their on-time sequence numbers."""
+    out = [r for r in interval_rows(5, 6) if r[0] == "generator-controller"]
+    return [(*r, i + 1) for i, r in enumerate(out) if i + 1 not in skip]
+
+
+class TestClockAttestation:
+    LATE = at(5, 30)
+
+    def _run_one(self, site):
+        """Run 1: the 05:30 generator status arrives late and the gateway sequences it on intake."""
+        rest = [r for r in interval_rows(5, 6) if not (r[0] == "generator-controller" and r[2] == self.LATE)]
+        site.feed.deliver(rest, T1)
+        worker(T1 + timedelta(minutes=1)).run_pending()
+        site.feed.deliver([("generator-controller", "status", self.LATE, "RUNNING")], T1 + timedelta(hours=1))
+        worker(T1 + timedelta(hours=1, minutes=1)).run_pending()
+
+    def test_run_one_withheld_then_attested_is_pending_then_reassessed_in_source_order(self, site) -> None:
+        self._run_one(site)
+        run_b, sha_b, claim_b, limits_b, cohort_b = window_head(site)
+        assert claim_b == dispatch_v3.WINDOW_INDETERMINATE
+        assert any(x.startswith("GENERATOR_SERIES_AMBIGUOUS") for x in limits_b)
+        assert any(x.startswith("SEQUENCE_ORDER_INVERTED: generator_state") and "clock NO_ATTESTATION" in x
+                   for x in limits_b)
+        assert cohort_b["rules"] == "cohort-4" and cohort_b["clock_basis"] == []
+        history = rows(site.engine, "SELECT id, revision_no, basis_sha256 FROM assessment_revision ORDER BY id")
+        selections = rows(site.engine, "SELECT seq, run_id FROM analytic_run_selection ORDER BY seq")
+
+        out = attest(site, T1 + timedelta(hours=2), lo=at(0), hi=at(23))
+        event = out["event"]
+        assert out["created"] and (event.version, event.event_kind) == (1, "RECORDED")
+        assert [(w.start, w.end) for w in out["requeued"]] == [(at(4, 45), at(6, 15) + timedelta(microseconds=1))]
+        assert [j[0] for j in jobs(site.engine)][-1] == "PENDING"
+        # Pending: the selected run is stale (the attestation changes the input basis) while work is queued.
+        read = DispatchReadService(PostgresAssessmentStore(URL)).window(site.tenant, site.site, DAY.date())
+        assert read["status"] == STALE
+        assert any(r.startswith("INPUT_BASIS_CHANGED") for r in read["status_reasons"])
+        assert any(r.startswith("RECOMPUTE_OUTSTANDING") for r in read["status_reasons"])
+        assert window_head(site)[0] == run_b
+
+        worker(T1 + timedelta(hours=3)).run_pending()
+        run_c, sha_c, claim_c, limits_c, cohort_c = window_head(site)
+        assert run_c != run_b and sha_c != sha_b
+        assert claim_c != dispatch_v3.WINDOW_INDETERMINATE
+        assert not any(x.startswith(("GENERATOR_SERIES_AMBIGUOUS", "SEQUENCE_ORDER_INVERTED")) for x in limits_c)
+        assert [(b["attestation_id"], b["version"], b["event_id"]) for b in cohort_c["clock_basis"]] == [
+            (str(event.attestation_id), 1, str(event.event_id))]
+        # Append-only: every earlier revision and selection is unchanged; the new run is a new selection.
+        after = {r[0]: r for r in rows(site.engine, "SELECT id, revision_no, basis_sha256 FROM assessment_revision")}
+        assert all(after[r[0]] == r for r in history)
+        assert rows(site.engine, "SELECT seq, run_id FROM analytic_run_selection ORDER BY seq")[:len(selections)] \
+            == selections
+        assert rows(site.engine, "SELECT run_id FROM analytic_run_selection ORDER BY seq DESC LIMIT 1")[0][0] == run_c
+
+        # Replay at run 1's cutoff (before the attestation) reproduces its basis and reuses its run.
+        cutoff_b = rows(site.engine, "SELECT knowledge_cutoff FROM analytic_run WHERE id = :r", r=run_b)[0][0]
+        replay = worker(T1 + timedelta(hours=4)).compute(site.tenant, site.site, WINDOW, cutoff_b)
+        assert replay.inputs.input_sha256 == sha_b
+        assert PostgresAssessmentStore(URL).record_runs([replay], T1 + timedelta(hours=4))[0].run_id == run_b
+
+        # Idempotent: the same request answers the stored event and queues nothing; a settled pass is a no-op.
+        again = attest(site, T1 + timedelta(hours=5), lo=at(0), hi=at(23))
+        assert not again["created"] and again["event"].event_id == event.event_id and again["requeued"] == []
+        counts = rows(site.engine, "SELECT (SELECT count(*) FROM analytic_run), (SELECT count(*) FROM "
+                                   "assessment_revision), (SELECT count(*) FROM source_clock_attestation)")[0]
+        assert all(not r.created for o in worker(T1 + timedelta(hours=5)).run_pending() for r in o.runs)
+        assert rows(site.engine, "SELECT (SELECT count(*) FROM analytic_run), (SELECT count(*) FROM "
+                                 "assessment_revision), (SELECT count(*) FROM source_clock_attestation)")[0] == counts
+        with pytest.raises(AttestationRefused) as conflict:
+            attest(site, T1 + timedelta(hours=5), lo=at(0), hi=at(22))
+        assert conflict.value.code == "IDEMPOTENCY_CONFLICT"
+
+    def test_on_time_sequenced_late_upload_under_attestation_is_one_series(self, site) -> None:
+        others = [r for r in interval_rows(5, 6) if r[0] != "generator-controller"]
+        site.feed.deliver(others + status_rows(skip=(4,)), T1)  # 05:30 is sequence 4, withheld
+        attest(site, T1 + timedelta(minutes=1), lo=at(0), hi=at(23))
+        site.feed.deliver([r for r in status_rows() if r[4] == 4], T1 + timedelta(hours=1))
+        worker(T1 + timedelta(hours=1, minutes=1)).run_pending()
+        _, _, claim, limits, cohort = window_head(site)
+        assert claim != dispatch_v3.WINDOW_INDETERMINATE and len(cohort["clock_basis"]) == 1
+        assert not any(x.startswith(("GENERATOR_SERIES_AMBIGUOUS", "SEQUENCE_ORDER_INVERTED", "REPORTS_OVERLAP"))
+                       for x in limits)
+
+    def test_simulated_data_without_attestation_stays_limited(self, site) -> None:
+        self._run_one(site)
+        attest(site, T1 + timedelta(hours=2), lo=at(0), hi=at(23), epoch="another-epoch")  # proves nothing here
+        worker(T1 + timedelta(hours=3)).run_pending()
+        _, _, claim, limits, _ = window_head(site)
+        assert claim == dispatch_v3.WINDOW_INDETERMINATE
+        assert any(x.startswith("GENERATOR_SERIES_AMBIGUOUS") for x in limits)
+
+    def test_an_attestation_not_touching_a_limited_window_leaves_it_current(self, site) -> None:
+        # Phase-1 review F1: the stream's FIRST attestation, and revoking its LAST, both elsewhere in time (two
+        # days later), neither change the limited window's input basis nor leave it stale without work.
+        self._run_one(site)
+        run_b, sha_b, claim_b, _, _ = window_head(site)
+        assert claim_b == dispatch_v3.WINDOW_INDETERMINATE
+        later = timedelta(days=2)
+
+        def read():
+            return DispatchReadService(PostgresAssessmentStore(URL)).window(site.tenant, site.site, DAY.date())
+
+        created = attest(site, T1 + timedelta(hours=2), key="far", lo=at(0) + later, hi=at(23) + later)["event"]
+        worker(T1 + timedelta(hours=2, minutes=1)).run_pending()
+        r = read()
+        assert (r["status"], r["status_reasons"]) == ("CURRENT", []), r["status_reasons"]
+        assert window_head(site)[:2] == (run_b, sha_b)
+        attest(site, T1 + timedelta(hours=3), kind="REVOKED", key="far-v", reason="withdrawn",
+               attestation=created.attestation_id, expected=1)
+        worker(T1 + timedelta(hours=3, minutes=1)).run_pending()
+        r = read()
+        assert (r["status"], r["status_reasons"]) == ("CURRENT", []), r["status_reasons"]
+        assert window_head(site)[:2] == (run_b, sha_b)
+
+    def test_creation_replacement_expiry_and_revocation_requeue_old_and_new_validity(self, site) -> None:
+        day3 = timedelta(days=2)
+        site.feed.deliver(status_rows(), T1)
+        site.feed.deliver([(d, s, w + day3, v) for d, s, w, v, _ in status_rows()], T1)
+        worker(T1 + timedelta(minutes=1)).run_pending()
+        span_1 = (at(4, 45), at(6, 15) + timedelta(microseconds=1))
+        span_3 = (span_1[0] + day3, span_1[1] + day3)
+
+        def step(now, **kw):
+            out = attest(site, now, **kw)
+            spans = [(w.start, w.end) for w in out["requeued"]]
+            pending = [(j[2], j[3]) for j in jobs(site.engine) if j[0] == "PENDING"]
+            done = worker(now + timedelta(minutes=1)).run_pending()
+            # The worker expands each job by the six-hour bracket: 04:45 - 6 h reaches the previous UTC day.
+            windows = sorted({w.start for o in done for w in day_windows(*_job_window(site, o.job_id))})
+            return out["event"], spans, pending, windows
+
+        created, spans, pending, windows = step(T1 + timedelta(hours=1), key="c", lo=at(0), hi=at(23))
+        assert spans == [span_1] and pending == [span_1]
+        assert windows == [DAY - timedelta(days=1), DAY]
+        replaced, spans, _, _ = step(T1 + timedelta(hours=2), kind="REPLACED", key="r", lo=at(0) + day3,
+                                     hi=at(23) + day3, attestation=created.attestation_id, expected=1)
+        assert replaced.version == 2 and spans == [span_1, span_3]  # old validity and new validity
+        expired, spans, _, _ = step(T1 + timedelta(hours=3), kind="EXPIRED", key="e", hi=at(5, 10) + day3,
+                                    attestation=created.attestation_id, expected=2)
+        assert expired.version == 3 and spans == [span_3]
+        revoked, spans, _, _ = step(T1 + timedelta(hours=4), kind="REVOKED", key="v", reason="clock proof withdrawn",
+                                    attestation=created.attestation_id, expected=3)
+        assert revoked.version == 4 and spans == [(span_3[0], at(5) + day3 + timedelta(microseconds=1))]
+        stored = PostgresAssessmentStore(URL).clock_attestation_events(site.tenant, site.site)
+        assert [(e.version, e.event_kind) for e in stored] == [(1, "RECORDED"), (2, "REPLACED"), (3, "EXPIRED"),
+                                                               (4, "REVOKED")]
+        with pytest.raises(AttestationRefused) as stale:
+            attest(site, T1 + timedelta(hours=5), kind="REVOKED", key="v2", reason="again",
+                   attestation=created.attestation_id, expected=3)
+        assert stale.value.code == "VERSION_CONFLICT"
+
+    def test_only_the_system_attester_writes_and_events_are_append_only(self, site) -> None:
+        site.feed.deliver(status_rows(), T1)
+        before = jobs(site.engine)
+        for principal in (site.kit.principal, AttesterPrincipal("user:owner", "client request")):
+            with pytest.raises(AttestationRefused) as refused:
+                attest(site, T1, lo=at(0), hi=at(23), principal=principal)
+            assert refused.value.code == "SYSTEM_ATTESTER_REQUIRED"
+        with pytest.raises(AttestationRefused) as foreign:
+            PostgresAssessmentStore(URL).record_clock_attestation(
+                site.tenant, site.site, AttestationChange(
+                    "RECORDED", uuid4(), "epoch-1", "k", "SYSTEM_CLI", authority="a", label="SIMULATED x",
+                    max_utc_error=ATTEST_ERROR, valid_from=at(0), valid_to=at(23)), SYSTEM_ATTESTER, T1)
+        assert foreign.value.code == "SOURCE_NOT_IN_SITE"
+        assert rows(site.engine, "SELECT count(*) FROM source_clock_attestation")[0][0] == 0
+        assert jobs(site.engine) == before
+        attest(site, T1, lo=at(0), hi=at(23))
+        for sql in ("UPDATE source_clock_attestation SET max_utc_error_ms = 0", "DELETE FROM source_clock_attestation"):
+            with pytest.raises(DBAPIError, match="append-only"), site.engine.begin() as c:
+                c.execute(text(sql))
+
+    def test_the_cli_records_through_the_system_attester_only(self, site, capsys) -> None:
+        site.feed.deliver(status_rows(), T1)
+        code = rows(site.engine, "SELECT site_code FROM site WHERE id = :s", s=site.site)[0][0]
+        slug = rows(site.engine, "SELECT slug FROM tenant WHERE id = :t", t=site.tenant)[0][0]
+        argv = ["record", "--site", code, "--tenant", slug, "--source", gen_source(site), "--epoch", "epoch-1",
+                "--idempotency-key", "cli-1", "--authority", "lab-simulated-clock", "--label", "SIMULATED cli",
+                "--max-error-seconds", "30", "--valid-from", "2026-10-06T00:00:00Z",
+                "--valid-to", "2026-10-07T00:00:00Z"]
+        assert slug == "demo"  # the development tenant the CLI accepts
+        assert record_cli.main(argv, store=PostgresAssessmentStore(URL), now=T1) == 0
+        line = json.loads(capsys.readouterr().out)
+        assert line["actor_id"] == SYSTEM_ATTESTER.actor_id and line["version"] == 1 and line["requeued"]
+        bad = argv[:-2] + ["--valid-to", "2026-10-06T00:00:00Z", "--idempotency-key", "cli-2"]
+        assert record_cli.main(bad, store=PostgresAssessmentStore(URL), now=T1) == 3
+        assert "VALIDITY_EMPTY" in capsys.readouterr().err
+        assert rows(site.engine, "SELECT count(*), min(recorded_by) FROM source_clock_attestation")[0] == (
+            1, SYSTEM_ATTESTER.actor_id)
+
+
+def _job_window(site, job_id):
+    start, end = rows(site.engine, "SELECT window_start, window_end FROM recompute_job WHERE id = :j", j=job_id)[0]
+    return start, end

@@ -466,3 +466,29 @@ describe("Finding client status mapping", () => {
     expect(calls).toEqual([`/api/sites/KOBO-001/findings/${F}?revision_id=rev%201`]);
   });
 });
+
+describe("Site Finding detail: LR-01 series limit end", () => {
+  it("states a SERIES_LIMIT end in plain words, and nothing for other ends", async () => {
+    const base = body([summary(1, "OPENED")]);
+    const limited = {
+      ...base,
+      revision: {
+        ...base.revision,
+        claim: { ...base.revision.claim, end_reason: "SERIES_LIMIT" as const },
+        limitations: ["GENERATOR_SERIES_AMBIGUOUS: generator_power 2026-10-06T09:05:00Z..2026-10-06T10:00:00Z"],
+      },
+    };
+    const view = mount(fake({ status: "loaded", value: limited }));
+    await settledScreen();
+    const item = document.querySelector("[data-finding-end-reason='SERIES_LIMIT']") as HTMLElement;
+    expect(item).toHaveTextContent("could not be put in a proven time order");
+    expect(item).toHaveTextContent("09:00");
+    expect(document.querySelector("[data-limitation='GENERATOR_SERIES_AMBIGUOUS']")).toHaveTextContent(
+      "could not be put in one proven time order",
+    );
+    view.unmount();
+    mount(fake({ status: "loaded", value: base }));
+    await settledScreen();
+    expect(document.querySelector("[data-finding-end-reason]")).toBeNull();
+  });
+});

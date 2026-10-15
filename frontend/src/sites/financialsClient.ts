@@ -78,9 +78,41 @@ export interface AssumptionRevisionBody {
 /** S4-02b: the read's currentness of one FindingRevision's stored consequence (review M1 adds AUDIT_ONLY). */
 export type ConsequenceCurrentness = "CURRENT" | "STALE" | "PENDING" | "HISTORICAL" | "AUDIT_ONLY";
 
-/** The bridge's typed summary: an amount only for a CURRENT PRICED head, rounded outward for display. */
+/** LR-01: one generator-series refusal behind a withheld amount, with the exact lineage that refused it. */
+export interface MoneySeriesLimit {
+  kind: string;
+  role: string;
+  start: string;
+  end: string;
+  evidence_ids: string[];
+  clock: string | null;
+  attestation_refs: string[];
+  window_assessment_revision_id?: string | null;
+  analytic_run_id?: string | null;
+  relation?: string;
+  source?: "FINDING_REVISION" | "SELECTED_WINDOW";
+}
+
+/** LR-01: the shared, read-derived money eligibility gate (`money-eligibility-1`). ELIGIBLE is not an amount. */
+export interface MoneyEligibility {
+  version: string;
+  state: "ELIGIBLE" | "WITHHELD_GENERATOR_SERIES" | "PENDING_REASSESSMENT";
+  note: string;
+  finding_id: string;
+  latest_finding_revision_id: string | null;
+  latest_revision_no?: number | null;
+  end_reason?: string | null;
+  pending_reasons: string[];
+  series_limits: MoneySeriesLimit[];
+  windows: { day: string; s3_status: string; analytic_run_id: string | null; window_assessment_revision_id: string | null }[];
+  head_consequence_revision_id?: string | null;
+}
+
+/** The bridge's typed summary: an amount only for a CURRENT PRICED head that the money gate lets through. */
 export interface FindingConsequence {
   state:
+    | "WITHHELD_GENERATOR_SERIES"
+    | "PENDING_REASSESSMENT"
     | "PRICED"
     | "UNPRICED"
     | "QUANTITY_UNAVAILABLE"
@@ -102,6 +134,9 @@ export interface FindingConsequence {
   recalculation_queued?: boolean;
   currentness_reasons?: string[];
   reason: string;
+  /** LR-01: the gate behind the state, and the recorded (not current) head it withholds. */
+  money_eligibility?: MoneyEligibility | null;
+  recorded_consequence_revision_id?: string | null;
 }
 
 /** The owner-ruled label for authored demonstration content (S4-02b P01-power). */
@@ -219,7 +254,9 @@ export interface FindingConsequencesBody {
     pending_work: { work_id: string; cause: string; attempts: number; last_error_code: string | null }[];
     current_amount_shown: boolean;
     derived_now: unknown;
+    money_eligibility?: MoneyEligibility["state"];
   };
+  money_eligibility?: MoneyEligibility;
   consequence: ConsequenceRevision | null;
   history: {
     revisions: ConsequenceRevision[];

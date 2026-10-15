@@ -5,7 +5,9 @@ cutoff applies to the server decision time), Foundation revisions and selected
 binding sets, tenant- and Site-scoped and selected at the knowledge cutoff.
 
 Writes, all in this module only: `analytic_run`, `analytic_run_evidence`,
-`assessment_revision`, `analytic_run_assessment` (append-only), and on the S2
+`assessment_revision`, `analytic_run_assessment` (append-only), LR-01
+`source_clock_attestation` events (append-only, with their affected-window
+requeue in the same transaction), and on the S2
 `recompute_job` table only the lease/retry fields (`status`, `lease_until`,
 `attempts`, `available_at`, `last_error`) plus scheduling inserts/widening
 under the same advisory lock the ledger uses to coalesce.
@@ -14,6 +16,7 @@ under the same advisory lock the ledger uses to coalesce.
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
@@ -24,6 +27,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
 
 from assetops_backend.analytics.assessment_inputs import (
+    BRACKET,
     CONTROL_BATTERY_RESERVE,
     CONTROL_MINIMUM_RUNTIME,
     AcceptedReading,
@@ -32,6 +36,15 @@ from assetops_backend.analytics.assessment_inputs import (
     EvidenceQueryResult,
     RoleBinding,
     Window,
+    sha256_json,
+)
+from assetops_backend.analytics.clock_attestation import (
+    AttestationChange,
+    AttestationRefused,
+    ClockAttestation,
+    effective_as_of,
+    next_event,
+    validate_change,
 )
 from assetops_backend.analytics.assessment_ports import (
     AssessmentStoreUnavailable,
@@ -55,6 +68,17 @@ _EVIDENCE = (
     "AND COALESCE(e.interval_start, e.source_time) < :hi AND (:any_role OR e.role = ANY(:roles)) "
     "ORDER BY e.source_time, e.id"
 )
+_ATTESTATION_COLUMNS = ("id, attestation_id, version, event_kind, source_id, sequence_epoch, proof_class, authority, "
+                        "label, max_utc_error_ms, valid_from, valid_to, recorded_at")
+#: Accepted readings of one stream whose measurement interval touches `[lo, hi)` (any decision time: an
+#: attestation change can alter the clock basis of everything already accepted).
+_STREAM_READINGS = (
+    "SELECT COALESCE(e.interval_start, e.source_time), COALESCE(e.interval_end, e.source_time) "
+    "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+    "WHERE e.tenant_id = :t AND e.site_id = :s AND e.source_id = :src AND e.sequence_epoch = :ep "
+    "AND d.decision = 'ACCEPTED' AND d.accepted_evidence_id = e.id "
+    "AND COALESCE(e.interval_start, e.source_time) < :hi AND COALESCE(e.interval_end, e.source_time) >= :lo "
+    "ORDER BY 1, 2")
 _REVISION_COLUMNS = ("v.id, v.analytic_id, v.model_version, v.assessment_key, v.revision_no, "
                      "v.analytic_run_id, v.window_start, v.window_end, v.claim_level, v.result, v.evidence_ids, "
                      "v.basis_sha256, v.created_at")
@@ -62,6 +86,35 @@ _KNOWN = "recorded_at <= :k AND (superseded_at IS NULL OR superseded_at > :k)"
 _OVERLAPS = "valid_from < :hi AND (valid_to IS NULL OR valid_to > :lo)"
 _ASSESS_LOCK = "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || :suffix, 0))"
 _JOB_LOCK = "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || ':' || :d, 0))"
+
+
+def _attestation(r) -> ClockAttestation:
+    return ClockAttestation(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], timedelta(milliseconds=r[9]),
+                            r[10], r[11], r[12])
+
+
+def _attestations(c: Connection, tenant_id: UUID, site_id: UUID,
+                  knowledge_at: datetime) -> tuple[ClockAttestation, ...]:
+    """The Site's clock attestations effective at `knowledge_at` (latest version recorded by then, not revoked)."""
+    rows = c.execute(text(f"SELECT {_ATTESTATION_COLUMNS} FROM source_clock_attestation WHERE tenant_id = :t "
+                          "AND site_id = :s AND recorded_at <= :k"),
+                     {"t": tenant_id, "s": site_id, "k": knowledge_at}).all()
+    return effective_as_of([_attestation(r) for r in rows], knowledge_at)
+
+
+def requeue_spans(intervals: list[tuple[datetime, datetime]], bracket: timedelta) -> list[Window]:
+    """Job windows for readings' measurement intervals. The worker expands a job by the six-hour bracket to every
+    UTC-day window whose bracket intersects it, so the job carries the readings' own intervals (never widened
+    here). Intervals closer than two brackets merge: no UTC day fits in such a gap without its bracket reaching
+    one of the two readings, so merging adds no window the readings would not already queue."""
+    spans: list[list[datetime]] = []
+    for lo, hi in sorted(intervals):
+        hi = max(hi, lo + timedelta(microseconds=1))  # an instant reading: the ledger's own instant window
+        if spans and lo - spans[-1][1] <= 2 * bracket:
+            spans[-1][1] = max(spans[-1][1], hi)
+        else:
+            spans.append([lo, hi])
+    return [Window(lo, hi) for lo, hi in spans]
 
 
 def _property(content: dict[str, Any], component_type: str, key: str) -> dict[str, Any] | None:
@@ -136,7 +189,8 @@ class PostgresAssessmentStore:
                 binding_set_revision_id=r[19], binding_revision_id=r[20], source_mode=r[21]) for r in rows)
             config = self._configuration(c, query.tenant_id, query.site_id, rng, query.knowledge_at)
             return EvidenceQueryResult(query, readings, config.bindings, config.controls, config.role_sets,
-                                       config.limits)
+                                       config.limits,
+                                       _attestations(c, query.tenant_id, query.site_id, query.knowledge_at))
 
         return self._run(work)
 
@@ -262,25 +316,105 @@ class PostgresAssessmentStore:
         return self._run(lambda c: [self._persist(c, out, None, now) for out in outputs], write=True)
 
     def enqueue(self, tenant_id: UUID, site_id: UUID, domain: str, window: Window, now: datetime) -> None:
-        def work(c: Connection) -> None:
-            c.execute(text(_JOB_LOCK), {"site": site_id, "d": domain})
-            job = c.execute(text(
-                "SELECT id, window_start, window_end FROM recompute_job WHERE site_id = :site AND domain = :d "
-                "AND status = 'PENDING' AND window_start <= :end AND window_end >= :start "
-                "ORDER BY window_start LIMIT 1 FOR UPDATE"),
-                {"site": site_id, "d": domain, "start": window.start, "end": window.end}).first()
-            if job is None:
-                c.execute(text(
-                    "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, "
-                    "cause_evidence_id, status, available_at, created_at) "
-                    "VALUES (:id, :t, :site, :d, :start, :end, NULL, 'PENDING', :now, :now)"),
-                    {"id": uuid4(), "t": tenant_id, "site": site_id, "d": domain, "start": window.start,
-                     "end": window.end, "now": now})
-                return
-            c.execute(text("UPDATE recompute_job SET window_start = :start, window_end = :end WHERE id = :id"),
-                      {"start": min(window.start, job[1]), "end": max(window.end, job[2]), "id": job[0]})
+        self._run(lambda c: self._enqueue(c, tenant_id, site_id, domain, window, now), write=True)
 
-        self._run(work, write=True)
+    @staticmethod
+    def _enqueue(c: Connection, tenant_id: UUID, site_id: UUID, domain: str, window: Window,
+                 now: datetime) -> None:
+        c.execute(text(_JOB_LOCK), {"site": site_id, "d": domain})
+        job = c.execute(text(
+            "SELECT id, window_start, window_end FROM recompute_job WHERE site_id = :site AND domain = :d "
+            "AND status = 'PENDING' AND window_start <= :end AND window_end >= :start "
+            "ORDER BY window_start LIMIT 1 FOR UPDATE"),
+            {"site": site_id, "d": domain, "start": window.start, "end": window.end}).first()
+        if job is None:
+            c.execute(text(
+                "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, "
+                "cause_evidence_id, status, available_at, created_at) "
+                "VALUES (:id, :t, :site, :d, :start, :end, NULL, 'PENDING', :now, :now)"),
+                {"id": uuid4(), "t": tenant_id, "site": site_id, "d": domain, "start": window.start,
+                 "end": window.end, "now": now})
+            return
+        c.execute(text("UPDATE recompute_job SET window_start = :start, window_end = :end WHERE id = :id"),
+                  {"start": min(window.start, job[1]), "end": max(window.end, job[2]), "id": job[0]})
+
+    # --- clock attestations (LR-01) ------------------------------------------------
+
+    def site_scope(self, tenant_slug: str, site_code: str) -> tuple[str, UUID, UUID] | None:
+        """(site_code, tenant_id, site_id) of an imported Site inside the named tenant, else None."""
+        return self._run(lambda c: (lambda row: None if row is None else (row[0], row[1], row[2]))(c.execute(text(
+            "SELECT s.site_code, s.tenant_id, s.id FROM site s JOIN tenant t ON t.id = s.tenant_id "
+            "WHERE t.slug = :slug AND s.site_code_key = lower(:code)"), {"slug": tenant_slug, "code": site_code}
+        ).first()))
+
+    def clock_attestation_events(self, tenant_id: UUID, site_id: UUID) -> list[ClockAttestation]:
+        return self._run(lambda c: [_attestation(r) for r in c.execute(text(
+            f"SELECT {_ATTESTATION_COLUMNS} FROM source_clock_attestation WHERE tenant_id = :t AND site_id = :s "
+            "ORDER BY recorded_at, attestation_id, version"), {"t": tenant_id, "s": site_id}).all()])
+
+    def record_clock_attestation(self, tenant_id: UUID, site_id: UUID, change: AttestationChange, principal,
+                                 now: datetime, *, domain: str = "dispatch",
+                                 bracket: timedelta = BRACKET) -> dict[str, Any]:
+        """Append one attestation event for the SYSTEM attester and, in the same transaction, requeue every
+        accepted reading of the stream whose measurement interval touches the old or the new validity (creation,
+        replacement, expiry and revocation alike). A retry with the same idempotency key and request answers the
+        stored event and queues nothing; the same key with another request is a conflict."""
+        validate_change(change, principal)
+        request_sha = sha256_json({k: (None if v is None else str(v)) for k, v in asdict(change).items()})
+
+        def work(c: Connection) -> dict[str, Any]:
+            c.execute(text(_ASSESS_LOCK), {"site": site_id, "suffix": ":clock-attestation"})
+            held = c.execute(text(
+                f"SELECT {_ATTESTATION_COLUMNS}, request_sha256 FROM source_clock_attestation WHERE tenant_id = :t "
+                "AND site_id = :s AND idempotency_key = :key"),
+                {"t": tenant_id, "s": site_id, "key": change.idempotency_key}).first()
+            if held is not None:
+                if held[13] != request_sha:
+                    raise AttestationRefused(409, "IDEMPOTENCY_CONFLICT", "This idempotency key already recorded "
+                                             "another attestation request.")
+                return {"event": _attestation(held), "created": False, "requeued": []}
+            site = c.execute(text("SELECT proposed_source_mode FROM site WHERE tenant_id = :t AND id = :s"),
+                             {"t": tenant_id, "s": site_id}).first()
+            if site is None:
+                raise AttestationRefused(404, "SITE_NOT_FOUND", "No such Site in this tenant.")
+            if site[0] != "SIMULATED":
+                raise AttestationRefused(403, "SIMULATED_PROOF_FOR_LIVE_SITE", "A simulated attestation cannot "
+                                         "prove a real source's clock; this Site is not simulated.")
+            if c.execute(text("SELECT 1 FROM source WHERE id = :src AND tenant_id = :t AND site_id = :s"),
+                         {"src": change.source_id, "t": tenant_id, "s": site_id}).first() is None:
+                raise AttestationRefused(404, "SOURCE_NOT_IN_SITE", "The source is not registered on this Site.")
+            prior = None
+            if change.attestation_id is not None:
+                row = c.execute(text(
+                    f"SELECT {_ATTESTATION_COLUMNS} FROM source_clock_attestation WHERE attestation_id = :a "
+                    "AND tenant_id = :t AND site_id = :s ORDER BY version DESC LIMIT 1"),
+                    {"a": change.attestation_id, "t": tenant_id, "s": site_id}).first()
+                prior = None if row is None else _attestation(row)
+            event = next_event(change, prior, event_id=uuid4(), attestation_id=uuid4(), recorded_at=now)
+            c.execute(text(
+                "INSERT INTO source_clock_attestation (id, attestation_id, version, tenant_id, site_id, source_id, "
+                "sequence_epoch, event_kind, proof_class, authority, label, max_utc_error_ms, valid_from, valid_to, "
+                "reason, recorded_at, recorded_by, authorization_basis, channel, idempotency_key, request_sha256) "
+                "VALUES (:id, :a, :v, :t, :s, :src, :ep, :kind, :proof, :auth, :label, :err, :vf, :vt, :reason, "
+                ":now, :by, :basis, :channel, :key, :sha)"),
+                {"id": event.event_id, "a": event.attestation_id, "v": event.version, "t": tenant_id, "s": site_id,
+                 "src": event.source_id, "ep": event.sequence_epoch, "kind": event.event_kind,
+                 "proof": event.proof_class, "auth": event.authority, "label": event.label,
+                 "err": int(event.max_utc_error / timedelta(milliseconds=1)), "vf": event.valid_from,
+                 "vt": event.valid_to, "reason": change.reason, "now": now, "by": principal.actor_id,
+                 "basis": principal.authorization_basis, "channel": change.channel, "key": change.idempotency_key,
+                 "sha": request_sha})
+            intervals: set[tuple[datetime, datetime]] = set()
+            for lo, hi in {(a.valid_from, a.valid_to) for a in (prior, event) if a is not None}:
+                intervals.update((r[0], r[1]) for r in c.execute(text(_STREAM_READINGS), {
+                    "t": tenant_id, "s": site_id, "src": event.source_id, "ep": event.sequence_epoch,
+                    "lo": lo, "hi": hi}).all())
+            spans = requeue_spans(sorted(intervals), bracket)
+            for span in spans:
+                self._enqueue(c, tenant_id, site_id, domain, span, now)
+            return {"event": event, "created": True, "requeued": spans}
+
+        return self._run(work, write=True)
 
     # --- runs and revisions -------------------------------------------------------
 
@@ -425,8 +559,9 @@ class PostgresAssessmentStore:
                 "any_role": not query.roles, "roles": list(query.roles)}).all()
             readings = tuple(_reading(r) for r in rows)
             config = self._configuration(c, query.tenant_id, query.site_id, rng, query.knowledge_at)
-            input_sha, config_sha = basis(EvidenceQueryResult(query, readings, config.bindings, config.controls,
-                                                              config.role_sets, config.limits))
+            input_sha, config_sha = basis(EvidenceQueryResult(
+                query, readings, config.bindings, config.controls, config.role_sets, config.limits,
+                _attestations(c, query.tenant_id, query.site_id, query.knowledge_at)))
             p = {"t": query.tenant_id, "s": query.site_id, "a": analytic_id, "ws": w.start, "we": w.end,
                  "d": query.domain, "lo": rng.start, "hi": rng.end}
             head = c.execute(text(

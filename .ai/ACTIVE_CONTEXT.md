@@ -9,6 +9,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 **S4-07 ([evidence decided_at on DB time](../tasks/S4-07-evidence-decided-at.md)) is `in_review`** on `task/S4-07-evidence-decided-at` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-07-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-07".
 
 **S4-06 ([equal-start price succession](../tasks/S4-06-price-succession.md)) is `in_review`** on `task/S4-06-price-succession` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-06-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-06".
+**LR-01 ([late-reading series and money limit](../tasks/LR-01-late-reading-series-and-money-limit.md)) is `in_review`** on `task/LR-01-late-reading-series-and-money-limit` (phases 1-2 built; USER_REVIEW_REQUIRED: owner walkthrough `.agent/LR-01-owner-walkthrough.md` is the merge checkpoint). Packet `.agent/LR-01-review-packet.md`; built state in `.ai/CODE_STATE.md` "LR-01". The schedule install gate stays closed until it merges.
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
@@ -35,6 +36,7 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 Reviewer (S4-07): read the task (incl. coordinator note), `.agent/S4-07-review-packet.md` (Known Deviation 1: widened-job `available_at` lift), then `git diff 3ec3d765..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
 
 Reviewer (S4-06): read the task, `.agent/S4-06-review-packet.md`, then `git diff 7c72c6b3..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
+Reviewer (LR-01 slice): read the task (outcome table), `.agent/architect-LR-01-answers.md`, `.agent/LR-01-review-packet.md` and both phase handoffs, then `git diff d4c80e77..HEAD` (phase 2: `git diff 445f3d18..HEAD`). Walk it with `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01_<x>` and `node tools/lr01-money-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 
 Reviewer (S4-02c phase 3 and slice): read the task (phase 3 row, carries C5, risks), `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-phase-2-review.md` "Carries for phase 3" and `.agent/S4-02c-phase-3-handoff.md`, then `git diff 6d4a1995..HEAD` (slice: `git diff f9d6d1a5..HEAD`). Rerun `tools/s402c_late_power_walkthrough.py run --db assetops_s402c3walk_<x> --work <dir named s402c3*>` then `drop`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 

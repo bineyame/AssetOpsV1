@@ -1,4 +1,4 @@
-"""Mini-grid dispatch analytic, model `dispatch-3.1` (pure; S3-01 phase 2, version bump phase 3a).
+"""Mini-grid dispatch analytic, model `dispatch-3.2` (pure; S3-01 phase 2, version bumps phase 3a and LR-01).
 
 Input: one `AnalyticInputSet` (selected public cohort, selected Foundation
 controls, selected role bindings). Output: a window assessment plus one
@@ -36,7 +36,10 @@ from assetops_backend.analytics.dispatch import ANALYTIC_ID, CANDIDATE, INDETERM
 #: `dispatch-3.1` (D-2026-10-11-s3-phase-3a-version-and-cutover) = `dispatch-3` plus the stricter
 #: default multi-epoch cohort (Q9) and interval limitations lifted into the window list (Q13).
 #: Stored `dispatch-3` runs stay readable history; the worker reassesses their windows.
-MODEL_VERSION = "dispatch-3.1"
+#: `dispatch-3.2` (LR-01, D-2026-10-15-lr01-source-time-cohort) = `dispatch-3.1` over the cohort-4 rules: an
+#: attested source clock orders a late arrival by source time, and every refused span names its clock reason
+#: and attestation versions. Stored `dispatch-3.1` runs, selections and revisions stay unchanged history.
+MODEL_VERSION = "dispatch-3.2"
 
 CONTINUITY_TOLERANCE = timedelta(minutes=20)
 INSTANT_TOLERANCE = timedelta(minutes=10)
@@ -509,7 +512,7 @@ _NOT_EVIDENCE_GAPS = ("transition inside the segment", "possibly within the conf
 
 
 def assess(inputs: AnalyticInputSet) -> WindowAssessment:
-    """The `dispatch-3.1` window and interval assessments for one input set."""
+    """The `dispatch-3.2` window and interval assessments for one input set."""
     if inputs.model_version != MODEL_VERSION:
         raise ValueError(f"input set is for {inputs.model_version}, not {MODEL_VERSION}")
     index = _Index(inputs)
@@ -526,8 +529,10 @@ def assess(inputs: AnalyticInputSet) -> WindowAssessment:
             limitations.append(f"MISSING_ROLE: {role} is not bound in the selected role set over "
                                f"{iso(lo)}..{iso(hi)}; Candidate is unavailable there")
     for limit in inputs.cohort.limits:
+        clock = "" if limit.clock is None else (
+            f"; clock {limit.clock}" + (f" [{', '.join(limit.attestation_refs)}]" if limit.attestation_refs else ""))
         limitations.append(f"{limit.kind}: {limit.role} {iso(limit.start)}..{iso(limit.end)} "
-                           f"({', '.join(limit.evidence_ids)})")
+                           f"({', '.join(limit.evidence_ids)}){clock}")
     if inputs.cohort.usable and not any(r.role in (GEN_STATE, GEN_POWER) for r in inputs.readings):
         limitations.append("NO_GENERATOR_STATE: no accepted generator state or output in the cohort")
     for i in intervals:
