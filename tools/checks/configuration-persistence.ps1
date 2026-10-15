@@ -814,6 +814,13 @@ function Invoke-ConfigurationPersistenceCheck {
                 $failures.Add(("Only $ledgerWriter writes source provenance; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
             }
+            # Phase-1 review L1: the write rules above need a whole statement on one line, so a split
+            # "UPDATE evidence_publication" / "SET ..." would pass them. Refuse UPDATE, DELETE FROM or TRUNCATE
+            # followed by a provenance table name in any module (the ledger included), whatever follows.
+            if ($line -match '(?i)\b(?:UPDATE|DELETE\s+FROM|TRUNCATE(?:\s+TABLE)?)\s+(?:ONLY\s+)?"?(?:evidence_publication|batch_publication_link)\b') {
+                $failures.Add(("Source provenance is insert-only: no UPDATE, DELETE or TRUNCATE in any module " +
+                    "(split statements included); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
             if ($module.Path -eq $scheduleWriter) {
                 # Case-insensitive (phase-1 review F1): lowercase SQL is an ordinary way to write a statement, so
                 # every keyword rule here uses (?i); prose is excluded because each rule needs SQL shape.

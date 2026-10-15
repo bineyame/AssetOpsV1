@@ -30,7 +30,7 @@ pytestmark = pytest.mark.skipif(
 if URL:
     from sqlalchemy import create_engine, text
     from sqlalchemy.exc import DBAPIError, IntegrityError
-    from test_s1_bindings_postgres import KOBO_SOURCE, NOW, Clock, engine, store  # noqa: F401
+    from test_s1_bindings_postgres import BACKEND, KOBO_SOURCE, NOW, Clock, engine, store  # noqa: F401
     from test_s2_evidence_ledger_postgres import RECEIVED, Kit, converted_enabled
     from test_s2_registered_basis_postgres import service as run_setup
     from test_s2_registered_basis import request as run_request
@@ -447,7 +447,7 @@ class TestRegisteredSimulation:
             simulation_records(replace(attestation, site_id=str(uuid4())))
         assert caught.value.kind == "RUN_SCOPE_MISMATCH"
 
-    def test_a_live_gateway_cannot_carry_a_registered_simulation(self, kit, engine, run) -> None:
+    def test_a_live_gateway_cannot_carry_any_publication(self, kit, engine, run) -> None:
         body = kit.seal(kit.pv(1))
         (record,) = simulation_records(run_attestation(run, self.stage(run, [body])))
         live_gateway, live_source = uuid4(), uuid4()
@@ -464,14 +464,36 @@ class TestRegisteredSimulation:
         with pytest.raises(PublicationRefused) as caught:
             ledger().register_publication(replace(record, gateway_id=live_gateway, source_id=live_source))
         assert caught.value.kind == "GATEWAY_NOT_SIMULATED"
-        # An authored designation is not tied to gateway mode, but needs a registered fixture.
+        # Phase-1 review M1: an authored designation on a LIVE gateway is refused too, with nothing written.
         authored = replace(record, gateway_id=live_gateway, source_id=live_source, source_class=AUTHORED_DEMONSTRATION,
                            fixture_id=P01[0], fixture_version="1", run_id=None, run_identity_sha256=None,
                            authority=FIXTURE_PUBLISHER)
-        assert ledger().register_publication(authored).created
+        with pytest.raises(PublicationRefused) as caught:
+            ledger().register_publication(authored)
+        assert caught.value.kind == "GATEWAY_NOT_SIMULATED"
+        assert count(engine, "evidence_publication") == 0
 
 
 class TestDatabaseImmutability:
+    def test_downgrade_refuses_while_a_publication_exists(self, kit, engine) -> None:  # noqa: F811
+        """Phase-1 review L3: 0014's downgrade never deletes immutable provenance; it refuses and stays at head."""
+        from alembic import command
+        from alembic.config import Config
+
+        reg = publish(kit, kit.seal(kit.pv(1)))
+        config = Config(str(BACKEND / "alembic.ini"))
+        config.attributes["database_url"] = URL
+        engine.dispose()
+        try:
+            with pytest.raises(Exception, match="Downgrade of 0014_evidence_publication refused"):
+                command.downgrade(config, "0013_schedule_state")
+            with engine.connect() as c:
+                assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
+                    "0014_evidence_publication")
+                assert c.execute(text("SELECT id FROM evidence_publication")).scalar_one() == reg.publication_id
+        finally:
+            command.upgrade(config, "head")
+
     def test_provenance_rows_refuse_update_delete_and_wrong_links(self, kit, engine) -> None:
         body = kit.seal(kit.pv(2))
         reg = publish(kit, body)

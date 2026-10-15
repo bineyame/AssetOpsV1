@@ -38,7 +38,6 @@ from assetops_backend.evidence.ledger import (
     recompute_window,
 )
 from assetops_backend.evidence.publication import (
-    REGISTERED_SIMULATION,
     PublicationMismatch,
     PublicationRecord,
     PublicationRefused,
@@ -301,7 +300,7 @@ class PostgresEvidenceLedger:
 
         Under the slot lock: refuse once any admission of the slot exists (even a partial one); an identical
         retry returns the stored ID; a different commitment for the slot, or a reused publication ID, fails.
-        The gateway/source registration is re-read here; `REGISTERED_SIMULATION` needs a `SIMULATED` gateway.
+        The gateway/source registration is re-read here; every class needs a `SIMULATED` gateway (review M1).
         """
         def work(c: Connection) -> Registered:
             _lock_slot(c, record.tenant_id, record.site_id, record.external_batch_id)
@@ -326,9 +325,12 @@ class PostgresEvidenceLedger:
             ).first()
             if source is None or source.gateway_id != record.gateway_id or source.site_id != record.site_id:
                 raise PublicationRefused("SOURCE_NOT_AFFILIATED", "the source is not registered to this gateway and Site")
-            if record.source_class == REGISTERED_SIMULATION and gateway.mode != "SIMULATED":
+            # Phase-1 review M1: every source class designates demonstration or simulated data, so it needs a
+            # SIMULATED gateway (a source has no mode of its own; it reports through this gateway). Checked under
+            # the slot lock, before anything is written.
+            if gateway.mode != "SIMULATED":
                 raise PublicationRefused("GATEWAY_NOT_SIMULATED",
-                                         f"a registered simulation needs a SIMULATED gateway, not {gateway.mode}")
+                                         f"a source publication needs a SIMULATED gateway, not {gateway.mode}")
             wanted = (
                 record.tenant_id, record.site_id, record.gateway_id, record.source_id, record.external_batch_id,
                 record.payload_sha256, record.source_class, record.fixture_id, record.fixture_version,
