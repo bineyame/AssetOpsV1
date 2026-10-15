@@ -47,6 +47,11 @@ class InvalidSelection(ValueError):
     pass
 
 
+class PinNotFound(LookupError):
+    """A pinned Finding or revision outside this tenant/Site (404 at the route; review L2: a dedicated type, so an
+    internal KeyError is never reported as a missing pin)."""
+
+
 def day_bounds(day: date) -> tuple[datetime, datetime]:
     start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
     return start, start + timedelta(days=1)
@@ -139,12 +144,15 @@ class SiteOverviewRead:
             if not intersects(f["episode_start"], f["episode_end"], start, end):
                 continue
             root = self.findings.finding_detail(t, s, UUID(f["finding_id"]))
-            if root is None or (root.get("relations") or {}).get("merged_into"):
+            if root is None:  # review L7: unreadable is not the same as merged
+                excluded.append({"finding_id": f["finding_id"], "reason": "FINDING_NOT_READABLE"})
+                continue
+            if (root.get("relations") or {}).get("merged_into"):
                 excluded.append({"finding_id": f["finding_id"], "reason": "SUPERSEDED_BY_MERGE"})
                 continue
             candidates.append({**f, "_root": root})
         fresh = choose(candidates)
-        pin_view = self._pin(t, s, pinned)
+        pin_view, pin_dropped = self._pin(t, s, pinned, start, end, source_open)
         if pin_view is not None and not (discovery_complete and source_open):
             chosen, rule = pin_view, "PINNED_RETAINED_WHILE_BASIS_INCOMPLETE"
         elif source_open and fresh is not None:
@@ -167,6 +175,8 @@ class SiteOverviewRead:
             f_reasons.append("SOURCE_CLOSED")
         if state == "CURRENT" and (not source_open or moved or fp_error or fp_error_after):
             state = "STALE_PROJECTION"
+        previous_pin = self._previous_pin(pinned, pin_dropped, chosen, rule)
+        retained = rule == "PINNED_RETAINED_WHILE_BASIS_INCOMPLETE"
         match = next((m for m in up["match"] if m["day"] == day.isoformat()), {})
         built = {
             "schema_version": SCHEMA_VERSION, "site_id": str(s), "site_code": code, "access_basis": access_basis,
@@ -194,30 +204,63 @@ class SiteOverviewRead:
                 "selection_rule": SELECTION_RULE, "selected_by": rule,
                 "episode": {"start": _iso(chosen["episode_start"]), "end": _iso(chosen["episode_end"])},
                 "audit_only": not source_open,
-                "several_intersect": len(candidates) > 1, "note": SINGLE_FINDING_NOTE,
-                "excluded": excluded,
-                "previous_pin": None if pinned is None or (str(pinned[0]) == chosen["finding_id"]) else {
-                    "finding_id": str(pinned[0]), "reason": "BASIS_CHANGED_CHOICE"},
+                # Review M2: a retained pin reports nothing from the unpinned current discovery.
+                "several_intersect": False if retained else len(candidates) > 1, "note": SINGLE_FINDING_NOTE,
+                "excluded": [] if retained else excluded,
+                "previous_pin": previous_pin,
                 "link": self._finding_link(code, chosen["finding_id"], chosen["finding_revision_id"])},
             "finding_list": dict(FINDING_LIST),
+            "previous_pin": previous_pin,
         }
         return built
 
     # ---- pinned Finding (review N3: optional scope-checked query parameters) ----
 
-    def _pin(self, t: UUID, s: UUID, pinned: tuple[UUID, UUID | None] | None) -> dict[str, Any] | None:
+    def _pin(self, t: UUID, s: UUID, pinned: tuple[UUID, UUID | None] | None, start: datetime, end: datetime,
+             source_open: bool) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+        """The pinned Finding version, or None with the reason it is not honoured.
+
+        Review M1: the pinned revision must intersect the selected day (the same half-open rule as discovery), so
+        another day's Finding never stands in for this day. Review M2: while the source is closed only an exact
+        `(finding_id, finding_revision_id)` pin is honoured, as the Finding read refuses an unpinned version then.
+        """
         if pinned is None:
-            return None
+            return None, None
         fid, rid = pinned
         root = self.findings.finding_detail(t, s, fid)
         if root is None:
-            raise LookupError("No such Finding for this Site.")
+            raise PinNotFound("No such Finding for this Site.")
         revisions = root["revisions"]
+        if rid is None and not source_open:
+            return None, {"finding_id": str(fid), "finding_revision_id": None,
+                          "reason": "EXACT_REVISION_REQUIRED_WHILE_SOURCE_CLOSED"}
         rev = revisions[-1] if rid is None else next((r for r in revisions if str(r["id"]) == str(rid)), None)
         if rev is None:
-            raise LookupError("No such revision for this Finding.")
+            raise PinNotFound("No such revision for this Finding.")
+        if not intersects(rev["episode_start"], rev["episode_end"], start, end):
+            return None, {"finding_id": str(fid), "finding_revision_id": str(rev["id"]),
+                          "reason": "NOT_IN_SELECTED_DAY"}
         return {"finding_id": str(fid), "finding_revision_id": str(rev["id"]), "episode_start": rev["episode_start"],
-                "episode_end": rev["episode_end"], "root": root}
+                "episode_end": rev["episode_end"], "root": root}, None
+
+    @staticmethod
+    def _previous_pin(pinned: tuple[UUID, UUID | None] | None, dropped: dict[str, Any] | None,
+                      chosen: dict[str, Any] | None, rule: str | None) -> dict[str, Any] | None:
+        """Review L3: what happened to a pin that is not the shown choice, with a distinct reason."""
+        if dropped is not None:
+            return dropped
+        if pinned is None:
+            return None
+        fid, rid = str(pinned[0]), None if pinned[1] is None else str(pinned[1])
+        if chosen is None:
+            return {"finding_id": fid, "finding_revision_id": rid, "reason": "SETTLED_DISCOVERY_FOUND_NO_FINDING"}
+        if rule != "DISCOVERED":
+            return None
+        if chosen["finding_id"] != fid:
+            return {"finding_id": fid, "finding_revision_id": rid, "reason": "SETTLED_CHOICE_IS_ANOTHER_FINDING"}
+        if rid is not None and chosen["finding_revision_id"] != rid:
+            return {"finding_id": fid, "finding_revision_id": rid, "reason": "NEWER_REVISION_OF_THE_SAME_FINDING"}
+        return None
 
     # ---- money ----
 

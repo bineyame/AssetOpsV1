@@ -377,6 +377,13 @@ export interface WindowMoney {
   };
 }
 
+/** What happened to a pinned Finding version that is not the one shown (server reason codes). */
+export interface PreviousPin {
+  finding_id: string;
+  finding_revision_id?: string | null;
+  reason: string;
+}
+
 export interface WindowKnownFinding {
   id: string;
   revision_id: string;
@@ -387,7 +394,7 @@ export interface WindowKnownFinding {
   several_intersect: boolean;
   note: string;
   excluded: { finding_id: string; reason: string }[];
-  previous_pin: { finding_id: string; reason: string } | null;
+  previous_pin: PreviousPin | null;
   link: { page: string; api: string };
 }
 
@@ -422,6 +429,8 @@ export interface SiteWindowSummary {
   money: WindowMoney;
   known_finding: WindowKnownFinding | null;
   finding_list: { state: "UNAVAILABLE"; reason: string };
+  /** Review L3: set when a pinned Finding version is not the one shown, even when no Finding is shown. */
+  previous_pin?: PreviousPin | null;
 }
 
 /** The S5 shape is recognised by its schema version and every field the screen renders. */

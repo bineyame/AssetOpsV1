@@ -248,7 +248,9 @@ def test_pinned_finding_is_retained_while_the_basis_moves_and_replaced_once_sett
     assert held["money"]["state"] == ms.UPSTREAM_PENDING and held["money"]["amount_high"] is None
     settled = run(World([old, new]), pinned=(UUID(old["finding_id"]), UUID(old["finding_revision_id"])))
     assert settled["known_finding"]["id"] == new["finding_id"]
-    assert settled["known_finding"]["previous_pin"]["finding_id"] == old["finding_id"]
+    assert settled["known_finding"]["previous_pin"] == {
+        "finding_id": old["finding_id"], "finding_revision_id": old["finding_revision_id"],
+        "reason": "SETTLED_CHOICE_IS_ANOTHER_FINDING"}
     with pytest.raises(LookupError):
         run(world, pinned=(uuid4(), None))
 
@@ -259,9 +261,54 @@ def test_source_closed_keeps_only_pinned_audit_material() -> None:
     assert closed["known_finding"] is None and closed["money"]["state"] == ms.SOURCE_CLOSED
     assert closed["assessment"]["state"] == "CLOSED" and closed["assessment"]["run_id"] is None
     assert closed["freshness"]["state"] != "CURRENT" and closed["freshness"]["source_open"] is False
-    pinned = run(World([f]), source_open=False, pinned=(UUID(f["finding_id"]), None))
+    # Review M2: while closed, an ID-only pin is not resolved to the latest revision.
+    bare = run(World([f]), source_open=False, pinned=(UUID(f["finding_id"]), None))
+    assert bare["known_finding"] is None and bare["money"]["state"] == ms.SOURCE_CLOSED
+    assert bare["previous_pin"]["reason"] == "EXACT_REVISION_REQUIRED_WHILE_SOURCE_CLOSED"
+    other = finding(D0 + timedelta(hours=7), D0 + timedelta(hours=9))
+    pinned = run(World([f, other]), source_open=False,
+                 pinned=(UUID(f["finding_id"]), UUID(f["finding_revision_id"])))
     assert pinned["known_finding"]["audit_only"] is True and pinned["known_finding"]["id"] == f["finding_id"]
+    assert pinned["known_finding"]["revision_id"] == f["finding_revision_id"]
+    # nothing from the unpinned current discovery while the pin is retained
+    assert pinned["known_finding"]["several_intersect"] is False and pinned["known_finding"]["excluded"] == []
     assert pinned["money"]["state"] == ms.SOURCE_CLOSED and pinned["money"]["amount_high"] is None
+
+
+def test_a_pin_from_another_day_is_dropped_and_reported() -> None:
+    """Review M1: another day's Finding never stands in for the selected day, even while the basis is incomplete."""
+    elsewhere = finding(D0 - timedelta(days=5), D0 - timedelta(days=5) + timedelta(hours=2))
+    today = finding(D0 + timedelta(hours=6), D0 + timedelta(hours=8))
+    pin = (UUID(elsewhere["finding_id"]), UUID(elsewhere["finding_revision_id"]))
+    pending = {"status": "PENDING", "stage": "S4", "reasons": ["MATCH_PENDING"], "errors": []}
+    for world, source_open in ((World([elsewhere, today], eligibility=pending), True),
+                               (World([elsewhere, today]), False)):
+        body = run(world, source_open=source_open, pinned=pin)
+        assert body["known_finding"] is None or body["known_finding"]["id"] != elsewhere["finding_id"]
+        assert body["previous_pin"] == {"finding_id": elsewhere["finding_id"],
+                                        "finding_revision_id": elsewhere["finding_revision_id"],
+                                        "reason": "NOT_IN_SELECTED_DAY"}
+        assert body["money"]["amount_high"] is None
+    settled = run(World([elsewhere, today]), pinned=pin)
+    assert settled["known_finding"]["id"] == today["finding_id"]
+    assert settled["known_finding"]["previous_pin"]["reason"] == "NOT_IN_SELECTED_DAY"
+
+
+def test_pin_dropped_when_settled_discovery_finds_no_finding() -> None:
+    """Review L3: a pin that settled discovery no longer selects is reported, never dropped silently."""
+    f = finding(D0 + timedelta(hours=6), D0 + timedelta(hours=8))
+    body = run(World([f], merged={f["finding_id"]}), pinned=(UUID(f["finding_id"]), UUID(f["finding_revision_id"])))
+    assert body["known_finding"] is None and body["money"]["state"] == ms.ABSENT
+    assert body["previous_pin"]["reason"] == "SETTLED_DISCOVERY_FOUND_NO_FINDING"
+
+
+def test_unreadable_seam_finding_is_not_called_merged() -> None:
+    """Review L7."""
+    f = finding(D0 + timedelta(hours=6), D0 + timedelta(hours=8))
+    world = World([f])
+    world.revisions.pop(f["finding_id"])
+    body = run(world)
+    assert body["known_finding"] is None
 
 
 # ---- precedence (mutation-checked) ----
@@ -382,6 +429,63 @@ def test_route_day_selection_default_and_validation() -> None:
         response = c.get(f"/api/sites/KOBO-001/overview?{query}")
         assert (response.status_code, response.json()["detail"]["code"]) == (422, code), query
     assert c.get(f"/api/sites/KOBO-001/overview?date=2026-10-24&finding_id={uuid4()}").status_code == 404
+
+
+def test_route_store_outage_is_a_typed_503_and_internal_errors_are_not_pin_misses() -> None:
+    """Review L1 (the legacy handler's 503 kept) and L2 (only a real pin miss is 404)."""
+    from assetops_backend.sites.ports import SiteStoreUnavailable
+
+    def down(code):
+        raise SiteStoreUnavailable("site store down")
+
+    overview = SiteOverviewRoute(World().service(), down, lambda c, t, s: (True, "open"), lambda r, c: None, "DEV")
+    app = FastAPI()
+    app.include_router(build_evidence_router(types.SimpleNamespace(store=None), LegacySites(),
+                                             imported_reads=Imported(True), site_overview=overview))
+    response = TestClient(app).get("/api/sites/KOBO-001/overview")
+    assert (response.status_code, response.json()["detail"]["code"]) == (503, "SITE_STORE_UNAVAILABLE")
+    broken = World()
+    window = broken.window
+    broken.upstream.window = lambda *a: {k: v for k, v in window(*a).items() if k != "schedule"}
+    c, _ = client(broken)
+    with pytest.raises(KeyError):
+        c.get("/api/sites/KOBO-001/overview?date=2026-10-24")
+
+
+def test_route_no_comparison_reader_foreign_site_and_legacy_date(monkeypatch) -> None:
+    """Review L6: no S2 comparison reader is 409; a Site outside this tenant's ledger scope is never read as
+    imported; a legacy Site's `date=` reaches the legacy model as the midnight pair."""
+    import assetops_backend.evidence_api as api
+
+    seen: list = []
+
+    class Legacy:
+        def __init__(self, *a, **k):
+            pass
+
+        def site_overview(self, site, start, end):
+            seen.append((start, end))
+            return {"legacy": True}
+
+    class OneLegacySite:
+        def get_site(self, code):
+            if code != "LEGACY-1":
+                raise SiteNotFound(code)
+            return types.SimpleNamespace(site_id=code)
+
+    monkeypatch.setattr(api, "OverviewReadModel", Legacy)
+    world = World()
+    overview = SiteOverviewRoute(world.service(), {"KOBO-001": ("KOBO-001", T, S)}.get,
+                                 lambda c, t, s: (True, "open"), lambda r, c: None, "DEV")
+    app = FastAPI()
+    app.include_router(build_evidence_router(types.SimpleNamespace(store=None), OneLegacySite(),
+                                             imported_reads=None, site_overview=overview))
+    c = TestClient(app)
+    response = c.get("/api/sites/KOBO-001/overview?date=2026-10-24")
+    assert (response.status_code, response.json()["detail"]["code"]) == (409, "AWAITING_EVIDENCE_MIGRATION")
+    assert c.get("/api/sites/OTHER-TENANT-SITE/overview?date=2026-10-24").status_code == 404
+    assert c.get("/api/sites/LEGACY-1/overview?date=2026-10-24").json() == {"legacy": True}
+    assert seen == [("2026-10-24T00:00:00Z", "2026-10-25T00:00:00Z")]
 
 
 def test_selected_day_and_legacy_translation() -> None:

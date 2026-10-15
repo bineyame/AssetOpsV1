@@ -401,6 +401,21 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(where()).toBe(`/sites/${SITE_ID}?date=2026-11-10`);
   });
 
+  it("names a Finding pin the server did not honour for this day", async () => {
+    const { client } = clientOf(() =>
+      summary("2026-10-24", {
+        known_finding: null,
+        previous_pin: { finding_id: FID, finding_revision_id: RID, reason: "NOT_IN_SELECTED_DAY" },
+      }),
+    );
+    renderAt(`/sites/${SITE_ID}?date=2026-10-24&finding_id=${FID}&finding_revision_id=${RID}`, client);
+    await settledScreen();
+    expect(document.querySelector('[data-previous-pin="NOT_IN_SELECTED_DAY"]')?.textContent).toContain(
+      "does not overlap this day",
+    );
+    expect(where()).toBe(`/sites/${SITE_ID}?date=2026-10-24`);
+  });
+
   it("a failed day reads Failed", async () => {
     const { client } = clientOf(() =>
       summary(

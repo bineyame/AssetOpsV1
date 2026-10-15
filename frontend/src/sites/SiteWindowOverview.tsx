@@ -538,8 +538,19 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
   );
 }
 
+/** What happened to the Finding version named in the address, by the server's reason. */
+const PIN_WORDS: Record<string, string> = {
+  NOT_IN_SELECTED_DAY: "The Finding in the address does not overlap this day, so it is not shown for it.",
+  EXACT_REVISION_REQUIRED_WHILE_SOURCE_CLOSED:
+    "While the Performance source is closed, only an exact Finding version can be shown, for audit.",
+  SETTLED_DISCOVERY_FOUND_NO_FINDING: "This day has settled and no longer selects the Finding in the address.",
+  SETTLED_CHOICE_IS_ANOTHER_FINDING: "This day has settled on another Finding than the one in the address.",
+  NEWER_REVISION_OF_THE_SAME_FINDING: "A newer version of the Finding in the address is shown.",
+};
+
 function KnownFinding({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const k = summary.known_finding;
+  const pin = summary.previous_pin ?? k?.previous_pin ?? null;
   return (
     <Panel heading="Findings" headingId="site-window-findings-heading">
       {k === null ? (
@@ -553,11 +564,7 @@ function KnownFinding({ summary, links }: { summary: SiteWindowSummary; links: W
             {k.audit_only ? " (kept for audit; not current)" : ""}
           </p>
           {k.several_intersect ? <p>{k.note}</p> : null}
-          {k.previous_pin ? (
-            <p data-previous-pin={k.previous_pin.finding_id}>
-              The day&apos;s settled Finding has changed from the one in the address.
-            </p>
-          ) : null}
+
           <Disclosure summary="How this Finding was chosen" name="window-finding-choice">
             <FactList>
               <Fact term="Chosen by">
@@ -576,6 +583,9 @@ function KnownFinding({ summary, links }: { summary: SiteWindowSummary; links: W
           </Disclosure>
         </div>
       )}
+      {pin ? (
+        <p data-previous-pin={pin.reason}>{PIN_WORDS[pin.reason] ?? "The Finding in the address is not the one shown."}</p>
+      ) : null}
       <p data-finding-list={summary.finding_list.state}>{summary.finding_list.reason}</p>
     </Panel>
   );

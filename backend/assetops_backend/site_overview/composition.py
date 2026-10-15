@@ -12,11 +12,10 @@ from typing import Any
 
 def build_site_overview_read(database_url: str | None, ledger: Any, thresholds: Any = None,
                              environment: str = "default"):
-    from assetops_backend.analytics.composition import build_finding_store
-    from assetops_backend.financials.composition import build_consequence_read_service
     from assetops_backend.scheduling.composition import build_upstream_currentness
     from assetops_backend.site_overview.read import SiteOverviewRead
 
-    return SiteOverviewRead(build_upstream_currentness(database_url, thresholds), ledger,
-                            build_consequence_read_service(database_url), build_finding_store(database_url),
-                            environment=environment)
+    # Review L4: one seam per process. The money read and Finding store are the seam's own (the production
+    # `build_consequence_read_service` and Finding store), so `dispose` releases every engine this read owns.
+    upstream = build_upstream_currentness(database_url, thresholds)
+    return SiteOverviewRead(upstream, ledger, upstream.consequence_read, upstream.findings, environment=environment)

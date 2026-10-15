@@ -29,6 +29,9 @@ from uuid import UUID
 from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend.site_overview.read import PinNotFound
+from assetops_backend.sites.ports import SiteStoreUnavailable
+
 Access = Callable[[Request, str], "int | None"]
 Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 Gate = Callable[[str, UUID, UUID], "tuple[bool, str]"]
@@ -98,6 +101,7 @@ class SiteOverviewRoute:
     access: Access
     access_basis: str
     unavailable: tuple[type, ...] = ()
+    scope_unavailable: tuple[type, ...] = (SiteStoreUnavailable,)
     legacy_window = staticmethod(legacy_window)
 
     def serve(self, request: Request, site_code: str, s2_scope: Callable[[str], Any]) -> dict[str, Any] | None:
@@ -108,7 +112,11 @@ class SiteOverviewRoute:
         if refusal == 403:
             raise HTTPException(status_code=403, detail={"code": "SITE_SCOPE_FORBIDDEN",
                                                          "message": f"No access to Site {site_code!r}."})
-        found = self.scope(site_code)
+        try:
+            found = self.scope(site_code)
+        except self.scope_unavailable as error:  # review L1: the legacy handler's typed 503, kept
+            raise HTTPException(status_code=503, detail={"code": "SITE_STORE_UNAVAILABLE",
+                                                         "message": str(error)}) from error
         if found is None:
             return None
         code, tenant_id, site_id = found
@@ -132,7 +140,7 @@ class SiteOverviewRoute:
             body = self.read.read(code, tenant_id, site_id, day, access_basis=self.access_basis,
                                   source_open=bool(permitted), source_reason=reason,
                                   pinned=None if fid is None else (fid, rid))
-        except LookupError as error:
+        except PinNotFound as error:
             raise HTTPException(status_code=404, detail={"code": "FINDING_PIN_NOT_FOUND",
                                                          "message": str(error)}) from error
         except self.unavailable as error:
