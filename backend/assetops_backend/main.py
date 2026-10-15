@@ -322,7 +322,8 @@ def create_app(
     site_overview_read = (build_site_overview_read(database_url(), batch_ingestion.ledger)
                           if database_url() else None)
     if site_overview_read is not None:
-        app.add_event_handler("shutdown", site_overview_read.dispose)
+        # FastAPI 0.141 has no add_event_handler; the router's shutdown list runs under the default lifespan.
+        app.router.on_shutdown.append(site_overview_read.dispose)
     site_overview = SiteOverviewRoute(site_overview_read, registry.ledger_scope, performance_gate,
                                       development_access, ACCESS_BASIS,
                                       (LedgerUnavailable, AssessmentStoreUnavailable, SCHEDULE_UNAVAILABLE,

@@ -215,3 +215,18 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         tight.dispose()
         ledger.dispose() if hasattr(ledger, "dispose") else None
         w.close()
+
+
+def test_the_application_starts_with_a_database_and_disposes_the_overview_seam(engine, monkeypatch) -> None:  # noqa: F811
+    """The production `create_app` builds the S5 read with a product database and releases it at shutdown (a
+    phase-2 finding: `add_event_handler` does not exist on this FastAPI, so the app failed to start)."""
+    from assetops_backend import main
+    from assetops_backend.site_overview.read import SiteOverviewRead
+
+    disposed: list = []
+    real = SiteOverviewRead.dispose
+    monkeypatch.setattr(SiteOverviewRead, "dispose", lambda self: (disposed.append(1), real(self)))
+    monkeypatch.setenv("DATABASE_URL", URL)
+    with TestClient(main.create_app()) as client:
+        assert client.get("/api/sites/NO-SUCH-SITE/overview?date=2026-10-24").status_code == 404
+    assert disposed == [1]
