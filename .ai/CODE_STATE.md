@@ -5518,6 +5518,7 @@ Branch `task/S6-01b-action-ui`, stacked on unmerged S6-01a `c341599b`; no backen
   - `Ref` is the exact-ID element, exempt from the vocabulary scan;
   - `RefusalPanel` and `CommandRefusal`.
 - Recommendation `sites/SiteRecommendation.tsx`. It is a Finding child view `recommendation` (`operatorSiteRoutes.ts` `FINDING_CHILD_VIEWS`). Finding "What to do next" links to it at the exact version.
+- Reopen round (`D-2026-10-15-s601-reopen`): `SiteRecommendation.tsx` lists `prior_actions.items` ("Actions on this Finding", own origin version, never relabelled). `state=PRIOR_ACTION_UNRESOLVED` (from `state`, not block presence) shows the notice naming/linking the blocking Action, the live recomputation as a separate reason, and a disabled Accept with the stated reason; a 409 `PRIOR_ACTION_UNRESOLVED` on accept is reported likewise. Apply is disabled while the effective-time field is cleared; failure codes in the change page list do not wrap. Open: S6-02 must add the resolved/closed transition that releases the hold.
 - Action root `sites/SiteAction.tsx` + `SiteActionFrame` (`shell/SiteAnalyticsFrames.tsx`).
   - Overview, Application (`/execution`) and History. The selector `event_id` | `recorded_at` is carried in every section link.
   - 404 `ACTION_EVENT_NOT_FOUND` reads "Selected event not found" and links the latest record (phase-1 review M1).

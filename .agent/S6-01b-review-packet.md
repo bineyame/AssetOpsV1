@@ -128,7 +128,7 @@ One persisted, Finding-linked Action can be viewed through real reads of S6-01a'
 
 ## Residual risk
 
-- The Recommendation for a newer FindingRevision does not mention the Action accepted on the earlier one. This is S6-01a server behaviour and a decision candidate for the Architect or owner.
+- (Resolved in the reopen round below: the newer FindingRevision now names and links the earlier Action and holds Accept.)
 - The default `effective_from` assumes the server and browser clocks roughly agree. A mismatch surfaces as a typed `ACTION_EFFECTIVE_TIME_INVALID`.
 - jsdom 1440/390 tests prove structure only; rendered layout rests on the browser run above.
 
@@ -138,4 +138,30 @@ Walk the eight steps in `.agent/S6-01b-owner-walkthrough.md` at 1440 and at 390.
 - whether the accepted-snapshot vs live-recomputation pairing reads clearly;
 - the change page's versions table;
 - the honesty wording (no effect, saving or approval);
-- whether a newer Finding version should show the earlier Action.
+- the step-2 notice on a newer Finding version: the earlier Action named and linked, the greyed-out Accept and its reason, the separate live reason (reopen round).
+
+## Reopen round (`D-2026-10-15-s601-reopen`, slice review Lows L1-L3)
+
+Brief `.agent/S6-01b-reopen-brief.md`; ruling `AssetOpsV1-gap-planning/.agent/architect-S6-01-reopen-answers.md`; S6-01a reopen merged in at `bb577b0d`. Code commits `59d7fe90`, `ffd5d6c5`, `25b533fc`, `85dd5fa4`, `07b6fa4a` (diff `4603ceaf..07b6fa4a`); handoff `.agent/S6-01b-reopen-handoff.md`. No backend change.
+
+**Delivered (ruling, S6-01b part).**
+- `SiteRecommendation.tsx` reads `prior_actions.items` / `prior_action_block` (types in `actionClient.ts`). "Actions on this Finding" lists every Action with its own origin version (link), "(this version)" or "(not the version on this page)" from `origin.is_selected_revision`, application state with failed-attempt count, outcome words and the Action link. It never relabels an earlier Action.
+- `state=PRIOR_ACTION_UNRESOLVED` (decided from `state` only, never from the block's presence): the notice "An earlier trial is still open" names and links the blocking Action and its origin version, states its application/outcome and the typed reason. The live recomputation is a separate panel worded "a separate reason ... does not make a new trial acceptable". Accept is a disabled button with `aria-describedby` to the stated reason (links the Action). Disabled `.action-command` is now styled as unavailable.
+- A 409 `PRIOR_ACTION_UNRESOLVED` on accept: "Not accepted ... no new Action was recorded", link to the blocking Action, origin version number, code, and the live state separately.
+- Contract cases consumed as recorded: `latest_revision_after_apply` (1440), `latest_revision_after_apply_served_clock_stale` (390), `accept_newer_revision_prior_action_unresolved`; plus `accepted_snapshot_live_status` for "(this version)". One derived body (header item 7): the accepted read with a `prior_action_block` added (the coordinator note: a block can accompany `state=ACCEPTED`); the notice stays absent.
+
+**Lows.**
+- L1: the walkthrough marker records `db=<name>`. `prepare` refuses an existing DB the marker does not record; `drop` checks the marker before dropping and removes the work folder only for the recorded DB. Docstring corrected. Proven by hand: a foreign `assetops_s601b_foreign` DB was refused by `prepare` and `drop` (still present, removed by hand); `drop --db assetops_s601b_other` refused to remove `var/s601b_owner`.
+- L2: `action-list--codes` keeps failure codes on one line. Browser claim: 3 codes, one client rect each, `nowrap`, at 1440 and 390.
+- L3: Apply is disabled while the edited effective-time field is empty, with "Enter the effective time to apply."; nothing is sent.
+
+**Checks (code at `07b6fa4a`).**
+- `npx.cmd tsc --noEmit`: clean. Targeted: siteAction 35, siteFoundationChange 8 passed.
+- Full `npm.cmd test` (on the working tree at `85dd5fa4`, which holds all TSX changes; later commits are CSS and the evidence script only): 64 files, 1522 passed. One earlier targeted run had a single cold-start failure in `siteFoundationChange` (heading not found); passed alone and in two reruns of the pair.
+- `npm.cmd run build`: built (at `07b6fa4a`).
+- `tools/check-all.ps1`: all 9 guards passed (temporary `.venv` junction, removed).
+- Backend: no change in this round; no backend suite run (brief).
+- Mutations (committed code, reverted with `git checkout`): Accept not disabled (2 tests fail); every prior Action labelled "this version" (2 fail); 409 branch disabled (1 fails); L3 guard removed (1 fails); `held` from block presence with the block overriding `accepted` (1 fails: the ACCEPTED+block test). A weaker variant (block presence only in `held`) is render-equivalent because `accepted` renders first, so it is not a mutation the test can see.
+- Browser: `node tools/s601b-action-evidence.mjs http://localhost:5461 <dir>` over a fresh `prepare` of `assetops_s601b_owner`: 66/66 claims at 1440 and 390, including the notice/link/origin, separate `FOUNDATION_BASIS_STALE` live reason, disabled Accept with `cursor: not-allowed` and stated reason, the Actions list, no sideways scroll (100 elements measured), and the L2 codes. Screenshots viewed (`app-recommendation-latest-desktop/narrow.png`). Servers stopped, DB dropped, `var/s601b_owner` removed.
+
+**Known deviations / risk.** The walkthrough cannot trigger the 409 path (the read already holds Accept); it is covered by the recorded-case test only. The served clock reads `FOUNDATION_BASIS_STALE` where the recorded contract reads AVAILABLE; both are tested. USER_REVIEW_REQUIRED stays true: repeat the owner walkthrough (step 2 is new).
