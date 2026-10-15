@@ -1,0 +1,9 @@
+# S6-01b phase 2 - implementer brief
+
+Same worktree, branch and environment as `.agent/S6-01b-phase-1-brief.md` (`C:\Users\assef\Bineyame\AssetOpsV1-review3`, `task/S6-01b-action-ui`, now at `21aabfed`). Build **phase 2** of `tasks/S6-01b-action-ui.md`: the Foundation change deep route `/sites/{site}/foundation/changes/{change_id}` and the honest unavailable state for bare `/foundation/changes` (no new Foundation subtab; respect `foundationScreen.test.tsx:306,344` and `FoundationSubtabs.tsx:32`), linked from `SiteAction.tsx`; styles for the new classes scoped under `.app-frame--operator` so 1440/390 render properly; a reproducible owner walkthrough tool (private `assetops_s601b*` DB, ports that collide with nothing else, `prepare|serve|drop`, a demo grants document for `ASSETOPS_ACTION_DEMO_GRANTS` scoped to the fixture records only, prepared by the tool); browser evidence at 1440 and 390 (mock comparison per packet; `layout-evidence.mjs`); owner walkthrough doc `.agent/S6-01b-owner-walkthrough.md`. This phase's review is the slice review: closeout (CODE_STATE, ACTIVE_CONTEXT, review packet `.agent/S6-01b-review-packet.md`, status `in_review`).
+
+A phase-1 review runs concurrently in another worktree; the coordinator forwards High/Medium findings to fold in.
+
+Proof: `npx.cmd tsc --noEmit`, full `npm.cmd test`, `npm.cmd run build`; ONE full backend suite from PowerShell with `--junitxml`, `-n 2 --dist loadfile --no-loadscope-reorder`, `var/sites/*.yaml` copied in temporarily, 20-minute cap (first check no other `pytest -n 2` runs; wait if one does); `tools/check-all.ps1` (temporary `.venv` junction, removed afterwards). Drop DBs, stop servers. Commit as you go; do not merge; do not touch `.agent/coordinator-handoff.md` or `.agent/owner-autonomy-2026-10-15.md`.
+
+Handoff `.agent/S6-01b-phase-2-handoff.md` (git add -f). Report concisely.
