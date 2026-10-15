@@ -8,12 +8,14 @@ from __future__ import annotations
 
 
 from assetops_backend.evidence.adapters import gateway_credential_file
+from assetops_backend.evidence.adapters.authored_fixture_specs import AuthoredFixtureSpecs
 from assetops_backend.evidence.adapters.json_evidence_store import JsonEvidenceStore
 from assetops_backend.evidence.adapters.legacy_comparison_file import ComparisonReportFiles
 from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
 from assetops_backend.evidence.adapters.postgres_gateway_access import PostgresGatewayAccess
 from assetops_backend.evidence.ledger import EvidenceLedger
 from assetops_backend.evidence.ports import EvidenceStore
+from assetops_backend.evidence.source_provenance import SourceProvenanceResolver
 
 
 def build_evidence_store() -> EvidenceStore:
@@ -24,6 +26,16 @@ def build_evidence_store() -> EvidenceStore:
 def build_evidence_ledger(database_url: str | None) -> EvidenceLedger:
     """The central Batch V2 evidence ledger (S2-02). Lazy: no connection until first use."""
     return PostgresEvidenceLedger(database_url)
+
+
+def build_authored_fixture_specs() -> AuthoredFixtureSpecs:
+    """S4-05a: the server's authored fixture/spec registry for source publication."""
+    return AuthoredFixtureSpecs()
+
+
+def build_source_provenance(database_url: str | None) -> SourceProvenanceResolver:
+    """S4-05a phase 2: the exact-revision source provenance resolver (read-only). Lazy like the ledger."""
+    return SourceProvenanceResolver(PostgresEvidenceLedger(database_url))
 
 
 def build_gateway_access(database_url: str | None) -> PostgresGatewayAccess:

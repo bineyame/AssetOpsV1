@@ -5493,6 +5493,17 @@ Branch `task/OPS-01-backend-test-speed` from main `52189ec7`. Handoffs `.agent/O
 - Escape hatches: `ASSETOPS_TEST_TEMPLATE=0`, `ASSETOPS_TEST_CLEANUP=truncate`; measurement knobs off by default.
 - Open: inline stores still GC-disposed (no public `dispose()` on production stores); `gc.collect()` fixtures kept; concurrent full runs unproven (one-at-a-time policy); timing-sensitive S4 cases did not flake in 3 parallel runs but remain disk-stall sensitive; `-n 3` not adopted on one run.
 
+## S4-05a - immutable source binding and exact-revision resolver (built, in_review)
+
+Branch `task/S4-05a-provenance-binding-resolver` from main `fd7afd2c`. Handoffs `.agent/S4-05a-phase-1-handoff.md`, `.agent/S4-05a-phase-2-handoff.md` (resolver field contract for S4-05b); packet `.agent/S4-05a-review-packet.md`. Authority `D-2026-10-15-s405-stored-demo-provenance`, `.agent/architect-S4-05-answers.md`.
+
+- Migration `0017_evidence_publication`: insert-only `evidence_publication` (SYSTEM actor, class CHECK: authored fixture ID+version or run ID+64-hex run digest) and `batch_publication_link` (composite FKs to the exact batch and publication commitment); UPDATE/DELETE triggers; downgrade refuses while publications exist (tested).
+- Ledger writer (`postgres_evidence_ledger.py`) is the only provenance writer: `register_publication` and `open_batch` share `pg_advisory_xact_lock` on (tenant, Site, external batch ID); registration refuses after any admission, needs a registered gateway/source and (phase-1 review M1) a `SIMULATED` gateway for every class; `open_batch` binds the exact commitment or refuses 409 `PUBLICATION_MISMATCH`. Unpublished uploads stay accepted and unbound.
+- Domain `evidence/publication.py` (authored records, run attestation), `runs/source_publication.py`, server CLI `publish_source.py`; no HTTP route.
+- Resolver `evidence/source_provenance.py` (pure, route-safe) + read-only ledger methods `link_rows`, `finding_revision_evidence`, `consequence_inputs`; `composition.build_source_provenance`. FindingRevision cited set; consequence = union of its FindingRevision set and its own power-interval IDs, with `finding_revision_state` and `CONSEQUENCE_POWER_INPUT_CONFLICT`. Several run IDs -> MIXED (N-L2). Missing/foreign-Site/broken precede MIXED. Cross-tenant IDs read as not found (no disclosure).
+- Rule 8 (`configuration-persistence.ps1`): ledger INSERT-only provenance; split `UPDATE|DELETE FROM|TRUNCATE <provenance table>` refused in any module (review L1); HTTP modules may not reference designation.
+- Not changed: every read DTO and the date/spec source heuristic (S4-05b cuts over).
+- Open: N-L1 producer registration in a non-route module (S4-05b); migration re-chain vs LR-01/S6-01a; run identity digest is not re-verified after registration (file-backed run store); lock key is the admission slot, stricter than the packet wording; no TRUNCATE trigger (rule 8 only); S5-01 amendment (N-L3).
 ## S6-01a - Action store, controlled application and exact read (in_review)
 
 Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Packet `.agent/S6-01a-review-packet.md`; handoffs `.agent/S6-01a-phase-1-handoff.md`, `.agent/S6-01a-phase-2-handoff.md`. Authority `D-2026-10-15-s601-action-store-and-ui` (`.agent/architect-S6-01-answers.md` Q1-Q5, M1-M3).

@@ -688,6 +688,17 @@ function Invoke-ConfigurationPersistenceCheck {
         'schedule_cursor' = @('after_tenant_id', 'after_site_id', 'updated_at')
         'schedule_enrolment' = @('enrolled', 'changed_by', 'changed_at')
     }
+    # S4-05a (D-2026-10-15-s405-stored-demo-provenance, Architect rule-8 ruling): source provenance extends the
+    # existing ledger writer; no new writer. The ledger may only INSERT into the two migration-0017 provenance
+    # tables, each statement on one line with its VALUES and no ON CONFLICT (so an upsert cannot hide on a
+    # continuation line). UPDATE, DELETE, TRUNCATE, upsert and DDL on them are refused here and by the 0017
+    # immutability triggers. Anywhere in the ledger, DO UPDATE is refused and ON CONFLICT is allowed only as the
+    # three existing DO NOTHING arbiters (batch refusal, external batch slot, accepted message key), which keeps
+    # the batch INSERT distinct from an upsert on a binding. No other module writes either table, and no HTTP
+    # module (main.py, *_api.py) reaches the designation command.
+    $provenanceTables = @('evidence_publication', 'batch_publication_link')
+    $ledgerConflictAllowed = '(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b'
+    $provenanceInsertsSeen = @{ 'evidence_publication' = 0; 'batch_publication_link' = 0 }
     # S6-01a adds the ninth writer, the Action store (D-2026-10-15-s601-action-store-and-ui M1): the sole runtime
     # writer of the migration-0014 Action tables, INSERT-only (append-only rows; no UPDATE, DELETE, upsert,
     # TRUNCATE or DDL), and it writes no other table. No other module - explicitly not the Foundation adapter,
@@ -719,9 +730,23 @@ function Invoke-ConfigurationPersistenceCheck {
                 }
                 $pgWritesSeen[$module.Path]++
                 $target = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
-                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or $ledgerTables -notcontains $target)) {
-                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')); " +
+                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or
+                        ($ledgerTables -notcontains $target -and $provenanceTables -notcontains $target))) {
+                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')) " +
+                        "and inserts provenance ($($provenanceTables -join ', ')); " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $provenanceTables -contains $target) {
+                    $where = "$($module.Path):${lineNumber}: $($line.Trim())"
+                    if ($module.Path -ne $ledgerWriter) {
+                        $failures.Add("Only $ledgerWriter writes source provenance table '$target'; $where.") | Out-Null
+                    } elseif ($line -notmatch '(?i)\bINSERT\s+INTO\s+(?:evidence_publication|batch_publication_link)\s*\(' -or
+                            $line -notmatch '(?i)\bVALUES\s*\(' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("The evidence ledger only INSERTs provenance rows, one statement per line with " +
+                            "its VALUES and no ON CONFLICT (no UPDATE, DELETE, TRUNCATE or upsert); $where.")) | Out-Null
+                    } else {
+                        $provenanceInsertsSeen[$target]++
+                    }
                 }
                 if ($module.Path -eq $accessWriter) {
                     $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
@@ -803,6 +828,35 @@ function Invoke-ConfigurationPersistenceCheck {
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
+            if ($module.Path -eq $ledgerWriter) {
+                $where = "$($module.Path):${lineNumber}: $($line.Trim())"
+                if ($line -match '(?i)\bdo\s+update\b' -or
+                        ($line -match '(?i)\bon\s+conflict\b' -and $line -notmatch $ledgerConflictAllowed)) {
+                    $failures.Add(("The evidence ledger never upserts; ON CONFLICT is allowed only as its three " +
+                        "existing DO NOTHING arbiters; $where.")) | Out-Null
+                }
+                if ($line -match '(?i)\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b|\btruncate\s+(?:table\s+)?[a-z_"]') {
+                    $failures.Add("The evidence ledger runs no DDL or TRUNCATE (migrations own DDL); $where.") | Out-Null
+                }
+            }
+            if ($module.Path -ne $ledgerWriter -and $line -match '(?i)\b(?:evidence_publication|batch_publication_link)\b' -and
+                    $line -match $sqlWrite) {
+                $failures.Add(("Only $ledgerWriter writes source provenance; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
+            # Phase-1 review L1: the write rules above need a whole statement on one line, so a split
+            # "UPDATE evidence_publication" / "SET ..." would pass them. Refuse UPDATE, DELETE FROM or TRUNCATE
+            # followed by a provenance table name in any module (the ledger included), whatever follows.
+            # Phase-1 fix L1: also schema-qualified and quoted names, and the verb ending one line with the
+            # table name beginning the next.
+            $provName = '(?:"?[a-z_]+"?\s*\.\s*)?"?(?:evidence_publication|batch_publication_link)"?(?![a-z_])'
+            $provVerb = '(?i)\b(?:UPDATE|DELETE\s+FROM|TRUNCATE(?:\s+TABLE)?)(?:\s+ONLY)?'
+            $nextLine = if ($lineNumber -lt $module.Lines.Count) { [string]$module.Lines[$lineNumber] } else { '' }
+            if ($line -match "$provVerb\s+$provName" -or
+                    ($line -match "$provVerb\s*`$" -and $nextLine -match "(?i)^\s*$provName")) {
+                $failures.Add(("Source provenance is insert-only: no UPDATE, DELETE or TRUNCATE in any module " +
+                    "(split statements included); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
             if ($module.Path -eq $actionWriter) {
                 # Every line, SQL-shaped or not: the Action store never mutates or removes a row and runs no DDL.
                 if ($line -match '(?i)\bupdate\s+[a-z_"]+\s+set\b|\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\bon\s+conflict\b|\bmerge\s+into\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view|sequence)\b|\bgrant\s+\w|\bcopy\s+[a-z_"]+\s+from\b') {
@@ -879,6 +933,30 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer]) {
             $failures.Add(("The product database writer check found no SQL write or driver import in " +
                 "$writer, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+
+    foreach ($table in $provenanceTables) {
+        if ($provenanceInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no single-line ledger INSERT into $table in $ledgerWriter, so the " +
+                "provenance writer check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    # S4-05a: designation is a server-side command only. No HTTP module may reach it or its tables.
+    $routeModules = @($backendModules | Where-Object {
+        $_.Path -eq "$backendRoot/main.py" -or $_.Path -match '_api\.py$' })
+    if ($routeModules.Count -lt 2) {
+        $failures.Add("Rule 8 scanned $($routeModules.Count) HTTP module(s) for designation routes; update the check.") | Out-Null
+    }
+    $designation = '(?i)\b(?:register_publication|register_authored|register_run|authored_record|simulation_records|publish_source|evidence_publication|batch_publication_link|run_attestation)\b|evidence\.publication\b|runs\.source_publication\b'
+    foreach ($module in $routeModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match $designation) {
+                $failures.Add(("A client route reaches source designation in $($module.Path):${lineNumber}: " +
+                    "$($line.Trim()). Publication is a server-side SYSTEM command only.")) | Out-Null
+            }
         }
     }
 
