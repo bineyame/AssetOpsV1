@@ -21,8 +21,9 @@
 
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { awaitingMigration } from "./siteEvidenceClient";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { SiteWindowOverview, type WindowOverviewLinks } from "./SiteWindowOverview";
 
 import { Badge, Fact, FactList, Panel } from "../ui";
 import { AssessedPeriodTimeline, FuelRange } from "./assessmentGraphics";
@@ -39,9 +40,12 @@ import type {
   OverviewIntervalPoint,
   OverviewMetric,
   OverviewSeries,
+  OverviewSelection,
   SiteOverviewClient,
   SiteOverviewReadModel,
+  SiteWindowSummary,
 } from "./siteOverviewClient";
+import { isSiteWindowSummary } from "./siteOverviewClient";
 
 export const SITE_OVERVIEW_LOADING = "Loading the site's overview.";
 
@@ -61,6 +65,32 @@ export interface SiteOverviewProps {
    * Dispatch's Analysis view for a Needed period without a Finding.
    */
   analysisHref?: (assessmentId: string, isFinding: boolean) => string;
+  /** S5-01: destinations for an imported Site's selected-window Overview. */
+  windowLinks?: WindowOverviewLinks;
+}
+
+/** S5-01: the address parameters an imported Site's Overview keeps across reloads. */
+const SELECTION_KEYS = ["date", "finding_id", "finding_revision_id"] as const;
+
+function selectionOf(params: URLSearchParams): OverviewSelection {
+  return {
+    date: params.get("date"),
+    finding_id: params.get("finding_id"),
+    finding_revision_id: params.get("finding_revision_id"),
+  };
+}
+
+function selectionKey(selection: OverviewSelection): string {
+  return SELECTION_KEYS.map((k) => selection[k] ?? "").join("|");
+}
+
+/** What the served day and Finding would read as in the address (the server's values, copied). */
+function servedSelection(summary: SiteWindowSummary): OverviewSelection {
+  return {
+    date: summary.window.utc_date,
+    finding_id: summary.known_finding?.id ?? null,
+    finding_revision_id: summary.known_finding?.revision_id ?? null,
+  };
 }
 
 export function SiteOverview({
@@ -71,22 +101,63 @@ export function SiteOverview({
   findingHref,
   dispatchHref,
   analysisHref,
+  windowLinks,
 }: SiteOverviewProps) {
   const [result, setResult] =
-    useState<EvidenceRead<SiteOverviewReadModel> | null>(null);
+    useState<EvidenceRead<SiteOverviewReadModel | SiteWindowSummary> | null>(null);
+  const [params, setParams] = useSearchParams();
+  const selection = selectionOf(params);
+  const key = selectionKey(selection);
+  // The selection the shown result already answers: writing the served day and Finding into the address must
+  // not read the same thing again.
+  const answered = useRef<string | null>(null);
 
   useEffect(() => {
+    if (answered.current === `${siteId}#${key}`) {
+      return;
+    }
     let current = true;
     setResult(null);
-    client.getOverview(siteId, {}).then((read) => {
-      if (current) {
-        setResult(read);
+    client.getOverview(siteId, {}, selection).then((read) => {
+      if (!current) {
+        return;
+      }
+      setResult(read);
+      if (read.status === "loaded" && isSiteWindowSummary(read.value)) {
+        // Date change and reload keep the served day and the selected Finding version (packet "Outcome").
+        const served = servedSelection(read.value);
+        const servedKey = selectionKey(served);
+        answered.current = `${siteId}#${servedKey}`;
+        if (servedKey !== key) {
+          const next = new URLSearchParams(params);
+          for (const k of SELECTION_KEYS) {
+            const v = served[k];
+            if (v) {
+              next.set(k, v);
+            } else {
+              next.delete(k);
+            }
+          }
+          setParams(next, { replace: true });
+        }
+      } else {
+        answered.current = null;
       }
     });
     return () => {
       current = false;
     };
-  }, [client, siteId]);
+    // `params` is read through `key`, which names every parameter this read uses.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, siteId, key]);
+
+  const selectDay = (day: string) => {
+    const next = new URLSearchParams(params);
+    next.set("date", day);
+    next.delete("finding_id");
+    next.delete("finding_revision_id");
+    setParams(next);
+  };
 
   if (result === null) {
     return <p>{SITE_OVERVIEW_LOADING}</p>;
@@ -112,6 +183,16 @@ export function SiteOverview({
     );
   }
 
+  if (isSiteWindowSummary(result.value)) {
+    if (windowLinks === undefined) {
+      return (
+        <Panel heading="Overview unavailable" headingId="site-overview-unavailable-heading">
+          <p>This screen has no destinations for the selected-day Overview.</p>
+        </Panel>
+      );
+    }
+    return <SiteWindowOverview summary={result.value} links={windowLinks} onSelectDay={selectDay} />;
+  }
   const overview = result.value;
   const profile = presentationProfileFor(overview.site_type);
   const cards = orderedOverviewCards(profile, overview.cards);
