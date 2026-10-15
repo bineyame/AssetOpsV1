@@ -421,7 +421,7 @@ function Application({
             <p className="action-note">
               Applying publishes the accepted reserve ({body.accepted_recommendation.proposed_value}
               {body.accepted_recommendation.unit}) as a new Site Foundation version, acted by a {SYSTEM_DEMONSTRATION}{" "}
-              service. It claims no effect.
+              service. No effect is stated or measured.
             </p>
             {basis ? (
               <p className="action-note" data-action-expected-foundation={basis.current_foundation_revision_id ?? ""}>

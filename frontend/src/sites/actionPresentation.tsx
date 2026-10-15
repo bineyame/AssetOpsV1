@@ -38,10 +38,13 @@ export function TrialLimitation({ limitation }: { limitation: Limitation }) {
   );
 }
 
-/** An exact stored identifier, shown as a reference value rather than prose. */
+/**
+ * An exact stored identifier (ID, code, digest, service name), shown as one
+ * source-owned reference value rather than prose.
+ */
 export function Ref({ value, attr }: { value: string; attr?: string }) {
   return (
-    <code className="action-ref" data-vocabulary-reference={value} {...(attr ? { [attr]: value } : {})}>
+    <code className="action-ref" data-vocabulary-exempt="source-reference" {...(attr ? { [attr]: value } : {})}>
       {value}
     </code>
   );

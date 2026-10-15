@@ -132,7 +132,8 @@ export interface RecommendationBody {
   site_code: string;
   source_open: boolean;
   state: "AVAILABLE" | "UNAVAILABLE" | "ACCEPTED" | string;
-  system_demo_capability: SystemDemoCapability;
+  /** Absent or not `allowed`: the view is read-only (Architect Q4). */
+  system_demo_capability?: SystemDemoCapability | null;
   unavailable: TypedReason | null;
 }
 
@@ -286,7 +287,8 @@ export interface ActionBody {
   selection: Selection;
   site_code: string;
   state: ActionState;
-  system_demo_capability: { apply: SystemDemoCapability; observe: SystemDemoCapability };
+  /** Absent or not `allowed`: the view is read-only (Architect Q4). */
+  system_demo_capability?: { apply?: SystemDemoCapability | null; observe?: SystemDemoCapability | null } | null;
 }
 
 export interface ActionEventsBody {
@@ -341,13 +343,13 @@ export interface ActionClient {
 
 function isRecommendation(value: unknown): value is RecommendationBody {
   return (
-    hasKeys(value, ["accepted", "state", "rule", "revision_id", "finding_id", "system_demo_capability", "links"]) &&
+    hasKeys(value, ["accepted", "state", "rule", "revision_id", "finding_id", "links"]) &&
     Array.isArray((value as { accepted: unknown }).accepted)
   );
 }
 
 function isAction(value: unknown): value is ActionBody {
-  return hasKeys(value, ["action", "accepted_recommendation", "origin", "state", "selection", "system_demo_capability", "links"]);
+  return hasKeys(value, ["action", "accepted_recommendation", "origin", "state", "selection", "links"]);
 }
 
 function isEvents(value: unknown): value is ActionEventsBody {
