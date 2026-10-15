@@ -20,7 +20,7 @@
 import { Link } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
-import { clock, isDay, roleWords, shiftDay, stamp } from "./dispatchWords";
+import { clock, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
 import { portionWords } from "./findingWords";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
 
@@ -256,7 +256,11 @@ function Objective({ summary, links }: { summary: SiteWindowSummary; links: Wind
         </p>
       )}
       {a.limitations.length === 0 ? null : (
-        <p>Limitations: {a.limitations.map((l) => String(l)).join("; ")}</p>
+        <ul className="cell-list" data-assessment-limitations={a.limitations.length}>
+          {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code) => (
+            <li key={code}>{limitationWords(code)}</li>
+          ))}
+        </ul>
       )}
       <Disclosure summary="Exact assessment identifiers" name="window-assessment">
         <FactList>
