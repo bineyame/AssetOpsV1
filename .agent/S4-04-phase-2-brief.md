@@ -1,0 +1,9 @@
+# S4-04 phase 2 - implementer brief
+
+Same worktree, branch and environment as `.agent/S4-04-phase-1-brief.md` (`C:\Users\assef\Bineyame\AssetOpsV1-review`, `task/S4-04-site-finding-index`, now at `6ddde94a`; private DB `assetops_s404p1_test` may be reused). Build **phase 2** of `tasks/S4-04-site-finding-index.md`: the Site Findings UI (`sitefindings:1`) consuming the phase-1 read - separate assessed-empty and positive rows, Unknown/stale/failed/closed-gate/continuity-limit states with no rows and no zero claim, stable order, exact revision links, money shown as unavailable; walkthrough tool and owner walkthrough doc `.agent/S4-04-owner-walkthrough.md` (prepare/serve/settle/gate/drop per the packet, private DB prefix and ports from the packet); browser evidence at 1440 and 390 with the packet's evidence script; closeout (CODE_STATE, ACTIVE_CONTEXT, review packet `.agent/S4-04-review-packet.md`, status `in_review`). This phase's review is the slice review.
+
+A phase-1 review runs concurrently in another worktree; the coordinator forwards High/Medium findings to fold in.
+
+Owner direction: demo speed over perfection - plain wording only where cheap; log copy for the W1-conclusion plain-language task.
+
+Proof: `npx.cmd tsc --noEmit`, full `npm.cmd test`, `npm.cmd run build`; ONE full backend suite from PowerShell with `--junitxml`, `-n 2 --dist loadfile --no-loadscope-reorder`, `var/sites/*.yaml` copied in temporarily (remove afterwards), 20-minute cap (first check no other `pytest -n 2` is running); `tools/check-all.ps1` (temporary `.venv` junction, removed afterwards). Keep-awake (holds the display) running. Drop DBs and stop servers at the end. Commit as you go; do not merge; do not touch `.agent/coordinator-handoff.md` or `.agent/owner-autonomy-2026-10-15.md`. Handoff `.agent/S4-04-phase-2-handoff.md` (git add -f). Report concisely.
