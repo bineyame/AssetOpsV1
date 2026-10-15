@@ -32,3 +32,4 @@ Rules applied (owner-absent rule, memory): owner-decision points (close next-wor
 - **Building:** S6-01b (Action UI; phase 1 reviewed, phase 2 building; held for a later walkthrough).
 - **Not started:** S4-05b (producers, reads, source wording; held for walkthrough).
 - **Backlog carry:** `test_runs_api.py` reads gitignored `var/sites/mg-001.yaml`; commit a test fixture (small OPS follow-on).
+8. **A-finding-index** `D-2026-10-15-a-finding-index` (Architect, after a review RETURN and fix round): Site Finding list for a half-open UTC window up to 31 days; latest revision per canonical Finding from one consistent basis; stable order (episode start desc, then UUID); a closed source gate returns 409 `PERFORMANCE_CUTOVER_CLOSED` with no current rows or "no Findings" claim; "no Findings" only after complete current discovery. Next-work now ranks `I-finding-index` first (5.7% over late-readings; LR-01 is built), an owner-notice band.
