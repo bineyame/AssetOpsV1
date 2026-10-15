@@ -59,7 +59,9 @@ class Feeder:
                 device, self.seq[(source, epoch)], 0, value, source_time=_z(when), epoch=epoch,
                 bound_signal=signal))
         ids = []
-        service = BatchIngestionService(PostgresEvidenceLedger(URL), Clock(decided_at))
+        # S4-07: fixture ordering pins the decision instant through the test-only override (never production).
+        service = BatchIngestionService(
+            PostgresEvidenceLedger(URL, test_decision_clock_override=Clock(decided_at)), Clock(decided_at))
         for device, texts in by_device.items():
             answer = service.submit(self.kit.principal, self.kit.seal(texts, device_id=device).encode("utf-8"))
             assert answer.status == 200 and answer.receipt.status == "COMPLETED", answer

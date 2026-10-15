@@ -10,6 +10,15 @@ Each chunk is one short READ COMMITTED transaction: lock the batch row, read the
 persisted watermark, decide the next ordinals, insert each decision with its
 disposition, advance counters/status and coalesce the recompute job, commit.
 The message-key unique constraint arbitrates concurrent duplicate deliveries.
+
+Decision clock (S4-07): after the batch row lock, the chunk takes one database
+`clock_timestamp()` instant (never `now()`, which can predate the lock wait, nor
+the ingestion host's clock). It stamps every newly decided ordinal's
+`decided_at` and a newly inserted recompute job's `available_at`/`created_at`,
+and lifts a widened PENDING job's `available_at` to at least that instant, so a
+worker lease whose DB-time cutoff predates the decision cannot consume the
+widened job. `test_decision_clock_override` replaces the instant for
+deterministic fixtures only; production composition never sets it.
 """
 
 from __future__ import annotations
@@ -59,9 +68,13 @@ def _uuid_or_none(value: str) -> UUID | None:
 class PostgresEvidenceLedger:
     """`EvidenceLedger` over a migrated PostgreSQL database."""
 
-    def __init__(self, database_url: str | None) -> None:
+    def __init__(self, database_url: str | None, *,
+                 test_decision_clock_override: Callable[[], datetime] | None = None) -> None:
         self._database_url = database_url
         self._engine: Engine | None = None
+        # S4-07: test-only. When set, one call per chunk replaces the DB decision instant (fixture ordering
+        # and the F-A override-path alarm test); it is never production evidence and never composed by main.
+        self.test_decision_clock_override = test_decision_clock_override
 
     def _connect_engine(self) -> Engine:
         if not self._database_url:
@@ -246,7 +259,7 @@ class PostgresEvidenceLedger:
         decide_one: Callable[[int, str], Decision],
         *,
         limit: int,
-        decided_at: datetime,
+        completed_at: datetime,
     ) -> str:
         def work(c: Connection) -> str:
             row = c.execute(
@@ -263,6 +276,9 @@ class PostgresEvidenceLedger:
                 raise ValueError("the retried bytes do not hold the stored batch's ordinals")
             start = row.processed_count
             end = min(row.total_count, start + limit)
+            # S4-07: one decision instant per chunk, DB time taken after the batch row lock (any lock wait is
+            # already behind it), inside the transaction that writes the dispositions and the recompute job.
+            decided_at = self._decision_instant(c)
             tally = {"ACCEPTED": 0, "DUPLICATE": 0, "REJECTED": 0, "CONFLICT": 0}
             accepted: list[Accepted] = []
             first_new: UUID | None = None
@@ -296,7 +312,7 @@ class PostgresEvidenceLedger:
                 {
                     "p": end, "a": tally["ACCEPTED"], "du": tally["DUPLICATE"], "r": tally["REJECTED"],
                     "c": tally["CONFLICT"], "s": "COMPLETED" if done else "IN_PROGRESS",
-                    "done_at": decided_at if done else None, "id": row.id,
+                    "done_at": completed_at if done else None, "id": row.id,
                 },
             )
             window = recompute_window(accepted)
@@ -305,6 +321,11 @@ class PostgresEvidenceLedger:
             return "COMPLETED" if done else "IN_PROGRESS"
 
         return self._run(work, write=True)
+
+    def _decision_instant(self, c: Connection) -> datetime:
+        if self.test_decision_clock_override is not None:
+            return self.test_decision_clock_override()
+        return c.execute(text("SELECT clock_timestamp()")).scalar_one()
 
     def _persist(self, c: Connection, batch, decision: Decision, decided_at: datetime):
         if isinstance(decision, Rejected):
@@ -398,9 +419,14 @@ class PostgresEvidenceLedger:
                  "end": end, "cause": cause, "now": now},
             )
             return
+        # S4-07: widening also lifts `available_at` to at least the decision instant. A scheduled lease's cutoff
+        # is the `now` it sampled before leasing; a lease that sampled it before this decision and runs after
+        # this commit would otherwise consume the widened job at a cutoff that excludes it (proved in
+        # test_s4_evidence_decided_at_postgres). `created_at` is kept.
         c.execute(
-            text("UPDATE recompute_job SET window_start = :start, window_end = :end WHERE id = :id"),
-            {"start": min(start, job.window_start), "end": max(end, job.window_end), "id": job.id},
+            text("UPDATE recompute_job SET window_start = :start, window_end = :end, "
+                 "available_at = GREATEST(available_at, :now) WHERE id = :id"),
+            {"start": min(start, job.window_start), "end": max(end, job.window_end), "now": now, "id": job.id},
         )
 
     # --- receipt ------------------------------------------------------------
