@@ -4,8 +4,9 @@ The fifth product database writer (architecture guard rule 8): it only INSERTs
 its own append-only tables. Writes for one Site run in one transaction under a
 Site-scoped advisory lock and re-check the selection/job fence the matcher read
 under, so a selection that lands between the read and the write is never
-half-applied: the caller re-plans instead. Revisions are idempotent on
-`(finding_id, basis_sha256, transition)`.
+half-applied: the caller re-plans instead. Revisions are append-only and immutable
+(`finding_revision_no_unique`); replay is idempotent against the Finding's latest revision only
+(`_insert_revision`), so a basis may return (A -> B -> A, migration 0015) and append a new revision.
 """
 
 from __future__ import annotations
@@ -160,8 +161,11 @@ class PostgresFindingStore:
     @staticmethod
     def _insert_revision(c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str, w: Write,
                          now: datetime) -> str | None:
-        exists = c.execute(text("SELECT 1 FROM finding_revision WHERE finding_id = :f AND basis_sha256 = :b "
-                                "AND transition = :tr"),
+        # Replay guard against the LATEST revision only (LR-01): a basis that returns to an earlier one (proof
+        # recorded then revoked: run B -> run C -> run B) is a new revision, never swallowed by an older match.
+        exists = c.execute(text("SELECT 1 FROM (SELECT basis_sha256, transition FROM finding_revision "
+                                "WHERE finding_id = :f ORDER BY revision_no DESC LIMIT 1) x "
+                                "WHERE x.basis_sha256 = :b AND x.transition = :tr"),
                            {"f": w.finding_id, "b": w.basis_sha256, "tr": w.transition}).first()
         if exists:
             return None

@@ -63,7 +63,9 @@ def release(*objects: Any) -> None:
         if obj is None or id(obj) in seen:
             continue
         seen.add(id(obj))
-        stack += [getattr(obj, name, None) for name in ("store", "_store", "_prices")]
+        stack += [getattr(obj, name, None) for name in ("store", "_store", "_prices",
+                                                       # LR-01: the money eligibility gate's two reads
+                                                       "_eligibility", "windows", "findings")]
         if callable(getattr(obj, "dispose", None)):
             obj.dispose()
         elif getattr(obj, "_engine", None) is not None:

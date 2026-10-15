@@ -339,6 +339,13 @@ REASONS = {
                             "diesel price is applied and no cost is shown.",
     "UNPRICED": "No single Site diesel price covers this finding's whole window, so no cost is shown.",
     "MINOR_UNIT_UNKNOWN": "No rounding rule is known for this price currency, so no cost is shown.",
+    # LR-01: the shared money eligibility gate (financials/money_eligibility.py) withholds a basis-current amount.
+    "WITHHELD_GENERATOR_SERIES": "The generator readings around this finding could not be put in a proven time "
+                                 "order, so the end of the episode is not known and no current cost is shown. The "
+                                 "earlier recorded cost stays available for the record.",
+    "PENDING_REASSESSMENT": "This finding is being reassessed after new evidence or clock proof, so no current cost "
+                            "is shown until the reassessment settles. The earlier recorded cost stays available "
+                            "for the record.",
     "PRICED": "Modelled potential fuel-cost exposure under the reviewed fuel-cost-1 assumptions. This is not "
               "measured fuel saved or a physical maximum.",
 }
@@ -349,11 +356,21 @@ def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:
     an amount appears only for a CURRENT PRICED head, rounded outward for display."""
     empty = {"quantity_source": QUANTITY_SOURCE, "quantity": None, "amount": None, "currency": None,
              "price_revision_id": None, "consequence_revision_id": None, "quantity_reason": None,
-             "price_reason": None, "recalculation_queued": False, "currentness_reasons": []}
+             "price_reason": None, "recalculation_queued": False, "currentness_reasons": [],
+             "money_eligibility": None, "recorded_consequence_revision_id": None}
     if result is None:
         return {**empty, "state": "UNAVAILABLE", "currentness": None, "reason": REASONS["UNAVAILABLE"]}
     currentness = result["currentness"]
     row = result["consequence"]
+    money = result.get("money_eligibility")
+    empty["money_eligibility"] = money
+    if row is not None and currentness["state"] == "CURRENT" and (money or {}).get("state") != "ELIGIBLE":
+        # LR-01: the basis is current but the shared gate withholds money (never a UI-only predicate). The
+        # recorded head stays linked as history; no amount, quantity or current label is given.
+        state = (money or {}).get("state") or "PENDING_REASSESSMENT"
+        return {**empty, "state": state, "currentness": "CURRENT", "consequence_revision_id": None,
+                "recorded_consequence_revision_id": row["id"],
+                "currentness_reasons": list(currentness["reasons"]) + [f"MONEY_{state}"], "reason": REASONS[state]}
     if row is None or currentness["state"] != "CURRENT":
         state = currentness["state"]
         queued = bool(currentness["pending_work"])

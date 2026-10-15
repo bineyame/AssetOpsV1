@@ -1,0 +1,9 @@
+# S5-01 fix round (Sonnet) - slice review Lows before the owner walkthrough
+
+Branch `task/S5-01-site-overview` in the main checkout `C:\Users\assef\Bineyame\AssetOpsV1`. Slice review `.agent/S5-01-review.md` (ACCEPT; Lows). Other builds run in other worktrees; do not touch them.
+
+1. L1: `backend/assetops_backend/site_overview/read.py:146-149,138` - an overlapping Finding that cannot be read must make discovery incomplete (`UPSTREAM_PENDING`, no amount), never `ABSENT`. Assert the money state in `test_unreadable_seam_finding_is_not_called_merged`.
+2. L2: `.agent/S5-01-owner-walkthrough.md` five-minute rule: inline the exact `tick` command, say to run it right before steps 1 and 4 (and any step that expects "Current"), and warn never to tick between `attest` and the step-6 reload. Make every step's expected state consistent with that.
+3. L3: `assessment.objective` reads a key no dispatch result has (always null) and the "Operating objective" panel shows no claim level/counts or S3 coverage. Either source the objective and the day's claim level/counts/coverage from the existing dispatch read fields that do exist, or, if none exists, make the panel state plainly what is not available rather than implying an objective. Keep copy honest; no new backend contract beyond reading existing fields.
+
+Proof: focused S5 backend tests, the S5 frontend test file, `npx.cmd tsc --noEmit`, `npm.cmd test`, `tools/check-all.ps1`. No full suite unless a focused failure suggests wider impact. If the panel copy changes, re-run `tools/s5-overview-evidence.mjs` initial stage at 1440 and 390 with the walkthrough tool (`assetops_s501_owner*` DB) if feasible; else say not run. Drop DBs. Commit small; write `.agent/S5-01-fix-handoff.md` (git add -f); do not touch `.agent/coordinator-handoff.md` or `.agent/owner-autonomy-2026-10-15.md`. Report concisely.

@@ -153,11 +153,23 @@ export interface SiteOverviewReadModel {
   findings_statement: string;
 }
 
+/**
+ * S5-01: the selection an imported Site's Overview carries in its URL. `date`
+ * is one UTC day (`YYYY-MM-DD`); the Finding pin is optional and checked by
+ * the server against the Site's scope.
+ */
+export interface OverviewSelection {
+  date?: string | null;
+  finding_id?: string | null;
+  finding_revision_id?: string | null;
+}
+
 export interface SiteOverviewClient {
   getOverview(
     siteId: string,
     window: EvidenceWindowQuery,
-  ): Promise<EvidenceRead<SiteOverviewReadModel>>;
+    selection?: OverviewSelection,
+  ): Promise<EvidenceRead<SiteOverviewReadModel | SiteWindowSummary>>;
 }
 
 const METRIC_KEYS = [
@@ -259,17 +271,231 @@ function isSiteOverview(value: unknown): value is SiteOverviewReadModel {
   );
 }
 
+// ---------------------------------------------------------------- S5-01
+// The imported-Site selected-window read (`site-window-summary-1`). Every
+// state, reason, amount and link is the server's; the UI chooses words for
+// the server's state names and derives nothing.
+
+export const SITE_WINDOW_SUMMARY_SCHEMA = "site-window-summary-1";
+
+export interface WindowAssessmentInterval {
+  revision_id: string;
+  start: string | null;
+  end: string | null;
+  claim_level: string | null;
+  assessment_key: string | null;
+  link: string;
+}
+
+export interface WindowAssessment {
+  /** `UNKNOWN` (no selected S3 day), `CLOSED` (source gate), or the S3 status. */
+  state: string;
+  status: string | null;
+  status_reasons?: string[];
+  reason?: string;
+  run_id: string | null;
+  window_assessment_revision_id: string | null;
+  claim_level: string | null;
+  limitations: unknown[];
+  coverage: unknown;
+  dispatch_intervals: WindowAssessmentInterval[];
+  links: Record<string, string>;
+}
+
+export interface WindowReading {
+  evidence_id: string;
+  time: string | null;
+  interval: { start: string | null; end: string | null } | null;
+  device_id: string;
+  signal_id: string;
+  role: string | null;
+  value: string | null;
+  unit: string | null;
+  quality: string;
+  unavailable_reason: string | null;
+}
+
+export interface WindowCoverage {
+  device_id: string;
+  signal_id: string;
+  role: string | null;
+  unit: string | null;
+  records: number;
+  good: number;
+  first_source_time: string | null;
+  last_source_time: string | null;
+}
+
+export interface WindowContext {
+  series: WindowReading[] | null;
+  total?: number;
+  truncated?: boolean;
+  limit?: number;
+  coverage: WindowCoverage[] | null;
+  gaps: unknown;
+  gaps_reason?: string;
+  reason?: string;
+  evidence_links: Record<string, string>;
+}
+
+export interface WindowMoneyEligibility {
+  version: string | null;
+  state: string | null;
+  note: string | null;
+  pending_reasons: unknown;
+  series_limits: unknown;
+  latest_finding_revision_id: string | null;
+  end_reason: string | null;
+}
+
+export interface WindowMoney {
+  state: string;
+  amount_low: string | null;
+  amount_high: string | null;
+  currency: string | null;
+  model_version: string | null;
+  finding_id: string | null;
+  finding_revision_id: string | null;
+  consequence_revision_id: string | null;
+  eligibility: WindowMoneyEligibility | null;
+  quantity_state: string | null;
+  price_state: string | null;
+  limitation: string[] | null;
+  demonstration: { label: string; statement: string; case_id: string; spec: string } | null;
+  label: string;
+  upstream: { status: string; stage: string | null; reasons: string[] };
+  consequence_currentness?: { state: string | null; reasons: unknown; pending_work: unknown };
+  links: {
+    finding?: string;
+    financials?: string;
+    consequence?: string;
+    price_revision?: string;
+    assumption_revisions?: Record<string, string>;
+    evidence_records?: Record<string, string>;
+    assessment_revisions?: Record<string, string>;
+  };
+}
+
+/** What happened to a pinned Finding version that is not the one shown (server reason codes). */
+export interface PreviousPin {
+  finding_id: string;
+  finding_revision_id?: string | null;
+  reason: string;
+}
+
+export interface WindowKnownFinding {
+  id: string;
+  revision_id: string;
+  selection_rule: string;
+  selected_by: string;
+  episode: { start: string | null; end: string | null };
+  audit_only: boolean;
+  several_intersect: boolean;
+  note: string;
+  excluded: { finding_id: string; reason: string }[];
+  previous_pin: PreviousPin | null;
+  link: { page: string; api: string };
+}
+
+export interface SiteWindowSummary {
+  schema_version: typeof SITE_WINDOW_SUMMARY_SCHEMA;
+  site_id: string;
+  site_code: string;
+  access_basis: string;
+  window: { start: string; end: string; utc_date: string; bounds: string };
+  built_at: string | null;
+  db_now: string | null;
+  freshness: {
+    state: string;
+    stage: string | null;
+    reasons: string[];
+    errors: unknown[];
+    source_open: boolean;
+    source_reason: string;
+  };
+  watermarks: {
+    accepted_source: { count: number; sha256: string } | null;
+    accepted_source_reason: string | null;
+    analytic_selection_seq: unknown;
+    input_sha256: string | null;
+    configuration_sha256: string | null;
+    match_pass_id: string | null;
+    matched_through_selection_seq: unknown;
+  };
+  model_version: string | null;
+  assessment: WindowAssessment;
+  context: WindowContext;
+  money: WindowMoney;
+  known_finding: WindowKnownFinding | null;
+  finding_list: { state: "UNAVAILABLE"; reason: string };
+  /** Review L3: set when a pinned Finding version is not the one shown, even when no Finding is shown. */
+  previous_pin?: PreviousPin | null;
+}
+
+/** The S5 shape is recognised by its schema version and every field the screen renders. */
+export function isSiteWindowSummary(value: unknown): value is SiteWindowSummary {
+  return (
+    isObject(value) &&
+    value.schema_version === SITE_WINDOW_SUMMARY_SCHEMA &&
+    hasKeys(value, [
+      "site_code",
+      "access_basis",
+      "window",
+      "freshness",
+      "watermarks",
+      "assessment",
+      "context",
+      "money",
+      "known_finding",
+      "finding_list",
+    ]) &&
+    hasKeys(value.window, ["start", "end", "utc_date"]) &&
+    isObject(value.freshness) &&
+    hasKeys(value.freshness, ["state", "reasons", "source_open", "source_reason"]) &&
+    Array.isArray(value.freshness.reasons) &&
+    isObject(value.assessment) &&
+    hasKeys(value.assessment, ["state", "run_id", "window_assessment_revision_id", "dispatch_intervals", "links"]) &&
+    arrayOf(value.assessment.dispatch_intervals, ["revision_id", "start", "end", "link"]) &&
+    hasKeys(value.context, ["series", "coverage", "evidence_links"]) &&
+    hasKeys(value.money, [
+      "state",
+      "amount_low",
+      "amount_high",
+      "currency",
+      "finding_id",
+      "finding_revision_id",
+      "consequence_revision_id",
+      "eligibility",
+      "upstream",
+      "links",
+      "label",
+    ]) &&
+    (value.known_finding === null ||
+      hasKeys(value.known_finding, ["id", "revision_id", "selection_rule", "selected_by", "link"])) &&
+    isObject(value.finding_list) &&
+    value.finding_list.state === "UNAVAILABLE" &&
+    typeof value.finding_list.reason === "string"
+  );
+}
+
+function isOverviewBody(value: unknown): value is SiteOverviewReadModel | SiteWindowSummary {
+  return isSiteWindowSummary(value) || isSiteOverview(value);
+}
+
 export function createSiteOverviewClient(
   basePath: string = SITES_API_PATH,
 ): SiteOverviewClient {
   return {
-    getOverview(siteId, window) {
+    getOverview(siteId, window, selection = {}) {
       return read(
         `${basePath}/${encodeURIComponent(siteId)}/overview${query({
           from: window.from,
           to: window.to,
+          date: selection.date,
+          finding_id: selection.finding_id,
+          finding_revision_id: selection.finding_revision_id,
         })}`,
-        isSiteOverview,
+        isOverviewBody,
       );
     },
   };

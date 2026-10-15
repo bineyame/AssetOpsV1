@@ -61,7 +61,7 @@ const LIMITATION_WORDS: Record<string, string> = {
     "Two overlapping series of records report the same times; neither is chosen, so the day is not assessed",
   SEQUENCE_ORDER_INVERTED: "Some records arrived in a different order from when they were taken",
   REPORTS_OVERLAP: "Some reports cover overlapping times",
-  GENERATOR_SERIES_AMBIGUOUS: "The generator's on and off records disagree",
+  GENERATOR_SERIES_AMBIGUOUS: "The generator's records could not be put in one proven time order",
   NO_COHORT: "No single series of records could be chosen for this day, so it is not assessed",
   NO_GENERATOR_STATE: "No generator on/off record for this day",
 };

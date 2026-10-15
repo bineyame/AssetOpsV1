@@ -71,6 +71,8 @@ const PRICE_WORDS: Record<string, string> = {
 };
 
 const STATE_HEADLINE: Record<string, string> = {
+  WITHHELD_GENERATOR_SERIES: "Withheld: the generator records are not in a proven time order",
+  PENDING_REASSESSMENT: "Being reassessed: no current cost yet",
   UNPRICED: "No price for the whole window",
   QUANTITY_UNAVAILABLE: "Not calculated",
   STALE: "Out of date: no current cost",
@@ -402,6 +404,90 @@ function Headline({ bridge }: { bridge: FindingFinancialsBody }) {
   );
 }
 
+const SERIES_KIND_WORDS: Record<string, string> = {
+  SEQUENCE_ORDER_INVERTED: "they arrived before an earlier reading and their clock is not proven",
+  REPORTS_OVERLAP: "some overlap in time, so no order can be chosen",
+};
+
+/** LR-01: how a refused span relates to this finding, in plain words (never claims more than the relation). */
+function seriesRelationWords(x: { relation?: string; source?: string }): string {
+  if (x.source === "SELECTED_WINDOW") {
+    return "These records are within 6 hours of this finding, so no current cost is shown until they are resolved.";
+  }
+  switch (x.relation) {
+    case "CUTS_TAIL":
+      return "The finding ends before them and that time is not judged.";
+    case "CUTS_HEAD":
+      return "The finding starts after them and that time is not judged.";
+    case "INSIDE_EPISODE":
+      return "They fall inside this finding, so its span is not proven.";
+    case "INSIDE_FORMER_EPISODE":
+      return "They fall inside an earlier version of this finding.";
+    default:
+      return "";
+  }
+}
+
+/** LR-01: why no current amount is shown although a recorded cost exists, with exact links to that record. */
+function MoneyLimit({
+  c,
+  links,
+  findingId,
+  rev,
+}: {
+  c: FindingFinancialsBody["consequence"];
+  links: BridgeLinks;
+  findingId: string;
+  rev: string;
+}) {
+  const gate = c.money_eligibility;
+  const limits = gate?.series_limits ?? [];
+  const seen = new Set<string>();
+  // One line per span and kind: Finding-revision limits come first so their specific wording wins over the
+  // generic selected-window one for the same span.
+  const ordered = [...limits].sort(
+    (a, b) => Number(a.source === "SELECTED_WINDOW") - Number(b.source === "SELECTED_WINDOW"),
+  );
+  const spans = ordered.filter((x) => {
+    const key = `${x.start}|${x.end}|${x.kind}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return (
+    <div data-financials-money-limit={c.state}>
+      {c.state === "WITHHELD_GENERATOR_SERIES" ? (
+        spans.length > 0 ? (
+          <ul>
+            {spans.map((x) => (
+              <li key={`${x.start}|${x.end}|${x.kind}`} data-financials-series-limit={x.kind}>
+                The order of generator records from {formatInstant(x.start)} to {formatInstant(x.end)} is not proven:{" "}
+                {SERIES_KIND_WORDS[x.kind] ?? "they could not be ordered"}. {seriesRelationWords(x)}
+              </li>
+            ))}
+          </ul>
+        ) : null
+      ) : (
+        <p data-financials-pending-reassessment="true">
+          New evidence or clock proof is being taken into account. The current cost appears once the reassessment and
+          the fuel cost recalculation have finished.
+        </p>
+      )}
+      {c.recorded_consequence_revision_id ? (
+        <p>
+          <Link
+            to={links.consequence(findingId, rev, c.recorded_consequence_revision_id)}
+            data-financials-recorded-link={c.recorded_consequence_revision_id}
+          >
+            Open the recorded fuel cost of this finding version
+          </Link>{" "}
+          (kept for the record, not a current cost).
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 export function FindingBridge({
   bridge,
   consequences,
@@ -417,10 +503,15 @@ export function FindingBridge({
   const findingId = bridge.finding.id;
   const rev = bridge.selection.revision_id;
   const shown = c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null;
+  const gated = c.state === "WITHHELD_GENERATOR_SERIES" || c.state === "PENDING_REASSESSMENT";
   const body = consequences?.status === "loaded" ? consequences.value : null;
   const head = body?.history.revisions.find((r) => r.id === body.consequence_selection.head_consequence_revision_id) ??
     (body?.consequence?.is_head ? body.consequence : null);
-  const pinned = pinnedConsequence !== null && body?.consequence && !body.consequence.is_head ? body.consequence : null;
+  // A pinned earlier version, or (LR-01) the recorded head that the money gate withholds.
+  const pinned =
+    pinnedConsequence !== null && body?.consequence && (!body.consequence.is_head || (gated && body.consequence.presented_as_current === false))
+      ? body.consequence
+      : null;
   return (
     <>
       <Panel
@@ -443,6 +534,7 @@ export function FindingBridge({
           {bridge.demonstration ? <Demonstration demo={bridge.demonstration} /> : null}
           {bridge.audit_only ? <p className="notice">{bridge.audit_only.statement}</p> : null}
           <Headline bridge={bridge} />
+          {gated ? <MoneyLimit c={c} links={links} findingId={findingId} rev={rev} /> : null}
           {head && body && shown ? (
             <>
               <h3 className="panel__subheading" id="site-financials-bridge-steps">
@@ -451,7 +543,7 @@ export function FindingBridge({
               <BridgeTable rev={head} current links={links} headingId="site-financials-bridge-steps" />
               <HowWorkedOut rev={head} body={body} findingId={findingId} findingRevisionId={rev} />
             </>
-          ) : head && body ? (
+          ) : head && body && !gated ? (
             <p data-financials-recorded-pointer="true">
               {bridge.audit_only
                 ? "No amount is shown while the source is closed."
@@ -479,16 +571,27 @@ export function FindingBridge({
         <Panel
           heading={`Fuel cost version ${pinned.revision_no}`}
           headingId="site-financials-consequence-version-heading"
-          description="An earlier fuel cost version of the same finding version, kept for the record. It is not the current cost."
+          description={
+            pinned.is_head
+              ? "The recorded fuel cost of this finding version, kept for the record. It is not a current cost."
+              : "An earlier fuel cost version of the same finding version, kept for the record. It is not the current cost."
+          }
         >
           <div data-consequence-pinned={pinned.id} data-consequence-pinned-current="false">
-            <p className="notice">
-              Recorded on {day(pinned.recorded_at)}, for the same finding version.{" "}
-              {head && head.digests.technical_input_sha256 === pinned.digests.technical_input_sha256
-                ? "Its fuel amount is the same as in the latest version; only the price applied differs."
-                : "Its fuel amount differs from the latest version because the accepted readings behind it changed."}{" "}
-              <Link to={links.consequence(findingId, rev, null)}>Show the current fuel cost</Link>
-            </p>
+            {pinned.is_head ? (
+              <p className="notice" data-consequence-pinned-withheld={c.state}>
+                Recorded on {day(pinned.recorded_at)}. {c.reason}{" "}
+                <Link to={links.consequence(findingId, rev, null)}>Back to this finding version's money view</Link>
+              </p>
+            ) : (
+              <p className="notice">
+                Recorded on {day(pinned.recorded_at)}, for the same finding version.{" "}
+                {head && head.digests.technical_input_sha256 === pinned.digests.technical_input_sha256
+                  ? "Its fuel amount is the same as in the latest version; only the price applied differs."
+                  : "Its fuel amount differs from the latest version because the accepted readings behind it changed."}{" "}
+                <Link to={links.consequence(findingId, rev, null)}>Show the current fuel cost</Link>
+              </p>
+            )}
             <BridgeTable
               rev={pinned}
               current={false}
@@ -505,7 +608,8 @@ export function FindingBridge({
         findingRevisionId={rev}
         links={links}
         selected={body?.consequence?.id ?? null}
-        bridgeCurrent={c.currentness === "CURRENT"}
+        bridgeCurrent={c.currentness === "CURRENT" && !gated}
+        gated={gated}
         hideAmounts={bridge.audit_only !== null && bridge.audit_only !== undefined}
       />
     </>
@@ -520,8 +624,10 @@ function ConsequenceHistory({
   selected,
   bridgeCurrent,
   hideAmounts,
+  gated,
 }: {
   bridgeCurrent: boolean;
+  gated: boolean;
   hideAmounts: boolean;
   read: FinancialReadResult<FindingConsequencesBody> | null;
   findingId: string;
@@ -546,7 +652,8 @@ function ConsequenceHistory({
           <ol className="price-history" data-consequence-history="loaded">
             {read.value.history.revisions.map((r) => {
               const head = r.id === read.value.consequence_selection.head_consequence_revision_id;
-              const current = head && bridgeCurrent && read.value.currentness.state === "CURRENT";
+              const current =
+                head && bridgeCurrent && read.value.currentness.state === "CURRENT" && read.value.currentness.current_amount_shown;
               return (
                 <li
                   key={r.id}
@@ -559,7 +666,7 @@ function ConsequenceHistory({
                     {current ? " · the current fuel cost" : " · kept for the record"}
                   </p>
                   <p>
-                    <Link to={links.consequence(findingId, findingRevisionId, head ? null : r.id)}>
+                    <Link to={links.consequence(findingId, findingRevisionId, head && !gated ? null : r.id)}>
                       Open fuel cost version {r.revision_no}
                     </Link>
                     {r.price.revision_id ? (

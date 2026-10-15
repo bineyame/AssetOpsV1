@@ -640,7 +640,10 @@ function Invoke-ConfigurationPersistenceCheck {
         '(?i)\bUPDATE\s+gateway\s+SET\s+(?:credential_ref|disabled_at|diagnostic_cadence_seconds)\s*=\s*:[a-z_]+\s+WHERE\b',
         '(?i)\bUPDATE\s+source\s+SET\s+disabled_at\s*=\s*:[a-z_]+\s+WHERE\b')
     $assessWriter = "$backendRoot/analytics/adapters/postgres_assessment_store.py"
-    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection')
+    # LR-01 adds source_clock_attestation (migration 0014): INSERT-only events written with their affected-window
+    # requeue in one transaction by the assessment store; no other writer touches it and no UPDATE is allowed.
+    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection',
+        'source_clock_attestation')
     $assessInserts = $assessTables + @('recompute_job')
     $assessUpdates = @(
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',

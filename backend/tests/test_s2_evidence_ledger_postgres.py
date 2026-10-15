@@ -125,7 +125,9 @@ class Kit:
 
 
 def ingestion(**options) -> BatchIngestionService:
-    return BatchIngestionService(PostgresEvidenceLedger(URL), Clock(RECEIVED), **options)
+    # S4-07: decisions take DB time in production; these fixtures pin them through the test-only override.
+    return BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=Clock(RECEIVED)),
+                                 Clock(RECEIVED), **options)
 
 
 def enable(engine, site_id) -> None:
@@ -442,7 +444,7 @@ class TestIdentityHardening:
         finally:
             command.upgrade(config, "head")
         with engine.connect() as connection:
-            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0014_action_store"
+            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0016_action_store"
 
     def test_registration_affiliation_and_mode_are_immutable(self, kit, engine) -> None:
         source_id = kit.binding("pv-inverter-controller")["source_id"]

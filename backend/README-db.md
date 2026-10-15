@@ -125,13 +125,18 @@ when the matcher fence or version moved, then the consequence drain, each in a k
 `statement_timeout`/`lock_timeout`. Claims, leases, back-off, heartbeat and every health threshold use database
 time (`clock_timestamp()`); the scheduled S3 worker, matcher and drain receive DB time as their `now`.
 
-**I3 residual (open, evidence/ingestion owner).** The scheduled S3 knowledge cutoff is DB time, but
-`ingestion_disposition.decided_at` is still the ingestion host's application clock. If that host runs ahead of
-the database, a reading decided after the cutoff of a PENDING job it widened is left out of the run; the job
-completes and the window reads `STALE_PROJECTION` (`INPUT_BASIS_CHANGED`) with no live job. The seam never reads
-it CURRENT, and health raises `S3_STALE_NO_JOB` (Site `FAILED`) instead of `IDLE`; recover with `requeue --day`
-once the DB clock has passed the decision. The fix (DB-time `decided_at`, or a new job when a widened job's lease
-could predate the decision) belongs to a separate evidence-owner packet; this schedule does not change ingestion.
+**I3, scheduled ingestion (S4-07).** `ingestion_disposition.decided_at` is database time: each chunk takes one
+`clock_timestamp()` after its batch row lock, inside the transaction that writes the dispositions and coalesces the
+recompute job. A newly inserted job is due (`available_at`) and created at that instant; widening a PENDING job lifts
+its `available_at` to at least that instant (its `created_at` is kept), so a scheduled lease whose DB-time cutoff
+predates the decision cannot consume it. The ingestion host's clock stamps only the receipt fields
+(`ingestion_batch.received_at`, `completed_at`); under clock skew a batch's `completed_at` may precede its last
+`decided_at`. Against the scheduled tick, a committed accepted decision is either inside a run's cutoff or carried
+by live S3 work for a later tick (proved in `tests/test_s4_evidence_decided_at_postgres.py`). Residuals: a manual
+app-clock `process-jobs` run beside the tick can still mix clocks, so I3 is not claimed closed for manual CLIs (stop
+the tick first, below); configuration `recorded_at` versus `reconcile` is a separate comparand. `S3_STALE_NO_JOB` and
+`requeue --day` remain as defense in depth. The deterministic fixtures pin decisions through the ledger's test-only
+`test_decision_clock_override`, which production composition never sets.
 
 ```sh
 # from backend/, with DATABASE_URL set
@@ -201,7 +206,7 @@ its claim (also one that returns `RETRY_DUE`) and is never read as liveness.
 | `FENCE_MOVED_STREAK` | Three `FENCE_MOVED` S4 outcomes running (concurrent writes keep moving the fence). | Usually clears on the next quiet tick; persistent: inspect concurrent writers. |
 | `MATCH_EVIDENCE_NOT_ACCEPTED` | Deterministic matcher defect: a cited evidence ID is not accepted in this Site. | Code/data defect; not retried into success. |
 | `S3_JOB_FAILED` | A terminal FAILED S3 job (ID, window, `last_error`); `reconcile` will not re-enqueue it. | After fixing the cause: `python -m assetops_backend.analytics.assess_dispatch requeue --tenant-id T --site-id S --job-id J`; the new DEFAULT selection supersedes the failure. `assess` is not recovery. |
-| `S3_STALE_NO_JOB` | A selected UTC day reads `STALE_PROJECTION` (for example `INPUT_BASIS_CHANGED`) and no live S3 job intersects it, so no tick will rebuild it (I3 residual above). | Once the DB clock has passed the late decision: `python -m assetops_backend.analytics.assess_dispatch requeue --tenant-id T --site-id S --day YYYY-MM-DD` (refused unless that day is STALE with no live job); the next tick rebuilds it. |
+| `S3_STALE_NO_JOB` | A selected UTC day reads `STALE_PROJECTION` (for example `INPUT_BASIS_CHANGED`) and no live S3 job intersects it, so no tick will rebuild it (defense in depth since S4-07; see I3 above). | Once the DB clock has passed the late decision: `python -m assetops_backend.analytics.assess_dispatch requeue --tenant-id T --site-id S --day YYYY-MM-DD` (refused unless that day is STALE with no live job); the next tick rebuilds it. |
 | `CONSEQUENCE_ATTEMPTS_GROWING` | Unsucceeded consequence work with 5+ attempts (no terminal cap; ~90/day). | Repair the cause; `recompute_consequences pending` lists the rows. |
 | `STALE_NO_WORK` | A pre-0012 consequence head is STALE with no recorded work (Finding/revision IDs given). | Reported only; not backfilled by this slice. |
 | `EXCLUDED_WITH_WORK` / `S4_BACKLOG_OUTSIDE_ACTIVE_SET` | A Site outside the active set still has work, or an unmatched selection the tick no longer visits. | Re-enrol (`enrol`) or resolve the work deliberately. |
@@ -210,4 +215,5 @@ its claim (also one that returns `RETRY_DUE`) and is never read as liveness.
 **Manual Leg B commands:** `process-jobs`, `match-findings` and `recompute_consequences run` do not take the
 schedule's Site claim. **Stop the tick (disable the timer) and confirm `heads` shows no Site claim before running
 any of them by hand**, then re-enable it. The matcher fence still protects Finding writes, but S3/S4 serialisation
-is only guaranteed between scheduled stages.
+is only guaranteed between scheduled stages. A manual `process-jobs` also takes its knowledge cutoff from the
+application clock, not DB time, so beside a running tick it can mix clocks with DB-time decisions (I3 manual residual).

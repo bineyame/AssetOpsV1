@@ -1,0 +1,88 @@
+{
+  "results": [
+    {
+      "name": "desktop p02-stopped 2026-10-24: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "desktop p02-stopped: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "desktop p02-stopped: no page-level horizontal overflow",
+      "ok": true,
+      "detail": -15
+    },
+    {
+      "name": "desktop stopped: no amount, SCHEDULE_STOPPED named",
+      "ok": true,
+      "detail": {
+        "money": "UPSTREAM_STALE",
+        "reasons": "SCHEDULE_STOPPEDSITE_VISIT_STALE"
+      }
+    },
+    {
+      "name": "narrow p02-stopped 2026-10-24: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "narrow p02-stopped: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "narrow p02-stopped: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow stopped: no amount, SCHEDULE_STOPPED named",
+      "ok": true,
+      "detail": {
+        "money": "UPSTREAM_STALE",
+        "reasons": "SCHEDULE_STOPPEDSITE_VISIT_STALE"
+      }
+    }
+  ],
+  "record": {
+    "desktop": {
+      "href": "/sites/KOBO-001?date=2026-10-24&finding_id=a3eca958-c648-457d-87de-e7fad32d9749&finding_revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "day": "2026-10-24",
+      "freshness": "STALE_PROJECTION",
+      "freshnessText": "Out of date Something this day depends on has changed or stopped; what is shown is kept for reference only.",
+      "assessment": "CURRENT",
+      "money": "UPSTREAM_STALE",
+      "gate": "ELIGIBLE",
+      "amount": "none",
+      "demo": "P02-power-late",
+      "consequence": "26d63ce5-188d-4796-91af-41975150eef8",
+      "financials": "/sites/KOBO-001/financials?finding_id=a3eca958-c648-457d-87de-e7fad32d9749&revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b&consequence_revision_id=26d63ce5-188d-4796-91af-41975150eef8",
+      "finding": "a3eca958-c648-457d-87de-e7fad32d9749",
+      "revision": "9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "findingList": "Unavailable until the Site Finding index is delivered.",
+      "reasons": "SCHEDULE_STOPPEDSITE_VISIT_STALE",
+      "sourceOpen": "open",
+      "overflow": -15
+    },
+    "narrow": {
+      "href": "/sites/KOBO-001?date=2026-10-24&finding_id=a3eca958-c648-457d-87de-e7fad32d9749&finding_revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "day": "2026-10-24",
+      "freshness": "STALE_PROJECTION",
+      "freshnessText": "Out of date Something this day depends on has changed or stopped; what is shown is kept for reference only.",
+      "assessment": "CURRENT",
+      "money": "UPSTREAM_STALE",
+      "gate": "ELIGIBLE",
+      "amount": "none",
+      "demo": "P02-power-late",
+      "consequence": "26d63ce5-188d-4796-91af-41975150eef8",
+      "financials": "/sites/KOBO-001/financials?finding_id=a3eca958-c648-457d-87de-e7fad32d9749&revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b&consequence_revision_id=26d63ce5-188d-4796-91af-41975150eef8",
+      "finding": "a3eca958-c648-457d-87de-e7fad32d9749",
+      "revision": "9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "findingList": "Unavailable until the Site Finding index is delivered.",
+      "reasons": "SCHEDULE_STOPPEDSITE_VISIT_STALE",
+      "sourceOpen": "open",
+      "overflow": 0
+    }
+  }
+}

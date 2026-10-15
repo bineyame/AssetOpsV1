@@ -14,6 +14,12 @@ revision, a complete keyset-paged history), the lineage of each revision, and a 
   reads "no consequence and no work" as pending, never as absent or zero).
 - `HISTORICAL`: the FindingRevision is not the Finding's latest; its consequences are audit material.
 
+LR-01 (`D-2026-10-15-lr01-source-time-cohort`): every read also carries the shared `money_eligibility`
+(`financials/money_eligibility.py`), and `presented_as_current` / `current_amount_shown` additionally require it to
+be `ELIGIBLE`. A basis-CURRENT PRICED head under `PENDING_REASSESSMENT` or `WITHHELD_GENERATOR_SERIES` stays
+recorded history, never a current amount. The gate fails closed: a service built without it, or a gate read that
+fails, is `PENDING_REASSESSMENT`.
+
 Amounts stay unrounded in `amount`; `display` rounds the low bound down and the high bound up to the
 currency's ISO 4217 minor unit. An unknown minor unit gives no display amount (`MINOR_UNIT_UNKNOWN`), never a
 guessed rounding. Nothing is summed across revisions, Findings, currencies or windows.
@@ -27,6 +33,7 @@ from typing import Any
 from uuid import UUID
 
 from assetops_backend.financials import fuel_cost as fc
+from assetops_backend.financials import money_eligibility as me
 from assetops_backend.financials.recompute import ConsequenceStore, PriceStore, derive
 
 PAGE_LIMIT = 200
@@ -139,9 +146,19 @@ def _selection(p: fc.PriceSelection) -> dict[str, Any]:
 
 
 class ConsequenceReadService:
-    def __init__(self, store: Any, prices: PriceStore) -> None:
+    def __init__(self, store: Any, prices: PriceStore, *, eligibility: Any = None) -> None:
         self._store = store
         self._prices = prices
+        #: The shared money eligibility reader (`MoneyEligibility`); None fails closed.
+        self._eligibility = eligibility
+
+    def money_eligibility(self, tenant_id: UUID, site_id: UUID, finding_id: UUID) -> dict[str, Any]:
+        if self._eligibility is None:
+            return me.unavailable(str(finding_id), "ELIGIBILITY_GATE_NOT_WIRED")
+        try:
+            return self._eligibility.for_finding(tenant_id, site_id, finding_id)
+        except Exception as exc:  # noqa: BLE001 - fail closed: no current money when the gate is unreadable
+            return me.unavailable(str(finding_id), f"ELIGIBILITY_READ_FAILED: {type(exc).__name__}")
 
     def locate(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, consequence_revision_id: UUID) -> UUID | None:
         return self._store.locate(tenant_id, site_id, finding_id, consequence_revision_id)
@@ -194,12 +211,14 @@ class ConsequenceReadService:
                     # S4-02c: stale with no unsucceeded work touching this read (e.g. a pre-0012 acceptance). A
                     # typed discrepancy only; the bridge keeps the reviewed STALE sentence (no new copy).
                     reasons.append(NO_WORK_RECORDED)
+        money = self.money_eligibility(tenant_id, site_id, finding_id)
+        eligible = money["state"] == me.ELIGIBLE
         selected_row = chain["exact"] if consequence_revision_id is not None else head
         selected = None if selected_row is None else dto(selected_row, links)
         is_head = selected_row is not None and head is not None and selected_row["id"] == head["id"]
         if selected is not None:
             selected["is_head"] = is_head
-            selected["presented_as_current"] = is_head and state == "CURRENT"
+            selected["presented_as_current"] = is_head and state == "CURRENT" and eligible
             selected["historical"] = not selected["presented_as_current"]
         page = chain["page"]
         return {
@@ -210,13 +229,15 @@ class ConsequenceReadService:
                 "finding_revision_id": str(finding_revision_id),
                 "finding_revision_is_latest": finding_revision_is_latest, "source_open": source_open},
             "currentness": {
-                "state": state, "reasons": reasons, "pending_work": work,
+                "state": state, "reasons": reasons, "pending_work": work, "money_eligibility": money["state"],
                 "current_amount_shown": selected is not None and selected["presented_as_current"],
                 "derived_now": None if now is None or state == "CURRENT" else {
                     "quantity": {"state": now.quantity.state, "reason": now.quantity.reason},
                     "price": _selection(now.price),
                     "note": "What the exact inputs and today's price timeline give; not stored and not an amount "
                             "until the recompute appends it."}},
+            "money_eligibility": {**money, "head_consequence_revision_id": None if head is None else str(head["id"]),
+                                  "finding_revision_id": str(finding_revision_id)},
             "consequence": selected,
             "history": {"revisions": [dto(r, links) for r in page], "total": chain["total"],
                         "page": {"after_revision_no": after_revision_no, "limit": limit,

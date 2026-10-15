@@ -4,9 +4,17 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**2026-10-15 (evening): LR-01 and S5-01 are done and merged to main** after the owner walkthrough (conditional acceptance, `.agent/owner-LR01-S501-acceptance-2026-10-15.md`: plain-language status copy becomes one task at W1 conclusion; demo speed over perfection). Also merged today: OPS-01, S4-06, S4-07. Next merges in order: S6-01a (re-chain its migration after 0015, one full suite), S4-05a (re-chain, one full suite), OPS-02 (last; absorbs their rule-8 entries). S6-01b (UI) is reviewed and awaits its owner walkthrough after S6-01a merges. S4-04 is planned and first in next-work. The paragraphs below are earlier routing.
+
 **S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
 
-S6-01a ([Action store, controlled application and exact read](../tasks/S6-01a-action-store-read.md)) is `in_review` on `task/S6-01a-action-store-read` (USER_REVIEW_REQUIRED: false; non-UI): packet `.agent/S6-01a-review-packet.md`, built state in `.ai/CODE_STATE.md` "S6-01a". Do not merge before its slice review; re-chain `0014_action_store` if LR-01 lands first.
+S6-01a ([Action store, controlled application and exact read](../tasks/S6-01a-action-store-read.md)) is `in_review` on `task/S6-01a-action-store-read` (USER_REVIEW_REQUIRED: false; non-UI): packet `.agent/S6-01a-review-packet.md`, built state in `.ai/CODE_STATE.md` "S6-01a". Do not merge before its slice review; re-chain `0016_action_store` if LR-01 lands first.
+**S4-07 ([evidence decided_at on DB time](../tasks/S4-07-evidence-decided-at.md)) is `in_review`** on `task/S4-07-evidence-decided-at` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-07-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-07".
+
+**S4-06 ([equal-start price succession](../tasks/S4-06-price-succession.md)) is `in_review`** on `task/S4-06-price-succession` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-06-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-06".
+**LR-01 ([late-reading series and money limit](../tasks/LR-01-late-reading-series-and-money-limit.md)) is `in_review`** on `task/LR-01-late-reading-series-and-money-limit` (phases 1-2 built; USER_REVIEW_REQUIRED: owner walkthrough `.agent/LR-01-owner-walkthrough.md` is the merge checkpoint). Packet `.agent/LR-01-review-packet.md`; built state in `.ai/CODE_STATE.md` "LR-01". The schedule install gate stays closed until it merges.
+
+**S5-01 ([selected-window Site Overview](../tasks/S5-01-site-overview.md)) is `in_review`** on `task/S5-01-site-overview` (stacked on LR-01; USER_REVIEW_REQUIRED: owner walkthrough `.agent/S5-01-owner-walkthrough.md` is the merge checkpoint). Packet `.agent/S5-01-review-packet.md`; built state in `.ai/CODE_STATE.md` "S5-01".
 
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
@@ -31,6 +39,12 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 ## Next read
 
 Reviewer (S6-01a slice): read the task, `.agent/architect-S6-01-answers.md`, `.agent/S6-01a-review-packet.md` and `.agent/S6-01a-phase-2-handoff.md`, then `git diff fd7afd2c..HEAD`. Focused proof: `backend/tests/test_s6_action_{rule,store_postgres,apply_postgres,records_postgres}.py` on a private `*_test` DB.
+Reviewer (S4-07): read the task (incl. coordinator note), `.agent/S4-07-review-packet.md` (Known Deviation 1: widened-job `available_at` lift), then `git diff 3ec3d765..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
+
+Reviewer (S4-06): read the task, `.agent/S4-06-review-packet.md`, then `git diff 7c72c6b3..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
+Reviewer (S5-01 slice): read the task, `.agent/S5-01-review-packet.md`, both phase handoffs and `.agent/S5-01-phase-1-review.md`, then `git diff 440a2bad..HEAD -- ':!.agent'` (S5 files are listed in the packet; LR-01 merges are in the range). Walk it with `tools/s5_overview_walkthrough.py prepare|serve|attest|tick|stop-schedule|start-schedule|gate|drop --db assetops_s501_owner<x> --work var/s501_owner<x>` (its only accepted prefixes) and `node tools/s5-overview-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
+
+Reviewer (LR-01 slice): read the task (outcome table), `.agent/architect-LR-01-answers.md`, `.agent/LR-01-review-packet.md` and both phase handoffs, then `git diff d4c80e77..HEAD` (phase 2: `git diff 445f3d18..HEAD`). Walk it with `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01_<x>` and `node tools/lr01-money-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 
 Reviewer (S4-02c phase 3 and slice): read the task (phase 3 row, carries C5, risks), `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-phase-2-review.md` "Carries for phase 3" and `.agent/S4-02c-phase-3-handoff.md`, then `git diff 6d4a1995..HEAD` (slice: `git diff f9d6d1a5..HEAD`). Rerun `tools/s402c_late_power_walkthrough.py run --db assetops_s402c3walk_<x> --work <dir named s402c3*>` then `drop`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 

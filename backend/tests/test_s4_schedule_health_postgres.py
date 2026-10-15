@@ -385,17 +385,28 @@ class TestStaleNoWork:
 class TestStaleWithoutJob:
     def test_a_decision_after_the_db_cutoff_widening_a_pending_job_raises_s3_stale_no_job_until_requeued(
             self, kobo, engine, capsys, monkeypatch) -> None:  # noqa: F811
-        """Phase-2 review F-A: the ingestion clock runs ahead of the database. A chunk decided after the DB-clock
-        knowledge cutoff widens the PENDING job instead of creating one, the job completes without it, and the
-        window reads STALE (INPUT_BASIS_CHANGED) with no live job. Health must not report that Site IDLE."""
+        """Phase-2 review F-A, an OVERRIDE-PATH test (S4-07): production decisions take DB time, so this decision
+        ahead of the database is forced through the ledger's `test_decision_clock_override` (the fixture's
+        `deliver`). S4-07 lifts the widened job's `available_at` to that decision, so the tick leaves it PENDING
+        (backlog, no alarm). The pre-S4-07 widening (a job due before the decision it carries) is then restored by
+        hand to keep the defense in depth proved: the job completes without the decision and the window reads
+        STALE (INPUT_BASIS_CHANGED) with no live job. Health must not report that Site IDLE."""
         tick, _ = make_tick(TickLimits(**FAST))
         env = tick.environment
         deliver(kobo, block(DAY_A, 10, 12))  # job J, decided in the past
         (job,) = [j for j in jobs(engine, kobo.site) if j["status"] == "PENDING"]
-        ahead = db_now(engine) + timedelta(seconds=20)  # the ingestion host's clock, ahead of the DB
+        # an override decision ahead of the DB; 120 s outlasts the slow ticks seen under load (carry R-2)
+        ahead = db_now(engine) + timedelta(seconds=120)
         deliver(kobo, block(DAY_A, 11, 13), decided=ahead.strftime("%Y-%m-%dT%H:%M:%SZ"))
         pending = [j for j in jobs(engine, kobo.site) if j["status"] == "PENDING"]
         assert [j["id"] for j in pending] == [job["id"]], pending  # widened J, no new job
+        assert pending[0]["available_at"] == ahead.replace(microsecond=0)  # S4-07 lift: not due before it
+        assert tick.tick().outcome == "COMPLETED"
+        assert [j["status"] for j in jobs(engine, kobo.site) if j["id"] == job["id"]] == ["PENDING"]
+        assert "S3_STALE_NO_JOB" not in codes(site_of(health(env), kobo.site)["alarms"])
+        with engine.begin() as c:  # the pre-S4-07 widening: J due at its original instant
+            c.execute(text("UPDATE recompute_job SET available_at = :a WHERE id = :id"),
+                      {"a": job["available_at"], "id": job["id"]})
         assert tick.tick().outcome == "COMPLETED"
         assert db_now(engine) < ahead, "the tick outlived the skew; widen it"
 
