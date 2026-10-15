@@ -106,6 +106,10 @@ export interface FindingClaim {
   other_portions?: FindingPortion[];
   continuity?: ContinuityGap[];
   window_claims?: string[];
+  /** finding-episode-3 (LR-01): why the episode ends, and any generator-series refusal carried into it. */
+  end_reason?: "OFF_OBSERVED" | "CANDIDATE_ENDED" | "OPEN_BOUND" | "SERIES_LIMIT";
+  series_limits?: { kind: string; role: string; start: string; end: string; evidence_ids: string[]; clock: string | null;
+    relation: string; window_assessment_revision_id: string | null; analytic_run_id: string | null }[];
   [key: string]: unknown;
 }
 
