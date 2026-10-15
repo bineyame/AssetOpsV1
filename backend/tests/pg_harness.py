@@ -390,7 +390,7 @@ def cleanup_run(run: str) -> list[str]:
     Runs after all workers have finished, so it drops the shared template and the
     database of any worker that died before its own cleanup.
     """
-    base = os.environ.get(ENV)
+    base = os.environ.get(BASE_ENV) or os.environ.get(ENV)  # BASE_ENV: a controller nested in a routed run
     if not base or os.environ.get(TEMPLATE_SWITCH, "1") == "0":
         return []
     from sqlalchemy import create_engine, text

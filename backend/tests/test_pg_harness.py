@@ -135,3 +135,30 @@ class TestAgainstPostgres:
             assert closure == set(ROOTS) | cascaded
         finally:
             eng.dispose()
+
+    def test_the_controller_drops_every_database_of_its_run_and_nothing_else(self) -> None:
+        """A crashed xdist worker leaves its database; the controller's `cleanup_run` removes it."""
+        import os
+
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.engine import make_url
+        from sqlalchemy.pool import NullPool
+
+        base = os.environ.get(pg_harness.BASE_ENV) or URL
+        stem = make_url(base).database[: -len("_test")]
+        dead = [pg_harness.database_name(stem, "dead0001", tag) for tag in ("tpl", "gw0", "gw1")]
+        other = pg_harness.database_name(stem, "a11e0002", "gw0")
+        eng = create_engine(base, poolclass=NullPool, isolation_level="AUTOCOMMIT")
+        try:
+            with eng.connect() as admin:
+                for name in dead + [other]:
+                    admin.execute(text(f'CREATE DATABASE "{name}"'))
+                try:
+                    assert sorted(pg_harness.cleanup_run("dead0001")) == sorted(dead)
+                    left = set(admin.execute(text("SELECT datname FROM pg_database")).scalars())
+                    assert not left & set(dead) and other in left
+                finally:
+                    for name in dead + [other]:
+                        admin.execute(text(f'DROP DATABASE IF EXISTS "{name}"'))
+        finally:
+            eng.dispose()
