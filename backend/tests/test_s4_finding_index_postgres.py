@@ -237,6 +237,39 @@ class TestContinuity:
         set_jobs(engine, runner.site, "FAILED")
         assert_no_claim(ok(client, **window), "FAILED")
 
+    def test_s3_candidate_near_an_edge_reaches_a_neighbour_the_matcher_skipped(self, store, engine) -> None:  # noqa: F811
+        """Phase-1 review H1: the matcher skips a Candidate cluster within 20 min of a UTC edge while the
+        neighbouring day is not CURRENT, yet records a completed pass, so no stored episode reaches the edge.
+        The selected S3 Candidate segment must pull the neighbour into discovery, whose state then blocks CURRENT."""
+        runner = CaseRunner(store, engine)
+        runner.step({"do": "deliver", "decided": "2026-10-30T08:00:00Z", "blocks": [
+            block("2026-10-25T23:10:00Z", "2026-10-25T23:45:00Z", **CANDIDATE),
+            block("2026-10-26T10:00:00Z", "2026-10-26T10:30:00Z", **NO_CANDIDATE)]})
+        runner.step({"do": "assess"})
+        # late evidence leaves D+1 stale; the matcher then skips D's cluster and writes nothing
+        runner.step({"do": "deliver", "decided": "2026-10-31T08:00:00Z",
+                     "blocks": [block("2026-10-26T12:00:00Z", "2026-10-26T12:30:00Z", **NO_CANDIDATE)]})
+        runner.match()
+        assert runner.reload()["revisions"] == []
+        client = client_for(runner)
+        day = {"frm": "2026-10-25T00:00:00Z", "to": "2026-10-26T00:00:00Z"}
+        stale = ok(client, **day)
+        assert stale["discovery"]["days"] == ["2026-10-25", "2026-10-26"]
+        assert_no_claim(stale, "STALE_PROJECTION")
+        assert all(r.startswith("2026-10-26") for r in stale["status_reasons"]), stale["status_reasons"]
+        # the injected cap is reached through the S3 Candidate edge alone (no stored episode exists)
+        detail = refused(call(client_for(runner, continuity_limit=1), **day), 409, "INDEX_CONTINUITY_LIMIT")
+        assert detail["limit_days"] == 1
+        # D+1 reassessed CURRENT, but no match pass through its new selection yet: still no claim
+        runner.step({"do": "assess"})
+        assert runner.reload()["revisions"] == []
+        assert_no_claim(ok(client, **day), "PENDING")
+        # after the rematch the Finding exists and the window reads CURRENT with it
+        runner.match()
+        body = ok(client, **day)
+        assert body["status"] == "CURRENT" and body["total_count"] == 1, body["status_reasons"]
+        assert body["rows"][0]["episode"]["start"] == "2026-10-25T23:10:00Z"
+
     def test_default_cap_is_62_distinct_days(self) -> None:
         assert INDEX_CONTINUITY_LIMIT == 62
         base = datetime(2026, 1, 1, tzinfo=timezone.utc)

@@ -26,7 +26,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
-from typing import Any, Protocol
+from typing import Any, Callable, Protocol
 from uuid import UUID
 
 from assetops_backend.analytics import dispatch as dispatch_contract
@@ -171,14 +171,40 @@ def reaches(head: dict[str, Any], edge: datetime) -> bool:
     return head["episode_start"] <= edge + CONTINUITY_TOLERANCE and head["episode_end"] >= edge - CONTINUITY_TOLERANCE
 
 
-def discover(heads: list[dict[str, Any]], lo: datetime, hi: datetime, limit: int = INDEX_CONTINUITY_LIMIT
-             ) -> list[date]:
-    """Fixed-point continuity closure over contiguous UTC days; 409 past the cap."""
+def _instant(value: Any) -> datetime | None:
+    if value is None or isinstance(value, datetime):
+        return value
+    return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+
+
+def candidate_reach(read: dict[str, Any], day: date) -> tuple[bool, bool]:
+    """Whether a selected S3 Candidate segment of this day lies within the continuity tolerance of its start or
+    end edge (phase-1 review H1). The matcher may skip such a cluster while the neighbouring day is not CURRENT and
+    still record a completed pass, so no stored episode reaches the edge; the neighbour must be inspected anyway,
+    and its own status/match check then blocks CURRENT."""
+    lo, hi = _day_start(day), _day_start(day + timedelta(days=1))
+    down = up = False
+    for rev in read.get("intervals") or []:
+        for seg in (rev.get("result") or {}).get("segments") or []:
+            if seg.get("classification") != dispatch_contract.CANDIDATE:
+                continue
+            start, end = _instant(seg.get("start")), _instant(seg.get("end"))
+            down = down or (start is not None and start <= lo + CONTINUITY_TOLERANCE)
+            up = up or (end is not None and end >= hi - CONTINUITY_TOLERANCE)
+    return down, up
+
+
+def discover(heads: list[dict[str, Any]], lo: datetime, hi: datetime, limit: int = INDEX_CONTINUITY_LIMIT,
+             edge_reach: Callable[[date], tuple[bool, bool]] | None = None) -> list[date]:
+    """Fixed-point continuity closure over contiguous UTC days; 409 past the cap. A day edge is crossed when a
+    stored episode reaches it or (`edge_reach`) when the edge day's selected S3 Candidate segments reach it."""
     days = requested_days(lo, hi)
     first, last = days[0], days[-1]
     while True:
-        grow_down = any(reaches(h, _day_start(first)) for h in heads)
-        grow_up = any(reaches(h, _day_start(last + timedelta(days=1))) for h in heads)
+        grow_down = (any(reaches(h, _day_start(first)) for h in heads)
+                     or (edge_reach is not None and edge_reach(first)[0]))
+        grow_up = (any(reaches(h, _day_start(last + timedelta(days=1))) for h in heads)
+                   or (edge_reach is not None and edge_reach(last)[1]))
         if not (grow_down or grow_up):
             return [first + timedelta(days=n) for n in range((last - first).days + 1)]
         nxt = (last - first).days + 1 + int(grow_down) + int(grow_up)
@@ -207,9 +233,8 @@ class FindingIndexService:
                  continuity_limit: int = INDEX_CONTINUITY_LIMIT) -> None:
         self.store, self.dispatch, self.continuity_limit = store, dispatch, continuity_limit
 
-    def _day(self, tenant_id: UUID, site_id: UUID, day: date, seq: int | None,
+    def _day(self, read: dict[str, Any], day: date, seq: int | None,
              match_pass: dict[str, Any] | None) -> dict[str, Any]:
-        read = self.dispatch.window(tenant_id, site_id, day)
         selection = read.get("selection") or {}
         window_rev = read.get("window_assessment") or {}
         matched = seq is not None and match_pass is not None and match_pass["matched_through_selection_seq"] >= seq
@@ -234,9 +259,17 @@ class FindingIndexService:
         t, s, analytic = tenant_id, site_id, request.analytic_id
         snap = self.store.index_snapshot(t, s, request.finding_domain, analytic)
         canonical = [h for h in snap["heads"] if h["merged_into_finding_id"] is None]
-        days = discover(canonical, request.start, request.end, self.continuity_limit)
+        reads: dict[date, dict[str, Any]] = {}
+
+        def window(day: date) -> dict[str, Any]:
+            if day not in reads:
+                reads[day] = self.dispatch.window(t, s, day)
+            return reads[day]
+
+        days = discover(canonical, request.start, request.end, self.continuity_limit,
+                        edge_reach=lambda day: candidate_reach(window(day), day))
         match_pass = snap["match_pass"]
-        inspected = [self._day(t, s, d, snap["selection_seqs"].get(_day_start(d)), match_pass) for d in days]
+        inspected = [self._day(window(d), d, snap["selection_seqs"].get(_day_start(d)), match_pass) for d in days]
         moved = self.store.fence(t, s, analytic) != snap["fence"]
         reasons = [f"{d['day']}: {r}" for d in inspected for r in d["reasons"]]
         statuses = {d["status"] for d in inspected}
