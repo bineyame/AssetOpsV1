@@ -434,3 +434,59 @@ class PostgresFindingStore:
             return sorted(rows, key=lambda r: (r["episode_start"], str(r["finding_id"])))
 
         return self._read(work)
+
+    # ---- S4-04 phase 1: Site Finding index (read-only; `findings_over` above is left unchanged) ----
+
+    def index_snapshot(self, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str) -> dict[str, Any]:
+        """One REPEATABLE READ snapshot for the Site Finding index: the latest revision of every Finding of
+        this domain/analytic with its merge, split and recurrence links, every window's current selection
+        sequence, the latest completed pass of this matcher version, and the writer fence."""
+        def work(c: Connection) -> dict[str, Any]:
+            p = {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "m": MATCHER_VERSION}
+            heads = [dict(r._mapping) for r in c.execute(text(
+                "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS finding_revision_id, r.revision_no, "
+                "r.transition, r.lifecycle, r.claim_level, r.title, r.matcher_version, r.model_version, "
+                "r.assessment_revision_id, r.analytic_run_id, r.window_assessment_revision_id, r.episode_start, "
+                "r.episode_end, r.limitations, r.created_at AS revision_created_at, f.domain, f.analytic_id, "
+                "f.cohort_sha256, f.anchor_start, f.recurs_after_finding_id, f.split_from_finding_id, "
+                "(SELECT m.canonical_finding_id FROM finding_merge m WHERE m.tenant_id = f.tenant_id "
+                "AND m.superseded_finding_id = f.id) AS merged_into_finding_id "
+                "FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+                "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = :d AND f.analytic_id = :a "
+                "ORDER BY r.finding_id, r.revision_no DESC"), p)]
+            merges = [dict(r._mapping) for r in c.execute(text(
+                "SELECT superseded_finding_id, canonical_finding_id, finding_revision_id FROM finding_merge "
+                "WHERE tenant_id = :t AND site_id = :s ORDER BY created_at, superseded_finding_id"), p)]
+            seqs = {r[0]: int(r[1]) for r in c.execute(text(
+                "SELECT window_start, max(seq) FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
+                "AND analytic_id = :a GROUP BY window_start"), p)}
+            row = c.execute(text("SELECT id, selection_seq, completed_at FROM finding_match_pass WHERE tenant_id = :t "
+                                 "AND site_id = :s AND analytic_id = :a AND matcher_version = :m "
+                                 "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"), p).one_or_none()
+            match_pass = None if row is None else {"match_pass_id": str(row[0]), "matcher_version": MATCHER_VERSION,
+                                                   "matched_through_selection_seq": int(row[1]),
+                                                   "match_completed_at": row[2]}
+            return {"heads": heads, "merges": merges, "selection_seqs": seqs, "match_pass": match_pass,
+                    "fence": self._fence(c, tenant_id, site_id, analytic_id)}
+        return self._read(work)
+
+    def index_lineage(self, tenant_id: UUID, site_id: UUID, revision_ids: list[UUID]) -> dict[str, Any]:
+        """Exact stored lineage of the selected immutable revisions on one index page: cited assessment
+        revisions and runs (with their configuration selection) and cited accepted-evidence IDs."""
+        def work(c: Connection) -> dict[str, Any]:
+            p = {"t": tenant_id, "s": site_id, "ids": [str(x) for x in revision_ids]}
+            cites = [dict(r._mapping) for r in c.execute(text(
+                "SELECT finding_revision_id, assessment_revision_id, analytic_run_id, scope, is_primary "
+                "FROM finding_revision_assessment WHERE tenant_id = :t AND site_id = :s "
+                "AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY scope DESC, assessment_revision_id"), p)]
+            evidence = [dict(r._mapping) for r in c.execute(text(
+                "SELECT finding_revision_id, evidence_id FROM finding_revision_evidence WHERE tenant_id = :t "
+                "AND site_id = :s AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY evidence_id"), p)]
+            runs = [dict(r._mapping) for r in c.execute(text(
+                "SELECT id, model_version, input_sha256, configuration_sha256, cohort_sha256, "
+                "foundation_revision_ids, binding_set_revision_ids, knowledge_cutoff FROM analytic_run "
+                "WHERE tenant_id = :t AND site_id = :s AND id IN (SELECT analytic_run_id FROM "
+                "finding_revision_assessment WHERE finding_revision_id = ANY(CAST(:ids AS uuid[]))) "
+                "ORDER BY window_start, id"), p)]
+            return {"assessments": cites, "evidence": evidence, "runs": runs}
+        return self._read(work)
