@@ -1,0 +1,590 @@
+{
+  "site_code": "KOBO-001",
+  "domain": "mini-grid-dispatch",
+  "database": "assetops_s404_owner",
+  "days": {
+    "positive": "2026-10-15",
+    "empty": "2026-10-25",
+    "dirty": "2026-10-27",
+    "failed": "2026-11-05",
+    "unassessed": "2026-10-30"
+  },
+  "windows": {
+    "positive": [
+      "2026-10-15T00:00:00Z",
+      "2026-10-16T00:00:00Z"
+    ],
+    "empty": [
+      "2026-10-25T00:00:00Z",
+      "2026-10-26T00:00:00Z"
+    ],
+    "dirty": [
+      "2026-10-27T00:00:00Z",
+      "2026-10-28T00:00:00Z"
+    ],
+    "failed": [
+      "2026-11-05T00:00:00Z",
+      "2026-11-06T00:00:00Z"
+    ],
+    "unassessed": [
+      "2026-10-30T00:00:00Z",
+      "2026-10-31T00:00:00Z"
+    ]
+  },
+  "identity": {
+    "tenant_id": "74acadc7-22e2-4509-8c75-15c157092e81",
+    "site_id": "d0ef7a3b-5e01-4985-b687-1548c23fef2c",
+    "site_code": "KOBO-001",
+    "gateway_id": "376cc1c2-e031-4854-8230-0a07d8e3af72",
+    "gateway_external_id": "edge-kobo-001",
+    "binding_set_revision_id": "0fbb501c-2796-408a-b629-0bf8d78c2c5b",
+    "binding_version": 5,
+    "snapshot_sha256": "2014a2193958b4795e054f6b6e572428d5a8f79e848c5ed5fe36b4d6ee5f970d"
+  },
+  "credential": "C:\\Users\\assef\\Bineyame\\AssetOpsV1-review\\var\\s404_owner\\credentials\\upload.credential.f50e25ffe1af68f58b9b2549e2da07ff",
+  "cases": [
+    {
+      "case_id": "F01",
+      "label": "candidate-open",
+      "day": "2026-10-06",
+      "batch_ids": [
+        "c88e83c5b7ad2d6f4212fcf609db7e8aac072683ccd2e05069621da35d155ac4",
+        "be5b30c26dddc5e0f98d2dbe5abb8b231b2a5acd098be2cb1470f077d4a6523a",
+        "a2a0ac59a062f240777f1eb7ac63516f19e9556f9c2848789641d06133d5a823",
+        "08ba380a5c99351d3fc94c5ead2e27c30281938364e5f3dd88dfa13167a16045",
+        "fcb8fd858f8d3aacbf7e38ebe5fbd835aa57bb13151fc038e1bf7361cba415a3",
+        "b93f9e6ad690a619e04344b674a7dafee47e8725ce6cc1c6d5e90412b615bae4"
+      ],
+      "matches": [
+        {
+          "planned": 1,
+          "finding_ids": [
+            "9d5d6cfc-79f4-4421-9edd-2afe1bbd2288"
+          ],
+          "revision_ids": [
+            "0a064b06-7dab-4e49-8513-68579699c0e3"
+          ],
+          "expected": 1,
+          "collateral": false,
+          "problems": []
+        }
+      ],
+      "evidence_count": 93,
+      "evidence_id_sha256": "dc706eee0679d84f6990b4615a11498b1a5d6b967e1c10e4a5388e4a82e377ad"
+    },
+    {
+      "case_id": "F02",
+      "label": "overlap-adjacent-cross-day",
+      "day": "2026-10-08",
+      "batch_ids": [
+        "db8d83f54e9d40544903030b1645db49f50997b7539b7d48a42fb6128303cca4",
+        "90e7d9928e79140772f4fc708c84f4c8fc4177ebfa404f7a2847c089a32bbeb2",
+        "9015b217ad1e62b1ab3437c0e1fc24100ede747011848a5d585c845146d2ee13",
+        "0ba37891e7b40798bf015a785c7301e57847bc97beefc2865cc3df66fa733a32",
+        "c8ed4983989ab756c1d9c6c6239b53ff72f39c09c69965ac5c99c933d03a453d",
+        "9585c6a2415c3ec04c6363032b48731c7f7303e916f8129bcecc4e1b936beeb1",
+        "145f46d9097bc90391932614ce7aa4cd9a5724dd51ae59593c8eac319a69c481",
+        "7f9ed58ef887101d60c8451cbc45ebc7ad5183732d7a294e4714c9ed2e6cd5c1",
+        "7cb83626f79101410fd481a0beef8621ecd8826ca3554b6f75b33ed30871aa1c",
+        "c96ffcf0295f306de95f5f2507a2f8c228ec61276fa83d3c0eefdcd9422fcd1d",
+        "d04c26f4d2da6f1b8eda508aa130b782b7137dc1a9299347732502d5721ee5a5",
+        "6734891a717acc6271dd8f808e0a69797e1ee1641451b0e04b84594a22d33f26"
+      ],
+      "matches": [
+        {
+          "planned": 1,
+          "finding_ids": [
+            "432feacc-e61a-4d24-99d8-dfffe381b5ee"
+          ],
+          "revision_ids": [
+            "633e54e3-5f58-4a59-98e6-817f9ebce480"
+          ],
+          "expected": 1,
+          "collateral": false,
+          "problems": []
+        },
+        {
+          "planned": 1,
+          "finding_ids": [],
+          "revision_ids": [
+            "b90744ab-7660-4a2f-9d11-4dcba1c61cd8"
+          ],
+          "expected": 1,
+          "collateral": false,
+          "problems": []
+        }
+      ],
+      "evidence_count": 130,
+      "evidence_id_sha256": "7d0855e3aa3fbd0beda7ee631f84cd600a251a8590b4fc6e158de4311ae0a69e"
+    },
+    {
+      "case_id": "F03",
+      "label": "recurrence",
+      "day": "2026-10-11",
+      "batch_ids": [
+        "40604fe7bd7fd1c52eab27101951c50b115f76f750c3080f98aa5a8bf7407ff9",
+        "08bb527d81d6cccc394b3416cbf8e8325e3ebc925137a77fe854319152ae577b",
+        "8de4685b09fcee88984260330c1490ad9ccff42c15782af77d9f8d1c61329574",
+        "6574bcf6a66df95593c733c5a49931b0f434840ecc6e40676b24cb73f19c528a",
+        "e91f757fd8bd78113b8e1bc0deafcc69af663642647765767ea6988bef55de15",
+        "ee2df413fc9e20f5851f1878be6c343f4e3d1d01d17b9ae4f5ce64ce1f5289aa"
+      ],
+      "matches": [
+        {
+          "planned": 2,
+          "finding_ids": [
+            "5cec8b6d-d890-4b86-94ee-ab0eaa2a01b1",
+            "05a47b4c-5c79-446a-ae4b-cbe8c1526798"
+          ],
+          "revision_ids": [
+            "1efa6c1d-6d05-4d36-8d95-e29a5131b2c1",
+            "fe712df5-af9f-4085-8e8f-73062f314c73"
+          ],
+          "expected": 2,
+          "collateral": false,
+          "problems": []
+        }
+      ],
+      "evidence_count": 102,
+      "evidence_id_sha256": "39f0d42f2f1114947afc38540a1821266f24e4217e8f398b486ca0fe9c8fa6bd"
+    },
+    {
+      "case_id": "F04",
+      "label": "late-earlier-acceptance",
+      "day": "2026-10-13",
+      "batch_ids": [
+        "170073b2a6c199fc6df742fc57ad0fc608181dad72d781ad7bcb892a6cc340db",
+        "9ac22c7a60b7087e19c1bb64ca72c28f3d057fdf1c84dc91008d323413edb85d",
+        "644c1db9c6aa112dc2de8f6e612849f1ccfd96a326beae4d1dcbc0d8c5853cb2",
+        "ec53d4f6d632e52aacc2e43c25b2c8727d6c963ec6863abb7b83709e1531bfd1",
+        "ac1adf2489f0a036be23958e5f7372543a069e9d1282c115f6ed82582aeb3311",
+        "819682158f46f33ceee4795182ab6577511dfa2e212c5371293e3827fed73025",
+        "30e1bcbcf4cc357e9762a520a33af60bc92d5239bb39ab5234254a55bcda715d",
+        "1feac021e6da13f63c8904e184630601436755a7b0d22b7af659efeec85144c4",
+        "9b58d676dedaef364496e2fcba90180338f6df9d125fc548bdb5846ee5232901",
+        "e86051338f6a3a048e49a5e4b0bbe616e6d3517e9d300732488a55f0ff8f8881",
+        "b5a9b2e2e6382920d3af9e6ccb9b2ab8965d1942584789268c510ded507cc9eb",
+        "454f7f6f5dd545d422969833f3542686c1d571f6053243679f739b086416a5f3"
+      ],
+      "matches": [
+        {
+          "planned": 1,
+          "finding_ids": [
+            "c7b0cd82-ab07-428a-ba58-5a38a1f07830"
+          ],
+          "revision_ids": [
+            "ed6fccd8-85c4-4010-8a65-0c435ca4fb8b"
+          ],
+          "expected": 1,
+          "collateral": false,
+          "problems": []
+        },
+        {
+          "planned": 1,
+          "finding_ids": [],
+          "revision_ids": [
+            "a72d3585-37b1-4f8f-9505-2d93bf9aaa40"
+          ],
+          "expected": 1,
+          "collateral": false,
+          "problems": []
+        }
+      ],
+      "evidence_count": 93,
+      "evidence_id_sha256": "d0ce79df36c83c5ea312bb6598f03e292a276e1840f9a812e7b4ff7765811af3"
+    },
+    {
+      "case_id": "F06",
+      "label": "split-and-bridge",
+      "day": "2026-10-15",
+      "batch_ids": [
+        "517d07d45859f95ff82416107268509a8e04e2a0be26b5734d78ef5ea96b1093",
+        "71565fc27e93af87cbad583204b1c670d0d456e3a17cb74bab2bdd2c54d435af",
+        "9df81d3df4c878479e10aef3a790344245a02817a7cde109b7f8e861fa5932b9",
+        "4161dbccb8b3ae66bae1c1685f5767e71d1a23b8cb784ccb770bd4d973f98041",
+        "3e41df692f4f2e90370db23fb302398eecb5cf0638da0948a2a3d730a463624a",
+        "d198d6312bc95d291a0ce682109893196e779446f586d80ac47dec675f46676e",
+        "95cc2ae025f4e9b3906714c53142eb0592816fe289d3a17cf34345710814f588",
+        "612f36489fdca7bc817efa60b8547a868e62c928ef95ca744ae085dc865a0a56",
+        "5950798cee7f23ae48e0f13c80f80827a5d19e108f39281915588c446dc85e32",
+        "2848f2968182d9a23a418d58a3f6209f4a0a09d53b3e5701f96b6bec86fe77b6",
+        "42911508181ee309466a3a60c69ef89cac18eed11bc657c5da696f6b43617649",
+        "30fa63dbd8c73b240d0d404eb30ce8deeaa3bb07eaf1f4db859a3b77f4afadd0",
+        "79084323371f70733aec7365d2a102ebf2c4eb30a8c38e4264ff2b78dd12ca48"
+      ],
+      "matches": [
+        {
+          "planned": 3,
+          "finding_ids": [
+            "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+            "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+            "307351a0-3172-47ae-a4fc-646baf270fdf"
+          ],
+          "revision_ids": [
+            "89a6199b-6a16-4338-9d6b-c589283fda10",
+            "9c725a45-8352-46b6-958d-4c979172e746",
+            "8cff57fc-b798-4964-83fe-3c1bd55bc5b3"
+          ],
+          "expected": 3,
+          "collateral": false,
+          "problems": []
+        },
+        {
+          "planned": 4,
+          "finding_ids": [
+            "947f62ea-6711-43bb-8979-bd2f087716cb"
+          ],
+          "revision_ids": [
+            "3b3bb8fa-abaf-4105-82e4-dad44c7a60eb",
+            "55d4b2ba-5ecf-4e77-b2e4-e08876e68138",
+            "e45537e2-99f0-4fec-8fdf-b7e85b3e28d6",
+            "c803844c-51b1-461c-960c-47629296efad"
+          ],
+          "expected": 4,
+          "collateral": false,
+          "problems": []
+        },
+        {
+          "planned": 4,
+          "finding_ids": [],
+          "revision_ids": [
+            "cae1a7c8-4942-4aaa-97f1-988d7d29b30b",
+            "d530fc94-19ae-4c8c-9adf-f18abe66e540",
+            "dfba5aea-2937-4328-96e5-1c73a2f80a39",
+            "986f0477-7e50-455a-89ba-298add3a7043"
+          ],
+          "expected": 4,
+          "collateral": false,
+          "problems": []
+        }
+      ],
+      "evidence_count": 277,
+      "evidence_id_sha256": "1b8fc2bbe2072b95a62d4da3457182673b326197dc79d15fe627b30896a85303"
+    },
+    {
+      "case_id": "F08",
+      "label": "retry-and-absent-basis",
+      "day": "2026-10-19",
+      "batch_ids": [
+        "ee63657eead3b4aa72ebab4f0941ff2aaefb3c5eb76b75527a7222cf8c58663e",
+        "a67833c84dd1fa5a2355b4018440fa63ae1cc5312f8e8b9d154e4f9f4dd14207",
+        "ccf5bbd56fe8e677374bcd898716c5e35bc25ddce656ed181b1500554a1ea5ed",
+        "e234a016395a962ec2cde42ef1dd5511a9dc0a2acfae667f11009f50d248be31",
+        "7ccbb0fd35a42727bb9bd2077f31c291e16c9441ce71cf5dffd58c53bb50f758",
+        "b2d65f307858059d668350a67d8acd2816e88210aa66ba7f674dd70b4db75eed",
+        "44521d8e4962be00ab00c6b07bb3cbadd30fe638637d282d95caeae74173da54"
+      ],
+      "matches": [
+        {
+          "planned": 0,
+          "finding_ids": [],
+          "revision_ids": [],
+          "expected": 0,
+          "collateral": false,
+          "problems": []
+        },
+        {
+          "planned": 0,
+          "finding_ids": [],
+          "revision_ids": [],
+          "expected": 0,
+          "collateral": false,
+          "problems": []
+        },
+        {
+          "planned": 0,
+          "finding_ids": [],
+          "revision_ids": [],
+          "expected": 0,
+          "collateral": false,
+          "problems": []
+        }
+      ],
+      "evidence_count": 52,
+      "evidence_id_sha256": "c8a60c97a8e646508daf6f019547b7de732c34288d215180ef22c3d51d48aa30"
+    },
+    {
+      "case_id": "F05",
+      "label": "limitation-and-closure",
+      "day": "2026-10-21",
+      "batch_ids": [
+        "df9732b43aad9665724a5e54a584417577b387e0805332e0d23343cf04d76f4a",
+        "3bd00b9df01c1af8ae640fdedc401a9bb77b735c39c047a02bb2a8c5f339c260",
+        "be5a113b3613a08864e2310211f55983ab09e2d9621e2d28260726789571ca3d",
+        "ea4d6cfc6565d262b5b4ec5f71c4c4d09bcc6ef898d41168404e7201ab122bca",
+        "eae566bd1f61554529855306eee8b2c3cfe3f256536c9a325a2fc8ac5d4abf6b",
+        "fd7d07565d7acf2015dacbe5b03d0752eb17abbaba609af25fed2b4c792765b0"
+      ],
+      "matches": [
+        {
+          "planned": 1,
+          "finding_ids": [
+            "47b0bc87-6fe0-4e14-bddc-e7789fe2fc32"
+          ],
+          "revision_ids": [
+            "fe9bb9f5-1856-424e-a95d-197e21d0de2d"
+          ],
+          "expected": 1,
+          "collateral": false,
+          "problems": []
+        },
+        {
+          "planned": 9,
+          "finding_ids": [],
+          "revision_ids": [
+            "71bbbabe-b3ef-4999-9027-08d54638caab",
+            "e5bbc051-93b7-45c4-b6a2-a9b60de3bb11",
+            "fc6f79c4-3f75-4d47-b574-295d3fc43dcb",
+            "69824cd2-b8a5-4f8b-bc0d-1f0be606dde3",
+            "8f3a1acc-d26d-4f62-8983-0ada02371f01",
+            "5963dc98-0ae5-4e8a-a74c-72930804711f",
+            "800189ca-a997-4ace-809d-f7d299fff739",
+            "0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+            "5f38baec-4b57-497a-afb2-8a85bd3da118"
+          ],
+          "expected": 1,
+          "collateral": true,
+          "problems": []
+        },
+        {
+          "planned": 1,
+          "finding_ids": [],
+          "revision_ids": [
+            "8f231895-54c0-4205-ba6d-6a4fded6939a"
+          ],
+          "expected": 1,
+          "collateral": true,
+          "problems": []
+        },
+        {
+          "planned": 0,
+          "finding_ids": [],
+          "revision_ids": [],
+          "expected": 0,
+          "collateral": false,
+          "problems": []
+        }
+      ],
+      "evidence_count": 93,
+      "evidence_id_sha256": "d9cec1eea649b909bea6d090ec06bd3306f3399b7b1416ba03641cfefd9b520a"
+    },
+    {
+      "case_id": "E1",
+      "label": "S4-04 walkthrough E1",
+      "day": "2026-10-25",
+      "batch_ids": [
+        "a47f194d684d54c2b71517e95573f28a67e7251017e81808771cb358cf7a3dfa",
+        "f751092c585d1508f7997911c13f2c308fb1776cf2a69b886d562b701b824ee4",
+        "0d5b24dcadc55bbbf8e004d9fc6338f31b9f05013ed280b1e396b803cca8e2a7",
+        "10e7166271671f52dc67bc2895c4035705d9b9f25f1fad086c09938b3e94e000",
+        "2f4eadbf63ce32b7b6e28716e9d7f86c2b72cfb5e92cced6b7050e115248b04e",
+        "20de2245e4f175c1ac20417631d2e89f6c5d8e3644ea39c82c3224e0b0c95e2a"
+      ],
+      "matches": [
+        {
+          "planned": 0,
+          "finding_ids": [],
+          "revision_ids": [],
+          "expected": 0,
+          "collateral": true,
+          "problems": []
+        }
+      ],
+      "evidence_count": 51,
+      "evidence_id_sha256": "000e22803563ad2d870766f83a3046f526104b15b3fbbf1b969599ac3e613a4a"
+    },
+    {
+      "case_id": "D1",
+      "label": "S4-04 walkthrough D1",
+      "day": "2026-10-27",
+      "batch_ids": [
+        "19c2d63dad8c6698b4ffcd797f1debfdcfcf958c6dbe6a97119019c42d83149f",
+        "cb062ab2f52519047c0fa12a572659a5eed72a31ff38be0ebfeac0be9b7d3e16",
+        "42e420de14555441b3adf2b715af0d79472df301a961df1be9340f852a4ab4ec",
+        "a983fc9c9d079b7dd76b27e6d7f5a6fdf2384e6f7bb71adfa7e077f6367ae9ea",
+        "5b01e31f7a2260b87edd32e196224e900cde4993fb6eb071e1be19b36f39fe69",
+        "72521a98b51a40c7f621313e8b6dd94e1dee0485c0a843895059682367b12d09"
+      ],
+      "matches": [
+        {
+          "planned": 0,
+          "finding_ids": [],
+          "revision_ids": [],
+          "expected": 0,
+          "collateral": true,
+          "problems": []
+        }
+      ],
+      "evidence_count": 51,
+      "evidence_id_sha256": "b9e6a6383b38a14966b1ca44d99a407cdbad21f5136ee7d5de519ad6ecd6d659"
+    },
+    {
+      "case_id": "X1",
+      "label": "S4-04 walkthrough X1",
+      "day": "2026-11-05",
+      "batch_ids": [
+        "9e09ddd328b30df466823bf15755e9fe13285ac1bc6c8f873a1c2af4bd8878ca",
+        "89cf9e9b745e886383cde8a9eab5cc333556561d8fadd2d0e2649171f059e6dc",
+        "6aaef78c28016347c43b0d237da8b933621772c0b60b37629255a8af181e906f",
+        "a865f81ef0ab703d64a968c93fe7e4f9d33b7779efd64248ebb0a1c938cec29d",
+        "7649a8c5df85c696208cc46017682ad72c057ee6820ce00cf073b1f06807ee1e",
+        "71fa3194c5bb085fe948ebb8f08121cb1b82860517c8c67020fcabf229e4842f"
+      ],
+      "matches": [],
+      "evidence_count": 51,
+      "evidence_id_sha256": "4213fad9ad797c708e1b39d5264be5c7a6cbdc293f077fc6ac54dad1961707a7"
+    },
+    {
+      "case_id": "D2",
+      "label": "S4-04 walkthrough D2",
+      "day": "2026-10-27",
+      "batch_ids": [
+        "d5feefb5c3b68a8ac05ffe95bca9583cc10160a90171df4dd6a9d73213640aa7",
+        "19ff85aec8f7f4c4e0f8047fac3d64c14d4865ca49d4e05a26ac32f5af316596",
+        "851f8a387b3572bdc1b27dbbcc725f2ad5436963cc3cc48ca4075bc1117372b2",
+        "f76c71a8fdc68e8de7fda5d4fcf5b87fdb4cf736a705b1a810e56a2d9f12e9bf",
+        "694e558d7727b8c1197d24306cf45bdebb7bef270ec1bf09d3d6013f932b2894",
+        "9852ba20f539f6f9aab8b9036836988eec263887f497148c5e88df40cd9b6f6b"
+      ],
+      "matches": [],
+      "evidence_count": 51,
+      "evidence_id_sha256": "dc2634542ea00145386db9552fcdf807c4ac716e60d1ad58ac17a126a06ab308"
+    }
+  ],
+  "producer_failures": [],
+  "sequences": {
+    "eea69562-86c1-4940-998b-93d4d2009003|s4-fixture-epoch-1": 183,
+    "863dfb2a-b307-4f80-ab97-f651ddf67679|s4-fixture-epoch-1": 153,
+    "6ec0749d-e4ec-49a6-969c-545a75fee6f3|s4-fixture-epoch-1": 153,
+    "db48353f-e852-4ce8-982b-001ef67f7624|s4-fixture-epoch-1": 153,
+    "ea8f3f23-c85d-4974-93ed-0a99f1cfdf3d|s4-fixture-epoch-1": 160,
+    "9020e105-f098-4f88-a022-e809c91cf391|s4-fixture-epoch-1": 306,
+    "9020e105-f098-4f88-a022-e809c91cf391|s4-fixture-epoch-2": 1
+  },
+  "paged_page2_cursor": "eyJhZnRlciI6WyIyMDI2LTEwLTE1VDA5OjE1OjAwWiIsIjk0N2Y2MmVhLTY3MTEtNDNiYi04OTc5LWJkMmYwODc3MTZjYiJdLCJkb21haW4iOiJtaW5pLWdyaWQtZGlzcGF0Y2giLCJmcm9tIjoiMjAyNi0xMC0xNVQwMDowMDowMFoiLCJzZWxlY3Rpb25fdG9rZW4iOiJzZmkxLWVhYzFkZTMwMDMwMTRjMmRjZjQ0ZjkxZDFkZjk2ODQ2Mjk3NGE2NWFlZmNkOWNlOGNlZDY4NDliM2JhMThiN2MiLCJzaXRlX2lkIjoiZDBlZjdhM2ItNWUwMS00OTg1LWI2ODctMTU0OGMyM2ZlZjJjIiwidGVuYW50X2lkIjoiNzRhY2FkYzctMjJlMi00NTA5LThjNzUtMTVjMTU3MDkyZTgxIiwidG8iOiIyMDI2LTEwLTE2VDAwOjAwOjAwWiIsInYiOjF9",
+  "reads": {
+    "positive": {
+      "http": 200,
+      "status": "CURRENT",
+      "total_count": 3,
+      "rows": [
+        [
+          "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+          "0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+          "2026-10-15T12:00:00Z"
+        ],
+        [
+          "947f62ea-6711-43bb-8979-bd2f087716cb",
+          "800189ca-a997-4ace-809d-f7d299fff739",
+          "2026-10-15T09:15:00Z"
+        ],
+        [
+          "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+          "5963dc98-0ae5-4e8a-a74c-72930804711f",
+          "2026-10-15T08:00:00Z"
+        ]
+      ],
+      "next_cursor": false,
+      "selection_token": "sfi1-eac1de3003014c2dcf44f91d1df968462974a65aefcd9ce8ced6849b3ba18b7c",
+      "days": [
+        "2026-10-15"
+      ],
+      "reasons": []
+    },
+    "empty": {
+      "http": 200,
+      "status": "CURRENT",
+      "total_count": 0,
+      "rows": [],
+      "next_cursor": false,
+      "selection_token": "sfi1-5a32f71b62db1c3fa751ffc3f854b16bb5b871f795fdc453c53933be27e9cd16",
+      "days": [
+        "2026-10-25"
+      ],
+      "reasons": []
+    },
+    "dirty": {
+      "http": 200,
+      "status": "STALE_PROJECTION",
+      "total_count": null,
+      "rows": [],
+      "next_cursor": false,
+      "selection_token": "sfi1-ecee2ca041186c49dae235efe49a33f4d8b69d8bf7c10d3f94870ade59345a11",
+      "days": [
+        "2026-10-27"
+      ],
+      "reasons": [
+        "2026-10-27: RECOMPUTE_OUTSTANDING: job 1a587ddb-7e5c-44ef-899e-69e8c9cc3875 PENDING",
+        "2026-10-27: INPUT_BASIS_CHANGED: the current accepted basis gives another input hash"
+      ]
+    },
+    "failed": {
+      "http": 200,
+      "status": "FAILED",
+      "total_count": null,
+      "rows": [],
+      "next_cursor": false,
+      "selection_token": "sfi1-51baf5f864076a94876f463815ac63237ac21a0c06a76248ad85d85fe21d38ae",
+      "days": [
+        "2026-11-05"
+      ],
+      "reasons": [
+        "2026-11-05: RECOMPUTE_FAILED: job af1839a2-4570-4291-b657-fc3315456879: RuntimeError: walkthrough staged failure: the assessment could not be computed"
+      ]
+    },
+    "unassessed": {
+      "http": 200,
+      "status": "UNASSESSED",
+      "total_count": null,
+      "rows": [],
+      "next_cursor": false,
+      "selection_token": "sfi1-3246f2be154da16a0e63fbbd0b86a8673f0e0f04ef035e10412e472582d93232",
+      "days": [
+        "2026-10-30"
+      ],
+      "reasons": []
+    },
+    "paged_page1": {
+      "http": 200,
+      "status": "CURRENT",
+      "total_count": 3,
+      "rows": [
+        [
+          "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+          "0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+          "2026-10-15T12:00:00Z"
+        ],
+        [
+          "947f62ea-6711-43bb-8979-bd2f087716cb",
+          "800189ca-a997-4ace-809d-f7d299fff739",
+          "2026-10-15T09:15:00Z"
+        ]
+      ],
+      "next_cursor": true,
+      "selection_token": "sfi1-eac1de3003014c2dcf44f91d1df968462974a65aefcd9ce8ced6849b3ba18b7c",
+      "days": [
+        "2026-10-15"
+      ],
+      "reasons": []
+    },
+    "paged_page2": {
+      "http": 200,
+      "status": "CURRENT",
+      "total_count": 3,
+      "rows": [
+        [
+          "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+          "5963dc98-0ae5-4e8a-a74c-72930804711f",
+          "2026-10-15T08:00:00Z"
+        ]
+      ],
+      "next_cursor": false,
+      "selection_token": "sfi1-eac1de3003014c2dcf44f91d1df968462974a65aefcd9ce8ced6849b3ba18b7c",
+      "days": [
+        "2026-10-15"
+      ],
+      "reasons": []
+    }
+  },
+  "failures": []
+}

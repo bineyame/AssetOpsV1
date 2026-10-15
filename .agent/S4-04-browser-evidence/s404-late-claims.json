@@ -1,0 +1,153 @@
+{
+  "stage": "late",
+  "results": [
+    {
+      "name": "desktop positive-late: settled",
+      "ok": true,
+      "detail": "STALE_PROJECTION"
+    },
+    {
+      "name": "desktop positive-late: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop positive after late evidence: state STALE_PROJECTION, no rows, no count, no empty claim",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "STALE_PROJECTION",
+        "heading": "Not current",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": "sfi1-bf46c5f520207a34b959ad9c952569b8086c7c97ce8f05d718e7730cbbeb46e6",
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": true,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "desktop old-page2: settled",
+      "ok": true,
+      "detail": "basis-changed"
+    },
+    {
+      "name": "desktop old-page2: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop old page-2 address restarts",
+      "ok": true,
+      "detail": "basis-changed"
+    },
+    {
+      "name": "narrow positive-late: settled",
+      "ok": true,
+      "detail": "STALE_PROJECTION"
+    },
+    {
+      "name": "narrow positive-late: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow positive after late evidence: state STALE_PROJECTION, no rows, no count, no empty claim",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "STALE_PROJECTION",
+        "heading": "Not current",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": "sfi1-bf46c5f520207a34b959ad9c952569b8086c7c97ce8f05d718e7730cbbeb46e6",
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": true,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "narrow old-page2: settled",
+      "ok": true,
+      "detail": "basis-changed"
+    },
+    {
+      "name": "narrow old-page2: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow old page-2 address restarts",
+      "ok": true,
+      "detail": "basis-changed"
+    }
+  ],
+  "record": {
+    "desktop": {
+      "p": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "STALE_PROJECTION",
+        "heading": "Not current",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": "sfi1-bf46c5f520207a34b959ad9c952569b8086c7c97ce8f05d718e7730cbbeb46e6",
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": true,
+        "overflow": 0
+      },
+      "old": {
+        "href": "/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&limit=2&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTE1VDA5OjE1OjAwWiIsIjk0N2Y2MmVhLTY3MTEtNDNiYi04OTc5LWJkMmYwODc3MTZjYiJdLCJkb21haW4iOiJtaW5pLWdyaWQtZGlzcGF0Y2giLCJmcm9tIjoiMjAyNi0xMC0xNVQwMDowMDowMFoiLCJzZWxlY3Rpb25fdG9rZW4iOiJzZmkxLWVhYzFkZTMwMDMwMTRjMmRjZjQ0ZjkxZDFkZjk2ODQ2Mjk3NGE2NWFlZmNkOWNlOGNlZDY4NDliM2JhMThiN2MiLCJzaXRlX2lkIjoiZDBlZjdhM2ItNWUwMS00OTg1LWI2ODctMTU0OGMyM2ZlZjJjIiwidGVuYW50X2lkIjoiNzRhY2FkYzctMjJlMi00NTA5LThjNzUtMTVjMTU3MDkyZTgxIiwidG8iOiIyMDI2LTEwLTE2VDAwOjAwOjAwWiIsInYiOjF9",
+        "state": "basis-changed",
+        "heading": "This list changed",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    },
+    "narrow": {
+      "p": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "STALE_PROJECTION",
+        "heading": "Not current",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": "sfi1-bf46c5f520207a34b959ad9c952569b8086c7c97ce8f05d718e7730cbbeb46e6",
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": true,
+        "overflow": 0
+      },
+      "old": {
+        "href": "/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&limit=2&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTE1VDA5OjE1OjAwWiIsIjk0N2Y2MmVhLTY3MTEtNDNiYi04OTc5LWJkMmYwODc3MTZjYiJdLCJkb21haW4iOiJtaW5pLWdyaWQtZGlzcGF0Y2giLCJmcm9tIjoiMjAyNi0xMC0xNVQwMDowMDowMFoiLCJzZWxlY3Rpb25fdG9rZW4iOiJzZmkxLWVhYzFkZTMwMDMwMTRjMmRjZjQ0ZjkxZDFkZjk2ODQ2Mjk3NGE2NWFlZmNkOWNlOGNlZDY4NDliM2JhMThiN2MiLCJzaXRlX2lkIjoiZDBlZjdhM2ItNWUwMS00OTg1LWI2ODctMTU0OGMyM2ZlZjJjIiwidGVuYW50X2lkIjoiNzRhY2FkYzctMjJlMi00NTA5LThjNzUtMTVjMTU3MDkyZTgxIiwidG8iOiIyMDI2LTEwLTE2VDAwOjAwOjAwWiIsInYiOjF9",
+        "state": "basis-changed",
+        "heading": "This list changed",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    }
+  }
+}

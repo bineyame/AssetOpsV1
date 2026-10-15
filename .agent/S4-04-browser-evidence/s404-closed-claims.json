@@ -1,0 +1,195 @@
+{
+  "stage": "closed",
+  "results": [
+    {
+      "name": "desktop positive-closed: settled",
+      "ok": true,
+      "detail": "closed"
+    },
+    {
+      "name": "desktop positive-closed: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop positive with the gate closed: state closed, no rows, no count, no empty claim",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "desktop empty-closed: settled",
+      "ok": true,
+      "detail": "closed"
+    },
+    {
+      "name": "desktop empty-closed: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop empty with the gate closed: state closed, no rows, no count, no empty claim",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "desktop pinned-closed: exact pinned revision opens",
+      "ok": true,
+      "detail": {
+        "shown": "0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+        "want": "0057e42e-986b-487c-8c28-e1d3ebbb4a53"
+      }
+    },
+    {
+      "name": "narrow positive-closed: settled",
+      "ok": true,
+      "detail": "closed"
+    },
+    {
+      "name": "narrow positive-closed: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow positive with the gate closed: state closed, no rows, no count, no empty claim",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "narrow empty-closed: settled",
+      "ok": true,
+      "detail": "closed"
+    },
+    {
+      "name": "narrow empty-closed: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow empty with the gate closed: state closed, no rows, no count, no empty claim",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "narrow pinned-closed: exact pinned revision opens",
+      "ok": true,
+      "detail": {
+        "shown": "0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+        "want": "0057e42e-986b-487c-8c28-e1d3ebbb4a53"
+      }
+    }
+  ],
+  "record": {
+    "desktop": {
+      "p": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      },
+      "e": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    },
+    "narrow": {
+      "p": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      },
+      "e": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "closed",
+        "heading": "Findings list closed for this Site",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    }
+  }
+}
