@@ -293,14 +293,23 @@ def age_schedule(db: str, work: Path) -> None:
 
 
 def check_served(args: argparse.Namespace, state: dict[str, Any]) -> None:
-    """When the API is up, show what the P02 day now reads (a reload of the owner's page)."""
-    pin = (state.get("p02_finding_id"), state.get("p02_withheld_revision_id"))
+    """When the API is up, show what the P02 day now reads: a reload of the owner's page, whose address carries the
+    Finding version last shown (the page writes the served version back into the address)."""
+    pin = (state.get("p02_finding_id"), state.get("p02_shown_revision_id") or state.get("p02_withheld_revision_id"))
     try:
         status, body = overview(args.api_port, DAYS["p02"], pin if all(pin) else None)
     except OSError:
         say(f"  (API on {args.api_port} is not running; start `serve` to reload the page.)")
         return
-    say(f"  P02 {DAYS['p02']} now: {json.dumps(summary_line(DAYS['p02'], status, body))[:500]}")
+    line = summary_line(DAYS["p02"], status, body)
+    say(f"  P02 {DAYS['p02']} now: {json.dumps(line)[:700]}")
+    if line.get("finding_revision_id"):
+        state["p02_shown_revision_id"] = line["finding_revision_id"]
+        (args_work(args) / STATE).write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+
+def args_work(args: argparse.Namespace) -> Path:
+    return (s2.REPO / args.work).resolve() if not Path(args.work).is_absolute() else Path(args.work).resolve()
 
 
 def followup(args: argparse.Namespace, work: Path) -> int:
@@ -316,7 +325,6 @@ def followup(args: argparse.Namespace, work: Path) -> int:
         out = lr.record_attestation(work, args.db, state, "record")
         state["attestations"] += 1
         state_file.write_text(json.dumps(state, indent=2), encoding="utf-8")
-        (work / lr.LR01_STATE).write_text(json.dumps(state, indent=2), encoding="utf-8")
         say("Attestation recorded. Reload P02 BEFORE ticking: no amount (see the walkthrough for the two states).")
         check_served(args, state)
         return 0 if out["exit"] == 0 else 1

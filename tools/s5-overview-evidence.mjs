@@ -142,7 +142,7 @@ const READ = `(() => {
     finding: q('[data-known-finding]')?.getAttribute('data-known-finding') ?? null,
     revision: q('[data-known-finding-revision]')?.getAttribute('data-known-finding-revision') ?? null,
     findingList: q('[data-finding-list]')?.innerText ?? null,
-    reasons: q('[data-window-reasons="freshness"]')?.innerText ?? '',
+    reasons: q('[data-window-reasons="freshness"]')?.textContent ?? '',
     sourceOpen: q('[data-source-open]')?.getAttribute('data-source-open') ?? null,
     overflow: document.documentElement.scrollWidth - window.innerWidth,
   };
