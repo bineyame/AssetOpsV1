@@ -677,8 +677,47 @@ function Invoke-ConfigurationPersistenceCheck {
     }
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter)
-    $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
-    $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
+    # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
+    # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
+    # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
+    # are normalised away; `+`, f-string, %/format and join templates keep their dynamic parts as `{?}`; SQLAlchemy
+    # Core insert/update/delete calls are synthesised into the equivalent SQL clause. Each clause starts at its write
+    # head, so every rule below is anchored at the clause start. The extractor is table-agnostic: a new writer or
+    # table is added to the policy tables above, never to the extractor. Proof corpus: tools/writer_guard_probes.py.
+    $sqlWrite = '(?i)^(?:INSERT\s+INTO\b|UPDATE\s+\S.*?\bSET\b|DELETE\s+FROM\b|TRUNCATE\b|MERGE\s+INTO\b|COPY\s+[\w."{}?]+\s*(?:\([^)]*\)\s*)?(?:FROM|TO)\b|(?:CREATE|ALTER|DROP)\s+TABLE\b)'
+    $sqlTarget = '(?i)^(?:INSERT\s+INTO|UPDATE(?:\s+ONLY)?|DELETE\s+FROM(?:\s+ONLY)?|TRUNCATE(?:\s+TABLE)?(?:\s+ONLY)?|MERGE\s+INTO|COPY)\s+(?:"?[a-z_][a-z0-9_]*"?\.)?"?([a-z_][a-z0-9_]*)"?(?=[\s(;]|$)'
+    $sqlDml = '(?i)^(?:INSERT|UPDATE|DELETE|TRUNCATE|MERGE|COPY)\b'
+    # A write head with nothing after its target was assembled outside one expression (`sql += ...`).
+    $sqlFragment = '^(?:UPDATE|INSERT INTO|DELETE FROM|MERGE INTO|insert into|delete from|merge into)(?: \S+)?$'
+    # The interpreter is found as tools/check-all.ps1 finds it (its -Python override arrives as
+    # ASSETOPS_GUARD_PYTHON; default: the repository .venv). A guard that cannot run fails; it never skips.
+    $guardPython = $env:ASSETOPS_GUARD_PYTHON
+    if (-not $guardPython) {
+        foreach ($candidate in @('.venv/Scripts/python.exe', '.venv/bin/python')) {
+            if (Test-Path -LiteralPath $candidate -PathType Leaf) { $guardPython = $candidate; break }
+        }
+    }
+    $sqlStatements = @{}
+    $extractorRan = $false
+    if (-not $guardPython -or -not (Test-Path -LiteralPath $guardPython -PathType Leaf)) {
+        $failures.Add(("Rule 8 cannot run its SQL statement extractor: no Python interpreter at '$guardPython' or " +
+            ".venv. Create the repository .venv or set ASSETOPS_GUARD_PYTHON; the writer guard never skips.")) | Out-Null
+    } else {
+        $extractorInput = @($backendModules | Where-Object { $_.Path.StartsWith("$backendRoot/") } |
+            ForEach-Object { $_.Path })
+        $extractorJson = ($extractorInput -join "`n") | & $guardPython 'tools/checks/sql_statements.py'
+        if ($LASTEXITCODE -ne 0) {
+            $failures.Add("Rule 8 SQL statement extractor failed (exit $LASTEXITCODE); the writer guard never skips.") | Out-Null
+        } else {
+            $extractorRan = $true
+            # Windows PowerShell's ConvertFrom-Json emits a JSON array as one object; foreach enumerates it.
+            $parsedStatements = ($extractorJson -join "`n") | ConvertFrom-Json
+            foreach ($statement in $parsedStatements) {
+                if (-not $sqlStatements.ContainsKey($statement.path)) { $sqlStatements[$statement.path] = @() }
+                $sqlStatements[$statement.path] += $statement
+            }
+        }
+    }
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0 }
@@ -690,6 +729,32 @@ function Invoke-ConfigurationPersistenceCheck {
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
+            if ($line -match $dbDriver) {
+                if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
+                else {
+                    $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+            }
+        }
+        $moduleStatements = if ($sqlStatements.ContainsKey($module.Path)) { $sqlStatements[$module.Path] } else { @() }
+        foreach ($statement in $moduleStatements) {
+            # $line is one SQL clause and $lineNumber the line its Python expression starts on.
+            $line = [string]$statement.text
+            $lineNumber = [int]$statement.line
+            $isDml = $line -match $sqlDml -and $line -match $sqlWrite
+            if ($line -match '(?i)^(?:MERGE\s+INTO\b|COPY\s)' -and $line -match $sqlWrite) {
+                $failures.Add(("No product writer runs MERGE or COPY; every write is a checked INSERT/UPDATE; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
+            if ($isDml -and $line -notmatch $sqlTarget) {
+                $failures.Add(("A product write names its target table literally (no format, concatenation or " +
+                    "dynamic SQLAlchemy table); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
+            if ($line -cmatch $sqlFragment) {
+                $failures.Add(("A product write statement is assembled in one expression so its table and columns " +
+                    "can be checked; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
             if ($line -match $sqlWrite) {
                 if (-not $isWriter) {
                     $failures.Add(("A second product database writer in $($module.Path):${lineNumber}: " +
@@ -777,17 +842,20 @@ function Invoke-ConfigurationPersistenceCheck {
                 # Case-insensitive (phase-1 review F1): lowercase SQL is an ordinary way to write a statement, so
                 # every keyword rule here uses (?i); prose is excluded because each rule needs SQL shape.
                 $where = "$($module.Path):${lineNumber}: $($line.Trim())"
-                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY)\b' -or
-                        $line -match '(?i)\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b') {
-                    $failures.Add("The schedule store never deletes, truncates, upserts or runs DDL; $where.") | Out-Null
+                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY|MERGE)\b' -or
+                        $line -match '(?i)\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b|^merge\s+into\b|^copy\s|\bthen\s+(?:update|delete)\b') {
+                    $failures.Add("The schedule store never deletes, truncates, upserts, merges, copies or runs DDL; $where.") | Out-Null
                 }
                 if ($line -match '(?i)\binsert\s+into\b' -and -not (
                         $line -match '(?i)\binsert\s+into\s+([a-z_]+)\s*\(' -and
                         $scheduleTables -contains $Matches[1].ToLowerInvariant())) {
                     $failures.Add(("The schedule store only inserts into $($scheduleTables -join ', '); $where.")) | Out-Null
                 }
-                if ($line -match '(?i)\bupdate\s+\S+.*\bset\b') {
-                    if ($line -match '(?i)\bUPDATE\s+([a-z_]+)\s+SET\s+(.+?)\s+WHERE\b') {
+                if ($line -match '(?i)^update\s+\S+.*\bset\b') {
+                    $updTarget = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
+                    if ($null -ne $updTarget -and -not $scheduleUpdates.ContainsKey($updTarget)) {
+                        $failures.Add("The schedule store updates only $($scheduleTables -join ', '); $where.") | Out-Null
+                    } elseif ($line -match '(?i)^UPDATE\s+([a-z_]+)\s+SET\s+(.+?)\s+WHERE\b') {
                         $updTable = $Matches[1].ToLowerInvariant()
                         $setList = $Matches[2]
                         if (-not $scheduleUpdates.ContainsKey($updTable)) {
@@ -820,22 +888,15 @@ function Invoke-ConfigurationPersistenceCheck {
                             }
                         }
                     } else {
-                        $failures.Add(("Every schedule UPDATE keeps its table, SET list and WHERE on one line so " +
-                            "the guard can check each column; $where.")) | Out-Null
+                        $failures.Add(("Every schedule UPDATE names its table, SET list and WHERE literally in one " +
+                            "statement so the guard can check each column; $where.")) | Out-Null
                     }
-                }
-            }
-            if ($line -match $dbDriver) {
-                if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
-                else {
-                    $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
-                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
         }
     }
     foreach ($writer in $pgWriters) {
-        if ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer]) {
+        if ($extractorRan -and ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer])) {
             $failures.Add(("The product database writer check found no SQL write or driver import in " +
                 "$writer, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
         }
