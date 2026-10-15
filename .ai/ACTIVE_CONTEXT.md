@@ -8,6 +8,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 S6-01a ([Action store, controlled application and exact read](../tasks/S6-01a-action-store-read.md)) is `in_review` on `task/S6-01a-action-store-read` (USER_REVIEW_REQUIRED: false; non-UI): packet `.agent/S6-01a-review-packet.md`, built state in `.ai/CODE_STATE.md` "S6-01a". Do not merge before its slice review; re-chain `0014_action_store` if LR-01 lands first.
 
+S6-01b ([Action, recommendation and change surfaces](../tasks/S6-01b-action-ui.md)) is `in_review` on `task/S6-01b-action-ui`, stacked on unmerged S6-01a (USER_REVIEW_REQUIRED: true; hold merge for the owner walkthrough `.agent/S6-01b-owner-walkthrough.md` and the S6-01a merge). Packet `.agent/S6-01b-review-packet.md`, built state in `.ai/CODE_STATE.md` "S6-01b".
+
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
 S2-01a (registered Lab basis) and S2-01b (durable simulated gateway) are reviewed and merged to main at `7c10283`; their carries are in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
@@ -29,6 +31,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (S6-01b slice): read the task, `.agent/S6-01b-review-packet.md`, `.agent/S6-01b-phase-2-handoff.md` and the phase-1 review, then `git diff c341599b..HEAD`. Walk it with `tools/s601b_action_walkthrough.py --db assetops_s601b_<x> --work var/s601b_<x> prepare|serve|drop` and `node tools/s601b-action-evidence.mjs http://localhost:5461 <dir>`.
 
 Reviewer (S6-01a slice): read the task, `.agent/architect-S6-01-answers.md`, `.agent/S6-01a-review-packet.md` and `.agent/S6-01a-phase-2-handoff.md`, then `git diff fd7afd2c..HEAD`. Focused proof: `backend/tests/test_s6_action_{rule,store_postgres,apply_postgres,records_postgres}.py` on a private `*_test` DB.
 

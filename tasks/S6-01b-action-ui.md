@@ -1,6 +1,6 @@
 # S6-01b — Action, recommendation and change surfaces
 
-Status: active (activated 2026-10-15, stacked on reviewed S6-01a `c341599b`, under the owner-absence work order; merge held for owner walkthrough and S6-01a merge); was implementation-ready
+Status: in_review (built 2026-10-15; activated 2026-10-15, stacked on reviewed S6-01a `c341599b`, under the owner-absence work order; merge held for owner walkthrough and S6-01a merge); was implementation-ready
 USER_REVIEW_REQUIRED: true; hold merge for owner's actual visual walkthrough
 Size: M; phases: two. Branch: `task/S6-01b-action-ui` on freshly reviewed/merged S6-01a; if unmerged, label stack and hold merge.
 Depends on: reviewed S6-01a store/read, closed `I-S4-01`, S1 Foundation. S5-01 is queue order only.
