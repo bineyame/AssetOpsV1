@@ -42,6 +42,8 @@ from assetops_backend.analytics.performance_comparison import comparison_summary
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
 from assetops_backend.finding_api import build_finding_router
+from assetops_backend.action_api import build_action_router
+from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
 from assetops_backend.financials.composition import (
@@ -347,12 +349,17 @@ def create_app(
     # S4-01 phase 2: exact Finding root/revision read (A-claim-work-routes); typed 503 without a database.
     finding_manifest = os.environ.get("ASSETOPS_FINDING_CASES_MANIFEST") or os.environ.get(
         "ASSETOPS_DEMO_FIXTURE_MANIFEST")
+    finding_reads = build_finding_read_service(database_url(), finding_manifest) if database_url() else None
     app.include_router(build_finding_router(
-        build_finding_read_service(database_url(), finding_manifest) if database_url() else None,
+        finding_reads,
         registry.ledger_scope, finding_store_unavailable(), gate=performance_gate,
         # S4-02b phase 2a: the stored fuel-cost consequence read and the Financials bridge summary.
         consequences=build_consequence_read_service(database_url()) if database_url() else None,
         consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
+    # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
+    app.include_router(build_action_router(
+        build_action_service(database_url(), finding_reads) if finding_reads is not None else None,
+        registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE), gate=performance_gate))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
     # S4-02a phase 2: Site price reads (Finding-read scope semantics; typed 503 without a database).

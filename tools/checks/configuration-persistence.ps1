@@ -144,6 +144,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # S6-01a: Finding-linked Actions, immutable events and Action-owned basis/change rows. Database-only;
+            # rule 8 confines its PostgreSQL writer (the ninth). Only its composition imports the adapters.
+            Name        = "actions"
+            Package     = "$backendRoot/actions"
+            Composition = "$backendRoot/actions/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -675,15 +685,23 @@ function Invoke-ConfigurationPersistenceCheck {
         'schedule_cursor' = @('after_tenant_id', 'after_site_id', 'updated_at')
         'schedule_enrolment' = @('enrolled', 'changed_by', 'changed_at')
     }
+    # S6-01a adds the ninth writer, the Action store (D-2026-10-15-s601-action-store-and-ui M1): the sole runtime
+    # writer of the migration-0014 Action tables, INSERT-only (append-only rows; no UPDATE, DELETE, upsert,
+    # TRUNCATE or DDL), and it writes no other table. No other module - explicitly not the Foundation adapter,
+    # whose caller-owned-connection publish (phase 2) writes only Foundation and binding rows - writes an Action table.
+    $actionWriter = "$backendRoot/actions/adapters/postgres_action_store.py"
+    $actionTables = @('action', 'action_basis_assessment', 'action_basis_evidence', 'action_event',
+        'action_policy_change', 'action_policy_change_binding')
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
-        $consequenceWriter, $scheduleWriter)
+        $consequenceWriter, $scheduleWriter, $actionWriter)
     $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
     $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
-        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0 }
+        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
-        $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false }
+        $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
+        $actionWriter = $false }
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
@@ -744,6 +762,15 @@ function Invoke-ConfigurationPersistenceCheck {
                     $failures.Add(("Only $consequenceWriter writes consequence table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
+                if ($module.Path -eq $actionWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $actionTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The Action store only inserts into $($actionTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $actionWriter -and $null -ne $target -and $actionTables -contains $target) {
+                    $failures.Add(("Only $actionWriter writes Action table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($module.Path -ne $scheduleWriter -and $null -ne $target -and $scheduleTables -contains $target) {
                     $failures.Add(("Only $scheduleWriter writes schedule table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
@@ -771,6 +798,17 @@ function Invoke-ConfigurationPersistenceCheck {
                 if ($module.Path -eq $pgWriter -and $null -ne $target -and $ledgerTables -contains $target) {
                     $failures.Add(("The Foundation store must not write ledger table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+            }
+            if ($module.Path -eq $actionWriter) {
+                # Every line, SQL-shaped or not: the Action store never mutates or removes a row and runs no DDL.
+                if ($line -match '(?i)\bupdate\s+[a-z_"]+\s+set\b|\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\bon\s+conflict\b|\bmerge\s+into\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view|sequence)\b|\bgrant\s+\w|\bcopy\s+[a-z_"]+\s+from\b') {
+                    $failures.Add("The Action store never updates, deletes, truncates, upserts or runs DDL; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+                }
+                if ($line -match '(?i)\binsert\s+into\s+([a-z_]+)' -and $actionTables -notcontains $Matches[1].ToLowerInvariant()) {
+                    $failures.Add("The Action store only inserts into $($actionTables -join ', '); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
                 }
             }
             if ($module.Path -eq $scheduleWriter) {
