@@ -1,0 +1,536 @@
+Reading additional input from stdin...
+OpenAI Codex v0.156.1
+--------
+workdir: C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+model: gpt-6-sol
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a13e7f-8e78-7970-bf0d-89b253bcb0dd
+--------
+user
+You are the AssetOps Architect. Read and follow .agent/architect-LR-01-followup-request.md in this worktree exactly.
+codex
+I’ll read the architect follow-up and the project’s required context, then carry out the requested work in this worktree.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/START_HERE.md; Get-Content .ai/ACTIVE_CONTEXT.md; Get-Content .agent/architect-LR-01-followup-request.md; git status --short --branch' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 10253ms:
+# Start Here
+
+AssetOps turns mini-grid evidence into bounded operational and economic conclusions and verifies interventions. Current implementation documents: [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md).
+
+The [Architect S1-01 decision](DECISIONS.md) and [contract addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) resolve S1-01; no owner sign-off on the three Site-first documents or S1-01 is recorded here. Their proposal headers remain provenance.
+
+The [v6.9 mock screens](../frontend/mockups/v69/index.html) and their `screen-manifest.json` are the interaction/content references for each named surface. They do not authorize invented data or unfinished tabs; the active task and current architecture determine what becomes real.
+
+Current milestone: S1 Foundation.
+
+Planning status: S1-01 is ready for implementation; S2-S7 are outlined for refinement after predecessor review.
+
+## Current route
+
+1. Read `AGENTS.md` and this file.
+2. Read `.ai/ACTIVE_CONTEXT.md` and the active task it names.
+3. Use `tasks/README.md` for the only executable S1â€“S7 queue. S1-01 is next; S2â€“S7 packets are outlines until refined after predecessor review.
+4. Read `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md` and `.ai/DECISIONS.md` only when their semantics, boundaries or prior choices matter. Read `.ai/ROLE_CONFIG.md` for role binding and `.ai/WORKFLOW.md` for task/review rules.
+
+The open T0xx queue is [archived as superseded](../tasks/archive/pre-site-first-2026-10-07/README.md). Completed task packets and `.ai/CODE_STATE.md` remain built-state history. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and the old scoped handoffs are historical planning references, not current sequencing authority. Do not activate a T0xx packet because its title resembles a new slice.
+
+Use one task branch per slice, never `main`. The planned lane is Architect/Planner â†’ Implementer â†’ independent Reviewer â†’ owner review where required. Each task must show a persisted Site or Lab state and protect the simulator/private truth boundary. Do not load all history by default.
+# Active Context
+
+Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in `.ai/DECISIONS.md`.
+
+## Current milestone and task
+
+**S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
+
+S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
+
+S2-01a (registered Lab basis) and S2-01b (durable simulated gateway) are reviewed and merged to main at `7c10283`; their carries are in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+
+S2-01c is merged at `b4006d1`. [S2-02 authenticated ingestion and Site Evidence](../tasks/S2-02-ingestion-site-evidence.md) is built on `task/S2-02-ingestion-site-evidence` in phases 1-3 and is `in_review` (USER_REVIEW_REQUIRED: S2 Evidence owner checkpoint): Postgres evidence ledger and Receipt V2, owner-only gateway credential and direct-TLS upload, central diagnostics freshness, fingerprinted KOBO-001 empty-set cutover, Site Evidence/Analysis and Lab Commit UI, and a repeatable walkthrough (`tools/s2_demo_walkthrough.py`). Packet `.agent/S2-02-review-packet.md`, owner walkthrough `.agent/S2-02-owner-walkthrough.md`, built state in `.ai/CODE_STATE.md` "S2-02"; fix round 1 (review F1, Architect batch 4 Q28/Q26/Q32/count) built, see packet "Fix round 1"; open Architect questions `.agent/S2-02-questions-7.md`.
+
+Pre-S3 startup: [PRE-S3-03](../tasks/PRE-S3-03-delivery-checker-report.md) (delivery checker, `next-work` report, `tools/check-all.ps1`) is `in_review` on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, built state in `.ai/CODE_STATE.md` "PRE-S3-03". The live report currently refuses to rank (37 approved core panels lack reviewed paths). Reviewer: read the task, that packet and `.agent/PRE-S3-03-questions.md`, then run `tools/check-all.ps1` and the `--next-work` command.
+
+S3-01 ([typed dispatch assessment](../tasks/S3-01-dispatch-assessment.md)) is `in_review` on `task/S3-01-dispatch-assessment` (USER_REVIEW_REQUIRED: owner checkpoint). Phases 1, 2 and 3a (with `dispatch-3.1` and fix R1) are reviewed and accepted; phase 3b (Performance > Dispatch and Analysis UI, cutover summary, walkthrough, V-01 evidence 32/32) is built and awaits a fresh Claude review. Packet `.agent/S3-01-review-packet.md`, built state in `.ai/CODE_STATE.md` "S3-01 phase 3b", questions `.agent/S3-01-questions-5.md` (Q17-Q22), owner steps `.agent/S3-01-owner-walkthrough.md`.
+
+S4-01 ([candidate generator-support Finding](../tasks/S4-01-finding-identity.md)) is `in_review` on `task/S4-01-finding-identity` (USER_REVIEW_REQUIRED: owner checkpoint). Phases 1 and 2 are reviewed and closed; phase 3 (`I-finding-ui`: Site Finding detail at `/sites/{site}/findings/{id}`, Dispatch day Finding links, walkthrough and app-vs-mock evidence 36/36) is built and awaits a fresh Claude review. Packet `.agent/S4-01-review-packet.md` (all phases), built state in `.ai/CODE_STATE.md` "S4-01 phase 3", questions `.agent/S4-01-questions-5.md` (Q25-Q30), owner steps `.agent/S4-01-owner-walkthrough.md`.
+
+The only executable queue is [tasks/README.md](../tasks/README.md). The current [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md) own the current direction. The [open T0xx archive](../tasks/archive/pre-site-first-2026-10-07/README.md) is superseded historical reference. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and old scoped handoffs do not route current work.
+
+The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-01 addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) control the first slice. Their decision status is distinct from owner acceptance; no owner sign-off on the three Site-first documents or S1-01 is recorded here.
+
+## Built state to carry forward
+
+The completed T001â€“T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
+
+## Next read
+
+Reviewer (S4-02c phase 3 and slice): read the task (phase 3 row, carries C5, risks), `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-phase-2-review.md` "Carries for phase 3" and `.agent/S4-02c-phase-3-handoff.md`, then `git diff 6d4a1995..HEAD` (slice: `git diff f9d6d1a5..HEAD`). Rerun `tools/s402c_late_power_walkthrough.py run --db assetops_s402c3walk_<x> --work <dir named s402c3*>` then `drop`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
+
+Reviewer (S4-02b phase 2b and whole slice): read the task, `.agent/S4-02b-review-packet.md`, `.agent/S4-02b-phase-2b-handoff.md` and `.agent/S4-02b-phase-2a-review.md` carries, then `git diff 3793e4d..HEAD`. Use private DBs via `tools/s402b_fuel_cost_walkthrough.py --work-name <new> prepare` and `tools/s402b-fuel-cost-evidence.mjs`; the owner keeps 8872/8873/5372/5373 and `assetops_s402bwalk`/`assetops_s402bempty`.
+
+Reviewer (S4-02a phase 2 and closeout): read the task, `.agent/S4-02a-review-packet.md` and `.agent/S4-02a-phase-2-handoff.md`, then `git diff 5159b96..HEAD`. Walk it with `tools/s402a_assumptions_walkthrough.py --db assetops_s402a_<x> --empty-db assetops_s402a_<y> --work-name <new> prepare|links|serve|drop` and `node tools/s402a-assumptions-evidence.mjs <base> <empty-base> <finding-id> <out>`; the owner keeps 8870/8871/5370/5371.
+
+Reviewer (S4-03 phase 3 and closeout): read the task's phase 3 row, `.agent/S4-03-review-packet.md`, `.agent/S4-03-handoff.md` "Phase 3", `.agent/architect-S4-03-answers.md` (Q3) and `.agent/S4-03-questions-2.md`, then `git diff 26b5e7a..HEAD`. Walk it on a private copy with `tools/s4_finding_walkthrough.py --db <private> --work <new folder> prepare|serve` and `node tools/s4-finding-evidence.mjs` (`ASSETOPS_S4_WALK_WORK`, `ASSETOPS_CDP_PORT`, suites all/history/closed) on ports 8898/5398; the owner keeps 8866/8867/5366/5367.
+
+Reviewer (S4-01 phase 3 and closeout): read the task's phase 3 row and "Detail read and visible states", `.agent/S4-01-review-packet.md` and `.agent/S4-01-questions-5.md`, then `git diff 0f4808b..HEAD`; walk it with `tools/s4_finding_cases.py run`, `tools/s4_finding_walkthrough.py prepare|links|serve` (DB `assetops_s4walk`, API 8840, web 5340) and `node tools/s4-finding-evidence.mjs http://localhost:5340`.
+
+Reviewer (S3-01 phase 3b): read the task's phase 3 row and "Read states and acceptance", `.agent/S3-01-review-packet.md`, `.agent/S3-01-phase-3b-handoff.md` and `.agent/S3-01-questions-5.md`, then `git diff cdc24f7..HEAD`; walk it with `tools/s3_dispatch_walkthrough.py` (isolated DBs `assetops_s3cases`, `assetops_s3walk`; API port 8820).
+
+Reviewer (S2-02): read the task, `.agent/S2-02-review-packet.md`, `.agent/S2-02-owner-walkthrough.md` and the S2-02 decisions named in the task, then `git diff main...HEAD`. Postgres setup is in `backend/README-db.md`; the live path runs with `tools/s2_demo_walkthrough.py run` (isolated database `assetops_s2demo`). Run the workflow and architecture guards and checks applicable to changed behavior.
+# Architect follow-up â€” LR-01 overlap definition (plan review M1)
+
+You are the AssetOps Architect (Codex). Read `.agent/LR-01-plan-review.md` finding M1 and your rulings `.agent/architect-LR-01-answers.md` Q1/Q2 (and `D-2026-10-15-lr01-source-time-cohort` in `.ai/DECISIONS.md`).
+
+M1: power data are back-to-back 5-minute means. If each reading's *measurement interval* is widened by the clock error (Q1 text "Widen each source or measurement interval by that error") and any overlap is ambiguous (Q2), neighbouring in-order readings always overlap, so ordinary attested data (including the 15.8125 USD positive case) becomes ambiguous. Reviewer recommends: order on each reading's instant (measurement interval end, else source time) +/- the attested error; intervals that only touch are not overlap; ambiguity applies where the widened instants of two readings in one channel overlap, or where gateway sequence and attested source order disagree beyond the error.
+
+Rule: accept, amend, or replace, in a few lines. Append the ruling to `.agent/architect-LR-01-answers.md` as "## Follow-up M1 (2026-10-15)" and amend the `D-2026-10-15-lr01-source-time-cohort` entry in `.ai/DECISIONS.md` in place (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+## plan/late-reading-series
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content .agent/LR-01-plan-review.md; Get-Content .agent/architect-LR-01-answers.md; rg -n -C 12 'D-2026-10-15-lr01-source-time-cohort' .ai/DECISIONS.md" in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 12565ms:
+# LR-01 plan review (fresh Claude reviewer, 2026-10-15)
+
+Subject: `tasks/LR-01-late-reading-series-and-money-limit.md` on `plan/late-reading-series` at `02e84619` (base main `af6f1306`), with the `tasks/README.md` row and the two registry node edits. No code yet. The Architect's answers to the four packet questions were pending; I judged the plan against the Planner's recommendations.
+
+**Verdict: RETURN.** Five Medium findings. Each needs only a short packet edit, and none changes the slice's shape (M, two phases, owner walkthrough). The code-reality anchors are accurate, apart from one Low citation slip.
+
+## Checks run
+
+- `node frontend/docs/architecture/check_v69_dependency_registry.cjs`: exit 0, "Registry valid: 224 nodes, 11 linked pilot panels".
+- `... --next-work`: not refused. It reports `I-late-reading-series-and-money-limit` as eligible at 2.02. Decision: `stop_owner`, top `I-late-reading-series-and-money-limit`, gap 0.20% (unchanged from main).
+- `delivery_next_work.cjs:39-51`. The packet's `Status: implementation-ready ...` maps to `not_started`, and `USER_REVIEW_REQUIRED: true` parses as true. `parseGateQueue` finds `LR-01` from the filename `LR-01-late-...md`.
+- I read every cited `path:line` on the worktree (main content). Results are below.
+- I did not run the test suite, by instruction. The worktree has no node_modules.
+
+## Code-reality spot-check
+
+All of these exist as described:
+
+- Gateway admission sequencing: `gateway/assetops_gateway/service.py:8-11` and `:647-655`.
+- `accepted_evidence` columns, with no attestation column: `0005_evidence_ledger.py:161-207`.
+- `AcceptedReading`, `EvidenceQuery` and `placed_at`: `assessment_inputs.py:70-136`.
+- The `_EVIDENCE` query and its mapping: `postgres_assessment_store.py:47-56,123-136`.
+- The run-1 rule `series_limits`: `cohort.py:113-136`.
+- `MODEL_VERSION="dispatch-3.1"` at `dispatch_v3.py:39`, and `GENERATOR_SERIES_AMBIGUOUS` at `:544-550`.
+- `reconcile` model-version staleness: `assessment_worker.py:179-188`.
+- The append-only `analytic_run_selection`: `0008:28-44`.
+- The late-acceptance test: `test_s3_dispatch_assessment_postgres.py:110-143`.
+- `MATCHER_VERSION="finding-episode-2"` at `finding_episode.py:66`, and the write basis at `:435-479`.
+- `selected_intervals`: `postgres_assessment_store.py:557-579`.
+- `finding_revision`: `0009:64-105`.
+- The bridge and `bridge_consequence`: `finding_api.py:284-320,347-365`.
+- `consequence_read.py:149-212`.
+- `Headline` and `FindingBridge`, and the versions list: `FindingConsequence.tsx:369-436,526-562`.
+- `scheduling/upstream.py`, `health.py:152-203`, and `schedule-install-gate.py:26-43`, where F1 gates demo and pilot hosts.
+- Walkthrough DB guards: `s402c_late_power_walkthrough.py:111-126,365-391` and `s402d_tick_walkthrough.py:396`.
+- `TESTING.md:103-105,110-153`, `keep-awake-during-tests.ps1`, `check-all.ps1`, and the registry checker.
+
+New items are marked new: the attestation record, `money_eligibility`, the `SERIES_LIMIT` claim field, the new MODEL and MATCHER versions, and the walkthrough modes. The next migration would be `0014` (the head is `0013_schedule_state.py`).
+
+## Coverage
+
+| Item | Covered | Note |
+| --- | --- | --- |
+| Decision / Architect Q1 (source-time order when attested; limited otherwise) | Partly | The positive attested-admission case is not asserted (M2) |
+| Q2 (Finding limit + end reason; S5 withholds) | Yes | `SERIES_LIMIT` end reason, `GENERATOR_SERIES_AMBIGUOUS` carried, 7.5625/15.8125 history kept |
+| Q3 placement, R1 | Yes | Node requirements unchanged; install gate stays closed until resolved |
+| L-a contract first | Yes | The contract has a soundness gap (M1) |
+| L-b new version, history kept | Yes | â€” |
+| L-c series limit/end reason | Yes | â€” |
+| L-d / L1 signal named in both nodes | Yes | `money_eligibility` with three states appears in both acceptance targets |
+| L-e regression run 1 + on-time variant | Partly | M2 |
+| L-f real gateway without clock limited | Yes | L4 |
+| S4-02b money-panel residual | Mostly | The API currentness fields are still unhandled (M5) |
+| S4-02d S5 seam carries | Yes | Pending and stale work feed eligibility; S5-01 keeps its own integration |
+
+## Findings
+
+### M1 (Medium, contract soundness): the uncertainty and overlap rule, as written, refuses ordinary in-order series, including the slice's own positive case
+
+Packet "Reviewed contract" item 2 (packet line 40) and Architect question 2.
+
+Item 2 treats each reading as `[source_timeâˆ’error, source_time+error]` "(or the reported measurement interval widened by error)", and says equal or overlapping intervals "remain REPORTS_OVERLAP/ambiguous". The S4 power series is back-to-back 5-minute `INTERVAL_MEAN`s (`s4-power-late-demo-cases-v1.json:10`). Widen each by 60 s and every neighbouring pair overlaps: [06:59,07:06] against [07:04,07:11]. The same happens to point readings taken 2 minutes apart or less. So the rule can make attested on-time data, and the 15.8125 positive variant, ambiguous. Today's rule (`cohort.py:113-136`) flags overlap only for identical `placed_at`, and flags order only where sequence and placement disagree.
+
+- **Why it matters.** This is the reviewed contract that phase 1 implements. Read literally, it regresses ordinary data. Read loosely, the implementer chooses the ordering key. Either way, the Architect is being asked to bless an unsound sentence.
+- **Fix.** State the ordering key: `placed_at` (interval end, else source time) Â± error, not the widened measurement interval. Say that abutting interval means are not overlap. Say that uncertainty-interval overlap creates ambiguity only where gateway sequence and source order disagree; where they agree, today's result stands. Add a pure test with dense, in-order attested data that stays usable.
+
+### M2 (Medium, acceptance gap): the attested admission-sequenced case, which is the core of Architect Q1, is neither asserted nor walked
+
+Packet phase 1 tests (packet line 61), phase 2 walkthrough (line 62), and the owner walkthrough (line 64).
+
+Q1's positive rule is that an attested same-epoch stream is placed by source time, so "a later gateway sequence with an earlier source time is a late arrival, not `SEQUENCE_ORDER_INVERTED`". The owner walkthrough shows only two cases:
+
+- run 1 limited and withheld (unattested);
+- the on-time-sequenced upload with an attestation, at 15.8125.
+
+The on-time variant does not exercise the new rule at all, because it passes today's sequence check. Phase 1 lists "admission-sequenced run 1" with no expected outcome. Nothing asserts the append-only transition the decision describes: run 1 withheld, then an attestation recorded, then requeue and reassess, then a new selection and FindingRevision, then `ELIGIBLE` at 15.8125, with the 7.5625 revision and the dispatch-3.1 selection kept.
+
+- **Why it matters.** A build could ship the fail-closed half and never prove the reordering the node exists to add. The registry acceptance target requires "verify exact assessment, Finding and consequence lineage" for both variants.
+- **Fix.** Add an explicit outcome matrix to phase 1 and phase 2:
+
+  | Case | Expected result |
+  | --- | --- |
+  | Run 1, unattested | INDETERMINATE, `SERIES_LIMIT`, `WITHHELD_GENERATOR_SERIES` |
+  | Run 1, attested | Source-ordered, full episode, 15.8125, `ELIGIBLE` |
+  | Run 1, attestation added later | Withheld, then pending reassessment, then eligible; old IDs unchanged |
+  | On-time variant | 15.8125 |
+  | Clock-negative cases | As listed in the packet |
+
+  Add the attested run-1 transition to the owner walkthrough.
+
+### M3 (Medium, fail-closed boundary underspecified): the attestation write route, authority and as-of read are left open
+
+Packet table row 1 (line 47) and contract item 1 (line 39).
+
+The attestation is the one record that turns a withheld amount into current money. Yet the packet leaves its route as "new migration/adapter/API or importer", without:
+
+- who may author it;
+- how it is scoped to a tenant and Site;
+- whether it is append-only, or can be superseded or revoked;
+- whether it is read as of `knowledge_at`.
+
+The existing replay test (`test_s3_dispatch_assessment_postgres.py:139-143`) re-derives a past cutoff's `input_sha256`. An attestation read without a `recorded_at <= knowledge_at` filter would change past bases or break that replay. A revoked or superseded attestation must withhold money again; the packet requeues on "attestation changes", but does not say revocation is a change.
+
+- **Fix.**
+  - Name one route: for example, a SYSTEM-only, server-authorized fixture or CLI importer for labelled simulated attestations, with no real-source write path in this slice.
+  - Refuse gateway-credential and client authorship, consistent with the A-S5-overview P7 Q3 rule.
+  - Make the record append-only, with supersession and revocation.
+  - Read it as of `knowledge_at`.
+  - Requeue on revocation as well, with tests for each.
+
+### M4 (Medium, walkthrough not reachable with the named tools): no UI serving path for the owner checkpoint
+
+Packet phase 2 (line 62) and the owner walkthrough (line 64).
+
+The owner is to view Financials at desktop and narrow width on a private DB. The two named tools are backend-only:
+
+- `s402c_late_power_walkthrough.py` reads consequences in-process (`:56,72-91`) and has only `run`/`drop` (`:367`).
+- `s402d_tick_walkthrough.py` likewise.
+
+The only `serve` (API plus printed `npm.cmd run dev` commands) is in `s402b_fuel_cost_walkthrough.py:257-268`, and `checked_db` limits it to `assetops_s402b*` databases (docstring `:21-23`). Money also reads current through the API only once the source gate is open; s402b opens it with a Performance comparison (`:7`).
+
+The packet also names no browser-evidence run (as `tools/s402b-fuel-cost-evidence.mjs` was for S4-02b, 90/90 at 1440/390) for a changed owner-visible panel.
+
+- **Fix.**
+  - Add a `serve` subcommand (new) to the extended walkthrough, or name another serving route, together with the frontend command and the source-gate precondition.
+  - Name a browser-evidence run at 1440 and 390 for the four states (new script, or an extension of the s402b one). Record a skipped run as `not run` with its precondition.
+
+### M5 (Medium, fail-closed gap on the S4 Financials API): consequence read fields still assert a current amount for run 1
+
+`backend/assetops_backend/financials/consequence_read.py:202-214`, served by `GET .../financial-consequences` at `finding_api.py:246-277`.
+
+The packet routes eligibility through the bridge and the panel. But the consequence read still sets these from basis currentness alone:
+
+- `selected.presented_as_current = is_head and state == "CURRENT"`
+- `currentness.current_amount_shown`
+
+So for run 1 the S4 Financials API says a current amount is shown while the bridge withholds it. The walkthrough's money predicate (`s402c_late_power_walkthrough.py:91`) uses the same basis test. The packet's own invariant says "Do not rely on a UI-only predicate", and these fields are API-level claims that S5-01 or tools may read.
+
+- **Fix.** Either gate `presented_as_current` and `current_amount_shown` on `money_eligibility` and include eligibility in that response, or rename or document them as basis-currentness only. Then assert run 1 shows false or withheld on both endpoints.
+
+### Low (carries)
+
+- **L1.** The digest citation `assessment_inputs.py:205,334` is off. Line 205 is `watermarks` and line 334 is inside `build_input_set`. The input payload and digest are at about `:280-301` and `sha256_json` at `:305-307`.
+- **L2.** The registry node `task` is `"LR-01-late-reading-series-and-money-limit"`. Other non-S nodes use the short id (`G-05`, `PRE-S3-04`), and the gate lookup at `delivery_next_work.cjs:247` matches `q.task === node.task`, where the gate id is `LR-01`. This is harmless today, because the global active and in-review stop uses the gate queue. Use `"LR-01"` for consistency.
+- **L3.** Name the existing test files to extend: `backend/tests/test_s4_finding_api.py` and `frontend/src/sites/__tests__/siteFinancials.test.tsx`. Add `npx.cmd tsc --noEmit` and the frontend test run to phase 2. `test_s4_consequence_read.py:18-31` covers only display rounding. Phase 2's focused set should also include the S4 consequence, recompute, tick and health files (`TESTING.md:101`), because eligibility reads their state.
+- **L4.** The "real-source-without-clock" walkthrough case will be SIMULATED evidence without an attestation. Call it that, unless a LIVE-mode fixture is built. Also state whether the Lab-delayed simulated gateway path (`service.py`, the default late path for S2-S7) gets a simulated attestation in this slice or stays limited. That decides whether ordinary simulated late data ever shows money in S5 demos.
+- **L5.** "Latest selected window" should mean every selected UTC-day window intersecting the episode plus its bracket, for episodes that cross midnight.
+
+### Info
+
+- The new MODEL_VERSION and MATCHER_VERSION make `reconcile` reassess every assessed window, and re-evaluate every Finding, on every Site. Expect revision churn in existing walkthrough and test assertions, and extra tick cost on the first post-deploy run. The packet should say so, so that reviewers do not read the churn as regressions.
+- The coordinator committed `.agent/planner-late-reading-log.txt` (3792 lines) on the branch. Confirm that this is intended.
+
+## Phasing, tests, owner review
+
+- **Phasing.** M in two phases. Phase 1 has its own independent review, and phase 2's review is the slice review. This is correct.
+- **Full suite.** One `-n 2` run at slice end with keep-awake, the 20-minute cap and the JUnit zero-skip proof. This is correct against `backend/TESTING.md`.
+- **USER_REVIEW_REQUIRED.** `true` is correct: the Financials panel copy and states change. The walkthrough needs M4 to be reachable.
+- **Install gate.** It stays closed until the node resolves. This matches the S4-02d carry.
+# Architect answers: LR-01 source-time cohort and money limit (2026-10-15)
+
+Authority: `tasks/LR-01-late-reading-series-and-money-limit.md` Q1-Q4, `D-2026-10-14-s402c-late-sequence-and-s5-money`, `.agent/architect-S4-02c-answers.md`, and `.agent/S4-02c-review.md` F1.
+
+## Q1 - clock proof and limit
+
+**Accept.** Source-time ordering requires a durable, versioned, tenant/Site/source/epoch-scoped attestation from an identified authority, valid for every reading used, with a proven maximum UTC error no greater than 60 seconds. Widen each source or measurement interval by that error. A simulated attestation is explicitly identified and cannot validate a real source; `source_mode` alone is insufficient. Missing, expired, conflicting, or clock-step-affected proof leaves the series limited. Pin the exact attestation version in the new analytic basis; do not alter old runs. The 60-second bound is a ceiling, not a gateway capability claim.
+
+## Q2 - overlap and epoch
+
+**Accept.** Equal or overlapping uncertainty intervals in one channel remain `REPORTS_OVERLAP` and ambiguous. Gateway sequence resolves identity and duplicates, never an overlapping measurement or source-time order. Do not infer continuity across epochs from timestamps. Retain the current ambiguous default and explicit cohort-selection behavior; any automatic epoch continuity requires a separately reviewed public proof contract.
+
+## Q3 - affected windows
+
+**Accept with scope clarification.** On attestation creation, replacement, expiry, or withdrawal, find accepted readings whose clock basis could change, including readings covered by the old or new validity interval. Enqueue every UTC-day window whose six-hour read bracket intersects their source or measurement intervals. The existing job expansion supplies the neighboring continuity days; do not expand the bracket a second time. Use the same bracket for query and requeue. If either bound changes, version and revise both together. Reassess through existing scoped jobs and append-only selections; preserve old IDs and idempotent replay.
+
+## Q4 - Finding and eligibility
+
+**Accept.** Keep `SUPPORTED` only for proven Candidate spans. A material series refusal that truncates the episode yields a new FindingRevision with typed `GENERATOR_SERIES_AMBIGUOUS`, refused span and evidence/assessment links, and `SERIES_LIMIT` as end reason; retain `OPEN_BOUND` only if independently true. Derive the versioned three-state `money_eligibility` from the latest selected window and latest Finding on each read. `PENDING_REASSESSMENT` wins while relevant S3/S4 work or selection staleness remains; after work settles, `WITHHELD_GENERATOR_SERIES` applies to a material unresolved refusal. `ELIGIBLE` passes this gate only: an amount still requires the exact-head `CURRENT PRICED` consequence and existing source/currentness checks. Both S4 Financials and S5 consume the same state and exact lineage. Preserve the recorded 7.5625 USD revision as history without a current-amount label.
+
+## Packet changes for the Planner
+
+1. Make attestation-change requeue cover both old and new validity intervals, affected accepted reading/measurement intervals, and the same six-hour query bracket; name creation, replacement, expiry, and withdrawal in phase 1 proof.
+2. Specify the eligibility precedence and that `ELIGIBLE` is only the series/reassessment gate, not a substitute for `CURRENT PRICED` and the existing source/currentness checks. Assert pending, settled-withheld, and eligible cases in phase 2 proof.
+3. Make explicit that an epoch may use the existing explicit-selection path, while automatic continuity across epochs is outside LR-01.
+4125-S6-01 creates one immutable, tenant/Site-scoped Action identity from a reviewed persisted `FindingRevision` under the canonical Finding route. It pins the originating revision, selected assessment and accepted-evidence/configuration basis; a later Finding revision does not silently rewrite that origin. A Finding may have several Actions, but each accepted recommendation creates or idempotently returns one Action for its server-defined command key. The recommendation is a bounded proposed reserve-SOC policy trial with explicit purpose, limitation and source Finding; it is not a measured saving or verified outcome. The Action detail root is `/sites/{site}/actions/{action_id}` with stable child routes and exact `event_id` selection, and Site/Finding back-links. S6-01 may navigate from a known Finding or Action ID before the separate S6-03 Site ActionIndex exists. Hidden unsupported tabs must not masquerade as empty delivered views.
+4126-
+4127-Action state is derived from an append-only, server-ordered `ActionEvent` ledger. Record stable event ID, Action and Site, event type, `occurred_at`, server `recorded_at`, idempotency key, actor kind/ID, source channel, authorization basis and triggering command/job or content revision. Idempotent identical retries return the event; conflicting reuse and cross-Site references fail. Historical reads select a recorded cutoff and then `(recorded_at,id)` order; a backdated `occurred_at` is displayed as such but never rewrites the audit order. `PROPOSED`/`ACCEPTED`, application `PENDING`/`APPLIED`/`FAILED`, and later verification status are separate dimensions. Acceptance does not assert application; an applied change or completed work does not assert benefit. A failed application preserves its attempt, error and retry relation without an effective-policy claim. No human author, approval or attestation is inferred from a gateway credential, client field, local OS user or SYSTEM fixture. Under the existing `A-actor-identity` rule, human writes need a verified operator principal; otherwise only a clearly labelled, server-authorized SYSTEM demonstration command with stable service/job provenance is allowed, or the write stays unavailable.
+4128-
+4129-The supported S6-01 change is a controlled reserve-SOC edit through S1 Foundation publish, producing a new immutable effective `FoundationRevision` and an immutable change artifact that links Action, accepted recommendation, authorized command, old/new revision IDs, exact field/value/unit, validity and recorded time, and the application event. Validate the expected old revision and Site scope under the publish lock; reject stale, unauthorized or invalid edits and record a failed attempt without claiming the new setting took effect. `APPLIED` requires confirmation of the persisted new effective revision; an ActionEvent alone is insufficient. The old basis and every event/change revision remain addressable after reload. Do not mutate a Lab-only override or rewrite accepted evidence. S6-01's Execution/History and applied `changes:1#a` show policy activity with event and configuration provenance, including pending/failed cases; they do not show an effect verdict.
+4130-
+4131-S6-02 owns the separate immutable `VerificationPlanRevision` and later `VerificationOutcome`. A plan pins this Action, the applied-change event and new Foundation revision, a pre-change baseline assessment/evidence basis, target, service/reserve guardrails, required coverage and later-window selection rule before evaluation. Use separate baseline and later Lab runs under their respective fixed effective Foundation revisions; commit their public reports through the ordinary gateway and central acceptance. Evaluate a closed later accepted window against the frozen plan and baseline, with exact analytic/evidence IDs. Missing or conflicting evidence yields `INCONCLUSIVE`; failed guardrail prevents `VERIFIED` even if the target improves; later results append/supersede without rewriting prior outcomes. Plan/evidence/verification child routes preserve exact plan and outcome IDs. `A-S6-verification` remains open for the full comparison rule; this lifecycle decision does not resolve it. S6-03 alone owns the Site-scoped ActionIndex/list and its watermarked empty/positive states; `A-action-index` remains open. Planner must refine S6-01's event transition table, command/API schema, actor path, race/idempotency checks, Foundation publish seam, stored fixtures and desktop/narrow Action-root states against the v6.9 Action screens and technical design before implementation.
+4132-
+4133-Decision: `D-2026-10-14-s402c-late-sequence-and-s5-money`. The Architect rules that gateway admission sequence does not establish source-time order for a validated store-and-forward source. S3 must version a source-time-aware cohort rule with explicit clock/overlap/epoch limits and reassess affected windows without rewriting history. S4 must carry a material series refusal into the revised Finding and state why the episode ends. Until a reviewed reassessment resolves generator-series ambiguity, S5 withholds an amount for that affected selected Finding/window despite a `CURRENT PRICED` consequence, and shows the limitation and exact lineage. `I-late-reading-series-and-money-limit` and `I-analytic-finding-worker-schedule` are separate prerequisites of `I-site-overview-read` before S5-01; both also gate real-Site readiness. The latter schedules S3/S4 workers and makes backlog/failure visible so late evidence reaches the revised Finding without manual commands. The broader simulated/real analysis-input backlog remains for W1 exit. S4-02c acceptance is unchanged; its reviewed consequence work may close on merge. The S5 owner visual checkpoint remains required. Rulings in .agent/architect-S4-02c-answers.md; S4-02c review `.agent/S4-02c-review.md` F1.
+4134-
+4135-Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+4136-
+4137:Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 with clarifications in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Widen reading intervals by clock error, refuse overlapping intervals, and retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "Get-Content .agent/architect-LR-01-answers.md; rg -n -C 18 'D-2026-10-15-lr01-source-time-cohort' .ai/DECISIONS.md" in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 5868ms:
+# Architect answers: LR-01 source-time cohort and money limit (2026-10-15)
+
+Authority: `tasks/LR-01-late-reading-series-and-money-limit.md` Q1-Q4, `D-2026-10-14-s402c-late-sequence-and-s5-money`, `.agent/architect-S4-02c-answers.md`, and `.agent/S4-02c-review.md` F1.
+
+## Q1 - clock proof and limit
+
+**Accept.** Source-time ordering requires a durable, versioned, tenant/Site/source/epoch-scoped attestation from an identified authority, valid for every reading used, with a proven maximum UTC error no greater than 60 seconds. Widen each source or measurement interval by that error. A simulated attestation is explicitly identified and cannot validate a real source; `source_mode` alone is insufficient. Missing, expired, conflicting, or clock-step-affected proof leaves the series limited. Pin the exact attestation version in the new analytic basis; do not alter old runs. The 60-second bound is a ceiling, not a gateway capability claim.
+
+## Q2 - overlap and epoch
+
+**Accept.** Equal or overlapping uncertainty intervals in one channel remain `REPORTS_OVERLAP` and ambiguous. Gateway sequence resolves identity and duplicates, never an overlapping measurement or source-time order. Do not infer continuity across epochs from timestamps. Retain the current ambiguous default and explicit cohort-selection behavior; any automatic epoch continuity requires a separately reviewed public proof contract.
+
+## Q3 - affected windows
+
+**Accept with scope clarification.** On attestation creation, replacement, expiry, or withdrawal, find accepted readings whose clock basis could change, including readings covered by the old or new validity interval. Enqueue every UTC-day window whose six-hour read bracket intersects their source or measurement intervals. The existing job expansion supplies the neighboring continuity days; do not expand the bracket a second time. Use the same bracket for query and requeue. If either bound changes, version and revise both together. Reassess through existing scoped jobs and append-only selections; preserve old IDs and idempotent replay.
+
+## Q4 - Finding and eligibility
+
+**Accept.** Keep `SUPPORTED` only for proven Candidate spans. A material series refusal that truncates the episode yields a new FindingRevision with typed `GENERATOR_SERIES_AMBIGUOUS`, refused span and evidence/assessment links, and `SERIES_LIMIT` as end reason; retain `OPEN_BOUND` only if independently true. Derive the versioned three-state `money_eligibility` from the latest selected window and latest Finding on each read. `PENDING_REASSESSMENT` wins while relevant S3/S4 work or selection staleness remains; after work settles, `WITHHELD_GENERATOR_SERIES` applies to a material unresolved refusal. `ELIGIBLE` passes this gate only: an amount still requires the exact-head `CURRENT PRICED` consequence and existing source/currentness checks. Both S4 Financials and S5 consume the same state and exact lineage. Preserve the recorded 7.5625 USD revision as history without a current-amount label.
+
+## Packet changes for the Planner
+
+1. Make attestation-change requeue cover both old and new validity intervals, affected accepted reading/measurement intervals, and the same six-hour query bracket; name creation, replacement, expiry, and withdrawal in phase 1 proof.
+2. Specify the eligibility precedence and that `ELIGIBLE` is only the series/reassessment gate, not a substitute for `CURRENT PRICED` and the existing source/currentness checks. Assert pending, settled-withheld, and eligible cases in phase 2 proof.
+3. Make explicit that an epoch may use the existing explicit-selection path, while automatic continuity across epochs is outside LR-01.
+4119-The S5-01 reviewer may promote `mini:1#a`, `mini:2#a` and `mini:4#a` only after selected-window, reload, stale/Unknown and exact-link evidence is reviewed. `mini:4#a` means one bounded consequence or explicit unpriced/unavailable state; the mock's blended money composition remains an open G-05/non-core gap. `mini:3#a/b` stays open until S4-04's Site FindingIndex and S5-02's Overview integration prove both scoped empty/Unknown and positive rows. The S5-01 UI may say the Finding list is unavailable while that index is missing; it may link a known selected Finding from a card without claiming a Site-wide list. S5-01 stays one reviewable read/UI slice; Planner must refine wire fields, fixture windows, projection/recompute seam, exact destinations, 1440/390 states and independent review/owner walkthrough. The durable evidence-acceptance consequence-work follow-on is a technical prerequisite of `I-site-overview-read`; it must close before S5-01 presents current money. Price equal-start SUCCESSION and stored demonstration provenance have separate follow-on packets; the latter gates W1 exit and the first real-Site pilot.
+4120-
+4121-Owner-absent checkpoint rule: `USER_REVIEW_REQUIRED` remains a real owner visual checkpoint. During this and future owner-absent windows, complete implementation, fresh independent review and a reproducible walkthrough, then hold that slice's merge and acceptance until the owner performs and records the visual check. The Architect may decide delegated sequence/copy questions but cannot record an owner walkthrough on the owner's behalf. Planning and unrelated non-UI/G work may proceed under normal single-active-task and dependency rules; a dependent next slice may be prepared on a clearly stacked branch without claiming its predecessor merged or accepted. Resume merge/registry promotion only after the actual owner checkpoint.
+4122-
+4123-Decision: `D-2026-10-14-action-lifecycle-and-policy-application`. Under the owner's 08:40-10:40 +0300 delegation, the Codex Architect chooses and resolves `A-action-lifecycle` in the 0.54% next-work contest (`.agent/next-work-2026-10-14d.json`: evidence-acceptance consequence work 2.020, Action lifecycle 2.009). The scores are effectively tied. This bounded architecture decision can close now and removes the common S6 Action gate across roughly fifteen W1 core portions; the evidence-acceptance consequence implementation still needs a Planner packet and remains a hard prerequisite of S5-01's money read. The next verified report, rather than this contest snapshot, routes the next work. No S6 UI owner checkpoint is waived.
+4124-
+4125-S6-01 creates one immutable, tenant/Site-scoped Action identity from a reviewed persisted `FindingRevision` under the canonical Finding route. It pins the originating revision, selected assessment and accepted-evidence/configuration basis; a later Finding revision does not silently rewrite that origin. A Finding may have several Actions, but each accepted recommendation creates or idempotently returns one Action for its server-defined command key. The recommendation is a bounded proposed reserve-SOC policy trial with explicit purpose, limitation and source Finding; it is not a measured saving or verified outcome. The Action detail root is `/sites/{site}/actions/{action_id}` with stable child routes and exact `event_id` selection, and Site/Finding back-links. S6-01 may navigate from a known Finding or Action ID before the separate S6-03 Site ActionIndex exists. Hidden unsupported tabs must not masquerade as empty delivered views.
+4126-
+4127-Action state is derived from an append-only, server-ordered `ActionEvent` ledger. Record stable event ID, Action and Site, event type, `occurred_at`, server `recorded_at`, idempotency key, actor kind/ID, source channel, authorization basis and triggering command/job or content revision. Idempotent identical retries return the event; conflicting reuse and cross-Site references fail. Historical reads select a recorded cutoff and then `(recorded_at,id)` order; a backdated `occurred_at` is displayed as such but never rewrites the audit order. `PROPOSED`/`ACCEPTED`, application `PENDING`/`APPLIED`/`FAILED`, and later verification status are separate dimensions. Acceptance does not assert application; an applied change or completed work does not assert benefit. A failed application preserves its attempt, error and retry relation without an effective-policy claim. No human author, approval or attestation is inferred from a gateway credential, client field, local OS user or SYSTEM fixture. Under the existing `A-actor-identity` rule, human writes need a verified operator principal; otherwise only a clearly labelled, server-authorized SYSTEM demonstration command with stable service/job provenance is allowed, or the write stays unavailable.
+4128-
+4129-The supported S6-01 change is a controlled reserve-SOC edit through S1 Foundation publish, producing a new immutable effective `FoundationRevision` and an immutable change artifact that links Action, accepted recommendation, authorized command, old/new revision IDs, exact field/value/unit, validity and recorded time, and the application event. Validate the expected old revision and Site scope under the publish lock; reject stale, unauthorized or invalid edits and record a failed attempt without claiming the new setting took effect. `APPLIED` requires confirmation of the persisted new effective revision; an ActionEvent alone is insufficient. The old basis and every event/change revision remain addressable after reload. Do not mutate a Lab-only override or rewrite accepted evidence. S6-01's Execution/History and applied `changes:1#a` show policy activity with event and configuration provenance, including pending/failed cases; they do not show an effect verdict.
+4130-
+4131-S6-02 owns the separate immutable `VerificationPlanRevision` and later `VerificationOutcome`. A plan pins this Action, the applied-change event and new Foundation revision, a pre-change baseline assessment/evidence basis, target, service/reserve guardrails, required coverage and later-window selection rule before evaluation. Use separate baseline and later Lab runs under their respective fixed effective Foundation revisions; commit their public reports through the ordinary gateway and central acceptance. Evaluate a closed later accepted window against the frozen plan and baseline, with exact analytic/evidence IDs. Missing or conflicting evidence yields `INCONCLUSIVE`; failed guardrail prevents `VERIFIED` even if the target improves; later results append/supersede without rewriting prior outcomes. Plan/evidence/verification child routes preserve exact plan and outcome IDs. `A-S6-verification` remains open for the full comparison rule; this lifecycle decision does not resolve it. S6-03 alone owns the Site-scoped ActionIndex/list and its watermarked empty/positive states; `A-action-index` remains open. Planner must refine S6-01's event transition table, command/API schema, actor path, race/idempotency checks, Foundation publish seam, stored fixtures and desktop/narrow Action-root states against the v6.9 Action screens and technical design before implementation.
+4132-
+4133-Decision: `D-2026-10-14-s402c-late-sequence-and-s5-money`. The Architect rules that gateway admission sequence does not establish source-time order for a validated store-and-forward source. S3 must version a source-time-aware cohort rule with explicit clock/overlap/epoch limits and reassess affected windows without rewriting history. S4 must carry a material series refusal into the revised Finding and state why the episode ends. Until a reviewed reassessment resolves generator-series ambiguity, S5 withholds an amount for that affected selected Finding/window despite a `CURRENT PRICED` consequence, and shows the limitation and exact lineage. `I-late-reading-series-and-money-limit` and `I-analytic-finding-worker-schedule` are separate prerequisites of `I-site-overview-read` before S5-01; both also gate real-Site readiness. The latter schedules S3/S4 workers and makes backlog/failure visible so late evidence reaches the revised Finding without manual commands. The broader simulated/real analysis-input backlog remains for W1 exit. S4-02c acceptance is unchanged; its reviewed consequence work may close on merge. The S5 owner visual checkpoint remains required. Rulings in .agent/architect-S4-02c-answers.md; S4-02c review `.agent/S4-02c-review.md` F1.
+4134-
+4135-Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+4136-
+4137:Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 with clarifications in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Widen reading intervals by clock error, refuse overlapping intervals, and retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+codex
+M1 identifies a real conflict: widening the full five-minute measurement intervals would mark adjacent readings ambiguous. I’m tightening the rule around each reading’s placement instant while preserving the earlier decision that an attested late arrival can be source ordered.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n -C 5 'Reviewed contract|15\\.8125|attest|overlap|SEQUENCE_ORDER_INVERTED' tasks/LR-01-late-reading-series-and-money-limit.md | Select-Object -First 130" in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 7312ms:
+5-Size: M, two phases; phase 2 review is the slice review. Branch for implementation: `task/LR-01-late-reading-series-and-money-limit`.
+6-Depends on: registry `I-S2-02`, `I-S3-01`, `I-S4-01`, `I-S4-02b`; built S4-02c consequence work and S4-02d schedule are the operational seam. This is a hard prerequisite of `I-site-overview-read` and schedule installation on demo/walkthrough hosts; real pilot additionally requires validated physical clock semantics and the other registry gates.
+7-
+8-## Outcome and authority
+9-
+10:Resolve `.agent/S4-02c-review.md` F1 and `.ai/MILESTONE_REVIEW_BACKLOG.md` late-reading carries L-a–L-f, L1 and the S4-02b panel residual under decision `D-2026-10-14-s402c-late-sequence-and-s5-money`. Run 1 currently yields S3 `INDETERMINATE` / `SEQUENCE_ORDER_INVERTED` / `GENERATOR_SERIES_AMBIGUOUS`, a revised `SUPPORTED` Finding ending at 07:00 with only `OPEN_BOUND`, then `CURRENT PRICED` 7.5625 USD. The on-time-sequenced late upload yields 15.8125 USD. Neither figure is an automatic current-money claim when its generator series is unresolved. Keep the existing authored fixture `backend/conversions/s4-power-late-demo-cases-v1.json:2-13` and accepted consequence history.
+11-
+12:## Reviewed contract first — proposed S3 cohort v4
+13-
+14-Architect review of this contract precedes implementation. The recommendation is deterministic and fail closed:
+15-
+16:1. For each selected `(gateway, source, sequence_epoch, role, asset)` channel, use **source-time order** only when a durable, versioned, Site/source/epoch-scoped clock attestation (new) proves the source clock's maximum UTC error at the reading times is ≤60 seconds, identifies its authority and validity interval, and covers every reading in the proposed ordering. A labelled simulated fixture can carry an explicit, separately identified simulated attestation; `source_mode=SIMULATED` alone never proves a real clock. Persist the attestation ID/version in each analytic input basis. A real gateway lacking this proof retains `SEQUENCE_ORDER_INVERTED` and an unresolved series limit.
+17:2. Treat each reading as the source-time uncertainty interval `[source_time−error, source_time+error]` (or the reported measurement interval widened by error). Strictly disjoint intervals may be ordered independent of gateway admission sequence. Equal or overlapping intervals in one channel remain `REPORTS_OVERLAP`/ambiguous; do not select a winner or silently interpolate. A reading outside attestation validity, across an unproved clock step, or spanning two conflicting clock attestations remains limited. A 60-second cap is an admission ceiling, not an assertion that the current gateway meets it.
+18:3. Never merge sequence epochs by source time alone. The existing multi-epoch default ambiguity and explicit-selection limits remain; a new continuity proof would need separate review. Sequence still authenticates identity/duplication, not source-time order. Keep every refused span and the involved evidence/attestation IDs in the input digest and assessment limitations. Use a new S3 `MODEL_VERSION` and a new S4 `MATCHER_VERSION`; preserve old runs, selections, assessment and Finding revisions.
+19-
+20-## Existing code and required changes
+21-
+22-| Existing main anchor | Work in this packet |
+23-| --- | --- |
+24:| Gateway increments sequence on admission `gateway/assetops_gateway/service.py:8-11,649-655`; accepted rows contain `source_time`, `sequence_epoch`, `sequence`, `source_mode` but no clock attestation `backend/migrations/versions/0005_evidence_ledger.py:161-207`. | Add a versioned public clock-attestation record and a reviewed ingestion/fixture route (new migration/adapter/API or importer); preserve an explicit unavailable state for unvalidated real sources. No Lab private truth as product proof. |
+25:| `AcceptedReading`, `EvidenceQuery` and input digest `backend/assetops_backend/analytics/assessment_inputs.py:70-136,205,334`; Postgres query maps current fields `backend/assetops_backend/analytics/adapters/postgres_assessment_store.py:48-56,123-136`. | Add attestation provenance/uncertainty to the accepted public analytic input and digest (new fields); avoid retroactively changing the bytes of old runs. |
+26:| Sequence inversion and overlap `backend/assetops_backend/analytics/cohort.py:113-136`; `dispatch-3.1` model/limits `backend/assetops_backend/analytics/dispatch_v3.py:39,528-550`. | Implement the reviewed cohort contract with a new model version (new model/module or versioned rules). Cover clock absent/expired/conflicting, overlap, epoch switch, run 1 and sequenced-on-time upload. Continue typed `GENERATOR_SERIES_AMBIGUOUS` at window level where refused. |
+27:| `DispatchAssessmentWorker.reconcile` sees model staleness `backend/assetops_backend/analytics/assessment_worker.py:173-185`; immutable `analytic_run_selection` `backend/migrations/versions/0008_assessment_selection.py:28-44`; late acceptance test `backend/tests/test_s3_dispatch_assessment_postgres.py:110-143`. | Queue every affected day and neighboring bracket/continuity window through the existing job path; include attestation changes, not just new accepted readings. Append new selections/revisions, preserve exact old IDs and history; idempotent replay and scoped tenant/Site checks. |
+28-| Matcher `MATCHER_VERSION` and supported write basis `backend/assetops_backend/analytics/finding_episode.py:66,435-479`; selected interval read has window limitations/jobs `backend/assetops_backend/analytics/adapters/postgres_assessment_store.py:559-579`; immutable `finding_revision` `backend/migrations/versions/0009_finding_store.py:64-105`. | Revise the Finding on reassessment. If a generator-series refusal intersects the former/current episode or cuts its candidate tail, carry `GENERATOR_SERIES_AMBIGUOUS` with span and linked assessment/evidence IDs into the new Finding revision. State `SERIES_LIMIT` as the episode end reason (new typed claim field), retaining `OPEN_BOUND` only when independently true. Keep supported candidate spans and historical revisions, but never imply the truncated tail was judged avoidable. |
+29-| Consequence bridge `backend/assetops_backend/finding_api.py:279-320,347-365`, stored consequence read `backend/assetops_backend/financials/consequence_read.py:149-212`; current amount rendering `frontend/src/sites/FindingConsequence.tsx:369-436,526-562`. | Add a read-derived, versioned `money_eligibility` (new shared projection): `ELIGIBLE`, `WITHHELD_GENERATOR_SERIES`, or `PENDING_REASSESSMENT`, with exact FindingRevision, window assessment/run, source limit/evidence and consequence IDs. It must use the **latest selected window and latest Finding** for current claims; historical/pinned rows stay explicitly recorded/audit only. The S4-02b bridge and Finding money panel consume it: suppress the headline amount and all “current” labels on affected run 1 even if consequence currentness remains `CURRENT PRICED`; show the limit, truthful end reason and exact links. Do not delete or relabel stored 7.5625 USD history. S5-01 consumes this same signal, withholds the amount on both non-eligible states and shows the reason/links. |
+30-| Schedule seam `backend/assetops_backend/scheduling/upstream.py:13,110`, health `backend/assetops_backend/scheduling/health.py:152-203`, install gate `tools/schedule-install-gate.py:26-43`. | Wire pending S3/S4 work and stopped-worker/currentness state into eligibility; a stale selected window cannot become `ELIGIBLE`. Keep the installation gate closed until reviewed slice completion. S5-01 still owns its own read/UI integration. |
+31-
+32-**Money invariant:** `CURRENT PRICED` is necessary but insufficient. Current amount requires the current selected Finding/window to have no material unresolved generator-series limit, no pending reassessment/match, an exact consequence head for that FindingRevision, and the existing source/currentness checks. Other non-series limitations remain visible under the reviewed financial bound. The signal is computed on every read from persisted lineage, so a late evidence acceptance immediately withholds current money while work is pending. Do not rely on a UI-only predicate.
+33-
+34-## Phases, proof and review
+35-
+36-| Phase | Build and focused proof | Review gate |
+37-| --- | --- | --- |
+38:| 1 — source-time contract and reassessment | First obtain Architect disposition on the contract/questions below. Build attestation persistence/input basis, new cohort/model version and affected-window requeue. Focused pure cohort and `backend/tests/test_s3_dispatch_assessment_postgres.py` tests: admission-sequenced run 1; source-sequenced late upload; clock absent, out of validity, overlap, cross-epoch, clock step; old and new run/selection IDs coexist; idempotent replay. | Independent phase review of clock evidence, fail-closed boundaries and append-only history. |
+39-| 2 — Finding and money surfaces | Build new matcher version, truthful series/end claim, shared eligibility and Financials panel. Focused `backend/tests/test_s4_finding_store_postgres.py:249-273`, `backend/tests/test_s4_consequence_read.py:18-31` and targeted Finding API/UI tests (new) prove suppressed current headline and exact historical linkage. Extend walkthrough with two modes (new switch/assertions) using `tools/s402c_late_power_walkthrough.py:111-126,214-343,365-391` and tick/no-hand-run path `tools/s402d_tick_walkthrough.py:94-146,180-375,386-414`; each uses its tool's private DB prefix and drop command. Assert exact S3 status/limits, Finding revision/end reason, consequence amount/IDs, eligibility, UI headline and S5 contract for both variants. The existing SOURCE_ORDER-only assertions must be updated openly, not treated as run-1 proof. | At slice end, run one full backend suite, then fresh independent **slice** review and owner walkthrough. Run `tools/check-all.ps1:7-12` and `frontend/docs/architecture/check_v69_dependency_registry.cjs:7-13,354` (existing checker). Full suite: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --durations=30 --junitxml=.pytest-junit.xml` per `backend/TESTING.md:103-105`; start `tools/keep-awake-during-tests.ps1:1-20` (`backend/TESTING.md:110-120`), enforce 20-minute 2× cap (`backend/TESTING.md:121-153`), 0 skipped/failed. |
+40-
+41:**Owner walkthrough:** on a private Site/DB, show run 1 after late acceptance and tick: revised Finding with series limit and `SERIES_LIMIT` end; Financials has no current amount, links to the recorded 7.5625 USD revision and exact assessments. Reload at desktop and narrow width. Then show on-time-sequenced late upload with valid simulated clock attestation, supported full episode and 15.8125 USD current bound, and a real-source-without-clock case that stays limited/no current amount. Do not install the environment schedule on the owner's demo host before review; use the walkthrough's explicit tick.
+42-
+43-## Architect questions — one batch, recommendations pending ruling
+44-
+45:1. **Clock proof and limit:** Is a durable per-source/epoch attestation with ≤60-second error, validity interval, authority and explicit simulated provenance sufficient? **Recommend yes**, with source-time intervals widened by error and unvalidated real sources limited. If the threshold/authority differs, change the contract, schema and fixtures before phase 1.
+46:2. **Overlap and epoch:** Must overlapping uncertainty intervals remain ambiguous, and must a new epoch require explicit selection/continuity proof? **Recommend yes**. If a continuity proof is permitted, define its public provenance before implementation; never infer it from time alone.
+47:3. **Affected-window scope:** On clock-attestation change, recompute every day whose six-hour evidence bracket intersects affected source times plus neighboring continuity days? **Recommend yes**, using existing job and immutable selection paths. If the bracket changes, revise the query/requeue bound together.
+48-4. **Finding and eligibility form:** Should the revised Finding retain `SUPPORTED` for proven Candidate spans, add typed `SERIES_LIMIT` end and limitation, and expose the read-derived three-state `money_eligibility` to both S4 Financials and S5? **Recommend yes**. If support must instead become indeterminate, change matcher acceptance and both UI states, while preserving the no-current-amount invariant.
+49-
+50:**Out of scope:** the broader owner analysis-input-data backlog (`.ai/MILESTONE_REVIEW_BACKLOG.md:2176-2178`) still owns per-analytic required inputs, cadence and coverage for simulated and real Sites at W1 exit; it must include clock attestation then. This packet closes the specific late-reading ordering and amount hazard. S4-02d I3 decided-at clock comparand remains its separate evidence-owner carry (`.ai/MILESTONE_REVIEW_BACKLOG.md:2223-2231`).
+
+apply patch
+patch: completed
+C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\.agent\architect-LR-01-answers.md
+C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\.ai\DECISIONS.md
+diff --git a/.agent/architect-LR-01-answers.md b/.agent/architect-LR-01-answers.md
+index 44d3b28ffe466c66e267ace084141e763309897d..c3e965a9fc53d1bb5528f4e0c4942ddfdbb5d4be
+--- a/.agent/architect-LR-01-answers.md
++++ b/.agent/architect-LR-01-answers.md
+@@ -23,3 +23,7 @@
+ 1. Make attestation-change requeue cover both old and new validity intervals, affected accepted reading/measurement intervals, and the same six-hour query bracket; name creation, replacement, expiry, and withdrawal in phase 1 proof.
+ 2. Specify the eligibility precedence and that `ELIGIBLE` is only the series/reassessment gate, not a substitute for `CURRENT PRICED` and the existing source/currentness checks. Assert pending, settled-withheld, and eligible cases in phase 2 proof.
+ 3. Make explicit that an epoch may use the existing explicit-selection path, while automatic continuity across epochs is outside LR-01.
++
++## Follow-up M1 (2026-10-15)
++
++Accept the placement-instant correction; replace the proposed sequence-disagreement test. For an attested channel, order by `placed_at` (measurement interval end, otherwise source time) with +/- the attested UTC error, not by the whole measurement interval widened by error. Back-to-back measurement intervals that only touch do not overlap. Genuine measurement-interval overlap or overlapping placement-uncertainty intervals within one channel remains `REPORTS_OVERLAP`/ambiguous. When placement-uncertainty intervals are disjoint, source-time order wins even if gateway admission sequence disagrees: this is a late arrival, not `SEQUENCE_ORDER_INVERTED`. Gateway sequence still resolves identity and duplicates. This supersedes Q1/Q2's widened-interval wording and preserves ordinary attested five-minute means and the 15.8125 USD positive case.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index db0015d95dd9f453f69826316b49f5aba6a834e5..53b4d558eda84d241f1e23ea25fe24ff4e3c5423
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4134,4 +4134,4 @@
+ 
+ Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+ 
+-Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 with clarifications in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Widen reading intervals by clock error, refuse overlapping intervals, and retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
++Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+diff --git a/.agent/architect-LR-01-answers.md b/.agent/architect-LR-01-answers.md
+index 44d3b28ffe466c66e267ace084141e763309897d..c3e965a9fc53d1bb5528f4e0c4942ddfdbb5d4be
+--- a/.agent/architect-LR-01-answers.md
++++ b/.agent/architect-LR-01-answers.md
+@@ -23,3 +23,7 @@
+ 1. Make attestation-change requeue cover both old and new validity intervals, affected accepted reading/measurement intervals, and the same six-hour query bracket; name creation, replacement, expiry, and withdrawal in phase 1 proof.
+ 2. Specify the eligibility precedence and that `ELIGIBLE` is only the series/reassessment gate, not a substitute for `CURRENT PRICED` and the existing source/currentness checks. Assert pending, settled-withheld, and eligible cases in phase 2 proof.
+ 3. Make explicit that an epoch may use the existing explicit-selection path, while automatic continuity across epochs is outside LR-01.
++
++## Follow-up M1 (2026-10-15)
++
++Accept the placement-instant correction; replace the proposed sequence-disagreement test. For an attested channel, order by `placed_at` (measurement interval end, otherwise source time) with +/- the attested UTC error, not by the whole measurement interval widened by error. Back-to-back measurement intervals that only touch do not overlap. Genuine measurement-interval overlap or overlapping placement-uncertainty intervals within one channel remains `REPORTS_OVERLAP`/ambiguous. When placement-uncertainty intervals are disjoint, source-time order wins even if gateway admission sequence disagrees: this is a late arrival, not `SEQUENCE_ORDER_INVERTED`. Gateway sequence still resolves identity and duplicates. This supersedes Q1/Q2's widened-interval wording and preserves ordinary attested five-minute means and the 15.8125 USD positive case.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index db0015d95dd9f453f69826316b49f5aba6a834e5..53b4d558eda84d241f1e23ea25fe24ff4e3c5423
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4134,4 +4134,4 @@
+ 
+ Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+ 
+-Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 with clarifications in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Widen reading intervals by clock error, refuse overlapping intervals, and retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
++Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git diff --check; git diff --stat; git diff -- .agent/architect-LR-01-answers.md .ai/DECISIONS.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 6414ms:
+warning: in the working copy of '.agent/architect-LR-01-answers.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.agent/architect-LR-01-answers.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+ .agent/architect-LR-01-answers.md | 4 ++++
+ .ai/DECISIONS.md                  | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+warning: in the working copy of '.agent/architect-LR-01-answers.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+diff --git a/.agent/architect-LR-01-answers.md b/.agent/architect-LR-01-answers.md
+index 44d3b28f..c3e965a9 100644
+--- a/.agent/architect-LR-01-answers.md
++++ b/.agent/architect-LR-01-answers.md
+@@ -23,3 +23,7 @@ Authority: `tasks/LR-01-late-reading-series-and-money-limit.md` Q1-Q4, `D-2026-1
+ 1. Make attestation-change requeue cover both old and new validity intervals, affected accepted reading/measurement intervals, and the same six-hour query bracket; name creation, replacement, expiry, and withdrawal in phase 1 proof.
+ 2. Specify the eligibility precedence and that `ELIGIBLE` is only the series/reassessment gate, not a substitute for `CURRENT PRICED` and the existing source/currentness checks. Assert pending, settled-withheld, and eligible cases in phase 2 proof.
+ 3. Make explicit that an epoch may use the existing explicit-selection path, while automatic continuity across epochs is outside LR-01.
++
++## Follow-up M1 (2026-10-15)
++
++Accept the placement-instant correction; replace the proposed sequence-disagreement test. For an attested channel, order by `placed_at` (measurement interval end, otherwise source time) with +/- the attested UTC error, not by the whole measurement interval widened by error. Back-to-back measurement intervals that only touch do not overlap. Genuine measurement-interval overlap or overlapping placement-uncertainty intervals within one channel remains `REPORTS_OVERLAP`/ambiguous. When placement-uncertainty intervals are disjoint, source-time order wins even if gateway admission sequence disagrees: this is a late arrival, not `SEQUENCE_ORDER_INVERTED`. Gateway sequence still resolves identity and duplicates. This supersedes Q1/Q2's widened-interval wording and preserves ordinary attested five-minute means and the 15.8125 USD positive case.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 48f18054..d6fa3885 100644
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4134,4 +4134,4 @@ Decision: `D-2026-10-14-s402c-late-sequence-and-s5-money`. The Architect rules t
+ 
+ Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+ 
+-Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 with clarifications in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Widen reading intervals by clock error, refuse overlapping intervals, and retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
++Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+diff --git a/.agent/architect-LR-01-answers.md b/.agent/architect-LR-01-answers.md
+index 44d3b28ffe466c66e267ace084141e763309897d..c3e965a9fc53d1bb5528f4e0c4942ddfdbb5d4be
+--- a/.agent/architect-LR-01-answers.md
++++ b/.agent/architect-LR-01-answers.md
+@@ -23,3 +23,7 @@
+ 1. Make attestation-change requeue cover both old and new validity intervals, affected accepted reading/measurement intervals, and the same six-hour query bracket; name creation, replacement, expiry, and withdrawal in phase 1 proof.
+ 2. Specify the eligibility precedence and that `ELIGIBLE` is only the series/reassessment gate, not a substitute for `CURRENT PRICED` and the existing source/currentness checks. Assert pending, settled-withheld, and eligible cases in phase 2 proof.
+ 3. Make explicit that an epoch may use the existing explicit-selection path, while automatic continuity across epochs is outside LR-01.
++
++## Follow-up M1 (2026-10-15)
++
++Accept the placement-instant correction; replace the proposed sequence-disagreement test. For an attested channel, order by `placed_at` (measurement interval end, otherwise source time) with +/- the attested UTC error, not by the whole measurement interval widened by error. Back-to-back measurement intervals that only touch do not overlap. Genuine measurement-interval overlap or overlapping placement-uncertainty intervals within one channel remains `REPORTS_OVERLAP`/ambiguous. When placement-uncertainty intervals are disjoint, source-time order wins even if gateway admission sequence disagrees: this is a late arrival, not `SEQUENCE_ORDER_INVERTED`. Gateway sequence still resolves identity and duplicates. This supersedes Q1/Q2's widened-interval wording and preserves ordinary attested five-minute means and the 15.8125 USD positive case.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index db0015d95dd9f453f69826316b49f5aba6a834e5..53b4d558eda84d241f1e23ea25fe24ff4e3c5423
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4134,4 +4134,4 @@
+ 
+ Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+ 
+-Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 with clarifications in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Widen reading intervals by clock error, refuse overlapping intervals, and retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
++Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+codex
+I accepted M1’s placement-instant correction and rejected its proposed sequence-disagreement test. The ruling orders attested readings by `placed_at` with the attested clock error; a clearly ordered late arrival remains valid even when gateway admission sequence disagrees. Adjacent five-minute measurement intervals that only touch are not overlap.
+
+I appended the ruling to [architect-LR-01-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.agent/architect-LR-01-answers.md) and amended [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.ai/DECISIONS.md) in place. `git diff --check` passed.
+diff --git a/.agent/architect-LR-01-answers.md b/.agent/architect-LR-01-answers.md
+index 44d3b28ffe466c66e267ace084141e763309897d..c3e965a9fc53d1bb5528f4e0c4942ddfdbb5d4be
+--- a/.agent/architect-LR-01-answers.md
++++ b/.agent/architect-LR-01-answers.md
+@@ -23,3 +23,7 @@
+ 1. Make attestation-change requeue cover both old and new validity intervals, affected accepted reading/measurement intervals, and the same six-hour query bracket; name creation, replacement, expiry, and withdrawal in phase 1 proof.
+ 2. Specify the eligibility precedence and that `ELIGIBLE` is only the series/reassessment gate, not a substitute for `CURRENT PRICED` and the existing source/currentness checks. Assert pending, settled-withheld, and eligible cases in phase 2 proof.
+ 3. Make explicit that an epoch may use the existing explicit-selection path, while automatic continuity across epochs is outside LR-01.
++
++## Follow-up M1 (2026-10-15)
++
++Accept the placement-instant correction; replace the proposed sequence-disagreement test. For an attested channel, order by `placed_at` (measurement interval end, otherwise source time) with +/- the attested UTC error, not by the whole measurement interval widened by error. Back-to-back measurement intervals that only touch do not overlap. Genuine measurement-interval overlap or overlapping placement-uncertainty intervals within one channel remains `REPORTS_OVERLAP`/ambiguous. When placement-uncertainty intervals are disjoint, source-time order wins even if gateway admission sequence disagrees: this is a late arrival, not `SEQUENCE_ORDER_INVERTED`. Gateway sequence still resolves identity and duplicates. This supersedes Q1/Q2's widened-interval wording and preserves ordinary attested five-minute means and the 15.8125 USD positive case.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index db0015d95dd9f453f69826316b49f5aba6a834e5..53b4d558eda84d241f1e23ea25fe24ff4e3c5423
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4134,4 +4134,4 @@
+ 
+ Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+ 
+-Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 with clarifications in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Widen reading intervals by clock error, refuse overlapping intervals, and retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
++Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+tokens used
+23,204
+I accepted M1’s placement-instant correction and rejected its proposed sequence-disagreement test. The ruling orders attested readings by `placed_at` with the attested clock error; a clearly ordered late arrival remains valid even when gateway admission sequence disagrees. Adjacent five-minute measurement intervals that only touch are not overlap.
+
+I appended the ruling to [architect-LR-01-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.agent/architect-LR-01-answers.md) and amended [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.ai/DECISIONS.md) in place. `git diff --check` passed.
