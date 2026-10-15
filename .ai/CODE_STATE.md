@@ -5505,3 +5505,16 @@ Branch `task/LR-01-late-reading-series-and-money-limit`; handoffs `.agent/LR-01-
 - UI: Financials bridge shows withheld/pending with the refused span and an exact link to the recorded consequence; Finding page states a SERIES_LIMIT end.
 - Walkthrough: `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01*`; browser claims `tools/lr01-money-evidence.mjs`.
 - Open: real-source clock proof has no write path (by design); S5-01 owns its own UI over the seam; the schedule install gate stays closed until this slice is reviewed and merged; broader per-analytic input/clock coverage remains the owner analysis-input backlog.
+
+## S5-01 - selected-window Site Overview (phases 1-2 built, slice review pending)
+
+Branch `task/S5-01-site-overview` (LR-01 merged in, unmerged to main); handoffs `.agent/S5-01-phase-1-handoff.md`, `.agent/S5-01-phase-2-handoff.md`; packet `.agent/S5-01-review-packet.md`; owner steps `.agent/S5-01-owner-walkthrough.md`.
+
+- Read: `site_overview/read.py` `SiteOverviewRead.read` builds `site-window-summary-1` for one UTC day over committed records (no projection table): accepted-source fingerprint fence, S4-02d `UpstreamCurrentness.window`, fenced S3 day detail, ledger context, one Finding by `D-2026-10-15-s501-finding-choice`, exact-head money with the real Performance gate. `money_state.py` is the pure no-amount precedence.
+- Money: `PRICED` also requires the LR-01 seam row's `current_amount_permitted` (fail closed as `CONSEQUENCE_STALE`); the raw gate is S5's own exact read, never the seam's rewrite.
+- Pin: optional `finding_id`/`finding_revision_id`; must intersect the day (`NOT_IN_SELECTED_DAY`), exact revision only while the source is closed, retained while discovery is incomplete; `previous_pin` (top-level and in `known_finding`) names why a pin is not shown. `PinNotFound` -> 404.
+- Route: `site_overview/route.py` at the existing `GET /api/sites/{site}/overview` (evidence router delegates first): access 401/403, scope (typed 503 `SITE_STORE_UNAVAILABLE`), S2 409, UTC day 422s, Performance gate. Legacy `date=` becomes the midnight pair.
+- Composition: one seam per process; S5 reuses the seam's consequence read and Finding store; `main.py` disposes through `app.router.on_shutdown` (FastAPI 0.141 has no `add_event_handler`).
+- UI: `sites/SiteWindowOverview.tsx` (no SVG; CSS-bar timeline), `SiteOverview.tsx` S5 branch with URL `date`/pin written back from the served values, `siteOverviewClient.ts` validator; destinations from `shell/SiteDetailFrame.tsx`. Day navigation is links.
+- Walkthrough: `tools/s5_overview_walkthrough.py` (`assetops_s501_owner*`, `var/s501_owner*`, ports 8925/5425, ticks env `default`); browser claims `tools/s5-overview-evidence.mjs <base> <initial|pending|eligible|stopped|closed>`.
+- Open: Site Finding index (list stays unavailable); `mini:3#a/b` (S4-04/S5-02); L5 fence placement and Postgres merge/midnight cases (fakes only); production schedule thresholds make demo amounts lapse 5 minutes after a manual tick; merge and `mini:1#a/2#a/4#a` promotion held for the owner record.

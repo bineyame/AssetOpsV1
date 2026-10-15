@@ -1,6 +1,6 @@
 # S5-01 — selected-window Site Overview
 
-Status: active (activated 2026-10-15 on `task/S5-01-site-overview`, stacked on LR-01 head `3b360af5` under the owner-absence work order `D-2026-10-15-owner-absence-work-order`; plan review RETURN -> fix round 1 -> re-review ACCEPT `.agent/S5-01-plan-rereview.md`, Lows N1-N5 carried to the implementer; merge held for owner walkthrough and LR-01 merge)
+Status: in_review (phases 1-2 built on `task/S5-01-site-overview`, LR-01 fix rounds 1-2 merged in; packet `.agent/S5-01-review-packet.md`, owner steps `.agent/S5-01-owner-walkthrough.md`; merge held for the owner walkthrough record and the LR-01 merge)
 USER_REVIEW_REQUIRED: true — owner visual acceptance before merge or registry promotion.
 Size: M, two phases; phase 2 review is the slice review.
 Branch: `task/S5-01-site-overview`, stacked on the **reviewed LR-01 head** while LR-01 is unmerged; hold merge for owner. A stacked predecessor is not accepted or merged.

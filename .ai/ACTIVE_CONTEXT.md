@@ -8,6 +8,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 **LR-01 ([late-reading series and money limit](../tasks/LR-01-late-reading-series-and-money-limit.md)) is `in_review`** on `task/LR-01-late-reading-series-and-money-limit` (phases 1-2 built; USER_REVIEW_REQUIRED: owner walkthrough `.agent/LR-01-owner-walkthrough.md` is the merge checkpoint). Packet `.agent/LR-01-review-packet.md`; built state in `.ai/CODE_STATE.md` "LR-01". The schedule install gate stays closed until it merges.
 
+**S5-01 ([selected-window Site Overview](../tasks/S5-01-site-overview.md)) is `in_review`** on `task/S5-01-site-overview` (stacked on LR-01; USER_REVIEW_REQUIRED: owner walkthrough `.agent/S5-01-owner-walkthrough.md` is the merge checkpoint). Packet `.agent/S5-01-review-packet.md`; built state in `.ai/CODE_STATE.md` "S5-01".
+
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
 S2-01a (registered Lab basis) and S2-01b (durable simulated gateway) are reviewed and merged to main at `7c10283`; their carries are in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
@@ -29,6 +31,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (S5-01 slice): read the task, `.agent/S5-01-review-packet.md`, both phase handoffs and `.agent/S5-01-phase-1-review.md`, then `git diff 440a2bad..HEAD -- ':!.agent'` (S5 files are listed in the packet; LR-01 merges are in the range). Walk it with `tools/s5_overview_walkthrough.py prepare|serve|attest|tick|stop-schedule|start-schedule|gate|drop --db assetops_s501_owner<x> --work var/s501_owner<x>` (its only accepted prefixes) and `node tools/s5-overview-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 
 Reviewer (LR-01 slice): read the task (outcome table), `.agent/architect-LR-01-answers.md`, `.agent/LR-01-review-packet.md` and both phase handoffs, then `git diff d4c80e77..HEAD` (phase 2: `git diff 445f3d18..HEAD`). Walk it with `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01_<x>` and `node tools/lr01-money-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 

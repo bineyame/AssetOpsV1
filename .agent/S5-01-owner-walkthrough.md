@@ -60,8 +60,9 @@ opportunity, recommendations) are **absent** by design: there is no source for t
 
 ## Evidence already captured
 
-`var/s501_owner/evidence/` (screenshots at 1440 and 390 px and `s5-<stage>-claims.json`) from
-`node tools/s5-overview-evidence.mjs http://localhost:5425 <initial|pending|eligible|stopped|closed> var/s501_owner/evidence [finding-id revision-id]`.
+`.agent/S5-01-evidence/` (claims per stage and the step log with API IDs/watermarks) and, on the implementer's
+machine, `var/s501-evidence/` (screenshots at 1440 and 390 px), from
+`node tools/s5-overview-evidence.mjs http://localhost:5425 <initial|pending|eligible|stopped|closed> var/s501-evidence [finding-id revision-id]`.
 The review packet lists the claim counts and the API IDs/watermarks.
 
 ## Clean up
