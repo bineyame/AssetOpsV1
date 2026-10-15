@@ -233,7 +233,7 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     const { client, getOverview } = clientOf((s) => summary(s.date ?? "2026-10-23"));
     renderAt(`/sites/${SITE_ID}?date=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`, client);
     await settledScreen();
-    fireEvent.click(screen.getByRole("button", { name: "Next day" }));
+    fireEvent.click(screen.getByRole("link", { name: "Next day" }));
     await settledScreen();
     expect(getOverview.mock.calls.at(-1)?.[2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
     expect(where()).toContain("date=2026-10-24");

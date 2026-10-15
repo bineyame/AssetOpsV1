@@ -3469,3 +3469,7 @@ tr[data-selected] > * {
   .window-timeline__axis { margin-left: 0; }
   .window-timeline__row { grid-template-columns: minmax(0, 1fr); gap: 0.125rem; }
 }
+.window-day .dispatch-day__button {
+  display: inline-block;
+  text-decoration: none;
+}

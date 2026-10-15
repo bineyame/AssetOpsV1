@@ -200,7 +200,7 @@ async function main() {
       await sleep(300);
       const again = await js(READ);
       claim(`${W} reload keeps the day and the Finding version`, again.href === before && again.day === DAYS.p02, { before, after: again.href });
-      await js(`[...document.querySelectorAll('button')].find(b => b.innerText === 'Next day').click()`);
+      await js(`document.querySelector('[data-window-day-link="next"]').click()`);
       await waitFor(`document.querySelector('[data-window-date]')?.getAttribute('data-window-date') === '2026-10-25'`);
       await sleep(600);
       const next = await js(READ);

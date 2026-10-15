@@ -178,12 +178,13 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
           }}
         />
       </label>
-      <button type="button" className="dispatch-day__button" onClick={() => onSelectDay(shiftDay(day, -1))}>
+      {/* Day navigation is navigation: links to the same page with another `date` (and no Finding pin). */}
+      <Link className="dispatch-day__button" to={`?date=${shiftDay(day, -1)}`} data-window-day-link="previous">
         Previous day
-      </button>
-      <button type="button" className="dispatch-day__button" onClick={() => onSelectDay(shiftDay(day, 1))}>
+      </Link>
+      <Link className="dispatch-day__button" to={`?date=${shiftDay(day, 1)}`} data-window-day-link="next">
         Next day
-      </button>
+      </Link>
       <p className="window-day__bounds">
         {stamp(summary.window.start)} to {stamp(summary.window.end)} UTC, start included, end excluded.
       </p>
