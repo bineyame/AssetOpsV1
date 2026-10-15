@@ -1,6 +1,6 @@
 # S4-05a — immutable source binding and resolver
 
-Status: implementation-ready. Size M, two phases. USER_REVIEW_REQUIRED: true — review the new source-state contract and owner-visible copy proposal at W1; this slice has no UI merge hold. Branch `task/S4-05a-provenance-binding-resolver` from reviewed main. Coordinator commits the plan.
+Status: implementation-ready. Size M, two phases. USER_REVIEW_REQUIRED: false — no UI; mergeable after fresh independent review. The source-state contract and owner-visible copy proposal are presented at S4-05b's owner checkpoint. Branch `task/S4-05a-provenance-binding-resolver` from reviewed main. Coordinator commits the plan.
 
 Depends on merged S2-02, S4-01, S4-02b and resolved `A-S2-evidence`, `A-actor-identity`. Implements registry `I-S4-05a`; shared contract and authority in [S4-05](S4-05-stored-demo-provenance.md). Independent of unmerged LR-01/S5-01/S6-01; re-check merged head before coding.
 
@@ -17,3 +17,12 @@ Focused real-Postgres proof: two tenants/same Site code; wrong Site/gateway/sour
 Implement one tenant/Site-scoped resolver for accepted IDs and the S4-05 truth table, returning exact per-ID provenance, all publication/run IDs, problematic IDs and typed reasons. Resolve selected FindingRevision evidence from `backend/assetops_backend/analytics/finding_read.py:350,446` and consequence power IDs from `backend/assetops_backend/financials/consequence_read.py:87,149`; keep the resolver usable without changing these public DTOs until S4-05b. Test two publications same fixture/version, differing version, one run, compatible/incompatible multiple runs, class crossing, bound/unbound mix, empty set, foreign/missing/broken link with UNKNOWN precedence, and consequence-only mixed power. Verify selected historical revision, not current head. Independent phase review; hand exact resolver fixture/field contract to S4-05b.
 
 Run focused checks and rule 8 guard; final full suite is owned by S4-05b after UI integration. Keep unbound current reads cautious at the S4-05b cutover; no retroactive binding.
+
+## Coordinator note after plan re-review (`.agent/S4-05-plan-rereview.md`)
+
+- N-M1 fixed: USER_REVIEW_REQUIRED set false (no UI; S6-01a precedent); copy proposal moves to S4-05b.
+- N-L1 (implementer carry): anchor simulator registration on the registered commit/release path (`simulator_lab_api.py` ~3278-3283, `runs/execution_ports.py:178` `release_registered`), checking and registering each sealed batch against the run's committed stage before it moves to READY; one run can produce several batches (gateway `_fit` splits by size).
+- N-L2 (implementer carry): until a compatible-run-basis contract exists, several run IDs in one set resolve to `MIXED`.
+- N-L3: the S5-01 amendment is due before the merge of whichever of S4-05b/S5-01 merges second (not before coding).
+- Residual risk: if the binding lives on `ingestion_batch`, reconcile the existing `ON CONFLICT DO NOTHING` batch insert with rule 8's upsert rejection explicitly.
+
