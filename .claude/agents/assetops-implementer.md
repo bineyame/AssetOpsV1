@@ -111,7 +111,14 @@ again. Keep the context small by construction:
 ## Verify
 
 - `tools/check-architecture.ps1` and `tools/check-agent-workflow.ps1`.
-- Backend and frontend suites, typecheck, and the production build.
+- Backend and frontend suites, typecheck, and the production build. Backend
+  tests follow `backend/TESTING.md`: focused and adjacent files per phase, and
+  one real-Postgres full backend suite per slice, on its final revision, with
+  the guide's normal command and its JUnit zero-skip check. Before that run,
+  start `tools/keep-awake-during-tests.ps1`, cap the run at twice its expected
+  wall time (stop and report a run past the cap, never wait on it), and run
+  only one full suite on this machine at a time. Record command, revision,
+  wall time and JUnit counts in the packet so the Reviewer can reuse them.
 - `node tools/layout-evidence.mjs <base-url>` when the slice is
   layout-sensitive: shell layout, dense tables, intrinsic-width drawings, SVG
   geometry, tab or subtab treatment, or viewport behaviour. jsdom has no
