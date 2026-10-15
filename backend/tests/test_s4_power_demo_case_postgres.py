@@ -43,6 +43,7 @@ if URL:
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.financials.adapters.postgres_consequence_store import PostgresConsequenceStore
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
+    from money_gate_stub import ELIGIBLE
     from assetops_backend.financials.consequence_read import ConsequenceReadService
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
@@ -114,7 +115,7 @@ def test_the_power_case_yields_a_positive_amount_then_a_second_revision_after_v4
     prices, cstore = PostgresAssumptionStore(URL), PostgresConsequenceStore(URL)
     try:
         worker = ConsequenceRecomputeWorker(cstore, prices, CONSEQUENCE_UNAVAILABLE)
-        reads = ConsequenceReadService(cstore, prices)
+        reads = ConsequenceReadService(cstore, prices, eligibility=ELIGIBLE)
         want = POWER_SPEC["expected_consequence"]
         run_fixture(prices, capsys, "v1", "v2", "v3")
         assert all(o.succeeded for o in worker.run_pending(runner.tenant, runner.site))

@@ -34,6 +34,7 @@ if URL:
     import test_s4_finding_store_postgres as finding_cases
 
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
+    from money_gate_stub import ELIGIBLE
     from assetops_backend.financials.consequence_read import ConsequenceReadService
     from assetops_backend.financials.recompute import (
         ERROR_EVIDENCE_LOCATOR_NOT_IN_SITE, ERROR_STORE_UNAVAILABLE, ERROR_WORK_SCOPE_MISMATCH, NO_OP_ASSET,
@@ -179,7 +180,7 @@ class TestScopedDrain:
         (first,) = consequences(engine, rev["id"])
         late, _ = late_mean(site, engine, rev)
         (w,) = evidence_work(engine, site.site)
-        reads = ConsequenceReadService(site.store, site.prices)
+        reads = ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE)
 
         def read():
             return reads.read(site.tenant, site.site, rev["finding_id"], rev["id"], finding_revision_is_latest=True,
