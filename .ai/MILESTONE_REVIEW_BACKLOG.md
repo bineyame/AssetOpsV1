@@ -2241,3 +2241,8 @@ Review `.agent/OPS-01-review.md` ACCEPT (`1a987d2e`); reviewer full run on final
 - L3: `cleanup_run` test creates fixed DB names with no lease session; a concurrent run could sweep them (not possible under one-at-a-time policy).
 - `-n 3` (one run, 6.5 min, peak 41 sessions) stays optional until a second clean run and a peak check; concurrent full-suite pairs not proven, so one full suite at a time.
 - Inline stores in test bodies (CaseRunner, `make_tick` store, S2 `ingestion()`, S3 `worker()`) still rely on GC; a public `dispose()` on the Foundation/Finding/Assessment/Ledger stores is production work outside this task.
+
+### S4-06 carries (2026-10-15)
+
+Review `.agent/S4-06-review.md` ACCEPT. Residual: no test asserts the consequence-work row queued for an equal-start SUCCESSION (migration 0011 trigger unchanged, so low risk); conflict message text changed (codes unchanged).
+
