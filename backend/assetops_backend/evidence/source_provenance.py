@@ -227,7 +227,8 @@ def classify(requested: Iterable[UUID | str], links: Mapping[str, EvidenceLink])
 
 
 class ProvenanceReads(Protocol):
-    """Scoped, read-only rows. Each returns None when the named revision is not in the tenant/Site."""
+    """Scoped, read-only rows (implemented by the ledger adapter, `PostgresEvidenceLedger`, the one evidence
+    module that may use the driver). Each returns None when the named revision is not in the tenant/Site."""
 
     def link_rows(self, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[LinkRow]: ...
 

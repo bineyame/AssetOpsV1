@@ -13,7 +13,6 @@ from assetops_backend.evidence.adapters.json_evidence_store import JsonEvidenceS
 from assetops_backend.evidence.adapters.legacy_comparison_file import ComparisonReportFiles
 from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
 from assetops_backend.evidence.adapters.postgres_gateway_access import PostgresGatewayAccess
-from assetops_backend.evidence.adapters.postgres_source_provenance import PostgresSourceProvenanceReads
 from assetops_backend.evidence.ledger import EvidenceLedger
 from assetops_backend.evidence.ports import EvidenceStore
 from assetops_backend.evidence.source_provenance import SourceProvenanceResolver
@@ -36,7 +35,7 @@ def build_authored_fixture_specs() -> AuthoredFixtureSpecs:
 
 def build_source_provenance(database_url: str | None) -> SourceProvenanceResolver:
     """S4-05a phase 2: the exact-revision source provenance resolver (read-only). Lazy like the ledger."""
-    return SourceProvenanceResolver(PostgresSourceProvenanceReads(database_url))
+    return SourceProvenanceResolver(PostgresEvidenceLedger(database_url))
 
 
 def build_gateway_access(database_url: str | None) -> PostgresGatewayAccess:

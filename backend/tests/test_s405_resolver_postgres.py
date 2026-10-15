@@ -42,7 +42,6 @@ if URL:
 
     from assetops_backend.evidence import source_provenance as sp
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
-    from assetops_backend.evidence.adapters.postgres_source_provenance import PostgresSourceProvenanceReads
     from assetops_backend.evidence.composition import build_source_provenance
     from assetops_backend.evidence.ledger_service import BatchIngestionService
     from assetops_backend.evidence.publication import register_authored, register_run
@@ -60,7 +59,6 @@ def kit(store, engine):  # noqa: F811
 def resolver():
     r = build_source_provenance(URL)
     yield r
-    r._reads.dispose()
 
 
 def upload(kit, body) -> list[str]:
@@ -196,8 +194,8 @@ class TestTruthTableOnStoredBindings:
                 c.execute(text(link), {"b": batch[lost[0]], "p": uuid4(), "t": tenant, "s": site,
                                        "g": p["gateway_id"], "src": p["source_id"], "eb": doc["batch_id"],
                                        "sha": doc["payload_sha256"]})
-                reads = PostgresSourceProvenanceReads(URL)
-                reads._read = lambda work: work(c)  # read the uncommitted state on this connection
+                reads = PostgresEvidenceLedger(URL)
+                reads._run = lambda work, write=False: work(c)  # read the uncommitted state on this connection
                 r = sp.SourceProvenanceResolver(reads).resolve(tenant, site, auth + p02 + plain + lost)
             finally:
                 tx.rollback()
