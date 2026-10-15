@@ -27,3 +27,7 @@ Focused checks: `backend/tests/test_s4_assumptions_postgres.py` and relevant con
 ## Architect questions
 
 None required to build. Recommendation: retain the existing SUCCESSION conflict codes and expose the earlier recorded-cutoff assignment through the existing history read; Q1 already decides equality semantics.
+
+## Coordinator note after plan review (`.agent/small-followons-plan-review.md`: ACCEPT)
+
+Implementer carries (Low): add a second scenario with an earlier price so the earlier-price consequence check is non-vacuous; add a case where the replaced open-ended row is a tail left by a CORRECTION (cites an older revision than the series head).

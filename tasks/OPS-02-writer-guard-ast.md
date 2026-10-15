@@ -27,3 +27,7 @@ Focused checks: the guard mutation corpus, `tools/check-architecture.ps1`, `tool
 ## Architect questions
 
 Recommendation: use a Python AST extractor called by the PowerShell guard for static strings and Core calls, preserving rule 8's policy tables; fail closed on unresolved writes. No policy change is requested. If a newly discovered dynamic form needs a legitimate exception, return the precise statement and table/column to the Architect before broadening ownership.
+
+## Coordinator note after plan review (`.agent/small-followons-plan-review.md`: ACCEPT)
+
+Implementer carries (Low): the Python extractor must locate the interpreter as `tools/check-all.ps1` does and fail hard (not skip) when it cannot run; name where the 11-form probe set lives and automate it; LR-01 (unmerged) adds `source_clock_attestation` to the assessment writer's rule-8 tables - whichever merges second carries it; a full suite is warranted only by the OPS-01 L1 `conftest` change.
