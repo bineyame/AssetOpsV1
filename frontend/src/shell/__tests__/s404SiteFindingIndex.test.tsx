@@ -4,7 +4,7 @@
  * the scope in the address and every non-current or refused read showing no
  * rows, no count and no "no Findings" claim.
  */
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -116,9 +116,10 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     await settledScreen();
     fireEvent.change(screen.getByLabelText(/From \(UTC day\)/), { target: { value: "2026-10-20" } });
     fireEvent.change(screen.getByLabelText(/To \(UTC day, included\)/), { target: { value: "2026-10-21" } });
+    expect(screen.getByLabelText(/From \(UTC day\)/)).toHaveValue("2026-10-20");
     fireEvent.click(screen.getByRole("button", { name: "Show Findings" }));
+    await waitFor(() => expect(query().get("from")).toBe("2026-10-20T00:00:00Z"));
     await settledScreen();
-    expect(query().get("from")).toBe("2026-10-20T00:00:00Z");
     expect(query().get("to")).toBe("2026-10-22T00:00:00Z");
     expect(query().get("cursor")).toBeNull();
     expect(getFindingIndex).toHaveBeenCalledTimes(2);

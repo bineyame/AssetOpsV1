@@ -6,10 +6,11 @@ batches over TLS, the S3 worker and the S4 matcher) in ONE private database and 
 
 - an independent **assessed empty** day (2026-10-25): a delivered non-candidate block, assessed and matched, so
   the index reads CURRENT with zero rows and a complete S3/S4 watermark;
-- the **positive** day (2026-10-15, the F06 day; the wider 2026-10-01..2026-10-23 window covers F01-F08), whose
-  canonical Findings and exact revisions drive order, cursor pages and the S5-01 card parity;
+- the **positive** day (2026-10-15, the F06 day), whose canonical Findings and exact revisions drive order, cursor
+  pages (page size 2) and the S5-01 card parity;
 - a **dirty/stale** day (2026-10-27): assessed and matched, then late evidence is delivered and not assessed;
-- a **failed** day (2026-10-28): the scoped failing-job pattern of `tools/s5_overview_walkthrough.py`;
+- a **failed** day (2026-11-05, apart from the dirty day so its failed job is not read for it): the scoped
+  failing-job pattern of `tools/s5_overview_walkthrough.py`;
 - an **unassessed** day (2026-10-30): nothing is delivered for it.
 
 Commands (database `assetops_s404_owner*` and work directory `var/s404_owner*` only; API 8934, web 5434):
@@ -52,9 +53,8 @@ DB_PREFIX = "assetops_s404_owner"
 WORK_PREFIX = "s404_owner"
 MANIFEST = "s404-manifest.json"
 GATE_DIR = Path("var") / "evidence" / "migration-performance"
-DAYS = {"positive": "2026-10-15", "empty": "2026-10-25", "dirty": "2026-10-27", "failed": "2026-10-28",
+DAYS = {"positive": "2026-10-15", "empty": "2026-10-25", "dirty": "2026-10-27", "failed": "2026-11-05",
         "unassessed": "2026-10-30"}
-WIDE = ("2026-10-01T00:00:00Z", "2026-10-24T00:00:00Z")
 CANDIDATE = {"pv": "40", "dis": "20", "soc": "80", "stop_before": True, "stop_after": True}
 NO_CANDIDATE = {"pv": "5", "dis": "5", "soc": "80", "stop_before": True, "stop_after": True}
 LATE_BLOCK = ("2026-10-15T16:00:00Z", "2026-10-15T16:40:00Z")
@@ -105,7 +105,7 @@ class IndexWalk(s4.Cases):
 
     def __init__(self, args: argparse.Namespace) -> None:
         super().__init__(args)
-        self.out: dict[str, Any] = {"database": args.db, "days": DAYS, "wide_window": WIDE, "checks": []}
+        self.out: dict[str, Any] = {"database": args.db, "days": DAYS, "checks": []}
 
     def deliver_case(self, case_id: str, day: str, blocks: list[dict[str, Any]], *, assess: bool = True,
                      match: bool = True, decided: str = "2026-10-31T08:00:00Z") -> None:
@@ -275,14 +275,14 @@ def verify(work: Path, db: str, port: int) -> list[str]:
             failures.append(f"assessed empty day is not a CURRENT zero: {reads['empty']}")
         if len(reads["positive"].get("rows") or []) < 2:
             failures.append(f"positive day has fewer than two canonical Findings: {reads['positive']}")
-        reads["wide"] = summary(*get_json(index_url(port, *WIDE)))
-        status, page1 = get_json(index_url(port, *WIDE, limit="2"))
-        reads["wide_page1"] = summary(status, page1)
+        paged = window(DAYS["positive"])
+        status, page1 = get_json(index_url(port, *paged, limit="2"))
+        reads["paged_page1"] = summary(status, page1)
         if status == 200 and page1.get("next_cursor"):
-            reads["wide_page2"] = summary(*get_json(index_url(port, *WIDE, limit="2", cursor=page1["next_cursor"])))
-            manifest["wide_page2_cursor"] = page1["next_cursor"]
+            reads["paged_page2"] = summary(*get_json(index_url(port, *paged, limit="2", cursor=page1["next_cursor"])))
+            manifest["paged_page2_cursor"] = page1["next_cursor"]
         else:
-            failures.append(f"wide window has no second page at limit 2: {reads['wide_page1']}")
+            failures.append(f"positive day has no second page at limit 2: {reads['paged_page1']}")
         manifest["reads"] = reads
         manifest["failures"] = failures
         (work / MANIFEST).write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
@@ -298,7 +298,7 @@ def owner_urls(web: int) -> list[tuple[str, str]]:
         return f"http://localhost:{web}/sites/{SITE}/findings?{query}"
 
     urls = [(name, page(*window(day))) for name, day in DAYS.items()]
-    urls.append(("wide (page size 2)", page(*WIDE, limit="2")))
+    urls.append(("positive, 2 per page", page(*window(DAYS["positive"]), limit="2")))
     return urls
 
 
@@ -335,7 +335,7 @@ def main(argv: list[str] | None = None) -> int:
         walk = IndexWalk(args)
         walk.run_all()
         manifest = {"site_code": SITE, "domain": DOMAIN, "database": args.db, "days": DAYS,
-                    "windows": {name: window(day) for name, day in DAYS.items()} | {"wide": WIDE},
+                    "windows": {name: window(day) for name, day in DAYS.items()},
                     "identity": walk.identity, "credential": str(walk.credential),
                     "cases": walk.cases, "producer_failures": walk.failures}
         (work / MANIFEST).write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
