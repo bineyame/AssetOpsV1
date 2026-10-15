@@ -97,3 +97,9 @@ USER_REVIEW_REQUIRED: false (no UI). This phase-2 review is the slice review.
 ## User-review focus
 
 None required (USER_REVIEW_REQUIRED false). Owner copy for MIXED/UNKNOWN and labels is S4-05b's checkpoint.
+
+## Re-chain onto main (2026-10-16)
+- Merged main `4fbb97f8` (LR-01 0014/0015, S6-01a 0016) into the branch; doc conflicts kept both sides.
+- `0014_evidence_publication` -> `0017_evidence_publication.py`, `down_revision = "0016_action_store"`; downgrade message and test target updated (refuses to 0016). Pins updated in s1_bindings, s2_evidence_ledger, s4_evidence_consequence_work, s4_consequence_store, s405_publication tests. `alembic heads`: single head `0017_evidence_publication`.
+- Rule 8 keeps LR-01 `source_clock_attestation`, S6-01a Action writer, and this branch's provenance rules plus split-statement refusals; `check-architecture.ps1` passes.
+- Focused (5 files): 87 passed. Full backend, PowerShell, `-n 2 --dist loadfile --no-loadscope-reorder`, on merge commit 5f60f48f (docs-only edits after): 2368 cases, skipped=0, failed=0, wall 12:03. `tools/check-all.ps1`: all 9 guards passed.
