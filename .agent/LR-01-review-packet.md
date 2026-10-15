@@ -52,13 +52,14 @@ Phase-1 review: F1 fixed (`cohort._clock`, PG `test_an_attestation_not_touching_
 ## Known deviations
 
 1. **Migration 0015** drops `finding_revision_basis_unique` (0009). Without it a revoked attestation (selection back to run B) could not append the FindingRevision, leaving the latest Finding on the attested basis and the gate PENDING forever. Replay safety now rests on the latest-revision guard, the Site advisory lock and the matcher fence. Architect may prefer a different shape.
-2. The S5 seam turns `ELIGIBLE` into `PENDING_REASSESSMENT` while its own S3/S4/schedule blockers stand (incl. a stopped schedule); the Finding/Financials API gate does not read schedule health, so the seam can be stricter than the API. Upstream `eligibility` itself is unchanged.
+2. (Fix round, Architect ruling 2) The S5 seam no longer rewrites the gate: `money_eligibility` stays the raw read-derived result; `upstream_status` (typed stage/code reasons, incl. `SCHEDULE_STOPPED`) and `current_amount_permitted` are separate fields. The Finding/Financials API does not read schedule health.
 3. Materiality: any generator-role limit of the Finding's asset within episode ± 6 h withholds (fail closed), even one not touching the Candidate tail.
-4. The "Finding money panel" is the Financials bridge (the Finding page has no money panel); the Finding page gains the SERIES_LIMIT statement.
+4. Money is shown on the Financials bridge for the selected FindingRevision; the Finding page shows the SERIES_LIMIT statement and its evidence link, not a money panel.
 5. `ConsequenceReadService` without a gate fails closed; four existing tests pass an explicit ELIGIBLE stub (`backend/tests/money_gate_stub.py`).
 
 ## Residual risk
 
+- A generator refusal in a neighbouring bracket day can withhold a Finding whose episode it never touches, until that refusal is resolved (fail closed; Deviation 3).
 - Gate cost: each consequence read now performs up to ~3 day-window reads plus match states.
 - `dispatch-3.1`/`finding-episode-2` literals remain in comments and frontend fixtures (fixture data, not behaviour).
 - Real-source clock proof remains unavailable by design.

@@ -686,11 +686,13 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
     analytic_run_id: "run-1", relation: "CUTS_TAIL", source: "FINDING_REVISION" as const,
   };
 
+  let limits: (typeof LIMIT)[] = [LIMIT];
+
   function gate(state: "WITHHELD_GENERATOR_SERIES" | "PENDING_REASSESSMENT") {
     return {
       version: "money-eligibility-1", state, note: "", finding_id: FINDING, latest_finding_revision_id: FREV,
       pending_reasons: state === "PENDING_REASSESSMENT" ? ["LIVE_JOB: DAY 2026-10-23 j1"] : [],
-      series_limits: state === "WITHHELD_GENERATOR_SERIES" ? [LIMIT] : [], windows: [],
+      series_limits: state === "WITHHELD_GENERATOR_SERIES" ? limits : [], windows: [],
     };
   }
 
@@ -737,6 +739,35 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
     expect(row).toHaveTextContent("7.57 USD");
     expect(row).toHaveTextContent("kept for the record");
     expect(document.body.textContent ?? "").not.toMatch(/the current fuel cost/);
+  });
+
+  it("a non-tail limit is worded by its relation and never says the finding ends before it", async () => {
+    limits = [
+      { ...LIMIT, relation: "CUTS_HEAD" },
+      { ...LIMIT, start: "2026-10-23T03:00:00Z", end: "2026-10-23T03:30:00Z", relation: undefined as unknown as string,
+        source: "SELECTED_WINDOW" as never },
+    ];
+    try {
+      mount(client("WITHHELD_GENERATOR_SERIES"), URL);
+      await settledScreen();
+      const text = (document.querySelector("[data-financials-bridge]") as HTMLElement).textContent ?? "";
+      expect(text).toContain("The finding starts after them and that time is not judged.");
+      expect(text).toContain("within 6 hours of this finding");
+      expect(text).not.toContain("The finding ends before them");
+    } finally {
+      limits = [LIMIT];
+    }
+  });
+
+  it("no span list is rendered when nothing is withheld by span", async () => {
+    limits = [];
+    try {
+      mount(client("WITHHELD_GENERATOR_SERIES"), URL);
+      await settledScreen();
+      expect(document.querySelector("[data-financials-bridge] [data-financials-money-limit] ul")).toBeNull();
+    } finally {
+      limits = [LIMIT];
+    }
   });
 
   it("opening the recorded head shows it as a record, never as the current cost", async () => {

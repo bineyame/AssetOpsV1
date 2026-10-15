@@ -27,8 +27,9 @@ cd frontend; $env:ASSETOPS_API_PORT="8921"; npm.cmd run dev -- --port 5421 --str
 Open `http://localhost:5421/sites/KOBO-001/financials?finding_id=<finding id from serve>`. Look for:
 
 - Cost: **"Withheld: the generator records are not in a proven time order"**, and no amount at the top.
-- One line: "Generator records from 2026-10-24 07:05 UTC to 2026-10-24 08:00 UTC arrived out of order and their
-  clock is not proven. The finding ends before them and that time is not judged."
+- One line: "The order of generator records from 2026-10-24 07:05 UTC to 2026-10-24 08:00 UTC is not proven: some
+  arrived out of order and their clock is not proven. The finding ends before them and that time is not judged."
+  (The span is the unordered block, not the late reading itself, which is the 07:00-07:05 mean.)
 - The link "Open the recorded fuel cost of this finding version". It opens fuel cost version 1, **0.00 to 7.57
   USD**, marked "kept for the record". Nothing on the page is called the current fuel cost.
 - The Finding page (`/sites/KOBO-001/findings/<finding id>`), under "What limits this conclusion": "This finding
@@ -82,5 +83,9 @@ taken and the clock attestation covers it.
 .venv\Scripts\python.exe tools\s402c_late_power_walkthrough.py drop --db assetops_lr01_owner_ontime
 ```
 
-Notes: `serve`, `attest` and `tick` refuse any database not named `assetops_lr01*`. Screenshots of every state at
+Notes: money is judged on the Financials bridge; the Finding page shows only the series-limit statement and its
+evidence link. Residual risk: a generator refusal in a neighbouring bracket day can withhold a Finding it does not
+touch (fail closed) until that refusal is resolved.
+
+`serve`, `attest` and `tick` refuse any database not named `assetops_lr01*`. Screenshots of every state at
 1440 and 390 px are in `.agent/LR-01-browser-evidence/`.

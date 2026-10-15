@@ -4,8 +4,9 @@ The fifth product database writer (architecture guard rule 8): it only INSERTs
 its own append-only tables. Writes for one Site run in one transaction under a
 Site-scoped advisory lock and re-check the selection/job fence the matcher read
 under, so a selection that lands between the read and the write is never
-half-applied: the caller re-plans instead. Revisions are idempotent on
-`(finding_id, basis_sha256, transition)`.
+half-applied: the caller re-plans instead. Revisions are append-only and immutable
+(`finding_revision_no_unique`); replay is idempotent against the Finding's latest revision only
+(`_insert_revision`), so a basis may return (A -> B -> A, migration 0015) and append a new revision.
 """
 
 from __future__ import annotations
