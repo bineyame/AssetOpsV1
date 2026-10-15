@@ -3463,6 +3463,14 @@ tr[data-selected] > * {
 }
 .app-frame--operator .action-command:hover { background: var(--accent-hover); }
 .app-frame--operator .action-command[aria-busy="true"] { opacity: 0.7; cursor: progress; }
+/* Held or incomplete commands (PRIOR_ACTION_UNRESOLVED, a cleared effective time) read as unavailable, as `.action:disabled` does. */
+.app-frame--operator .action-command:disabled,
+.app-frame--operator .action-command:disabled:hover {
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  border-color: var(--border-subtle);
+  cursor: not-allowed;
+}
 .app-frame--operator .action-field {
   display: inline-flex;
   flex-wrap: wrap;

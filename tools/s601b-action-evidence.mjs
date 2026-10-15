@@ -180,7 +180,7 @@ async function suite(label) {
     live: document.querySelector('[data-recommendation-live]')?.getAttribute('data-recommendation-live'),
     liveText: document.querySelector('[data-recommendation-live]')?.textContent,
     proposal: !!document.querySelector('[data-recommendation-proposal]'),
-    accept: [...document.querySelectorAll('main button')].map(b => ({ text: b.textContent, disabled: b.disabled })),
+    accept: [...document.querySelectorAll('main button')].map(b => ({ text: b.textContent, disabled: b.disabled, cursor: getComputedStyle(b).cursor })),
     held: document.querySelector('[data-action-command-unavailable=PRIOR_ACTION_UNRESOLVED]')?.textContent,
     listed: [...document.querySelectorAll('[data-recommendation-prior-action]')].map(e => ({ id: e.dataset.recommendationPriorAction, selected: e.dataset.priorActionSelectedRevision,
       app: e.querySelector('[data-prior-action-application]')?.dataset.priorActionApplication, outcome: e.querySelector('[data-prior-action-outcome]')?.dataset.priorActionOutcome })) })`);
@@ -189,8 +189,8 @@ async function suite(label) {
     rl.origin === `/sites/${SITE}/findings/${IDS.finding_f01}?revision_id=${IDS.finding_f01_origin_revision}` && rl.originText === "Finding version 1", rl);
   claim(`${label} recommendation latest Finding version: live reason shown separately (served clock: FOUNDATION_BASIS_STALE), no proposal offered`,
     rl.live === "UNAVAILABLE" && /FOUNDATION_BASIS_STALE/.test(rl.liveText ?? "") && !rl.proposal, { live: rl.live, liveText: rl.liveText, proposal: rl.proposal });
-  claim(`${label} recommendation latest Finding version: Accept is disabled with the reason stated`,
-    rl.accept.length === 1 && rl.accept[0].disabled === true && /Accept trial/.test(rl.accept[0].text) && new RegExp(`\\(${IDS.action_code}\\) is still open`).test(rl.held ?? ""), { accept: rl.accept, held: rl.held });
+  claim(`${label} recommendation latest Finding version: Accept is disabled (and styled so) with the reason stated`,
+    rl.accept.length === 1 && rl.accept[0].disabled === true && rl.accept[0].cursor === 'not-allowed' && /Accept trial/.test(rl.accept[0].text) && new RegExp(`\\(${IDS.action_code}\\) is still open`).test(rl.held ?? ""), { accept: rl.accept, held: rl.held });
   claim(`${label} recommendation latest Finding version: the earlier Action is listed on its own version (not this one), applied, outcome pending`,
     rl.listed.length >= 1 && rl.listed.some((x) => x.id === A && x.selected === "no" && x.app === "APPLIED" && x.outcome === "PENDING"), rl.listed);
   await noOverflow(label, "recommendation latest (prior Action notice)");
