@@ -730,7 +730,7 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
     expect(bridge.textContent ?? "").not.toMatch(/\d+\.\d\d USD/);
     expect(bridge).toHaveTextContent("Withheld: the generator records are not in a proven time order");
     expect(bridge.querySelector("[data-financials-series-limit='SEQUENCE_ORDER_INVERTED']")).toHaveTextContent(
-      "arrived out of order and their clock is not proven",
+      "arrived before an earlier reading and their clock is not proven",
     );
     const link = bridge.querySelector(`[data-financials-recorded-link='${C1}']`) as HTMLAnchorElement;
     expect(link.getAttribute("href")).toContain(`consequence_revision_id=${C1}`);
@@ -754,6 +754,23 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
       expect(text).toContain("The finding starts after them and that time is not judged.");
       expect(text).toContain("within 6 hours of this finding");
       expect(text).not.toContain("The finding ends before them");
+    } finally {
+      limits = [LIMIT];
+    }
+  });
+
+  it("the same span from the Finding revision and the selected window is one list item, with the specific wording", async () => {
+    limits = [
+      { ...LIMIT, source: "SELECTED_WINDOW" as never, relation: undefined as unknown as string },
+      { ...LIMIT, relation: "CUTS_TAIL" },
+    ];
+    try {
+      mount(client("WITHHELD_GENERATOR_SERIES"), URL);
+      await settledScreen();
+      const items = document.querySelectorAll("[data-financials-bridge] [data-financials-series-limit]");
+      expect(items).toHaveLength(1);
+      expect(items[0]).toHaveTextContent("The finding ends before them and that time is not judged.");
+      expect(items[0].textContent).not.toContain("within 6 hours");
     } finally {
       limits = [LIMIT];
     }
