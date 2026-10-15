@@ -1,6 +1,6 @@
 # OPS-02 — statement-level product writer guard
 
-Status: active (activated 2026-10-15 from main `5bfff665` under the owner-absence work order; plan review ACCEPT `.agent/small-followons-plan-review.md`); was implementation-ready
+Status: in_review (built 2026-10-15 on `task/OPS-02-writer-guard-ast`; packet `.agent/OPS-02-review-packet.md`); activated 2026-10-15 from main `5bfff665` under the owner-absence work order; plan review ACCEPT `.agent/small-followons-plan-review.md`); was implementation-ready
 Size: S; one build and one fresh independent review
 Branch when activated: `task/OPS-02-writer-guard-ast`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; guard and test-harness only)
