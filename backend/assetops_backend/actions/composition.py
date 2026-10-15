@@ -13,11 +13,21 @@ from uuid import UUID
 from assetops_backend.actions.adapters.demo_grants_file import load_grants
 from assetops_backend.actions.adapters.postgres_action_store import PostgresActionStore
 from assetops_backend.actions.capability import CapabilityCheck, from_grants
-from assetops_backend.actions.ports import ActionStore, ActionStoreUnavailable
+from assetops_backend.actions.ports import ActionStore, ActionStoreUnavailable, ApplyFailed, FoundationPublish
 from assetops_backend.actions.service import ActionService, FindingCurrentness
+from assetops_backend.sites.foundation_service import CallerTransaction, FoundationRefused
 
 __all__ = ["ACTION_UNAVAILABLE", "GRANTS_ENV", "build_action_service", "build_action_store",
-           "capability_from_environment", "finding_currentness"]
+           "capability_from_environment", "finding_currentness", "foundation_publish"]
+
+# S1 refusal under the Site lock -> the Action failure code a FAILED event records.
+S1_FAILURES = {
+    "FOUNDATION_EXPECTED_REVISION_STALE": (409, "ACTION_FOUNDATION_STALE"),
+    "FOUNDATION_EXPECTED_VALUE_STALE": (409, "ACTION_FOUNDATION_STALE"),
+    "FOUNDATION_NO_CHANGE": (422, "ACTION_NO_CHANGE"),
+    "FOUNDATION_VALUE_INVALID": (422, "ACTION_VALUE_INVALID"),
+    "FOUNDATION_INTERVAL_INVALID": (422, "ACTION_EFFECTIVE_TIME_INVALID"),
+}
 
 ACTION_UNAVAILABLE = ActionStoreUnavailable
 GRANTS_ENV = "ASSETOPS_ACTION_DEMO_GRANTS"
@@ -40,16 +50,41 @@ def finding_currentness(reads: Any) -> FindingCurrentness:
             return None
         selection = body["selection"]
         return {"revision_id": selection["revision_id"], "latest_revision_id": selection["latest_revision_id"],
-                "is_latest": selection["is_latest"],
+                "is_latest": selection["is_latest"], "episode": body["revision"]["episode"],
                 "claim_is_current": bool(body["state"]["claim_is_current"]) and selection["is_latest"]}
     return current
 
 
+def foundation_publish(registry: Any) -> FoundationPublish:
+    """The S1 caller-owned-connection battery-reserve publish, handed to the Action service (M1).
+
+    `registry` is the imported-Site registry (`sites.cutover.ImportedSiteRegistry`). The Action adapter never
+    imports the S1 service; it receives this callable and its own connection is passed straight through.
+    """
+    def publish(site_code: str, connection: Any, then: Callable[[dict[str, Any]], None], *, asset_code: str,
+                value: float, effective_from: Any, recorded_at: Any, expected_revision_id: UUID,
+                expected_value: float, note: str) -> None:
+        service, tenant, site = registry.service, registry.tenant(), registry.imported(site_code)
+        if service is None or tenant is None or site is None:
+            raise ActionStoreUnavailable("No Foundation publish is composed for this Site.")
+        try:
+            service.publish_battery_reserve(
+                tenant, site, asset_code=asset_code, value=value, effective_from=effective_from, note=note,
+                expected_revision_id=expected_revision_id, expected_value=expected_value,
+                caller=CallerTransaction(connection=connection, then=then, recorded_at=recorded_at))
+        except FoundationRefused as refused:
+            status, code = S1_FAILURES.get(refused.code, (refused.status, "ACTION_PUBLISH_REFUSED"))
+            raise ApplyFailed(status, code, refused.message, current_foundation_revision_id=refused.current_revision_id,
+                              foundation_code=refused.code) from refused
+    return publish
+
+
 def build_action_service(database_url: str | None, finding_reads: Any,
                          capability: CapabilityCheck | None = None,
-                         clock: Callable | None = None) -> ActionService:
+                         clock: Callable | None = None, registry: Any = None) -> ActionService:
     kwargs: dict[str, Any] = {}
     if clock is not None:
         kwargs["clock"] = clock
     return ActionService(build_action_store(database_url), finding_currentness(finding_reads),
-                         capability_from_environment() if capability is None else capability, **kwargs)
+                         capability_from_environment() if capability is None else capability,
+                         publish=None if registry is None else foundation_publish(registry), **kwargs)

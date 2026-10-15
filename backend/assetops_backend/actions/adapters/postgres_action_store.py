@@ -3,8 +3,9 @@
 `D-2026-10-15-s601-action-store-and-ui` M1: this module is the sole runtime SQL writer of `action`,
 `action_basis_assessment`, `action_basis_evidence`, `action_event`, `action_policy_change` and
 `action_policy_change_binding`, and it only INSERTs (rule 8 of `tools/checks/configuration-persistence.ps1`).
-Acceptance writes the Action, its pinned basis children and ACCEPTED without any Foundation publish. Phase 2 adds
-the apply transaction (Action lock, then the caller-owned-connection S1 publish that locks the Site).
+Acceptance writes the Action, its pinned basis children and ACCEPTED without any Foundation publish. Apply (phase 2)
+locks the Action row, then runs the S1 publish passed in from composition on this adapter's connection (it
+takes the Site lock), then inserts the change artifact and APPLIED before this adapter's sole commit.
 
 Reads here gather the persisted `reserve-trial-1` inputs: the FindingRevision, its cited INTERVAL assessments'
 Candidate segments, the battery-SOC accepted evidence those segments cite, the cited FoundationRevisions and the
@@ -15,15 +16,15 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
+from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
 
-from assetops_backend.actions.lifecycle import ACCEPTED, OBSERVED, OBSERVATION_CODE, SYSTEM_DEMO
-from assetops_backend.actions.ports import ActionStoreUnavailable
+from assetops_backend.actions.lifecycle import ACCEPTED, APPLIED, FAILED, OBSERVED, OBSERVATION_CODE, SYSTEM_DEMO
+from assetops_backend.actions.ports import ActionStoreUnavailable, ApplyFailed
 from assetops_backend.actions.reserve_trial import (
     CANDIDATE,
     FIELD,
@@ -48,6 +49,9 @@ EVENT_COLUMNS = ("id, tenant_id, site_id, action_id, kind, occurred_at, recorded
                  "source_channel, authorization_basis, triggering_service, triggering_job, triggering_command, "
                  "triggering_fixture, idempotency_key, payload, payload_sha256, failure_code, observation_code, "
                  "expected_foundation_revision_id, current_foundation_revision_id")
+CHANGE_COLUMNS = ("id, tenant_id, site_id, action_id, applied_event_id, command_idempotency_key, asset_id, field, unit, "
+                  "old_value, new_value, expected_foundation_revision_id, superseded_foundation_revision_id, "
+                  "new_foundation_revision_id, split_foundation_revision_id, effective_from, recorded_at, validity")
 
 
 class PostgresActionStore:
@@ -251,21 +255,195 @@ class PostgresActionStore:
             return dict(row._mapping), False
         return self._run(work)
 
+    # ---- apply: Action lock, then the caller-owned S1 publish (Site lock), then artifact + APPLIED ----------
+
+    def apply(self, tenant_id: UUID, site_id: UUID, action_id: UUID, *, idempotency_key: str,
+              payload: dict[str, Any], payload_sha256: str, fixture_id: str, recorded_at: datetime,
+              expected_foundation_revision_id: UUID,
+              attempt: Callable[[Any, dict[str, Any], list[dict[str, Any]], Callable[[dict[str, Any]], None]], None],
+              ) -> dict[str, Any]:
+        """One application attempt. Returns `{"outcome": ..., "event": ..., "change": ...}`.
+
+        In ONE transaction: lock the same-Site Action row `FOR UPDATE` (before anything else, so before the
+        S1 Site lock); return the event already stored under this idempotency key (`REPLAY`, compared by the
+        caller) or `ALREADY_APPLIED`; check the expected Foundation revision is this Site's (`FOUNDATION_UNKNOWN`
+        otherwise); then `attempt(connection, action, events, then)` validates and runs the S1 publish on this
+        connection, and `then(written_ids)` inserts the change artifact, its binding rows and APPLIED here.
+        The single commit is this method's. An `ApplyFailed` from `attempt` rolls everything back, and FAILED is
+        then appended in a separate transaction (`outcome == "FAILED"`); any other exception propagates after
+        the rollback with nothing written.
+        """
+        scope = {"t": tenant_id, "s": site_id, "a": action_id}
+        written: dict[str, Any] = {}
+
+        def work(c):
+            locked = c.execute(text(f"SELECT {ACTION_COLUMNS} FROM action WHERE tenant_id = :t AND site_id = :s "
+                                    "AND id = :a FOR UPDATE"), scope).first()
+            if locked is None:
+                return {"outcome": "NOT_FOUND"}
+            action = dict(locked._mapping)
+            events = self._rows(c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a "
+                                               "ORDER BY recorded_at, id"), scope))
+            prior = next((e for e in events if e["idempotency_key"] == idempotency_key), None)
+            if prior is not None:
+                return {"outcome": "REPLAY", "event": prior, "change": self._change_where(c, "applied_event_id",
+                                                                                         prior["id"])}
+            applied = next((e for e in events if e["kind"] == APPLIED), None)
+            if applied is not None:
+                return {"outcome": "ALREADY_APPLIED", "event": applied}
+            known = c.execute(text("SELECT 1 FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+                                   "AND id = :f"), {**scope, "f": expected_foundation_revision_id}).first()
+            if known is None:
+                return {"outcome": "FOUNDATION_UNKNOWN"}
+
+            def then(ids: dict[str, Any]) -> None:
+                written.update(self._insert_applied(c, tenant_id, site_id, action, ids, idempotency_key=idempotency_key,
+                                                    payload=payload, payload_sha256=payload_sha256,
+                                                    fixture_id=fixture_id, recorded_at=recorded_at,
+                                                    expected=expected_foundation_revision_id))
+
+            attempt(c, action, events, then)
+            if "event" not in written:
+                raise RuntimeError("The publish returned without recording the change artifact; rolled back.")
+            return {"outcome": "APPLIED", **written}
+
+        try:
+            return self._run(work)
+        except ApplyFailed as failed:
+            event = self._append_failed(tenant_id, site_id, action_id, failed, idempotency_key=idempotency_key,
+                                        payload=payload, payload_sha256=payload_sha256, fixture_id=fixture_id,
+                                        recorded_at=recorded_at, expected=expected_foundation_revision_id)
+            return {"outcome": "FAILED", "event": event, "failure": failed}
+
+    def _insert_applied(self, c, tenant_id, site_id, action, ids, *, idempotency_key, payload, payload_sha256,
+                        fixture_id, recorded_at, expected) -> dict[str, Any]:
+        publish, split = ids["publish_foundation_revision_ids"], ids["split_foundation_revision_ids"]
+        superseded = ids["superseded_foundation_revision_ids"]
+        if len(publish) != 1 or len(superseded) != 1 or len(split) > 1:
+            raise RuntimeError(f"Unexpected publish shape {ids!r}; rolled back.")
+        event_id, change_id = uuid4(), uuid4()
+        self._insert_event(c, tenant_id, site_id, action["id"], event_id, APPLIED, "APPLY", recorded_at,
+                           recorded_at, idempotency_key, payload, payload_sha256, fixture_id,
+                           expected=expected, current=publish[0])
+        effective = c.execute(text("SELECT valid_from FROM foundation_revision WHERE tenant_id = :t "
+                                   "AND site_id = :s AND id = :f"),
+                              {"t": tenant_id, "s": site_id, "f": publish[0]}).scalar_one()
+        c.execute(text(
+            "INSERT INTO action_policy_change (id, tenant_id, site_id, action_id, applied_event_id, "
+            "command_idempotency_key, asset_id, field, unit, old_value, new_value, expected_foundation_revision_id, "
+            "superseded_foundation_revision_id, new_foundation_revision_id, split_foundation_revision_id, "
+            "effective_from, recorded_at, validity) VALUES (:id, :t, :s, :a, :e, :key, :asset, :field, :unit, "
+            ":old, :new, :exp, :sup, :pub, :split, :eff, :rec, 'EFFECTIVE_FROM_OPEN_ENDED')"),
+            {"id": change_id, "t": tenant_id, "s": site_id, "a": action["id"], "e": event_id, "key": idempotency_key,
+             "asset": action["asset_id"], "field": action["field"], "unit": action["unit"],
+             "old": action["old_value"], "new": action["proposed_value"], "exp": expected, "sup": superseded[0],
+             "pub": publish[0], "split": split[0] if split else None, "eff": effective, "rec": recorded_at})
+        for relation, key in (("SUPERSEDED", "superseded_binding_set_revision_ids"),
+                              ("INSERTED", "inserted_binding_set_revision_ids")):
+            for binding_set_revision_id in ids[key]:
+                c.execute(text(
+                    "INSERT INTO action_policy_change_binding (change_id, tenant_id, site_id, "
+                    "binding_set_revision_id, relation) VALUES (:c, :t, :s, :b, :r)"),
+                    {"c": change_id, "t": tenant_id, "s": site_id, "b": binding_set_revision_id, "r": relation})
+        event = c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE id = :e"), {"e": event_id}).one()
+        return {"event": dict(event._mapping), "change": self._change_where(c, "id", change_id)}
+
+    def _append_failed(self, tenant_id, site_id, action_id, failed: "ApplyFailed", *, idempotency_key, payload,
+                       payload_sha256, fixture_id, recorded_at, expected) -> dict[str, Any]:
+        """FAILED in its own transaction, after the attempt's rollback. A concurrent identical retry may already
+        hold this key: then the stored event is returned (unique `(action_id, idempotency_key)`), never a second
+        row, and nothing here can revert an APPLIED event."""
+        def work(c):
+            c.execute(text("SELECT id FROM action WHERE tenant_id = :t AND site_id = :s AND id = :a FOR UPDATE"),
+                      {"t": tenant_id, "s": site_id, "a": action_id}).one()
+            existing = c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a "
+                                      "AND idempotency_key = :k"), {"a": action_id, "k": idempotency_key}).first()
+            if existing is not None:
+                return dict(existing._mapping)
+            event_id = uuid4()
+            self._insert_event(c, tenant_id, site_id, action_id, event_id, FAILED, "APPLY", recorded_at,
+                               recorded_at, idempotency_key, payload, payload_sha256, fixture_id,
+                               failure_code=failed.code, expected=expected, current=failed.current_foundation_revision_id)
+            return dict(c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE id = :e"),
+                                  {"e": event_id}).one()._mapping)
+        try:
+            return self._run(work)
+        except IntegrityError as error:
+            if "action_event_idempotency_unique" not in str(error.orig):
+                raise
+            return self._read(lambda c: dict(c.execute(text(
+                f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a AND idempotency_key = :k"),
+                {"a": action_id, "k": idempotency_key}).one()._mapping))
+
     @staticmethod
     def _insert_event(c, tenant_id, site_id, action_id, event_id, kind, command, occurred_at, recorded_at,
-                      idempotency_key, payload, payload_sha256, fixture_id) -> None:
+                      idempotency_key, payload, payload_sha256, fixture_id, *, failure_code=None, expected=None,
+                      current=None) -> None:
         c.execute(text(
             "INSERT INTO action_event (id, tenant_id, site_id, action_id, kind, occurred_at, recorded_at, "
             "actor_kind, actor_id, source_channel, authorization_basis, triggering_service, triggering_job, "
             "triggering_command, triggering_fixture, idempotency_key, payload, payload_sha256, failure_code, "
-            "observation_code) VALUES (:id, :t, :s, :a, :kind, :occ, :rec, :ak, :aid, :ch, :basis, :svc, NULL, "
-            ":cmd, :fx, :key, CAST(:payload AS jsonb), :ps, NULL, :obs)"),
+            "observation_code, expected_foundation_revision_id, current_foundation_revision_id) VALUES (:id, :t, "
+            ":s, :a, :kind, :occ, :rec, :ak, :aid, :ch, :basis, :svc, NULL, :cmd, :fx, :key, "
+            "CAST(:payload AS jsonb), :ps, :fail, :obs, :exp, :cur)"),
             {"id": event_id, "t": tenant_id, "s": site_id, "a": action_id, "kind": kind, "occ": occurred_at,
              "rec": recorded_at, "ak": SYSTEM_DEMO.actor_kind, "aid": SYSTEM_DEMO.actor_id,
              "ch": SYSTEM_DEMO.source_channel, "basis": SYSTEM_DEMO.basis(fixture_id, command),
              "svc": SYSTEM_DEMO.triggering_service, "cmd": command, "fx": fixture_id, "key": idempotency_key,
-             "payload": json.dumps(payload, sort_keys=True), "ps": payload_sha256,
-             "obs": OBSERVATION_CODE if kind == OBSERVED else None})
+             "payload": json.dumps(payload, sort_keys=True), "ps": payload_sha256, "fail": failure_code,
+             "obs": OBSERVATION_CODE if kind == OBSERVED else None, "exp": expected, "cur": current})
+
+    # ---- change artifact reads -----------------------------------------------------------------------------
+
+    def _change_where(self, c, column: str, value: Any) -> dict[str, Any] | None:
+        row = c.execute(text(f"SELECT {CHANGE_COLUMNS} FROM action_policy_change WHERE {column} = :v"),
+                        {"v": value}).first()
+        if row is None:
+            return None
+        out = dict(row._mapping)
+        out["bindings"] = self._rows(c.execute(text(
+            "SELECT binding_set_revision_id, relation FROM action_policy_change_binding WHERE change_id = :c "
+            "ORDER BY relation, binding_set_revision_id"), {"c": out["id"]}))
+        return out
+
+    def change(self, tenant_id: UUID, site_id: UUID, change_id: UUID) -> dict[str, Any] | None:
+        def work(c):
+            found = c.execute(text("SELECT id FROM action_policy_change WHERE tenant_id = :t AND site_id = :s "
+                                   "AND id = :c"), {"t": tenant_id, "s": site_id, "c": change_id}).first()
+            return None if found is None else self._change_where(c, "id", change_id)
+        return self._read(work)
+
+    def change_for_action(self, tenant_id: UUID, site_id: UUID, action_id: UUID) -> dict[str, Any] | None:
+        def work(c):
+            found = c.execute(text("SELECT id FROM action_policy_change WHERE tenant_id = :t AND site_id = :s "
+                                   "AND action_id = :a"), {"t": tenant_id, "s": site_id, "a": action_id}).first()
+            return None if found is None else self._change_where(c, "id", found.id)
+        return self._read(work)
+
+    def foundation_revisions(self, tenant_id: UUID, site_id: UUID, ids: list[UUID]) -> list[dict[str, Any]]:
+        return self._read(lambda c: self._rows(c.execute(text(
+            "SELECT id, version, origin, valid_from, valid_to, recorded_at, superseded_at, derived_from_revision_id "
+            "FROM foundation_revision WHERE tenant_id = :t AND site_id = :s AND id = ANY(CAST(:ids AS uuid[])) "
+            "ORDER BY version"), {"t": tenant_id, "s": site_id, "ids": [str(i) for i in ids]})))
+
+    def current_foundation(self, tenant_id: UUID, site_id: UUID, at: datetime) -> dict[str, Any] | None:
+        """The Site's single covering FoundationRevision at `at` (recorded and not superseded by then)."""
+        def work(c):
+            assets = {r.asset_code: r.id for r in c.execute(text(
+                "SELECT id, asset_code FROM asset WHERE tenant_id = :t AND site_id = :s"), {"t": tenant_id,
+                                                                                          "s": site_id})}
+            rows = self._rows(c.execute(text(
+                "SELECT id, version, content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND valid_from <= :at AND (valid_to IS NULL OR valid_to > :at) "
+                "AND recorded_at <= :at AND (superseded_at IS NULL OR superseded_at > :at)"),
+                {"t": tenant_id, "s": site_id, "at": at}))
+            if len(rows) != 1:
+                return None
+            basis = _basis(rows[0], assets)
+            return {"id": rows[0]["id"], "version": rows[0]["version"],
+                    "reserves": [{"asset_code": e.asset_code, "asset_id": e.asset_id, "value": e.value,
+                                  "unit": e.unit} for e in basis.reserves]}
+        return self._read(work)
 
     # ---- exact reads ---------------------------------------------------------------------------------------
 
@@ -276,6 +454,10 @@ class PostgresActionStore:
             if row is None:
                 return None
             out = dict(row._mapping)
+            episode = c.execute(text("SELECT episode_start, episode_end FROM finding_revision WHERE tenant_id = :t "
+                                     "AND site_id = :s AND id = :r"),
+                                {"t": tenant_id, "s": site_id, "r": out["origin_finding_revision_id"]}).one()
+            out["origin_episode"] = {"start": episode.episode_start, "end": episode.episode_end}
             out["basis_assessments"] = self._rows(c.execute(text(
                 "SELECT assessment_revision_id, segment_start, segment_end FROM action_basis_assessment "
                 "WHERE action_id = :a ORDER BY segment_start, assessment_revision_id"), {"a": action_id}))

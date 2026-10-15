@@ -145,6 +145,12 @@ CREATE TABLE action_event (
     current_foundation_revision_id uuid NULL,
     CONSTRAINT action_event_action_fk FOREIGN KEY (tenant_id, site_id, action_id)
         REFERENCES action(tenant_id, site_id, id),
+    CONSTRAINT action_event_expected_fk FOREIGN KEY (tenant_id, site_id, expected_foundation_revision_id)
+        REFERENCES foundation_revision(tenant_id, site_id, id),
+    CONSTRAINT action_event_current_fk FOREIGN KEY (tenant_id, site_id, current_foundation_revision_id)
+        REFERENCES foundation_revision(tenant_id, site_id, id),
+    CONSTRAINT action_event_apply_basis CHECK (
+        (kind IN ('APPLIED','FAILED')) = (expected_foundation_revision_id IS NOT NULL)),
     CONSTRAINT action_event_failure_code CHECK ((kind = 'FAILED') = (failure_code IS NOT NULL)),
     CONSTRAINT action_event_observation_code CHECK (
         (kind = 'OBSERVED' AND observation_code = 'DEMO_REVIEW_NOTE') OR (kind <> 'OBSERVED' AND observation_code IS NULL)),
@@ -155,7 +161,8 @@ CREATE TABLE action_event (
         (kind <> 'OBSERVED' AND occurred_at = recorded_at)
         OR (kind = 'OBSERVED' AND occurred_at <= recorded_at AND occurred_at >= recorded_at - interval '30 days')),
     CONSTRAINT action_event_idempotency_unique UNIQUE (action_id, idempotency_key),
-    CONSTRAINT action_event_site_unique UNIQUE (tenant_id, site_id, id)
+    CONSTRAINT action_event_site_unique UNIQUE (tenant_id, site_id, id),
+    CONSTRAINT action_event_action_unique UNIQUE (action_id, id)
 );
 CREATE UNIQUE INDEX action_event_one_accepted ON action_event (action_id) WHERE kind = 'ACCEPTED';
 CREATE UNIQUE INDEX action_event_one_applied ON action_event (action_id) WHERE kind = 'APPLIED';
@@ -185,6 +192,8 @@ CREATE TABLE action_policy_change (
         REFERENCES action(tenant_id, site_id, id),
     CONSTRAINT action_policy_change_event_fk FOREIGN KEY (tenant_id, site_id, applied_event_id)
         REFERENCES action_event(tenant_id, site_id, id),
+    CONSTRAINT action_policy_change_own_event_fk FOREIGN KEY (action_id, applied_event_id)
+        REFERENCES action_event(action_id, id),
     CONSTRAINT action_policy_change_asset_fk FOREIGN KEY (tenant_id, site_id, asset_id)
         REFERENCES asset(tenant_id, site_id, id),
     CONSTRAINT action_policy_change_expected_fk FOREIGN KEY (tenant_id, site_id, expected_foundation_revision_id)

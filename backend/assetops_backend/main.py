@@ -358,7 +358,8 @@ def create_app(
         consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
     # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
     app.include_router(build_action_router(
-        build_action_service(database_url(), finding_reads) if finding_reads is not None else None,
+        build_action_service(database_url(), finding_reads, registry=registry)
+        if finding_reads is not None else None,
         registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE), gate=performance_gate))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))

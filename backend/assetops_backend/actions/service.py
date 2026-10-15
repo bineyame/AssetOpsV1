@@ -17,6 +17,8 @@ from assetops_backend.actions import reserve_trial
 from assetops_backend.actions.capability import Capability, CapabilityCheck, no_capability
 from assetops_backend.actions.lifecycle import (
     ACCEPTED,
+    APPLIED,
+    FAILED,
     OBSERVATION_CODE,
     SYSTEM_DEMO,
     Selector,
@@ -24,13 +26,17 @@ from assetops_backend.actions.lifecycle import (
     reduce,
     select,
 )
-from assetops_backend.actions.ports import ActionRefused, ActionStore
+from assetops_backend.actions.ports import ActionRefused, ActionStore, ApplyFailed, FoundationPublish
+from assetops_backend.demonstration_label import demonstration_case
 
 # (tenant_id, site_id, finding_id, revision_id | None, source_open) ->
 #   {"revision_id", "latest_revision_id", "is_latest", "claim_is_current"} | None (unknown in this Site)
 FindingCurrentness = Callable[[UUID, UUID, UUID, "UUID | None", bool], "dict[str, Any] | None"]
 
 OBSERVATION_WINDOW = timedelta(days=30)
+FAILURE_STATUS = {"ACTION_FOUNDATION_STALE": 409, "ACTION_PUBLISH_REFUSED": 409}
+OUTCOME_PENDING = {"state": "PENDING", "statement": "No verification exists yet; nothing is claimed about an effect, "
+                                                    "a saving or approval."}
 
 
 def utc_now() -> datetime:
@@ -63,8 +69,10 @@ def event_wire(event: dict[str, Any]) -> dict[str, Any]:
 
 class ActionService:
     def __init__(self, store: ActionStore, currentness: FindingCurrentness,
-                 capability: CapabilityCheck = no_capability, clock: Callable[[], datetime] = utc_now) -> None:
+                 capability: CapabilityCheck = no_capability, clock: Callable[[], datetime] = utc_now,
+                 publish: FoundationPublish | None = None) -> None:
         self.store, self.currentness, self.capability, self.clock = store, currentness, capability, clock
+        self.publish = publish
 
     # ---- capability --------------------------------------------------------------------------------------
 
@@ -103,8 +111,15 @@ class ActionService:
                 "unavailable": evaluation.unavailable(), "segments": list(evaluation.segments),
                 "proposal": evaluation.proposal}
         base = f"/sites/{site_code}/findings/{finding_id}"
+        episode = current.get("episode") or {}
         body: dict[str, Any] = {
             "site_code": site_code, "finding_id": str(finding_id), "revision_id": selected,
+            "demonstration": demonstration_case(site_code, episode.get("start"), episode.get("end")),
+            "money_consequence": {
+                "label": "Consequence", "basis": {"finding_id": str(finding_id), "finding_revision_id": selected},
+                "statement": "The stored S4 cost consequence belongs to this exact Finding revision, not to the "
+                             "trial. The trial predicts no saving, runtime or safety change.",
+                "links": {"api_consequences": f"/api{base}/financial-consequences?revision_id={selected}"}},
             "latest_revision_id": str(current["latest_revision_id"]), "is_latest": bool(current["is_latest"]),
             "rule": {"id": reserve_trial.RULE_ID, "version": reserve_trial.RULE_VERSION,
                      "limitation": {"code": reserve_trial.LIMITATION_CODE, "text": reserve_trial.LIMITATION_TEXT}},
@@ -230,6 +245,136 @@ class ActionService:
                                 event_id=str(event["id"]))
         return 200, {"replayed": True, "event": event_wire(event)}
 
+    # ---- apply (Action lock -> S1 publish under the Site lock -> artifact + APPLIED, one commit) ----------
+
+    def apply(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
+              command: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+        granted = self.demand(tenant_id, site_id, site_code, "APPLY")
+        if self.store.action(tenant_id, site_id, action_id) is None:
+            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
+        if self.publish is None:
+            raise ActionRefused(503, "ACTION_PUBLISH_UNAVAILABLE", "No Foundation publish is composed.")
+        value: Decimal = command["value"]
+        effective: datetime = command["effective_from"]
+        expected: UUID = command["expected_foundation_revision_id"]
+        payload = {"command": "APPLY", "action_id": str(action_id), "expected_foundation_revision_id": str(expected),
+                   "value": reserve_trial.text_of(value), "effective_from": effective.isoformat(),
+                   "idempotency_key": command["idempotency_key"]}
+        digest = reserve_trial.sha(payload)
+        recorded = self.clock()
+        publish = self.publish
+
+        def attempt(connection: Any, action: dict[str, Any], events: list[dict[str, Any]], then) -> None:
+            # Runs after the store's Action lock and idempotency check, so an identical retry returns its original
+            # event before any of these checks, including no-change.
+            accepted_at = next(e["recorded_at"] for e in events if e["kind"] == ACCEPTED)
+            if value != action["proposed_value"]:
+                raise ApplyFailed(422, "ACTION_VALUE_INVALID",
+                                  f"Only the accepted proposal {reserve_trial.text_of(action['proposed_value'])}"
+                                  f"{action['unit']} can be applied.")
+            if effective < recorded or effective <= accepted_at:
+                raise ApplyFailed(422, "ACTION_EFFECTIVE_TIME_INVALID",
+                                  "effective_from must be at or after the server time and after acceptance.",
+                                  recorded_at=recorded.isoformat(), accepted_at=accepted_at.isoformat())
+            publish(site_code, connection, then, asset_code=action["snapshot"]["asset_code"], value=float(value),
+                    effective_from=effective, recorded_at=recorded, expected_revision_id=expected,
+                    expected_value=float(action["old_value"]),
+                    note=f"{action['action_code']}: SYSTEM demonstration application of reserve-trial-1 "
+                         "(a policy-sensitivity trial, not a predicted saving)")
+
+        out = self.store.apply(tenant_id, site_id, action_id, idempotency_key=command["idempotency_key"],
+                               payload=payload, payload_sha256=digest, fixture_id=granted.fixture_id or "",
+                               recorded_at=recorded, expected_foundation_revision_id=expected, attempt=attempt)
+        outcome = out["outcome"]
+        if outcome == "NOT_FOUND":
+            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
+        if outcome == "FOUNDATION_UNKNOWN":
+            raise ActionRefused(404, "FOUNDATION_REVISION_NOT_FOUND",
+                                "expected_foundation_revision_id is not a Foundation revision of this Site.")
+        if outcome == "ALREADY_APPLIED":
+            raise ActionRefused(409, "ACTION_ALREADY_APPLIED",
+                                "This Action is already applied; nothing was attempted.",
+                                applied_event_id=str(out["event"]["id"]))
+        event = out["event"]
+        if event["payload_sha256"] != digest:
+            raise ActionRefused(409, "IDEMPOTENCY_KEY_CONFLICT",
+                                "This idempotency key was already used with a different command.",
+                                event_id=str(event["id"]))
+        if event["kind"] == FAILED:
+            failure = out.get("failure")
+            raise ActionRefused(FAILURE_STATUS.get(event["failure_code"], 422), event["failure_code"],
+                                failure.message if failure is not None else "This attempt failed earlier.",
+                                replayed=outcome == "REPLAY", event=event_wire(event),
+                                expected_foundation_revision_id=str(expected),
+                                current_foundation_revision_id=_wire(event["current_foundation_revision_id"]),
+                                **({} if failure is None else failure.extra))
+        change = out.get("change")
+        return (200 if outcome == "REPLAY" else 201), {
+            "replayed": outcome == "REPLAY", "event": event_wire(event),
+            "change": None if change is None else self._change_wire(tenant_id, site_id, site_code, change),
+            "outcome": OUTCOME_PENDING}
+
+    # ---- change artifact ---------------------------------------------------------------------------------
+
+    def _change_wire(self, tenant_id: UUID, site_id: UUID, site_code: str,
+                     change: dict[str, Any]) -> dict[str, Any]:
+        ids = [change[k] for k in ("expected_foundation_revision_id", "superseded_foundation_revision_id",
+                                   "new_foundation_revision_id", "split_foundation_revision_id") if change[k]]
+        revisions = [_wire(r) for r in self.store.foundation_revisions(tenant_id, site_id, ids)]
+        action_base = f"/api/sites/{site_code}/actions/{change['action_id']}"
+        return {
+            "change_id": str(change["id"]), "action_id": str(change["action_id"]),
+            "applied_event_id": str(change["applied_event_id"]),
+            "command_idempotency_key": change["command_idempotency_key"],
+            "asset_id": str(change["asset_id"]), "field": change["field"], "unit": change["unit"],
+            "old_value": _wire(change["old_value"]), "new_value": _wire(change["new_value"]),
+            "expected_foundation_revision_id": str(change["expected_foundation_revision_id"]),
+            "superseded_foundation_revision_id": str(change["superseded_foundation_revision_id"]),
+            "new_foundation_revision_id": str(change["new_foundation_revision_id"]),
+            "split_foundation_revision_id": _wire(change["split_foundation_revision_id"]),
+            "foundation_revisions": revisions,  # ordered by version
+            "binding_set_revisions": {
+                relation.lower(): [str(b["binding_set_revision_id"]) for b in change["bindings"]
+                                   if b["relation"] == relation] for relation in ("SUPERSEDED", "INSERTED")},
+            "effective_from": change["effective_from"].isoformat(),
+            "recorded_at": change["recorded_at"].isoformat(),
+            "validity": change["validity"], "label": SYSTEM_DEMO.label, "outcome": OUTCOME_PENDING,
+            "statement": "The Site Foundation reserve was changed by a SYSTEM demonstration command. No measured "
+                         "effect, saving or verification is claimed.",
+            "links": {"self": f"/api/sites/{site_code}/foundation/changes/{change['id']}",
+                      "action": action_base,
+                      "applied_event": f"{action_base}/events?event_id={change['applied_event_id']}",
+                      "ui_action": f"/sites/{site_code}/actions/{change['action_id']}"},
+        }
+
+    def change(self, tenant_id: UUID, site_id: UUID, site_code: str, change_id: UUID) -> dict[str, Any] | None:
+        change = self.store.change(tenant_id, site_id, change_id)
+        if change is None:
+            return None
+        return {"site_code": site_code, "change": self._change_wire(tenant_id, site_id, site_code, change)}
+
+    def _change_in(self, tenant_id: UUID, site_id: UUID, site_code: str, action: dict[str, Any],
+                   prefix: list[dict[str, Any]]) -> dict[str, Any] | None:
+        """The change artifact only when its APPLIED event is inside the selected history prefix."""
+        if not any(e["kind"] == APPLIED for e in prefix):
+            return None
+        change = self.store.change_for_action(tenant_id, site_id, action["id"])
+        return None if change is None else self._change_wire(tenant_id, site_id, site_code, change)
+
+    def _application_basis(self, tenant_id: UUID, site_id: UUID, action: dict[str, Any]) -> dict[str, Any]:
+        now = self.clock()
+        current = self.store.current_foundation(tenant_id, site_id, now)
+        reserve = None if current is None else next(
+            (r for r in current["reserves"] if str(r["asset_id"]) == str(action["asset_id"])), None)
+        return {"label": "Current Site Foundation at read time; an apply command names it as "
+                         "expected_foundation_revision_id and the server re-checks it under the Site lock.",
+                "read_at": now.isoformat(),
+                "current_foundation_revision_id": None if current is None else str(current["id"]),
+                "current_reserve": None if reserve is None else {"value": _wire(reserve["value"]),
+                                                                 "unit": reserve["unit"]},
+                "matches_accepted_basis": reserve is not None
+                and reserve_trial.number(reserve["value"]) == action["old_value"]}
+
     # ---- exact reads -------------------------------------------------------------------------------------
 
     def _prefix(self, tenant_id: UUID, site_id: UUID, action_id: UUID,
@@ -303,7 +448,10 @@ class ActionService:
             "selection": self._selection(chosen, events, prefix),
             "state": _wire(reduce(prefix)),
             "last_event": event_wire(prefix[-1]) if prefix else None,
-            "change": None,
+            "change": self._change_in(tenant_id, site_id, site_code, action, prefix),
+            "application_basis": self._application_basis(tenant_id, site_id, action),
+            "demonstration": demonstration_case(site_code, action["origin_episode"]["start"],
+                                                action["origin_episode"]["end"]),
             "system_demo_capability": capability,
             "links": self._links(site_code, action, chosen),
         }

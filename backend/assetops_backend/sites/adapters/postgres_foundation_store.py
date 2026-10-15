@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
@@ -124,9 +124,12 @@ class PostgresFoundationStore:
             self._engine = create_engine(self._database_url, pool_pre_ping=True)
         return self._engine
 
-    def _run(self, work, *, write: bool = False):
-        engine = self._connect_engine()
+    def _run(self, work, *, write: bool = False, connection: Connection | None = None):
         try:
+            if connection is not None:
+                # S6-01a: a caller-owned transaction; this store neither begins nor commits on it.
+                return work(connection)
+            engine = self._connect_engine()
             if write:
                 with engine.begin() as connection:
                     return work(connection)
@@ -605,9 +608,16 @@ class PostgresFoundationStore:
             )
 
     def publish_configuration(
-        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner
+        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner, *,
+        connection: Connection | None = None, then: Callable[[ConfigurationPlan], None] | None = None,
     ) -> ConfigurationPlan:
-        """One joint Foundation-plus-binding publication under the Site lock."""
+        """One joint Foundation-plus-binding publication under the Site lock.
+
+        Without `connection` it runs in its own transaction. With a caller-owned `connection` (S6-01a, the
+        Action adapter's transaction, which already holds the Action row lock) it neither begins nor commits:
+        it takes the Site lock on that connection, writes, then calls `then(plan)` on the same connection,
+        and the caller's commit or rollback covers everything.
+        """
 
         def work(connection: Connection) -> ConfigurationPlan:
             locked = connection.execute(
@@ -652,6 +662,8 @@ class PostgresFoundationStore:
                     )
             for row in plan.binding_set_inserts:
                 self._insert_binding_set(connection, tenant_id, site_id, row)
+            if then is not None:
+                then(plan)
             return plan
 
-        return self._run(work, write=True)
+        return self._run(work, write=True, connection=connection)

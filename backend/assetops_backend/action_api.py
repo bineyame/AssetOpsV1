@@ -6,13 +6,17 @@ Under `/api/sites/{site_code}` (`D-2026-10-15-s601-action-store-and-ui`):
   persisted inputs; once accepted, the immutable accepted snapshot with its Action link beside a labelled live
   recomputation status. Exposes `system_demo_capability` for ACCEPT.
 - `POST /findings/{finding_id}/recommendation/accept` - SYSTEM demonstration acceptance (201 new, 200 replay).
+- `POST /actions/{action_id}/apply` - SYSTEM demonstration application: the Action lock, then the S1 publish under
+  the Site lock, then the change artifact and APPLIED in one commit (201 new, 200 replay). An authorized same-Site
+  domain or publish failure is typed (stale 409, invalid/no-change/backdate 422) and appends FAILED after rollback.
 - `POST /actions/{action_id}/observations` - the state-neutral `DEMO_REVIEW_NOTE` OBSERVED event.
 - `GET  /actions/{action_id}?event_id=|recorded_at=` and `GET /actions/{action_id}/events?...` - exact reads.
+- `GET  /foundation/changes/{change_id}` - the applied change artifact with every Foundation/binding revision ID.
 
 Refusal order for a command: access 401/403, unknown Site 404, store 503, scoped capability 403, malformed body
 422, unknown or wrong-Site Finding/revision/Action 404, then domain 409/422. A refused command writes nothing.
 The development composition admits the caller exactly as the Finding read does; the authority to run a command is
-the server's scoped SYSTEM demonstration grant, which a client cannot supply. Phase 2 adds apply and change reads.
+the server's scoped SYSTEM demonstration grant, which a client cannot supply.
 """
 
 from __future__ import annotations
@@ -31,6 +35,7 @@ from assetops_backend.finding_api import ACCESS_BASIS, Access, Gate, Scope, deve
 
 ACCEPT_FIELDS = ("revision_id", "recommendation_key", "foundation_revision_id", "proposed_value", "idempotency_key")
 OBSERVE_FIELDS = ("observation_code", "occurred_at", "idempotency_key")
+APPLY_FIELDS = ("expected_foundation_revision_id", "value", "effective_from", "idempotency_key")
 AUTHORITY_WORDS = ("actor", "author", "principal", "capability", "authority", "approved", "user")
 
 
@@ -153,6 +158,31 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         opened = source_open(code, tenant_id, site_id)
         status, body = run(lambda: service.accept(tenant_id, site_id, code, finding_id, command, opened))
         return _respond(status, body)
+
+    @router.post("/api/sites/{site_code}/actions/{action_id}/apply")
+    async def apply(request: Request, site_code: str, action_id: UUID) -> Any:
+        code, tenant_id, site_id = open_scope(request, site_code, command_access)
+        run(lambda: service.demand(tenant_id, site_id, code, "APPLY"))
+        raw = await body_of(request, APPLY_FIELDS)
+        try:
+            value = Decimal(str(raw["value"]))
+            if not value.is_finite():
+                raise InvalidOperation
+        except (InvalidOperation, ValueError):
+            raise _refuse(422, "COMMAND_INVALID", "value must be a number.", fields=["value"]) from None
+        command = {"expected_foundation_revision_id": uuid_field(raw, "expected_foundation_revision_id"),
+                   "value": value, "effective_from": _instant(str(raw["effective_from"]), "effective_from"),
+                   "idempotency_key": raw["idempotency_key"]}
+        status, body = run(lambda: service.apply(tenant_id, site_id, code, action_id, command))
+        return _respond(status, body)
+
+    @router.get("/api/sites/{site_code}/foundation/changes/{change_id}")
+    def change(request: Request, site_code: str, change_id: UUID) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code, access)
+        body = run(lambda: service.change(tenant_id, site_id, code, change_id))
+        if body is None:
+            raise HTTPException(status_code=404, detail="No such change for this Site.")
+        return {"access_basis": access_basis, **body}
 
     @router.post("/api/sites/{site_code}/actions/{action_id}/observations")
     async def observe(request: Request, site_code: str, action_id: UUID) -> Any:
