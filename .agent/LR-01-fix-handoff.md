@@ -10,3 +10,5 @@ Branch `task/LR-01-late-reading-series-and-money-limit`. Items:
 6. L3: residual added to packet and walkthrough.
 
 Results: tsc clean; `npm test` 1484 passed (62 files); focused backend new tests pass. Full backend: see packet/final report. Browser evidence at 390: not run.
+
+Final proof (head before this note): full backend `-n 2 --dist loadfile --no-loadscope-reorder`, 671.9 s, JUnit tests=2186 failures=1 errors=0 skipped=0. The one failure, `test_runs_api.py::...test_the_shipped_scenario_blocks_only_on_the_values_this_site_lacks`, is environmental: `FileNotFoundError var/sites/mg-001.yaml` (untracked file only in the main checkout; reproduces alone, unrelated to LR-01). check-all: 8 of 9 guards pass; Screen ledger could not run (needs `.venv` inside this worktree). Test DBs dropped.
