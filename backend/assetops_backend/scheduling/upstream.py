@@ -25,10 +25,12 @@ Outputs (all IDs as strings, instants as returned by the database):
 - `consequence_work[]`: the Site's unsucceeded consequence work touching those revisions or the bracketed range.
 - `schedule`: environment state/heartbeat and the Site head observation (review Q1: a healthy Site head is
   required as well as the environment heartbeat).
-- `findings[].money_eligibility`: the shared LR-01 gate (`financials/money_eligibility.py`) with its exact lineage;
-  S5-01 shows a current amount only when it is `ELIGIBLE` (plus its own same-basis CURRENT PRICED test). This seam
-  turns an `ELIGIBLE` gate into `PENDING_REASSESSMENT` (reasons `UPSTREAM_<code>`) while any S3, S4 or schedule
-  blocker of this read stands. The gate does not change `eligibility` below, which stays upstream currentness.
+- `findings[].money_eligibility`: the shared LR-01 gate (`financials/money_eligibility.py`) exactly as the
+  Finding/Financials read returns it, with its lineage; this seam never rewrites it. `findings[].upstream_status`
+  `{status: CURRENT|BLOCKED, reasons: [{stage, code}]}` is the seam's own currentness for that Finding (this
+  read's S3, S4 and schedule blockers plus the Finding's own consequence state; a stopped schedule names
+  `SCHEDULE_STOPPED`). `findings[].current_amount_permitted` is true only when the gate is `ELIGIBLE` and
+  `upstream_status` is `CURRENT`; S5-01 adds its own same-basis CURRENT PRICED test on top.
 - `eligibility`: `{status, stage, reasons, errors}`. `CURRENT` only when every day's S3 read is CURRENT, no live S3
   job intersects the bracket, every bracketed day with a selection is matched, every relevant consequence is
   CURRENT with no outstanding or stale-without-work entry, the selection seq did not move during this read, and
@@ -144,8 +146,8 @@ class UpstreamCurrentness:
             stale_no_work = state == "STALE" and "NO_WORK_RECORDED" in reasons
             if state != "CURRENT":
                 blockers.append(("CONSEQUENCE", "STALE_NO_WORK" if stale_no_work else f"CONSEQUENCE_{state}"))
-            # LR-01: the shared money eligibility gate, with its exact lineage, consumed by S5-01 (downgraded
-            # below when this read's own S3/S4/schedule blockers stand).
+            # LR-01: the shared money eligibility gate, with its exact lineage, consumed by S5-01 unchanged
+            # (the seam's own currentness is reported separately in `upstream_status`).
             money = body.get("money_eligibility") or {"state": "PENDING_REASSESSMENT", "pending_reasons": [
                 "ELIGIBILITY_NOT_READ"]}
             for w in cur.get("pending_work") or []:
@@ -183,14 +185,17 @@ class UpstreamCurrentness:
                            "error": head.get("last_failure_detail"), "source": "SCHEDULE"})
 
         eligibility = self._eligibility(blockers, errors, reads, jobs)
-        # LR-01: pending S3/S4 work, a selection moving during the read or a stopped/unobserved schedule never
-        # leaves the money gate ELIGIBLE in this seam (fail closed; the gate itself already withholds or pends).
-        upstream_pending = [code for stage, code in blockers if stage in ("S3", "S4", "SCHEDULE")]
+        # LR-01 (Architect ruling 2): the raw `money_eligibility` stays the read-derived gate result with its
+        # lineage and is never rewritten here. The seam's own currentness is a separate typed status; the amount
+        # may be shown only when the gate is ELIGIBLE and this status is CURRENT.
+        window_blockers = [{"stage": st, "code": code} for st, code in dict.fromkeys(blockers)
+                           if st in ("S3", "S4", "SCHEDULE")]
         for f in findings_out:
-            m = f["money_eligibility"]
-            if m["state"] == "ELIGIBLE" and upstream_pending:
-                f["money_eligibility"] = {**m, "state": "PENDING_REASSESSMENT",
-                                          "pending_reasons": [f"UPSTREAM_{c}" for c in dict.fromkeys(upstream_pending)]}
+            own = [] if f["consequence_state"] == "CURRENT" else [{"stage": "CONSEQUENCE", "code": (
+                "STALE_NO_WORK" if f["stale_no_work"] else f"CONSEQUENCE_{f['consequence_state']}")}]
+            reasons = window_blockers + own
+            f["upstream_status"] = {"status": "CURRENT" if not reasons else "BLOCKED", "reasons": reasons}
+            f["current_amount_permitted"] = f["money_eligibility"].get("state") == "ELIGIBLE" and not reasons
         return {
             "tenant_id": str(t), "site_id": str(s), "window_start": window_start, "window_end": window_end,
             "bracket": {"start": lo, "end": hi}, "db_now": now, "eligibility": eligibility, "days": day_out,

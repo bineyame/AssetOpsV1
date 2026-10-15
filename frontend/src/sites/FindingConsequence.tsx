@@ -405,9 +405,28 @@ function Headline({ bridge }: { bridge: FindingFinancialsBody }) {
 }
 
 const SERIES_KIND_WORDS: Record<string, string> = {
-  SEQUENCE_ORDER_INVERTED: "arrived out of order and their clock is not proven",
-  REPORTS_OVERLAP: "overlap in time, so no order can be chosen",
+  SEQUENCE_ORDER_INVERTED: "some arrived out of order and their clock is not proven",
+  REPORTS_OVERLAP: "some overlap in time, so no order can be chosen",
 };
+
+/** LR-01: how a refused span relates to this finding, in plain words (never claims more than the relation). */
+function seriesRelationWords(x: { relation?: string; source?: string }): string {
+  if (x.source === "SELECTED_WINDOW") {
+    return "These records are within 6 hours of this finding, so no current cost is shown until they are resolved.";
+  }
+  switch (x.relation) {
+    case "CUTS_TAIL":
+      return "The finding ends before them and that time is not judged.";
+    case "CUTS_HEAD":
+      return "The finding starts after them and that time is not judged.";
+    case "INSIDE_EPISODE":
+      return "They fall inside this finding, so its span is not proven.";
+    case "INSIDE_FORMER_EPISODE":
+      return "They fall inside an earlier version of this finding.";
+    default:
+      return "";
+  }
+}
 
 /** LR-01: why no current amount is shown although a recorded cost exists, with exact links to that record. */
 function MoneyLimit({
@@ -425,7 +444,7 @@ function MoneyLimit({
   const limits = gate?.series_limits ?? [];
   const seen = new Set<string>();
   const spans = limits.filter((x) => {
-    const key = `${x.start}|${x.end}|${x.kind}`;
+    const key = `${x.start}|${x.end}|${x.kind}|${x.source}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -433,15 +452,16 @@ function MoneyLimit({
   return (
     <div data-financials-money-limit={c.state}>
       {c.state === "WITHHELD_GENERATOR_SERIES" ? (
-        <ul>
-          {spans.map((x) => (
-            <li key={`${x.start}|${x.end}|${x.kind}`} data-financials-series-limit={x.kind}>
-              Generator records from {formatInstant(x.start)} to {formatInstant(x.end)}{" "}
-              {SERIES_KIND_WORDS[x.kind] ?? "could not be ordered"}. The finding ends before them and that time is not
-              judged.
-            </li>
-          ))}
-        </ul>
+        spans.length > 0 ? (
+          <ul>
+            {spans.map((x) => (
+              <li key={`${x.start}|${x.end}|${x.kind}|${x.source}`} data-financials-series-limit={x.kind}>
+                The order of generator records from {formatInstant(x.start)} to {formatInstant(x.end)} is not proven:{" "}
+                {SERIES_KIND_WORDS[x.kind] ?? "they could not be ordered"}. {seriesRelationWords(x)}
+              </li>
+            ))}
+          </ul>
+        ) : null
       ) : (
         <p data-financials-pending-reassessment="true">
           New evidence or clock proof is being taken into account. The current cost appears once the reassessment and
