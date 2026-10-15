@@ -143,6 +143,7 @@ function noVocabularyViolations(page: string) {
 }
 
 afterEach(() => {
+  vi.useRealTimers();
   cleanup();
   vi.unstubAllGlobals();
   atWidth(1024);
@@ -353,6 +354,9 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
   });
 
   it("applies with a fresh key per attempt: a stale FAILED keeps it pending, a replay says so, then APPLIED", async () => {
+    // The clock is pinned before the recorded read time, so the default is the read time's next midnight.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-01T00:30:00Z"));
     // Derived (3): the recorded latest events cut to ACCEPTED and OBSERVED.
     const s = serve(actionReads(ov.accepted_pending, { status: 200, body: { ...hi.events_latest.body, events: hi.events_latest.body.events.slice(0, 2) } }), {
       [`${ACTION_API}/apply`]: [served(ex.apply_stale_failed), served(ex.apply_stale_retry_same_key), served(ex.apply_applied)],
@@ -392,6 +396,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     expect(new Set(posts.map((p) => p.body.idempotency_key)).size).toBe(3);
     // L1: the default is exactly the next UTC midnight after the read time (the clock is before it).
     expect(posts.map((p) => p.body.effective_from)).toEqual(Array(3).fill("2026-11-02T00:00:00+00:00"));
+    vi.useRealTimers();
   });
 
   it("re-derives an untouched default effective time at click, so a page left open past midnight sends no past instant", async () => {
