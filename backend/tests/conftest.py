@@ -34,6 +34,12 @@ An explicit `--basetemp` on the command line always wins.
 Its second job (OPS-01) is routing the real-Postgres tests to a run-owned
 database before any test module is imported; see `pg_harness.py` and
 `backend/TESTING.md`. `pytest_sessionfinish` drops what the run created.
+
+Under pytest-xdist the controller runs no tests: it makes the run id, hands it
+to each worker through `workerinput`, and drops the run's databases once every
+worker is done. Each worker routes itself to its own database before it
+collects, and takes its temp directory from the controller (xdist passes
+`<controller basetemp>/<workerid>`), so the basetemp choice is controller-only.
 """
 
 from __future__ import annotations
@@ -76,13 +82,77 @@ def _default_basetemp() -> Path:
     return Path(tempfile.gettempdir()) / f"pytest-of-{user}"
 
 
+RUN_KEY = "assetops_test_run"
+PROVISIONED_KEY = "assetops_test_provisioned"
+
+# Modules whose wall time dominates the suite and varies most (OPS-01 phase 1:
+# 53-694 s and 91-950 s for one test each). Under `--dist loadfile
+# --no-loadscope-reorder` the scheduler hands out modules in collection order,
+# so a worker moves them to the front: they start first instead of last. Whole
+# modules move, nothing is deselected, and serial order is unchanged.
+START_FIRST = (
+    "/test_s4_finding_evidence_history_postgres.py",
+    "/test_s4_finding_read_postgres.py",
+)
+
+
+def _workerinput(config: pytest.Config) -> dict | None:
+    return getattr(config, "workerinput", None)
+
+
+def _is_xdist_controller(config: pytest.Config) -> bool:
+    return _workerinput(config) is None and bool(getattr(config.option, "numprocesses", None))
+
+
 def pytest_configure(config: pytest.Config) -> None:
-    # Before collection: module-level `URL` constants read the routed name.
-    pg_harness.route()
+    workerinput = _workerinput(config)
+    if workerinput is not None:
+        # Before collection: module-level `URL` constants read the routed name.
+        pg_harness.route(tag=workerinput["workerid"], run=workerinput.get(RUN_KEY))
+        return  # basetemp comes from the controller
+    if _is_xdist_controller(config):
+        config.stash[_RUN] = pg_harness.new_run_id()
+    else:
+        pg_harness.route()
     _choose_basetemp(config)
 
 
+_RUN = pytest.StashKey[str]()
+_DOWN = pytest.StashKey[list]()
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_configure_node(node) -> None:
+    node.workerinput[RUN_KEY] = node.config.stash[_RUN]
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_testnodedown(node, error) -> None:
+    output = getattr(node, "workeroutput", None) or {}
+    node.config.stash.setdefault(_DOWN, []).append(output.get(PROVISIONED_KEY, True))
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list) -> None:
+    if _workerinput(config) is None:
+        return
+    def first(item) -> int:
+        path = item.nodeid.split("::", 1)[0].replace("\\", "/")
+        return 0 if path.endswith(START_FIRST) else 1
+    items.sort(key=first)  # stable: order within and between the other modules is unchanged
+
+
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    config = session.config
+    workerinput = _workerinput(config)
+    if workerinput is not None:
+        config.workeroutput[PROVISIONED_KEY] = pg_harness.provisioned()
+        pg_harness.cleanup()
+        return
+    if _RUN in config.stash:
+        # A worker that died reported nothing; clean up for it too.
+        if any(config.stash.get(_DOWN, [True])):
+            pg_harness.cleanup_run(config.stash[_RUN])
+        return
     pg_harness.cleanup()
 
 

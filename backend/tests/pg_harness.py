@@ -27,6 +27,16 @@ later call drops the worker `WITH (FORCE)` and clones it again. `cleanup()`
 (from `pytest_sessionfinish`) drops only this run's databases; a killed run's
 databases are removed by the next run's sweep, because its lease died with it.
 
+Parallel (pytest-xdist). The controller makes one run id (`new_run_id()`) and
+hands it to every worker through `workerinput`; it routes nothing itself and
+runs no tests. Each worker calls `route(tag=<workerid>, run=<run>)`, so it owns
+`<stem>_pt<run>_gw<N>_test`. All workers share one template per run: the first
+worker that needs it builds it under a session advisory lock on the base
+database, and the others wait on that lock and reuse it (a template whose
+`datallowconn` is false is complete). Workers drop only their own database; the
+controller drops the template and anything else of its run at session end
+(`cleanup_run()`), which also covers a crashed worker.
+
 Fallback. When routing is off (`ASSETOPS_TEST_TEMPLATE=0`) `fresh_database()`
 performs the previous in-place reset: drop `public`, drop `btree_gist`, migrate
 to head. Shared-database runs are serial only.
@@ -44,6 +54,7 @@ BASE_ENV = "ASSETOPS_TEST_DATABASE_BASE_URL"
 RUN_ENV = "ASSETOPS_TEST_RUN_ID"
 TAG_ENV = "ASSETOPS_TEST_DATABASE_TAG"
 TEMPLATE_SWITCH = "ASSETOPS_TEST_TEMPLATE"
+SHARED_ENV = "ASSETOPS_TEST_SHARED_TEMPLATE"  # "1" in xdist workers: the template belongs to the controller
 # Measurement knobs, off by default (see backend/TESTING.md).
 STRATEGY_ENV = "ASSETOPS_TEST_CLONE_STRATEGY"  # WAL_LOG (server default) or FILE_COPY
 SYNC_COMMIT_ENV = "ASSETOPS_TEST_SYNCHRONOUS_COMMIT"  # e.g. "off", applied per run-owned database only
@@ -70,16 +81,22 @@ def _owned_pattern(stem: str) -> re.Pattern[str]:
     return re.compile(rf"^{re.escape(stem)}_pt([0-9a-f]+)_([a-z0-9]+)_test$")
 
 
-def route(tag: str = "main") -> str | None:
+def new_run_id() -> str:
+    return f"{os.getpid():x}{secrets.token_hex(2)}"
+
+
+def route(tag: str = "main", run: str | None = None) -> str | None:
     """Point `ASSETOPS_TEST_DATABASE_URL` at this run's worker database.
 
     Returns the run id, or None when routing does not apply (URL unset, base not
-    a `*_test` database, template switch off). An already-routed environment -
-    a nested process started by a routed run - is left unchanged.
+    a `*_test` database, template switch off). Serially (`run` None) an
+    already-routed environment - a nested process started by a routed run - is
+    left unchanged. An xdist worker passes the controller's `run` and its worker
+    id as `tag`; it then shares the run's template instead of owning one.
     """
-    if os.environ.get(RUN_ENV):
+    if run is None and os.environ.get(RUN_ENV):
         return os.environ[RUN_ENV]
-    base = os.environ.get(ENV)
+    base = os.environ.get(BASE_ENV) if run is not None and os.environ.get(RUN_ENV) else os.environ.get(ENV)
     if not base or os.environ.get(TEMPLATE_SWITCH, "1") == "0":
         return None
     from sqlalchemy.engine import make_url
@@ -87,14 +104,23 @@ def route(tag: str = "main") -> str | None:
     url = make_url(base)
     if not (url.database and url.database.endswith("_test")):
         return None  # the fixtures' own *_test guard refuses this before any DDL
-    run = f"{os.getpid():x}{secrets.token_hex(2)}"
+    shared = run is not None
+    run = run or new_run_id()
     worker = database_name(_stem(url.database), run, tag)
     database_name(_stem(url.database), run, "tpl")
     os.environ[BASE_ENV] = base
     os.environ[RUN_ENV] = run
     os.environ[TAG_ENV] = tag
+    if shared:
+        os.environ[SHARED_ENV] = "1"
+    else:
+        os.environ.pop(SHARED_ENV, None)
     os.environ[ENV] = url.set(database=worker).render_as_string(hide_password=False)
     return run
+
+
+def _shared() -> bool:
+    return os.environ.get(SHARED_ENV) == "1"
 
 
 def routed() -> bool:
@@ -230,23 +256,45 @@ def _create(name: str, template: str | None = None) -> None:
         admin.execute(text(f"ALTER DATABASE {_quote(name)} SET synchronous_commit = {sync}"))
 
 
-def _ensure_template() -> str:
+def _build_template(template: str) -> None:
     from alembic import command
     from sqlalchemy import text
     from sqlalchemy.engine import make_url
 
-    template, _ = _names()
-    if _state.get("template") == template:
-        return template
-    _guard(os.environ[BASE_ENV])
-    _state["swept"] = sweep_orphans()
     admin = _admin()
     admin.execute(text(f"DROP DATABASE IF EXISTS {_quote(template)} WITH (FORCE)"))
     _create(template)
     template_url = make_url(os.environ[BASE_ENV]).set(database=template).render_as_string(hide_password=False)
     command.upgrade(_alembic(template_url), "head")  # migrations/env.py uses NullPool: no session survives
     # A template that accepts no connections cannot be dirtied between clones.
+    # It is also the "complete" marker other workers of a parallel run check.
     admin.execute(text(f"ALTER DATABASE {_quote(template)} WITH ALLOW_CONNECTIONS false"))
+
+
+def _ensure_template() -> str:
+    from sqlalchemy import text
+
+    template, _ = _names()
+    if _state.get("template") == template:
+        return template
+    _guard(os.environ[BASE_ENV])
+    _state["swept"] = sweep_orphans()
+    if not _shared():
+        _build_template(template)
+    else:
+        # One builder per run: the others wait here, then see a complete template.
+        admin = _admin()
+        key = f"{LEASE_PREFIX}template:{os.environ[RUN_ENV]}"
+        admin.execute(text("SELECT pg_advisory_lock(hashtext(:key))"), {"key": key})
+        try:
+            ready = admin.execute(
+                text("SELECT NOT datallowconn FROM pg_database WHERE datname = :name"), {"name": template}
+            ).scalar()
+            if not ready:  # missing, or left half-built by a crashed worker
+                _build_template(template)
+                _state["built_template"] = True
+        finally:
+            admin.execute(text("SELECT pg_advisory_unlock(hashtext(:key))"), {"key": key})
     _state["template"] = template
     return template
 
@@ -315,17 +363,58 @@ def dispose(*holders) -> None:
 
 
 def cleanup() -> None:
-    """Drop this run's databases and release the lease. Safe to call when nothing was provisioned."""
+    """Drop this process's databases and release the lease. Safe to call when nothing was provisioned.
+
+    Serially that is the worker database and the template. An xdist worker drops
+    only its own database; the template is the controller's (`cleanup_run`).
+    """
     if "admin" not in _state:
         return
     from sqlalchemy import text
 
     admin = _state["admin"]
+    template, worker = _names()
     try:
-        for name in reversed(_names()):
+        for name in (worker,) if _shared() else (worker, template):
             admin.execute(text(f"DROP DATABASE IF EXISTS {_quote(name)} WITH (FORCE)"))
     finally:
         admin.close()
         _state["admin_engine"].dispose()
         for key in ("admin", "admin_engine", "template"):
             _state.pop(key, None)
+
+
+def cleanup_run(run: str) -> list[str]:
+    """Controller side of a parallel run: drop every database the run owns. Returns the names dropped.
+
+    Runs after all workers have finished, so it drops the shared template and the
+    database of any worker that died before its own cleanup.
+    """
+    base = os.environ.get(ENV)
+    if not base or os.environ.get(TEMPLATE_SWITCH, "1") == "0":
+        return []
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.engine import make_url
+    from sqlalchemy.pool import NullPool
+
+    database = make_url(base).database
+    if not (database and database.endswith("_test")):
+        return []
+    pattern = _owned_pattern(_stem(database))
+    eng = create_engine(base, poolclass=NullPool, isolation_level="AUTOCOMMIT")
+    dropped = []
+    try:
+        with eng.connect() as admin:
+            for name in admin.execute(text("SELECT datname FROM pg_database")).scalars():
+                match = pattern.match(name)
+                if match and match.group(1) == run:
+                    admin.execute(text(f"DROP DATABASE IF EXISTS {_quote(name)} WITH (FORCE)"))
+                    dropped.append(name)
+    finally:
+        eng.dispose()
+    return dropped
+
+
+def provisioned() -> bool:
+    """Whether this process created any database (its lease connection exists)."""
+    return "admin" in _state

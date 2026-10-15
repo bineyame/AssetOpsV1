@@ -11,7 +11,8 @@ BASE = "postgresql+psycopg://assetops:pw@127.0.0.1:55432/assetops_test"
 
 @pytest.fixture()
 def clean_env(monkeypatch):
-    for name in (pg_harness.ENV, pg_harness.BASE_ENV, pg_harness.RUN_ENV, pg_harness.TAG_ENV, pg_harness.TEMPLATE_SWITCH):
+    for name in (pg_harness.ENV, pg_harness.BASE_ENV, pg_harness.RUN_ENV, pg_harness.TAG_ENV, pg_harness.TEMPLATE_SWITCH,
+                 pg_harness.SHARED_ENV):
         monkeypatch.delenv(name, raising=False)
     return monkeypatch
 
@@ -50,6 +51,35 @@ def test_the_template_switch_turns_routing_off(clean_env) -> None:
     clean_env.setenv(pg_harness.ENV, BASE)
     clean_env.setenv(pg_harness.TEMPLATE_SWITCH, "0")
     assert pg_harness.route() is None
+
+
+def test_an_xdist_worker_routes_to_its_own_database_in_the_controllers_run(clean_env) -> None:
+    import os
+
+    clean_env.setenv(pg_harness.ENV, BASE)
+    assert pg_harness.route(tag="gw1", run="abc12345") == "abc12345"
+    assert os.environ[pg_harness.ENV].endswith("/assetops_ptabc12345_gw1_test")
+    assert os.environ[pg_harness.BASE_ENV] == BASE and os.environ[pg_harness.SHARED_ENV] == "1"
+
+
+def test_a_worker_under_an_already_routed_parent_routes_from_the_base(clean_env) -> None:
+    """A parallel pytest started inside a routed run inherits the parent's routed URL."""
+    import os
+
+    clean_env.setenv(pg_harness.ENV, BASE)
+    pg_harness.route()
+    assert pg_harness.route(tag="gw0", run="def67890") == "def67890"
+    assert os.environ[pg_harness.ENV].endswith("/assetops_ptdef67890_gw0_test")
+    assert os.environ[pg_harness.BASE_ENV] == BASE
+
+
+def test_serial_routing_owns_its_template(clean_env) -> None:
+    import os
+
+    clean_env.setenv(pg_harness.ENV, BASE)
+    clean_env.setenv(pg_harness.SHARED_ENV, "1")  # a stale marker must not survive serial routing
+    pg_harness.route()
+    assert pg_harness.SHARED_ENV not in os.environ
 
 
 def test_names_fit_postgres_identifiers_and_refuse_overflow() -> None:
