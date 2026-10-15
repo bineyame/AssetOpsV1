@@ -4,6 +4,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**2026-10-15 (evening): LR-01 and S5-01 are done and merged to main** after the owner walkthrough (conditional acceptance, `.agent/owner-LR01-S501-acceptance-2026-10-15.md`: plain-language status copy becomes one task at W1 conclusion; demo speed over perfection). Also merged today: OPS-01, S4-06, S4-07. Next merges in order: S6-01a (re-chain its migration after 0015, one full suite), S4-05a (re-chain, one full suite), OPS-02 (last; absorbs their rule-8 entries). S6-01b (UI) is reviewed and awaits its owner walkthrough after S6-01a merges. S4-04 is planned and first in next-work. The paragraphs below are earlier routing.
+
 **S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
 
 **S4-07 ([evidence decided_at on DB time](../tasks/S4-07-evidence-decided-at.md)) is `in_review`** on `task/S4-07-evidence-decided-at` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-07-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-07".
