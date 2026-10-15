@@ -161,3 +161,9 @@ Reopen deviations and interpretations:
 ## User-review focus
 
 None required (non-UI). S6-01b carries the owner checkpoint and consumes `backend/tests/fixtures/s6_action_api_contract.json`.
+
+## Re-chain onto main `5536f228` (Sonnet)
+
+- `git merge main`; doc conflicts kept both sides. Migration renamed `0016_action_store` (down `0015_finding_returning_basis`); single head confirmed (`alembic heads` -> `0016_action_store (head)`). Head pins updated in s1_bindings, s2_evidence_ledger, s4_evidence_consequence_work and s4_consequence_store (post-failed-downgrade version) tests. Rule 8 keeps LR-01's `source_clock_attestation` entry and the ninth (Action) writer.
+- Focused S6 + pin tests: 147 passed. Full backend suite (`-n 2 --dist loadfile --no-loadscope-reorder`, real Postgres, merge revision): 2325 passed, 0 failed, 0 errors, 0 skipped (JUnit), wall 11m20s. `tools/check-all.ps1`: all 9 guards passed.
+- Run used `PYTHONPATH=backend` because the shared `.venv` editable install points at the main checkout.
