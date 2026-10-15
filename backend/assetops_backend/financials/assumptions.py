@@ -208,10 +208,14 @@ def plan_assignments(change_kind: str, valid_from: datetime, valid_to: datetime 
             raise conflict("SUCCESSION_NOTHING_TO_SUCCEED",
                            "No current price overlaps this range; time with no current price is an INITIAL.")
         only = hit[0]
-        if len(hit) != 1 or only.valid_to is not None or not only.valid_from < valid_from:
+        if len(hit) != 1 or only.valid_to is not None or not only.valid_from <= valid_from:
             raise conflict("SUCCESSION_OVERLAP_NOT_PERMITTED",
-                           "A SUCCESSION may only shorten the single open-ended current assignment containing "
-                           "its valid_from; this range overlaps other current validity.")
+                           "A SUCCESSION may only shorten or replace the single open-ended current assignment "
+                           "containing its valid_from; this range overlaps other current validity.")
+        if only.valid_from == valid_from:
+            # Equal-start succession (Architect S4-02 Q1): the scheduled price is replaced from its own
+            # start, so there is no left remainder; a zero-length [t, t) row is never written.
+            return Plan((only.id,), (own,))
         return Plan((only.id,), (NewAssignment(only.revision_id, only.valid_from, valid_from), own))
     if change_kind == "CORRECTION":
         if valid_to is None and valid_from >= recorded_at:

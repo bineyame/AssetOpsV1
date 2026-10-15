@@ -382,3 +382,156 @@ class TestDatabaseGuards:
         with pytest.raises(DBAPIError, match="valid_range"):
             with engine.begin() as c:
                 self._revision(c, *site, vf=_t(2026, 2), vt=_t(2026, 2))
+
+
+class TestEqualStartSuccession:
+    """S4-06 (`I-price-equal-start-succession`, Architect S4-02 Q1): a SUCCESSION exactly at the sole open-ended
+    future assignment's `valid_from` replaces it from that instant; earlier recorded cutoffs keep the schedule."""
+
+    @staticmethod
+    def future() -> datetime:
+        return (datetime.now(UTC) + timedelta(days=30)).replace(microsecond=0)
+
+    @staticmethod
+    def timeline(prices, site, cutoff):
+        return prices.snapshot(*site, KEY, cutoff, 0, 50)["timeline"]
+
+    def test_succession_at_the_scheduled_start_replaces_it_and_keeps_history(self, site, prices, engine) -> None:  # noqa: F811
+        start = self.future()
+        scheduled = prices.publish(*site, pub(None, "sched", vf=start, value="1.40"), SYSTEM_PUBLISHER)
+        (old,) = self.timeline(prices, site, None)
+        succ = prices.publish(*site, pub(scheduled.revision_id, "succ", kind="SUCCESSION", vf=start, value="1.55"),
+                              SYSTEM_PUBLISHER)
+        assert (succ.revision_no, succ.change_kind, succ.replayed) == (2, "SUCCESSION", False)
+        assert counts(engine) == (2, 2)  # no zero-length left row was written
+
+        (new,) = self.timeline(prices, site, None)
+        assert (new["revision_id"], new["publication_revision_id"]) == (succ.revision_id, succ.revision_id)
+        assert (new["valid_from"], new["valid_to"], new["recorded_from"], new["recorded_to"]) == \
+            (start, None, succ.recorded_at, None)
+        rows = prices.assignments(*site, KEY)
+        assert all(r["valid_to"] is None or r["valid_from"] < r["valid_to"] for r in rows)
+        closed = next(r for r in rows if r["id"] == old["id"])
+        # Exact boundary continuity: same valid start, and the old tenure ends where the new one begins.
+        assert (closed["valid_from"], closed["valid_to"]) == (start, None)
+        assert (closed["recorded_from"], closed["recorded_to"]) == (scheduled.recorded_at, succ.recorded_at)
+
+        # Before publication the schedule is what was known; from the publication instant, the replacement.
+        before = succ.recorded_at - timedelta(microseconds=1)
+        (was,) = self.timeline(prices, site, before)
+        assert (was["id"], was["revision_id"]) == (old["id"], scheduled.revision_id)
+        assert selected(rows, start, before) == scheduled.revision_id
+        assert selected(rows, start + timedelta(days=400), before) == scheduled.revision_id
+        for cutoff in (succ.recorded_at, succ.recorded_at + timedelta(days=1)):
+            (now,) = self.timeline(prices, site, cutoff)
+            assert (now["id"], now["revision_id"]) == (new["id"], succ.revision_id)
+            assert selected(rows, start, cutoff) == succ.revision_id
+        assert selected(rows, start - timedelta(microseconds=1)) is None
+        cited = prices.snapshot(*site, KEY, before, 0, 50)["cited"]
+        assert str(cited[scheduled.revision_id]["value"]) == "1.40"
+        assert str(prices.snapshot(*site, KEY, None, 0, 50)["cited"][succ.revision_id]["value"]) == "1.55"
+
+        # Exact retry replays; the same key with changed content and a stale prior are refused, writing nothing.
+        again = prices.publish(*site, pub(scheduled.revision_id, "succ", kind="SUCCESSION", vf=start, value="1.55"),
+                               SYSTEM_PUBLISHER)
+        assert (again.revision_id, again.replayed, again.recorded_at) == (succ.revision_id, True, succ.recorded_at)
+        reused = refused(lambda: prices.publish(*site, pub(scheduled.revision_id, "succ", kind="SUCCESSION",
+                                                           vf=start, value="1.60"), SYSTEM_PUBLISHER))
+        assert (reused.status, reused.code) == (409, "IDEMPOTENCY_KEY_REUSED")
+        stale = refused(lambda: prices.publish(*site, pub(scheduled.revision_id, "late", kind="SUCCESSION",
+                                                          vf=start, value="1.60"), SYSTEM_PUBLISHER))
+        assert (stale.status, stale.code) == (409, "PRIOR_REVISION_MISMATCH")
+        assert counts(engine) == (2, 2)
+
+    def test_two_equal_start_publishers_on_one_prior_admit_exactly_one(self, site, prices, engine) -> None:  # noqa: F811
+        start = self.future()
+        scheduled = prices.publish(*site, pub(None, "sched", vf=start), SYSTEM_PUBLISHER)
+        barrier, results = threading.Barrier(2), []
+
+        def attempt(i: int) -> None:
+            own = PostgresAssumptionStore(URL)
+            barrier.wait()
+            try:
+                results.append(own.publish(*site, pub(scheduled.revision_id, f"race-{i}", kind="SUCCESSION",
+                                                      vf=start, value=f"1.5{i}"), SYSTEM_PUBLISHER))
+            except PublicationRefused as error:
+                results.append(error)
+            finally:
+                own.dispose()
+
+        threads = [threading.Thread(target=attempt, args=(i,)) for i in range(2)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        won = [r for r in results if not isinstance(r, PublicationRefused)]
+        lost = [r for r in results if isinstance(r, PublicationRefused)]
+        assert len(won) == 1 and won[0].revision_no == 2
+        assert [(e.status, e.code) for e in lost] == [(409, "PRIOR_REVISION_MISMATCH")]
+        assert counts(engine) == (2, 2)
+        (current,) = self.timeline(prices, site, None)
+        assert (current["revision_id"], current["valid_from"]) == (won[0].revision_id, start)
+
+    def test_bounded_or_multiple_overlap_at_an_equal_start_is_refused(self, site, prices, engine) -> None:  # noqa: F811
+        start = self.future()
+        bounded = prices.publish(*site, pub(None, "b", vf=start, vt=start + timedelta(days=60)), SYSTEM_PUBLISHER)
+        before = counts(engine)
+        error = refused(lambda: prices.publish(*site, pub(bounded.revision_id, "s1", kind="SUCCESSION", vf=start),
+                                               SYSTEM_PUBLISHER))
+        assert (error.status, error.code) == (409, "SUCCESSION_OVERLAP_NOT_PERMITTED")
+        assert counts(engine) == before
+        tail = prices.publish(*site, pub(bounded.revision_id, "t", vf=start + timedelta(days=60)), SYSTEM_PUBLISHER)
+        before = counts(engine)
+        error = refused(lambda: prices.publish(*site, pub(tail.revision_id, "s2", kind="SUCCESSION", vf=start),
+                                               SYSTEM_PUBLISHER))
+        assert (error.status, error.code) == (409, "SUCCESSION_OVERLAP_NOT_PERMITTED")
+        assert counts(engine) == before
+
+    def test_equal_start_replaces_a_correction_tail_on_an_older_revision(self, site, prices, engine) -> None:  # noqa: F811
+        start = self.future()
+        v1 = prices.publish(*site, pub(None, "v1", vf=start, value="1.40"), SYSTEM_PUBLISHER)
+        mid, tail_start = start + timedelta(days=10), start + timedelta(days=20)
+        v2 = prices.publish(*site, pub(v1.revision_id, "v2", kind="CORRECTION", vf=mid, vt=tail_start, value="1.45",
+                                       reason="supplier quote"), SYSTEM_PUBLISHER)
+        tail = next(a for a in self.timeline(prices, site, None) if a["valid_to"] is None)
+        assert (tail["revision_id"], tail["publication_revision_id"], tail["valid_from"]) == \
+            (v1.revision_id, v2.revision_id, tail_start)  # the tail cites v1, older than the head v2
+        v3 = prices.publish(*site, pub(v2.revision_id, "v3", kind="SUCCESSION", vf=tail_start, value="1.50"),
+                            SYSTEM_PUBLISHER)
+        shape = [(a["revision_id"], a["valid_from"], a["valid_to"]) for a in self.timeline(prices, site, None)]
+        assert shape == [(v1.revision_id, start, mid), (v2.revision_id, mid, tail_start),
+                         (v3.revision_id, tail_start, None)]
+        assert counts(engine) == (3, 5)  # v1, v2's three rows, v3's one: no zero-length row
+        before = v3.recorded_at - timedelta(microseconds=1)
+        assert [a["id"] for a in self.timeline(prices, site, before) if a["valid_to"] is None] == [tail["id"]]
+
+    def test_an_earlier_price_keeps_selecting_windows_that_do_not_cross_the_new_start(self, site, prices,  # noqa: F811
+                                                                                       engine) -> None:
+        from assetops_backend.financials import fuel_cost as fc
+
+        start = self.future()
+        earlier = prices.publish(*site, pub(None, "early", vf=_t(2026, 1), vt=start, value="1.20"), SYSTEM_PUBLISHER)
+        scheduled = prices.publish(*site, pub(earlier.revision_id, "sched", vf=start, value="1.40"), SYSTEM_PUBLISHER)
+
+        def price(cutoff, w0, w1):
+            snap = prices.snapshot(*site, fc.PRICE_KEY, cutoff, 0, 50)
+            return fc.select_window_price(snap["timeline"], snap["cited"], w0, w1)
+
+        inside = (start - timedelta(days=2), start - timedelta(days=1))
+        touching = (start - timedelta(days=1), start)
+        crossing = (start - timedelta(hours=1), start + timedelta(hours=1))
+        known = {w: price(None, *w) for w in (inside, touching, crossing)}
+        assert known[inside].state == known[touching].state == "PRICED"
+        assert known[inside].revision_id == known[touching].revision_id == str(earlier.revision_id)
+        assert known[crossing].reason == "PRICE_SPANS_WINDOW"
+
+        succ = prices.publish(*site, pub(scheduled.revision_id, "succ", kind="SUCCESSION", vf=start, value="1.55"),
+                              SYSTEM_PUBLISHER)
+        for w in (inside, touching):
+            after = price(None, *w)
+            assert (after.state, after.revision_id, after.assignment_id, after.value) == \
+                (known[w].state, known[w].revision_id, known[w].assignment_id, Decimal("1.20"))
+        assert price(None, *crossing).reason == "PRICE_SPANS_WINDOW"
+        later = (start, start + timedelta(days=1))
+        assert price(None, *later).revision_id == str(succ.revision_id)
+        assert price(succ.recorded_at - timedelta(microseconds=1), *later).revision_id == str(scheduled.revision_id)

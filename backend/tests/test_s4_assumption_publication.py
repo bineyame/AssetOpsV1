@@ -58,6 +58,32 @@ class TestPlan:
         assert plan.close == (A,)
         assert plan.insert == (NewAssignment(A, _t(1), _t(1, 2027)), NewAssignment(None, _t(1, 2027), None))
 
+    def test_equal_start_succession_replaces_the_scheduled_assignment_without_a_left_row(self) -> None:
+        """S4-06 (Architect S4-02 Q1): equality with the sole open-ended future start replaces it outright."""
+        plan = plan_assignments("SUCCESSION", _t(1, 2027), None, NOW, [Current(A, A, _t(1, 2027), None)])
+        assert plan.close == (A,)
+        assert plan.insert == (NewAssignment(None, _t(1, 2027), None),)
+        assert all(n.valid_to is None or n.valid_from < n.valid_to for n in plan.insert)
+
+    def test_equal_start_succession_of_a_correction_tail_cites_only_the_new_revision(self) -> None:
+        """The open-ended row a CORRECTION left on an older revision is replaced the same way; the bounded
+        corrected rows before it stay current."""
+        cur = [Current(uuid4(), A, _t(1, 2027), _t(3, 2027)), Current(uuid4(), B, _t(3, 2027), _t(5, 2027)),
+               Current(C := uuid4(), A, _t(5, 2027), None)]
+        plan = plan_assignments("SUCCESSION", _t(5, 2027), None, NOW, cur)
+        assert plan.close == (C,)
+        assert plan.insert == (NewAssignment(None, _t(5, 2027), None),)
+
+    def test_equal_start_negatives_stay_409(self) -> None:
+        bounded = [Current(A, A, _t(1, 2027), _t(1, 2028))]
+        error = refused(lambda: plan_assignments("SUCCESSION", _t(1, 2027), None, NOW, bounded))
+        assert (error.status, error.code) == (409, "SUCCESSION_OVERLAP_NOT_PERMITTED")
+        two = [Current(A, A, _t(1, 2027), _t(3, 2027)), Current(B, B, _t(3, 2027), None)]
+        error = refused(lambda: plan_assignments("SUCCESSION", _t(1, 2027), None, NOW, two))
+        assert (error.status, error.code) == (409, "SUCCESSION_OVERLAP_NOT_PERMITTED")
+        past = [Current(A, A, _t(9), None)]
+        assert refused(lambda: plan_assignments("SUCCESSION", _t(9), None, NOW, past)).code ==             "SUCCESSION_NOT_FUTURE"
+
     def test_succession_negatives_are_409(self) -> None:
         open_v1 = [Current(A, A, _t(1), None)]
         assert refused(lambda: plan_assignments("SUCCESSION", _t(9), None, NOW, open_v1)).code == "SUCCESSION_NOT_FUTURE"

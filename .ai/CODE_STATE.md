@@ -5492,3 +5492,12 @@ Branch `task/OPS-01-backend-test-speed` from main `52189ec7`. Handoffs `.agent/O
 - Role guidance: reviewers reuse implementer same-revision full evidence; full suite once per slice; keep-awake + 2x cap (`.claude/agents/assetops-{reviewer,implementer}.md`, `.ai/ROLE_CONFIG.md`).
 - Escape hatches: `ASSETOPS_TEST_TEMPLATE=0`, `ASSETOPS_TEST_CLEANUP=truncate`; measurement knobs off by default.
 - Open: inline stores still GC-disposed (no public `dispose()` on production stores); `gc.collect()` fixtures kept; concurrent full runs unproven (one-at-a-time policy); timing-sensitive S4 cases did not flake in 3 parallel runs but remain disk-stall sensitive; `-n 3` not adopted on one run.
+
+## S4-06 - equal-start future price succession (built, review pending)
+
+Branch `task/S4-06-price-succession` from main `7c72c6b3`; packet `.agent/S4-06-review-packet.md`.
+
+- `financials/assumptions.py` `plan_assignments`: a SUCCESSION whose `valid_from` equals the sole open-ended current assignment's start closes it and inserts only the new `[valid_from, inf)` row (Architect S4-02 Q1); no zero-length remainder. Later-start SUCCESSION, INITIAL, CORRECTION, `SUCCESSION_NOT_FUTURE` and `SUCCESSION_OVERLAP_NOT_PERMITTED` (bounded / >1 overlap) unchanged.
+- No writer, migration or rule-8 change: `postgres_assumption_store.publish` already applies any plan under the Site/key advisory lock; earlier recorded cutoffs keep the scheduled assignment through the existing `snapshot` history read.
+- Proofs: `test_s4_assumptions_postgres.py` `TestEqualStartSuccession` (cutoff history, retry, key reuse, stale prior, 2-publisher race, bounded/multiple refusal, CORRECTION tail on an older revision, unchanged earlier-price window selection); planner unit tests in `test_s4_assumption_publication.py`.
+- Open: registry `I-price-equal-start-succession` stays `open` until merge.
