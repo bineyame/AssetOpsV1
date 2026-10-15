@@ -274,5 +274,9 @@ class FoundationStore(Protocol):
     def binding_sets(self, tenant_id: UUID, site_id: UUID) -> Sequence[BindingSetRevisionRow]: ...
 
     def publish_configuration(
-        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner
-    ) -> ConfigurationPlan: ...
+        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner, *,
+        connection: Any = None, then: Callable[[ConfigurationPlan], None] | None = None,
+    ) -> ConfigurationPlan:
+        """Without `connection`, its own transaction. With a caller-owned `connection` (S6-01a), no begin
+        or commit of its own; `then(plan)` runs on that connection after the writes."""
+        ...

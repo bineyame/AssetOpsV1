@@ -8,6 +8,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 **S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
 
+S6-01a ([Action store, controlled application and exact read](../tasks/S6-01a-action-store-read.md)) is `in_review` on `task/S6-01a-action-store-read` (USER_REVIEW_REQUIRED: false; non-UI): packet `.agent/S6-01a-review-packet.md`, built state in `.ai/CODE_STATE.md` "S6-01a". Do not merge before its slice review; re-chain `0016_action_store` if LR-01 lands first.
 **S4-07 ([evidence decided_at on DB time](../tasks/S4-07-evidence-decided-at.md)) is `in_review`** on `task/S4-07-evidence-decided-at` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-07-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-07".
 
 **S4-06 ([equal-start price succession](../tasks/S4-06-price-succession.md)) is `in_review`** on `task/S4-06-price-succession` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-06-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-06".
@@ -37,6 +38,7 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 
 ## Next read
 
+Reviewer (S6-01a slice): read the task, `.agent/architect-S6-01-answers.md`, `.agent/S6-01a-review-packet.md` and `.agent/S6-01a-phase-2-handoff.md`, then `git diff fd7afd2c..HEAD`. Focused proof: `backend/tests/test_s6_action_{rule,store_postgres,apply_postgres,records_postgres}.py` on a private `*_test` DB.
 Reviewer (S4-07): read the task (incl. coordinator note), `.agent/S4-07-review-packet.md` (Known Deviation 1: widened-job `available_at` lift), then `git diff 3ec3d765..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
 
 Reviewer (S4-06): read the task, `.agent/S4-06-review-packet.md`, then `git diff 7c72c6b3..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
