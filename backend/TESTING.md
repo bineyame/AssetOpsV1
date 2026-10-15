@@ -45,6 +45,15 @@ asserts the clone is at the Alembic head. Each module therefore still starts on
 a fresh, fully migrated schema; migration up/downgrade tests still run in place
 on that module's clone. `store` fixtures yield and dispose their engine.
 
+Between tests the S1 `store` fixture empties the same tables
+`TRUNCATE foundation_revision, source, gateway, asset, site_import, site, tenant
+CASCADE` would, but with `DELETE` under `session_replication_role = replica`
+(`pg_harness.empty_tables`). TRUNCATE rebuilds every index and on PostgreSQL 16
+each rebuild forces a data-file sync, which Docker Desktop makes slow and
+erratic (measured 1.4 s quiet, 22-25 s under disk pressure, per test; DELETE
+0.14 s). `test_pg_harness.py` proves the DELETE set equals the tables TRUNCATE
+CASCADE reports. `ASSETOPS_TEST_CLEANUP=truncate` restores TRUNCATE.
+
 - Nothing is provisioned for `--collect-only`, for a selection without Postgres
   modules, or with the URL unset.
 - At the end of the session the run drops its own databases. A killed run's
@@ -81,6 +90,21 @@ $py = ".venv\Scripts\python.exe"
 # Complete suite, with JUnit for the zero-skip proof
 & $py -m pytest backend/tests -q --durations=30 --junitxml=.pytest-junit.xml
 ```
+
+### Before a long full run
+
+Start the keep-awake helper in a separate window (or as a background job). It
+asks Windows not to idle-sleep while any pytest process runs, changes no power
+settings, and exits after 20 idle minutes. A machine that sleeps mid-run turns
+a 40-minute suite into hours (seen in OPS-01: one run reached 34% in 4 h).
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\keep-awake-during-tests.ps1
+```
+
+Cap every full run at twice its expected wall time (see Timing below). A run
+past the cap is reported as a hang, with the node ID it is stuck on (from
+`pg_stat_activity` and the pytest log), not waited on.
 
 ### Zero-skip proof (from JUnit, not the summary line)
 
