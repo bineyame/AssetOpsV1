@@ -269,6 +269,43 @@ def fresh_database() -> str:
     return url_text
 
 
+CLEANUP_ENV = "ASSETOPS_TEST_CLEANUP"  # "delete" (default) or "truncate"
+_CASCADE_CLOSURE = """
+WITH RECURSIVE closure(oid) AS (
+    SELECT unnest(CAST(:roots AS regclass[]))::oid
+    UNION
+    SELECT c.conrelid FROM pg_constraint c JOIN closure ON c.confrelid = closure.oid WHERE c.contype = 'f'
+)
+SELECT relname FROM pg_class WHERE oid IN (SELECT oid FROM closure) ORDER BY relname
+"""
+
+
+def empty_tables(engine, roots: tuple[str, ...]) -> None:
+    """Empty exactly the tables `TRUNCATE <roots> CASCADE` would empty, without TRUNCATE.
+
+    Why. On this Docker Desktop host TRUNCATE gives every table a new file and
+    rebuilds every index, and on PostgreSQL 16 each rebuilt index ends in a
+    forced data-file sync (`DataFileImmediateSync`). Measured per call: about
+    1.4 s quiet and 22-25 s under disk pressure, against 0.14 s for this. The
+    content result is the same: the same FK closure of tables ends empty;
+    sequences are not reset by either; no TRUNCATE triggers exist. Row triggers
+    and FK checks are bypassed with `session_replication_role = replica`
+    because TRUNCATE bypasses them too (append-only guards refuse DELETE).
+    `ASSETOPS_TEST_CLEANUP=truncate` restores the TRUNCATE statement.
+    """
+    from sqlalchemy import text
+
+    if os.environ.get(CLEANUP_ENV, "delete") == "truncate":
+        with engine.begin() as connection:
+            connection.execute(text(f"TRUNCATE {', '.join(roots)} CASCADE"))
+        return
+    with engine.begin() as connection:
+        tables = list(connection.execute(text(_CASCADE_CLOSURE), {"roots": list(roots)}).scalars())
+        connection.execute(text("SET LOCAL session_replication_role = replica"))
+        for table in tables:
+            connection.execute(text(f"DELETE FROM {_quote(table)}"))
+
+
 def dispose(*holders) -> None:
     """Dispose the SQLAlchemy engine each store or engine holds, if it opened one."""
     for holder in holders:

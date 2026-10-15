@@ -65,3 +65,43 @@ def test_the_orphan_sweep_matches_only_run_owned_names() -> None:
     for foreign in ("assetops_test", "assetops_s402b_test", "assetops_s402b3_full_test", "assetops_pt1a2b_main",
                     "other_pt1a2b_main_test", "assetops_ptxyz_main_test"):
         assert not pattern.match(foreign), foreign
+
+
+URL = __import__("os").environ.get("ASSETOPS_TEST_DATABASE_URL")
+ROOTS = ("foundation_revision", "source", "gateway", "asset", "site_import", "site", "tenant")
+
+
+@pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+class TestAgainstPostgres:
+    def test_a_module_database_is_a_run_owned_clone_at_head(self) -> None:
+        from sqlalchemy import create_engine
+        from sqlalchemy.engine import make_url
+
+        pg_harness.fresh_database()
+        eng = create_engine(URL)
+        try:
+            pg_harness.assert_at_head(eng)
+        finally:
+            eng.dispose()
+        if pg_harness.routed():
+            assert f"_pt{__import__('os').environ[pg_harness.RUN_ENV]}_" in make_url(URL).database
+
+    def test_delete_cleanup_empties_exactly_the_tables_truncate_cascade_reaches(self) -> None:
+        from sqlalchemy import create_engine, text
+
+        pg_harness.fresh_database()
+        eng = create_engine(URL)
+        try:
+            with eng.connect() as c:
+                notices: list[str] = []
+                raw = c.connection.dbapi_connection
+                raw.add_notice_handler(lambda diag: notices.append(diag.message_primary or ""))
+                tx = c.begin()
+                c.execute(text(f"TRUNCATE {', '.join(ROOTS)} CASCADE"))
+                tx.rollback()
+                cascaded = {m.split('"')[1] for m in notices if m.startswith("truncate cascades to table")}
+                closure = set(c.execute(text(pg_harness._CASCADE_CLOSURE), {"roots": list(ROOTS)}).scalars())
+            assert cascaded, "TRUNCATE reported no cascade: the comparison would be vacuous"
+            assert closure == set(ROOTS) | cascaded
+        finally:
+            eng.dispose()

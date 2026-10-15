@@ -80,10 +80,8 @@ def engine():
 
 @pytest.fixture()
 def store(engine):
-    with engine.begin() as connection:
-        connection.execute(
-            text("TRUNCATE foundation_revision, source, gateway, asset, site_import, site, tenant CASCADE")
-        )
+    # Same tables as TRUNCATE ... CASCADE, without its forced file syncs (pg_harness.empty_tables).
+    pg_harness.empty_tables(engine, ("foundation_revision", "source", "gateway", "asset", "site_import", "site", "tenant"))
     owned = PostgresFoundationStore(URL)
     yield owned
     pg_harness.dispose(owned)
