@@ -1,6 +1,6 @@
 # S6-01a — Action store, controlled application and exact read
 
-Status: active (activated 2026-10-15 from main under the owner-absence work order `D-2026-10-15-owner-absence-work-order`; plan re-review ACCEPT `.agent/S6-01-plan-rereview.md`, Lows N1-N2 carried); was implementation-ready
+Status: in_review (phases 1-2 built on `task/S6-01a-action-store-read`; packet `.agent/S6-01a-review-packet.md`; phase-1 review M1 and L1-L5 folded into phase 2)
 USER_REVIEW_REQUIRED: false; reopen for any owner-facing copy or UI
 Size: M; phases: two. Branch: `task/S6-01a-action-store-read` from merged main, independent of LR-01/S5-01.
 Depends on: merged S1 Foundation; closed `I-S4-01` reviewed FindingRevision; recorded Action lifecycle, actor and route decisions.
