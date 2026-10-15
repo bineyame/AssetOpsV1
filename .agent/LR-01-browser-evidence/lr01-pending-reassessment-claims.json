@@ -1,0 +1,142 @@
+[
+  {
+    "name": "desktop PENDING_REASSESSMENT: Financials loaded",
+    "ok": true
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: bridge state, no current amount, no headline",
+    "ok": true,
+    "detail": {
+      "state": "PENDING_REASSESSMENT",
+      "amount": "none",
+      "headline": null
+    }
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: exact link to the recorded consequence revision",
+    "ok": true,
+    "detail": {
+      "recordedId": "4f03c96e-070a-4460-b1a4-f123ec9d5eec",
+      "href": "/sites/KOBO-001/financials?finding_id=8dda3a38-655a-4c36-a116-b22abbfb479c&revision_id=609566e3-882e-4edc-95a8-803ac85cd706&consequence_revision_id=4f03c96e-070a-4460-b1a4-f123ec9d5eec"
+    }
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: the recorded 7.57 USD row is kept for the record, not current",
+    "ok": true,
+    "detail": {
+      "id": "4f03c96e-070a-4460-b1a4-f123ec9d5eec",
+      "current": "false",
+      "text": "Version 1 · recorded 15 Oct 2026 · 0.00 to 7.57 USD, at 1.25 USD per litre · kept for the record\n\nOpen fuel cost version 1 · Price version used"
+    }
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: no row is called the current fuel cost",
+    "ok": true,
+    "detail": [
+      "false"
+    ]
+  },
+  {
+    "name": "desktop pending: the reassessment wording",
+    "ok": true,
+    "detail": true
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: no page-level horizontal overflow on Financials",
+    "ok": true,
+    "detail": -15
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: the opened recorded revision is a record, not the current cost",
+    "ok": true,
+    "detail": {
+      "id": "4f03c96e-070a-4460-b1a4-f123ec9d5eec",
+      "current": "false",
+      "headline": false
+    }
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: Finding page loaded",
+    "ok": true
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: the Finding states its SERIES_LIMIT end",
+    "ok": true,
+    "detail": "This finding ends at 2026-10-24 07:00 UTC because the generator records after that could not be put in a proven time order (some arrived late and the clock behind them is not proven). Only the time before that is counted; the time after it is not judged, so no current cost is shown for this version."
+  },
+  {
+    "name": "desktop PENDING_REASSESSMENT: no page-level horizontal overflow on the Finding",
+    "ok": true,
+    "detail": -15
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: Financials loaded",
+    "ok": true
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: bridge state, no current amount, no headline",
+    "ok": true,
+    "detail": {
+      "state": "PENDING_REASSESSMENT",
+      "amount": "none",
+      "headline": null
+    }
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: exact link to the recorded consequence revision",
+    "ok": true,
+    "detail": {
+      "recordedId": "4f03c96e-070a-4460-b1a4-f123ec9d5eec",
+      "href": "/sites/KOBO-001/financials?finding_id=8dda3a38-655a-4c36-a116-b22abbfb479c&revision_id=609566e3-882e-4edc-95a8-803ac85cd706&consequence_revision_id=4f03c96e-070a-4460-b1a4-f123ec9d5eec"
+    }
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: the recorded 7.57 USD row is kept for the record, not current",
+    "ok": true,
+    "detail": {
+      "id": "4f03c96e-070a-4460-b1a4-f123ec9d5eec",
+      "current": "false",
+      "text": "Version 1 · recorded 15 Oct 2026 · 0.00 to 7.57 USD, at 1.25 USD per litre · kept for the record\n\nOpen fuel cost version 1 · Price version used"
+    }
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: no row is called the current fuel cost",
+    "ok": true,
+    "detail": [
+      "false"
+    ]
+  },
+  {
+    "name": "narrow pending: the reassessment wording",
+    "ok": true,
+    "detail": true
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: no page-level horizontal overflow on Financials",
+    "ok": true,
+    "detail": 0
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: the opened recorded revision is a record, not the current cost",
+    "ok": true,
+    "detail": {
+      "id": "4f03c96e-070a-4460-b1a4-f123ec9d5eec",
+      "current": "false",
+      "headline": false
+    }
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: Finding page loaded",
+    "ok": true
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: the Finding states its SERIES_LIMIT end",
+    "ok": true,
+    "detail": "This finding ends at 2026-10-24 07:00 UTC because the generator records after that could not be put in a proven time order (some arrived late and the clock behind them is not proven). Only the time before that is counted; the time after it is not judged, so no current cost is shown for this version."
+  },
+  {
+    "name": "narrow PENDING_REASSESSMENT: no page-level horizontal overflow on the Finding",
+    "ok": true,
+    "detail": 0
+  }
+]

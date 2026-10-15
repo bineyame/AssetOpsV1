@@ -1,0 +1,472 @@
+{
+  "spec": "s4-power-late-demo-cases-v1",
+  "case_id": "P02-power-late",
+  "database": "assetops_lr01_evon",
+  "commands": [
+    "python -m assetops_backend.publish_assumption fixture --site KOBO-001 --file conversions\\demo-diesel-price-publications.json --step v1",
+    "python -m assetops_backend.recompute_consequences run --tenant demo --site KOBO-001 --limit 100"
+  ],
+  "checks": [
+    {
+      "check": "the SYSTEM attestation CLI recorded one event",
+      "ok": true,
+      "detail": {
+        "exit": 0,
+        "body": {
+          "site_code": "KOBO-001",
+          "replayed": false,
+          "actor_id": "service:assetops-clock-attester",
+          "attestation_id": "fb7d50b7-aa2f-4022-bdf1-c46a91d30963",
+          "version": 1,
+          "event_id": "d70928aa-0552-4a24-b491-8a6e0a12479f",
+          "event_kind": "RECORDED",
+          "source_id": "b7f19121-c5ff-491f-a4e0-06b0ed94dfa2",
+          "sequence_epoch": "s4-fixture-late-power-epoch-1",
+          "proof_class": "SIMULATED",
+          "authority": "lab-simulated-clock",
+          "label": "SIMULATED demonstration clock attestation (LR-01 walkthrough; not a real-source proof)",
+          "max_utc_error_ms": 30000,
+          "valid_from": "2026-10-24T00:00:00.000000Z",
+          "valid_to": "2026-10-24T23:59:59.000000Z",
+          "recorded_at": "2026-10-15T09:48:17.772606+00:00",
+          "requeued": [
+            {
+              "start": "2026-10-24T05:55:00.000000Z",
+              "end": "2026-10-24T08:00:00.000000Z"
+            }
+          ]
+        },
+        "command": "python -m assetops_backend.record_clock_attestation record --site KOBO-001 --source b7f19121-c5ff-491f-a4e0-06b0ed94dfa2 --epoch s4-fixture-late-power-epoch-1 --idempotency-key lr01-record-0 --authority lab-simulated-clock --label SIMULATED demonstration clock attestation (LR-01 walkthrough; not a real-source proof) --max-error-seconds 30 --valid-from 2026-10-24T00:00:00Z --valid-to 2026-10-24T23:59:59Z"
+      }
+    },
+    {
+      "check": "late acceptance: PENDING_REASSESSMENT and no current amount",
+      "ok": true,
+      "detail": [
+        "S3_STALE_PROJECTION: DAY 2026-10-24",
+        "LIVE_JOB: DAY 2026-10-24 ff8aea5f-6657-4259-afe6-8d1bd7e7ea89"
+      ]
+    },
+    {
+      "check": "row 4: full episode, not SERIES_LIMIT, ELIGIBLE at 15.8125 USD",
+      "ok": true,
+      "detail": {
+        "revision": {
+          "id": "ce8179f0-c624-46bc-a25f-31b04fff30de",
+          "revision_no": 3,
+          "lifecycle": "SUPPORTED",
+          "transition": "SUPPORT_CHANGED",
+          "end_reason": "OPEN_BOUND",
+          "episode": [
+            "2026-10-24 06:05",
+            "2026-10-24 08:00"
+          ],
+          "analytic_run_ids": [
+            "f426eeb7-618b-483e-9e8c-e6f7f0fb3b96"
+          ]
+        },
+        "money": {
+          "state": "ELIGIBLE",
+          "latest_finding_revision_id": "ce8179f0-c624-46bc-a25f-31b04fff30de",
+          "end_reason": "OPEN_BOUND",
+          "pending_reasons": [],
+          "series_limits": [],
+          "windows": [
+            {
+              "day": "2026-10-24",
+              "s3_status": "CURRENT",
+              "episode_day": true,
+              "analytic_run_id": "f426eeb7-618b-483e-9e8c-e6f7f0fb3b96",
+              "model_version": "dispatch-3.2",
+              "window_assessment_revision_id": "6c126581-1912-4800-8a46-eba849a251ab",
+              "matched": true,
+              "match_pass_id": "d47a0d06-d66c-40bd-aca5-723c9f4148e3",
+              "live_job_ids": []
+            }
+          ],
+          "head_consequence_revision_id": "9ba4e8d1-cfc9-4ee3-9cef-06d9a28bc29e"
+        }
+      }
+    }
+  ],
+  "lr01": true,
+  "variant": "on-time",
+  "through": "withheld",
+  "price_v1": {
+    "site_code": "KOBO-001",
+    "step": "v1",
+    "revision_id": "ae5c8df6-dabe-4d10-8f05-3d2e0111954a",
+    "revision_no": 1,
+    "change_kind": "INITIAL",
+    "recorded_at": "2026-10-15T09:48:09.845996+00:00",
+    "replayed": false,
+    "actor_id": "service:assetops-assumption-publisher"
+  },
+  "drains": [
+    {
+      "label": "bootstrap: r1",
+      "exit": 0,
+      "items": [
+        {
+          "site_code": "KOBO-001",
+          "work_id": "2a09e8a4-2b23-468d-be27-c4a52569220d",
+          "cause": "ASSUMPTION_PUBLISHED",
+          "succeeded": true,
+          "attempt_no": 1,
+          "appended": [
+            "f2f9496d-ce7a-4556-9011-94871e249df2"
+          ],
+          "replayed": [],
+          "no_op_reason": null,
+          "error_code": null,
+          "error_detail": null
+        },
+        {
+          "site_code": "KOBO-001",
+          "work_id": "7e9a88e3-f729-4bc8-8885-b3f980b07f38",
+          "cause": "FINDING_REVISION_APPENDED",
+          "succeeded": true,
+          "attempt_no": 1,
+          "appended": [],
+          "replayed": [
+            "f2f9496d-ce7a-4556-9011-94871e249df2"
+          ],
+          "no_op_reason": null,
+          "error_code": null,
+          "error_detail": null
+        }
+      ],
+      "summary": {
+        "site_code": "KOBO-001",
+        "tenant": "demo",
+        "site_id": "934145b0-3c6e-424d-bad9-ffdeaca78f98",
+        "claimed": true,
+        "skipped": false,
+        "now": "2026-10-15T09:48:15.556389+00:00",
+        "now_source": "database",
+        "limit": 100,
+        "selected": 2,
+        "appended": 1,
+        "replayed": 1,
+        "no_op": 0,
+        "failed": 0,
+        "deferred": 0,
+        "backlog": 0
+      }
+    }
+  ],
+  "performance_gate": [
+    {
+      "label": "after the first delivery",
+      "exit": 0,
+      "open": true,
+      "tail": "selected_runs': 1, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}\nReport: C:\\Users\\assef\\AppData\\Local\\AssetOps\\assetops_lr01_evon\\tree\\var\\evidence\\migration-performance\\kobo-001\\20261015T094816829290Z-6a4cdcb2-2c9e-4c75-877a-ceccdc9a2295.json\nPerformance cutover: permitted\n"
+    },
+    {
+      "label": "after the attestation tick",
+      "exit": 0,
+      "open": true,
+      "tail": "selected_runs': 2, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}\nReport: C:\\Users\\assef\\AppData\\Local\\AssetOps\\assetops_lr01_evon\\tree\\var\\evidence\\migration-performance\\kobo-001\\20261015T094825080259Z-72447f6f-d085-4778-ac84-bbd5fab4715b.json\nPerformance cutover: permitted\n"
+    },
+    {
+      "label": "after the late tick",
+      "exit": 0,
+      "open": true,
+      "tail": "selected_runs': 3, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}\nReport: C:\\Users\\assef\\AppData\\Local\\AssetOps\\assetops_lr01_evon\\tree\\var\\evidence\\migration-performance\\kobo-001\\20261015T094834202427Z-b4df7b81-edb7-4952-be59-624c4d3e4497.json\nPerformance cutover: permitted\n"
+    }
+  ],
+  "r1": {
+    "id": "27121491-64c9-4e5a-bf4d-3f41b10c7443",
+    "revision_no": 1,
+    "lifecycle": "SUPPORTED",
+    "transition": "OPENED",
+    "end_reason": "OPEN_BOUND",
+    "episode": [
+      "2026-10-24 06:05",
+      "2026-10-24 08:00"
+    ],
+    "analytic_run_ids": [
+      "40fe2de8-1b33-40fd-9cf4-26e61be43286"
+    ]
+  },
+  "attestation": {
+    "exit": 0,
+    "body": {
+      "site_code": "KOBO-001",
+      "replayed": false,
+      "actor_id": "service:assetops-clock-attester",
+      "attestation_id": "fb7d50b7-aa2f-4022-bdf1-c46a91d30963",
+      "version": 1,
+      "event_id": "d70928aa-0552-4a24-b491-8a6e0a12479f",
+      "event_kind": "RECORDED",
+      "source_id": "b7f19121-c5ff-491f-a4e0-06b0ed94dfa2",
+      "sequence_epoch": "s4-fixture-late-power-epoch-1",
+      "proof_class": "SIMULATED",
+      "authority": "lab-simulated-clock",
+      "label": "SIMULATED demonstration clock attestation (LR-01 walkthrough; not a real-source proof)",
+      "max_utc_error_ms": 30000,
+      "valid_from": "2026-10-24T00:00:00.000000Z",
+      "valid_to": "2026-10-24T23:59:59.000000Z",
+      "recorded_at": "2026-10-15T09:48:17.772606+00:00",
+      "requeued": [
+        {
+          "start": "2026-10-24T05:55:00.000000Z",
+          "end": "2026-10-24T08:00:00.000000Z"
+        }
+      ]
+    },
+    "command": "python -m assetops_backend.record_clock_attestation record --site KOBO-001 --source b7f19121-c5ff-491f-a4e0-06b0ed94dfa2 --epoch s4-fixture-late-power-epoch-1 --idempotency-key lr01-record-0 --authority lab-simulated-clock --label SIMULATED demonstration clock attestation (LR-01 walkthrough; not a real-source proof) --max-error-seconds 30 --valid-from 2026-10-24T00:00:00Z --valid-to 2026-10-24T23:59:59Z"
+  },
+  "ticks": [
+    {
+      "label": "after the attestation",
+      "exit": 0,
+      "outcome": "COMPLETED",
+      "failure": null
+    },
+    {
+      "label": "after late acceptance",
+      "exit": 0,
+      "outcome": "COMPLETED",
+      "failure": null
+    }
+  ],
+  "late": {
+    "accepted_evidence_id": "d16b96f3-6395-4e2f-b86b-06b366c08416",
+    "sequence": [
+      14
+    ]
+  },
+  "reads": [
+    {
+      "label": "late accepted, before the tick",
+      "finding_id": "8723bdba-012f-4b68-8f3f-ff36be6da270",
+      "finding_revision_id": "7efa0b99-0cc1-4f3d-9d94-9c65179716b1",
+      "is_latest": true,
+      "currentness": "STALE",
+      "reasons": [
+        "TECHNICAL_INPUT_CHANGED"
+      ],
+      "pending_work": [
+        {
+          "work_id": "5aeb8482-dfd4-49fc-83b2-efcd1eb88e99",
+          "cause": "EVIDENCE_ACCEPTED",
+          "accepted_evidence_id": "d16b96f3-6395-4e2f-b86b-06b366c08416",
+          "finding_revision_id": "7efa0b99-0cc1-4f3d-9d94-9c65179716b1"
+        }
+      ],
+      "head_consequence_revision_id": "bdf4050c-4532-4f51-890c-12bbc3f7ddec",
+      "consequence": {
+        "id": "bdf4050c-4532-4f51-890c-12bbc3f7ddec",
+        "revision_no": 1,
+        "state": "QUANTITY_UNAVAILABLE",
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "quantity_reason": "POWER_COVERAGE_GAP",
+        "quantity_high": null,
+        "price_state": "NOT_EVALUATED",
+        "price_reason": "QUANTITY_UNAVAILABLE",
+        "price_revision_id": null,
+        "amount_high": null,
+        "display_amount_high": null,
+        "technical_input_sha256": "69c7c23c015e3e5fd104d8efd65b1a2e0549e54667d3e5799574181c18dc3154",
+        "consequence_basis_sha256": "607320ec81f79ce3664f791d184f95f860c07bec2b8d1c844631ee34b21fee42",
+        "counted_power_evidence": 0,
+        "counted_power_evidence_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "analytic_run_ids": [
+          "40fe2de8-1b33-40fd-9cf4-26e61be43286"
+        ]
+      },
+      "history": [
+        [
+          "bdf4050c-4532-4f51-890c-12bbc3f7ddec",
+          1,
+          "QUANTITY_UNAVAILABLE",
+          "POWER_COVERAGE_GAP"
+        ]
+      ],
+      "bridge": {
+        "state": "STALE",
+        "reason_key": "STALE_QUEUED",
+        "recalculation_queued": true,
+        "recorded_consequence_revision_id": null,
+        "amount": null,
+        "currency": null,
+        "currentness_reasons": [
+          "TECHNICAL_INPUT_CHANGED"
+        ]
+      },
+      "money_eligibility": {
+        "state": "PENDING_REASSESSMENT",
+        "latest_finding_revision_id": "7efa0b99-0cc1-4f3d-9d94-9c65179716b1",
+        "end_reason": "OPEN_BOUND",
+        "pending_reasons": [
+          "S3_STALE_PROJECTION: DAY 2026-10-24",
+          "LIVE_JOB: DAY 2026-10-24 ff8aea5f-6657-4259-afe6-8d1bd7e7ea89"
+        ],
+        "series_limits": [],
+        "windows": [
+          {
+            "day": "2026-10-24",
+            "s3_status": "STALE_PROJECTION",
+            "episode_day": true,
+            "analytic_run_id": "8e296770-8246-4bed-9f64-bec8ce73a143",
+            "model_version": "dispatch-3.2",
+            "window_assessment_revision_id": "612875d0-34ad-405d-b31d-3ec32c8cfc8b",
+            "matched": true,
+            "match_pass_id": "9367b979-d5a8-4fa7-848b-6799afe0ac85",
+            "live_job_ids": [
+              "ff8aea5f-6657-4259-afe6-8d1bd7e7ea89"
+            ]
+          }
+        ],
+        "head_consequence_revision_id": "bdf4050c-4532-4f51-890c-12bbc3f7ddec"
+      },
+      "current_amount_shown": false,
+      "presented_as_current": false,
+      "s5_money_eligible": false,
+      "derived_now": {
+        "quantity": "QUANTITY_UNAVAILABLE",
+        "reason": "POWER_NOT_IN_ASSESSMENT_INPUTS",
+        "examined_count": 23,
+        "examined_sha256": "824f395934eae8eb451f2bf02fddaca4cb2d1c0ef490b786b6ad44a25a0b7a31",
+        "late_examined": true,
+        "late_in_run_inputs": false,
+        "run_input_count": 174
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    },
+    {
+      "label": "after the late tick",
+      "finding_id": "8723bdba-012f-4b68-8f3f-ff36be6da270",
+      "finding_revision_id": "ce8179f0-c624-46bc-a25f-31b04fff30de",
+      "is_latest": true,
+      "currentness": "CURRENT",
+      "reasons": [],
+      "pending_work": [],
+      "head_consequence_revision_id": "9ba4e8d1-cfc9-4ee3-9cef-06d9a28bc29e",
+      "consequence": {
+        "id": "9ba4e8d1-cfc9-4ee3-9cef-06d9a28bc29e",
+        "revision_no": 1,
+        "state": "PRICED",
+        "quantity": "AVAILABLE",
+        "quantity_reason": null,
+        "quantity_high": "12.65",
+        "price_state": "PRICED",
+        "price_reason": null,
+        "price_revision_id": "ae5c8df6-dabe-4d10-8f05-3d2e0111954a",
+        "amount_high": "15.8125",
+        "display_amount_high": "15.82",
+        "technical_input_sha256": "bfd501d14edeca9cf8aebf4901be1ea6dc852c4153c829c730b1a81653204394",
+        "consequence_basis_sha256": "4f1d1b5b46453b2a59e8f87401a53c7c1cefbae1220e871aadf961d370d81719",
+        "counted_power_evidence": 23,
+        "counted_power_evidence_sha256": "824f395934eae8eb451f2bf02fddaca4cb2d1c0ef490b786b6ad44a25a0b7a31",
+        "analytic_run_ids": [
+          "f426eeb7-618b-483e-9e8c-e6f7f0fb3b96"
+        ]
+      },
+      "history": [
+        [
+          "9ba4e8d1-cfc9-4ee3-9cef-06d9a28bc29e",
+          1,
+          "PRICED",
+          null
+        ]
+      ],
+      "bridge": {
+        "state": "PRICED",
+        "reason_key": "PRICED",
+        "recalculation_queued": false,
+        "recorded_consequence_revision_id": null,
+        "amount": {
+          "low": "0.00",
+          "high": "15.82"
+        },
+        "currency": "USD",
+        "currentness_reasons": []
+      },
+      "money_eligibility": {
+        "state": "ELIGIBLE",
+        "latest_finding_revision_id": "ce8179f0-c624-46bc-a25f-31b04fff30de",
+        "end_reason": "OPEN_BOUND",
+        "pending_reasons": [],
+        "series_limits": [],
+        "windows": [
+          {
+            "day": "2026-10-24",
+            "s3_status": "CURRENT",
+            "episode_day": true,
+            "analytic_run_id": "f426eeb7-618b-483e-9e8c-e6f7f0fb3b96",
+            "model_version": "dispatch-3.2",
+            "window_assessment_revision_id": "6c126581-1912-4800-8a46-eba849a251ab",
+            "matched": true,
+            "match_pass_id": "d47a0d06-d66c-40bd-aca5-723c9f4148e3",
+            "live_job_ids": []
+          }
+        ],
+        "head_consequence_revision_id": "9ba4e8d1-cfc9-4ee3-9cef-06d9a28bc29e"
+      },
+      "current_amount_shown": true,
+      "presented_as_current": true,
+      "s5_money_eligible": true,
+      "derived_now": {
+        "quantity": "AVAILABLE",
+        "reason": null,
+        "examined_count": 23,
+        "examined_sha256": "824f395934eae8eb451f2bf02fddaca4cb2d1c0ef490b786b6ad44a25a0b7a31",
+        "late_examined": true,
+        "late_in_run_inputs": true,
+        "run_input_count": 175
+      },
+      "candidate_spans": [
+        [
+          "2026-10-24T06:05:00+00:00",
+          "2026-10-24T08:00:00+00:00"
+        ]
+      ],
+      "withheld_inside_candidate": true
+    }
+  ],
+  "after_late": {
+    "id": "ce8179f0-c624-46bc-a25f-31b04fff30de",
+    "revision_no": 3,
+    "lifecycle": "SUPPORTED",
+    "transition": "SUPPORT_CHANGED",
+    "end_reason": "OPEN_BOUND",
+    "episode": [
+      "2026-10-24 06:05",
+      "2026-10-24 08:00"
+    ],
+    "analytic_run_ids": [
+      "f426eeb7-618b-483e-9e8c-e6f7f0fb3b96"
+    ]
+  },
+  "after_late_window_claims": [
+    [
+      "6c126581-1912-4800-8a46-eba849a251ab",
+      "LIMITED"
+    ]
+  ],
+  "failures": [],
+  "state": {
+    "db": "assetops_lr01_evon",
+    "variant": "on-time",
+    "finding_id": "8723bdba-012f-4b68-8f3f-ff36be6da270",
+    "epoch": "s4-fixture-late-power-epoch-1",
+    "day": "2026-10-24",
+    "source_id": "b7f19121-c5ff-491f-a4e0-06b0ed94dfa2",
+    "attestations": 1,
+    "tenant_id": "2fff73b5-b24b-44a7-a6b7-5a940cd97ae0",
+    "site_id": "934145b0-3c6e-424d-bad9-ffdeaca78f98",
+    "late_id": "d16b96f3-6395-4e2f-b86b-06b366c08416",
+    "eligible": {
+      "finding_revision_id": "ce8179f0-c624-46bc-a25f-31b04fff30de",
+      "consequence_revision_id": "9ba4e8d1-cfc9-4ee3-9cef-06d9a28bc29e"
+    }
+  }
+}
