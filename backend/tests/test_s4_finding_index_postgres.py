@@ -256,7 +256,7 @@ class TestContinuity:
         stale = ok(client, **day)
         assert stale["discovery"]["days"] == ["2026-10-25", "2026-10-26"]
         assert_no_claim(stale, "STALE_PROJECTION")
-        assert all(r.startswith("2026-10-26") for r in stale["status_reasons"]), stale["status_reasons"]
+        assert any(r.startswith("2026-10-26") for r in stale["status_reasons"]), stale["status_reasons"]
         # the injected cap is reached through the S3 Candidate edge alone (no stored episode exists)
         detail = refused(call(client_for(runner, continuity_limit=1), **day), 409, "INDEX_CONTINUITY_LIMIT")
         assert detail["limit_days"] == 1

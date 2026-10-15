@@ -152,7 +152,7 @@ function Basis({ body }: { body: FindingIndexBody }) {
             <th scope="col">Day (UTC)</th>
             <th scope="col">State</th>
             <th scope="col">Assessment selection</th>
-            <th scope="col">Run</th>
+            <th scope="col">Assessment record</th>
             <th scope="col">Findings matched</th>
           </tr>
         </thead>
@@ -224,7 +224,7 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
             </td>
             <td>
               <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-finding-index-link>
-                {row.title}
+                {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.title ?? "Generator support review"}
               </Link>
               <br />
               <small>
