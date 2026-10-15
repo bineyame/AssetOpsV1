@@ -11,6 +11,6 @@ Branch when activated: task/S4-04-site-finding-index
 
 ## Acceptance
 
-- Decide `A-finding-index`; `I-finding-index` returns scoped rows, selection watermark, stable Finding ID and exact revision link. `I-site-findings-ui` opens the detail route after reload.
-- `D-site-finding-index-empty` proves a watermarked zero-row result; `D-site-finding-index-rows` proves persisted positive rows. Both variants are required for W1 core completion.
+- Implement resolved `A-finding-index` (`D-2026-10-15-a-finding-index`): `I-finding-index` returns scoped rows, selection watermark, stable Finding ID and exact revision link. Bound the selectable window to 31 UTC days and prove discovery through current selection seq for every intersected UTC day and 20-minute continuity neighbour. Add a new read without changing the existing `findings_over` helper. `I-site-findings-ui` opens the detail route after reload.
+- `D-site-finding-index-empty` proves a watermarked zero-row result and a closed S3 source-gate 409 `PERFORMANCE_CUTOVER_CLOSED` with its reason and no current/no-Findings claim; `D-site-finding-index-rows` proves persisted positive rows. Test that the first index row equals the S5-01 card Finding and selected revision on the same Site/window/basis. Both variants are required for W1 core completion.
 - Compare app/mock `sitefindings` at desktop and narrow widths, including selected Site/window, keyboard navigation and an exact detail drill-down. Independent review and owner checkpoint close this packet.
