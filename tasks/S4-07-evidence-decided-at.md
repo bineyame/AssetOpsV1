@@ -32,3 +32,8 @@ Focused checks: `backend/tests/test_s2_evidence_ledger_postgres.py`, `test_s2_si
 ## Plan fix round 1
 
 Resolved review M1 by choosing transactional DB-time decision/job stamping, an explicit test-only fixture override, and existing coalescing subject to the two-order race proof. Expanded focused coverage and resized S to M. Carried review L1 (app-clock receipt timestamps), L2 (configuration comparand out of scope), and the manual-CLI clock residual. No open Architect question remains.
+
+## Coordinator note after plan re-review (`.agent/S4-07-plan-rereview.md`: ACCEPT)
+
+Implementer carries (Low): L-a under clock skew a batch's app-clock `completed_at` may precede the last DB-time `decided_at` - do not assert that order in tests and mention it in the README-db note; L-b the decision time is taken before the job lock wait - test the ingestion-waits-on-a-leased-job case and assert ingestion inserts a new job.
+
