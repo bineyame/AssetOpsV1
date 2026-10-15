@@ -160,8 +160,11 @@ class PostgresFindingStore:
     @staticmethod
     def _insert_revision(c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str, w: Write,
                          now: datetime) -> str | None:
-        exists = c.execute(text("SELECT 1 FROM finding_revision WHERE finding_id = :f AND basis_sha256 = :b "
-                                "AND transition = :tr"),
+        # Replay guard against the LATEST revision only (LR-01): a basis that returns to an earlier one (proof
+        # recorded then revoked: run B -> run C -> run B) is a new revision, never swallowed by an older match.
+        exists = c.execute(text("SELECT 1 FROM (SELECT basis_sha256, transition FROM finding_revision "
+                                "WHERE finding_id = :f ORDER BY revision_no DESC LIMIT 1) x "
+                                "WHERE x.basis_sha256 = :b AND x.transition = :tr"),
                            {"f": w.finding_id, "b": w.basis_sha256, "tr": w.transition}).first()
         if exists:
             return None
