@@ -376,6 +376,15 @@ coordinator's:
   handoff and stops, even mid-phase; a fresh agent continues from the handoff.
   The coordinator plans phases so that none is expected to reach that size,
   splitting a phase into sub-phases (2a, 2b) rather than letting one run long.
+- **Backend tests: focused per phase, full once per slice** (OPS-01,
+  `backend/TESTING.md`). Each phase runs the focused and adjacent backend files
+  it touched; the real-Postgres full suite runs once per slice, on the final
+  revision, with the guide's normal command and JUnit zero-skip check.
+  Reviewers (Claude or Codex) cite that same-revision full evidence and run
+  focused files; they rerun the full suite only for a finding that needs it.
+  Before any full run start `tools/keep-awake-during-tests.ps1` and cap the run
+  at twice its expected wall time; a run past the cap is stopped and reported,
+  never waited on. One full suite on this machine at a time.
 - **Mechanical sub-steps run on Sonnet.** Work fixed by an agreed contract or
   handoff - tests written against a settled interface, an AC-by-AC evidence
   pass, closeout records - is dispatched with `model: sonnet`, like fix rounds.

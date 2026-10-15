@@ -37,8 +37,18 @@ rather than repeating the packet's numbers.
 ```
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-architecture.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-agent-workflow.ps1
-.venv\Scripts\python.exe -m pytest backend/tests -q
+.venv\Scripts\python.exe -m pytest <focused backend test files for the slice> -q
 ```
+
+Backend tests follow `backend/TESTING.md`. Run the focused and adjacent files
+for the slice (the guide lists area commands, with the Postgres URL setup).
+Do not rerun the full backend suite by default: cite the implementer's full
+run on the same revision (command, JUnit cases/skipped/failed, wall time) and
+check that its revision is the one under review. Rerun the full suite only for
+a finding that needs it, or when that evidence is missing or from another
+revision; then follow the guide's full command, start the keep-awake helper,
+cap the run at twice its expected wall time, and run at most one full suite on
+this machine at a time.
 
 In `frontend`, **use `npm.cmd` and `npx.cmd`, not `npm` and `npx`**:
 

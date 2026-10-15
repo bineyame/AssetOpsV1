@@ -255,7 +255,7 @@ BASE = "/api/sites/{}/performance/dispatch"
 
 
 class TestRoutes:
-    @pytest.mark.parametrize("tail", ["cutover", "windows/2026-10-06", f"runs/{uuid4()}", f"revisions/{uuid4()}"])
+    @pytest.mark.parametrize("tail", ["cutover", "windows/2026-10-06", "runs/5f0c2a8e-6a51-4c39-9d2a-0b7c1e3f4a10", "revisions/c3d9e7b2-1f48-4e6a-8a05-7d2b6c9e0f31"])
     def test_unknown_or_foreign_site_is_404(self, tail) -> None:
         assert client(FakeReads()).get(f"{BASE.format('FOREIGN-9')}/{tail}").status_code == 404
 

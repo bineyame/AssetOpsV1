@@ -61,8 +61,9 @@ the rows; it never recomputes a published hash.
 ## Tests
 
 The Compose service also creates `assetops_test`, a disposable database used
-only by the Postgres tests. They drop its schema and run every migration from
-zero; they never touch the developer database.
+only by the Postgres tests as an administrative base: every Postgres module
+starts on a freshly cloned, fully migrated run-owned database; they never touch
+the developer database.
 
 ```sh
 export ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test
@@ -72,6 +73,11 @@ export ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-d
 Without `ASSETOPS_TEST_DATABASE_URL` those tests are reported as skipped, not
 passed. They refuse to run against a database whose name does not end in
 `_test`.
+
+The URL names a *base* database: each run clones run-owned
+`<base>_pt<run>_<tag>_test` databases from a once-migrated template and drops
+them at the end. Focused commands, the full-suite command, the zero-skip check
+and when to run which are in [TESTING.md](TESTING.md).
 
 ## Consequence recompute runner (S4-02c)
 

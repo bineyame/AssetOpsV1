@@ -18,14 +18,14 @@ from uuid import uuid4
 
 import pytest
 
+import pg_harness
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(
     not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)"
 )
 
 if URL:
-    from alembic import command
-    from alembic.config import Config
     from fastapi.testclient import TestClient
     from sqlalchemy import create_engine, text
     from sqlalchemy.engine import make_url
@@ -69,25 +69,22 @@ def engine():
     assert url.database and url.database.endswith("_test"), (
         "Refusing to run destructive tests against a database not named *_test"
     )
+    # A fresh, fully migrated database per module: cloned from this run's migrated
+    # template, or reset and migrated in place when routing is off (pg_harness).
+    pg_harness.fresh_database()
     eng = create_engine(URL)
-    with eng.begin() as connection:
-        connection.execute(text("DROP SCHEMA public CASCADE"))
-        connection.execute(text("CREATE SCHEMA public"))
-        connection.execute(text("DROP EXTENSION IF EXISTS btree_gist"))
-    config = Config(str(BACKEND / "alembic.ini"))
-    config.attributes["database_url"] = URL
-    command.upgrade(config, "head")
+    pg_harness.assert_at_head(eng)
     yield eng
     eng.dispose()
 
 
 @pytest.fixture()
 def store(engine):
-    with engine.begin() as connection:
-        connection.execute(
-            text("TRUNCATE foundation_revision, source, gateway, asset, site_import, site, tenant CASCADE")
-        )
-    return PostgresFoundationStore(URL)
+    # Same tables as TRUNCATE ... CASCADE, without its forced file syncs (pg_harness.empty_tables).
+    pg_harness.empty_tables(engine, ("foundation_revision", "source", "gateway", "asset", "site_import", "site", "tenant"))
+    owned = PostgresFoundationStore(URL)
+    yield owned
+    pg_harness.dispose(owned)
 
 
 class Clock:

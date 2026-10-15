@@ -5480,3 +5480,15 @@ Branch `task/S4-02d-analytic-finding-worker-schedule`, `62581ecd`..HEAD. Handoff
 - `tools/s402d_tick_walkthrough.py` (reuses `s402c_late_power_walkthrough.LateWalk`; DB `assetops_s402d3walk*`, environment `walkthrough`): five schedule ticks only, command-log grep for hand-run Leg B (mutation caught). Evidence `.agent/S4-02d-walkthrough-evidence.md`: 23/23; tick 3 rebuilt S3, appended r2 citing the late ID, r1's EVIDENCE_ACCEPTED attempt typed `FINDING_REVISION_SUPERSEDED` no-op, r2 CURRENT PRICED; seam CURRENT only after the tick; stopped worker blocks the seam.
 - I4: proved by the independent phase-2 review race (0 false CURRENT).
 - Open: F-B statement-level guard; evidence-owner `decided_at` packet; health scan cost; S5-01 seam carries; demo-host tick cost; no owner-visible install before F1.
+
+## OPS-01 - backend test turnaround (phases 1-2 built, review pending)
+
+Branch `task/OPS-01-backend-test-speed` from main `52189ec7`. Handoffs `.agent/OPS-01-phase-1-handoff.md`, `.agent/OPS-01-phase-2-handoff.md`; packet `.agent/OPS-01-review-packet.md`. Guide: `backend/TESTING.md`.
+
+- `backend/tests/pg_harness.py`: run-owned databases `<stem>_pt<run>_<tag>_test`, one migrated template per run (`ALLOW_CONNECTIONS false`), per-module `DROP ... WITH (FORCE)` + `CREATE ... TEMPLATE`, `assert_at_head`, lease-guarded orphan sweep, `empty_tables` (DELETE over the TRUNCATE CASCADE closure under `session_replication_role = replica`), `dispose`.
+- xdist (`pytest-xdist==3.8.0`, dev extra): controller makes the run id (`conftest.pytest_configure_node` -> `workerinput`), routes nothing; workers `route(tag=gwN, run=...)` before collection and return early from basetemp handling; first worker builds the shared template under `pg_advisory_lock`; workers drop only their own DB; controller `cleanup_run` drops the rest (covers crashed workers). Workers move `conftest.START_FIRST` modules to the front.
+- Normal full command: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (7.7 / 8.4 min, peak 35 / 32 sessions; serial 30.8 min; pre-OPS-01 41-80 min). `-n 3`: one run, 6.5 min, peak 41.
+- Parametrize IDs must be deterministic (xdist refuses differing collections); `test_s3_performance_cutover.py` now uses fixed UUIDs.
+- Role guidance: reviewers reuse implementer same-revision full evidence; full suite once per slice; keep-awake + 2x cap (`.claude/agents/assetops-{reviewer,implementer}.md`, `.ai/ROLE_CONFIG.md`).
+- Escape hatches: `ASSETOPS_TEST_TEMPLATE=0`, `ASSETOPS_TEST_CLEANUP=truncate`; measurement knobs off by default.
+- Open: inline stores still GC-disposed (no public `dispose()` on production stores); `gc.collect()` fixtures kept; concurrent full runs unproven (one-at-a-time policy); timing-sensitive S4 cases did not flake in 3 parallel runs but remain disk-stall sensitive; `-n 3` not adopted on one run.
