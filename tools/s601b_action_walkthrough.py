@@ -265,6 +265,9 @@ class Walk:
         if self.work.exists():
             if not self.owned():
                 raise SystemExit(f"Not removing {self.work}: it has no {MARKER} marker")
+            if recorded != self.db:
+                raise SystemExit(f"Not removing {self.work}: its marker records database {recorded or 'nothing'}, "
+                                 f"not {self.db}")
             shutil.rmtree(self.work)
             say(f"removed {self.work}")
 
