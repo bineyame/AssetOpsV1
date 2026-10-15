@@ -218,6 +218,19 @@ def test_upstream_states_give_no_amount(status, state) -> None:
     assert run(World([f], eligibility=elig))["money"]["state"] == state
 
 
+def test_timeline_interval_uses_its_stored_span_not_the_day_window() -> None:
+    world = World()
+    detail = world.detail(T, S, DAY)
+    detail["intervals"] = [{"id": "iv-1", "window_start": D0, "window_end": D0 + timedelta(days=1),
+                            "claim_level": "CANDIDATE_AVOIDABLE", "assessment_key": "k",
+                            "result": {"interval": {"first_on": "2026-10-24T06:05:00.000000Z",
+                                                    "last_on": "2026-10-24T08:00:00.000000Z"}}}]
+    world.upstream.dispatch_read.window = lambda t, s, day: detail
+    (iv,) = run(world)["assessment"]["dispatch_intervals"]
+    assert (iv["start"], iv["end"]) == ("2026-10-24T06:05:00Z", "2026-10-24T08:00:00Z")
+    assert iv["window"] == {"start": "2026-10-24T00:00:00Z", "end": "2026-10-25T00:00:00Z"}
+
+
 def test_unassessed_day_is_unknown_and_never_absent() -> None:
     elig = {"status": "UNASSESSED", "stage": "S3", "reasons": ["S3_UNASSESSED"], "errors": []}
     body = run(World([], eligibility=elig, day_run=None, detail_run=None))

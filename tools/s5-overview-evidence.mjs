@@ -134,7 +134,8 @@ const READ = `(() => {
     assessment: q('[data-assessment-state]')?.getAttribute('data-assessment-state') ?? null,
     money: m?.getAttribute('data-money-state') ?? null,
     gate: m?.getAttribute('data-money-gate') ?? null,
-    amount: m?.querySelector('[data-money-amount]')?.getAttribute('data-money-amount') === '' ? m.querySelector('[data-money-amount]').innerText : (m?.querySelector('[data-money-amount]')?.getAttribute('data-money-amount') ?? null),
+    amount: (() => { const a = m?.querySelector('[data-money-amount]'); if (!a) return null;
+      return a.getAttribute('data-money-amount') === 'none' ? 'none' : a.innerText.trim(); })(),
     demo: m?.querySelector('[data-financials-demonstration]')?.getAttribute('data-financials-demonstration') ?? null,
     consequence: m?.getAttribute('data-consequence-revision-id') ?? null,
     financials: m?.querySelector('[data-window-financials-link]')?.getAttribute('href') ?? null,

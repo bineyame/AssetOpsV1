@@ -354,9 +354,14 @@ class SiteOverviewRead:
             "objective": None if not detail.get("window_assessment") else (detail["window_assessment"].get("result")
                                                                            or {}).get("objective"),
             "coverage": detail.get("coverage"),
+            # The stored interval's own observed span (`result.interval.first_on`/`last_on`), not the day window
+            # the revision belongs to (phase-2 finding: the window bounds made every interval read 00:00-24:00).
             "dispatch_intervals": [{
-                "revision_id": str(r.get("id")), "start": _iso(r.get("window_start")),
-                "end": _iso(r.get("window_end")), "claim_level": r.get("claim_level"),
+                "revision_id": str(r.get("id")),
+                "start": _iso(((r.get("result") or {}).get("interval") or {}).get("first_on")),
+                "end": _iso(((r.get("result") or {}).get("interval") or {}).get("last_on")),
+                "window": {"start": _iso(r.get("window_start")), "end": _iso(r.get("window_end"))},
+                "claim_level": r.get("claim_level"),
                 "assessment_key": r.get("assessment_key"),
                 "link": f"{base}/revisions/{r.get('id')}"} for r in detail.get("intervals") or []],
             "links": links}

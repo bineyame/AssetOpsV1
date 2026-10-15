@@ -180,6 +180,9 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         assert (money["amount_low"], money["amount_high"]) == (head["display"]["amount_low"],
                                                                 head["display"]["amount_high"])
         assert money["amount_high"] == "15.82" == display_high(head["amount"]["high"])
+        # Timeline: each assessed period carries its own stored span, not the day window it belongs to.
+        spans = [(i["start"], i["end"]) for i in body["assessment"]["dispatch_intervals"]]
+        assert spans and all(a is not None and a != f"{DAY}T00:00:00Z" and a < b for a, b in spans), spans
         assert money["links"]["consequence"] == (f"/api/sites/KOBO-001/findings/{r3['finding_id']}/financial-"
                                                  f"consequences?revision_id={r3['id']}&consequence_revision_id="
                                                  f"{head['id']}")
