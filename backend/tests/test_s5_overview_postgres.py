@@ -173,6 +173,8 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         body = get()
         money = body["money"]
         assert money["state"] == "PRICED", money
+        # Architect M3 ruling: authored P02 demonstration money carries the shared demonstration label.
+        assert (money["demonstration"] or {}).get("case_id") == "P02-power-late", money["demonstration"]
         assert money["finding_revision_id"] == str(r3["id"]) != str(r2["id"])
         head = w.read(r3)["consequence"]
         assert money["consequence_revision_id"] == head["id"] == money["seam_head_consequence_revision_id"]
