@@ -63,6 +63,7 @@ REASONS = {
     "CURRENT_FOUNDATION_MISSING": "The Site has no single current Foundation revision.",
     "FOUNDATION_BASIS_STALE": "The Site's current battery reserve no longer equals the reserve the Finding used.",
     "UNCHANGED_RESULT": "The trial would not change the current reserve.",
+    "LIVE_RECOMPUTATION_FAILED": "The live recomputation could not read this revision's persisted inputs.",
 }
 
 

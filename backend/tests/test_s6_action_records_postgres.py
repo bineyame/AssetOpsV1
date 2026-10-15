@@ -65,6 +65,32 @@ def test_d_action_records_walkthrough_and_contract(runner) -> None:
     assert snapshot["state"] == "ACCEPTED" and snapshot["accepted"][0]["action_id"] == action_id
     assert snapshot["live_status"]["state"] == "UNAVAILABLE"
     assert snapshot["money_consequence"]["label"] == "Consequence"
+    assert snapshot["prior_action_block"] is None
+    assert snapshot["prior_actions"]["items"][0]["origin"]["is_selected_revision"] is True
+
+    # D-2026-10-15-s601-reopen: the newer F01 revision names the earlier Action (applied, verification pending) on
+    # the recorded clock (live AVAILABLE) and on the served clock (live FOUNDATION_BASIS_STALE); no Accept.
+    origin_revision = rec["pre_accept_available"]["body"]["revision_id"]
+    for name, live in (("latest_revision_after_apply", None),
+                       ("latest_revision_after_apply_served_clock_stale", "FOUNDATION_BASIS_STALE")):
+        body = rec[name]["body"]
+        assert body["revision_id"] != origin_revision, name
+        assert body["state"] == "PRIOR_ACTION_UNRESOLVED" and body["proposal"] is None, name
+        assert body["unavailable"]["blocking_action_id"] == action_id, name
+        assert body["unavailable"]["origin_finding_revision_id"] == origin_revision, name
+        assert body["system_demo_capability"]["allowed"] is False, name
+        assert body["live_status"]["state"] == ("AVAILABLE" if live is None else "UNAVAILABLE"), name
+        assert (body["live_status"]["unavailable"] or {}).get("code") == live, name
+        [prior] = body["prior_actions"]["items"]
+        assert prior["action_id"] == action_id and prior["origin"]["finding_revision_id"] == origin_revision
+        assert prior["origin"]["is_selected_revision"] is False and prior["unresolved"] is True
+        assert (prior["application"]["state"], prior["outcome"]["state"]) == ("APPLIED", "PENDING")
+        assert prior["links"]["action"] == f"/sites/KOBO-001/actions/{action_id}"
+    held = rec["accept_newer_revision_prior_action_unresolved"]
+    assert held["status"] == 409 and held["body"]["detail"]["code"] == "PRIOR_ACTION_UNRESOLVED"
+    assert held["body"]["detail"]["blocking_action_id"] == action_id
+    assert held["body"]["detail"]["origin_finding_revision_id"] == origin_revision
+    assert held["body"]["detail"]["live_status"]["state"] == "AVAILABLE"
 
     # Execution: OBSERVED backdated; FAILED cases; one APPLIED under concurrency; retry and already-applied.
     observed = execution["observed_backdated"]["body"]["event"]
@@ -112,7 +138,7 @@ def test_d_action_records_walkthrough_and_contract(runner) -> None:
     assert changes["change"]["body"]["change"] == change and changes["wrong_site_404"]["status"] == 404
 
     # Every written row agrees with the API: one Action per accepted Finding, the six F01 events, one artifact.
-    assert len(rows["action"]) == 2
+    assert len(rows["action"]) == 2  # the held newer-revision accept wrote nothing
     assert rec["accept_created"]["body"]["action"]["action_code"] in {r["action_code"] for r in rows["action"]}
     f01_events = [r for r in rows["action_event"] if str(r["action_id"]) == action_id]
     assert [r["kind"] for r in f01_events] == kinds

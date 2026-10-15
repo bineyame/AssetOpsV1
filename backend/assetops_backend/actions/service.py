@@ -20,6 +20,7 @@ from assetops_backend.actions.lifecycle import (
     APPLIED,
     FAILED,
     OBSERVATION_CODE,
+    PENDING,
     SYSTEM_DEMO,
     Selector,
     UnknownEvent,
@@ -39,8 +40,59 @@ OUTCOME_PENDING = {"state": "PENDING", "statement": "No verification exists yet;
                                                     "a saving or approval."}
 
 
+PRIOR_ACTION_UNRESOLVED = "PRIOR_ACTION_UNRESOLVED"
+PRIOR_ACTION_MESSAGE = ("An earlier reserve-trial-1 Action on this Finding is unresolved (application pending, "
+                        "including failed attempts awaiting retry, or applied with verification pending), so a new "
+                        "trial cannot be accepted. Follow the earlier Action.")
+# `D-2026-10-15-s601-reopen`: after acceptance an Action is PENDING (failed attempts leave it PENDING) or APPLIED.
+# Both are unresolved: no verification exists yet, and even a completed verification outcome is not permission for
+# another trial until S6-02 defines an explicit resolved/closed transition. So no reduced state releases the guard.
+UNRESOLVED_APPLICATION = (PENDING, APPLIED)
+
+
 def utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def is_unresolved(state: dict[str, Any]) -> bool:
+    return state["application"] in UNRESOLVED_APPLICATION
+
+
+def action_links(site_code: str, action_id: Any) -> dict[str, str]:
+    return {"action": f"/sites/{site_code}/actions/{action_id}",
+            "api_action": f"/api/sites/{site_code}/actions/{action_id}"}
+
+
+def prior_action(action: dict[str, Any], site_code: str, selected_revision_id: str | None) -> dict[str, Any]:
+    """One Action on the canonical Finding, labelled with its own origin revision (never the selected one)."""
+    state = reduce(action["events"])
+    origin = str(action["origin_finding_revision_id"])
+    return {"action_id": str(action["id"]), "action_code": action["action_code"],
+            "recommendation_key": action["recommendation_key"], "rule_id": action["rule_id"],
+            "asset_id": str(action["asset_id"]), "field": action["field"],
+            "accepted_at": action["created_at"].isoformat(),
+            "origin": {"finding_id": str(action["origin_finding_id"]), "finding_revision_id": origin,
+                       "revision_no": action.get("origin_revision_no"),
+                       "is_selected_revision": origin == selected_revision_id},
+            "application": {"state": state["application"], "application_attempts": state["application_attempts"],
+                            "failed_attempts": state["failed_attempts"],
+                            "last_failure": _wire(state["last_failure"])},
+            "outcome": state["outcome"], "unresolved": is_unresolved(state),
+            "links": action_links(site_code, action["id"])}
+
+
+def blocks_trial(prior: dict[str, Any]) -> bool:
+    return prior["unresolved"] and prior["rule_id"] == reserve_trial.RULE_ID and prior["field"] == reserve_trial.FIELD
+
+
+def prior_action_refusal(blocking: list[dict[str, Any]]) -> dict[str, Any]:
+    """The typed PRIOR_ACTION_UNRESOLVED reason over `prior_action` entries (the first is the earliest)."""
+    first = blocking[0]
+    return {"code": PRIOR_ACTION_UNRESOLVED, "message": PRIOR_ACTION_MESSAGE,
+            "blocking_action_id": first["action_id"], "blocking_action_code": first["action_code"],
+            "origin_finding_revision_id": first["origin"]["finding_revision_id"],
+            "origin_revision_no": first["origin"]["revision_no"], "links": first["links"],
+            "blocking_actions": blocking}
 
 
 def _wire(value: Any) -> Any:
@@ -115,12 +167,32 @@ class ActionService:
 
     def recommendation(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID,
                        revision_id: UUID | None, source_open: bool) -> dict[str, Any] | None:
-        found = self._evaluate(tenant_id, site_id, finding_id, revision_id, source_open)
-        if found is None:
+        current = self.currentness(tenant_id, site_id, finding_id, revision_id, source_open)
+        if current is None:
             return None
-        current, evaluation = found
         selected = str(current["revision_id"])
+        # Read before the live recomputation, so no live result (stale basis, later revision, failure) hides them.
+        prior = [prior_action(a, site_code, selected)
+                 for a in self.store.actions_for_finding(tenant_id, site_id, finding_id)]
+        inputs = self.store.rule_inputs(tenant_id, site_id, finding_id, UUID(selected),
+                                        is_latest=bool(current["is_latest"]),
+                                        claim_is_current=bool(current["claim_is_current"]) and source_open,
+                                        at=self.clock())
+        evaluation = (reserve_trial.evaluate(inputs) if inputs is not None
+                      else reserve_trial.Evaluation(False, "LIVE_RECOMPUTATION_FAILED", None))
         accepted = self.store.actions_for_revision(tenant_id, site_id, UUID(selected))
+        offered = evaluation.proposal if evaluation.available else None
+        # A new acceptance is held while another unresolved trial on this Finding exists: against the live key when
+        # one is offered, otherwise (stale basis, later revision, failure) for any. An accepted selected revision
+        # with no new key on offer shows its own snapshot instead.
+        blocking = [] if accepted and offered is None else [
+            p for p in prior if blocks_trial(p) and (offered is None or (
+                p["asset_id"] == offered["asset_id"] and p["recommendation_key"] != offered["recommendation_key"]))]
+        block = prior_action_refusal(blocking) if blocking else None
+        capability = self.capability(tenant_id, site_id, site_code, "ACCEPT", finding_id)
+        if block is not None:  # no Accept capability for a new key while the earlier trial is unresolved
+            capability = Capability(False, "ACCEPT", capability.fixture_id,
+                                    f"{PRIOR_ACTION_UNRESOLVED}: {PRIOR_ACTION_MESSAGE}", capability.manifest_id)
         live = {"label": "Live recomputation from current persisted inputs (not the accepted proposal)",
                 "state": "AVAILABLE" if evaluation.available else "UNAVAILABLE",
                 "unavailable": evaluation.unavailable(), "segments": list(evaluation.segments),
@@ -138,7 +210,11 @@ class ActionService:
             "latest_revision_id": str(current["latest_revision_id"]), "is_latest": bool(current["is_latest"]),
             "rule": {"id": reserve_trial.RULE_ID, "version": reserve_trial.RULE_VERSION,
                      "limitation": {"code": reserve_trial.LIMITATION_CODE, "text": reserve_trial.LIMITATION_TEXT}},
-            "system_demo_capability": self.capability(tenant_id, site_id, site_code, "ACCEPT", finding_id).wire(),
+            "system_demo_capability": capability.wire(),
+            "prior_actions": {
+                "label": "Actions accepted on this Finding (any revision). Each keeps its own origin revision; the "
+                         "selected revision is `revision_id`.", "items": prior},
+            "prior_action_block": block,
             "links": {"finding": f"{base}?revision_id={selected}",
                       "recommendation": f"{base}/recommendation?revision_id={selected}",
                       "api_recommendation": f"/api{base}/recommendation?revision_id={selected}"},
@@ -150,6 +226,12 @@ class ActionService:
                             **live, "already_accepted": evaluation.available and any(
                                 a["recommendation_key"] == evaluation.proposal["recommendation_key"]  # type: ignore[index]
                                 for a in accepted)})
+        elif block is not None:
+            # The prior Action is the reason; the current-basis result stays a separate live reason beside it.
+            body.update(state=PRIOR_ACTION_UNRESOLVED, basis="SERVED_FROM_PERSISTED_INPUTS", proposal=None,
+                        unavailable={k: block[k] for k in ("code", "message", "blocking_action_id",
+                                                           "origin_finding_revision_id", "links")},
+                        segments=list(evaluation.segments), accepted=[], live_status=live)
         else:
             body.update(state="AVAILABLE" if evaluation.available else "UNAVAILABLE",
                         basis="SERVED_FROM_PERSISTED_INPUTS", proposal=evaluation.proposal,
@@ -162,8 +244,7 @@ class ActionService:
         return {"action_id": str(action["id"]), "action_code": action["action_code"],
                 "accepted_at": action["created_at"].isoformat(), "snapshot": _wire(action["snapshot"]),
                 "snapshot_sha256": action["snapshot_sha256"],
-                "links": {"action": f"/sites/{site_code}/actions/{action['id']}",
-                          "api_action": f"/api/sites/{site_code}/actions/{action['id']}"}}
+                "links": action_links(site_code, action["id"])}
 
     # ---- accept ------------------------------------------------------------------------------------------
 
@@ -186,6 +267,13 @@ class ActionService:
         if found is None:
             raise ActionRefused(404, "FINDING_NOT_FOUND", "No such Finding or revision for this Site.")
         evaluation = found[1]
+        offered = evaluation.proposal if evaluation.available else None
+        guard = self._prior_guard(site_code, revision_id, evaluation)
+        # Checked here so a stale or unavailable live result is reported beside the prior Action, and again
+        # atomically under the store's trial lock (two accepts on different revisions cannot both pass).
+        guard([a for a in self.store.actions_for_finding(tenant_id, site_id, finding_id)
+               if offered is None or (str(a["asset_id"]) == offered["asset_id"]
+                                      and a["recommendation_key"] != offered["recommendation_key"])])
         if not evaluation.available:
             raise ActionRefused(422, "RECOMMENDATION_UNAVAILABLE", "No trial can be accepted for this revision.",
                                 unavailable=evaluation.unavailable())
@@ -200,10 +288,25 @@ class ActionService:
         action, event, replayed = self.store.accept(
             tenant_id, site_id, proposal, payload_sha256=digest, payload=payload,
             idempotency_key=command["idempotency_key"], fixture_id=granted.fixture_id or "",
-            recorded_at=self.clock())
+            recorded_at=self.clock(), guard=guard)
         if replayed:
             return self._replay(action, digest, site_code)
         return 201, self._accepted_body(action, event, site_code, replayed=False)
+
+    @staticmethod
+    def _prior_guard(site_code: str, revision_id: UUID, evaluation: reserve_trial.Evaluation):
+        """Raise 409 PRIOR_ACTION_UNRESOLVED if any given Action of this trial is unresolved."""
+        def guard(actions: list[dict[str, Any]]) -> None:
+            blocking = [p for p in (prior_action(a, site_code, str(revision_id)) for a in actions) if blocks_trial(p)]
+            if blocking:
+                refusal = prior_action_refusal(blocking)
+                raise ActionRefused(409, PRIOR_ACTION_UNRESOLVED, PRIOR_ACTION_MESSAGE,
+                                    **{k: v for k, v in refusal.items() if k not in ("code", "message")},
+                                    live_status={"label": "Live recomputation from current persisted inputs (a "
+                                                          "separate reason, not the refusal)",
+                                                 "state": "AVAILABLE" if evaluation.available else "UNAVAILABLE",
+                                                 "unavailable": evaluation.unavailable()})
+        return guard
 
     def _replay(self, action: dict[str, Any], digest: str, site_code: str) -> tuple[int, dict[str, Any]]:
         if action["acceptance_payload_sha256"] != digest:

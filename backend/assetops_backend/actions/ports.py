@@ -45,9 +45,12 @@ class ActionStore(Protocol):
     def actions_for_revision(self, tenant_id: UUID, site_id: UUID,
                              finding_revision_id: UUID) -> list[dict[str, Any]]: ...
 
+    def actions_for_finding(self, tenant_id: UUID, site_id: UUID,
+                            finding_id: UUID) -> list[dict[str, Any]]: ...
+
     def accept(self, tenant_id: UUID, site_id: UUID, proposal: dict[str, Any], *, payload_sha256: str,
-               payload: dict[str, Any], idempotency_key: str, fixture_id: str,
-               recorded_at: datetime) -> tuple[dict[str, Any], dict[str, Any], bool]: ...
+               payload: dict[str, Any], idempotency_key: str, fixture_id: str, recorded_at: datetime,
+               guard: Callable[[list[dict[str, Any]]], None]) -> tuple[dict[str, Any], dict[str, Any], bool]: ...
 
     def observe(self, tenant_id: UUID, site_id: UUID, action_id: UUID, *, occurred_at: datetime,
                 idempotency_key: str, payload: dict[str, Any], payload_sha256: str, fixture_id: str,
