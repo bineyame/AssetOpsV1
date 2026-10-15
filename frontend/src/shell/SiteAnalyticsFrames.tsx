@@ -6,6 +6,7 @@ import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
 import { createActionClient, type ActionClient } from "../sites/actionClient";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionView } from "../sites/SiteAction";
+import { SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
 import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
@@ -36,6 +37,8 @@ import {
   siteFindingsHref,
   siteFinancialAssumptionsHref,
   siteFinancialsHref,
+  siteFoundationChangeHref,
+  siteFoundationHref,
   sitePerformanceHref,
   type FindingChildView,
   type FindingTab,
@@ -618,6 +621,7 @@ export function SiteActionFrame({
                     view: href,
                     finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
                     recommendation: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "recommendation", rev),
+                    change: (changeId) => siteFoundationChangeHref(site.site_id, changeId),
                   }}
                 />
               </>
@@ -625,6 +629,99 @@ export function SiteActionFrame({
           </main>
         );
       }}
+    </SiteScoped>
+  );
+}
+
+/**
+ * S6-01b `changes:1#a`: one Foundation change by its change ID, a deep route
+ * under Foundation with the Foundation tab current and no Foundation view row
+ * (Changes is not a Foundation view). The bare `/foundation/changes` address
+ * is an explicit unavailable state: S6-01 has no Site change index.
+ */
+export const SITE_CHANGE_HEADING_ID = "site-change-heading";
+
+function changeLinks(siteId: string): SiteFoundationChangeLinks {
+  return {
+    action: (actionId, view, selector) => siteActionHref(siteId, actionId, view, selector),
+    foundation: siteFoundationHref(siteId),
+  };
+}
+
+export function SiteFoundationChangeFrame({
+  detail,
+  sitesPath,
+  actions = DEFAULT_ACTIONS,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  actions?: ActionClient;
+}) {
+  const { siteId, changeId } = useParams<{ siteId: string; changeId: string }>();
+  const [title, setTitle] = useState("Foundation change");
+  const onTitle = useCallback((next: string) => setTitle(next), []);
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Foundation change" headingId={SITE_CHANGE_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_CHANGE_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Foundation", to: siteFoundationHref(site.site_id) },
+              { label: "Change" },
+            ]}
+          />
+          <PageHeader
+            title={title}
+            headingId={SITE_CHANGE_HEADING_ID}
+            subtitle={`${site.display_name} · ${site.site_id} · SYSTEM demonstration`}
+          />
+          <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <SiteFoundationChange
+            siteId={site.site_id}
+            changeId={changeId ?? ""}
+            client={actions}
+            links={changeLinks(site.site_id)}
+            onTitle={onTitle}
+          />
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: SiteDetailClient; sitesPath: string }) {
+  const { siteId } = useParams<{ siteId: string }>();
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Foundation changes" headingId={SITE_CHANGE_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_CHANGE_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Foundation", to: siteFoundationHref(site.site_id) },
+              { label: "Changes" },
+            ]}
+          />
+          <PageHeader
+            title="Foundation changes"
+            headingId={SITE_CHANGE_HEADING_ID}
+            subtitle={`${site.display_name} · ${site.site_id}`}
+          />
+          <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <Panel heading="No list of changes yet" headingId="site-changes-unavailable-heading">
+            <p data-change-index="unavailable">
+              This site has no list of Foundation changes yet. A change opens by its own address from the Action
+              that made it.
+            </p>
+            <p>
+              <Link to={siteFoundationHref(site.site_id)}>Back to the Foundation</Link>
+            </p>
+          </Panel>
+        </main>
+      )}
     </SiteScoped>
   );
 }

@@ -65,6 +65,8 @@ export interface SiteActionLinks {
   finding: (findingId: string, revisionId: string | null) => string;
   /** The Recommendation child view of a Finding at an exact version. */
   recommendation: (findingId: string, revisionId: string | null) => string;
+  /** The Site Foundation change record an APPLIED event made. */
+  change: (changeId: string) => string;
 }
 
 const LATEST: EventSelector = { eventId: null, recordedAt: null };
@@ -327,6 +329,9 @@ function ChangeSummary({ change, links }: { change: PolicyChange; links: SiteAct
         {change.unit}, effective from {when(change.effective_from)}, recorded {when(change.recorded_at)}.{" "}
         <Link to={links.view("history", { eventId: change.applied_event_id, recordedAt: null })} data-action-applied-event-link>
           Application event
+        </Link>{" "}
+        <Link to={links.change(change.change_id)} data-action-change-link>
+          Open the Foundation change
         </Link>
       </p>
       <FactList>
@@ -564,7 +569,7 @@ function EventTable({
                 {event.triggering_job ? <Ref value={event.triggering_job} /> : null}
               </td>
               <td>
-                <EventDetails event={event} change={change} />
+                <EventDetails event={event} change={change} links={links} />
               </td>
               {select ? (
                 <td>
@@ -584,7 +589,7 @@ function EventTable({
   );
 }
 
-function EventDetails({ event, change }: { event: ActionEvent; change: PolicyChange | null }) {
+function EventDetails({ event, change, links }: { event: ActionEvent; change: PolicyChange | null; links: SiteActionLinks }) {
   if (event.kind === "FAILED") {
     return (
       <span data-action-event-failure={event.failure_code ?? ""}>
@@ -610,7 +615,10 @@ function EventDetails({ event, change }: { event: ActionEvent; change: PolicyCha
         {event.current_foundation_revision_id ? <Ref value={event.current_foundation_revision_id} attr="data-action-event-effective-revision" /> : "not stated"}
         {change && change.applied_event_id === event.id ? (
           <>
-            ; change record <Ref value={change.change_id} attr="data-action-event-change" />
+            ; change record{" "}
+            <Link to={links.change(change.change_id)} data-action-event-change-link>
+              <Ref value={change.change_id} attr="data-action-event-change" />
+            </Link>
           </>
         ) : null}
       </span>

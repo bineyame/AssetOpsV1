@@ -214,6 +214,7 @@ export interface PolicyChange {
   asset_id: string;
   binding_set_revisions: { inserted: string[]; superseded: string[] };
   change_id: string;
+  command_idempotency_key?: string;
   effective_from: string;
   expected_foundation_revision_id: string;
   field: string;
@@ -229,6 +230,12 @@ export interface PolicyChange {
   superseded_foundation_revision_id: string | null;
   unit: string;
   validity: string;
+}
+
+export interface PolicyChangeBody {
+  access_basis?: string;
+  change: PolicyChange;
+  site_code: string;
 }
 
 export interface ActionBody {
@@ -339,6 +346,7 @@ export interface ActionClient {
   getActionEvents(siteId: string, actionId: string, selector: EventSelector): Promise<ActionReadResult<ActionEventsBody>>;
   accept(siteId: string, findingId: string, command: AcceptCommand): Promise<CommandResult>;
   apply(siteId: string, actionId: string, command: ApplyCommand): Promise<CommandResult>;
+  getChange(siteId: string, changeId: string): Promise<ActionReadResult<PolicyChangeBody>>;
 }
 
 function isRecommendation(value: unknown): value is RecommendationBody {
@@ -350,6 +358,13 @@ function isRecommendation(value: unknown): value is RecommendationBody {
 
 function isAction(value: unknown): value is ActionBody {
   return hasKeys(value, ["action", "accepted_recommendation", "origin", "state", "selection", "links"]);
+}
+
+function isChange(value: unknown): value is PolicyChangeBody {
+  return (
+    hasKeys(value, ["change", "site_code"]) &&
+    hasKeys((value as { change: unknown }).change, ["change_id", "action_id", "applied_event_id", "old_value", "new_value"])
+  );
 }
 
 function isEvents(value: unknown): value is ActionEventsBody {
@@ -446,6 +461,9 @@ export function createActionClient(basePath: string = SITES_API_PATH): ActionCli
     },
     apply(siteId, actionId, payload) {
       return command(`${action(siteId, actionId)}/apply`, payload);
+    },
+    getChange(siteId, changeId) {
+      return read(`${site(siteId)}/foundation/changes/${encodeURIComponent(changeId)}`, isChange);
     },
   };
 }

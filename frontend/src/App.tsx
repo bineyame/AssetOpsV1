@@ -9,6 +9,8 @@ import {
   FindingDetailFrame,
   FindingsFrame,
   SiteActionFrame,
+  SiteFoundationChangeFrame,
+  SiteFoundationChangesFrame,
   SiteFinancialsFrame,
   SiteFindingFrame,
   SiteFindingsFrame,
@@ -35,6 +37,8 @@ import {
   SITES_PATH,
   SITE_DETAIL_ROUTE_PATH,
   SITE_EVIDENCE_ROUTE_PATH,
+  SITE_FOUNDATION_CHANGE_ROUTE_PATH,
+  SITE_FOUNDATION_CHANGES_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
   SITE_FOUNDATION_VIEW_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
@@ -222,6 +226,14 @@ export function App({
                 gatewayHealth={siteEvidence.gatewayHealth}
               />
             }
+          />
+          <Route
+            path={SITE_FOUNDATION_CHANGES_ROUTE_PATH}
+            element={<SiteFoundationChangesFrame detail={siteDetail} sitesPath={SITES_PATH} />}
+          />
+          <Route
+            path={SITE_FOUNDATION_CHANGE_ROUTE_PATH}
+            element={<SiteFoundationChangeFrame detail={siteDetail} sitesPath={SITES_PATH} />}
           />
           <Route
             path={SITE_EVIDENCE_ROUTE_PATH}

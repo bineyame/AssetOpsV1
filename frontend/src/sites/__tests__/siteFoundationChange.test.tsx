@@ -1,0 +1,237 @@
+/**
+ * S6-01b phase 2: the Foundation change deep route (`changes:1#a`) and the
+ * bare `/foundation/changes` unavailable state, mounted through the real `App`
+ * routes so the static `changes` segments are proven to outrank the
+ * `:foundationView` route. `fetch` serves S6-01a's committed wire contract
+ * `backend/tests/fixtures/s6_action_api_contract.json` exactly as recorded;
+ * the one derived body (a refused events read) says so where it is built.
+ */
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
+import { App } from "../../App";
+import { featureFlagsWith } from "../../config/featureFlags";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { settledScreen } from "../../test/settled";
+import { foundationViewFor } from "../FoundationSubtabs";
+import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
+import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
+import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+
+type Case = { request: { path: string }; status: number; body: any };
+const M = contract.manifest as unknown as Record<string, Record<string, Case>>;
+const changes = M["changes:1#a"];
+const ov = M["action-overview:1#a"];
+const hi = M["action-history:1#a"];
+const CHANGE = changes.change.body.change;
+const CHANGE_ID = CHANGE.change_id as string;
+const ACTION = CHANGE.action_id as string;
+const CHANGE_URL = `/sites/KOBO-001/foundation/changes/${CHANGE_ID}`;
+const ACTION_API = `/api/sites/KOBO-001/actions/${ACTION}`;
+
+interface Served {
+  status: number;
+  body: unknown;
+}
+
+function serve(gets: Record<string, Served>) {
+  const requests: string[] = [];
+  vi.stubGlobal("fetch", async (url: string) => {
+    const path = decodeURIComponent(String(url));
+    requests.push(path);
+    const hit = gets[path];
+    if (!hit) return new Response(JSON.stringify({ detail: { code: "TEST_UNMATCHED", message: path } }), { status: 599 });
+    return new Response(JSON.stringify(hit.body), { status: hit.status });
+  });
+  return requests;
+}
+
+const served = (c: Case): Served => ({ status: c.status, body: c.body });
+const changeReads = (): Record<string, Served> => ({
+  [changes.change.request.path]: served(changes.change),
+  [`${ACTION_API}/events`]: served(hi.events_latest),
+});
+
+const detail: SiteDetailClient = {
+  getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId } }),
+} as SiteDetailClient;
+const directory: SiteDirectoryClient = {
+  listSites: async () => ({ status: "loaded", sites: [HYBRID_MINI_GRID_SITE] }),
+} as SiteDirectoryClient;
+
+function Where() {
+  const location = useLocation();
+  return <output data-testid="where">{`${location.pathname}${location.search}`}</output>;
+}
+
+function mount(path: string) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <App
+        flags={featureFlagsWith(false)}
+        siteDirectory={directory}
+        siteDetail={detail}
+        siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+      />
+      <Where />
+    </MemoryRouter>,
+  );
+}
+
+const q = (selector: string) => document.body.querySelector(selector);
+const qa = (selector: string) => Array.from(document.body.querySelectorAll(selector));
+
+function atWidth(width: number) {
+  Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+  window.dispatchEvent(new Event("resize"));
+}
+
+function noVocabularyViolations(page: string) {
+  const main = document.body.querySelector("main") as HTMLElement;
+  const { violations, scanned } = scanProductVocabulary(main, page);
+  expect(scanned).toBeGreaterThan(5);
+  expect(violations, describeViolations(violations)).toEqual([]);
+}
+
+function foundationTabCurrent() {
+  const current = qa('[aria-current="page"]').map((el) => el.textContent);
+  expect(current).toContain("Foundation");
+  expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
+}
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+  atWidth(1024);
+});
+
+describe("Foundation change (changes:1#a)", () => {
+  it("shows old/new reserve, unit, asset, times, every named version, the Action and its application event, and a pending outcome", async () => {
+    serve(changeReads());
+    mount(CHANGE_URL);
+    await settledScreen();
+    expect(screen.getByRole("heading", { level: 1, name: "Battery reserve change" })).toBeInTheDocument();
+    expect(q("[data-change-old]")?.textContent).toBe("20%");
+    expect(q("[data-change-new]")?.textContent).toBe("15%");
+    expect(q("[data-change-asset]")?.textContent).toBe(CHANGE.asset_id);
+    expect(q("[data-change-effective]")?.getAttribute("data-change-effective")).toBe(CHANGE.effective_from);
+    expect(q("[data-change-recorded]")?.getAttribute("data-change-recorded")).toBe(CHANGE.recorded_at);
+    expect(qa("[data-change-revision]").map((r) => r.getAttribute("data-change-revision-origin"))).toEqual([
+      "PUBLISH",
+      "SPLIT",
+      "PUBLISH",
+    ]);
+    expect(qa("[data-change-revision]").map((r) => r.getAttribute("data-change-revision"))).toEqual(
+      [...CHANGE.foundation_revisions].sort((a: any, b: any) => a.version - b.version).map((r: any) => r.id),
+    );
+    expect(q(`[data-change-revision="${CHANGE.split_foundation_revision_id}"]`)?.textContent).toMatch(/split/);
+    expect(q(`[data-change-revision="${CHANGE.new_foundation_revision_id}"]`)?.textContent).toMatch(/New version/);
+    expect(q("[data-change-expected]")?.textContent).toBe(CHANGE.expected_foundation_revision_id);
+    expect(qa("[data-change-binding='superseded']").map((r) => r.textContent)).toEqual(
+      CHANGE.binding_set_revisions.superseded.map((id: string) => `Replaced${id}`),
+    );
+    expect(qa("[data-change-binding='inserted']")).toHaveLength(CHANGE.binding_set_revisions.inserted.length);
+    expect(q("[data-change-action-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
+    expect(q("[data-change-applied-event-link]")).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001/actions/${ACTION}/history?event_id=${CHANGE.applied_event_id}`,
+    );
+    expect(q("[data-change-id]")).toHaveAttribute("data-change-outcome", "PENDING");
+    expect(q("[data-change-outcome-words]")?.textContent).toMatch(/^Pending\. Nothing has been verified yet/);
+    expect(document.body.textContent).toMatch(/SYSTEM demonstration/);
+    // No measured-effect verdict, saving or approval.
+    const main = (q("main")?.textContent ?? "").replace(/no effect or saving is claimed/g, "");
+    expect(main).not.toMatch(/saved|savings|improved|reduced|effective change|approved|verified\b(?! yet)/i);
+    expect(screen.queryByRole("button")).toBeNull();
+    foundationTabCurrent();
+    noVocabularyViolations("changes:1#a");
+  });
+
+  it("lists the Action's failed application attempts beside the change, each linked to its exact event", async () => {
+    serve(changeReads());
+    mount(CHANGE_URL);
+    await settledScreen();
+    const failed = (hi.events_latest.body.events as { id: string; kind: string }[]).filter((e) => e.kind === "FAILED");
+    expect(failed.length).toBeGreaterThan(0);
+    expect(q("[data-change-attempts]")).toHaveAttribute("data-change-attempts", String(failed.length));
+    expect(qa("[data-change-failed-attempt] a").map((a) => a.getAttribute("href"))).toEqual(
+      failed.map((e) => `/sites/KOBO-001/actions/${ACTION}/history?event_id=${e.id}`),
+    );
+  });
+
+  it("keeps the change when the attempts read is refused, and says so", async () => {
+    // Derived: the events read refused with a 503 instead of the recorded events.
+    serve({ ...changeReads(), [`${ACTION_API}/events`]: { status: 503, body: { detail: { code: "ACTION_STORE_UNAVAILABLE", message: "down" } } } });
+    mount(CHANGE_URL);
+    await settledScreen();
+    expect(q("[data-change-new]")?.textContent).toBe("15%");
+    expect(q("[data-action-code='ACTION_STORE_UNAVAILABLE']")).not.toBeNull();
+    expect(q("[data-change-attempts]")).toBeNull();
+  });
+
+  it("a wrong-Site change is not found, with a link back to the Foundation and no events read", async () => {
+    const requests = serve({ [changes.wrong_site_404.request.path]: served(changes.wrong_site_404) });
+    mount(`/sites/OTHER-001/foundation/changes/${CHANGE_ID}`);
+    await settledScreen();
+    expect(screen.getByRole("heading", { name: "Foundation change not found" })).toBeInTheDocument();
+    expect(q("[data-action-http='404']")).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Back to the Foundation" })).toHaveAttribute("href", "/sites/OTHER-001/foundation");
+    expect(requests.some((r) => r.includes("/events"))).toBe(false);
+    expect(q("[data-change-id]")).toBeNull();
+  });
+
+  for (const width of [1440, 390]) {
+    it(`renders the same read-only structure at ${width}`, async () => {
+      atWidth(width);
+      serve(changeReads());
+      mount(CHANGE_URL);
+      await settledScreen();
+      expect(q("[data-change-values]")).not.toBeNull();
+      expect(qa("[data-change-revision]")).toHaveLength(3);
+      expect(screen.queryByRole("button")).toBeNull();
+      foundationTabCurrent();
+    });
+  }
+});
+
+describe("bare /foundation/changes", () => {
+  it("is an explicit unavailable state with a link back, and adds no Foundation view", async () => {
+    const requests = serve({});
+    mount("/sites/KOBO-001/foundation/changes");
+    await settledScreen();
+    expect(q("[data-change-index='unavailable']")).not.toBeNull();
+    const panel = screen.getByRole("heading", { name: "No list of changes yet" }).closest("section") ?? document.body;
+    expect(within(panel as HTMLElement).getByRole("link", { name: "Back to the Foundation" })).toHaveAttribute(
+      "href",
+      "/sites/KOBO-001/foundation",
+    );
+    expect(requests.filter((r) => r.includes("/changes"))).toEqual([]);
+    expect(foundationViewFor("changes")).toBeNull();
+    foundationTabCurrent();
+    noVocabularyViolations("changes index unavailable");
+  });
+});
+
+describe("Action links to its Foundation change", () => {
+  it("Overview and Application link the change by ID, and following the link opens it", async () => {
+    serve({
+      [ACTION_API]: served(ov.applied_pending_newer_revision),
+      [`${ACTION_API}/events`]: served(hi.events_latest),
+      [changes.change.request.path]: served(changes.change),
+    });
+    mount(`/sites/KOBO-001/actions/${ACTION}`);
+    await settledScreen();
+    expect(q("[data-action-change-link]")).toHaveAttribute("href", CHANGE_URL);
+    cleanup();
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    const link = q("[data-action-event-change-link]") as HTMLAnchorElement;
+    expect(link).toHaveAttribute("href", CHANGE_URL);
+    fireEvent.click(link);
+    await settledScreen();
+    expect(screen.getByTestId("where").textContent).toBe(CHANGE_URL);
+    expect(q("[data-change-new]")?.textContent).toBe("15%");
+  });
+});

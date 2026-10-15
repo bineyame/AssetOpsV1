@@ -60,6 +60,20 @@ export function siteFoundationHref(siteId: string): string {
 }
 
 /**
+ * S6-01b: one Foundation change by its stable change ID, a deep route under
+ * Foundation that is not a Foundation view (`FOUNDATION_SUBTABS` never lists
+ * it). The bare `/foundation/changes` address has its own explicit
+ * unavailable state: there is no Site change index in S6-01. Both are static
+ * segments, so they rank above `:foundationView` and never reach the view frame.
+ */
+export const SITE_FOUNDATION_CHANGES_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/foundation/changes`;
+export const SITE_FOUNDATION_CHANGE_ROUTE_PATH = `${SITE_FOUNDATION_CHANGES_ROUTE_PATH}/:changeId`;
+
+export function siteFoundationChangeHref(siteId: string, changeId: string): string {
+  return `${siteFoundationHref(siteId)}/changes/${encodeURIComponent(changeId)}`;
+}
+
+/**
  * The route pattern for one of the Foundation's other views (S1-03): the
  * Single line diagram (`sld`) and configuration Readiness (`readiness`). The
  * Site model is the Foundation address itself. Which segments are views is
