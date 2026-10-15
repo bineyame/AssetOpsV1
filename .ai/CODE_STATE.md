@@ -5526,6 +5526,18 @@ Branch `task/S4-06-price-succession` from main `7c72c6b3`; packet `.agent/S4-06-
 - Proofs: `test_s4_assumptions_postgres.py` `TestEqualStartSuccession` (cutoff history, retry, key reuse, stale prior, 2-publisher race, bounded/multiple refusal, CORRECTION tail on an older revision, unchanged earlier-price window selection); planner unit tests in `test_s4_assumption_publication.py`.
 - Open: registry `I-price-equal-start-succession` stays `open` until merge.
 
+## OPS-02 - statement-level rule 8 writer guard (done, pending merge)
+
+Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `.agent/OPS-02-review-packet.md`; closes S4-02d phase-2 review F-B and OPS-01 L1.
+
+- `tools/checks/sql_statements.py`: table-agnostic AST extractor. Renders whole string expressions (implicit concatenation, triple quotes, escapes; `+`, f-string, `%`, `.format`, `"".join` with dynamic parts as `{?}`), strips SQL comments, collapses whitespace, splits on `;` and at each write head (INSERT INTO/UPDATE/DELETE/TRUNCATE/MERGE/COPY/CREATE/ALTER/DROP/GRANT; `DO|THEN|FOR|KEY UPDATE` stay in their clause), and synthesises SQLAlchemy Core `insert/update/delete` (aliased imports, `sa.` attributes, `table("x").delete()`) into SQL. Bare string statements (docstrings) are skipped.
+- `configuration-persistence.ps1` rule 8 applies the unchanged per-writer policy tables to clauses (`$line` = clause, `$lineNumber` = expression start line); the driver-import check stays per line. New global refusals: MERGE/COPY, a DML clause whose target is not a literal identifier, a dangling write head (`sql +=` assembly). Schedule UPDATE allows a table alias; its "one line" rule became "one statement". Writer non-vacuity is reported only when the extractor ran (its own failure is reported instead).
+- Interpreter: `ASSETOPS_GUARD_PYTHON` (set by `check-all.ps1` from `-Python`), else `.venv/Scripts/python.exe` or `.venv/bin/python`; a missing or failing extractor is a rule-8 failure, never a skip.
+- Proof corpus `tools/writer_guard_probes.py` (`--seam` = rule-8 module only): 11 F-B forms, a two-line UPDATE per writer, reverse ownership per table family, dynamic/Core/fragment/CTE/upsert/COPY forms, plus one controls run.
+- `backend/tests/conftest.py` `refuse_template_opt_out_under_xdist`: `ASSETOPS_TEST_TEMPLATE=0` under xdist (controller or worker) is a `pytest.UsageError` before routing; serial and `-n 0` unchanged.
+- Adding a writer table (LR-01 `source_clock_attestation`, S6-01a Action tables, S4-05a provenance tables): extend the rule-8 policy arrays only; the extractor needs no change.
+- Merge with main `0d3114a3` (2026-10-16): rule 8 statements carry the ninth writer (Action store, insert-only), LR-01 `source_clock_attestation` (assessment store, insert-only) and S4-05a provenance (ledger, insert-only; three DO NOTHING arbiters). S4-05a's provenance verb refusal and S6-01a's Action every-line refusal run on source lines (driver loop) and on clauses; new: an insert-only table (attestation, Action, provenance) is never upserted (`DO UPDATE`).
+- Open: SQL read from files, or assembled across statements other than a dangling head, is not resolved; `.agent/S4-02d-phase-1-probes.py` "split update" is now an allowed form (see packet).
 ## S4-07 - evidence decided_at on DB time (built, review pending)
 
 Branch `task/S4-07-evidence-decided-at` from main `5bfff665`; packet `.agent/S4-07-review-packet.md`.

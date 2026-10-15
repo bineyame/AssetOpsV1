@@ -104,7 +104,19 @@ def _is_xdist_controller(config: pytest.Config) -> bool:
     return _workerinput(config) is None and bool(getattr(config.option, "numprocesses", None))
 
 
+def refuse_template_opt_out_under_xdist(config: pytest.Config) -> None:
+    """`ASSETOPS_TEST_TEMPLATE=0` turns routing off, so every xdist worker would reset the one shared database
+    under its neighbours. Refuse it before any worker exists (OPS-01 L1); serially the opt-out stays valid."""
+    if os.environ.get(pg_harness.TEMPLATE_SWITCH, "1") != "0":
+        return
+    if _workerinput(config) is not None or _is_xdist_controller(config):
+        raise pytest.UsageError(
+            f"{pg_harness.TEMPLATE_SWITCH}=0 cannot be combined with pytest-xdist (-n): without per-worker database "
+            "routing every worker would reset the same test database. Unset it, or run serially (-n 0).")
+
+
 def pytest_configure(config: pytest.Config) -> None:
+    refuse_template_opt_out_under_xdist(config)
     workerinput = _workerinput(config)
     if workerinput is not None:
         # Before collection: module-level `URL` constants read the routed name.
