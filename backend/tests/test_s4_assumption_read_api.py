@@ -159,7 +159,8 @@ class TestFindingFinancialsBridge:
                    "price": {"revision_id": "p1", "reason": None},
                    "amount": {"low": "0", "high": "3.4375", "currency": "USD"},
                    "display": {"state": "ROUNDED_OUTWARD", "amount_low": "0.00", "amount_high": "3.44"}}
-            return {"currentness": {"state": currentness, "reasons": [], "pending_work": []}, "consequence": row}
+            return {"currentness": {"state": currentness, "reasons": [], "pending_work": []}, "consequence": row,
+                    "money_eligibility": {"state": "ELIGIBLE"}}  # LR-01: the shared gate lets it through
 
         class Consequences:
             def __init__(self, out=None, error=None):
@@ -186,6 +187,11 @@ class TestFindingFinancialsBridge:
         assert (down["state"], down["amount"]) == ("UNAVAILABLE", None)
         unpriced = bridge_consequence(result("CURRENT", "UNPRICED"))
         assert (unpriced["state"], unpriced["amount"], unpriced["currency"]) == ("UNPRICED", None, None)
+        # LR-01: a CURRENT PRICED head with the gate withholding, or with no gate at all, shows no amount.
+        for gate, want in (({"state": "WITHHELD_GENERATOR_SERIES"}, "WITHHELD_GENERATOR_SERIES"),
+                           (None, "PENDING_REASSESSMENT")):
+            held = bridge_consequence({**result("CURRENT"), "money_eligibility": gate})
+            assert (held["state"], held["amount"], held["recorded_consequence_revision_id"]) == (want, None, "c1")
 
 
 # ---- S4-02b phase 2b: review carries M1 (closed source), L1 (route refusals) and L4 (STALE wording) ----
@@ -298,10 +304,66 @@ class TestDemonstrationLabel:
     def test_the_shipped_spec_parses_with_a_case(self) -> None:
         from assetops_backend.demonstration_label import _declared
 
-        assert _declared()[2]
+        assert {c[1] for c in _declared()} == {"P01-power", "P02-power-late"}
 
     def test_the_bridge_carries_the_label(self) -> None:
         body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
             "start": "2026-10-23T06:05:00+00:00", "end": "2026-10-23T08:00:00+00:00"}}}
         assert bridge(FindingReads(body)).get(BRIDGE).json()["demonstration"]["case_id"] == "P01-power"
         assert bridge(FindingReads(finding_body())).get(BRIDGE).json()["demonstration"] is None
+
+
+class TestP02DemonstrationLabel:
+    """Architect D-2026-10-15-p02-demonstration-label: P02-power-late shares the P01 label."""
+
+    P02 = ("2026-10-24T06:05:00+00:00", "2026-10-24T08:00:00+00:00")
+
+    def test_p02_gets_the_same_label_with_its_own_case_and_spec(self) -> None:
+        from assetops_backend.demonstration_label import LABEL, STATEMENT, demonstration_case
+
+        demo = demonstration_case("KOBO-001", *self.P02)
+        assert demo == {"label": LABEL, "statement": STATEMENT, "case_id": "P02-power-late",
+                        "spec": "s4-power-late-demo-cases-v1"}
+        assert demonstration_case("OTHER-001", *self.P02) is None
+        assert demonstration_case("KOBO-001", "2026-10-25T06:05:00+00:00", "2026-10-25T08:00:00+00:00") is None
+
+    def test_the_bridge_and_finding_reads_carry_the_p02_label(self) -> None:
+        body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
+            "start": self.P02[0], "end": self.P02[1]}}}
+        demo = bridge(FindingReads(body)).get(BRIDGE).json()["demonstration"]
+        assert demo["case_id"] == "P02-power-late" and demo["label"] == "Demonstration data"
+
+    def _use_specs(self, monkeypatch, tmp_path, texts) -> None:
+        from assetops_backend import demonstration_label as dl
+
+        paths = []
+        for i, text in enumerate(texts):
+            f = tmp_path / f"spec{i}.json"
+            f.write_text(text, encoding="utf-8")
+            paths.append(f)
+        monkeypatch.setattr(dl, "SPEC_PATHS", tuple(paths))
+        dl._declared.cache_clear()
+        self._dl = dl
+
+    def test_a_malformed_declared_spec_is_cautious_not_attested(self, monkeypatch, tmp_path) -> None:
+        import json
+        good = json.dumps({"site_code": "KOBO-001", "label": "x", "cases": [{"case_id": "A", "day": "2026-10-24"}]})
+        try:
+            self._use_specs(monkeypatch, tmp_path, [good, '{"site_code": "KOBO-001"'])
+            demo = self._dl.demonstration_case("KOBO-001", *self.P02)
+            assert demo["case_id"] == "unverified" and demo["label"] == self._dl.UNVERIFIED_LABEL
+        finally:
+            monkeypatch.undo()
+            self._dl._declared.cache_clear()
+
+    def test_conflicting_declarations_are_refused(self, monkeypatch, tmp_path) -> None:
+        import json
+        def spec(case):
+            return json.dumps({"site_code": "KOBO-001", "label": case, "cases": [{"case_id": case, "day": "2026-10-24"}]})
+        try:
+            self._use_specs(monkeypatch, tmp_path, [spec("A"), spec("B")])
+            demo = self._dl.demonstration_case("KOBO-001", *self.P02)
+            assert demo["case_id"] == "unverified"
+        finally:
+            monkeypatch.undo()
+            self._dl._declared.cache_clear()

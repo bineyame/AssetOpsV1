@@ -353,4 +353,69 @@ class TestRelationsInTheBasis:
 
     def test_matcher_version_names_the_relation_proof(self) -> None:
         from assetops_backend.analytics.finding_episode import MATCHER_VERSION
-        assert MATCHER_VERSION == "finding-episode-2"
+        assert MATCHER_VERSION == "finding-episode-3"
+
+
+class TestSeriesLimitEndReason:
+    """LR-01 phase 2 (`finding-episode-3`, D-2026-10-15-lr01-source-time-cohort Q4): a material generator series
+    refusal is carried into the revision with its lineage, and a cut tail ends the episode with SERIES_LIMIT."""
+
+    OPEN_AFTER = "OPEN_BOUND: no OFF evidence after the interval in the read range"
+
+    def _limit(self, a: datetime, b: datetime, asset: str = "G1", kind: str = "SEQUENCE_ORDER_INVERTED") -> dict:
+        return {"kind": kind, "role": "generator_power", "asset_id": asset, "start": a.isoformat(),
+                "end": b.isoformat(), "evidence_ids": ["ev-late", "ev-0800"], "clock": "NO_ATTESTATION",
+                "attestation_refs": [], "window_start": "2026-10-06T00:00:00+00:00",
+                "window_assessment_revision_id": "win-6-x", "analytic_run_id": "wrun-6"}
+
+    def _window(self, interval: IntervalBasis, *limits: dict) -> WindowBasis:
+        w = day(6, interval)
+        return WindowBasis(w.start, w.end, w.status, w.model_version, w.run_id, w.input_sha256, w.cohort_sha256,
+                           w.window_revision_id, INDETERMINATE if limits else w.window_claim, w.intervals,
+                           w.reports, w.members, tuple((datetime.fromisoformat(x["start"]),
+                                                        datetime.fromisoformat(x["end"])) for x in limits),
+                           tuple(limits))
+
+    def _cut(self, *limits: dict) -> IntervalBasis:
+        i = run([seg(at("06:05"), at("07:00"))], at("06:00"), None)
+        return IntervalBasis(i.revision_id, i.run_id, i.asset, i.claim_level, i.first_on, i.off_before, None,
+                             i.segments, (self.OPEN_AFTER,), i.last_on)
+
+    def test_run_one_tail_cut_is_series_limit_and_drops_the_dependent_open_bound(self) -> None:
+        [w] = plan([self._window(self._cut(), self._limit(at("07:05"), at("08:00")))], [], MODEL)
+        assert (w.lifecycle, w.episode_start, w.episode_end) == ("SUPPORTED", at("06:05"), at("07:00"))
+        assert w.claim["end_reason"] == "SERIES_LIMIT"
+        [s] = w.claim["series_limits"]
+        assert (s["relation"], s["evidence_ids"], s["window_assessment_revision_id"], s["analytic_run_id"]) == (
+            "CUTS_TAIL", ["ev-late", "ev-0800"], "win-6-x", "wrun-6")
+        assert [x.split(":")[0] for x in w.limitations] == ["GENERATOR_SERIES_AMBIGUOUS"]
+        assert not any(x.startswith("OPEN_BOUND") for x in w.limitations)
+        # only the proven Candidate span is counted; the refused tail is not judged
+        assert [c["start"][:16] for c in w.claim["candidate_spans"]] == ["2026-10-06T06:05"]
+
+    def test_open_bound_without_a_refusal_stays_open_bound(self) -> None:
+        [w] = plan([self._window(self._cut())], [], MODEL)
+        assert w.claim["end_reason"] == "OPEN_BOUND" and w.claim["series_limits"] == []
+        assert w.limitations == [self.OPEN_AFTER]
+
+    def test_observed_off_and_candidate_end_are_typed(self) -> None:
+        [w] = plan([day(6, run([seg(at("08:00"), at("08:30"))], at("07:55"), at("08:35")))], [], MODEL)
+        assert w.claim["end_reason"] == "OFF_OBSERVED"
+        [w] = plan([day(6, run([seg(at("08:00"), at("08:30")), seg(at("08:30"), at("09:00"), NECESSARY)],
+                               at("07:55"), at("09:05")))], [], MODEL)
+        assert w.claim["end_reason"] == "CANDIDATE_ENDED"
+
+    def test_distant_or_other_asset_refusal_is_not_material(self) -> None:
+        far = self._limit(at("08:00"), at("08:30"))
+        other = self._limit(at("07:05"), at("08:00"), asset="G2")
+        [w] = plan([self._window(self._cut(), far, other)], [], MODEL)
+        assert w.claim["end_reason"] == "OPEN_BOUND" and w.claim["series_limits"] == []
+
+    def test_refusal_inside_the_former_episode_revises_with_its_lineage(self) -> None:
+        full = run([seg(at("06:05"), at("08:00"))], at("06:00"), at("08:05"))
+        _, eps = opened([day(6, full)])
+        writes = plan([self._window(self._cut(), self._limit(at("07:05"), at("08:00")))], eps, MODEL)
+        [w] = writes
+        assert (w.finding_id, w.transition, w.episode_end) == (eps[0].finding_id, "SUPPORT_CHANGED", at("07:00"))
+        assert w.claim["end_reason"] == "SERIES_LIMIT"
+        assert w.support_sha256 != eps[0].support_sha256

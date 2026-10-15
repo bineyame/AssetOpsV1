@@ -1,0 +1,3 @@
+# Architect request - S4-04 contract choices (delegated, owner absent)
+
+You are the AssetOps Architect (Codex). Packet `tasks/S4-04-site-finding-index.md` on branch `plan/S4-04-refine` lists "Architect questions" (three API contract choices) with the Planner's recommendations. Context: `D-2026-10-15-a-finding-index`, `.agent/architect-A-finding-index-answers.md`, `D-2026-10-15-s501-finding-choice`. Rule on each (accept/amend/replace), short and implementable; name packet changes. Write `.agent/architect-S4-04-answers.md` and a short `D-2026-10-15-s404-contract` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.

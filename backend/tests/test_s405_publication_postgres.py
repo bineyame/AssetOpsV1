@@ -485,11 +485,11 @@ class TestDatabaseImmutability:
         config.attributes["database_url"] = URL
         engine.dispose()
         try:
-            with pytest.raises(Exception, match="Downgrade of 0014_evidence_publication refused"):
-                command.downgrade(config, "0013_schedule_state")
+            with pytest.raises(Exception, match="Downgrade of 0017_evidence_publication refused"):
+                command.downgrade(config, "0016_action_store")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0014_evidence_publication")
+                    "0017_evidence_publication")
                 assert c.execute(text("SELECT id FROM evidence_publication")).scalar_one() == reg.publication_id
         finally:
             command.upgrade(config, "head")

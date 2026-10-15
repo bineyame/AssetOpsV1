@@ -49,6 +49,16 @@ Rules (decision "Identity and continuity" and "Revisions and lifecycle"):
   their exact evidence IDs/digests in the basis digest, so a relation change
   always appends a revision. Version `finding-episode-2`; rows recorded under
   `finding-episode-1` are kept and re-evaluated by appending.
+- `finding-episode-3` (LR-01, `D-2026-10-15-lr01-source-time-cohort` Q4): a supported revision states its
+  typed `end_reason` (`OFF_OBSERVED`, `CANDIDATE_ENDED`, `OPEN_BOUND` or `SERIES_LIMIT`). A selected generator
+  series refusal (a cohort limit on a generator role of the episode's asset) that intersects the former or
+  current episode, or cuts its head or Candidate tail within the continuity tolerance, is carried into the
+  revision as `series_limits` (span, kind, clock reason, evidence and attestation refs, and the window
+  assessment revision/run that refused it) with a `GENERATOR_SERIES_AMBIGUOUS` limitation. A cut tail ends the
+  episode with `SERIES_LIMIT`; the tail interval's `OPEN_BOUND` after-bound is then not independently true (the
+  refusal is why no OFF evidence was usable) and is dropped, and likewise a cut head's before-bound. Only the
+  proven Candidate spans stay `SUPPORTED`; the refused span is never judged avoidable. `finding-episode-2` rows
+  are kept and re-evaluated by appending.
 """
 
 from __future__ import annotations
@@ -63,7 +73,7 @@ from assetops_backend.analytics.assessment_inputs import iso, sha256_json
 from assetops_backend.analytics.dispatch import CANDIDATE, INDETERMINATE, NECESSARY
 from assetops_backend.analytics.dispatch_v3 import _NOT_EVIDENCE_GAPS, CONTINUITY_TOLERANCE, OFF_STATES
 
-MATCHER_VERSION = "finding-episode-2"
+MATCHER_VERSION = "finding-episode-3"
 GENERATOR_ROLES = ("generator_state", "generator_power")
 DOMAIN = "mini_grid"
 MECHANISM = "GENERATOR_SUPPORT_CANDIDATE"
@@ -75,6 +85,14 @@ NO_LONGER_SUPPORTED = "NO_LONGER_SUPPORTED"
 MERGED = "MERGED"
 BASIS_REFRESHED = "BASIS_REFRESHED"
 REOPENED = "REOPENED"
+
+# Episode end reasons (finding-episode-3).
+OFF_OBSERVED = "OFF_OBSERVED"
+CANDIDATE_ENDED = "CANDIDATE_ENDED"
+OPEN_BOUND = "OPEN_BOUND"
+SERIES_LIMIT = "SERIES_LIMIT"
+_OPEN_AFTER = "OPEN_BOUND: no OFF evidence after"
+_OPEN_BEFORE = "OPEN_BOUND: no OFF evidence before"
 
 TITLES = {
     SUPPORTED: "Generator support merits review: bounded candidate avoidable running",
@@ -189,6 +207,8 @@ class WindowBasis:
     reports: tuple[StateReport, ...] | None = None
     members: frozenset[tuple[str, str, str]] = frozenset()
     generator_limits: tuple[tuple[datetime, datetime], ...] = ()
+    #: The selected cohort's generator-role limits with their lineage (finding-episode-3 `series_limits`).
+    series_limits: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -420,8 +440,50 @@ def _overlaps(c: _Cluster, e: Episode) -> bool:
     return c.asset == e.asset and c.start <= e.episode_end and e.episode_start <= c.end
 
 
+def _series(site: _Site, asset: str, start: datetime, end: datetime,
+            former: tuple[datetime, datetime] | None) -> tuple[list[dict[str, Any]], bool, bool]:
+    """finding-episode-3: the selected generator series refusals of this asset that are material to the
+    episode [start, end]: inside it or the former episode, or cutting its head or Candidate tail within the
+    continuity tolerance. Returns them (with how each relates) and whether the tail / head is cut."""
+    out: dict[tuple[Any, ...], dict[str, Any]] = {}
+    tail = head = False
+    lo = min(start, former[0]) if former else start
+    hi = max(end, former[1]) if former else end
+    for w in site.windows_over(lo - CONTINUITY_TOLERANCE, hi + CONTINUITY_TOLERANCE):
+        for x in w.series_limits:
+            if x["asset_id"] != asset:
+                continue
+            a, b = _at(x["start"]), _at(x["end"])
+            cuts_tail = b >= end and a <= end + CONTINUITY_TOLERANCE
+            cuts_head = a <= start and b >= start - CONTINUITY_TOLERANCE
+            inside = a <= end and start <= b
+            in_former = former is not None and a <= former[1] and former[0] <= b
+            if not (cuts_tail or cuts_head or inside or in_former):
+                continue
+            tail, head = tail or cuts_tail, head or cuts_head
+            relation = "CUTS_TAIL" if cuts_tail else "CUTS_HEAD" if cuts_head else (
+                "INSIDE_EPISODE" if inside else "INSIDE_FORMER_EPISODE")
+            key = (x["kind"], x["role"], x["start"], x["end"], tuple(x["evidence_ids"]))
+            out.setdefault(key, {**x, "relation": relation})
+    return sorted(out.values(), key=lambda x: (x["start"], x["end"], x["role"], x["kind"])), tail, head
+
+
+def _end_reason(cluster: _Cluster, tail_cut: bool) -> str:
+    if tail_cut:
+        return SERIES_LIMIT
+    last = max(cluster.spans, key=lambda x: x[0].end)[1]
+    # Candidate ran to the end of the interval's segments: the run itself ended there.
+    reaches = not last.segments or cluster.end >= max(x.end for x in last.segments)
+    if not reaches:
+        return CANDIDATE_ENDED
+    if last.off_after is not None:
+        return OFF_OBSERVED
+    return OPEN_BOUND if any(x.startswith(_OPEN_AFTER) for x in last.limitations) else CANDIDATE_ENDED
+
+
 def _support_write(site: _Site, finding_id: str, cluster: _Cluster, transition: str, *,
-                   anchor: datetime | None, extra: dict[str, Any]) -> Write:
+                   anchor: datetime | None, extra: dict[str, Any],
+                   former: tuple[datetime, datetime] | None = None) -> Write:
     intervals = {i.revision_id: i for _, i in cluster.spans}
     start, end = cluster.start, cluster.end
     anchored = next((i for s, i in cluster.spans if anchor is not None and s.start <= anchor <= s.end), None)
@@ -432,7 +494,14 @@ def _support_write(site: _Site, finding_id: str, cluster: _Cluster, transition: 
                       Fraction(0)) for c in (CANDIDATE, NECESSARY, INDETERMINATE)}
     minutes[CANDIDATE] = sum((_minutes(s.start, s.end) for s, _ in cluster.spans), Fraction(0))
     cited = sorted({e for s, _ in cluster.spans for e in s.evidence_ids})
-    limits = sorted({x for i in intervals.values() for x in i.limitations})
+    series, tail_cut, head_cut = _series(site, cluster.asset, start, end, former)
+    limits = sorted({x for i in intervals.values() for x in i.limitations
+                     if not (tail_cut and x.startswith(_OPEN_AFTER)) and not (head_cut and x.startswith(_OPEN_BEFORE))})
+    for x in series:
+        limits.append(f"GENERATOR_SERIES_AMBIGUOUS: {x['role']} {x['start']}..{x['end']} {x['kind']} "
+                      f"({x['relation']}; clock {x.get('clock') or 'not stated'}); the refused span is not judged "
+                      f"and no Candidate time is counted there")
+    end_reason = _end_reason(cluster, tail_cut)
     if anchor is not None and anchored is None:
         limits.append("ANCHOR_OUTSIDE_SUPPORT: the episode's anchor is no longer inside a Candidate segment")
     claim = {
@@ -447,6 +516,8 @@ def _support_write(site: _Site, finding_id: str, cluster: _Cluster, transition: 
                             "assessment_revision_id": i.revision_id}
                            for s, i in segs if s.classification != CANDIDATE],
         "continuity": _continuity(site, cluster),
+        "end_reason": end_reason,
+        "series_limits": series,
         **extra,
     }
     return _write(site, finding_id, transition, SUPPORTED, CANDIDATE, primary, list(intervals.values()),
@@ -471,7 +542,9 @@ def _write(site: _Site, finding_id: str, transition: str, lifecycle: str, claim_
     support = sha256_json({"lifecycle": lifecycle, "bounds": [iso(start), iso(end)],
                            "minutes": {k: _num(v) for k, v in minutes.items()}, "limitations": sorted(limits),
                            "spans": [[x["start"], x["end"], x["minutes"]] for x in claim.get("candidate_spans", [])],
-                           "relations": _relation_facts(claim)})
+                           "relations": _relation_facts(claim), "end_reason": claim.get("end_reason"),
+                           "series": [[x["role"], x["kind"], x["start"], x["end"], x["relation"]]
+                                      for x in claim.get("series_limits") or ()]})
     # The basis is the supported facts plus every selected interval and window revision, the window input
     # digests (controls, bindings, evidence) and the cited evidence: a changed selected window revision
     # appends a revision even with equal minutes (D-2026-10-12-s4-finding-phase-1-clarifications).
@@ -690,7 +763,8 @@ def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str
             extra = {"merged_finding_ids": sorted(m.finding_id for m in merged),
                      "split_into_count": sum(1 for _, o, f in owned_by if o is None and f is owner),
                      "recurrence": owner.recurrence}
-            w = _support_write(site, owner.finding_id, c, transition, anchor=owner.anchor_start, extra=extra)
+            w = _support_write(site, owner.finding_id, c, transition, anchor=owner.anchor_start, extra=extra,
+                               former=(owner.episode_start, owner.episode_end))
             if transition == "SUPPORT_CHANGED" and w.support_sha256 == owner.support_sha256:
                 w.transition = BASIS_REFRESHED
             if w.basis_sha256 != owner.basis_sha256 or merged or owner.finding_id in split_parents:
@@ -729,11 +803,18 @@ def window_basis(read: dict[str, Any], run_evidence: list[dict[str, Any]] | None
                         for m in cohort.get("members") or ())
     limits = tuple((_at(x["start"]), _at(x["end"])) for x in cohort.get("limits") or ()
                    if x.get("role") in GENERATOR_ROLES)
+    series = tuple({"kind": x["kind"], "role": x["role"], "asset_id": str(x.get("asset_id")),
+                    "start": x["start"], "end": x["end"], "evidence_ids": sorted(str(e) for e in x["evidence_ids"]),
+                    "clock": x.get("clock"), "attestation_refs": list(x.get("attestation_refs") or ()),
+                    "window_start": iso(read["window"]["start"]),
+                    "window_assessment_revision_id": None if window_rev is None else str(window_rev["id"]),
+                    "analytic_run_id": None if not selection else str(selection["run_id"])}
+                   for x in cohort.get("limits") or () if x.get("role") in GENERATOR_ROLES)
     return WindowBasis(
         read["window"]["start"], read["window"]["end"], read["status"], selection.get("model_version"),
         None if not selection else str(selection["run_id"]), selection.get("input_sha256"),
         selection.get("cohort_sha256"), None if window_rev is None else str(window_rev["id"]),
         None if window_rev is None else window_rev["claim_level"],
         tuple(IntervalBasis.from_revision(r) for r in read.get("intervals") or ()),
-        state_reports(run_evidence), members, limits)
+        state_reports(run_evidence), members, limits, series)
 

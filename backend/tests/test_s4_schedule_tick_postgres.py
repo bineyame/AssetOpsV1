@@ -254,7 +254,7 @@ class TestConditionalMatchAndCurrentness:
             assert r.stages["s4"]["code"] == "SKIPPED_UNCHANGED_FENCE" and r.result == "COMPLETED"
         assert ledger_counts(engine, kobo.site) == base
         head = tick.store.site_head(kobo.tenant, kobo.site)
-        assert head["s4_outcome"] == "SKIPPED_UNCHANGED_FENCE" and head["matched_version"] == "finding-episode-2"
+        assert head["s4_outcome"] == "SKIPPED_UNCHANGED_FENCE" and head["matched_version"] == "finding-episode-3"
 
         read = build_dispatch_read_service(URL)
         revs_b = rows(engine, "SELECT r.id FROM finding_revision r WHERE r.site_id = :s AND "

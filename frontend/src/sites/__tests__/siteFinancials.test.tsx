@@ -672,3 +672,137 @@ describe("Site > Financials > Assumptions: later versions (S4-02a review L5)", (
     expect(screen.getByText(/Showing 2 of 2 versions/)).toBeInTheDocument();
   });
 });
+
+describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
+  const URL = `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`;
+  const RECORDED = crev(1, C1, {
+    price: { state: "PRICED", reason: null, revision_id: V1, value: "1.25", currency: "USD", unit: "currency/L", considered: [] },
+    amount: { low: "0", high: "7.5625", currency: "USD", unrounded: true },
+    display: { state: "ROUNDED_OUTWARD", currency: "USD", amount_low: "0.00", amount_high: "7.57" },
+  } as Partial<ConsequenceRevision>);
+  const LIMIT = {
+    kind: "SEQUENCE_ORDER_INVERTED", role: "generator_power", start: "2026-10-23T07:05:00Z", end: "2026-10-23T08:00:00Z",
+    evidence_ids: ["ev-late"], clock: "NO_ATTESTATION", attestation_refs: [], window_assessment_revision_id: "wa-1",
+    analytic_run_id: "run-1", relation: "CUTS_TAIL", source: "FINDING_REVISION" as const,
+  };
+
+  let limits: (typeof LIMIT)[] = [LIMIT];
+
+  function gate(state: "WITHHELD_GENERATOR_SERIES" | "PENDING_REASSESSMENT") {
+    return {
+      version: "money-eligibility-1", state, note: "", finding_id: FINDING, latest_finding_revision_id: FREV,
+      pending_reasons: state === "PENDING_REASSESSMENT" ? ["LIVE_JOB: DAY 2026-10-23 j1"] : [],
+      series_limits: state === "WITHHELD_GENERATOR_SERIES" ? limits : [], windows: [],
+    };
+  }
+
+  function withheldBody(state: "WITHHELD_GENERATOR_SERIES" | "PENDING_REASSESSMENT", selected: string | null = null) {
+    const body = consequencesBody([RECORDED], { selected });
+    return {
+      ...body,
+      currentness: { ...body.currentness, current_amount_shown: false, money_eligibility: state },
+      consequence: body.consequence ? { ...body.consequence, presented_as_current: false, historical: true } : null,
+      money_eligibility: gate(state),
+    };
+  }
+
+  function client(state: "WITHHELD_GENERATOR_SERIES" | "PENDING_REASSESSMENT") {
+    return fake({
+      bridge: {
+        status: "loaded",
+        value: pricedBridge({
+          state, currentness: "CURRENT", amount: null, currency: null, quantity: null, consequence_revision_id: null,
+          recorded_consequence_revision_id: C1, money_eligibility: gate(state),
+          reason: "No current cost is shown. The earlier recorded cost stays available for the record.",
+        }),
+      },
+      consequences: (pin) => ({ status: "loaded", value: withheldBody(state, pin.consequenceRevisionId ?? null) }),
+    });
+  }
+
+  it("run 1 withheld: no current amount, the refused span in plain words, and an exact link to the recorded 7.57", async () => {
+    mount(client("WITHHELD_GENERATOR_SERIES"), URL);
+    await settledScreen();
+    const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
+    expect(bridge).toHaveAttribute("data-financials-bridge", "WITHHELD_GENERATOR_SERIES");
+    expect(bridge).toHaveAttribute("data-financials-amount", "none");
+    expect(bridge.querySelector("[data-financials-headline='amount']")).toBeNull();
+    expect(bridge.textContent ?? "").not.toMatch(/\d+\.\d\d USD/);
+    expect(bridge).toHaveTextContent("Withheld: the generator records are not in a proven time order");
+    expect(bridge.querySelector("[data-financials-series-limit='SEQUENCE_ORDER_INVERTED']")).toHaveTextContent(
+      "arrived before an earlier reading and their clock is not proven",
+    );
+    const link = bridge.querySelector(`[data-financials-recorded-link='${C1}']`) as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toContain(`consequence_revision_id=${C1}`);
+    const row = document.querySelector(`[data-consequence-revision='${C1}']`) as HTMLElement;
+    expect(row).toHaveAttribute("data-consequence-current", "false");
+    expect(row).toHaveTextContent("7.57 USD");
+    expect(row).toHaveTextContent("kept for the record");
+    expect(document.body.textContent ?? "").not.toMatch(/the current fuel cost/);
+  });
+
+  it("a non-tail limit is worded by its relation and never says the finding ends before it", async () => {
+    limits = [
+      { ...LIMIT, relation: "CUTS_HEAD" },
+      { ...LIMIT, start: "2026-10-23T03:00:00Z", end: "2026-10-23T03:30:00Z", relation: undefined as unknown as string,
+        source: "SELECTED_WINDOW" as never },
+    ];
+    try {
+      mount(client("WITHHELD_GENERATOR_SERIES"), URL);
+      await settledScreen();
+      const text = (document.querySelector("[data-financials-bridge]") as HTMLElement).textContent ?? "";
+      expect(text).toContain("The finding starts after them and that time is not judged.");
+      expect(text).toContain("within 6 hours of this finding");
+      expect(text).not.toContain("The finding ends before them");
+    } finally {
+      limits = [LIMIT];
+    }
+  });
+
+  it("the same span from the Finding revision and the selected window is one list item, with the specific wording", async () => {
+    limits = [
+      { ...LIMIT, source: "SELECTED_WINDOW" as never, relation: undefined as unknown as string },
+      { ...LIMIT, relation: "CUTS_TAIL" },
+    ];
+    try {
+      mount(client("WITHHELD_GENERATOR_SERIES"), URL);
+      await settledScreen();
+      const items = document.querySelectorAll("[data-financials-bridge] [data-financials-series-limit]");
+      expect(items).toHaveLength(1);
+      expect(items[0]).toHaveTextContent("The finding ends before them and that time is not judged.");
+      expect(items[0].textContent).not.toContain("within 6 hours");
+    } finally {
+      limits = [LIMIT];
+    }
+  });
+
+  it("no span list is rendered when nothing is withheld by span", async () => {
+    limits = [];
+    try {
+      mount(client("WITHHELD_GENERATOR_SERIES"), URL);
+      await settledScreen();
+      expect(document.querySelector("[data-financials-bridge] [data-financials-money-limit] ul")).toBeNull();
+    } finally {
+      limits = [LIMIT];
+    }
+  });
+
+  it("opening the recorded head shows it as a record, never as the current cost", async () => {
+    mount(client("WITHHELD_GENERATOR_SERIES"), `${URL}&consequence_revision_id=${C1}`);
+    await settledScreen();
+    const pinned = document.querySelector(`[data-consequence-pinned='${C1}']`) as HTMLElement;
+    expect(pinned).toHaveAttribute("data-consequence-pinned-current", "false");
+    expect(pinned.querySelector("[data-consequence-pinned-withheld='WITHHELD_GENERATOR_SERIES']")).not.toBeNull();
+    expect(document.querySelector("[data-financials-headline='amount']")).toBeNull();
+  });
+
+  it("pending reassessment: no current amount and the pending wording", async () => {
+    mount(client("PENDING_REASSESSMENT"), URL);
+    await settledScreen();
+    const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
+    expect(bridge).toHaveAttribute("data-financials-amount", "none");
+    expect(bridge).toHaveTextContent("Being reassessed: no current cost yet");
+    expect(bridge.querySelector("[data-financials-pending-reassessment='true']")).not.toBeNull();
+    expect(bridge.querySelector(`[data-financials-recorded-link='${C1}']`)).not.toBeNull();
+  });
+});

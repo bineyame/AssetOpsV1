@@ -407,7 +407,15 @@ class EvidenceLedger(Protocol):
         decide_one: Callable[[int, str], Decision],
         *,
         limit: int,
-        decided_at: datetime,
-    ) -> str: ...
+        completed_at: datetime,
+    ) -> str:
+        """Decide the next `limit` undecided ordinals in one transaction (S4-07).
+
+        `completed_at` is the caller's application-clock receipt instant, written to the batch's
+        `completed_at` only when this chunk completes it. It is never the decision instant: the adapter
+        stamps each newly decided ordinal's `decided_at`, and a recompute job it inserts, with one
+        database-time instant taken inside the chunk transaction after the batch row lock.
+        """
+        ...
 
     def receipt(self, principal: GatewayPrincipal, external_batch_id: str) -> IngestionReceiptV2 | None: ...

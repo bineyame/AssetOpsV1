@@ -17,8 +17,8 @@ Two insert-only tables, written at runtime only by the existing evidence-ledger 
 Accepted evidence inherits the link through `accepted_evidence.batch_id` (already append-only, 0005).
 Both new tables refuse UPDATE and DELETE by trigger. No backfill: existing batches stay unbound.
 
-Revision ID: 0014_evidence_publication
-Revises: 0013_schedule_state
+Revision ID: 0017_evidence_publication
+Revises: 0016_action_store
 Create Date: 2026-10-15
 """
 
@@ -26,8 +26,8 @@ from __future__ import annotations
 
 from alembic import op
 
-revision = "0014_evidence_publication"
-down_revision = "0013_schedule_state"
+revision = "0017_evidence_publication"
+down_revision = "0016_action_store"
 branch_labels = None
 depends_on = None
 
@@ -119,7 +119,7 @@ REFUSE_IF_USED = r"""
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM evidence_publication) THEN
-        RAISE EXCEPTION 'Downgrade of 0014_evidence_publication refused: source publications exist. Immutable provenance is never deleted; 0013 cannot represent it.';
+        RAISE EXCEPTION 'Downgrade of 0017_evidence_publication refused: source publications exist. Immutable provenance is never deleted; 0016 cannot represent it.';
     END IF;
 END;
 $$;

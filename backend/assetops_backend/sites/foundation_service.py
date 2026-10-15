@@ -88,11 +88,14 @@ def revision_at(
 class FoundationRefused(Exception):
     """A Foundation request refused with a code a client switches on."""
 
-    def __init__(self, code: str, message: str, *, status: int) -> None:
+    def __init__(self, code: str, message: str, *, status: int,
+                 current_revision_id: UUID | None = None) -> None:
         super().__init__(message)
         self.code = code
         self.message = message
         self.status = status
+        #: The covering revision found under the Site lock, when a change was refused there (S6-01a).
+        self.current_revision_id = current_revision_id
 
 
 # --- import ------------------------------------------------------------------
@@ -301,6 +304,34 @@ class PublishResult:
     site: StoredSite
     plan: PublishPlan
     changed: RevisionRow
+    configuration: ConfigurationPlan | None = None
+
+
+@dataclass(frozen=True)
+class CallerTransaction:
+    """S6-01a: one S1 publish inside a caller-owned transaction (the Action adapter's).
+
+    `connection` is the caller's open connection; S1 neither begins nor commits on it. `then` receives
+    `written_ids(plan)` on that connection after the S1 writes. `recorded_at` is the caller's server instant,
+    used as the publish's recorded time so the Foundation rows and the caller's rows share one instant.
+    """
+
+    connection: Any
+    then: Callable[[dict[str, Any]], None]
+    recorded_at: datetime
+
+
+def written_ids(plan: ConfigurationPlan) -> dict[str, Any]:
+    """Every Foundation and binding set revision ID one publication superseded or inserted."""
+    inserted = plan.revision_inserts
+    return {
+        "superseded_foundation_revision_ids": list(plan.supersede_revision_ids),
+        "publish_foundation_revision_ids": [r.id for r in inserted if r.origin == "PUBLISH"],
+        "split_foundation_revision_ids": [r.id for r in inserted if r.origin == "SPLIT"],
+        "superseded_binding_set_revision_ids": list(plan.supersede_binding_set_ids),
+        "inserted_binding_set_revision_ids": [r.id for r in plan.binding_set_inserts],
+        "superseded_at": plan.superseded_at,
+    }
 
 
 class FoundationService:
@@ -368,18 +399,48 @@ class FoundationService:
         value: float,
         effective_from: datetime,
         note: str | None,
+        expected_revision_id: UUID | None = None,
+        expected_value: float | None = None,
+        caller: CallerTransaction | None = None,
     ) -> PublishResult:
+        """Publish a battery reserve, in its own transaction or (S6-01a) inside a caller's.
+
+        `D-2026-10-15-s601-action-store-and-ui` M1: with `caller`, the publish uses the caller's connection
+        without opening or committing a transaction, checks `expected_revision_id` (the covering revision)
+        and `expected_value` (its reserve) under the Site lock, and hands every written and superseded ID to
+        `caller.then` on that connection after the S1 writes, before the caller's sole commit. Without
+        `caller`, this is the ordinary S1 publish in its own transaction.
+        """
         def unchanged(content: Mapping[str, Any]) -> str | None:
             reserve = battery_reserve(content)
             if reserve is not None and reserve["asset_code"] == asset_code and float(reserve["value"]) == value:
                 return f"The battery reserve is already {value:g}{RESERVE_UNIT}"
             return None
 
+        def expect(replaced: RevisionRow) -> None:
+            if expected_revision_id is not None and replaced.id != expected_revision_id:
+                raise FoundationRefused(
+                    "FOUNDATION_EXPECTED_REVISION_STALE",
+                    f"The Foundation revision covering {effective_from.isoformat()} is {replaced.id}, "
+                    f"not the expected {expected_revision_id}. Nothing was written.",
+                    status=409, current_revision_id=replaced.id)
+
+        def basis(replaced: RevisionRow) -> None:
+            if expected_value is None:
+                return
+            reserve = battery_reserve(replaced.content)
+            if reserve is None or reserve["asset_code"] != asset_code or float(reserve["value"]) != expected_value:
+                raise FoundationRefused(
+                    "FOUNDATION_EXPECTED_VALUE_STALE",
+                    f"The battery reserve in v{replaced.version} is no longer {expected_value:g}{RESERVE_UNIT}. "
+                    "Nothing was written.", status=409, current_revision_id=replaced.id)
+
         return self._publish_content_change(
             tenant, site, effective_from=effective_from, note=note, unchanged=unchanged,
             change=lambda content, version: with_battery_reserve(
                 content, asset_code=asset_code, value=value, source_version=version
             ),
+            expect=expect, basis=basis, caller=caller,
         )
 
     def publish_component_properties(
@@ -421,8 +482,11 @@ class FoundationService:
         note: str | None,
         unchanged: Callable[[Mapping[str, Any]], str | None],
         change: Callable[[Mapping[str, Any], int], dict[str, Any]],
+        expect: Callable[[RevisionRow], None] = lambda _replaced: None,
+        basis: Callable[[RevisionRow], None] = lambda _replaced: None,
+        caller: CallerTransaction | None = None,
     ) -> PublishResult:
-        now = self._clock()
+        now = self._clock() if caller is None else caller.recorded_at
         changed_holder: dict[str, RevisionRow] = {}
 
         def planner(rows: Sequence[RevisionRow]) -> PublishPlan:
@@ -453,11 +517,16 @@ class FoundationService:
                     status=422,
                 )
             replaced = covering[0]
+            # S6-01a order under the Site lock: the expected covering revision, then no-change, then the
+            # expected basis value. Each refusal aborts with nothing written.
+            expect(replaced)
             same = unchanged(replaced.content)
             if same is not None:
                 raise FoundationRefused(
-                    "FOUNDATION_NO_CHANGE", f"{same} in v{replaced.version}.", status=422
+                    "FOUNDATION_NO_CHANGE", f"{same} in v{replaced.version}.", status=422,
+                    current_revision_id=replaced.id,
                 )
+            basis(replaced)
             next_version = max(row.version for row in rows) + 1
             inserts: list[RevisionRow] = []
             if effective_from > replaced.valid_from:
@@ -521,8 +590,14 @@ class FoundationService:
             return completed
 
         try:
-            self._store.publish_configuration(tenant.id, site.id, joint)
+            if caller is None:
+                configuration = self._store.publish_configuration(tenant.id, site.id, joint)
+            else:
+                configuration = self._store.publish_configuration(
+                    tenant.id, site.id, joint, connection=caller.connection,
+                    then=lambda plan: caller.then(written_ids(plan)))
         except FoundationSiteNotFound as error:
             raise FoundationRefused("SITE_NOT_FOUND", str(error), status=404) from error
-        return PublishResult(site=site, plan=plan_holder["plan"], changed=changed_holder["changed"])
+        return PublishResult(site=site, plan=plan_holder["plan"], changed=changed_holder["changed"],
+                             configuration=configuration)
 

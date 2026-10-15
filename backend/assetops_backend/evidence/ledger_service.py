@@ -185,7 +185,7 @@ class BatchIngestionService:
                 envelopes,
                 lambda ordinal, text: decide(basis, ordinal, text),
                 limit=self.chunk_size,
-                decided_at=self.clock(),
+                completed_at=self.clock(),  # receipt field (app clock); decisions take DB time (S4-07)
             )
             chunks += 1
             if self.crash_after_chunks is not None and chunks >= self.crash_after_chunks and status != "COMPLETED":

@@ -22,6 +22,9 @@ Sequence (every read is a fresh process reading Postgres):
     If tick 3 does not complete S3 and S4, the tool reports what happened instead of asserting the r2 path (N6).
  4. Tick 4 replays nothing; then a stopped worker (tight DB-time thresholds) blocks the seam and tick 5 recovers.
 The seam is asserted only for its upstream state; S5 money eligibility belongs to F1 (M5) and is recorded only.
+LR-01: the read also records the shared money gate (`money-eligibility-1`) and asserts it ELIGIBLE after tick 3 for
+this on-time-sequenced variant; the admission-sequenced withheld path is `s402c_late_power_walkthrough.py --db
+assetops_lr01*`.
 """
 
 from __future__ import annotations
@@ -116,8 +119,9 @@ class TickWalk(lw.LateWalk):
                "watermark": day.get("watermark"), "run_id": day.get("run_id"),
                "s3_jobs": [{k: j.get(k) for k in ("id", "status", "attempts", "last_error")} for j in body["s3_jobs"]],
                "match": [m for m in body["match"] if m.get("window_selection_seq") is not None],
-               "findings": [{k: f.get(k) for k in ("finding_id", "finding_revision_id", "consequence_state",
-                                                    "consequence_reasons", "head_consequence_revision_id")}
+               "findings": [{**{k: f.get(k) for k in ("finding_id", "finding_revision_id", "consequence_state",
+                                                       "consequence_reasons", "head_consequence_revision_id")},
+                             "money_eligibility": (f.get("money_eligibility") or {}).get("state")}
                             for f in body["findings"]],
                "consequence_work": [w.get("work_id") for w in body["consequence_work"]],
                "schedule": {k: (body.get("schedule") or {}).get(k) for k in (
@@ -303,6 +307,10 @@ class TickWalk(lw.LateWalk):
         self.expect("r2 counts the late mean (late ID in run inputs and examined)",
                     b1["derived_now"]["late_in_run_inputs"] and b1["derived_now"]["late_examined"], b1["derived_now"])
         o["s5_money_eligible_recorded_only"] = b1["s5_money_eligible"]  # M5: F1 owns money eligibility
+        # LR-01: this SOURCE_ORDER (on-time-sequenced) variant is one series without proof (cohort-4), so the shared
+        # money gate settles ELIGIBLE after tick 3; the admission-sequenced run 1 is LR-01's own walkthrough.
+        self.expect("LR-01: the shared money gate is ELIGIBLE for r2 after tick 3 (on-time-sequenced, one series)",
+                    b1["money_eligibility"]["state"] == "ELIGIBLE", b1["money_eligibility"])
         hr1 = self.read("r1 after tick 3 (historical)", fid, r1, late_id)
         self.expect("r1 is HISTORICAL and keeps consequence 1 only (no same-revision Leg A append in this proof)",
                     hr1["currentness"] == "HISTORICAL" and len(hr1["history"]) == 1, hr1["history"])

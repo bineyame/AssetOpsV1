@@ -1,0 +1,106 @@
+{
+  "results": [
+    {
+      "name": "desktop p02-eligible 2026-10-24: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "desktop p02-eligible: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "desktop p02-eligible: no page-level horizontal overflow",
+      "ok": true,
+      "detail": -15
+    },
+    {
+      "name": "desktop eligible: priced with the demonstration label, gate ELIGIBLE",
+      "ok": true,
+      "detail": {
+        "money": "PRICED",
+        "amount": "0.00 to 15.82 USD",
+        "demo": "P02-power-late",
+        "gate": "ELIGIBLE"
+      }
+    },
+    {
+      "name": "desktop eligible: a new Finding version is selected",
+      "ok": true,
+      "detail": {
+        "revision": "9827a7bd-944c-4e85-9a37-339032a75a6b"
+      }
+    },
+    {
+      "name": "narrow p02-eligible 2026-10-24: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "narrow p02-eligible: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "narrow p02-eligible: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow eligible: priced with the demonstration label, gate ELIGIBLE",
+      "ok": true,
+      "detail": {
+        "money": "PRICED",
+        "amount": "0.00 to 15.82 USD",
+        "demo": "P02-power-late",
+        "gate": "ELIGIBLE"
+      }
+    },
+    {
+      "name": "narrow eligible: a new Finding version is selected",
+      "ok": true,
+      "detail": {
+        "revision": "9827a7bd-944c-4e85-9a37-339032a75a6b"
+      }
+    }
+  ],
+  "record": {
+    "desktop": {
+      "href": "/sites/KOBO-001?date=2026-10-24&finding_id=a3eca958-c648-457d-87de-e7fad32d9749&finding_revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "day": "2026-10-24",
+      "freshness": "CURRENT",
+      "freshnessText": "Current Every upstream step for this day has settled.",
+      "assessment": "CURRENT",
+      "money": "PRICED",
+      "gate": "ELIGIBLE",
+      "amount": "0.00 to 15.82 USD",
+      "demo": "P02-power-late",
+      "consequence": "26d63ce5-188d-4796-91af-41975150eef8",
+      "financials": "/sites/KOBO-001/financials?finding_id=a3eca958-c648-457d-87de-e7fad32d9749&revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b&consequence_revision_id=26d63ce5-188d-4796-91af-41975150eef8",
+      "finding": "a3eca958-c648-457d-87de-e7fad32d9749",
+      "revision": "9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "findingList": "Unavailable until the Site Finding index is delivered.",
+      "reasons": "",
+      "sourceOpen": "open",
+      "overflow": -15
+    },
+    "narrow": {
+      "href": "/sites/KOBO-001?date=2026-10-24&finding_id=a3eca958-c648-457d-87de-e7fad32d9749&finding_revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "day": "2026-10-24",
+      "freshness": "CURRENT",
+      "freshnessText": "Current Every upstream step for this day has settled.",
+      "assessment": "CURRENT",
+      "money": "PRICED",
+      "gate": "ELIGIBLE",
+      "amount": "0.00 to 15.82 USD",
+      "demo": "P02-power-late",
+      "consequence": "26d63ce5-188d-4796-91af-41975150eef8",
+      "financials": "/sites/KOBO-001/financials?finding_id=a3eca958-c648-457d-87de-e7fad32d9749&revision_id=9827a7bd-944c-4e85-9a37-339032a75a6b&consequence_revision_id=26d63ce5-188d-4796-91af-41975150eef8",
+      "finding": "a3eca958-c648-457d-87de-e7fad32d9749",
+      "revision": "9827a7bd-944c-4e85-9a37-339032a75a6b",
+      "findingList": "Unavailable until the Site Finding index is delivered.",
+      "reasons": "",
+      "sourceOpen": "open",
+      "overflow": 0
+    }
+  }
+}
