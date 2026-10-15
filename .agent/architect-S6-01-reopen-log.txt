@@ -1,0 +1,885 @@
+Reading additional input from stdin...
+OpenAI Codex v0.156.1
+--------
+workdir: C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+model: gpt-6-sol
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a14076-7bad-7083-bf68-9daa50f56291
+--------
+user
+You are the AssetOps Architect. Read and follow .agent/architect-S6-01-reopen-request.md in this worktree exactly.
+codex
+I’ll read the S6-01 architect request and the current project guidance, then make the requested changes in this worktree.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/START_HERE.md; Get-Content .ai/ACTIVE_CONTEXT.md; Get-Content .agent/architect-S6-01-reopen-request.md; git status --short --branch' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 187ms:
+# Start Here
+
+AssetOps turns mini-grid evidence into bounded operational and economic conclusions and verifies interventions. Current implementation documents: [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md).
+
+The [Architect S1-01 decision](DECISIONS.md) and [contract addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) resolve S1-01; no owner sign-off on the three Site-first documents or S1-01 is recorded here. Their proposal headers remain provenance.
+
+The [v6.9 mock screens](../frontend/mockups/v69/index.html) and their `screen-manifest.json` are the interaction/content references for each named surface. They do not authorize invented data or unfinished tabs; the active task and current architecture determine what becomes real.
+
+Current milestone: S1 Foundation.
+
+Planning status: S1-01 is ready for implementation; S2-S7 are outlined for refinement after predecessor review.
+
+## Current route
+
+1. Read `AGENTS.md` and this file.
+2. Read `.ai/ACTIVE_CONTEXT.md` and the active task it names.
+3. Use `tasks/README.md` for the only executable S1â€“S7 queue. S1-01 is next; S2â€“S7 packets are outlines until refined after predecessor review.
+4. Read `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md` and `.ai/DECISIONS.md` only when their semantics, boundaries or prior choices matter. Read `.ai/ROLE_CONFIG.md` for role binding and `.ai/WORKFLOW.md` for task/review rules.
+
+The open T0xx queue is [archived as superseded](../tasks/archive/pre-site-first-2026-10-07/README.md). Completed task packets and `.ai/CODE_STATE.md` remain built-state history. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and the old scoped handoffs are historical planning references, not current sequencing authority. Do not activate a T0xx packet because its title resembles a new slice.
+
+Use one task branch per slice, never `main`. The planned lane is Architect/Planner â†’ Implementer â†’ independent Reviewer â†’ owner review where required. Each task must show a persisted Site or Lab state and protect the simulator/private truth boundary. Do not load all history by default.
+# Active Context
+
+Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in `.ai/DECISIONS.md`.
+
+## Current milestone and task
+
+**S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
+
+**S4-07 ([evidence decided_at on DB time](../tasks/S4-07-evidence-decided-at.md)) is `in_review`** on `task/S4-07-evidence-decided-at` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-07-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-07".
+
+**S4-06 ([equal-start price succession](../tasks/S4-06-price-succession.md)) is `in_review`** on `task/S4-06-price-succession` (non-UI, USER_REVIEW_REQUIRED false); packet `.agent/S4-06-review-packet.md`, built state in `.ai/CODE_STATE.md` "S4-06".
+
+S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
+
+S2-01a (registered Lab basis) and S2-01b (durable simulated gateway) are reviewed and merged to main at `7c10283`; their carries are in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+
+S2-01c is merged at `b4006d1`. [S2-02 authenticated ingestion and Site Evidence](../tasks/S2-02-ingestion-site-evidence.md) is built on `task/S2-02-ingestion-site-evidence` in phases 1-3 and is `in_review` (USER_REVIEW_REQUIRED: S2 Evidence owner checkpoint): Postgres evidence ledger and Receipt V2, owner-only gateway credential and direct-TLS upload, central diagnostics freshness, fingerprinted KOBO-001 empty-set cutover, Site Evidence/Analysis and Lab Commit UI, and a repeatable walkthrough (`tools/s2_demo_walkthrough.py`). Packet `.agent/S2-02-review-packet.md`, owner walkthrough `.agent/S2-02-owner-walkthrough.md`, built state in `.ai/CODE_STATE.md` "S2-02"; fix round 1 (review F1, Architect batch 4 Q28/Q26/Q32/count) built, see packet "Fix round 1"; open Architect questions `.agent/S2-02-questions-7.md`.
+
+Pre-S3 startup: [PRE-S3-03](../tasks/PRE-S3-03-delivery-checker-report.md) (delivery checker, `next-work` report, `tools/check-all.ps1`) is `in_review` on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, built state in `.ai/CODE_STATE.md` "PRE-S3-03". The live report currently refuses to rank (37 approved core panels lack reviewed paths). Reviewer: read the task, that packet and `.agent/PRE-S3-03-questions.md`, then run `tools/check-all.ps1` and the `--next-work` command.
+
+S3-01 ([typed dispatch assessment](../tasks/S3-01-dispatch-assessment.md)) is `in_review` on `task/S3-01-dispatch-assessment` (USER_REVIEW_REQUIRED: owner checkpoint). Phases 1, 2 and 3a (with `dispatch-3.1` and fix R1) are reviewed and accepted; phase 3b (Performance > Dispatch and Analysis UI, cutover summary, walkthrough, V-01 evidence 32/32) is built and awaits a fresh Claude review. Packet `.agent/S3-01-review-packet.md`, built state in `.ai/CODE_STATE.md` "S3-01 phase 3b", questions `.agent/S3-01-questions-5.md` (Q17-Q22), owner steps `.agent/S3-01-owner-walkthrough.md`.
+
+S4-01 ([candidate generator-support Finding](../tasks/S4-01-finding-identity.md)) is `in_review` on `task/S4-01-finding-identity` (USER_REVIEW_REQUIRED: owner checkpoint). Phases 1 and 2 are reviewed and closed; phase 3 (`I-finding-ui`: Site Finding detail at `/sites/{site}/findings/{id}`, Dispatch day Finding links, walkthrough and app-vs-mock evidence 36/36) is built and awaits a fresh Claude review. Packet `.agent/S4-01-review-packet.md` (all phases), built state in `.ai/CODE_STATE.md` "S4-01 phase 3", questions `.agent/S4-01-questions-5.md` (Q25-Q30), owner steps `.agent/S4-01-owner-walkthrough.md`.
+
+The only executable queue is [tasks/README.md](../tasks/README.md). The current [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md) own the current direction. The [open T0xx archive](../tasks/archive/pre-site-first-2026-10-07/README.md) is superseded historical reference. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and old scoped handoffs do not route current work.
+
+The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-01 addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) control the first slice. Their decision status is distinct from owner acceptance; no owner sign-off on the three Site-first documents or S1-01 is recorded here.
+
+## Built state to carry forward
+
+The completed T001â€“T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
+
+## Next read
+
+Reviewer (S4-07): read the task (incl. coordinator note), `.agent/S4-07-review-packet.md` (Known Deviation 1: widened-job `available_at` lift), then `git diff 3ec3d765..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
+
+Reviewer (S4-06): read the task, `.agent/S4-06-review-packet.md`, then `git diff 7c72c6b3..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
+
+Reviewer (S4-02c phase 3 and slice): read the task (phase 3 row, carries C5, risks), `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-phase-2-review.md` "Carries for phase 3" and `.agent/S4-02c-phase-3-handoff.md`, then `git diff 6d4a1995..HEAD` (slice: `git diff f9d6d1a5..HEAD`). Rerun `tools/s402c_late_power_walkthrough.py run --db assetops_s402c3walk_<x> --work <dir named s402c3*>` then `drop`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
+
+Reviewer (S4-02b phase 2b and whole slice): read the task, `.agent/S4-02b-review-packet.md`, `.agent/S4-02b-phase-2b-handoff.md` and `.agent/S4-02b-phase-2a-review.md` carries, then `git diff 3793e4d..HEAD`. Use private DBs via `tools/s402b_fuel_cost_walkthrough.py --work-name <new> prepare` and `tools/s402b-fuel-cost-evidence.mjs`; the owner keeps 8872/8873/5372/5373 and `assetops_s402bwalk`/`assetops_s402bempty`.
+
+Reviewer (S4-02a phase 2 and closeout): read the task, `.agent/S4-02a-review-packet.md` and `.agent/S4-02a-phase-2-handoff.md`, then `git diff 5159b96..HEAD`. Walk it with `tools/s402a_assumptions_walkthrough.py --db assetops_s402a_<x> --empty-db assetops_s402a_<y> --work-name <new> prepare|links|serve|drop` and `node tools/s402a-assumptions-evidence.mjs <base> <empty-base> <finding-id> <out>`; the owner keeps 8870/8871/5370/5371.
+
+Reviewer (S4-03 phase 3 and closeout): read the task's phase 3 row, `.agent/S4-03-review-packet.md`, `.agent/S4-03-handoff.md` "Phase 3", `.agent/architect-S4-03-answers.md` (Q3) and `.agent/S4-03-questions-2.md`, then `git diff 26b5e7a..HEAD`. Walk it on a private copy with `tools/s4_finding_walkthrough.py --db <private> --work <new folder> prepare|serve` and `node tools/s4-finding-evidence.mjs` (`ASSETOPS_S4_WALK_WORK`, `ASSETOPS_CDP_PORT`, suites all/history/closed) on ports 8898/5398; the owner keeps 8866/8867/5366/5367.
+
+Reviewer (S4-01 phase 3 and closeout): read the task's phase 3 row and "Detail read and visible states", `.agent/S4-01-review-packet.md` and `.agent/S4-01-questions-5.md`, then `git diff 0f4808b..HEAD`; walk it with `tools/s4_finding_cases.py run`, `tools/s4_finding_walkthrough.py prepare|links|serve` (DB `assetops_s4walk`, API 8840, web 5340) and `node tools/s4-finding-evidence.mjs http://localhost:5340`.
+
+Reviewer (S3-01 phase 3b): read the task's phase 3 row and "Read states and acceptance", `.agent/S3-01-review-packet.md`, `.agent/S3-01-phase-3b-handoff.md` and `.agent/S3-01-questions-5.md`, then `git diff cdc24f7..HEAD`; walk it with `tools/s3_dispatch_walkthrough.py` (isolated DBs `assetops_s3cases`, `assetops_s3walk`; API port 8820).
+
+Reviewer (S2-02): read the task, `.agent/S2-02-review-packet.md`, `.agent/S2-02-owner-walkthrough.md` and the S2-02 decisions named in the task, then `git diff main...HEAD`. Postgres setup is in `backend/README-db.md`; the live path runs with `tools/s2_demo_walkthrough.py run` (isolated database `assetops_s2demo`). Run the workflow and architecture guards and checks applicable to changed behavior.
+# Architect request - recommendation for a newer Finding revision after an Action (delegated, owner absent)
+
+You are the AssetOps Architect (Codex). S6-01a/S6-01b (reviewed, unmerged; branches `task/S6-01a-action-store-read` head `c341599b`, `task/S6-01b-action-ui`) behave like this: after an Action is accepted on FindingRevision N, the Recommendation for the newer FindingRevision N+1 reads as open to accept again (recorded contract) or unavailable with `FOUNDATION_BASIS_STALE` once the reserve was applied (served walkthrough), and in neither case mentions the Action already accepted on revision N. Owner walkthrough doc (on the S6-01b branch, `.agent/S6-01b-owner-walkthrough.md`) flags it. Context: `D-2026-10-15-s601-action-store-and-ui`, `.agent/architect-S6-01-answers.md`, `D-2026-10-14-action-lifecycle-and-policy-application`.
+
+Rule, short: should the Recommendation for a newer revision of the same Finding (a) stay as built (independent per revision) with an added link/notice to the existing Action(s) on earlier revisions, (b) be suppressed while an earlier-revision Action is open, or (c) something else; and whether this must change before S6-01a/b merge or is a follow-on. Write `.agent/architect-S6-01-reopen-answers.md` and a short `D-2026-10-15-s601-reopen` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code. Print a short summary.
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+## plan/S6-01-reopen
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'rg -n "D-2026-10-15-s601-action-store-and-ui|D-2026-10-14-action-lifecycle-and-policy-application|S6-01|Recommendation|FindingRevision" .ai/DECISIONS.md .agent/architect-S6-01-answers.md tasks/README.md tasks/S6* frontend/docs/architecture/production-shaped-mvp.md frontend/docs/architecture/production-shaped-mvp-technical-design.md frontend/docs/architecture/site-first-execution-plan.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ exited 1 in 109ms:
+rg: tasks/S6*: The filename, directory name, or volume label syntax is incorrect. (os error 123)
+frontend/docs/architecture/production-shaped-mvp-technical-design.md:60:`FindingRevision` and `FinancialConsequenceRevision` refer to the exact assessment revision they explain. The evidence drawer traverses `finding_revision → assessment_revision → analytic_run_evidence → accepted_evidence → envelope_text`, plus the bound Foundation/SignalBinding and assumption revisions. Deleting a source row is prohibited while a dependent claim exists. Evidence behind a conclusion is not a rendered explanation string.
+frontend/docs/architecture/production-shaped-mvp-technical-design.md:161:FindingRevision {
+frontend/docs/architecture/production-shaped-mvp-technical-design.md:207:**Root ownership rule before S4 and S6.** The Site Findings list is a Site-scoped projection; a Finding detail, Analysis, Evidence, Alternatives, Recommendation and History share stable Finding identity in the Findings root. S4's first detail route must preserve that identity and selected revision across tabs and links back to the Site. The Site Work list is a Site-scoped projection; Action Overview, Plan, Execution, Evidence, Verification and History share stable Action identity in the Actions root. Before S6 verification, define the Action-root route and plan/outcome revision URLs, preserving the Site/Finding back-links. Unimplemented tabs stay hidden; an empty tab must represent a real supported question.
+tasks/README.md:9:**Pre-S3 planning gates:** `A-claim-work-routes`, `A-actor-identity` and bounded `A-evidence-readiness-health` are recorded in the pre-S3 decisions. `A-finding-index` is resolved by `D-2026-10-15-a-finding-index`; S4-04 implementation and its fixtures remain open. `A-money-comparability` and broad shared projections remain open. S4-01 and S4-02 consume the route and actor decisions; S6-01 reuses both accepted contracts. These decisions do not add implementation prerequisites to dispatch. At each S2–S7 outline refinement, compare the packet with the registry's `queue_baseline_nodes`; a contract or fixture no longer owned by the queue leaves that baseline before marginal estimates are used.
+tasks/README.md:32:| Financial correctness follow-on | [S4-06](S4-06-price-succession.md) | Equal-start future Site price SUCCESSION retains exact prior cutoff history and one current replacement | Merged S4-02a; registry `I-price-equal-start-succession`; independent of unmerged LR-01/S5-01/S6-01/S4-05 | S; done 2026-10-15 (merged) 2026-10-15 (packet `.agent/S4-06-review-packet.md`); one build + one review; non-UI (USER_REVIEW_REQUIRED false) |
+tasks/README.md:33:| Evidence cutoff follow-on | [S4-07](S4-07-evidence-decided-at.md) | Late accepted decision reaches a DB-time assessment or durable re-enqueue across skew and restart | Merged S2-02/S4-02d; S4-02d I3 carry; independent of unmerged LR-01/S5-01/S6-01/S4-05 | M; done 2026-10-15 (merged) 2026-10-15 (`.agent/S4-07-review-packet.md`); one bounded build + one review; non-UI (USER_REVIEW_REQUIRED false) |
+tasks/README.md:34:| Writer guard follow-on | [OPS-02](OPS-02-writer-guard-ast.md) | Statement-level rule-8 proof over 11 missed forms, with bounded OPS-01 xdist opt-out guard | Merged S4-02d/OPS-01; F-B carry; independent of unmerged LR-01/S5-01/S6-01/S4-05 | S; implementation-ready; one build + one review; non-UI (USER_REVIEW_REQUIRED false) |
+tasks/README.md:36:| Stored source provenance | [S4-05b](S4-05b-producers-reads-walkthrough.md) | P01/P02 and ordinary simulator register before upload; exact Finding/Evidence/consequence/Financials reads and owner walkthrough | Reviewed/merged S4-05a; registry `I-stored-demo-provenance`; independent of unmerged LR-01/S5-01/S6-01 but compose after their merge | M; implementation-ready; two phases; USER_REVIEW_REQUIRED, owner copy approval before merge |
+tasks/README.md:44:| S6 Work | [S6-01a](S6-01a-action-store-read.md) | Persisted Action, trial recommendation, atomic policy application, exact reads and API contract fixture | Merged S1 Foundation and closed S4-01 Finding; independent of LR-01/S5-01 | M; implementation-ready; USER_REVIEW_REQUIRED: false; mergeable after review |
+tasks/README.md:45:| S6 Work | [S6-01b](S6-01b-action-ui.md) | Action/Recommendation/Changes surfaces consume S6-01a's committed contract fixture | Freshly reviewed and merged S6-01a; S5 order only | M; implementation-ready; USER_REVIEW_REQUIRED: true; hold merge for owner walkthrough |
+tasks/README.md:46:| S6 Work | [S6-01](S6-01-action-change.md) ([a](S6-01a-action-store-read.md), [b](S6-01b-action-ui.md)) | Persisted Action/event/application and exact read, then Action/Recommendation/Changes UI | closed S4-01 Finding task, S1 publish; S6-01 reuses both accepted contracts; b consumes reviewed a; S5 order only | Implementation-ready as two M slices; a non-UI mergeable after review, b held for owner walkthrough |
+tasks/README.md:47:| S6 Work | [S6-02](S6-02-verification.md) | Verification compares a later accepted window and guardrails | S6-01 | Outline; owner review checkpoint |
+tasks/README.md:48:| S6 Work | [S6-03](S6-03-site-work-list.md) | Site Work shows a scoped Action list with watermarked empty and persisted rows | S6-01, `A-action-index`; S6-02 is queue order only | Outline; owner review checkpoint |
+tasks/README.md:77:S1 and S2 are merged; W1 owner input and `A-S3-dispatch` are recorded. **Before S3-01 is activated**, pass PRE-S3-03/startup guards and check the split [V-01 umbrella](V-01-v69-visual-fidelity.md). S3-01 contains the versioned `I-sim-dispatch-cases` fixture as phase 1, followed by typed assessment and UI/cutover phases; its Candidate path stays Indeterminate until the new capability channels are accepted. S3-02 owns the later positive Evidence Analysis claim-limit view. S4-03 owns Finding Evidence/History; S4-04 owns the Site Finding list. S5-01 owns selected-window context/timeline/money; S5-02 integrates the list with separate empty and positive fixtures. S6-01 owns Action detail/activity/change, S6-02 owns plan/evidence/outcome, and S6-03 owns the Site Work list. Resolve only model gaps merited by the next supported claim; broader work, domains and indexes stay in later waves. Unrefined S4-S7 packets remain outlines until their technical gates and owner checkpoints pass. A target tier does not authorize an empty route or illustrative mock value as product data.
+tasks/README.md:88:Current S milestones also own bounded portions of `mini` (S5-01), `action-overview` (S6-01/S6-02), and `health` and `asset` (S7-01). Their remaining panels need the same tier, projection and evidence review; the post-S7 Action lane below refers only to fuller contextual detail.
+frontend/docs/architecture/production-shaped-mvp.md:55:Keep explicit relational entities: `Tenant/Site`, `Asset` (stable physical identity), `FoundationRevision` (valid-time, recorded-time, topology, objectives, controls), `SignalBindingRevision`, `Gateway/Source`, `IngestionBatch`, `AcceptedEvidence`, `EvidenceRejection`, `AnalyticRun/AssessmentRevision`, `Finding` + immutable `FindingRevision`, `FinancialAssumptionRevision`, `FinancialConsequenceRevision`, `Action/ActionEvent`, `VerificationPlanRevision/Outcome`. Evidence retains raw digest, original and normalized value/unit, timestamps, quality, mapping/configuration revision, and provenance. No retroactive rewrite of a past basis: backdated corrections create a new revision and re-evaluation with links to both versions.
+frontend/docs/architecture/site-first-execution-plan.md:30:| **S4 · Finding + Financials:** Site `finding`, `finding-evidence`, `financials`, `assumptions` | Stable Finding identity and immutable FindingRevision linked to an assessment; versioned fuel/maintenance assumptions and bounded FinancialConsequenceRevision; Site Finding/Financials queries and evidence drawer lineage. Define episode matching for the first analytic: overlapping/adjacent generator intervals within a declared continuity tolerance extend one operational episode; a separated recurrence gets a new `finding_key` and links to the earlier Finding as recurrence, not an accidental new revision of the old interval. Changed evidence/model for the **same** episode creates a revision. | Open one candidate generator-support Finding from Performance, inspect technical quantity → price/maintenance basis → amount range, then inspect the exact accepted records and assumptions. Change price to see a new consequence revision without altering the operational claim. Missing price remains unpriced, never zero. The episode rule is fixture-tested with extension, gap and recurrence cases. |
+frontend/docs/architecture/site-first-execution-plan.md:32:| **S6 · Work / Action / Verification:** Site `changes`, `recommendation`, `verification` and the Actions portion of `sitework` | Persist Action, ActionEvent, VerificationPlanRevision and VerificationOutcome; immutable policy-change artifact/event linked to Site Foundation; later-window analytic comparison with target and service/reserve guardrails. Site work read model joins the same Finding and Action identities. | Accept a recommendation, publish one controlled reserve-SOC Foundation revision in S6-01, then run Lab under that basis and Commit later gateway evidence in S6-02; inspect activity separately from outcome. Show Verified, Ineffective or Inconclusive from target **and** guardrails; opening either window resolves the exact evidence and plan revision. A later recurrence can reopen the issue. No global Actions index yet. |
+frontend/docs/architecture/site-first-execution-plan.md:55:| S6 | `S6-01` Action/change; `S6-02` later-window verification | Record one actual intervention; then inspect target and guardrail outcome from later accepted evidence. |
+frontend/docs/architecture/site-first-execution-plan.md:85:- **Episode identity:** decide continuity tolerance, episode anchor and recurrence linkage in S3/S4 domain design, with a short decision table before coding the first Finding. `Finding.id` names a durable operational episode; `FindingRevision` describes reassessment of that episode. A new separated episode is a new Finding, linked as recurrence if relevant. Do not use a changing model output hash as Finding identity.
+.ai/DECISIONS.md:3569:  at T028, with Recommendation and History at T034; Action `Overview |
+.ai/DECISIONS.md:3772:`Overview | Analysis | Evidence | Alternatives`. Recommendation and History
+.ai/DECISIONS.md:3989:Every auditable assumption, policy or work write stores server-resolved `actor_kind`, `actor_id`, source channel, recorded time and authorization basis. A human `author_id` requires an authenticated human principal; client text, local OS username, fixed development tenant and gateway credential are not human identity. A `SYSTEM` action has stable service-principal and triggering job/command/fixture provenance, without implying a human attestation. Human attestation binds exact content/version, time and immutable proof; correction appends a new event/revision. S4-02 price edits and S6-01 Action/policy writes require a verified operator path or explicitly labelled server-authorized system demo operation; otherwise writes are unavailable. The S2 provisioning CLI's OS-user value remains local context. These bounded decisions are mandatory before S3-01 planning activation but are implementation gates of S4/S6, not dispatch inputs.
+.ai/DECISIONS.md:4001:The bounded `A-S1-bindings` architecture node is resolved by `D-2026-10-08-s1-bindings-roles-and-snapshot` with `D-2026-10-08-s1-foundation-organization` for the Readiness/SLD boundary. The bounded `A-S2-evidence` gateway/V3/central decision/lineage node is resolved by `D-2026-10-07-s2-edge-split-and-demo-source`, `D-2026-10-08-s2-v3-source-payload-and-period-reference`, `D-2026-10-09-s2-pilot-gateway-upload-credential`, `D-2026-10-09-s2-ingestion-operational-semantics`, `D-2026-10-09-s2-evidence-cutover-and-credential-closeout` and the uncertain-commit amendment above. Resolve these architecture nodes with citations during registry reconciliation without treating the still-reviewed S2-02 implementation as accepted; broader projections remain open separately. Foundation Readiness distinguishes configured gateway/source roles from central contact and Evidence capability; it cannot conflate registration with observed reporting. W1 panel gates are AND within a supported positive or Unknown claim variant, with distinct variants and honest missing states; owner approval of a panel requires a reviewed mapped path and does not promote unsupported alternatives, money trade-offs, onboarding or physical battery condition. The current S5-01 packet retains S4-02 as a technical prerequisite for its bounded-money panel; a future money-free Overview needs a separately scoped packet. S5-01→S6-01 and S6-02→S7-01 are ordering-only for the stated packets, while Action still needs Finding/actor/Foundation authority and Health still needs S2 diagnostics/bindings and its own fixture. Remove ordering-only edges only when queue, packets and checker agree.
+.ai/DECISIONS.md:4031:**C1: split the false index gate.** Finding Evidence and History require selected FindingRevision, assessment and accepted-evidence lineage, not a Site FindingIndex. Keep S4-03 as the bounded Finding Evidence/History follow-up after S4-01; move the Site FindingIndex/list with its separate zero-row and positive-row fixtures to S4-04, gated by `A-finding-index`. `finding-evidence:1-2` and `finding-history:1` paths must lose `A-finding-index`, Site index fixtures and any combined S4-03 closeout that still requires them. Split S5's overview composition from its positive Finding-list integration: `mini:1/2/4` may close on S5-01 without the Site index; `mini:3`'s honest empty and positive variants close in a small S5-02 integration after the S4-04 Site index. This preserves both owner-approved `mini:3` variants without making unrelated Overview claims wait on a different projection. Task IDs, registry `requires`, queue and packet acceptance must agree before ranking.
+.ai/DECISIONS.md:4033:**C5: scope ActionIndex to the Site list.** `A-action-index` and a Site-scoped Action index read gate `sitework:1` only. Remove `A-action-index` from the common `I-action-read` detail path and from Action Overview, Plan, Execution, Evidence, History, Recommendation, Changes and Verification paths unless a panel independently consumes an index. Keep S6-01 for the Finding-linked Action root, event/activity and controlled change; move Site Work list/index to a bounded S6-03 packet with its own `I-site-action-index-read`, `I-sitework-ui` and task closeout. Do not place S6-03 in S6-01/S6-02's technical prerequisites merely to preserve old queue order. Stable Action detail identity and event selection remain required without an index.
+.ai/DECISIONS.md:4035:**C6: make the Finding closeout consistent.** S6-01's accepted Action must reference a reviewed, persisted FindingRevision under the canonical route, so `I-S6-01` technically requires the **closed `I-S4-01` task**, not only its open `I-finding-read` subnode. All Action/Recommendation/Changes/Verification panels produced by S6-01/02 inherit that same gate; S6-03 inherits it through S6-01. Remove redundant direct Finding UI/read prerequisites from individual panel paths where the S4-01 closeout already proves the exact needed basis. This does not add S5 Overview, S4-03 Evidence/History or Site FindingIndex as an Action prerequisite.
+.ai/DECISIONS.md:4059:**Revisions and lifecycle.** Each changed selected assessment basis, supported candidate span, limitation or rule version appends an immutable FindingRevision under the same episode only when its canonical Finding basis changes; retry of the same basis is idempotent. A revision cites the exact selected interval AssessmentRevision and its AnalyticRun/model version, plus the selected window AssessmentRevision and every additional interval revision used for a cross-window episode, with exact accepted evidence IDs/digests and time-valid Foundation/binding provenance. Older `dispatch-3` results may be pinned as history but cannot create or refresh a CURRENT Finding under `dispatch-3.1`; later rules create new FindingRevisions, never relabel old ones. A CURRENT complete assessment proving the candidate span no longer supported appends a `NO_LONGER_SUPPORTED` revision and closes the active candidate claim, without asserting operational repair or savings. A stale, failed, ambiguous or Indeterminate assessment instead leaves the prior revision inspectable but marks current support unconfirmed; it does not auto-close. Reappearance after a proven separated interval creates a recurrence Finding and link. Model the close/reopen/split/merge transition as durable recorded history, not an overwritten claim.
+.ai/DECISIONS.md:4061:**Read boundary.** S4-01 persists Finding/immutable FindingRevision, matching/lifecycle links, and a Site-scoped selected detail read/UI at `/sites/{site_code}/findings/{finding_id}` with optional exact `revision_id`, authenticated tenant/Site scope, selected dispatch revision/model/window/cohort, source/analytic watermark and exact lineage. The selected revision remains addressable after late evidence. Distinguish `NOT_ASSESSED`/projection lag or failed recompute, assessed `NO_FINDING`, `CURRENT` supported Finding, `UNCONFIRMED` prior Finding and closed/recurring history; a zero-row response is not proof of no issue without a current assessed basis. S4-03 owns the full Evidence/History child views, S4-04 owns Site FindingIndex/list, S4-02 owns money, and S6 owns Action/verification. The reusable cross-domain contract is stable Site-scoped episode ID, versioned matcher/transition, immutable revision-to-assessment/evidence lineage, recurrence/split/merge relationships, freshness/Unknown semantics and exact route selection; cold-chain excursion and EV session thresholds/fixtures wait for their domain slices.
+.ai/DECISIONS.md:4065:Decision: `D-2026-10-12-s4-finding-phase-1-clarifications`. Codex Architect rules on S4-01 Q1–Q9 in `.agent/architect-S4-01-answers-1.md`, subject to the independent phase-1 review. This amends `D-2026-10-12-finding-episode-and-revisions` where a more precise persistence rule is required. For a cross-window Finding, `UNIQUE(finding_id,assessment_revision_id)` is insufficient because another supporting assessment may change while the primary stays fixed. Keep the primary assessment FK and use unique `(finding_id,revision_no)` and `(finding_id,basis_sha256,transition)`, with an exact relation to every supporting interval/window assessment revision. The canonical basis includes selected window revision IDs as well as interval revision IDs, cited evidence, controls/bindings, claim bounds/limits and model/matcher versions; otherwise a Finding could silently continue to cite a no-longer-selected window basis. A changed selected control or window revision appends a FindingRevision even when candidate minutes stay equal. Call a provenance-only change `BASIS_REFRESHED`; reserve `SUPPORT_CHANGED` for a changed supported span, duration, claim or limitation.
+.ai/DECISIONS.md:4069:S4-01's F01 baseline Candidate must be demonstrated through the ordinary registered simulated gateway, gateway-sealed Batch V2 and central acceptance; the already reviewed S3 normal-path case may be reused if its public IDs and selected S4 fixture database are verified. Later held/contradictory/bridge cases may use separately labelled authenticated Batch V2 fault fixtures, never described as gateway-sealed or as private Lab truth. Lifecycle remains append-only in FindingRevision/relations; `finding.closed_at` is unnecessary if reads derive closure at the selected revision. A fixture-only internal FoundationService publication of generator minimum-runtime is acceptable without adding an S4 product route, but must be labelled as a fixture control and keep exact revision lineage. Spec `decided` instants are ordering labels; product acceptance uses actual server decision times. Phase-2/3 reads must expose these provenance and lifecycle distinctions. No further owner choice is required; the S4-01 owner checkpoint remains.
+.ai/DECISIONS.md:4097:Decision: `D-2026-10-13-s403-legacy-evidence-and-lineage-words`. The Codex Architect's S4-03 Q1–Q6 rulings are in .agent/architect-S4-03-answers.md and .agent/architect-S4-03-answers-2.md. The assessment-keyed legacy Evidence tab may offer clearly labelled overlapping-day Finding candidates, but day-level uniqueness does not prove an exact assessment-to-Finding relation and cannot auto-redirect; an exact bridge is a later reviewed backend contract. The read retains stable broken-lineage codes and IDs with product-safe human words, and the UI never falls back to raw engineering prose or restores a positive claim on broken lineage. The selected FindingRevision ID carries its stored assessment window/evidence basis across Finding, Evidence and History; Evidence page/record and Finding analysis state remain local to their views, with no arbitrary window or knowledge-at replay. Finding Evidence may show a whole-revision by-role count for resolved cited records, naming unresolved IDs separately; per-input Coverage and analytic Use remain distinct catalogued gaps, not closed by that aggregate. History lists every stored revision with an honest incomplete/drift state; a late-accepted-reading note is version annotation, not a workflow or recommendation event. Only reviewed core portions may be marked delivered; panels remain partial, G-04 retains omitted mock content, and owner visual acceptance remains required. Owner accepted S4-03 conditionally on 2026-10-13 (`.agent/owner-S4-03-acceptance-2026-10-13.md`).
+.ai/DECISIONS.md:4103:S4-02 may derive a modelled, assumption-conditioned **potential fuel-cost exposure** only for an exact supported mini-grid FindingRevision and its selected assessment/evidence/configuration basis. `dispatch-3.1` publishes no fuel-saving quantity: a separately reviewed versioned fuel derivation must use accepted generator-power coverage for candidate segments and the selected Foundation's L/kWh consumption property, with explicit uncertainty/bounds and no private Lab truth, unsupported interpolation or pricing of Indeterminate/Necessary time. Candidate time proves no saved liters. The lower bound on potentially avoidable fuel is zero; an upper amount is shown only under a defensible stated model bound. A price valid for the entire consequence window and known at the selection cutoff multiplies unrounded compatible Decimal quantity bounds; displayed lows round down and highs up to currency minor units. No price yields `UNPRICED` with null amount, never zero; unsupported quantity, mismatched unit/currency/period/basis, stale projection and historical supersession receive distinct honest states.
+.ai/DECISIONS.md:4105:Each append-only `FinancialConsequenceRevision` stores exact FindingRevision, primary and supporting assessment revisions, technical quantity bounds and source/basis digest, every assumption revision used, formula version, overlap group, half-open window, amount bounds/currency and limitations. An explicit backdated price correction valid over the old window appends a new assumption and consequence for the same FindingRevision and quantity; a future price does not reprice yesterday, and neither edit mutates the Finding or pinned old consequence. S4-02 persists and reads Site-scoped assumption/consequence current and exact history with actor, validity, lineage, pagination and typed refusal/pending states. After review it may support `financials:1#a/2#a` and `assumptions:1#a/3#a`; `mini:4#a` waits for S5 composition. Trade-offs, maintenance without a source, `financial_scenario`, FX, extrapolation and estate totals remain open. `A-money-comparability` stays outside W1 ranking and is required before cross-option/Site aggregation. Planner splits the outline into two reviewable M slices (assumption publication/history and honest unpriced bridge; then modelled quantity/consequence/repricing/UI), with the S4-02 owner checkpoint after independent review.
+.ai/DECISIONS.md:4109:Addendum to `D-2026-10-13-s4-bounded-financial-basis` (S4-02b `fuel-cost-1`): The first reviewed fuel model may use immutable, dimensionless `sfc_upper_multiplier = 1.10` as an expressly conditional assumption that actual L/kWh does not exceed 1.10 times the selected Foundation SFC. Its version records the value, inequality, scope, source, reviewer/date, formula and immutable lineage; it is not a measured or calibrated physical bound. For each exact FindingRevision, quantify only observed Candidate spans fully covered by accepted, good, nonoverlapping generator-power mean intervals, each wholly contained within contiguous Candidate time and carrying one unambiguous positive SFC throughout. Count each distinct interval once: `quantity_low = 0 L`, `quantity_high = 1.10 × Σ(mean kW × full interval hours × SFC L/kWh)`. Never use dispatch interval `upper_minutes`, a segment `max mean × duration`, or prorating of an interval that crosses non-Candidate time. Any failed coverage, containment, power or SFC condition makes the whole consequence `QUANTITY_UNAVAILABLE` with no amount. The upper is a model-conditioned potential fuel-cost exposure, not measured fuel saved or a physical maximum. Independent model review and the planned owner UI checkpoint still apply. Rulings: `.agent/architect-S4-02-answers.md` (Q1, plan review C4).
+.ai/DECISIONS.md:4111:Decision: `D-2026-10-14-s402-post-review-follow-ons` (addendum to `D-2026-10-13-s4-bounded-financial-basis`). The Codex Architect's S4-02 batch rulings are in .agent/architect-S4-02-batch-answers.md. A future `SUCCESSION` may replace the sole open-ended current Site price assignment at its exact `valid_from`, provided the prior revision, authorization and idempotency checks pass; preserve the previous recorded-time history and create no empty assignment. Accepted evidence that may change an exact FindingRevision's fuel technical basis must durably enqueue scoped, idempotent consequence work; a fresh `STALE` read does not replace that work. Demonstration authorship must be recorded by a server-authorized, tenant/Site-scoped ingestion publication and traced through accepted evidence before a real-Site pilot or W1 exit; Site/day matching is only a bounded fixture label. `assumptions:3#a` requires Site consequence history selectable at the same recorded cutoff as assumption history; per-Finding Overview versions alone do not close it. Existing reviewed S4-02 money claims may close independently, while this core history portion stays open until its read and UI are reviewed. Owner S4-02 checkpoint passed 2026-10-14 (`.agent/owner-S4-02b-acceptance-2026-10-14.md`); the owner settles mixed/unknown source wording at the W1 checkpoint.
+.ai/DECISIONS.md:4117:S5-01 presents the selected S3 dispatch objective/status and coverage, an evidence-backed selected-window timeline/operating context, and a bounded optional money card with exact assessment, FindingRevision, consequence/assumption and accepted evidence drill-downs. It must not copy the mock's service, battery, fuel-balance, renewable-opportunity, maintenance allowance, causal charging or recommendation claims without their own source and contract. The money card may show an amount only for a `CURRENT PRICED` consequence on the selected exact FindingRevision, compatible window and current technical/price basis; it labels the `fuel-cost-1` model-conditioned potential exposure with zero lower bound, limitation and demonstration provenance. `UNPRICED`, quantity unavailable, stale, pending, superseded, mixed/unknown source and absent consequence are separate no-amount states. Do not sum overlapping Findings, invent a Site total, or convert this to savings. Ordinary data currently has 0 of 11 qualifying Findings, so show an honest no-current-priced-consequence state and the relevant limiting Finding/Evidence links; the authored P01-power example may show its one amount only with a visible Demonstration-data label and exact lineage. Stored source provenance remains a W1-exit/real-pilot gate, not an implied property of the current date heuristic.
+.ai/DECISIONS.md:4123:Decision: `D-2026-10-14-action-lifecycle-and-policy-application`. Under the owner's 08:40-10:40 +0300 delegation, the Codex Architect chooses and resolves `A-action-lifecycle` in the 0.54% next-work contest (`.agent/next-work-2026-10-14d.json`: evidence-acceptance consequence work 2.020, Action lifecycle 2.009). The scores are effectively tied. This bounded architecture decision can close now and removes the common S6 Action gate across roughly fifteen W1 core portions; the evidence-acceptance consequence implementation still needs a Planner packet and remains a hard prerequisite of S5-01's money read. The next verified report, rather than this contest snapshot, routes the next work. No S6 UI owner checkpoint is waived.
+.ai/DECISIONS.md:4125:S6-01 creates one immutable, tenant/Site-scoped Action identity from a reviewed persisted `FindingRevision` under the canonical Finding route. It pins the originating revision, selected assessment and accepted-evidence/configuration basis; a later Finding revision does not silently rewrite that origin. A Finding may have several Actions, but each accepted recommendation creates or idempotently returns one Action for its server-defined command key. The recommendation is a bounded proposed reserve-SOC policy trial with explicit purpose, limitation and source Finding; it is not a measured saving or verified outcome. The Action detail root is `/sites/{site}/actions/{action_id}` with stable child routes and exact `event_id` selection, and Site/Finding back-links. S6-01 may navigate from a known Finding or Action ID before the separate S6-03 Site ActionIndex exists. Hidden unsupported tabs must not masquerade as empty delivered views.
+.ai/DECISIONS.md:4129:The supported S6-01 change is a controlled reserve-SOC edit through S1 Foundation publish, producing a new immutable effective `FoundationRevision` and an immutable change artifact that links Action, accepted recommendation, authorized command, old/new revision IDs, exact field/value/unit, validity and recorded time, and the application event. Validate the expected old revision and Site scope under the publish lock; reject stale, unauthorized or invalid edits and record a failed attempt without claiming the new setting took effect. `APPLIED` requires confirmation of the persisted new effective revision; an ActionEvent alone is insufficient. The old basis and every event/change revision remain addressable after reload. Do not mutate a Lab-only override or rewrite accepted evidence. S6-01's Execution/History and applied `changes:1#a` show policy activity with event and configuration provenance, including pending/failed cases; they do not show an effect verdict.
+.ai/DECISIONS.md:4131:S6-02 owns the separate immutable `VerificationPlanRevision` and later `VerificationOutcome`. A plan pins this Action, the applied-change event and new Foundation revision, a pre-change baseline assessment/evidence basis, target, service/reserve guardrails, required coverage and later-window selection rule before evaluation. Use separate baseline and later Lab runs under their respective fixed effective Foundation revisions; commit their public reports through the ordinary gateway and central acceptance. Evaluate a closed later accepted window against the frozen plan and baseline, with exact analytic/evidence IDs. Missing or conflicting evidence yields `INCONCLUSIVE`; failed guardrail prevents `VERIFIED` even if the target improves; later results append/supersede without rewriting prior outcomes. Plan/evidence/verification child routes preserve exact plan and outcome IDs. `A-S6-verification` remains open for the full comparison rule; this lifecycle decision does not resolve it. S6-03 alone owns the Site-scoped ActionIndex/list and its watermarked empty/positive states; `A-action-index` remains open. Planner must refine S6-01's event transition table, command/API schema, actor path, race/idempotency checks, Foundation publish seam, stored fixtures and desktop/narrow Action-root states against the v6.9 Action screens and technical design before implementation.
+.ai/DECISIONS.md:4137:Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+.ai/DECISIONS.md:4139:Decision: `D-2026-10-15-owner-absence-work-order`. Under the owner's 2026-10-15 absence delegation, the Architect orders the single build stream: finish and freshly review LR-01; prepare and build S5-01 selected-window Overview on its reviewed head; then advance S6-01 Action store/read/UI, stored demo provenance, price equal-start succession, the S4-02d I3 evidence-owner clock fix, the F-B statement-level guard, OPS-01 Low carries, and the FindingIndex/S4-04 lane as capacity and gates allow. The 0.20% LR-01 versus Action-store contest stays with LR-01 first; if S5-01 and Action store later score within 5%, S5-01 wins because it consumes the just-reviewed money eligibility and closes the blocked Overview path. S4-04 does not gate S5-01. Planner may refine S5-01 and S6-01 in parallel with LR-01, followed by the named non-UI packets, with code-reality checks. Only one Postgres-heavy build runs at a time. Independently reviewed non-UI work may merge if it does not depend on an unmerged UI branch; all USER_REVIEW_REQUIRED merges and acceptance wait for the owner's actual walkthrough. The exact conditional order, stack and review gates are in `.agent/architect-autonomy-2026-10-15-answers.md`; this decision does not waive the schedule install, W1 exit or real-pilot gates.
+.ai/DECISIONS.md:4143:Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Ratify `actions/adapters/postgres_action_store.py` as the sole ninth PostgreSQL writer for append-only Action, event, change and Action-owned child rows. The Action adapter opens the apply transaction and locks Action before calling a caller-owned-connection S1 publish that locks Site; the S1 adapter writes only Foundation and binding rows, and an Action-adapter callback writes the change artifact and APPLIED event on that same connection before the outer commit. Rule 8 must admit only this ninth writer's INSERTs to its tables, reject Action-table writes by every other module and reject mutation or DDL in the Action adapter while retaining all eight existing protections. Authorized same-Site failures remain separate durable attempts after rollback. Include the pinned FoundationRevision in recommendation identity and persist the immutable accepted-recommendation snapshot; after acceptance, recommendation read returns it with the Action link and a separate live status. A server-authorized, state-neutral SYSTEM demonstration `OBSERVED` event with fixed `DEMO_REVIEW_NOTE` code may carry an explicit `occurred_at` between ACCEPTED and server `recorded_at`, no more than 30 days earlier, to prove backdated history without changing application state. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. The full M1-M3 ruling is in `.agent/architect-S6-01-answers.md` under "Follow-up (plan review M1-M3)". S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+.ai/DECISIONS.md:4147:Decision: `D-2026-10-15-a-finding-index`. Under the owner-absence work order item 9, resolve `A-finding-index` for a tenant/Site/domain and selected half-open UTC window of at most 31 days. The W1 read selects the latest immutable S4-01 FindingRevision of each canonical Finding from one consistent S3/S4 basis, includes every intersecting lifecycle state, and uses strict half-open overlap. Its stable row key is `(tenant_id, site_id, finding_id)`; default order is episode start descending, then Finding UUID ascending. Return exact revision/detail and assessment/evidence lineage, scoped accepted-source and analytic/matcher watermarks, selection token, built time, coverage and typed currentness. Complete discovery requires every intersected UTC-day analytic window and neighbours reachable through 20-minute episode continuity matched through each current selection seq. Only complete current scoped discovery under an open S3 Performance cutover gate may state zero Findings; pending, stale, failed and unassessed reads remain visibly Unknown or historical. A closed gate refuses the unpinned index with HTTP 409 `PERFORMANCE_CUTOVER_CLOSED` and its reason, with neither current rows nor a no-Findings claim, as on Finding routes; S4-05 stored provenance joins that gate once merged. A changed basis invalidates the bound page cursor. S4-04 adds a new index read without changing the consumed `findings_over` helper, and must independently prove a watermarked assessed zero-row fixture, a closed-gate 409 variant, a persisted positive-row fixture, exact links after reload, invalidation, Site isolation, first-row equality with the S5-01 card Finding on the same basis, and narrow/desktop UI. Index rows do not depend on money; optional current consequence display consumes LR-01 money eligibility and S4-05 exact-revision source provenance after their reviewed branches enter the build baseline, plus the existing exact-head, quantity, price and currentness gates. Mixed/unknown source and withheld/pending eligibility expose no current amount. S5-02 reuses the Site/window rows for both `mini:3` variants after S4-04 and S5-01 review; S4-03, S5-01's other panels and S3 dispatch do not wait on the index. Full contract and implementation handoff: `.agent/architect-A-finding-index-answers.md`. This decision grants no owner UI copy or walkthrough acceptance and does not implement a global or cross-domain index.
+.agent/architect-S6-01-answers.md:1:# Architect rulings - S6-01a/S6-01b
+.agent/architect-S6-01-answers.md:3:Decision: `D-2026-10-15-s601-action-store-and-ui`. Authority: `.agent/architect-S6-01-request.md`, the owner's 2026-10-15 delegation, `D-2026-10-14-action-lifecycle-and-policy-application`, and `.agent/A-action-lifecycle-review.md`. These rulings refine the packets; they do not claim a measured effect or waive the S6-01b owner checkpoint.
+.agent/architect-S6-01-answers.md:5:1. **Q1 - amend.** Use versioned server rule `reserve-trial-1`, a policy-sensitivity trial only. It is eligible only for a reviewed, `SUPPORTED`, current `GENERATOR_SUPPORT_CANDIDATE` FindingRevision whose pinned assessment has at least one cited Candidate segment with a usable numeric battery-SOC reading in that segment's accepted analytic input, strictly above the pinned effective reserve plus the dispatch model's 10-point headroom, and whose cited Foundation has one unambiguous battery reserve in percent. Require the same battery asset and a current Site Foundation reserve equal to that pinned reserve; otherwise return a typed unavailable reason (including stale basis). For an eligible reserve `r` in [15, 90], propose exactly `r - 5` percentage points, which remains in [10, 85]. Values outside that band, missing or conflicting numeric inputs, non-current/unsupported revisions, and an unchanged result are unavailable. Pin input IDs, rule version, old/proposed values and the limitation. This is an experimental control change, not a diagnosis that reserve caused the Finding or a prediction of lower generator runtime, savings or safety. Never use the mock's generator-stop narrative as a reserve rule. **Packet change:** S6-01a must spell out this rule, typed unavailable reasons, exact numeric source and boundary tests; its stored fixture must contain a genuinely eligible pinned Candidate and an ineligible/missing case. S6-01b must display the trial limitation and unavailability reason.
+.agent/architect-S6-01-answers.md:7:2. **Q2 - accept with transaction detail.** Extend only the existing Site-locked S1 publish callback. Acquire the Action lock before the Site lock, compare the expected current covering Foundation ID under that Site lock, and persist Foundation/SPLIT/binding rows, change artifact and APPLIED event in one transaction. Return the prior artifact for an identical applied retry before the no-change check. A failed transaction cannot leave APPLIED or an effective artifact. After rollback, append a separate same-Site FAILED attempt with the expected/current IDs for a stale authorized command. **Packet change:** S6-01a must state the callback result carries every written/superseded ID and test rollback and concurrent apply with this lock order.
+.agent/architect-S6-01-answers.md:9:3. **Q3 - accept.** Unknown or wrong-Site Action, Finding, revision or change IDs return 404 without an event. Missing authentication returns 401; denied command authority returns 403 without an Action attempt. Append FAILED only after an authorized same-Site Action application reaches domain validation or publish and fails; it never asserts an effective change. **Packet change:** S6-01a must distinguish these cases in its command table and fixture/API tests; remove wrong-Site from the list of persisted FAILED cases.
+.agent/architect-S6-01-answers.md:11:4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+.agent/architect-S6-01-answers.md:13:5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
+.agent/architect-S6-01-answers.md:21:2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
+
+codex
+The existing decision keeps Action origin pinned to its FindingRevision, and the accepted Recommendation snapshot remains readable after Foundation changes. I’m checking the S6-01 walkthrough and read contract to decide how a newer revision should surface that earlier Action.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .agent/architect-S6-01-answers.md; Get-Content tasks/S6-01a-action-store-read.md; Get-Content tasks/S6-01b-action-ui.md; git show task/S6-01b-action-ui:.agent/S6-01b-owner-walkthrough.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 208ms:
+# Architect rulings - S6-01a/S6-01b
+
+Decision: `D-2026-10-15-s601-action-store-and-ui`. Authority: `.agent/architect-S6-01-request.md`, the owner's 2026-10-15 delegation, `D-2026-10-14-action-lifecycle-and-policy-application`, and `.agent/A-action-lifecycle-review.md`. These rulings refine the packets; they do not claim a measured effect or waive the S6-01b owner checkpoint.
+
+1. **Q1 - amend.** Use versioned server rule `reserve-trial-1`, a policy-sensitivity trial only. It is eligible only for a reviewed, `SUPPORTED`, current `GENERATOR_SUPPORT_CANDIDATE` FindingRevision whose pinned assessment has at least one cited Candidate segment with a usable numeric battery-SOC reading in that segment's accepted analytic input, strictly above the pinned effective reserve plus the dispatch model's 10-point headroom, and whose cited Foundation has one unambiguous battery reserve in percent. Require the same battery asset and a current Site Foundation reserve equal to that pinned reserve; otherwise return a typed unavailable reason (including stale basis). For an eligible reserve `r` in [15, 90], propose exactly `r - 5` percentage points, which remains in [10, 85]. Values outside that band, missing or conflicting numeric inputs, non-current/unsupported revisions, and an unchanged result are unavailable. Pin input IDs, rule version, old/proposed values and the limitation. This is an experimental control change, not a diagnosis that reserve caused the Finding or a prediction of lower generator runtime, savings or safety. Never use the mock's generator-stop narrative as a reserve rule. **Packet change:** S6-01a must spell out this rule, typed unavailable reasons, exact numeric source and boundary tests; its stored fixture must contain a genuinely eligible pinned Candidate and an ineligible/missing case. S6-01b must display the trial limitation and unavailability reason.
+
+2. **Q2 - accept with transaction detail.** Extend only the existing Site-locked S1 publish callback. Acquire the Action lock before the Site lock, compare the expected current covering Foundation ID under that Site lock, and persist Foundation/SPLIT/binding rows, change artifact and APPLIED event in one transaction. Return the prior artifact for an identical applied retry before the no-change check. A failed transaction cannot leave APPLIED or an effective artifact. After rollback, append a separate same-Site FAILED attempt with the expected/current IDs for a stale authorized command. **Packet change:** S6-01a must state the callback result carries every written/superseded ID and test rollback and concurrent apply with this lock order.
+
+3. **Q3 - accept.** Unknown or wrong-Site Action, Finding, revision or change IDs return 404 without an event. Missing authentication returns 401; denied command authority returns 403 without an Action attempt. Append FAILED only after an authorized same-Site Action application reaches domain validation or publish and fails; it never asserts an effective change. **Packet change:** S6-01a must distinguish these cases in its command table and fixture/API tests; remove wrong-Site from the list of persisted FAILED cases.
+
+4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+
+5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
+
+## Follow-up (plan review M1-M3)
+
+1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
+
+   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
+
+2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
+
+3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+# S6-01a â€” Action store, controlled application and exact read
+
+Status: implementation-ready
+USER_REVIEW_REQUIRED: false; reopen for any owner-facing copy or UI
+Size: M; phases: two. Branch: `task/S6-01a-action-store-read` from merged main, independent of LR-01/S5-01.
+Depends on: merged S1 Foundation; closed `I-S4-01` reviewed FindingRevision; recorded Action lifecycle, actor and route decisions.
+Planner: Codex, 2026-10-15
+
+## Result and exact consumer
+
+Persist one Finding-linked Action, immutable events and all rows of a reserve-SOC application. Same-Site API reloads Action detail, exact event history, recommendation and change provenance. This non-UI slice is mergeable only when a real stored demo executes accept â†’ apply â†’ reload and returns payloads consumed by S6-01b. A bare schema fails. Owns `I-action-store`, `I-action-read`, `I-recommendation-read`, `I-configuration-change-read`, `D-action-records`; closes no W1 panel.
+
+## Creation, authority and state (L1, P1, P2, P7)
+
+Use L1 model (a): a versioned server recommendation is PROPOSED for a reviewed FindingRevision; an Action is created **on acceptance**, so Action has no PROPOSED state. Recommendation key is `(tenant_id,site_id,finding_revision_id,foundation_revision_id,rule_id,rule_version,asset_id)`; server acceptance key is a canonical digest of that tuple plus `ACCEPT`, unique within tenant/Site. The pinned FoundationRevision ID is also in the acceptance payload digest. Identical accept returns the same Action/event; same key with altered payload is 409. Allocate `action_code` with a tenant-scoped DB sequence and preserve `UNIQUE(tenant_id,action_code)`. Distinct revision/Foundation basis/rule/asset keys permit several Actions per Finding. Each event has `UNIQUE(action_id,idempotency_key)` and payload digest; identical retry returns the original event, conflicting reuse is 409.
+
+Rule `reserve-trial-1` is a server-computed policy-sensitivity trial. Require a reviewed, `SUPPORTED`, current `GENERATOR_SUPPORT_CANDIDATE` FindingRevision. Its pinned assessment must cite at least one Candidate segment whose **accepted analytic input** contains a usable numeric battery-SOC reading strictly greater than that segment's pinned effective reserve plus the dispatch model's 10-point headroom. Read the numeric SOC, segment/assessment/evidence IDs and digest from that persisted accepted analytic input, not Finding prose, a mock number or private Lab truth. Its cited Foundation must have one unambiguous percent battery reserve on the same battery asset, and the current Site Foundation reserve must equal that pinned reserve. For reserve `r` in [15, 90], propose exactly `r - 5` percentage points in [10, 85]. Serve a typed unavailable reason for non-current or unsupported revision, absent Candidate, missing/conflicting/non-numeric SOC, SOC at or below `r + 10`, missing/conflicting reserve or unit, asset mismatch, stale Foundation basis, reserve outside [15, 90], or unchanged result. Pin all input IDs/digest, rule/version, old/proposed values and limitation. Boundary tests cover SOC exactly `r + 10` versus just above, reserves 15/90 and just outside, missing/conflicting inputs, asset and current-basis mismatches. This experiment does not diagnose the Finding cause or predict runtime, saving or safety; never derive it from the mock generator-stop narrative. An S4 money consequence is shown only for its exact basis, labelled consequence.
+
+Before acceptance, recommendation proposal or unavailability is **served from persisted inputs**, with no recommendation row. On acceptance, store an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: canonical key, rule ID/version, assessment/evidence IDs and digest, pinned FoundationRevision ID, asset, exact reserve field, percent unit, old/proposed numeric values and stable limitation text/code. After an Action exists for the key, `GET recommendation` returns this accepted snapshot and Action link even if the current reserve has changed; a separately labelled live recomputation status may then be stale/unavailable. The accepted proposal never disappears or changes on reload.
+
+The exact SOC source is the accepted analytic input role `battery_soc` in percent, with `SOC_HEADROOM_POINTS = 10` (`backend/assetops_backend/analytics/dispatch_v3.py:44,53,166-194,255-259,287-300`); carry its selected reading/evidence IDs through the pinned assessment and Candidate segment.
+
+| Command | Precondition | Event / reduced state | Refusal |
+| --- | --- | --- | --- |
+| accept | reviewed persisted revision; valid recommendation; scoped server-authorized SYSTEM demo capability | ACCEPTED / application pending | missing auth 401, denied authority 403, unknown/wrong-Site Finding or revision 404, invalid proposal typed 422; no Action/event |
+| apply | ACCEPTED; expected current Foundation ID; same Site/asset/value; prospective effective time; scoped capability | APPLIED only with committed new Foundation; outcome pending | authorized same-Site domain/publish failure appends FAILED after rollback: stale 409, invalid/no-change/backdate 422; unknown/wrong-Site Action/change 404, missing auth 401, denied authority 403 append nothing |
+| apply on APPLIED Action with a new key | already APPLIED | no event or new publish | typed `ACTION_ALREADY_APPLIED` 409; no FAILED because publish was not attempted |
+| retry after FAILED | application remains ACCEPTED/pending | old identical key returns its FAILED event; a fresh attempt uses a new key and can become APPLIED | conflicting reuse 409 |
+| repeat successful command | identical command key and payload | return original Action/event/artifact before no-change validation | same key, different payload 409 |
+| observe demo note | ACCEPTED exists; scoped SYSTEM capability; fixed `DEMO_REVIEW_NOTE` code | append state-neutral OBSERVED; application and verification state unchanged | missing/denied authority 401/403, unknown/wrong-Site Action 404, time bounds typed 422, conflicting key 409; no event on refusal |
+
+FAILED is an attempt event and never claims an effective change. Reduce by `(recorded_at,id)`. Accept/apply use server time. `OBSERVED` alone may carry an explicit earlier `occurred_at`, displayed separately; it never reorders state. Do not infer Verified or human approval. With no verified operator principal, only labelled server-authorized SYSTEM demonstration commands run, carrying stable service principal and triggering job/command/fixture. No client, gateway or OS name becomes a human author.
+
+## New storage and publish (P3-P5, P10)
+
+New migration under `backend/migrations/versions/`: `action` has tenant/Site, immutable origin finding/revision, primary assessment, evidence/configuration basis IDs/digest, accepted-recommendation snapshot (or append-only Action-owned child), action_code, created time and acceptance key. `action_event` has ID, tenant/Site/Action, kind, occurred/recorded time, actor_kind/id, source_channel, authorization_basis, triggering service/job/command/fixture, payload digest, idempotency key and typed failure code. New append-only `action_policy_change` has Action, authorized command and APPLIED event, asset/field/unit, old/new value, expected/superseded/new PUBLISH Foundation IDs, optional SPLIT ID, **every** superseded/inserted binding-set revision ID, effective/recorded time and validity. Use append-only child rows for written IDs if arrays cannot prove same-Site FKs. Same-Site composite FKs and uniqueness; no simulator private truth. These tables/columns are **new**. S6-01a branches from main's migration head. LR-01's `0014_source_clock_attestation` and `0015_finding_returning_basis` are unmerged and held for the owner; if LR-01 merges first, re-chain the S6-01a migration onto main's resulting head and run slice review and the full suite on that re-chained revision.
+
+`backend/assetops_backend/actions/adapters/postgres_action_store.py` (**new**) is the sole runtime SQL writer for `action`, `action_event`, `action_policy_change` and any Action-owned append-only snapshot/ID children. Acceptance inserts Action and ACCEPTED there without a Foundation publish. For apply, this adapter opens the outer transaction, locks the same-Site Action row first, checks idempotency and authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form uses the supplied connection without opening or committing another transaction; it locks Site `FOR UPDATE` next, checks the expected current covering Foundation ID under the lock, writes Foundation/SPLIT/binding rows, and returns **every** written and superseded ID. Its Action-adapter callback then inserts the change artifact and APPLIED event on that same connection, after S1 writes and before the Action adapter's sole commit. No Action SQL goes through the Foundation adapter. Keep the existing S1 entrypoint's own transaction when no connection is supplied. Any exception rolls back Foundation, bindings, artifact and APPLIED together. For an authorized same-Site failure, append FAILED with expected/current IDs in a separate transaction after rollback; no effective new ID. Stale basis is typed `ACTION_FOUNDATION_STALE` 409. Action effective time must be >= server recorded time and > ACCEPTED time; ordinary S1 historical publication is unaffected. Identical applied retry returns its committed artifact before `FOUNDATION_NO_CHANGE`; a new no-change command is typed 422 with FAILED. Prove Action-before-Site lock order, rollback and concurrent applies (identical and distinct keys) publish once.
+
+Extend rule 8 in `tools/checks/configuration-persistence.ps1:678-699,829-838`: register the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; require its real driver import and SQL write; permit only INSERT into its named Action tables. Reject its UPDATE, DELETE, upsert, TRUNCATE and DDL, and reject Action-table writes from **every** other module, explicitly the Foundation adapter. Preserve all eight existing writer/table restrictions and driver isolation. Add guard cases for Action adapter forbidden mutations/other-table writes, Foundation adapter Action-table write, another module Action-table write, missing new writer/driver/write and valid ninth-writer INSERT.
+
+## New API, stored proof and phases (P6, P8, P9)
+
+Under `/api/sites/{site_code}` add `GET /findings/{finding_id}/recommendation?revision_id=`, `POST /findings/{finding_id}/recommendation/accept`, `POST /actions/{action_id}/apply`, `POST /actions/{action_id}/observations`, `GET /actions/{action_id}?event_id=|recorded_at=`, `GET /actions/{action_id}/events?event_id=|recorded_at=` and `GET /foundation/changes/{change_id}`. Accept/apply require server-issued recommendation key or Action identity, idempotency key and expected Foundation ID as applicable; apply value/effective time are revalidated. The read contract exposes a tenant/Site/fixture/command-scoped server-authorized `system_demo_capability` with `allowed`, `command`, `fixture_id` and an unavailable reason; POST checks the same authorization again. A client flag grants nothing. Reads return canonical/selected IDs, origin FindingRevision **beside** latest revision/episode notice, assessment/evidence/configuration pins, exact actor/event/cutoff, Site/Finding/Action/change links and pending outcome.
+
+`event_id` selects the exact event and returns its `(recorded_at,id)` ordered prefix. `recorded_at` selects all events with server `recorded_at` through that instant, ordered by `(recorded_at,id)` and including every ID tied at that instant. Neither is a client-time or `occurred_at` cutoff. Both selectors together return typed HTTP 422 `ACTION_SELECTOR_CONFLICT` on Action and event reads, with no silent precedence; preserve the selected selector in child links and reload. Test tied timestamps, exact event, cutoff and conflict. Unknown or wrong-Site Action/Finding/revision/change IDs return 404 without event; missing auth returns 401 and denied command authority 403 without an Action attempt. No Site ActionIndex dependency.
+
+`POST /actions/{action_id}/observations` accepts only fixed `DEMO_REVIEW_NOTE`, explicit `occurred_at` and idempotency key after ACCEPTED, with tenant/Site/Action-scoped SYSTEM demonstration capability. The server sets `recorded_at`; require `accepted_at <= occurred_at <= recorded_at` and no more than 30 days of backdating. Future/out-of-bounds time is typed 422. Identical retries return the same OBSERVED event, conflicting key reuse is 409. OBSERVED is state-neutral and claims no effective policy or benefit; there is no general note-writing route.
+
+New versioned `D-action-records` fixture/loader runs through real accepted Finding/Foundation records with manifest IDs. Include a genuinely eligible pinned Candidate under `reserve-trial-1` and an ineligible missing/conflicting case. If existing S4 demonstration cases lack an eligible Candidate, author accepted evidence through the normal input/ingestion path and keep its demonstration label via `demonstration_label.py`; do not hand-insert an effective claim. Serve pre-accept proposal/unavailability from persisted inputs; store accepted pending, applied pending, stale 409+FAILED, invalid/no-change/backdate, retry, concurrent apply, newer FindingRevision/episode, reload, wrong-Site 404 **without** FAILED, and a valid backdated OBSERVED. Prove exact-event and recorded-cutoff reads preserve server order despite OBSERVED's earlier `occurred_at`.
+
+Commit a versioned API contract fixture under `backend/tests/fixtures/s6_action_api_contract.json` (**new**) keyed by `D-action-records` manifest IDs (`recommendation:1#a`, `action-overview:1#a`, `action-execution:1#a`, `action-history:1#a`, `changes:1#a`). Include actual walkthrough responses for recommendation (pre-accept and accepted snapshot/live status), Action, events under each selector and conflict error, change, capability allowed/denied and OBSERVED. S6-01a tests check its fields against real persisted API responses; S6-01b frontend tests load this same committed fixture. This is the mechanical consumer contract, not illustrative mock data.
+
+| Phase | Reviewable result | Focused proof |
+| --- | --- | --- |
+| 1 | migration, recommendation/accept, Action/event store and exact read | New Postgres store/API tests for rule boundaries, snapshot/reload, origin, scope, uniqueness, selector ties/conflict, actor and capability; existing `backend/tests/test_s4_finding_read_postgres.py` and `backend/tests/test_s1_foundation_postgres.py` |
+| 2 and slice review | atomic publish, artifact, failure/race/retry and fixture/consumer API proof | New Postgres apply/fixture tests including lock order, rollback, authorized FAILED versus 401/403/404 without event, OBSERVED bounds/retry, contract fixture checks; `backend/tests/test_s1_bindings_postgres.py`; private-DB accept/apply/reload walkthrough inspecting all written rows; rule-8 guard cases |
+
+Fresh independent review per phase; phase 2 review is slice review. Focused tests each phase. On final revision run `tools/check-all.ps1`, registry checker and one real-Postgres full suite per `backend/TESTING.md:7-31,91-130` (`-n 2 --dist loadfile --no-loadscope-reorder`, JUnit zero skipped/failed, keep-awake, 20-minute cap). Merge only after review, with no unmerged UI parent.
+
+## Checked code reality and gaps
+
+- Existing `publish_battery_reserve`, `_publish_content_change`, SPLIT and `FOUNDATION_NO_CHANGE`: `backend/assetops_backend/sites/foundation_service.py:362-381,415-538`. Existing Site `FOR UPDATE`: `backend/assetops_backend/sites/adapters/postgres_foundation_store.py:607-620`. Expected check and atomic Action hook are **new**.
+- Existing Finding API/read/lineage: `backend/assetops_backend/finding_api.py:112-160`; `backend/assetops_backend/analytics/finding_read.py:306`; `backend/assetops_backend/analytics/adapters/postgres_finding_store.py:274-291`; FindingRevision schema `backend/migrations/versions/0009_finding_store.py:64-105`. Action store/routes/tests/fixture tool are **new**. The proposed action tables at `frontend/docs/architecture/production-shaped-mvp-technical-design.md:55-56` are not shipped schema.
+- Existing testing harness and full command: `backend/TESTING.md:7-31,91-130`. New tests/tools must have exact paths and lines in implementer handoff.
+
+## Architect rulings
+
+`.agent/architect-S6-01-answers.md` Q1-Q5 and M1-M3, ratified by `D-2026-10-15-s601-action-store-and-ui` in `.ai/DECISIONS.md`, govern the server rule, transaction/writer boundary, refusal scope, scoped demonstration capability, selectors, accepted snapshot and OBSERVED event.
+
+## Plan fix round 1
+
+Folded in the Architect packet changes and plan-review M1-M3/L1-L5: the bounded trial, ninth writer/caller-owned S1 connection, immutable recommendation basis, state-neutral backdated observation, exact refusals/selectors, migration re-chain, shared API fixture and guard/test proof.
+
+L2: S6-02's `A-S6-verification` must cite the lifecycle decision and define `VERIFIED`, `INEFFECTIVE`, `INCONCLUSIVE`; this slice produces no outcome. Defer Site ActionIndex (S6-03), plan/evidence/verification (S6-02), general work and human write path.
+# S6-01b â€” Action, recommendation and change surfaces
+
+Status: implementation-ready
+USER_REVIEW_REQUIRED: true; hold merge for owner's actual visual walkthrough
+Size: M; phases: two. Branch: `task/S6-01b-action-ui` on freshly reviewed/merged S6-01a; if unmerged, label stack and hold merge.
+Depends on: reviewed S6-01a store/read, closed `I-S4-01`, S1 Foundation. S5-01 is queue order only.
+Planner: Codex, 2026-10-15
+
+## Outcome and routes
+
+One persisted Finding-linked Action is visible with its proposed trial, SYSTEM demonstration acceptance, applied or failed policy activity, and **pending** outcome after reload. Owns `I-action-ui`, `I-recommendation-ui`, `I-configuration-change-ui`, `I-action-overview-ui`, `I-action-execution-ui`, `I-action-history-ui`, and final `I-S6-01`. Close only `recommendation:1#a`, `action-overview:1#a`, `action-execution:1#a`, `action-history:1#a`, `changes:1#a` after fresh review and owner checkpoint. `sitework:1` stays S6-03; recommendation:2/3, changes:1#b/2, Action Plan/Evidence/Verification stay S6-02.
+
+Canonical Action root `/sites/{site_code}/actions/{action_id}`; child `/execution`, `/history`, exact `?event_id=` or `?recorded_at=` preserves selection. Recommendation lives under `/sites/{site_code}/findings/{finding_id}/recommendation?revision_id=`; change panel at `/sites/{site_code}/foundation/changes/{change_id}` links the Action and exact application event. The change URL is a **non-subtab deep route** under Foundation. Bare `/sites/{site_code}/foundation/changes` returns an explicit unavailable state with a link back to Foundation, since S6-01 has no Site change index; it must not add Changes to `FoundationView`/Foundation subtabs. Parallel `/api/sites/{site_code}/...` reads come from S6-01a. Site/Finding back-links and origin revision query survive reload. No Site ActionIndex is needed: navigate from known Finding/Action. Cross-Site/unknown 404, unauthenticated 401, denied write 403. Hide Plan, Evidence and Verification tabs or show an explicit unavailable state; no empty delivered tab.
+
+## Visible states and proof
+
+Recommendation shows `reserve-trial-1`, the proposed reserve in percent, pinned FindingRevision/FoundationRevision and accepted analytic input IDs, and the trial limitation: a policy-sensitivity experiment with no diagnosis or prediction of runtime, saving or safety. Show the typed unavailable reason when no value is eligible. Once accepted, show the immutable accepted-recommendation snapshot and Action link **beside** separately labelled live recomputation status; a stale current basis cannot erase the accepted proposal. No mock money becomes a saving.
+
+Accept/apply controls appear only when S6-01a returns `system_demo_capability.allowed` for the exact tenant/Site/fixture/command; label each control and resulting actor/provenance **SYSTEM demonstration**. An absent or denied capability gives a read-only unavailable reason. No client flag enables a command and no operator approval wording appears. Action Overview shows stable Action code/ID, origin FindingRevision and latest revision/episode notice side by side, pinned assessment/evidence/Foundation basis and pending outcome. Execution shows ACCEPTED, APPLIED, FAILED and state-neutral OBSERVED events, actor kind, service/job provenance, effective revision and exact change artifact. After FAILED, application remains ACCEPTED/pending; an old retry key returns FAILED, a fresh key can attempt again, and a new key on APPLIED returns typed 409 without a FAILED event. History selects exact event ID or server `recorded_at` cutoff, orders by `(recorded_at,id)`, displays both timestamps on backdated OBSERVED and never invents ActionRevision. Changes shows old/new reserve, unit, asset, effective and recorded times, old/PUBLISH/SPLIT and binding revision IDs, application event, pending/failed state, and no measured effect verdict. The Site does not claim changed operation, Lab effect or measured benefit before S6-02.
+
+Use S6-01a's persisted fixture cases: eligible/ineligible proposal, accepted snapshot with stale live status, accepted pending, applied pending, stale expected revision with FAILED, invalid/no-change/backdate, same-key retry, concurrent command, wrong-Site 404 without event, later FindingRevision/episode, valid OBSERVED and selector conflict. Test URL selection, child navigation and reload separately for `event_id` and `recorded_at`; both selectors together show typed `ACTION_SELECTOR_CONFLICT` 422 with no silent preference. The UI must show typed errors and preserve prior successful event/artifact. A newer Finding cannot replace the Action origin. Frontend tests load S6-01a's committed `backend/tests/fixtures/s6_action_api_contract.json` (**new in S6-01a**), keyed to `D-action-records` manifest IDs; no static mock values become product data. Test absent and denied `system_demo_capability` at both 1440 and 390, plus server refusal if a command is attempted without it.
+
+| Phase | Reviewable result | Focused proof |
+| --- | --- | --- |
+| 1 | Action root Overview, Execution, History and Recommendation with real reads and labelled SYSTEM command | Focused frontend route/component tests loading shared contract fixture; focused S6-01a API tests; both selector URLs, navigation, conflict and reload; capability absent/denied at 1440/390 |
+| 2 and slice review | Site Foundation Changes panel, links, all empty/failed/pending states, walkthrough/evidence | Focused frontend tests; app versus v6.9 mock at 1440 and 390 for `action-overview`, `action-execution`, `action-history`, `recommendation:1`, `changes:1#a`; private-DB serve walkthrough |
+
+Owner walkthrough tool **new**: prepare an isolated DB and fixture, `serve` API/web on private ports, print exact Site/Finding/Action/change URLs and event IDs, capture 1440/390 screenshots and a comparison table for each named panel/state, verify reload, then drop only its own DB/work directory. Reviewer follows the manifest to the persisted API, old/new Foundation and binding revisions and failed attempt; records distinct review from implementer. Owner views served pages at 1440/390 and records acceptance; coordinator holds merge until then. Phase 2 review is slice review. Focused tests per phase; one real-Postgres full backend suite on final slice revision per `backend/TESTING.md:7-31,91-130`, JUnit zero skips/failures, `tools/check-all.ps1` and registry checker.
+
+## Checked code reality and reference
+
+- Existing Finding route/frame and explicit later recommendation absence: `frontend/src/App.tsx:274-290`, `frontend/src/sites/FindingDetail.tsx:50-103`, `frontend/src/sites/SiteFinding.tsx:120`. Action routes/components, Changes panel and walkthrough tool are **new**.
+- Existing Foundation navigation excludes Changes: `frontend/src/sites/FoundationSubtabs.tsx:32,57-60` defines only model/SLD/readiness; `frontend/src/sites/__tests__/foundationScreen.test.tsx:306,344` asserts no Changes subtab and `foundationViewFor("changes")` is null. The new change-ID deep route and bare-route unavailable state preserve this contract.
+- Existing Finding API route and selected revision links: `backend/assetops_backend/finding_api.py:112-160`. S6-01a Action/Recommendation/Change APIs are **new** and required before this slice.
+- v6.9 screen identities and root ownership: `frontend/mockups/v69/screen-manifest.json:306-330,1367-1452`; specific panels/tiers in `frontend/docs/architecture/v69-panel-contracts.json` and registry claim portions. The mock is content/interaction reference, not evidence of live values.
+
+## Architect rulings
+
+`.agent/architect-S6-01-answers.md` Q1-Q5 and M1-M3, ratified by `D-2026-10-15-s601-action-store-and-ui` in `.ai/DECISIONS.md`, govern the trial limitation, scoped demonstration controls, exact cutoff URLs, accepted snapshot and backdated OBSERVED display.
+
+## Plan fix round 1
+
+Folded in the Architect packet changes and plan-review M1-M3/L1-L5: accepted snapshot/live status, capability-guarded controls at both widths, selector navigation and conflict, state-neutral observation, shared API fixture, Foundation deep-route behavior and the explicit S6-02 effect boundary.
+
+S6-02 later resolves `A-S6-verification` with `VERIFIED`, `INEFFECTIVE`, `INCONCLUSIVE`; S6-01b displays only pending outcome and policy activity. No positive Site Work list or later-window effect claim.
+# S6-01b owner walkthrough: Recommendation, Action and Foundation change
+
+These steps let you view the screens in a browser at desktop (1440) and phone (390) widths, and then record whether you accept them. Nothing here touches your own databases or any other walkthrough's databases.
+
+## Start
+
+From the worktree, run in PowerShell:
+
+```powershell
+$py = "C:\Users\assef\Bineyame\AssetOpsV1\.venv\Scripts\python.exe"
+& $py tools\s601b_action_walkthrough.py --db assetops_s601b_owner --work var\s601b_owner prepare
+& $py tools\s601b_action_walkthrough.py --db assetops_s601b_owner --work var\s601b_owner serve
+# second window, from frontend\
+$env:ASSETOPS_API_PORT="8961"; npm.cmd run dev -- --port 5461 --strictPort
+```
+
+What `prepare` does:
+
+- It builds the S6-01a demonstration records in a private database through the real stores and API. These are the same records that produce the frontend test contract.
+- It writes a grants file. The file allows the three SYSTEM demonstration commands, for this database's Site and the fixture Findings only.
+
+What `serve` does:
+
+- It prints every address used below, with this database's real IDs. You can print them again at any time with `links`.
+
+Ports:
+
+- API: 8961.
+- Web: 5461.
+- Browser evidence: CDP 9461.
+
+When you are done:
+
+1. Stop both servers.
+2. Run `... drop`. It removes the database and `var\s601b_owner`, and nothing else.
+
+## What to look at, in order
+
+1. **Recommendation, accepted snapshot.** Open the "recommendation:1#a accepted snapshot + live status" address.
+   - The accepted proposal reads "Battery reserve 20% to 15%". Beside it are the stored Finding, Foundation and assessment IDs and a link to `ACT-000001`.
+   - A separate "Live recomputation" panel says there is no proposal on the current inputs, because a newer Finding version exists. The accepted proposal stays visible.
+   - The "Trial only" box says the trial tests whether the reserve setting matters. It does not diagnose, predict generator time, or claim a saving or safety effect.
+   - "Money" is a link to the Finding's own money view. It shows no amount for the trial.
+2. **Recommendation, ineligible Finding.** This shows the typed reason `SOC_NOT_ABOVE_HEADROOM` and no control.
+3. **Action Overview** (`ACT-000001`).
+   - The origin Finding version is shown beside the latest Finding version.
+   - It shows the pinned basis and the pending outcome.
+   - The "Foundation change" panel has two links: "Application event" and "Open the Foundation change".
+   - Only Overview, Application and History are offered. One sentence says that plan, evidence and verification belong to the verification step.
+4. **Application.**
+   - Accepted, the backdated observation, three failed attempts (stale Foundation, invalid value, back-dated time), then Applied.
+   - Each row shows SYSTEM demonstration, its service and job, the new Foundation version, and the change record as a link.
+   - There is no Apply control: it says "Applied; there is nothing more to apply."
+5. **History.**
+   - The observation row shows both times and is marked "(recorded later than it happened)".
+   - "This event" and "Through this time" select an exact event or a recorded cutoff. Switch to Application and reload: the selection is kept.
+   - The "selector conflict" address shows the typed refusal `ACTION_SELECTOR_CONFLICT` and does not choose one selector for you.
+   - An unknown `event_id` says "Selected event not found" and offers "Open the latest record of this Action".
+6. **Foundation change** (`changes:1#a`). Open it from the Action, or from its printed address. It shows:
+   - battery reserve 20% before and 15% after, the battery ID, "effective from 2026-11-02 00:00 UTC onward" and the recorded time;
+   - Foundation versions 9 (replaced), 10 (split) and 11 (new), with their origins PUBLISH, SPLIT and PUBLISH;
+   - the signal assignment versions that were replaced and written;
+   - the Action and the exact application event, as links;
+   - the three failed attempts, each changing nothing;
+   - "Pending. Nothing has been verified yet". The page makes no effect judgement.
+
+   The Foundation tab is current. No Foundation view row appears, because Changes is not a Foundation view.
+7. **Bare `/foundation/changes`.** This says there is no list of changes yet, with "Back to the Foundation".
+8. **Second Action** (F02, `ACT-000002`). Its failed `ACTION_NO_CHANGE` attempt leaves it pending. Because the grants file covers it, the control "Apply trial (SYSTEM demonstration)" is offered.
+   - **Do not press it unless you want a real write** to this private database. The write is labelled SYSTEM demonstration and is undone by `drop`.
+
+## Things to know before judging
+
+- **The latest Finding version reopens the recommendation.** The Recommendation for the newer F01 Finding version does not mention the Action accepted on the earlier version.
+  - In the recorded S6-01a contract (server clock 2026-11-01), that newer version reads AVAILABLE, so you could accept it again.
+  - In this served walkthrough the server uses today's clock, and it reads unavailable with `FOUNDATION_BASIS_STALE`.
+  - Both are the S6-01a server's behaviour, shown faithfully. The screen does not say "already acted on" for a newer version, because the server does not provide that link. This is worth a decision: should the server link earlier Actions on the same Finding?
+- **Dates and clocks.** The records carry the fixture's clock, 2026-10-29 to 2026-11-01. The served API uses the real clock, so the "as read at" times and the default effective time on a pending Action use today's date.
+- **Nothing changes on the Site.** Nothing on these screens says the Site now behaves differently, or claims an effect or a saving. Verification is S6-02.
+
+## Evidence already captured
+
+`node tools/s601b-action-evidence.mjs http://localhost:5461 <dir>` checked 56 claims across the two widths, and all 56 passed. It saves app and mock screenshots for each named screen, plus `comparison.md`, which sets the mock's headings beside the app's. The review packet cites the run.
+
+## Your acceptance
+
+Record it here or in the coordinator thread:
+
+- accepted at 1440: yes / no;
+- accepted at 390: yes / no;
+- notes.
+
+The merge stays held until you accept, and until S6-01a merges.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "git show task/S6-01a-action-store-read:backend/tests/fixtures/s6_action_api_contract.json | Select-String -Pattern 'newer|FOUNDATION_BASIS_STALE|recommendation|action_id' -Context 1,2 | Select-Object -First 60; git status --porcelain=v1; Get-Content .ai/DECISIONS.md -Tail 30" in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 358ms:
+
+       "change": {
+>       "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "applied_event_id": "ef8be234-98a8-430c-9e3f-96b34f3bffaf",
+        "asset_id": "e7f17f56-6f68-4784-b9e1-bcd0fba3b424",
+       "event": {
+>       "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "actor": {
+         "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture D-action-records-v1, 
+command APPLY; no verified human principal exists, so no operator approval is recorded",
+        "payload": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "command": "APPLY",
+         "effective_from": "2026-11-02T00:00:00+00:00",
+        "event": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-10-31T23:00:00+00:00",
+       "change": {
+>       "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "applied_event_id": "ef8be234-98a8-430c-9e3f-96b34f3bffaf",
+        "asset_id": "e7f17f56-6f68-4784-b9e1-bcd0fba3b424",
+       "event": {
+>       "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "actor": {
+         "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture D-action-records-v1, 
+command APPLY; no verified human principal exists, so no operator approval is recorded",
+        "payload": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "command": "APPLY",
+         "effective_from": "2026-11-02T00:00:00+00:00",
+        "event": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-11-02T00:00:00+00:00",
+        "event": {
+>        "action_id": "ca00c7f4-5dcd-4295-ab29-1a3b9d493f16",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "ca00c7f4-5dcd-4295-ab29-1a3b9d493f16",
+          "command": "APPLY",
+          "effective_from": "2026-11-02T00:00:00+00:00",
+        "event": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-11-02T00:00:00+00:00",
+        "event": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-11-02T00:00:00+00:00",
+       "event": {
+>       "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "actor": {
+         "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture D-action-records-v1, 
+command OBSERVE; no verified human principal exists, so no operator approval is recorded",
+        "payload": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "command": "OBSERVE",
+         "idempotency_key": "fixture-observe-0001",
+      "body": {
+>      "accepted_recommendation": {
+        "field": "reserve-state-of-charge",
+        "limitation": {
+         "proposed_value": "15",
+>        "recommendation_key": "30e32d72b779f4f38083e36a7e18916c559e5e10880a04c3d068cb8f6dc67525",
+         "rule": {
+          "band": [
+        "label": "SYSTEM demonstration",
+>       "recommendation_key": "30e32d72b779f4f38083e36a7e18916c559e5e10880a04c3d068cb8f6dc67525"
+       },
+       "application_basis": {
+       "last_event": {
+>       "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "actor": {
+         "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture D-action-records-v1, 
+command ACCEPT; no verified human principal exists, so no operator approval is recorded",
+         "proposed_value": "15",
+>        "recommendation_key": "30e32d72b779f4f38083e36a7e18916c559e5e10880a04c3d068cb8f6dc67525",
+         "revision_id": "4e6f1bc9-b37b-4e16-a036-8c4fd958ee42"
+        },
+        "origin_finding": 
+"/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f?revision_id=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+>       "recommendation": "/api/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f/recommendation?revision_id
+=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+        "selected": 
+"/sites/KOBO-001/actions/c99f40a5-3b18-4868-a6d3-6f65aacbde36?event_id=e2bdc49b-468e-426b-a315-e9efb7c516cc",
+        "site": "/sites/KOBO-001"
+       },
+>      "newer_revision_notice": {
+        "latest_revision_id": "61eb629c-ffff-442a-8024-35b32d0c37dd",
+        "lifecycle": "SUPPORTED",
+        "revision_no": 2,
+>       "statement": "The Finding has a newer revision. This Action stays pinned to the revision it was accepted for; 
+the newer revision is shown beside it, not substituted.",
+        "transition": "BASIS_REFRESHED"
+       },
+         "label": "SYSTEM demonstration",
+>        "manifest_id": "recommendation:1#a/eligible-F01",
+         "scope": "tenant, Site, command and fixture record; granted by server configuration only",
+         "unavailable_reason": null
+         "label": "SYSTEM demonstration",
+>        "manifest_id": "recommendation:1#a/eligible-F01",
+         "scope": "tenant, Site, command and fixture record; granted by server configuration only",
+         "unavailable_reason": null
+      "body": {
+>      "accepted_recommendation": {
+        "field": "reserve-state-of-charge",
+        "limitation": {
+         "proposed_value": "15",
+>        "recommendation_key": "30e32d72b779f4f38083e36a7e18916c559e5e10880a04c3d068cb8f6dc67525",
+         "rule": {
+          "band": [
+        "label": "SYSTEM demonstration",
+>       "recommendation_key": "30e32d72b779f4f38083e36a7e18916c559e5e10880a04c3d068cb8f6dc67525"
+       },
+       "application_basis": {
+       "last_event": {
+>       "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "actor": {
+         "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture D-action-records-v1, 
+command OBSERVE; no verified human principal exists, so no operator approval is recorded",
+        "payload": {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "command": "OBSERVE",
+         "idempotency_key": "fixture-observe-0001",
+        "origin_finding": 
+"/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f?revision_id=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+>       "recommendation": "/api/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f/recommendation?revision_id
+=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+        "selected": 
+"/sites/KOBO-001/actions/c99f40a5-3b18-4868-a6d3-6f65aacbde36?recorded_at=2026-11-01T00%3A30%3A00%2B00%3A00",
+        "site": "/sites/KOBO-001"
+       },
+>      "newer_revision_notice": {
+        "latest_revision_id": "61eb629c-ffff-442a-8024-35b32d0c37dd",
+        "lifecycle": "SUPPORTED",
+        "revision_no": 2,
+>       "statement": "The Finding has a newer revision. This Action stays pinned to the revision it was accepted for; 
+the newer revision is shown beside it, not substituted.",
+        "transition": "BASIS_REFRESHED"
+       },
+         "label": "SYSTEM demonstration",
+>        "manifest_id": "recommendation:1#a/eligible-F01",
+         "scope": "tenant, Site, command and fixture record; granted by server configuration only",
+         "unavailable_reason": null
+         "label": "SYSTEM demonstration",
+>        "manifest_id": "recommendation:1#a/eligible-F01",
+         "scope": "tenant, Site, command and fixture record; granted by server configuration only",
+         "unavailable_reason": null
+       "action_code": "ACT-000001",
+>      "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+       "events": [
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command ACCEPT; no verified human principal exists, so no operator approval is recorded",
+          "proposed_value": "15",
+>         "recommendation_key": "30e32d72b779f4f38083e36a7e18916c559e5e10880a04c3d068cb8f6dc67525",
+          "revision_id": "4e6f1bc9-b37b-4e16-a036-8c4fd958ee42"
+         },
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command OBSERVE; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "OBSERVE",
+          "idempotency_key": "fixture-observe-0001",
+        "origin_finding": 
+"/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f?revision_id=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+>       "recommendation": "/api/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f/recommendation?revision_id
+=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+        "selected": 
+"/sites/KOBO-001/actions/c99f40a5-3b18-4868-a6d3-6f65aacbde36?event_id=b6a41d95-1ffb-40ef-ac60-16c8f2dcdc2c",
+        "site": "/sites/KOBO-001"
+       "action_code": "ACT-000001",
+>      "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+       "events": [
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command ACCEPT; no verified human principal exists, so no operator approval is recorded",
+          "proposed_value": "15",
+>         "recommendation_key": "30e32d72b779f4f38083e36a7e18916c559e5e10880a04c3d068cb8f6dc67525",
+          "revision_id": "4e6f1bc9-b37b-4e16-a036-8c4fd958ee42"
+         },
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command OBSERVE; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "OBSERVE",
+          "idempotency_key": "fixture-observe-0001",
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-11-02T00:00:00+00:00",
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-11-02T00:00:00+00:00",
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-10-31T23:00:00+00:00",
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command APPLY; no verified human principal exists, so no operator approval is recorded",
+         "payload": {
+>         "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+          "command": "APPLY",
+          "effective_from": "2026-11-02T00:00:00+00:00",
+        "origin_finding": 
+"/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f?revision_id=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+>       "recommendation": "/api/sites/KOBO-001/findings/7ca84128-66ea-4982-a9a5-9faef9fe532f/recommendation?revision_id
+=4e6f1bc9-b37b-4e16-a036-8c4fd958ee42",
+        "selected": "/sites/KOBO-001/actions/c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+        "site": "/sites/KOBO-001"
+       "action_code": "ACT-000001",
+>      "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+       "events": [
+        {
+>        "action_id": "c99f40a5-3b18-4868-a6d3-6f65aacbde36",
+         "actor": {
+          "authorization_basis": "SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture 
+D-action-records-v1, command ACCEPT; no verified human principal exists, so no operator approval is recorded",
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+
+The S5-01 reviewer may promote `mini:1#a`, `mini:2#a` and `mini:4#a` only after selected-window, reload, stale/Unknown and exact-link evidence is reviewed. `mini:4#a` means one bounded consequence or explicit unpriced/unavailable state; the mock's blended money composition remains an open G-05/non-core gap. `mini:3#a/b` stays open until S4-04's Site FindingIndex and S5-02's Overview integration prove both scoped empty/Unknown and positive rows. The S5-01 UI may say the Finding list is unavailable while that index is missing; it may link a known selected Finding from a card without claiming a Site-wide list. S5-01 stays one reviewable read/UI slice; Planner must refine wire fields, fixture windows, projection/recompute seam, exact destinations, 1440/390 states and independent review/owner walkthrough. The durable evidence-acceptance consequence-work follow-on is a technical prerequisite of `I-site-overview-read`; it must close before S5-01 presents current money. Price equal-start SUCCESSION and stored demonstration provenance have separate follow-on packets; the latter gates W1 exit and the first real-Site pilot.
+
+Owner-absent checkpoint rule: `USER_REVIEW_REQUIRED` remains a real owner visual checkpoint. During this and future owner-absent windows, complete implementation, fresh independent review and a reproducible walkthrough, then hold that slice's merge and acceptance until the owner performs and records the visual check. The Architect may decide delegated sequence/copy questions but cannot record an owner walkthrough on the owner's behalf. Planning and unrelated non-UI/G work may proceed under normal single-active-task and dependency rules; a dependent next slice may be prepared on a clearly stacked branch without claiming its predecessor merged or accepted. Resume merge/registry promotion only after the actual owner checkpoint.
+
+Decision: `D-2026-10-14-action-lifecycle-and-policy-application`. Under the owner's 08:40-10:40 +0300 delegation, the Codex Architect chooses and resolves `A-action-lifecycle` in the 0.54% next-work contest (`.agent/next-work-2026-10-14d.json`: evidence-acceptance consequence work 2.020, Action lifecycle 2.009). The scores are effectively tied. This bounded architecture decision can close now and removes the common S6 Action gate across roughly fifteen W1 core portions; the evidence-acceptance consequence implementation still needs a Planner packet and remains a hard prerequisite of S5-01's money read. The next verified report, rather than this contest snapshot, routes the next work. No S6 UI owner checkpoint is waived.
+
+S6-01 creates one immutable, tenant/Site-scoped Action identity from a reviewed persisted `FindingRevision` under the canonical Finding route. It pins the originating revision, selected assessment and accepted-evidence/configuration basis; a later Finding revision does not silently rewrite that origin. A Finding may have several Actions, but each accepted recommendation creates or idempotently returns one Action for its server-defined command key. The recommendation is a bounded proposed reserve-SOC policy trial with explicit purpose, limitation and source Finding; it is not a measured saving or verified outcome. The Action detail root is `/sites/{site}/actions/{action_id}` with stable child routes and exact `event_id` selection, and Site/Finding back-links. S6-01 may navigate from a known Finding or Action ID before the separate S6-03 Site ActionIndex exists. Hidden unsupported tabs must not masquerade as empty delivered views.
+
+Action state is derived from an append-only, server-ordered `ActionEvent` ledger. Record stable event ID, Action and Site, event type, `occurred_at`, server `recorded_at`, idempotency key, actor kind/ID, source channel, authorization basis and triggering command/job or content revision. Idempotent identical retries return the event; conflicting reuse and cross-Site references fail. Historical reads select a recorded cutoff and then `(recorded_at,id)` order; a backdated `occurred_at` is displayed as such but never rewrites the audit order. `PROPOSED`/`ACCEPTED`, application `PENDING`/`APPLIED`/`FAILED`, and later verification status are separate dimensions. Acceptance does not assert application; an applied change or completed work does not assert benefit. A failed application preserves its attempt, error and retry relation without an effective-policy claim. No human author, approval or attestation is inferred from a gateway credential, client field, local OS user or SYSTEM fixture. Under the existing `A-actor-identity` rule, human writes need a verified operator principal; otherwise only a clearly labelled, server-authorized SYSTEM demonstration command with stable service/job provenance is allowed, or the write stays unavailable.
+
+The supported S6-01 change is a controlled reserve-SOC edit through S1 Foundation publish, producing a new immutable effective `FoundationRevision` and an immutable change artifact that links Action, accepted recommendation, authorized command, old/new revision IDs, exact field/value/unit, validity and recorded time, and the application event. Validate the expected old revision and Site scope under the publish lock; reject stale, unauthorized or invalid edits and record a failed attempt without claiming the new setting took effect. `APPLIED` requires confirmation of the persisted new effective revision; an ActionEvent alone is insufficient. The old basis and every event/change revision remain addressable after reload. Do not mutate a Lab-only override or rewrite accepted evidence. S6-01's Execution/History and applied `changes:1#a` show policy activity with event and configuration provenance, including pending/failed cases; they do not show an effect verdict.
+
+S6-02 owns the separate immutable `VerificationPlanRevision` and later `VerificationOutcome`. A plan pins this Action, the applied-change event and new Foundation revision, a pre-change baseline assessment/evidence basis, target, service/reserve guardrails, required coverage and later-window selection rule before evaluation. Use separate baseline and later Lab runs under their respective fixed effective Foundation revisions; commit their public reports through the ordinary gateway and central acceptance. Evaluate a closed later accepted window against the frozen plan and baseline, with exact analytic/evidence IDs. Missing or conflicting evidence yields `INCONCLUSIVE`; failed guardrail prevents `VERIFIED` even if the target improves; later results append/supersede without rewriting prior outcomes. Plan/evidence/verification child routes preserve exact plan and outcome IDs. `A-S6-verification` remains open for the full comparison rule; this lifecycle decision does not resolve it. S6-03 alone owns the Site-scoped ActionIndex/list and its watermarked empty/positive states; `A-action-index` remains open. Planner must refine S6-01's event transition table, command/API schema, actor path, race/idempotency checks, Foundation publish seam, stored fixtures and desktop/narrow Action-root states against the v6.9 Action screens and technical design before implementation.
+
+Decision: `D-2026-10-14-s402c-late-sequence-and-s5-money`. The Architect rules that gateway admission sequence does not establish source-time order for a validated store-and-forward source. S3 must version a source-time-aware cohort rule with explicit clock/overlap/epoch limits and reassess affected windows without rewriting history. S4 must carry a material series refusal into the revised Finding and state why the episode ends. Until a reviewed reassessment resolves generator-series ambiguity, S5 withholds an amount for that affected selected Finding/window despite a `CURRENT PRICED` consequence, and shows the limitation and exact lineage. `I-late-reading-series-and-money-limit` and `I-analytic-finding-worker-schedule` are separate prerequisites of `I-site-overview-read` before S5-01; both also gate real-Site readiness. The latter schedules S3/S4 workers and makes backlog/failure visible so late evidence reaches the revised Finding without manual commands. The broader simulated/real analysis-input backlog remains for W1 exit. S4-02c acceptance is unchanged; its reviewed consequence work may close on merge. The S5 owner visual checkpoint remains required. Rulings in .agent/architect-S4-02c-answers.md; S4-02c review `.agent/S4-02c-review.md` F1.
+
+Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+
+Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+Decision: `D-2026-10-15-owner-absence-work-order`. Under the owner's 2026-10-15 absence delegation, the Architect orders the single build stream: finish and freshly review LR-01; prepare and build S5-01 selected-window Overview on its reviewed head; then advance S6-01 Action store/read/UI, stored demo provenance, price equal-start succession, the S4-02d I3 evidence-owner clock fix, the F-B statement-level guard, OPS-01 Low carries, and the FindingIndex/S4-04 lane as capacity and gates allow. The 0.20% LR-01 versus Action-store contest stays with LR-01 first; if S5-01 and Action store later score within 5%, S5-01 wins because it consumes the just-reviewed money eligibility and closes the blocked Overview path. S4-04 does not gate S5-01. Planner may refine S5-01 and S6-01 in parallel with LR-01, followed by the named non-UI packets, with code-reality checks. Only one Postgres-heavy build runs at a time. Independently reviewed non-UI work may merge if it does not depend on an unmerged UI branch; all USER_REVIEW_REQUIRED merges and acceptance wait for the owner's actual walkthrough. The exact conditional order, stack and review gates are in `.agent/architect-autonomy-2026-10-15-answers.md`; this decision does not waive the schedule install, W1 exit or real-pilot gates.
+
+Decision: `D-2026-10-15-s501-finding-choice`. Accept the S5-01 price-independent latest-episode choice with half-open intersection, canonical merged IDs only, greatest latest-revision episode start and smallest stable Finding UUID as tie-break. Do not filter by money or lifecycle. Retain the selected Finding and exact revision links through stale/withheld states; a new consistent S4 basis may change selection, while an incomplete basis cannot authorize a new current choice or amount. `ABSENT` requires complete current scoped discovery. Full implementable rule: `.agent/architect-S5-01-answers.md`.
+
+Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Ratify `actions/adapters/postgres_action_store.py` as the sole ninth PostgreSQL writer for append-only Action, event, change and Action-owned child rows. The Action adapter opens the apply transaction and locks Action before calling a caller-owned-connection S1 publish that locks Site; the S1 adapter writes only Foundation and binding rows, and an Action-adapter callback writes the change artifact and APPLIED event on that same connection before the outer commit. Rule 8 must admit only this ninth writer's INSERTs to its tables, reject Action-table writes by every other module and reject mutation or DDL in the Action adapter while retaining all eight existing protections. Authorized same-Site failures remain separate durable attempts after rollback. Include the pinned FoundationRevision in recommendation identity and persist the immutable accepted-recommendation snapshot; after acceptance, recommendation read returns it with the Action link and a separate live status. A server-authorized, state-neutral SYSTEM demonstration `OBSERVED` event with fixed `DEMO_REVIEW_NOTE` code may carry an explicit `occurred_at` between ACCEPTED and server `recorded_at`, no more than 30 days earlier, to prove backdated history without changing application state. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. The full M1-M3 ruling is in `.agent/architect-S6-01-answers.md` under "Follow-up (plan review M1-M3)". S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+Decision: `D-2026-10-15-s405-stored-demo-provenance`. Under the owner's 2026-10-15 absence delegation, accept S4-05 Q1-Q3 as amended by Follow-up (plan review M1) in `.agent/architect-S4-05-answers.md`. A server-authorized, immutable pre-admission publication binds an exact Batch V2 commitment to tenant/Site, gateway/source, external batch ID and canonical digest. `AUTHORED_DEMONSTRATION` additionally binds fixture/spec ID and version, including authored P01 and P02. `REGISTERED_SIMULATION` binds an ordinary simulator batch to a server-recorded run identity; `SIMULATED` mode or a private manifest alone is insufficient. Publication and admission serialize on the scoped batch key; post-admission registration and mismatched commitments fail. Accepted IDs inherit immutable provenance, duplicates retain their original accepted ID, and historical unbound IDs stay unknown. Finding and consequence source state derives from each revision's exact accepted IDs, including consequence power intervals. Coherent all-authored or all-registered-simulation sets may show a current amount only when LR eligibility, exact basis, currentness, source-open and quantity/price gates also pass. Mixed or unknown source blocks a current amount in Finding Financials, consequence and S5 Overview regardless of `CURRENT PRICED` or LR eligibility; prior values remain audit-only. Real data remains unknown and unable to show current money until a separate server-authorized `ATTESTED_REAL_SOURCE` follow-on is implemented. Create open registry node `I-attested-real-source-provenance` in `real_pilot_requires` before resolving `I-stored-demo-provenance` or installing a pilot timer; S4-05 may resolve before the real-source node, but its resolution is not pilot readiness. Amend S5-01's source gate to consume stored exact-revision provenance whichever slice merges second. Extend the existing PostgreSQL evidence-ledger writer, not the writer count: rule 8 permits only its INSERTs to publication/link rows, refuses other writers and mutations, preserves existing writer protections, and is backed by database immutability. Visible copy and pilot designation still require the owner's W1 checkpoint; this decision grants neither owner approval nor W1/pilot readiness.
+
+Decision: `D-2026-10-15-a-finding-index`. Under the owner-absence work order item 9, resolve `A-finding-index` for a tenant/Site/domain and selected half-open UTC window of at most 31 days. The W1 read selects the latest immutable S4-01 FindingRevision of each canonical Finding from one consistent S3/S4 basis, includes every intersecting lifecycle state, and uses strict half-open overlap. Its stable row key is `(tenant_id, site_id, finding_id)`; default order is episode start descending, then Finding UUID ascending. Return exact revision/detail and assessment/evidence lineage, scoped accepted-source and analytic/matcher watermarks, selection token, built time, coverage and typed currentness. Complete discovery requires every intersected UTC-day analytic window and neighbours reachable through 20-minute episode continuity matched through each current selection seq. Only complete current scoped discovery under an open S3 Performance cutover gate may state zero Findings; pending, stale, failed and unassessed reads remain visibly Unknown or historical. A closed gate refuses the unpinned index with HTTP 409 `PERFORMANCE_CUTOVER_CLOSED` and its reason, with neither current rows nor a no-Findings claim, as on Finding routes; S4-05 stored provenance joins that gate once merged. A changed basis invalidates the bound page cursor. S4-04 adds a new index read without changing the consumed `findings_over` helper, and must independently prove a watermarked assessed zero-row fixture, a closed-gate 409 variant, a persisted positive-row fixture, exact links after reload, invalidation, Site isolation, first-row equality with the S5-01 card Finding on the same basis, and narrow/desktop UI. Index rows do not depend on money; optional current consequence display consumes LR-01 money eligibility and S4-05 exact-revision source provenance after their reviewed branches enter the build baseline, plus the existing exact-head, quantity, price and currentness gates. Mixed/unknown source and withheld/pending eligibility expose no current amount. S5-02 reuses the Site/window rows for both `mini:3` variants after S4-04 and S5-01 review; S4-03, S5-01's other panels and S3 dispatch do not wait on the index. Full contract and implementation handoff: `.agent/architect-A-finding-index-answers.md`. This decision grants no owner UI copy or walkthrough acceptance and does not implement a global or cross-domain index.
+
+
+
+codex
+I’m choosing a third rule: show the earlier Action on the newer revision and prevent another reserve trial for the same Finding while that Action is unresolved. This avoids stacking another five-point reserve change before the first trial has an outcome, while keeping the original Action and Recommendation snapshots intact.
+2026-10-15T16:48:38.495679Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\.ai\DECISIONS.md:
+Decision: `D-2026-10-15-a-finding-index`.
+apply patch
+patch: completed
+C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\.agent\architect-S6-01-reopen-answers.md
+diff --git a/.agent/architect-S6-01-reopen-answers.md b/.agent/architect-S6-01-reopen-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dce3d5dd4565ca7c8cc6d7357bab82583b3bd8e2
+--- /dev/null
++++ b/.agent/architect-S6-01-reopen-answers.md
+@@ -0,0 +1,9 @@
++# Architect ruling - newer Finding revision after an Action
++
++Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.
++
++Choose (c): show the earlier Action and hold a repeat trial while it is unresolved. A newer `FindingRevision` is a new assessment basis, not evidence that the earlier policy trial worked or that another five-point reserve reduction is appropriate. For a selected revision, the Site-scoped recommendation read must return the prior Actions for the same canonical Finding, with each Action's origin revision, application state, outcome state and exact Action link. A known prior Action is never hidden by `FOUNDATION_BASIS_STALE`, a later Finding revision or a failed live recomputation. Keep the selected revision and any accepted snapshot separately labelled; never relabel an earlier Action as originating on the newer revision.
++
++For `reserve-trial-1` on the same Finding, battery asset and reserve field, an earlier Action whose application is pending (including failed attempts awaiting retry) or applied with verification pending blocks a *new* acceptance. Return typed `PRIOR_ACTION_UNRESOLVED` with the blocking Action ID, origin revision and link; show the current-basis result, including `FOUNDATION_BASIS_STALE`, as a separate live reason where relevant. Do not offer an Accept capability for the new key. Recheck the guard atomically at acceptance, so simultaneous accepts on different Finding revisions cannot create two unresolved trials. Identical retries of the existing accepted key still return its Action. A completed verification outcome alone must not be treated as permission for another trial until S6-02 defines an explicit resolved/closed transition and its eligibility rule. This does not prohibit several Actions over a Finding's lifetime or Actions for a different intervention; it limits this one reserve-trial command.
++
++Apply this before either S6-01a or S6-01b merges. S6-01a owns the scoped prior-Action read, typed state, accept guard, race proof and updated committed API fixture for both recorded-clock AVAILABLE and served-clock stale cases. S6-01b owns the visible notice/link and disabled control at 1440 and 390, with a repeat owner walkthrough. Reopen the affected independent reviews; S6-01b's required owner visual acceptance remains a separate merge gate. No owner acceptance is inferred here.
+
+diff --git a/.agent/architect-S6-01-reopen-answers.md b/.agent/architect-S6-01-reopen-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dce3d5dd4565ca7c8cc6d7357bab82583b3bd8e2
+--- /dev/null
++++ b/.agent/architect-S6-01-reopen-answers.md
+@@ -0,0 +1,9 @@
++# Architect ruling - newer Finding revision after an Action
++
++Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.
++
++Choose (c): show the earlier Action and hold a repeat trial while it is unresolved. A newer `FindingRevision` is a new assessment basis, not evidence that the earlier policy trial worked or that another five-point reserve reduction is appropriate. For a selected revision, the Site-scoped recommendation read must return the prior Actions for the same canonical Finding, with each Action's origin revision, application state, outcome state and exact Action link. A known prior Action is never hidden by `FOUNDATION_BASIS_STALE`, a later Finding revision or a failed live recomputation. Keep the selected revision and any accepted snapshot separately labelled; never relabel an earlier Action as originating on the newer revision.
++
++For `reserve-trial-1` on the same Finding, battery asset and reserve field, an earlier Action whose application is pending (including failed attempts awaiting retry) or applied with verification pending blocks a *new* acceptance. Return typed `PRIOR_ACTION_UNRESOLVED` with the blocking Action ID, origin revision and link; show the current-basis result, including `FOUNDATION_BASIS_STALE`, as a separate live reason where relevant. Do not offer an Accept capability for the new key. Recheck the guard atomically at acceptance, so simultaneous accepts on different Finding revisions cannot create two unresolved trials. Identical retries of the existing accepted key still return its Action. A completed verification outcome alone must not be treated as permission for another trial until S6-02 defines an explicit resolved/closed transition and its eligibility rule. This does not prohibit several Actions over a Finding's lifetime or Actions for a different intervention; it limits this one reserve-trial command.
++
++Apply this before either S6-01a or S6-01b merges. S6-01a owns the scoped prior-Action read, typed state, accept guard, race proof and updated committed API fixture for both recorded-clock AVAILABLE and served-clock stale cases. S6-01b owns the visible notice/link and disabled control at 1440 and 390, with a repeat owner walkthrough. Reopen the affected independent reviews; S6-01b's required owner visual acceptance remains a separate merge gate. No owner acceptance is inferred here.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$decision = @'"'
+Decision: "'`D-2026-10-15-s601-reopen`. For `reserve-trial-1`, a newer FindingRevision of the same canonical Finding must show earlier same-Site Actions with their pinned origin revisions, application/outcome states and exact links, even when live recomputation is `FOUNDATION_BASIS_STALE`. An earlier Action for the same battery asset and reserve field blocks a new acceptance while application is pending (including failed attempts awaiting retry) or applied with verification pending. Serve `PRIOR_ACTION_UNRESOLVED` and the blocking Action link separately from the current-basis reason; withhold the new Accept capability and enforce the guard atomically on POST across revision keys. Identical retries retain the original Action and accepted snapshot. S6-02 must define an explicit resolved/closed transition before a later trial can be allowed; a newer Finding revision or completed outcome alone does not authorize one. This amendment is required before S6-01a/S6-01b merge, with updated API fixture, UI at both widths, fresh affected reviews and the unchanged S6-01b owner walkthrough gate. Full ruling: `.agent/architect-S6-01-reopen-answers.md`.
+'"'@; Add-Content -LiteralPath .ai/DECISIONS.md -Value "'$decision -Encoding utf8; git diff --check; git status --short; Get-Content .ai/DECISIONS.md -Tail 3' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 318ms:
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+ M .ai/DECISIONS.md
+
+Decision: `D-2026-10-15-a-finding-index`. Under the owner-absence work order item 9, resolve `A-finding-index` for a tenant/Site/domain and selected half-open UTC window of at most 31 days. The W1 read selects the latest immutable S4-01 FindingRevision of each canonical Finding from one consistent S3/S4 basis, includes every intersecting lifecycle state, and uses strict half-open overlap. Its stable row key is `(tenant_id, site_id, finding_id)`; default order is episode start descending, then Finding UUID ascending. Return exact revision/detail and assessment/evidence lineage, scoped accepted-source and analytic/matcher watermarks, selection token, built time, coverage and typed currentness. Complete discovery requires every intersected UTC-day analytic window and neighbours reachable through 20-minute episode continuity matched through each current selection seq. Only complete current scoped discovery under an open S3 Performance cutover gate may state zero Findings; pending, stale, failed and unassessed reads remain visibly Unknown or historical. A closed gate refuses the unpinned index with HTTP 409 `PERFORMANCE_CUTOVER_CLOSED` and its reason, with neither current rows nor a no-Findings claim, as on Finding routes; S4-05 stored provenance joins that gate once merged. A changed basis invalidates the bound page cursor. S4-04 adds a new index read without changing the consumed `findings_over` helper, and must independently prove a watermarked assessed zero-row fixture, a closed-gate 409 variant, a persisted positive-row fixture, exact links after reload, invalidation, Site isolation, first-row equality with the S5-01 card Finding on the same basis, and narrow/desktop UI. Index rows do not depend on money; optional current consequence display consumes LR-01 money eligibility and S4-05 exact-revision source provenance after their reviewed branches enter the build baseline, plus the existing exact-head, quantity, price and currentness gates. Mixed/unknown source and withheld/pending eligibility expose no current amount. S5-02 reuses the Site/window rows for both `mini:3` variants after S4-04 and S5-01 review; S4-03, S5-01's other panels and S3 dispatch do not wait on the index. Full contract and implementation handoff: `.agent/architect-A-finding-index-answers.md`. This decision grants no owner UI copy or walkthrough acceptance and does not implement a global or cross-domain index.
+Decision: `D-2026-10-15-s601-reopen`. For `reserve-trial-1`, a newer FindingRevision of the same canonical Finding must show earlier same-Site Actions with their pinned origin revisions, application/outcome states and exact links, even when live recomputation is `FOUNDATION_BASIS_STALE`. An earlier Action for the same battery asset and reserve field blocks a new acceptance while application is pending (including failed attempts awaiting retry) or applied with verification pending. Serve `PRIOR_ACTION_UNRESOLVED` and the blocking Action link separately from the current-basis reason; withhold the new Accept capability and enforce the guard atomically on POST across revision keys. Identical retries retain the original Action and accepted snapshot. S6-02 must define an explicit resolved/closed transition before a later trial can be allowed; a newer Finding revision or completed outcome alone does not authorize one. This amendment is required before S6-01a/S6-01b merge, with updated API fixture, UI at both widths, fresh affected reviews and the unchanged S6-01b owner walkthrough gate. Full ruling: `.agent/architect-S6-01-reopen-answers.md`.
+
+diff --git a/.agent/architect-S6-01-reopen-answers.md b/.agent/architect-S6-01-reopen-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dce3d5dd4565ca7c8cc6d7357bab82583b3bd8e2
+--- /dev/null
++++ b/.agent/architect-S6-01-reopen-answers.md
+@@ -0,0 +1,9 @@
++# Architect ruling - newer Finding revision after an Action
++
++Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.
++
++Choose (c): show the earlier Action and hold a repeat trial while it is unresolved. A newer `FindingRevision` is a new assessment basis, not evidence that the earlier policy trial worked or that another five-point reserve reduction is appropriate. For a selected revision, the Site-scoped recommendation read must return the prior Actions for the same canonical Finding, with each Action's origin revision, application state, outcome state and exact Action link. A known prior Action is never hidden by `FOUNDATION_BASIS_STALE`, a later Finding revision or a failed live recomputation. Keep the selected revision and any accepted snapshot separately labelled; never relabel an earlier Action as originating on the newer revision.
++
++For `reserve-trial-1` on the same Finding, battery asset and reserve field, an earlier Action whose application is pending (including failed attempts awaiting retry) or applied with verification pending blocks a *new* acceptance. Return typed `PRIOR_ACTION_UNRESOLVED` with the blocking Action ID, origin revision and link; show the current-basis result, including `FOUNDATION_BASIS_STALE`, as a separate live reason where relevant. Do not offer an Accept capability for the new key. Recheck the guard atomically at acceptance, so simultaneous accepts on different Finding revisions cannot create two unresolved trials. Identical retries of the existing accepted key still return its Action. A completed verification outcome alone must not be treated as permission for another trial until S6-02 defines an explicit resolved/closed transition and its eligibility rule. This does not prohibit several Actions over a Finding's lifetime or Actions for a different intervention; it limits this one reserve-trial command.
++
++Apply this before either S6-01a or S6-01b merges. S6-01a owns the scoped prior-Action read, typed state, accept guard, race proof and updated committed API fixture for both recorded-clock AVAILABLE and served-clock stale cases. S6-01b owns the visible notice/link and disabled control at 1440 and 390, with a repeat owner walkthrough. Reopen the affected independent reviews; S6-01b's required owner visual acceptance remains a separate merge gate. No owner acceptance is inferred here.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Test-Path .agent/architect-S6-01-reopen-answers.md; git check-ignore -v .agent/architect-S6-01-reopen-answers.md; git diff --stat; git diff -- .ai/DECISIONS.md | Select-Object -Last 12' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 311ms:
+True
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+.gitignore:1:.agent/	.agent/architect-S6-01-reopen-answers.md
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+ .ai/DECISIONS.md | 1 +
+ 1 file changed, 1 insertion(+)
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 92d17f8f..f8584ac5 100644
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4145,3 +4145,4 @@ Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15
+ Decision: `D-2026-10-15-s405-stored-demo-provenance`. Under the owner's 2026-10-15 absence delegation, accept S4-05 Q1-Q3 as amended by Follow-up (plan review M1) in `.agent/architect-S4-05-answers.md`. A server-authorized, immutable pre-admission publication binds an exact Batch V2 commitment to tenant/Site, gateway/source, external batch ID and canonical digest. `AUTHORED_DEMONSTRATION` additionally binds fixture/spec ID and version, including authored P01 and P02. `REGISTERED_SIMULATION` binds an ordinary simulator batch to a server-recorded run identity; `SIMULATED` mode or a private manifest alone is insufficient. Publication and admission serialize on the scoped batch key; post-admission registration and mismatched commitments fail. Accepted IDs inherit immutable provenance, duplicates retain their original accepted ID, and historical unbound IDs stay unknown. Finding and consequence source state derives from each revision's exact accepted IDs, including consequence power intervals. Coherent all-authored or all-registered-simulation sets may show a current amount only when LR eligibility, exact basis, currentness, source-open and quantity/price gates also pass. Mixed or unknown source blocks a current amount in Finding Financials, consequence and S5 Overview regardless of `CURRENT PRICED` or LR eligibility; prior values remain audit-only. Real data remains unknown and unable to show current money until a separate server-authorized `ATTESTED_REAL_SOURCE` follow-on is implemented. Create open registry node `I-attested-real-source-provenance` in `real_pilot_requires` before resolving `I-stored-demo-provenance` or installing a pilot timer; S4-05 may resolve before the real-source node, but its resolution is not pilot readiness. Amend S5-01's source gate to consume stored exact-revision provenance whichever slice merges second. Extend the existing PostgreSQL evidence-ledger writer, not the writer count: rule 8 permits only its INSERTs to publication/link rows, refuses other writers and mutations, preserves existing writer protections, and is backed by database immutability. Visible copy and pilot designation still require the owner's W1 checkpoint; this decision grants neither owner approval nor W1/pilot readiness.
+ 
+ Decision: `D-2026-10-15-a-finding-index`. Under the owner-absence work order item 9, resolve `A-finding-index` for a tenant/Site/domain and selected half-open UTC window of at most 31 days. The W1 read selects the latest immutable S4-01 FindingRevision of each canonical Finding from one consistent S3/S4 basis, includes every intersecting lifecycle state, and uses strict half-open overlap. Its stable row key is `(tenant_id, site_id, finding_id)`; default order is episode start descending, then Finding UUID ascending. Return exact revision/detail and assessment/evidence lineage, scoped accepted-source and analytic/matcher watermarks, selection token, built time, coverage and typed currentness. Complete discovery requires every intersected UTC-day analytic window and neighbours reachable through 20-minute episode continuity matched through each current selection seq. Only complete current scoped discovery under an open S3 Performance cutover gate may state zero Findings; pending, stale, failed and unassessed reads remain visibly Unknown or historical. A closed gate refuses the unpinned index with HTTP 409 `PERFORMANCE_CUTOVER_CLOSED` and its reason, with neither current rows nor a no-Findings claim, as on Finding routes; S4-05 stored provenance joins that gate once merged. A changed basis invalidates the bound page cursor. S4-04 adds a new index read without changing the consumed `findings_over` helper, and must independently prove a watermarked assessed zero-row fixture, a closed-gate 409 variant, a persisted positive-row fixture, exact links after reload, invalidation, Site isolation, first-row equality with the S5-01 card Finding on the same basis, and narrow/desktop UI. Index rows do not depend on money; optional current consequence display consumes LR-01 money eligibility and S4-05 exact-revision source provenance after their reviewed branches enter the build baseline, plus the existing exact-head, quantity, price and currentness gates. Mixed/unknown source and withheld/pending eligibility expose no current amount. S5-02 reuses the Site/window rows for both `mini:3` variants after S4-04 and S5-01 review; S4-03, S5-01's other panels and S3 dispatch do not wait on the index. Full contract and implementation handoff: `.agent/architect-A-finding-index-answers.md`. This decision grants no owner UI copy or walkthrough acceptance and does not implement a global or cross-domain index.
++Decision: `D-2026-10-15-s601-reopen`. For `reserve-trial-1`, a newer FindingRevision of the same canonical Finding must show earlier same-Site Actions with their pinned origin revisions, application/outcome states and exact links, even when live recomputation is `FOUNDATION_BASIS_STALE`. An earlier Action for the same battery asset and reserve field blocks a new acceptance while application is pending (including failed attempts awaiting retry) or applied with verification pending. Serve `PRIOR_ACTION_UNRESOLVED` and the blocking Action link separately from the current-basis reason; withhold the new Accept capability and enforce the guard atomically on POST across revision keys. Identical retries retain the original Action and accepted snapshot. S6-02 must define an explicit resolved/closed transition before a later trial can be allowed; a newer Finding revision or completed outcome alone does not authorize one. This amendment is required before S6-01a/S6-01b merge, with updated API fixture, UI at both widths, fresh affected reviews and the unchanged S6-01b owner walkthrough gate. Full ruling: `.agent/architect-S6-01-reopen-answers.md`.
+
+diff --git a/.agent/architect-S6-01-reopen-answers.md b/.agent/architect-S6-01-reopen-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dce3d5dd4565ca7c8cc6d7357bab82583b3bd8e2
+--- /dev/null
++++ b/.agent/architect-S6-01-reopen-answers.md
+@@ -0,0 +1,9 @@
++# Architect ruling - newer Finding revision after an Action
++
++Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.
++
++Choose (c): show the earlier Action and hold a repeat trial while it is unresolved. A newer `FindingRevision` is a new assessment basis, not evidence that the earlier policy trial worked or that another five-point reserve reduction is appropriate. For a selected revision, the Site-scoped recommendation read must return the prior Actions for the same canonical Finding, with each Action's origin revision, application state, outcome state and exact Action link. A known prior Action is never hidden by `FOUNDATION_BASIS_STALE`, a later Finding revision or a failed live recomputation. Keep the selected revision and any accepted snapshot separately labelled; never relabel an earlier Action as originating on the newer revision.
++
++For `reserve-trial-1` on the same Finding, battery asset and reserve field, an earlier Action whose application is pending (including failed attempts awaiting retry) or applied with verification pending blocks a *new* acceptance. Return typed `PRIOR_ACTION_UNRESOLVED` with the blocking Action ID, origin revision and link; show the current-basis result, including `FOUNDATION_BASIS_STALE`, as a separate live reason where relevant. Do not offer an Accept capability for the new key. Recheck the guard atomically at acceptance, so simultaneous accepts on different Finding revisions cannot create two unresolved trials. Identical retries of the existing accepted key still return its Action. A completed verification outcome alone must not be treated as permission for another trial until S6-02 defines an explicit resolved/closed transition and its eligibility rule. This does not prohibit several Actions over a Finding's lifetime or Actions for a different intervention; it limits this one reserve-trial command.
++
++Apply this before either S6-01a or S6-01b merges. S6-01a owns the scoped prior-Action read, typed state, accept guard, race proof and updated committed API fixture for both recorded-clock AVAILABLE and served-clock stale cases. S6-01b owns the visible notice/link and disabled control at 1440 and 390, with a repeat owner walkthrough. Reopen the affected independent reviews; S6-01b's required owner visual acceptance remains a separate merge gate. No owner acceptance is inferred here.
+
+2026-10-15T16:49:04.924901Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\.ai\DECISIONS.md:
+Decision: `D-2026-10-15-s601-reopen`.
+diff --git a/.agent/architect-S6-01-reopen-answers.md b/.agent/architect-S6-01-reopen-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dce3d5dd4565ca7c8cc6d7357bab82583b3bd8e2
+--- /dev/null
++++ b/.agent/architect-S6-01-reopen-answers.md
+@@ -0,0 +1,9 @@
++# Architect ruling - newer Finding revision after an Action
++
++Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.
++
++Choose (c): show the earlier Action and hold a repeat trial while it is unresolved. A newer `FindingRevision` is a new assessment basis, not evidence that the earlier policy trial worked or that another five-point reserve reduction is appropriate. For a selected revision, the Site-scoped recommendation read must return the prior Actions for the same canonical Finding, with each Action's origin revision, application state, outcome state and exact Action link. A known prior Action is never hidden by `FOUNDATION_BASIS_STALE`, a later Finding revision or a failed live recomputation. Keep the selected revision and any accepted snapshot separately labelled; never relabel an earlier Action as originating on the newer revision.
++
++For `reserve-trial-1` on the same Finding, battery asset and reserve field, an earlier Action whose application is pending (including failed attempts awaiting retry) or applied with verification pending blocks a *new* acceptance. Return typed `PRIOR_ACTION_UNRESOLVED` with the blocking Action ID, origin revision and link; show the current-basis result, including `FOUNDATION_BASIS_STALE`, as a separate live reason where relevant. Do not offer an Accept capability for the new key. Recheck the guard atomically at acceptance, so simultaneous accepts on different Finding revisions cannot create two unresolved trials. Identical retries of the existing accepted key still return its Action. A completed verification outcome alone must not be treated as permission for another trial until S6-02 defines an explicit resolved/closed transition and its eligibility rule. This does not prohibit several Actions over a Finding's lifetime or Actions for a different intervention; it limits this one reserve-trial command.
++
++Apply this before either S6-01a or S6-01b merges. S6-01a owns the scoped prior-Action read, typed state, accept guard, race proof and updated committed API fixture for both recorded-clock AVAILABLE and served-clock stale cases. S6-01b owns the visible notice/link and disabled control at 1440 and 390, with a repeat owner walkthrough. Reopen the affected independent reviews; S6-01b's required owner visual acceptance remains a separate merge gate. No owner acceptance is inferred here.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p = (Resolve-Path .ai/DECISIONS.md).Path; $s = [System.IO.File]::ReadAllText($p); $s = $s.Replace("`nDecision: ``D-2026-10-15-s601-reopen``", "`n`nDecision: ``D-2026-10-15-s601-reopen``"); [System.IO.File]::WriteAllText($p, $s, [System.Text.UTF8Encoding]::new($false)); git add -N -f .agent/architect-S6-01-reopen-answers.md; git diff --check; git status --short' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 276ms:
+fatal: Unable to create 'C:/Users/assef/Bineyame/AssetOPsV1/.git/worktrees/AssetOpsV1-gap-planning/index.lock': Permission denied
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+ M .ai/DECISIONS.md
+
+diff --git a/.agent/architect-S6-01-reopen-answers.md b/.agent/architect-S6-01-reopen-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dce3d5dd4565ca7c8cc6d7357bab82583b3bd8e2
+--- /dev/null
++++ b/.agent/architect-S6-01-reopen-answers.md
+@@ -0,0 +1,9 @@
++# Architect ruling - newer Finding revision after an Action
++
++Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.
++
++Choose (c): show the earlier Action and hold a repeat trial while it is unresolved. A newer `FindingRevision` is a new assessment basis, not evidence that the earlier policy trial worked or that another five-point reserve reduction is appropriate. For a selected revision, the Site-scoped recommendation read must return the prior Actions for the same canonical Finding, with each Action's origin revision, application state, outcome state and exact Action link. A known prior Action is never hidden by `FOUNDATION_BASIS_STALE`, a later Finding revision or a failed live recomputation. Keep the selected revision and any accepted snapshot separately labelled; never relabel an earlier Action as originating on the newer revision.
++
++For `reserve-trial-1` on the same Finding, battery asset and reserve field, an earlier Action whose application is pending (including failed attempts awaiting retry) or applied with verification pending blocks a *new* acceptance. Return typed `PRIOR_ACTION_UNRESOLVED` with the blocking Action ID, origin revision and link; show the current-basis result, including `FOUNDATION_BASIS_STALE`, as a separate live reason where relevant. Do not offer an Accept capability for the new key. Recheck the guard atomically at acceptance, so simultaneous accepts on different Finding revisions cannot create two unresolved trials. Identical retries of the existing accepted key still return its Action. A completed verification outcome alone must not be treated as permission for another trial until S6-02 defines an explicit resolved/closed transition and its eligibility rule. This does not prohibit several Actions over a Finding's lifetime or Actions for a different intervention; it limits this one reserve-trial command.
++
++Apply this before either S6-01a or S6-01b merges. S6-01a owns the scoped prior-Action read, typed state, accept guard, race proof and updated committed API fixture for both recorded-clock AVAILABLE and served-clock stale cases. S6-01b owns the visible notice/link and disabled control at 1440 and 390, with a repeat owner walkthrough. Reopen the affected independent reviews; S6-01b's required owner visual acceptance remains a separate merge gate. No owner acceptance is inferred here.
+
+codex
+I recorded the S6-01 ruling in [architect-S6-01-reopen-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.agent/architect-S6-01-reopen-answers.md) and [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.ai/DECISIONS.md).
+
+The newer Finding revision must link to earlier Actions. A new reserve trial is blocked while an earlier trial for that Finding remains unresolved. **Both S6-01a and S6-01b need this change before merge**, with updated reviews; S6-01b still needs the owner walkthrough.
+
+`git diff --check` passed. The `.agent/` file exists, but that directory is ignored and Git index access was denied, so I could not mark the file for inclusion in a commit.
+diff --git a/.agent/architect-S6-01-reopen-answers.md b/.agent/architect-S6-01-reopen-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..dce3d5dd4565ca7c8cc6d7357bab82583b3bd8e2
+--- /dev/null
++++ b/.agent/architect-S6-01-reopen-answers.md
+@@ -0,0 +1,9 @@
++# Architect ruling - newer Finding revision after an Action
++
++Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.
++
++Choose (c): show the earlier Action and hold a repeat trial while it is unresolved. A newer `FindingRevision` is a new assessment basis, not evidence that the earlier policy trial worked or that another five-point reserve reduction is appropriate. For a selected revision, the Site-scoped recommendation read must return the prior Actions for the same canonical Finding, with each Action's origin revision, application state, outcome state and exact Action link. A known prior Action is never hidden by `FOUNDATION_BASIS_STALE`, a later Finding revision or a failed live recomputation. Keep the selected revision and any accepted snapshot separately labelled; never relabel an earlier Action as originating on the newer revision.
++
++For `reserve-trial-1` on the same Finding, battery asset and reserve field, an earlier Action whose application is pending (including failed attempts awaiting retry) or applied with verification pending blocks a *new* acceptance. Return typed `PRIOR_ACTION_UNRESOLVED` with the blocking Action ID, origin revision and link; show the current-basis result, including `FOUNDATION_BASIS_STALE`, as a separate live reason where relevant. Do not offer an Accept capability for the new key. Recheck the guard atomically at acceptance, so simultaneous accepts on different Finding revisions cannot create two unresolved trials. Identical retries of the existing accepted key still return its Action. A completed verification outcome alone must not be treated as permission for another trial until S6-02 defines an explicit resolved/closed transition and its eligibility rule. This does not prohibit several Actions over a Finding's lifetime or Actions for a different intervention; it limits this one reserve-trial command.
++
++Apply this before either S6-01a or S6-01b merges. S6-01a owns the scoped prior-Action read, typed state, accept guard, race proof and updated committed API fixture for both recorded-clock AVAILABLE and served-clock stale cases. S6-01b owns the visible notice/link and disabled control at 1440 and 390, with a repeat owner walkthrough. Reopen the affected independent reviews; S6-01b's required owner visual acceptance remains a separate merge gate. No owner acceptance is inferred here.
+
+tokens used
+45,782
+I recorded the S6-01 ruling in [architect-S6-01-reopen-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.agent/architect-S6-01-reopen-answers.md) and [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.ai/DECISIONS.md).
+
+The newer Finding revision must link to earlier Actions. A new reserve trial is blocked while an earlier trial for that Finding remains unresolved. **Both S6-01a and S6-01b need this change before merge**, with updated reviews; S6-01b still needs the owner walkthrough.
+
+`git diff --check` passed. The `.agent/` file exists, but that directory is ignored and Git index access was denied, so I could not mark the file for inclusion in a commit.
