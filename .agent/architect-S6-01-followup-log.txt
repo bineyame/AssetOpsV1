@@ -1,0 +1,1087 @@
+Reading additional input from stdin...
+OpenAI Codex v0.156.1
+--------
+workdir: C:\Users\assef\Bineyame\AssetOpsV1-plan2
+model: gpt-6-sol
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a13ef3-3be9-7013-b4c0-82d9035b2fd4
+--------
+user
+You are the AssetOps Architect. Read and follow .agent/architect-S6-01-followup-request.md in this worktree exactly.
+codex
+I’ll read the project guidance and the S6-01 follow-up request, then carry out the architect work it specifies.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .agent/architect-S6-01-followup-request.md' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/START_HERE.md' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/ACTIVE_CONTEXT.md' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git status --short --branch' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 334ms:
+# Start Here
+
+AssetOps turns mini-grid evidence into bounded operational and economic conclusions and verifies interventions. Current implementation documents: [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md).
+
+The [Architect S1-01 decision](DECISIONS.md) and [contract addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) resolve S1-01; no owner sign-off on the three Site-first documents or S1-01 is recorded here. Their proposal headers remain provenance.
+
+The [v6.9 mock screens](../frontend/mockups/v69/index.html) and their `screen-manifest.json` are the interaction/content references for each named surface. They do not authorize invented data or unfinished tabs; the active task and current architecture determine what becomes real.
+
+Current milestone: S1 Foundation.
+
+Planning status: S1-01 is ready for implementation; S2-S7 are outlined for refinement after predecessor review.
+
+## Current route
+
+1. Read `AGENTS.md` and this file.
+2. Read `.ai/ACTIVE_CONTEXT.md` and the active task it names.
+3. Use `tasks/README.md` for the only executable S1â€“S7 queue. S1-01 is next; S2â€“S7 packets are outlines until refined after predecessor review.
+4. Read `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md` and `.ai/DECISIONS.md` only when their semantics, boundaries or prior choices matter. Read `.ai/ROLE_CONFIG.md` for role binding and `.ai/WORKFLOW.md` for task/review rules.
+
+The open T0xx queue is [archived as superseded](../tasks/archive/pre-site-first-2026-10-07/README.md). Completed task packets and `.ai/CODE_STATE.md` remain built-state history. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and the old scoped handoffs are historical planning references, not current sequencing authority. Do not activate a T0xx packet because its title resembles a new slice.
+
+Use one task branch per slice, never `main`. The planned lane is Architect/Planner â†’ Implementer â†’ independent Reviewer â†’ owner review where required. Each task must show a persisted Site or Lab state and protect the simulator/private truth boundary. Do not load all history by default.
+
+ succeeded in 350ms:
+# Architect follow-up - S6-01 plan review M1 and M3 (delegated, owner absent)
+
+You are the AssetOps Architect (Codex). Read `.agent/S6-01-plan-review.md` findings M1 and M3 (and M2 for context), your rulings `.agent/architect-S6-01-answers.md`, `D-2026-10-15-s601-action-store-and-ui`, and how S4-02d's eighth writer was ratified (`D-2026-10-14-s402d-schedule-storage-and-install-gate` in `.ai/DECISIONS.md`; guard `tools/checks/configuration-persistence.ps1:590-700`).
+
+Rule:
+1. M1: ratify (or not) a ninth PostgreSQL writer - a new Action adapter as the sole writer of `action`, `action_event`, `action_policy_change` (and the M2 accepted-recommendation snapshot if you agree with M2) - and define the transaction seam with `publish_configuration` (`backend/assetops_backend/.../postgres_foundation_store.py:607-656`, which opens its own transaction and takes the Site lock) so the Action lock is taken before the Site lock and APPLIED commits in the same transaction. State the rule-8 guard additions required.
+2. M3: either name one bounded event kind with an explicit earlier `occurred_at` (and its bounds/authority) or defer the backdated-occurred_at fixture case explicitly.
+3. M2: confirm the fix direction (Foundation basis in the recommendation key, immutable accepted-recommendation snapshot, `GET recommendation` after an Action exists) or amend.
+
+Append "## Follow-up (plan review M1-M3)" to `.agent/architect-S6-01-answers.md` and amend `D-2026-10-15-s601-action-store-and-ui` in `.ai/DECISIONS.md` in place (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.
+
+ succeeded in 371ms:
+# Active Context
+
+Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in `.ai/DECISIONS.md`.
+
+## Current milestone and task
+
+**S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
+
+S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
+
+S2-01a (registered Lab basis) and S2-01b (durable simulated gateway) are reviewed and merged to main at `7c10283`; their carries are in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+
+S2-01c is merged at `b4006d1`. [S2-02 authenticated ingestion and Site Evidence](../tasks/S2-02-ingestion-site-evidence.md) is built on `task/S2-02-ingestion-site-evidence` in phases 1-3 and is `in_review` (USER_REVIEW_REQUIRED: S2 Evidence owner checkpoint): Postgres evidence ledger and Receipt V2, owner-only gateway credential and direct-TLS upload, central diagnostics freshness, fingerprinted KOBO-001 empty-set cutover, Site Evidence/Analysis and Lab Commit UI, and a repeatable walkthrough (`tools/s2_demo_walkthrough.py`). Packet `.agent/S2-02-review-packet.md`, owner walkthrough `.agent/S2-02-owner-walkthrough.md`, built state in `.ai/CODE_STATE.md` "S2-02"; fix round 1 (review F1, Architect batch 4 Q28/Q26/Q32/count) built, see packet "Fix round 1"; open Architect questions `.agent/S2-02-questions-7.md`.
+
+Pre-S3 startup: [PRE-S3-03](../tasks/PRE-S3-03-delivery-checker-report.md) (delivery checker, `next-work` report, `tools/check-all.ps1`) is `in_review` on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, built state in `.ai/CODE_STATE.md` "PRE-S3-03". The live report currently refuses to rank (37 approved core panels lack reviewed paths). Reviewer: read the task, that packet and `.agent/PRE-S3-03-questions.md`, then run `tools/check-all.ps1` and the `--next-work` command.
+
+S3-01 ([typed dispatch assessment](../tasks/S3-01-dispatch-assessment.md)) is `in_review` on `task/S3-01-dispatch-assessment` (USER_REVIEW_REQUIRED: owner checkpoint). Phases 1, 2 and 3a (with `dispatch-3.1` and fix R1) are reviewed and accepted; phase 3b (Performance > Dispatch and Analysis UI, cutover summary, walkthrough, V-01 evidence 32/32) is built and awaits a fresh Claude review. Packet `.agent/S3-01-review-packet.md`, built state in `.ai/CODE_STATE.md` "S3-01 phase 3b", questions `.agent/S3-01-questions-5.md` (Q17-Q22), owner steps `.agent/S3-01-owner-walkthrough.md`.
+
+S4-01 ([candidate generator-support Finding](../tasks/S4-01-finding-identity.md)) is `in_review` on `task/S4-01-finding-identity` (USER_REVIEW_REQUIRED: owner checkpoint). Phases 1 and 2 are reviewed and closed; phase 3 (`I-finding-ui`: Site Finding detail at `/sites/{site}/findings/{id}`, Dispatch day Finding links, walkthrough and app-vs-mock evidence 36/36) is built and awaits a fresh Claude review. Packet `.agent/S4-01-review-packet.md` (all phases), built state in `.ai/CODE_STATE.md` "S4-01 phase 3", questions `.agent/S4-01-questions-5.md` (Q25-Q30), owner steps `.agent/S4-01-owner-walkthrough.md`.
+
+The only executable queue is [tasks/README.md](../tasks/README.md). The current [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md) own the current direction. The [open T0xx archive](../tasks/archive/pre-site-first-2026-10-07/README.md) is superseded historical reference. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and old scoped handoffs do not route current work.
+
+The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-01 addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) control the first slice. Their decision status is distinct from owner acceptance; no owner sign-off on the three Site-first documents or S1-01 is recorded here.
+
+## Built state to carry forward
+
+The completed T001â€“T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
+
+## Next read
+
+Reviewer (S4-02c phase 3 and slice): read the task (phase 3 row, carries C5, risks), `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-phase-2-review.md` "Carries for phase 3" and `.agent/S4-02c-phase-3-handoff.md`, then `git diff 6d4a1995..HEAD` (slice: `git diff f9d6d1a5..HEAD`). Rerun `tools/s402c_late_power_walkthrough.py run --db assetops_s402c3walk_<x> --work <dir named s402c3*>` then `drop`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
+
+Reviewer (S4-02b phase 2b and whole slice): read the task, `.agent/S4-02b-review-packet.md`, `.agent/S4-02b-phase-2b-handoff.md` and `.agent/S4-02b-phase-2a-review.md` carries, then `git diff 3793e4d..HEAD`. Use private DBs via `tools/s402b_fuel_cost_walkthrough.py --work-name <new> prepare` and `tools/s402b-fuel-cost-evidence.mjs`; the owner keeps 8872/8873/5372/5373 and `assetops_s402bwalk`/`assetops_s402bempty`.
+
+Reviewer (S4-02a phase 2 and closeout): read the task, `.agent/S4-02a-review-packet.md` and `.agent/S4-02a-phase-2-handoff.md`, then `git diff 5159b96..HEAD`. Walk it with `tools/s402a_assumptions_walkthrough.py --db assetops_s402a_<x> --empty-db assetops_s402a_<y> --work-name <new> prepare|links|serve|drop` and `node tools/s402a-assumptions-evidence.mjs <base> <empty-base> <finding-id> <out>`; the owner keeps 8870/8871/5370/5371.
+
+Reviewer (S4-03 phase 3 and closeout): read the task's phase 3 row, `.agent/S4-03-review-packet.md`, `.agent/S4-03-handoff.md` "Phase 3", `.agent/architect-S4-03-answers.md` (Q3) and `.agent/S4-03-questions-2.md`, then `git diff 26b5e7a..HEAD`. Walk it on a private copy with `tools/s4_finding_walkthrough.py --db <private> --work <new folder> prepare|serve` and `node tools/s4-finding-evidence.mjs` (`ASSETOPS_S4_WALK_WORK`, `ASSETOPS_CDP_PORT`, suites all/history/closed) on ports 8898/5398; the owner keeps 8866/8867/5366/5367.
+
+Reviewer (S4-01 phase 3 and closeout): read the task's phase 3 row and "Detail read and visible states", `.agent/S4-01-review-packet.md` and `.agent/S4-01-questions-5.md`, then `git diff 0f4808b..HEAD`; walk it with `tools/s4_finding_cases.py run`, `tools/s4_finding_walkthrough.py prepare|links|serve` (DB `assetops_s4walk`, API 8840, web 5340) and `node tools/s4-finding-evidence.mjs http://localhost:5340`.
+
+Reviewer (S3-01 phase 3b): read the task's phase 3 row and "Read states and acceptance", `.agent/S3-01-review-packet.md`, `.agent/S3-01-phase-3b-handoff.md` and `.agent/S3-01-questions-5.md`, then `git diff cdc24f7..HEAD`; walk it with `tools/s3_dispatch_walkthrough.py` (isolated DBs `assetops_s3cases`, `assetops_s3walk`; API port 8820).
+
+Reviewer (S2-02): read the task, `.agent/S2-02-review-packet.md`, `.agent/S2-02-owner-walkthrough.md` and the S2-02 decisions named in the task, then `git diff main...HEAD`. Postgres setup is in `backend/README-db.md`; the live path runs with `tools/s2_demo_walkthrough.py run` (isolated database `assetops_s2demo`). Run the workflow and architecture guards and checks applicable to changed behavior.
+
+ succeeded in 220ms:
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+## plan/S6-01-refine
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .agent/architect-S6-01-answers.md' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .agent/S6-01-plan-review.md' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n 'D-2026-10-15-s601-action-store-and-ui|D-2026-10-14-s402d-schedule-storage-and-install-gate' .ai/DECISIONS.md" in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 0ms:
+# Architect rulings - S6-01a/S6-01b
+
+Decision: `D-2026-10-15-s601-action-store-and-ui`. Authority: `.agent/architect-S6-01-request.md`, the owner's 2026-10-15 delegation, `D-2026-10-14-action-lifecycle-and-policy-application`, and `.agent/A-action-lifecycle-review.md`. These rulings refine the packets; they do not claim a measured effect or waive the S6-01b owner checkpoint.
+
+1. **Q1 - amend.** Use versioned server rule `reserve-trial-1`, a policy-sensitivity trial only. It is eligible only for a reviewed, `SUPPORTED`, current `GENERATOR_SUPPORT_CANDIDATE` FindingRevision whose pinned assessment has at least one cited Candidate segment with a usable numeric battery-SOC reading in that segment's accepted analytic input, strictly above the pinned effective reserve plus the dispatch model's 10-point headroom, and whose cited Foundation has one unambiguous battery reserve in percent. Require the same battery asset and a current Site Foundation reserve equal to that pinned reserve; otherwise return a typed unavailable reason (including stale basis). For an eligible reserve `r` in [15, 90], propose exactly `r - 5` percentage points, which remains in [10, 85]. Values outside that band, missing or conflicting numeric inputs, non-current/unsupported revisions, and an unchanged result are unavailable. Pin input IDs, rule version, old/proposed values and the limitation. This is an experimental control change, not a diagnosis that reserve caused the Finding or a prediction of lower generator runtime, savings or safety. Never use the mock's generator-stop narrative as a reserve rule. **Packet change:** S6-01a must spell out this rule, typed unavailable reasons, exact numeric source and boundary tests; its stored fixture must contain a genuinely eligible pinned Candidate and an ineligible/missing case. S6-01b must display the trial limitation and unavailability reason.
+
+2. **Q2 - accept with transaction detail.** Extend only the existing Site-locked S1 publish callback. Acquire the Action lock before the Site lock, compare the expected current covering Foundation ID under that Site lock, and persist Foundation/SPLIT/binding rows, change artifact and APPLIED event in one transaction. Return the prior artifact for an identical applied retry before the no-change check. A failed transaction cannot leave APPLIED or an effective artifact. After rollback, append a separate same-Site FAILED attempt with the expected/current IDs for a stale authorized command. **Packet change:** S6-01a must state the callback result carries every written/superseded ID and test rollback and concurrent apply with this lock order.
+
+3. **Q3 - accept.** Unknown or wrong-Site Action, Finding, revision or change IDs return 404 without an event. Missing authentication returns 401; denied command authority returns 403 without an Action attempt. Append FAILED only after an authorized same-Site Action application reaches domain validation or publish and fails; it never asserts an effective change. **Packet change:** S6-01a must distinguish these cases in its command table and fixture/API tests; remove wrong-Site from the list of persisted FAILED cases.
+
+4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+
+5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
+
+ succeeded in 0ms:
+# S6-01a / S6-01b plan review
+
+Reviewer: fresh Claude reviewer. I did not write the packets, the brief, the work order or the Architect ruling.
+Reviewed: `tasks/S6-01a-action-store-read.md`, `tasks/S6-01b-action-ui.md`, `tasks/S6-01-action-change.md` (umbrella), the `tasks/README.md` row and registry `task` fields on `plan/S6-01-refine` at `7e0c5c43` (base `main` = `ad2a96d0`). The code-reality checks were against `main`.
+Checked against: `D-2026-10-14-action-lifecycle-and-policy-application`, `.agent/A-action-lifecycle-review.md` (L1, L2, I1, P1-P10), `.agent/architect-autonomy-2026-10-15-answers.md` item 3, `.agent/planner-S6-01-brief.md`, `backend/TESTING.md`, `tools/checks/configuration-persistence.ps1` rule 8, and the shipped S1 publish path.
+Architect ruling: when I finished, `.agent/architect-S6-01-answers.md` and `D-2026-10-15-s601-action-store-and-ui` were in the working tree but not committed. It amends Q1 to `reserve-trial-1`, accepts Q2-Q5 with detail, and requires packet changes in both packets. I read it and I do not repeat what it already orders.
+
+## Verdict: RETURN
+
+There are three Medium findings and no High. All three are packet-level fixes that fit in the Planner fold-in round the Architect ruling already requires. The rest of the plan is sound. It splits into a non-UI slice (a) and a held UI slice (b) on main, with no LR-01 or S5-01 dependency. It uses L1 model (a), with Action created on acceptance. It defines the acceptance and event idempotency keys, a tenant-scoped `action_code`, an expected-revision check under the Site lock with a typed 409 and a FAILED event, APPLIED in the publish transaction, no Action backdating (effective time at or after recorded time and after ACCEPTED), and the identical-retry-before-`FOUNDATION_NO_CHANGE` rule. It pins the origin revision and shows the latest beside it, uses the `site_code` routes, says no mock money is a saving, and labels SYSTEM demonstration commands. Each packet has two phases, its last phase review is the slice review, and each runs one full suite.
+
+## Findings
+
+### M1 (Medium, acceptance/architecture gap). The packet never says which module may write the Action tables in the publish transaction, or how rule 8 changes.
+
+- **Where:** S6-01a "New storage and publish" (lines 29-31) and Q2 (line 55). Rule 8 is in `tools/checks/configuration-persistence.ps1:590-700`. It allows eight named PostgreSQL writers (`$pgWriters`), confines each to its own tables, and refuses any SQL write in any other module ("A second product database writer..."). `publish_configuration` (`backend/assetops_backend/sites/adapters/postgres_foundation_store.py:607-656`) opens its own transaction inside `work(connection)`, and its first statement is the Site `FOR UPDATE`.
+- **What is wrong:** S6-01a needs `action`, `action_event` and `action_policy_change` rows, plus written-ID children. They are written on accept, without a publish, and atomically with the Foundation, SPLIT and binding writes on apply. The Architect's Q2 ruling also requires the Action lock to come before the Site lock inside the same transaction. The packet does not name the writer module. It also does not choose between two designs: (a) the Foundation adapter writes the Action tables, or (b) a new Action adapter shares the Foundation adapter's connection. Either way it must say how the transaction is opened so the Action lock comes before the existing in-`work` Site lock, and how rule 8 is extended. Today the guard does not know the new tables. Design (a) passes silently and widens the Foundation writer. Design (b) fails the guard until a ninth writer is added. The precedent for adding a writer is S4-02d's eighth writer, which `D-2026-10-14-s402d-schedule-storage-and-install-gate` ratified explicitly.
+- **Why it matters:** this is the central seam of the slice (P3/P4). If an implementer has to invent the writer boundary, they either loosen an existing guard without review or have to restructure the S1 transaction mid-build. Both are architecture changes, and the slice-level review would catch them only after the build.
+- **Fix:** name the Action adapter (for example `backend/assetops_backend/actions/adapters/postgres_action_store.py`, **new**) as the sole writer of the new tables. Choose and state the connection/transaction seam: either the S1 adapter accepts a caller-owned transaction, or a narrow hook receives the connection after the Action lock. List the rule-8 additions: the writer path, insert-only tables, no UPDATE/DELETE, and "no other module writes an Action table". Add a guard proof that the Foundation adapter writes no Action table. If this creates a ninth writer, record it as an Architect ratification item (it can go into the same S6-01 decision).
+
+### M2 (Medium, correctness). The recommendation identity and accepted snapshot are not persisted, so Recommendation reload after acceptance or apply is undefined.
+
+- **Where:** S6-01a line 15 (recommendation key `(tenant_id,site_id,finding_revision_id,rule_id,rule_version,asset_id)`) and line 29 (`action` columns). The fixture list also says "Persist proposed/unavailable". S6-01b line 17 (Recommendation shows the proposed reserve value, basis and limitation) and its reload states.
+- **What is wrong:** the recommendation is computed live. Under the Architect's `reserve-trial-1`, it is eligible only while the current Site Foundation reserve equals the pinned reserve. After a successful apply, GET recommendation for the same FindingRevision therefore turns into "unavailable: stale basis". The packet has no recommendation table, and its `action` column list has no proposed or old value, unit, pinned Foundation revision ID or rule input IDs/digest. The key also leaves out the pinned Foundation basis, so two proposals over different Foundation revisions share one key. The Architect asks to "pin input IDs, rule version, old/proposed values and the limitation", but the packet names no column or row for them, and nothing defines what `GET .../recommendation` returns once an Action exists.
+- **Why it matters:** `recommendation:1#a` and the "accepted pending / applied pending / reload" states in S6-01b would either show a different (unavailable) recommendation from the one accepted, or force the implementer to reconstruct it. That breaks P6-style origin pinning for the recommendation itself, and it leaves "Persist proposed" in the fixture without a store.
+- **Fix:** add the pinned Foundation revision ID (or basis digest) to the recommendation key. On acceptance, persist an immutable accepted-recommendation snapshot: rule id/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset, field, unit, old and proposed value, and limitation text or code. Store it on `action` or in a new child row. Define the read: once an Action exists for the key, GET recommendation returns that snapshot with the Action link, plus the live recomputation status beside it. Replace "Persist proposed/unavailable" with "served from persisted inputs" unless a recommendation table is added.
+
+### M3 (Medium, acceptance gap). P9's backdated `occurred_at` case cannot be produced with the packet's commands.
+
+- **Where:** S6-01a line 25 ("`occurred_at` may be backdated for non-application activity ... Accept/apply use server time") and line 37 (the fixture needs a "backdated non-application `occurred_at`"). S6-01b line 17 (History "distinguishes backdated occurred time"). Carry P9 requires it.
+- **What is wrong:** the only event kinds are ACCEPTED, APPLIED and FAILED, and all of them use server time. No command or event kind can carry a backdated `occurred_at`, so the fixture, History state and P9 cannot be satisfied without an event kind nobody has approved.
+- **Fix:** name one bounded event kind and its command. An example is a SYSTEM demonstration `NOTE`/`OBSERVED` event with an explicit `occurred_at` earlier than `recorded_at`, which changes no reduced state. Give its precondition, refusal (for example a future `occurred_at` returns 422) and idempotency. Alternatively, record that the Architect defers the case and remove it from both packets and the P9 claim.
+
+### L1 (Low). The transition table leaves out apply on an already-APPLIED Action, and FAILED-then-retry keying.
+
+S6-01a lines 19-25. State the response to an apply with a new idempotency key on an APPLIED Action (suggested: typed 409, with no FAILED event because no publish was attempted, or say otherwise). State the reduced application state after FAILED (still ACCEPTED/pending). State that a fresh attempt needs a new idempotency key while the old key returns the FAILED event. The concurrent-apply proof covers only identical commands.
+
+### L2 (Low). Migration ordering with LR-01.
+
+`main` ends at `0013_schedule_state`, and the unmerged LR-01 adds `0014_source_clock_attestation` and `0015_finding_returning_basis`. A new S6-01a migration cut from main with `down_revision = "0013_schedule_state"` gives two heads once LR-01 merges first, which is the work-order order. State that the S6-01a migration re-chains onto main's head at rebase, and that the full suite and slice review run on the re-chained revision.
+
+### L3 (Low). The queue mapping differs from the S4-02a/b precedent.
+
+`parseQueue` maps only `S6-01` to the umbrella. S6-01a/b are found only through `parseGateQueue`. An active or in-review S6-01a still stops selection globally (`delivery_next_work.cjs:335-340`), but per-candidate `taskInfo` is missing. A decision that selects an S6-01a/b node therefore reports `user_review_required: null`, and for S6-01b the correct value is `true` (`:345`). S4-02a and S4-02b each have their own README row. Give S6-01a and S6-01b their own rows (umbrella row kept for closeout), or accept the null as recorded.
+
+### L4 (Low). Some citations need to be precise.
+
+- "S1 binding tests" (S6-01a line 42): the file is `backend/tests/test_s1_bindings_postgres.py`.
+- S6-01b's Changes route sits under Site Foundation. `frontend/src/sites/__tests__/foundationScreen.test.tsx:306,344` asserts that "Changes" is not a Foundation subtab and that `foundationViewFor("changes")` is null. `FoundationView` is `"model" | "sld" | "readiness"` (`frontend/src/sites/FoundationSubtabs.tsx:32`). Cite these, state whether `/foundation/changes/{change_id}` stays a non-subtab deep route, and say what bare `/foundation/changes` returns.
+
+### L5 (Low). Proof of the exact consumer.
+
+S6-01a says payloads are "consumed by S6-01b", but S6-01b does not exist when S6-01a merges. Make the consumer mechanical. Commit the walkthrough's API responses (Action, events with each selector, recommendation, change) as a contract fixture keyed by the `D-action-records` manifest IDs. Check its fields in the S6-01a tests, and have S6-01b's frontend tests load the same fixture. This turns "exact S6-01 consumer demonstrated" from a statement into a check.
+
+## Required fold-in, not repeated as findings
+
+The Architect ruling orders packet changes before implementation: the `reserve-trial-1` eligibility and numeric source with boundary tests, an eligible plus an ineligible fixture, the callback returning every written or superseded ID, the Action-then-Site lock and rollback tests, removing wrong-Site from the persisted FAILED cases (the packet currently lists it at line 37), the scoped SYSTEM capability field with absent and denied tests at 1440 and 390, and the selector 422 wire contract. The packets are not implementation-ready until these and M1-M3 are folded in.
+
+## Coverage of the carries
+
+- L1 / P1: covered (model (a), acceptance key, `action_code` sequence, event uniqueness).
+- P2: covered in principle; the rule itself is now settled by the Architect's Q1.
+- P3: covered.
+- P4: covered, but the writer seam is open (M1).
+- P5: covered.
+- P6: covered for the Finding origin; the recommendation origin is open (M2).
+- P7: covered.
+- P8: covered; the Changes route needs the L4 citations.
+- P9: the backdated case is missing (M3); the other cases are covered.
+- P10: covered (new real columns).
+- L2: covered (S6-02 defers to `A-S6-verification` with `VERIFIED`/`INEFFECTIVE`/`INCONCLUSIVE`).
+- I1: covered through P3-P5.
+
+## Code reality (checked on `main`)
+
+Verified:
+
+- `foundation_service.py`: `publish_battery_reserve` at :362, `_publish_content_change` at :415, with the planner covering check, SPLIT, `FOUNDATION_NO_CHANGE` 422 and `FOUNDATION_CLOCK_BEHIND` 409 through about :528.
+- `postgres_foundation_store.py`: Site `FOR UPDATE` at :612-616 (cited as 607-620).
+- `finding_api.py`: Finding route at :112-150.
+- `finding_read.py`: `FindingReadService` at :306.
+- `postgres_finding_store.py`: `revision_lineage` at :274.
+- Migration 0009: `finding_revision` at :64-105.
+- Technical design :55-56: `action` and `action_event` rows (proposed, not shipped).
+- `backend/TESTING.md` :7-31 rules.
+- Test files `test_s4_finding_read_postgres.py` and `test_s1_foundation_postgres.py`.
+- `App.tsx`: Finding routes at :274-290.
+- `SiteFinding.tsx`: the recommendation unavailable statement at :120.
+- `screen-manifest.json`: `recommendation` and `action-*` in the cited ranges, and `changes` at :161.
+
+Correctly marked **new**:
+
+- The Action tables, routes, store, fixture and loader.
+- The S6-01b components and the walkthrough tool.
+
+## Checks run
+
+- `node frontend/docs/architecture/check_v69_dependency_registry.cjs`: exit 0, "Registry valid: 224 nodes". The S6-01a and S6-01b `task` fields are set on 5 and 6 nodes.
+- `--next-work --json`: exit 0, `ranked`, `stop_owner` (LR-01 2.02 vs `I-action-store` 2.016). Not refused. The packet Status lines `implementation-ready ...` parse as `not_started`, and `USER_REVIEW_REQUIRED` parses false for a and true for b.
+- `tools/check-agent-workflow.ps1`: passed.
+- I did not run any test suite, `tools/check-all.ps1` or tsc. This is a plan with no code, there are no `node_modules`, and the dispatch said so.
+
+## Residual risk
+
+- `reserve-trial-1` needs a pinned Candidate with numeric SOC above reserve plus 10. The existing S4 demonstration cases may not contain one. If they do not, `D-action-records` needs authored accepted evidence, which must carry the demonstration label (`demonstration_label.py`) through the Action surfaces.
+- An applied reserve change has no Lab or simulator effect until S6-02. The S6-01b copy must not suggest the Site now behaves differently.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content tools/checks/configuration-persistence.ps1 | Select-Object -Skip 565 -First 155' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 147ms:
+4135:Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+4143:Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Apply is atomic with S1 Foundation publish and the APPLIED event, while authorized same-Site failures remain separate durable attempts. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+ succeeded in 293ms:
+                $cLoadSeen++
+            }
+            foreach ($pattern in $otherLoader) {
+                if ($line -notmatch $pattern) { continue }
+                $failures.Add(("A second YAML load policy in the run store, " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()). Run documents " +
+                    "are loaded only by yaml.load(text, Loader=CSafeLoader) in " +
+                    "$runDocuments, with no fallback " +
+                    "(D-2026-09-29-run-store-libyaml).")) | Out-Null
+                break
+            }
+        }
+    }
+
+    if (-not $cImportSeen) {
+        $failures.Add(("$runDocuments does not import CSafeLoader from yaml, so the " +
+            "run store's libyaml requirement is no longer enforced at import. " +
+            "Update the check, do not delete it.")) | Out-Null
+    }
+    if ($cLoadSeen -ne 1) {
+        $failures.Add(("The run adapters hold $cLoadSeen load call(s) of the form " +
+            "'= yaml.load(..., Loader=CSafeLoader)'; there must be exactly one, " +
+            "the shared load point in $runDocuments.")) | Out-Null
+    }
+
+    # 8. S1-01 Foundation-only cutover (D-2026-10-07).
+    #
+    #    a. The PostgreSQL adapter is the sole writer for imported product
+    #       Sites: SQL write statements and database drivers appear in that
+    #       one module only (migrations live outside the package).
+    #    b. The import report writer writes inside write_import_report only.
+    #    c. Routing scan: main.py serves the Sites index through the
+    #       tenant-scoped ProductSiteDirectory, and every legacy file-backed
+    #       surface (ingestion, Evidence, analytics, Lab) receives the
+    #       LegacySiteGate - the raw legacy repository reaches nothing else.
+    #    d. Imported-code write refusal: the gate refuses create_site for an
+    #       imported code, and each Lab write control calls the import check.
+    #
+    #    S2-02 adds exactly one more writer, the central evidence ledger
+    #    adapter. Each writer is confined to its own tables: the ledger writes
+    #    only the ledger tables (migration 0005), and the Foundation store
+    #    writes none of them. Every other module stays SQL- and driver-free.
+    #
+    #    S2-02 phase 2 adds a third, the gateway access store (migration 0006).
+    #    It inserts only credential, provisioning-audit and diagnostic rows, and
+    #    its only updates are the operator-mutable registration fields listed in
+    #    $accessUpdates (credential rotation/revocation and enablement). No other
+    #    writer touches its tables.
+    #
+    #    S3-01 phase 2 adds a fourth, the dispatch assessment store (migration
+    #    0007). It inserts only analytic runs, their evidence sets, assessment
+    #    revisions and run-to-revision links, plus scheduling rows in the S2
+    #    recompute_job table; its only updates are a job's lease/retry status
+    #    and the widening of a PENDING job's window. No other writer touches the
+    #    assessment tables.
+    $pgWriter = "$backendRoot/sites/adapters/postgres_foundation_store.py"
+    $ledgerWriter = "$backendRoot/evidence/adapters/postgres_evidence_ledger.py"
+    $accessWriter = "$backendRoot/evidence/adapters/postgres_gateway_access.py"
+    $ledgerTables = @('ingestion_batch', 'accepted_evidence', 'evidence_rejection',
+        'ingestion_disposition', 'batch_refusal', 'recompute_job')
+    $accessInserts = @('gateway_credential', 'gateway_access_event', 'gateway_diagnostic',
+        'gateway_diagnostic_refusal')
+    $accessUpdates = @(
+        '(?i)\bUPDATE\s+gateway_credential\s+SET\s+revoked_at\s*=\s*:[a-z_]+\s+WHERE\b',
+        '(?i)\bUPDATE\s+gateway\s+SET\s+(?:credential_ref|disabled_at|diagnostic_cadence_seconds)\s*=\s*:[a-z_]+\s+WHERE\b',
+        '(?i)\bUPDATE\s+source\s+SET\s+disabled_at\s*=\s*:[a-z_]+\s+WHERE\b')
+    $assessWriter = "$backendRoot/analytics/adapters/postgres_assessment_store.py"
+    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection')
+    $assessInserts = $assessTables + @('recompute_job')
+    $assessUpdates = @(
+        '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',
+        '(?i)\bUPDATE\s+recompute_job\s+SET\s+window_start\s*=\s*:start,\s*window_end\s*=\s*:end\s+WHERE\b')
+    $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
+    $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
+        'finding_merge', 'finding_match_pass')
+    # S4-02a adds the sixth writer, the financial assumption store: it inserts its two tables and its only
+    # UPDATE closes an assignment's set-once recorded_to. No other module writes either table.
+    $assumptionWriter = "$backendRoot/financials/adapters/postgres_assumption_store.py"
+    $assumptionTables = @('financial_assumption_revision', 'financial_assumption_assignment')
+    $assumptionUpdate = '(?i)\bUPDATE\s+financial_assumption_assignment\s+SET\s+recorded_to\s*=\s*:[a-z_]+\s+WHERE\b'
+    # S4-02b adds the seventh writer, the financial consequence store: INSERT-only into the consequence revision,
+    # its three link tables and work attempts. Dirty work rows are inserted only by migration triggers (0011:
+    # assumption publication and FindingRevision append; 0012, S4-02c: accepted generator-power disposition), so
+    # no module may write financial_consequence_work at all.
+    $consequenceWriter = "$backendRoot/financials/adapters/postgres_consequence_store.py"
+    $consequenceTables = @('financial_consequence_revision', 'financial_consequence_assessment_revision',
+        'financial_consequence_assumption_revision', 'financial_consequence_power_interval',
+        'financial_consequence_work_attempt')
+    # S4-02d adds the eighth writer, the schedule store (D-2026-10-14-s402d-schedule-storage-and-install-gate):
+    # the sole runtime writer of the four migration-0013 schedule tables, and it writes no other table. It may
+    # INSERT into those tables and UPDATE only the named mutable schedule-state columns below (environment tick
+    # claim/lease, start/success/failure, heartbeat, retry due and last counts; Site claim/lease, stage,
+    # selected/processed/deferred counts, last failure, retry due and the completed matcher fence/skip state; the
+    # fair cursor position; explicit enrolment state). Each of its UPDATEs keeps table, SET list and WHERE on one
+    # line so every assigned column is checked; upserts (DO UPDATE), DELETE, TRUNCATE and DDL are refused. No other
+    # module writes a schedule table. Migration 0013 owns the DDL; no trigger is ratified.
+    $scheduleWriter = "$backendRoot/scheduling/adapters/postgres_schedule_store.py"
+    $scheduleTables = @('schedule_tick_head', 'schedule_site_head', 'schedule_cursor', 'schedule_enrolment')
+    $scheduleClaim = @('claim_token', 'claim_owner', 'claimed_at', 'lease_until')
+    $scheduleUpdates = @{
+        'schedule_tick_head' = $scheduleClaim + @('last_started_at', 'last_succeeded_at', 'last_failed_at',
+            'last_failure_code', 'last_failure_detail', 'heartbeat_at', 'retry_due_at', 'consecutive_failures',
+            'claim_skips', 'last_skipped_at', 'last_sites_selected', 'last_sites_processed', 'last_sites_deferred',
+            'last_excluded_with_work', 'last_reconcile_ms')
+        'schedule_site_head' = $scheduleClaim + @('stage', 'stage_started_at', 'selected_count', 'last_selected_at',
+            'last_completed_at', 's3_processed', 's3_deferred', 'consequence_processed', 'consequence_deferred',
+            's4_outcome', 's4_outcome_at', 'matched_fence', 'matched_version', 'matched_at', 'fence_moved_streak',
+            'last_failure_stage', 'last_failure_code', 'last_failure_detail', 'last_failed_at',
+            'consecutive_failures', 'retry_due_at', 'claim_skips', 'last_skipped_at')
+        'schedule_cursor' = @('after_tenant_id', 'after_site_id', 'updated_at')
+        'schedule_enrolment' = @('enrolled', 'changed_by', 'changed_at')
+    }
+    $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
+        $consequenceWriter, $scheduleWriter)
+    $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
+    $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
+    $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
+    $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
+        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0 }
+    $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
+        $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false }
+    foreach ($module in $backendModules) {
+        if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
+        $isWriter = $pgWriters -contains $module.Path
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match $sqlWrite) {
+                if (-not $isWriter) {
+                    $failures.Add(("A second product database writer in $($module.Path):${lineNumber}: " +
+                        "$($line.Trim()). Product rows are written only by $($pgWriters -join ' and ').")) | Out-Null
+                    continue
+                }
+                $pgWritesSeen[$module.Path]++
+                $target = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
+                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or $ledgerTables -notcontains $target)) {
+                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $accessWriter) {
+                    $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
+                    $insertOk = $isInsert -and $accessInserts -contains $Matches[1].ToLowerInvariant()
+                    $updateOk = $false
+                    foreach ($allowed in $accessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+                    if (-not ($insertOk -or $updateOk)) {
+                        $failures.Add(("The gateway access store inserts only $($accessInserts -join ', ') and " +
+                            "updates only credential revocation and gateway/source enablement fields; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($module.Path -eq $assessWriter) {
+                    $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
+                    $insertOk = $isInsert -and $assessInserts -contains $Matches[1].ToLowerInvariant()
+                    $updateOk = $false
+                    foreach ($allowed in $assessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n 'def publish_configuration|publish_configuration\\(' backend/assetops_backend" in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 0ms:
+backend/assetops_backend\sites\binding_service.py:618:            plan = self._store.publish_configuration(tenant.id, site.id, planner)
+backend/assetops_backend\sites\foundation_service.py:524:            self._store.publish_configuration(tenant.id, site.id, joint)
+backend/assetops_backend\sites\foundation_records.py:276:    def publish_configuration(
+backend/assetops_backend\sites\adapters\postgres_foundation_store.py:607:    def publish_configuration(
+
+codex
+The review identified a real ownership gap: the current publish method takes the Site lock inside its own transaction. I’m checking the call path and guard before recording a transaction rule that keeps the Action and Foundation writes atomic.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content tools/checks/configuration-persistence.ps1 | Select-Object -Skip 700 -First 165' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content backend/assetops_backend/sites/adapters/postgres_foundation_store.py | Select-Object -Skip 590 -First 85' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/DECISIONS.md | Select-Object -Skip 4125 -First 25' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 0ms:
+                    "version": row.version,
+                    "gateway_id": b.gateway_id,
+                    "source_id": b.source_id,
+                    "device_id": b.device_id,
+                    "signal_id": b.signal_id,
+                    "asset_id": b.asset_id,
+                    "role": b.role,
+                    "source_unit": b.source_unit,
+                    "canonical_unit": b.canonical_unit,
+                    "conversion": json.dumps(b.conversion),
+                    "valid_from": row.valid_from,
+                    "valid_to": row.valid_to,
+                    "recorded_at": row.recorded_at,
+                },
+            )
+
+    def publish_configuration(
+        self, tenant_id: UUID, site_id: UUID, planner: ConfigurationPlanner
+    ) -> ConfigurationPlan:
+        """One joint Foundation-plus-binding publication under the Site lock."""
+
+        def work(connection: Connection) -> ConfigurationPlan:
+            locked = connection.execute(
+                text("SELECT id FROM site WHERE tenant_id = :tenant_id AND id = :site_id FOR UPDATE"),
+                {"tenant_id": tenant_id, "site_id": site_id},
+            ).first()
+            if locked is None:
+                raise FoundationSiteNotFound("No such Site in this tenant.")
+            plan = planner(
+                ConfigurationState(
+                    revisions=self._select_revisions(connection, tenant_id, site_id),
+                    binding_sets=self._select_binding_sets(connection, tenant_id, site_id),
+                )
+            )
+            scope = {"at": plan.superseded_at, "tenant_id": tenant_id, "site_id": site_id}
+            for revision_id in plan.supersede_revision_ids:
+                result = connection.execute(
+                    text(
+                        "UPDATE foundation_revision SET superseded_at = :at WHERE tenant_id = :tenant_id "
+                        "AND site_id = :site_id AND id = :id AND superseded_at IS NULL"
+                    ),
+                    {**scope, "id": revision_id},
+                )
+                if result.rowcount != 1:
+                    raise FoundationOverlap(
+                        "A revision this change supersedes is no longer current; nothing was written."
+                    )
+            for revision in plan.revision_inserts:
+                self._insert_revision(connection, tenant_id, site_id, revision)
+            for set_id in plan.supersede_binding_set_ids:
+                result = connection.execute(
+                    text(
+                        "UPDATE signal_binding_set_revision SET superseded_at = :at WHERE "
+                        "tenant_id = :tenant_id AND site_id = :site_id AND id = :id AND superseded_at IS NULL"
+                    ),
+                    {**scope, "id": set_id},
+                )
+                if result.rowcount != 1:
+                    raise BindingOverlap(
+                        "A binding set revision this change supersedes is no longer current; "
+                        "nothing was written."
+                    )
+            for row in plan.binding_set_inserts:
+                self._insert_binding_set(connection, tenant_id, site_id, row)
+            return plan
+
+        return self._run(work, write=True)
+
+ succeeded in 0ms:
+                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or $ledgerTables -notcontains $target)) {
+                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $accessWriter) {
+                    $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
+                    $insertOk = $isInsert -and $accessInserts -contains $Matches[1].ToLowerInvariant()
+                    $updateOk = $false
+                    foreach ($allowed in $accessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+                    if (-not ($insertOk -or $updateOk)) {
+                        $failures.Add(("The gateway access store inserts only $($accessInserts -join ', ') and " +
+                            "updates only credential revocation and gateway/source enablement fields; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($module.Path -eq $assessWriter) {
+                    $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
+                    $insertOk = $isInsert -and $assessInserts -contains $Matches[1].ToLowerInvariant()
+                    $updateOk = $false
+                    foreach ($allowed in $assessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+                    if (-not ($insertOk -or $updateOk)) {
+                        $failures.Add(("The assessment store inserts only $($assessInserts -join ', ') and updates " +
+                            "only a recompute job's lease/retry status or a PENDING job's window; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($module.Path -eq $findingWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $findingTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The Finding store only inserts into $($findingTables -join ', ') (append-only); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $assumptionWriter -and -not (
+                        ($line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $assumptionTables -contains $Matches[1].ToLowerInvariant()) -or
+                        $line -match $assumptionUpdate)) {
+                    $failures.Add(("The assumption store only inserts into $($assumptionTables -join ', ') and only " +
+                        "sets an assignment's recorded_to; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $consequenceWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $consequenceTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The consequence store only inserts into $($consequenceTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $consequenceWriter -and $null -ne $target -and $consequenceTables -contains $target) {
+                    $failures.Add(("Only $consequenceWriter writes consequence table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $scheduleWriter -and $null -ne $target -and $scheduleTables -contains $target) {
+                    $failures.Add(("Only $scheduleWriter writes schedule table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($target -eq 'financial_consequence_work') {
+                    $failures.Add(("Dirty consequence work is inserted only by the migration 0011/0012 triggers; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $assumptionWriter -and $null -ne $target -and $assumptionTables -contains $target) {
+                    $failures.Add(("Only $assumptionWriter writes assumption table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $findingWriter -and $null -ne $target -and $findingTables -contains $target) {
+                    $failures.Add(("Only $findingWriter writes Finding table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $assessWriter -and $null -ne $target -and $assessTables -contains $target) {
+                    $failures.Add(("Only $assessWriter writes assessment table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -ne $accessWriter -and $null -ne $target -and $accessInserts -contains $target) {
+                    $failures.Add(("Only $accessWriter writes gateway access table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $pgWriter -and $null -ne $target -and $ledgerTables -contains $target) {
+                    $failures.Add(("The Foundation store must not write ledger table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+            }
+            if ($module.Path -eq $scheduleWriter) {
+                # Case-insensitive (phase-1 review F1): lowercase SQL is an ordinary way to write a statement, so
+                # every keyword rule here uses (?i); prose is excluded because each rule needs SQL shape.
+                $where = "$($module.Path):${lineNumber}: $($line.Trim())"
+                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY)\b' -or
+                        $line -match '(?i)\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b') {
+                    $failures.Add("The schedule store never deletes, truncates, upserts or runs DDL; $where.") | Out-Null
+                }
+                if ($line -match '(?i)\binsert\s+into\b' -and -not (
+                        $line -match '(?i)\binsert\s+into\s+([a-z_]+)\s*\(' -and
+                        $scheduleTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The schedule store only inserts into $($scheduleTables -join ', '); $where.")) | Out-Null
+                }
+                if ($line -match '(?i)\bupdate\s+\S+.*\bset\b') {
+                    if ($line -match '(?i)\bUPDATE\s+([a-z_]+)\s+SET\s+(.+?)\s+WHERE\b') {
+                        $updTable = $Matches[1].ToLowerInvariant()
+                        $setList = $Matches[2]
+                        if (-not $scheduleUpdates.ContainsKey($updTable)) {
+                            $failures.Add("The schedule store updates only $($scheduleTables -join ', '); $where.") | Out-Null
+                        } elseif ($setList -match '[{}"%`]' -or $setList -match '^\s*\(' -or
+                                ($setList.Split('(').Count -ne $setList.Split(')').Count)) {
+                            # Braces/format, double quotes (concatenation or quoted identifiers), %-formatting, a
+                            # tuple target or unbalanced parentheses (a nested WHERE cut the list short).
+                            $failures.Add("A schedule UPDATE names its SET columns literally; $where.") | Out-Null
+                        } else {
+                            # Split on top-level commas; each item must be `identifier = expression`.
+                            $items = New-Object System.Collections.Generic.List[string]
+                            $depth = 0; $current = ''
+                            foreach ($ch in $setList.ToCharArray()) {
+                                if ($ch -eq '(') { $depth++ } elseif ($ch -eq ')') { $depth-- }
+                                if ($ch -eq ',' -and $depth -eq 0) { $items.Add($current); $current = '' }
+                                else { $current += $ch }
+                            }
+                            $items.Add($current)
+                            foreach ($item in $items) {
+                                if ($item -notmatch '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=(?![=>])\s*\S') {
+                                    $failures.Add("A schedule UPDATE names its SET columns literally; $where.") | Out-Null
+                                    continue
+                                }
+                                $column = $Matches[1]
+                                if ($scheduleUpdates[$updTable] -cnotcontains $column) {
+                                    $failures.Add(("The schedule store may not update $updTable.$column (not a " +
+                                        "named schedule-state column); $where.")) | Out-Null
+                                }
+                            }
+                        }
+                    } else {
+                        $failures.Add(("Every schedule UPDATE keeps its table, SET list and WHERE on one line so " +
+                            "the guard can check each column; $where.")) | Out-Null
+                    }
+                }
+            }
+            if ($line -match $dbDriver) {
+                if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
+                else {
+                    $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+            }
+        }
+    }
+    foreach ($writer in $pgWriters) {
+        if ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer]) {
+            $failures.Add(("The product database writer check found no SQL write or driver import in " +
+                "$writer, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+
+    $reportWriter = "$backendRoot/sites/adapters/import_files.py"
+    $reportModule = $backendModules | Where-Object { $_.Path -eq $reportWriter } | Select-Object -First 1
+    if ($null -eq $reportModule) {
+        $failures.Add("Rule 8 could not find $reportWriter; update the check, do not delete it.") | Out-Null
+    } else {
+        $currentFunction = $null
+        $lineNumber = 0
+        foreach ($line in $reportModule.Lines) {
+            $lineNumber++
+            if ($line -match '^def\s+([A-Za-z_]+)') { $currentFunction = $Matches[1] }
+            foreach ($pattern in $writeCall) {
+                if ($line -match $pattern -and $currentFunction -ne 'write_import_report') {
+                    $failures.Add(("$reportWriter writes outside write_import_report at line ${lineNumber}: " +
+                        "$($line.Trim()). It may write only the review report, never a Site document.")) | Out-Null
+                }
+            }
+        }
+    }
+
+    $mainPath = "$backendRoot/main.py"
+    $mainModule = $backendModules | Where-Object { $_.Path -eq $mainPath } | Select-Object -First 1
+    $routingRequired = [ordered]@{
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content tasks/S6-01a-action-store-read.md' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 291ms:
+
+Action state is derived from an append-only, server-ordered `ActionEvent` ledger. Record stable event ID, Action and Site, event type, `occurred_at`, server `recorded_at`, idempotency key, actor kind/ID, source channel, authorization basis and triggering command/job or content revision. Idempotent identical retries return the event; conflicting reuse and cross-Site references fail. Historical reads select a recorded cutoff and then `(recorded_at,id)` order; a backdated `occurred_at` is displayed as such but never rewrites the audit order. `PROPOSED`/`ACCEPTED`, application `PENDING`/`APPLIED`/`FAILED`, and later verification status are separate dimensions. Acceptance does not assert application; an applied change or completed work does not assert benefit. A failed application preserves its attempt, error and retry relation without an effective-policy claim. No human author, approval or attestation is inferred from a gateway credential, client field, local OS user or SYSTEM fixture. Under the existing `A-actor-identity` rule, human writes need a verified operator principal; otherwise only a clearly labelled, server-authorized SYSTEM demonstration command with stable service/job provenance is allowed, or the write stays unavailable.
+
+The supported S6-01 change is a controlled reserve-SOC edit through S1 Foundation publish, producing a new immutable effective `FoundationRevision` and an immutable change artifact that links Action, accepted recommendation, authorized command, old/new revision IDs, exact field/value/unit, validity and recorded time, and the application event. Validate the expected old revision and Site scope under the publish lock; reject stale, unauthorized or invalid edits and record a failed attempt without claiming the new setting took effect. `APPLIED` requires confirmation of the persisted new effective revision; an ActionEvent alone is insufficient. The old basis and every event/change revision remain addressable after reload. Do not mutate a Lab-only override or rewrite accepted evidence. S6-01's Execution/History and applied `changes:1#a` show policy activity with event and configuration provenance, including pending/failed cases; they do not show an effect verdict.
+
+S6-02 owns the separate immutable `VerificationPlanRevision` and later `VerificationOutcome`. A plan pins this Action, the applied-change event and new Foundation revision, a pre-change baseline assessment/evidence basis, target, service/reserve guardrails, required coverage and later-window selection rule before evaluation. Use separate baseline and later Lab runs under their respective fixed effective Foundation revisions; commit their public reports through the ordinary gateway and central acceptance. Evaluate a closed later accepted window against the frozen plan and baseline, with exact analytic/evidence IDs. Missing or conflicting evidence yields `INCONCLUSIVE`; failed guardrail prevents `VERIFIED` even if the target improves; later results append/supersede without rewriting prior outcomes. Plan/evidence/verification child routes preserve exact plan and outcome IDs. `A-S6-verification` remains open for the full comparison rule; this lifecycle decision does not resolve it. S6-03 alone owns the Site-scoped ActionIndex/list and its watermarked empty/positive states; `A-action-index` remains open. Planner must refine S6-01's event transition table, command/API schema, actor path, race/idempotency checks, Foundation publish seam, stored fixtures and desktop/narrow Action-root states against the v6.9 Action screens and technical design before implementation.
+
+Decision: `D-2026-10-14-s402c-late-sequence-and-s5-money`. The Architect rules that gateway admission sequence does not establish source-time order for a validated store-and-forward source. S3 must version a source-time-aware cohort rule with explicit clock/overlap/epoch limits and reassess affected windows without rewriting history. S4 must carry a material series refusal into the revised Finding and state why the episode ends. Until a reviewed reassessment resolves generator-series ambiguity, S5 withholds an amount for that affected selected Finding/window despite a `CURRENT PRICED` consequence, and shows the limitation and exact lineage. `I-late-reading-series-and-money-limit` and `I-analytic-finding-worker-schedule` are separate prerequisites of `I-site-overview-read` before S5-01; both also gate real-Site readiness. The latter schedules S3/S4 workers and makes backlog/failure visible so late evidence reaches the revised Finding without manual commands. The broader simulated/real analysis-input backlog remains for W1 exit. S4-02c acceptance is unchanged; its reviewed consequence work may close on merge. The S5 owner visual checkpoint remains required. Rulings in .agent/architect-S4-02c-answers.md; S4-02c review `.agent/S4-02c-review.md` F1.
+
+Decision: `D-2026-10-14-s402d-schedule-storage-and-install-gate`. Ratify migration 0013's four bounded, mutable schedule tables and `scheduling/adapters/postgres_schedule_store.py` as the sole eighth PostgreSQL writer for them. Rule 8 may admit only this module's inserts and named schedule-state updates on those tables, with reverse ownership, adapter isolation and existing seven-writer protections retained. S3 jobs, Findings, evidence and financial records remain under their current writers. The environment timer may be tested privately but must not be installed on an owner-visible host until `I-late-reading-series-and-money-limit` lands; installation replaces the per-Site consequence timer. S4-02d owns DB-clock resolution of I3 for scheduled work and an independent concurrent-ingestion proof for I4; any ingestion defect belongs to a separately scoped evidence fix. No owner decision is required unless owner-facing behavior changes. Authority: `.agent/architect-S4-02d-request.md`, `tasks/S4-02d-analytic-finding-worker-schedule.md`, `.agent/S4-02d-plan-review.md` M1, and S4-02c review I3/I4. Rulings in .agent/architect-S4-02d-answers.md.
+
+Decision: `D-2026-10-15-lr01-source-time-cohort`. Accept LR-01 Q1-Q4 as corrected by Follow-up M1 in `.agent/architect-LR-01-answers.md`. Source-time order requires a versioned, scoped clock attestation from an identified authority covering each reading with maximum UTC error no greater than 60 seconds; simulated proof stays separate from real-source proof. Order an attested channel by each reading's `placed_at` instant (measurement interval end, otherwise source time) +/- the attested error, not by the full measurement interval widened by error. Measurement intervals that only touch do not overlap; genuine measurement-interval overlap or overlapping placement-uncertainty intervals in one channel remains `REPORTS_OVERLAP`/ambiguous. Where placement-uncertainty intervals are disjoint, gateway admission sequence disagreement is a late arrival, not `SEQUENCE_ORDER_INVERTED`; sequence still resolves identity and duplicates. Retain epoch ambiguity unless the existing explicit cohort selection is used; automatic cross-epoch continuity needs separate review. Attestation changes enqueue all affected UTC-day windows through the matching six-hour query bracket and neighboring continuity windows, preserving immutable runs and selections. Proven Candidate spans may remain `SUPPORTED`, while a material refused tail produces a new FindingRevision with `GENERATOR_SERIES_AMBIGUOUS` and `SERIES_LIMIT`. A shared read-derived money eligibility gate withholds current amount during pending reassessment or material unresolved generator-series ambiguity, even if a historical consequence is `CURRENT PRICED`; eligibility alone does not replace the exact-head consequence and source/currentness checks. The Planner must add the corrected overlap rule, requeue scope, eligibility precedence and explicit-epoch boundary to the LR-01 packet before implementation. Authority: `tasks/LR-01-late-reading-series-and-money-limit.md`, `.agent/S4-02c-review.md` F1, and `D-2026-10-14-s402c-late-sequence-and-s5-money`.
+
+Decision: `D-2026-10-15-owner-absence-work-order`. Under the owner's 2026-10-15 absence delegation, the Architect orders the single build stream: finish and freshly review LR-01; prepare and build S5-01 selected-window Overview on its reviewed head; then advance S6-01 Action store/read/UI, stored demo provenance, price equal-start succession, the S4-02d I3 evidence-owner clock fix, the F-B statement-level guard, OPS-01 Low carries, and the FindingIndex/S4-04 lane as capacity and gates allow. The 0.20% LR-01 versus Action-store contest stays with LR-01 first; if S5-01 and Action store later score within 5%, S5-01 wins because it consumes the just-reviewed money eligibility and closes the blocked Overview path. S4-04 does not gate S5-01. Planner may refine S5-01 and S6-01 in parallel with LR-01, followed by the named non-UI packets, with code-reality checks. Only one Postgres-heavy build runs at a time. Independently reviewed non-UI work may merge if it does not depend on an unmerged UI branch; all USER_REVIEW_REQUIRED merges and acceptance wait for the owner's actual walkthrough. The exact conditional order, stack and review gates are in `.agent/architect-autonomy-2026-10-15-answers.md`; this decision does not waive the schedule install, W1 exit or real-pilot gates.
+
+Decision: `D-2026-10-15-s501-finding-choice`. Accept the S5-01 price-independent latest-episode choice with half-open intersection, canonical merged IDs only, greatest latest-revision episode start and smallest stable Finding UUID as tie-break. Do not filter by money or lifecycle. Retain the selected Finding and exact revision links through stale/withheld states; a new consistent S4 basis may change selection, while an incomplete basis cannot authorize a new current choice or amount. `ABSENT` requires complete current scoped discovery. Full implementable rule: `.agent/architect-S5-01-answers.md`.
+
+Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Apply is atomic with S1 Foundation publish and the APPLIED event, while authorized same-Site failures remain separate durable attempts. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+ succeeded in 123ms:
+# S6-01a â€” Action store, controlled application and exact read
+
+Status: implementation-ready
+USER_REVIEW_REQUIRED: false; reopen for any owner-facing copy or UI
+Size: M; phases: two. Branch: `task/S6-01a-action-store-read` from merged main, independent of LR-01/S5-01.
+Depends on: merged S1 Foundation; closed `I-S4-01` reviewed FindingRevision; recorded Action lifecycle, actor and route decisions.
+Planner: Codex, 2026-10-15
+
+## Result and exact consumer
+
+Persist one Finding-linked Action, immutable events and all rows of a reserve-SOC application. Same-Site API reloads Action detail, exact event history, recommendation and change provenance. This non-UI slice is mergeable only when a real stored demo executes accept â†’ apply â†’ reload and returns payloads consumed by S6-01b. A bare schema fails. Owns `I-action-store`, `I-action-read`, `I-recommendation-read`, `I-configuration-change-read`, `D-action-records`; closes no W1 panel.
+
+## Creation, authority and state (L1, P1, P2, P7)
+
+Use L1 model (a): a versioned server recommendation is PROPOSED for a reviewed FindingRevision; an Action is created **on acceptance**, so Action has no PROPOSED state. Recommendation key is `(tenant_id,site_id,finding_revision_id,rule_id,rule_version,asset_id)`; server acceptance key is a canonical digest of that tuple plus `ACCEPT`, unique within tenant/Site. Identical accept returns the same Action/event; same key with altered payload is 409. Allocate `action_code` with a tenant-scoped DB sequence and preserve `UNIQUE(tenant_id,action_code)`. Distinct revision/rule/asset keys permit several Actions per Finding. Each event has `UNIQUE(action_id,idempotency_key)` and payload digest; identical retry returns the original event, conflicting reuse is 409.
+
+Recommendation value comes only from a **new**, versioned server reserve-trial rule over the pinned FindingRevision and current Foundation reserve; eligibility, delta and range are Q1. No client or mock value is authoritative. Unchanged/out-of-range output is unavailable before acceptance. Show purpose and limitation. Mock money is never a saving; an S4 consequence may appear only for its exact basis, labelled as consequence.
+
+| Command | Precondition | Event / reduced state | Refusal |
+| --- | --- | --- | --- |
+| accept | reviewed persisted revision; valid recommendation; server-authorized SYSTEM demo | ACCEPTED / application pending | 401/403/404 or typed 422; no Action |
+| apply | ACCEPTED; expected current Foundation ID; same Site/asset/value; prospective effective time | APPLIED only with committed new Foundation; outcome pending | FAILED same-Site attempt; stale 409, invalid/no-change/backdate 422 |
+| repeat | identical command key and payload | return original Action/event/artifact | same key, different payload 409 |
+
+FAILED is an attempt event; a new authorized apply may succeed. Reduce by `(recorded_at,id)`. `occurred_at` may be backdated for non-application activity, displayed separately, never used to reorder state. Accept/apply use server time. Do not infer Verified or human approval. With no verified operator principal, only labelled server-authorized SYSTEM demo commands run, carrying stable service principal and triggering job/command/fixture. No client, gateway or OS name becomes a human author.
+
+## New storage and publish (P3-P5, P10)
+
+New migration under `backend/migrations/versions/`: `action` has tenant/Site, immutable origin finding/revision, primary assessment, evidence/configuration basis IDs/digest, recommendation rule/key, action_code, created time and acceptance key. `action_event` has ID, tenant/Site/Action, kind, occurred/recorded time, actor_kind/id, source_channel, authorization_basis, triggering service/job/command/fixture, payload digest, idempotency key and typed failure code. New append-only `action_policy_change` has Action, authorized command and APPLIED event, asset/field/unit, old/new value, expected/superseded/new PUBLISH Foundation IDs, optional SPLIT ID, **every** superseded/inserted binding-set revision ID, effective/recorded time and validity. Use child rows for written IDs if arrays cannot prove same-Site FKs. Same-Site composite FKs and uniqueness; no simulator private truth. These tables/columns are **new**.
+
+Extend S1's Site-locked `publish_configuration` callback: compare expected Foundation ID and Site against the current covering row **under the lock**. Apply under one transaction with Foundation/binding writes, artifact and APPLIED event (Q2). Stale revision returns typed `ACTION_FOUNDATION_STALE` 409; after publish rollback durably append FAILED with expected/current IDs and no effective new ID. Lock Action then Site consistently; prove concurrent commands publish once. Action effective time must be >= server recorded time and > ACCEPTED time; ordinary S1 historical publication is unaffected. Successful identical retry returns the old artifact before S1 `FOUNDATION_NO_CHANGE`. New no-change command returns typed 422 and FAILED.
+
+## New API, stored proof and phases (P6, P8, P9)
+
+Under `/api/sites/{site_code}` add `GET /findings/{finding_id}/recommendation?revision_id=`, `POST /findings/{finding_id}/recommendation/accept`, `POST /actions/{action_id}/apply`, `GET /actions/{action_id}?event_id=|recorded_at=`, `GET /actions/{action_id}/events?event_id=|recorded_at=` and `GET /foundation/changes/{change_id}`. Commands require server-issued recommendation key, idempotency key and expected Foundation ID; apply value/effective time are revalidated. Reads return canonical/selected IDs, origin FindingRevision **beside** latest revision/episode notice, assessment/evidence/configuration pins, exact actor/event/cutoff, Site/Finding/Action/change links and pending outcome. Event ID includes an exact recorded-order prefix; cutoff uses server recorded time and ID tie-break. Unknown/cross-Site 404, missing auth 401, denied command 403 per pre-S3 ruling. No Site ActionIndex dependency.
+
+New versioned `D-action-records` fixture/loader runs through real accepted Finding/Foundation records with manifest IDs. Persist proposed/unavailable, accepted pending, applied pending, stale 409+FAILED, wrong Site, invalid/no-change/backdate, retry, concurrent apply, newer FindingRevision/episode, reload and backdated non-application `occurred_at`. No hand-inserted effective claim.
+
+| Phase | Reviewable result | Focused proof |
+| --- | --- | --- |
+| 1 | migration, recommendation/accept, Action/event store and exact read | New Postgres store/API tests for origin, scope, uniqueness, cutoff, actor; existing `backend/tests/test_s4_finding_read_postgres.py` and `test_s1_foundation_postgres.py` |
+| 2 and slice review | atomic publish, artifact, failure/race/retry and fixture/consumer API proof | New Postgres apply/fixture tests, S1 binding tests, private-DB accept/apply/reload walkthrough inspecting all written rows |
+
+Fresh independent review per phase; phase 2 review is slice review. Focused tests each phase. On final revision run `tools/check-all.ps1`, registry checker and one real-Postgres full suite per `backend/TESTING.md:7-31,91-130` (`-n 2 --dist loadfile --no-loadscope-reorder`, JUnit zero skipped/failed, keep-awake, 20-minute cap). Merge only after review, with no unmerged UI parent.
+
+## Checked code reality and gaps
+
+- Existing `publish_battery_reserve`, `_publish_content_change`, SPLIT and `FOUNDATION_NO_CHANGE`: `backend/assetops_backend/sites/foundation_service.py:362-381,415-538`. Existing Site `FOR UPDATE`: `backend/assetops_backend/sites/adapters/postgres_foundation_store.py:607-620`. Expected check and atomic Action hook are **new**.
+- Existing Finding API/read/lineage: `backend/assetops_backend/finding_api.py:112-160`; `backend/assetops_backend/analytics/finding_read.py:306`; `backend/assetops_backend/analytics/adapters/postgres_finding_store.py:274-291`; FindingRevision schema `backend/migrations/versions/0009_finding_store.py:64-105`. Action store/routes/tests/fixture tool are **new**. The proposed action tables at `frontend/docs/architecture/production-shaped-mvp-technical-design.md:55-56` are not shipped schema.
+- Existing testing harness and full command: `backend/TESTING.md:7-31,91-130`. New tests/tools must have exact paths and lines in implementer handoff.
+
+## Architect questions (plan follows recommendations)
+
+1. **Q1 reserve rule:** ratify a server-only versioned bounded delta and eligibility derived from the pinned FindingRevision; refuse revisions without a justified numeric value. No implementation-chosen mock delta.
+2. **Q2 publish hook:** use a narrow callback inside existing Site transaction; Action â†’ Site lock order, no generic transaction framework.
+3. **Q3 failed scope:** wrong-Site/unknown Action yields 404 without event to avoid an existence leak; FAILED only for authorized same-Site application attempts.
+
+L2: S6-02's `A-S6-verification` must cite the lifecycle decision and define `VERIFIED`, `INEFFECTIVE`, `INCONCLUSIVE`; this slice produces no outcome. Defer Site ActionIndex (S6-03), plan/evidence/verification (S6-02), general work and human write path.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content backend/assetops_backend/sites/foundation_service.py | Select-Object -Skip 400 -First 140' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 220ms:
+        every key, unit and source.
+        """
+        def unchanged(content: Mapping[str, Any]) -> str | None:
+            return "These properties are already declared" if with_component_properties(
+                content, asset_code=asset_code, properties=properties
+            ) == content else None
+
+        return self._publish_content_change(
+            tenant, site, effective_from=effective_from, note=note, unchanged=unchanged,
+            change=lambda content, _version: with_component_properties(
+                content, asset_code=asset_code, properties=properties
+            ),
+        )
+
+    def _publish_content_change(
+        self,
+        tenant: TenantRef,
+        site: StoredSite,
+        *,
+        effective_from: datetime,
+        note: str | None,
+        unchanged: Callable[[Mapping[str, Any]], str | None],
+        change: Callable[[Mapping[str, Any], int], dict[str, Any]],
+    ) -> PublishResult:
+        now = self._clock()
+        changed_holder: dict[str, RevisionRow] = {}
+
+        def planner(rows: Sequence[RevisionRow]) -> PublishPlan:
+            latest = max(row.recorded_at for row in rows)
+            if now < latest:
+                # Recorded time must not run backwards (review m3): a server
+                # clock behind the last recorded change would close a period
+                # before it was recorded. Refused before anything is written.
+                raise FoundationRefused(
+                    "FOUNDATION_CLOCK_BEHIND",
+                    f"The server clock ({now.isoformat()}) is earlier than the last recorded "
+                    f"Foundation change ({latest.isoformat()}), so this change cannot be "
+                    "recorded. Nothing was written; retry once the clock is correct.",
+                    status=409,
+                )
+            current = [row for row in rows if row.superseded_at is None]
+            covering = [
+                row
+                for row in current
+                if row.valid_from <= effective_from < _forever_after(row.valid_to)
+            ]
+            if len(covering) != 1:
+                raise FoundationRefused(
+                    "FOUNDATION_INTERVAL_INVALID",
+                    f"No currently recorded Foundation period of {site.site_code} contains "
+                    f"{effective_from.isoformat()}, so there is no configuration to change "
+                    "from that instant.",
+                    status=422,
+                )
+            replaced = covering[0]
+            same = unchanged(replaced.content)
+            if same is not None:
+                raise FoundationRefused(
+                    "FOUNDATION_NO_CHANGE", f"{same} in v{replaced.version}.", status=422
+                )
+            next_version = max(row.version for row in rows) + 1
+            inserts: list[RevisionRow] = []
+            if effective_from > replaced.valid_from:
+                inserts.append(
+                    RevisionRow(
+                        id=uuid4(),
+                        version=next_version,
+                        valid_from=replaced.valid_from,
+                        valid_to=effective_from,
+                        recorded_at=now,
+                        superseded_at=None,
+                        schema_version=replaced.schema_version,
+                        content=replaced.content,
+                        content_sha256=replaced.content_sha256,
+                        origin="SPLIT",
+                        derived_from_revision_id=replaced.id,
+                        change_note=f"Unchanged earlier segment of v{replaced.version}",
+                    )
+                )
+                next_version += 1
+            try:
+                content = change(replaced.content, next_version)
+            except SiteConfigurationInvalid as error:
+                raise FoundationRefused("FOUNDATION_VALUE_INVALID", str(error), status=422) from error
+            changed = RevisionRow(
+                id=uuid4(),
+                version=next_version,
+                valid_from=effective_from,
+                valid_to=replaced.valid_to,
+                recorded_at=now,
+                superseded_at=None,
+                schema_version=replaced.schema_version,
+                content=content,
+                content_sha256=content_digest(content),
+                origin="PUBLISH",
+                derived_from_revision_id=replaced.id,
+                change_note=note,
+            )
+            try:
+                record_at(site, changed)
+            except SiteConfigurationInvalid as error:
+                raise FoundationRefused("FOUNDATION_VALUE_INVALID", str(error), status=422) from error
+            inserts.append(changed)
+            changed_holder["changed"] = changed
+            return PublishPlan(supersede_ids=(replaced.id,), superseded_at=now, inserts=tuple(inserts))
+
+        registrations = self._store.registrations(tenant.id, site.id)
+        plan_holder: dict[str, PublishPlan] = {}
+
+        def joint(state: ConfigurationState) -> ConfigurationPlan:
+            # S1-02 (decision Q5/Q6): a Foundation change also replaces every
+            # binding set revision that named a replaced Foundation revision,
+            # aligned to the new periods, with their snapshots pinned - all in
+            # this one transaction.
+            plan = planner(state.revisions)
+            plan_holder["plan"] = plan
+            draft = ConfigurationPlan(plan.superseded_at, plan.supersede_ids, plan.inserts, (), ())
+            completed, _ = finalize(
+                state, draft, tenant_id=tenant.id, site=site, registrations=registrations, now=now
+            )
+            return completed
+
+        try:
+            self._store.publish_configuration(tenant.id, site.id, joint)
+        except FoundationSiteNotFound as error:
+            raise FoundationRefused("SITE_NOT_FOUND", str(error), status=404) from error
+        return PublishResult(site=site, plan=plan_holder["plan"], changed=changed_holder["changed"])
+
+
+codex
+I’m ratifying a dedicated Action writer with a caller-owned transaction seam in the existing S1 publish path. I’m also resolving the backdated history case with a tightly scoped, state-neutral demonstration observation so the review fixture has a real command to exercise.
+apply patch
+patch: completed
+C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\architect-S6-01-answers.md
+diff --git a/.agent/architect-S6-01-answers.md b/.agent/architect-S6-01-answers.md
+index 77d4d87b23ca6720199c9ea8264a1d34d3fb9c4e..f65a65ec86bff572fbed2513fb6be7a68d8b1155
+--- a/.agent/architect-S6-01-answers.md
++++ b/.agent/architect-S6-01-answers.md
+@@ -11,3 +11,13 @@
+ 4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+ 
+ 5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
++
++## Follow-up (plan review M1-M3)
++
++1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
++
++   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
++
++2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
++
++3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+
+diff --git a/.agent/architect-S6-01-answers.md b/.agent/architect-S6-01-answers.md
+index 77d4d87b23ca6720199c9ea8264a1d34d3fb9c4e..f65a65ec86bff572fbed2513fb6be7a68d8b1155
+--- a/.agent/architect-S6-01-answers.md
++++ b/.agent/architect-S6-01-answers.md
+@@ -11,3 +11,13 @@
+ 4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+ 
+ 5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
++
++## Follow-up (plan review M1-M3)
++
++1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
++
++   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
++
++2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
++
++3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+
+apply patch
+patch: completed
+C:\Users\assef\Bineyame\AssetOpsV1-plan2\.ai\DECISIONS.md
+diff --git a/.agent/architect-S6-01-answers.md b/.agent/architect-S6-01-answers.md
+index 77d4d87b23ca6720199c9ea8264a1d34d3fb9c4e..f65a65ec86bff572fbed2513fb6be7a68d8b1155
+--- a/.agent/architect-S6-01-answers.md
++++ b/.agent/architect-S6-01-answers.md
+@@ -11,3 +11,13 @@
+ 4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+ 
+ 5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
++
++## Follow-up (plan review M1-M3)
++
++1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
++
++   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
++
++2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
++
++3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 600aec58258e4fa5e6e0c8abf1b1bb61c215a726..ce2e2aa9dd2e62d612c00522137c537c033d6b52
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4140,4 +4140,4 @@
+ 
+ Decision: `D-2026-10-15-s501-finding-choice`. Accept the S5-01 price-independent latest-episode choice with half-open intersection, canonical merged IDs only, greatest latest-revision episode start and smallest stable Finding UUID as tie-break. Do not filter by money or lifecycle. Retain the selected Finding and exact revision links through stale/withheld states; a new consistent S4 basis may change selection, while an incomplete basis cannot authorize a new current choice or amount. `ABSENT` requires complete current scoped discovery. Full implementable rule: `.agent/architect-S5-01-answers.md`.
+ 
+-Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Apply is atomic with S1 Foundation publish and the APPLIED event, while authorized same-Site failures remain separate durable attempts. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
++Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Ratify `actions/adapters/postgres_action_store.py` as the sole ninth PostgreSQL writer for append-only Action, event, change and Action-owned child rows. The Action adapter opens the apply transaction and locks Action before calling a caller-owned-connection S1 publish that locks Site; the S1 adapter writes only Foundation and binding rows, and an Action-adapter callback writes the change artifact and APPLIED event on that same connection before the outer commit. Rule 8 must admit only this ninth writer's INSERTs to its tables, reject Action-table writes by every other module and reject mutation or DDL in the Action adapter while retaining all eight existing protections. Authorized same-Site failures remain separate durable attempts after rollback. Include the pinned FoundationRevision in recommendation identity and persist the immutable accepted-recommendation snapshot; after acceptance, recommendation read returns it with the Action link and a separate live status. A server-authorized, state-neutral SYSTEM demonstration `OBSERVED` event with fixed `DEMO_REVIEW_NOTE` code may carry an explicit `occurred_at` between ACCEPTED and server `recorded_at`, no more than 30 days earlier, to prove backdated history without changing application state. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. The full M1-M3 ruling is in `.agent/architect-S6-01-answers.md` under "Follow-up (plan review M1-M3)". S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+diff --git a/.agent/architect-S6-01-answers.md b/.agent/architect-S6-01-answers.md
+index 77d4d87b23ca6720199c9ea8264a1d34d3fb9c4e..f65a65ec86bff572fbed2513fb6be7a68d8b1155
+--- a/.agent/architect-S6-01-answers.md
++++ b/.agent/architect-S6-01-answers.md
+@@ -11,3 +11,13 @@
+ 4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+ 
+ 5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
++
++## Follow-up (plan review M1-M3)
++
++1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
++
++   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
++
++2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
++
++3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 600aec58258e4fa5e6e0c8abf1b1bb61c215a726..ce2e2aa9dd2e62d612c00522137c537c033d6b52
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4140,4 +4140,4 @@
+ 
+ Decision: `D-2026-10-15-s501-finding-choice`. Accept the S5-01 price-independent latest-episode choice with half-open intersection, canonical merged IDs only, greatest latest-revision episode start and smallest stable Finding UUID as tie-break. Do not filter by money or lifecycle. Retain the selected Finding and exact revision links through stale/withheld states; a new consistent S4 basis may change selection, while an incomplete basis cannot authorize a new current choice or amount. `ABSENT` requires complete current scoped discovery. Full implementable rule: `.agent/architect-S5-01-answers.md`.
+ 
+-Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Apply is atomic with S1 Foundation publish and the APPLIED event, while authorized same-Site failures remain separate durable attempts. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
++Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Ratify `actions/adapters/postgres_action_store.py` as the sole ninth PostgreSQL writer for append-only Action, event, change and Action-owned child rows. The Action adapter opens the apply transaction and locks Action before calling a caller-owned-connection S1 publish that locks Site; the S1 adapter writes only Foundation and binding rows, and an Action-adapter callback writes the change artifact and APPLIED event on that same connection before the outer commit. Rule 8 must admit only this ninth writer's INSERTs to its tables, reject Action-table writes by every other module and reject mutation or DDL in the Action adapter while retaining all eight existing protections. Authorized same-Site failures remain separate durable attempts after rollback. Include the pinned FoundationRevision in recommendation identity and persist the immutable accepted-recommendation snapshot; after acceptance, recommendation read returns it with the Action link and a separate live status. A server-authorized, state-neutral SYSTEM demonstration `OBSERVED` event with fixed `DEMO_REVIEW_NOTE` code may carry an explicit `occurred_at` between ACCEPTED and server `recorded_at`, no more than 30 days earlier, to prove backdated history without changing application state. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. The full M1-M3 ruling is in `.agent/architect-S6-01-answers.md` under "Follow-up (plan review M1-M3)". S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git diff --check' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git diff -- .agent/architect-S6-01-answers.md .ai/DECISIONS.md' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 187ms:
+warning: in the working copy of '.agent/architect-S6-01-answers.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git status --short' in C:\Users\assef\Bineyame\AssetOpsV1-plan2
+ succeeded in 362ms:
+warning: in the working copy of '.agent/architect-S6-01-answers.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+diff --git a/.agent/architect-S6-01-answers.md b/.agent/architect-S6-01-answers.md
+index 77d4d87b..f65a65ec 100644
+--- a/.agent/architect-S6-01-answers.md
++++ b/.agent/architect-S6-01-answers.md
+@@ -11,3 +11,13 @@ Decision: `D-2026-10-15-s601-action-store-and-ui`. Authority: `.agent/architect-
+ 4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+ 
+ 5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
++
++## Follow-up (plan review M1-M3)
++
++1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
++
++   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
++
++2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
++
++3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 24a725fd..06ca4d58 100644
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4140,4 +4140,4 @@ Decision: `D-2026-10-15-owner-absence-work-order`. Under the owner's 2026-10-15
+ 
+ Decision: `D-2026-10-15-s501-finding-choice`. Accept the S5-01 price-independent latest-episode choice with half-open intersection, canonical merged IDs only, greatest latest-revision episode start and smallest stable Finding UUID as tie-break. Do not filter by money or lifecycle. Retain the selected Finding and exact revision links through stale/withheld states; a new consistent S4 basis may change selection, while an incomplete basis cannot authorize a new current choice or amount. `ABSENT` requires complete current scoped discovery. Full implementable rule: `.agent/architect-S5-01-answers.md`.
+ 
+-Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Apply is atomic with S1 Foundation publish and the APPLIED event, while authorized same-Site failures remain separate durable attempts. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
++Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Ratify `actions/adapters/postgres_action_store.py` as the sole ninth PostgreSQL writer for append-only Action, event, change and Action-owned child rows. The Action adapter opens the apply transaction and locks Action before calling a caller-owned-connection S1 publish that locks Site; the S1 adapter writes only Foundation and binding rows, and an Action-adapter callback writes the change artifact and APPLIED event on that same connection before the outer commit. Rule 8 must admit only this ninth writer's INSERTs to its tables, reject Action-table writes by every other module and reject mutation or DDL in the Action adapter while retaining all eight existing protections. Authorized same-Site failures remain separate durable attempts after rollback. Include the pinned FoundationRevision in recommendation identity and persist the immutable accepted-recommendation snapshot; after acceptance, recommendation read returns it with the Action link and a separate live status. A server-authorized, state-neutral SYSTEM demonstration `OBSERVED` event with fixed `DEMO_REVIEW_NOTE` code may carry an explicit `occurred_at` between ACCEPTED and server `recorded_at`, no more than 30 days earlier, to prove backdated history without changing application state. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. The full M1-M3 ruling is in `.agent/architect-S6-01-answers.md` under "Follow-up (plan review M1-M3)". S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+ succeeded in 258ms:
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+ M .agent/architect-S6-01-answers.md
+ M .ai/DECISIONS.md
+
+diff --git a/.agent/architect-S6-01-answers.md b/.agent/architect-S6-01-answers.md
+index 77d4d87b23ca6720199c9ea8264a1d34d3fb9c4e..f65a65ec86bff572fbed2513fb6be7a68d8b1155
+--- a/.agent/architect-S6-01-answers.md
++++ b/.agent/architect-S6-01-answers.md
+@@ -11,3 +11,13 @@
+ 4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+ 
+ 5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
++
++## Follow-up (plan review M1-M3)
++
++1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
++
++   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
++
++2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
++
++3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 600aec58258e4fa5e6e0c8abf1b1bb61c215a726..ce2e2aa9dd2e62d612c00522137c537c033d6b52
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4140,4 +4140,4 @@
+ 
+ Decision: `D-2026-10-15-s501-finding-choice`. Accept the S5-01 price-independent latest-episode choice with half-open intersection, canonical merged IDs only, greatest latest-revision episode start and smallest stable Finding UUID as tie-break. Do not filter by money or lifecycle. Retain the selected Finding and exact revision links through stale/withheld states; a new consistent S4 basis may change selection, while an incomplete basis cannot authorize a new current choice or amount. `ABSENT` requires complete current scoped discovery. Full implementable rule: `.agent/architect-S5-01-answers.md`.
+ 
+-Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Apply is atomic with S1 Foundation publish and the APPLIED event, while authorized same-Site failures remain separate durable attempts. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
++Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Ratify `actions/adapters/postgres_action_store.py` as the sole ninth PostgreSQL writer for append-only Action, event, change and Action-owned child rows. The Action adapter opens the apply transaction and locks Action before calling a caller-owned-connection S1 publish that locks Site; the S1 adapter writes only Foundation and binding rows, and an Action-adapter callback writes the change artifact and APPLIED event on that same connection before the outer commit. Rule 8 must admit only this ninth writer's INSERTs to its tables, reject Action-table writes by every other module and reject mutation or DDL in the Action adapter while retaining all eight existing protections. Authorized same-Site failures remain separate durable attempts after rollback. Include the pinned FoundationRevision in recommendation identity and persist the immutable accepted-recommendation snapshot; after acceptance, recommendation read returns it with the Action link and a separate live status. A server-authorized, state-neutral SYSTEM demonstration `OBSERVED` event with fixed `DEMO_REVIEW_NOTE` code may carry an explicit `occurred_at` between ACCEPTED and server `recorded_at`, no more than 30 days earlier, to prove backdated history without changing application state. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. The full M1-M3 ruling is in `.agent/architect-S6-01-answers.md` under "Follow-up (plan review M1-M3)". S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+codex
+I recorded the S6-01 follow-up rulings in [architect-S6-01-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-plan2/.agent/architect-S6-01-answers.md) and amended the existing decision in [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-plan2/.ai/DECISIONS.md).
+
+The ruling ratifies a ninth PostgreSQL writer with an Action-then-Site lock order and one atomic apply transaction. It also requires an immutable accepted-recommendation snapshot and defines a bounded, state-neutral `OBSERVED` event for the backdated history case. Only those two documents changed; `git diff --check` passed.
+diff --git a/.agent/architect-S6-01-answers.md b/.agent/architect-S6-01-answers.md
+index 77d4d87b23ca6720199c9ea8264a1d34d3fb9c4e..f65a65ec86bff572fbed2513fb6be7a68d8b1155
+--- a/.agent/architect-S6-01-answers.md
++++ b/.agent/architect-S6-01-answers.md
+@@ -11,3 +11,13 @@
+ 4. **Q4 - accept with exposure guard.** Show accept/apply controls only when the server returns a tenant/Site-scoped, server-authorized SYSTEM demonstration capability for that exact command and fixture. Label the control and resulting actor/provenance as SYSTEM demonstration. Otherwise render a read-only unavailable reason; a client flag cannot enable the command. No operator approval wording. **Packet change:** S6-01b must name the capability field, its read-only state and tests for absent/denied capability at both 1440 and 390; S6-01a must supply the scoped capability in its read contract and enforce it again on POST.
+ 
+ 5. **Q5 - accept.** `event_id` selects an exact event; `recorded_at` selects all events through the server-recorded instant using `(recorded_at,id)` order. Neither means a client-time or `occurred_at` cutoff. Reject both selectors together with typed 422 on Action and event reads; keep the selected selector in child links and reload. **Packet change:** S6-01a must define the selector/error wire contract and tie tests; S6-01b must test URL selection, navigation and reload for each selector and the conflict state.
++
++## Follow-up (plan review M1-M3)
++
++1. **M1 - ratify the ninth PostgreSQL writer.** Add `backend/assetops_backend/actions/adapters/postgres_action_store.py` as the sole runtime SQL writer of `action`, `action_event` and `action_policy_change`, including any append-only child rows used to pin the accepted recommendation or every written/superseded ID. Acceptance writes Action and ACCEPTED through this adapter without a Foundation publish. On apply, the Action adapter opens one database transaction, locks the same-Site Action row first, checks idempotency and command authority, then calls a narrow caller-owned-connection form of S1 `publish_configuration`. That form must use the supplied connection without opening or committing another transaction; it takes the Site `FOR UPDATE` next, computes and persists the Foundation/SPLIT/binding plan, and invokes an Action-adapter callback on that same connection after the S1 writes. The callback inserts the change artifact and APPLIED event using the complete returned plan IDs. It must not send Action SQL through the Foundation adapter. The Action adapter's outer transaction alone commits; any exception rolls back Foundation, binding, artifact and APPLIED together. The existing S1 entrypoint retains its own transaction when no caller-owned connection is supplied. The expected current covering Foundation ID is checked under the Site lock before publication; an identical applied retry returns its committed artifact before the no-change validation. An authorized same-Site failed attempt is appended in a separate transaction after rollback, never inside the aborted publish transaction. Keep this a specific Action-to-S1 seam, not a general transaction framework.
++
++   Rule 8 of `tools/checks/configuration-persistence.ps1` must name the ninth path in `$pgWriters`, `$pgWritesSeen` and `$pgDriverSeen`; allow that adapter only INSERTs into its named Action tables, with no UPDATE, DELETE, upsert, TRUNCATE or DDL; and reject writes to an Action table from every other module, explicitly including the Foundation adapter. Preserve the eight existing writer restrictions, driver isolation and the guard's proof that the new writer has a real driver import and SQL write. Migration DDL remains outside the runtime package. Add guard cases proving the reverse ownership and forbidden mutations.
++
++2. **M2 - confirm the recommendation basis and reload rule.** Include the pinned FoundationRevision ID in the canonical recommendation identity and acceptance digest, with tenant, Site, FindingRevision, rule ID/version and asset. On acceptance, persist an immutable accepted-recommendation snapshot on `action` or an append-only Action-owned child: rule ID/version, input assessment/evidence IDs and digest, pinned FoundationRevision ID, asset and exact reserve field, percent unit, old/proposed numeric values, limitation text or stable code, and key. That snapshot is the accepted proposal even after the Site reserve changes. Once an Action exists for that key, `GET recommendation` returns the snapshot and Action link, with separately labelled live recomputation availability/status; a stale current basis must not replace the accepted proposal or make it disappear. Without a separate recommendation table, a pre-acceptance proposal/unavailable state is computed from persisted inputs and served, not described as a persisted recommendation row.
++
++3. **M3 - add one bounded backdated event.** Permit a state-neutral `OBSERVED` event through `POST /api/sites/{site_code}/actions/{action_id}/observations` only for the server-authorized, tenant/Site/Action-scoped SYSTEM demonstration capability and a fixed `DEMO_REVIEW_NOTE` observation code. It may be appended only after ACCEPTED; it changes neither application nor verification state and cannot claim an effective policy or benefit. The command supplies `occurred_at` and an idempotency key; the server sets `recorded_at`. Require `accepted_at <= occurred_at <= server recorded_at` and at most 30 days of backdating; return typed 422 for out-of-bounds or future time, 401/403 for missing/denied authority, and 404 for unknown or wrong-Site Action without an event. Identical retries return the same event; conflicting reuse is 409. History orders by `(recorded_at,id)` and displays both timestamps. The stored fixture must append one valid `OBSERVED` whose `occurred_at` is earlier than `recorded_at`, then prove the exact-event and recorded-cutoff reads keep server order. This command is demonstration-only and grants no general note-writing path.
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 600aec58258e4fa5e6e0c8abf1b1bb61c215a726..ce2e2aa9dd2e62d612c00522137c537c033d6b52
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4140,4 +4140,4 @@
+ 
+ Decision: `D-2026-10-15-s501-finding-choice`. Accept the S5-01 price-independent latest-episode choice with half-open intersection, canonical merged IDs only, greatest latest-revision episode start and smallest stable Finding UUID as tie-break. Do not filter by money or lifecycle. Retain the selected Finding and exact revision links through stale/withheld states; a new consistent S4 basis may change selection, while an incomplete basis cannot authorize a new current choice or amount. `ABSENT` requires complete current scoped discovery. Full implementable rule: `.agent/architect-S5-01-answers.md`.
+ 
+-Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Apply is atomic with S1 Foundation publish and the APPLIED event, while authorized same-Site failures remain separate durable attempts. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
++Decision: `D-2026-10-15-s601-action-store-and-ui`. Under the owner's 2026-10-15 delegation, accept S6-01 Q2-Q5 with the transaction, scope, capability and cutoff details in `.agent/architect-S6-01-answers.md`; amend Q1 to the versioned `reserve-trial-1` rule there. Only a current, reviewed, supported pinned generator-support Finding with unambiguous numeric Candidate SOC and matching Foundation reserve may propose the bounded five-percentage-point reserve trial. It is a policy-sensitivity experiment, not a causal remedy, saving or verification claim; otherwise show a typed unavailable reason. Ratify `actions/adapters/postgres_action_store.py` as the sole ninth PostgreSQL writer for append-only Action, event, change and Action-owned child rows. The Action adapter opens the apply transaction and locks Action before calling a caller-owned-connection S1 publish that locks Site; the S1 adapter writes only Foundation and binding rows, and an Action-adapter callback writes the change artifact and APPLIED event on that same connection before the outer commit. Rule 8 must admit only this ninth writer's INSERTs to its tables, reject Action-table writes by every other module and reject mutation or DDL in the Action adapter while retaining all eight existing protections. Authorized same-Site failures remain separate durable attempts after rollback. Include the pinned FoundationRevision in recommendation identity and persist the immutable accepted-recommendation snapshot; after acceptance, recommendation read returns it with the Action link and a separate live status. A server-authorized, state-neutral SYSTEM demonstration `OBSERVED` event with fixed `DEMO_REVIEW_NOTE` code may carry an explicit `occurred_at` between ACCEPTED and server `recorded_at`, no more than 30 days earlier, to prove backdated history without changing application state. SYSTEM demonstration commands require a server-issued scoped capability and explicit label. The full M1-M3 ruling is in `.agent/architect-S6-01-answers.md` under "Follow-up (plan review M1-M3)". S6-01a/S6-01b packets must incorporate the named changes before implementation; S6-01b still waits for the owner's actual visual walkthrough before merge.
+
+tokens used
+36,209
+I recorded the S6-01 follow-up rulings in [architect-S6-01-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-plan2/.agent/architect-S6-01-answers.md) and amended the existing decision in [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-plan2/.ai/DECISIONS.md).
+
+The ruling ratifies a ninth PostgreSQL writer with an Action-then-Site lock order and one atomic apply transaction. It also requires an immutable accepted-recommendation snapshot and defines a bounded, state-neutral `OBSERVED` event for the backdated history case. Only those two documents changed; `git diff --check` passed.
