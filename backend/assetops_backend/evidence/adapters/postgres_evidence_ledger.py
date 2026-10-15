@@ -632,6 +632,20 @@ class PostgresEvidenceLedger:
 
         return self._run(work)
 
+    def accepted_fingerprint(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> dict:
+        """S5-01 accepted-source fence: the count and SHA-256 of the accepted evidence IDs (ordered by ID) whose
+        source time or interval intersects `[lo, hi)`, with the same overlap test as the S3 query bracket. It is
+        compared before and after a Site Overview read; heartbeat or disposition time is never the fence."""
+        def work(c: Connection) -> dict:
+            row = c.execute(text(
+                "SELECT count(*) AS n, encode(sha256(convert_to(coalesce(string_agg(e.id::text, ',' ORDER BY e.id), "
+                "''), 'UTF8')), 'hex') AS sha FROM accepted_evidence e WHERE e.tenant_id = :t AND e.site_id = :s "
+                "AND COALESCE(e.interval_end, e.source_time) >= :lo AND COALESCE(e.interval_start, e.source_time) < :hi"),
+                {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi}).one()
+            return {"count": int(row.n), "sha256": row.sha}
+
+        return self._run(work)
+
     def record_detail(self, tenant_id: UUID, site_id: UUID, key: str) -> list[dict]:
         """The accepted record named by its evidence UUID, else by message ID (every match)."""
         evidence_id = _uuid_or_none(key)

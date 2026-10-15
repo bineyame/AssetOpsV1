@@ -3374,3 +3374,102 @@ tr[data-selected] > * {
 .site-financials code {
   overflow-wrap: anywhere;
 }
+
+/* S5-01: the imported-Site selected-window Overview (sites/SiteWindowOverview.tsx). */
+.site-window-overview {
+  display: grid;
+  gap: var(--space-4, 1rem);
+  min-width: 0;
+}
+.site-window-overview__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4, 1rem);
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .site-window-overview__grid { grid-template-columns: minmax(0, 1fr); }
+}
+.window-day {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.window-day__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: var(--weight-medium);
+}
+.window-day__bounds {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.window-money__amount {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  margin: 0.25rem 0;
+}
+.window-money__none {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  margin: 0.25rem 0;
+}
+.window-money code,
+.site-window-overview code {
+  overflow-wrap: anywhere;
+}
+.window-timeline {
+  display: grid;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+  min-width: 0;
+}
+.window-timeline__axis {
+  display: flex;
+  justify-content: space-between;
+  margin-left: 9rem;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+.window-timeline__row {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+}
+.window-timeline__label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.window-timeline__track {
+  position: relative;
+  height: 0.875rem;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+}
+.window-timeline__bar {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 2px;
+  background: var(--badge-neutral-border);
+}
+.window-timeline__bar--necessary { background: var(--series-1); }
+.window-timeline__bar--candidate_avoidable { background: var(--series-2); }
+.window-timeline__bar--indeterminate { background: var(--border-strong); }
+.window-timeline__bar--readings { background: var(--series-3); opacity: 0.6; }
+@media (max-width: 640px) {
+  .window-timeline__axis { margin-left: 0; }
+  .window-timeline__row { grid-template-columns: minmax(0, 1fr); gap: 0.125rem; }
+}
+.window-day .dispatch-day__button {
+  display: inline-block;
+  text-decoration: none;
+}
