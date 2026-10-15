@@ -89,7 +89,12 @@ The coordinator relayed the findings. The review file itself (`AssetOpsV1-review
   - S1 expected-revision check removed: 1 failed.
   - S1 expected-reserve check removed: 1 failed.
   - S1 opening its own transaction instead of using the caller's connection: 2 failed (rollback and artifact).
-- **Full backend suite:** FULL_SUITE_RESULT
+- **Full backend suite:** one run on `375c8cf9`.
+  - Command: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --durations=30`. Private base DB `assetops_s601a_test`, keep-awake running, 20-minute cap.
+  - Result: **2207 passed, 1 failed, wall 648 s**. The summary line shows no skipped count.
+  - The failure is `test_runs_api.py::TestTheShippedFuelLossEventAgainstAPropertylessFoundation::test_the_shipped_scenario_blocks_only_on_the_values_this_site_lacks`, with `FileNotFoundError ... AssetOpsV1-review2\var\sites\mg-001.yaml`. The gitignored `var/sites/*.yaml` files exist only in the main checkout; the phase-1 brief names this precondition.
+  - Rerun of `test_runs_api.py` with those files copied in temporarily, then removed: 28 passed.
+  - JUnit: the `--junitxml` path went through the Git Bash wrapper and no file was written. The zero-skip claim therefore rests on the pytest summary line, not on JUnit. For the JUnit form, rerun from PowerShell.
 - **Walkthrough** (reproducible: `ASSETOPS_S6_WALKTHROUGH_OUT=<file.json> pytest backend/tests/test_s6_action_records_postgres.py` on a private `*_test` DB). Rows written:
   - 2 Actions, 25 basis assessments, 50 basis evidence rows, 1 change and 3 change-binding rows.
   - 8 events, in this order: ACCEPTED (F01), ACCEPTED (F02), OBSERVED (recorded 00:30, occurred 00:10), FAILED STALE, FAILED VALUE, FAILED EFFECTIVE_TIME, APPLIED 01:04, FAILED NO_CHANGE (F02).
