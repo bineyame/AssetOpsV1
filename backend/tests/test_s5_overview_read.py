@@ -266,7 +266,8 @@ def test_source_closed_keeps_only_pinned_audit_material() -> None:
     assert bare["known_finding"] is None and bare["money"]["state"] == ms.SOURCE_CLOSED
     assert bare["previous_pin"]["reason"] == "EXACT_REVISION_REQUIRED_WHILE_SOURCE_CLOSED"
     other = finding(D0 + timedelta(hours=7), D0 + timedelta(hours=9))
-    pinned = run(World([f, other]), source_open=False,
+    third = finding(D0 + timedelta(hours=8), D0 + timedelta(hours=10))
+    pinned = run(World([f, other, third], merged={third["finding_id"]}), source_open=False,
                  pinned=(UUID(f["finding_id"]), UUID(f["finding_revision_id"])))
     assert pinned["known_finding"]["audit_only"] is True and pinned["known_finding"]["id"] == f["finding_id"]
     assert pinned["known_finding"]["revision_id"] == f["finding_revision_id"]
