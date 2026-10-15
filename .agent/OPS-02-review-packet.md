@@ -88,3 +88,35 @@ is now a usage error raised before any routing.
 
 None (USER_REVIEW_REQUIRED false). Reviewer focus: the new global refusals, and whether the clause split misses
 a write head (`_HEAD` in `sql_statements.py`).
+
+## Merge with main (2026-10-16)
+
+Status: done, pending merge (review ACCEPT after fix round). `git merge main` (`0d3114a3`) at `d8789adb`; guard and
+probe follow-up `48327c21`.
+
+- Rule 8 (`tools/checks/configuration-persistence.ps1`) keeps OPS-02's statement loop and carries main's policy: nine
+  writers (`$actionWriter` in `$pgWriters`, write/driver non-vacuity), LR-01 `source_clock_attestation` in
+  `$assessTables` (insert-only, reverse ownership), S6-01a Action tables (insert-only, reverse ownership), S4-05a
+  provenance (ledger INSERT with VALUES and no ON CONFLICT, reverse ownership, ledger DO UPDATE / non-arbiter
+  ON CONFLICT / DDL refusals, provenance-insert non-vacuity, HTTP designation scan).
+- S4-05a's split/qualified/quoted provenance verb refusal and S6-01a's Action every-line refusal now run twice: on
+  source lines in the driver loop (their pre-OPS-02 form, including the verb-ending-a-line case) and on each extracted
+  clause. Kept on lines so no form regresses; the clause form adds concatenated, comment-split and Core forms.
+- New (tightening): an INSERT into an insert-only table (attestation, Action, provenance) carrying `DO UPDATE` is
+  refused. No backend module upserts today. Messages that said "one statement per line" now say "one literal
+  statement".
+- Docs conflicts (ACTIVE_CONTEXT, CODE_STATE, tasks/README) kept both sides.
+
+Evidence (revision `48327c21`; later commits are docs only):
+
+- `python tools/writer_guard_probes.py --seam` (main venv interpreter): 68 CAUGHT, 0 MISSED; 4 controls ALLOWED
+  (`controls` plus one multiline insert each for attestation, Action, provenance with an allowed arbiter); tree
+  restored. 24 new probes: attestation/Action/provenance UPDATE, DELETE, TRUNCATE, upsert, split, schema-qualified
+  and quoted forms, Core forms, an unlisted provenance arbiter, and reverse-ownership writes from another module.
+- `tools/check-architecture.ps1` on the clean tree: passed under a UTF-8 console (`cmd /c "chcp 65001 & powershell
+  ..."`) and from Git Bash (`ASSETOPS_GUARD_PYTHON` = main venv).
+- Full backend suite from PowerShell with keep-awake, `var/sites/*.yaml` copied in temporarily (removed after),
+  `PYTHONPATH` = this worktree's `backend;contracts;gateway;simulator`: `pytest backend/tests -n 2 --dist loadfile
+  --no-loadscope-reorder -q --junitxml=<scratch>/ops02-merge-junit.xml`, real Postgres
+  `127.0.0.1:55432/assetops_test`, wall 685 s (cap 20 min). `2372 passed`; JUnit cases=2372, skipped=0, failed=0.
+- `tools/check-all.ps1` (temporary `.venv` junction, removed after): All 9 guards passed.
