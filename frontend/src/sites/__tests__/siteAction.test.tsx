@@ -6,11 +6,16 @@
  * so the real client and the real screens read real persisted shapes; no
  * static mock value becomes product data.
  *
- * Two bodies are derived from recorded ones and say so where they are built:
- * the "capability absent" reads (the recorded body with the capability field
- * removed) and the events read at the ACCEPTED event (the recorded latest
- * events prefixed through that event, with the recorded Action read's
- * selection). Every other body is served exactly as recorded.
+ * Derived bodies (phase-1 review L4), each marked "Derived" where it is built:
+ * 1. "capability absent": a recorded body with the capability field removed;
+ * 2. the events read at the ACCEPTED event: the recorded latest events cut
+ *    through that event, with the recorded Action read's selection;
+ * 3. the events read before APPLIED: the recorded latest events cut to the
+ *    first two (ACCEPTED, OBSERVED), served beside the recorded pending read;
+ * 4. store-unavailable 503 re-read bodies (no recorded case exists);
+ * 5. a capability granted for a different command (OBSERVE renamed APPLY's
+ *    slot) and a pending read whose application basis names no version.
+ * Every other body is served exactly as recorded.
  *
  * Widths: jsdom has no layout, so the 1440 / 390 cases set the window width
  * and prove the same structure (no command control, a read-only reason) at
@@ -218,6 +223,31 @@ describe("Recommendation (recommendation:1#a)", () => {
     expect(q("[data-recommendation-accepted-action]")?.getAttribute("data-recommendation-accepted-action")).toBe(ACTION);
   });
 
+  it("an identical accept replay says it was already recorded and links the same Action (accept_replayed)", async () => {
+    serve(
+      { [`${REC_API}?revision_id=${REV}`]: served(rec.pre_accept_available) },
+      { [`${REC_API}/accept`]: [served(rec.accept_replayed)] },
+    );
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Accept trial/ }));
+    await waitFor(() => expect(q("[data-action-command-done='replayed']")).not.toBeNull());
+    expect(q("[data-action-command-done]")?.textContent).toMatch(/already recorded/);
+    expect(q("[data-action-command-done] a")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}`);
+  });
+
+  it("the latest Finding revision after apply reads as recorded (latest_revision_after_apply)", async () => {
+    const latest = rec.latest_revision_after_apply;
+    serve({ [latest.request.path]: served(latest) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation`);
+    await settledScreen();
+    const state = q("[data-recommendation-state]")?.getAttribute("data-recommendation-state");
+    expect(state).toBe(latest.body.state);
+    expect(q("[data-recommendation-revision]")?.textContent).toContain(latest.body.revision_id);
+    expect(q("[data-recommendation-accepted-action]")).toBeNull();
+    noVocabularyViolations("recommendation latest after apply");
+  });
+
   it("treats ACTION_ACCEPTANCE_CONFLICT as already accepted and follows its action_id", async () => {
     serve(
       { [`${REC_API}?revision_id=${REV}`]: served(rec.pre_accept_available) },
@@ -323,6 +353,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
   });
 
   it("applies with a fresh key per attempt: a stale FAILED keeps it pending, a replay says so, then APPLIED", async () => {
+    // Derived (3): the recorded latest events cut to ACCEPTED and OBSERVED.
     const s = serve(actionReads(ov.accepted_pending, { status: 200, body: { ...hi.events_latest.body, events: hi.events_latest.body.events.slice(0, 2) } }), {
       [`${ACTION_API}/apply`]: [served(ex.apply_stale_failed), served(ex.apply_stale_retry_same_key), served(ex.apply_applied)],
     });
@@ -359,12 +390,88 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
       expect(Object.keys(post.body).sort()).toEqual(["effective_from", "expected_foundation_revision_id", "idempotency_key", "value"]);
     }
     expect(new Set(posts.map((p) => p.body.idempotency_key)).size).toBe(3);
+    // L1: the default is exactly the next UTC midnight after the read time (the clock is before it).
+    expect(posts.map((p) => p.body.effective_from)).toEqual(Array(3).fill("2026-11-02T00:00:00+00:00"));
+  });
+
+  it("re-derives an untouched default effective time at click, so a page left open past midnight sends no past instant", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-01T01:00:00Z"));
+    try {
+      const s = serve(actionReads(ov.accepted_pending, hi.events_latest), {
+        [`${ACTION_API}/apply`]: [served(ex.apply_stale_failed), served(ex.apply_stale_failed)],
+      });
+      mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+      await settledScreen();
+      const field = q("[data-action-effective-from]") as HTMLInputElement;
+      expect(field.value).toBe("2026-11-02T00:00");
+      vi.setSystemTime(new Date("2026-11-03T05:00:00Z"));
+      fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+      await waitFor(() => expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(1));
+      expect(s.requests.find((r) => r.method === "POST")?.body.effective_from).toBe("2026-11-04T00:00:00+00:00");
+      await settledScreen();
+      // An edited value is the operator's own and is sent as typed.
+      fireEvent.change(q("[data-action-effective-from]") as HTMLInputElement, { target: { value: "2026-11-05T06:00" } });
+      fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+      await waitFor(() => expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(2));
+      expect(s.requests.filter((r) => r.method === "POST")[1].body.effective_from).toBe("2026-11-05T06:00:00+00:00");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("offers no Apply when the capability names a different command (granted() checks the exact command)", async () => {
+    // Derived (5): APPLY's slot carries the recorded allowed OBSERVE capability.
+    const body = structuredClone(ov.accepted_pending.body);
+    body.system_demo_capability.apply = body.system_demo_capability.observe;
+    expect(body.system_demo_capability.apply.allowed).toBe(true);
+    serve(actionReads({ status: 200, body }, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    expect(screen.queryByRole("button", { name: /Apply trial/ })).toBeNull();
+    expect(q("[data-action-command-unavailable]")).not.toBeNull();
+  });
+
+  it("offers no Apply, with a stated reason, when the read names no current Foundation version", async () => {
+    // Derived (5): the recorded pending read with no current version in its application basis.
+    const body = structuredClone(ov.accepted_pending.body);
+    body.application_basis.current_foundation_revision_id = null;
+    serve(actionReads({ status: 200, body }, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    expect(screen.queryByRole("button", { name: /Apply trial/ })).toBeNull();
+    expect(q("[data-action-apply-no-basis]")?.textContent).toMatch(/did not state the current Foundation version/);
+  });
+
+  it("shows each recorded 422 FAILED variant typed and still pending", async () => {
+    for (const name of ["apply_invalid_value_failed", "apply_backdate_failed", "apply_no_change_failed"]) {
+      serve(actionReads(ov.accepted_pending, hi.events_latest), { [`${ACTION_API}/apply`]: [served(ex[name])] });
+      mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+      await settledScreen();
+      fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+      const code = ex[name].body.detail.code as string;
+      await waitFor(() => expect(q(`[data-action-command-refused='${code}']`)).not.toBeNull());
+      expect(ex[name].status).toBe(422);
+      expect(q("[data-action-failed-event]")?.textContent).toMatch(/still pending/);
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("a wrong-Site apply is refused not found (apply_wrong_site_404)", async () => {
+    serve(actionReads(ov.accepted_pending, hi.events_latest), { [`${ACTION_API}/apply`]: [served(ex.apply_wrong_site_404)] });
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+    await waitFor(() => expect(q("[data-action-command-refused='ACTION_NOT_FOUND']")).not.toBeNull());
+    expect(q("[data-action-command-refused]")?.textContent).toMatch(/HTTP 404/);
   });
 
   it("says ACTION_ALREADY_APPLIED attempted nothing, and keeps the prior read when the re-read fails", async () => {
     const s = serve(actionReads(ov.accepted_pending, hi.events_latest), { [`${ACTION_API}/apply`]: [served(ex.apply_new_key_already_applied)] });
     mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
     await settledScreen();
+    // Derived (4): no recorded store-unavailable case exists.
     s.setGet(ACTION_API, { status: 503, body: { detail: { code: "STORE_UNAVAILABLE", message: "The store could not be read." } } });
     fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
     await waitFor(() => expect(q("[data-action-already-applied-event]")).not.toBeNull());
@@ -386,10 +493,9 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
   for (const width of [1440, 390]) {
     it(`Application is read-only with a reason when the capability is denied or absent (${width})`, async () => {
       atWidth(width);
-      // The recorded denied read is of an applied Action, so the pending read carries its denied capability.
-      const denied = structuredClone(ov.accepted_pending.body);
-      denied.system_demo_capability = ov.capability_denied.body.system_demo_capability;
-      serve(actionReads({ status: 200, body: denied }, hi.events_latest));
+      // The recorded denied read (a pending Action, latest record) is served as recorded.
+      expect(ov.capability_denied.body.state.application).toBe("PENDING");
+      serve(actionReads(ov.capability_denied, hi.events_latest));
       mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
       await settledScreen();
       expect(screen.queryByRole("button")).toBeNull();
@@ -512,6 +618,25 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     expect(screen.getByRole("heading", { name: "Action not found" })).toBeInTheDocument();
     expect(q("[data-action-read='refused']")?.getAttribute("data-action-http")).toBe("404");
     expect(qa("[data-action-event]")).toHaveLength(0);
+  });
+
+  it("an unknown event_id is the selection not found, not the Action, with a link to the latest record (M1)", async () => {
+    const unknown = hi.unknown_event_404;
+    const query = "?event_id=00000000-0000-4000-8000-000000000000";
+    expect(unknown.request.path).toBe(`${ACTION_API}${query}`);
+    serve({ [unknown.request.path]: served(unknown), [`${ACTION_API}/events${query}`]: served(unknown), ...actionReads(ov.accepted_pending, hi.events_latest) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/history${query}`);
+    await settledScreen();
+    expect(screen.getByRole("heading", { name: "Selected event not found" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Action not found" })).toBeNull();
+    expect(document.body.textContent).not.toMatch(/no such action/i);
+    expect(q("[data-action-read='selection-not-found']")?.getAttribute("data-action-code")).toBe("ACTION_EVENT_NOT_FOUND");
+    const latest = q("[data-action-open-latest]") as HTMLAnchorElement;
+    expect(latest).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}/history`);
+    fireEvent.click(latest);
+    await settledScreen();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}/history`);
+    expect(q("[data-action-id]")?.getAttribute("data-action-id")).toBe(ACTION);
   });
 
   it("an unknown Action section is refused", async () => {

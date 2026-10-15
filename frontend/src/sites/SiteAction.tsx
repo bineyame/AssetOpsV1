@@ -32,6 +32,7 @@ import {
   type CommandResult,
   type EventSelector,
   type PolicyChange,
+  type Refusal,
   type Selection,
 } from "./actionClient";
 import {
@@ -143,6 +144,9 @@ export function SiteAction({
 
   if (body === null) {
     if (actionRefusal === null) return loading;
+    if (actionRefusal.code === "ACTION_EVENT_NOT_FOUND") {
+      return <SelectionNotFound refusal={actionRefusal} view={view} selector={selector} links={links} />;
+    }
     return (
       <>
         <RefusalPanel refusal={actionRefusal} subject="Action" headingId="site-action-refused-heading">
@@ -195,6 +199,42 @@ export function SiteAction({
         <History body={body} events={events} links={links} view={view} />
       )}
     </section>
+  );
+}
+
+/**
+ * A 404 for the selected event or cutoff, not for the Action (phase-1 review
+ * M1): the Action exists, the address names an event it does not have.
+ */
+function SelectionNotFound({
+  refusal,
+  view,
+  selector,
+  links,
+}: {
+  refusal: Refusal;
+  view: ActionView;
+  selector: EventSelector;
+  links: SiteActionLinks;
+}) {
+  const what = selector.eventId !== null ? "event" : "recorded time";
+  return (
+    <Panel heading={`Selected ${what} not found`} headingId="site-action-selection-missing-heading">
+      <p data-action-read="selection-not-found" data-action-http={refusal.http ?? "none"} data-action-code={refusal.code ?? ""}>
+        {selector.eventId !== null
+          ? "This Action has no event with the ID in the address."
+          : "This Action has no event recorded through the time in the address."}{" "}
+        The Action itself is not in question.
+      </p>
+      <p className="action-note">
+        Code: <Ref value={refusal.code ?? "UNKNOWN"} />
+      </p>
+      <p>
+        <Link to={links.view(view, LATEST)} data-action-open-latest>
+          Open the latest record of this Action
+        </Link>
+      </p>
+    </Panel>
   );
 }
 
@@ -347,8 +387,15 @@ function ChangeSummary({ change, links }: { change: PolicyChange; links: SiteAct
   );
 }
 
+/**
+ * The default effective time: the next UTC midnight after the later of the
+ * read time and now, so a page left open past midnight never defaults to a
+ * past instant (phase-1 review L1).
+ */
 function nextUtcMidnight(after: string | null | undefined): string {
-  const base = after ? new Date(after) : new Date();
+  const read = after ? new Date(after) : null;
+  const now = new Date();
+  const base = read !== null && read.getTime() > now.getTime() ? read : now;
   const day = new Date(Date.UTC(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate() + 1));
   return day.toISOString().slice(0, 16);
 }
@@ -371,7 +418,10 @@ function Application({
   onOutcome: (result: CommandResult) => void;
 }) {
   const basis = body.application_basis;
-  const [effective, setEffective] = useState(() => nextUtcMidnight(basis?.read_at ?? body.state.accepted_at));
+  const readAt = basis?.read_at ?? body.state.accepted_at;
+  const [effective, setEffective] = useState(() => nextUtcMidnight(readAt));
+  // Untouched, the default is re-derived when the command is sent; an edited value is the operator's own.
+  const [edited, setEdited] = useState(false);
   const [busy, setBusy] = useState(false);
   const capability = body.system_demo_capability?.apply;
   const latest = body.selection.kind === "LATEST";
@@ -380,10 +430,12 @@ function Application({
   const apply = async () => {
     if (busy || basis?.current_foundation_revision_id == null) return;
     setBusy(true);
+    const sent = edited ? effective : nextUtcMidnight(readAt);
+    if (sent !== effective) setEffective(sent);
     const result = await client.apply(siteId, body.action.id, {
       value: body.accepted_recommendation.proposed_value,
       expected_foundation_revision_id: basis.current_foundation_revision_id,
-      effective_from: `${effective}:00+00:00`,
+      effective_from: `${sent}:00+00:00`,
       idempotency_key: freshIdempotencyKey(),
     });
     setBusy(false);
@@ -421,6 +473,11 @@ function Application({
           <p className="action-note" data-action-already-applied>
             Applied; there is nothing more to apply.
           </p>
+        ) : granted(capability, "APPLY") && !basis?.current_foundation_revision_id ? (
+          <p className="action-note" data-action-apply-no-basis>
+            Applying is not offered: the read did not state the current Foundation version, so the command could not
+            name the version it expects. Reload to read it again.
+          </p>
         ) : granted(capability, "APPLY") ? (
           <>
             <p className="action-note">
@@ -441,7 +498,10 @@ function Application({
               <input
                 type="datetime-local"
                 value={effective}
-                onChange={(event) => setEffective(event.target.value)}
+                onChange={(event) => {
+                  setEdited(true);
+                  setEffective(event.target.value);
+                }}
                 data-action-effective-from
               />
             </label>{" "}

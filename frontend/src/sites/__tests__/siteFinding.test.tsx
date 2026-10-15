@@ -146,7 +146,7 @@ function Where() {
   return <output data-testid="where">{at.pathname + at.search}</output>;
 }
 
-function mount(client: FindingClient, search = "", id = F) {
+function mount(client: FindingClient, search = "", id = F, withRecommendation = true) {
   return render(
     <MemoryRouter initialEntries={[`/sites/KOBO-001/findings/${id}${search}`]}>
       <Routes>
@@ -162,7 +162,9 @@ function mount(client: FindingClient, search = "", id = F) {
                   finding: (fid, rid) => `/sites/KOBO-001/findings/${fid}${rid ? `?revision_id=${rid}` : ""}`,
                   dispatch: (day, rid) => `/sites/KOBO-001/performance/dispatch?day=${day}${rid ? `&revision=${rid}` : ""}`,
                   evidence: "/sites/KOBO-001/evidence",
-                  recommendation: (rid) => `/sites/KOBO-001/findings/${id}/recommendation${rid ? `?revision_id=${rid}` : ""}`,
+                  ...(withRecommendation
+                    ? { recommendation: (rid: string | null) => `/sites/KOBO-001/findings/${id}/recommendation${rid ? `?revision_id=${rid}` : ""}` }
+                    : {}),
                 }}
               />
               <Where />
@@ -177,6 +179,13 @@ function mount(client: FindingClient, search = "", id = F) {
 const where = () => screen.getByTestId("where").textContent ?? "";
 
 describe("Site Finding detail (S4-01 phase 3)", () => {
+  it("offers no recommendation link, and says so, when the frame gives none (phase-1 review L5)", async () => {
+    const { container } = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }), "", F, false);
+    await settledScreen();
+    expect(container.querySelector("[data-finding-recommendation-link='none']")?.textContent).toMatch(/No recommendation link is offered here/);
+    expect(container.querySelector("[data-finding-recommendation-link] a")).toBeNull();
+  });
+
   it("shows what happened, its limits and where to look, in plain words, with the Dispatch drill-down", async () => {
     const client = fake({ status: "loaded", value: body([summary(1, "OPENED")]) });
     const { container } = mount(client);
