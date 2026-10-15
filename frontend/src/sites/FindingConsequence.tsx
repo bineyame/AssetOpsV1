@@ -405,7 +405,7 @@ function Headline({ bridge }: { bridge: FindingFinancialsBody }) {
 }
 
 const SERIES_KIND_WORDS: Record<string, string> = {
-  SEQUENCE_ORDER_INVERTED: "some arrived out of order and their clock is not proven",
+  SEQUENCE_ORDER_INVERTED: "they arrived before an earlier reading and their clock is not proven",
   REPORTS_OVERLAP: "some overlap in time, so no order can be chosen",
 };
 
@@ -443,8 +443,13 @@ function MoneyLimit({
   const gate = c.money_eligibility;
   const limits = gate?.series_limits ?? [];
   const seen = new Set<string>();
-  const spans = limits.filter((x) => {
-    const key = `${x.start}|${x.end}|${x.kind}|${x.source}`;
+  // One line per span and kind: Finding-revision limits come first so their specific wording wins over the
+  // generic selected-window one for the same span.
+  const ordered = [...limits].sort(
+    (a, b) => Number(a.source === "SELECTED_WINDOW") - Number(b.source === "SELECTED_WINDOW"),
+  );
+  const spans = ordered.filter((x) => {
+    const key = `${x.start}|${x.end}|${x.kind}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -455,7 +460,7 @@ function MoneyLimit({
         spans.length > 0 ? (
           <ul>
             {spans.map((x) => (
-              <li key={`${x.start}|${x.end}|${x.kind}|${x.source}`} data-financials-series-limit={x.kind}>
+              <li key={`${x.start}|${x.end}|${x.kind}`} data-financials-series-limit={x.kind}>
                 The order of generator records from {formatInstant(x.start)} to {formatInstant(x.end)} is not proven:{" "}
                 {SERIES_KIND_WORDS[x.kind] ?? "they could not be ordered"}. {seriesRelationWords(x)}
               </li>

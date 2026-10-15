@@ -27,8 +27,8 @@ cd frontend; $env:ASSETOPS_API_PORT="8921"; npm.cmd run dev -- --port 5421 --str
 Open `http://localhost:5421/sites/KOBO-001/financials?finding_id=<finding id from serve>`. Look for:
 
 - Cost: **"Withheld: the generator records are not in a proven time order"**, and no amount at the top.
-- One line: "The order of generator records from 2026-10-24 07:05 UTC to 2026-10-24 08:00 UTC is not proven: some
-  arrived out of order and their clock is not proven. The finding ends before them and that time is not judged."
+- One list item (one per refused span and kind, even when the selected window repeats it): "The order of generator records from 2026-10-24 07:05 UTC to 2026-10-24 08:00 UTC is not proven: they
+  arrived before an earlier reading and their clock is not proven. The finding ends before them and that time is not judged."
   (The span is the unordered block, not the late reading itself, which is the 07:00-07:05 mean.)
 - The link "Open the recorded fuel cost of this finding version". It opens fuel cost version 1, **0.00 to 7.57
   USD**, marked "kept for the record". Nothing on the page is called the current fuel cost.
@@ -58,6 +58,8 @@ amount, and the same "Open the recorded fuel cost" link to the same 7.57 USD ver
 Reload Financials. Look for:
 
 - The headline **"Modelled potential fuel-cost exposure" 0.00 to 15.82 USD**, with the finding now 06:05 to 08:00.
+- The **"Demonstration data"** label and its statement beside the finding (P02-power-late, same wording as the
+  earlier demonstration case). It also shows in the withheld state of step 2; if it is missing in either, report it.
 - A new finding version and a new fuel cost version (new IDs).
 - The Finding page no longer has the "ends at 07:00" sentence.
 - The earlier 7.57 USD record is still there: use the finding's version history to open the earlier version
@@ -73,7 +75,7 @@ Stop both servers (Ctrl+C), then:
 .venv\Scripts\python.exe tools\s402c_late_power_walkthrough.py serve --db assetops_lr01_owner_ontime --api-port 8921 --web-port 5421
 ```
 
-Restart the frontend command from step 1. Financials shows 0.00 to 15.82 USD directly: the reading was numbered when
+Restart the frontend command from step 1. Financials shows 0.00 to 15.82 USD directly, with the same "Demonstration data" label: the reading was numbered when
 taken and the clock attestation covers it.
 
 ## 5. Clean up
