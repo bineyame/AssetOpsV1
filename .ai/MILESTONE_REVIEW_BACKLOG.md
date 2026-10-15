@@ -2232,3 +2232,12 @@ Reviews `.agent/S4-02d-phase-1-review.md`, `.agent/S4-02d-phase-2-review.md`, `.
 - R-1 (`backend/tests/test_s4_schedule_health_postgres.py:460-471`): round-1 comment claims a race that never overlapped; reword or gate on an S3-stage event. R-2 (`:395-400`): 20 s skew allowance trips on slow ticks (42-96 s seen); derive from a measured tick or ~120 s. R-3 (`scheduling/health.py:179`): alarm's live-job exclusion untested (mutation survived); add the live-FAILED-job-over-STALE-day assertion.
 - I4 race test wall time 26-384 s and the 16 -> 37 min full suite are host disk sync (`IO:DataFileImmediateSync` in per-test migration/TRUNCATE), not lock contention: input to OPS-01.
 - Info: phase-1 scratch DB `assetops_s402d_test` left on the shared server.
+
+### OPS-01 carries (2026-10-15)
+
+Review `.agent/OPS-01-review.md` ACCEPT (`1a987d2e`); reviewer full run on final revision `-n 2` 2129 passed in 7.6 min, node IDs exact.
+- L1: `ASSETOPS_TEST_TEMPLATE=0` under xdist would let workers reset the same DB in place; guide says serial-only but nothing enforces it. Fix: usage error in `pytest_configure` when set under xdist.
+- L2: DELETE cleanup assumes `public` lowercase table names; a future ALWAYS/TRUNCATE trigger would diverge silently. Fix: select `oid::regclass`; re-check triggers when migrations add any.
+- L3: `cleanup_run` test creates fixed DB names with no lease session; a concurrent run could sweep them (not possible under one-at-a-time policy).
+- `-n 3` (one run, 6.5 min, peak 41 sessions) stays optional until a second clean run and a peak check; concurrent full-suite pairs not proven, so one full suite at a time.
+- Inline stores in test bodies (CaseRunner, `make_tick` store, S2 `ingestion()`, S3 `worker()`) still rely on GC; a public `dispose()` on the Foundation/Finding/Assessment/Ledger stores is production work outside this task.
