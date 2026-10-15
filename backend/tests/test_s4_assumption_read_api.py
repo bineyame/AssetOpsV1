@@ -159,7 +159,8 @@ class TestFindingFinancialsBridge:
                    "price": {"revision_id": "p1", "reason": None},
                    "amount": {"low": "0", "high": "3.4375", "currency": "USD"},
                    "display": {"state": "ROUNDED_OUTWARD", "amount_low": "0.00", "amount_high": "3.44"}}
-            return {"currentness": {"state": currentness, "reasons": [], "pending_work": []}, "consequence": row}
+            return {"currentness": {"state": currentness, "reasons": [], "pending_work": []}, "consequence": row,
+                    "money_eligibility": {"state": "ELIGIBLE"}}  # LR-01: the shared gate lets it through
 
         class Consequences:
             def __init__(self, out=None, error=None):
@@ -186,6 +187,11 @@ class TestFindingFinancialsBridge:
         assert (down["state"], down["amount"]) == ("UNAVAILABLE", None)
         unpriced = bridge_consequence(result("CURRENT", "UNPRICED"))
         assert (unpriced["state"], unpriced["amount"], unpriced["currency"]) == ("UNPRICED", None, None)
+        # LR-01: a CURRENT PRICED head with the gate withholding, or with no gate at all, shows no amount.
+        for gate, want in (({"state": "WITHHELD_GENERATOR_SERIES"}, "WITHHELD_GENERATOR_SERIES"),
+                           (None, "PENDING_REASSESSMENT")):
+            held = bridge_consequence({**result("CURRENT"), "money_eligibility": gate})
+            assert (held["state"], held["amount"], held["recorded_consequence_revision_id"]) == (want, None, "c1")
 
 
 # ---- S4-02b phase 2b: review carries M1 (closed source), L1 (route refusals) and L4 (STALE wording) ----
