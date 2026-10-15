@@ -20,10 +20,10 @@ import argparse
 import json
 import sys
 from datetime import datetime, timedelta, timezone
-from typing import Sequence
+from typing import Any, Sequence
 from uuid import UUID
 
-from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+from assetops_backend.analytics.composition import build_postgres_assessment_store
 from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.clock_attestation import SYSTEM_ATTESTER, AttestationChange, AttestationRefused
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
@@ -51,7 +51,7 @@ def change_from(args: argparse.Namespace) -> AttestationChange:
         expected_version=args.expected_version, reason=args.reason)
 
 
-def main(argv: Sequence[str] | None = None, store: PostgresAssessmentStore | None = None,
+def main(argv: Sequence[str] | None = None, store: Any = None,
          now: datetime | None = None) -> int:
     parser = argparse.ArgumentParser(prog="record_clock_attestation", description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -74,7 +74,7 @@ def main(argv: Sequence[str] | None = None, store: PostgresAssessmentStore | Non
     if args.tenant != DEVELOPMENT_TENANT_SLUG:
         print(f"Tenant {args.tenant!r} is not the configured development tenant.", file=sys.stderr)
         return 2
-    store = PostgresAssessmentStore(database_url()) if store is None else store
+    store = build_postgres_assessment_store(database_url()) if store is None else store
     try:
         scope = store.site_scope(args.tenant, args.site)
         if scope is None:

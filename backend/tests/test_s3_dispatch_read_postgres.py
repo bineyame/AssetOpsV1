@@ -206,10 +206,10 @@ class TestDispatchRead:
         assert c.get(f"{base}/runs/{window['selection']['run_id']}").status_code == 200
         assert c.get(f"/api/sites/OTHER-1/performance/dispatch/revisions/{interval['id']}").status_code == 404
 
-    def test_stored_dispatch_3_windows_are_reassessed_under_dispatch_3_1_and_kept_as_history(
+    def test_stored_dispatch_3_windows_are_reassessed_under_the_current_model_and_kept_as_history(
             self, site, monkeypatch) -> None:
         """D-2026-10-11-s3-phase-3a-version-and-cutover: a stored default `dispatch-3` window reads stale,
-        the normal worker pass reconciles and reassesses it under `dispatch-3.1`, and the `dispatch-3`
+        the normal worker pass reconciles and reassesses it under the current model (`dispatch-3.1`, now `dispatch-3.2`), and the `dispatch-3`
         run and revisions stay unchanged and addressable, marked as an older rule result."""
         from assetops_backend.analytics import dispatch_v3
 
@@ -221,13 +221,14 @@ class TestDispatchRead:
         assert lineage(site.tenant, site.site, "dispatch", dispatch_v3.MODEL_VERSION)["selected_heads_other_model"] == 1
         old = reads().window(site.tenant, site.site, DAY)
         assert old["selection"]["model_version"] == "dispatch-3" and old["status"] == "STALE_PROJECTION"
-        assert any(r.startswith("MODEL_VERSION_CHANGED: selected run used dispatch-3, current is dispatch-3.1")
+        changed = "MODEL_VERSION_CHANGED: selected run used dispatch-3, current is " + dispatch_v3.MODEL_VERSION
+        assert any(r.startswith(changed)
                    for r in old["status_reasons"])
         [old_interval] = old["intervals"]
 
         worker(T1 + timedelta(minutes=2)).run_pending()  # reconcile + reassess, no operator step
         new = reads().window(site.tenant, site.site, DAY)
-        assert new["status"] == "CURRENT" and new["selection"]["model_version"] == "dispatch-3.1"
+        assert new["status"] == "CURRENT" and new["selection"]["model_version"] == dispatch_v3.MODEL_VERSION
         assert new["selection"]["run_id"] != old["selection"]["run_id"]
         [new_interval] = new["intervals"]
         assert new_interval["assessment_key"] == old_interval["assessment_key"]

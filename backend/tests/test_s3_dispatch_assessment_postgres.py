@@ -469,12 +469,15 @@ class TestClockAttestation:
                 "--idempotency-key", "cli-1", "--authority", "lab-simulated-clock", "--label", "SIMULATED cli",
                 "--max-error-seconds", "30", "--valid-from", "2026-10-06T00:00:00Z",
                 "--valid-to", "2026-10-07T00:00:00Z"]
-        assert record_cli.main(argv, store=PostgresAssessmentStore(URL), now=T1) == (0 if slug == "demo" else 2)
-        if slug == "demo":
-            line = json.loads(capsys.readouterr().out)
-            assert line["actor_id"] == SYSTEM_ATTESTER.actor_id and line["version"] == 1 and line["requeued"]
-        assert record_cli.main(argv[:-2] + ["--valid-to", "2026-10-06T00:00:00Z"], store=PostgresAssessmentStore(URL),
-                               now=T1) in (2, 3)
+        assert slug == "demo"  # the development tenant the CLI accepts
+        assert record_cli.main(argv, store=PostgresAssessmentStore(URL), now=T1) == 0
+        line = json.loads(capsys.readouterr().out)
+        assert line["actor_id"] == SYSTEM_ATTESTER.actor_id and line["version"] == 1 and line["requeued"]
+        bad = argv[:-2] + ["--valid-to", "2026-10-06T00:00:00Z", "--idempotency-key", "cli-2"]
+        assert record_cli.main(bad, store=PostgresAssessmentStore(URL), now=T1) == 3
+        assert "VALIDITY_EMPTY" in capsys.readouterr().err
+        assert rows(site.engine, "SELECT count(*), min(recorded_by) FROM source_clock_attestation")[0] == (
+            1, SYSTEM_ATTESTER.actor_id)
 
 
 def _job_window(site, job_id):
