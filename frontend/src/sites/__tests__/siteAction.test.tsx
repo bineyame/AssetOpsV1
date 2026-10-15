@@ -15,7 +15,10 @@
  * 4. store-unavailable 503 re-read bodies (no recorded case exists);
  * 5. a capability granted for a different command (OBSERVE renamed APPLY's
  *    slot) and a pending read whose application basis names no version.
- * 6. (reopen round) a cleared effective-time field is a UI input, not a body.
+ * 6. (reopen round) a cleared effective-time field is a UI input, not a body;
+ * 7. (reopen round) the recorded accepted read with the recorded
+ *    `prior_action_block` of `latest_revision_after_apply` added: the server may
+ *    send a block while `state=ACCEPTED`, and the notice follows `state` only.
  * Every other body is served exactly as recorded, including the reopen cases
  * `latest_revision_after_apply`, `latest_revision_after_apply_served_clock_stale`
  * and `accept_newer_revision_prior_action_unresolved` (D-2026-10-15-s601-reopen).
@@ -296,6 +299,19 @@ describe("Recommendation (recommendation:1#a)", () => {
     expect(item?.getAttribute("data-prior-action-selected-revision")).toBe("yes");
     expect(item?.textContent).toMatch(/\(this version\)/);
     expect(q("[data-recommendation-prior-block]")).toBeNull();
+  });
+
+  it("shows no held notice when state is ACCEPTED, even if a prior_action_block is present", async () => {
+    // Derived (7): the selected version has its own Action; the block alone never decides the notice.
+    const body = { ...rec.accepted_snapshot_live_status.body, prior_action_block: rec.latest_revision_after_apply.body.prior_action_block };
+    serve({ [`${REC_API}?revision_id=${REV}`]: { status: 200, body } });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("ACCEPTED");
+    expect(q("[data-recommendation-prior-block]")).toBeNull();
+    expect(q("[data-action-command-held]")).toBeNull();
+    expect(q("[data-recommendation-accepted]")?.textContent).toMatch(/20%.*to.*15%/);
+    expect(q("[data-recommendation-accepted-action]")?.getAttribute("data-recommendation-accepted-action")).toBe(ACTION);
   });
 
   it("a 409 PRIOR_ACTION_UNRESOLVED on accept names and links the earlier Action, with the live reason separate", async () => {
