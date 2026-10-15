@@ -215,9 +215,33 @@ class TestRecommendationAcceptAndReload:
             fresh = h.recommendation(f02).json()
             # Reassessed on the new Foundation: the latest revision's live rule sees the changed reserve.
             assert reassessed["revision_id"] != p["finding_revision_id"] and reassessed["accepted"] == []
-            assert reassessed["state"] == "UNAVAILABLE"
-            assert reassessed["unavailable"]["code"] == "FOUNDATION_BASIS_STALE"
-            assert fresh["unavailable"]["code"] == "FOUNDATION_BASIS_STALE"
+            # D-2026-10-15-s601-reopen: the earlier, unresolved Action is the reason and is never hidden by the
+            # stale basis; the stale basis stays a separate live reason. No Accept capability is offered.
+            assert reassessed["state"] == "PRIOR_ACTION_UNRESOLVED" and reassessed["proposal"] is None
+            assert reassessed["unavailable"]["code"] == "PRIOR_ACTION_UNRESOLVED"
+            assert reassessed["unavailable"]["blocking_action_id"] == action_id
+            assert reassessed["unavailable"]["origin_finding_revision_id"] == p["finding_revision_id"]
+            assert reassessed["live_status"]["unavailable"]["code"] == "FOUNDATION_BASIS_STALE"
+            assert reassessed["system_demo_capability"]["allowed"] is False
+            assert reassessed["system_demo_capability"]["unavailable_reason"].startswith("PRIOR_ACTION_UNRESOLVED")
+            [prior] = reassessed["prior_actions"]["items"]
+            assert prior["action_id"] == action_id and prior["origin"]["is_selected_revision"] is False
+            assert prior["origin"]["finding_revision_id"] == p["finding_revision_id"]
+            assert prior["application"]["state"] == "PENDING" and prior["outcome"]["state"] == "PENDING"
+            assert prior["links"]["api_action"] == f"/api/sites/KOBO-001/actions/{action_id}"
+            assert fresh["unavailable"]["code"] == "PRIOR_ACTION_UNRESOLVED"
+            assert fresh["live_status"]["unavailable"]["code"] == "FOUNDATION_BASIS_STALE"
+            # Accepting on the newer revision is refused with the typed reason; the live reason is separate.
+            counted = h.counts()
+            held = h.accept(f01, {**p, "finding_revision_id": reassessed["revision_id"],
+                                  "recommendation_key": "0" * 64}, idempotency_key="accept-newer-01")
+            assert held.status_code == 409, held.text
+            detail = held.json()["detail"]
+            assert detail["code"] == "PRIOR_ACTION_UNRESOLVED" and detail["blocking_action_id"] == action_id
+            assert detail["origin_finding_revision_id"] == p["finding_revision_id"]
+            assert detail["links"]["api_action"].endswith(action_id)
+            assert detail["live_status"]["unavailable"]["code"] == "FOUNDATION_BASIS_STALE"
+            assert h.counts() == counted
             pinned = h.recommendation(f01, revision_id=p["finding_revision_id"]).json()
             assert pinned["state"] == "ACCEPTED" and pinned["accepted"][0]["snapshot"] == accepted["snapshot"]
             assert pinned["live_status"]["unavailable"]["code"] == "FINDING_REVISION_NOT_LATEST"
@@ -309,17 +333,94 @@ class TestRuleOnPersistedEvidence:
             assert old["state"] == "ACCEPTED" and old["accepted"][0]["action_id"] == action_id
             assert old["live_status"]["unavailable"]["code"] == "FINDING_REVISION_NOT_LATEST"
             latest = h.recommendation(finding).json()
-            assert latest["revision_id"] == str(revs[1]["id"]) and latest["state"] == "AVAILABLE"
+            # The live rule offers a new key on revision 2, but the unresolved Action on revision 1 holds it.
+            assert latest["revision_id"] == str(revs[1]["id"]) and latest["state"] == "PRIOR_ACTION_UNRESOLVED"
+            assert latest["live_status"]["state"] == "AVAILABLE" and latest["proposal"] is None
+            newer = latest["live_status"]["proposal"]
+            assert newer["recommendation_key"] != p["recommendation_key"]
+            assert latest["prior_action_block"]["blocking_action_id"] == action_id
+            assert latest["prior_action_block"]["origin_revision_no"] == 1
+            assert latest["system_demo_capability"]["allowed"] is False
+            [prior] = latest["prior_actions"]["items"]
+            assert prior["origin"] == {"finding_id": str(finding), "finding_revision_id": str(revs[0]["id"]),
+                                       "revision_no": 1, "is_selected_revision": False}
+            assert old["prior_actions"]["items"][0]["origin"]["is_selected_revision"] is True
+            assert old["prior_action_block"] is None and old["system_demo_capability"]["allowed"] is True
+            before = h.counts()
+            held = h.accept(finding, newer, idempotency_key="accept-rev2")
+            assert held.status_code == 409 and held.json()["detail"]["code"] == "PRIOR_ACTION_UNRESOLVED"
+            assert held.json()["detail"]["origin_finding_revision_id"] == str(revs[0]["id"])
+            assert held.json()["detail"]["live_status"]["state"] == "AVAILABLE"
+            assert h.counts() == before
+            # An identical retry of the existing accepted key still returns its Action.
+            again = h.accept(finding, p)
+            assert again.status_code == 200 and again.json()["action"]["action_id"] == action_id
             body = h.client.get(f"/api/sites/KOBO-001/actions/{action_id}").json()
             assert body["origin"]["finding_revision_id"] == str(revs[0]["id"])
             assert body["latest_finding_revision"]["id"] == str(revs[1]["id"])
             assert body["latest_finding_revision"]["is_origin"] is False
             assert body["newer_revision_notice"]["latest_revision_id"] == str(revs[1]["id"])
             shut = closed.recommendation(finding).json()
-            assert shut["source_open"] is False and shut["unavailable"]["code"] == "FINDING_NOT_CURRENT"
+            assert shut["source_open"] is False and shut["unavailable"]["code"] == "PRIOR_ACTION_UNRESOLVED"
+            assert shut["live_status"]["unavailable"]["code"] == "FINDING_NOT_CURRENT"
         finally:
             h.close()
             closed.close()
+
+
+class TestPriorActionAtomicRecheck:
+    def test_simultaneous_accepts_on_two_revisions_make_one_unresolved_trial(self, runner) -> None:
+        """D-2026-10-15-s601-reopen: the prior-Action guard runs again under the store's trial lock. Both accepts
+        pass the service's unlocked pre-check (no Action exists yet); each guard then holds its transaction open,
+        so without the lock both would insert."""
+        import time
+
+        from assetops_backend.actions.ports import ActionRefused
+        from assetops_backend.actions.reserve_trial import sha
+
+        steps = CASES["F04"]["steps"]
+        run_steps(runner, {"steps": steps[:3]})
+        h = harness(runner)
+        try:
+            [finding] = h.findings().values()
+            p1 = h.recommendation(finding).json()["proposal"]
+            run_steps(runner, {"steps": steps[3:]})
+            p2 = h.recommendation(finding).json()["proposal"]
+            assert p1["finding_revision_id"] != p2["finding_revision_id"]
+            assert p1["recommendation_key"] != p2["recommendation_key"]
+            out: list = []
+            gate = threading.Barrier(2)
+
+            def go(proposal: dict, key: str) -> None:
+                strict = ActionService._prior_guard("KOBO-001", UUID(proposal["finding_revision_id"]),
+                                                    type("E", (), {"available": True,
+                                                                   "unavailable": lambda self: None})())
+
+                def slow(prior: list) -> None:
+                    strict(prior)
+                    time.sleep(1.0)  # hold the transaction after the check, before the insert
+
+                payload = {"command": "ACCEPT", "idempotency_key": key, "revision": proposal["finding_revision_id"]}
+                gate.wait()
+                try:
+                    _a, _e, replayed = h.store.accept(runner.tenant, runner.site, proposal, payload_sha256=sha(payload),
+                                                      payload=payload, idempotency_key=key, fixture_id="race",
+                                                      recorded_at=T_ACCEPT, guard=slow)
+                    out.append(("created", replayed))
+                except ActionRefused as refused:
+                    out.append((refused.code, refused.extra.get("blocking_action_id")))
+                except Exception as error:  # noqa: BLE001 - surfaced by the assertion below
+                    out.append(("error", repr(error)))
+
+            threads = [threading.Thread(target=go, args=(p, k)) for p, k in ((p1, "race-accept-0001"), (p2, "race-accept-0002"))]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+            assert sorted(o[0] for o in out) == ["PRIOR_ACTION_UNRESOLVED", "created"], out
+            assert h.counts()["action"] == 1 and h.counts()["action_event"] == 1
+        finally:
+            h.close()
 
 
 class TestRefusalsWriteNothing:

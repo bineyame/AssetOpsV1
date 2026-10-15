@@ -1,6 +1,6 @@
 # S6-01a review packet - Action store, controlled application and exact read
 
-Task `tasks/S6-01a-action-store-read.md` (status `in_review`). Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Code-final revision `375c8cf9` (closeout docs after it). Authority `D-2026-10-15-s601-action-store-and-ui` (`.agent/architect-S6-01-answers.md` Q1-Q5, M1-M3). USER_REVIEW_REQUIRED: **false** (non-UI). This phase-2 review is the slice review. Not merged.
+Task `tasks/S6-01a-action-store-read.md` (status `in_review`). Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Code-final revision `586d5fe1` after the reopen round below (slice review was on `375c8cf9`; closeout docs after it). Authority `D-2026-10-15-s601-action-store-and-ui` (`.agent/architect-S6-01-answers.md` Q1-Q5, M1-M3). USER_REVIEW_REQUIRED: **false** (non-UI). This phase-2 review is the slice review. Not merged.
 
 ## Outcome delivered
 
@@ -126,6 +126,37 @@ The coordinator relayed the findings. The review file itself (`AssetOpsV1-review
 - **The grants file is the only gate.** Under the development access check, the grants file is the only gate for SYSTEM demonstration commands. No runtime grants file is generated for a served demo: `fixture_grants` builds one per run and per DB.
 - **Accept is two transactions.** Rule evaluation and the insert run in separate transactions, so a just-stale basis is caught only by apply's expected checks under the Site lock (tested: 409 plus FAILED).
 - **Contract fixture size.** It is 350 KB. The comparison normalises UUIDs, digests and codes, so referential consistency is asserted separately in the test.
+
+## Reopen round - `D-2026-10-15-s601-reopen` (code `586d5fe1`)
+
+Ruling `AssetOpsV1-gap-planning/.agent/architect-S6-01-reopen-answers.md`, option (c). Files: `actions/service.py` (`prior_action`, `prior_action_refusal`, `is_unresolved`, `_prior_guard`, `recommendation`, `accept`), `actions/adapters/postgres_action_store.py` (`_finding_actions`, `actions_for_finding`, `accept(..., guard=)` with the per-trial advisory lock), `actions/ports.py`, `actions/reserve_trial.py` (`LIVE_RECOMPUTATION_FAILED`), tests and the regenerated fixture.
+
+| Ruling item | Status | Evidence |
+| --- | --- | --- |
+| Read returns prior Actions of the canonical Finding: origin revision (ID, number, `is_selected_revision`), application and outcome state, exact link; not hidden by stale basis, later revision or failed recomputation | Met | `prior_actions.items` is read before the live rule; store test (newer revision, live `FOUNDATION_BASIS_STALE` and `FINDING_NOT_CURRENT`), F04 test (live AVAILABLE), contract cases on both clocks |
+| Selected revision and accepted snapshot labelled separately | Met | `revision_id` vs `prior_actions.items[].origin`; ACCEPTED body unchanged; `is_selected_revision` true only on the origin revision |
+| New acceptance held by an unresolved earlier Action: typed 409 `PRIOR_ACTION_UNRESOLVED` with `blocking_action_id`, `origin_finding_revision_id`, `links`; live reason separate (`live_status`) | Met | store test (stale live), F04 test (AVAILABLE live), contract `accept_newer_revision_prior_action_unresolved`; counts unchanged |
+| No Accept capability for the new key | Met | `system_demo_capability.allowed=false`, reason `PRIOR_ACTION_UNRESOLVED: ...`; read `state=PRIOR_ACTION_UNRESOLVED`, `proposal=null` |
+| Identical retry of the accepted key returns its Action | Met | F04 test `again` (200, same action ID); records `accept_replayed` |
+| Atomic recheck: simultaneous accepts on two revisions make one unresolved trial (Postgres) | Met | `TestPriorActionAtomicRecheck` (one created, one `PRIOR_ACTION_UNRESOLVED`, 1 Action row) |
+| Contract fixture: recorded-clock AVAILABLE and served-clock stale cases; NOTES for S6-01b | Met | `recommendation:1#a.latest_revision_after_apply` (live AVAILABLE), `..._served_clock_stale` (clock 2026-10-15, live `FOUNDATION_BASIS_STALE`); `notes.prior_actions`, `notes.PRIOR_ACTION_UNRESOLVED` |
+
+Checks (on `586d5fe1`, private DB `assetops_s601areopen_test`, dropped afterwards):
+- Fixture regenerated with `ASSETOPS_WRITE_S6_CONTRACT=1`, then the 4 S6 files: **81 passed** (105 s), normalised equality held.
+- `tools/check-architecture.ps1`: passed.
+- Mutations, each reverted with `git checkout`, tree clean afterwards:
+  - guard predicate releases every state (`UNRESOLVED_APPLICATION = ()`): 4 failed (3 store tests, records);
+  - applied Actions treated as resolved (`(PENDING,)`): records test failed;
+  - per-trial advisory lock removed: race test failed (both created);
+  - store-side guard skipped (service pre-check only): race test failed (both created).
+- Full backend suite: one run on `586d5fe1` from PowerShell, `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --durations=30 --junitxml=...` (var/sites copied in and removed; keep-awake on; 20-min cap): **2210 passed in 546 s**; JUnit cases=2210 skipped=0 failed=0.
+
+Reopen deviations and interpretations:
+- R1. **Every post-acceptance state blocks.** After acceptance an Action is PENDING (failed attempts keep it PENDING) or APPLIED, and the outcome is always PENDING here. The ruling also says a completed verification is not permission until S6-02 defines resolved/closed, so no reduced state releases the guard (`UNRESOLVED_APPLICATION`). S6-02 must add the release.
+- R2. **Scope of the block.** Same Finding, `reserve-trial-1`, field `battery_reserve`, and the live proposal's asset when one is offered (any asset when the live rule offers none). A selected revision with its own Action and no new key on offer shows its ACCEPTED snapshot and no block.
+- R3. **Race proof is store-level.** Once revision 2 exists the service refuses revision 1 (`FINDING_REVISION_NOT_LATEST`), so the test drives `store.accept` with the two real server proposals and the service's own guard, holding each transaction 1 s after its check.
+- R4. **Served clock.** The served-clock case reads at 2026-10-15T12:00Z, the date of the S6-01b served walkthrough.
+- R5. **`LIVE_RECOMPUTATION_FAILED`.** If the revision's rule inputs cannot be read after currentness succeeded, the read still returns prior Actions with this live reason, instead of 404.
 
 ## User-review focus
 

@@ -26,6 +26,7 @@ FIXTURE_ID = "D-action-records-v1"
 SCHEMA = "assetops.s6-action-api-contract"
 T_ACCEPT = datetime(2026, 11, 1, 0, 0, tzinfo=timezone.utc)
 EFFECTIVE = T_ACCEPT + timedelta(days=1)
+SERVED_CLOCK = datetime(2026, 10, 15, 12, 0, tzinfo=timezone.utc)  # the served walkthrough ran on the real clock
 INELIGIBLE_DAY = "2026-10-12"
 RECORDS = {"2026-10-06": "recommendation:1#a/eligible-F01", "2026-10-08": "recommendation:1#a/no-change-F02",
            INELIGIBLE_DAY: "recommendation:1#a/ineligible-soc-at-headroom"}
@@ -44,7 +45,19 @@ NOTES = {
                          "which the server checks under the Site lock. A Foundation change dated between the two, or "
                          "recorded after the apply's server time (S1 FOUNDATION_CLOCK_BEHIND, `foundation_code`), "
                          "yields 409 ACTION_FOUNDATION_STALE + FAILED: re-read and retry with a new idempotency key.",
-    "volatile": "IDs, digests and action codes differ per run; tests compare after replacing UUIDs, 64-hex digests "
+    "prior_actions": "D-2026-10-15-s601-reopen. Every recommendation read carries `prior_actions.items`: each Action "
+                     "on the canonical Finding (any revision) with its own `origin.finding_revision_id`/`revision_no`, "
+                     "`origin.is_selected_revision`, `application.state`, `outcome.state`, `unresolved` and "
+                     "`links.action`. Never relabel an earlier Action as the selected revision's.",
+    "PRIOR_ACTION_UNRESOLVED": "State and typed 409 on accept. While an earlier reserve-trial-1 Action on this Finding "
+                               "is unresolved (application pending, including failed attempts, or applied with "
+                               "verification pending), a new key is held: `state` = PRIOR_ACTION_UNRESOLVED, "
+                               "`proposal` null, `prior_action_block` / `unavailable` name `blocking_action_id`, "
+                               "`origin_finding_revision_id` and `links`; `system_demo_capability.allowed` is false. "
+                               "The current-basis result is `live_status` (AVAILABLE on the recorded clock, "
+                               "FOUNDATION_BASIS_STALE on the served clock): show it as a separate live reason, never "
+                               "as an Accept. An identical retry of the existing accepted key still returns its Action.",
+    "volatile":"IDs, digests and action codes differ per run; tests compare after replacing UUIDs, 64-hex digests "
                 "and ACT-nnnnnn codes with placeholders.",
 }
 
@@ -203,7 +216,18 @@ def build(runner, cases: dict, make_harness: Callable[..., Any]) -> tuple[dict, 
         overview["applied_pending_newer_revision"] = get(h.client, action_path)
         rec["accepted_snapshot_live_status"] = get(h.client, f"{base}/findings/{f01}/recommendation",
                                                    revision_id=proposal["finding_revision_id"])
+        # D-2026-10-15-s601-reopen: the newer F01 revision names the earlier, unresolved Action on both clocks.
+        # Recorded clock: the live rule is AVAILABLE (a new key), but the prior Action holds it.
         rec["latest_revision_after_apply"] = get(h.client, f"{base}/findings/{f01}/recommendation")
+        newer = rec["latest_revision_after_apply"]["body"]["live_status"]["proposal"]
+        held_body = {"revision_id": newer["finding_revision_id"], "recommendation_key": newer["recommendation_key"],
+                     "foundation_revision_id": newer["foundation_revision_id"],
+                     "proposed_value": newer["proposed_value"], "idempotency_key": "fixture-accept-newer"}
+        rec["accept_newer_revision_prior_action_unresolved"] = post(h.client, accept_path, held_body)
+        recorded_clock = h.clock.at
+        h.clock.at = SERVED_CLOCK  # the served walkthrough's clock: the live basis reads FOUNDATION_BASIS_STALE
+        rec["latest_revision_after_apply_served_clock_stale"] = get(h.client, f"{base}/findings/{f01}/recommendation")
+        h.clock.at = recorded_clock
 
         events = h.client.get(f"{action_path}/events").json()["events"]
         accepted_event = next(e for e in events if e["kind"] == "ACCEPTED")
