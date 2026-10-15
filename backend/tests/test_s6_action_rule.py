@@ -248,34 +248,42 @@ class TestSelectors:
 
 
 class TestCapability:
-    GRANTS = {"schema": "assetops.action-demo-grants", "version": 1, "fixture_id": "D-action-records-v1",
-              "grants": [{"site_code": "KOBO-001", "commands": ["ACCEPT", "OBSERVE"]}]}
+    T, S, F = uuid4(), uuid4(), uuid4()
+    GRANTS = {"schema": "assetops.action-demo-grants", "version": 2, "fixture_id": "D-action-records-v1",
+              "grants": [{"tenant_id": str(T), "site_id": str(S), "site_code": "KOBO-001",
+                          "commands": ["ACCEPT", "OBSERVE"],
+                          "records": [{"manifest_id": "recommendation:1#a", "finding_id": str(F)}]}]}
 
-    def test_scoped_grant(self) -> None:
+    def test_scoped_grant_names_a_fixture_record(self) -> None:
         check = from_grants(self.GRANTS)
-        t, s = uuid4(), uuid4()
-        assert check(t, s, "KOBO-001", "ACCEPT").allowed
-        assert check(t, s, "kobo-001", "OBSERVE").fixture_id == "D-action-records-v1"
-        denied = check(t, s, "KOBO-001", "APPLY")
+        t, s, f = self.T, self.S, self.F
+        got = check(t, s, "KOBO-001", "ACCEPT", f)
+        assert got.allowed and got.manifest_id == "recommendation:1#a"
+        assert check(t, s, "kobo-001", "OBSERVE", f).fixture_id == "D-action-records-v1"
+        denied = check(t, s, "KOBO-001", "APPLY", f)
         assert not denied.allowed and "does not include APPLY" in denied.unavailable_reason
-        assert not check(t, s, "OTHER-1", "ACCEPT").allowed
+        assert not check(t, s, "OTHER-1", "ACCEPT", f).allowed
+        # A Finding that is not a fixture record, or no target at all, is denied.
+        for target in (uuid4(), None):
+            other = check(t, s, "KOBO-001", "ACCEPT", target)
+            assert not other.allowed and "not a record" in other.unavailable_reason
 
-    def test_pinned_site_and_tenant(self) -> None:
-        t, s = uuid4(), uuid4()
-        doc = {**self.GRANTS, "grants": [{"site_code": "KOBO-001", "site_id": str(s), "tenant_id": str(t),
-                                          "commands": ["ACCEPT"]}]}
-        assert from_grants(doc)(t, s, "KOBO-001", "ACCEPT").allowed
-        assert not from_grants(doc)(t, uuid4(), "KOBO-001", "ACCEPT").allowed
-        assert not from_grants(doc)(uuid4(), s, "KOBO-001", "ACCEPT").allowed
+    def test_tenant_and_site_ids_are_required_and_pinned(self) -> None:
+        t, s, f = self.T, self.S, self.F
+        assert not from_grants(self.GRANTS)(t, uuid4(), "KOBO-001", "ACCEPT", f).allowed
+        assert not from_grants(self.GRANTS)(uuid4(), s, "KOBO-001", "ACCEPT", f).allowed
+        for drop in ("tenant_id", "site_id", "records"):
+            grant = {k: v for k, v in self.GRANTS["grants"][0].items() if k != drop}
+            assert not from_grants({**self.GRANTS, "grants": [grant]})(t, s, "KOBO-001", "ACCEPT", f).allowed
 
-    @pytest.mark.parametrize("doc", [None, {}, {"schema": "x"}, {**GRANTS, "version": 2},
+    @pytest.mark.parametrize("doc", [None, {}, {"schema": "x"}, {**GRANTS, "version": 1},
                                      {**GRANTS, "grants": "all"}])
     def test_malformed_or_absent_grants_deny(self, doc) -> None:
-        got = from_grants(doc)(uuid4(), uuid4(), "KOBO-001", "ACCEPT")
+        got = from_grants(doc)(self.T, self.S, "KOBO-001", "ACCEPT", self.F)
         assert not got.allowed and got.unavailable_reason
 
     def test_default_denies_with_reason(self) -> None:
-        got = no_capability(uuid4(), uuid4(), "KOBO-001", "ACCEPT").wire()
+        got = no_capability(uuid4(), uuid4(), "KOBO-001", "ACCEPT", uuid4()).wire()
         assert got["allowed"] is False and got["command"] == "ACCEPT" and got["fixture_id"] is None
         assert got["unavailable_reason"] and got["actor_kind"] == "SYSTEM"
 

@@ -13,8 +13,9 @@ Under `/api/sites/{site_code}` (`D-2026-10-15-s601-action-store-and-ui`):
 - `GET  /actions/{action_id}?event_id=|recorded_at=` and `GET /actions/{action_id}/events?...` - exact reads.
 - `GET  /foundation/changes/{change_id}` - the applied change artifact with every Foundation/binding revision ID.
 
-Refusal order for a command: access 401/403, unknown Site 404, store 503, scoped capability 403, malformed body
-422, unknown or wrong-Site Finding/revision/Action 404, then domain 409/422. A refused command writes nothing.
+Refusal order for a command: access 401/403, unknown Site 404, store 503, unknown or wrong-Site Finding (accept)
+or Action (apply/observe) 404, scoped capability for that fixture record 403, malformed body 422, unknown revision
+or expected Foundation revision 404, then domain 409/422. A refused command writes nothing.
 The development composition admits the caller exactly as the Finding read does; the authority to run a command is
 the server's scoped SYSTEM demonstration grant, which a client cannot supply.
 """
@@ -142,7 +143,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     @router.post("/api/sites/{site_code}/findings/{finding_id}/recommendation/accept")
     async def accept(request: Request, site_code: str, finding_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
-        run(lambda: service.demand(tenant_id, site_id, code, "ACCEPT"))
+        run(lambda: service.authorize_accept(tenant_id, site_id, code, finding_id))
         raw = await body_of(request, ACCEPT_FIELDS)
         try:
             proposed = Decimal(str(raw["proposed_value"]))
@@ -162,7 +163,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     @router.post("/api/sites/{site_code}/actions/{action_id}/apply")
     async def apply(request: Request, site_code: str, action_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
-        run(lambda: service.demand(tenant_id, site_id, code, "APPLY"))
+        run(lambda: service.authorize_action(tenant_id, site_id, code, "APPLY", action_id))
         raw = await body_of(request, APPLY_FIELDS)
         try:
             value = Decimal(str(raw["value"]))
@@ -187,7 +188,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     @router.post("/api/sites/{site_code}/actions/{action_id}/observations")
     async def observe(request: Request, site_code: str, action_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
-        run(lambda: service.demand(tenant_id, site_id, code, "OBSERVE"))
+        run(lambda: service.authorize_action(tenant_id, site_id, code, "OBSERVE", action_id))
         raw = await body_of(request, OBSERVE_FIELDS)
         if raw["observation_code"] != OBSERVATION_CODE:
             raise _refuse(422, "OBSERVATION_CODE_INVALID", f"Only {OBSERVATION_CODE} is accepted.",

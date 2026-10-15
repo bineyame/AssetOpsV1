@@ -411,3 +411,146 @@ def race(call, n: int = 4) -> list:
     for t in threads:
         t.join()
     return out
+
+
+class TestFixtureScopeAndCrossSite:
+    def test_non_fixture_finding_and_its_action_are_refused_403(self, runner) -> None:
+        """Phase-1 review M1: a grant names fixture records; any other Finding (or its Action) is refused."""
+        from assetops_backend.actions.capability import from_grants
+        from test_s6_action_store_postgres import fixture_grants
+
+        run_case(runner, CASES["F01"])
+        run_case(runner, CASES["F02"])
+        full = applying(runner)
+        narrow = None
+        try:
+            ids = full.findings()
+            f01, f02 = ids["2026-10-06"], ids["2026-10-08"]
+            p2 = full.recommendation(f02).json()["proposal"]
+            other_action, _ = accepted(full, "2026-10-08", key="accept-f02-01")
+            narrow = applying(runner, capability=from_grants(fixture_grants(runner, findings=[f01])))
+            start = table_counts(runner)
+            view = narrow.recommendation(f02).json()["system_demo_capability"]
+            assert view["allowed"] is False and "not a record" in view["unavailable_reason"]
+            assert narrow.recommendation(f01).json()["system_demo_capability"]["manifest_id"] == "test-record:0"
+            p1 = narrow.recommendation(f01).json()["proposal"]
+            assert narrow.accept(f01, p1, idempotency_key="accept-f01-ok").status_code == 201
+            start = table_counts(runner)
+            refused = narrow.accept(f02, p2, idempotency_key="accept-f02-02")
+            assert refused.status_code == 403 and refused.json()["detail"]["code"] == "SYSTEM_DEMO_CAPABILITY_DENIED"
+            expected = current_foundation(narrow, other_action)
+            for got in (apply(narrow, other_action, expected, "apply-scope-01"),
+                        narrow.observe(other_action, T_ACCEPT, "observe-scope-1")):
+                assert got.status_code == 403 and got.json()["detail"]["code"] == "SYSTEM_DEMO_CAPABILITY_DENIED"
+            body = narrow.client.get(f"/api/sites/KOBO-001/actions/{other_action}").json()
+            assert body["system_demo_capability"]["apply"]["allowed"] is False
+            assert table_counts(runner) == start
+        finally:
+            full.close()
+            if narrow is not None:
+                narrow.close()
+
+    def test_real_cross_site_reads_and_writes_are_404_and_fks_refuse(self, runner) -> None:
+        """Phase-1 review L3/L4: a second real Site in the same tenant cannot read or command another Site's Action,
+        and the composite foreign keys refuse cross-Site and other-Finding rows written directly."""
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+        from sqlalchemy.exc import IntegrityError
+        from test_s1_bindings_postgres import imported
+
+        from assetops_backend.action_api import build_action_router
+
+        run_case(runner, CASES["F01"])
+        run_case(runner, CASES["F02"])
+        h = applying(runner)
+        try:
+            action_id, _ = accepted(h, "2026-10-06")
+            other_finding = h.findings()["2026-10-08"]
+            expected = current_foundation(h, action_id)
+            h.clock.at = T_APPLY
+            change_id = apply(h, action_id, expected, "apply-cross-01").json()["change"]["change_id"]
+            other = imported(runner.store, code="OTHER-001").site
+            app = FastAPI()
+            scope = {"OTHER-001": ("OTHER-001", runner.tenant, other.id)}
+            app.include_router(build_action_router(h.service, scope.get, gate=lambda c, t, s: (True, "test gate")))
+            cross = TestClient(app)
+            start = table_counts(runner)
+            for path in (f"actions/{action_id}", f"actions/{action_id}/events", f"foundation/changes/{change_id}"):
+                assert cross.get(f"/api/sites/OTHER-001/{path}").status_code == 404, path
+            got = cross.post(f"/api/sites/OTHER-001/actions/{action_id}/apply", json={
+                "expected_foundation_revision_id": expected, "value": "15", "effective_from": EFFECTIVE.isoformat(),
+                "idempotency_key": "apply-cross-02"})
+            assert got.status_code == 404
+            assert table_counts(runner) == start
+
+            cols = [c.strip() for c in (
+                "id, tenant_id, site_id, action_no, action_code, recommendation_key, acceptance_key, "
+                "acceptance_payload_sha256, origin_finding_id, origin_finding_revision_id, "
+                "primary_assessment_revision_id, foundation_revision_id, asset_id, rule_id, rule_version, field, "
+                "unit, old_value, proposed_value, limitation_code, limitation_text, input_sha256, snapshot, "
+                "snapshot_sha256, created_at").split(",")]
+            fresh = {"id": "gen_random_uuid()", "action_no": "nextval('action_code_seq')",
+                     "action_code": "'ACT-' || lpad(currval('action_code_seq')::text, 6, '0')",
+                     "recommendation_key": "md5(random()::text) || md5(random()::text)",
+                     "acceptance_key": "md5(random()::text) || md5(random()::text)"}
+            event_cols = ("id, tenant_id, site_id, action_id, kind, occurred_at, recorded_at, actor_kind, actor_id, "
+                          "source_channel, authorization_basis, triggering_service, triggering_command, "
+                          "triggering_fixture, idempotency_key, payload, payload_sha256, failure_code, "
+                          "expected_foundation_revision_id, current_foundation_revision_id")
+            params = {"a": action_id, "o": other.id, "f": other_finding}
+
+            def copy_action(c, over):
+                select = ", ".join({**fresh, **over}.get(col, col) for col in cols)
+                c.execute(text(f"INSERT INTO action ({', '.join(cols)}) SELECT {select} FROM action WHERE id = :a"),
+                          params)
+
+            def copy_event(c, site: str, foundation: str):
+                c.execute(text(
+                    f"INSERT INTO action_event ({event_cols}) SELECT gen_random_uuid(), tenant_id, {site}, action_id, "
+                    "'FAILED', occurred_at, recorded_at, actor_kind, actor_id, source_channel, authorization_basis, "
+                    "triggering_service, triggering_command, triggering_fixture, 'direct-write-key', payload, "
+                    f"payload_sha256, 'ACTION_DIRECT', {foundation}, NULL FROM action_event "
+                    "WHERE action_id = :a AND kind = 'APPLIED'"), params)
+
+            other_foundation = "(SELECT id FROM foundation_revision WHERE site_id = :o LIMIT 1)"
+            attempts = {
+                "action on another Site": lambda c: copy_action(c, {"site_id": ":o"}),
+                "origin revision of another Finding": lambda c: copy_action(c, {"origin_finding_id": ":f"}),
+                "event on another Site": lambda c: copy_event(c, ":o", "expected_foundation_revision_id"),
+                "event naming another Site's Foundation": lambda c: copy_event(c, "site_id", other_foundation),
+            }
+            with runner.engine.connect() as c:
+                # The same direct write is accepted when it stays on the Action's own Site and Foundation.
+                tx = c.begin()
+                copy_event(c, "site_id", "expected_foundation_revision_id")
+                tx.rollback()
+                for name, write in attempts.items():
+                    tx = c.begin()
+                    with pytest.raises(IntegrityError):
+                        write(c)
+                    tx.rollback()
+        finally:
+            h.close()
+
+
+class TestJustStaleBasis:
+    def test_basis_changed_between_read_and_apply_is_409_with_failed(self, runner) -> None:
+        """Accept's rule evaluation and insert are separate transactions, and a client reads the expected revision
+        before it applies: a Foundation change in between is caught under the Site lock as 409 + FAILED."""
+        run_case(runner, CASES["F01"])
+        h = applying(runner)
+        try:
+            action_id, _ = accepted(h, "2026-10-06")
+            expected = current_foundation(h, action_id)
+            runner.step({"do": "reserve", "value": 30, "effective_from": "2026-10-31T00:00:00Z",
+                         "decided": "2026-10-31T21:00:00Z"})
+            h.clock.at = T_APPLY
+            start = table_counts(runner)
+            refused = apply(h, action_id, expected, "apply-race-basis")
+            assert refused.status_code == 409 and refused.json()["detail"]["code"] == "ACTION_FOUNDATION_STALE"
+            assert refused.json()["detail"]["current_foundation_revision_id"] != expected
+            end = table_counts(runner)
+            assert {t: end[t] - start[t] for t in end} == {**{t: 0 for t in end}, "action_event": 1}
+            assert kinds(h, action_id) == ["ACCEPTED", "FAILED"]
+        finally:
+            h.close()

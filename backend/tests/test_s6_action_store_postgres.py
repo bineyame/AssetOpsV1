@@ -38,9 +38,19 @@ if URL:
     from assetops_backend.analytics.finding_read import FindingReadService
 
 CASES = {c["case_id"]: c for c in SPEC["cases"]}
-GRANTS = {"schema": "assetops.action-demo-grants", "version": 1, "fixture_id": "D-action-records-v1",
-          "grants": [{"site_code": "KOBO-001", "commands": ["ACCEPT", "APPLY", "OBSERVE"]},
-                     {"site_code": "OTHER-001", "commands": ["ACCEPT", "APPLY", "OBSERVE"]}]}
+ALL_COMMANDS = ["ACCEPT", "APPLY", "OBSERVE"]
+
+
+def fixture_grants(runner, *, commands=ALL_COMMANDS, findings=None, site_id=None) -> dict:
+    """A v2 grants document scoped to this run's tenant/Site IDs, naming its Findings as fixture records
+    (phase-1 review M1). `findings` defaults to every Finding persisted when the harness is built."""
+    if findings is None:
+        findings = [f["id"] for f in runner.reload()["findings"]]
+    return {"schema": "assetops.action-demo-grants", "version": 2, "fixture_id": "D-action-records-v1",
+            "grants": [{"tenant_id": str(runner.tenant), "site_id": str(site_id or runner.site),
+                        "site_code": "KOBO-001", "commands": list(commands),
+                        "records": [{"manifest_id": f"test-record:{i}", "finding_id": str(f)}
+                                    for i, f in enumerate(findings)]}]}
 T_ACCEPT = datetime(2026, 11, 1, 0, 0, tzinfo=timezone.utc)
 ACTION_TABLES = ("action", "action_basis_assessment", "action_basis_evidence", "action_event",
                  "action_policy_change", "action_policy_change_binding")
@@ -60,7 +70,8 @@ class Harness:
         self.store = PostgresActionStore(URL)
         reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)))
         self.service = ActionService(self.store, finding_currentness(reads),
-                                     from_grants(GRANTS) if capability is None else capability, self.clock)
+                                     from_grants(fixture_grants(runner)) if capability is None else capability,
+                                     self.clock)
         self.wrong_site = uuid4()
         scope = {"KOBO-001": ("KOBO-001", runner.tenant, runner.site),
                  "OTHER-001": ("OTHER-001", runner.tenant, self.wrong_site)}
@@ -318,8 +329,7 @@ class TestRefusalsWriteNothing:
         anon = harness(runner, command_access=lambda r, c: 401)
         scoped = harness(runner, command_access=lambda r, c: 403)
         denied = harness(runner, capability=no_capability)
-        partial = harness(runner, capability=from_grants({**GRANTS, "grants": [
-            {"site_code": "KOBO-001", "commands": ["OBSERVE"]}]}))
+        partial = harness(runner, capability=from_grants(fixture_grants(runner, commands=["OBSERVE"])))
         try:
             f01 = h.findings()["2026-10-06"]
             p = h.recommendation(f01).json()["proposal"]

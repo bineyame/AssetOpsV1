@@ -76,12 +76,27 @@ class ActionService:
 
     # ---- capability --------------------------------------------------------------------------------------
 
-    def demand(self, tenant_id: UUID, site_id: UUID, site_code: str, command: str) -> Capability:
-        granted = self.capability(tenant_id, site_id, site_code, command)
+    def demand(self, tenant_id: UUID, site_id: UUID, site_code: str, command: str,
+               finding_id: UUID | None) -> Capability:
+        granted = self.capability(tenant_id, site_id, site_code, command, finding_id)
         if not granted.allowed:
             raise ActionRefused(403, "SYSTEM_DEMO_CAPABILITY_DENIED", granted.unavailable_reason or "Denied.",
                                 system_demo_capability=granted.wire())
         return granted
+
+    def authorize_accept(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID) -> Capability:
+        """Unknown or wrong-Site Finding 404, then the scoped grant for this fixture record (403)."""
+        if self.store.latest_revision(tenant_id, site_id, finding_id) is None:
+            raise ActionRefused(404, "FINDING_NOT_FOUND", "No such Finding or revision for this Site.")
+        return self.demand(tenant_id, site_id, site_code, "ACCEPT", finding_id)
+
+    def authorize_action(self, tenant_id: UUID, site_id: UUID, site_code: str, command: str,
+                         action_id: UUID) -> tuple[Capability, dict[str, Any]]:
+        """Unknown or wrong-Site Action 404, then the grant for its origin Finding's fixture record (403)."""
+        action = self.store.action(tenant_id, site_id, action_id)
+        if action is None:
+            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
+        return self.demand(tenant_id, site_id, site_code, command, action["origin_finding_id"]), action
 
     # ---- recommendation ----------------------------------------------------------------------------------
 
@@ -123,7 +138,7 @@ class ActionService:
             "latest_revision_id": str(current["latest_revision_id"]), "is_latest": bool(current["is_latest"]),
             "rule": {"id": reserve_trial.RULE_ID, "version": reserve_trial.RULE_VERSION,
                      "limitation": {"code": reserve_trial.LIMITATION_CODE, "text": reserve_trial.LIMITATION_TEXT}},
-            "system_demo_capability": self.capability(tenant_id, site_id, site_code, "ACCEPT").wire(),
+            "system_demo_capability": self.capability(tenant_id, site_id, site_code, "ACCEPT", finding_id).wire(),
             "links": {"finding": f"{base}?revision_id={selected}",
                       "recommendation": f"{base}/recommendation?revision_id={selected}",
                       "api_recommendation": f"/api{base}/recommendation?revision_id={selected}"},
@@ -154,7 +169,7 @@ class ActionService:
 
     def accept(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID, command: dict[str, Any],
                source_open: bool) -> tuple[int, dict[str, Any]]:
-        granted = self.demand(tenant_id, site_id, site_code, "ACCEPT")
+        granted = self.authorize_accept(tenant_id, site_id, site_code, finding_id)
         revision_id = command["revision_id"]
         if self.currentness(tenant_id, site_id, finding_id, revision_id, source_open) is None:
             raise ActionRefused(404, "FINDING_NOT_FOUND", "No such Finding or revision for this Site.")
@@ -207,11 +222,8 @@ class ActionService:
 
     def observe(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
                 command: dict[str, Any]) -> tuple[int, dict[str, Any]]:
-        granted = self.demand(tenant_id, site_id, site_code, "OBSERVE")
-        action = self.store.action(tenant_id, site_id, action_id)
-        if action is None:
-            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
-        occurred: datetime = command["occurred_at"]
+        granted, _action = self.authorize_action(tenant_id, site_id, site_code, "OBSERVE", action_id)
+        occurred: datetime = command["occurred_at"].astimezone(timezone.utc)  # one digest per instant (review L5)
         payload = {"command": "OBSERVE", "action_id": str(action_id), "observation_code": OBSERVATION_CODE,
                    "occurred_at": occurred.isoformat(), "idempotency_key": command["idempotency_key"]}
         digest = reserve_trial.sha(payload)
@@ -249,13 +261,11 @@ class ActionService:
 
     def apply(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
               command: dict[str, Any]) -> tuple[int, dict[str, Any]]:
-        granted = self.demand(tenant_id, site_id, site_code, "APPLY")
-        if self.store.action(tenant_id, site_id, action_id) is None:
-            raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
+        granted, _action = self.authorize_action(tenant_id, site_id, site_code, "APPLY", action_id)
         if self.publish is None:
             raise ActionRefused(503, "ACTION_PUBLISH_UNAVAILABLE", "No Foundation publish is composed.")
         value: Decimal = command["value"]
-        effective: datetime = command["effective_from"]
+        effective: datetime = command["effective_from"].astimezone(timezone.utc)
         expected: UUID = command["expected_foundation_revision_id"]
         payload = {"command": "APPLY", "action_id": str(action_id), "expected_foundation_revision_id": str(expected),
                    "value": reserve_trial.text_of(value), "effective_from": effective.isoformat(),
@@ -419,7 +429,8 @@ class ActionService:
             "lifecycle": latest["lifecycle"], "transition": latest["transition"],
             "statement": "The Finding has a newer revision. This Action stays pinned to the revision it was "
                          "accepted for; the newer revision is shown beside it, not substituted."}
-        capability = {c.lower(): self.capability(tenant_id, site_id, site_code, c).wire() for c in ("APPLY", "OBSERVE")}
+        capability = {c.lower(): self.capability(tenant_id, site_id, site_code, c, action["origin_finding_id"]).wire()
+                      for c in ("APPLY", "OBSERVE")}
         return {
             "site_code": site_code,
             "action": {"id": str(action["id"]), "action_code": action["action_code"],
