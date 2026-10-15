@@ -1,6 +1,6 @@
 # OPS-01 — Backend test-suite turnaround
 
-Status: active (activated 2026-10-14 from main `1c7595de` after S4-02d merged; ahead of ordinary next-work ranking per `.agent/owner-process-speed-2026-10-14.md:6`). Tooling work, outside competitive W1 scoring. Size: M, two phases. Branch: `task/OPS-01-backend-test-speed` (from the then-current main). USER_REVIEW_REQUIRED: false. Independent review: required.
+Status: in_review (phase 2 built 2026-10-15; activated 2026-10-14 from main `1c7595de` after S4-02d merged; ahead of ordinary next-work ranking per `.agent/owner-process-speed-2026-10-14.md:6`). Tooling work, outside competitive W1 scoring. Size: M, two phases. Branch: `task/OPS-01-backend-test-speed` (from the then-current main). USER_REVIEW_REQUIRED: false. Independent review: required.
 
 ## Outcome and limits
 
