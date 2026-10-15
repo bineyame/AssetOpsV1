@@ -855,7 +855,8 @@ function Invoke-ConfigurationPersistenceCheck {
                     $updTarget = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
                     if ($null -ne $updTarget -and -not $scheduleUpdates.ContainsKey($updTarget)) {
                         $failures.Add("The schedule store updates only $($scheduleTables -join ', '); $where.") | Out-Null
-                    } elseif ($line -match '(?i)^UPDATE\s+([a-z_]+)\s+SET\s+(.+?)\s+WHERE\b') {
+                    } elseif ($line -match '(?i)^UPDATE\s+([a-z_]+)(?:\s+(?:AS\s+)?(?!SET\b)[a-z_]+)?\s+SET\s+(.+?)\s+WHERE\b') {
+                        # An optional table alias is allowed; SET columns are never alias-qualified in PostgreSQL.
                         $updTable = $Matches[1].ToLowerInvariant()
                         $setList = $Matches[2]
                         if (-not $scheduleUpdates.ContainsKey($updTable)) {
