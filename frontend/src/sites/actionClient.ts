@@ -112,8 +112,46 @@ export interface LiveStatus {
   unavailable: TypedReason | null;
 }
 
+/**
+ * An Action on the same canonical Finding, from any revision
+ * (`D-2026-10-15-s601-reopen`). It keeps its own origin revision; it is never
+ * relabelled as the selected revision's.
+ */
+export interface PriorAction {
+  accepted_at: string;
+  action_code: string;
+  action_id: string;
+  application: {
+    application_attempts: number;
+    failed_attempts: number;
+    last_failure: { event_id: string; failure_code: string; recorded_at: string } | null;
+    state: string;
+  };
+  links: { action: string; api_action: string };
+  origin: { finding_id: string; finding_revision_id: string; is_selected_revision: boolean; revision_no: number };
+  outcome: { state: string; statement: string };
+  rule_id: string;
+  unresolved: boolean;
+}
+
+/** The typed hold on a new acceptance while an earlier trial is unresolved. */
+export interface PriorActionBlock {
+  blocking_action_code: string;
+  blocking_action_id: string;
+  blocking_actions: PriorAction[];
+  code: "PRIOR_ACTION_UNRESOLVED" | string;
+  links: { action: string; api_action: string };
+  message: string;
+  origin_finding_revision_id: string;
+  origin_revision_no: number;
+}
+
 export interface RecommendationBody {
   accepted: AcceptedRecommendation[];
+  /** Every Action on this canonical Finding, any revision (absent on older servers). */
+  prior_actions?: { items: PriorAction[]; label: string } | null;
+  /** Set when `state` is `PRIOR_ACTION_UNRESOLVED`. */
+  prior_action_block?: PriorActionBlock | null;
   basis: "SERVED_FROM_PERSISTED_INPUTS" | "ACCEPTED_SNAPSHOT" | string;
   finding_id: string;
   is_latest: boolean;
@@ -131,7 +169,7 @@ export interface RecommendationBody {
   rule: { id: string; version: number; limitation: Limitation };
   site_code: string;
   source_open: boolean;
-  state: "AVAILABLE" | "UNAVAILABLE" | "ACCEPTED" | string;
+  state: "AVAILABLE" | "UNAVAILABLE" | "ACCEPTED" | "PRIOR_ACTION_UNRESOLVED" | string;
   /** Absent or not `allowed`: the view is read-only (Architect Q4). */
   system_demo_capability?: SystemDemoCapability | null;
   unavailable: TypedReason | null;

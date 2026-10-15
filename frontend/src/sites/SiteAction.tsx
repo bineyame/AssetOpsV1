@@ -426,9 +426,11 @@ function Application({
   const capability = body.system_demo_capability?.apply;
   const latest = body.selection.kind === "LATEST";
   const pending = body.state.application === "PENDING";
+  // A cleared field is never sent: Apply stays disabled until a time is given (S6-01b review L3).
+  const noTime = edited && effective.trim() === "";
 
   const apply = async () => {
-    if (busy || basis?.current_foundation_revision_id == null) return;
+    if (busy || noTime || basis?.current_foundation_revision_id == null) return;
     setBusy(true);
     const sent = edited ? effective : nextUtcMidnight(readAt);
     if (sent !== effective) setEffective(sent);
@@ -505,9 +507,22 @@ function Application({
                 data-action-effective-from
               />
             </label>{" "}
-            <button type="button" className="action-command" data-action-command="APPLY" aria-busy={busy} onClick={() => void apply()}>
+            <button
+              type="button"
+              className="action-command"
+              data-action-command="APPLY"
+              aria-busy={busy}
+              disabled={noTime}
+              aria-describedby={noTime ? "site-action-apply-no-time" : undefined}
+              onClick={() => void apply()}
+            >
               Apply trial ({SYSTEM_DEMONSTRATION})
             </button>
+            {noTime ? (
+              <p id="site-action-apply-no-time" className="action-note" data-action-apply-no-time>
+                Enter the effective time to apply.
+              </p>
+            ) : null}
           </>
         ) : (
           <CommandUnavailable capability={capability} what="Applying" />

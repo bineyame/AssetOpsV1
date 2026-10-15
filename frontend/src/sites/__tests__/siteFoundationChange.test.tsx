@@ -156,6 +156,8 @@ describe("Foundation change (changes:1#a)", () => {
     const failed = (hi.events_latest.body.events as { id: string; kind: string }[]).filter((e) => e.kind === "FAILED");
     expect(failed.length).toBeGreaterThan(0);
     expect(q("[data-change-attempts]")).toHaveAttribute("data-change-attempts", String(failed.length));
+    // Review L2: the codes sit in the no-wrap list variant.
+    expect(document.body.querySelector("[data-change-failed-attempt]")?.closest("ul")?.classList.contains("action-list--codes")).toBe(true);
     expect(qa("[data-change-failed-attempt] a").map((a) => a.getAttribute("href"))).toEqual(
       failed.map((e) => `/sites/KOBO-001/actions/${ACTION}/history?event_id=${e.id}`),
     );

@@ -15,7 +15,10 @@
  * 4. store-unavailable 503 re-read bodies (no recorded case exists);
  * 5. a capability granted for a different command (OBSERVE renamed APPLY's
  *    slot) and a pending read whose application basis names no version.
- * Every other body is served exactly as recorded.
+ * 6. (reopen round) a cleared effective-time field is a UI input, not a body.
+ * Every other body is served exactly as recorded, including the reopen cases
+ * `latest_revision_after_apply`, `latest_revision_after_apply_served_clock_stale`
+ * and `accept_newer_revision_prior_action_unresolved` (D-2026-10-15-s601-reopen).
  *
  * Widths: jsdom has no layout, so the 1440 / 390 cases set the window width
  * and prove the same structure (no command control, a read-only reason) at
@@ -237,16 +240,82 @@ describe("Recommendation (recommendation:1#a)", () => {
     expect(q("[data-action-command-done] a")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}`);
   });
 
-  it("the latest Finding revision after apply reads as recorded (latest_revision_after_apply)", async () => {
-    const latest = rec.latest_revision_after_apply;
-    serve({ [latest.request.path]: served(latest) });
-    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation`);
+  for (const [name, width] of [
+    ["latest_revision_after_apply", 1440],
+    ["latest_revision_after_apply_served_clock_stale", 390],
+  ] as const) {
+    it(`the newer Finding version names and links the unresolved earlier Action, with Accept disabled (${name}, ${width})`, async () => {
+      atWidth(width);
+      const latest = rec[name];
+      const block = latest.body.prior_action_block;
+      serve({ [latest.request.path]: served(latest) });
+      mount(`/sites/KOBO-001/findings/${FINDING}/recommendation`);
+      await settledScreen();
+      expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("PRIOR_ACTION_UNRESOLVED");
+      // The notice names and links the blocking Action and its own (earlier) origin version.
+      expect(q("[data-recommendation-prior-block]")?.getAttribute("data-recommendation-prior-block")).toBe(block.blocking_action_id);
+      expect(q("[data-recommendation-prior-block-link]")?.textContent).toBe(block.blocking_action_code);
+      expect(q("[data-recommendation-prior-block-link]")?.getAttribute("href")).toBe(block.links.action);
+      expect(q("[data-recommendation-prior-block-origin]")?.getAttribute("href")).toBe(
+        `/sites/KOBO-001/findings/${FINDING}?revision_id=${block.origin_finding_revision_id}`,
+      );
+      expect(q("[data-recommendation-prior-block-origin]")?.textContent).toBe(`Finding version ${block.origin_revision_no}`);
+      expect(block.origin_finding_revision_id).not.toBe(latest.body.revision_id);
+      expect(q("[data-recommendation-prior-block]")?.textContent).toMatch(/not on the version shown on this page/);
+      expect(q("[data-recommendation-prior-block-state]")?.textContent).toMatch(/Applied to the Site Foundation.*Pending/);
+      // The live reason is separate: AVAILABLE on the recorded clock, FOUNDATION_BASIS_STALE on the served clock.
+      const live = latest.body.live_status;
+      expect(q("[data-recommendation-live]")?.getAttribute("data-recommendation-live")).toBe(live.state);
+      if (live.unavailable) expect(q("[data-recommendation-live]")?.textContent).toContain(live.unavailable.code);
+      expect(screen.getByText(/This is a separate reason/)).toBeInTheDocument();
+      // No proposal is offered for acceptance: Accept is disabled with the reason stated.
+      expect(q("[data-recommendation-proposal]")).toBeNull();
+      const button = screen.getByRole("button", { name: /Accept trial/ });
+      expect(button).toBeDisabled();
+      expect(button.getAttribute("aria-describedby")).toBe("site-recommendation-accept-held");
+      expect(q("[data-action-command-unavailable='PRIOR_ACTION_UNRESOLVED']")?.textContent).toMatch(
+        new RegExp(`earlier trial on this Finding \\(${block.blocking_action_code}\\) is still open`),
+      );
+      // The earlier Action is listed with its own origin version, never relabelled as this one.
+      const item = q(`[data-recommendation-prior-action='${block.blocking_action_id}']`);
+      expect(item?.getAttribute("data-prior-action-selected-revision")).toBe("no");
+      expect(item?.textContent).toMatch(/not the version on this page/);
+      expect(item?.querySelector("[data-prior-action-application]")?.getAttribute("data-prior-action-application")).toBe("APPLIED");
+      expect(item?.querySelector("[data-prior-action-outcome]")?.getAttribute("data-prior-action-outcome")).toBe("PENDING");
+      expect(item?.querySelector("[data-recommendation-prior-action-link]")?.getAttribute("href")).toBe(block.links.action);
+      expect(q("[data-recommendation-accepted-action]")).toBeNull();
+      noVocabularyViolations(`recommendation ${name}`);
+    });
+  }
+
+  it("lists the Action on the selected version as this version beside the accepted snapshot", async () => {
+    serve({ [`${REC_API}?revision_id=${REV}`]: served(rec.accepted_snapshot_live_status) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
     await settledScreen();
-    const state = q("[data-recommendation-state]")?.getAttribute("data-recommendation-state");
-    expect(state).toBe(latest.body.state);
-    expect(q("[data-recommendation-revision]")?.textContent).toContain(latest.body.revision_id);
-    expect(q("[data-recommendation-accepted-action]")).toBeNull();
-    noVocabularyViolations("recommendation latest after apply");
+    const item = q(`[data-recommendation-prior-action='${ACTION}']`);
+    expect(item?.getAttribute("data-prior-action-selected-revision")).toBe("yes");
+    expect(item?.textContent).toMatch(/\(this version\)/);
+    expect(q("[data-recommendation-prior-block]")).toBeNull();
+  });
+
+  it("a 409 PRIOR_ACTION_UNRESOLVED on accept names and links the earlier Action, with the live reason separate", async () => {
+    const url = `${REC_API}?revision_id=${REV}`;
+    const held = rec.accept_newer_revision_prior_action_unresolved;
+    const s = serve({ [url]: served(rec.pre_accept_available) }, { [`${REC_API}/accept`]: [served(held)] });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Accept trial/ }));
+    await waitFor(() => expect(q("[data-action-command-refused='PRIOR_ACTION_UNRESOLVED']")).not.toBeNull());
+    await settledScreen();
+    const refused = q("[data-action-command-refused='PRIOR_ACTION_UNRESOLVED']");
+    expect(refused?.textContent).toMatch(/Not accepted: an earlier trial on this Finding is still open, so no new Action was recorded/);
+    expect(refused?.textContent).toMatch(new RegExp(`accepted on Finding version ${held.body.detail.origin_revision_no}`));
+    expect(q("[data-accept-held-action-link]")?.getAttribute("href")).toBe(held.body.detail.links.action);
+    expect(q("[data-accept-held-action-link]")?.textContent).toBe(`Open ${held.body.detail.blocking_action_code}`);
+    expect(q("[data-accept-held-live]")?.getAttribute("data-accept-held-live")).toBe(held.body.detail.live_status.state);
+    expect(q("[data-action-command-done]")).toBeNull();
+    expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(1);
+    noVocabularyViolations("recommendation accept held");
   });
 
   it("treats ACTION_ACCEPTANCE_CONFLICT as already accepted and follows its action_id", async () => {
@@ -423,6 +492,23 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("disables Apply while the effective-time field is cleared, and sends nothing (review L3)", async () => {
+    const s = serve(actionReads(ov.accepted_pending, hi.events_latest), {
+      [`${ACTION_API}/apply`]: [served(ex.apply_stale_failed)],
+    });
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    fireEvent.change(q("[data-action-effective-from]") as HTMLInputElement, { target: { value: "" } });
+    const button = screen.getByRole("button", { name: /Apply trial/ });
+    expect(button).toBeDisabled();
+    expect(q("[data-action-apply-no-time]")?.textContent).toBe("Enter the effective time to apply.");
+    fireEvent.click(button);
+    expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(0);
+    fireEvent.change(q("[data-action-effective-from]") as HTMLInputElement, { target: { value: "2026-11-05T06:00" } });
+    expect(screen.getByRole("button", { name: /Apply trial/ })).not.toBeDisabled();
+    expect(q("[data-action-apply-no-time]")).toBeNull();
   });
 
   it("offers no Apply when the capability names a different command (granted() checks the exact command)", async () => {

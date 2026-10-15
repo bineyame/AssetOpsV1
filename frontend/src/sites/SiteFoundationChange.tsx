@@ -284,7 +284,7 @@ function Attempts({
             {failed.length === 1 ? "One earlier attempt" : `${failed.length} earlier attempts`} failed and changed
             nothing:
           </p>
-          <ul className="action-list">
+          <ul className="action-list action-list--codes">
             {failed.map((event) => (
               <li key={event.id} data-change-failed-attempt={event.id}>
                 <Link to={links.action(change.action_id, "history", { eventId: event.id, recordedAt: null })}>
