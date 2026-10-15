@@ -27,9 +27,12 @@ from uuid import UUID
 from assetops_contracts.ingestion_batch_v2 import BatchRejected, parse_canonical_batch_v2_text
 from assetops_contracts.source_envelope_v3 import parse_canonical_envelope_v3_text
 
-AUTHORED_DEMONSTRATION = "AUTHORED_DEMONSTRATION"
-REGISTERED_SIMULATION = "REGISTERED_SIMULATION"
-SOURCE_CLASSES = (AUTHORED_DEMONSTRATION, REGISTERED_SIMULATION)
+from assetops_backend.evidence.source_provenance import (
+    AUTHORED_DEMONSTRATION,
+    REGISTERED_SIMULATION,
+    SOURCE_CLASSES,
+)
+
 CHANNELS = ("SYSTEM_CLI", "SYSTEM_FIXTURE", "SYSTEM_LAB_RELEASE")
 
 
