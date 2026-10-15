@@ -395,7 +395,8 @@ class TestStaleWithoutJob:
         env = tick.environment
         deliver(kobo, block(DAY_A, 10, 12))  # job J, decided in the past
         (job,) = [j for j in jobs(engine, kobo.site) if j["status"] == "PENDING"]
-        ahead = db_now(engine) + timedelta(seconds=20)  # an override decision ahead of the DB
+        # an override decision ahead of the DB; 120 s outlasts the slow ticks seen under load (carry R-2)
+        ahead = db_now(engine) + timedelta(seconds=120)
         deliver(kobo, block(DAY_A, 11, 13), decided=ahead.strftime("%Y-%m-%dT%H:%M:%SZ"))
         pending = [j for j in jobs(engine, kobo.site) if j["status"] == "PENDING"]
         assert [j["id"] for j in pending] == [job["id"]], pending  # widened J, no new job
