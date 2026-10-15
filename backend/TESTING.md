@@ -128,5 +128,7 @@ compare only back-to-back runs in a quiet window.
 
 | Revision | Runs (wall) | Notes |
 | --- | --- | --- |
-| Before OPS-01 (in-place migrate per module) | see OPS-01 phase-1 handoff | baseline |
-| Serial template clone (OPS-01 phase 1) | see OPS-01 phase-1 handoff | |
+| Before OPS-01 (in-place migrate per module, TRUNCATE per test) | 80.3 min, 41.4 min; peak 91 sessions | 2 timing-sensitive tick failures in the 80-min run; a third attempt reached 34% in 4 h while the machine slept |
+| Serial template clone + DELETE cleanup (OPS-01 phase 1) | 30.8 min (back-to-back with the 41.4-min baseline); peak 22 sessions | template clone without DELETE cleanup: 41.4 min, one 23-min disk stall in a tick test |
+
+Expected serial full run: about 30-45 min; cap at 90 min.
