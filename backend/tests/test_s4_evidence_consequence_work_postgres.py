@@ -77,7 +77,9 @@ def body(s, envelopes) -> bytes:
 
 
 def submit(s, payload: bytes, minutes: int = 1):
-    service = BatchIngestionService(PostgresEvidenceLedger(URL), Clock(s.runner.tick() + timedelta(minutes=minutes)))
+    at = Clock(s.runner.tick() + timedelta(minutes=minutes))
+    # S4-07: the fixture's decision instant goes through the test-only override (never production).
+    service = BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=at), at)
     return service.submit(s.runner.kit.principal, payload)
 
 

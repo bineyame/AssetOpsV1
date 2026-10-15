@@ -125,7 +125,9 @@ class Kit:
 
 
 def ingestion(**options) -> BatchIngestionService:
-    return BatchIngestionService(PostgresEvidenceLedger(URL), Clock(RECEIVED), **options)
+    # S4-07: decisions take DB time in production; these fixtures pin them through the test-only override.
+    return BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=Clock(RECEIVED)),
+                                 Clock(RECEIVED), **options)
 
 
 def enable(engine, site_id) -> None:
