@@ -38,7 +38,14 @@ def build_consequence_store(database_url: str | None) -> PostgresConsequenceStor
 
 
 def build_consequence_read_service(database_url: str | None) -> ConsequenceReadService:
-    return ConsequenceReadService(PostgresConsequenceStore(database_url), PostgresAssumptionStore(database_url))
+    # LR-01: the shared money eligibility gate reads the S3 selected windows and S4 Finding rows (lazy import,
+    # as the scheduling composition does, so the analytics composition stays the only owner of its adapters).
+    from assetops_backend.analytics.composition import build_dispatch_read_service, build_finding_store
+    from assetops_backend.financials.money_eligibility import MoneyEligibility
+
+    return ConsequenceReadService(
+        PostgresConsequenceStore(database_url), PostgresAssumptionStore(database_url),
+        eligibility=MoneyEligibility(build_dispatch_read_service(database_url), build_finding_store(database_url)))
 
 
 def build_recompute_worker(database_url: str | None) -> ConsequenceRecomputeWorker:

@@ -1,6 +1,6 @@
 # S5-01 — selected-window Site Overview
 
-Status: implementation-ready (Planner packet, 2026-10-15; build and independent review pending)
+Status: done (owner walkthrough accepted conditionally 2026-10-15, `.agent/owner-LR01-S501-acceptance-2026-10-15.md`; merged to main; was in_review (phases 1-2 built on `task/S5-01-site-overview`, LR-01 fix rounds 1-2 merged in; packet `.agent/S5-01-review-packet.md`, owner steps `.agent/S5-01-owner-walkthrough.md`; merge held for the owner walkthrough record and the LR-01 merge)
 USER_REVIEW_REQUIRED: true — owner visual acceptance before merge or registry promotion.
 Size: M, two phases; phase 2 review is the slice review.
 Branch: `task/S5-01-site-overview`, stacked on the **reviewed LR-01 head** while LR-01 is unmerged; hold merge for owner. A stacked predecessor is not accepted or merged.

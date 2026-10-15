@@ -129,3 +129,40 @@ def test_the_one_off_runner_uses_db_time_or_reports_an_override(capsys) -> None:
                             worker=w, prices=prices, db_clock=lambda: db) == 0
     assert w.now == datetime(2026, 10, 14, 13, tzinfo=UTC)
     assert json.loads(capsys.readouterr().out.splitlines()[-1])["now_source"] == "override"
+
+
+def _seam_with_finding(gate_state: str, schedule: Schedule | None = None, consequence_state: str = "CURRENT"):
+    class OneFinding(Findings):
+        def findings_over(self, t, s, lo, hi):
+            return [{"finding_id": uuid4(), "revision_id": uuid4(), "lifecycle": "OPEN", "episode_start": DAY,
+                     "episode_end": DAY + timedelta(hours=1)}]
+
+    gate = {"state": gate_state, "version": "money-eligibility-1", "latest_finding_revision_id": "rev-1",
+            "series_limits": [], "pending_reasons": []}
+    reader = SimpleNamespace(read=lambda *a, **k: {
+        "currentness": {"state": consequence_state, "reasons": [], "pending_work": []},
+        "consequence_selection": {"head_consequence_revision_id": "c1"}, "money_eligibility": gate})
+    f = OneFinding()
+    consequences = SimpleNamespace(pending_work=lambda t, s: [])
+    out = UpstreamCurrentness(schedule or Schedule(), Read(f, False), f, consequences, reader,
+                              analytic_id="dispatch").window(uuid4(), uuid4(), DAY, DAY + timedelta(days=1))
+    return out["findings"][0], gate
+
+
+def test_a_stopped_schedule_keeps_the_raw_gate_eligible_and_blocks_the_amount_with_a_named_reason() -> None:
+    f, gate = _seam_with_finding("ELIGIBLE", Schedule(heartbeat_age=301))
+    assert f["money_eligibility"] == gate and f["money_eligibility"]["state"] == "ELIGIBLE"
+    assert f["upstream_status"] == {"status": "BLOCKED", "reasons": [{"stage": "SCHEDULE", "code": "SCHEDULE_STOPPED"}]}
+    assert f["current_amount_permitted"] is False
+
+
+def test_an_amount_is_permitted_only_when_the_gate_is_eligible_and_upstream_is_current() -> None:
+    ok, _ = _seam_with_finding("ELIGIBLE")
+    assert ok["upstream_status"]["status"] == "CURRENT" and ok["current_amount_permitted"] is True
+    for state in ("WITHHELD_GENERATOR_SERIES", "PENDING_REASSESSMENT"):
+        f, _ = _seam_with_finding(state)
+        assert f["money_eligibility"]["state"] == state  # never rewritten
+        assert f["upstream_status"]["status"] == "CURRENT" and f["current_amount_permitted"] is False
+    stale, _ = _seam_with_finding("ELIGIBLE", consequence_state="STALE")
+    assert stale["current_amount_permitted"] is False
+    assert stale["upstream_status"]["reasons"] == [{"stage": "CONSEQUENCE", "code": "CONSEQUENCE_STALE"}]

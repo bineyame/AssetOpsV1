@@ -38,6 +38,7 @@ from assetops_backend.evidence.ledger import (
     basis_from_snapshot,
     decide,
 )
+from assetops_backend.evidence.publication import PublicationMismatch
 from assetops_contracts.ingestion_batch_v2 import (
     MAX_BATCH_BYTES,
     BatchRejected,
@@ -142,17 +143,23 @@ class BatchIngestionService:
                                "CONFIGURATION_MISMATCH", "mapping",
                                "the referenced binding set was published for another gateway")
 
-        handle = existing or self.ledger.open_batch(
-            principal,
-            external_batch_id=batch.batch_id,
-            payload_sha256=batch.payload_sha256,
-            source_id=batch.source_id,
-            source_mode=batch.source_mode,
-            basis=basis,
-            batch_text=text,
-            total=len(batch.envelopes),
-            received_at=received_at,
-        )
+        try:
+            handle = existing or self.ledger.open_batch(
+                principal,
+                external_batch_id=batch.batch_id,
+                payload_sha256=batch.payload_sha256,
+                source_id=batch.source_id,
+                source_mode=batch.source_mode,
+                basis=basis,
+                batch_text=text,
+                total=len(batch.envelopes),
+                received_at=received_at,
+            )
+        except PublicationMismatch as error:
+            # S4-05a: a matching slot with a different preauthorized commitment fails; it never degrades to an
+            # unbound (unknown-source) admission.
+            raise self._refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 409,
+                               "PUBLICATION_MISMATCH", "batch_id", error.detail) from None
         if handle.payload_sha256 != batch.payload_sha256:  # lost an insert race to other bytes
             raise self._refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 409,
                                "BATCH_ID_CONFLICT", "batch_id",
@@ -178,7 +185,7 @@ class BatchIngestionService:
                 envelopes,
                 lambda ordinal, text: decide(basis, ordinal, text),
                 limit=self.chunk_size,
-                decided_at=self.clock(),
+                completed_at=self.clock(),  # receipt field (app clock); decisions take DB time (S4-07)
             )
             chunks += 1
             if self.crash_after_chunks is not None and chunks >= self.crash_after_chunks and status != "COMPLETED":

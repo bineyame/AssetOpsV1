@@ -13,8 +13,12 @@ import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
   findingHref,
+  siteEvidenceAcceptedRecordHref,
   siteEvidenceHref,
   siteEvidenceRecordHref,
+  siteFinancialAssumptionsHref,
+  siteFinancialsHref,
+  siteFindingHref,
   sitePerformanceHref,
 } from "./operatorSiteRoutes";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
@@ -112,6 +116,17 @@ export function SiteDetailFrame({
                 ? sitePerformanceHref(canonicalId, "dispatch")
                 : `${sitePerformanceHref(canonicalId, "dispatch")}?interval=${encodeURIComponent(assessmentId)}`
             }
+            windowLinks={{
+              dispatchDay: (day, revisionId) =>
+                `${sitePerformanceHref(canonicalId, "dispatch")}?day=${encodeURIComponent(day)}${
+                  revisionId ? `&revision=${encodeURIComponent(revisionId)}` : ""
+                }`,
+              finding: (findingId, revisionId) => siteFindingHref(canonicalId, findingId, revisionId),
+              financials: (findingId, revisionId, consequenceRevisionId) =>
+                siteFinancialsHref(canonicalId, { findingId, revisionId, consequenceRevisionId }),
+              assumption: (revisionId) => siteFinancialAssumptionsHref(canonicalId, { revisionId }),
+              evidenceRecord: (evidenceId) => siteEvidenceAcceptedRecordHref(canonicalId, evidenceId),
+            }}
             analysisHref={(assessmentId, isFinding) =>
               isFinding
                 ? findingHref(canonicalId, assessmentId, "analysis")

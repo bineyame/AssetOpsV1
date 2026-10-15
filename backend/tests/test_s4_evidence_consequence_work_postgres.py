@@ -35,6 +35,7 @@ if URL:
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_service import BatchIngestionService
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
+    from money_gate_stub import ELIGIBLE
     from assetops_backend.financials.consequence_read import NO_WORK_RECORDED, ConsequenceReadService
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
     from assetops_backend.finding_api import REASONS, bridge_consequence
@@ -77,7 +78,9 @@ def body(s, envelopes) -> bytes:
 
 
 def submit(s, payload: bytes, minutes: int = 1):
-    service = BatchIngestionService(PostgresEvidenceLedger(URL), Clock(s.runner.tick() + timedelta(minutes=minutes)))
+    at = Clock(s.runner.tick() + timedelta(minutes=minutes))
+    # S4-07: the fixture's decision instant goes through the test-only override (never production).
+    service = BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=at), at)
     return service.submit(s.runner.kit.principal, payload)
 
 
@@ -411,7 +414,7 @@ class TestReadAndWorkerGuard:
             self, site, engine) -> None:  # noqa: F811
         site.publish("v1")
         worker = ConsequenceRecomputeWorker(site.store, site.prices, CONSEQUENCE_UNAVAILABLE)
-        reads = ConsequenceReadService(site.store, site.prices)
+        reads = ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE)
         assert all(o.succeeded for o in worker.run_pending(site.tenant, site.site))
         rev = site.on(POWER_DAY)
 
@@ -513,7 +516,7 @@ class TestMigrationPaths:
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0013_schedule_state")  # the whole downgrade rolled back: still head
+                    "0017_evidence_publication")  # the whole downgrade rolled back: still head
             assert all_work(engine) == before
         finally:
             command.upgrade(config, "head")
@@ -536,7 +539,7 @@ class TestMigrationPaths:
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0013_schedule_state")  # the whole downgrade rolled back: still head
+                    "0017_evidence_publication")  # the whole downgrade rolled back: still head
                 assert c.execute(text("SELECT no_op_reason FROM financial_consequence_work_attempt "
                                       "WHERE work_id = :w"), {"w": w["id"]}).scalar_one() == (
                     "FINDING_REVISION_SUPERSEDED")

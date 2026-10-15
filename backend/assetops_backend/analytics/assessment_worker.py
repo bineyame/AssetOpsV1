@@ -82,7 +82,7 @@ def configuration_sha256(config: Configuration) -> str:
 def input_basis(result: EvidenceQueryResult, model: ModuleType | Any = dispatch_v3) -> tuple[AnalyticInputSet, str]:
     """Cohort selection and the frozen input set of one query result, with its configuration digest.
     The worker assesses it; the phase-3 read compares its `input_sha256` with the selected run."""
-    selection = select_cohort(result.readings, result.query.window, result.query.cohort)
+    selection = select_cohort(result.readings, result.query.window, result.query.cohort, result.attestations)
     inputs = build_input_set(result, selection, analytic_id=model.ANALYTIC_ID, model_version=model.MODEL_VERSION,
                              roles_by_set=ROLES_BY_SET)
     config = Configuration(result.bindings, result.controls, result.role_sets, result.configuration_limits)

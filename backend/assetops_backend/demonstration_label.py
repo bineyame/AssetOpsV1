@@ -17,7 +17,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-SPEC_PATH = Path(__file__).resolve().parents[1] / "conversions" / "s4-power-demo-cases-v1.json"
+_CONVERSIONS = Path(__file__).resolve().parents[1] / "conversions"
+#: Every authored demonstration spec (owner ruling 2026-10-14; Architect D-2026-10-15-p02-demonstration-label
+#: adds the late-power variant). A temporary fixture-based presentation rule until S4-05 stores provenance.
+SPEC_PATHS = (_CONVERSIONS / "s4-power-demo-cases-v1.json", _CONVERSIONS / "s4-power-late-demo-cases-v1.json")
 
 LABEL = "Demonstration data"
 STATEMENT = ("This finding comes from demonstration readings written by the AssetOps team to show a complete "
@@ -34,15 +37,24 @@ class SpecUnreadable(Exception):
 
 
 @lru_cache(maxsize=1)
-def _declared() -> tuple[str, str, tuple[tuple[str, date], ...]]:
-    # Fails closed: an unreadable or malformed spec raises (and is therefore never cached), and the caller
-    # then labels the Finding cautiously rather than leaving possible demonstration money unlabelled.
+def _declared() -> tuple[tuple[str, str, date, str], ...]:
+    # Fails closed: an unreadable or malformed spec, or two declarations of one Site day, raises (and is
+    # therefore never cached); the caller then labels cautiously rather than leaving possible
+    # demonstration money unlabelled or silently picking one declaration.
+    entries: list[tuple[str, str, date, str]] = []
     try:
-        spec = json.loads(SPEC_PATH.read_text(encoding="utf-8"))
-        return (spec["site_code"], spec["label"],
-                tuple((c["case_id"], date.fromisoformat(c["day"])) for c in spec["cases"]))
+        for path in SPEC_PATHS:
+            spec = json.loads(path.read_text(encoding="utf-8"))
+            site, label = spec["site_code"], spec["label"]
+            if not isinstance(site, str) or not isinstance(label, str):
+                raise TypeError("site_code and label must be text")
+            entries.extend((site, c["case_id"], date.fromisoformat(c["day"]), label) for c in spec["cases"])
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise SpecUnreadable(str(exc)) from exc
+    days = [(site, day) for site, _, day, _ in entries]
+    if len(set(days)) != len(days):
+        raise SpecUnreadable("conflicting demonstration declarations for one Site day")
+    return tuple(entries)
 
 
 def _instant(value: Any) -> datetime | None:
@@ -64,13 +76,15 @@ def demonstration_case(site_code: str, start: Any, end: Any) -> dict[str, str] |
     (no end) is judged by its start day, so demonstration money is never shown unlabelled.
     """
     try:
-        code, spec_label, cases = _declared()
+        cases = _declared()
     except SpecUnreadable:
         return {"label": UNVERIFIED_LABEL, "statement": UNVERIFIED_STATEMENT, "case_id": "unverified", "spec": ""}
     lo, hi = _instant(start), _instant(end)
-    if site_code != code or lo is None:
+    if lo is None:
         return None
-    for case_id, day in cases:
+    for code, case_id, day, spec_label in cases:
+        if code != site_code:
+            continue
         day_start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
         if day_start <= lo and (hi is None or hi <= day_start + timedelta(days=1)) and lo < day_start + timedelta(days=1):
             return {"label": LABEL, "statement": STATEMENT, "case_id": case_id, "spec": spec_label}

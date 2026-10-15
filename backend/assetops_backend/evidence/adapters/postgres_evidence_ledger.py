@@ -10,10 +10,20 @@ Each chunk is one short READ COMMITTED transaction: lock the batch row, read the
 persisted watermark, decide the next ordinals, insert each decision with its
 disposition, advance counters/status and coalesce the recompute job, commit.
 The message-key unique constraint arbitrates concurrent duplicate deliveries.
+
+Decision clock (S4-07): after the batch row lock, the chunk takes one database
+`clock_timestamp()` instant (never `now()`, which can predate the lock wait, nor
+the ingestion host's clock). It stamps every newly decided ordinal's
+`decided_at` and a newly inserted recompute job's `available_at`/`created_at`,
+and lifts a widened PENDING job's `available_at` to at least that instant, so a
+worker lease whose DB-time cutoff predates the decision cannot consume the
+widened job. `test_decision_clock_override` replaces the instant for
+deterministic fixtures only; production composition never sets it.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from typing import Callable, Sequence
@@ -36,6 +46,13 @@ from assetops_backend.evidence.ledger import (
     StoredBindingSet,
     recompute_window,
 )
+from assetops_backend.evidence.publication import (
+    PublicationMismatch,
+    PublicationRecord,
+    PublicationRefused,
+    Registered,
+)
+from assetops_backend.evidence.source_provenance import LinkRow
 from assetops_contracts.ingestion_receipt_v2 import (
     IngestionReceiptV2,
     ReceiptCounts,
@@ -49,6 +66,29 @@ def _instant(value: datetime | None) -> str | None:
     return None if value is None else value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
+def admission_lock_key(tenant_id: UUID, site_id: UUID, external_batch_id: str) -> int:
+    """The signed 64-bit advisory-lock key of one Site batch slot (S4-05a contract 2).
+
+    Registration and `open_batch` take this same transaction-scoped lock. The slot is the admission
+    uniqueness scope (`ingestion_batch_external_unique` is Site + external batch ID), so every gateway/source
+    contending for the slot serializes; gateway, source and digest are then compared under the lock.
+    """
+    material = f"assetops.batch-admission|{tenant_id}|{site_id}|{external_batch_id}".encode("utf-8")
+    return int.from_bytes(hashlib.sha256(material).digest()[:8], "big", signed=True)
+
+
+def _lock_slot(c: Connection, tenant_id: UUID, site_id: UUID, external_batch_id: str) -> None:
+    c.execute(text("SELECT pg_advisory_xact_lock(:k)"),
+              {"k": admission_lock_key(tenant_id, site_id, external_batch_id)})
+
+
+_PUBLICATION_COLUMNS = (
+    "id, tenant_id, site_id, gateway_id, source_id, external_batch_id, payload_sha256, source_class, fixture_id, "
+    "fixture_version, run_id, run_identity_sha256, actor_kind, actor_id, authorization_basis, channel, "
+    "publication_trigger, recorded_at"
+)
+
+
 def _uuid_or_none(value: str) -> UUID | None:
     try:
         return UUID(value)
@@ -59,9 +99,13 @@ def _uuid_or_none(value: str) -> UUID | None:
 class PostgresEvidenceLedger:
     """`EvidenceLedger` over a migrated PostgreSQL database."""
 
-    def __init__(self, database_url: str | None) -> None:
+    def __init__(self, database_url: str | None, *,
+                 test_decision_clock_override: Callable[[], datetime] | None = None) -> None:
         self._database_url = database_url
         self._engine: Engine | None = None
+        # S4-07: test-only. When set, one call per chunk replaces the DB decision instant (fixture ordering
+        # and the F-A override-path alarm test); it is never production evidence and never composed by main.
+        self.test_decision_clock_override = test_decision_clock_override
 
     def _connect_engine(self) -> Engine:
         if not self._database_url:
@@ -213,21 +257,46 @@ class PostgresEvidenceLedger:
         received_at: datetime,
     ) -> BatchHandle:
         def work(c: Connection) -> BatchHandle:
-            c.execute(
+            # S4-05a: the same slot lock registration takes; the preauthorized commitment is read under it.
+            _lock_slot(c, principal.tenant_id, principal.site_id, external_batch_id)
+            publication = c.execute(
+                text(
+                    "SELECT id, gateway_id, source_id, payload_sha256 FROM evidence_publication "
+                    "WHERE tenant_id = :t AND site_id = :site AND external_batch_id = :b"
+                ),
+                {"t": principal.tenant_id, "site": principal.site_id, "b": external_batch_id},
+            ).first()
+            source_uuid = UUID(source_id)
+            if publication is not None and (
+                    publication.gateway_id != principal.gateway_id or publication.source_id != source_uuid
+                    or publication.payload_sha256 != payload_sha256):
+                raise PublicationMismatch(
+                    publication.id,
+                    "this batch ID was published for another gateway, source or payload digest; it is not admitted")
+            new_id = uuid4()
+            inserted = c.execute(
                 text(
                     "INSERT INTO ingestion_batch (id, tenant_id, site_id, gateway_id, source_id, external_batch_id, "
                     "payload_sha256, schema_version, source_mode, foundation_revision_id, binding_set_revision_id, "
                     "snapshot_sha256, batch_text, status, total_count, received_at) "
                     "VALUES (:id, :t, :site, :g, :src, :b, :sha, 2, :mode, :f, :bs, :snap, :body, 'IN_PROGRESS', "
-                    ":total, :at) ON CONFLICT ON CONSTRAINT ingestion_batch_external_unique DO NOTHING"
+                    ":total, :at) ON CONFLICT ON CONSTRAINT ingestion_batch_external_unique DO NOTHING RETURNING id"
                 ),
                 {
-                    "id": uuid4(), "t": principal.tenant_id, "site": principal.site_id, "g": principal.gateway_id,
-                    "src": UUID(source_id), "b": external_batch_id, "sha": payload_sha256, "mode": source_mode,
+                    "id": new_id, "t": principal.tenant_id, "site": principal.site_id, "g": principal.gateway_id,
+                    "src": source_uuid, "b": external_batch_id, "sha": payload_sha256, "mode": source_mode,
                     "f": basis.foundation_revision_id, "bs": basis.binding_set_revision_id,
                     "snap": basis.snapshot_sha256, "body": batch_text, "total": total, "at": received_at,
                 },
-            )
+            ).first()
+            if inserted is not None and publication is not None:
+                # Bound only here, in the admission transaction that inserts the batch; never afterwards.
+                c.execute(
+                    text("INSERT INTO batch_publication_link (batch_id, publication_id, tenant_id, site_id, gateway_id, source_id, external_batch_id, payload_sha256, linked_at) VALUES (:batch, :pub, :t, :site, :g, :src, :b, :sha, :at)"),
+                    {"batch": new_id, "pub": publication.id, "t": principal.tenant_id, "site": principal.site_id,
+                     "g": principal.gateway_id, "src": source_uuid, "b": external_batch_id, "sha": payload_sha256,
+                     "at": received_at},
+                )
             row = c.execute(
                 text(
                     "SELECT id, payload_sha256, status FROM ingestion_batch "
@@ -239,6 +308,84 @@ class PostgresEvidenceLedger:
 
         return self._run(work, write=True)
 
+    def register_publication(self, record: PublicationRecord) -> Registered:
+        """Record one pre-admission publication (S4-05a contract 1-2). Refusals write nothing.
+
+        Under the slot lock: refuse once any admission of the slot exists (even a partial one); an identical
+        retry returns the stored ID; a different commitment for the slot, or a reused publication ID, fails.
+        The gateway/source registration is re-read here; every class needs a `SIMULATED` gateway (review M1).
+        """
+        def work(c: Connection) -> Registered:
+            _lock_slot(c, record.tenant_id, record.site_id, record.external_batch_id)
+            admitted = c.execute(
+                text("SELECT id, status FROM ingestion_batch WHERE site_id = :site AND external_batch_id = :b"),
+                {"site": record.site_id, "b": record.external_batch_id},
+            ).first()
+            if admitted is not None:
+                raise PublicationRefused(
+                    "ALREADY_ADMITTED",
+                    f"batch {record.external_batch_id} was already admitted ({admitted.status}); a publication "
+                    "is recorded only before admission and never assigned afterwards")
+            gateway = c.execute(
+                text("SELECT site_id, mode FROM gateway WHERE tenant_id = :t AND id = :g"),
+                {"t": record.tenant_id, "g": record.gateway_id},
+            ).first()
+            if gateway is None or gateway.site_id != record.site_id:
+                raise PublicationRefused("GATEWAY_NOT_REGISTERED", "the gateway is not registered to this tenant Site")
+            source = c.execute(
+                text("SELECT gateway_id, site_id FROM source WHERE tenant_id = :t AND id = :s"),
+                {"t": record.tenant_id, "s": record.source_id},
+            ).first()
+            if source is None or source.gateway_id != record.gateway_id or source.site_id != record.site_id:
+                raise PublicationRefused("SOURCE_NOT_AFFILIATED", "the source is not registered to this gateway and Site")
+            # Phase-1 review M1: every source class designates demonstration or simulated data, so it needs a
+            # SIMULATED gateway (a source has no mode of its own; it reports through this gateway). Checked under
+            # the slot lock, before anything is written.
+            if gateway.mode != "SIMULATED":
+                raise PublicationRefused("GATEWAY_NOT_SIMULATED",
+                                         f"a source publication needs a SIMULATED gateway, not {gateway.mode}")
+            wanted = (
+                record.tenant_id, record.site_id, record.gateway_id, record.source_id, record.external_batch_id,
+                record.payload_sha256, record.source_class, record.fixture_id, record.fixture_version,
+                record.run_id, record.run_identity_sha256,
+            )
+
+            def content(row) -> tuple:
+                return (row.tenant_id, row.site_id, row.gateway_id, row.source_id, row.external_batch_id,
+                        row.payload_sha256, row.source_class, row.fixture_id, row.fixture_version, row.run_id,
+                        row.run_identity_sha256)
+
+            existing = c.execute(
+                text(f"SELECT {_PUBLICATION_COLUMNS} FROM evidence_publication "
+                     "WHERE tenant_id = :t AND site_id = :site AND external_batch_id = :b"),
+                {"t": record.tenant_id, "site": record.site_id, "b": record.external_batch_id},
+            ).first()
+            if existing is not None:
+                if content(existing) != wanted or record.publication_id not in (None, existing.id):
+                    raise PublicationRefused(
+                        "PUBLICATION_CONFLICT",
+                        f"batch {record.external_batch_id} is already published with another commitment or ID")
+                return Registered(existing.id, False)
+            if record.publication_id is not None:
+                reused = c.execute(text("SELECT 1 FROM evidence_publication WHERE id = :id"),
+                                   {"id": record.publication_id}).first()
+                if reused is not None:
+                    raise PublicationRefused("PUBLICATION_ID_REUSED",
+                                             "this publication ID already designates another batch")
+            publication_id = record.publication_id or uuid4()
+            a = record.authority
+            c.execute(
+                text("INSERT INTO evidence_publication (id, tenant_id, site_id, gateway_id, source_id, external_batch_id, payload_sha256, source_class, fixture_id, fixture_version, run_id, run_identity_sha256, actor_kind, actor_id, authorization_basis, channel, publication_trigger, recorded_at) VALUES (:id, :t, :site, :g, :src, :b, :sha, :cls, :fx, :fv, :run, :rd, :kind, :actor, :basis, :channel, :trig, clock_timestamp())"),
+                {"id": publication_id, "t": record.tenant_id, "site": record.site_id, "g": record.gateway_id,
+                 "src": record.source_id, "b": record.external_batch_id, "sha": record.payload_sha256,
+                 "cls": record.source_class, "fx": record.fixture_id, "fv": record.fixture_version,
+                 "run": record.run_id, "rd": record.run_identity_sha256, "kind": a.actor_kind, "actor": a.actor_id,
+                 "basis": a.authorization_basis, "channel": a.channel, "trig": a.trigger},
+            )
+            return Registered(publication_id, True)
+
+        return self._run(work, write=True)
+
     def decide_chunk(
         self,
         batch: BatchHandle,
@@ -246,7 +393,7 @@ class PostgresEvidenceLedger:
         decide_one: Callable[[int, str], Decision],
         *,
         limit: int,
-        decided_at: datetime,
+        completed_at: datetime,
     ) -> str:
         def work(c: Connection) -> str:
             row = c.execute(
@@ -263,6 +410,9 @@ class PostgresEvidenceLedger:
                 raise ValueError("the retried bytes do not hold the stored batch's ordinals")
             start = row.processed_count
             end = min(row.total_count, start + limit)
+            # S4-07: one decision instant per chunk, DB time taken after the batch row lock (any lock wait is
+            # already behind it), inside the transaction that writes the dispositions and the recompute job.
+            decided_at = self._decision_instant(c)
             tally = {"ACCEPTED": 0, "DUPLICATE": 0, "REJECTED": 0, "CONFLICT": 0}
             accepted: list[Accepted] = []
             first_new: UUID | None = None
@@ -296,7 +446,7 @@ class PostgresEvidenceLedger:
                 {
                     "p": end, "a": tally["ACCEPTED"], "du": tally["DUPLICATE"], "r": tally["REJECTED"],
                     "c": tally["CONFLICT"], "s": "COMPLETED" if done else "IN_PROGRESS",
-                    "done_at": decided_at if done else None, "id": row.id,
+                    "done_at": completed_at if done else None, "id": row.id,
                 },
             )
             window = recompute_window(accepted)
@@ -305,6 +455,11 @@ class PostgresEvidenceLedger:
             return "COMPLETED" if done else "IN_PROGRESS"
 
         return self._run(work, write=True)
+
+    def _decision_instant(self, c: Connection) -> datetime:
+        if self.test_decision_clock_override is not None:
+            return self.test_decision_clock_override()
+        return c.execute(text("SELECT clock_timestamp()")).scalar_one()
 
     def _persist(self, c: Connection, batch, decision: Decision, decided_at: datetime):
         if isinstance(decision, Rejected):
@@ -398,9 +553,14 @@ class PostgresEvidenceLedger:
                  "end": end, "cause": cause, "now": now},
             )
             return
+        # S4-07: widening also lifts `available_at` to at least the decision instant. A scheduled lease's cutoff
+        # is the `now` it sampled before leasing; a lease that sampled it before this decision and runs after
+        # this commit would otherwise consume the widened job at a cutoff that excludes it (proved in
+        # test_s4_evidence_decided_at_postgres). `created_at` is kept.
         c.execute(
-            text("UPDATE recompute_job SET window_start = :start, window_end = :end WHERE id = :id"),
-            {"start": min(start, job.window_start), "end": max(end, job.window_end), "id": job.id},
+            text("UPDATE recompute_job SET window_start = :start, window_end = :end, "
+                 "available_at = GREATEST(available_at, :now) WHERE id = :id"),
+            {"start": min(start, job.window_start), "end": max(end, job.window_end), "now": now, "id": job.id},
         )
 
     # --- receipt ------------------------------------------------------------
@@ -606,6 +766,20 @@ class PostgresEvidenceLedger:
 
         return self._run(work)
 
+    def accepted_fingerprint(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> dict:
+        """S5-01 accepted-source fence: the count and SHA-256 of the accepted evidence IDs (ordered by ID) whose
+        source time or interval intersects `[lo, hi)`, with the same overlap test as the S3 query bracket. It is
+        compared before and after a Site Overview read; heartbeat or disposition time is never the fence."""
+        def work(c: Connection) -> dict:
+            row = c.execute(text(
+                "SELECT count(*) AS n, encode(sha256(convert_to(coalesce(string_agg(e.id::text, ',' ORDER BY e.id), "
+                "''), 'UTF8')), 'hex') AS sha FROM accepted_evidence e WHERE e.tenant_id = :t AND e.site_id = :s "
+                "AND COALESCE(e.interval_end, e.source_time) >= :lo AND COALESCE(e.interval_start, e.source_time) < :hi"),
+                {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi}).one()
+            return {"count": int(row.n), "sha256": row.sha}
+
+        return self._run(work)
+
     def record_detail(self, tenant_id: UUID, site_id: UUID, key: str) -> list[dict]:
         """The accepted record named by its evidence UUID, else by message ID (every match)."""
         evidence_id = _uuid_or_none(key)
@@ -707,6 +881,86 @@ class PostgresEvidenceLedger:
             }
 
         return self._run(work)
+
+    # --- S4-05a source provenance reads (read-only; the resolver is evidence/source_provenance.py) ----------
+    # Every query is scoped by tenant and Site. The provenance chain is joined LEFT and unscoped past the
+    # accepted row, so a link or publication that disagrees with the scoped batch commitment comes back for the
+    # resolver to name as broken, never silently dropped. Another tenant's rows are never reported.
+
+    def link_rows(self, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[LinkRow]:
+        def work(c: Connection) -> list[LinkRow]:
+            rows = c.execute(_LINKS, {"t": tenant_id, "s": site_id, "ids": [str(i) for i in evidence_ids]}).all()
+            return [LinkRow(
+                requested_id=r.requested_id, in_scope=r.in_scope, in_tenant_elsewhere=r.in_tenant_elsewhere,
+                batch_id=r.batch_id,
+                evidence_gateway_source=None if r.e_gateway is None else (r.e_gateway, r.e_source),
+                batch=_commitment(r, "b"), link_publication_id=r.l_pub, link=_commitment(r, "l"),
+                publication=_commitment(r, "p"), source_class=r.source_class, fixture_id=r.fixture_id,
+                fixture_version=r.fixture_version, run_id=r.run_id, run_identity_sha256=r.run_identity_sha256)
+                for r in rows]
+        return self._run(work)
+
+    def finding_revision_evidence(self, tenant_id: UUID, site_id: UUID,
+                                  finding_revision_id: UUID) -> list[str] | None:
+        def work(c: Connection) -> list[str] | None:
+            p = {"t": tenant_id, "s": site_id, "r": finding_revision_id}
+            if c.execute(text("SELECT 1 FROM finding_revision WHERE tenant_id = :t AND site_id = :s AND id = :r"),
+                         p).first() is None:
+                return None
+            return self._cited(c, p)
+        return self._run(work)
+
+    @staticmethod
+    def _cited(c: Connection, p: dict) -> list[str]:
+        return list(c.execute(text(
+            "SELECT CAST(evidence_id AS text) FROM finding_revision_evidence WHERE tenant_id = :t "
+            "AND site_id = :s AND finding_revision_id = :r ORDER BY evidence_id"), p).scalars())
+
+    def consequence_inputs(self, tenant_id: UUID, site_id: UUID, consequence_revision_id: UUID
+                           ) -> tuple[str, list[str], list[str]] | None:
+        def work(c: Connection) -> tuple[str, list[str], list[str]] | None:
+            p = {"t": tenant_id, "s": site_id, "c": consequence_revision_id}
+            finding_revision_id = c.execute(text(
+                "SELECT CAST(finding_revision_id AS text) FROM financial_consequence_revision "
+                "WHERE tenant_id = :t AND site_id = :s AND id = :c"), p).scalar_one_or_none()
+            if finding_revision_id is None:
+                return None
+            cited = self._cited(c, {"t": tenant_id, "s": site_id, "r": finding_revision_id})
+            power = list(c.execute(text(
+                "SELECT CAST(evidence_id AS text) FROM financial_consequence_power_interval WHERE tenant_id = :t "
+                "AND site_id = :s AND consequence_revision_id = :c ORDER BY evidence_id"), p).scalars())
+            return finding_revision_id, cited, power
+        return self._run(work)
+
+
+_LINKS = text(
+    "SELECT CAST(q.id AS text) AS requested_id, e.id IS NOT NULL AS in_scope, "
+    "EXISTS (SELECT 1 FROM accepted_evidence o WHERE o.id = q.id AND o.tenant_id = :t "
+    "AND o.site_id <> :s) AS in_tenant_elsewhere, "
+    "CAST(e.batch_id AS text) AS batch_id, CAST(e.gateway_id AS text) AS e_gateway, "
+    "CAST(e.source_id AS text) AS e_source, "
+    "CAST(b.id AS text) AS b_id, CAST(b.tenant_id AS text) AS b_tenant, CAST(b.site_id AS text) AS b_site, "
+    "CAST(b.gateway_id AS text) AS b_gateway, CAST(b.source_id AS text) AS b_source, "
+    "b.external_batch_id AS b_ext, b.payload_sha256 AS b_sha, "
+    "CAST(l.batch_id AS text) AS l_batch, CAST(l.publication_id AS text) AS l_pub, "
+    "CAST(l.tenant_id AS text) AS l_tenant, CAST(l.site_id AS text) AS l_site, "
+    "CAST(l.gateway_id AS text) AS l_gateway, CAST(l.source_id AS text) AS l_source, "
+    "l.external_batch_id AS l_ext, l.payload_sha256 AS l_sha, "
+    "CAST(p.id AS text) AS p_id, CAST(p.tenant_id AS text) AS p_tenant, CAST(p.site_id AS text) AS p_site, "
+    "CAST(p.gateway_id AS text) AS p_gateway, CAST(p.source_id AS text) AS p_source, "
+    "p.external_batch_id AS p_ext, p.payload_sha256 AS p_sha, p.source_class, p.fixture_id, "
+    "p.fixture_version, p.run_id, p.run_identity_sha256 "
+    "FROM unnest(CAST(:ids AS uuid[])) AS q(id) "
+    "LEFT JOIN accepted_evidence e ON e.tenant_id = :t AND e.site_id = :s AND e.id = q.id "
+    "LEFT JOIN ingestion_batch b ON b.tenant_id = e.tenant_id AND b.site_id = e.site_id AND b.id = e.batch_id "
+    "LEFT JOIN batch_publication_link l ON l.batch_id = e.batch_id "
+    "LEFT JOIN evidence_publication p ON p.id = l.publication_id")
+
+
+def _commitment(r, prefix: str) -> tuple[str, ...] | None:
+    if getattr(r, f"{prefix}_tenant") is None:
+        return None
+    return tuple(getattr(r, f"{prefix}_{k}") for k in ("tenant", "site", "gateway", "source", "ext", "sha"))
 
 
 def _envelope_at(batch_text: str | None, ordinal: int) -> str | None:

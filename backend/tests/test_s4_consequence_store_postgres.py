@@ -401,3 +401,59 @@ class TestReviewCarries:
         work = site.store.rows(site.tenant, site.site)["financial_consequence_work"]
         assert revisions and {w["finding_revision_id"] for w in work} == revisions
         assert all(w["cause"] == "FINDING_REVISION_APPENDED" for w in work)
+
+
+class TestMigration0015Downgrade:
+    """LR-01 fix round (review L2): the 0015 downgrade refuses to erase a returning basis."""
+
+    @staticmethod
+    def _config():
+        from alembic.config import Config
+        from test_s1_bindings_postgres import BACKEND
+
+        config = Config(str(BACKEND / "alembic.ini"))
+        config.attributes["database_url"] = URL
+        return config
+
+    @staticmethod
+    def _basis_constraint(engine) -> bool:  # noqa: F811
+        with engine.connect() as c:
+            return bool(c.execute(text("SELECT 1 FROM pg_constraint WHERE conname = 'finding_revision_basis_unique'"))
+                        .first())
+
+    def test_downgrade_refuses_while_a_returning_basis_exists_and_keeps_history(self, site, engine) -> None:  # noqa: F811
+        from alembic import command
+        from sqlalchemy.exc import DBAPIError
+
+        rev = site.on(STATE_DAY)
+        with engine.connect() as c:
+            names = [r[0] for r in c.execute(text(
+                "SELECT column_name FROM information_schema.columns WHERE table_name = 'finding_revision' "
+                "ORDER BY ordinal_position"))]
+        cols = {"id": "CAST(:nid AS uuid)", "revision_no": "revision_no + 1"}  # the same basis and transition again
+        with engine.begin() as c:
+            c.execute(text(f"INSERT INTO finding_revision ({', '.join(names)}) SELECT "
+                           f"{', '.join(cols.get(n, n) for n in names)} FROM finding_revision WHERE id = :id"),
+                      {"nid": str(uuid4()), "id": rev["id"]})
+        site.store.dispose()
+        with pytest.raises(DBAPIError, match="returning basis"):
+            command.downgrade(self._config(), "0014_source_clock_attestation")
+        with engine.connect() as c:
+            count = c.execute(text("SELECT count(*) FROM finding_revision WHERE finding_id = :f"),
+                              {"f": rev["finding_id"]}).scalar_one()
+            version = c.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
+        assert count == 2 and version == "0017_evidence_publication"
+        assert not self._basis_constraint(engine)
+
+    def test_downgrade_without_a_returning_basis_restores_the_constraint(self, site, engine) -> None:  # noqa: F811
+        from alembic import command
+
+        site.on(STATE_DAY)
+        site.store.dispose()
+        config = self._config()
+        try:
+            command.downgrade(config, "0014_source_clock_attestation")
+            assert self._basis_constraint(engine)
+        finally:
+            command.upgrade(config, "head")
+        assert not self._basis_constraint(engine)

@@ -1,0 +1,38 @@
+## evidence initial
+PASS  desktop failed: reads Failed, no amount  {"assessment":"FAILED","money":"UPSTREAM_FAILED"}
+PASS  narrow failed: reads Failed, no amount  {"assessment":"FAILED","money":"UPSTREAM_FAILED"}
+46/46 claims passed
+## attest
+  P02 2026-10-24 now: {"day": "2026-10-24", "http": 200, "freshness": "STALE_PROJECTION", "reasons": ["S3_STALE_PROJECTION", "LIVE_JOB"], "source_open": true, "assessment": "STALE_PROJECTION", "money": "UPSTREAM_STALE", "gate": "PENDING_REASSESSMENT", "amount": [null, null, null], "demonstration": "P02-power-late", "finding_id": "a3eca958-c648-457d-87de-e7fad32d9749", "finding_revision_id": "62840427-388e-4b4c-afe5-b9b5e6c727ed", "consequence_revision_id": "c449f748-a8a9-4e3a-8543-6bc09ecd95d1", "accepted_source": {"count": 175, "sha256": "81debda6d2b8a15d9dac0d09e4279bc3a1ba7b02be6abe6413c9ae
+## P01 after attest
+STALE_PROJECTION ['S3_STALE_PROJECTION', 'LIVE_JOB'] UPSTREAM_STALE None
+## evidence pending
+8/8 claims passed
+## tick
+  P02 2026-10-24 now: {"day": "2026-10-24", "http": 200, "freshness": "CURRENT", "reasons": [], "source_open": true, "assessment": "CURRENT", "money": "PRICED", "gate": "ELIGIBLE", "amount": ["0.00", "15.82", "USD"], "demonstration": "P02-power-late", "finding_id": "a3eca958-c648-457d-87de-e7fad32d9749", "finding_revision_id": "9827a7bd-944c-4e85-9a37-339032a75a6b", "consequence_revision_id": "26d63ce5-188d-4796-91af-41975150eef8", "accepted_source": {"count": 175, "sha256": "81debda6d2b8a15d9dac0d09e4279bc3a1ba7b02be6abe6413c9aec43dc6ec43", "bracket": {"start": "2026-10-23T18:00:00Z", "end": "2026-10-25T06:00:00Z"}, "order": "accepted evidence ID"}, "analytic_selection_seq": 39, "match_pass_id": "16bdced9-237d-4
+## evidence eligible
+10/10 claims passed
+## P01 after tick
+CURRENT PRICED 15.82 P01-power
+## stop-schedule
+  P02 2026-10-24 now: {"day": "2026-10-24", "http": 200, "freshness": "STALE_PROJECTION", "reasons": ["SCHEDULE_STOPPED", "SITE_VISIT_STALE"], "source_open": true, "assessment": "CURRENT", "money": "UPSTREAM_STALE", "gate": "ELIGIBLE", "amount": [null, null, null], "demonstration": "P02-power-late", "finding_id": "a3eca958-c648-457d-87de-e7fad32d9749", "finding_revision_id": "9827a7bd-944c-4e85-9a37-339032a75a6b", "consequence_revision_id": "26d63ce5-188d-4796-91af-41975150eef8", "accepted_sourc
+## evidence stopped
+8/8 claims passed
+## gate close
+  P02 2026-10-24 now: {"day": "2026-10-24", "http": 200, "freshness": "STALE_PROJECTION", "reasons": ["SCHEDULE_STOPPED", "SITE_VISIT_STALE", "SOURCE_CLOSED"], "source_open": false, "assessment": "CLOSED", "money": "SOURCE_CLOSED", "gate": "ELIGIBLE", "amount": [null, null, null], "demonstration": "P02-power-late", "finding_id": "a3eca958-c648-457d-87de-e7fad32d9749", "finding_revision_id": "9827a7bd-944c-4e85-9a37-339032a75a6b", "consequence_revision_id": "26d63ce5-188d-4796-91af-41975150eef8",
+## evidence closed
+8/8 claims passed
+## gate open
+  P02 2026-10-24 now: {"day": "2026-10-24", "http": 200, "freshness": "STALE_PROJECTION", "reasons": ["SCHEDULE_STOPPED", "SITE_VISIT_STALE"], "source_open": true, "assessment": "CURRENT", "money": "UPSTREAM_STALE", "gate": "ELIGIBLE", "amount": [null, null, null], "demonstration": "P02-power-late",
+## start-schedule
+  P02 2026-10-24 now: {"day": "2026-10-24", "http": 200, "freshness": "CURRENT", "reasons": [], "source_open": true, "assessment": "CURRENT", "money": "PRICED", "gate": "ELIGIBLE", "amount": ["0.00", "15.82", "USD"], "demonstration": "P02-power-late", "finding_id": "a3eca958-c648-457d-87de-e7fad32d9749", "finding_revision_id": "9827a7bd-944c-4e85-9a37-339032a75a6b", "consequence_revision_id": "26d63ce5-188d-4796-91af-41975150eef8", "accepted_source": {"count": 175, "sha256": "81debda6d2b8a15d9da
+## tick
+  P02 2026-10-24 now: {"day": "2026-10-24", "http": 200, "freshness": "CURRENT", "reasons": [], "source_open": true, "assessment": "CURRENT", "money": "PRICED", "gate": "ELIGIBLE", "amount": ["0.00", "15.82", "USD"], "demonstration": "P02-power-late", "finding_id": "a3eca958-c648-457d-87de-e7fad32d9749", "finding_revision_id": "9827a7bd-944c-4e85-9a37-339032a75a6b", "consequence_revision_id": "26d63ce5-188d-4796-91af-41975150eef8", "accepted_source": {"count": 175, "sha256": "81debda6d2b8a15d9dac0d09e4279bc3a1ba7b02be6abe6413c9aec43dc6ec43", "bracket": {"start": "2026-10-23T18:00:00Z", "end": "2026-10-25T06:00:00Z"}, "order": "accepted evidence ID"}, "analytic_selection_seq": 39, "match_pass_id": "16bdced9-237d-4
+## evidence eligible
+10/10 claims passed
+## final API record
+2026-10-02 CURRENT QUANTITY_UNAVAILABLE None None None F 65aa877d-62d7-4a5a-8aa4-48b80821c330 R c0816bc1-8493-4650-bc7e-89bb642f30a5 C 45fc1539-0e8a-4c86-bae3-3d9a8d5a2ef7 acc 329 seq 34 mp 16bdced9-237d-49e0-afd9-2e8d136b5405
+2026-10-07 FAILED UPSTREAM_FAILED None None None F None R None C None acc 0 seq None mp 16bdced9-237d-49e0-afd9-2e8d136b5405
+2026-10-23 CURRENT PRICED 0.00 15.82 USD F cc6c6d26-b5e4-47e5-8759-301c23ee2c8c R d154a86e-bd29-44c2-a6e1-c02f2cc1c67d C 2032dba7-ad3c-4aaf-a5bf-a1c562a7bdf4 acc 176 seq 38 mp 16bdced9-237d-49e0-afd9-2e8d136b5405
+2026-10-24 CURRENT PRICED 0.00 15.82 USD F a3eca958-c648-457d-87de-e7fad32d9749 R 9827a7bd-944c-4e85-9a37-339032a75a6b C 26d63ce5-188d-4796-91af-41975150eef8 acc 175 seq 39 mp 16bdced9-237d-49e0-afd9-2e8d136b5405
+2026-11-10 UNASSESSED UPSTREAM_UNASSESSED None None None F None R None C None acc 0 seq None mp 16bdced9-237d-49e0-afd9-2e8d136b5405

@@ -266,7 +266,9 @@ class TestRecordLineage:
 
     def test_received_at_is_the_first_batch_receipt_not_a_later_ordinal_decision(self, kit) -> None:
         receipts = load_scenario(kit)
-        resumed = BatchIngestionService(PostgresEvidenceLedger(URL), Clock(LATER), chunk_size=2)
+        # S4-07: the receipt stays app-clock; the exact decision instant is pinned through the test-only override.
+        resumed = BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=Clock(LATER)),
+                                        Clock(LATER), chunk_size=2)
         done = resumed.submit(kit.principal, receipts["partial_body"].encode()).receipt
         assert done.status == "COMPLETED"
         http = client(kit, empty_set_report(kit))

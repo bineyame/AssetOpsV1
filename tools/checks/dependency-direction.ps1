@@ -397,6 +397,44 @@ function Invoke-DependencyDirectionCheck {
         }
     }
 
+    # --- The S5 Site Overview reads committed product records only (S5-01) -----
+    #
+    # `backend/assetops_backend/site_overview/` composes the upstream seam, the
+    # consequence read, the Finding store and the evidence ledger. It may not reach
+    # the simulator, the host leaf, the run domain or the Lab surface, and only its
+    # `composition.py` may name another domain's composition; no module in it may
+    # import an adapter directly. Anti-vacuity: the package must be scanned.
+    $overviewMayNotImport = @(
+        '^\s*(?:from|import)\s+assetops_simulator(?:[.\s]|$)',
+        '^\s*(?:from|import)\s+host(?:[.\s]|$)',
+        '^\s*(?:from|import)\s+assetops_backend\.(?:runs|simulator_lab_api)(?:[.\s]|$)',
+        '^\s*(?:from|import)\s+assetops_backend\.[A-Za-z_.]*\.adapters(?:[.\s]|$)'
+    )
+    $overviewCompositionOnly = '^\s*(?:from|import)\s+assetops_backend\.[A-Za-z_]+\.composition(?:[.\s]|$)'
+    $overviewModules = @($backendModules | Where-Object {
+        $_.Path.StartsWith("backend/assetops_backend/site_overview/") -and $_.Path.EndsWith(".py")
+    })
+    if ($overviewModules.Count -eq 0) {
+        $failures.Add(("No module was scanned under backend/assetops_backend/site_overview/, so the S5 " +
+            "Overview import check is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    foreach ($module in $overviewModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            $bad = @($overviewMayNotImport | Where-Object { $line -match $_ }).Count -gt 0
+            if (-not $bad -and $line -match $overviewCompositionOnly -and
+                $module.Path -ne "backend/assetops_backend/site_overview/composition.py") {
+                $bad = $true
+            }
+            if ($bad) {
+                $failures.Add(("The S5 Site Overview imports a Lab, simulator, adapter or foreign " +
+                    "composition module at $($module.Path):${lineNumber}: $($line.Trim()). It reads " +
+                    "committed product records through injected collaborators.")) | Out-Null
+            }
+        }
+    }
+
     # --- The shared kernel knows no electrical pack (T024) ----------------------
     #
     # v4 section 16: the shared kernel may not import a pack implementation or
