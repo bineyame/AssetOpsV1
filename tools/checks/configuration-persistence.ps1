@@ -854,6 +854,13 @@ function Invoke-ConfigurationPersistenceCheck {
                             "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     }
                 }
+                # LR-01 attestations, S6-01a Action rows and S4-05a provenance are insert-only: a permitted INSERT
+                # into one of them must not carry an upsert (ON CONFLICT ... DO UPDATE stays in the INSERT clause).
+                if ($null -ne $target -and $line -match '(?i)\bDO\s+UPDATE\b' -and
+                        (@('source_clock_attestation') + $actionTables + $provenanceTables) -contains $target) {
+                    $failures.Add(("Insert-only table '$target' is never upserted (no ON CONFLICT DO UPDATE); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($module.Path -eq $findingWriter -and -not (
                         $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $findingTables -contains $Matches[1].ToLowerInvariant())) {
                     $failures.Add(("The Finding store only inserts into $($findingTables -join ', ') (append-only); " +

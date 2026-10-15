@@ -13,7 +13,11 @@ Sets:
 - `split <writer>`: a two-line UPDATE of a table the writer does not own (S4-05a phase-1 review L1), one per writer.
 - `reverse <table family>`: a two-line write by the Foundation store into another writer's table.
 - `dynamic ...` / `core ...` / `fragment` / `cte` / `upsert` / `second writer`: unresolved or non-text forms.
-- `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass.
+- `attestation ...` / `action ...` / `provenance ...` / `reverse attestation|action|provenance ...`: the writer
+  policy merged from main 0d3114a3 (LR-01, S6-01a, S4-05a): UPDATE/DELETE/TRUNCATE/upsert, split, schema-qualified
+  and quoted forms, and reverse ownership from another module.
+- `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
+  plus one allowed multiline insert per merged writer table family.
 """
 
 from __future__ import annotations
@@ -33,12 +37,18 @@ ASSESS = f"{B}/analytics/adapters/postgres_assessment_store.py"
 FINDING = f"{B}/analytics/adapters/postgres_finding_store.py"
 ASSUMPTION = f"{B}/financials/adapters/postgres_assumption_store.py"
 CONSEQUENCE = f"{B}/financials/adapters/postgres_consequence_store.py"
+ACTION = f"{B}/actions/adapters/postgres_action_store.py"
 TICK = f"{B}/scheduling/tick.py"
 
 NEVER = "never deletes, truncates, upserts or runs DDL"
 SCHED_TABLES = "The schedule store updates only"
 MERGE_COPY = "No product writer runs MERGE or COPY"
 LITERAL_TARGET = "names its target table literally"
+ASSESS_ONLY = "The assessment store inserts only"
+ACTION_NEVER = "The Action store never updates, deletes, truncates, upserts or runs DDL"
+ACTION_ONLY = "The Action store only inserts"
+PROV = "Source provenance is insert-only"
+UPSERT = "is never upserted (no ON CONFLICT DO UPDATE)"
 
 
 def split(table: str, rest: str) -> str:
@@ -142,6 +152,55 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      '_OPS02 = (\n    "INSERT INTO schedule_cursor (environment) VALUES (:e) "\n'
      '    "ON CONFLICT (environment) DO UPDATE SET after_site_id = NULL"\n)\n', NEVER),
     ("copy in foundation", FOUNDATION, '_OPS02 = "COPY site (id) FROM STDIN"\n', MERGE_COPY),
+    # Merge with main 0d3114a3: LR-01 source_clock_attestation (assessment store, INSERT-only), S6-01a Action tables
+    # (ninth writer, INSERT-only) and S4-05a provenance tables (ledger, INSERT-only, three DO NOTHING arbiters).
+    ("attestation split update", ASSESS, split("source_clock_attestation", "proof_class = :p WHERE id = :i"),
+     ASSESS_ONLY),
+    ("attestation split lowercase delete", ASSESS,
+     '_OPS02 = (\n    "delete from "\n    "source_clock_attestation where id = :i"\n)\n', ASSESS_ONLY),
+    ("attestation qualified quoted truncate", ASSESS, '_OPS02 = "TRUNCATE public.\\"source_clock_attestation\\""\n',
+     ASSESS_ONLY),
+    ("attestation split upsert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id) VALUES (:i) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET proof_class = :p"\n)\n', UPSERT),
+    ("reverse attestation update", FOUNDATION, split("source_clock_attestation", "proof_class = :p WHERE id = :i"),
+     "writes assessment table 'source_clock_attestation'"),
+    ("reverse attestation insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO source_clock_attestation "\n    "(id) VALUES (:i)"\n)\n',
+     "writes assessment table 'source_clock_attestation'"),
+    ("action split update", ACTION, split("action_event", "kind = :k WHERE id = :i"), ACTION_NEVER),
+    ("action split lowercase delete", ACTION, '_OPS02 = (\n    "delete "\n    "from action where id = :i"\n)\n',
+     ACTION_NEVER),
+    ("action qualified quoted update", ACTION,
+     '_OPS02 = (\n    "UPDATE public.\\"action\\" "\n    "SET status = :s WHERE id = :i"\n)\n', ACTION_ONLY),
+    ("action truncate", ACTION, '_OPS02 = "truncate table action_policy_change"\n', ACTION_NEVER),
+    ("action split upsert", ACTION,
+     '_OPS02 = (\n    "INSERT INTO action_event (id) VALUES (:i) "\n    "ON CONFLICT (id) DO UPDATE SET kind = :k"\n)\n',
+     UPSERT),
+    ("action core delete", ACTION, 'import sqlalchemy as sa\n_OPS02 = sa.delete(sa.table("action_event"))\n',
+     ACTION_ONLY),
+    ("reverse action update", FOUNDATION, split("action", "status = :s WHERE id = :i"), "writes Action table 'action'"),
+    ("reverse action insert", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO action_basis_evidence "\n    "(id) VALUES (:i)"\n)\n',
+     "writes Action table 'action_basis_evidence'"),
+    ("provenance split update", LEDGER, split("evidence_publication", "source_kind = :k WHERE id = :i"), PROV),
+    ("provenance split qualified quoted update", LEDGER,
+     '_OPS02 = (\n    "UPDATE public.\\"batch_publication_link\\" "\n    "SET batch_id = :b WHERE id = :i"\n)\n', PROV),
+    ("provenance split lowercase delete", LEDGER,
+     '_OPS02 = (\n    "delete from "\n    "evidence_publication where id = :i"\n)\n', PROV),
+    ("provenance quoted truncate", LEDGER, '_OPS02 = "TRUNCATE TABLE ONLY \\"evidence_publication\\""\n', PROV),
+    ("provenance split upsert", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO evidence_publication (id) VALUES (:i) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET source_kind = :k"\n)\n', UPSERT),
+    ("provenance unlisted arbiter", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO batch_publication_link (id) VALUES (:i) "\n    "ON CONFLICT (id) DO NOTHING"\n)\n',
+     "ON CONFLICT is allowed only as its three"),
+    ("provenance core update", LEDGER,
+     'import sqlalchemy as sa\n_OPS02 = sa.update(sa.table("evidence_publication")).values(source_kind="x")\n', PROV),
+    ("reverse provenance insert", FOUNDATION,
+     '_OPS02 = (\n    "INSERT INTO batch_publication_link "\n    "(id) VALUES (:i)"\n)\n',
+     "writes source provenance table 'batch_publication_link'"),
+    ("reverse provenance update", FINDING, split("evidence_publication", "source_kind = :k WHERE id = :i"), PROV),
 ]
 
 CONTROLS = (
@@ -159,6 +218,19 @@ CONTROLS = (
     '# DELETE FROM site WHERE id = 1 (a comment is not executed)\n'
     'def _ops02_doc():\n    """UPDATE site SET lifecycle = :l WHERE id = :i is documented here, never executed."""\n'
 )
+
+
+# Allowed multiline inserts into the tables main added, each in its owning writer (must pass).
+WRITER_CONTROLS: list[tuple[str, str, str]] = [
+    ("controls attestation insert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id, proof_class) "\n    "VALUES (:i, :p)"\n)\n'),
+    ("controls action insert", ACTION,
+     '_OPS02 = (\n    "INSERT INTO action_event (id, kind) "\n    "VALUES (:i, :k)"\n)\n'),
+    ("controls provenance insert and arbiter", LEDGER,
+     '_OPS02_A = (\n    "INSERT INTO evidence_publication (id) "\n    "VALUES (:i)"\n)\n'
+     '_OPS02_B = (\n    "INSERT INTO ingestion_batch (id) VALUES (:i) ON CONFLICT ON CONSTRAINT "\n'
+     '    "ingestion_batch_external_unique DO NOTHING"\n)\n'),
+]
 
 
 def restore(path: str) -> None:
@@ -212,6 +284,15 @@ def main(argv: list[str]) -> int:
         ok = out.returncode == 0
         failed += not ok
         print(f"{'ALLOWED' if ok else 'REFUSED'}  controls", flush=True)
+        if not ok:
+            print("    " + "\n    ".join((out.stdout + out.stderr).strip().splitlines()[-10:]), flush=True)
+    for name, path, appended in WRITER_CONTROLS:
+        if only and name not in only and "controls" not in only:
+            continue
+        out = probe(path, appended, seam)
+        ok = out.returncode == 0
+        failed += not ok
+        print(f"{'ALLOWED' if ok else 'REFUSED'}  {name}", flush=True)
         if not ok:
             print("    " + "\n    ".join((out.stdout + out.stderr).strip().splitlines()[-10:]), flush=True)
     clean = subprocess.run(["git", "status", "--porcelain", "--", "backend", "tools"], cwd=ROOT,
