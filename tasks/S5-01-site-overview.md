@@ -1,38 +1,53 @@
-﻿# S5-01 — Derived Site Overview
+# S5-01 — selected-window Site Overview
 
-Status: outline; refine after preceding task review, before activation
-USER_REVIEW_REQUIRED: true
-Milestone: S5 Overview
-Depends on: S4-02
-Branch: task/S5-01-site-overview
-Planner: Codex, 2026-10-07
+Status: implementation-ready (Planner packet, 2026-10-15; build and independent review pending)
+USER_REVIEW_REQUIRED: true — owner visual acceptance before merge or registry promotion.
+Size: M, two phases; phase 2 review is the slice review.
+Branch: `task/S5-01-site-overview`, stacked on the **reviewed LR-01 head** while LR-01 is unmerged; hold merge for owner. A stacked predecessor is not accepted or merged.
+Depends on: registry `I-site-overview-read` requirements, especially reviewed LR-01 `I-late-reading-series-and-money-limit`, merged S4-02d `I-analytic-finding-worker-schedule`, and S4-02c/Q2 `I-evidence-acceptance-consequence-work`. Resolve any LR-01 High/Medium review finding first. S4-04 is registry sequencing metadata, not a technical gate.
 
-## Visible outcome
+## Outcome and authority
 
-Mini-grid Overview shows selected-window assessment, timeline, bounded cost and drill-downs.
+For one selected **UTC date**, show the half-open `[00:00Z, next 00:00Z)` Site window: S3 dispatch objective/status and coverage, accepted-reading timeline and operating context, one bounded optional Finding fuel consequence, and exact claim/evidence links. Date change and reload retain the date and selected IDs. Target only `mini:1#a`, `mini:2#a`, `mini:4#a` (`frontend/docs/architecture/v69-dependency-registry-pilot.json:308-311`). `frontend/mockups/v69/screen-manifest.json:105-124` and `index.html#/mini` guide hierarchy, not unsupported data. The Finding list says **Unavailable until the Site Finding index is delivered**; never claim empty. S4-04/S5-02 own `mini:3#a/b`. No Site total, savings, service health, battery condition, fuel balance, renewable opportunity, charging cause, maintenance allowance or recommendation is inferred from the mock.
 
-## Persisted object and read contract
+Authority: decisions `D-2026-10-14-s5-selected-window-overview`, `D-2026-10-14-s402c-late-sequence-and-s5-money`, `D-2026-10-15-lr01-source-time-cohort` (`.ai/DECISIONS.md:4113-4137`); `.agent/architect-A-S5-overview-answers.md`; `.agent/architect-autonomy-2026-10-15-answers.md` item 2; review carries `.ai/MILESTONE_REVIEW_BACKLOG.md:2192-2199,2205-2231`.
 
-SiteWindowSummary projection/read model and `GET /api/sites/{id}/overview?from=&to=` with source/analytic watermarks.
+## Verified seam and implementation choice
 
-## Demo acceptance
+- `backend/assetops_backend/evidence_api.py:385-393` already exposes `GET /api/sites/{site_id}/overview?from=&to=` but routes all Sites to the file-backed model. `backend/assetops_backend/evidence/overview.py:575-640` computes T027 cards/timeline without S3 currentness or consequence. `frontend/src/sites/siteOverviewClient.ts:138-164,197-263` validates that old shape; `frontend/src/sites/SiteOverview.tsx:66-198` loads the default window and renders old Findings. **New:** imported Sites use a tenant/Site-scoped S5 read at this route and a versioned UI branch; legacy Sites retain their fallback. Do not reuse the old Findings array as a Site index.
+- `SiteWindowSummary` and `site_window_projection` exist only in design (`frontend/docs/architecture/production-shaped-mvp-technical-design.md:68`); no runtime table/class exists. Choose an **equivalent scoped read over committed public records**; no new table/migration. Create the S5 read service/DTO and composition (**new**), with one `UpstreamCurrentness` instance per process, disposed at shutdown. `backend/assetops_backend/scheduling/upstream.py:75-82,87-202` provides DB time, S3 day, match, Finding/consequence work and schedule eligibility. Its consequence read passes `source_open=True` at line 140: S5 must apply the real source gate before any current claim. Fence the selected sequence, accepted-source basis and work before/after composition; if they move, return stale/pending, never mixed CURRENT. Derived reads need no write-side invalidation.
+- LR-01 **(unmerged, stacked)** adds `backend/assetops_backend/financials/money_eligibility.py:22-35,113-179` (`MoneyEligibility.for_finding`; `ELIGIBLE`, `WITHHELD_GENERATOR_SERIES`, `PENDING_REASSESSMENT`) and `backend/assetops_backend/financials/consequence_read.py:214-239` exposes the gate and gates `current_amount_shown`; its `backend/assetops_backend/scheduling/upstream.py:149-161,189-200` includes the same result per Finding. Consume it; do not build a UI-only predicate. `ELIGIBLE` alone is never amount authority. LR-01 owns source-time attestation, overlap, six-hour requeue and explicit-epoch limits; S5 shows the selected basis/limit and preserves old exact versions.
+- Existing source gate pattern: `backend/assetops_backend/finding_api.py:79-85,112-128,246-277` (closed source permits pinned audit material, no unpinned current claim). Reuse it in S5 (**new integration**). Exact destinations already exist: dispatch day `backend/assetops_backend/performance_api.py:88`, Finding and financial consequence `backend/assetops_backend/finding_api.py:112,246,284`, assumption revision `backend/assetops_backend/financial_read_api.py:88`, evidence record `backend/assetops_backend/evidence_api.py:158`. UI links must carry exact revision IDs; add a route only where an exact destination is absent (**new**).
 
-Change date range; cards open exact assessment, Finding, consequence and evidence; reload projection.
+## Read contract (all DTO fields **new** unless the seam above names them)
 
-## Missing/conflicting evidence
+`GET /api/sites/{site_code}/overview?date=YYYY-MM-DD` selects one UTC day. Accept existing `from`/`to` only when exactly that UTC day; reject partial, conflicting or non-UTC selection with typed 422. Return versioned `SiteWindowSummary` for imported Sites:
 
-Unassessed objective is Unknown and stale projection says pending.
+| Field | Meaning |
+| --- | --- |
+| `schema_version, site_id, site_code, window {start,end,utc_date}, built_at, db_now` | Exact Site/day and DB-time basis. |
+| `freshness {state,stage,reasons,errors,source_open,source_reason}` | `UNASSESSED` (UI Unknown), `PENDING`, `STALE_PROJECTION`, `FAILED`, `CURRENT`; carry typed S3/schedule/work reasons. Closed source cannot be CURRENT. `S3_UNASSESSED` is a gap, never success. |
+| `watermarks {accepted_source,analytic_selection_seq,input_sha256,configuration_sha256,match_pass_id,matched_through_selection_seq}, model_version` | Accepted ledger/source and exact analytic/match basis. `accepted_source` is a **new** deterministic fingerprint and count of accepted ledger IDs intersecting the selected day plus S3's six-hour query bracket, ordered by stable ID; compare it before/after read. Missing ledger access gives null plus reason and blocks CURRENT. Never use heartbeat/disposition time as the fence. |
+| `assessment {run_id,window_assessment_revision_id,status,claim_level,limitations,coverage,dispatch_intervals,links}` | One selected S3 day; unassessed objective is Unknown. Timeline cites the selected assessment and accepted evidence; do not recalculate dispatch. |
+| `context {series,coverage,gaps,evidence_links}` | Accepted measurements with time/unit/signal/evidence ID and quality limit. Missing/conflicting inputs give null and a reason. |
+| `money {state,amount_low,amount_high,currency,model_version,finding_id,finding_revision_id,consequence_revision_id,eligibility,quantity_state,price_state,limitation,demonstration,links}` | One Finding only. Amount low is zero and upper is bounded only for exact-head, same FindingRevision/window/basis `CURRENT PRICED`, open source, upstream CURRENT and shared `ELIGIBLE`. Otherwise both amount fields are null with limiting-state links. |
+| `known_finding {id,revision_id,link}, finding_list {state:"UNAVAILABLE",reason}` | A known selected Finding can link directly; no list rows/count/empty claim. |
 
-## Evidence lineage
+Select the money-card Finding deterministically among latest Finding episodes intersecting the selected day: latest episode start, then stable Finding ID; selection is independent of price/amount. Return selected ID and rule. If none intersects, `ABSENT`; if several intersect, show one and state that it covers that Finding only. Keep that Finding when stale/withheld so the UI cannot cherry-pick a priced neighbor. If S4 episode semantics prevent this selector, ask the Architect before changing it.
 
-Each card carries selected claim IDs and resolves their accepted SourceEnvelope chain.
+S5 no-amount states (**new DTO vocabulary**): `ABSENT`, `PENDING_REASSESSMENT`, `WITHHELD_GENERATOR_SERIES`, `SOURCE_CLOSED`, `UPSTREAM_PENDING`, `UPSTREAM_STALE`, `UPSTREAM_FAILED`, `SUPERSEDED`, `CONSEQUENCE_PENDING`, `CONSEQUENCE_STALE`, `QUANTITY_UNAVAILABLE`, `UNPRICED`, `MIXED_OR_UNKNOWN_SOURCE`. Preserve underlying LR eligibility, S4 currentness/reasons, work IDs and historical links. Precedence: source closed; upstream failed/stale/pending; LR pending then withheld; superseded; consequence pending/stale; quantity unavailable; unpriced; mixed/unknown source; only then priced. A historical `CURRENT PRICED` row remains audit-only after series ambiguity. Reuse `backend/assetops_backend/demonstration_label.py:60-76` and Finding bridge `backend/assetops_backend/finding_api.py:275,306` for authored P01. Site/day matching is a bounded fixture label, **not** stored authorship. Label the `fuel-cost-1` model-conditioned potential fuel-cost exposure, zero lower bound and assumption/evidence lineage; never savings or a physical maximum.
 
-## Review and refinement
+## Phases, tests and review
 
-S5-01 owns `I-site-overview-read/ui` for selected-window context, timeline and bounded money (`mini:1/2/4`), composing accepted S3 assessment and S4 Finding/financial records with source/analytic watermarks. Until the Site index exists, `mini:3` is honestly unavailable. [S5-02](S5-02-overview-finding-list.md) owns its separate empty and positive variants after [S4-04](S4-04-site-finding-index.md). No new Overview record is assumed. Keep the W3 global Findings index separate.
+| Phase | Reviewable result and focused proof |
+| --- | --- |
+| 1. Scoped read | Imported-Site route/DTO, one process seam, source gate, consistent basis, UTC validation, one-Finding selection and no-amount precedence. **New** focused Postgres tests: two tenants/foreign Site; selected/reloaded day; unassessed gap; pending/stale/failed/stopped worker; moved selection; late power; LR withheld/pending/eligible; source closed; several Findings/no sum; absent/unpriced/quantity unavailable/superseded; exact links. Exercise `backend/tests/test_s4_schedule_health_postgres.py`, `test_s4_consequence_read.py`, `test_s4_evidence_consequence_work_postgres.py` and LR-01 tests from reviewed head. Independent phase review before UI. |
+| 2. Site UI and walkthrough | URL-persisted date selector; responsive objective/context/timeline/money; explicit Unknown and all no-amount states; exact drill-downs and unavailable Finding list. Adapt `frontend/src/sites/SiteOverview.tsx` and `siteOverviewClient.ts` (**new S5 branch**); React derives no status/amount. **New** focused component/browser proof at 1440/390 px: date change/reload, ordinary 0/11 no-current-amount case, authored P01 priced label, late withheld then reassessed, stale/failed/stopped worker, source closed, selected IDs/links. Independent phase-2 review is the slice review. Run `tools/check-all.ps1`, registry checker and **one** final-revision real-Postgres full suite per `backend/TESTING.md:5-21,96-124`: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=.pytest-junit.xml`; zero skipped/failed JUnit cases, keep-awake helper, 20-minute cap. |
 
-Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
+Owner walkthrough (**new** repeatable S5 extension of LR-01 private host): on the LR-01-stacked branch prepare a private `assetops_s501_owner*` DB and matching work directory; open source gate, refuse other DB names. Add `prepare|serve|drop` to `tools/s5_overview_walkthrough.py` (**new**) with ports 8925/5425 and printed backend/frontend commands, following LR-01's `serve` contract in `tasks/LR-01-late-reading-series-and-money-limit.md`. `serve` retains the DB for reload. Walk ordinary day (no current amount), P01 authored day (label and exact consequence/assumption/evidence), late withheld/pending/eligible, another UTC day, stopped worker and closed source. Save API IDs/watermarks and 1440/390 screenshots compared with v6.9 `mini`; mark unsupported mock panels absent. Owner records acceptance or feedback. Hold merge and `mini:1#a/2#a/4#a` promotion until that record exists.
 
-## Defer
+## Carries and open question
 
-Global Sites/Portfolio roots and unearned status cards.
+P1/P8: Q2 durable evidence-acceptance work is a hard **money-read gate** in either phase; its FindingRevision-insert trigger and “queued” only with a work row remain S4-02c/Q2 semantics. P2/P3: one-Finding choice and UTC day above. P4/P5: typed states and scoped read replace “stale says pending” and the unbuilt projection. P6: shared demonstration label. P7: Q1 future-price `valid_from >= recorded_at`, 409 on multiple overlap/bounded conflict, and Q3 server-authorized stored authorship are separate follow-ons under `.agent/architect-S4-02-batch-answers.md`; gateway credentials alone confer no authorship. P9: unavailable list, unsupported claims excluded, owner hold. S4-02c F1/R1 and S4-02d seam: LR gate, scheduled reassessment, `S3_UNASSESSED` gap, `source_open`, stopped-worker blocker and one process seam are explicit. G-05 blended mock money and the Site FindingIndex remain open. W1 exit/real-pilot provenance and physical-source gates remain.
+
+Architect question: confirm latest-episode Finding choice if S4 intersection semantics differ; recommendation is price-independent selection and retaining the same Finding through stale/withheld states. No other contract question blocks implementation after LR-01 review.
