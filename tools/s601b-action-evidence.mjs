@@ -172,8 +172,29 @@ async function suite(label) {
 
   await go(`${site}/findings/${IDS.finding_f01}/recommendation`, "document.querySelector('[data-recommendation-state]')");
   const rl = await js(`({ state: document.querySelector('[data-recommendation-state]')?.getAttribute('data-recommendation-state'),
-    accept: [...document.querySelectorAll('main button')].map(b => b.textContent) })`);
-  claim(`${label} recommendation latest Finding version: read as served (open again, see owner notes)`, rl.state !== null, rl);
+    block: document.querySelector('[data-recommendation-prior-block]')?.getAttribute('data-recommendation-prior-block'),
+    blockLink: document.querySelector('[data-recommendation-prior-block-link]')?.getAttribute('href'),
+    blockCode: document.querySelector('[data-recommendation-prior-block-link]')?.textContent,
+    origin: document.querySelector('[data-recommendation-prior-block-origin]')?.getAttribute('href'),
+    originText: document.querySelector('[data-recommendation-prior-block-origin]')?.textContent,
+    live: document.querySelector('[data-recommendation-live]')?.getAttribute('data-recommendation-live'),
+    liveText: document.querySelector('[data-recommendation-live]')?.textContent,
+    proposal: !!document.querySelector('[data-recommendation-proposal]'),
+    accept: [...document.querySelectorAll('main button')].map(b => ({ text: b.textContent, disabled: b.disabled })),
+    held: document.querySelector('[data-action-command-unavailable=PRIOR_ACTION_UNRESOLVED]')?.textContent,
+    listed: [...document.querySelectorAll('[data-recommendation-prior-action]')].map(e => ({ id: e.dataset.recommendationPriorAction, selected: e.dataset.priorActionSelectedRevision,
+      app: e.querySelector('[data-prior-action-application]')?.dataset.priorActionApplication, outcome: e.querySelector('[data-prior-action-outcome]')?.dataset.priorActionOutcome })) })`);
+  claim(`${label} recommendation latest Finding version: PRIOR_ACTION_UNRESOLVED notice names and links ${IDS.action_code} and its origin version 1`,
+    rl.state === "PRIOR_ACTION_UNRESOLVED" && rl.block === A && rl.blockLink === `/sites/${SITE}/actions/${A}` && rl.blockCode === IDS.action_code &&
+    rl.origin === `/sites/${SITE}/findings/${IDS.finding_f01}?revision_id=${IDS.finding_f01_origin_revision}` && rl.originText === "Finding version 1", rl);
+  claim(`${label} recommendation latest Finding version: live reason shown separately (served clock: FOUNDATION_BASIS_STALE), no proposal offered`,
+    rl.live === "UNAVAILABLE" && /FOUNDATION_BASIS_STALE/.test(rl.liveText ?? "") && !rl.proposal, { live: rl.live, liveText: rl.liveText, proposal: rl.proposal });
+  claim(`${label} recommendation latest Finding version: Accept is disabled with the reason stated`,
+    rl.accept.length === 1 && rl.accept[0].disabled === true && /Accept trial/.test(rl.accept[0].text) && new RegExp(`\\(${IDS.action_code}\\) is still open`).test(rl.held ?? ""), { accept: rl.accept, held: rl.held });
+  claim(`${label} recommendation latest Finding version: the earlier Action is listed on its own version (not this one), applied, outcome pending`,
+    rl.listed.length >= 1 && rl.listed.some((x) => x.id === A && x.selected === "no" && x.app === "APPLIED" && x.outcome === "PENDING"), rl.listed);
+  await noOverflow(label, "recommendation latest (prior Action notice)");
+  comparison.push(["recommendation:1 (newer version, earlier trial open)", label, mockRec, await headings()]);
   await shot(`app-recommendation-latest-${label}`);
 
   await go(`${site}/findings/${IDS.finding_ineligible}/recommendation`, "document.querySelector('[data-recommendation-unavailable]')");
@@ -264,6 +285,11 @@ async function suite(label) {
     ch.url === `/sites/${SITE}/foundation/changes/${IDS.change}` && ch.old === "20%" && ch.now === "15%" && ch.origins.join() === "PUBLISH,SPLIT,PUBLISH" &&
       ch.bindings === 3 && ch.attempts === "3" && ch.outcome === "PENDING" && ch.applied?.endsWith(`event_id=${IDS.events.find((e) => e.kind === "APPLIED").id}`), ch);
   claim(`${label} changes:1#a: Foundation tab current, no Foundation view row`, ch.tabs.includes("Foundation") && !ch.views, ch.tabs);
+  // Review L2: each failure code renders on one line (one client rect), never broken mid-token.
+  const codes = await js(`[...document.querySelectorAll('[data-change-failed-attempt] .action-ref')].map(e => {
+    const r = e.getClientRects(); return { code: e.textContent, boxes: r.length, white: getComputedStyle(e).whiteSpace }; })`);
+  claim(`${label} changes:1#a: failure codes in the attempts list stay whole (measured ${codes.length})`,
+    codes.length === 3 && codes.every((c) => c.boxes === 1 && c.white === "nowrap"), codes);
   await noOverflow(label, "changes:1#a");
   comparison.push(["changes:1#a", label, mockCh, await headings()]);
   await shot(`app-change-${label}`);

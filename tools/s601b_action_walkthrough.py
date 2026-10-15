@@ -8,7 +8,8 @@
 What `prepare` does (nothing outside the named database and work folder is written):
 1. `git archive HEAD` of backend/gateway/host/simulator/contracts/config into `<work>/tree`, with its own `var/`
    holding only the Kobo Site file the stored import record names (the S1 test fixture, matching digest).
-2. `CREATE DATABASE <db>` (dropped first if this tool made it), migrated to head.
+2. `CREATE DATABASE <db>`, migrated to head. An existing database of that name is dropped first only when the
+   work folder's marker records that this tool made it; otherwise `prepare` refuses (review L1).
 3. Runs S6-01a's `D-action-records` builder (`backend/tests/s6_action_records.py::build`, the same code that
    produced `backend/tests/fixtures/s6_action_api_contract.json`) against that database: S4 cases F01/F02 and an
    ineligible day through ingestion, assessment and matching; accept, observe, failed and successful applies and
@@ -19,7 +20,8 @@ What `prepare` does (nothing outside the named database and work folder is writt
 
 `serve` starts the real API (`host/lab_app.py`) on 127.0.0.1:8961 with DATABASE_URL = the private database and
 ASSETOPS_ACTION_DEMO_GRANTS = the grants document above, then prints the frontend command (port 5461). `drop`
-removes the database and the work folder (only a folder this tool marked).
+removes the database and the work folder, and only those this tool made: the work folder's marker records the
+database name, and `drop` checks the marker before it drops anything.
 
 Guards: `--db` must start with `assetops_s601b`, be a plain identifier and never end in `_test` (test databases
 belong to pytest); `--work` must be a `var/s601b*` folder directly under this repository's `var/`.
@@ -137,16 +139,32 @@ class Walk:
     def owned(self) -> bool:
         return (self.work / MARKER).is_file()
 
+    def marker_db(self) -> str | None:
+        """The database this tool recorded in the work folder's marker, or None."""
+        if not self.owned():
+            return None
+        for line in (self.work / MARKER).read_text(encoding="utf-8").splitlines():
+            if line.startswith("db="):
+                return line[3:].strip()
+        return None
+
+    def db_exists(self, c) -> bool:
+        return c.execute("SELECT 1 FROM pg_database WHERE datname = %s", (self.db,)).fetchone() is not None
+
     def prepare(self) -> None:
         import psycopg
 
         if self.work.exists() and any(self.work.iterdir()) and not self.owned():
             raise SystemExit(f"Refused: {self.work} exists, is not empty and was not made by this tool")
+        with psycopg.connect(PG_ADMIN, autocommit=True) as c:
+            if self.db_exists(c) and self.marker_db() != self.db:
+                raise SystemExit(f"Refused: database {self.db} exists and {self.work / MARKER} does not record that "
+                                 "this tool made it; drop it yourself or choose another --db")
         say("=== 1. Private tree (git HEAD) with its own var/ ===")
         if self.tree.exists():
             shutil.rmtree(self.tree)
         self.tree.mkdir(parents=True)
-        (self.work / MARKER).write_text(f"created by tools/s601b_action_walkthrough.py for {self.db}\n", encoding="utf-8")
+        (self.work / MARKER).write_text(f"created by tools/s601b_action_walkthrough.py\ndb={self.db}\n", encoding="utf-8")
         archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", "backend", "gateway", "host", "simulator",
                                   "contracts", "config", "contract-fixtures"], cwd=REPO, capture_output=True,
                                  check=True).stdout
@@ -194,7 +212,7 @@ class Walk:
             ("Finding F01, origin version", f"{base}/findings/{i['finding_f01']}?revision_id={i['finding_f01_origin_revision']}"),
             ("recommendation:1#a accepted snapshot + live status",
              f"{base}/findings/{i['finding_f01']}/recommendation?revision_id={i['finding_f01_origin_revision']}"),
-            ("recommendation:1#a latest Finding version (open again; see owner notes)",
+            ("recommendation:1#a latest Finding version (earlier trial still open notice)",
              f"{base}/findings/{i['finding_f01']}/recommendation"),
             ("recommendation:1#a unavailable (SOC at headroom)", f"{base}/findings/{i['finding_ineligible']}/recommendation"),
             ("action-overview:1#a", f"{base}/actions/{i['action']}"),
@@ -234,9 +252,16 @@ class Walk:
     def drop(self) -> None:
         import psycopg
 
+        recorded = self.marker_db()
         with psycopg.connect(PG_ADMIN, autocommit=True) as c:
-            c.execute(f"DROP DATABASE IF EXISTS {self.db} WITH (FORCE)")
-        say(f"dropped database {self.db}")
+            if self.db_exists(c):
+                if recorded != self.db:
+                    raise SystemExit(f"Not dropping {self.db}: {self.work / MARKER} does not record that this tool "
+                                     f"made it (recorded: {recorded or 'nothing'})")
+                c.execute(f"DROP DATABASE IF EXISTS {self.db} WITH (FORCE)")
+                say(f"dropped database {self.db}")
+            else:
+                say(f"database {self.db} does not exist")
         if self.work.exists():
             if not self.owned():
                 raise SystemExit(f"Not removing {self.work}: it has no {MARKER} marker")
