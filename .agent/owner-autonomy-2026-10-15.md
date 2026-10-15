@@ -27,7 +27,7 @@ Rules applied (owner-absent rule, memory): owner-decision points (close next-wor
 ## Status at a glance
 
 - **Merged to main:** OPS-01 (test suite ~8 min), S4-06 price succession (`5bfff665`), S4-07 evidence decision time on DB clock (`c4ae3dd2`).
-- **Ready for your walkthrough (merge held):** LR-01 (`.agent/LR-01-owner-walkthrough.md`, branch head `e8d555bc`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`... now reused; branch `task/LR-01-late-reading-series-and-money-limit`), then S5-01 (`.agent/S5-01-owner-walkthrough.md`, branch `task/S5-01-site-overview`, main checkout).
+- **Ready for your walkthrough (merge held):** both run from the main checkout `C:\Users\assef\Bineyame\AssetOpsV1` on branch `task/S5-01-site-overview`, which contains all of LR-01 (head `e8d555bc`) plus S5-01. Do LR-01 first (`.agent/LR-01-owner-walkthrough.md`), then S5-01 (`.agent/S5-01-owner-walkthrough.md`). Merge order after acceptance: LR-01 branch, then S5-01.
 - **Reviewed, waiting for migration re-chain + quiet full suite, non-UI:** S6-01a, S4-05a. OPS-02 waits to merge last.
 - **Building:** S6-01b (Action UI; phase 1 reviewed, phase 2 building; held for a later walkthrough).
 - **Not started:** S4-05b (producers, reads, source wording; held for walkthrough).
