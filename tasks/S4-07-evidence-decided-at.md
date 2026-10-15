@@ -1,6 +1,6 @@
 # S4-07 - evidence decision time at the scheduled cutoff
 
-Status: in_review (built 2026-10-15 on `task/S4-07-evidence-decided-at`; packet `.agent/S4-07-review-packet.md`); activated 2026-10-15 from main under the owner-absence work order; plan re-review ACCEPT `.agent/S4-07-plan-rereview.md`
+Status: done (merged to main 2026-10-15; slice review `.agent/S4-07-review.md` ACCEPT, L1-L2 Low; full suite JUnit 2147/0 failures/0 skipped at `f1e67a52`); in_review (built 2026-10-15 on `task/S4-07-evidence-decided-at`; packet `.agent/S4-07-review-packet.md`); activated 2026-10-15 from main under the owner-absence work order; plan re-review ACCEPT `.agent/S4-07-plan-rereview.md`
 Size: M; one bounded build and one fresh independent review (ledger clock contract, deterministic fixture updates, real-Postgres race/restart proof)
 Branch when activated: `task/S4-07-evidence-decided-at`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; no owner-facing copy or visual change)

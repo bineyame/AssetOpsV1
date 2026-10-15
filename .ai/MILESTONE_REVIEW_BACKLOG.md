@@ -2224,7 +2224,7 @@ Review `.agent/S4-02c-architect-closeout-review.md` ACCEPT with carries (`a88391
 
 Reviews `.agent/S4-02d-phase-1-review.md`, `.agent/S4-02d-phase-2-review.md`, `.agent/S4-02d-review.md` (all ACCEPT with carries; slice review `caa652ab`). F-A, F-C, F-D, phase-1 F1-F3 fixed on the branch. I4 (overlapping ingestion chunks vs an active tick) proved at the phase-2 review.
 - Install gate: do not install the schedule on any demo, walkthrough or pilot host. Demo/walkthrough stay CLOSED until `I-late-reading-series-and-money-limit`; pilot also on F1 and `I-stored-demo-provenance` (`tools/schedule-install-gate.py`).
-- I3: scheduled-ingestion part addressed by S4-07 (`task/S4-07-evidence-decided-at`, pending independent review): DB-time `decided_at` per chunk, new jobs due at the decision, widened PENDING jobs lifted to it; race/restart proofs in `backend/tests/test_s4_evidence_decided_at_postgres.py`. Still open: manual app-clock `process-jobs` beside the tick (stop the tick first) and configuration `recorded_at` vs `reconcile`. `S3_STALE_NO_JOB` + `requeue --day` stay as defense in depth (override-path test). R-2 skew allowance widened to 120 s in that test.
+- I3: scheduled-ingestion part addressed by S4-07 (`task/S4-07-evidence-decided-at`, reviewed and merged (S4-07, 2026-10-15)): DB-time `decided_at` per chunk, new jobs due at the decision, widened PENDING jobs lifted to it; race/restart proofs in `backend/tests/test_s4_evidence_decided_at_postgres.py`. Still open: manual app-clock `process-jobs` beside the tick (stop the tick first) and configuration `recorded_at` vs `reconcile`. `S3_STALE_NO_JOB` + `requeue --day` stay as defense in depth (override-path test). R-2 skew allowance widened to 120 s in that test.
 - F-B: rule-8 schedule-writer guard is line-based; misses multi-line and non-text SQL (11 probe forms). Needs a statement-level (AST) guard; the other writer rules share the limit.
 - Health scan cost: `STALE_NO_WORK` and `S3_STALE_NO_JOB` scans grow with Findings/assessed days; bound before any automated or API use.
 - Tick cost and `--max-sites` measured only on the Windows dev host; measure on the demo host before install.
@@ -2245,4 +2245,8 @@ Review `.agent/OPS-01-review.md` ACCEPT (`1a987d2e`); reviewer full run on final
 ### S4-06 carries (2026-10-15)
 
 Review `.agent/S4-06-review.md` ACCEPT. Residual: no test asserts the consequence-work row queued for an equal-start SUCCESSION (migration 0011 trigger unchanged, so low risk); conflict message text changed (codes unchanged).
+
+### S4-07 carries (2026-10-15)
+
+Review `.agent/S4-07-review.md` ACCEPT. L1: rename `test_s4_schedule_health_postgres.py:387` (alarm now only after the SQL restore). L2: no health signal ages a live PENDING job that keeps being missed (joins the health scan cost item). Residuals: manual app-clock `process-jobs` still mixes clocks (I3 not closed for manual CLIs; stop the tick first); `clock_timestamp()` vs `now()` reasoned not mutation-proved.
 
