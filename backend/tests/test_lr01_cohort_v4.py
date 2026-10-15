@@ -128,8 +128,24 @@ class TestFailClosedClockProof:
         return [x for x in inputs.cohort.limits if x.role == "generator_power"], late
 
     def test_proof_whose_validity_ends_before_the_late_mean_keeps_the_inversion(self):
+        # Review F1: validity [00:00, 07:00) does not touch the late 07:00-07:05 mean, so its reason is the same
+        # NO_ATTESTATION as with no proof at all (only touching attestations decide a reading's reason).
         [limit], _ = self._late([att(at(0), at(7))])
-        assert (limit.kind, limit.clock) == ("SEQUENCE_ORDER_INVERTED", "OUTSIDE_VALIDITY")
+        assert (limit.kind, limit.clock) == ("SEQUENCE_ORDER_INVERTED", "NO_ATTESTATION")
+
+    def test_proof_ending_inside_the_late_mean_is_outside_validity(self):
+        [limit], _ = self._late([att(at(0), at(7, 2))])
+        # the late mean is touched but not covered; its later rival is untouched
+        assert (limit.kind, limit.clock) == ("SEQUENCE_ORDER_INVERTED", "NO_ATTESTATION+OUTSIDE_VALIDITY")
+
+    def test_an_attestation_elsewhere_in_time_leaves_a_limited_window_byte_identical(self):
+        # Review F1: a stream's first attestation (or revoking its last) that touches none of this window's
+        # readings changes neither the limits nor the input digest of the limited window.
+        feed, _ = power_case(late_in_sequence=False)
+        bare, _ = assess(feed, [])
+        elsewhere, _ = assess(feed, [att(at(20), at(22))])
+        assert [x.payload() for x in bare.cohort.limits] == [x.payload() for x in elsewhere.cohort.limits]
+        assert bare.input_sha256 == elsewhere.input_sha256
 
     def test_conflicting_attestations_keep_the_inversion_and_name_both(self):
         a, b = att(at(0), at(23)), att(at(6), at(9))
@@ -188,6 +204,17 @@ class TestOverlapUnderProof:
         inputs, _ = assess(feed, [att(at(0), at(23))])
         spans = [(x.kind, x.start, x.end) for x in inputs.cohort.limits]
         assert spans == [("REPORTS_OVERLAP", at(5), at(5, 2))]
+
+    def test_placement_overlap_across_an_attestation_boundary_is_overlap(self):
+        # Review L1: two readings 60 s apart under two adjacent attestations (60 s error each) overlap in
+        # placement uncertainty; the check runs over every attested reading of the channel, not per attestation.
+        feed = Feed()
+        a = feed.add("gen", "generator_state", "gen", at(5, 59) + timedelta(seconds=30), "RUNNING", mean=False)
+        b = feed.add("gen", "generator_state", "gen", at(6) + timedelta(seconds=30), "RUNNING", mean=False)
+        inputs, _ = assess(feed, [att(at(0), at(6)), att(at(6), at(23))])
+        overlaps = [x for x in inputs.cohort.limits if x.kind == "REPORTS_OVERLAP"]
+        assert [(set(x.evidence_ids), x.clock) for x in overlaps] == [
+            ({str(a.evidence_id), str(b.evidence_id)}, "CLOCK_STEP_UNPROVED")]
 
     def test_overlapping_placements_with_disagreeing_sequence_are_not_ordered(self):
         feed = Feed()

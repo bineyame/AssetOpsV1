@@ -404,6 +404,29 @@ class TestClockAttestation:
         assert claim == dispatch_v3.WINDOW_INDETERMINATE
         assert any(x.startswith("GENERATOR_SERIES_AMBIGUOUS") for x in limits)
 
+    def test_an_attestation_not_touching_a_limited_window_leaves_it_current(self, site) -> None:
+        # Phase-1 review F1: the stream's FIRST attestation, and revoking its LAST, both elsewhere in time (two
+        # days later), neither change the limited window's input basis nor leave it stale without work.
+        self._run_one(site)
+        run_b, sha_b, claim_b, _, _ = window_head(site)
+        assert claim_b == dispatch_v3.WINDOW_INDETERMINATE
+        later = timedelta(days=2)
+
+        def read():
+            return DispatchReadService(PostgresAssessmentStore(URL)).window(site.tenant, site.site, DAY.date())
+
+        created = attest(site, T1 + timedelta(hours=2), key="far", lo=at(0) + later, hi=at(23) + later)["event"]
+        worker(T1 + timedelta(hours=2, minutes=1)).run_pending()
+        r = read()
+        assert (r["status"], r["status_reasons"]) == ("CURRENT", []), r["status_reasons"]
+        assert window_head(site)[:2] == (run_b, sha_b)
+        attest(site, T1 + timedelta(hours=3), kind="REVOKED", key="far-v", reason="withdrawn",
+               attestation=created.attestation_id, expected=1)
+        worker(T1 + timedelta(hours=3, minutes=1)).run_pending()
+        r = read()
+        assert (r["status"], r["status_reasons"]) == ("CURRENT", []), r["status_reasons"]
+        assert window_head(site)[:2] == (run_b, sha_b)
+
     def test_creation_replacement_expiry_and_revocation_requeue_old_and_new_validity(self, site) -> None:
         day3 = timedelta(days=2)
         site.feed.deliver(status_rows(), T1)

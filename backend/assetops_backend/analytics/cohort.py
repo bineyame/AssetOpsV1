@@ -24,7 +24,11 @@ sequence epoch). The rule (dispatch-3 table, "Cohort"):
   placed earlier is a late arrival, not an inversion. Inside that attested series,
   placement-uncertainty intervals (`placed_at` +/- the attested UTC error) that
   overlap, or measurement intervals that genuinely overlap (touching ends do not),
-  stay `REPORTS_OVERLAP`; no winner is chosen. A reading with no attestation, outside
+  stay `REPORTS_OVERLAP`; no winner is chosen. These overlap checks run over every
+  attested reading of the channel, also across an attestation boundary (phase-1 review
+  L1). A reading that no attestation touches is `NO_ATTESTATION` whatever the stream's
+  proof elsewhere in time (review F1: an untouched window's digest never moves); one
+  touched but not covered is `OUTSIDE_VALIDITY`. A reading with no attestation, outside
   validity, straddling or claimed by two attestations, under simulated proof while not
   simulated, or a pair under two different attestations (an unproved clock step), keeps
   the sequence rule. Each refused span names its clock reason and attestation versions,
@@ -38,7 +42,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from assetops_backend.analytics.assessment_inputs import (
@@ -161,17 +165,20 @@ def _streams(attestations) -> dict[tuple[UUID, str], list[ClockAttestation]]:
 
 
 def _clock(r: AcceptedReading, mine: list[ClockAttestation]) -> _Clock:
-    if not mine:
-        return _Clock(None, "NO_ATTESTATION")
+    # LR-01 phase-1 review F1: the reason depends only on attestations that touch this reading, so a stream's
+    # first attestation (or revoking its last) elsewhere in time never changes an untouched window's digest.
     start, end = _measured(r)
     touching = [a for a in mine if a.touches(start, end)]
+    if not touching:
+        return _Clock(None, "NO_ATTESTATION")
     covering = [a for a in touching if a.covers(start, end)]
     refs = tuple(sorted(a.ref for a in touching))
     if len(touching) > 1:
         # Two attestations claim this reading's time (overlapping proof) or it straddles their boundary.
         return _Clock(None, "CONFLICTING_ATTESTATIONS" if len(covering) > 1 else "SPANS_ATTESTATIONS", refs)
     if not covering:
-        return _Clock(None, "SPANS_ATTESTATIONS" if touching else "OUTSIDE_VALIDITY", refs)
+        # One attestation touches the reading but its validity does not cover the whole measurement interval.
+        return _Clock(None, "OUTSIDE_VALIDITY", refs)
     a = covering[0]
     if a.proof_class == PROOF_SIMULATED and r.source_mode != "SIMULATED":
         return _Clock(None, "SIMULATED_PROOF_FOR_LIVE_SOURCE", refs)
@@ -224,27 +231,30 @@ def series_limits(readings: tuple[AcceptedReading, ...], attestations=()) -> tup
         for when, same in sorted(at_time.items()):
             if len(same) > 1:
                 add("REPORTS_OVERLAP", role, asset, member, when, when, same, [clock[x.evidence_id] for x in same])
-        # Inside one attested series: overlapping placement-uncertainty intervals (placed_at +/- error) or a
-        # genuine measurement-interval overlap stay ambiguous; intervals that only touch do not overlap.
-        groups: dict[str, list[AcceptedReading]] = defaultdict(list)
-        for r in rows:
-            if clock[r.evidence_id].attestation is not None:
-                groups[clock[r.evidence_id].key].append(r)
-        for group in groups.values():
-            error = clock[group[0].evidence_id].attestation.max_utc_error
-            placed = sorted(group, key=lambda r: (r.placed_at, str(r.evidence_id)))
-            for a, b in zip(placed, placed[1:]):
-                if b.placed_at - a.placed_at <= 2 * error:
+        # Over every attested reading of the channel (also across an attestation boundary, review L1):
+        # overlapping placement-uncertainty intervals (placed_at +/- each reading's attested error) or a genuine
+        # measurement-interval overlap stay ambiguous; intervals that only touch do not overlap.
+        attested = sorted((r for r in rows if clock[r.evidence_id].attestation is not None),
+                          key=lambda r: (r.placed_at, str(r.evidence_id)))
+
+        def err(r: AcceptedReading) -> timedelta:
+            return clock[r.evidence_id].attestation.max_utc_error
+
+        for i, a in enumerate(attested):
+            for b in attested[i + 1:]:
+                if b.placed_at - a.placed_at > 2 * MAX_UTC_ERROR:
+                    break
+                if b.placed_at - a.placed_at <= err(a) + err(b):
                     add("REPORTS_OVERLAP", role, asset, member, a.placed_at, b.placed_at, (a, b),
                         [clock[a.evidence_id], clock[b.evidence_id]])
-            widest: AcceptedReading | None = None
-            for r in sorted(group, key=lambda r: (_measured(r), str(r.evidence_id))):
-                if widest is not None and _measured(r)[0] < _measured(widest)[1]:
-                    add("REPORTS_OVERLAP", role, asset, member, _measured(r)[0],
-                        min(_measured(r)[1], _measured(widest)[1]), (widest, r),
-                        [clock[widest.evidence_id], clock[r.evidence_id]])
-                if widest is None or _measured(r)[1] > _measured(widest)[1]:
-                    widest = r
+        widest: AcceptedReading | None = None
+        for r in sorted(attested, key=lambda r: (_measured(r), str(r.evidence_id))):
+            if widest is not None and _measured(r)[0] < _measured(widest)[1]:
+                add("REPORTS_OVERLAP", role, asset, member, _measured(r)[0],
+                    min(_measured(r)[1], _measured(widest)[1]), (widest, r),
+                    [clock[widest.evidence_id], clock[r.evidence_id]])
+            if widest is None or _measured(r)[1] > _measured(widest)[1]:
+                widest = r
         # Sequence order against source-time order. A later-sequenced reading placed earlier is a late arrival,
         # not an inversion, only when one attestation orders both; any other pair keeps the inversion.
         latest: dict[str, AcceptedReading] = {}
