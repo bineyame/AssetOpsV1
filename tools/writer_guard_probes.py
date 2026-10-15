@@ -35,7 +35,7 @@ ASSUMPTION = f"{B}/financials/adapters/postgres_assumption_store.py"
 CONSEQUENCE = f"{B}/financials/adapters/postgres_consequence_store.py"
 TICK = f"{B}/scheduling/tick.py"
 
-NEVER = "never deletes, truncates, upserts, merges, copies or runs DDL"
+NEVER = "never deletes, truncates, upserts or runs DDL"
 SCHED_TABLES = "The schedule store updates only"
 MERGE_COPY = "No product writer runs MERGE or COPY"
 LITERAL_TARGET = "names its target table literally"

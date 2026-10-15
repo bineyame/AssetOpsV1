@@ -844,7 +844,7 @@ function Invoke-ConfigurationPersistenceCheck {
                 $where = "$($module.Path):${lineNumber}: $($line.Trim())"
                 if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY|MERGE)\b' -or
                         $line -match '(?i)\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b|^merge\s+into\b|^copy\s|\bthen\s+(?:update|delete)\b') {
-                    $failures.Add("The schedule store never deletes, truncates, upserts, merges, copies or runs DDL; $where.") | Out-Null
+                    $failures.Add("The schedule store never deletes, truncates, upserts or runs DDL (nor merges or copies); $where.") | Out-Null
                 }
                 if ($line -match '(?i)\binsert\s+into\b' -and -not (
                         $line -match '(?i)\binsert\s+into\s+([a-z_]+)\s*\(' -and
