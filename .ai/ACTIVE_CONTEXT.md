@@ -6,6 +6,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 **S4-02d ([analytic/Finding worker schedule](../tasks/S4-02d-analytic-finding-worker-schedule.md)) is done and merged to main (2026-10-14)**; fresh review `.agent/S4-02d-review.md` ACCEPT with carries (backlog "S4-02d carries"). Do NOT install the schedule on any demo, walkthrough or pilot host before `I-late-reading-series-and-money-limit` lands (`tools/schedule-install-gate.py`). **OPS-01 (backend test-suite turnaround) is done and merged (2026-10-15)**: normal full suite `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` (~8 min; see `backend/TESTING.md`), one full suite per slice, start `tools/keep-awake-during-tests.ps1` and cap runs at 2x. Next by next-work ranking.
 
+**LR-01 ([late-reading series and money limit](../tasks/LR-01-late-reading-series-and-money-limit.md)) is `in_review`** on `task/LR-01-late-reading-series-and-money-limit` (phases 1-2 built; USER_REVIEW_REQUIRED: owner walkthrough `.agent/LR-01-owner-walkthrough.md` is the merge checkpoint). Packet `.agent/LR-01-review-packet.md`; built state in `.ai/CODE_STATE.md` "LR-01". The schedule install gate stays closed until it merges.
+
 S2 Evidence is the active milestone. S1 Foundation (S1-01/02/03) is done: merged on `main` at `26d013b`, independently reviewed with carries (recorded in the S1 packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`), owner UI check accepted.
 
 S2-01a (registered Lab basis) and S2-01b (durable simulated gateway) are reviewed and merged to main at `7c10283`; their carries are in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
@@ -27,6 +29,8 @@ The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-0
 The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
 
 ## Next read
+
+Reviewer (LR-01 slice): read the task (outcome table), `.agent/architect-LR-01-answers.md`, `.agent/LR-01-review-packet.md` and both phase handoffs, then `git diff d4c80e77..HEAD` (phase 2: `git diff 445f3d18..HEAD`). Walk it with `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01_<x>` and `node tools/lr01-money-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 
 Reviewer (S4-02c phase 3 and slice): read the task (phase 3 row, carries C5, risks), `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-phase-2-review.md` "Carries for phase 3" and `.agent/S4-02c-phase-3-handoff.md`, then `git diff 6d4a1995..HEAD` (slice: `git diff f9d6d1a5..HEAD`). Rerun `tools/s402c_late_power_walkthrough.py run --db assetops_s402c3walk_<x> --work <dir named s402c3*>` then `drop`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
 

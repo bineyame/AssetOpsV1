@@ -1,6 +1,6 @@
 # LR-01 — late-reading series and money limit
 
-Status: active (activated 2026-10-15 from main `ad2a96d0`; plan review RETURN -> fix round 1 -> re-review ACCEPT `.agent/LR-01-plan-rereview.md` with Lows N1-N3 carried to the implementer; Planner packet 2026-10-15; owner selected `I-late-reading-series-and-money-limit` at 0.20% over `I-action-store`; implementation and independent review pending)
+Status: in_review (phases 1-2 built 2026-10-15 on `task/LR-01-late-reading-series-and-money-limit`; packet `.agent/LR-01-review-packet.md`; owner walkthrough `.agent/LR-01-owner-walkthrough.md`; fresh independent slice review pending)
 USER_REVIEW_REQUIRED: true — the Finding and Financials money panel gain owner-visible limit, end-reason and no-current-amount states. Owner walkthrough below is a merge checkpoint.
 Size: M, two phases; phase 2 review is the slice review. Branch for implementation: `task/LR-01-late-reading-series-and-money-limit`.
 Depends on: registry `I-S2-02`, `I-S3-01`, `I-S4-01`, `I-S4-02b`; built S4-02c consequence work and S4-02d schedule are the operational seam. This is a hard prerequisite of `I-site-overview-read` and schedule installation on demo/walkthrough hosts; real pilot additionally requires validated physical clock semantics and the other registry gates.
