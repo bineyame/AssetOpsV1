@@ -189,8 +189,10 @@ export function siteFinancialAssumptionsHref(
  * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` and keeps the same
  * exact-version parameter. The frame's switch (`SiteFindingFrame`) renders
  * each view from this list (Evidence: phase 2, History: phase 3).
+ * S6-01b adds Recommendation (`recommendation:1`), which keeps the same
+ * `?revision_id=` so the recommendation is always for an exact version.
  */
-export const FINDING_CHILD_VIEWS = ["evidence", "history"] as const;
+export const FINDING_CHILD_VIEWS = ["evidence", "history", "recommendation"] as const;
 export type FindingChildView = (typeof FINDING_CHILD_VIEWS)[number];
 export const SITE_FINDING_VIEW_ROUTE_PATH = `${SITE_FINDING_ROUTE_PATH}/:findingView`;
 
@@ -202,6 +204,33 @@ export function siteFindingViewHref(
 ): string {
   const base = `${siteFindingsHref(siteId)}/${encodeURIComponent(findingId)}/${view}`;
   return revisionId ? `${base}?revision_id=${encodeURIComponent(revisionId)}` : base;
+}
+
+/**
+ * S6-01b: the canonical Site Action root and its child sections. An exact
+ * event is `?event_id=`, a server recorded cutoff is `?recorded_at=`, the same
+ * parameters the read API takes; the selection is carried into every section
+ * so reload and navigation keep it. The `execution` segment is the address
+ * only; its label is "Application".
+ */
+export const SITE_ACTION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/actions/:actionId`;
+export const SITE_ACTION_VIEW_ROUTE_PATH = `${SITE_ACTION_ROUTE_PATH}/:actionView`;
+export const ACTION_CHILD_VIEWS = ["execution", "history"] as const;
+export type ActionChildView = (typeof ACTION_CHILD_VIEWS)[number];
+
+export function siteActionHref(
+  siteId: string,
+  actionId: string,
+  view: ActionChildView | "overview" = "overview",
+  selector?: { eventId?: string | null; recordedAt?: string | null },
+): string {
+  const root = `${siteDetailHref(siteId)}/actions/${encodeURIComponent(actionId)}`;
+  const base = view === "overview" ? root : `${root}/${view}`;
+  const query = new URLSearchParams();
+  if (selector?.eventId) query.set("event_id", selector.eventId);
+  if (selector?.recordedAt) query.set("recorded_at", selector.recordedAt);
+  const text = query.toString();
+  return text ? `${base}?${text}` : base;
 }
 
 /**

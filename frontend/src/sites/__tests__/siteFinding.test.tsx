@@ -162,6 +162,7 @@ function mount(client: FindingClient, search = "", id = F) {
                   finding: (fid, rid) => `/sites/KOBO-001/findings/${fid}${rid ? `?revision_id=${rid}` : ""}`,
                   dispatch: (day, rid) => `/sites/KOBO-001/performance/dispatch?day=${day}${rid ? `&revision=${rid}` : ""}`,
                   evidence: "/sites/KOBO-001/evidence",
+                  recommendation: (rid) => `/sites/KOBO-001/findings/${id}/recommendation${rid ? `?revision_id=${rid}` : ""}`,
                 }}
               />
               <Where />
@@ -188,7 +189,9 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(container.querySelector("[data-finding-card='NECESSARY']")?.textContent).toMatch(/15 min/);
     expect(container.querySelector("[data-finding-card='MONEY']")?.textContent).toMatch(/Not yet available/);
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Up to date");
-    expect(container.querySelector("[data-finding-unavailable='recommendation']")).not.toBeNull();
+    // S6-01b: "What to do next" links to the Recommendation view at the exact version read.
+    const next = container.querySelector("[data-finding-recommendation-link] a");
+    expect(next?.getAttribute("href")).toContain(`/sites/KOBO-001/findings/${F}/recommendation?revision_id=`);
     const day = container.querySelector("[data-finding-dispatch-day='2026-10-06']");
     expect(day?.getAttribute("href")).toBe(`/sites/KOBO-001/performance/dispatch?day=2026-10-06&revision=${I1}`);
     expect(container.querySelectorAll("[data-evidence-id]")).toHaveLength(2);

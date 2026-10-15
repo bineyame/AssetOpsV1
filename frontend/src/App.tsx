@@ -8,6 +8,7 @@ import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
 import {
   FindingDetailFrame,
   FindingsFrame,
+  SiteActionFrame,
   SiteFinancialsFrame,
   SiteFindingFrame,
   SiteFindingsFrame,
@@ -22,6 +23,8 @@ import {
   FINDING_ROUTE_PATH,
   FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
+  SITE_ACTION_ROUTE_PATH,
+  SITE_ACTION_VIEW_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIALS_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
@@ -267,6 +270,13 @@ export function App({
               key={path}
               path={path}
               element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />}
+            />
+          ))}
+          {[SITE_ACTION_ROUTE_PATH, SITE_ACTION_VIEW_ROUTE_PATH].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={<SiteActionFrame detail={siteDetail} sitesPath={SITES_PATH} />}
             />
           ))}
           <Route
