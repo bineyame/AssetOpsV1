@@ -14,6 +14,7 @@ The message-key unique constraint arbitrates concurrent duplicate deliveries.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from typing import Callable, Sequence
@@ -36,6 +37,13 @@ from assetops_backend.evidence.ledger import (
     StoredBindingSet,
     recompute_window,
 )
+from assetops_backend.evidence.publication import (
+    REGISTERED_SIMULATION,
+    PublicationMismatch,
+    PublicationRecord,
+    PublicationRefused,
+    Registered,
+)
 from assetops_contracts.ingestion_receipt_v2 import (
     IngestionReceiptV2,
     ReceiptCounts,
@@ -47,6 +55,29 @@ from assetops_contracts.ingestion_receipt_v2 import (
 def _instant(value: datetime | None) -> str | None:
     """Server real-UTC instant text with exactly six fractional digits (Receipt V2)."""
     return None if value is None else value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+def admission_lock_key(tenant_id: UUID, site_id: UUID, external_batch_id: str) -> int:
+    """The signed 64-bit advisory-lock key of one Site batch slot (S4-05a contract 2).
+
+    Registration and `open_batch` take this same transaction-scoped lock. The slot is the admission
+    uniqueness scope (`ingestion_batch_external_unique` is Site + external batch ID), so every gateway/source
+    contending for the slot serializes; gateway, source and digest are then compared under the lock.
+    """
+    material = f"assetops.batch-admission|{tenant_id}|{site_id}|{external_batch_id}".encode("utf-8")
+    return int.from_bytes(hashlib.sha256(material).digest()[:8], "big", signed=True)
+
+
+def _lock_slot(c: Connection, tenant_id: UUID, site_id: UUID, external_batch_id: str) -> None:
+    c.execute(text("SELECT pg_advisory_xact_lock(:k)"),
+              {"k": admission_lock_key(tenant_id, site_id, external_batch_id)})
+
+
+_PUBLICATION_COLUMNS = (
+    "id, tenant_id, site_id, gateway_id, source_id, external_batch_id, payload_sha256, source_class, fixture_id, "
+    "fixture_version, run_id, run_identity_sha256, actor_kind, actor_id, authorization_basis, channel, "
+    "publication_trigger, recorded_at"
+)
 
 
 def _uuid_or_none(value: str) -> UUID | None:
@@ -213,21 +244,46 @@ class PostgresEvidenceLedger:
         received_at: datetime,
     ) -> BatchHandle:
         def work(c: Connection) -> BatchHandle:
-            c.execute(
+            # S4-05a: the same slot lock registration takes; the preauthorized commitment is read under it.
+            _lock_slot(c, principal.tenant_id, principal.site_id, external_batch_id)
+            publication = c.execute(
+                text(
+                    "SELECT id, gateway_id, source_id, payload_sha256 FROM evidence_publication "
+                    "WHERE tenant_id = :t AND site_id = :site AND external_batch_id = :b"
+                ),
+                {"t": principal.tenant_id, "site": principal.site_id, "b": external_batch_id},
+            ).first()
+            source_uuid = UUID(source_id)
+            if publication is not None and (
+                    publication.gateway_id != principal.gateway_id or publication.source_id != source_uuid
+                    or publication.payload_sha256 != payload_sha256):
+                raise PublicationMismatch(
+                    publication.id,
+                    "this batch ID was published for another gateway, source or payload digest; it is not admitted")
+            new_id = uuid4()
+            inserted = c.execute(
                 text(
                     "INSERT INTO ingestion_batch (id, tenant_id, site_id, gateway_id, source_id, external_batch_id, "
                     "payload_sha256, schema_version, source_mode, foundation_revision_id, binding_set_revision_id, "
                     "snapshot_sha256, batch_text, status, total_count, received_at) "
                     "VALUES (:id, :t, :site, :g, :src, :b, :sha, 2, :mode, :f, :bs, :snap, :body, 'IN_PROGRESS', "
-                    ":total, :at) ON CONFLICT ON CONSTRAINT ingestion_batch_external_unique DO NOTHING"
+                    ":total, :at) ON CONFLICT ON CONSTRAINT ingestion_batch_external_unique DO NOTHING RETURNING id"
                 ),
                 {
-                    "id": uuid4(), "t": principal.tenant_id, "site": principal.site_id, "g": principal.gateway_id,
-                    "src": UUID(source_id), "b": external_batch_id, "sha": payload_sha256, "mode": source_mode,
+                    "id": new_id, "t": principal.tenant_id, "site": principal.site_id, "g": principal.gateway_id,
+                    "src": source_uuid, "b": external_batch_id, "sha": payload_sha256, "mode": source_mode,
                     "f": basis.foundation_revision_id, "bs": basis.binding_set_revision_id,
                     "snap": basis.snapshot_sha256, "body": batch_text, "total": total, "at": received_at,
                 },
-            )
+            ).first()
+            if inserted is not None and publication is not None:
+                # Bound only here, in the admission transaction that inserts the batch; never afterwards.
+                c.execute(
+                    text("INSERT INTO batch_publication_link (batch_id, publication_id, tenant_id, site_id, gateway_id, source_id, external_batch_id, payload_sha256, linked_at) VALUES (:batch, :pub, :t, :site, :g, :src, :b, :sha, :at)"),
+                    {"batch": new_id, "pub": publication.id, "t": principal.tenant_id, "site": principal.site_id,
+                     "g": principal.gateway_id, "src": source_uuid, "b": external_batch_id, "sha": payload_sha256,
+                     "at": received_at},
+                )
             row = c.execute(
                 text(
                     "SELECT id, payload_sha256, status FROM ingestion_batch "
@@ -236,6 +292,81 @@ class PostgresEvidenceLedger:
                 {"t": principal.tenant_id, "site": principal.site_id, "b": external_batch_id},
             ).one()
             return BatchHandle(row.id, row.payload_sha256, row.status)
+
+        return self._run(work, write=True)
+
+    def register_publication(self, record: PublicationRecord) -> Registered:
+        """Record one pre-admission publication (S4-05a contract 1-2). Refusals write nothing.
+
+        Under the slot lock: refuse once any admission of the slot exists (even a partial one); an identical
+        retry returns the stored ID; a different commitment for the slot, or a reused publication ID, fails.
+        The gateway/source registration is re-read here; `REGISTERED_SIMULATION` needs a `SIMULATED` gateway.
+        """
+        def work(c: Connection) -> Registered:
+            _lock_slot(c, record.tenant_id, record.site_id, record.external_batch_id)
+            admitted = c.execute(
+                text("SELECT id, status FROM ingestion_batch WHERE site_id = :site AND external_batch_id = :b"),
+                {"site": record.site_id, "b": record.external_batch_id},
+            ).first()
+            if admitted is not None:
+                raise PublicationRefused(
+                    "ALREADY_ADMITTED",
+                    f"batch {record.external_batch_id} was already admitted ({admitted.status}); a publication "
+                    "is recorded only before admission and never assigned afterwards")
+            gateway = c.execute(
+                text("SELECT site_id, mode FROM gateway WHERE tenant_id = :t AND id = :g"),
+                {"t": record.tenant_id, "g": record.gateway_id},
+            ).first()
+            if gateway is None or gateway.site_id != record.site_id:
+                raise PublicationRefused("GATEWAY_NOT_REGISTERED", "the gateway is not registered to this tenant Site")
+            source = c.execute(
+                text("SELECT gateway_id, site_id FROM source WHERE tenant_id = :t AND id = :s"),
+                {"t": record.tenant_id, "s": record.source_id},
+            ).first()
+            if source is None or source.gateway_id != record.gateway_id or source.site_id != record.site_id:
+                raise PublicationRefused("SOURCE_NOT_AFFILIATED", "the source is not registered to this gateway and Site")
+            if record.source_class == REGISTERED_SIMULATION and gateway.mode != "SIMULATED":
+                raise PublicationRefused("GATEWAY_NOT_SIMULATED",
+                                         f"a registered simulation needs a SIMULATED gateway, not {gateway.mode}")
+            wanted = (
+                record.tenant_id, record.site_id, record.gateway_id, record.source_id, record.external_batch_id,
+                record.payload_sha256, record.source_class, record.fixture_id, record.fixture_version,
+                record.run_id, record.run_identity_sha256,
+            )
+
+            def content(row) -> tuple:
+                return (row.tenant_id, row.site_id, row.gateway_id, row.source_id, row.external_batch_id,
+                        row.payload_sha256, row.source_class, row.fixture_id, row.fixture_version, row.run_id,
+                        row.run_identity_sha256)
+
+            existing = c.execute(
+                text(f"SELECT {_PUBLICATION_COLUMNS} FROM evidence_publication "
+                     "WHERE tenant_id = :t AND site_id = :site AND external_batch_id = :b"),
+                {"t": record.tenant_id, "site": record.site_id, "b": record.external_batch_id},
+            ).first()
+            if existing is not None:
+                if content(existing) != wanted or record.publication_id not in (None, existing.id):
+                    raise PublicationRefused(
+                        "PUBLICATION_CONFLICT",
+                        f"batch {record.external_batch_id} is already published with another commitment or ID")
+                return Registered(existing.id, False)
+            if record.publication_id is not None:
+                reused = c.execute(text("SELECT 1 FROM evidence_publication WHERE id = :id"),
+                                   {"id": record.publication_id}).first()
+                if reused is not None:
+                    raise PublicationRefused("PUBLICATION_ID_REUSED",
+                                             "this publication ID already designates another batch")
+            publication_id = record.publication_id or uuid4()
+            a = record.authority
+            c.execute(
+                text("INSERT INTO evidence_publication (id, tenant_id, site_id, gateway_id, source_id, external_batch_id, payload_sha256, source_class, fixture_id, fixture_version, run_id, run_identity_sha256, actor_kind, actor_id, authorization_basis, channel, publication_trigger, recorded_at) VALUES (:id, :t, :site, :g, :src, :b, :sha, :cls, :fx, :fv, :run, :rd, :kind, :actor, :basis, :channel, :trig, clock_timestamp())"),
+                {"id": publication_id, "t": record.tenant_id, "site": record.site_id, "g": record.gateway_id,
+                 "src": record.source_id, "b": record.external_batch_id, "sha": record.payload_sha256,
+                 "cls": record.source_class, "fx": record.fixture_id, "fv": record.fixture_version,
+                 "run": record.run_id, "rd": record.run_identity_sha256, "kind": a.actor_kind, "actor": a.actor_id,
+                 "basis": a.authorization_basis, "channel": a.channel, "trig": a.trigger},
+            )
+            return Registered(publication_id, True)
 
         return self._run(work, write=True)
 
