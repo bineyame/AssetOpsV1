@@ -59,8 +59,7 @@ Reload Financials. Look for:
 
 - The headline **"Modelled potential fuel-cost exposure" 0.00 to 15.82 USD**, with the finding now 06:05 to 08:00.
 - The **"Demonstration data"** label and its statement beside the finding (P02-power-late, same wording as the
-  earlier demonstration case). It is absent in the withheld state only if the page hides it for withheld money; if it is
-  missing here, report it.
+  earlier demonstration case). It also shows in the withheld state of step 2; if it is missing in either, report it.
 - A new finding version and a new fuel cost version (new IDs).
 - The Finding page no longer has the "ends at 07:00" sentence.
 - The earlier 7.57 USD record is still there: use the finding's version history to open the earlier version
