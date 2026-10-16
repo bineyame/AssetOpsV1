@@ -46,6 +46,8 @@ from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
 from assetops_backend.finding_api import ACCESS_BASIS, build_finding_router, development_access
 from assetops_backend.finding_index_api import build_finding_index_router
+from assetops_backend.source_health_api import build_source_health_router
+from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.financial_api import build_financial_assumption_router
@@ -361,6 +363,11 @@ def create_app(
             gateway_clock or utc_now,
         )
     )
+    # S7-01a: versioned two-clock Site source-health read and configured-battery boundary read.
+    app.include_router(build_source_health_router(
+        gateway_access if hasattr(gateway_access, "source_health_snapshot") else None,
+        registry.ledger_scope, gateway_clock or utc_now))
+    app.include_router(build_asset_boundary_router(registry))
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))

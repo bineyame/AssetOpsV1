@@ -4,6 +4,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**2026-10-16: S7-01a ([Site source-health and battery boundary reads](../tasks/S7-01a-health-read.md)) is `in_review`** on `task/S7-01a-health-read` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent review). Packet `.agent/S7-01a-review-packet.md`, S7-01b contract `.agent/S7-01a-handoff.md`, built state `.ai/CODE_STATE.md` "S7-01a". Reviewer: task, packet, `git diff 8b5d8137..HEAD -- ':!.agent'`.
+
 **2026-10-16: S6-02a ([frozen verification and exact read](../tasks/S6-02a-verification-core.md)) is built (phases 1-2), `in_review`** on `task/S6-02a-verification-core` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent slice review). Packet `.agent/S6-02a-review-packet.md`; built state `.ai/CODE_STATE.md` "S6-02a". Architect item: the shipped mini-grid model gives no VERIFIED Lab replay (packet Known Deviation 1).
 
 **2026-10-16: S4-04 ([Site Finding index](../tasks/S4-04-site-finding-index.md)) is built (phases 1-2), `in_review`** on `task/S4-04-site-finding-index`: slice review, then owner walkthrough `.agent/S4-04-owner-walkthrough.md` (USER_REVIEW_REQUIRED). Packet `.agent/S4-04-review-packet.md`; built state in `.ai/CODE_STATE.md` "S4-04". Merge main after `fix/S4-deferred-match` lands and rerun the focused index tests.
