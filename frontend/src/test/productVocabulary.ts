@@ -171,9 +171,14 @@ function withoutReferences(text: string, values: string[]): string {
   return out;
 }
 
-function exemptReason(element: Element | null): string | null {
-  const exempt = element?.closest(`[${EXEMPT_ATTRIBUTE}]`) ?? null;
-  return exempt === null ? null : exempt.getAttribute(EXEMPT_ATTRIBUTE);
+/** The exemption covering `element`, looking no higher than the scan root. */
+function exemptReason(element: Element | null, root: Element): string | null {
+  for (let node: Element | null = element; node !== null; node = node.parentElement) {
+    const reason = node.getAttribute(EXEMPT_ATTRIBUTE);
+    if (reason !== null) return reason;
+    if (node === root) break;
+  }
+  return null;
 }
 
 /**
@@ -248,7 +253,7 @@ function scanWith(
     if (text.length === 0) continue;
     const parent = node.parentElement;
     if (parent !== null && ["SCRIPT", "STYLE"].includes(parent.tagName)) continue;
-    if (exemptReason(parent) !== null) continue;
+    if (exemptReason(parent, root) !== null) continue;
     scanned += 1;
     for (const phrase of check(withoutReferences(text, references(parent)))) {
       violations.push({ page, phrase, where: "text", text });
@@ -257,7 +262,7 @@ function scanWith(
 
   const elements = [root, ...Array.from(root.querySelectorAll("*"))];
   for (const element of elements) {
-    if (exemptReason(element) !== null) continue;
+    if (exemptReason(element, root) !== null) continue;
     for (const attribute of LABEL_ATTRIBUTES) {
       const value = element.getAttribute(attribute);
       if (value === null || value.trim().length === 0) continue;

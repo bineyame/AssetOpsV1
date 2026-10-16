@@ -19,7 +19,7 @@ describe("W1 vocabulary set: raw-code pattern", () => {
   it("catches leaked codes: underscore codes, closed single-word codes, UUIDs, digests and versions", () => {
     expect(rawCodes("State: GUARDRAIL_FAIL")).toEqual(["uppercase underscore code: GUARDRAIL_FAIL"]);
     expect(rawCodes("PENDING_REASSESSMENT")).toEqual(["uppercase underscore code: PENDING_REASSESSMENT"]);
-    for (const code of ["CURRENT", "STALE", "UNKNOWN", "UNASSESSED", "VERIFIED", "INEFFECTIVE", "INCONCLUSIVE", "REFUSED", "WITHDRAWN"]) {
+    for (const code of ["ACCEPTED", "APPLIED", "OBSERVED", "REJECTED", "CURRENT", "STALE", "UNKNOWN", "UNASSESSED", "VERIFIED", "INEFFECTIVE", "INCONCLUSIVE", "REFUSED", "WITHDRAWN"]) {
       expect(rawCodes(`It is ${code} now`), code).toEqual([code]);
     }
     expect(rawCodes("record 3f2a9c1e-0b4d-4e5f-9a8b-1c2d3e4f5a6b")[0]).toMatch(/^UUID: /);
@@ -129,6 +129,19 @@ describe("W1 vocabulary set: shared card mutation tests", () => {
   it("the disclosure list does not flag units and acronyms, or ordinary operational wording", () => {
     expect(disclosurePhrases("Battery charge (SOC) at 10:05 UTC, 12 kW, 40 kWh, solar (PV)")).toEqual([]);
     expect(disclosurePhrases("Why the generator ran")).toEqual([]);
+  });
+
+  it("an exemption on an ancestor outside the scan root does not silence the scan", () => {
+    const { container } = render(
+      <div data-vocabulary-exempt="source-reference">
+        <section data-probe-root>
+          <p>The state is STALE_PROJECTION</p>
+        </section>
+      </div>,
+    );
+    const root = container.querySelector("[data-probe-root]") as HTMLElement;
+    const found = scanProductVocabulary(root, "probe", { set: "w1" }).violations.map((v) => v.phrase);
+    expect(found).toContain("uppercase underscore code: STALE_PROJECTION");
   });
 
   it("an exemption cannot cover the disclosure container", () => {

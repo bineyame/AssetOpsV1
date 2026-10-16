@@ -27,6 +27,7 @@ import {
   Badge,
   DataTable,
   Disclosure,
+  currentnessWords,
   ExactReferences,
   Fact,
   FactList,
@@ -380,12 +381,16 @@ function receiptWords(evidence: LedgerEvidence): ProductWords {
       tone: "limited",
     };
   }
-  return {
-    ...base,
-    label: "Readings received and accepted",
-    sentence: "These counts say what arrived and was accepted. They are not a conclusion about how the site operated.",
-    tone: "neutral",
-  };
+  if (evidence.state === "ACCEPTED") {
+    return {
+      ...base,
+      label: "Readings received and accepted",
+      sentence: "These counts say what arrived and was accepted. They are not a conclusion about how the site operated.",
+      tone: "neutral",
+    };
+  }
+  // A state this screen does not know claims nothing positive; the code stays in the detail only.
+  return { ...currentnessWords(null), code: evidence.state };
 }
 
 function periodScope(evidence: LedgerEvidence): string {

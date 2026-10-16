@@ -398,9 +398,14 @@ function ActionStateCard({ body, links }: { body: ActionBody; links: SiteActionL
       meaning={
         <>
           {v ? (
-            <p data-action-outcome-words data-action-verification-state={v.state}>
-              {stateLabel(v.state, v.reasons)}.
-            </p>
+            // The qualified state sentence is on the shared line; a repeat would drop its qualifier.
+            v.state === "VERIFIED" ? (
+              <span data-action-verification-state={v.state} />
+            ) : (
+              <p data-action-outcome-words data-action-verification-state={v.state}>
+                {stateLabel(v.state, v.reasons)}.
+              </p>
+            )
           ) : (
             <p data-action-outcome-words>{outcomeWords(body.state.outcome.state)}</p>
           )}

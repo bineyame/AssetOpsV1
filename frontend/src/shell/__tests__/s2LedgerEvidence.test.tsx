@@ -117,6 +117,21 @@ describe("Site Evidence from the central ledger: overview", () => {
     expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
   });
 
+  it("an unrecognised state reads as not judged, never as accepted", async () => {
+    renderAt(
+      EVIDENCE_URL,
+      ledgerClient({
+        status: "loaded",
+        value: ledgerEvidence({ state: "SOMETHING_NEW" as never, states: ["SOMETHING_NEW" as never] }),
+      }),
+    );
+    await settledScreen();
+    const card = document.querySelector("[data-headline-card='evidence-conclusion']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe("We cannot judge this yet");
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
+    expect(card.querySelector("[data-product-status]")?.textContent ?? "").not.toMatch(/accepted/i);
+  });
+
   it("notes partial, conflicting and outdated-configuration evidence", async () => {
     renderAt(
       EVIDENCE_URL,
