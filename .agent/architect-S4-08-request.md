@@ -1,0 +1,3 @@
+# Architect request - S4-08 questions (2026-10-16)
+
+You are the AssetOps Architect (Codex); decide within your remit. Read `tasks/S4-08-assumption-consequence-history.md` ("Architect questions"), `D-2026-10-14-s402-post-review-follow-ons`, `.agent/architect-S4-02-batch-answers.md`, `D-2026-10-15-s405-stored-demo-provenance`, `D-2026-10-16-s405b-label` and `D-2026-10-16-w1-ux`. Rule on Q1-Q3 (accept/amend/replace), short and implementable. Write `.agent/architect-S4-08-answers.md` and `D-2026-10-16-s408` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.
