@@ -17,7 +17,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import contract from "../../../../backend/tests/fixtures/s6_site_action_index_contract.json";
 import { OPERATOR_SITE_TABS } from "../../shell/operatorSiteTabs";
 import { SiteWorkFrame } from "../../shell/SiteAnalyticsFrames";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import type { ActionIndexBody } from "../actionIndexClient";
 import type { SiteDetailClient } from "../siteDirectoryClient";
@@ -121,7 +122,8 @@ describe("Site Work Actions list", () => {
     expect(headers.slice(0, 5)).toEqual(["Action", "Source", "Created", "State", "Latest step"]);
     expect(document.body.textContent).not.toMatch(/\bVerified\b|\bOwner\b|\bDue\b|Priority/);
     // IDs and the fence sit in the disclosure, not the default reading.
-    const basis = q("details");
+    // W1-UX-04: the answer card's exact-reference disclosure now comes first; select the list's own basis by name.
+    const basis = q("[data-disclosure='site-work-basis']");
     expect(basis?.hasAttribute("open")).toBe(false);
     expect(basis?.querySelector("[data-site-work-fence]")?.textContent).toBe(POSITIVE.fence.token);
     expect(basis?.textContent).toContain(POSITIVE.rows[0].origin.finding_revision_id);
@@ -298,5 +300,58 @@ describe("Site Work Actions list", () => {
     await settledScreen();
     expect(qa("[data-site-work-row]")).toHaveLength(POSITIVE.rows.length);
     expect(qa("[data-site-work-event-link]")).toHaveLength(POSITIVE.rows.length);
+  });
+});
+
+describe("W1-UX-04 phase 1: Site Work answer card", () => {
+  function w1Scan(page: string) {
+    const main = document.body.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, page, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  }
+
+  it("rows: the state line, scope and read time stay outside the closed disclosure; no verdict is derived", async () => {
+    serve({ [apiKey(WINDOW)]: ok(POSITIVE) });
+    mount(workUrl(WINDOW));
+    await settledScreen();
+    w1Scan("sitework (W1) rows");
+    const card = q("[data-headline-card='site-work']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe("Every Action created here in this window");
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    const bars = Array.from(card.querySelectorAll("[data-value-bar-key]"));
+    expect(bars.length).toBeGreaterThanOrEqual(4);
+    const disclosure = scanDisclosureVocabulary(card, "sitework disclosure");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+    expect(card.textContent).not.toMatch(/verified|met its goal(?! is)|saving (?:of|was)/i);
+  });
+
+  it("proved zero: only after a successful bounded read, with its read time beside it", async () => {
+    serve({ [apiKey(ZERO_WINDOW)]: ok(ZERO) });
+    mount(workUrl(ZERO_WINDOW));
+    await settledScreen();
+    w1Scan("sitework (W1) zero");
+    const card = q("[data-headline-card='site-work']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe("Checked: nothing to report");
+    expect(card.querySelector("[data-site-work-proved-zero]")?.getAttribute("data-site-work-proved-zero")).toBe(ZERO.read_at);
+    expect(card.querySelector("[data-product-status-as-of]")?.textContent).not.toMatch(/time not recorded/);
+  });
+
+  it("an unread list is never a zero and claims no read time", async () => {
+    vi.stubGlobal("fetch", async () => {
+      throw new TypeError("offline");
+    });
+    mount(workUrl(WINDOW));
+    await settledScreen();
+    const card = q("[data-headline-card='site-work']") as HTMLElement;
+    // The read returned no instant, so the as-of line says so instead of "As of <time>" (never now).
+    expect(card.querySelector("[data-product-status-label]")?.textContent).toBe("This could not be read right now");
+    expect(card.querySelector("[data-product-status-scope]")?.textContent).toMatch(/KOBO|Actions/);
+    expect(card.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+    expect(card.querySelector("[data-site-work-proved-zero]")).toBeNull();
+    expect(card.querySelector("[data-value-bar-key]")).toBeNull();
+    expect(card.textContent).not.toMatch(/0 Actions|No Actions were created/);
   });
 });

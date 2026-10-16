@@ -27,7 +27,22 @@ if (!OUT || TARGETS.length === 0) {
   console.error("usage: node tools/w1-ux-01-evidence.mjs <out-dir> <mock-id>=<app-url> ...");
   process.exit(2);
 }
-const CARD = { mini: "overview-objective", evidence: "evidence-conclusion", "action-overview": "action-state" };
+const CARD = {
+  mini: "overview-objective",
+  evidence: "evidence-conclusion",
+  "action-overview": "action-state",
+  // W1-UX-04: the Action, Work and Verification answer cards.
+  recommendation: "recommendation",
+  changes: "change",
+  "action-execution": "action-work",
+  "action-history": "action-history",
+  sitework: "site-work",
+  "action-plan": "action-plan",
+  "action-evidence": "action-evidence",
+  verification: "verification",
+};
+// Cards whose read can carry no visual in a given state (a refused or not-proposed read draws none).
+const NO_VISUAL_OK = new Set((process.env.W1_NO_VISUAL_OK ?? "mini").split(","));
 const PORT = Number(process.env.ASSETOPS_CDP_PORT ?? 9471);
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const WIDTHS = [
@@ -152,6 +167,7 @@ async function tabReaches(card) {
     await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Tab", code: "Tab", windowsVirtualKeyCode: 9 });
     const hit = await js(`(() => { const a = document.activeElement; return Boolean(a && a.tagName === 'SUMMARY' && a.closest('[data-headline-card="${card}"]')); })()`);
     if (hit) return i + 1;
+    if (process.env.W1_TAB_TRACE) console.log("tab", i, await js("(() => { const a = document.activeElement; return (a ? a.tagName + ':' + (a.textContent || '').trim().slice(0, 30) : 'none') + ' @ ' + location.pathname; })()"));
   }
   return 0;
 }
@@ -184,7 +200,7 @@ try {
       claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen === false && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && /^As of /.test(m.asOf ?? ""), { label: m.label, asOf: m.asOf });
       claim(`${id} ${label}: the closed summary is plain text`, m.summary === "How this was worked out", m.summary);
       claim(`${id} ${label}: no sideways scroll from the card (measured ${m.measured} elements)`, m.measured > 0 && m.scrollWidth <= m.clientWidth && m.wide.length === 0, { scrollWidth: m.scrollWidth, clientWidth: m.clientWidth, wide: m.wide });
-      claim(`${id} ${label}: the card has a small visual`, mockId === "mini" ? true : m.visual, mockId === "mini" ? "none by design" : m.visual);
+      claim(`${id} ${label}: the card has a small visual`, NO_VISUAL_OK.has(mockId) ? true : m.visual, NO_VISUAL_OK.has(mockId) ? "none by design" : m.visual);
       const tabs = await tabReaches(card);
       claim(`${id} ${label}: keyboard Tab reaches the disclosure summary`, tabs > 0, { tabs, focusable: m.focusable });
       const here = new URL(await js("location.href"));

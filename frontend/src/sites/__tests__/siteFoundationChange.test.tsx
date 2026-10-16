@@ -13,7 +13,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import { foundationViewFor } from "../FoundationSubtabs";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
@@ -236,5 +237,44 @@ describe("Action links to its Foundation change", () => {
     await settledScreen();
     expect(screen.getByTestId("where").textContent).toBe(CHANGE_URL);
     expect(q("[data-change-new]")?.textContent).toBe("15%");
+  });
+});
+
+describe("W1-UX-04 phase 1: Change answer card", () => {
+  it("the change is never positive; the state line, scope and as-of stay outside the closed disclosure; the strip is chronological", async () => {
+    serve(changeReads());
+    mount(CHANGE_URL);
+    await settledScreen();
+    const main = document.body.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, "changes (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const card = q("[data-headline-card='change']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe("Setting changed; effect judged separately");
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
+    expect(card.textContent).toMatch(/from 20% to 15%/);
+    const steps = Array.from(card.querySelectorAll("[data-step]"));
+    expect(steps).toHaveLength(4);
+    // The measured-effect step is the read's own state; a pending outcome is never "done".
+    expect(steps[3].getAttribute("data-step")).not.toBe("done");
+    const disclosure = scanDisclosureVocabulary(card, "changes disclosure");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+    expect(card.querySelector("[data-change-card-event-link]")).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001/actions/${ACTION}/history?event_id=${CHANGE.applied_event_id}`,
+    );
+    expect(card.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator/i);
+  });
+
+  it("failed attempts are not known, never zero, while the Action's events cannot be read", async () => {
+    serve({ [changes.change.request.path]: served(changes.change) });
+    mount(CHANGE_URL);
+    await settledScreen();
+    const card = q("[data-headline-card='change']") as HTMLElement;
+    const first = card.querySelector("[data-step]") as HTMLElement;
+    expect(first.getAttribute("data-step")).toBe("not-known");
+    expect(first.textContent).toMatch(/Not known yet/);
+    expect(first.textContent).not.toMatch(/0 recorded/);
   });
 });
