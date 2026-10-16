@@ -35,6 +35,7 @@ from fastapi import APIRouter, FastAPI
 
 from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.composition import build_assessment_store
+from assetops_backend.analytics.composition import build_claim_limit_read_service
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.analytics.composition import (build_dispatch_read_service, build_finding_index_service,
@@ -56,6 +57,7 @@ from assetops_backend.financials.composition import (
     build_consequence_read_service,
 )
 from assetops_backend.performance_api import build_performance_router
+from assetops_backend.claim_limit_api import build_claim_limit_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
 from assetops_backend.config import (
@@ -365,6 +367,10 @@ def create_app(
 
     app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate,
                                                 performance_report))
+    # S3-02a: selected-assessment capability and claim-limit read; same Performance gate, Finding access seam.
+    app.include_router(build_claim_limit_router(
+        build_claim_limit_read_service(database_url()) if database_url() else None, registry.ledger_scope,
+        gate=performance_gate))
     # S4-01 phase 2: exact Finding root/revision read (A-claim-work-routes); typed 503 without a database.
     finding_manifest = os.environ.get("ASSETOPS_FINDING_CASES_MANIFEST") or os.environ.get(
         "ASSETOPS_DEMO_FIXTURE_MANIFEST")

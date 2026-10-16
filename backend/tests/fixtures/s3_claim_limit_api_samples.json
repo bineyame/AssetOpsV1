@@ -1,0 +1,2797 @@
+{
+ "fixture_id": "s3-claim-limit-records-v1",
+ "note": "UUIDs and digests normalised; read_at, built_at and knowledge_cutoff differ per run",
+ "responses": {
+  "full-candidate": {
+   "accepted_evidence_ids": [
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>"
+   ],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:interval:<uuid>:2026-10-06T08:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T08:31:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-06T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-06T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "feeder_demand": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-06T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-06T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "generator_state": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-06T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-06T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pcs_discharge_capability": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-06T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-06T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pv_available_power": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-06T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-06T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "CANDIDATE_AVOIDABLE",
+   "claim_limit": {
+    "ceiling": "CANDIDATE_AVOIDABLE",
+    "current_positive_claim": true,
+    "historical_ceiling": null,
+    "model_version": "dispatch-3.2",
+    "reasons": [],
+    "rule_id": "s3-claim-limit-1",
+    "statement": "At most CANDIDATE_AVOIDABLE over 30 min (the sum of CANDIDATE_AVOIDABLE segments only, never the whole interval)",
+    "support": "COMPLETE",
+    "supported_minutes": "30"
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "CURRENT",
+   "day": "2026-10-06",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:41.611663+00:00",
+   "revision_no": 1,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T08:31:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T08:31:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "INTERVAL",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T08:31:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T08:00:00.000000Z",
+     "published_at": "2026-10-06T08:35:00.000000Z",
+     "received_at": "2026-10-30T08:00:00.000000Z",
+     "source_time": "2026-10-06T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-07T00:00:00+00:00",
+    "start": "2026-10-06T00:00:00+00:00"
+   },
+   "window_status": "CURRENT",
+   "window_status_reasons": []
+  },
+  "late-revision": {
+   "accepted_evidence_ids": [
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>"
+   ],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:interval:<uuid>:2026-10-13T08:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T09:01:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "feeder_demand": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "generator_state": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pcs_discharge_capability": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pv_available_power": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "CANDIDATE_AVOIDABLE",
+   "claim_limit": {
+    "ceiling": "CANDIDATE_AVOIDABLE",
+    "current_positive_claim": true,
+    "historical_ceiling": null,
+    "model_version": "dispatch-3.2",
+    "reasons": [],
+    "rule_id": "s3-claim-limit-1",
+    "statement": "At most CANDIDATE_AVOIDABLE over 30 min (the sum of CANDIDATE_AVOIDABLE segments only, never the whole interval)",
+    "support": "COMPLETE",
+    "supported_minutes": "30"
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "CURRENT",
+   "day": "2026-10-13",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:41.996906+00:00",
+   "revision_no": 2,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T09:01:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T09:01:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "INTERVAL",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T09:01:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T09:00:00.000000Z",
+     "published_at": "2026-10-13T08:35:00.000000Z",
+     "received_at": "2026-10-30T09:00:00.000000Z",
+     "source_time": "2026-10-13T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-14T00:00:00+00:00",
+    "start": "2026-10-13T00:00:00+00:00"
+   },
+   "window_status": "CURRENT",
+   "window_status_reasons": []
+  },
+  "late-revision/withdrawn": {
+   "accepted_evidence_ids": [
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>"
+   ],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:interval:<uuid>:2026-10-13T08:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T08:31:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "feeder_demand": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "generator_state": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pcs_discharge_capability": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pv_available_power": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "CANDIDATE_AVOIDABLE",
+   "claim_limit": {
+    "ceiling": null,
+    "current_positive_claim": false,
+    "historical_ceiling": {
+     "ceiling": "CANDIDATE_AVOIDABLE",
+     "statement": "At most CANDIDATE_AVOIDABLE over 30 min (the sum of CANDIDATE_AVOIDABLE segments only, never the whole interval)",
+     "support": "COMPLETE",
+     "supported_minutes": "30"
+    },
+    "model_version": "dispatch-3.2",
+    "reasons": [
+     {
+      "code": "NOT_CURRENT",
+      "text": "This exact revision is not in the window's current selection; shown as history only."
+     }
+    ],
+    "rule_id": "s3-claim-limit-1",
+    "statement": null,
+    "support": null,
+    "supported_minutes": null
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "HISTORICAL",
+   "day": "2026-10-13",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:42.290237+00:00",
+   "revision_no": 1,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T08:31:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T08:31:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "INTERVAL",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T08:31:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T08:30:00.000000Z",
+     "published_at": "2026-10-13T08:35:00.000000Z",
+     "received_at": "2026-10-30T08:30:00.000000Z",
+     "source_time": "2026-10-13T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-14T00:00:00+00:00",
+    "start": "2026-10-13T00:00:00+00:00"
+   },
+   "window_status": "CURRENT",
+   "window_status_reasons": []
+  },
+  "late-revision/withdrawn-window": {
+   "accepted_evidence_ids": [],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:window:2026-10-13T00:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T08:31:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "feeder_demand": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "generator_state": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "pcs_discharge_capability": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "pv_available_power": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-13T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-13T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "COMPLETE",
+   "claim_limit": {
+    "ceiling": null,
+    "current_positive_claim": false,
+    "historical_ceiling": {
+     "ceiling": null,
+     "interval_ceilings": [
+      {
+       "assessment_revision_id": "<uuid>",
+       "ceiling": "CANDIDATE_AVOIDABLE",
+       "claim_level": "CANDIDATE_AVOIDABLE",
+       "support": "COMPLETE"
+      }
+     ],
+     "statement": "A window revision carries no single dispatch classification; see each interval.",
+     "support": "COMPLETE",
+     "supported_minutes": null
+    },
+    "model_version": "dispatch-3.2",
+    "reasons": [
+     {
+      "code": "NOT_CURRENT",
+      "text": "This exact revision is not in the window's current selection; shown as history only."
+     }
+    ],
+    "rule_id": "s3-claim-limit-1",
+    "statement": null,
+    "support": null,
+    "supported_minutes": null
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "HISTORICAL",
+   "day": "2026-10-13",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:42.430004+00:00",
+   "revision_no": 1,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T08:31:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T08:31:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "WINDOW",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T08:31:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T08:30:00.000000Z",
+     "published_at": "2026-10-13T08:35:00.000000Z",
+     "received_at": "2026-10-30T08:30:00.000000Z",
+     "source_time": "2026-10-13T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-14T00:00:00+00:00",
+    "start": "2026-10-13T00:00:00+00:00"
+   },
+   "window_status": "CURRENT",
+   "window_status_reasons": []
+  },
+  "missing-pv": {
+   "accepted_evidence_ids": [
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>"
+   ],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:interval:<uuid>:2026-10-08T08:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T08:31:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-08T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-08T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "feeder_demand": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-08T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-08T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "generator_state": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-08T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-08T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pcs_discharge_capability": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-08T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-08T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pv_available_power": {
+      "covered_minutes": 0.0,
+      "evidence_ids": [],
+      "minutes_by_status": {
+       "MISSING": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-08T08:30:00.000000Z",
+        "evidence_ids": [],
+        "minutes": 30.0,
+        "problems": [
+         "PV available power: no accepted reading"
+        ],
+        "start": "2026-10-08T08:00:00.000000Z",
+        "status": "MISSING"
+       }
+      ],
+      "status": "INCOMPLETE"
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "INDETERMINATE",
+   "claim_limit": {
+    "ceiling": "INDETERMINATE",
+    "current_positive_claim": false,
+    "historical_ceiling": null,
+    "model_version": "dispatch-3.2",
+    "reasons": [
+     {
+      "code": "MISSING_ROLE",
+      "end": "2026-10-08T08:30:00.000000Z",
+      "minutes": 30.0,
+      "role": "pv_available_power",
+      "start": "2026-10-08T08:00:00.000000Z",
+      "text": "PV available power: no accepted reading"
+     }
+    ],
+    "rule_id": "s3-claim-limit-1",
+    "statement": "No Candidate or Necessary claim is supported by this revision's accepted evidence.",
+    "support": "NONE",
+    "supported_minutes": null
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "CURRENT",
+   "day": "2026-10-08",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:41.722973+00:00",
+   "revision_no": 1,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T08:31:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T08:31:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "INTERVAL",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T08:31:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T08:10:00.000000Z",
+     "published_at": "2026-10-08T08:35:00.000000Z",
+     "received_at": "2026-10-30T08:10:00.000000Z",
+     "source_time": "2026-10-08T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-09T00:00:00+00:00",
+    "start": "2026-10-08T00:00:00+00:00"
+   },
+   "window_status": "CURRENT",
+   "window_status_reasons": []
+  },
+  "no-revision-selected": {
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_revision_id": null,
+   "capability": null,
+   "claim_limit": {
+    "ceiling": null,
+    "current_positive_claim": false,
+    "historical_ceiling": null,
+    "reasons": [
+     {
+      "code": "NO_REVISION_SELECTED",
+      "text": "No assessment revision selected; no claim ceiling is shown (absence is not a zero capability)."
+     }
+    ],
+    "rule_id": "s3-claim-limit-1"
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "UNASSESSED",
+   "day": "2026-10-06",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:42.618866+00:00",
+   "rule_id": "s3-claim-limit-1",
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "window": {
+    "end": "2026-10-07T00:00:00+00:00",
+    "start": "2026-10-06T00:00:00+00:00"
+   },
+   "window_status": "CURRENT",
+   "window_status_reasons": []
+  },
+  "poor-quality-conflict": {
+   "accepted_evidence_ids": [
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>"
+   ],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:interval:<uuid>:2026-10-11T08:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T08:31:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-11T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "feeder_demand": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-11T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "generator_state": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-11T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pcs_discharge_capability": {
+      "covered_minutes": 15.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 15.0,
+       "POOR_QUALITY": 15.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:05:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 5.0,
+        "problems": [],
+        "start": "2026-10-11T08:00:00.000000Z",
+        "status": "COVERED"
+       },
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:20:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 15.0,
+        "problems": [
+         "PCS discharge capability: reading not GOOD quality"
+        ],
+        "start": "2026-10-11T08:05:00.000000Z",
+        "status": "POOR_QUALITY"
+       },
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:30:00.000000Z",
+        "evidence_ids": [],
+        "minutes": 10.0,
+        "problems": [],
+        "start": "2026-10-11T08:20:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "INCOMPLETE"
+     },
+     "pv_available_power": {
+      "covered_minutes": 20.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "CONFLICTED": 10.0,
+       "COVERED": 20.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:20:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 20.0,
+        "problems": [],
+        "start": "2026-10-11T08:00:00.000000Z",
+        "status": "COVERED"
+       },
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-11T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 10.0,
+        "problems": [
+         "pv_available_power: REPORTS_OVERLAP between 2026-10-11T08:25:00.000000Z and 2026-10-11T08:25:00.000000Z"
+        ],
+        "start": "2026-10-11T08:20:00.000000Z",
+        "status": "CONFLICTED"
+       }
+      ],
+      "status": "INCOMPLETE"
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "CANDIDATE_AVOIDABLE",
+   "claim_limit": {
+    "ceiling": "CANDIDATE_AVOIDABLE",
+    "current_positive_claim": true,
+    "historical_ceiling": null,
+    "model_version": "dispatch-3.2",
+    "reasons": [
+     {
+      "code": "CONFLICTING",
+      "end": "2026-10-11T08:30:00.000000Z",
+      "minutes": 10.0,
+      "role": "pv_available_power",
+      "start": "2026-10-11T08:20:00.000000Z",
+      "text": "pv_available_power: REPORTS_OVERLAP between 2026-10-11T08:25:00.000000Z and 2026-10-11T08:25:00.000000Z"
+     },
+     {
+      "code": "POOR_QUALITY",
+      "end": "2026-10-11T08:20:00.000000Z",
+      "minutes": 15.0,
+      "role": "pcs_discharge_capability",
+      "start": "2026-10-11T08:05:00.000000Z",
+      "text": "PCS discharge capability: reading not GOOD quality"
+     },
+     {
+      "code": "MODEL_LIMIT",
+      "end": "2026-10-11T08:10:00.000000Z",
+      "start": "2026-10-11T08:05:00.000000Z",
+      "text": "transition inside the segment: Candidate only when both ends are Candidate"
+     },
+     {
+      "code": "MODEL_LIMIT",
+      "end": "2026-10-11T08:20:00.000000Z",
+      "start": "2026-10-11T08:15:00.000000Z",
+      "text": "transition inside the segment: Candidate only when both ends are Candidate"
+     },
+     {
+      "code": "CONFLICTING",
+      "scope": "WINDOW",
+      "text": "REPORTS_OVERLAP: pv_available_power 2026-10-11T08:25:00.000000Z..2026-10-11T08:25:00.000000Z (<uuid>, <uuid>); clock NO_ATTESTATION"
+     }
+    ],
+    "rule_id": "s3-claim-limit-1",
+    "statement": "At most CANDIDATE_AVOIDABLE over 5 min (the sum of CANDIDATE_AVOIDABLE segments only, never the whole interval); other portions are limited, see reasons",
+    "support": "LIMITED",
+    "supported_minutes": "5"
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "CURRENT",
+   "day": "2026-10-11",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:41.864491+00:00",
+   "revision_no": 1,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T08:31:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T08:31:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "INTERVAL",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T08:31:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T08:20:00.000000Z",
+     "published_at": "2026-10-11T08:35:00.000000Z",
+     "received_at": "2026-10-30T08:20:00.000000Z",
+     "source_time": "2026-10-11T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-12T00:00:00+00:00",
+    "start": "2026-10-11T00:00:00+00:00"
+   },
+   "window_status": "CURRENT",
+   "window_status_reasons": []
+  },
+  "stale-selection": {
+   "accepted_evidence_ids": [
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>",
+    "<uuid>"
+   ],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:interval:<uuid>:2026-10-15T08:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T09:31:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "feeder_demand": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "generator_state": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pcs_discharge_capability": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     },
+     "pv_available_power": {
+      "covered_minutes": 30.0,
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ],
+      "status": "COVERED"
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "CANDIDATE_AVOIDABLE",
+   "claim_limit": {
+    "ceiling": null,
+    "current_positive_claim": false,
+    "historical_ceiling": {
+     "ceiling": "CANDIDATE_AVOIDABLE",
+     "statement": "At most CANDIDATE_AVOIDABLE over 30 min (the sum of CANDIDATE_AVOIDABLE segments only, never the whole interval)",
+     "support": "COMPLETE",
+     "supported_minutes": "30"
+    },
+    "model_version": "dispatch-3.2",
+    "reasons": [
+     {
+      "code": "NOT_CURRENT",
+      "text": "The window's selection is STALE_PROJECTION; no current claim is made from it."
+     }
+    ],
+    "rule_id": "s3-claim-limit-1",
+    "statement": null,
+    "support": null,
+    "supported_minutes": null
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "STALE_PROJECTION",
+   "day": "2026-10-15",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:42.127184+00:00",
+   "revision_no": 1,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T09:31:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T09:31:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "INTERVAL",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T09:31:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T09:30:00.000000Z",
+     "published_at": "2026-10-15T08:35:00.000000Z",
+     "received_at": "2026-10-30T09:30:00.000000Z",
+     "source_time": "2026-10-15T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-16T00:00:00+00:00",
+    "start": "2026-10-15T00:00:00+00:00"
+   },
+   "window_status": "STALE_PROJECTION",
+   "window_status_reasons": [
+    "RECOMPUTE_OUTSTANDING: job <uuid> PENDING",
+    "INPUT_BASIS_CHANGED: the current accepted basis gives another input hash"
+   ]
+  },
+  "stale-selection/window": {
+   "accepted_evidence_ids": [],
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "assessment_key": "dispatch:window:2026-10-15T00:00:00.000000Z",
+   "assessment_revision_id": "<uuid>",
+   "built_at": "2026-10-30T09:31:00+00:00",
+   "capability": {
+    "basis": "stored segments of this exact revision and its pinned accepted Evidence",
+    "required_roles": [
+     "generator_state",
+     "feeder_demand",
+     "pv_available_power",
+     "pcs_discharge_capability",
+     "battery_soc"
+    ],
+    "roles": {
+     "battery_soc": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "feeder_demand": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "generator_state": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "pcs_discharge_capability": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     },
+     "pv_available_power": {
+      "evidence_ids": [
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>",
+       "<uuid>"
+      ],
+      "minutes_by_status": {
+       "COVERED": 30.0
+      },
+      "spans": [
+       {
+        "assessment_revision_id": "<uuid>",
+        "end": "2026-10-15T08:30:00.000000Z",
+        "evidence_ids": [
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>",
+         "<uuid>"
+        ],
+        "minutes": 30.0,
+        "problems": [],
+        "start": "2026-10-15T08:00:00.000000Z",
+        "status": "COVERED"
+       }
+      ]
+     }
+    },
+    "rule_id": "s3-claim-limit-1"
+   },
+   "claim_level": "COMPLETE",
+   "claim_limit": {
+    "ceiling": null,
+    "current_positive_claim": false,
+    "historical_ceiling": {
+     "ceiling": null,
+     "interval_ceilings": [
+      {
+       "assessment_revision_id": "<uuid>",
+       "ceiling": "CANDIDATE_AVOIDABLE",
+       "claim_level": "CANDIDATE_AVOIDABLE",
+       "support": "COMPLETE"
+      }
+     ],
+     "statement": "A window revision carries no single dispatch classification; see each interval.",
+     "support": "COMPLETE",
+     "supported_minutes": null
+    },
+    "model_version": "dispatch-3.2",
+    "reasons": [
+     {
+      "code": "NOT_CURRENT",
+      "text": "The window's selection is STALE_PROJECTION; no current claim is made from it."
+     }
+    ],
+    "rule_id": "s3-claim-limit-1",
+    "statement": null,
+    "support": null,
+    "supported_minutes": null
+   },
+   "current_selection": {
+    "model_version": "dispatch-3.2",
+    "revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "run_id": "<uuid>"
+   },
+   "currentness": "STALE_PROJECTION",
+   "day": "2026-10-15",
+   "domain": "dispatch",
+   "not_inferred": "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.",
+   "read_at": "2026-10-16T13:47:42.526764+00:00",
+   "revision_no": 1,
+   "rule_id": "s3-claim-limit-1",
+   "run": {
+    "binding_set_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "built_at": "2026-10-30T09:31:00+00:00",
+    "cohort_sha256": "<sha256>",
+    "cohort_status": "SELECTED_UNIQUE",
+    "configuration_sha256": "<sha256>",
+    "foundation_revision_ids": [
+     "<uuid>",
+     "<uuid>"
+    ],
+    "input_sha256": "<sha256>",
+    "knowledge_cutoff": "2026-10-30T09:31:00+00:00",
+    "model_version": "dispatch-3.2",
+    "run_id": "<uuid>"
+   },
+   "schema": "assetops.s3-claim-limit-read",
+   "schema_version": 1,
+   "scope": "WINDOW",
+   "selected_by_runs": [
+    "<uuid>"
+   ],
+   "site_code": "KOBO-001",
+   "site_id": "<uuid>",
+   "source_gate": {
+    "permitted": true,
+    "reason": "test: gate open"
+   },
+   "tenant_id": "<uuid>",
+   "watermarks": {
+    "analytic_built_at": "2026-10-30T09:31:00+00:00",
+    "source": {
+     "accepted_at": "2026-10-30T09:30:00.000000Z",
+     "published_at": "2026-10-15T08:35:00.000000Z",
+     "received_at": "2026-10-30T09:30:00.000000Z",
+     "source_time": "2026-10-15T08:35:00.000000Z"
+    }
+   },
+   "window": {
+    "end": "2026-10-16T00:00:00+00:00",
+    "start": "2026-10-15T00:00:00+00:00"
+   },
+   "window_status": "STALE_PROJECTION",
+   "window_status_reasons": [
+    "RECOMPUTE_OUTSTANDING: job <uuid> PENDING",
+    "INPUT_BASIS_CHANGED: the current accepted basis gives another input hash"
+   ]
+  }
+ }
+}

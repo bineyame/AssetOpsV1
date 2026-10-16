@@ -550,46 +550,59 @@ class PostgresAssessmentStore:
                         basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> WindowSnapshot:
         """The current accepted basis, the last DEFAULT selection, its revisions and every overlapping
         unfinished or failed job of one window, read in one snapshot (Architect Q7)."""
-        w = query.window
+        return self._snapshot(lambda c: self._window(c, query, analytic_id, basis))
 
-        def work(c: Connection) -> WindowSnapshot:
-            rng = query.read_range
-            rows = c.execute(text(_EVIDENCE), {
-                "t": query.tenant_id, "s": query.site_id, "k": query.knowledge_at, "lo": rng.start, "hi": rng.end,
-                "any_role": not query.roles, "roles": list(query.roles)}).all()
-            readings = tuple(_reading(r) for r in rows)
-            config = self._configuration(c, query.tenant_id, query.site_id, rng, query.knowledge_at)
-            input_sha, config_sha = basis(EvidenceQueryResult(
-                query, readings, config.bindings, config.controls, config.role_sets, config.limits,
-                _attestations(c, query.tenant_id, query.site_id, query.knowledge_at)))
-            p = {"t": query.tenant_id, "s": query.site_id, "a": analytic_id, "ws": w.start, "we": w.end,
-                 "d": query.domain, "lo": rng.start, "hi": rng.end}
-            head = c.execute(text(
-                "SELECT seq, selected_at, job_id, run_id FROM analytic_run_selection WHERE tenant_id = :t "
-                "AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we "
-                "ORDER BY seq DESC LIMIT 1"), p).first()
-            jobs = c.execute(text(
-                "SELECT id, status, window_start, window_end, attempts, last_error, created_at, available_at "
-                "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
-                f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
-                "ORDER BY created_at, id"), p).all()
-            run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
-            keys = c.execute(text(
-                "SELECT DISTINCT ON (assessment_key) assessment_key, id, revision_no, claim_level, created_at "
-                "FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
-                "AND window_start = :ws AND window_end = :we ORDER BY assessment_key, revision_no DESC"), p).all()
-            read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
-            return WindowSnapshot(
-                reading_count=len(readings), current_input_sha256=input_sha, current_configuration_sha256=config_sha,
-                head=None if head is None else {"seq": head[0], "selected_at": head[1], "job_id": head[2]},
-                run=run,
-                jobs=[dict(zip(("id", "status", "window_start", "window_end", "attempts", "last_error",
-                                "created_at", "available_at"), j)) for j in jobs],
-                key_heads=[dict(zip(("assessment_key", "id", "revision_no", "claim_level", "created_at"), k))
-                           for k in keys],
-                read_at=read_at)
+    def claim_limit_snapshot(self, query: EvidenceQuery, analytic_id: str,
+                             basis: Callable[[EvidenceQueryResult], tuple[str | None, str]],
+                             revision_id: UUID | None) -> tuple[WindowSnapshot, dict[str, Any] | None]:
+        """S3-02a: the window snapshot and one exact revision's detail in the same REPEATABLE READ snapshot,
+        so currentness and the pinned revision can never come from two committed states."""
+        def work(c: Connection) -> tuple[WindowSnapshot, dict[str, Any] | None]:
+            snap = self._window(c, query, analytic_id, basis)
+            detail = None if revision_id is None else self._revision_detail(
+                c, query.tenant_id, query.site_id, revision_id)
+            return snap, detail
 
         return self._snapshot(work)
+
+    def _window(self, c: Connection, query: EvidenceQuery, analytic_id: str,
+                basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> WindowSnapshot:
+        w = query.window
+        rng = query.read_range
+        rows = c.execute(text(_EVIDENCE), {
+            "t": query.tenant_id, "s": query.site_id, "k": query.knowledge_at, "lo": rng.start, "hi": rng.end,
+            "any_role": not query.roles, "roles": list(query.roles)}).all()
+        readings = tuple(_reading(r) for r in rows)
+        config = self._configuration(c, query.tenant_id, query.site_id, rng, query.knowledge_at)
+        input_sha, config_sha = basis(EvidenceQueryResult(
+            query, readings, config.bindings, config.controls, config.role_sets, config.limits,
+            _attestations(c, query.tenant_id, query.site_id, query.knowledge_at)))
+        p = {"t": query.tenant_id, "s": query.site_id, "a": analytic_id, "ws": w.start, "we": w.end,
+             "d": query.domain, "lo": rng.start, "hi": rng.end}
+        head = c.execute(text(
+            "SELECT seq, selected_at, job_id, run_id FROM analytic_run_selection WHERE tenant_id = :t "
+            "AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we "
+            "ORDER BY seq DESC LIMIT 1"), p).first()
+        jobs = c.execute(text(
+            "SELECT id, status, window_start, window_end, attempts, last_error, created_at, available_at "
+            "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
+            f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
+            "ORDER BY created_at, id"), p).all()
+        run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
+        keys = c.execute(text(
+            "SELECT DISTINCT ON (assessment_key) assessment_key, id, revision_no, claim_level, created_at "
+            "FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+            "AND window_start = :ws AND window_end = :we ORDER BY assessment_key, revision_no DESC"), p).all()
+        read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+        return WindowSnapshot(
+            reading_count=len(readings), current_input_sha256=input_sha, current_configuration_sha256=config_sha,
+            head=None if head is None else {"seq": head[0], "selected_at": head[1], "job_id": head[2]},
+            run=run,
+            jobs=[dict(zip(("id", "status", "window_start", "window_end", "attempts", "last_error",
+                            "created_at", "available_at"), j)) for j in jobs],
+            key_heads=[dict(zip(("assessment_key", "id", "revision_no", "claim_level", "created_at"), k))
+                       for k in keys],
+            read_at=read_at)
 
     def run_detail(self, tenant_id: UUID, site_id: UUID, run_id: UUID) -> dict[str, Any] | None:
         return self._snapshot(lambda c: self._run_detail(c, tenant_id, site_id, run_id))
@@ -617,26 +630,27 @@ class PostgresAssessmentStore:
         return run
 
     def revision_detail(self, tenant_id: UUID, site_id: UUID, revision_id: UUID) -> dict[str, Any] | None:
-        def work(c: Connection) -> dict[str, Any] | None:
-            p = {"t": tenant_id, "s": site_id, "r": revision_id}
-            row = c.execute(text(
-                f"SELECT {_REVISION_COLUMNS}, NULL FROM assessment_revision v WHERE v.tenant_id = :t "
-                "AND v.site_id = :s AND v.id = :r"), p).first()
-            if row is None:
-                return None
-            revision = _revision_row(row)
-            revision["history"] = [_revision_row(r) for r in c.execute(text(
-                f"SELECT {_REVISION_COLUMNS}, NULL FROM assessment_revision v WHERE v.tenant_id = :t "
-                "AND v.site_id = :s AND v.analytic_id = :a AND v.assessment_key = :k ORDER BY v.revision_no"),
-                {**p, "a": revision["analytic_id"], "k": revision["assessment_key"]}).all()]
-            revision["selected_by_runs"] = [str(x) for x in c.execute(text(
-                "SELECT run_id FROM analytic_run_assessment WHERE tenant_id = :t AND site_id = :s "
-                "AND assessment_revision_id = :r ORDER BY run_id"), p).scalars().all()]
-            revision["run"] = self._run_detail(c, tenant_id, site_id, revision["analytic_run_id"])
-            revision["evidence"] = _evidence(c, tenant_id, site_id, revision["evidence_ids"])
-            return revision
+        return self._snapshot(lambda c: self._revision_detail(c, tenant_id, site_id, revision_id))
 
-        return self._snapshot(work)
+    def _revision_detail(self, c: Connection, tenant_id: UUID, site_id: UUID,
+                         revision_id: UUID) -> dict[str, Any] | None:
+        p = {"t": tenant_id, "s": site_id, "r": revision_id}
+        row = c.execute(text(
+            f"SELECT {_REVISION_COLUMNS}, NULL FROM assessment_revision v WHERE v.tenant_id = :t "
+            "AND v.site_id = :s AND v.id = :r"), p).first()
+        if row is None:
+            return None
+        revision = _revision_row(row)
+        revision["history"] = [_revision_row(r) for r in c.execute(text(
+            f"SELECT {_REVISION_COLUMNS}, NULL FROM assessment_revision v WHERE v.tenant_id = :t "
+            "AND v.site_id = :s AND v.analytic_id = :a AND v.assessment_key = :k ORDER BY v.revision_no"),
+            {**p, "a": revision["analytic_id"], "k": revision["assessment_key"]}).all()]
+        revision["selected_by_runs"] = [str(x) for x in c.execute(text(
+            "SELECT run_id FROM analytic_run_assessment WHERE tenant_id = :t AND site_id = :s "
+            "AND assessment_revision_id = :r ORDER BY run_id"), p).scalars().all()]
+        revision["run"] = self._run_detail(c, tenant_id, site_id, revision["analytic_run_id"])
+        revision["evidence"] = _evidence(c, tenant_id, site_id, revision["evidence_ids"])
+        return revision
 
     def lineage_breaks(self, tenant_id: UUID, site_id: UUID, analytic_id: str,
                        model_version: str) -> dict[str, int]:
