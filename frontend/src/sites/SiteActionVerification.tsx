@@ -581,7 +581,7 @@ function OutcomeView({
             <MetricRow name="pv_available_energy_band" before={kwh(baseline.pv_available_kwh)} after={kwh(later.pv_available_kwh)} limit="Within 10%" m={metric(metrics, "pv_available_energy_band")} />
             <MetricRow name="initial_soc_band" before={pct(baseline.initial_soc)} after={pct(later.initial_soc)} limit="Within 2 points" m={metric(metrics, "initial_soc_band")} />
             <MetricRow name="window_coverage" before={metric(metrics, "window_coverage", "BASELINE")?.value_text ?? null} after={metric(metrics, "window_coverage", "LATER")?.value_text ?? null} limit="All 12 slots" m={coverage(metrics)} />
-            <MetricRow name="source_provenance" before={null} after={sourceWords(metric(metrics, "source_provenance")?.value_text)} limit="One coherent source per window" m={metric(metrics, "source_provenance")} />
+            <MetricRow name="source_provenance" before={null} after={sourceWords(metric(metrics, "source_provenance")?.value_text)} both limit="One coherent source per window" m={metric(metrics, "source_provenance")} />
           </tbody>
         </DataTable>
         <p className="action-note">
@@ -685,13 +685,20 @@ function Card({ label, value, note, tone, name }: { label: string; value: string
   );
 }
 
-function MetricRow({ name, before, after, limit, m }: { name: string; before: string | null; after: string | null; limit: string; m: Metric | null }) {
+/** `both`: one value judged over the window pair (the source check), shown once across both columns. */
+function MetricRow({ name, before, after, limit, m, both = false }: { name: string; before: string | null; after: string | null; limit: string; m: Metric | null; both?: boolean }) {
   return (
     <tr data-verification-row={name} data-verification-row-state={m?.state ?? "MISSING"}>
       <th scope="row">{metricName(name)}</th>
       <td>{METRIC_WORDS[name]?.role ?? ""}</td>
-      <td>{before ?? "unknown"}</td>
-      <td>{after ?? "unknown"}</td>
+      {both ? (
+        <td colSpan={2}>Both windows: {after ?? "unknown"}</td>
+      ) : (
+        <>
+          <td>{before ?? "unknown"}</td>
+          <td>{after ?? "unknown"}</td>
+        </>
+      )}
       <td>{limit}</td>
       <td>
         <Chip tone={m ? checkTone(m.state) : "unknown"}>{m ? checkWord(m.state) : "Not evaluated"}</Chip>

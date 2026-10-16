@@ -284,6 +284,23 @@ async function casesSuite(label) {
     }
     await noOverflow(label, `case ${name}`);
     await shot(`app-case-${name}-${label}`);
+    if (c.withdrawn_outcome) {
+      // The withdrawn VERIFIED, selected explicitly: Historical, never current; the separate current state stays.
+      const hist = `/sites/${SITE}/actions/${c.action}/verification?outcome_id=${c.withdrawn_outcome}`;
+      const ready = `${settled} && document.querySelector('[data-verification-outcome]')`;
+      await go(`${CASES_BASE}${hist}`, ready);
+      const read = () => js(`({ historical: !!document.querySelector('[data-verification-historical]'),
+        outcome: document.querySelector('[data-verification-outcome]')?.dataset.verificationOutcome ?? null,
+        id: document.querySelector('[data-verification-outcome]')?.dataset.verificationOutcomeId ?? null,
+        current: document.querySelector('[data-verification-current-state]')?.dataset.verificationCurrentState ?? null })`);
+      const h = await read();
+      claim(`${label} TEST-SCOPED ${name}: the withdrawn VERIFIED reads Historical with a separate, non-VERIFIED current state`,
+        h.historical && h.outcome === "VERIFIED" && h.id === c.withdrawn_outcome && h.current === x.current_state, h);
+      const kept = await reload(ready);
+      const h2 = await read();
+      claim(`${label} TEST-SCOPED ${name}: reload keeps the historical selection`, kept && (await url()) === hist && h2.historical, await url());
+      await shot(`app-case-${name}-historical-${label}`);
+    }
     if (c.recommendation) {
       await go(`${csite}/findings/${c.recommendation.finding}/recommendation?revision_id=${c.recommendation.revision}`, `${settled} && document.querySelector('[data-recommendation-state]')`);
       const hold = await js(`({ state: document.querySelector('[data-recommendation-state]')?.dataset.recommendationState,
