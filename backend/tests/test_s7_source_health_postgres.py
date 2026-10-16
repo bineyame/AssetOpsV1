@@ -130,6 +130,18 @@ class TestCentralCases:
         assert clock["reported_facts"]["clock"]["offset_ms"] == 95_000
         assert clock["reported_facts"]["status"] == "UNKNOWN"
         assert clock["reported_facts"]["reason"] == "GATEWAY_CLOCK_UNTRUSTED"
+        # D-2026-10-16-s701-clock L5: no age from an untrusted clock; the exact times stay for inspection.
+        assert clock["reported_facts"]["fact_age_seconds"] is None
+        assert clock["reported_facts"]["observed_at"] is not None
+        assert clock["sources"][0]["reported_contact"] is not None
+        assert clock["sources"][0]["reported_contact_age_seconds"] is None
+        assert clock["reported_facts"]["clock"]["tolerance_ms"] == 5_000
+        assert clock["reported_facts"]["clock"]["observed_after_receipt_allowance_ms"] == 5_000
+        for row in body["gateways"]:
+            ages = [row["reported_facts"]["fact_age_seconds"]] + [
+                s["reported_contact_age_seconds"] for s in row["sources"]]
+            assert all(a is None or a >= 0 for a in ages), row["gateway_external_id"]
+        assert body["summary"]["reason"] is None
 
         stop = rows["s7-disk-stop"]["reported_facts"]
         assert stop["disk_pressure"] == {"value": "STOP", "as": "LAST_REPORTED",
@@ -177,10 +189,27 @@ class TestCentralCases:
         assert after["s7-current"]["reported_facts"]["status"] == "CURRENT"
         assert after["s7-delayed-old"]["reported_facts"]["status"] == "OLD"
 
+    def test_deliver_all_current_contact_keys_keeps_each_case_meaning(self, rig, published) -> None:
+        from s7_health_cases import CURRENT_CONTACT_KEYS
+        rig.clock.now = READ + timedelta(minutes=30)
+        rig.cases.deliver(CURRENT_CONTACT_KEYS)
+        rows = by_key(rig.read().json())
+        for key in CURRENT_CONTACT_KEYS:
+            assert rows[key]["contact"]["status"] == "CURRENT", key
+        assert rows["s7-stale-cadence"]["contact"]["status"] == "STALE"
+        assert rows["s7-never-received"]["contact"]["status"] == "UNKNOWN"
+        assert rows["s7-queue-growth"]["reported_facts"]["queue"]["count"] == 900
+        assert rows["s7-clock-offset"]["reported_facts"]["reason"] == "GATEWAY_CLOCK_UNTRUSTED"
+        assert rows["s7-disk-stop"]["reported_facts"]["disk_pressure"]["value"] == "STOP"
+        assert rows["s7-disk-recovery"]["reported_facts"]["disk_pressure"]["value"] == "OK"
+        assert rows["s7-delayed-old"]["reported_facts"]["status"] == "OLD"
+        assert rows["s7-current"]["reported_facts"]["status"] == "CURRENT"
+
     def test_no_registered_source_and_wrong_site(self, rig, published) -> None:
         other = rig.read("KOBO-002").json()
         assert other["summary"]["status"] == "NO_REGISTERED_SOURCE"
         assert other["summary"]["enabled_gateway_count"] == 0
+        assert other["summary"]["reason"] == "NO_ENABLED_GATEWAY"
         assert other["summary"]["source_watermark"]["selected_diagnostic_count"] == 0
         assert [g["gateway_external_id"] for g in other["gateways"]] == ["edge-kobo-002"]
         # A KOBO-001 gateway naming KOBO-002 is refused with no row; KOBO-002 still shows nothing received.

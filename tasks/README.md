@@ -51,8 +51,8 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 | S6 Work | [S6-02](S6-02-verification.md) ([a](S6-02a-verification-core.md), [b](S6-02b-verification-ui.md)) | Later-window verification delivered by non-UI then UI slices under `D-2026-10-16-s602-questions` | S6-02a and S6-02b; umbrella retains S6-01 gate | Done 2026-10-16 (S6-02a and S6-02b merged) |
 | S6 Work | [S6-03](S6-03-site-work-list.md) | Site Work scoped Action list with watermarked empty and persisted rows | S6-01, `A-action-index`; S6-02 queue order only | Done 2026-10-16 (merged; owner walkthrough deferred to combined W1 walkthrough) |
 | S7 Health | [S7-01a](S7-01a-health-read.md) | Central diagnostic fixture, source-health and battery Unknown reads | S2-02 diagnostics, S1-02 bindings, `D-edge-health-cases` | Done 2026-10-16 (merged; non-UI; review ACCEPT) |
-| S7 Health | [S7-01b](S7-01b-health-ui.md) | Site Health and battery Unknown UI | Reviewed/merged S7-01a | M; implementation-ready; USER_REVIEW_REQUIRED true; owner walkthrough before merge |
-| S7 Health | [S7-01](S7-01-site-health.md) ([a](S7-01a-health-read.md), [b](S7-01b-health-ui.md)) | Central freshness and asset missing-input boundary | S7-01a and S7-01b | Implementation-ready umbrella; no third build |
+| S7 Health | [S7-01b](S7-01b-health-ui.md) | Site Health and battery Unknown UI | Reviewed/merged S7-01a | Done 2026-10-16 (merged; owner walkthrough deferred to combined W1 walkthrough) |
+| S7 Health | [S7-01](S7-01-site-health.md) ([a](S7-01a-health-read.md), [b](S7-01b-health-ui.md)) | Central freshness and asset missing-input boundary | S7-01a and S7-01b | Done 2026-10-16 (S7-01a and S7-01b merged) |
 
 W1 conclusion presentation plan: [W1-UX umbrella](W1-UX-mockup-fidelity.md). These are frontend presentation slices, outside the S1–S7 capability ranking; they create no new panel claim. Independent review gates each merge; the owner walks the combined result once after all five slices, per `.agent/owner-walkthrough-policy-2026-10-16.md`.
 

@@ -70,7 +70,7 @@ import {
 type LoadedSite = SiteDetailReadModel;
 
 /** Loading, not-found and unavailable states shared by the site-scoped frames. */
-function SiteScoped({
+export function SiteScoped({
   siteId,
   detail,
   title,

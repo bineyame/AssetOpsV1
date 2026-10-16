@@ -54,6 +54,7 @@ const V69_OPERATOR_SITE_TABS = [
 const RENDERED_TABS = [
   "Overview",
   "Foundation",
+  "Health",
   "Performance",
   "Findings",
   "Work",
@@ -62,7 +63,7 @@ const RENDERED_TABS = [
 ];
 
 /** Canonical aspects with no capability in this build: not rendered. */
-const UNRENDERED_TABS = ["Health"];
+const UNRENDERED_TABS: string[] = [];
 
 /**
  * The mockup's Site tabs from `ScreenMockups.png` screen 2, which are the
@@ -187,7 +188,7 @@ describe("the operator Site tab inventory is defined once", () => {
 describe.each(SITE_SURFACES)(
   "the Site tab row on %s",
   (_name, path, currentTab) => {
-    it("renders exactly Overview, Foundation, Performance, Findings, Work, Financials, Evidence, in order", async () => {
+    it("renders exactly Overview, Foundation, Health, Performance, Findings, Work, Financials, Evidence, in order", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -219,6 +220,7 @@ describe.each(SITE_SURFACES)(
       ).toEqual([
         ["Overview", "/sites/MG-002"],
         ["Foundation", "/sites/MG-002/foundation"],
+        ["Health", "/sites/MG-002/health"],
         ["Performance", "/sites/MG-002/performance"],
         ["Findings", "/sites/MG-002/findings"],
         ["Work", "/sites/MG-002/work"],
@@ -293,7 +295,8 @@ describe.each(SITE_SURFACES)(
 );
 
 describe("an unrendered aspect has no route behind it", () => {
-  it.each(UNRENDERED_TABS)("serves nothing under a site at %s", (label) => {
+  // Every canonical aspect renders since S6-03 (Work) and S7-01b (Health); a non-canonical one still has no route.
+  it.each([...UNRENDERED_TABS, "Incidents"])("serves nothing under a site at %s", (label) => {
     renderAt(`/sites/MG-002/${label.toLowerCase()}`);
 
     expect(

@@ -63,6 +63,7 @@ const SITES_INDEX_COLUMNS = ["Site", "Type", "Mode", "Operating view", "Setup de
 const OPERATOR_SITE_TABS = [
   "Overview",
   "Foundation",
+  "Health",
   "Performance",
   "Findings",
   "Work",

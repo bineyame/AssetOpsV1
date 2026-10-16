@@ -34,8 +34,12 @@ from assetops_contracts.gateway_diagnostics import DiagnosticRejected, parse_can
 
 SCHEMA = {"id": "assetops.site-source-health", "version": 1}
 RULE_ID = "assetops.source-health.two-clock.v1"
-#: A measured clock offset larger than this makes the gateway's reported times untrusted.
-CLOCK_TRUST_TOLERANCE_MS = 5_000
+#: `D-2026-10-16-s701-clock`: two separate rules whose v1 values happen to match. Both are inclusive and
+#: disclosed in the read; changing either needs a rule/DTO version review.
+#: A measured clock offset with ``abs(offset_ms)`` above this makes the gateway's reported times UNTRUSTED.
+CLOCK_OFFSET_LIMIT_MS = 5_000
+#: An ``observed_at`` later than its server ``received_at`` by more than this is OBSERVED_AFTER_RECEIPT.
+OBSERVED_AFTER_RECEIPT_ALLOWANCE_MS = 5_000
 SNAPSHOT_ISOLATIONS = ("repeatable read", "serializable")
 
 
@@ -158,7 +162,7 @@ def _seconds(delta: timedelta) -> int:
 def clock_trust(offset_ms: int | None) -> tuple[str, str]:
     if offset_ms is None:
         return "UNKNOWN", "OFFSET_NOT_MEASURED"
-    if abs(offset_ms) > CLOCK_TRUST_TOLERANCE_MS:
+    if abs(offset_ms) > CLOCK_OFFSET_LIMIT_MS:
         return "UNTRUSTED", "OFFSET_BEYOND_TOLERANCE"
     return "WITHIN_TOLERANCE", "OFFSET_MEASURED_WITHIN_TOLERANCE"
 
@@ -170,11 +174,19 @@ def fact_age(observed_at: datetime | None, received_at: datetime | None, trust: 
         return "UNKNOWN", "NEVER_RECEIVED"
     if trust == "UNTRUSTED":
         return "UNKNOWN", "GATEWAY_CLOCK_UNTRUSTED"
-    if observed_at - received_at > timedelta(milliseconds=CLOCK_TRUST_TOLERANCE_MS):
+    if observed_at - received_at > timedelta(milliseconds=OBSERVED_AFTER_RECEIPT_ALLOWANCE_MS):
         return "UNKNOWN", "OBSERVED_AFTER_RECEIPT"
     if read_at - observed_at <= timedelta(seconds=FRESHNESS_CADENCES * cadence_seconds):
         return "CURRENT", "OBSERVED_WITHIN_CADENCE_THRESHOLD"
     return "OLD", "OBSERVED_BEFORE_CADENCE_THRESHOLD"
+
+
+def reported_age(at: datetime | None, trust: str, read_at: datetime) -> int | None:
+    """Age of a gateway-reported time, or None when it cannot be stated: no time, an UNTRUSTED clock, or a
+    time later than ``read_at`` (never a negative age; `D-2026-10-16-s701-clock` L5)."""
+    if at is None or trust == "UNTRUSTED" or at > read_at:
+        return None
+    return _seconds(read_at - at)
 
 
 def _watermark(diagnostics) -> dict:
@@ -211,8 +223,8 @@ def source_health_document(snapshot: SourceHealthSnapshot, site_code: str, read_
                 "reported_contact_status": (
                     "REPORTED" if reported is not None else
                     "REPORTED_NEVER_HEARD" if in_report else "NOT_IN_SELECTED_DIAGNOSTIC"),
-                "reported_contact_age_seconds": (
-                    None if reported is None else _seconds(read_at - _parse_instant(reported))),
+                "reported_contact_age_seconds": reported_age(
+                    None if reported is None else _parse_instant(reported), trust, read_at),
                 "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
             })
         rows.append({
@@ -242,12 +254,13 @@ def source_health_document(snapshot: SourceHealthSnapshot, site_code: str, read_
                 "status": age_status,
                 "reason": age_reason,
                 "observed_at": None if d is None else _z(d.observed_at),
-                "fact_age_seconds": None if d is None else _seconds(read_at - d.observed_at),
+                "fact_age_seconds": reported_age(None if d is None else d.observed_at, trust, read_at),
                 "receipt_lag_seconds": None if d is None else _seconds(d.received_at - d.observed_at),
                 "clock": {"offset_ms": None if facts is None else facts["clock_offset_ms"],
                           "trust": trust if facts is not None else "UNKNOWN",
                           "reason": trust_reason if facts is not None else "NEVER_RECEIVED",
-                          "tolerance_ms": CLOCK_TRUST_TOLERANCE_MS},
+                          "tolerance_ms": CLOCK_OFFSET_LIMIT_MS,
+                          "observed_after_receipt_allowance_ms": OBSERVED_AFTER_RECEIPT_ALLOWANCE_MS},
                 "queue": None if facts is None else {
                     "count": facts["queue_count"], "oldest_age_seconds": facts["oldest_queue_age_seconds"],
                     "as": "LAST_REPORTED"},
@@ -264,6 +277,8 @@ def source_health_document(snapshot: SourceHealthSnapshot, site_code: str, read_
     counts = {k: sum(1 for r in enabled if r["contact"]["status"] == k) for k in ("CURRENT", "STALE", "UNKNOWN")}
     status = ("NO_REGISTERED_SOURCE" if not enabled else
               "ALL_CURRENT" if counts["CURRENT"] == len(enabled) else "NOT_ALL_CURRENT")
+    # `D-2026-10-16-s701-clock` L3: the status name stays for compatibility; the reason says which case it is.
+    reason = (None if enabled else "NO_ENABLED_GATEWAY" if rows else "NO_REGISTERED_GATEWAY")
     return {
         "schema": SCHEMA,
         "rule_id": RULE_ID,
@@ -280,6 +295,7 @@ def source_health_document(snapshot: SourceHealthSnapshot, site_code: str, read_
                                        "derived projection to lag."},
         "summary": {
             "status": status,
+            "reason": reason,
             "enabled_gateway_count": len(enabled),
             "disabled_gateway_count": len(rows) - len(enabled),
             "contact_counts": counts,
@@ -290,7 +306,7 @@ def source_health_document(snapshot: SourceHealthSnapshot, site_code: str, read_
 
 
 __all__ = [
-    "CLOCK_TRUST_TOLERANCE_MS", "RULE_ID", "SCHEMA", "RegisteredGateway", "RegisteredSource", "SelectedDiagnostic",
+    "CLOCK_OFFSET_LIMIT_MS", "OBSERVED_AFTER_RECEIPT_ALLOWANCE_MS", "RULE_ID", "SCHEMA", "RegisteredGateway", "RegisteredSource", "SelectedDiagnostic",
     "SelectionInconsistent", "SourceHealthSnapshot", "SourceHealthStore", "check_consistent", "clock_trust",
-    "fact_age", "source_health_document",
+    "fact_age", "reported_age", "source_health_document",
 ]

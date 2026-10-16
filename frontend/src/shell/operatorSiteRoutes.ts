@@ -318,3 +318,32 @@ export function findingHref(siteId: string, assessmentId: string, tab: FindingTa
  * with.
  */
 export const LEGACY_SITE_CONFIGURATION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/configuration`;
+
+/**
+ * S7-01b Site Health (`health:2#a`): gateway contact, last-reported gateway
+ * facts and the battery condition entry, each in its own section. An optional
+ * `?gateway=<gateway id>` selects one gateway's detail and survives reload.
+ */
+export const SITE_HEALTH_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/health`;
+
+export function siteHealthHref(siteId: string, gatewayId?: string | null): string {
+  const base = `${siteDetailHref(siteId)}/health`;
+  return gatewayId ? `${base}?gateway=${encodeURIComponent(gatewayId)}` : base;
+}
+
+/**
+ * S7-01b battery boundary (`asset:3#a`). `/assets` is the Site's battery entry
+ * (the configured battery, or "not configured" without an asset ID);
+ * `/assets/{asset}` is one configured battery by its asset ID in the effective
+ * Site configuration (`D-2026-10-16-w1-remaining-questions` answer 3).
+ */
+export const SITE_ASSETS_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/assets`;
+export const SITE_ASSET_ROUTE_PATH = `${SITE_ASSETS_ROUTE_PATH}/:assetId`;
+
+export function siteAssetsHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/assets`;
+}
+
+export function siteAssetHref(siteId: string, assetId: string): string {
+  return `${siteAssetsHref(siteId)}/${encodeURIComponent(assetId)}`;
+}
