@@ -265,6 +265,12 @@ class TestSamples:
         samples = {name: ok(get(built, name)) for name in records.DAYS}
         samples["late-revision/withdrawn"] = ok(get(built, "late-revision",
                                                     case(built, "late-revision")["withdrawn"]["interval_revision_ids"][0]))
+        samples["late-revision/withdrawn-window"] = ok(get(built, "late-revision",
+                                                           case(built, "late-revision")["withdrawn"]["window_revision_id"]))
+        samples["stale-selection/window"] = ok(get(built, "stale-selection",
+                                                   case(built, "stale-selection")["window_revision_id"]))
+        for name in ("late-revision/withdrawn-window", "stale-selection/window"):
+            assert "interval_ceilings" not in samples[name]["claim_limit"], name
         samples["no-revision-selected"] = ok(get(built, "full-candidate", None))
         for name, expect in records.EXPECT.items():
             assert samples[name]["currentness"] == expect["currentness"], name

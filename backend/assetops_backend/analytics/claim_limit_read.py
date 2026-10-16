@@ -338,7 +338,12 @@ class ClaimLimitReadService:
             "reasons": reasons,
         }
         if "interval_ceilings" in own:
-            claim_limit["interval_ceilings"] = own["interval_ceilings"]
+            # Per-interval ceilings are claims too: top level only when CURRENT, else history under
+            # `historical_ceiling` (the same rule as the single ceiling above).
+            if current:
+                claim_limit["interval_ceilings"] = own["interval_ceilings"]
+            else:
+                claim_limit["historical_ceiling"]["interval_ceilings"] = own["interval_ceilings"]
         return {**body, **echo,
                 "capability": {"rule_id": RULE_ID, "required_roles": list(REQUIRED_ROLES), "roles": coverage,
                                "basis": "stored segments of this exact revision and its pinned accepted Evidence"},

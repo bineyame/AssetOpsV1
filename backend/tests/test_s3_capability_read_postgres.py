@@ -127,3 +127,20 @@ class TestCapabilityRead:
         assert body["scope"] == "WINDOW" and body["claim_limit"]["ceiling"] is None
         assert [i["assessment_revision_id"] for i in body["claim_limit"]["interval_ceilings"]] == \
             c["interval_revision_ids"]
+
+    def test_non_current_window_revisions_have_no_top_level_interval_ceilings(self, built) -> None:
+        """A stale-selection or withdrawn window revision is not a current claim: its per-interval ceilings
+        live only under `historical_ceiling`."""
+        cases = built[1]["cases"]
+        for name, window in (("stale-selection", cases["stale-selection"]["window_revision_id"]),
+                             ("late-revision", cases["late-revision"]["withdrawn"]["window_revision_id"])):
+            body = read(built, name, window)
+            assert body["scope"] == "WINDOW" and body["currentness"] != "CURRENT", name
+            cl = body["claim_limit"]
+            assert "interval_ceilings" not in cl and cl["ceiling"] is None and not cl["current_positive_claim"], name
+            hist = cl["historical_ceiling"]["interval_ceilings"]
+            assert hist, name
+            assert body["currentness"] in ("STALE_PROJECTION", "HISTORICAL"), name
+        current = read(built, "late-revision", cases["late-revision"]["window_revision_id"])
+        assert current["currentness"] == "CURRENT" and current["claim_limit"]["interval_ceilings"]
+        assert current["claim_limit"]["historical_ceiling"] is None
