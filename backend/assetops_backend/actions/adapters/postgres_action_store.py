@@ -726,12 +726,12 @@ class PostgresActionStore:
             "AND action_id = :a ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "a": action_id})))
 
     @staticmethod
-    def _insert(c, table: str, columns: str, values: dict[str, Any], json_cols: frozenset[str]) -> None:
+    def _values(columns: str, values: dict[str, Any], json_cols: frozenset[str]) -> tuple[str, dict[str, Any]]:
+        """The VALUES placeholders and binds for an INSERT whose table the caller names literally (rule 8)."""
         cols = [col.strip() for col in columns.split(",")]
         params = ", ".join(f"CAST(:{col} AS jsonb)" if col in json_cols else f":{col}" for col in cols)
-        c.execute(text(f"INSERT INTO {table} ({columns}) VALUES ({params})"),
-                  {col: json.dumps(values[col], sort_keys=True, default=str) if col in json_cols else values[col]
-                   for col in cols})
+        return params, {col: json.dumps(values[col], sort_keys=True, default=str) if col in json_cols
+                        else values[col] for col in cols}
 
     def record_evaluation(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], request: dict[str, Any],
                           compose: Callable[[Any, dict[str, Any], dict[str, Any] | None, list[dict[str, Any]]],
@@ -746,37 +746,42 @@ class PostgresActionStore:
         def work(c):
             self.trial_lock(c, tenant_id, site_id, plan["battery_asset_id"], plan["rule_id"])
             scope = {"t": tenant_id, "s": site_id}
+            req = request
             existing = c.execute(text(f"SELECT {REQUEST_COLUMNS} FROM verification_evaluation_request "
                                       "WHERE plan_id = :p AND idempotency_key = :k"),
-                                 {"p": plan["id"], "k": request["idempotency_key"]}).first()
+                                 {"p": plan["id"], "k": req["idempotency_key"]}).first()
             if existing is not None:
                 stored = dict(existing._mapping)
                 made = c.execute(text(f"SELECT {OUTCOME_COLUMNS} FROM verification_outcome "
                                       "WHERE evaluation_request_id = :r"), {"r": stored["id"]}).first()
-                if made is not None or stored["payload_sha256"] != request["payload_sha256"]:
+                if made is not None or stored["payload_sha256"] != req["payload_sha256"]:
                     return {"replayed": True, "request": stored,
                             "outcome": None if made is None else dict(made._mapping)}
-                request = stored
+                req = stored
             else:
-                self._insert(c, "verification_evaluation_request", REQUEST_COLUMNS,
-                             {**request, "tenant_id": tenant_id, "site_id": site_id}, frozenset({"payload"}))
+                params, binds = self._values(REQUEST_COLUMNS, {**req, "tenant_id": tenant_id, "site_id": site_id},
+                                             frozenset({"payload"}))
+                c.execute(text(f"INSERT INTO verification_evaluation_request ({REQUEST_COLUMNS}) VALUES ({params})"),
+                          binds)
             latest = c.execute(text(f"SELECT {OUTCOME_COLUMNS} FROM verification_outcome WHERE action_id = :a "
                                     "ORDER BY recorded_at DESC, id DESC LIMIT 1"), {"a": plan["action_id"]}).first()
             events = self._rows(c.execute(text(
                 f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a ORDER BY recorded_at, id"),
                 {"a": plan["action_id"], **scope}))
-            writes = compose(c, request, None if latest is None else dict(latest._mapping), events)
+            writes = compose(c, req, None if latest is None else dict(latest._mapping), events)
             outcome = writes.get("outcome")
             if outcome is not None and writes.get("insert_outcome"):
-                self._insert(c, "verification_outcome", OUTCOME_COLUMNS,
-                             {**outcome, "tenant_id": tenant_id, "site_id": site_id}, frozenset({"basis", "details"}))
+                params, binds = self._values(OUTCOME_COLUMNS, {**outcome, "tenant_id": tenant_id, "site_id": site_id},
+                                             frozenset({"basis", "details"}))
+                c.execute(text(f"INSERT INTO verification_outcome ({OUTCOME_COLUMNS}) VALUES ({params})"), binds)
                 for metric in writes.get("metrics", []):
-                    self._insert(c, "verification_metric", METRIC_COLUMNS,
-                                 {**metric, "outcome_id": outcome["id"], "tenant_id": tenant_id, "site_id": site_id},
-                                 frozenset({"evidence_ids"}))
+                    params, binds = self._values(METRIC_COLUMNS, {**metric, "outcome_id": outcome["id"],
+                                                                  "tenant_id": tenant_id, "site_id": site_id},
+                                                 frozenset({"evidence_ids"}))
+                    c.execute(text(f"INSERT INTO verification_metric ({METRIC_COLUMNS}) VALUES ({params})"), binds)
             for event in writes.get("events", []):
                 self._insert_evaluator_event(c, tenant_id, site_id, plan["action_id"], event)
-            return {"replayed": False, "request": request, "outcome": outcome, **writes.get("result", {})}
+            return {"replayed": False, "request": req, "outcome": outcome, **writes.get("result", {})}
         return self._run(work)
 
     @staticmethod
