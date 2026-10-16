@@ -38,6 +38,14 @@ def build_dispatch_read_service(database_url: str | None, demo_manifest_path: st
                                annotations=DemoManifestAnnotations(demo_manifest_path))
 
 
+def build_claim_limit_read_service(database_url: str | None):
+    """S3-02a: selected-assessment capability and claim-limit read over the PostgreSQL assessment store."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.claim_limit_read import ClaimLimitReadService
+
+    return ClaimLimitReadService(PostgresAssessmentStore(database_url))
+
+
 def build_lineage_reader(database_url: str | None):
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
 
