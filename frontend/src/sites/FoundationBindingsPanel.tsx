@@ -4,7 +4,7 @@
  * composes: the verdict first, then role coverage, the binding details with
  * the binding-change action, and the acquisition details last.
  *
- * Everything here is configuration. "Ready to report" means the configuration
+ * Everything here is configuration. "Set up to report" means the configuration
  * names a bound channel for every required role; it never says a device is
  * connected, reporting or healthy. A role with no channel is "Not bound", and
  * no binding set at all is "Unknown".
@@ -29,7 +29,7 @@ export const FOUNDATION_BINDINGS_HEADING_ID = "foundation-bindings-heading";
 export const FOUNDATION_ACQUISITION_HEADING_ID = "foundation-acquisition-heading";
 
 const READINESS_WORD: Record<ConfigurationReadiness["state"], string> = {
-  READY_TO_REPORT: "Ready to report",
+  READY_TO_REPORT: "Set up to report",
   INCOMPLETE: "Incomplete",
   UNKNOWN: "Unknown",
 };
@@ -63,7 +63,7 @@ export function ReadinessLegend() {
     <>
       <ul className="readiness-legend" aria-label="Readiness colour legend" data-readiness-legend="">
         <li>
-          <Badge tone="configured">Configured / Ready to report</Badge> configured for this version (the verdict says Ready to report when every required role is)
+          <Badge tone="configured">Configured / Set up to report</Badge> configured for this version (the verdict says Set up to report when every required role is)
         </li>
         <li>
           <Badge tone="config-gap">Needs configuration</Badge> a known required role, control or declaration is missing
@@ -110,6 +110,9 @@ function roleCoverage(role: ReadinessRole, mappings: SignalBinding[]): string {
 }
 
 function verdictSentence(readiness: ConfigurationReadiness): string {
+  if (!(readiness.state in READINESS_WORD)) {
+    return "The set-up state in this read is not recognised, so no overall set-up judgment is made here.";
+  }
   if (readiness.state === "READY_TO_REPORT") {
     return "Every required role has a configured channel or control, and this Foundation has no configuration gap.";
   }
@@ -147,7 +150,8 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
     >
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
-          <Badge tone={READINESS_TONE[readiness.state]}>{READINESS_WORD[readiness.state]}</Badge>
+          {/* W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised state is neutral and says so, never blank. */}
+          <Badge tone={READINESS_TONE[readiness.state] ?? "neutral"}>{READINESS_WORD[readiness.state] ?? "Set-up state not recognised"}</Badge>
         </p>
         <p className="verdict__sentence">{verdictSentence(readiness)}</p>
       </div>

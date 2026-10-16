@@ -549,7 +549,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(bound));
     await settledScreen();
     const readiness = panel("Configuration readiness");
-    expect(within(readiness).getByText("Ready to report")).toBeInTheDocument();
+    expect(within(readiness).getByText("Set up to report")).toBeInTheDocument();
     expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
       "c-storage: d-storage-controller / state-of-charge",
     );
@@ -613,7 +613,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       expect(roles.map(toneOf)).toEqual(["badge--configured", "badge--configured"]);
       const legend = readiness.querySelector("[data-readiness-legend]") as HTMLElement;
       expect(Array.from(legend.querySelectorAll(".badge")).map((b) => [b.textContent, toneOf(b)])).toEqual([
-        ["Configured / Ready to report", "badge--configured"],
+        ["Configured / Set up to report", "badge--configured"],
         ["Needs configuration", "badge--config-gap"],
         ["Unknown", "badge--neutral"],
       ]);
@@ -859,7 +859,7 @@ describe("S1-03: three Foundation views at one selected period", () => {
       await settledScreen();
       expect(screen.getByRole("heading", { name: "This view needs an imported Site" })).toBeInTheDocument();
       expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
-      expect(screen.queryByText(/Ready to report/)).toBeNull();
+      expect(screen.queryByText(/Ready to report|Set up to report/)).toBeNull();
       view.unmount();
     }
     renderAt(`/sites/${ID}/foundation`, legacy);
@@ -2110,6 +2110,46 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
     expect(ready.querySelector(".headline-card__headline")?.textContent).toBe(
       "Nothing is missing from the set-up; commissioning is not yet confirmed",
     );
+  });
+
+  it("W1-UX-06: the Readiness badge says Set up to report (configured tone) and the strip is titled Set-up steps", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []))));
+    await settledScreen();
+    const verdict = document.querySelector("[data-readiness-state]") as HTMLElement;
+    expect(verdict.getAttribute("data-readiness-state")).toBe("READY_TO_REPORT");
+    const badge = verdict.querySelector(".badge") as HTMLElement;
+    expect(badge.textContent).toBe("Set up to report");
+    expect(badge.className).toContain("badge--configured");
+    expect(document.body.textContent).not.toMatch(/Ready to report(?! means)/);
+    const strip = card("foundation-readiness").querySelector("[data-step-strip]") as HTMLElement;
+    expect(strip.textContent).toContain("Set-up steps");
+    expect(document.body.textContent).not.toContain("From configuration to confirmed reporting");
+    // Registration only; contact is directed to Health, and no step claims confirmed reporting.
+    expect(steps(card("foundation-readiness"))["Gateway registered"]).toBe("done");
+    expect(steps(card("foundation-readiness"))["Commissioning confirmed"]).toBe("not-known");
+  });
+
+  it("W1-UX-06: an unrecognised Readiness code is limited: no positive headline, no readiness-dependent step done", async () => {
+    const base = foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []));
+    const model = { ...base, readiness: { ...base.readiness, state: "SOMETHING_NEW" } } as unknown as FoundationReadModel;
+    renderAt(`/sites/${ID}/foundation/readiness`, loaded(model));
+    await settledScreen();
+    const answer = card("foundation-readiness");
+    expect(expectStateLineVisible(answer)).toBe("Set-up state not recognised");
+    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Set-up state not recognised");
+    expect(document.body.textContent).not.toContain("Nothing is missing from the set-up");
+    const s = steps(answer);
+    // Every required role is configured in this read, yet the readiness-dependent step is not shown complete.
+    expect(s["Readings linked to equipment"]).toBe("not-known");
+    expect(Object.values(s).filter((state) => state === "done")).toEqual(["done", "done"]); // set-up facts + gateway registered
+    expect(s["Equipment and settings recorded"]).toBe("done");
+    expect(s["Gateway registered"]).toBe("done");
+    // The exact code stays in the labelled disclosure; the verdict badge is neutral and named, never blank.
+    expect(answer.querySelector("[data-exact-references]")?.textContent).toContain("SOMETHING_NEW");
+    const badge = document.querySelector("[data-readiness-state] .badge") as HTMLElement;
+    expect(badge.textContent).toBe("Set-up state not recognised");
+    expect(badge.className).toContain("badge--neutral");
   });
 
   it("Readiness: Unknown with no linked set, and absent gateway facts as a next step", async () => {
