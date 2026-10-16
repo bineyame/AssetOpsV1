@@ -82,7 +82,7 @@ The presentation follows the owner direction of 2026-10-16. The opening paragrap
 
 ## Layout
 
-Focused CDP script (scratchpad, not committed). It covered 8 URLs × {1440, 390}, every one settled:
+Focused CDP script, now committed as `tools/s302-claim-limit-evidence.mjs` (rerun: `node tools/s302-claim-limit-evidence.mjs http://localhost:5442 var/s302_owner1 <shots-dir>` while the walkthrough servers run; exits non-zero on a failed claim). It covered 8 URLs × {1440, 390}, every one settled:
 - `scrollWidth > innerWidth` was false in all 16;
 - elements past the viewport outside a scroll region: 0 in all 16;
 - the measured set is non-empty: 5 role rows and 41–51 accepted links on each loaded case;
@@ -99,7 +99,7 @@ Mock `index.html#/evidence-analysis` was captured at 1440/390 for comparison. Th
 
 ## Residual risk
 
-- A CURRENT whole-day (WINDOW) revision's per-period list has no sample, and the walkthrough did not exercise it. It is covered by code only, plus the withdrawn-window sample for the earlier form.
+- The earlier whole day lists a period that is no longer in the day's current list as "An assessed period" (no time known); the time shows only for periods still on the day.
 - The per-role record links are labelled "Reading N". They are exact by ID, but carry no reading time.
 - The full-suite load flakes named above predate this slice.
 
@@ -111,3 +111,13 @@ Mock `index.html#/evidence-analysis` was captured at 1440/390 for comparison. Th
 - At 390, is the table scroll acceptable?
 
 Wording polish belongs to W1 conclusion.
+
+## Fix round 1 (review `.agent/S3-02b-review.md`)
+
+- **M1 fixed.** `RoleCapability.status`/`covered_minutes` are optional (`claimLimitClient.ts`). `roleCoverage()` derives covered and total from `minutes_by_status` when the role-level figure is absent; a role with no minutes reads "no readings", never 0. Test "a whole-day read states its coverage in minutes derived from the spans, never 0" asserts "30 min of 30 min" on every row of the whole-day sample.
+- **M2 fixed.** A non-current read with a per-period list introduces it ("At the time, this version listed these assessed periods:", or "...listed:" for an interval), `data-claim-limit-earlier-periods`. Test runs the earlier (`late-revision/withdrawn-window`) and out-of-date (`stale-selection/window`) whole days and asserts the framing and no own-level line.
+- **L3 fixed.** A CURRENT whole day says "Across the whole day: every reading needed is present." (or partly/cannot support); each period item reads "Period HH:MM-HH:MM UTC: ..." using the day's assessed-period list. Test "a current whole day shows its own level and each period's time range".
+- **L4 fixed.** Script committed (above); also asserts whole-day coverage and framing, no sideways scroll, no overflow, and keyboard selection.
+- **Residual risk closed.** The client treats a response whose day or revision differs from the request as unavailable (test, two cases).
+- **Proof.** `npx.cmd tsc --noEmit` clean; `evidenceClaimLimit.test.tsx` 34 passed; full `npm.cmd test` once at `e8971255`: 69 files, 1646 passed, 0 failed, 171 s (no timeouts, no reruns needed). Walkthrough prepare + serve + evidence script on private DB `assetops_s302_owner_fx` (API 8932, web 5442): prepare ok (both comparisons exit 0, six `ok`); script `EVIDENCE PASSED` over 10 URLs x 1440/390, all settled, no sideways scroll, no overflow, 5 role rows on each loaded case; whole-day cells all "30 min of 30 min"; current whole day "Period 08:00-08:30 UTC: avoidable, fully covered" with its level; earlier and out-of-date whole days framed. DB and work folder dropped.
+- **Not rerun:** backend suite (no backend change), `check-architecture`/`check-agent-workflow`, production build.

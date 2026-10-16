@@ -74,3 +74,13 @@ Press Ctrl+C in windows 1 and 2. Then:
 ## What to decide
 
 Accept, or name what to change. The wording is not final: the W1-conclusion task will polish it. Please flag anything that reads as wrong or misleading.
+
+## Optional: repeat the measurements
+
+With both servers running, in a third PowerShell at the worktree root:
+
+```powershell
+node tools\s302-claim-limit-evidence.mjs http://localhost:5442 var/s302_owner1 var\s302_owner1\shots
+```
+
+It must end with `EVIDENCE PASSED`.
