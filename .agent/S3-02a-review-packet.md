@@ -60,3 +60,12 @@ One versioned read (`s3-claim-limit-1`, schema `assetops.s3-claim-limit-read` v1
 ## Review focus
 
 Fail-closed paths in `interval_ceiling` and currentness (`in_selection` + `derive_status`), the single-snapshot store method, and whether span derivation from stored segments meets "exact role-coverage spans" (Architect answer 4).
+
+## Fix round 1 (review `.agent/S3-02a-review.md`)
+
+- F1 (Medium): `claim_limit_read.py` now puts `interval_ceilings` at the top level of `claim_limit` only when CURRENT; a non-current window revision carries them only under `historical_ceiling.interval_ceilings`. New test `test_non_current_window_revisions_have_no_top_level_interval_ceilings` (stale-selection window revision STALE_PROJECTION, withdrawn late-revision window revision HISTORICAL; also asserts the CURRENT window read still has them). Samples gain `late-revision/withdrawn-window` and `stale-selection/window` (the samples test asserts the same absence); handoff updated.
+- F3: `tests/test_s3_claim_limit_vocabulary.py` ties `_PROBLEM_STATUS` and `_LABEL_ROLE` to `dispatch_v3._PROBLEM_TEXT`/`LABELS`: exact expected status per problem code, a changed code set or model version fails.
+- F2: handoff documents window-scope `support` (window level COMPLETE|LIMITED|INDETERMINATE) vs interval `support` (COMPLETE|LIMITED|NONE). F5: handoff notes the fixture has no ingested NECESSARY case.
+- Mutation checks (committed first, reverted with `git checkout`): forcing `interval_ceilings` top-level for every read fails the new F1 test; changing the `reading not GOOD quality` needle status POOR to MISSING fails the vocabulary test.
+- Checks: focused S3-02a, adjacent S3 and Performance cutover tests, `tools/check-architecture.ps1` (results in the report). Change confined to `claim_limit_read.py` and tests, so no full suite.
+- Results: 89 passed (focused plus adjacent S3 and Performance cutover tests, 208 s); `tools/check-architecture.ps1` passed; private DB dropped.
