@@ -150,3 +150,9 @@ Every served fixture was dropped afterwards (databases and `var/` work folders r
 - **Lows.** The Evidence headline says "both windows" when both are incomplete. Plan and Evidence cards on a cutoff selection add a Historical status above the card's own status.
 - **Served INCONCLUSIVE capture:** not run.
 - **Checks.** `tsc --noEmit` exit 0. `vitest run src/sites src/ui`: 690/691, the one failure being `siteFoundationChange` (known flake); that file alone then passed 10/10. Full `npm.cmd test` run twice: the first run had the same single `siteFoundationChange` flake failure; the second passed, 74 files and 1756/1756 tests.
+
+> Note (coordinator, re-review N2): every 390 px total in the capture table above is a visual check of PNGs only, not established by measurement; only 1440 claims are measured.
+
+## Coordinator after fix re-review (2026-10-17)
+
+- N1 fixed: the Plan card Historical as-of uses `body.selector.recorded_at` when set, else `plan.recorded_at`. tsc clean; verification + `src/ui` 97 passed.

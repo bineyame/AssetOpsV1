@@ -243,7 +243,8 @@ export function PlanCard({ body, action, links }: { body: PlanBody; action: Acti
             <ProductStatus
               words={currentnessWords("HISTORICAL")}
               scope="The plan as it stood at the selected earlier time"
-              asOf={plan.recorded_at}
+              // W1-UX-04 re-review N1: the selected time when the reader chose one, else when the plan was recorded.
+              asOf={body.selector.recorded_at ?? plan.recorded_at}
             />
           ) : null}
           <ProductStatus
