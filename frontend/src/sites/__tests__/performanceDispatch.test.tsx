@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -492,6 +492,45 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     const others = w1.violations.filter((v) => !(v.phrase === "claim" && gated.includes(v.text.trim().slice(0, 60))));
     expect(describeViolations(others)).toBe("");
     expect(w1.violations.length - others.length).toBeLessThanOrEqual(1);
+  });
+
+  it("Analysis frames a stored version outside the day's current set as not current, also via the versions panel (fix round 1, F1)", async () => {
+    const old = revision("rev-old", "CANDIDATE_AVOIDABLE", "dispatch-3");
+    const current = { ...revision("rev-current", "CANDIDATE_AVOIDABLE"), revision_no: 2 };
+    const history = [old, current];
+    const revisions = {
+      "rev-old": detail(old, { history, model_note: "OLDER_RULE_RESULT: produced by dispatch-3" }),
+      "rev-current": detail(current, { history }),
+    };
+    const assertStored = (container: HTMLElement) => {
+      const conclusion = container.querySelector("[data-dispatch-story-conclusion]")?.textContent;
+      expect(conclusion).toBe("Possibly avoidable, for the period 03:45 to 04:15 UTC, from a stored version that is not the current result.");
+      expect(container.querySelector("[data-dispatch-pinned]")?.textContent).toMatch(/stored result that is not the current one for 2026-10-02/);
+      const line = container.querySelector(".dispatch-status") as HTMLElement;
+      expect(line.getAttribute("data-dispatch-shown")).toBe("stored-not-current");
+      expect(expectStateLineVisible(line)).not.toBe("Using the latest checked readings");
+      expect(line.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+      expect(line.textContent).not.toMatch(/latest checked readings/);
+    };
+
+    // Directly by address, on a CURRENT day.
+    const direct = mount(fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, revisions), "?day=2026-10-02&revision=rev-old&view=analysis");
+    await settledScreen();
+    assertStored(direct.container);
+    direct.unmount();
+
+    // Through every non-current link in the visible "Versions of this period" panel.
+    const viaPanel = mount(fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, revisions), "?day=2026-10-02&revision=rev-current&view=analysis");
+    await settledScreen();
+    expect(viaPanel.container.querySelector("[data-dispatch-story-conclusion]")?.textContent).toBe("Possibly avoidable, for the period 03:45 to 04:15 UTC.");
+    expect(viaPanel.container.querySelector("[data-dispatch-pinned]")).toBeNull();
+    const links = Array.from(viaPanel.container.querySelectorAll("[data-history-revision] a"));
+    expect(links.map((a) => a.closest("[data-history-revision]")?.getAttribute("data-history-revision"))).toEqual(["rev-old", "rev-current"]);
+    fireEvent.click(links[0]);
+    await settledScreen();
+    expect(screen.getByTestId("where").textContent).toContain("revision=rev-old");
+    await waitFor(() => expect(viaPanel.container.querySelector("[data-dispatch-pinned]")).not.toBeNull());
+    assertStored(viaPanel.container);
   });
 
   it("Analysis without a selected period concludes nothing", async () => {

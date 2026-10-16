@@ -10,6 +10,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures"
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import {
   EVIDENCE_UUID,
+  GATEWAY_HEALTH,
   LEDGER_EVIDENCE,
   LEDGER_RECORD,
   LEDGER_REJECTIONS,
@@ -307,6 +308,21 @@ describe("V-01b Site Evidence analysis", () => {
     const analysis = document.querySelector("[data-evidence-reporting-fact='analysis']") as HTMLElement;
     expect(analysis.dataset.factTone).toBe("not-known");
     expect(analysis.textContent).not.toContain("SOMETHING_NEW");
+  });
+
+  it("W1-UX-03 fix round 1 (F3): one gateway in contact and one not known reads as a mixed state, never 'no report received'", async () => {
+    const [first] = GATEWAY_HEALTH.gateways;
+    const mixed = {
+      ...GATEWAY_HEALTH,
+      gateways: [first, { ...first, gateway_id: "bbbb0000-0000-4000-8000-000000000002", gateway_external_id: "kobo-gw-2", status: "UNKNOWN", last_server_contact: null }],
+    };
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: TWO_SOURCES }, { health: { status: "loaded", value: mixed } }));
+    await settledScreen();
+    const contact = document.querySelector("[data-evidence-reporting-fact='contact']") as HTMLElement;
+    expect(contact.dataset.factTone).toBe("not-known");
+    expect(contact.textContent).toContain("Some gateways are in contact; the others' contact is not known.");
+    expect(contact.textContent).not.toMatch(/No gateway report has been received/);
+    expect(contact.textContent).not.toMatch(/Every gateway is in contact/);
   });
 
   it("W1-UX-03: the Evidence Analysis view uses the W1 set", async () => {

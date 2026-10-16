@@ -500,6 +500,36 @@ describe("W1-UX-03: evidence-analysis on the shared state line and span strip", 
     }
   });
 
+  it("fix round 1 (F4): the technical disclosure exempts single exact values only, never a recorded sentence", async () => {
+    const read = sample("missing-pv");
+    const sentences = [read.claim_limit?.statement, read.not_inferred, ...(read.claim_limit?.reasons ?? []).map((r) => r.text)].filter(
+      (t): t is string => typeof t === "string" && t.length > 0,
+    );
+    expect(sentences.length).toBeGreaterThan(2);
+    const { container, unmount } = mount(fake(() => ({ status: "loaded", value: read })), SEARCH);
+    await settledScreen();
+    const technical = container.querySelector("[data-disclosure='claim-limit-technical']") as HTMLElement;
+    const exempt = Array.from(technical.querySelectorAll("[data-vocabulary-exempt]")).map((e) => e.textContent ?? "");
+    expect(exempt.length).toBeGreaterThan(5);
+    for (const sentence of sentences) {
+      expect(exempt.filter((t) => t.includes(sentence))).toEqual([]);
+      expect(technical.textContent).not.toContain(sentence);
+    }
+    expect(technical.querySelector("[data-claim-limit-not-inferred]")?.getAttribute("data-claim-limit-not-inferred")).toBe("known");
+    expect(Array.from(technical.querySelectorAll("[data-reason-code] code")).map((c) => c.textContent)).toEqual(
+      (read.claim_limit?.reasons ?? []).map((r) => r.code),
+    );
+    unmount();
+
+    // A different recorded "not inferred" sentence is named as not shown, never echoed.
+    const odd = { ...read, not_inferred: "Something NEW_CODE is not inferred." };
+    const second = mount(fake(() => ({ status: "loaded", value: odd })), SEARCH);
+    await settledScreen();
+    const marker = second.container.querySelector("[data-claim-limit-not-inferred]") as HTMLElement;
+    expect(marker.getAttribute("data-claim-limit-not-inferred")).toBe("unrecognised");
+    expect(second.container.textContent).not.toContain("NEW_CODE");
+  });
+
   it("CURRENT is the only positive state line; it carries scope and 'as of' the read", async () => {
     const { container } = mount(fake(() => ({ status: "loaded", value: sample("full-candidate") })), SEARCH);
     await settledScreen();

@@ -294,10 +294,17 @@ function WindowView({
 
   return (
     <div className="durable-dispatch__body" data-dispatch-status={read.status}>
-      {view === "analysis" ? <StatusLine read={read} /> : null}
+      {view === "analysis" ? <StatusLine read={read} storedNotCurrent={selected !== null && inWindow === null} /> : null}
       {read.demo_annotations.length > 0 ? <DemoNotes notes={read.demo_annotations} /> : null}
       {view === "analysis" ? (
-        <AnalysisView read={read} selected={selected} segment={segment} comparison={comparison} detail={loaded} />
+        <AnalysisView
+          read={read}
+          selected={selected}
+          selectedIsCurrent={inWindow !== null}
+          segment={segment}
+          comparison={comparison}
+          detail={loaded}
+        />
       ) : (
         <>
           <HeadlineVisualCard
@@ -441,10 +448,27 @@ function dayScope(read: DispatchWindow): string {
   return `Generator operation on ${read.window.start.slice(0, 10)} (UTC day)`;
 }
 
-function StatusLine({ read }: { read: DispatchWindow }) {
-  const words = statusWords(read.status);
+/**
+ * W1-UX-03 fix round 1 (F1): a stored version that is not in the day's
+ * current set is never framed by the day's state. Its state line is the
+ * shared non-current "earlier version" words, never the current tone.
+ */
+function storedVersionWords(read: DispatchWindow): ProductWords {
+  return {
+    ...currentnessWords("HISTORICAL"),
+    sentence: `This is a stored version for ${read.window.start.slice(0, 10)}. It is shown as it was recorded, and it is not the current result.`,
+  };
+}
+
+function StatusLine({ read, storedNotCurrent = false }: { read: DispatchWindow; storedNotCurrent?: boolean }) {
+  const words = storedNotCurrent ? storedVersionWords(read) : statusWords(read.status);
   return (
-    <div className={`dispatch-status dispatch-status--${read.status.toLowerCase()}`} role="status" data-dispatch-status-label={read.status}>
+    <div
+      className={`dispatch-status dispatch-status--${storedNotCurrent ? "historical" : read.status.toLowerCase()}`}
+      role="status"
+      data-dispatch-status-label={read.status}
+      data-dispatch-shown={storedNotCurrent ? "stored-not-current" : "day"}
+    >
       <ProductStatus words={words} scope={dayScope(read)} asOf={read.current_basis?.read_at ?? null}>
         {read.status_reasons.length > 0 ? (
           <ul className="dispatch-status__reasons">
@@ -734,6 +758,16 @@ function PeriodsAndBlocks({
   );
 }
 
+/** The not-current notice for a stored version outside the day's current set (Overview and Analysis). */
+function PinnedNotice({ read }: { read: DispatchWindow }) {
+  return (
+    <p className="dispatch-pinned" data-dispatch-pinned>
+      This is a stored result that is not the current one for {read.window.start.slice(0, 10)}. It is shown
+      exactly as it was recorded, for reference.
+    </p>
+  );
+}
+
 function SelectedPeriod({
   read,
   revisionId,
@@ -771,12 +805,7 @@ function SelectedPeriod({
   const olderRule = full?.model_note ?? null;
   return (
     <div data-selected-revision={revision.id}>
-      {pinned ? (
-        <p className="dispatch-pinned" data-dispatch-pinned>
-          This is a stored result that is not the current one for {read.window.start.slice(0, 10)}. It is shown
-          exactly as it was recorded, for reference.
-        </p>
-      ) : null}
+      {pinned ? <PinnedNotice read={read} /> : null}
       {olderRule !== null ? (
         <div className="dispatch-pinned" data-older-rule>
           <p>This result was made with an earlier version of the assessment rules than the version now in force.</p>
@@ -1119,10 +1148,13 @@ function confidenceWords(level: string): string {
 function ReadingsToOutcome({
   read,
   selected,
+  selectedIsCurrent,
   segment,
 }: {
   read: DispatchWindow;
   selected: AssessmentRevision | null;
+  /** True only when `selected` is in `read.intervals`, the day's current set. */
+  selectedIsCurrent: boolean;
   segment: DispatchSegment | null;
 }) {
   if (selected === null) {
@@ -1177,9 +1209,11 @@ function ReadingsToOutcome({
         <li className="dispatch-story__step" data-dispatch-story-step="conclusion">
           <h3>What can be concluded</h3>
           <p data-dispatch-story-conclusion>
-            {read.status === "CURRENT" && !read.stale
-              ? `${conclusion}, for ${scope}.`
-              : `${conclusion}, for ${scope}, from an earlier result that is not current.`}
+            {!selectedIsCurrent
+              ? `${conclusion}, for ${scope}, from a stored version that is not the current result.`
+              : read.status === "CURRENT" && !read.stale
+                ? `${conclusion}, for ${scope}.`
+                : `${conclusion}, for ${scope}, from an earlier result that is not current.`}
           </p>
           {limits.length === 0 ? null : (
             <ul data-dispatch-story-limits>
@@ -1202,12 +1236,14 @@ function plural(count: number, one: string, many: string): string {
 function AnalysisView({
   read,
   selected,
+  selectedIsCurrent,
   segment,
   comparison,
   detail,
 }: {
   read: DispatchWindow;
   selected: AssessmentRevision | null;
+  selectedIsCurrent: boolean;
   segment: DispatchSegment | null;
   comparison: ComparisonSummary | null;
   detail: RevisionDetail | null;
@@ -1215,7 +1251,8 @@ function AnalysisView({
   const result = selected?.result ?? null;
   return (
     <>
-      <ReadingsToOutcome read={read} selected={selected} segment={segment} />
+      {selected !== null && !selectedIsCurrent ? <PinnedNotice read={read} /> : null}
+      <ReadingsToOutcome read={read} selected={selected} selectedIsCurrent={selectedIsCurrent} segment={segment} />
       <div className="durable-dispatch__pair">
         <Panel heading="Constraint comparison" headingId="durable-dispatch-constraints-heading">
           {selected === null ? (

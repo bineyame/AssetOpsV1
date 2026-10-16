@@ -544,6 +544,8 @@ function contactFact(health: EvidenceRead<GatewayHealth> | null): { tone: FactTo
     return { tone: "known", text: gateways.length === 1 ? "The gateway is in contact." : "Every gateway is in contact." };
   }
   if (stale > 0) return { tone: "problem", text: `${plural(stale, "gateway has", "gateways have")} not been heard from recently.` };
+  // Fix round 1 (F3): some in contact and the rest in a state that is neither current nor stale.
+  if (current > 0) return { tone: "not-known", text: "Some gateways are in contact; the others' contact is not known." };
   return { tone: "not-known", text: "No gateway report has been received yet." };
 }
 

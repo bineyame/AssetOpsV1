@@ -753,6 +753,20 @@ function list(values: readonly string[] | undefined): ReactNode {
   return values === undefined || values.length === 0 ? "none" : values.join(", ");
 }
 
+/**
+ * Fix round 1 (F4): server sentences are prose, not single exact values, so the
+ * technical disclosure no longer shows them under the single-value exemption.
+ * The rule statement and each reason's text are already said in plain words in
+ * the default reading (headline and "What limits it"); the reason codes stay as
+ * labelled exact values. The one recorded "not inferred" sentence is restated in
+ * plain, scanned words; any other wording is named as not shown, never echoed.
+ */
+const NOT_INFERRED_RECORDED =
+  "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.";
+const NOT_INFERRED_WORDS =
+  "Nothing about physical capacity is inferred. Capacity from the site set-up is not treated as measured, and only the accepted readings of the selected version are used.";
+const NOT_INFERRED_UNRECOGNISED = "The record also states what is not inferred; that wording is not shown here.";
+
 function Technical({
   read,
   revision,
@@ -773,7 +787,6 @@ function Technical({
           <Fact term="Strongest supported classification code"><code {...REF}>{limit?.ceiling ?? "none"}</code></Fact>
           <Fact term="Coverage level code"><code {...REF}>{limit?.support ?? "none"}</code></Fact>
           <Fact term="Supported minutes"><code {...REF}>{limit?.supported_minutes ?? "none"}</code></Fact>
-          <Fact term="Rule wording"><code {...REF}>{limit?.statement ?? limit?.historical_ceiling?.statement ?? "none"}</code></Fact>
           {limit?.historical_ceiling ? (
             <Fact term="Earlier classification and coverage codes (for the record)">
               <code {...REF}>{`${limit.historical_ceiling.ceiling ?? "none"} · ${limit.historical_ceiling.support ?? "none"}`}</code>
@@ -806,13 +819,17 @@ function Technical({
           <Fact term="Analysis prepared"><code {...REF}>{read.watermarks?.analytic_built_at ?? "none"}</code></Fact>
           <Fact term="Assessment prepared"><code {...REF}>{read.built_at ?? "none"}</code></Fact>
           <Fact term="Read at"><code {...REF}>{read.read_at}</code></Fact>
-          <Fact term="What is not inferred"><code {...REF}>{read.not_inferred}</code></Fact>
+          <Fact term="What is not inferred">
+            <span data-claim-limit-not-inferred={read.not_inferred === NOT_INFERRED_RECORDED ? "known" : "unrecognised"}>
+              {read.not_inferred === NOT_INFERRED_RECORDED ? NOT_INFERRED_WORDS : NOT_INFERRED_UNRECOGNISED}
+            </span>
+          </Fact>
         </FactList>
         {limit === null || limit.reasons.length === 0 ? null : (
           <ul data-claim-limit-reason-codes>
             {limit.reasons.map((r, index) => (
               <li key={`${r.code}-${index}`} data-reason-code={r.code}>
-                <code {...REF}>{`${r.code}: ${r.text}`}</code>
+                Reason code <code {...REF}>{r.code}</code>
               </li>
             ))}
           </ul>
