@@ -169,6 +169,14 @@ export function ExactReferences({ name, references }: ExactReferencesProps) {
 export interface HeadlineVisualCardProps {
   /** The screen's question, as a small eyebrow above the answer. */
   question: string;
+  /**
+   * A panel title (the v69 panel heading). When given it is the card's
+   * heading and the answer is its lead paragraph; otherwise the answer is the
+   * heading.
+   */
+  title?: string;
+  /** One plain line under the title. Only with `title`. */
+  description?: string;
   /** The heading id, for `aria-labelledby`. */
   headingId: string;
   /** The answer, only as strong as the read. */
@@ -196,6 +204,8 @@ export interface HeadlineVisualCardProps {
  */
 export function HeadlineVisualCard({
   question,
+  title,
+  description,
   headingId,
   headline,
   status,
@@ -208,11 +218,23 @@ export function HeadlineVisualCard({
 }: HeadlineVisualCardProps) {
   return (
     <section className="panel headline-card" aria-labelledby={headingId} data-headline-card={dataName}>
+      {title === undefined ? null : (
+        <div className="panel__header">
+          <h2 className="panel__heading" id={headingId}>
+            {title}
+          </h2>
+          {description === undefined ? null : <p className="panel__description">{description}</p>}
+        </div>
+      )}
       <div className="panel__body headline-card__body">
         <p className="headline-card__question">{question}</p>
-        <h2 className="headline-card__headline" id={headingId}>
-          {headline}
-        </h2>
+        {title === undefined ? (
+          <h2 className="headline-card__headline" id={headingId}>
+            {headline}
+          </h2>
+        ) : (
+          <p className="headline-card__headline">{headline}</p>
+        )}
         <div className="headline-card__status">{status}</div>
         {visual === undefined ? null : <div className="headline-card__visual">{visual}</div>}
         <div className="headline-card__pair">
@@ -236,6 +258,8 @@ export function HeadlineVisualCard({
 
 export interface ValueBarItem {
   label: string;
+  /** A stable key, on `data-value-bar-key`. Defaults to the label. */
+  key?: string;
   /** The value the read returned; null when it is not known. */
   value: number | null;
   /** Readable value text, e.g. "288 readings". Ignored when value is null. */
@@ -263,7 +287,12 @@ export function ValueBars({ title, items }: ValueBarsProps) {
       <figcaption className="value-bars__title">{title}</figcaption>
       <ul className="value-bars__list" aria-label={`${title}. ${description}`}>
         {items.map((item) => (
-          <li className="value-bars__row" key={item.label} data-value-bar={item.value === null ? "not-known" : "known"}>
+          <li
+            className="value-bars__row"
+            key={item.key ?? item.label}
+            data-value-bar={item.value === null ? "not-known" : "known"}
+            data-value-bar-key={item.key ?? item.label}
+          >
             <span className="value-bars__label">{item.label}</span>
             <span className="value-bars__track" aria-hidden="true">
               {item.value === null ? (

@@ -18,6 +18,7 @@ import {
 } from "../../sites/__tests__/ledgerEvidenceFixtures";
 import { scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { expectStateLineVisible } from "../../test/productPresentation";
 
 /**
  * S2-02 phase 3b: Site Evidence for an imported Site read from the central
@@ -75,8 +76,8 @@ describe("Site Evidence from the central ledger: overview", () => {
     await settledScreen();
     expect(body().getAttribute("data-evidence-state")).toBe("ACCEPTED");
     expect(screen.getByText(/288 readings were accepted for this period from 1 source\./)).toBeTruthy();
-    const outcomes = document.querySelectorAll("[data-evidence-outcome-facts] [data-evidence-outcome]");
-    expect(Array.from(outcomes).map((row) => row.getAttribute("data-evidence-outcome"))).toEqual([
+    const outcomes = document.querySelectorAll("[data-headline-card='evidence-conclusion'] [data-value-bar-key]");
+    expect(Array.from(outcomes).map((row) => row.getAttribute("data-value-bar-key"))).toEqual([
       "accepted",
       "duplicates",
       "rejected",
@@ -108,6 +109,12 @@ describe("Site Evidence from the central ledger: overview", () => {
     await settledScreen();
     expect(body().getAttribute("data-evidence-state")).toBe(state);
     expect(screen.getByText(text)).toBeTruthy();
+    // W1-UX-01: the state line, scope and as-of stay outside the closed exact-reference disclosure.
+    const card = document.querySelector("[data-headline-card='evidence-conclusion']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe(
+      state === "NO_DATA" ? "No readings received for this period" : "Readings arrived, but none were accepted",
+    );
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
   });
 
   it("notes partial, conflicting and outdated-configuration evidence", async () => {

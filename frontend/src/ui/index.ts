@@ -43,6 +43,7 @@ export {
   limitationWords,
   moneyWords,
   outcomeWords,
+  plainTime,
   readResultWords,
   REASON_GUARDRAIL_FAIL,
   sourceQualification,

@@ -378,14 +378,20 @@ export function limitationWords(code: string | null | undefined): ProductWords {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+/** A plain instant: "16 Oct 2026, 10:05 UTC", or null when missing or unreadable. */
+export function plainTime(instant: string | null | undefined): string | null {
+  if (instant === null || instant === undefined || instant.length === 0) return null;
+  const date = new Date(instant);
+  if (Number.isNaN(date.getTime())) return null;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}, ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
+}
+
 /**
- * A plain "as of" bound for an instant the read returned: "16 Oct 2026,
+ * A plain "as of" bound for an instant the read returned: "As of 16 Oct 2026,
  * 10:05 UTC". A missing or unreadable instant says so; it never becomes "now".
  */
 export function asOfText(instant: string | null | undefined): string {
-  if (instant === null || instant === undefined || instant.length === 0) return "As of: time not recorded";
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return "As of: time not recorded";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `As of ${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}, ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
+  const text = plainTime(instant);
+  return text === null ? "As of: time not recorded" : `As of ${text}`;
 }

@@ -16,7 +16,8 @@ import {
   ledgerClient,
   ledgerEvidence,
 } from "../../sites/__tests__/ledgerEvidenceFixtures";
-import { scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 
 /**
@@ -124,8 +125,10 @@ describe("V-01b Site Evidence overview", () => {
     const conclude = panel("What we can conclude now");
     expect(conclude.querySelector(".panel__description")?.textContent).toBe("Evidence readiness is not equipment condition");
     expect(conclude.textContent).toMatch(/288 readings were accepted for this period from 1 source\./);
-    const outcomes = Array.from(conclude.querySelectorAll("[data-evidence-outcome-facts] [data-evidence-outcome]"));
-    expect(outcomes.map((o) => o.getAttribute("data-evidence-outcome"))).toEqual(["accepted", "duplicates", "rejected", "conflicts"]);
+    // W1-UX-01: the outcome counts are the card's small visual, one labelled bar per outcome, in order.
+    const outcomes = Array.from(conclude.querySelectorAll("[data-value-bars] [data-value-bar-key]"));
+    expect(outcomes.map((o) => o.getAttribute("data-value-bar-key"))).toEqual(["accepted", "duplicates", "rejected", "conflicts"]);
+    expect(outcomes.map((o) => o.querySelector(".value-bars__value")?.textContent)).toEqual(["288", "3", "2", "1"]);
     expect(conclude.querySelector("[data-evidence-limits]")?.textContent).toMatch(/draws no conclusion/);
     expect(conclude.querySelector("[data-not-available='capability-conclusions']")?.textContent).toBe(
       "Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.",
@@ -180,6 +183,25 @@ describe("V-01b Site Evidence overview", () => {
     renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: TWO_SOURCES }));
     await settledScreen();
     expect(scanProductVocabulary(document.body, EVIDENCE_URL).violations).toEqual([]);
+  });
+
+  it("W1-UX-01: the Evidence overview uses the W1 set, its disclosure the narrower list, and the state line stays visible", async () => {
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: TWO_SOURCES }));
+    await settledScreen();
+    const main = document.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, `${EVIDENCE_URL} (W1)`, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(describeViolations(w1.violations)).toBe("");
+    const card = document.querySelector("[data-headline-card='evidence-conclusion']") as HTMLElement;
+    const disclosure = scanDisclosureVocabulary(card, "evidence conclusion disclosure");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.scanned).toBeGreaterThan(2);
+    expect(describeViolations(disclosure.violations)).toBe("");
+    expect(expectStateLineVisible(card)).toBe("Readings received and accepted");
+    // The destination keeps the selected period.
+    const link = card.querySelector("[data-evidence-analysis-link]") as HTMLElement;
+    expect(link.getAttribute("href")).toContain("view=analysis");
+    expect(link.getAttribute("href")).toContain("from=2026-09-22");
   });
 });
 
