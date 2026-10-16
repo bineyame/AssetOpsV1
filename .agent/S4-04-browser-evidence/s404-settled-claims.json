@@ -1,0 +1,231 @@
+{
+  "stage": "settled",
+  "results": [
+    {
+      "name": "desktop positive-settled: settled",
+      "ok": true,
+      "detail": "current-rows"
+    },
+    {
+      "name": "desktop positive-settled: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop positive after settle: CURRENT with a new row",
+      "ok": true,
+      "detail": [
+        [
+          "dada41e7-ce35-4b53-95c7-381c2bcfc4ba",
+          "603b1c77-2a04-46e6-802b-baac34e4aeb2"
+        ],
+        [
+          "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+          "47385b1b-2b5a-419d-a3c1-f59e12c5d5ff"
+        ],
+        [
+          "947f62ea-6711-43bb-8979-bd2f087716cb",
+          "76c44f57-2f28-4f21-9215-2a07917d913b"
+        ],
+        [
+          "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+          "780a618b-a136-4773-a984-8046cf786676"
+        ]
+      ]
+    },
+    {
+      "name": "desktop old-page2-settled: settled",
+      "ok": true,
+      "detail": "basis-changed"
+    },
+    {
+      "name": "desktop old-page2-settled: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "desktop old page-2 address still restarts after settle",
+      "ok": true,
+      "detail": "basis-changed"
+    },
+    {
+      "name": "desktop pinned-after-newer: exact pinned revision opens",
+      "ok": true,
+      "detail": {
+        "shown": "0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+        "want": "0057e42e-986b-487c-8c28-e1d3ebbb4a53"
+      }
+    },
+    {
+      "name": "narrow positive-settled: settled",
+      "ok": true,
+      "detail": "current-rows"
+    },
+    {
+      "name": "narrow positive-settled: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow positive after settle: CURRENT with a new row",
+      "ok": true,
+      "detail": [
+        [
+          "dada41e7-ce35-4b53-95c7-381c2bcfc4ba",
+          "603b1c77-2a04-46e6-802b-baac34e4aeb2"
+        ],
+        [
+          "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+          "47385b1b-2b5a-419d-a3c1-f59e12c5d5ff"
+        ],
+        [
+          "947f62ea-6711-43bb-8979-bd2f087716cb",
+          "76c44f57-2f28-4f21-9215-2a07917d913b"
+        ],
+        [
+          "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+          "780a618b-a136-4773-a984-8046cf786676"
+        ]
+      ]
+    },
+    {
+      "name": "narrow old-page2-settled: settled",
+      "ok": true,
+      "detail": "basis-changed"
+    },
+    {
+      "name": "narrow old-page2-settled: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow old page-2 address still restarts after settle",
+      "ok": true,
+      "detail": "basis-changed"
+    },
+    {
+      "name": "narrow pinned-after-newer: exact pinned revision opens",
+      "ok": true,
+      "detail": {
+        "shown": "0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+        "want": "0057e42e-986b-487c-8c28-e1d3ebbb4a53"
+      }
+    }
+  ],
+  "record": {
+    "desktop": {
+      "p": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "current-rows",
+        "heading": "4 Findings in this window",
+        "rows": [
+          [
+            "dada41e7-ce35-4b53-95c7-381c2bcfc4ba",
+            "603b1c77-2a04-46e6-802b-baac34e4aeb2"
+          ],
+          [
+            "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+            "47385b1b-2b5a-419d-a3c1-f59e12c5d5ff"
+          ],
+          [
+            "947f62ea-6711-43bb-8979-bd2f087716cb",
+            "76c44f57-2f28-4f21-9215-2a07917d913b"
+          ],
+          [
+            "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+            "780a618b-a136-4773-a984-8046cf786676"
+          ]
+        ],
+        "links": [
+          "/sites/KOBO-001/findings/dada41e7-ce35-4b53-95c7-381c2bcfc4ba?revision_id=603b1c77-2a04-46e6-802b-baac34e4aeb2",
+          "/sites/KOBO-001/findings/ef37d258-f232-4ff0-aa95-7de78558b0b2?revision_id=47385b1b-2b5a-419d-a3c1-f59e12c5d5ff",
+          "/sites/KOBO-001/findings/947f62ea-6711-43bb-8979-bd2f087716cb?revision_id=76c44f57-2f28-4f21-9215-2a07917d913b",
+          "/sites/KOBO-001/findings/1ee09639-4497-4e74-a8e3-5b40d42786fe?revision_id=780a618b-a136-4773-a984-8046cf786676"
+        ],
+        "amounts": [
+          "No amount shown",
+          "No amount shown",
+          "No amount shown",
+          "No amount shown"
+        ],
+        "next": null,
+        "token": "sfi1-0ae46956f3b4ecd9d6828c700187b8019be57a990712075bd2e3273653a5fd60",
+        "emptyClaim": false,
+        "countClaim": true,
+        "notVerdict": false,
+        "overflow": 0
+      },
+      "old": {
+        "href": "/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&limit=2&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTE1VDA5OjE1OjAwWiIsIjk0N2Y2MmVhLTY3MTEtNDNiYi04OTc5LWJkMmYwODc3MTZjYiJdLCJkb21haW4iOiJtaW5pLWdyaWQtZGlzcGF0Y2giLCJmcm9tIjoiMjAyNi0xMC0xNVQwMDowMDowMFoiLCJzZWxlY3Rpb25fdG9rZW4iOiJzZmkxLWVhYzFkZTMwMDMwMTRjMmRjZjQ0ZjkxZDFkZjk2ODQ2Mjk3NGE2NWFlZmNkOWNlOGNlZDY4NDliM2JhMThiN2MiLCJzaXRlX2lkIjoiZDBlZjdhM2ItNWUwMS00OTg1LWI2ODctMTU0OGMyM2ZlZjJjIiwidGVuYW50X2lkIjoiNzRhY2FkYzctMjJlMi00NTA5LThjNzUtMTVjMTU3MDkyZTgxIiwidG8iOiIyMDI2LTEwLTE2VDAwOjAwOjAwWiIsInYiOjF9",
+        "state": "basis-changed",
+        "heading": "This list changed",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    },
+    "narrow": {
+      "p": {
+        "href": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+        "state": "current-rows",
+        "heading": "4 Findings in this window",
+        "rows": [
+          [
+            "dada41e7-ce35-4b53-95c7-381c2bcfc4ba",
+            "603b1c77-2a04-46e6-802b-baac34e4aeb2"
+          ],
+          [
+            "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+            "47385b1b-2b5a-419d-a3c1-f59e12c5d5ff"
+          ],
+          [
+            "947f62ea-6711-43bb-8979-bd2f087716cb",
+            "76c44f57-2f28-4f21-9215-2a07917d913b"
+          ],
+          [
+            "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+            "780a618b-a136-4773-a984-8046cf786676"
+          ]
+        ],
+        "links": [
+          "/sites/KOBO-001/findings/dada41e7-ce35-4b53-95c7-381c2bcfc4ba?revision_id=603b1c77-2a04-46e6-802b-baac34e4aeb2",
+          "/sites/KOBO-001/findings/ef37d258-f232-4ff0-aa95-7de78558b0b2?revision_id=47385b1b-2b5a-419d-a3c1-f59e12c5d5ff",
+          "/sites/KOBO-001/findings/947f62ea-6711-43bb-8979-bd2f087716cb?revision_id=76c44f57-2f28-4f21-9215-2a07917d913b",
+          "/sites/KOBO-001/findings/1ee09639-4497-4e74-a8e3-5b40d42786fe?revision_id=780a618b-a136-4773-a984-8046cf786676"
+        ],
+        "amounts": [
+          "No amount shown",
+          "No amount shown",
+          "No amount shown",
+          "No amount shown"
+        ],
+        "next": null,
+        "token": "sfi1-0ae46956f3b4ecd9d6828c700187b8019be57a990712075bd2e3273653a5fd60",
+        "emptyClaim": false,
+        "countClaim": true,
+        "notVerdict": false,
+        "overflow": 0
+      },
+      "old": {
+        "href": "/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&limit=2&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTE1VDA5OjE1OjAwWiIsIjk0N2Y2MmVhLTY3MTEtNDNiYi04OTc5LWJkMmYwODc3MTZjYiJdLCJkb21haW4iOiJtaW5pLWdyaWQtZGlzcGF0Y2giLCJmcm9tIjoiMjAyNi0xMC0xNVQwMDowMDowMFoiLCJzZWxlY3Rpb25fdG9rZW4iOiJzZmkxLWVhYzFkZTMwMDMwMTRjMmRjZjQ0ZjkxZDFkZjk2ODQ2Mjk3NGE2NWFlZmNkOWNlOGNlZDY4NDliM2JhMThiN2MiLCJzaXRlX2lkIjoiZDBlZjdhM2ItNWUwMS00OTg1LWI2ODctMTU0OGMyM2ZlZjJjIiwidGVuYW50X2lkIjoiNzRhY2FkYzctMjJlMi00NTA5LThjNzUtMTVjMTU3MDkyZTgxIiwidG8iOiIyMDI2LTEwLTE2VDAwOjAwOjAwWiIsInYiOjF9",
+        "state": "basis-changed",
+        "heading": "This list changed",
+        "rows": [],
+        "links": [],
+        "amounts": [],
+        "next": null,
+        "token": null,
+        "emptyClaim": false,
+        "countClaim": false,
+        "notVerdict": false,
+        "overflow": 0
+      }
+    }
+  }
+}

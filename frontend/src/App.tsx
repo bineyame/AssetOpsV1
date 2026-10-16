@@ -48,6 +48,7 @@ import {
   createSiteAnalyticsClient,
   type SiteAnalyticsClient,
 } from "./sites/siteAnalyticsClient";
+import type { FindingIndexClient } from "./sites/findingIndexClient";
 import {
   createSiteFoundationClient,
   type SiteFoundationClient,
@@ -139,6 +140,8 @@ export interface AppProps {
   siteOverview?: SiteOverviewClient;
   /** Analytics read models: Performance, Findings, Finding detail (T028). Operator, never gated. */
   siteAnalytics?: SiteAnalyticsClient;
+  /** S4-04: the scoped Site Finding index for imported Sites; the frame's default client when omitted. */
+  siteFindingIndex?: FindingIndexClient;
   /** Persisted Foundation read and reserve change (S1-01). Operator, never gated. */
   siteFoundation?: SiteFoundationClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
@@ -158,6 +161,7 @@ export function App({
   siteEvidence = defaultSiteEvidence,
   siteOverview = defaultSiteOverview,
   siteAnalytics = defaultSiteAnalytics,
+  siteFindingIndex,
   siteFoundation = defaultSiteFoundation,
   siteTemplateLineage,
   now,
@@ -250,6 +254,7 @@ export function App({
               <SiteFindingsFrame
                 detail={siteDetail}
                 analytics={siteAnalytics}
+                findingIndex={siteFindingIndex}
                 sitesPath={SITES_PATH}
               />
             }

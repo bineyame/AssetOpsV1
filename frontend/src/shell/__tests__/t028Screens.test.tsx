@@ -11,6 +11,7 @@ import { MemoryRouter, useLocation, useNavigate } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
+import { NOT_IMPORTED_INDEX } from "../../sites/__tests__/findingIndexFixtures";
 import { featureFlagsWith } from "../../config/featureFlags";
 import {
   CANDIDATE_ASSESSMENT,
@@ -76,6 +77,7 @@ function renderAt(
         flags={featureFlagsWith(false)}
         siteDirectory={DIRECTORY}
         siteDetail={DETAIL}
+        siteFindingIndex={NOT_IMPORTED_INDEX}
         siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
         siteOverview={overviewClient({
           status: "loaded",
