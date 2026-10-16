@@ -692,19 +692,24 @@ class PostgresActionStore:
                   {"site": site_id, "d": "dispatch"})
 
     def late_evidence(self, tenant_id: UUID, site_id: UUID, windows: list[tuple[datetime, datetime]],
-                      roles: list[str], after: datetime) -> list[dict[str, Any]]:
-        """Accepted evidence of these roles touching any window (closed end), decided after `after`."""
+                      roles: list[str], after: datetime, until: datetime | None = None) -> list[dict[str, Any]]:
+        """Accepted evidence of these roles touching any window (closed end), decided after `after` (and by
+        `until` when given). Each row names the window(s) it touches (`windows`: indexes into `windows`)."""
         def work(c):
             out: dict[Any, dict[str, Any]] = {}
-            for lo, hi in windows:
+            for index, (lo, hi) in enumerate(windows):
                 for r in c.execute(text(
-                        "SELECT e.id, e.role, e.source_time, d.decided_at FROM accepted_evidence e "
+                        "SELECT e.id, e.role, e.asset_id, e.source_time, e.interval_start, d.decided_at "
+                        "FROM accepted_evidence e "
                         "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
                         "WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
-                        "AND d.accepted_evidence_id = e.id AND d.decided_at > :after AND e.source_time >= :lo "
+                        "AND d.accepted_evidence_id = e.id AND d.decided_at > :after "
+                        "AND (CAST(:until AS timestamptz) IS NULL OR d.decided_at <= :until) AND e.source_time >= :lo "
                         "AND COALESCE(e.interval_start, e.source_time) <= :hi AND e.role = ANY(:roles)"),
-                        {"t": tenant_id, "s": site_id, "after": after, "lo": lo, "hi": hi, "roles": list(roles)}):
-                    out[r.id] = dict(r._mapping)
+                        {"t": tenant_id, "s": site_id, "after": after, "until": until, "lo": lo, "hi": hi,
+                         "roles": list(roles)}):
+                    row = out.setdefault(r.id, {**dict(r._mapping), "windows": []})
+                    row["windows"].append(index)
             return sorted(out.values(), key=lambda r: (r["decided_at"], str(r["id"])))
         return self._read(work)
 

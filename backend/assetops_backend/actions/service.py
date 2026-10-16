@@ -93,10 +93,10 @@ def ordered_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def reassessment_overlaps(actions: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Closure/late-reading overlaps among one battery trial scope's Actions, from persisted times and lineage.
 
-    For each RESOLUTION_WITHDRAWN that names the late accepted evidence which invalidated the closure (R1: only that
-    evidence counts), every other Action accepted at or after both the closure and that evidence's earliest
-    acceptance, but before the withdrawal was recorded, overlaps. An Action accepted before the evidence arrived
-    does not."""
+    `D-2026-10-16-s602a-holds` F2: only a RESOLUTION_WITHDRAWN whose persisted attribution is CAUSAL counts (the
+    exact accepted readings that made that closure lose its pinned basis; NONE and INDETERMINATE never overlap).
+    Every other Action accepted strictly after the earliest such reading's acceptance (itself after the closure)
+    and before the withdrawal was recorded overlaps. An Action accepted before the evidence arrived does not."""
     out = []
     for closed in actions:
         resolved_at = resolved_id = None
@@ -104,12 +104,14 @@ def reassessment_overlaps(actions: list[dict[str, Any]]) -> list[dict[str, Any]]
             if event["kind"] == RESOLVED:
                 resolved_at, resolved_id = event["recorded_at"], event["id"]
             elif event["kind"] == RESOLUTION_WITHDRAWN and resolved_at is not None:
-                evidence = (event.get("payload") or {}).get("invalidating_evidence") or []
-                arrived = [t for t in (_instant_of(e.get("decided_at")) for e in evidence) if t is not None]
-                if arrived:
-                    lo, hi = max(min(arrived), resolved_at), event["recorded_at"]
+                payload = event.get("payload") or {}
+                causal = payload.get("attribution") == "CAUSAL"
+                evidence = (payload.get("invalidating_evidence") or []) if causal else []
+                arrived = [t for t in (_instant_of(e.get("accepted_at")) for e in evidence) if t is not None]
+                if arrived and len(arrived) == len(evidence):
+                    lo, hi = min(arrived), event["recorded_at"]
                     for other in actions:
-                        if other["id"] != closed["id"] and lo <= other["created_at"] < hi:
+                        if other["id"] != closed["id"] and resolved_at < lo < other["created_at"] < hi:
                             out.append({"action_id": str(other["id"]), "action_code": other["action_code"],
                                         "closure_action_id": str(closed["id"]),
                                         "closure_action_code": closed["action_code"],

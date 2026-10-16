@@ -56,8 +56,8 @@ class VerificationPorts:
 
 
 def _wire(value: Any) -> Any:
-    if isinstance(value, datetime):
-        return value.isoformat()
+    if isinstance(value, datetime):  # F6 (fix round 1): UTC whatever the session TimeZone
+        return (value.astimezone(timezone.utc) if value.tzinfo is not None else value).isoformat()
     if isinstance(value, UUID):
         return str(value)
     if isinstance(value, Fraction):
@@ -163,8 +163,8 @@ class VerificationService:
         if not (b0 + rules.WINDOW <= effective <= l0):
             raise ActionRefused(422, "VERIFICATION_WINDOW_STRADDLES_CHANGE",
                                 "The baseline must end before the change's effective_from and the later window "
-                                "must start at or after it.", effective_from=effective.isoformat())
-        covering = {p.isoformat(): [str(i) for i in ids] for p, ids in ctx["covering"].items()}
+                                "must start at or after it.", effective_from=_wire(effective))
+        covering = {_wire(p): [str(i) for i in ids] for p, ids in ctx["covering"].items()}
         cov = list(ctx["covering"].values())
         old = cov[0][0] if len(cov[0]) == 1 and cov[0] == cov[1] else None
         new = cov[2][0] if len(cov[2]) == 1 and cov[2] == cov[3] else None
@@ -209,7 +209,7 @@ class VerificationService:
             "applied_event_id": str(applied[0]["id"]), "change_id": str(change["id"]),
             "old_foundation_revision_id": str(old), "new_foundation_revision_id": str(new),
             "battery_asset_id": str(action["asset_id"]), "field": action["field"], "rule_id": action["rule_id"],
-            "effective_from": effective.isoformat(), "baseline_start": b0.isoformat(), "later_start": l0.isoformat(),
+            "effective_from": _wire(effective), "baseline_start": _wire(b0), "later_start": _wire(l0),
             "baseline_candidate_seconds": target["candidate_seconds"],
             "baseline_selection": {"days": _selection_pin(ctx["days"]), "target": _wire(target),
                                    "currentness": [{"day": s["day"], "s3_status": s["status"]["s3_status"]}
@@ -275,9 +275,18 @@ class VerificationService:
                 raise ActionRefused(409, "VERIFICATION_PLAN_NOT_HEAD",
                                     "A plan is already frozen; a replacement must name the current plan in "
                                     "supersedes_plan_id.", current_plan_id=str(heads[-1]["id"]))
-            if plans and heads[-1]["id"] in ctx["outcome_plan_ids"]:
-                raise ActionRefused(409, "VERIFICATION_PLAN_EVALUATED",
-                                    "The current plan already has an outcome; it is no longer pending.")
+            if plans:
+                prior = heads[-1]
+                self._continuation_check(tenant_id, site_id, action, prior)
+                # The observable later-run cutoff of the replaced plan (`D-2026-10-16-s602a-cutoff`): once its later
+                # window has an accepted report, the new later window starts strictly after that window ends.
+                started = self.store.accepted_count(c, tenant_id, site_id, prior["later_start"], prior["later_end"],
+                                                    now)
+                if started and l0 < prior["later_end"]:
+                    raise ActionRefused(409, "VERIFICATION_LATER_WINDOW_STARTED",
+                                        "The replaced plan's later window has started; the new later window must "
+                                        "begin after it ends.", reason="NOT_AFTER_PRIOR_LATER_WINDOW",
+                                        prior_later_end=_wire(prior["later_end"]))
             later = self.store.accepted_count(c, tenant_id, site_id, l0, l0 + rules.WINDOW, now)
             if later:
                 raise ActionRefused(409, "VERIFICATION_LATER_WINDOW_STARTED",
@@ -288,6 +297,43 @@ class VerificationService:
         if replayed:
             return self._replay(row, digest, site_code)
         return 201, {"label": LABEL, "replayed": False, "plan": self._plan_wire(row, site_code)}
+
+    def _continuation_check(self, tenant_id: UUID, site_id: UUID, action: dict[str, Any],
+                            prior: dict[str, Any]) -> None:
+        """F4 (`D-2026-10-16-s602a-holds`), under the trial lock: the head plan may be superseded while it has no
+        outcome, or when the Action's latest settled outcome is that plan's INCONCLUSIVE and stays current. Never
+        after a settled guardrail failure, a current VERIFIED / target-miss INEFFECTIVE (an outstanding RESOLVED),
+        a withdrawal still awaiting its reassessment, or a permanent prior-trial overlap involving this Action."""
+        from assetops_backend.actions.service import reassessment_overlaps
+
+        action_id = action["id"]
+        outcomes = self.store.outcomes(tenant_id, site_id, action_id)
+        if not any(o["plan_id"] == prior["id"] for o in outcomes):
+            return  # pending: no outcome yet for the current plan
+
+        def refuse(reason: str, message: str) -> None:
+            raise ActionRefused(409, "VERIFICATION_PLAN_EVALUATED", message, reason=reason,
+                                current_plan_id=str(prior["id"]))
+
+        latest = outcomes[-1]
+        events = self.store.events(tenant_id, site_id, action_id)
+        resolution = latest_resolution(events)
+        if resolution is not None and resolution["state"] == RESOLVED:
+            refuse("GUARDRAIL_FAILED" if resolution["guardrail_failed"] else "RESOLVED",
+                   "The current plan is resolved; only an INCONCLUSIVE trial can continue with a new plan.")
+        if resolution is not None:  # RESOLUTION_WITHDRAWN: settled only by an outcome of that run or a later one
+            withdrawn = next(e for e in events if str(e["id"]) == resolution["event_id"])
+            if not any(o["triggering_job"] == withdrawn.get("triggering_job") or o["recorded_at"] > withdrawn[
+                    "recorded_at"] for o in outcomes):
+                refuse("REASSESSMENT_PENDING", "A withdrawn resolution awaits its reassessment; complete it first.")
+        if latest["plan_id"] != prior["id"] or latest["outcome"] != rules.INCONCLUSIVE:
+            refuse("NOT_INCONCLUSIVE", "Only a plan whose latest settled outcome is INCONCLUSIVE can be continued.")
+        state = self.current_state(tenant_id, site_id, action_id)
+        if state["state"] != rules.INCONCLUSIVE:
+            refuse("REASSESSMENT_PENDING", "The INCONCLUSIVE outcome is pending reassessment; evaluate it first.")
+        scope = self.store.trial_actions(tenant_id, site_id, action["asset_id"], action["rule_id"])
+        if any(str(action_id) in (o["action_id"], o["closure_action_id"]) for o in reassessment_overlaps(scope)):
+            refuse("PRIOR_TRIAL_REASSESSMENT_OVERLAP", "A permanent prior-trial overlap involves this Action.")
 
     def _replay(self, plan: dict[str, Any], digest: str, site_code: str) -> tuple[int, dict[str, Any]]:
         if plan["payload_sha256"] != digest:
@@ -327,7 +373,7 @@ class VerificationService:
         if now < plan["later_end"]:
             raise ActionRefused(409, "VERIFICATION_LATER_WINDOW_OPEN",
                                 "The later window has not closed yet; bind its selection after later_end.",
-                                later_end=plan["later_end"].isoformat())
+                                later_end=_wire(plan["later_end"]))
         selections = self.store.day_selections(tenant_id, site_id, required_days(plan["later_start"]), now)
         unselected = [s["day"] for s in selections if not s["selected"]]
         if unselected:
@@ -440,7 +486,7 @@ class VerificationService:
             "selector": {"plan_id": None if plan_id is None else str(plan_id),
                          "recorded_at": None if recorded_at is None else recorded_at.isoformat()},
             "verification_state": self.current_state(tenant_id, site_id, action_id, at=recorded_at),
-            "history": [{"plan_id": str(p["id"]), "recorded_at": p["recorded_at"].isoformat(),
+            "history": [{"plan_id": str(p["id"]), "recorded_at": _wire(p["recorded_at"]),
                          "supersedes_plan_id": None if p["supersedes_plan_id"] is None else str(p["supersedes_plan_id"]),
                          "superseded_by_plan_id": superseded_by.get(str(p["id"]))} for p in plans],
             "plan": None, "selection_bindings": []}
@@ -453,9 +499,10 @@ class VerificationService:
                                           if recorded_at is None or b["recorded_at"] <= recorded_at]
         return body
 
-    def _windows(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any],
-                 known_at: datetime) -> dict[str, dict[str, Any]]:
-        """Both windows' evidence as accepted by `known_at`, filtered to the plan's battery and bound assets (F6)."""
+    def _windows(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], known_at: datetime,
+                 reserves_known_at: datetime | None = None) -> dict[str, dict[str, Any]]:
+        """Both windows' evidence as accepted by `known_at`, filtered to the plan's battery and bound assets (F6).
+        `reserves_known_at` holds the Foundation reserve history at another cutoff (F2 attribution)."""
         basis = plan["basis"]
         windows = {}
         for name in ("baseline", "later"):
@@ -470,7 +517,7 @@ class VerificationService:
             reserves = [rules.ReserveValue(value=Fraction(str(r["value"])), valid_from=r["valid_from"],
                                            valid_to=r["valid_to"], foundation_revision_id=str(r["foundation_revision_id"]))
                         for r in self.store.reserve_history(tenant_id, site_id, plan["battery_asset_id"], lo, hi,
-                                                            known_at)]
+                                                            reserves_known_at or known_at)]
             bound = basis["baseline_bindings"] if name == "baseline" else basis["later_bindings_at_freeze"]
             windows[name] = rules.window_evidence(lo, readings, load_asset_ids=list(basis["load_asset_ids"]),
                                                   critical_load_asset_id=basis.get("critical_load_asset_id"),
@@ -499,7 +546,7 @@ class VerificationService:
             provenance(tenant_id, site_id, list(w["evidence_ids"]))) for name, w in windows.items()}
         return {
             "label": LABEL, "action_id": str(action_id), "plan_id": str(chosen["id"]),
-            "knowledge_cutoff": known_at.isoformat(), "plan_version": chosen["plan_version"],
+            "knowledge_cutoff": _wire(known_at), "plan_version": chosen["plan_version"],
             "bands": chosen["bands"], "coverage": chosen["coverage"],
             "verification_state": self.current_state(tenant_id, site_id, action_id, at=recorded_at),
             "windows": _wire(windows),
@@ -588,6 +635,79 @@ class VerificationService:
         return {"state": SETTLED, "decision": decision, "basis": outcome_basis, "details": details,
                 "binding": binding}
 
+    def _attribution(self, tenant_id: UUID, site_id: UUID, action_id: UUID, resolution: dict[str, Any],
+                     now: datetime) -> dict[str, Any]:
+        """F2 (`D-2026-10-16-s602a-holds`): the accepted public readings that caused this RESOLVED closure to lose
+        its pinned basis, persisted at withdrawal.
+
+        Candidates were accepted after the RESOLVED event and by the withdrawal (`now`), touch a pinned window and
+        match the plan's frozen role/bound asset for that window (the plan's battery for SOC); unbound assets and
+        unbound roles are never candidates. A candidate is causal only when it entered that window's used evidence
+        and the window's computed result (coverage, energy, reserve seconds, SOC, problems) changed, with the
+        Foundation reserve history held at the closure's cutoff. `attribution` is CAUSAL (non-empty set), NONE
+        (empty: Foundation, source, binding or worker-only cause, or readings that changed nothing) or INDETERMINATE
+        (a bound candidate whose effect cannot be established, e.g. the window's S3 selection is still pending or
+        moved while its evidence result is unchanged): INDETERMINATE keeps the ordinary hold and never overlaps."""
+        closed_at = resolution["recorded_at"]
+        plan = self._plan(tenant_id, site_id, action_id, UUID(resolution["plan_id"]))
+        outcome = next((o for o in self.store.outcomes(tenant_id, site_id, action_id)
+                        if str(o["id"]) == resolution["outcome_id"]), None)
+        names = ("baseline", "later")
+        spans = [(plan[f"{n}_start"], plan[f"{n}_end"]) for n in names]
+        basis = plan["basis"]
+        bound = {"baseline": basis["baseline_bindings"].get("role_assets") or {},
+                 "later": basis["later_bindings_at_freeze"].get("role_assets") or {}}
+
+        def is_bound(row: dict[str, Any], name: str) -> bool:
+            asset = None if row["asset_id"] is None else str(row["asset_id"])
+            if row["role"] == "battery_soc":
+                return asset == str(plan["battery_asset_id"])
+            return asset is not None and asset in bound[name].get(row["role"], [])
+
+        late = self.store.late_evidence(tenant_id, site_id, spans, list(ROLES), closed_at, until=now)
+        candidates = {n: [r for r in late if i in r["windows"] and is_bound(r, n)] for i, n in enumerate(names)}
+        out: dict[str, Any] = {"attribution": "NONE", "invalidating_evidence": [], "basis_changes": [],
+                               "candidate_evidence_ids": sorted({str(r["id"]) for rs in candidates.values()
+                                                                 for r in rs})}
+        if not out["candidate_evidence_ids"]:
+            return out
+        before = _wire(self._windows(tenant_id, site_id, plan, closed_at))
+        after = _wire(self._windows(tenant_id, site_id, plan, now, reserves_known_at=closed_at))
+        keys = ("complete", "feeder_demand_kwh", "pv_available_kwh", "unserved_critical_kwh", "below_reserve_seconds",
+                "initial_soc", "terminal_soc", "problems")
+        pinned = (outcome or {}).get("basis") or {}
+        indeterminate = False
+        for name in names:
+            if not candidates[name]:
+                continue
+            was, now_ = ({k: w[name].get(k) for k in keys} for w in (before, after))
+            entered = set(after[name]["evidence_ids"]) - set(before[name]["evidence_ids"])
+            entered |= {i for p in after[name].get("problems") or [] for i in (p.get("evidence_ids") or [])}
+            hit = [r for r in candidates[name] if str(r["id"]) in entered]
+            if was != now_ and hit:
+                days = self._day_states(tenant_id, site_id, pinned.get(f"{name}_days", []), require_s4=True)
+                out["basis_changes"].append({
+                    "window": name, "window_start": _wire(plan[f"{name}_start"]),
+                    "window_end": _wire(plan[f"{name}_end"]), "closed": was, "reassessed": now_,
+                    "pinned_s3_days": pinned.get(f"{name}_days", []),
+                    "current_s3_days": [{"day": d["day"], "run_id": (d["status"] or {}).get("run_id"),
+                                         "pending": d["pending"], "moved": d["moved"]} for d in _wire(days)]})
+                out["invalidating_evidence"] += [{"id": str(r["id"]), "role": r["role"],
+                                                  "asset_id": None if r["asset_id"] is None else str(r["asset_id"]),
+                                                  "window": name, "accepted_at": _wire(r["decided_at"]),
+                                                  "decided_at": _wire(r["decided_at"])} for r in hit]
+            elif was != now_:
+                indeterminate = True  # the result moved but no candidate can be named
+            else:
+                days = self._day_states(tenant_id, site_id, pinned.get(f"{name}_days", []), require_s4=True)
+                if any(d["pending"] or d["moved"] for d in days):
+                    indeterminate = True  # the window's S3 selection may yet move on these readings
+        if out["invalidating_evidence"]:
+            out["attribution"] = "CAUSAL"
+        elif indeterminate:
+            out["attribution"] = "INDETERMINATE"
+        return out
+
     def evaluate(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
                  command: dict[str, Any]) -> tuple[int, dict[str, Any]]:
         """A SYSTEM demonstration evaluation request. The evaluator job (never the caller) computes the verdict and
@@ -603,19 +723,29 @@ class VerificationService:
         payload = {"command": EVALUATE_COMMAND, "action_id": str(action_id), "plan_id": str(head["id"]),
                    "idempotency_key": key}
         digest = reserve_trial.sha(payload)
-        now = self.clock()
         fixture = granted.fixture_id or NON_DEMO_FIXTURE
         request = {"id": uuid4(), "action_id": action_id, "plan_id": head["id"],
                    "actor_kind": SYSTEM_DEMO.actor_kind, "actor_id": SYSTEM_DEMO.actor_id,
                    "source_channel": SYSTEM_DEMO.source_channel,
                    "authorization_basis": SYSTEM_DEMO.basis(fixture, VERIFY),
                    "triggering_service": SYSTEM_DEMO.triggering_service, "triggering_fixture": fixture,
-                   "idempotency_key": key, "payload": payload, "payload_sha256": digest, "recorded_at": now}
-        assessed = self._assess(tenant_id, site_id, head, now)
-        windows = [(head["baseline_start"], head["baseline_end"]), (head["later_start"], head["later_end"])]
+                   "idempotency_key": key, "payload": payload, "payload_sha256": digest, "recorded_at": self.clock()}
 
         def compose(c: Any, req: dict[str, Any], latest: dict[str, Any] | None,
                     events: list[dict[str, Any]]) -> dict[str, Any]:
+            # Fix round 1 F1: everything the writes depend on is read here, under the battery trial lock: the head,
+            # the instant and the assessment. The instant never precedes a stored outcome or event, so a write is
+            # always ordered after the state it was decided against (a concurrent evaluation that committed first
+            # is then seen and either reused or superseded on a fresher basis).
+            current = self._head(tenant_id, site_id, action_id)
+            if current is None or current["id"] != head["id"]:
+                raise ActionRefused(409, "VERIFICATION_PLAN_NOT_HEAD", "Only the current plan can be evaluated.",
+                                    current_plan_id=None if current is None else str(current["id"]))
+            stamps = [e["recorded_at"] for e in events] + ([latest["recorded_at"]] if latest is not None else [])
+            now = self.clock()
+            if stamps and max(stamps) >= now:
+                now = max(stamps) + EPSILON
+            assessed = self._assess(tenant_id, site_id, head, now)
             job = f"verification-evaluation:{req['id']}"
             resolution = latest_resolution(events)
             out_events: list[dict[str, Any]] = []
@@ -630,12 +760,10 @@ class VerificationService:
             resolved = resolution is not None and resolution["state"] == RESOLVED
 
             def withdraw(reason: str, reasons: list[str]) -> None:
-                late = self.store.late_evidence(tenant_id, site_id, windows, list(ROLES), resolution["recorded_at"])
+                cause = self._attribution(tenant_id, site_id, action_id, resolution, now)
                 event(RESOLUTION_WITHDRAWN, resolution["plan_id"], resolution["outcome_id"], {
                     "reason": reason, "reasons": reasons, "withdrawn_resolved_event_id": resolution["event_id"],
-                    "withdrawn_outcome": resolution["outcome"],
-                    "invalidating_evidence": [{"id": str(e["id"]), "role": e["role"],
-                                               "decided_at": e["decided_at"].isoformat()} for e in late],
+                    "withdrawn_outcome": resolution["outcome"], **cause,
                     "statement": "The earlier resolution no longer stands; the trial hold is restored."},
                     f"withdraw:{resolution['event_id']}")
 
@@ -648,6 +776,10 @@ class VerificationService:
             decision = assessed["decision"]
             if latest is not None and latest["plan_id"] == head["id"] and latest["basis_sha256"] == basis_sha:
                 outcome, insert = latest, False
+                # F1: an outstanding RESOLVED stands only for this very outcome, and only while it is final.
+                if resolved and (resolution["outcome_id"] != str(latest["id"]) or latest["outcome"] not in FINAL):
+                    withdraw("RESOLUTION_NOT_CURRENT", [f"the current outcome is {latest['id']}"])
+                    resolved = False
             else:
                 outcome = {"id": uuid4(), "action_id": action_id, "plan_id": head["id"],
                            "selection_binding_id": assessed["binding"]["id"], "evaluation_request_id": req["id"],
@@ -787,7 +919,7 @@ class VerificationService:
         return {"label": LABEL, "action_id": str(action_id),
                 "current_state": self.current_state(tenant_id, site_id, action_id),
                 "plans": [{"plan_id": str(p["id"]), "supersedes_plan_id": _wire(p["supersedes_plan_id"]),
-                           "recorded_at": p["recorded_at"].isoformat()}
+                           "recorded_at": _wire(p["recorded_at"])}
                           for p in self.store.plans(tenant_id, site_id, action_id)],
                 "evaluation_requests": _wire([{k: r[k] for k in ("id", "plan_id", "idempotency_key", "recorded_at",
                                                                   "triggering_fixture")}
