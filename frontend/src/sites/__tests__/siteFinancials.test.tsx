@@ -987,16 +987,17 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
         }),
       }),
     });
-    mount(client, `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}`);
+    mount(client, `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_limit=2`);
     await settledScreen();
-    expect(client.asked.history[0]).toEqual({ recordedAt: at, after: null });
+    expect(client.asked.history[0]).toEqual({ recordedAt: at, after: null, limit: 2 });
     expect(client.asked.series[0].recordedAt).toBe(at);
     fireEvent.click(screen.getByRole("link", { name: "Show earlier versions" }));
     await settledScreen();
+    // The cursor was issued for one page size, so the address keeps it.
     expect(screen.getByTestId("where")).toHaveTextContent(
-      `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_after=cursor-1`,
+      `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_after=cursor-1&history_limit=2`,
     );
-    expect(client.asked.history.at(-1)).toEqual({ recordedAt: at, after: "cursor-1" });
+    expect(client.asked.history.at(-1)).toEqual({ recordedAt: at, after: "cursor-1", limit: 2 });
     expect(client.asked.series.every((q) => q.recordedAt === at)).toBe(true);
     expect(screen.getByRole("link", { name: "Back to the newest versions" })).toBeInTheDocument();
   });

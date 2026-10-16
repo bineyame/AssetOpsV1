@@ -291,7 +291,7 @@ def links(args: argparse.Namespace, cases: dict[str, tuple[str, Path]]) -> int:
                         ("T3", "after the part-way correction (newest P01 version unpriced)")):
         say(f"  Recorded at {name}, {label}: {q(recorded_at=state['cutoffs'][name])}")
     if state.get("next_cursor_T3"):
-        say(f"  Second page at T3: {q(recorded_at=state['cutoffs']['T3'], history_after=state['next_cursor_T3'])}")
+        say(f"  Second page at T3: {q(recorded_at=state['cutoffs']['T3'], history_after=state['next_cursor_T3'], history_limit=2)}")
     p = state["pick"]
     say(f"  A latest version's own Financials view: {web}/financials?finding_id={p['finding_id']}&revision_id="
         f"{p['finding_revision_id']}&consequence_revision_id={p['consequence_revision_id']}")

@@ -37,7 +37,12 @@ export interface FinancialsLinks {
   /** The Finding version's accepted evidence (S4-03). */
   evidence: (findingId: string, revisionId: string) => string;
   /** Assumptions, optionally pinned to an exact version or a recorded cutoff. */
-  assumptions: (pin?: { revisionId?: string | null; recordedAt?: string | null; historyAfter?: string | null }) => string;
+  assumptions: (pin?: {
+    revisionId?: string | null;
+    recordedAt?: string | null;
+    historyAfter?: string | null;
+    historyLimit?: number | null;
+  }) => string;
   /** The Overview pinned to one exact fuel cost version of the same Finding version (null: the latest). */
   consequence: (findingId: string, revisionId: string, consequenceRevisionId: string | null) => string;
   findings: string;
@@ -202,6 +207,9 @@ export function SiteAssumptions({
   const recordedAtRaw = params.get("recorded_at");
   const recordedAt = recordedAtRaw !== null && !Number.isNaN(new Date(recordedAtRaw).getTime()) ? recordedAtRaw : null;
   const historyAfter = recordedAt !== null ? params.get("history_after") : null;
+  // A page size the address names (1-100) is kept through paging: each cursor is issued for one page size.
+  const limitRaw = Number(params.get("history_limit"));
+  const historyLimit = Number.isInteger(limitRaw) && limitRaw >= 1 && limitRaw <= 100 ? limitRaw : null;
   const [after, setAfter] = useState(0);
   // Review L5 (S4-02a): "Show later versions" appends to the versions already shown rather than replacing them.
   const [earlier, setEarlier] = useState<PriceRevision[]>([]);
@@ -210,8 +218,8 @@ export function SiteAssumptions({
   // unchanged (review L-R1), is the moment the price list is read at, so both lists describe one instant; the
   // address itself is not rewritten. An explicit `recorded_at` address reads both at that moment.
   const historyRead = useRead<ConsequenceHistoryBody, ConsequenceHistoryResult>(
-    () => client.getConsequenceHistory(siteId, { recordedAt, after: historyAfter }),
-    [client, siteId, recordedAt, historyAfter],
+    () => client.getConsequenceHistory(siteId, { recordedAt, after: historyAfter, limit: historyLimit ?? undefined }),
+    [client, siteId, recordedAt, historyAfter, historyLimit],
   );
   const cutoff = recordedAt ?? (historyRead?.status === "loaded" ? historyRead.value.cutoff.recorded_at : null);
   const series = useRead<AssumptionSeriesBody | null>(
@@ -235,8 +243,8 @@ export function SiteAssumptions({
   // S4-08: a changed basis (typed 409) reloads the history from its first page at the same moment.
   const basisChanged = historyRead?.status === "basis_changed";
   useEffect(() => {
-    if (basisChanged) navigate(links.assumptions({ revisionId, recordedAt }), { replace: true });
-  }, [basisChanged, navigate, links, revisionId, recordedAt]);
+    if (basisChanged) navigate(links.assumptions({ revisionId, recordedAt, historyLimit }), { replace: true });
+  }, [basisChanged, navigate, links, revisionId, recordedAt, historyLimit]);
 
   if (recordedAtRaw !== null && recordedAt === null) {
     return <ReadRefused read={{ status: "not_found", message: null }} what="recorded date" />;
@@ -246,7 +254,7 @@ export function SiteAssumptions({
   }
   const historyPanel =
     historyRead.status === "loaded" ? (
-      <ConsequenceHistoryPanel body={historyRead.value} siteName={`Site ${siteId}`} links={links} />
+      <ConsequenceHistoryPanel body={historyRead.value} siteName={`Site ${siteId}`} links={links} historyLimit={historyLimit} />
     ) : (
       <ConsequenceHistoryRefused read={historyRead} />
     );

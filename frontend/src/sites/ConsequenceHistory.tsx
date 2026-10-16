@@ -148,10 +148,12 @@ export function ConsequenceHistoryPanel({
   body,
   siteName,
   links,
+  historyLimit = null,
 }: {
   body: ConsequenceHistoryBody;
   siteName: string;
   links: FinancialsLinks;
+  historyLimit?: number | null;
 }) {
   const cutoff = body.cutoff.recorded_at;
   return (
@@ -186,14 +188,14 @@ export function ConsequenceHistoryPanel({
         <p className="muted">
           {body.page.is_first ? null : (
             <>
-              <Link to={links.assumptions({ recordedAt: cutoff })} data-history-first-page>
+              <Link to={links.assumptions({ recordedAt: cutoff, historyLimit })} data-history-first-page>
                 Back to the newest versions
               </Link>
               {body.next_cursor !== null ? " · " : null}
             </>
           )}
           {body.next_cursor !== null ? (
-            <Link to={links.assumptions({ recordedAt: cutoff, historyAfter: body.next_cursor })} data-history-next>
+            <Link to={links.assumptions({ recordedAt: cutoff, historyAfter: body.next_cursor, historyLimit })} data-history-next>
               Show earlier versions
             </Link>
           ) : null}
