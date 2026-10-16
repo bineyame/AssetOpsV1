@@ -244,7 +244,7 @@ class Walk:
         from urllib.parse import urlencode
 
         i = self.ids()
-        base = f"http://127.0.0.1:{web}/sites/{SITE}/work"
+        base = f"http://localhost:{web}/sites/{SITE}/work"
         say(f"  Positive window (Actions created {i['positive']['from']} to {i['positive']['to']}, end excluded):")
         say(f"    {base}?{urlencode(i['positive'])}")
         say("  Same window, one Action per page (to see Next page):")
