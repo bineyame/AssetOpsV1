@@ -1,6 +1,6 @@
 # S3-02b — Evidence Analysis selected claim limit UI
 
-Status: implementation-ready. USER_REVIEW_REQUIRED: true; owner walkthrough before merge. Size S, two phases. Branch `task/S3-02b-claim-limit-ui` from reviewed/merged S3-02a. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-s302-capability`; registry `I-evidence-analysis-claim-limit-ui`, `evidence-analysis:2#b`. S2's delivered `#a` remains distinct. Mock `frontend/mockups/v69/index.html` / `screen-manifest.json` `evidence-analysis` guides layout only.
+Status: active (activated 2026-10-16 from main `8b5d8137`; S3-02a merged); was implementation-ready. USER_REVIEW_REQUIRED: true; owner walkthrough before merge. Size S, two phases. Branch `task/S3-02b-claim-limit-ui` from reviewed/merged S3-02a. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-s302-capability`; registry `I-evidence-analysis-claim-limit-ui`, `evidence-analysis:2#b`. S2's delivered `#a` remains distinct. Mock `frontend/mockups/v69/index.html` / `screen-manifest.json` `evidence-analysis` guides layout only.
 
 ## Verified seams and UI contract
 
