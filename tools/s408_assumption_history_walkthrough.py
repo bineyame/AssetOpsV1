@@ -101,6 +101,7 @@ def history_fixture(work: Path, db: str) -> Path:
          "idempotency_key": "s408-walkthrough-v5"},
         {"step": "v6", "change_kind": "CORRECTION", "currency": "USD", "value": "1.31", "basis": "AUTHORED_ESTIMATE",
          "source_reference": "Walkthrough correction starting part-way through one finding's time",
+         "correction_reason": "Walkthrough: a price change part-way through one finding's time",
          "valid_from": split.strftime("%Y-%m-%dT%H:%M:%SZ"), "valid_to": "2026-10-24T00:00:00Z",
          "expected_prior_step": "v5", "idempotency_key": "s408-walkthrough-v6"},
     ]
