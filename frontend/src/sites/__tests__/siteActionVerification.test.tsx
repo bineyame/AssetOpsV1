@@ -369,7 +369,7 @@ describe("Plan view (action-plan:1)", () => {
 
 describe("Evidence view (action-evidence:1)", () => {
   it("shows both windows' twelve five-minute slots, sampled reserve, source per window and comparability", async () => {
-    serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)) });
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
     mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
     await settledScreen();
     for (const name of ["baseline", "later"]) {
@@ -396,6 +396,8 @@ describe("Evidence view (action-evidence:1)", () => {
       ...actionReads(),
       [`${V}/outcome?outcome_id=${OUT1}`]: ok(o),
       [`${V}/evidence?recorded_at=${o.outcome.recorded_at}`]: ok(ev),
+      [`${V}/history`]: ok(history()),
+      [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)),
     });
     mount(`/sites/KOBO-001/actions/${ACTION}/evidence?outcome_id=${OUT1}`);
     await settledScreen();
@@ -409,7 +411,7 @@ describe("Evidence view (action-evidence:1)", () => {
   it("keeps the same structure at 1440 and 390 (layout is browser evidence)", async () => {
     for (const width of [1440, 390]) {
       atWidth(width);
-      serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)) });
+      serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
       mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
       await settledScreen();
       expect(qa("[data-verification-slot]").length).toBe(24);
@@ -417,6 +419,76 @@ describe("Evidence view (action-evidence:1)", () => {
       cleanup();
       vi.unstubAllGlobals();
     }
+  });
+});
+
+describe("Historical views beside the actual current state, and window lineage (S6-02b fix round 1)", () => {
+  const at = encodeURIComponent(CUTOFF);
+  const withdrawn = () => {
+    const h = history();
+    h.current_state = { ...h.current_state, state: "INCONCLUSIVE", reasons: [], outcome_id: OUT1 };
+    return h;
+  };
+
+  it("F1: an evidence view selected by cutoff shows the actual current state beside the historical VERIFIED", async () => {
+    const ev = prep(R.evidence);
+    ev.verification_state = { ...ev.verification_state, state: "VERIFIED", reasons: [], historical: true };
+    serve({
+      ...actionReads(`?recorded_at=${at}`),
+      [`${V}/evidence?recorded_at=${at}`]: ok(ev),
+      [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)),
+      [`${V}/history`]: ok(withdrawn()),
+    });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence?recorded_at=${at}`);
+    await settledScreen();
+    expect(q("[data-verification-current-state]")).toHaveAttribute("data-verification-current-state", "VERIFIED");
+    expect(document.body.textContent).toContain("State at the selected time");
+    expect(q("[data-verification-actual-current]")).toHaveAttribute("data-verification-actual-current", "INCONCLUSIVE");
+    expect(q("[data-verification-actual-state-label]")?.textContent).toBe("Could not conclude");
+    expect(q("[data-verification-historical]")?.textContent).toContain("actual current state is shown below");
+  });
+
+  it("F1: a plan view selected by cutoff does the same; an unreadable current state is stated, never implied", async () => {
+    const plan = prep(R.plan);
+    plan.verification_state = { ...plan.verification_state, state: "VERIFIED", reasons: [], historical: true };
+    serve({ ...actionReads(`?recorded_at=${at}`), [`${V}/plan?recorded_at=${at}`]: ok(plan), [`${V}/history`]: ok(withdrawn()) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan?recorded_at=${at}`);
+    await settledScreen();
+    expect(q("[data-verification-actual-current]")).toHaveAttribute("data-verification-actual-current", "INCONCLUSIVE");
+    cleanup();
+    serve({ ...actionReads(`?recorded_at=${at}`), [`${V}/plan?recorded_at=${at}`]: ok(plan) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan?recorded_at=${at}`);
+    await settledScreen();
+    await vi.waitFor(() => expect(q("[data-verification-actual-current-unavailable]")).not.toBeNull());
+    expect(q("[data-verification-actual-current]")).toBeNull();
+    expect(q("[data-verification-historical]")?.textContent).toContain("could not be read");
+  });
+
+  it("F5: an unrecognised source state is never read as field readings", async () => {
+    const { sourceWords } = await import("../verificationWords");
+    expect(sourceWords("SOMETHING_NEW")).toMatch(/not recognised/);
+    expect(sourceWords("SOMETHING_NEW")).not.toMatch(/Field readings/);
+    expect(sourceWords("MIXED")).toBe("Mixed sources");
+  });
+
+  it("F3: the evidence view gives a plain lineage summary and the exact IDs in Dig deeper", async () => {
+    const ev = prep(R.evidence);
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(ev), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await settledScreen();
+    await vi.waitFor(() => expect(q("[data-verification-origin-finding-revision]")).not.toBeNull());
+    const plan = prep(R.plan).plan;
+    for (const name of ["baseline", "later"]) {
+      expect(q(`[data-verification-lineage-summary='${name}']`)?.textContent).toMatch(/assessed days? selected/);
+    }
+    expect(q("[data-verification-origin-finding-revision]")?.textContent).toBe(plan.origin_finding_revision_id);
+    expect(qa("[data-verification-assessment-revision]").length).toBe(
+      ev.target.baseline.assessment_revision_ids.length + (ev.target.later.assessment_revision_ids ?? []).length,
+    );
+    expect(qa("[data-verification-lineage-day]").length).toBeGreaterThan(0);
+    const win = q("[data-verification-evidence-window='baseline']");
+    expect(win?.querySelector("[data-verification-lineage-day]")?.textContent).toMatch(/SELECTED_UNIQUE/);
+    noVocabularyViolations("action-evidence:lineage");
   });
 });
 

@@ -26,6 +26,7 @@ import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type { ActionBody, ActionReadResult, Refusal } from "./actionClient";
 import { Ref, RefusalPanel, when } from "./actionPresentation";
 import type {
+  DaySelection,
   EvidenceBody,
   EvidenceWindow,
   HistoryBody,
@@ -101,11 +102,15 @@ interface Reads {
   plan: ActionReadResult<PlanBody> | null;
   evidence: ActionReadResult<EvidenceBody> | null;
   conflict: string | null;
+  /** The actual current state, read separately when a view is selected by time or exact record (F1). */
+  currentHistory: ActionReadResult<HistoryBody> | null;
+  /** The plan the evidence belongs to (origin Finding, day selections, cohorts), read for lineage (F3). */
+  evidencePlan: ActionReadResult<PlanBody> | null;
   /** The verification view's plan selection has no outcome yet. */
   noOutcomeForPlan: boolean;
 }
 
-const EMPTY: Reads = { outcome: null, history: null, plan: null, evidence: null, conflict: null, noOutcomeForPlan: false };
+const EMPTY: Reads = { outcome: null, history: null, plan: null, evidence: null, conflict: null, currentHistory: null, evidencePlan: null, noOutcomeForPlan: false };
 
 /** Selector combinations with no single meaning (checked before any read). */
 export function selectorConflict(selection: VerificationSelection): string | null {
@@ -154,6 +159,7 @@ export function ActionVerification({
       };
     }
     const cutoff = recordedAt ?? eventCutoff;
+    const explicitSel = outcomeId !== null || planRevisionId !== null || recordedAt !== null || eventId !== null;
     void (async () => {
       let pinned: OutcomeRecord | null = null;
       if (outcomeId !== null) {
@@ -187,13 +193,18 @@ export function ActionVerification({
         }
         set({ outcome: await client.getOutcome(siteId, actionId, { id: null, recordedAt: cutoff }) });
       } else if (view === "plan") {
+        if (explicitSel) void client.getHistory(siteId, actionId).then((currentHistory) => set({ currentHistory }));
         const chosen = pinned ? pinned.plan_id : planRevisionId;
         set({ plan: await client.getPlan(siteId, actionId, { id: chosen, recordedAt: chosen ? null : cutoff }) });
       } else {
+        if (explicitSel) void client.getHistory(siteId, actionId).then((currentHistory) => set({ currentHistory }));
         const read = pinned
           ? await client.getEvidence(siteId, actionId, { id: null, recordedAt: pinned.recorded_at })
           : await client.getEvidence(siteId, actionId, { id: planRevisionId, recordedAt: planRevisionId ? null : cutoff });
         set({ evidence: read });
+        if (read.status === "loaded") {
+          void client.getPlan(siteId, actionId, { id: read.value.plan_id, recordedAt: null }).then((evidencePlan) => set({ evidencePlan }));
+        }
         if (pinned && read.status === "loaded" && read.value.plan_id !== pinned.plan_id) {
           set({ conflict: "The evidence read at this outcome's time belongs to another plan. Nothing was chosen for you." });
         }
@@ -262,6 +273,10 @@ export function ActionVerification({
   const current: VerificationState | null =
     outcome?.current_state ?? plan?.verification_state ?? evidence?.verification_state ?? history?.current_state ?? null;
 
+  const actualRead = reads.currentHistory;
+  const actual: VerificationState | null = history?.current_state ?? (actualRead && actualRead.status === "loaded" ? actualRead.value.current_state : null);
+  const actualMissing = view !== "verification" && explicit && actual === null && actualRead !== null;
+  const evidenceLineage = view === "evidence" && reads.evidencePlan && reads.evidencePlan.status === "loaded" ? reads.evidencePlan.value : null;
   return (
     <div className="site-verification" data-verification-view={view} data-verification-explicit={explicit ? "yes" : "no"}>
       {loading}
@@ -284,6 +299,8 @@ export function ActionVerification({
           eventCutoff={eventCutoff}
           view={view}
           links={links}
+          actual={actual}
+          actualMissing={actualMissing}
         />
       ) : null}
       {view === "verification" && reads.noOutcomeForPlan && plan ? (
@@ -298,7 +315,7 @@ export function ActionVerification({
       ) : null}
       {view === "plan" && plan ? <PlanBodyView body={plan} action={body} links={links} explicit={explicit} /> : null}
       {view === "evidence" && evidence ? (
-        <EvidenceBodyView body={evidence} links={links} pinnedOutcome={outcome?.outcome ?? null} />
+        <EvidenceBodyView body={evidence} links={links} pinnedOutcome={outcome?.outcome ?? null} plan={evidenceLineage} />
       ) : null}
       <TrialNotice />
     </div>
@@ -333,7 +350,11 @@ function CurrentStrip({
   eventCutoff,
   view,
   links,
+  actual,
+  actualMissing,
 }: {
+  actual: VerificationState | null;
+  actualMissing: boolean;
   current: VerificationState;
   explicit: boolean;
   selection: VerificationSelection;
@@ -341,7 +362,8 @@ function CurrentStrip({
   view: VerificationView;
   links: VerificationLinks;
 }) {
-  const atCutoff = current.historical === true;
+  const atCutoff = current.historical === true || (explicit && view !== "verification");
+  const showActual = explicit && view !== "verification";
   return (
     <div className="verify-strip" data-verification-current-state={current.state}>
       {explicit ? (
@@ -352,7 +374,14 @@ function CurrentStrip({
             : selection.planRevisionId
               ? "An exact plan is selected."
               : `Showing what was recorded through ${when(selection.recordedAt ?? eventCutoff)}.`}{" "}
-          The current state is shown separately. <Link to={links.view(view, {})}>Show the current state</Link>
+          {showActual
+            ? actual !== null
+              ? "The actual current state is shown below, separately from this historical state."
+              : actualMissing
+                ? "The actual current state could not be read here, so do not treat this historical state as current."
+                : "The actual current state is being read; until it appears, do not treat this historical state as current."
+            : "The current state is shown separately."}{" "}
+          <Link to={links.view(view, {})}>Show the current state</Link>
         </p>
       ) : null}
       <p className="action-status">
@@ -362,6 +391,20 @@ function CurrentStrip({
         </Chip>
         <span className="action-note">{stateSentence(current.state, current.reasons)}</span>
       </p>
+      {showActual && actual !== null ? (
+        <p className="action-status" data-verification-actual-current={actual.state}>
+          <span className="verify-strip__term">Actual current state</span>
+          <Chip tone={stateTone(actual.state)} attr={{ "data-verification-actual-state-label": stateLabel(actual.state, actual.reasons) }}>
+            {stateLabel(actual.state, actual.reasons)}
+          </Chip>
+          <span className="action-note">{stateSentence(actual.state, actual.reasons)}</span>
+        </p>
+      ) : null}
+      {showActual && actualMissing ? (
+        <p className="action-note" data-verification-actual-current-unavailable>
+          The actual current state is not available in this view.
+        </p>
+      ) : null}
       {current.reasons.length > 0 && current.state !== "VERIFIED" ? (
         <ul className="action-list" data-verification-current-reasons>
           {current.reasons.map((reason) => (
@@ -1028,7 +1071,33 @@ function DaySelections({ name, days, bindingId }: { name: string; days: Verifica
 
 /* ---------------------------------------------------------------- Evidence view */
 
-function EvidenceBodyView({ body, links, pinnedOutcome }: { body: EvidenceBody; links: VerificationLinks; pinnedOutcome: OutcomeRecord | null }) {
+interface WindowLineage {
+  planRead: boolean;
+  originFindingRevisionId: string | null;
+  assessmentRevisionIds: string[];
+  days: DaySelection[];
+  /** The later selection binding was not found (not appended yet, or not read). */
+  bound: boolean;
+}
+
+function lineageFor(name: "baseline" | "later", body: EvidenceBody, plan: PlanBody | null): WindowLineage {
+  const target = (name === "baseline" ? body.target.baseline : body.target.later) as { assessment_revision_ids?: string[] };
+  const assessmentRevisionIds = target.assessment_revision_ids ?? [];
+  let days: DaySelection[] = [];
+  let bound = true;
+  if (name === "baseline") {
+    days = plan?.plan?.baseline_selection.days ?? [];
+  } else {
+    const bindings = (plan?.selection_bindings ?? []).filter((b) => b.window_name === "LATER" && b.recorded_at <= body.knowledge_cutoff);
+    const chosen =
+      bindings.find((b) => b.id === body.target.later_selection_binding_id) ?? bindings[bindings.length - 1] ?? null;
+    bound = chosen !== null;
+    days = chosen?.selection.days ?? [];
+  }
+  return { planRead: plan !== null, originFindingRevisionId: plan?.plan?.origin_finding_revision_id ?? null, assessmentRevisionIds, days, bound };
+}
+
+function EvidenceBodyView({ body, links, pinnedOutcome, plan }: { body: EvidenceBody; links: VerificationLinks; pinnedOutcome: OutcomeRecord | null; plan: PlanBody | null }) {
   const pair = body.source_resolution.pair;
   const targetLater = body.target.later as { candidate_seconds?: number | null; state: string };
   return (
@@ -1072,8 +1141,8 @@ function EvidenceBodyView({ body, links, pinnedOutcome }: { body: EvidenceBody; 
         ) : null}
         <ComparabilityTable body={body} />
       </Panel>
-      <WindowPanel name="baseline" window={body.windows.baseline} source={body.source_resolution.baseline} links={links} />
-      <WindowPanel name="later" window={body.windows.later} source={body.source_resolution.later} links={links} />
+      <WindowPanel name="baseline" window={body.windows.baseline} source={body.source_resolution.baseline} links={links} lineage={lineageFor("baseline", body, plan)} />
+      <WindowPanel name="later" window={body.windows.later} source={body.source_resolution.later} links={links} lineage={lineageFor("later", body, plan)} />
     </>
   );
 }
@@ -1158,7 +1227,15 @@ function slotIds(slot: Slot): string[] {
   return ids;
 }
 
-function WindowPanel({ name, window, source, links }: { name: "baseline" | "later"; window: EvidenceWindow; source: SourceSide; links: VerificationLinks }) {
+function lineageSummary(name: string, lineage: WindowLineage, source: SourceSide): string {
+  if (!lineage.planRead) return "The plan this comparison was fixed under could not be read, so the assessed days and cohort are not shown.";
+  if (!lineage.bound) return "The later window has no day selection recorded yet, so no assessments are selected for it.";
+  const sources = new Set(lineage.days.map((d) => d.run_id)).size;
+  const n = lineage.days.length;
+  return `${n} assessed day${n === 1 ? "" : "s"} selected, taken from ${sources} registered source${sources === 1 ? "" : "s"}; ${lineage.assessmentRevisionIds.length} generator-time assessment${lineage.assessmentRevisionIds.length === 1 ? "" : "s"} and ${source.runs.length} source record${source.runs.length === 1 ? "" : "s"} back the ${name === "baseline" ? "earlier" : "later"} window.`;
+}
+
+function WindowPanel({ name, window, source, links, lineage }: { name: "baseline" | "later"; window: EvidenceWindow; source: SourceSide; links: VerificationLinks; lineage: WindowLineage }) {
   const title = name === "baseline" ? "Earlier window (before the change)" : "Later window (after the change)";
   const problems = [...window.problems, ...window.slots.flatMap(slotProblems)];
   const terminal = pointCell(window.terminal_soc_sample ?? undefined, "%");
@@ -1238,7 +1315,54 @@ function WindowPanel({ name, window, source, links }: { name: "baseline" | "late
           Below reserve is read from the battery charge sample at each slot start: a five-minute sample, not continuous
           proof. Generator state is the sample at the slot start.
         </p>
+        <p className="action-note" data-verification-lineage-summary={name}>
+          {lineageSummary(name, lineage, source)}
+        </p>
         <DigDeeper name={`evidence-${name}`}>
+          <FactList>
+            <Fact term="Origin Finding revision">
+              {lineage.originFindingRevisionId ? <Ref value={lineage.originFindingRevisionId} attr="data-verification-origin-finding-revision" /> : "not available"}
+            </Fact>
+            <Fact term="Selected assessment revisions">
+              {lineage.assessmentRevisionIds.length === 0
+                ? "none selected"
+                : lineage.assessmentRevisionIds.map((id) => <Ref key={id} value={id} attr="data-verification-assessment-revision" />)}
+            </Fact>
+            <Fact term="Source records">
+              {source.runs.length === 0
+                ? "none recorded"
+                : source.runs.map((run, index) => <Ref key={index} value={JSON.stringify(run)} attr="data-verification-source-run" />)}
+            </Fact>
+          </FactList>
+          {lineage.days.length > 0 ? (
+            <DataTable labelledBy={`site-verification-cohorts-${name}-caption`}>
+              <caption id={`site-verification-cohorts-${name}-caption`}>Selected days, cohort and source</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Day</th>
+                  <th scope="col">Cohort</th>
+                  <th scope="col">Cohort digest</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">Model</th>
+                  <th scope="col">Input digest</th>
+                  <th scope="col">Configuration digest</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lineage.days.map((d) => (
+                  <tr key={d.day} data-verification-lineage-day={d.day}>
+                    <th scope="row">{d.day}</th>
+                    <td>{d.cohort_status}</td>
+                    <td><Ref value={d.cohort_sha256} /></td>
+                    <td><Ref value={d.run_id} /></td>
+                    <td><Ref value={d.model_version} /></td>
+                    <td><Ref value={d.input_sha256} /></td>
+                    <td><Ref value={d.configuration_sha256} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+          ) : null}
           <p className="action-note">Accepted readings used for this window ({window.evidence_ids.length}):</p>
           <EvidenceIds ids={window.evidence_ids} links={links} limit={200} name={name} />
           <FactList>

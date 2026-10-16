@@ -219,7 +219,7 @@ export function sourceWords(state: string | null | undefined): string {
     case undefined:
       return "Source not established";
     default:
-      return "Field readings";
+      return "Source not recognised (treated as unverified)";
   }
 }
 
