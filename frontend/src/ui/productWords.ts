@@ -274,6 +274,11 @@ const OUTCOMES: Readonly<Record<string, Entry>> = {
     next: "Known failures stay listed below.",
     tone: "limited",
   },
+  NO_PLAN: {
+    label: "No trial plan yet",
+    sentence: "No verification plan exists for this work, so no trial outcome can exist yet.",
+    tone: "neutral",
+  },
   PENDING: {
     label: "No trial outcome yet",
     sentence: "No outcome exists for this trial yet. Waiting is not an outcome.",

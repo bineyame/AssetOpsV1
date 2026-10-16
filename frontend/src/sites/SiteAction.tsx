@@ -21,7 +21,18 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, Fact, FactList, Panel } from "../ui";
+import {
+  DataTable,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  outcomeWords as productOutcomeWords,
+  Panel,
+  ProductStatus,
+  StepStrip,
+  type StepState,
+} from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import { ActionVerification } from "./SiteActionVerification";
 import { createVerificationClient, type VerificationClient } from "./verificationClient";
@@ -324,39 +335,117 @@ function SelectionNotice({ selection, view, links }: { selection: Selection; vie
   );
 }
 
+const OUTCOME_STATES = new Set(["VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"]);
+
+function trialStep(state: string): StepState {
+  if (state === "VERIFIED") return "done";
+  if (state === "INEFFECTIVE") return "problem";
+  if (state === "NO_PLAN" || state === "PENDING" || state === "REASSESSMENT_PENDING") return "waiting";
+  return "not-known";
+}
+
+/**
+ * W1-UX-01: the Action's intervention and outcome state on the shared answer
+ * card. The outcome words come from the shared map, keyed on the read's
+ * verification state and reasons; the Overview summary carries no source
+ * class, so the words never claim a demonstration or field source and the
+ * card says where the source and measured limits are.
+ */
+function ActionStateCard({ body, links }: { body: ActionBody; links: SiteActionLinks }) {
+  const v = body.verification ?? null;
+  const verificationState = v === null ? body.state.outcome.state : v.state;
+  const words = productOutcomeWords(verificationState, v === null ? [] : v.reasons, null);
+  const applied = body.state.application === "APPLIED";
+  const application = APPLICATION_WORDS[body.state.application] ?? "Application state not recognised";
+  const asOf = body.selection.cutoff_recorded_at ?? body.last_event?.recorded_at ?? null;
+  return (
+    <HeadlineVisualCard
+      dataName="action-state"
+      headingId="site-action-state-heading"
+      title="Action"
+      description="An Action is proposed or recorded work on this site. It is not proof that anything changed."
+      question="What is the current intervention and outcome state?"
+      headline={
+        <>
+          Accepted; <span data-action-application-words>{application}</span>
+          {body.state.failed_attempts > 0 ? ` (${body.state.failed_attempts} failed attempts)` : ""}
+        </>
+      }
+      status={
+        <ProductStatus words={words} scope="This Action, from its recorded events" asOf={asOf}>
+          {OUTCOME_STATES.has(verificationState) ? (
+            <p className="product-status__note" data-action-outcome-source-note>
+              This summary does not say where the trial&apos;s readings came from, and no savings or realized benefit is
+              claimed here. The source and the measured limits are on Verification.
+            </p>
+          ) : null}
+        </ProductStatus>
+      }
+      visual={
+        <StepStrip
+          title="Where this Action stands"
+          steps={[
+            { label: "Accepted", state: "done", detail: when(body.state.accepted_at) },
+            {
+              label: "Applied",
+              state: applied ? "done" : body.state.failed_attempts > 0 ? "problem" : "waiting",
+              detail: applied && body.state.applied_at !== null ? when(body.state.applied_at) : application,
+            },
+            { label: "Trial outcome", state: trialStep(verificationState), detail: words.label },
+          ]}
+        />
+      }
+      meaning={
+        <>
+          {v ? (
+            <p data-action-outcome-words data-action-verification-state={v.state}>
+              {stateLabel(v.state, v.reasons)}.
+            </p>
+          ) : (
+            <p data-action-outcome-words>{outcomeWords(body.state.outcome.state)}</p>
+          )}
+          <p className="action-note">
+            The Site&apos;s operation is not shown as changed by this Action, and no effect is measured here.
+          </p>
+        </>
+      }
+      todo={words.next === undefined ? undefined : <p>{words.next}</p>}
+      destination={
+        v ? (
+          <Link to={links.view("verification", LATEST)} data-action-verification-link>
+            Open Verification
+          </Link>
+        ) : undefined
+      }
+      references={
+        <ExactReferences
+          name="action-state-references"
+          references={[
+            { label: "Action code", value: body.action.action_code },
+            { label: "Action reference", value: body.action.id },
+            { label: "Accepted at", value: body.state.accepted_at },
+            { label: "Application state", value: body.state.application },
+            { label: "Trial state", value: verificationState },
+            ...(v === null
+              ? []
+              : [
+                  { label: "Trial plan reference", value: v.plan_id },
+                  { label: "Trial outcome reference", value: v.outcome_id },
+                  ...v.reasons.map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
+                ]),
+          ]}
+        />
+      }
+    />
+  );
+}
+
 function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks }) {
   const accepted = body.accepted_recommendation;
   const notice = body.newer_revision_notice;
   return (
     <div className="site-action__body">
-      <Panel heading="Action" headingId="site-action-state-heading">
-        <FactList>
-          <Fact term="Action">
-            <Ref value={body.action.action_code} attr="data-action-code" /> <Ref value={body.action.id} />
-          </Fact>
-          <Fact term="Acted by">{body.action.label}</Fact>
-          <Fact term="Accepted">{when(body.state.accepted_at)}</Fact>
-          <Fact term="Application">
-            <span data-action-application-words>{APPLICATION_WORDS[body.state.application] ?? body.state.application}</span>
-            {body.state.failed_attempts > 0 ? ` (${body.state.failed_attempts} failed attempts)` : ""}
-          </Fact>
-          <Fact term="Verification">
-            {body.verification ? (
-              <span data-action-outcome-words data-action-verification-state={body.verification.state}>
-                {stateLabel(body.verification.state, body.verification.reasons)}.{" "}
-                <Link to={links.view("verification", LATEST)} data-action-verification-link>
-                  Open verification
-                </Link>
-              </span>
-            ) : (
-              <span data-action-outcome-words>{outcomeWords(body.state.outcome.state)}</span>
-            )}
-          </Fact>
-        </FactList>
-        <p className="action-note">
-          The Site's operation is not shown as changed by this Action, and no effect is measured here.
-        </p>
-      </Panel>
+      <ActionStateCard body={body} links={links} />
       <div className="site-action__pair">
         <Panel heading="Origin" headingId="site-action-origin-heading">
           <p data-action-origin-revision={body.origin.finding_revision_id}>
@@ -399,7 +488,7 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
           </Fact>
           <Fact term="Assessment periods">{body.basis.assessments.length}</Fact>
           <Fact term="Battery charge readings">{body.basis.evidence.length}</Fact>
-          <Fact term="Input digest">
+          <Fact term="Input reference">
             <Ref value={body.basis.input_sha256} />
           </Fact>
         </FactList>

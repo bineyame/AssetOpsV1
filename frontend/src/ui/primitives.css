@@ -3971,3 +3971,66 @@ tr[data-selected] > * {
   color: var(--text-primary);
   white-space: nowrap;
 }
+
+.step-strip {
+  margin: 0;
+  min-width: 0;
+}
+
+.step-strip__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step-strip__step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  font-size: var(--text-sm);
+  min-width: 0;
+}
+
+.step-strip__mark {
+  grid-row: span 3;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: 0.2rem;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border-strong);
+}
+
+.step-strip__step--done .step-strip__mark {
+  background: var(--badge-provenance-text);
+  border-color: var(--badge-provenance-text);
+}
+
+.step-strip__step--problem .step-strip__mark {
+  background: var(--attention-border);
+  border-color: var(--attention-border);
+}
+
+.step-strip__step--not-known .step-strip__mark {
+  border-style: dashed;
+}
+
+.step-strip__label {
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.step-strip__state {
+  color: var(--text-primary);
+}
+
+.step-strip__detail {
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}

@@ -33,7 +33,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
 import { SiteActionFrame, SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -426,6 +427,45 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     ]);
     expect(document.body.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator|approv/i);
     noVocabularyViolations("action-overview:1#a");
+  });
+
+  it("W1-UX-01: the Action card uses the W1 set and the narrower disclosure list; its state line stays visible", async () => {
+    for (const [fixture, label] of [
+      [ov.applied_pending_newer_revision, "No trial plan yet"],
+      [ov.accepted_pending, null],
+    ] as const) {
+      serve(actionReads(fixture, hi.events_latest));
+      const view = mount(`/sites/KOBO-001/actions/${ACTION}`);
+      await settledScreen();
+      const main = document.body.querySelector("main") as HTMLElement;
+      const w1 = scanProductVocabulary(main, "action-overview (W1)", { set: "w1" });
+      expect(w1.scanned).toBeGreaterThan(10);
+      expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+      const card = q("[data-headline-card='action-state']") as HTMLElement;
+      const disclosure = scanDisclosureVocabulary(card, "action-overview disclosure");
+      expect(disclosure.disclosures).toBe(1);
+      expect(disclosure.scanned).toBeGreaterThan(4);
+      expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+      const shown = expectStateLineVisible(card);
+      if (label !== null) expect(shown).toBe(label);
+      expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+      expect(card.querySelectorAll("[data-step]")).toHaveLength(3);
+      view.unmount();
+    }
+  });
+
+  it("W1-UX-01: a verified summary without a source is not shown as positive and points to Verification for source and limits", async () => {
+    const base = ov.applied_pending_newer_revision;
+    const verified = { ...base, body: { ...base.body, verification: { ...base.body.verification, state: "VERIFIED", reasons: [] } } };
+    serve(actionReads(verified as typeof base, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}`);
+    await settledScreen();
+    const card = q("[data-headline-card='action-state']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe("Target met within the sampled limits");
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
+    expect(card.querySelector("[data-action-outcome-source-note]")?.textContent).toMatch(/no savings or realized benefit is\s+claimed/);
+    expect(card.querySelector("[data-action-verification-link]")?.getAttribute("href")).toContain("/verification");
+    expect(card.querySelector("[data-step='done']")).not.toBeNull();
   });
 
   it("Application lists ACCEPTED, OBSERVED, FAILED and APPLIED with actor, provenance, effective revision and change record", async () => {

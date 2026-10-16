@@ -312,3 +312,42 @@ export function ValueBars({ title, items }: ValueBarsProps) {
     </figure>
   );
 }
+
+export type StepState = "done" | "waiting" | "problem" | "not-known";
+
+export interface Step {
+  label: string;
+  state: StepState;
+  /** Readable detail under the step, e.g. a date or "Not applied yet". */
+  detail: string;
+}
+
+const STEP_WORDS: Record<StepState, string> = {
+  done: "Done",
+  waiting: "Not yet",
+  problem: "Problem",
+  "not-known": "Not known",
+};
+
+/**
+ * A small ordered step strip with readable text: each step says its state in
+ * words, so meaning never rests on the mark or its colour. The caller passes
+ * each step's state from its read; nothing is inferred here.
+ */
+export function StepStrip({ title, steps }: { title: string; steps: readonly Step[] }) {
+  return (
+    <figure className="step-strip" data-step-strip>
+      <figcaption className="value-bars__title">{title}</figcaption>
+      <ol className="step-strip__list">
+        {steps.map((step) => (
+          <li className={`step-strip__step step-strip__step--${step.state}`} key={step.label} data-step={step.state}>
+            <span className="step-strip__mark" aria-hidden="true" />
+            <span className="step-strip__label">{step.label}</span>
+            <span className="step-strip__state">{STEP_WORDS[step.state]}</span>
+            <span className="step-strip__detail">{step.detail}</span>
+          </li>
+        ))}
+      </ol>
+    </figure>
+  );
+}
