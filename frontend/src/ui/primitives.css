@@ -3764,6 +3764,7 @@ tr[data-selected] > * {
   color: var(--text-muted);
 }
 
+.panel__body .headline-card__headline,
 .headline-card__headline {
   margin: 0;
   font-size: var(--text-lg);
@@ -3779,9 +3780,12 @@ tr[data-selected] > * {
   gap: var(--space-3);
 }
 
+/* One block fills the row; two share it evenly. */
 @media (min-width: 900px) {
   .headline-card__pair {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-template-columns: none;
   }
 }
 
@@ -3849,6 +3853,7 @@ tr[data-selected] > * {
   background: var(--attention-bg);
 }
 
+.panel__body .product-status__label,
 .product-status__label {
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
