@@ -500,9 +500,11 @@ class VerificationService:
         return body
 
     def _windows(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], known_at: datetime,
-                 reserves_known_at: datetime | None = None) -> dict[str, dict[str, Any]]:
+                 reserves_known_at: datetime | None = None,
+                 exclude: frozenset[str] = frozenset()) -> dict[str, dict[str, Any]]:
         """Both windows' evidence as accepted by `known_at`, filtered to the plan's battery and bound assets (F6).
-        `reserves_known_at` holds the Foundation reserve history at another cutoff (F2 attribution)."""
+        `reserves_known_at` holds the Foundation reserve history at another cutoff and `exclude` leaves out these
+        accepted evidence IDs (F2 attribution replay)."""
         basis = plan["basis"]
         windows = {}
         for name in ("baseline", "later"):
@@ -513,7 +515,8 @@ class VerificationService:
                                       interval_start=r["interval_start"], interval_end=r["interval_end"],
                                       value_text=r["normalized_value_text"], unit=r["normalized_unit"],
                                       quality=r["quality"])
-                        for r in self.store.window_readings(tenant_id, site_id, lo, hi, list(ROLES), known_at)]
+                        for r in self.store.window_readings(tenant_id, site_id, lo, hi, list(ROLES), known_at)
+                        if str(r["id"]) not in exclude]
             reserves = [rules.ReserveValue(value=Fraction(str(r["value"])), valid_from=r["valid_from"],
                                            valid_to=r["valid_to"], foundation_revision_id=str(r["foundation_revision_id"]))
                         for r in self.store.reserve_history(tenant_id, site_id, plan["battery_asset_id"], lo, hi,
@@ -642,9 +645,14 @@ class VerificationService:
 
         Candidates were accepted after the RESOLVED event and by the withdrawal (`now`), touch a pinned window and
         match the plan's frozen role/bound asset for that window (the plan's battery for SOC); unbound assets and
-        unbound roles are never candidates. A candidate is causal only when it entered that window's used evidence
-        and the window's computed result (coverage, energy, reserve seconds, SOC, problems) changed, with the
-        Foundation reserve history held at the closure's cutoff. `attribution` is CAUSAL (non-empty set), NONE
+        unbound roles are never candidates. Fix round 2 (re-review R1): each window whose computed result (coverage,
+        energy, reserve seconds, SOC, problems) changed is replayed in acceptance order, with the Foundation reserve
+        history held at the closure's cutoff. A candidate is causal only when its own arrival changes that window's
+        result relative to the previous acceptance prefix, and it entered the window's used evidence. A reading that
+        leaves the result unchanged (an exact duplicate, a later reading repeating an earlier change) is never causal,
+        so it cannot move the overlap boundary. Readings accepted at the same instant are tested one by one (the
+        others left out); they are recorded together as jointly causal only when the instant changes the result and
+        no single one of them changes it on its own. `attribution` is CAUSAL (non-empty set), NONE
         (empty: Foundation, source, binding or worker-only cause, or readings that changed nothing) or INDETERMINATE
         (a bound candidate whose effect cannot be established, e.g. the window's S3 selection is still pending or
         moved while its evidence result is unchanged): INDETERMINATE keeps the ordinary hold and never overlaps."""
@@ -677,13 +685,36 @@ class VerificationService:
                 "initial_soc", "terminal_soc", "problems")
         pinned = (outcome or {}).get("basis") or {}
         indeterminate = False
+
+        def result(name: str, at: datetime, exclude: frozenset[str] = frozenset()) -> dict[str, Any]:
+            window = _wire(self._windows(tenant_id, site_id, plan, at, reserves_known_at=closed_at,
+                                         exclude=exclude))[name]
+            return {k: window.get(k) for k in keys}
+
+        def arrivals(name: str, was: dict[str, Any]) -> list[dict[str, Any]]:
+            """R1: the candidates whose own arrival changed the window, replayed by acceptance prefix."""
+            groups: dict[datetime, list[dict[str, Any]]] = {}
+            for r in candidates[name]:  # `late_evidence` orders by acceptance
+                groups.setdefault(r["decided_at"], []).append(r)
+            prev, causal = was, []
+            for at, group in groups.items():
+                cur = result(name, at)
+                if cur == prev:
+                    continue  # nothing accepted at this instant changed the result
+                ids = {str(r["id"]) for r in group}
+                alone = group if len(group) == 1 else [
+                    r for r in group if result(name, at, frozenset(ids - {str(r["id"])})) != prev]
+                causal += alone or group  # jointly causal only when no single one changes it on its own
+                prev = cur
+            return causal
+
         for name in names:
             if not candidates[name]:
                 continue
             was, now_ = ({k: w[name].get(k) for k in keys} for w in (before, after))
             entered = set(after[name]["evidence_ids"]) - set(before[name]["evidence_ids"])
             entered |= {i for p in after[name].get("problems") or [] for i in (p.get("evidence_ids") or [])}
-            hit = [r for r in candidates[name] if str(r["id"]) in entered]
+            hit = [r for r in arrivals(name, was) if str(r["id"]) in entered] if was != now_ else []
             if was != now_ and hit:
                 days = self._day_states(tenant_id, site_id, pinned.get(f"{name}_days", []), require_s4=True)
                 out["basis_changes"].append({

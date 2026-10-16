@@ -248,3 +248,36 @@ class TestF2CausalAttribution:
             assert guard_code(h, runner, p2 | {"recommendation_key": OTHER}) == "PRIOR_ACTION_UNRESOLVED"
         finally:
             h.close()
+
+    @pytest.mark.parametrize("accepted_after_conflict", [False, True], ids=["action-before-conflict", "control"])
+    def test_a_duplicate_reading_never_moves_the_overlap_boundary(self, runner, monkeypatch,
+                                                                  accepted_after_conflict) -> None:
+        """Fix round 2 (re-review R1): VERIFIED and RESOLVED at 12:00; a bound SOC reading identical to the pinned
+        sample accepted at 12:15; a conflicting one at 13:00; evaluation at 14:00. Only the conflicting reading is
+        causal, so another Finding's Action accepted at 12:30 keeps the ordinary hold, while the control Action
+        accepted after the conflicting reading is a permanent overlap."""
+        run_case(runner, CASES["F01"])
+        run_case(runner, CASES["F02"])
+        h = verifying(runner)
+        try:
+            p2 = proposal_of(h, "2026-10-08")
+            inject: set = set()
+            action_id, _ = _closed_verified(runner, h, monkeypatch, inject=inject)
+            duplicate = late_reading(runner, "2026-11-02T12:15:00Z", soc="50")
+            inject.update(duplicate)
+            if not accepted_after_conflict:
+                store_accept(h, runner, p2, "accept-f02-mid", datetime(2026, 11, 2, 12, 30, tzinfo=UTC))
+            conflict = late_reading(runner, "2026-11-02T13:00:00Z", soc="79")
+            inject.update(conflict)
+            if accepted_after_conflict:
+                store_accept(h, runner, p2, "accept-f02-late", datetime(2026, 11, 2, 13, 30, tzinfo=UTC))
+            h.clock.at = datetime(2026, 11, 2, 14, 0, tzinfo=UTC)
+            assert evaluate(h, action_id, "eval-0002").json()["withdrawn"] is True
+            payload = withdrawal(runner, action_id)
+            assert payload["attribution"] == "CAUSAL"
+            assert [e["id"] for e in payload["invalidating_evidence"]] == conflict  # never the duplicate
+            assert payload["candidate_evidence_ids"] == sorted(duplicate + conflict)
+            expected = "PRIOR_TRIAL_REASSESSMENT_OVERLAP" if accepted_after_conflict else "PRIOR_ACTION_UNRESOLVED"
+            assert guard_code(h, runner, p2 | {"recommendation_key": OTHER}) == expected
+        finally:
+            h.close()
