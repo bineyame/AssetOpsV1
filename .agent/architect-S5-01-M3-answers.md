@@ -1,0 +1,11 @@
+# Architect ruling - S5-01 phase-1 review M3 (2026-10-15)
+
+Authority: `.agent/architect-S5-01-M3-request.md`, the independent S5-01 phase-1 review M3, `tasks/LR-01-late-reading-series-and-money-limit.md`, `tasks/S5-01-site-overview.md`, the P02 late-power spec, the owner's S4-02b demonstration ruling, and `D-2026-10-15-s405-stored-demo-provenance`.
+
+## Decision
+
+Choose (a): add `backend/conversions/s4-power-late-demo-cases-v1.json` to the shared `demonstration_case` declaration now. For KOBO-001, the P02-power-late case on 2026-10-24 must return the same visible `Demonstration data` label and statement used for authored P01, with P02's case ID and spec label. Apply the existing bounded UTC episode/day matching rule. An unreadable or malformed declared spec must retain the cautious unverified result and block a current amount; an absent case match alone is not a positive source attestation. Refuse conflicting declarations rather than silently picking one. This is a temporary fixture-based presentation rule, not stored evidence authorship or a general real-source classification.
+
+Put the shared-label change and its P02 regression proof on **LR-01**. LR-01 introduced the late fixture's current-money Financials path, so its eligible Finding/Financials walkthrough should already show P02's authored label beside the exact 15.8125 USD amount (15.82 USD displayed) before its owner checkpoint. S5-01 consumes the same helper and should verify its P02 Overview money card shows that label after `attest` and settled `tick`, while withheld, pending, stale and closed states still show no current amount. Recheck the shared Finding/Financials and Overview APIs as well as the visible cards after reload. The LR-01 and S5-01 owner walkthroughs remain held for the owner's actual visual check at about 22:00 EAT; this ruling is not that acceptance.
+
+Do not turn `ELIGIBLE` or a matching day into amount authority. Current money still requires the exact-head `CURRENT PRICED` consequence, current source, quantity/price and all existing read gates. When S4-05 lands, replace the day/spec heuristic with its stored exact-revision provenance for both P01 and P02. Unbound or mixed cited evidence then follows `MIXED_OR_UNKNOWN_SOURCE` with no current amount, including old fixture rows; no retrospective date-based authorship is permitted.

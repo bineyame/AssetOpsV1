@@ -1,0 +1,2 @@
+# S4-05a re-chain handoff
+Merged main 4fbb97f8; migration is now 0017_evidence_publication (down 0016_action_store), single head. Rule 8 merged from all three sides. Full backend: 2368 cases, 0 skipped, 0 failed, 12:03 wall. check-all: 9/9. Task status done pending merge. Next: coordinator merges to main (no S4-05b dependency on this file). Risk: none known; temp .venv junction and var/sites yaml removed.

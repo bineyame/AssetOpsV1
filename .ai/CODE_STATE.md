@@ -5493,11 +5493,22 @@ Branch `task/OPS-01-backend-test-speed` from main `52189ec7`. Handoffs `.agent/O
 - Escape hatches: `ASSETOPS_TEST_TEMPLATE=0`, `ASSETOPS_TEST_CLEANUP=truncate`; measurement knobs off by default.
 - Open: inline stores still GC-disposed (no public `dispose()` on production stores); `gc.collect()` fixtures kept; concurrent full runs unproven (one-at-a-time policy); timing-sensitive S4 cases did not flake in 3 parallel runs but remain disk-stall sensitive; `-n 3` not adopted on one run.
 
+## S4-05a - immutable source binding and exact-revision resolver (built, in_review)
+
+Branch `task/S4-05a-provenance-binding-resolver` from main `fd7afd2c`. Handoffs `.agent/S4-05a-phase-1-handoff.md`, `.agent/S4-05a-phase-2-handoff.md` (resolver field contract for S4-05b); packet `.agent/S4-05a-review-packet.md`. Authority `D-2026-10-15-s405-stored-demo-provenance`, `.agent/architect-S4-05-answers.md`.
+
+- Migration `0017_evidence_publication`: insert-only `evidence_publication` (SYSTEM actor, class CHECK: authored fixture ID+version or run ID+64-hex run digest) and `batch_publication_link` (composite FKs to the exact batch and publication commitment); UPDATE/DELETE triggers; downgrade refuses while publications exist (tested).
+- Ledger writer (`postgres_evidence_ledger.py`) is the only provenance writer: `register_publication` and `open_batch` share `pg_advisory_xact_lock` on (tenant, Site, external batch ID); registration refuses after any admission, needs a registered gateway/source and (phase-1 review M1) a `SIMULATED` gateway for every class; `open_batch` binds the exact commitment or refuses 409 `PUBLICATION_MISMATCH`. Unpublished uploads stay accepted and unbound.
+- Domain `evidence/publication.py` (authored records, run attestation), `runs/source_publication.py`, server CLI `publish_source.py`; no HTTP route.
+- Resolver `evidence/source_provenance.py` (pure, route-safe) + read-only ledger methods `link_rows`, `finding_revision_evidence`, `consequence_inputs`; `composition.build_source_provenance`. FindingRevision cited set; consequence = union of its FindingRevision set and its own power-interval IDs, with `finding_revision_state` and `CONSEQUENCE_POWER_INPUT_CONFLICT`. Several run IDs -> MIXED (N-L2). Missing/foreign-Site/broken precede MIXED. Cross-tenant IDs read as not found (no disclosure).
+- Rule 8 (`configuration-persistence.ps1`): ledger INSERT-only provenance; split `UPDATE|DELETE FROM|TRUNCATE <provenance table>` refused in any module (review L1); HTTP modules may not reference designation.
+- Not changed: every read DTO and the date/spec source heuristic (S4-05b cuts over).
+- Open: N-L1 producer registration in a non-route module (S4-05b); migration re-chain vs LR-01/S6-01a; run identity digest is not re-verified after registration (file-backed run store); lock key is the admission slot, stricter than the packet wording; no TRUNCATE trigger (rule 8 only); S5-01 amendment (N-L3).
 ## S6-01a - Action store, controlled application and exact read (in_review)
 
 Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Packet `.agent/S6-01a-review-packet.md`; handoffs `.agent/S6-01a-phase-1-handoff.md`, `.agent/S6-01a-phase-2-handoff.md`. Authority `D-2026-10-15-s601-action-store-and-ui` (`.agent/architect-S6-01-answers.md` Q1-Q5, M1-M3).
 
-- Migration `0014_action_store` (down `0013_schedule_state`): `action` (accepted-recommendation snapshot), `action_basis_assessment`/`_evidence`, `action_event`, `action_policy_change`, `action_policy_change_binding`; all append-only (`ledger_append_only`), same-Site composite FKs, `action_code_seq`. Event expected/current Foundation IDs carry same-Site FKs; the change's APPLIED event must be its own Action's (`action_event_action_unique`).
+- Migration `0016_action_store` (down `0013_schedule_state`): `action` (accepted-recommendation snapshot), `action_basis_assessment`/`_evidence`, `action_event`, `action_policy_change`, `action_policy_change_binding`; all append-only (`ledger_append_only`), same-Site composite FKs, `action_code_seq`. Event expected/current Foundation IDs carry same-Site FKs; the change's APPLIED event must be its own Action's (`action_event_action_unique`).
 - `backend/assetops_backend/actions/`: `reserve_trial.py` (pure `reserve-trial-1`), `lifecycle.py` (transition table, reducer, selectors, `SYSTEM_DEMO`), `capability.py` (grants v2: tenant ID + Site ID + command + fixture record Finding IDs), `service.py` (`ActionService`), `composition.py` (`foundation_publish(registry)` maps S1 refusals to Action failure codes), adapter `adapters/postgres_action_store.py` (ninth writer, INSERT only).
 - Apply: the Action adapter opens the transaction, locks the Action row `FOR UPDATE`, returns a stored event for the same key (`REPLAY`) or `ALREADY_APPLIED`, then calls the S1 publish on its own connection: `FoundationService.publish_battery_reserve(..., expected_revision_id, expected_value, caller=CallerTransaction(connection, then, recorded_at))` -> `PostgresFoundationStore.publish_configuration(..., connection=, then=)` (Site lock, expected covering revision, no-change, expected reserve; `written_ids(plan)` to `then`). `then` inserts the change, binding rows and APPLIED; one commit. `ApplyFailed` rolls back, then FAILED is appended in its own transaction (existing event returned on key collision). Without `caller`, S1 publish is unchanged.
 - Routes (`action_api.py`, wired `main.py` with `registry=`): recommendation, accept, apply, observations, Action and events reads (`event_id` | `recorded_at`, both = 422), `GET /api/sites/{code}/foundation/changes/{change_id}`. Refusal order: access, Site 404, Finding/Action 404, fixture-record capability 403, body 422, revision/expected-Foundation 404, domain.
@@ -5540,3 +5551,68 @@ Branch `task/S6-01b-action-ui`, stacked on unmerged S6-01a `c341599b`; no backen
   - The served walkthrough uses the real clock against fixture-clock records.
   - There is no OBSERVED command control.
   - S6-02 owns Plan, Evidence and Verification, the change index and effect verdicts.
+## S4-06 - equal-start future price succession (built, review pending)
+
+Branch `task/S4-06-price-succession` from main `7c72c6b3`; packet `.agent/S4-06-review-packet.md`.
+
+- `financials/assumptions.py` `plan_assignments`: a SUCCESSION whose `valid_from` equals the sole open-ended current assignment's start closes it and inserts only the new `[valid_from, inf)` row (Architect S4-02 Q1); no zero-length remainder. Later-start SUCCESSION, INITIAL, CORRECTION, `SUCCESSION_NOT_FUTURE` and `SUCCESSION_OVERLAP_NOT_PERMITTED` (bounded / >1 overlap) unchanged.
+- No writer, migration or rule-8 change: `postgres_assumption_store.publish` already applies any plan under the Site/key advisory lock; earlier recorded cutoffs keep the scheduled assignment through the existing `snapshot` history read.
+- Proofs: `test_s4_assumptions_postgres.py` `TestEqualStartSuccession` (cutoff history, retry, key reuse, stale prior, 2-publisher race, bounded/multiple refusal, CORRECTION tail on an older revision, unchanged earlier-price window selection); planner unit tests in `test_s4_assumption_publication.py`.
+- Open: registry `I-price-equal-start-succession` stays `open` until merge.
+
+## OPS-02 - statement-level rule 8 writer guard (done, pending merge)
+
+Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `.agent/OPS-02-review-packet.md`; closes S4-02d phase-2 review F-B and OPS-01 L1.
+
+- `tools/checks/sql_statements.py`: table-agnostic AST extractor. Renders whole string expressions (implicit concatenation, triple quotes, escapes; `+`, f-string, `%`, `.format`, `"".join` with dynamic parts as `{?}`), strips SQL comments, collapses whitespace, splits on `;` and at each write head (INSERT INTO/UPDATE/DELETE/TRUNCATE/MERGE/COPY/CREATE/ALTER/DROP/GRANT; `DO|THEN|FOR|KEY UPDATE` stay in their clause), and synthesises SQLAlchemy Core `insert/update/delete` (aliased imports, `sa.` attributes, `table("x").delete()`) into SQL. Bare string statements (docstrings) are skipped.
+- `configuration-persistence.ps1` rule 8 applies the unchanged per-writer policy tables to clauses (`$line` = clause, `$lineNumber` = expression start line); the driver-import check stays per line. New global refusals: MERGE/COPY, a DML clause whose target is not a literal identifier, a dangling write head (`sql +=` assembly). Schedule UPDATE allows a table alias; its "one line" rule became "one statement". Writer non-vacuity is reported only when the extractor ran (its own failure is reported instead).
+- Interpreter: `ASSETOPS_GUARD_PYTHON` (set by `check-all.ps1` from `-Python`), else `.venv/Scripts/python.exe` or `.venv/bin/python`; a missing or failing extractor is a rule-8 failure, never a skip.
+- Proof corpus `tools/writer_guard_probes.py` (`--seam` = rule-8 module only): 11 F-B forms, a two-line UPDATE per writer, reverse ownership per table family, dynamic/Core/fragment/CTE/upsert/COPY forms, plus one controls run.
+- `backend/tests/conftest.py` `refuse_template_opt_out_under_xdist`: `ASSETOPS_TEST_TEMPLATE=0` under xdist (controller or worker) is a `pytest.UsageError` before routing; serial and `-n 0` unchanged.
+- Adding a writer table (LR-01 `source_clock_attestation`, S6-01a Action tables, S4-05a provenance tables): extend the rule-8 policy arrays only; the extractor needs no change.
+- Merge with main `0d3114a3` (2026-10-16): rule 8 statements carry the ninth writer (Action store, insert-only), LR-01 `source_clock_attestation` (assessment store, insert-only) and S4-05a provenance (ledger, insert-only; three DO NOTHING arbiters). S4-05a's provenance verb refusal and S6-01a's Action every-line refusal run on source lines (driver loop) and on clauses; new: an insert-only table (attestation, Action, provenance) is never upserted (`DO UPDATE`).
+- Open: SQL read from files, or assembled across statements other than a dangling head, is not resolved; `.agent/S4-02d-phase-1-probes.py` "split update" is now an allowed form (see packet).
+## S4-07 - evidence decided_at on DB time (built, review pending)
+
+Branch `task/S4-07-evidence-decided-at` from main `5bfff665`; packet `.agent/S4-07-review-packet.md`.
+
+- `PostgresEvidenceLedger.decide_chunk` takes one DB `clock_timestamp()` per chunk after the batch row lock (`_decision_instant`), inside the write transaction; it stamps every newly decided ordinal's `decided_at` and a newly inserted `recompute_job`'s `available_at`/`created_at`. A widened PENDING job keeps `created_at` and has `available_at` lifted to `GREATEST(available_at, decision)` (Known Deviation 1; closes the cutoff-sampled-before-commit race, proved failing without it).
+- `EvidenceLedger.decide_chunk(..., completed_at=)` replaces `decided_at=`: `BatchIngestionService` passes its app clock only for the receipt `completed_at`; `received_at` unchanged.
+- `test_decision_clock_override` (constructor kwarg/attribute) is test-only; `main.py`/`evidence/composition.py` never set it. Deterministic fixtures (S2 ledger/site evidence, S3 dispatch, S4 CaseRunner, S4 consequence work) use it.
+- Proofs: `tests/test_s4_evidence_decided_at_postgres.py` (production path, fast/slow app clocks: ingestion-first, worker-first with L-b lock wait, cutoff-sampled race, uncommitted-job tick; crash/replay across two windows, duplicate-only chunk, another Site). F-A test re-driven as override-path, skew 120 s (R-2).
+- Open: manual app-clock `process-jobs` beside the tick (README-db); configuration `recorded_at` vs `reconcile`; `clock_timestamp()` vs `now()` (an instant predating a batch-lock wait) is reasoned, not mutation-proved (no batch-lock contention test).
+## LR-01 - late-reading series and money limit (phases 1-2 built, slice review pending)
+
+Branch `task/LR-01-late-reading-series-and-money-limit`; handoffs `.agent/LR-01-phase-1-handoff.md`, `.agent/LR-01-phase-2-handoff.md`; packet `.agent/LR-01-review-packet.md`; decision `D-2026-10-15-lr01-source-time-cohort`.
+
+- Clock attestation: append-only `source_clock_attestation` (migration 0014), SYSTEM-only CLI `assetops_backend.record_clock_attestation`, `SIMULATED` proof class only; attestation change requeues old+new validity (`postgres_assessment_store.record_clock_attestation`).
+- cohort-4 / `dispatch-3.2`: source-time order only under one covering attestation (`analytics/cohort.py`); a reading's clock reason depends only on attestations touching it (phase-1 review F1); overlap checks span attestation boundaries (L1).
+- Matcher `finding-episode-3` (`analytics/finding_episode.py`): `claim.end_reason` (`OFF_OBSERVED|CANDIDATE_ENDED|OPEN_BOUND|SERIES_LIMIT`) and `claim.series_limits` with exact lineage; a cut tail drops its dependent `OPEN_BOUND`.
+- Shared money gate `financials/money_eligibility.py` (`money-eligibility-1`): PENDING_REASSESSMENT > WITHHELD_GENERATOR_SERIES > ELIGIBLE, read-derived on every read, fails closed. Consumed by `ConsequenceReadService(eligibility=...)` (gates `presented_as_current`/`current_amount_shown`), `finding_api.bridge_consequence` (states + `recorded_consequence_revision_id`), and `scheduling/upstream.py` `findings[].money_eligibility` for S5-01. ELIGIBLE is not an amount authorization.
+- Migration 0015 `0015_finding_returning_basis`: FindingRevision basis may return (A -> B -> A); replay guard compares with the latest revision only.
+- UI: Financials bridge shows withheld/pending with the refused span and an exact link to the recorded consequence; Finding page states a SERIES_LIMIT end.
+- Walkthrough: `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01*`; browser claims `tools/lr01-money-evidence.mjs`.
+- Open: real-source clock proof has no write path (by design); S5-01 owns its own UI over the seam; the schedule install gate stays closed until this slice is reviewed and merged; broader per-analytic input/clock coverage remains the owner analysis-input backlog.
+
+## S5-01 - selected-window Site Overview (phases 1-2 built, slice review pending)
+
+Branch `task/S5-01-site-overview` (LR-01 merged in, unmerged to main); handoffs `.agent/S5-01-phase-1-handoff.md`, `.agent/S5-01-phase-2-handoff.md`; packet `.agent/S5-01-review-packet.md`; owner steps `.agent/S5-01-owner-walkthrough.md`.
+
+- Read: `site_overview/read.py` `SiteOverviewRead.read` builds `site-window-summary-1` for one UTC day over committed records (no projection table): accepted-source fingerprint fence, S4-02d `UpstreamCurrentness.window`, fenced S3 day detail, ledger context, one Finding by `D-2026-10-15-s501-finding-choice`, exact-head money with the real Performance gate. `money_state.py` is the pure no-amount precedence.
+- Money: `PRICED` also requires the LR-01 seam row's `current_amount_permitted` (fail closed as `CONSEQUENCE_STALE`); the raw gate is S5's own exact read, never the seam's rewrite.
+- Pin: optional `finding_id`/`finding_revision_id`; must intersect the day (`NOT_IN_SELECTED_DAY`), exact revision only while the source is closed, retained while discovery is incomplete; `previous_pin` (top-level and in `known_finding`) names why a pin is not shown. `PinNotFound` -> 404.
+- Route: `site_overview/route.py` at the existing `GET /api/sites/{site}/overview` (evidence router delegates first): access 401/403, scope (typed 503 `SITE_STORE_UNAVAILABLE`), S2 409, UTC day 422s, Performance gate. Legacy `date=` becomes the midnight pair.
+- Composition: one seam per process; S5 reuses the seam's consequence read and Finding store; `main.py` disposes through `app.router.on_shutdown` (FastAPI 0.141 has no `add_event_handler`).
+- UI: `sites/SiteWindowOverview.tsx` (no SVG; CSS-bar timeline), `SiteOverview.tsx` S5 branch with URL `date`/pin written back from the served values, `siteOverviewClient.ts` validator; destinations from `shell/SiteDetailFrame.tsx`. Day navigation is links.
+- Walkthrough: `tools/s5_overview_walkthrough.py` (`assetops_s501_owner*`, `var/s501_owner*`, ports 8925/5425, ticks env `default`); browser claims `tools/s5-overview-evidence.mjs <base> <initial|pending|eligible|stopped|closed>`.
+- Open: Site Finding index (list stays unavailable); `mini:3#a/b` (S4-04/S5-02); L5 fence placement and Postgres merge/midnight cases (fakes only); production schedule thresholds make demo amounts lapse 5 minutes after a manual tick; merge and `mini:1#a/2#a/4#a` promotion held for the owner record.
+
+## S4-04 - Site Finding index and list (phases 1-2 built, slice review pending)
+
+Branch `task/S4-04-site-finding-index` (base main `f8a131e3`, unmerged); handoffs `.agent/S4-04-phase-1-handoff.md`, `.agent/S4-04-phase-2-handoff.md`; packet `.agent/S4-04-review-packet.md`; owner steps `.agent/S4-04-owner-walkthrough.md`.
+
+- Read: `GET /api/sites/{site_code}/finding-index` (`finding_index_api.py`, service `analytics/finding_index.py`, SELECT-only store reads `index_snapshot`/`index_lineage` in `postgres_finding_store.py`). No snapshot table, so only `CURRENT` carries rows and `total_count`; refusals 422/409 carry neither.
+- Discovery: fixed point over UTC days via stored canonical episodes within 20 min of an edge AND (phase-1 review H1) selected S3 Candidate segments within 20 min of the edge day's edge (`candidate_reach`); cap 62 -> 409 `INDEX_CONTINUITY_LIMIT`. The H1 root cause (matcher pass marking a deferred window matched) is fixed separately on `fix/S4-deferred-match`.
+- UI: `sites/findingIndexClient.ts` (typed result union incl. `not_imported`, `closed`, `continuity_limit`, `basis_changed`, `invalid`), `sites/SiteFindingIndex.tsx`; `shell/SiteAnalyticsFrames.tsx` `SiteFindingsFrame` keeps scope in the URL (`domain/from/to/limit/cursor`, default today's UTC day) and falls back to the T028 `SiteFindings` on a 404. `App` prop `siteFindingIndex`. Row link text is the lifecycle title (stored titles fail the product-vocabulary scan).
+- Walkthrough: `tools/s404_finding_index_walkthrough.py` (`assetops_s404_owner*`, `var/s404_owner*`, API 8934/web 5434, TLS 8935/HTTP 8936): prepare/serve/late/settle/gate/drop; browser claims `tools/s404-finding-index-evidence.mjs <base> <initial|late|settled|closed> <out> <manifest>`.
+- Open: owner record; `mini:3#a/b` (S5-02 consumes this order); money stays unavailable until S4-05 provenance + LR-01 both reviewed in baseline; S5-01 Overview `finding_list` still says unavailable; plain-language copy for the W1 task; merge main after the deferred-match fix and rerun the focused index tests.

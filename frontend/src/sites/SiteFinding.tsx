@@ -437,6 +437,13 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
             </li>
           ))
         )}
+        {selected.claim.end_reason === "SERIES_LIMIT" ? (
+          <li data-finding-end-reason="SERIES_LIMIT">
+            This finding ends at {stamp(selected.episode.end)} UTC because the generator records after that could not be
+            put in a proven time order (some arrived late and the clock behind them is not proven). Only the time
+            before that is counted; the time after it is not judged, so no current cost is shown for this version.
+          </li>
+        ) : null}
         {joined.length > 0 ? (
           <li data-finding-joined-gaps={joined.length}>
             {joined.length === 1 ? "One short gap" : `${joined.length} short gaps`} of 20 minutes or less inside this

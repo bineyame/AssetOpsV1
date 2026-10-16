@@ -1,0 +1,18 @@
+{
+  "page2": "/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&limit=2&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTE1VDA5OjE1OjAwWiIsIjk0N2Y2MmVhLTY3MTEtNDNiYi04OTc5LWJkMmYwODc3MTZjYiJdLCJkb21haW4iOiJtaW5pLWdyaWQtZGlzcGF0Y2giLCJmcm9tIjoiMjAyNi0xMC0xNVQwMDowMDowMFoiLCJzZWxlY3Rpb25fdG9rZW4iOiJzZmkxLWVhYzFkZTMwMDMwMTRjMmRjZjQ0ZjkxZDFkZjk2ODQ2Mjk3NGE2NWFlZmNkOWNlOGNlZDY4NDliM2JhMThiN2MiLCJzaXRlX2lkIjoiZDBlZjdhM2ItNWUwMS00OTg1LWI2ODctMTU0OGMyM2ZlZjJjIiwidGVuYW50X2lkIjoiNzRhY2FkYzctMjJlMi00NTA5LThjNzUtMTVjMTU3MDkyZTgxIiwidG8iOiIyMDI2LTEwLTE2VDAwOjAwOjAwWiIsInYiOjF9",
+  "pinned": "/sites/KOBO-001/findings/ef37d258-f232-4ff0-aa95-7de78558b0b2?revision_id=0057e42e-986b-487c-8c28-e1d3ebbb4a53",
+  "findingRows": [
+    [
+      "ef37d258-f232-4ff0-aa95-7de78558b0b2",
+      "0057e42e-986b-487c-8c28-e1d3ebbb4a53"
+    ],
+    [
+      "947f62ea-6711-43bb-8979-bd2f087716cb",
+      "800189ca-a997-4ace-809d-f7d299fff739"
+    ],
+    [
+      "1ee09639-4497-4e74-a8e3-5b40d42786fe",
+      "5963dc98-0ae5-4e8a-a74c-72930804711f"
+    ]
+  ]
+}

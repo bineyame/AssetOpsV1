@@ -33,15 +33,18 @@ from typing import Callable, Sequence
 
 from fastapi import APIRouter, FastAPI
 
+from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
-from assetops_backend.analytics.composition import (build_dispatch_read_service, build_finding_read_service,
-                                                     build_lineage_reader, finding_store_unavailable)
+from assetops_backend.analytics.composition import (build_dispatch_read_service, build_finding_index_service,
+                                                     build_finding_read_service, build_lineage_reader,
+                                                     finding_store_unavailable)
 from assetops_backend.analytics.performance_comparison import comparison_summary, permits_performance_cutover
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
-from assetops_backend.finding_api import build_finding_router
+from assetops_backend.finding_api import ACCESS_BASIS, build_finding_router, development_access
+from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.financial_api import build_financial_assumption_router
@@ -78,7 +81,7 @@ from assetops_backend.gateway_api import (
     install_gateway_tls_boundary,
     registered_site_scope,
 )
-from assetops_backend.evidence.ledger import EvidenceLedger, GatewayPrincipalResolver
+from assetops_backend.evidence.ledger import EvidenceLedger, GatewayPrincipalResolver, LedgerUnavailable
 from assetops_backend.evidence.ledger_reads import ImportedEvidenceReads
 from assetops_backend.evidence.ledger_service import BatchIngestionService
 from assetops_backend.evidence.ports import EvidenceStore
@@ -99,6 +102,9 @@ from assetops_backend.runs.profiles import (
 from assetops_backend.scenarios.composition import build_scenario_repository
 from assetops_backend.scenarios.ports import ScenarioDefinitionRepository
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
+from assetops_backend.scheduling.composition import SCHEDULE_UNAVAILABLE
+from assetops_backend.site_overview.composition import build_site_overview_read
+from assetops_backend.site_overview.route import SiteOverviewRoute
 from assetops_backend.sites.composition import (
     build_foundation_store,
     build_site_repository,
@@ -295,33 +301,6 @@ def create_app(
     def store_root() -> str | None:
         commits = build_commit_store() if commit_store is None else commit_store
         return current_store_root(ingestion.store, commits)
-    app.include_router(
-        build_evidence_router(
-            ingestion,
-            repository,
-            assessments.card_assessments,
-            batch_ingestion=batch_ingestion,
-            gateway_principals=gateway_principals,
-            imported_reads=ImportedEvidenceReads(
-                batch_ingestion.ledger,
-                registry.ledger_scope,
-                latest_comparison,
-                current_inventory,
-                environment_identity(database_url()),
-                store_root,
-            ),
-        )
-    )
-    app.include_router(
-        build_gateway_router(
-            gateway_principals,
-            None if gateway_access is None else DiagnosticIngestionService(gateway_access, gateway_clock or utc_now),
-            gateway_access,
-            registered_site_scope(registry),
-            gateway_clock or utc_now,
-        )
-    )
-    app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     # S3-01 phase 3: imported-Site Performance > Dispatch over the durable dispatch-3.1 store, closed
     # until the newest file-backed comparison and the live lineage pass (performance_comparison).
     performance_reads = (build_dispatch_read_service(database_url(), os.environ.get("ASSETOPS_DEMO_FIXTURE_MANIFEST"))
@@ -341,6 +320,46 @@ def create_app(
             selected_revision_ids=lambda: {str(r["id"]) for r in lineage.selected_intervals(
                 tenant_id, site_id, "dispatch", "dispatch", ASSESSMENT_BRACKET)})
 
+    # S5-01: the imported-Site Overview delegate at the existing Overview route: Finding-read access convention,
+    # ledger scope, the S2 comparison (ImportedEvidenceReads below) and the Performance gate above; one upstream
+    # seam per process, disposed at shutdown. Every store failure is a typed 503, never an empty claim.
+    site_overview_read = (build_site_overview_read(database_url(), batch_ingestion.ledger)
+                          if database_url() else None)
+    if site_overview_read is not None:
+        # FastAPI 0.141 has no add_event_handler; the router's shutdown list runs under the default lifespan.
+        app.router.on_shutdown.append(site_overview_read.dispose)
+    site_overview = SiteOverviewRoute(site_overview_read, registry.ledger_scope, performance_gate,
+                                      development_access, ACCESS_BASIS,
+                                      (LedgerUnavailable, AssessmentStoreUnavailable, SCHEDULE_UNAVAILABLE,
+                                       *finding_store_unavailable(), *CONSEQUENCE_UNAVAILABLE))
+    app.include_router(
+        build_evidence_router(
+            ingestion,
+            repository,
+            assessments.card_assessments,
+            batch_ingestion=batch_ingestion,
+            gateway_principals=gateway_principals,
+            imported_reads=ImportedEvidenceReads(
+                batch_ingestion.ledger,
+                registry.ledger_scope,
+                latest_comparison,
+                current_inventory,
+                environment_identity(database_url()),
+                store_root,
+            ),
+            site_overview=site_overview,
+        )
+    )
+    app.include_router(
+        build_gateway_router(
+            gateway_principals,
+            None if gateway_access is None else DiagnosticIngestionService(gateway_access, gateway_clock or utc_now),
+            gateway_access,
+            registered_site_scope(registry),
+            gateway_clock or utc_now,
+        )
+    )
+    app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))
 
@@ -356,6 +375,10 @@ def create_app(
         # S4-02b phase 2a: the stored fuel-cost consequence read and the Financials bridge summary.
         consequences=build_consequence_read_service(database_url()) if database_url() else None,
         consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
+    # S4-04 phase 1: the Site Finding index read (D-2026-10-15-s404-contract); typed 503 without a database.
+    app.include_router(build_finding_index_router(
+        build_finding_index_service(database_url(), finding_manifest) if database_url() else None,
+        registry.ledger_scope, finding_store_unavailable(), gate=performance_gate))
     # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
     app.include_router(build_action_router(
         build_action_service(database_url(), finding_reads, registry=registry)

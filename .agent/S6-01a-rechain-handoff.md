@@ -1,0 +1,2 @@
+# S6-01a re-chain handoff
+Merged main (`5536f228`) into task/S6-01a-action-store-read; migration now `0016_action_store` (down `0015_finding_returning_basis`), single head. Pins updated (4 test files). Rule 8 has both writers. Full suite 2325 passed/0 skipped, 11m20s; check-all 9/9. Task status done (pending merge). Temp .venv junction, var/sites yaml and logs removed. Needs PYTHONPATH=backend when using the shared venv. Not merged to main.

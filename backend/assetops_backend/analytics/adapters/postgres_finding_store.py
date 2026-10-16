@@ -4,8 +4,9 @@ The fifth product database writer (architecture guard rule 8): it only INSERTs
 its own append-only tables. Writes for one Site run in one transaction under a
 Site-scoped advisory lock and re-check the selection/job fence the matcher read
 under, so a selection that lands between the read and the write is never
-half-applied: the caller re-plans instead. Revisions are idempotent on
-`(finding_id, basis_sha256, transition)`.
+half-applied: the caller re-plans instead. Revisions are append-only and immutable
+(`finding_revision_no_unique`); replay is idempotent against the Finding's latest revision only
+(`_insert_revision`), so a basis may return (A -> B -> A, migration 0015) and append a new revision.
 """
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Iterable
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
@@ -115,7 +116,7 @@ class PostgresFindingStore:
         return [Episode(str(r[0]), r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]) for r in rows]
 
     def apply(self, tenant_id: UUID, site_id: UUID, analytic_id: str, writes: list[Write], fence: Fence,
-              now: datetime) -> Applied:
+              now: datetime, *, deferred: Iterable[datetime] = ()) -> Applied:
         def work(c: Connection) -> Applied:
             c.execute(text("SELECT pg_advisory_xact_lock(hashtext('finding:' || :s))"), {"s": str(site_id)})
             if self._fence(c, tenant_id, site_id, analytic_id) != fence:
@@ -130,11 +131,14 @@ class PostgresFindingStore:
                 if rid is not None:
                     revisions.append(rid)
             # Q18: the pass itself is recorded, so "no Finding" can cite a completed match at that selection.
+            # The windows it deferred (a group touching a missing or non-CURRENT window within the continuity
+            # margin) are recorded on it: the pass did not match them, so `match_state` keeps them pending.
             c.execute(text("INSERT INTO finding_match_pass (id, tenant_id, site_id, analytic_id, selection_seq, "
-                           "matcher_version, revisions_written, completed_at) VALUES (:id, :t, :s, :a, :seq, "
-                           ":matcher, :n, :now)"),
+                           "matcher_version, revisions_written, completed_at, deferred_window_starts) VALUES "
+                           "(:id, :t, :s, :a, :seq, :matcher, :n, :now, CAST(:deferred AS timestamptz[]))"),
                       {"id": uuid4(), "t": tenant_id, "s": site_id, "a": analytic_id, "seq": fence.selection_seq,
-                       "matcher": MATCHER_VERSION, "n": len(revisions), "now": now})
+                       "matcher": MATCHER_VERSION, "n": len(revisions), "now": now,
+                       "deferred": sorted(deferred)})
             return Applied(tuple(findings), tuple(revisions))
 
         try:
@@ -160,8 +164,11 @@ class PostgresFindingStore:
     @staticmethod
     def _insert_revision(c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str, w: Write,
                          now: datetime) -> str | None:
-        exists = c.execute(text("SELECT 1 FROM finding_revision WHERE finding_id = :f AND basis_sha256 = :b "
-                                "AND transition = :tr"),
+        # Replay guard against the LATEST revision only (LR-01): a basis that returns to an earlier one (proof
+        # recorded then revoked: run B -> run C -> run B) is a new revision, never swallowed by an older match.
+        exists = c.execute(text("SELECT 1 FROM (SELECT basis_sha256, transition FROM finding_revision "
+                                "WHERE finding_id = :f ORDER BY revision_no DESC LIMIT 1) x "
+                                "WHERE x.basis_sha256 = :b AND x.transition = :tr"),
                            {"f": w.finding_id, "b": w.basis_sha256, "tr": w.transition}).first()
         if exists:
             return None
@@ -399,20 +406,25 @@ class PostgresFindingStore:
 
     def match_state(self, tenant_id: UUID, site_id: UUID, analytic_id: str, window_start: datetime
                     ) -> dict[str, Any]:
-        """The window's current selection sequence and the latest completed pass of this matcher version."""
+        """The window's current selection sequence and the latest completed pass of this matcher version. The
+        window is matched only when that pass ran at or after its selection and did not defer it."""
         def work(c: Connection) -> dict[str, Any]:
             seq = c.execute(text("SELECT max(seq) FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
                                  "AND analytic_id = :a AND window_start = :w"),
                             {"t": tenant_id, "s": site_id, "a": analytic_id, "w": window_start}).scalar_one()
-            row = c.execute(text("SELECT id, selection_seq, completed_at FROM finding_match_pass WHERE tenant_id = :t "
+            row = c.execute(text("SELECT id, selection_seq, completed_at, :w = ANY(deferred_window_starts) "
+                                 "FROM finding_match_pass WHERE tenant_id = :t "
                                  "AND site_id = :s AND analytic_id = :a AND matcher_version = :m "
                                  "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"),
-                            {"t": tenant_id, "s": site_id, "a": analytic_id, "m": MATCHER_VERSION}).one_or_none()
+                            {"t": tenant_id, "s": site_id, "a": analytic_id, "m": MATCHER_VERSION,
+                             "w": window_start}).one_or_none()
+            deferred = row is not None and bool(row[3])
             return {"window_selection_seq": seq, "matcher_version": MATCHER_VERSION,
                     "match_pass_id": None if row is None else str(row[0]),
                     "matched_through_selection_seq": None if row is None else row[1],
                     "match_completed_at": None if row is None else row[2],
-                    "matched": seq is not None and row is not None and row[1] >= seq}
+                    "match_deferred": deferred,
+                    "matched": seq is not None and row is not None and row[1] >= seq and not deferred}
         return self._read(work)
 
     def findings_over(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime) -> list[dict[str, Any]]:
@@ -429,4 +441,62 @@ class PostgresFindingStore:
                     "AND scope = 'WINDOW' ORDER BY assessment_revision_id"), {"r": r["revision_id"]})]
             return sorted(rows, key=lambda r: (r["episode_start"], str(r["finding_id"])))
 
+        return self._read(work)
+
+    # ---- S4-04 phase 1: Site Finding index (read-only; `findings_over` above is left unchanged) ----
+
+    def index_snapshot(self, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str) -> dict[str, Any]:
+        """One REPEATABLE READ snapshot for the Site Finding index: the latest revision of every Finding of
+        this domain/analytic with its merge, split and recurrence links, every window's current selection
+        sequence, the latest completed pass of this matcher version, and the writer fence."""
+        def work(c: Connection) -> dict[str, Any]:
+            p = {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "m": MATCHER_VERSION}
+            heads = [dict(r._mapping) for r in c.execute(text(
+                "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS finding_revision_id, r.revision_no, "
+                "r.transition, r.lifecycle, r.claim_level, r.title, r.matcher_version, r.model_version, "
+                "r.assessment_revision_id, r.analytic_run_id, r.window_assessment_revision_id, r.episode_start, "
+                "r.episode_end, r.limitations, r.created_at AS revision_created_at, f.domain, f.analytic_id, "
+                "f.cohort_sha256, f.anchor_start, f.recurs_after_finding_id, f.split_from_finding_id, "
+                "(SELECT m.canonical_finding_id FROM finding_merge m WHERE m.tenant_id = f.tenant_id "
+                "AND m.superseded_finding_id = f.id) AS merged_into_finding_id "
+                "FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+                "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = :d AND f.analytic_id = :a "
+                "ORDER BY r.finding_id, r.revision_no DESC"), p)]
+            merges = [dict(r._mapping) for r in c.execute(text(
+                "SELECT superseded_finding_id, canonical_finding_id, finding_revision_id FROM finding_merge "
+                "WHERE tenant_id = :t AND site_id = :s ORDER BY created_at, superseded_finding_id"), p)]
+            seqs = {r[0]: int(r[1]) for r in c.execute(text(
+                "SELECT window_start, max(seq) FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
+                "AND analytic_id = :a GROUP BY window_start"), p)}
+            row = c.execute(text("SELECT id, selection_seq, completed_at, deferred_window_starts "
+                                 "FROM finding_match_pass WHERE tenant_id = :t "
+                                 "AND site_id = :s AND analytic_id = :a AND matcher_version = :m "
+                                 "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"), p).one_or_none()
+            deferred = [] if row is None else list(row[3] or [])
+            match_pass = None if row is None else {"match_pass_id": str(row[0]), "matcher_version": MATCHER_VERSION,
+                                                   "matched_through_selection_seq": int(row[1]),
+                                                   "match_completed_at": row[2]}
+            return {"heads": heads, "merges": merges, "selection_seqs": seqs, "match_pass": match_pass,
+                    "deferred_windows": deferred, "fence": self._fence(c, tenant_id, site_id, analytic_id)}
+        return self._read(work)
+
+    def index_lineage(self, tenant_id: UUID, site_id: UUID, revision_ids: list[UUID]) -> dict[str, Any]:
+        """Exact stored lineage of the selected immutable revisions on one index page: cited assessment
+        revisions and runs (with their configuration selection) and cited accepted-evidence IDs."""
+        def work(c: Connection) -> dict[str, Any]:
+            p = {"t": tenant_id, "s": site_id, "ids": [str(x) for x in revision_ids]}
+            cites = [dict(r._mapping) for r in c.execute(text(
+                "SELECT finding_revision_id, assessment_revision_id, analytic_run_id, scope, is_primary "
+                "FROM finding_revision_assessment WHERE tenant_id = :t AND site_id = :s "
+                "AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY scope DESC, assessment_revision_id"), p)]
+            evidence = [dict(r._mapping) for r in c.execute(text(
+                "SELECT finding_revision_id, evidence_id FROM finding_revision_evidence WHERE tenant_id = :t "
+                "AND site_id = :s AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY evidence_id"), p)]
+            runs = [dict(r._mapping) for r in c.execute(text(
+                "SELECT id, model_version, input_sha256, configuration_sha256, cohort_sha256, "
+                "foundation_revision_ids, binding_set_revision_ids, knowledge_cutoff FROM analytic_run "
+                "WHERE tenant_id = :t AND site_id = :s AND id IN (SELECT analytic_run_id FROM "
+                "finding_revision_assessment WHERE finding_revision_id = ANY(CAST(:ids AS uuid[]))) "
+                "ORDER BY window_start, id"), p)]
+            return {"assessments": cites, "evidence": evidence, "runs": runs}
         return self._read(work)

@@ -314,12 +314,15 @@ def test_open_bound_interval_makes_window_limited_and_names_it():
     assert any(x.startswith("INTERVAL_LIMITED:") and "OPEN_BOUND" in x for x in result.result["limitations"])
 
 
-def test_corrected_rules_publish_as_dispatch_3_1_and_refuse_a_dispatch_3_input_set():
-    """D-2026-10-11-s3-phase-3a-version-and-cutover: the stricter multi-epoch default (Q9) and the
-    interval-to-window limitation lift (Q13) are a new model version, not a silent `dispatch-3` change."""
-    assert d3.MODEL_VERSION == "dispatch-3.1"
+def test_corrected_rules_publish_as_dispatch_3_2_and_refuse_older_input_sets():
+    """D-2026-10-11-s3-phase-3a-version-and-cutover and D-2026-10-15-lr01-source-time-cohort: each rule change
+    (the 3.1 multi-epoch default and limitation lift, then the LR-01 cohort-4 clock rules) is a new model version,
+    never a silent change of a stored one."""
+    assert d3.MODEL_VERSION == "dispatch-3.2"
     inputs, result = run(run_interval(Feed(), 5, 6))
-    assert result.result["model_version"] == "dispatch-3.1"
-    assert all(i.result["model_version"] == "dispatch-3.1" for i in result.intervals)
-    with pytest.raises(ValueError, match="not dispatch-3.1"):
-        d3.assess(replace(inputs, model_version="dispatch-3"))
+    assert result.result["model_version"] == "dispatch-3.2"
+    assert all(i.result["model_version"] == "dispatch-3.2" for i in result.intervals)
+    assert result.result["cohort"]["rules"] == "cohort-4" and result.result["cohort"]["clock_basis"] == []
+    for older in ("dispatch-3", "dispatch-3.1"):
+        with pytest.raises(ValueError, match="not dispatch-3.2"):
+            d3.assess(replace(inputs, model_version=older))

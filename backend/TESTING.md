@@ -98,7 +98,7 @@ $py = ".venv\Scripts\python.exe"
 & $py -m pytest backend/tests/test_s3_dispatch_assessment_postgres.py backend/tests/test_s3_dispatch_read_postgres.py backend/tests/test_s3_demo_configuration.py
 
 # S4 Finding and money
-& $py -m pytest backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
+& $py -m pytest backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
 
 # Complete suite - the normal full command (two workers), with JUnit for the zero-skip proof
 & $py -m pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --durations=30 --junitxml=.pytest-junit.xml
@@ -111,7 +111,14 @@ $py = ".venv\Scripts\python.exe"
 
 Start the keep-awake helper in a separate window (or as a background job). It
 asks Windows not to idle-sleep while any pytest process runs, changes no power
-settings, and exits after 20 idle minutes. A machine that sleeps mid-run turns
+settings, and exits after 20 idle minutes. It also holds the display on: on a Modern
+Standby laptop the display idle timeout otherwise enters standby (System event
+506, "Reason: Idle Timeout") even with the system-required flag, and a run that
+crosses standby loses wall time it never computed (main-tick-cost: the four-Site
+tick-cost test exhausted its 240 s tick budget and visited 3 Sites; the full
+suite took 47 minutes). Check with
+`Get-WinEvent -FilterHashtable @{LogName='System';Id=506,507}` before reading a
+slow or budget-bound failure as a code regression. A machine that sleeps mid-run turns
 a 40-minute suite into hours (seen in OPS-01: one run reached 34% in 4 h).
 
 ```powershell

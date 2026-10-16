@@ -18,6 +18,22 @@ sequence epoch). The rule (dispatch-3 table, "Cohort"):
   (`SEQUENCE_ORDER_INVERTED`) or two readings at one channel-time
   (`REPORTS_OVERLAP`) mark that span unusable. Neither sequence ranges nor
   receipt order is used to split or pick between them.
+- cohort-4 (LR-01, `D-2026-10-15-lr01-source-time-cohort`, Follow-up M1): where one
+  effective clock attestation for the stream (source, epoch) covers both readings'
+  measurement intervals, source time orders them and a later-sequenced reading
+  placed earlier is a late arrival, not an inversion. Inside that attested series,
+  placement-uncertainty intervals (`placed_at` +/- the attested UTC error) that
+  overlap, or measurement intervals that genuinely overlap (touching ends do not),
+  stay `REPORTS_OVERLAP`; no winner is chosen. These overlap checks run over every
+  attested reading of the channel, also across an attestation boundary (phase-1 review
+  L1). A reading that no attestation touches is `NO_ATTESTATION` whatever the stream's
+  proof elsewhere in time (review F1: an untouched window's digest never moves); one
+  touched but not covered is `OUTSIDE_VALIDITY`. A reading with no attestation, outside
+  validity, straddling or claimed by two attestations, under simulated proof while not
+  simulated, or a pair under two different attestations (an unproved clock step), keeps
+  the sequence rule. Each refused span names its clock reason and attestation versions,
+  and the selection pins the attestations it used (`clock_basis`). Epochs are never
+  merged by source time.
 
 No epoch name, manifest label or Lab run identifier is consulted.
 """
@@ -25,7 +41,9 @@ No epoch name, manifest label or Lab run identifier is consulted.
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from uuid import UUID
 
 from assetops_backend.analytics.assessment_inputs import (
     AcceptedReading,
@@ -34,6 +52,7 @@ from assetops_backend.analytics.assessment_inputs import (
     CohortSelection,
     Window,
 )
+from assetops_backend.analytics.clock_attestation import MAX_UTC_ERROR, PROOF_SIMULATED, ClockAttestation
 
 
 def _overlaps(a: tuple[datetime, datetime], b: tuple[datetime, datetime]) -> bool:
@@ -41,9 +60,10 @@ def _overlaps(a: tuple[datetime, datetime], b: tuple[datetime, datetime]) -> boo
 
 
 def select_cohort(readings: tuple[AcceptedReading, ...], window: Window,
-                  explicit: tuple[CohortMember, ...] | None = None) -> CohortSelection:
+                  explicit: tuple[CohortMember, ...] | None = None, attestations=()) -> CohortSelection:
     """`readings` cover the read range (window plus bracket). Only streams with a reading inside
-    the window itself are candidates; a stream seen only in the bracket is not pulled in."""
+    the window itself are candidates; a stream seen only in the bracket is not pulled in. `attestations`
+    are the clock attestations effective at the knowledge cutoff (`clock_attestation.effective_as_of`)."""
     present = sorted({r.member for r in readings if window.contains(r.placed_at)})
     if explicit is not None:
         chosen = tuple(sorted(set(explicit)))
@@ -56,11 +76,12 @@ def select_cohort(readings: tuple[AcceptedReading, ...], window: Window,
         clash = _clashing(mine)
         if clash:
             return CohortSelection("AMBIGUOUS", (), alternatives=tuple(sorted(clash)),
-                                   reason="the explicit cohort names overlapping epochs of one source")
+                                   reason="the explicit cohort names overlapping epochs of one source", rules=RULES)
         return CohortSelection("SELECTED_EXPLICIT", chosen, alternatives=others,
-                               limits=series_limits(mine), reason=reason)
+                               limits=series_limits(mine, attestations), reason=reason, rules=RULES,
+                               clock_basis=clock_basis(mine, attestations))
     if not present:
-        return CohortSelection("EMPTY", (), reason="no accepted reading in the window")
+        return CohortSelection("EMPTY", (), reason="no accepted reading in the window", rules=RULES)
     # Streams seen only in the bracket are not candidates and are not named: naming them would
     # change this window's basis whenever a neighbour day receives evidence.
     readings = tuple(r for r in readings if r.member in set(present))
@@ -71,7 +92,7 @@ def select_cohort(readings: tuple[AcceptedReading, ...], window: Window,
             "AMBIGUOUS", (), alternatives=tuple(names),
             reason=("a source reports the same time span under more than one sequence epoch ("
                     + ", ".join(f"{m.source_id}@{m.sequence_epoch}" for m in names)
-                    + "); no coherent default cohort; select one explicitly"))
+                    + "); no coherent default cohort; select one explicitly"), rules=RULES)
     successive = _multi_epoch(present)
     if successive:
         names = sorted(successive)
@@ -80,8 +101,9 @@ def select_cohort(readings: tuple[AcceptedReading, ...], window: Window,
             reason=("a source reports in this window under more than one sequence epoch ("
                     + ", ".join(f"{m.source_id}@{m.sequence_epoch}" for m in names)
                     + "); central evidence does not attest that they are one physical stream, so the "
-                      "default cohort does not blend them; select one explicitly"))
-    return CohortSelection("SELECTED_UNIQUE", tuple(present), limits=series_limits(readings))
+                      "default cohort does not blend them; select one explicitly"), rules=RULES)
+    return CohortSelection("SELECTED_UNIQUE", tuple(present), limits=series_limits(readings, attestations),
+                           rules=RULES, clock_basis=clock_basis(readings, attestations))
 
 
 def _multi_epoch(members: list[CohortMember]) -> set[CohortMember]:
@@ -110,27 +132,140 @@ def _clashing(readings: tuple[AcceptedReading, ...]) -> set[CohortMember]:
     return clashing
 
 
-def series_limits(readings: tuple[AcceptedReading, ...]) -> tuple[CohortLimit, ...]:
-    """Spans where a member's channel is not one public series (see module docstring)."""
+#: Cohort rule version persisted in every selection payload (LR-01, `D-2026-10-15-lr01-source-time-cohort`).
+RULES = "cohort-4"
+ATTESTED = "ATTESTED"
+_UNCOVERED = "UNCOVERED"
+
+
+@dataclass(frozen=True)
+class _Clock:
+    """A reading's clock basis: the one attestation that orders it, or why none does."""
+
+    attestation: ClockAttestation | None
+    reason: str  # ATTESTED | NO_ATTESTATION | OUTSIDE_VALIDITY | SPANS_ATTESTATIONS | CONFLICTING_ATTESTATIONS
+    #             | SIMULATED_PROOF_FOR_LIVE_SOURCE | ERROR_ABOVE_CEILING
+    refs: tuple[str, ...] = ()
+
+    @property
+    def key(self) -> str:
+        return _UNCOVERED if self.attestation is None else str(self.attestation.attestation_id)
+
+
+def _measured(r: AcceptedReading) -> tuple[datetime, datetime]:
+    """The reading's measurement interval, or its instant."""
+    return (r.interval_start or r.source_time, r.placed_at)
+
+
+def _streams(attestations) -> dict[tuple[UUID, str], list[ClockAttestation]]:
+    out: dict[tuple[UUID, str], list[ClockAttestation]] = defaultdict(list)
+    for a in attestations:
+        out[(a.source_id, a.sequence_epoch)].append(a)
+    return out
+
+
+def _clock(r: AcceptedReading, mine: list[ClockAttestation]) -> _Clock:
+    # LR-01 phase-1 review F1: the reason depends only on attestations that touch this reading, so a stream's
+    # first attestation (or revoking its last) elsewhere in time never changes an untouched window's digest.
+    start, end = _measured(r)
+    touching = [a for a in mine if a.touches(start, end)]
+    if not touching:
+        return _Clock(None, "NO_ATTESTATION")
+    covering = [a for a in touching if a.covers(start, end)]
+    refs = tuple(sorted(a.ref for a in touching))
+    if len(touching) > 1:
+        # Two attestations claim this reading's time (overlapping proof) or it straddles their boundary.
+        return _Clock(None, "CONFLICTING_ATTESTATIONS" if len(covering) > 1 else "SPANS_ATTESTATIONS", refs)
+    if not covering:
+        # One attestation touches the reading but its validity does not cover the whole measurement interval.
+        return _Clock(None, "OUTSIDE_VALIDITY", refs)
+    a = covering[0]
+    if a.proof_class == PROOF_SIMULATED and r.source_mode != "SIMULATED":
+        return _Clock(None, "SIMULATED_PROOF_FOR_LIVE_SOURCE", refs)
+    if a.max_utc_error > MAX_UTC_ERROR:
+        return _Clock(None, "ERROR_ABOVE_CEILING", refs)
+    return _Clock(a, ATTESTED, refs)
+
+
+def _pair(clocks: list[_Clock]) -> tuple[str, tuple[str, ...]]:
+    """The clock statement of a refused span: why source time could not settle it."""
+    refs = tuple(sorted({x for c in clocks for x in c.refs}))
+    if all(c.attestation is not None for c in clocks):
+        keys = {c.key for c in clocks}
+        return (ATTESTED if len(keys) == 1 else "CLOCK_STEP_UNPROVED"), refs
+    return "+".join(sorted({c.reason for c in clocks if c.attestation is None})), refs
+
+
+def clock_basis(readings: tuple[AcceptedReading, ...], attestations) -> tuple[ClockAttestation, ...]:
+    """The effective attestations that touch at least one of these readings' measurement intervals."""
+    by_stream = _streams(attestations)
+    used = {a.event_id: a for r in readings for a in by_stream.get((r.source_id, r.sequence_epoch), ())
+            if a.touches(*_measured(r))}
+    return tuple(sorted(used.values(), key=lambda a: (str(a.attestation_id), a.version)))
+
+
+def series_limits(readings: tuple[AcceptedReading, ...], attestations=()) -> tuple[CohortLimit, ...]:
+    """Spans where a member's channel is not one public series (cohort-4, see module docstring)."""
+    by_stream = _streams(attestations)
     channels: dict[tuple, list[AcceptedReading]] = defaultdict(list)
     for r in readings:
         channels[(r.member, r.role, str(r.asset_id))].append(r)
     limits: list[CohortLimit] = []
+    seen: set[tuple] = set()
+
+    def add(kind, role, asset, member, lo, hi, rows, clocks) -> None:
+        ids = tuple(sorted({str(x.evidence_id) for x in rows}))
+        if (kind, lo, hi, ids) in seen:
+            return
+        seen.add((kind, lo, hi, ids))
+        clock, refs = _pair(clocks)
+        limits.append(CohortLimit(kind, role, asset, member, lo, hi, ids, clock, refs))
+
     for (member, role, asset), rows in sorted(channels.items(), key=lambda kv: str(kv[0])):
+        mine = by_stream.get((member.source_id, member.sequence_epoch), [])
+        clock = {r.evidence_id: _clock(r, mine) for r in rows}
+        # Two readings at one channel-time are never one series, attested or not.
         at_time: dict[datetime, list[AcceptedReading]] = defaultdict(list)
         for r in rows:
             at_time[r.placed_at].append(r)
         for when, same in sorted(at_time.items()):
             if len(same) > 1:
-                limits.append(CohortLimit("REPORTS_OVERLAP", role, asset, member, when, when,
-                                          tuple(sorted(str(x.evidence_id) for x in same))))
-        ordered = sorted(rows, key=lambda r: r.sequence)
-        latest: AcceptedReading | None = None
-        for r in ordered:
-            if latest is not None and r.placed_at < latest.placed_at:
-                limits.append(CohortLimit("SEQUENCE_ORDER_INVERTED", role, asset, member, r.placed_at,
-                                          latest.placed_at,
-                                          tuple(sorted((str(r.evidence_id), str(latest.evidence_id))))))
-            if latest is None or r.placed_at > latest.placed_at:
-                latest = r
+                add("REPORTS_OVERLAP", role, asset, member, when, when, same, [clock[x.evidence_id] for x in same])
+        # Over every attested reading of the channel (also across an attestation boundary, review L1):
+        # overlapping placement-uncertainty intervals (placed_at +/- each reading's attested error) or a genuine
+        # measurement-interval overlap stay ambiguous; intervals that only touch do not overlap.
+        attested = sorted((r for r in rows if clock[r.evidence_id].attestation is not None),
+                          key=lambda r: (r.placed_at, str(r.evidence_id)))
+
+        def err(r: AcceptedReading) -> timedelta:
+            return clock[r.evidence_id].attestation.max_utc_error
+
+        for i, a in enumerate(attested):
+            for b in attested[i + 1:]:
+                if b.placed_at - a.placed_at > 2 * MAX_UTC_ERROR:
+                    break
+                if b.placed_at - a.placed_at <= err(a) + err(b):
+                    add("REPORTS_OVERLAP", role, asset, member, a.placed_at, b.placed_at, (a, b),
+                        [clock[a.evidence_id], clock[b.evidence_id]])
+        widest: AcceptedReading | None = None
+        for r in sorted(attested, key=lambda r: (_measured(r), str(r.evidence_id))):
+            if widest is not None and _measured(r)[0] < _measured(widest)[1]:
+                add("REPORTS_OVERLAP", role, asset, member, _measured(r)[0],
+                    min(_measured(r)[1], _measured(widest)[1]), (widest, r),
+                    [clock[widest.evidence_id], clock[r.evidence_id]])
+            if widest is None or _measured(r)[1] > _measured(widest)[1]:
+                widest = r
+        # Sequence order against source-time order. A later-sequenced reading placed earlier is a late arrival,
+        # not an inversion, only when one attestation orders both; any other pair keeps the inversion.
+        latest: dict[str, AcceptedReading] = {}
+        for r in sorted(rows, key=lambda r: r.sequence):
+            mine_key = clock[r.evidence_id].key
+            rivals = [q for k, q in latest.items() if mine_key == _UNCOVERED or k != mine_key]
+            q = max(rivals, key=lambda q: q.placed_at, default=None)
+            if q is not None and r.placed_at < q.placed_at:
+                add("SEQUENCE_ORDER_INVERTED", role, asset, member, r.placed_at, q.placed_at, (r, q),
+                    [clock[r.evidence_id], clock[q.evidence_id]])
+            held = latest.get(mine_key)
+            if held is None or r.placed_at > held.placed_at:
+                latest[mine_key] = r
     return tuple(limits)

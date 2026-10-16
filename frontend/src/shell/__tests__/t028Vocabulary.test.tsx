@@ -17,6 +17,7 @@ import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { App } from "../../App";
+import { NOT_IMPORTED_INDEX } from "../../sites/__tests__/findingIndexFixtures";
 import { featureFlagsWith } from "../../config/featureFlags";
 import {
   CANDIDATE_ASSESSMENT,
@@ -80,6 +81,7 @@ function renderAt(path: string, clients: Clients = {}) {
         flags={featureFlagsWith(clients.lab ?? false)}
         siteDirectory={DIRECTORY}
         siteDetail={DETAIL}
+        siteFindingIndex={NOT_IMPORTED_INDEX}
         siteEvidence={clients.evidence ?? evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
         siteOverview={clients.overview ?? overviewClient({ status: "loaded", value: populatedOverview(SITE_ID) })}
         siteAnalytics={clients.analytics ?? analyticsClient(SITE_ID)}

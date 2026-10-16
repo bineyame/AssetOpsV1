@@ -1,6 +1,6 @@
 # OPS-02 — statement-level product writer guard
 
-Status: implementation-ready
+Status: done, pending merge (2026-10-16: review ACCEPT after fix round; main `0d3114a3` merged in, rule 8 carries LR-01/S6-01a/S4-05a writer policy; merge evidence in packet "Merge with main"). Was in_review (built 2026-10-15 on `task/OPS-02-writer-guard-ast`; packet `.agent/OPS-02-review-packet.md`); activated 2026-10-15 from main `5bfff665` under the owner-absence work order; plan review ACCEPT `.agent/small-followons-plan-review.md`); was implementation-ready
 Size: S; one build and one fresh independent review
 Branch when activated: `task/OPS-02-writer-guard-ast`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; guard and test-harness only)

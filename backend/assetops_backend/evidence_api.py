@@ -113,6 +113,7 @@ from __future__ import annotations
 import json
 import re
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
@@ -192,6 +193,7 @@ def build_evidence_router(
     batch_ingestion: BatchIngestionService | None = None,
     gateway_principals: GatewayPrincipalResolver | None = None,
     imported_reads: ImportedEvidenceReads | None = None,
+    site_overview: Any = None,
 ) -> APIRouter:
     """`batch_ingestion` serves Batch/Receipt V2 (S2-02) for a request carrying
     `Authorization`; the principal comes only from `gateway_principals`, which
@@ -201,7 +203,12 @@ def build_evidence_router(
     `imported_reads` (S2-02 phase 3a) serves the four Site Evidence routes from
     the central ledger for an imported Site, and only once its legacy
     comparison record permits the cutover; an imported Site without one keeps
-    409 `AWAITING_EVIDENCE_MIGRATION`. Overview stays on the legacy gate."""
+    409 `AWAITING_EVIDENCE_MIGRATION`.
+
+    `site_overview` (S5-01, `site_overview/route.py`) serves the imported-Site
+    Overview at the same route behind access, scope, this S2 comparison and the
+    Performance gate; without it, or for a legacy Site, the legacy branch serves
+    (`date=` becomes the same midnight from/to pair)."""
     router = APIRouter()
     principals = ClosedGatewayPrincipals() if gateway_principals is None else gateway_principals
     read_model = EvidenceReadModel(ingestion.store)
@@ -384,9 +391,17 @@ def build_evidence_router(
 
     @router.get(SITE_OVERVIEW_ROUTE)
     def get_site_overview(site_id: str, request: Request) -> dict:
+        if site_overview is not None:
+            body = site_overview.serve(request, site_id, imported_scope)
+            if body is not None:
+                return body
         site = site_or_404(site_id)
-        start = _instant_param(request.query_params.get("from"), "from")
-        end = _instant_param(request.query_params.get("to"), "to")
+        legacy = None if site_overview is None else site_overview.legacy_window(request.query_params)
+        if legacy is not None:
+            start, end = legacy
+        else:
+            start = _instant_param(request.query_params.get("from"), "from")
+            end = _instant_param(request.query_params.get("to"), "to")
         try:
             return overview_model.site_overview(site, start, end)
         except EvidenceStoreUnavailable as error:

@@ -1,0 +1,279 @@
+{
+  "results": [
+    {
+      "name": "desktop ordinary 2026-10-02: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "desktop ordinary: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "desktop ordinary: no page-level horizontal overflow",
+      "ok": true,
+      "detail": -15
+    },
+    {
+      "name": "desktop ordinary: no current amount",
+      "ok": true,
+      "detail": {
+        "money": "QUANTITY_UNAVAILABLE",
+        "amount": "none"
+      }
+    },
+    {
+      "name": "desktop unknown 2026-11-10: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "desktop unknown: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "desktop unknown: no page-level horizontal overflow",
+      "ok": true,
+      "detail": -15
+    },
+    {
+      "name": "desktop unknown: reads Unknown, no amount",
+      "ok": true,
+      "detail": {
+        "freshness": "UNASSESSED",
+        "assessment": "UNKNOWN"
+      }
+    },
+    {
+      "name": "desktop failed 2026-10-07: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "desktop failed: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "desktop failed: no page-level horizontal overflow",
+      "ok": true,
+      "detail": -15
+    },
+    {
+      "name": "desktop failed: reads Failed, no amount",
+      "ok": true,
+      "detail": {
+        "assessment": "FAILED",
+        "money": "UPSTREAM_FAILED"
+      }
+    },
+    {
+      "name": "desktop p01 2026-10-23: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "desktop p01: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "desktop p01: no page-level horizontal overflow",
+      "ok": true,
+      "detail": -15
+    },
+    {
+      "name": "desktop P01: priced, demonstration label, gate ELIGIBLE",
+      "ok": true,
+      "detail": {
+        "money": "PRICED",
+        "amount": "0.00 to 15.82 USD",
+        "demo": "P01-power",
+        "gate": "ELIGIBLE"
+      }
+    },
+    {
+      "name": "desktop P01: exact Finding version and fuel cost version in the address and the link",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001?date=2026-10-23&finding_id=8a9f40ff-e94b-4503-9123-201d51436f68&finding_revision_id=049d36dd-33cc-4b96-851f-edda09e6a108",
+        "financials": "/sites/KOBO-001/financials?finding_id=8a9f40ff-e94b-4503-9123-201d51436f68&revision_id=049d36dd-33cc-4b96-851f-edda09e6a108&consequence_revision_id=9d0a9ef8-b032-4676-99bd-5d0fed938ee4"
+      }
+    },
+    {
+      "name": "desktop p02 2026-10-24: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "desktop p02: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "desktop p02: no page-level horizontal overflow",
+      "ok": true,
+      "detail": -15
+    },
+    {
+      "name": "desktop P02: WITHHELD_GENERATOR_SERIES, no amount, Finding kept",
+      "ok": true,
+      "detail": {
+        "money": "WITHHELD_GENERATOR_SERIES",
+        "finding": "d6ad61e7-7b06-4538-bd3b-acd5628c4f33",
+        "revision": "b770adce-a440-4420-a37c-8da43ffca379"
+      }
+    },
+    {
+      "name": "desktop reload keeps the day and the Finding version",
+      "ok": true,
+      "detail": {
+        "before": "/sites/KOBO-001?date=2026-10-24&finding_id=d6ad61e7-7b06-4538-bd3b-acd5628c4f33&finding_revision_id=b770adce-a440-4420-a37c-8da43ffca379",
+        "after": "/sites/KOBO-001?date=2026-10-24&finding_id=d6ad61e7-7b06-4538-bd3b-acd5628c4f33&finding_revision_id=b770adce-a440-4420-a37c-8da43ffca379"
+      }
+    },
+    {
+      "name": "desktop Next day: 2026-10-25 in the address, old pin dropped",
+      "ok": true,
+      "detail": "/sites/KOBO-001?date=2026-10-25"
+    },
+    {
+      "name": "narrow ordinary 2026-10-02: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "narrow ordinary: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "narrow ordinary: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow ordinary: no current amount",
+      "ok": true,
+      "detail": {
+        "money": "QUANTITY_UNAVAILABLE",
+        "amount": "none"
+      }
+    },
+    {
+      "name": "narrow unknown 2026-11-10: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "narrow unknown: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "narrow unknown: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow unknown: reads Unknown, no amount",
+      "ok": true,
+      "detail": {
+        "freshness": "UNASSESSED",
+        "assessment": "UNKNOWN"
+      }
+    },
+    {
+      "name": "narrow failed 2026-10-07: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "narrow failed: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "narrow failed: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow failed: reads Failed, no amount",
+      "ok": true,
+      "detail": {
+        "assessment": "FAILED",
+        "money": "UPSTREAM_FAILED"
+      }
+    },
+    {
+      "name": "narrow p01 2026-10-23: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "narrow p01: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "narrow p01: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow P01: priced, demonstration label, gate ELIGIBLE",
+      "ok": true,
+      "detail": {
+        "money": "PRICED",
+        "amount": "0.00 to 15.82 USD",
+        "demo": "P01-power",
+        "gate": "ELIGIBLE"
+      }
+    },
+    {
+      "name": "narrow P01: exact Finding version and fuel cost version in the address and the link",
+      "ok": true,
+      "detail": {
+        "href": "/sites/KOBO-001?date=2026-10-23&finding_id=8a9f40ff-e94b-4503-9123-201d51436f68&finding_revision_id=049d36dd-33cc-4b96-851f-edda09e6a108",
+        "financials": "/sites/KOBO-001/financials?finding_id=8a9f40ff-e94b-4503-9123-201d51436f68&revision_id=049d36dd-33cc-4b96-851f-edda09e6a108&consequence_revision_id=9d0a9ef8-b032-4676-99bd-5d0fed938ee4"
+      }
+    },
+    {
+      "name": "narrow p02 2026-10-24: Overview loaded",
+      "ok": true
+    },
+    {
+      "name": "narrow p02: Finding list unavailable, never empty",
+      "ok": true,
+      "detail": "Unavailable until the Site Finding index is delivered."
+    },
+    {
+      "name": "narrow p02: no page-level horizontal overflow",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "narrow P02: WITHHELD_GENERATOR_SERIES, no amount, Finding kept",
+      "ok": true,
+      "detail": {
+        "money": "WITHHELD_GENERATOR_SERIES",
+        "finding": "d6ad61e7-7b06-4538-bd3b-acd5628c4f33",
+        "revision": "b770adce-a440-4420-a37c-8da43ffca379"
+      }
+    },
+    {
+      "name": "narrow reload keeps the day and the Finding version",
+      "ok": true,
+      "detail": {
+        "before": "/sites/KOBO-001?date=2026-10-24&finding_id=d6ad61e7-7b06-4538-bd3b-acd5628c4f33&finding_revision_id=b770adce-a440-4420-a37c-8da43ffca379",
+        "after": "/sites/KOBO-001?date=2026-10-24&finding_id=d6ad61e7-7b06-4538-bd3b-acd5628c4f33&finding_revision_id=b770adce-a440-4420-a37c-8da43ffca379"
+      }
+    },
+    {
+      "name": "narrow Next day: 2026-10-25 in the address, old pin dropped",
+      "ok": true,
+      "detail": "/sites/KOBO-001?date=2026-10-25"
+    }
+  ],
+  "record": {
+    "p02": {
+      "finding": "d6ad61e7-7b06-4538-bd3b-acd5628c4f33",
+      "revision": "b770adce-a440-4420-a37c-8da43ffca379",
+      "consequence": "94c77beb-b4ee-4eeb-9567-904d81baddec"
+    }
+  }
+}

@@ -640,7 +640,10 @@ function Invoke-ConfigurationPersistenceCheck {
         '(?i)\bUPDATE\s+gateway\s+SET\s+(?:credential_ref|disabled_at|diagnostic_cadence_seconds)\s*=\s*:[a-z_]+\s+WHERE\b',
         '(?i)\bUPDATE\s+source\s+SET\s+disabled_at\s*=\s*:[a-z_]+\s+WHERE\b')
     $assessWriter = "$backendRoot/analytics/adapters/postgres_assessment_store.py"
-    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection')
+    # LR-01 adds source_clock_attestation (migration 0014): INSERT-only events written with their affected-window
+    # requeue in one transaction by the assessment store; no other writer touches it and no UPDATE is allowed.
+    $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection',
+        'source_clock_attestation')
     $assessInserts = $assessTables + @('recompute_job')
     $assessUpdates = @(
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',
@@ -685,6 +688,17 @@ function Invoke-ConfigurationPersistenceCheck {
         'schedule_cursor' = @('after_tenant_id', 'after_site_id', 'updated_at')
         'schedule_enrolment' = @('enrolled', 'changed_by', 'changed_at')
     }
+    # S4-05a (D-2026-10-15-s405-stored-demo-provenance, Architect rule-8 ruling): source provenance extends the
+    # existing ledger writer; no new writer. The ledger may only INSERT into the two migration-0017 provenance
+    # tables, each statement with its VALUES and no ON CONFLICT (OPS-02 checks the whole extracted statement, so
+    # an upsert cannot hide on a continuation line). UPDATE, DELETE, TRUNCATE, upsert and DDL on them are refused here and by the 0017
+    # immutability triggers. Anywhere in the ledger, DO UPDATE is refused and ON CONFLICT is allowed only as the
+    # three existing DO NOTHING arbiters (batch refusal, external batch slot, accepted message key), which keeps
+    # the batch INSERT distinct from an upsert on a binding. No other module writes either table, and no HTTP
+    # module (main.py, *_api.py) reaches the designation command.
+    $provenanceTables = @('evidence_publication', 'batch_publication_link')
+    $ledgerConflictAllowed = '(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b'
+    $provenanceInsertsSeen = @{ 'evidence_publication' = 0; 'batch_publication_link' = 0 }
     # S6-01a adds the ninth writer, the Action store (D-2026-10-15-s601-action-store-and-ui M1): the sole runtime
     # writer of the migration-0014 Action tables, INSERT-only (append-only rows; no UPDATE, DELETE, upsert,
     # TRUNCATE or DDL), and it writes no other table. No other module - explicitly not the Foundation adapter,
@@ -694,20 +708,104 @@ function Invoke-ConfigurationPersistenceCheck {
         'action_policy_change', 'action_policy_change_binding')
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter)
-    $sqlWrite = '(?i)\b(?:INSERT\s+INTO|UPDATE\s+[a-z_]+\s+SET|DELETE\s+FROM|TRUNCATE\s+[a-z_]+|CREATE\s+TABLE|ALTER\s+TABLE|DROP\s+TABLE)\b'
-    $sqlTarget = '(?i)\b(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM|TRUNCATE)\s+([a-z_]+)'
+    # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
+    # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
+    # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
+    # are normalised away; `+`, f-string, %/format and join templates keep their dynamic parts as `{?}`; SQLAlchemy
+    # Core insert/update/delete calls are synthesised into the equivalent SQL clause. Each clause starts at its write
+    # head, so every rule below is anchored at the clause start. The extractor is table-agnostic: a new writer or
+    # table is added to the policy tables above, never to the extractor. Proof corpus: tools/writer_guard_probes.py.
+    $sqlWrite = '(?i)^(?:INSERT\s+INTO\b|UPDATE\s+\S.*?\bSET\b|DELETE\s+FROM\b|TRUNCATE\b|MERGE\s+INTO\b|COPY\s+[\w."{}?]+\s*(?:\([^)]*\)\s*)?(?:FROM|TO)\b|(?:CREATE|ALTER|DROP)\s+TABLE\b)'
+    $sqlTarget = '(?i)^(?:INSERT\s+INTO|UPDATE(?:\s+ONLY)?|DELETE\s+FROM(?:\s+ONLY)?|TRUNCATE(?:\s+TABLE)?(?:\s+ONLY)?|MERGE\s+INTO|COPY)\s+(?:"?[a-z_][a-z0-9_]*"?\.)?"?([a-z_][a-z0-9_]*)"?(?=[\s(;]|$)'
+    $sqlDml = '(?i)^(?:INSERT|UPDATE|DELETE|TRUNCATE|MERGE|COPY)\b'
+    # A write head with nothing after its target was assembled outside one expression (`sql += ...`).
+    $sqlFragment = '^(?:UPDATE \S+|(?:INSERT INTO|DELETE FROM|MERGE INTO)(?: \S+)?)$'
+    # The interpreter is found as tools/check-all.ps1 finds it (its -Python override arrives as
+    # ASSETOPS_GUARD_PYTHON; default: the repository .venv). A guard that cannot run fails; it never skips.
+    $guardPython = $env:ASSETOPS_GUARD_PYTHON
+    if (-not $guardPython) {
+        foreach ($candidate in @('.venv/Scripts/python.exe', '.venv/bin/python')) {
+            if (Test-Path -LiteralPath $candidate -PathType Leaf) { $guardPython = $candidate; break }
+        }
+    }
+    $sqlStatements = @{}
+    $extractorRan = $false
+    if (-not $guardPython -or -not (Test-Path -LiteralPath $guardPython -PathType Leaf)) {
+        $failures.Add(("Rule 8 cannot run its SQL statement extractor: no Python interpreter at '$guardPython' or " +
+            ".venv. Create the repository .venv or set ASSETOPS_GUARD_PYTHON; the writer guard never skips.")) | Out-Null
+    } else {
+        $extractorInput = @($backendModules | Where-Object { $_.Path.StartsWith("$backendRoot/") } |
+            ForEach-Object { $_.Path })
+        $extractorJson = ($extractorInput -join "`n") | & $guardPython 'tools/checks/sql_statements.py'
+        if ($LASTEXITCODE -ne 0) {
+            $failures.Add("Rule 8 SQL statement extractor failed (exit $LASTEXITCODE); the writer guard never skips.") | Out-Null
+        } else {
+            $extractorRan = $true
+            # Windows PowerShell's ConvertFrom-Json emits a JSON array as one object; foreach enumerates it.
+            $parsedStatements = ($extractorJson -join "`n") | ConvertFrom-Json
+            foreach ($statement in $parsedStatements) {
+                if (-not $sqlStatements.ContainsKey($statement.path)) { $sqlStatements[$statement.path] = @() }
+                $sqlStatements[$statement.path] += $statement
+            }
+        }
+    }
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false }
+    # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
+    # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
+    # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
+    # source line with the table name beginning the next is refused wherever it appears, as before OPS-02.
+    $provName = '(?:"?[a-z_]+"?\s*\.\s*)?"?(?:evidence_publication|batch_publication_link)"?(?![a-z_])'
+    $provVerb = '(?i)\b(?:UPDATE|DELETE\s+FROM|TRUNCATE(?:\s+TABLE)?)(?:\s+ONLY)?'
+    $provRefusal = 'Source provenance is insert-only: no UPDATE, DELETE or TRUNCATE in any module (split statements included)'
+    # S6-01a: the Action store never mutates or removes a row and runs no DDL. Applied to every source line
+    # (SQL-shaped or not) and to every extracted statement clause.
+    $actionForbidden = '(?i)\bupdate\s+[a-z_"]+\s+set\b|\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\bon\s+conflict\b|\bmerge\s+into\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view|sequence)\b|\bgrant\s+\w|\bcopy\s+[a-z_"]+\s+from\b'
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
+            if ($line -match $dbDriver) {
+                if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
+                else {
+                    $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+            }
+            $nextLine = if ($lineNumber -lt $module.Lines.Count) { [string]$module.Lines[$lineNumber] } else { '' }
+            if ($line -match "$provVerb\s+$provName" -or
+                    ($line -match "$provVerb\s*`$" -and $nextLine -match "(?i)^\s*$provName")) {
+                $failures.Add("$provRefusal; $($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $actionWriter -and $line -match $actionForbidden) {
+                $failures.Add("The Action store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+        }
+        $moduleStatements = if ($sqlStatements.ContainsKey($module.Path)) { $sqlStatements[$module.Path] } else { @() }
+        foreach ($statement in $moduleStatements) {
+            # $line is one SQL clause and $lineNumber the line its Python expression starts on.
+            $line = [string]$statement.text
+            $lineNumber = [int]$statement.line
+            $isDml = $line -match $sqlDml -and $line -match $sqlWrite
+            if ($line -match '(?i)^(?:MERGE\s+INTO\b|COPY\s)' -and $line -match $sqlWrite) {
+                $failures.Add(("No product writer runs MERGE or COPY; every write is a checked INSERT/UPDATE; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
+            if ($isDml -and $line -notmatch $sqlTarget) {
+                $failures.Add(("A product write names its target table literally (no format, concatenation or " +
+                    "dynamic SQLAlchemy table); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
+            if ($line -match $sqlFragment) {
+                $failures.Add(("A product write statement ends before its SET, VALUES or WHERE clause (an incomplete statement, " +
+                    "or one assembled across expressions); write it as one literal so its table and columns can be checked; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
             if ($line -match $sqlWrite) {
                 if (-not $isWriter) {
                     $failures.Add(("A second product database writer in $($module.Path):${lineNumber}: " +
@@ -716,9 +814,23 @@ function Invoke-ConfigurationPersistenceCheck {
                 }
                 $pgWritesSeen[$module.Path]++
                 $target = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
-                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or $ledgerTables -notcontains $target)) {
-                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')); " +
+                if ($module.Path -eq $ledgerWriter -and ($null -eq $target -or
+                        ($ledgerTables -notcontains $target -and $provenanceTables -notcontains $target))) {
+                    $failures.Add(("The evidence ledger writes only its own tables ($($ledgerTables -join ', ')) " +
+                        "and inserts provenance ($($provenanceTables -join ', ')); " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $provenanceTables -contains $target) {
+                    $where = "$($module.Path):${lineNumber}: $($line.Trim())"
+                    if ($module.Path -ne $ledgerWriter) {
+                        $failures.Add("Only $ledgerWriter writes source provenance table '$target'; $where.") | Out-Null
+                    } elseif ($line -notmatch '(?i)\bINSERT\s+INTO\s+(?:evidence_publication|batch_publication_link)\s*\(' -or
+                            $line -notmatch '(?i)\bVALUES\s*\(' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("The evidence ledger only INSERTs provenance rows, one literal statement with " +
+                            "its VALUES and no ON CONFLICT (no UPDATE, DELETE, TRUNCATE or upsert); $where.")) | Out-Null
+                    } else {
+                        $provenanceInsertsSeen[$target]++
+                    }
                 }
                 if ($module.Path -eq $accessWriter) {
                     $isInsert = $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)'
@@ -741,6 +853,13 @@ function Invoke-ConfigurationPersistenceCheck {
                             "only a recompute job's lease/retry status or a PENDING job's window; " +
                             "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     }
+                }
+                # LR-01 attestations, S6-01a Action rows and S4-05a provenance are insert-only: a permitted INSERT
+                # into one of them must not carry an upsert (ON CONFLICT ... DO UPDATE stays in the INSERT clause).
+                if ($null -ne $target -and $line -match '(?i)\bDO\s+UPDATE\b' -and
+                        (@('source_clock_attestation') + $actionTables + $provenanceTables) -contains $target) {
+                    $failures.Add(("Insert-only table '$target' is never upserted (no ON CONFLICT DO UPDATE); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
                 if ($module.Path -eq $findingWriter -and -not (
                         $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)' -and $findingTables -contains $Matches[1].ToLowerInvariant())) {
@@ -800,9 +919,29 @@ function Invoke-ConfigurationPersistenceCheck {
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
+            if ($module.Path -eq $ledgerWriter) {
+                $where = "$($module.Path):${lineNumber}: $($line.Trim())"
+                if ($line -match '(?i)\bdo\s+update\b' -or
+                        ($line -match '(?i)\bon\s+conflict\b' -and $line -notmatch $ledgerConflictAllowed)) {
+                    $failures.Add(("The evidence ledger never upserts; ON CONFLICT is allowed only as its three " +
+                        "existing DO NOTHING arbiters; $where.")) | Out-Null
+                }
+                if ($line -match '(?i)\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b|\btruncate\s+(?:table\s+)?[a-z_"]') {
+                    $failures.Add("The evidence ledger runs no DDL or TRUNCATE (migrations own DDL); $where.") | Out-Null
+                }
+            }
+            if ($module.Path -ne $ledgerWriter -and $line -match '(?i)\b(?:evidence_publication|batch_publication_link)\b' -and
+                    $line -match $sqlWrite) {
+                $failures.Add(("Only $ledgerWriter writes source provenance; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+            }
+            # The extractor joins split, concatenated and multi-line statements, so the whole clause is checked here
+            # (the source-line form of these two rules runs in the driver loop above).
+            if ($line -match "$provVerb\s+$provName") {
+                $failures.Add("$provRefusal; $($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
             if ($module.Path -eq $actionWriter) {
-                # Every line, SQL-shaped or not: the Action store never mutates or removes a row and runs no DDL.
-                if ($line -match '(?i)\bupdate\s+[a-z_"]+\s+set\b|\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\bon\s+conflict\b|\bmerge\s+into\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view|sequence)\b|\bgrant\s+\w|\bcopy\s+[a-z_"]+\s+from\b') {
+                if ($line -match $actionForbidden) {
                     $failures.Add("The Action store never updates, deletes, truncates, upserts or runs DDL; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
                 }
@@ -815,17 +954,21 @@ function Invoke-ConfigurationPersistenceCheck {
                 # Case-insensitive (phase-1 review F1): lowercase SQL is an ordinary way to write a statement, so
                 # every keyword rule here uses (?i); prose is excluded because each rule needs SQL shape.
                 $where = "$($module.Path):${lineNumber}: $($line.Trim())"
-                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY)\b' -or
-                        $line -match '(?i)\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b') {
-                    $failures.Add("The schedule store never deletes, truncates, upserts or runs DDL; $where.") | Out-Null
+                if ($line -cmatch '\b(?:DELETE|TRUNCATE|CREATE|ALTER|DROP|GRANT|COPY|MERGE)\b' -or
+                        $line -match '(?i)\bdelete\s+from\b|\btruncate\s+(?:table\s+)?[a-z_"]|\bdo\s+update\b|\b(?:create|alter|drop)\s+(?:table|index|trigger|function|view)\b|^merge\s+into\b|^copy\s|\bthen\s+(?:update|delete)\b') {
+                    $failures.Add("The schedule store never deletes, truncates, upserts or runs DDL (nor merges or copies); $where.") | Out-Null
                 }
                 if ($line -match '(?i)\binsert\s+into\b' -and -not (
                         $line -match '(?i)\binsert\s+into\s+([a-z_]+)\s*\(' -and
                         $scheduleTables -contains $Matches[1].ToLowerInvariant())) {
                     $failures.Add(("The schedule store only inserts into $($scheduleTables -join ', '); $where.")) | Out-Null
                 }
-                if ($line -match '(?i)\bupdate\s+\S+.*\bset\b') {
-                    if ($line -match '(?i)\bUPDATE\s+([a-z_]+)\s+SET\s+(.+?)\s+WHERE\b') {
+                if ($line -match '(?i)^update\s+\S+.*\bset\b') {
+                    $updTarget = if ($line -match $sqlTarget) { $Matches[1].ToLowerInvariant() } else { $null }
+                    if ($null -ne $updTarget -and -not $scheduleUpdates.ContainsKey($updTarget)) {
+                        $failures.Add("The schedule store updates only $($scheduleTables -join ', '); $where.") | Out-Null
+                    } elseif ($line -match '(?i)^UPDATE\s+([a-z_]+)(?:\s+(?:AS\s+)?(?!SET\b)[a-z_]+)?\s+SET\s+(.+?)\s+WHERE\b') {
+                        # An optional table alias is allowed; SET columns are never alias-qualified in PostgreSQL.
                         $updTable = $Matches[1].ToLowerInvariant()
                         $setList = $Matches[2]
                         if (-not $scheduleUpdates.ContainsKey($updTable)) {
@@ -858,24 +1001,41 @@ function Invoke-ConfigurationPersistenceCheck {
                             }
                         }
                     } else {
-                        $failures.Add(("Every schedule UPDATE keeps its table, SET list and WHERE on one line so " +
-                            "the guard can check each column; $where.")) | Out-Null
+                        $failures.Add(("Every schedule UPDATE names its table, SET list and WHERE literally in one " +
+                            "statement so the guard can check each column; $where.")) | Out-Null
                     }
-                }
-            }
-            if ($line -match $dbDriver) {
-                if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
-                else {
-                    $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
-                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
             }
         }
     }
     foreach ($writer in $pgWriters) {
-        if ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer]) {
+        if ($extractorRan -and ($pgWritesSeen[$writer] -eq 0 -or -not $pgDriverSeen[$writer])) {
             $failures.Add(("The product database writer check found no SQL write or driver import in " +
                 "$writer, so it is no longer proving anything. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+
+    foreach ($table in $provenanceTables) {
+        if ($provenanceInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no ledger INSERT statement into $table in $ledgerWriter, so the " +
+                "provenance writer check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    # S4-05a: designation is a server-side command only. No HTTP module may reach it or its tables.
+    $routeModules = @($backendModules | Where-Object {
+        $_.Path -eq "$backendRoot/main.py" -or $_.Path -match '_api\.py$' })
+    if ($routeModules.Count -lt 2) {
+        $failures.Add("Rule 8 scanned $($routeModules.Count) HTTP module(s) for designation routes; update the check.") | Out-Null
+    }
+    $designation = '(?i)\b(?:register_publication|register_authored|register_run|authored_record|simulation_records|publish_source|evidence_publication|batch_publication_link|run_attestation)\b|evidence\.publication\b|runs\.source_publication\b'
+    foreach ($module in $routeModules) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            if ($line -match $designation) {
+                $failures.Add(("A client route reaches source designation in $($module.Path):${lineNumber}: " +
+                    "$($line.Trim()). Publication is a server-side SYSTEM command only.")) | Out-Null
+            }
         }
     }
 

@@ -21,8 +21,8 @@ Written at runtime only by `assetops_backend/actions/adapters/postgres_action_st
 writer (rule 8). Every table is append-only (`ledger_append_only`). A `(tenant_id, site_id, finding_id, id)` key
 is added to `finding_revision` so the Action's origin revision is proven to belong to its origin Finding.
 
-Revision ID: 0014_action_store
-Revises: 0013_schedule_state
+Revision ID: 0016_action_store
+Revises: 0015_finding_returning_basis
 Create Date: 2026-10-15
 """
 
@@ -30,8 +30,8 @@ from __future__ import annotations
 
 from alembic import op
 
-revision = "0014_action_store"
-down_revision = "0013_schedule_state"
+revision = "0016_action_store"
+down_revision = "0015_finding_returning_basis"
 branch_labels = None
 depends_on = None
 
