@@ -1,6 +1,6 @@
 # S6-03 build - implementer brief
 
-Work ONLY in worktree `C:\Usersssef\Bineyame\AssetOpsV1-review4`, branch `task/S6-03-site-work-list` (from main `cdb09767`; S6-02a and S4-05b merged). Touch no other worktree. Ports: API 8963, web 5463. DB prefix per the packet (or `assetops_s603*`).
+Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S6-03-site-work-list` (from main `cdb09767`; S6-02a and S4-05b merged). Touch no other worktree. Ports: API 8963, web 5463. DB prefix per the packet (or `assetops_s603*`).
 
 Read: packet `tasks/S6-03-site-work-list.md` (incl. plan fix round 1: state via `actions.lifecycle` reducer with list/detail parity at the same fence; RESOLVED/RESOLUTION_WITHDRAWN shown as recorded events; Performance comparison in the walkthrough; `D-action-records` builder `backend/tests/s6_action_records.py::build`), Architect `.agent/architect-W1-remaining-answers.md` (S6-03) and `.agent/architect-W1-remaining-q-answers.md` (cursor fence over Site+window Actions and events incl. off-page rows, with row and event counts), plan reviews `.agent/W1-remaining-plan-review.md` and `-rereview.md`. S6-02a is now merged, so rerun the Action parity tests against its event kinds as the packet requires. Mockup screen: Site Work.
 
