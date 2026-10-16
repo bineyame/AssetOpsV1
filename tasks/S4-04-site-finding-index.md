@@ -1,6 +1,6 @@
 # S4-04 — Site Finding index and list
 
-Status: implementation-ready (Planner packet, 2026-10-15; build and review pending)
+Status: done (owner walkthrough accepted 2026-10-16, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`, conditional: user-focused copy and visuals at W1 conclusion; merged to main; was in_review (phases 1-2 built 2026-10-16; slice review and owner walkthrough pending; packet `.agent/S4-04-review-packet.md`; merge held for owner walkthrough)
 USER_REVIEW_REQUIRED: true — owner visual and copy acceptance before merge or registry promotion.
 Size: M, two phases; phase 2 review is the slice review.
 Branch: `task/S4-04-site-finding-index`, **stacked on the independently reviewed S5-01 head** while S5-01 is unmerged. Its same-basis Finding-choice read is needed for parity proof. S5-01 itself is stacked on unmerged LR-01; stacked code is not merged or owner accepted. Resolve any S5-01 High/Medium review finding and rebase on its final reviewed head.
