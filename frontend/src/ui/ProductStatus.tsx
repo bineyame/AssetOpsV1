@@ -63,6 +63,8 @@ export interface ProductOutcomeProps {
   failedLimits?: readonly FailedLimit[];
   /** Known failures the read reported, in plain words. */
   knownFailures?: readonly string[];
+  /** Show the measured limits even where the outcome is not a safety miss (an inconclusive read that measured one). */
+  showLimits?: boolean;
 }
 
 /**
@@ -71,7 +73,7 @@ export interface ProductOutcomeProps {
  * service miss shows each failed limit with value, threshold and unit; an
  * inconclusive or ineffective outcome keeps every known failure visible.
  */
-export function ProductOutcome({ words, scope, asOf, failedLimits = [], knownFailures = [] }: ProductOutcomeProps) {
+export function ProductOutcome({ words, scope, asOf, failedLimits = [], knownFailures = [], showLimits = false }: ProductOutcomeProps) {
   return (
     <ProductStatus words={words} scope={scope} asOf={asOf}>
       <p className="product-status__source" data-product-outcome-source>
@@ -82,7 +84,7 @@ export function ProductOutcome({ words, scope, asOf, failedLimits = [], knownFai
           {words.demonstrationNote}
         </p>
       )}
-      {words.showsFailedLimit ? (
+      {words.showsFailedLimit || (showLimits && failedLimits.length > 0) ? (
         failedLimits.length > 0 ? (
           <ul className="product-status__list" data-product-outcome-failed-limits>
             {failedLimits.map((limit) => (

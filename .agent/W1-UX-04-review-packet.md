@@ -74,7 +74,7 @@ Raw codes and values moved into exempt exact references:
 | Site Work proved-zero only after a successful bounded read; no verdict derived | Met. |
 | Exact IDs, digests, rule versions and typed codes appear only in labelled exact detail | Met (closed `ExactReferences`, and the existing Dig deeper sections). |
 | W1 set opt-in and closed-disclosure check for each non-positive state | Met for every rendered loaded state. Refusal states are the exception: see Known deviations. |
-| 1440/390 served capture against v69 | Met: 364/364 claims (below). |
+| 1440/390 served capture against v69 | 1440: met (claims below). 390: not established by measurement (visual check of PNGs only); see Fix round 1. |
 | No weakened S6-02b fail-closed assertion | Met: the diff of `siteActionVerification.test.tsx` changes only the import line and appends one describe block. |
 
 ## Test assertions changed
@@ -140,3 +140,13 @@ Every served fixture was dropped afterwards (databases and `var/` work folders r
 - Whether the cards repeat the panels beneath them too much.
 - The wording of the held and Historical state lines.
 - The Site Work state bars, which cover this page only and are labelled "(n of total)".
+
+## Fix round 1 (review `.agent/W1-UX-04-review.md`, verdict RETURN)
+
+- **M1.** The historical outcome branch of the Verification card now renders the source line, the demonstration/no-savings note and known failures (`verificationCards.tsx`). The existing historical test asserts the source line and the demonstration note.
+- **M2.** `ProductOutcome` takes an additive `showLimits` prop (default false), so no other outcome changes. The card passes it whenever limits exist, so an INCONCLUSIVE with a measured FAIL shows "measured ... limit ...". The doubled "Known failure:" prefix is gone (the card strips it from the reason words; the component adds it once). The INCONCLUSIVE test now uses a FAIL below-reserve metric and asserts the known failure list, a single prefix, the reserve name, and "measured 60 min, limit 0 min".
+- **M3.** Every 390 px measured claim in this packet, including the "364/364" total, is **not established by measurement (visual check of PNGs only)**: the shared tool measured at desktop width (review finding 3). Only the 1440 claims stand as measured. The shared tool is not fixed here; a later cleanup task owns it.
+- **`W1_NO_VISUAL_OK`.** The packet from the build did not record which runs set it, and the build records do not show it. Unless a run set it explicitly, the tool default applies: `mini` only (`tools/w1-ux-01-evidence.mjs:45`). I cannot show from the records that any run set it to another value; treat any card without a visual as unverified.
+- **Lows.** The Evidence headline says "both windows" when both are incomplete. Plan and Evidence cards on a cutoff selection add a Historical status above the card's own status.
+- **Served INCONCLUSIVE capture:** not run.
+- **Checks.** `tsc --noEmit` exit 0. `vitest run src/sites src/ui`: 690/691, the one failure being `siteFoundationChange` (known flake); that file alone then passed 10/10. Full `npm.cmd test` run twice: the first run had the same single `siteFoundationChange` flake failure; the second passed, 74 files and 1756/1756 tests.

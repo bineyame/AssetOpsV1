@@ -91,7 +91,10 @@ export function VerificationCard({
   const current = outcome.current_state;
   const currentWords = outcomeWords(current.state, current.reasons, null);
   const limits = record === null ? [] : failedLimits(outcome.metrics);
-  const known = record === null ? [] : record.reasons.filter((r) => r.startsWith("KNOWN_FAILURE")).map(reasonWords);
+  const known =
+    record === null
+      ? []
+      : record.reasons.filter((r) => r.startsWith("KNOWN_FAILURE")).map((r) => reasonWords(r).replace(/^Known failure: /, ""));
   const words = record === null ? currentWords : outcomeWords(record.outcome, record.reasons, record.details?.source?.source_class ?? null);
   const before = record === null ? null : find(outcome.metrics, "candidate_avoidable_seconds", "BASELINE");
   const after = record === null ? null : find(outcome.metrics, "candidate_avoidable_seconds", "LATER");
@@ -104,11 +107,26 @@ export function VerificationCard({
         <p data-verification-card-historical-outcome>
           Outcome then: {words.label}. Current state: {stateLabel(current.state, current.reasons)}.
         </p>
+        <p className="product-status__source" data-verification-card-historical-source>
+          Source: {words.source.label}
+        </p>
+        {words.demonstrationNote === null ? null : (
+          <p className="product-status__note" data-verification-card-historical-demonstration>
+            {words.demonstrationNote}
+          </p>
+        )}
         {limits.map((limit) => (
           <p key={limit.name} data-verification-card-failed-limit>
             {limit.name} missed its limit: measured {limit.value} {limit.unit}, limit {limit.threshold} {limit.unit}.
           </p>
         ))}
+        {words.showsKnownFailures && known.length > 0 ? (
+          <ul className="product-status__list" data-verification-card-historical-known-failures>
+            {known.map((failure) => (
+              <li key={failure}>Known failure: {failure}</li>
+            ))}
+          </ul>
+        ) : null}
       </ProductStatus>
     ) : (
       <ProductOutcome
@@ -116,6 +134,7 @@ export function VerificationCard({
         scope={scope}
         asOf={record === null ? actionReadAsOf(action) : record.recorded_at}
         failedLimits={limits}
+        showLimits={limits.length > 0}
         knownFailures={known}
       />
     );
@@ -219,11 +238,20 @@ export function PlanCard({ body, action, links }: { body: PlanBody; action: Acti
         )
       }
       status={
-        <ProductStatus
-          words={words}
-          scope={replaced ? "An earlier plan of this Action" : "This Action's trial plan"}
-          asOf={plan === null ? actionReadAsOf(action) : plan.recorded_at}
-        />
+        <>
+          {!replaced && plan !== null && body.verification_state.historical === true ? (
+            <ProductStatus
+              words={currentnessWords("HISTORICAL")}
+              scope="The plan as it stood at the selected earlier time"
+              asOf={plan.recorded_at}
+            />
+          ) : null}
+          <ProductStatus
+            words={words}
+            scope={replaced ? "An earlier plan of this Action" : "This Action's trial plan"}
+            asOf={plan === null ? actionReadAsOf(action) : plan.recorded_at}
+          />
+        </>
       }
       visual={
         plan === null ? undefined : (
@@ -318,19 +346,36 @@ export function EvidenceCard({
         complete ? (
           <>Both comparison windows are complete.</>
         ) : (
-          <>Some readings are missing{body.windows.later.complete ? " from the earlier window" : " from the later window"}.</>
+          <>
+            Some readings are missing from{" "}
+            {!body.windows.baseline.complete && !body.windows.later.complete
+              ? "both windows"
+              : body.windows.later.complete
+                ? "the earlier window"
+                : "the later window"}
+            .
+          </>
         )
       }
       status={
-        <ProductStatus
-          words={words}
-          scope={
-            body.verification_state.historical === true
-              ? "Both windows, as the readings stood at the selected earlier time"
-              : "This Action's trial plan, both windows"
-          }
-          asOf={body.knowledge_cutoff}
-        />
+        <>
+          {body.verification_state.historical === true ? (
+            <ProductStatus
+              words={currentnessWords("HISTORICAL")}
+              scope="The readings as they stood at the selected earlier time"
+              asOf={body.knowledge_cutoff}
+            />
+          ) : null}
+          <ProductStatus
+            words={words}
+            scope={
+              body.verification_state.historical === true
+                ? "Both windows, as the readings stood at the selected earlier time"
+                : "This Action's trial plan, both windows"
+            }
+            asOf={body.knowledge_cutoff}
+          />
+        </>
       }
       visual={
         <ValueBars

@@ -577,10 +577,18 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
   });
 
   it("guardrail miss and target miss stay prominent with measured value, limit and unit; INCONCLUSIVE keeps known failures", async () => {
+    const inconclusive = outcomeAs("INCONCLUSIVE", ["GUARDRAIL_UNKNOWN:terminal_soc", "INCOMPLETE_LATER_WINDOW", "KNOWN_FAILURE:below_reserve_seconds"]);
+    for (const m of inconclusive.metrics) {
+      if (m.metric_key === "below_reserve_seconds") {
+        m.state = "FAIL";
+        m.value_text = "3600";
+        m.threshold_text = "0 and <= baseline";
+      }
+    }
     const cases: [Body, RegExp][] = [
       [outcomeAs("INEFFECTIVE", ["GUARDRAIL_FAIL", "GUARDRAIL:below_reserve_seconds"], { below_reserve_seconds: ["600", "0 and <= baseline"] }), /safety or service limit/],
       [outcomeAs("INEFFECTIVE", ["TARGET_MISS"], { target_reduction: [null as unknown as string, "4 * later_seconds <= 3 * baseline_seconds"] }), /Target not met/],
-      [outcomeAs("INCONCLUSIVE", ["GUARDRAIL_UNKNOWN:below_reserve_seconds", "INCOMPLETE_LATER_WINDOW", "KNOWN_FAILURE:target_reduction"]), /./],
+      [inconclusive, /./],
     ];
     for (const [body, label] of cases) {
       serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(body) });
@@ -597,6 +605,12 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
       }
       if (body.outcome.outcome === "INCONCLUSIVE") {
         expect(status.textContent).toMatch(/cannot tell|could not conclude/i);
+        const known = status.querySelector("[data-product-outcome-known-failures]") as HTMLElement;
+        expect(known, "known failure list").not.toBeNull();
+        expect(known.textContent).toMatch(/^Known failure: /);
+        expect(known.textContent).not.toMatch(/Known failure: Known failure/);
+        expect(known.textContent).toMatch(/reserve/i);
+        expect(status.textContent).toContain("measured 60 min, limit 0 min");
       }
       view.unmount();
       vi.unstubAllGlobals();
@@ -621,6 +635,8 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     expect(shown).not.toMatch(/current/i);
     expect(tone(card)).not.toBe("positive");
     expect(card.querySelector("[data-verification-card-historical-outcome]")?.textContent).toMatch(/Current state:/);
+    expect(card.querySelector("[data-verification-card-historical-source]")?.textContent).toMatch(/^Source: .+/);
+    expect(card.querySelector("[data-verification-card-historical-demonstration]")?.textContent).toMatch(/policy|no saving|not a saving/i);
     expect(where()).toContain(`outcome_id=${OUT2}`);
     view.unmount();
   });
