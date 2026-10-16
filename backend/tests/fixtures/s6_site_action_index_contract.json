@@ -1,0 +1,750 @@
+{
+  "d_action_records": {
+    "after_backdated_observation": {
+      "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+      "display_timezone": "UTC",
+      "fence": {
+        "action_count": 2,
+        "event_count": 9,
+        "max_created_at": "2026-11-01T00:05:00Z",
+        "max_event_recorded_at": "2026-11-01T04:00:00Z",
+        "token": "sai1-926fde723fdc35c65bb06274609623a8457cd372cbf9f5af53f117b63ec8026f",
+        "zero_rows": false
+      },
+      "is_current": true,
+      "kind": "ACTIONS",
+      "next_cursor": null,
+      "not_included": "Incidents, maintenance, owners, due dates, priority and verification verdicts are not part of this list.",
+      "order": "created_at descending, then Action UUID ascending",
+      "page": {
+        "is_first": true,
+        "limit": 25,
+        "shown": 2
+      },
+      "read_at": "2026-11-01T04:00:00Z",
+      "rows": [
+        {
+          "action_code": "ACT-000002",
+          "action_id": "3a582b33-3a22-4259-a054-eff85b9ea2b7",
+          "created_at": "2026-11-01T00:05:00Z",
+          "event_count": 2,
+          "key": {
+            "action_id": "3a582b33-3a22-4259-a054-eff85b9ea2b7",
+            "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+            "tenant_id": "cc1a9bda-51f7-43b4-aa44-2633d2e0c943"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7/events?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "canonical": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7",
+            "history_at_event": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7/history?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "origin_finding": "/sites/KOBO-001/findings/c65291fd-89c8-41d3-8456-54a74fcb4397?revision_id=a456536d-a874-4528-af0f-a42ee192defa",
+            "selected_event": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7?event_id=23e98a53-7185-4b88-8597-6e2fa3009841"
+          },
+          "origin": {
+            "finding_id": "c65291fd-89c8-41d3-8456-54a74fcb4397",
+            "finding_revision_id": "a456536d-a874-4528-af0f-a42ee192defa",
+            "revision_no": 2
+          },
+          "selected_event": {
+            "id": "23e98a53-7185-4b88-8597-6e2fa3009841",
+            "kind": "FAILED",
+            "occurred_at": "2026-11-01T01:06:00Z",
+            "occurred_before_recorded": false,
+            "recorded_at": "2026-11-01T01:06:00Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:05:00+00:00",
+            "application": "PENDING",
+            "application_attempts": 1,
+            "applied_at": null,
+            "failed_attempts": 1,
+            "last_failure": {
+              "event_id": "23e98a53-7185-4b88-8597-6e2fa3009841",
+              "failure_code": "ACTION_NO_CHANGE",
+              "recorded_at": "2026-11-01T01:06:00+00:00"
+            },
+            "outcome": {
+              "state": "PENDING",
+              "statement": "No verification exists yet; nothing is claimed about an effect, a saving or approval."
+            }
+          }
+        },
+        {
+          "action_code": "ACT-000001",
+          "action_id": "ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+          "created_at": "2026-11-01T00:00:00Z",
+          "event_count": 7,
+          "key": {
+            "action_id": "ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+            "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+            "tenant_id": "cc1a9bda-51f7-43b4-aa44-2633d2e0c943"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14?event_id=ccdace2a-453c-45e8-a6e5-9fde05f562e8",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14/events?event_id=ccdace2a-453c-45e8-a6e5-9fde05f562e8",
+            "canonical": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+            "history_at_event": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14/history?event_id=ccdace2a-453c-45e8-a6e5-9fde05f562e8",
+            "origin_finding": "/sites/KOBO-001/findings/f06085e9-7430-4ee6-b7cd-5a024924f28a?revision_id=39b48972-310d-4048-bd4a-af0c95cce421",
+            "selected_event": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14?event_id=ccdace2a-453c-45e8-a6e5-9fde05f562e8"
+          },
+          "origin": {
+            "finding_id": "f06085e9-7430-4ee6-b7cd-5a024924f28a",
+            "finding_revision_id": "39b48972-310d-4048-bd4a-af0c95cce421",
+            "revision_no": 1
+          },
+          "selected_event": {
+            "id": "ccdace2a-453c-45e8-a6e5-9fde05f562e8",
+            "kind": "OBSERVED",
+            "occurred_at": "2026-11-01T00:01:00Z",
+            "occurred_before_recorded": true,
+            "recorded_at": "2026-11-01T04:00:00Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:00:00+00:00",
+            "application": "APPLIED",
+            "application_attempts": 4,
+            "applied_at": "2026-11-01T01:04:00+00:00",
+            "failed_attempts": 3,
+            "last_failure": {
+              "event_id": "f38415c3-7fb5-42e7-94a4-a82485890a9c",
+              "failure_code": "ACTION_EFFECTIVE_TIME_INVALID",
+              "recorded_at": "2026-11-01T01:03:00+00:00"
+            },
+            "outcome": {
+              "state": "PENDING",
+              "statement": "No verification exists yet; nothing is claimed about an effect, a saving or approval."
+            }
+          }
+        }
+      ],
+      "schema_version": "site-action-index-1",
+      "selection": "latest event by (recorded_at, id); never occurred_at",
+      "site_code": "KOBO-001",
+      "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+      "status": "CURRENT",
+      "total_count": 2,
+      "window": {
+        "bounds": "[from, to)",
+        "from": "2026-11-01T00:00:00Z",
+        "membership": "created_at >= from and created_at < to (creation time only; later events do not move a row)",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "zero_statement": null
+    },
+    "basis_changed": {
+      "body": {
+        "detail": {
+          "changed_fields": [],
+          "code": "ACTION_INDEX_BASIS_CHANGED",
+          "instruction": "REQUEST_FIRST_PAGE_WITHOUT_CURSOR",
+          "message": "The Actions in this window changed since this page was issued; request page one again without a cursor.",
+          "next_cursor": null,
+          "reason": "FENCE_CHANGED",
+          "rows": null,
+          "total_count": null
+        }
+      },
+      "status": 409
+    },
+    "page1": {
+      "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+      "display_timezone": "UTC",
+      "fence": {
+        "action_count": 2,
+        "event_count": 8,
+        "max_created_at": "2026-11-01T00:05:00Z",
+        "max_event_recorded_at": "2026-11-01T01:06:00Z",
+        "token": "sai1-b4b7629981a39775c244c940674caebe61ec2f9d77bb5f16921317faff42c96c",
+        "zero_rows": false
+      },
+      "is_current": true,
+      "kind": "ACTIONS",
+      "next_cursor": "eyJhZnRlciI6WyIyMDI2LTExLTAxVDAwOjA1OjAwWiIsIjNhNTgyYjMzLTNhMjItNDI1OS1hMDU0LWVmZjg1YjllYTJiNyJdLCJmZW5jZSI6InNhaTEtYjRiNzYyOTk4MWEzOTc3NWMyNDRjOTQwNjc0Y2FlYmU2MWVjMmY5ZDc3YmI1ZjE2OTIxMzE3ZmFmZjQyYzk2YyIsImZyb20iOiIyMDI2LTExLTAxVDAwOjAwOjAwWiIsInNpdGVfaWQiOiI4OWU0ZjY4OS1mNzhhLTQwOTgtOTM5ZC1hN2YwZWEwYzI3ZTIiLCJ0ZW5hbnRfaWQiOiJjYzFhOWJkYS01MWY3LTQzYjQtYWE0NC0yNjMzZDJlMGM5NDMiLCJ0byI6IjIwMjYtMTEtMDJUMDA6MDA6MDBaIiwidiI6MX0",
+      "not_included": "Incidents, maintenance, owners, due dates, priority and verification verdicts are not part of this list.",
+      "order": "created_at descending, then Action UUID ascending",
+      "page": {
+        "is_first": true,
+        "limit": 1,
+        "shown": 1
+      },
+      "read_at": "2026-11-01T03:00:00Z",
+      "rows": [
+        {
+          "action_code": "ACT-000002",
+          "action_id": "3a582b33-3a22-4259-a054-eff85b9ea2b7",
+          "created_at": "2026-11-01T00:05:00Z",
+          "event_count": 2,
+          "key": {
+            "action_id": "3a582b33-3a22-4259-a054-eff85b9ea2b7",
+            "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+            "tenant_id": "cc1a9bda-51f7-43b4-aa44-2633d2e0c943"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7/events?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "canonical": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7",
+            "history_at_event": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7/history?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "origin_finding": "/sites/KOBO-001/findings/c65291fd-89c8-41d3-8456-54a74fcb4397?revision_id=a456536d-a874-4528-af0f-a42ee192defa",
+            "selected_event": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7?event_id=23e98a53-7185-4b88-8597-6e2fa3009841"
+          },
+          "origin": {
+            "finding_id": "c65291fd-89c8-41d3-8456-54a74fcb4397",
+            "finding_revision_id": "a456536d-a874-4528-af0f-a42ee192defa",
+            "revision_no": 2
+          },
+          "selected_event": {
+            "id": "23e98a53-7185-4b88-8597-6e2fa3009841",
+            "kind": "FAILED",
+            "occurred_at": "2026-11-01T01:06:00Z",
+            "occurred_before_recorded": false,
+            "recorded_at": "2026-11-01T01:06:00Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:05:00+00:00",
+            "application": "PENDING",
+            "application_attempts": 1,
+            "applied_at": null,
+            "failed_attempts": 1,
+            "last_failure": {
+              "event_id": "23e98a53-7185-4b88-8597-6e2fa3009841",
+              "failure_code": "ACTION_NO_CHANGE",
+              "recorded_at": "2026-11-01T01:06:00+00:00"
+            },
+            "outcome": {
+              "state": "PENDING",
+              "statement": "No verification exists yet; nothing is claimed about an effect, a saving or approval."
+            }
+          }
+        }
+      ],
+      "schema_version": "site-action-index-1",
+      "selection": "latest event by (recorded_at, id); never occurred_at",
+      "site_code": "KOBO-001",
+      "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+      "status": "CURRENT",
+      "total_count": 2,
+      "window": {
+        "bounds": "[from, to)",
+        "from": "2026-11-01T00:00:00Z",
+        "membership": "created_at >= from and created_at < to (creation time only; later events do not move a row)",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "zero_statement": null
+    },
+    "page2": {
+      "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+      "display_timezone": "UTC",
+      "fence": {
+        "action_count": 2,
+        "event_count": 8,
+        "max_created_at": "2026-11-01T00:05:00Z",
+        "max_event_recorded_at": "2026-11-01T01:06:00Z",
+        "token": "sai1-b4b7629981a39775c244c940674caebe61ec2f9d77bb5f16921317faff42c96c",
+        "zero_rows": false
+      },
+      "is_current": true,
+      "kind": "ACTIONS",
+      "next_cursor": null,
+      "not_included": "Incidents, maintenance, owners, due dates, priority and verification verdicts are not part of this list.",
+      "order": "created_at descending, then Action UUID ascending",
+      "page": {
+        "is_first": false,
+        "limit": 1,
+        "shown": 1
+      },
+      "read_at": "2026-11-01T03:00:00Z",
+      "rows": [
+        {
+          "action_code": "ACT-000001",
+          "action_id": "ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+          "created_at": "2026-11-01T00:00:00Z",
+          "event_count": 6,
+          "key": {
+            "action_id": "ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+            "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+            "tenant_id": "cc1a9bda-51f7-43b4-aa44-2633d2e0c943"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14/events?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "canonical": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+            "history_at_event": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14/history?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "origin_finding": "/sites/KOBO-001/findings/f06085e9-7430-4ee6-b7cd-5a024924f28a?revision_id=39b48972-310d-4048-bd4a-af0c95cce421",
+            "selected_event": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d"
+          },
+          "origin": {
+            "finding_id": "f06085e9-7430-4ee6-b7cd-5a024924f28a",
+            "finding_revision_id": "39b48972-310d-4048-bd4a-af0c95cce421",
+            "revision_no": 1
+          },
+          "selected_event": {
+            "id": "3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "kind": "APPLIED",
+            "occurred_at": "2026-11-01T01:04:00Z",
+            "occurred_before_recorded": false,
+            "recorded_at": "2026-11-01T01:04:00Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:00:00+00:00",
+            "application": "APPLIED",
+            "application_attempts": 4,
+            "applied_at": "2026-11-01T01:04:00+00:00",
+            "failed_attempts": 3,
+            "last_failure": {
+              "event_id": "f38415c3-7fb5-42e7-94a4-a82485890a9c",
+              "failure_code": "ACTION_EFFECTIVE_TIME_INVALID",
+              "recorded_at": "2026-11-01T01:03:00+00:00"
+            },
+            "outcome": {
+              "state": "PENDING",
+              "statement": "No verification exists yet; nothing is claimed about an effect, a saving or approval."
+            }
+          }
+        }
+      ],
+      "schema_version": "site-action-index-1",
+      "selection": "latest event by (recorded_at, id); never occurred_at",
+      "site_code": "KOBO-001",
+      "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+      "status": "CURRENT",
+      "total_count": 2,
+      "window": {
+        "bounds": "[from, to)",
+        "from": "2026-11-01T00:00:00Z",
+        "membership": "created_at >= from and created_at < to (creation time only; later events do not move a row)",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "zero_statement": null
+    },
+    "positive": {
+      "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+      "display_timezone": "UTC",
+      "fence": {
+        "action_count": 2,
+        "event_count": 8,
+        "max_created_at": "2026-11-01T00:05:00Z",
+        "max_event_recorded_at": "2026-11-01T01:06:00Z",
+        "token": "sai1-b4b7629981a39775c244c940674caebe61ec2f9d77bb5f16921317faff42c96c",
+        "zero_rows": false
+      },
+      "is_current": true,
+      "kind": "ACTIONS",
+      "next_cursor": null,
+      "not_included": "Incidents, maintenance, owners, due dates, priority and verification verdicts are not part of this list.",
+      "order": "created_at descending, then Action UUID ascending",
+      "page": {
+        "is_first": true,
+        "limit": 25,
+        "shown": 2
+      },
+      "read_at": "2026-11-01T03:00:00Z",
+      "rows": [
+        {
+          "action_code": "ACT-000002",
+          "action_id": "3a582b33-3a22-4259-a054-eff85b9ea2b7",
+          "created_at": "2026-11-01T00:05:00Z",
+          "event_count": 2,
+          "key": {
+            "action_id": "3a582b33-3a22-4259-a054-eff85b9ea2b7",
+            "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+            "tenant_id": "cc1a9bda-51f7-43b4-aa44-2633d2e0c943"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7/events?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "canonical": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7",
+            "history_at_event": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7/history?event_id=23e98a53-7185-4b88-8597-6e2fa3009841",
+            "origin_finding": "/sites/KOBO-001/findings/c65291fd-89c8-41d3-8456-54a74fcb4397?revision_id=a456536d-a874-4528-af0f-a42ee192defa",
+            "selected_event": "/sites/KOBO-001/actions/3a582b33-3a22-4259-a054-eff85b9ea2b7?event_id=23e98a53-7185-4b88-8597-6e2fa3009841"
+          },
+          "origin": {
+            "finding_id": "c65291fd-89c8-41d3-8456-54a74fcb4397",
+            "finding_revision_id": "a456536d-a874-4528-af0f-a42ee192defa",
+            "revision_no": 2
+          },
+          "selected_event": {
+            "id": "23e98a53-7185-4b88-8597-6e2fa3009841",
+            "kind": "FAILED",
+            "occurred_at": "2026-11-01T01:06:00Z",
+            "occurred_before_recorded": false,
+            "recorded_at": "2026-11-01T01:06:00Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:05:00+00:00",
+            "application": "PENDING",
+            "application_attempts": 1,
+            "applied_at": null,
+            "failed_attempts": 1,
+            "last_failure": {
+              "event_id": "23e98a53-7185-4b88-8597-6e2fa3009841",
+              "failure_code": "ACTION_NO_CHANGE",
+              "recorded_at": "2026-11-01T01:06:00+00:00"
+            },
+            "outcome": {
+              "state": "PENDING",
+              "statement": "No verification exists yet; nothing is claimed about an effect, a saving or approval."
+            }
+          }
+        },
+        {
+          "action_code": "ACT-000001",
+          "action_id": "ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+          "created_at": "2026-11-01T00:00:00Z",
+          "event_count": 6,
+          "key": {
+            "action_id": "ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+            "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+            "tenant_id": "cc1a9bda-51f7-43b4-aa44-2633d2e0c943"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14/events?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "canonical": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14",
+            "history_at_event": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14/history?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "origin_finding": "/sites/KOBO-001/findings/f06085e9-7430-4ee6-b7cd-5a024924f28a?revision_id=39b48972-310d-4048-bd4a-af0c95cce421",
+            "selected_event": "/sites/KOBO-001/actions/ee4b78a2-019b-4e25-a8af-4ea80f7b3b14?event_id=3c51896a-4dde-449e-af2d-06a4b4f2853d"
+          },
+          "origin": {
+            "finding_id": "f06085e9-7430-4ee6-b7cd-5a024924f28a",
+            "finding_revision_id": "39b48972-310d-4048-bd4a-af0c95cce421",
+            "revision_no": 1
+          },
+          "selected_event": {
+            "id": "3c51896a-4dde-449e-af2d-06a4b4f2853d",
+            "kind": "APPLIED",
+            "occurred_at": "2026-11-01T01:04:00Z",
+            "occurred_before_recorded": false,
+            "recorded_at": "2026-11-01T01:04:00Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:00:00+00:00",
+            "application": "APPLIED",
+            "application_attempts": 4,
+            "applied_at": "2026-11-01T01:04:00+00:00",
+            "failed_attempts": 3,
+            "last_failure": {
+              "event_id": "f38415c3-7fb5-42e7-94a4-a82485890a9c",
+              "failure_code": "ACTION_EFFECTIVE_TIME_INVALID",
+              "recorded_at": "2026-11-01T01:03:00+00:00"
+            },
+            "outcome": {
+              "state": "PENDING",
+              "statement": "No verification exists yet; nothing is claimed about an effect, a saving or approval."
+            }
+          }
+        }
+      ],
+      "schema_version": "site-action-index-1",
+      "selection": "latest event by (recorded_at, id); never occurred_at",
+      "site_code": "KOBO-001",
+      "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+      "status": "CURRENT",
+      "total_count": 2,
+      "window": {
+        "bounds": "[from, to)",
+        "from": "2026-11-01T00:00:00Z",
+        "membership": "created_at >= from and created_at < to (creation time only; later events do not move a row)",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "zero_statement": null
+    },
+    "positive_window": {
+      "from": "2026-11-01T00:00:00Z",
+      "to": "2026-11-02T00:00:00Z"
+    },
+    "refused_invalid_cursor": {
+      "body": {
+        "detail": {
+          "code": "INVALID_CURSOR",
+          "field": "cursor",
+          "message": "The cursor is not a cursor this list issued.",
+          "rows": null,
+          "total_count": null
+        }
+      },
+      "status": 422
+    },
+    "refused_invalid_limit": {
+      "body": {
+        "detail": {
+          "code": "INVALID_LIMIT",
+          "field": "limit",
+          "message": "`limit` must be an integer from 1 to 100.",
+          "rows": null,
+          "total_count": null
+        }
+      },
+      "status": 422
+    },
+    "refused_invalid_window": {
+      "body": {
+        "detail": {
+          "code": "INVALID_WINDOW",
+          "field": "from",
+          "message": "`from` must be a UTC instant (Z or +00:00).",
+          "rows": null,
+          "total_count": null
+        }
+      },
+      "status": 422
+    },
+    "refused_window_required": {
+      "body": {
+        "detail": {
+          "code": "WINDOW_REQUIRED",
+          "field": "to",
+          "message": "`to` is required as a UTC instant; choose a bounded window of at most 31 days.",
+          "rows": null,
+          "total_count": null
+        }
+      },
+      "status": 422
+    },
+    "store_unavailable": {
+      "body": {
+        "detail": {
+          "code": "ACTION_STORE_UNAVAILABLE",
+          "message": "The Action store failed: connection timeout expired",
+          "rows": null,
+          "total_count": null
+        }
+      },
+      "status": 503
+    },
+    "zero": {
+      "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+      "display_timezone": "UTC",
+      "fence": {
+        "action_count": 0,
+        "event_count": 0,
+        "max_created_at": null,
+        "max_event_recorded_at": null,
+        "token": "sai1-48bd78dd01684bc3465c419bade0a6fb4d5de6526cae6f600f69ffd791a4b630",
+        "zero_rows": true
+      },
+      "is_current": true,
+      "kind": "ACTIONS",
+      "next_cursor": null,
+      "not_included": "Incidents, maintenance, owners, due dates, priority and verification verdicts are not part of this list.",
+      "order": "created_at descending, then Action UUID ascending",
+      "page": {
+        "is_first": true,
+        "limit": 25,
+        "shown": 0
+      },
+      "read_at": "2026-11-01T03:30:00Z",
+      "rows": [],
+      "schema_version": "site-action-index-1",
+      "selection": "latest event by (recorded_at, id); never occurred_at",
+      "site_code": "KOBO-001",
+      "site_id": "89e4f689-f78a-4098-939d-a7f0ea0c27e2",
+      "status": "CURRENT",
+      "total_count": 0,
+      "window": {
+        "bounds": "[from, to)",
+        "from": "2026-10-01T00:00:00Z",
+        "membership": "created_at >= from and created_at < to (creation time only; later events do not move a row)",
+        "to": "2026-11-01T00:00:00Z"
+      },
+      "zero_statement": "No persisted Action was created for this Site in this window. This says nothing about Findings, recommendations, incidents, maintenance or work that was never recorded."
+    },
+    "zero_window": {
+      "from": "2026-10-01T00:00:00Z",
+      "to": "2026-11-01T00:00:00Z"
+    }
+  },
+  "resolution": {
+    "resolved": {
+      "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+      "display_timezone": "UTC",
+      "fence": {
+        "action_count": 1,
+        "event_count": 3,
+        "max_created_at": "2026-11-01T00:00:00Z",
+        "max_event_recorded_at": "2026-11-02T12:00:00.000001Z",
+        "token": "sai1-97fd9034fe270ddb79de284e51a6ffc8f5efd06b8920d97a359f10ec54547dfd",
+        "zero_rows": false
+      },
+      "is_current": true,
+      "kind": "ACTIONS",
+      "next_cursor": null,
+      "not_included": "Incidents, maintenance, owners, due dates, priority and verification verdicts are not part of this list.",
+      "order": "created_at descending, then Action UUID ascending",
+      "page": {
+        "is_first": true,
+        "limit": 25,
+        "shown": 1
+      },
+      "read_at": "2026-11-02T12:00:00Z",
+      "rows": [
+        {
+          "action_code": "ACT-000003",
+          "action_id": "577c4a79-c2fe-4f96-825c-1b0bbdecc90c",
+          "created_at": "2026-11-01T00:00:00Z",
+          "event_count": 3,
+          "key": {
+            "action_id": "577c4a79-c2fe-4f96-825c-1b0bbdecc90c",
+            "site_id": "9112f320-3053-4398-b018-8ad675391e39",
+            "tenant_id": "f2e4621f-5ba2-46df-83ff-b4c8c9b66448"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c?event_id=0a7e761d-a542-4195-83ac-3509540d1821",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c/events?event_id=0a7e761d-a542-4195-83ac-3509540d1821",
+            "canonical": "/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c",
+            "history_at_event": "/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c/history?event_id=0a7e761d-a542-4195-83ac-3509540d1821",
+            "origin_finding": "/sites/KOBO-001/findings/83f4111b-db22-4518-901a-64d119e40812?revision_id=7094b6d5-a9f0-483c-9d67-c22b13c193e6",
+            "selected_event": "/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c?event_id=0a7e761d-a542-4195-83ac-3509540d1821"
+          },
+          "origin": {
+            "finding_id": "83f4111b-db22-4518-901a-64d119e40812",
+            "finding_revision_id": "7094b6d5-a9f0-483c-9d67-c22b13c193e6",
+            "revision_no": 1
+          },
+          "selected_event": {
+            "id": "0a7e761d-a542-4195-83ac-3509540d1821",
+            "kind": "RESOLVED",
+            "occurred_at": "2026-11-02T12:00:00.000001Z",
+            "occurred_before_recorded": false,
+            "recorded_at": "2026-11-02T12:00:00.000001Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:00:00+00:00",
+            "application": "APPLIED",
+            "application_attempts": 1,
+            "applied_at": "2026-11-01T01:00:00+00:00",
+            "failed_attempts": 0,
+            "last_failure": null,
+            "outcome": {
+              "state": "VERIFIED",
+              "statement": "Resolved by the verification evaluator from a frozen simulated/authored policy trial; no causal or savings claim. RESOLVED can later be withdrawn."
+            },
+            "resolution": {
+              "event_id": "0a7e761d-a542-4195-83ac-3509540d1821",
+              "guardrail_failed": false,
+              "outcome": "VERIFIED",
+              "outcome_id": "de78af5a-8c42-40d5-9e2a-568e9eec50fd",
+              "plan_id": "9cf01e3b-09be-4f37-9e3f-b4a5be3674a6",
+              "reasons": [
+                "TARGET_AND_GUARDRAILS_PASS"
+              ],
+              "recorded_at": "2026-11-02T12:00:00.000001+00:00",
+              "state": "RESOLVED"
+            }
+          }
+        }
+      ],
+      "schema_version": "site-action-index-1",
+      "selection": "latest event by (recorded_at, id); never occurred_at",
+      "site_code": "KOBO-001",
+      "site_id": "9112f320-3053-4398-b018-8ad675391e39",
+      "status": "CURRENT",
+      "total_count": 1,
+      "window": {
+        "bounds": "[from, to)",
+        "from": "2026-11-01T00:00:00Z",
+        "membership": "created_at >= from and created_at < to (creation time only; later events do not move a row)",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "zero_statement": null
+    },
+    "window": {
+      "from": "2026-11-01T00:00:00Z",
+      "to": "2026-11-02T00:00:00Z"
+    },
+    "withdrawn": {
+      "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+      "display_timezone": "UTC",
+      "fence": {
+        "action_count": 1,
+        "event_count": 4,
+        "max_created_at": "2026-11-01T00:00:00Z",
+        "max_event_recorded_at": "2026-11-02T14:00:00.000001Z",
+        "token": "sai1-3356c132e6e3bf5e7a19e71053cbc20943a380926439f997b1b15cdc728b5d3b",
+        "zero_rows": false
+      },
+      "is_current": true,
+      "kind": "ACTIONS",
+      "next_cursor": null,
+      "not_included": "Incidents, maintenance, owners, due dates, priority and verification verdicts are not part of this list.",
+      "order": "created_at descending, then Action UUID ascending",
+      "page": {
+        "is_first": true,
+        "limit": 25,
+        "shown": 1
+      },
+      "read_at": "2026-11-02T14:00:00Z",
+      "rows": [
+        {
+          "action_code": "ACT-000003",
+          "action_id": "577c4a79-c2fe-4f96-825c-1b0bbdecc90c",
+          "created_at": "2026-11-01T00:00:00Z",
+          "event_count": 4,
+          "key": {
+            "action_id": "577c4a79-c2fe-4f96-825c-1b0bbdecc90c",
+            "site_id": "9112f320-3053-4398-b018-8ad675391e39",
+            "tenant_id": "f2e4621f-5ba2-46df-83ff-b4c8c9b66448"
+          },
+          "links": {
+            "api_action_at_event": "/api/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c?event_id=404a554d-523a-4315-8956-03948e600754",
+            "api_events_at_event": "/api/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c/events?event_id=404a554d-523a-4315-8956-03948e600754",
+            "canonical": "/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c",
+            "history_at_event": "/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c/history?event_id=404a554d-523a-4315-8956-03948e600754",
+            "origin_finding": "/sites/KOBO-001/findings/83f4111b-db22-4518-901a-64d119e40812?revision_id=7094b6d5-a9f0-483c-9d67-c22b13c193e6",
+            "selected_event": "/sites/KOBO-001/actions/577c4a79-c2fe-4f96-825c-1b0bbdecc90c?event_id=404a554d-523a-4315-8956-03948e600754"
+          },
+          "origin": {
+            "finding_id": "83f4111b-db22-4518-901a-64d119e40812",
+            "finding_revision_id": "7094b6d5-a9f0-483c-9d67-c22b13c193e6",
+            "revision_no": 1
+          },
+          "selected_event": {
+            "id": "404a554d-523a-4315-8956-03948e600754",
+            "kind": "RESOLUTION_WITHDRAWN",
+            "occurred_at": "2026-11-02T14:00:00.000001Z",
+            "occurred_before_recorded": false,
+            "recorded_at": "2026-11-02T14:00:00.000001Z"
+          },
+          "state": {
+            "accepted_at": "2026-11-01T00:00:00+00:00",
+            "application": "APPLIED",
+            "application_attempts": 1,
+            "applied_at": "2026-11-01T01:00:00+00:00",
+            "failed_attempts": 0,
+            "last_failure": null,
+            "outcome": {
+              "state": "REASSESSMENT_PENDING",
+              "statement": "The earlier resolution was withdrawn by the verification evaluator; the trial is unresolved again."
+            },
+            "resolution": {
+              "event_id": "404a554d-523a-4315-8956-03948e600754",
+              "guardrail_failed": false,
+              "outcome": null,
+              "outcome_id": "de78af5a-8c42-40d5-9e2a-568e9eec50fd",
+              "plan_id": "9cf01e3b-09be-4f37-9e3f-b4a5be3674a6",
+              "reasons": [
+                "later:2026-11-02: S3 STALE_PROJECTION: RECOMPUTE_OUTSTANDING: job 09032621-7fbe-4db6-886b-c6ce8873957e PENDING, INPUT_BASIS_CHANGED: the current accepted basis gives another input hash"
+              ],
+              "recorded_at": "2026-11-02T14:00:00.000001+00:00",
+              "state": "RESOLUTION_WITHDRAWN"
+            }
+          }
+        }
+      ],
+      "schema_version": "site-action-index-1",
+      "selection": "latest event by (recorded_at, id); never occurred_at",
+      "site_code": "KOBO-001",
+      "site_id": "9112f320-3053-4398-b018-8ad675391e39",
+      "status": "CURRENT",
+      "total_count": 1,
+      "window": {
+        "bounds": "[from, to)",
+        "from": "2026-11-01T00:00:00Z",
+        "membership": "created_at >= from and created_at < to (creation time only; later events do not move a row)",
+        "to": "2026-11-02T00:00:00Z"
+      },
+      "zero_statement": null
+    }
+  },
+  "schema": "assetops.s6-site-action-index-contract"
+}

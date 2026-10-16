@@ -27,7 +27,7 @@ import { spacedText } from "../../test/text";
  * 1. One canonical inventory lists all eight aspects in v6.9's order; the
  *    RENDERED row is that inventory filtered by capability: Overview,
  *    Foundation, Performance, Findings, Evidence (Performance and Findings
- *    gained their capability at T028).
+ *    gained their capability at T028; Work, with its Actions list, at S6-03).
  * 2. Every rendered tab is a destination: a link to an identified route.
  * 3. No tab is labelled in place or disabled. An aspect whose capability does
  *    not exist is not rendered at all and has no route behind it.
@@ -56,12 +56,13 @@ const RENDERED_TABS = [
   "Foundation",
   "Performance",
   "Findings",
+  "Work",
   "Financials",
   "Evidence",
 ];
 
 /** Canonical aspects with no capability in this build: not rendered. */
-const UNRENDERED_TABS = ["Health", "Work"];
+const UNRENDERED_TABS = ["Health"];
 
 /**
  * The mockup's Site tabs from `ScreenMockups.png` screen 2, which are the
@@ -186,7 +187,7 @@ describe("the operator Site tab inventory is defined once", () => {
 describe.each(SITE_SURFACES)(
   "the Site tab row on %s",
   (_name, path, currentTab) => {
-    it("renders exactly Overview, Foundation, Performance, Findings, Financials, Evidence, in order", async () => {
+    it("renders exactly Overview, Foundation, Performance, Findings, Work, Financials, Evidence, in order", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -220,6 +221,7 @@ describe.each(SITE_SURFACES)(
         ["Foundation", "/sites/MG-002/foundation"],
         ["Performance", "/sites/MG-002/performance"],
         ["Findings", "/sites/MG-002/findings"],
+        ["Work", "/sites/MG-002/work"],
         ["Financials", "/sites/MG-002/financials"],
         ["Evidence", "/sites/MG-002/evidence"],
       ]);
