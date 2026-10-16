@@ -1,6 +1,6 @@
 # S7-01b — Site Health and battery Unknown UI
 
-Status: implementation-ready. USER_REVIEW_REQUIRED: true; owner walkthrough before merge. Size M, two phases. Branch `task/S7-01b-health-ui` from reviewed/merged S7-01a. Depends on its central fixture and two read contracts. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-a-s7-health`; registry `I-source-health-ui`, `I-asset-boundary-ui`, `health:2#a`, `asset:3#a`. Mock `frontend/mockups/v69/index.html` / `screen-manifest.json` `health`, `asset` guides layout only; positive physical `asset:3#b` stays unmapped.
+Status: implementation-ready (plan re-review: S3-02b R1 applied by coordinator; S7-01b R2 carried). USER_REVIEW_REQUIRED: true; owner walkthrough before merge. Size M, two phases. Branch `task/S7-01b-health-ui` from reviewed/merged S7-01a. Depends on its central fixture and two read contracts. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-a-s7-health`; registry `I-source-health-ui`, `I-asset-boundary-ui`, `health:2#a`, `asset:3#a`. Mock `frontend/mockups/v69/index.html` / `screen-manifest.json` `health`, `asset` guides layout only; positive physical `asset:3#b` stays unmapped.
 
 ## Verified seams and UI behavior
 
