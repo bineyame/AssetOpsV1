@@ -67,7 +67,10 @@ No owner, due date, priority, success criterion or verdict; Incidents/Maintenanc
   step link opens history at that step, no page-level horizontal overflow, mockup `#/sitework` captured).
   `node tools/layout-evidence.mjs http://localhost:5463 KOBO-001` on the private walkthrough DB: 327 PASS, 2 FAIL,
   both pre-existing preconditions (a Lab Site with a 430 L tank; a legacy file Kobo Site) unrelated to S6-03.
-- Full backend suite: FULL_SUITE_RESULT
+- Full backend suite at `0696e744` (code identical to `4d9a89ca`): `pytest backend/tests -n 2 --dist loadfile
+  --no-loadscope-reorder -q -p no:cacheprovider --junitxml=<scratchpad>/s603-junit.xml` on private `assetops_s603_test`,
+  `var/sites/*.yaml` copied in (removed after): **2535 passed** in 1446.7 s (wall 1450 s, under the 30-minute cap); JUnit
+  tests 2535, failures 0, errors 0, skipped 0. No other pytest ran at start; free memory 4.0 GB.
 
 ## Known deviations
 
