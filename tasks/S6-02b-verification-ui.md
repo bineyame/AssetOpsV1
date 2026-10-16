@@ -30,3 +30,7 @@ Existing S6-01b Action route/controls are on `task/S6-01b-action-ui` (read with 
 `D-2026-10-16-s602-questions` fixes the three interim labels and latest-current default with an explicit, persistent historical selector. Owner walkthrough proves both without treating old VERIFIED as current; the general copy pass stays at W1 conclusion.
 
 **Plan fix round 1 (2026-10-16):** Applied Architect status and selector rulings, named layout evidence, and made withdrawable RESOLVED presentation explicit.
+
+## Coordinator note (2026-10-16, S6-02a merge)
+
+Per `D-2026-10-16-s602a-replay` this slice now owns registry nodes `I-sim-verification-cases` and `D-verification-window` (re-tagged from S6-02a): add the reserve-aware mini-grid model/profile version and the public two-run replay that genuinely reaches VERIFIED before the owner walkthrough. Read `D-2026-10-16-s602a-holds` (INCONCLUSIVE continuation, causal attribution) and the S6-02a handoff carries (F5: display from the `verification` block, not `state.outcome`; R2, R3, N1).

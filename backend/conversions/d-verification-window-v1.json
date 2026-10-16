@@ -1,0 +1,80 @@
+{
+  "schema": {"id": "assetops.verification-window-replay", "version": 1},
+  "label": "Simulated policy trial; no savings claim; RESOLVED can later be withdrawn",
+  "status": "LABELLED REPLAY MANIFEST - D-verification-window under D-2026-10-16-s6-verification, D-2026-10-16-s602-questions and D-2026-10-16-s602a-cutoff (S6-02a). Two separate fixed-policy registered Lab runs of the shipped mini-grid v4 model, published by a real gateway process and accepted by the ordinary S2 batch ingestion; nothing in either window is authored or test-scoped. Not operator-entered Site truth and not a real-source verdict.",
+  "site_code": "KOBO-001",
+  "role_set": "minigrid-roles-3",
+  "demo_configurations": ["kobo-001-s3-dispatch-demo-config.json", "kobo-001-s6-verification-demo-config.json"],
+  "scenario": {"scenario_id": "kobo-mini-grid-prolonged", "scenario_version": 2},
+  "timestep_minutes": 5,
+  "model_profile": {"profile_id": "mini-grid", "profile_version": 4},
+  "publication_profile": {"profile_id": "registered-kobo-publication", "profile_version": 4},
+  "runs": {
+    "baseline": {"start": "2026-10-13T03:00:00Z", "end": "2026-10-13T11:00:00Z", "seed": 20260929,
+                 "sequence_epoch": "epoch-1", "foundation_known_at": "2026-10-07T12:00:00Z",
+                 "received_at": "2026-10-14T00:00:00Z",
+                 "foundation": "old: battery reserve 30 % (kobo-mini-grid-60kw template)"},
+    "later": {"start": "2026-10-15T03:00:00Z", "end": "2026-10-15T11:00:00Z", "seed": 20260929,
+              "sequence_epoch": "epoch-2", "foundation_known_at": "2026-10-14T04:00:00Z",
+              "received_at": "2026-10-16T00:00:00Z",
+              "foundation": "new: the applied Action's reserve 25 % from effective_from"}
+  },
+  "action": {"finding_anchor_day": "2026-10-13", "accept_at": "2026-10-14T01:00:00Z",
+             "apply_at": "2026-10-14T02:00:00Z", "reserve_old": "30", "reserve_new": "25",
+             "effective_from": "2026-10-15T00:00:00Z"},
+  "plan": {"freeze_at": "2026-10-14T03:00:00Z",
+           "note": "frozen before any later-window report is accepted and before the later run begins"},
+  "windows": {"baseline_start": "2026-10-13T08:00:00+00:00", "later_start": "2026-10-15T08:00:00+00:00",
+              "minutes": 60, "slots": 12},
+  "evaluate_at": "2026-10-16T01:00:00Z",
+  "expected": {
+    "identifiers": "Run IDs, publication IDs, evidence IDs and message IDs are allocated per replay (random run_id; tenant/Site/gateway UUIDs per import), so none is pinned; counts are.",
+    "published": {
+      "baseline": {"batches": 582, "envelopes": 1036, "publications": 582},
+      "later": {"batches": 582, "envelopes": 1036, "publications": 582}
+    },
+    "window_evidence_ids": 121,
+    "window_publication_ids": 74,
+    "plan": {"baseline_candidate_seconds": 3600},
+    "windows": {
+      "baseline": {"complete": true, "feeder_demand_kwh": "23", "pv_available_kwh": "33",
+                   "unserved_critical_kwh": "0", "below_reserve_seconds": 0, "initial_soc": "72.75",
+                   "terminal_soc": "87"},
+      "later": {"complete": true, "feeder_demand_kwh": "23", "pv_available_kwh": "33",
+                "unserved_critical_kwh": "0", "below_reserve_seconds": 0, "initial_soc": "67.75",
+                "terminal_soc": "82"}
+    },
+    "source": {"per_window_class": "REGISTERED_SIMULATION", "runs_per_window": 1, "distinct_run_digests": true,
+               "pair": "PASS"},
+    "generator_running": {"2026-10-13": ["2026-10-13T03:45:00+00:00", "2026-10-13T09:15:00+00:00"],
+                          "2026-10-15": ["2026-10-15T03:45:00+00:00", "2026-10-15T09:35:00+00:00"]},
+    "metrics": {
+      "window_coverage@BASELINE": "PASS", "window_coverage@LATER": "PASS",
+      "feeder_demand_energy_band@COMPARISON": "PASS", "pv_available_energy_band@COMPARISON": "PASS",
+      "initial_soc_band@COMPARISON": "FAIL", "source_provenance@COMPARISON": "PASS",
+      "candidate_avoidable_seconds@BASELINE": "PASS", "candidate_avoidable_seconds@LATER": "PASS",
+      "target_reduction@COMPARISON": "FAIL", "unserved_critical_energy@COMPARISON": "PASS",
+      "below_reserve_seconds@COMPARISON": "PASS", "terminal_soc@COMPARISON": "FAIL"
+    },
+    "outcome": {"outcome": "INCONCLUSIVE",
+                "reasons": ["NOT_COMPARABLE", "KNOWN_FAILURE:terminal_soc", "KNOWN_FAILURE:target_reduction"],
+                "current_state": "INCONCLUSIVE", "resolved_appended": false},
+    "why_not_verified": "The shipped mini-grid generator policy (simulator/assetops_simulator/packs/mini_grid.py decide()) starts the generator at state of charge <= start-soc-threshold (35 %) and stops it at >= stop-soc-threshold (90 %); it never reads the battery reserve. The reserve only floors battery discharge. Lowering it 30 -> 25 lets the battery discharge five points further while the generator cannot cover the mill, so the later run enters the Candidate period five SOC points lower (67.75 vs 72.75 at 08:00, 82 vs 87 at 09:00) and the generator runs 20 minutes longer (03:45-09:35 vs 03:45-09:15). Every hour with positive baseline Candidate seconds (05:05-09:15) therefore has later Candidate seconds >= baseline (target miss) and a 5-point initial-SOC gap (outside the 2-point band), so with this model VERIFIED is unreachable and the settled verdict is INCONCLUSIVE. The seed only draws publication dropout, so no seed changes this."
+  },
+  "cases": [
+    {"case_id": "complete-pass", "status": "replayed-not-verified", "test": "host/tests/test_s6_verification_replay.py",
+     "note": "The complete path replays end to end (both windows 12/12 complete, comparable feeder and PV energy, per-window REGISTERED_SIMULATION with distinct run digests, source pair PASS); the shipped model's settled verdict is INCONCLUSIVE, not VERIFIED - see expected.why_not_verified."},
+    {"case_id": "target-miss", "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_target_miss_only_releases_the_hold",
+     "note": "test-scoped complete windows; not a Lab replay"},
+    {"case_id": "guardrail-fail", "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_guardrail_failure_closes_but_blocks_a_different_finding",
+     "note": "test-scoped complete windows; not a Lab replay"},
+    {"case_id": "missing-critical-role", "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestRealRoles2Path::test_pending_gates_inconclusive_outcome_retries_and_access",
+     "note": "a minigrid-roles-2 Site has no critical-load roles, so both windows stay incomplete (authored S4 readings, not a Lab replay)"},
+    {"case_id": "late-evidence-reassessment", "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestRealRoles2Path::test_late_evidence_reads_reassessment_pending_then_a_settled_outcome_supersedes",
+     "note": "authored S4 readings; not a Lab replay"},
+    {"case_id": "different-finding-hold", "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_guardrail_failure_closes_but_blocks_a_different_finding",
+     "note": "test-scoped complete windows; not a Lab replay"},
+    {"case_id": "overlap", "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_verified_resolves_then_late_evidence_withdraws_and_overlap_blocks",
+     "note": "test-scoped complete windows; not a Lab replay"}
+  ]
+}
