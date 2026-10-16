@@ -5737,3 +5737,17 @@ Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01
 - Migrated and opted into W1: Overview objective (`SiteWindowOverview.tsx` `Objective`), Evidence conclusion (`LedgerSiteEvidence.tsx` `OverviewBody`), Action state (`SiteAction.tsx` `ActionStateCard`).
 - Capture: `tools/w1-ux-01-evidence.mjs <out> <mock-id>[:<case>]=<url>`.
 - Open: the other 23 W1 routes remain on the T028 scan until UX-02..05; domain word maps still duplicate cross-screen states; the Evidence read has no read instant (as of = latest delivery received); the Action summary has no source class; registry Low D (`I-W1-UX-01` requires) untouched.
+
+## W1-UX-04 - Action, work, change and verification presentation (built, in_review)
+
+Branch `task/W1-UX-04` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-04-review-packet.md`. Frontend only. All nine routes opted into the W1 vocabulary set (action-overview was opted in by W1-UX-01).
+
+- Answer cards (shared `HeadlineVisualCard`, `data-headline-card`): `recommendation` (`SiteRecommendation.tsx` `RecommendationCard`), `change` (`SiteFoundationChange.tsx` `ChangeCard`), `action-work` / `action-history` (`SiteAction.tsx` `WorkCard`, `HistoryCard`), `site-work` (`SiteWorkActions.tsx` `SiteWorkCard`), `verification` / `action-plan` / `action-evidence` (`verificationCards.tsx`, mounted in `SiteActionVerification.tsx`).
+- Domain-local words in `actionPresentation.tsx`: `applicationWords`, `recommendationWords` (holds are problem/waiting, never positive), `plainEventWords`, `trialStep` (moved from `SiteAction.tsx`).
+- As-of sources (no read carries a read instant except Site Work `read_at` and Evidence `knowledge_cutoff`): recommendation = acceptance time, else latest stored input window end, else (held) the blocking Action's latest recorded step; change = `recorded_at`; verification = outcome `recorded_at`, else the Action read cutoff/last event; plan = plan `recorded_at`.
+- Site Work: proved zero only after a loaded read (`read_at` beside it); a refused/unread list shows "As of: time not recorded" and no count.
+- Verification card: failed limits in plain units (minutes, %, kWh); a selected earlier outcome reads Historical with "Current state:" beside it.
+- Jargon labels made plain: Input/Plan content/Day group/Configuration reference; stored measure values and day-group status are exact references.
+- Capture: `tools/w1-ux-01-evidence.mjs` knows all W1-UX-04 cards; `W1_NO_VISUAL_OK`, `W1_TAB_TRACE` env.
+- Open: refusal states cannot meet `expectStateLineVisible` (no instant to show); Evidence completeness counts slots with no problems (caller-side `slotProblems`); duplicate word maps in `verificationWords.ts` remain (wrapped, not replaced).
+
