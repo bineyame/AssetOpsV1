@@ -27,6 +27,7 @@ import {
   Fact,
   FactList,
   HeadlineVisualCard,
+  currentnessWords,
   outcomeWords as productOutcomeWords,
   Panel,
   ProductStatus,
@@ -52,11 +53,14 @@ import {
 } from "./actionClient";
 import {
   APPLICATION_WORDS,
+  applicationWords,
   CommandRefusal,
   CommandUnavailable,
   eventWords,
   granted,
+  trialStep,
   outcomeWords,
+  plainEventWords,
   Ref,
   RefusalPanel,
   SYSTEM_DEMONSTRATION,
@@ -337,12 +341,6 @@ function SelectionNotice({ selection, view, links }: { selection: Selection; vie
 
 const OUTCOME_STATES = new Set(["VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"]);
 
-function trialStep(state: string): StepState {
-  if (state === "VERIFIED") return "done";
-  if (state === "INEFFECTIVE") return "problem";
-  if (state === "NO_PLAN" || state === "PENDING" || state === "REASSESSMENT_PENDING") return "waiting";
-  return "not-known";
-}
 
 /**
  * W1-UX-01: the Action's intervention and outcome state on the shared answer
@@ -594,7 +592,8 @@ function Application({
 
   return (
     <div className="site-action__body">
-      <Panel heading="Application" headingId="site-action-state-heading">
+      <WorkCard body={body} links={links} />
+      <Panel heading="Application" headingId="site-action-application-heading">
         <FactList>
           <Fact term="Application">
             <span data-action-application-words>{APPLICATION_WORDS[body.state.application] ?? body.state.application}</span>
@@ -720,10 +719,168 @@ function ApplyOutcome({ outcome, links }: { outcome: CommandResult | null; links
   );
 }
 
+/** The plain "as of" instant of a selected Action read: the cutoff, else the last recorded event. */
+function actionAsOf(body: ActionBody): string | null {
+  return body.selection.cutoff_recorded_at ?? body.last_event?.recorded_at ?? null;
+}
+
+/**
+ * W1-UX-04: the Application view's answer card - what work was done and what
+ * is next. Applied is a recorded setting, never a measured effect.
+ */
+function WorkCard({ body, links }: { body: ActionBody; links: SiteActionLinks }) {
+  const v = body.verification ?? null;
+  const verificationState = v === null ? body.state.outcome.state : v.state;
+  const trial = productOutcomeWords(verificationState, v === null ? [] : v.reasons, null);
+  const words = applicationWords(body.state.application, body.state.failed_attempts);
+  const applied = body.state.application === "APPLIED";
+  const failed = body.state.failed_attempts;
+  const attempts = body.state.application_attempts;
+  return (
+    <HeadlineVisualCard
+      dataName="action-work"
+      headingId="site-action-state-heading"
+      title="Work done"
+      description="An Action is proposed or recorded work on this site. Applying it changes a recorded setting; it does not prove an effect."
+      question="What work was done, and what is next?"
+      headline={
+        <>
+          <span data-action-work-headline>{words.label}</span>. {attempts} attempt{attempts === 1 ? "" : "s"} to apply
+          recorded{failed > 0 ? `, ${failed} failed` : ""}.
+        </>
+      }
+      status={<ProductStatus words={words} scope="This Action, from its recorded events" asOf={actionAsOf(body)} />}
+      visual={
+        <StepStrip
+          title="The work so far"
+          steps={[
+            { label: "Accepted", state: "done", detail: when(body.state.accepted_at) },
+            {
+              label: "Attempts to apply",
+              state: failed > 0 && !applied ? "problem" : attempts > 0 ? "done" : "waiting",
+              detail: `${attempts} recorded, ${failed} failed`,
+            },
+            {
+              label: "Applied",
+              state: applied ? "done" : "waiting",
+              detail: applied && body.state.applied_at !== null ? when(body.state.applied_at) : "Not yet",
+            },
+            { label: "Trial outcome", state: trialStep(verificationState), detail: trial.label },
+          ]}
+        />
+      }
+      meaning={
+        <p>
+          Work done is not the same as a result. Whether the change helped, and whether it stayed within its safety and
+          service limits, is judged only on Verification.
+        </p>
+      }
+      todo={words.next === undefined ? undefined : <p>{words.next}</p>}
+      destination={
+        <>
+          <Link to={links.view("history", LATEST)} data-action-work-history-link>
+            Open History
+          </Link>{" "}
+          <Link to={links.view("verification", LATEST)} data-action-work-verification-link>
+            Open Verification
+          </Link>
+        </>
+      }
+      references={
+        <ExactReferences
+          name="action-work-references"
+          references={[
+            { label: "Action reference", value: body.action.id },
+            { label: "Application state", value: body.state.application },
+            { label: "Last failed attempt reason", value: body.state.last_failure?.failure_code ?? null },
+            { label: "Change record", value: body.change?.change_id ?? null },
+            { label: "New site configuration version", value: body.change?.new_foundation_revision_id ?? null },
+          ]}
+        />
+      }
+    />
+  );
+}
+
+const EVENT_STEP: Record<string, StepState> = { ACCEPTED: "done", APPLIED: "done", OBSERVED: "done", FAILED: "problem" };
+
+/**
+ * W1-UX-04: the History view's answer card - a chronological story of the
+ * selected events. An earlier selection is historical and says so; the plain
+ * "as of" bound stays beside it.
+ */
+function HistoryCard({ body, events, links }: { body: ActionBody; events: ActionEventsBody | null; links: SiteActionLinks }) {
+  const latest = body.selection.kind === "LATEST";
+  const words = latest
+    ? {
+        label: "Every recorded event",
+        sentence: "This is everything recorded for this Action when the page was read.",
+        tone: "neutral" as const,
+        code: "LATEST",
+        unrecognised: false,
+      }
+    : currentnessWords("HISTORICAL");
+  const selected = body.selection.kind === "EVENT_ID" ? body.selection.event_id : null;
+  return (
+    <HeadlineVisualCard
+      dataName="action-history"
+      headingId="site-action-state-heading"
+      title="History"
+      description="The recorded events of this Action, oldest first. Choosing one shows the Action as it stood then."
+      question="What happened to this Action, and when?"
+      headline={
+        <>
+          {latest ? "Latest record" : "An earlier record"}: {body.selection.event_count} of{" "}
+          {body.selection.total_event_count} events.
+        </>
+      }
+      status={<ProductStatus words={words} scope="This Action, from its recorded events" asOf={actionAsOf(body)} />}
+      visual={
+        events === null || events.events.length === 0 ? undefined : (
+          <StepStrip
+            title="What happened, in order"
+            steps={events.events.map((event, i) => ({
+              // Numbered: the strip keys steps by label, and the same kind can recur.
+              label: `${i + 1}. ${plainEventWords(event.kind)}`,
+              state: EVENT_STEP[event.kind] ?? "not-known",
+              detail: `${when(event.occurred_at)}${event.id === selected ? " (selected)" : ""}`,
+            }))}
+          />
+        )
+      }
+      meaning={
+        <p>
+          Events record what was decided and done. None of them measures an effect; a trial result appears only on
+          Verification.
+        </p>
+      }
+      destination={
+        latest ? undefined : (
+          <Link to={links.view("history", LATEST)} data-action-history-latest-link>
+            Show the latest record
+          </Link>
+        )
+      }
+      references={
+        <ExactReferences
+          name="action-history-references"
+          references={[
+            { label: "Action reference", value: body.action.id },
+            { label: "Selected event", value: selected ?? null },
+            { label: "Selected recorded time", value: body.selection.kind === "RECORDED_AT" ? (body.selection.recorded_at ?? null) : null },
+            { label: "Last included event", value: body.selection.cutoff_event_id ?? null },
+          ]}
+        />
+      }
+    />
+  );
+}
+
 function History({ body, events, links, view }: { body: ActionBody; events: ActionEventsBody | null; links: SiteActionLinks; view: ActionView }) {
   return (
     <div className="site-action__body">
-      <Panel heading="History" headingId="site-action-state-heading">
+      <HistoryCard body={body} events={events} links={links} />
+      <Panel heading="Recorded events" headingId="site-action-history-heading">
         <p className="action-note">
           Every recorded event of {body.action.action_code}, in the order the server recorded them. Choose an event
           to see the Action as it stood then, or everything recorded through that time.

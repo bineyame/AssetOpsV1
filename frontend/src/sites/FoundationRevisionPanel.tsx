@@ -9,7 +9,7 @@
  * credentials and evidence are not assessed here (Site Evidence reports them).
  */
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel } from "../ui";
@@ -49,6 +49,28 @@ export function controlValue(control: FoundationControl, names?: ReadonlyMap<str
   }
   if (control.members !== undefined) return control.members.map((code) => names?.get(code) ?? code).join(" → ");
   return `${control.value ?? ""} ${control.unit ?? ""}`.trim();
+}
+
+/**
+ * W1-UX-05: `controlValue` for a table cell. An ordered control's members are
+ * each marked one value at a time: a registered asset's name as user-owned,
+ * an unnamed asset code as an exact reference. The text is `controlValue`'s.
+ */
+function controlValueNode(control: FoundationControl, names?: ReadonlyMap<string, string>): ReactNode {
+  if (control.state === "NOT_CONFIGURED" || control.members === undefined) return controlValue(control, names);
+  return control.members.map((code, index) => {
+    const name = names?.get(code);
+    return (
+      <Fragment key={`${index}-${code}`}>
+        {index > 0 ? " → " : null}
+        {name === undefined ? (
+          <code data-vocabulary-exempt="source-reference">{code}</code>
+        ) : (
+          <span data-vocabulary-exempt="user-owned">{name}</span>
+        )}
+      </Fragment>
+    );
+  });
 }
 
 /**
@@ -119,10 +141,10 @@ export function FoundationPeriodStrip({
         </p>
         <p className="status-strip__summary">
           {bindings.binding_set === null ? (
-            <span data-strip-bindings="NONE">No signal binding set in effect</span>
+            <span data-strip-bindings="NONE">No channel-link set in effect</span>
           ) : (
             <>
-              <Badge tone="neutral">{`Binding v${bindings.binding_set.version}`}</Badge>{" "}
+              <Badge tone="neutral">{`Channel links v${bindings.binding_set.version}`}</Badge>{" "}
               <span data-strip-bindings="PUBLISHED">
                 {`${bindings.mappings.length} bound ${bindings.mappings.length === 1 ? "channel" : "channels"}`}
               </span>
@@ -145,11 +167,11 @@ export function FoundationPeriodStrip({
             className="status-strip__state status-strip__state--historical"
             data-foundation-historical="true"
           >
-            {bindingPeriod === "FUTURE" ? "Scheduled binding period" : "Historical binding period"}:
-            you are viewing binding v{bindings.binding_set?.version}, effective{" "}
+            {bindingPeriod === "FUTURE" ? "Scheduled channel-link period" : "Historical channel-link period"}:
+            you are viewing channel links v{bindings.binding_set?.version}, effective{" "}
             {formatInstant(bindings.binding_set?.valid_from ?? null)} to{" "}
             {formatInstant(bindings.binding_set?.valid_to ?? null)}, with Foundation v{revision.version}.
-            These bindings are not the ones in effect now.
+            These channel links are not the ones in effect now.
           </p>
         ) : revision.is_current ? (
           <p className="status-strip__state">This is the configuration in effect now.</p>
@@ -186,7 +208,7 @@ export function FoundationPeriodStrip({
             ))}
             {bindingPeriods.map((row) => (
               <option key={row.binding_set_revision_id} value={row.valid_from}>
-                {`Binding v${row.version} · from ${formatInstant(row.valid_from)} (${PERIOD_WORD[row.period_state]})`}
+                {`Channel links v${row.version} · from ${formatInstant(row.valid_from)} (${PERIOD_WORD[row.period_state]})`}
               </option>
             ))}
           </select>
@@ -216,17 +238,19 @@ export function FoundationRecordDetails({
   const { revision, site, provenance } = foundation;
   const { superseded } = selectablePeriods(versions);
   return (
-    <Disclosure name="foundation-record" summary="Version record, digest and import details">
+    <Disclosure name="foundation-record" summary="Version record, content reference and import details">
       <FactList>
-        <Fact term="Site code">{site.site_code}</Fact>
+        <Fact term="Site code">
+          <code data-vocabulary-exempt="source-reference">{site.site_code}</code>
+        </Fact>
         <Fact term="Site record ID">
-          <code>{site.site_uuid}</code>
+          <code data-vocabulary-exempt="source-reference">{site.site_uuid}</code>
         </Fact>
         <Fact term="Version record ID">
-          <code>{revision.revision_id}</code>
+          <code data-vocabulary-exempt="source-reference">{revision.revision_id}</code>
         </Fact>
-        <Fact term="Content digest (SHA-256)">
-          <code>{revision.content_sha256}</code>
+        <Fact term="Content reference (SHA-256)">
+          <code data-vocabulary-exempt="source-reference">{revision.content_sha256}</code>
         </Fact>
         <Fact term="Recorded">{formatInstant(revision.recorded_at)}</Fact>
         <Fact term="Imported from">
@@ -234,8 +258,8 @@ export function FoundationRecordDetails({
             "No import recorded"
           ) : (
             <>
-              <code>{provenance.source_path}</code> (SHA-256{" "}
-              <code>{provenance.source_sha256}</code>) as v{provenance.imported_version}
+              <code data-vocabulary-exempt="source-reference">{provenance.source_path}</code> (SHA-256{" "}
+              <code data-vocabulary-exempt="source-reference">{provenance.source_sha256}</code>) as v{provenance.imported_version}
             </>
           )}
         </Fact>
@@ -330,14 +354,14 @@ export function FoundationControlsPanel({ foundation, versions, onPublish, dispa
             [
               ["Battery reserve", reserve, "reserve"],
               ["Generator start / stop", controls.generator_start_stop, "start-stop"],
-              ["Minimum generator runtime", controls.generator_minimum_runtime, "runtime"],
+              ["Shortest generator operation", controls.generator_minimum_runtime, "runtime"],
               ["Source priority (read-only)", controls.source_priority, "source"],
-              ["Critical-load priority (read-only)", controls.critical_load_priority, "critical"],
+              ["Critical service order (read-only)", controls.critical_load_priority, "critical"],
             ] as const
           ).map(([label, control, key]) => (
             <tr key={label}>
               <th scope="row">{label}</th>
-              <td data-control-state={control.state}>{controlValue(control, assetNames)}</td>
+              <td data-control-state={control.state}>{controlValueNode(control, assetNames)}</td>
               <td>{control.authority ?? "None"}</td>
               <td>{evidenceOrChange(key, revision.version, dispatchHref)}</td>
             </tr>

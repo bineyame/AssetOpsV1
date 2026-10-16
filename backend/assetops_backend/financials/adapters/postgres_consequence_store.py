@@ -368,6 +368,60 @@ class PostgresConsequenceStore:
                 "ORDER BY r.episode_start, r.id"), {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi})]
         return self._run(work, "REPEATABLE READ")
 
+    def site_history(self, tenant_id: UUID, site_id: UUID, cutoff: datetime | None,
+                     after: tuple[datetime, UUID] | None, limit: int) -> dict[str, Any]:
+        """S4-08: one REPEATABLE READ snapshot of a Site's consequence revisions recorded at or before `cutoff`.
+
+        Read-only. A missing cutoff is fixed from the database clock (the clock `recorded_at` uses) as the
+        snapshot's first statement. The fence (count and maximum `(recorded_at, id)`) covers every in-scope row
+        at or before the cutoff, off-page rows included. The page is keyset `(recorded_at DESC, id DESC)` after
+        `after`, `limit + 1` rows. For the page's Findings it returns every FindingRevision with its latest
+        consequence `(recorded_at, id)` at or before the cutoff, so the caller can classify currentness at the
+        cutoff without current heads; each row's stored price links with their assignment intervals; and each
+        row's prior consequence digest and price, for a supported "only the price changed" sentence."""
+        def work(c: Connection) -> dict[str, Any]:
+            cut = cutoff if cutoff is not None else c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            scope = {"t": tenant_id, "s": site_id, "k": fc.CONSEQUENCE_TYPE, "cut": cut}
+            where = ("FROM financial_consequence_revision WHERE tenant_id = :t AND site_id = :s "
+                     "AND consequence_type = :k AND recorded_at <= :cut ")
+            fence = c.execute(text("SELECT count(*) AS n, max(recorded_at) AS max_at " + where), scope).one()
+            max_id = None if fence.max_at is None else c.execute(text(
+                "SELECT max(id::text) " + where + "AND recorded_at = :m"), {**scope, "m": fence.max_at}).scalar_one()
+            keyset = "" if after is None else "AND (recorded_at, id) < (:ra, :rid) "
+            page = [dict(x._mapping) for x in c.execute(text(
+                "SELECT * " + where + keyset + "ORDER BY recorded_at DESC, id DESC LIMIT :n"),
+                {**scope, "n": limit + 1, **({} if after is None else {"ra": after[0], "rid": after[1]})})]
+            findings = list({r["finding_id"] for r in page})
+            revisions = [dict(x._mapping) for x in c.execute(text(
+                "SELECT fr.id, fr.finding_id, fr.revision_no, fr.created_at, fr.title, fr.episode_start, "
+                "fr.episode_end, (SELECT c2.id FROM financial_consequence_revision c2 WHERE c2.tenant_id = :t "
+                "AND c2.site_id = :s AND c2.consequence_type = :k AND c2.finding_revision_id = fr.id "
+                "AND c2.recorded_at <= :cut ORDER BY c2.recorded_at DESC, c2.id DESC LIMIT 1) "
+                "AS latest_consequence_id FROM finding_revision fr WHERE fr.tenant_id = :t AND fr.site_id = :s "
+                "AND fr.finding_id = ANY(:f) ORDER BY fr.finding_id, fr.revision_no"),
+                {**scope, "f": findings})] if findings else []
+            ids = [r["id"] for r in page]
+            links: dict[Any, list[dict[str, Any]]] = {}
+            for x in (c.execute(text(
+                    "SELECT l.consequence_revision_id, l.assumption_revision_id, l.assignment_id, l.role, "
+                    "a.tenant_id AS a_tenant_id, a.site_id AS a_site_id, a.revision_id AS a_revision_id, "
+                    "a.valid_from, a.valid_to, a.recorded_from, a.recorded_to "
+                    "FROM financial_consequence_assumption_revision l "
+                    "LEFT JOIN financial_assumption_assignment a ON a.id = l.assignment_id "
+                    "WHERE l.tenant_id = :t AND l.site_id = :s AND l.consequence_revision_id = ANY(:ids) "
+                    "ORDER BY l.consequence_revision_id, l.assumption_revision_id"), {**scope, "ids": ids})
+                      if ids else []):
+                links.setdefault(x.consequence_revision_id, []).append(dict(x._mapping))
+            prior_ids = [r["prior_consequence_revision_id"] for r in page
+                         if r["prior_consequence_revision_id"] is not None]
+            priors = {x.id: dict(x._mapping) for x in (c.execute(text(
+                "SELECT id, technical_input_sha256, price_revision_id, state FROM financial_consequence_revision "
+                "WHERE tenant_id = :t AND site_id = :s AND id = ANY(:p)"), {**scope, "p": prior_ids})
+                if prior_ids else [])}
+            return {"cutoff": cut, "fence": {"count": fence.n, "max_recorded_at": fence.max_at, "max_id": max_id},
+                    "page": page, "finding_revisions": revisions, "links": links, "priors": priors}
+        return self._run(work, "REPEATABLE READ")
+
     def locate(self, tenant_id: UUID, site_id: UUID, finding_id: UUID,
                consequence_revision_id: UUID) -> UUID | None:
         """The FindingRevision of one exact consequence revision of this Site's Finding, else None."""

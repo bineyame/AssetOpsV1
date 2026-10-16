@@ -7,7 +7,7 @@
  */
 import type { ReactNode } from "react";
 
-import { Panel } from "../ui";
+import { Panel, UNRECOGNISED_SENTENCE, type ProductWords, type StepState } from "../ui";
 import type { Limitation, Refusal, SystemDemoCapability } from "./actionClient";
 import { stamp } from "./dispatchWords";
 
@@ -67,6 +67,113 @@ export const APPLICATION_WORDS: Record<string, string> = {
   PENDING: "Not applied yet",
   APPLIED: "Applied to the Site Foundation",
 };
+
+/**
+ * W1-UX-04: the application state as shared state-line words. Domain-local
+ * (the shared map does not own application states). Applied is never
+ * positive: applying changes a recorded setting, not a measured result.
+ */
+export function applicationWords(code: string | null | undefined, failedAttempts = 0): ProductWords {
+  if (code === "PENDING") {
+    return {
+      label: failedAttempts > 0 ? "Not applied yet; an attempt failed" : "Not applied yet",
+      sentence:
+        failedAttempts > 0
+          ? "A failed attempt changed nothing on the site. The accepted change can be attempted again."
+          : "The change was accepted but has not been applied to the site's recorded settings.",
+      next: "Apply the accepted change, or open History to see what was attempted.",
+      tone: failedAttempts > 0 ? "problem" : "waiting",
+      code,
+      unrecognised: false,
+    };
+  }
+  if (code === "APPLIED") {
+    return {
+      label: "Applied; effect not yet measured",
+      sentence:
+        "The new setting is recorded for the site. This does not show that generator use, cost or safety changed.",
+      next: "Whether it worked is judged on Verification, from a trial plan fixed before the later readings.",
+      tone: "limited",
+      code,
+      unrecognised: false,
+    };
+  }
+  return { label: "Application state not recognised", sentence: UNRECOGNISED_SENTENCE, tone: "limited", code: code ?? null, unrecognised: true };
+}
+
+/**
+ * W1-UX-04: the Recommendation state as state-line words. Domain-local (the
+ * shared map does not own recommendation states). Nothing here is positive:
+ * a proposal or an accepted trial is not a measured result.
+ */
+export function recommendationWords(code: string | null | undefined): ProductWords {
+  const base = { code: code ?? null, unrecognised: false } as const;
+  switch (code) {
+    case "AVAILABLE":
+      return {
+        ...base,
+        label: "Trial proposed; not accepted",
+        sentence: "The fixed rule proposes this trial from the stored inputs. Nothing has been accepted or changed.",
+        next: "Review the proposal and how success will be judged, then accept it or leave it.",
+        tone: "waiting",
+      };
+    case "UNAVAILABLE":
+      return {
+        ...base,
+        label: "No trial proposed",
+        sentence: "The fixed rule proposes no trial for this Finding version. This is not a sign that nothing can be improved.",
+        next: "Open the Finding to see what it found.",
+        tone: "limited",
+      };
+    case "ACCEPTED":
+      return {
+        ...base,
+        label: "Accepted; result not yet known",
+        sentence: "The trial was accepted as an Action. Accepting changes nothing on the site and proves no effect.",
+        next: "Follow the Action; whether it worked is judged on Verification.",
+        tone: "limited",
+      };
+    case "PRIOR_ACTION_UNRESOLVED":
+      return {
+        ...base,
+        label: "Held: an earlier trial is still open",
+        sentence: "A new trial cannot be accepted until the earlier trial on this battery is settled.",
+        next: "Open the earlier Action and follow it to its result.",
+        tone: "waiting",
+      };
+    case "PRIOR_TRIAL_GUARDRAIL_FAILED":
+      return {
+        ...base,
+        label: "Held: an earlier trial missed a safety or service limit",
+        sentence: "No new trial on this battery can be accepted after that miss.",
+        next: "Open the earlier Action to see which limit was missed.",
+        tone: "problem",
+      };
+    case "PRIOR_TRIAL_REASSESSMENT_OVERLAP":
+      return {
+        ...base,
+        label: "Held: late evidence withdrew an earlier trial's result",
+        sentence: "New trials on this battery stay held until that earlier trial is reassessed.",
+        next: "Open the earlier Action to see its current reassessment state.",
+        tone: "problem",
+      };
+    default:
+      return { label: "Recommendation state not recognised", sentence: UNRECOGNISED_SENTENCE, tone: "limited", code: code ?? null, unrecognised: true };
+  }
+}
+
+/** A trial outcome state as a step: only VERIFIED is done, INEFFECTIVE a problem, an unknown state not known. */
+export function trialStep(state: string): StepState {
+  if (state === "VERIFIED") return "done";
+  if (state === "INEFFECTIVE") return "problem";
+  if (state === "NO_PLAN" || state === "PENDING" || state === "REASSESSMENT_PENDING") return "waiting";
+  return "not-known";
+}
+
+/** An event kind in plain words; an unknown kind never shows its raw code. */
+export function plainEventWords(kind: string): string {
+  return EVENT_WORDS[kind] ?? "Recorded event of a kind this screen does not recognise";
+}
 
 /** The pending outcome, in this build's own words (no effect, saving or verification is claimed). */
 export function outcomeWords(state: string): string {

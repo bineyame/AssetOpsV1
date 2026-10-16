@@ -805,3 +805,93 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     expect(q("[data-action-read='section-not-found']")).not.toBeNull();
   });
 });
+
+describe("W1-UX-04 phase 1: Application and History answer cards", () => {
+  function w1Scan(page: string) {
+    const main = document.body.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, page, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  }
+
+  it("Application: pending and applied are never positive; the state line, scope and as-of stay outside the closed disclosure", async () => {
+    for (const [fixture, label, tone] of [
+      [ov.accepted_pending, "Not applied yet", "waiting"],
+      [ov.applied_pending_newer_revision, "Applied; effect not yet measured", "limited"],
+    ] as const) {
+      serve(actionReads(fixture, hi.events_latest));
+      const view = mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+      await settledScreen();
+      w1Scan(`action-execution (W1) ${label}`);
+      const card = q("[data-headline-card='action-work']") as HTMLElement;
+      expect(expectStateLineVisible(card)).toBe(label);
+      expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe(tone);
+      const disclosure = scanDisclosureVocabulary(card, "action-execution disclosure");
+      expect(disclosure.disclosures).toBe(1);
+      expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+      expect(card.querySelectorAll("[data-step]")).toHaveLength(4);
+      expect(card.querySelector("[data-action-work-verification-link]")?.getAttribute("href")).toContain("/verification");
+      expect(card.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator|verified/i);
+      view.unmount();
+    }
+  });
+
+  it("History: latest record and an earlier selected event; the historical state is never current", async () => {
+    serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    let view = mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    w1Scan("action-history (W1) latest");
+    let card = q("[data-headline-card='action-history']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe("Every recorded event");
+    expect(card.querySelectorAll("[data-step]").length).toBe((hi.events_latest.body.events as unknown[]).length);
+    view.unmount();
+
+    // Derived events read, as in the exact event_id test above: the latest events through the ACCEPTED event.
+    const selection = hi.action_event_id_accepted.body.selection;
+    const events = { status: 200, body: { ...hi.events_latest.body, selection, events: hi.events_latest.body.events.slice(0, 1) } };
+    serve(actionReads(hi.action_event_id_accepted, events, `?event_id=${ACCEPTED_EVENT}`));
+    view = mount(`/sites/KOBO-001/actions/${ACTION}/history?event_id=${ACCEPTED_EVENT}`);
+    await settledScreen();
+    card = q("[data-headline-card='action-history']") as HTMLElement;
+    const shown = expectStateLineVisible(card);
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(shown).not.toMatch(/current/i);
+    expect(card.querySelector("[data-action-history-latest-link]")).not.toBeNull();
+    expect(where()).toContain(`event_id=${ACCEPTED_EVENT}`);
+    view.unmount();
+  });
+});
+
+describe("W1-UX-04 phase 1: Recommendation answer card", () => {
+  function w1Scan(page: string) {
+    const main = document.body.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, page, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  }
+
+  for (const [name, label, tone, bars] of [
+    ["pre_accept_available", "Trial proposed; not accepted", "waiting", 2],
+    ["pre_accept_unavailable", "No trial proposed", "limited", 0],
+    ["accepted_snapshot_live_status", "Accepted; result not yet known", "limited", 2],
+    ["latest_revision_after_apply", "Held: an earlier trial is still open", "waiting", 0],
+  ] as const) {
+    it(`${name}: the state line, scope and as-of stay outside the closed disclosure; never positive`, async () => {
+      const fixture = rec[name];
+      serve({ [fixture.request.path]: served(fixture) });
+      mount(fixture.request.path.replace("/api", ""));
+      await settledScreen();
+      w1Scan(`recommendation (W1) ${name}`);
+      const card = q("[data-headline-card='recommendation']") as HTMLElement;
+      expect(expectStateLineVisible(card)).toBe(label);
+      expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe(tone);
+      expect(card.textContent).toContain("What action should be accepted, and how will success be judged?");
+      expect(card.querySelectorAll("[data-value-bar-key]")).toHaveLength(bars);
+      const disclosure = scanDisclosureVocabulary(card, `recommendation disclosure ${name}`);
+      expect(disclosure.disclosures).toBe(1);
+      expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+      expect(card.textContent).not.toMatch(/saving (?:of|was|is achieved)|verified/i);
+      expect(document.body.textContent).not.toMatch(/Input digest/);
+    });
+  }
+});
