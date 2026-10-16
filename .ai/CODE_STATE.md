@@ -5726,3 +5726,14 @@ Branch `task/S7-01b-health-ui` (base main `f3de235a`, unmerged); packet `.agent/
 - UI: `frontend/src/sites/healthClient.ts` (typed refusals keep HTTP status/code), `SiteHealth.tsx` (status strip "Gateway contact", battery, contact, queue/storage, device contact, Technical details; `?gateway=` selection), `SiteBattery.tsx` (entry `/assets`, detail `/assets/{asset}`); links via `HealthLinksContext` from `shell/SiteHealthFrames.tsx` (substrate stays a leaf). Routes `SITE_HEALTH_ROUTE_PATH`, `SITE_ASSETS_ROUTE_PATH`, `SITE_ASSET_ROUTE_PATH`; Health tab enabled in `operatorSiteTabs.tsx` (tab inventories in three tests and `tools/layout-evidence.mjs` updated).
 - Walkthrough: `tools/s701_health_walkthrough.py prepare|serve|links|deliver|attest|drop` (KOBO-001 bindings before case gateways; KOBO-002 without battery); evidence `tools/s701-health-evidence.mjs` (40 claims at 1440/390).
 - Open: no `STALE_PROJECTION` state (read has none); accepted SOC not shown; positive `asset:3#b`, warranty/replacement stay unmapped; plain-language and visual polish carry to the W1-conclusion fidelity pass; registry `I-source-health-ui`, `I-asset-boundary-ui`, `health:2#a`, `asset:3#a` close only after review and owner walkthrough.
+
+## W1-UX-01 - shared product presentation (built, in_review)
+
+Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01-review-packet.md`; shared API `.agent/W1-UX-01-handoff.md`. Frontend only.
+
+- Words: `frontend/src/ui/productWords.ts` - `currentnessWords`, `readResultWords`, `moneyWords`, `outcomeWords(outcome, reasons, sourceClass)`, `limitationWords`, `sourceQualification`, `asOfText`/`plainTime`; unknown codes -> `UNRECOGNISED_SENTENCE`, never positive.
+- Components: `frontend/src/ui/ProductStatus.tsx` - `ProductStatus`, `ProductOutcome`, `ProductLimitation`, `HeadlineVisualCard`, `ExactReferences` (closed "How this was worked out"), `ValueBars` (null = hatched "not known"), `StepStrip`; CSS at the end of `primitives.css`.
+- Scan: `productVocabulary.json` v3 with `w1` set v1; `scanProductVocabulary(root, page, { set: "w1" })`, `scanDisclosureVocabulary`, `rawCodes` (case-sensitive; SOC/UTC/kW/kWh/PV allow-listed); a scan root cannot exempt itself. Shared check `frontend/src/test/productPresentation.ts` `expectStateLineVisible`.
+- Migrated and opted into W1: Overview objective (`SiteWindowOverview.tsx` `Objective`), Evidence conclusion (`LedgerSiteEvidence.tsx` `OverviewBody`), Action state (`SiteAction.tsx` `ActionStateCard`).
+- Capture: `tools/w1-ux-01-evidence.mjs <out> <mock-id>[:<case>]=<url>`.
+- Open: the other 23 W1 routes remain on the T028 scan until UX-02..05; domain word maps still duplicate cross-screen states; the Evidence read has no read instant (as of = latest delivery received); the Action summary has no source class; registry Low D (`I-W1-UX-01` requires) untouched.
