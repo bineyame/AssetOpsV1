@@ -5,6 +5,13 @@ import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
 import { createActionClient, type ActionClient } from "../sites/actionClient";
 import {
+  actionIndexQuery,
+  createActionIndexClient,
+  type ActionIndexClient,
+  type ActionIndexScope,
+} from "../sites/actionIndexClient";
+import { SiteWorkActions } from "../sites/SiteWorkActions";
+import {
   createFindingIndexClient,
   FINDING_INDEX_DOMAIN,
   type FindingIndexClient,
@@ -47,6 +54,7 @@ import {
   siteFoundationChangeHref,
   siteFoundationHref,
   sitePerformanceHref,
+  siteWorkHref,
   type FindingChildView,
   type FindingTab,
 } from "./operatorSiteRoutes";
@@ -777,6 +785,89 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
               <Link to={siteFoundationHref(site.site_id)}>Back to the Foundation</Link>
             </p>
           </Panel>
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+/**
+ * S6-03 (`sitework:1#a`): Site > Work > Actions. The window lives in the URL
+ * (`?from=&to=&limit=&cursor=`), so reload, back and a shared link reopen the
+ * same window and page. Without `from` and `to` the page asks for a window and
+ * reads nothing. Actions is Work's only list in this build; Incidents and
+ * Maintenance have no surface and are not rendered as tabs.
+ */
+export const SITE_WORK_HEADING_ID = "site-work-heading";
+export const SITE_WORK_SECTIONS_LABEL = "Work lists";
+const DEFAULT_ACTION_INDEX = createActionIndexClient();
+
+function workScopeFromQuery(params: URLSearchParams): ActionIndexScope | null {
+  const from = params.get("from");
+  const to = params.get("to");
+  if (!from || !to) return null;
+  const limit = Number(params.get("limit"));
+  return {
+    from,
+    to,
+    limit: params.get("limit") === null || !Number.isFinite(limit) ? null : limit,
+    cursor: params.get("cursor"),
+  };
+}
+
+export function SiteWorkFrame({
+  detail,
+  sitesPath,
+  actionIndex = DEFAULT_ACTION_INDEX,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  actionIndex?: ActionIndexClient;
+}) {
+  const { siteId } = useParams<{ siteId: string }>();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const scope = workScopeFromQuery(params);
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Work" headingId={SITE_WORK_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_WORK_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Work" },
+            ]}
+          />
+          <PageHeader
+            title="Work"
+            headingId={SITE_WORK_HEADING_ID}
+            subtitle={`${site.display_name} · ${site.site_id} · work raised at this site`}
+          />
+          <OperatorSiteTabs siteId={siteId} current="Work" />
+          <nav className="site-tabs site-subtabs" aria-label={SITE_WORK_SECTIONS_LABEL}>
+            <ol className="site-tabs__list">
+              <li className="site-tabs__item">
+                <Link className="site-tabs__link" to={siteWorkHref(site.site_id)} aria-current="page">
+                  Actions
+                </Link>
+              </li>
+            </ol>
+          </nav>
+          <SiteWorkActions
+            siteId={site.site_id}
+            siteName={site.display_name}
+            client={actionIndex}
+            scope={scope}
+            links={{
+              scope: (next) => siteWorkHref(site.site_id, actionIndexQuery(next)),
+              action: (actionId) => siteActionHref(site.site_id, actionId, "overview", { eventId: null, recordedAt: null }),
+              history: (actionId, eventId) =>
+                siteActionHref(site.site_id, actionId, "history", { eventId, recordedAt: null }),
+              finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId),
+            }}
+            onScope={(next) => navigate(siteWorkHref(site.site_id, actionIndexQuery(next)))}
+          />
         </main>
       )}
     </SiteScoped>

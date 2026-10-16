@@ -227,6 +227,18 @@ export function siteFindingViewHref(
  * so reload and navigation keep it. The `execution` segment is the address
  * only; its label is "Application".
  */
+/**
+ * S6-03 (`sitework:1#a`): Site > Work > Actions. The creation window and page
+ * cursor ride in the query (`?from=&to=&limit=&cursor=`); without a window the
+ * page shows a choose-window state and reads nothing.
+ */
+export const SITE_WORK_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/work`;
+
+export function siteWorkHref(siteId: string, query?: string): string {
+  const base = `${siteDetailHref(siteId)}/work`;
+  return query ? `${base}?${query}` : base;
+}
+
 export const SITE_ACTION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/actions/:actionId`;
 export const SITE_ACTION_VIEW_ROUTE_PATH = `${SITE_ACTION_ROUTE_PATH}/:actionView`;
 export const ACTION_CHILD_VIEWS = ["execution", "history"] as const;

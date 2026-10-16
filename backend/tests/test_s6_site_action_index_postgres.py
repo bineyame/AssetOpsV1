@@ -8,12 +8,19 @@ the fence's recorded time), Site isolation, an independently counted zero window
 row's lifecycle equals Action detail at the same fence. The S6-02a part drives one Action to persisted RESOLVED and
 then RESOLUTION_WITHDRAWN and checks the list shows each as the recorded event with detail's lifecycle.
 
+`backend/tests/fixtures/s6_site_action_index_contract.json` holds one run's response bodies for the frontend tests
+(`frontend/src/sites/__tests__/siteWorkActions.test.tsx`); each run checks its fresh bodies have the committed
+field structure. Regenerate (one run, then commit):  ASSETOPS_WRITE_S603_CONTRACT=1 pytest <this file>
+
 Requires ASSETOPS_TEST_DATABASE_URL (backend/README-db.md).
 """
 
 from __future__ import annotations
 
+import json
+import os
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -45,6 +52,7 @@ if URL:
     from assetops_backend.actions.site_index import ActionIndexService
 
 UTC = timezone.utc
+CONTRACT = Path(__file__).resolve().parent / "fixtures" / "s6_site_action_index_contract.json"
 SITE = "/api/sites/KOBO-001"
 POSITIVE = {"from": "2026-11-01T00:00:00Z", "to": "2026-11-02T00:00:00Z"}
 ZERO = {"from": "2026-10-01T00:00:00Z", "to": "2026-11-01T00:00:00Z"}  # 31 days ending where the Actions begin
@@ -81,6 +89,28 @@ def same_fence_parity(h, body: dict) -> None:
         assert exact["links"]["selected"] == row["links"]["selected_event"]
         assert latest["links"]["canonical"] == row["links"]["canonical"]
         assert latest["links"]["origin_finding"] == row["links"]["origin_finding"]
+
+
+def shape(value: Any) -> Any:
+    """The field structure of a body: dict keys recursively, the first list item's shape, scalar types."""
+    if isinstance(value, dict):
+        return {k: shape(v) for k, v in sorted(value.items())}
+    if isinstance(value, list):
+        return [shape(value[0])] if value else []
+    return type(value).__name__ if value is not None else None
+
+
+def contract(section: str, cases: dict[str, Any]) -> None:
+    """Write this run's bodies (ASSETOPS_WRITE_S603_CONTRACT=1) or check them against the committed structure."""
+    committed = json.loads(CONTRACT.read_text(encoding="utf-8")) if CONTRACT.is_file() else {}
+    if os.environ.get("ASSETOPS_WRITE_S603_CONTRACT") == "1":
+        committed[section] = cases
+        committed["schema"] = "assetops.s6-site-action-index-contract"
+        CONTRACT.write_text(json.dumps(committed, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        return
+    assert section in committed, f"{CONTRACT.name} has no {section!r}; regenerate it"
+    for name, case in cases.items():
+        assert shape(case) == shape(committed[section][name]), f"{section}.{name} drifted from {CONTRACT.name}"
 
 
 def counted(runner, window: dict) -> int:
@@ -121,6 +151,8 @@ def test_site_work_action_index_rows_paging_fence_zero_and_refusals(runner) -> N
                                                     f"?revision_id={first['origin']['finding_revision_id']}")
         same_fence_parity(h, body)
 
+        cases: dict[str, Any] = {"positive": body}
+
         # Reload: same rows, fence and links.
         again = index.get(**POSITIVE).json()
         assert again["rows"] == body["rows"] and again["fence"] == body["fence"]
@@ -131,6 +163,7 @@ def test_site_work_action_index_rows_paging_fence_zero_and_refusals(runner) -> N
         page2 = index.get(**POSITIVE, limit="1", cursor=page1["next_cursor"]).json()
         assert [r["action_id"] for r in page2["rows"]] == [first["action_id"]] and page2["next_cursor"] is None
         assert page2["fence"]["token"] == page1["fence"]["token"] == body["fence"]["token"]
+        cases.update(page1=page1, page2=page2)
 
         # A later observation that occurred before the Action existed: selected by recorded order, row stays put.
         h.clock.at = T_ACCEPT + timedelta(hours=4)
@@ -141,7 +174,9 @@ def test_site_work_action_index_rows_paging_fence_zero_and_refusals(runner) -> N
         detail = changed.json()["detail"]
         assert detail["code"] == "ACTION_INDEX_BASIS_CHANGED" and detail["reason"] == "FENCE_CHANGED"
         assert detail["rows"] is None and detail["total_count"] is None
+        cases["basis_changed"] = {"status": changed.status_code, "body": changed.json()}
         after = index.get(**POSITIVE).json()
+        cases["after_backdated_observation"] = after
         assert [r["action_id"] for r in after["rows"]] == [second["action_id"], first["action_id"]]
         moved = after["rows"][1]
         assert moved["selected_event"]["id"] == observed.json()["event"]["id"]
@@ -172,6 +207,7 @@ def test_site_work_action_index_rows_paging_fence_zero_and_refusals(runner) -> N
         assert zero["status"] == "CURRENT" and zero["total_count"] == 0 and zero["rows"] == []
         assert zero["fence"]["zero_rows"] is True and zero["fence"]["event_count"] == 0
         assert zero["zero_statement"].startswith("No persisted Action")
+        cases.update(zero=zero, zero_window=ZERO, positive_window=POSITIVE)
 
         # Refusals carry no rows or count.
         for params, code in (({}, "WINDOW_REQUIRED"), ({"from": POSITIVE["from"]}, "WINDOW_REQUIRED"),
@@ -182,6 +218,7 @@ def test_site_work_action_index_rows_paging_fence_zero_and_refusals(runner) -> N
             refused = index.get(**params)
             assert refused.status_code == 422, params
             assert refused.json()["detail"]["code"] == code and refused.json()["detail"]["rows"] is None
+            cases[f"refused_{code.lower()}"] = {"status": refused.status_code, "body": refused.json()}
         assert Index(h, access=lambda r, s: 401).get(**POSITIVE).status_code == 401
         assert Index(h, access=lambda r, s: 403).get(**POSITIVE).status_code == 403
         assert Index(h, service=None).get(**POSITIVE).json()["detail"]["code"] == "ACTION_STORE_UNAVAILABLE"
@@ -190,8 +227,10 @@ def test_site_work_action_index_rows_paging_fence_zero_and_refusals(runner) -> N
             refused = Index(h, service=ActionIndexService(down)).get(**POSITIVE)
             assert refused.status_code == 503 and refused.json()["detail"]["code"] == "ACTION_STORE_UNAVAILABLE"
             assert refused.json()["detail"]["rows"] is None
+            cases["store_unavailable"] = {"status": refused.status_code, "body": refused.json()}
         finally:
             down.dispose()
+        contract("d_action_records", cases)
     finally:
         h.close()
 
@@ -230,5 +269,6 @@ def test_resolution_events_are_listed_as_recorded_with_detail_lifecycle(runner, 
         assert row["state"]["outcome"]["state"] == "REASSESSMENT_PENDING"
         assert withdrawn["fence"]["token"] != resolved["fence"]["token"]
         same_fence_parity(h, withdrawn)
+        contract("resolution", {"resolved": resolved, "withdrawn": withdrawn, "window": window})
     finally:
         h.close()
