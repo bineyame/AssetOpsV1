@@ -9,6 +9,7 @@ import {
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { SiteOverview } from "../sites/SiteOverview";
 import type { SiteOverviewClient } from "../sites/siteOverviewClient";
+import { createFindingIndexClient, type FindingIndexClient } from "../sites/findingIndexClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
@@ -19,8 +20,10 @@ import {
   siteFinancialAssumptionsHref,
   siteFinancialsHref,
   siteFindingHref,
+  siteFindingsHref,
   sitePerformanceHref,
 } from "./operatorSiteRoutes";
+import { findingIndexScopeQuery } from "./SiteAnalyticsFrames";
 import { simulatorLabSiteActions } from "./simulatorLabRoutes";
 
 /**
@@ -83,7 +86,11 @@ export interface SiteDetailFrameProps {
    * closed; this frame only passes it to the substrate.
    */
   templateLineage?: SiteTemplateLineageClient;
+  /** S5-02: the Site Finding index read behind the Overview's selected-day Finding list. */
+  findingIndex?: FindingIndexClient;
 }
+
+const DEFAULT_FINDING_INDEX = createFindingIndexClient();
 
 export function SiteDetailFrame({
   detail,
@@ -91,6 +98,7 @@ export function SiteDetailFrame({
   sitesPath,
   flags,
   templateLineage,
+  findingIndex = DEFAULT_FINDING_INDEX,
 }: SiteDetailFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
 
@@ -126,7 +134,9 @@ export function SiteDetailFrame({
                 siteFinancialsHref(canonicalId, { findingId, revisionId, consequenceRevisionId }),
               assumption: (revisionId) => siteFinancialAssumptionsHref(canonicalId, { revisionId }),
               evidenceRecord: (evidenceId) => siteEvidenceAcceptedRecordHref(canonicalId, evidenceId),
+              findingList: (scope) => `${siteFindingsHref(canonicalId)}?${findingIndexScopeQuery(scope)}`,
             }}
+            findingIndex={findingIndex}
             analysisHref={(assessmentId, isFinding) =>
               isFinding
                 ? findingHref(canonicalId, assessmentId, "analysis")
