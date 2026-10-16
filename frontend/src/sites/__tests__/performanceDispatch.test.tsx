@@ -3,6 +3,8 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { settledScreen } from "../../test/settled";
+import { expectStateLineVisible } from "../../test/productPresentation";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { PerformanceDispatch } from "../PerformanceDispatch";
 import type {
   AssessmentRevision,
@@ -63,7 +65,7 @@ function window(over: Partial<DispatchWindow> = {}): DispatchWindow {
     status: "CURRENT",
     status_reasons: [],
     stale: false,
-    current_basis: { read_at: "x", accepted_reading_count: 2 },
+    current_basis: { read_at: "2026-10-11T00:05:00Z", accepted_reading_count: 2 },
     selection: null,
     coverage: { battery_soc: { status: "BOUND", readings: 3, not_good: 0 }, pcs_discharge_capability: { status: "BOUND", readings: 0, not_good: 0 } },
     watermarks: null,
@@ -169,17 +171,21 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
   });
 
   it.each([
-    ["STALE_PROJECTION", "RECOMPUTE_OUTSTANDING: job j1 PENDING", /Out of date/],
-    ["FAILED", "RECOMPUTE_FAILED: job j1: RuntimeError", /Reassessment failed/],
-    ["PENDING", "RECOMPUTE_OUTSTANDING: job j1 LEASED", /Being assessed/],
-    ["UNASSESSED", "NOT_ASSESSED: accepted evidence exists", /Not assessed/],
+    ["STALE_PROJECTION", "RECOMPUTE_OUTSTANDING: job j1 PENDING", /This result may miss newer readings/],
+    ["FAILED", "RECOMPUTE_FAILED: job j1: RuntimeError", /The latest check could not be completed/],
+    ["PENDING", "RECOMPUTE_OUTSTANDING: job j1 LEASED", /Not checked yet/],
+    ["UNASSESSED", "NOT_ASSESSED: accepted evidence exists", /We have not checked this period/],
   ] as const)("shows %s honestly with its reason and keeps any prior result marked", async (status, reason, words) => {
     const stale = status === "STALE_PROJECTION" || status === "FAILED";
     const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ status, status_reasons: [reason], stale,
       intervals: stale ? [revision("rev-current", "NECESSARY")] : [] }) }, { "rev-current": detail(revision("rev-current", "NECESSARY")) });
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current");
     await settledScreen();
-    expect(container.querySelector(".dispatch-status")?.textContent).toMatch(words);
+    // W1-UX-03: the shared state labels; the state line keeps its sentence, scope and "as of" outside any closed disclosure.
+    const line = container.querySelector(".dispatch-status") as HTMLElement;
+    expect(line.textContent).toMatch(words);
+    expectStateLineVisible(line);
+    expect(line.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
     expect(container.querySelector(`[data-status-reason='${reason.split(":")[0]}']`)).not.toBeNull();
     if (stale) {
       expect(container.querySelector("[data-dispatch-stale-selection]")).not.toBeNull();
@@ -212,7 +218,13 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     await settledScreen();
     expect(container.querySelector("[data-selected-revision='rev-old']")).not.toBeNull();
     expect(container.querySelector("[data-dispatch-pinned]")).not.toBeNull();
-    expect(container.querySelector("[data-older-rule]")?.textContent).toMatch(/dispatch-3; the current rules are dispatch-3.1/);
+    // W1-UX-03: the versions move from the default sentence to labelled exact references in the closed disclosure.
+    const older = container.querySelector("[data-older-rule]") as HTMLElement;
+    expect(older.querySelector("p")?.textContent).toMatch(/earlier version of the assessment rules/);
+    expect(older.querySelector("p")?.textContent).not.toMatch(/dispatch-3/);
+    const refs = older.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(refs.open).toBe(false);
+    expect(Array.from(refs.querySelectorAll("code")).map((c) => c.textContent)).toEqual(["dispatch-3", "dispatch-3.1"]);
     expect(container.querySelector("[data-configuration-note='differs']")).not.toBeNull();
   });
 
@@ -379,5 +391,107 @@ describe("Dispatch day Finding links (S4-01 phase 3)", () => {
     await screen.findByText(words);
     expect(container.querySelector(`[data-day-findings='${state}']`)).not.toBeNull();
     expect(container.querySelector("[data-dispatch-finding]")).toBeNull();
+  });
+});
+
+describe("W1-UX-03: dispatch and analysis presentation", () => {
+  /** The rendered screen without the test's location probe (it prints the raw address). */
+  function reading(container: HTMLElement): HTMLElement {
+    const copy = container.cloneNode(true) as HTMLElement;
+    copy.querySelectorAll("[data-testid='where']").forEach((n) => n.remove());
+    return copy;
+  }
+
+  /** The default reading: everything outside closed disclosures. */
+  function defaultText(container: HTMLElement): string {
+    const copy = reading(container);
+    copy.querySelectorAll("details:not([open])").forEach((d) => d.querySelectorAll(":scope > :not(summary)").forEach((n) => n.remove()));
+    return copy.textContent ?? "";
+  }
+
+  it("leads with why the generator operated, a selectable block strip, the state line and the exact selection; W1 vocabulary", async () => {
+    const current = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-current": detail(current) });
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current&block=1");
+    await settledScreen();
+    const card = container.querySelector("[data-headline-card='dispatch-story']") as HTMLElement;
+    expect(card.querySelector(".headline-card__question")?.textContent).toBe("Why did the generator operate, and what can the readings support?");
+    expect(card.querySelector("[data-dispatch-headline]")?.textContent).toBe(
+      "The generator operated for 30 min to 1 h: 15 min possibly avoidable, 15 min needed and 0 min that cannot be determined.",
+    );
+    expect(expectStateLineVisible(card)).toBe("Using the latest checked readings");
+    const strip = card.querySelector("[data-period-strip='dispatch-day-blocks']") as HTMLElement;
+    const links = Array.from(strip.querySelectorAll<HTMLAnchorElement>("a[data-period-strip-segment]"));
+    expect(links.map((a) => a.dataset.periodStripSegment)).toEqual(["necessary", "avoidable"]);
+    const chosen = links.find((a) => a.getAttribute("aria-current") === "true") as HTMLAnchorElement;
+    expect(chosen.getAttribute("href")).toContain("revision=rev-current");
+    expect(chosen.getAttribute("href")).toContain("block=1");
+    expect(chosen.getAttribute("aria-label")).toBe("04:00 to 04:15 UTC: Possibly avoidable");
+    expect(card.querySelector("[data-dispatch-analysis-link]")?.getAttribute("href")).toContain("view=analysis");
+    // The rule versions are labelled exact references in the closed disclosure, never default prose.
+    expect(defaultText(container)).not.toMatch(/dispatch-3\.1|model version/);
+    const disclosure = scanDisclosureVocabulary(card, "dispatch disclosure");
+    expect(disclosure.disclosures).toBe(1);
+    expect(describeViolations(disclosure.violations)).toBe("");
+    const w1 = scanProductVocabulary(reading(container), "dispatch overview (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(describeViolations(w1.violations)).toBe("");
+  });
+
+  it("an unstated portion is 'not known', never counted as zero", async () => {
+    const r = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    const partial = { ...r, result: { ...r.result, portions_minutes: { necessary: "15", candidate: "15" } } };
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [partial] }) }, {});
+    const { container } = mount(client, "?day=2026-10-02");
+    await settledScreen();
+    expect(container.querySelector("[data-total='unknown']")?.textContent).toMatch(/not known/);
+    expect(container.querySelector("[data-total='unknown']")?.textContent).not.toMatch(/0 min/);
+    expect(container.querySelector("[data-dispatch-headline]")?.textContent).toMatch(/not known that cannot be determined/);
+  });
+
+  it("an undetermined block draws as its own hatched outcome; late input keeps the earlier result marked not current", async () => {
+    const r = revision("rev-current", "INDETERMINATE");
+    const undetermined = { ...r, result: { ...r.result, segments: r.result.segments.map((s) => ({ ...s, classification: "INDETERMINATE", missing: ["pcs_discharge_capability"] })) } };
+    const client = fake({ status: "loaded", value: OPEN }, {
+      status: "loaded",
+      value: window({ status: "STALE_PROJECTION", stale: true, status_reasons: ["RECOMPUTE_OUTSTANDING: job j1 PENDING"], intervals: [undetermined] }),
+    }, { "rev-current": detail(undetermined) });
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current");
+    await settledScreen();
+    const card = container.querySelector("[data-headline-card='dispatch-story']") as HTMLElement;
+    expect(card.querySelector("[data-dispatch-headline]")?.textContent).toMatch(/^From an earlier result that is not current: /);
+    expectStateLineVisible(card);
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    const segments = Array.from(card.querySelectorAll("[data-period-strip-segment]")).map((a) => a.getAttribute("data-period-strip-segment"));
+    expect(segments).toEqual(["undetermined", "undetermined"]);
+    expect(card.querySelector("[data-period-strip-row='blocks']")?.textContent).toMatch(/0 needed, 0 possibly avoidable, 2 cannot be determined/);
+  });
+
+  it("Analysis: accepted readings, then the rule, then a bounded conclusion for the exact selection; W1 vocabulary", async () => {
+    const current = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-current": detail(current) });
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current&block=1&view=analysis");
+    await settledScreen();
+    const story = container.querySelector("[data-dispatch-story='block']") as HTMLElement;
+    expect(Array.from(story.querySelectorAll("[data-dispatch-story-step]")).map((s) => s.getAttribute("data-dispatch-story-step"))).toEqual([
+      "readings",
+      "rule",
+      "conclusion",
+    ]);
+    expect(story.querySelector("[data-dispatch-story-conclusion]")?.textContent).toBe("Possibly avoidable, for the block 04:00 to 04:15 UTC.");
+    expect(story.textContent).toMatch(/2 accepted readings used/);
+    expect(story.textContent).toMatch(/says nothing about fuel, savings or money/);
+    expectStateLineVisible(container.querySelector(".dispatch-status") as HTMLElement);
+    expect(defaultText(container).match(/.{0,60}(dispatch-3\.1|run-1|CURRENT\b).{0,40}/g) ?? []).toEqual([]);
+    const w1 = scanProductVocabulary(reading(container), "dispatch analysis (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(describeViolations(w1.violations)).toBe("");
+  });
+
+  it("Analysis without a selected period concludes nothing", async () => {
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, {});
+    const { container } = mount(client, "?day=2026-10-02&view=analysis");
+    await settledScreen();
+    expect(container.querySelector("[data-dispatch-story='none']")?.textContent).toMatch(/nothing is concluded here/);
   });
 });

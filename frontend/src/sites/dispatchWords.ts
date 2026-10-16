@@ -6,27 +6,26 @@
  */
 import type { ProjectionStatus } from "./performanceDispatchClient";
 
-export const STATUS_WORDS: Record<ProjectionStatus, { label: string; sentence: string }> = {
+/**
+ * W1-UX-03: the state label and tone come from the shared map
+ * (`currentnessWords`); these are the dispatch-specific sentences beside it.
+ */
+export const STATUS_SENTENCES: Record<ProjectionStatus, { sentence: string }> = {
   CURRENT: {
-    label: "Up to date",
     sentence: "This result uses every accepted record for the day and the site settings in force.",
   },
   PENDING: {
-    label: "Being assessed",
     sentence: "Records for this day are waiting to be assessed. No result is shown until the assessment finishes.",
   },
   STALE_PROJECTION: {
-    label: "Out of date",
     sentence:
       "The result below was made before newer records, settings or rules. It is kept for reference and is being replaced.",
   },
   FAILED: {
-    label: "Reassessment failed",
     sentence:
       "The latest reassessment of this day failed. The earlier result below is kept so it can still be inspected; it is not current.",
   },
   UNASSESSED: {
-    label: "Not assessed",
     sentence: "No assessment exists for this day. Nothing is shown in its place.",
   },
 };
@@ -122,7 +121,8 @@ const CONSTRAINT_WORDS: Record<string, string> = {
 };
 
 export function constraintWords(code: string): string {
-  return CONSTRAINT_WORDS[code] ?? code.toLowerCase().replace(/_/g, " ");
+  // W1-UX-03: an unrecognised reason is never shown as its code; the stored record keeps it.
+  return CONSTRAINT_WORDS[code] ?? "another recorded reason (in the stored record)";
 }
 
 /** Plain words for a record's quality flag. */

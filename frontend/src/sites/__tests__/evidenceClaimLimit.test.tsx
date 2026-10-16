@@ -491,10 +491,8 @@ describe("W1-UX-03: evidence-analysis on the shared state line and span strip", 
     for (const name of ["full-candidate", "missing-pv", "poor-quality-conflict", "stale-selection", "late-revision/withdrawn"] as const) {
       const { container, unmount } = mount(fake(() => ({ status: "loaded", value: sample(name) })), SEARCH);
       await settledScreen();
-      const copy = section(container).cloneNode(true) as HTMLElement;
-      // The S3-02b technical disclosure keeps its labelled exact references; everything else is the default reading.
-      copy.querySelectorAll("[data-disclosure^='claim-limit-technical']").forEach((n) => n.remove());
-      const scan = scanProductVocabulary(copy, `evidence-analysis ${name} (W1)`, { set: "w1" });
+      // The whole section, the S3-02b technical disclosure included: its exact values are individually labelled references.
+      const scan = scanProductVocabulary(section(container), `evidence-analysis ${name} (W1)`, { set: "w1" });
       expect(scan.scanned).toBeGreaterThan(10);
       expect(describeViolations(scan.violations)).toBe("");
       expect(plainText(container)).not.toMatch(/claim limit|ceiling/i);

@@ -34,6 +34,9 @@ import type {
 } from "./claimLimitClient";
 
 export const CLAIM_LIMIT_HEADING_ID = "site-evidence-selected-claim-limit-heading";
+/** One labelled exact value in the technical disclosure (the single-value vocabulary exemption). */
+const REF = { "data-vocabulary-exempt": "source-reference" } as const;
+
 export const CLAIM_LIMIT_LOADING = "Loading the selected assessment's limit.";
 export const ASSESSED_DAY_LOADING = "Loading the day's assessed periods.";
 
@@ -765,48 +768,52 @@ function Technical({
     <div className="evidence-advanced">
       <Disclosure name="claim-limit-technical" summary="Technical details: rule, versions and record references">
         <FactList>
-          <Fact term="Rule">{read.rule_id}</Fact>
-          <Fact term="Assessment state code">{read.currentness}</Fact>
-          <Fact term="Strongest supported classification code">{limit?.ceiling ?? "none"}</Fact>
-          <Fact term="Coverage level code">{limit?.support ?? "none"}</Fact>
-          <Fact term="Supported minutes">{limit?.supported_minutes ?? "none"}</Fact>
-          <Fact term="Rule wording">{limit?.statement ?? limit?.historical_ceiling?.statement ?? "none"}</Fact>
+          <Fact term="Rule"><code {...REF}>{read.rule_id}</code></Fact>
+          <Fact term="Assessment state code"><code {...REF}>{read.currentness}</code></Fact>
+          <Fact term="Strongest supported classification code"><code {...REF}>{limit?.ceiling ?? "none"}</code></Fact>
+          <Fact term="Coverage level code"><code {...REF}>{limit?.support ?? "none"}</code></Fact>
+          <Fact term="Supported minutes"><code {...REF}>{limit?.supported_minutes ?? "none"}</code></Fact>
+          <Fact term="Rule wording"><code {...REF}>{limit?.statement ?? limit?.historical_ceiling?.statement ?? "none"}</code></Fact>
           {limit?.historical_ceiling ? (
             <Fact term="Earlier classification and coverage codes (for the record)">
-              {`${limit.historical_ceiling.ceiling ?? "none"} · ${limit.historical_ceiling.support ?? "none"}`}
+              <code {...REF}>{`${limit.historical_ceiling.ceiling ?? "none"} · ${limit.historical_ceiling.support ?? "none"}`}</code>
             </Fact>
           ) : null}
-          <Fact term="Requested revision">{revision ?? "none"}</Fact>
-          <Fact term="Assessment revision">{read.assessment_revision_id ?? "none"}</Fact>
-          <Fact term="Revision number">{read.revision_no ?? "none"}</Fact>
-          <Fact term="Scope">{read.scope ?? "none"}</Fact>
-          <Fact term="Assessment key">{read.assessment_key ?? "none"}</Fact>
-          <Fact term="Conclusion level code">{read.claim_level ?? "none"}</Fact>
-          <Fact term="Day window">{`${read.window.start} to ${read.window.end}`}</Fact>
-          <Fact term="Day state code">{`${read.window_status}${read.window_status_reasons.length ? ` (${read.window_status_reasons.join("; ")})` : ""}`}</Fact>
-          <Fact term="Current assessment batch">
-            {read.current_selection === null
-              ? "none"
-              : `batch ${read.current_selection.run_id} · ${read.current_selection.model_version} · revisions ${read.current_selection.revision_ids.join(", ")}`}
+          <Fact term="Requested revision"><code {...REF}>{revision ?? "none"}</code></Fact>
+          <Fact term="Assessment revision"><code {...REF}>{read.assessment_revision_id ?? "none"}</code></Fact>
+          <Fact term="Revision number"><code {...REF}>{read.revision_no ?? "none"}</code></Fact>
+          <Fact term="Scope"><code {...REF}>{read.scope ?? "none"}</code></Fact>
+          <Fact term="Assessment key"><code {...REF}>{read.assessment_key ?? "none"}</code></Fact>
+          <Fact term="Conclusion level code"><code {...REF}>{read.claim_level ?? "none"}</code></Fact>
+          <Fact term="Day window"><code {...REF}>{`${read.window.start} to ${read.window.end}`}</code></Fact>
+          <Fact term="Day state code"><code {...REF}>{`${read.window_status}${read.window_status_reasons.length ? ` (${read.window_status_reasons.join("; ")})` : ""}`}</code></Fact>
+          <Fact term="Current assessment batch, rules and versions">
+            <code {...REF}>
+              {read.current_selection === null
+                ? "none"
+                : `${read.current_selection.run_id} · ${read.current_selection.model_version} · ${read.current_selection.revision_ids.join(", ")}`}
+            </code>
           </Fact>
-          <Fact term="Assessment batch and method">{read.run ? `${read.run.run_id} · ${read.run.model_version}` : "none"}</Fact>
-          <Fact term="Device set state and reference">{read.run ? `${read.run.cohort_status} · ${read.run.cohort_sha256}` : "none"}</Fact>
-          <Fact term="Knowledge cutoff">{read.run?.knowledge_cutoff ?? "none"}</Fact>
-          <Fact term="Foundation revisions">{list(read.run?.foundation_revision_ids)}</Fact>
-          <Fact term="Signal mapping revisions">{list(read.run?.binding_set_revision_ids)}</Fact>
-          <Fact term="Latest reading used (taken)">{source?.source_time ?? "none"}</Fact>
-          <Fact term="Latest reading used (sent)">{source?.published_at ?? "none"}</Fact>
-          <Fact term="Latest reading used (received)">{source?.received_at ?? "none"}</Fact>
-          <Fact term="Latest reading used (accepted)">{source?.accepted_at ?? "none"}</Fact>
-          <Fact term="Analysis prepared">{read.watermarks?.analytic_built_at ?? "none"}</Fact>
-          <Fact term="Assessment prepared">{read.built_at ?? "none"}</Fact>
-          <Fact term="Read at">{read.read_at}</Fact>
-          <Fact term="What is not inferred">{read.not_inferred}</Fact>
+          <Fact term="Assessment batch and method"><code {...REF}>{read.run ? `${read.run.run_id} · ${read.run.model_version}` : "none"}</code></Fact>
+          <Fact term="Device set state and reference"><code {...REF}>{read.run ? `${read.run.cohort_status} · ${read.run.cohort_sha256}` : "none"}</code></Fact>
+          <Fact term="Knowledge cutoff"><code {...REF}>{read.run?.knowledge_cutoff ?? "none"}</code></Fact>
+          <Fact term="Foundation revisions"><code {...REF}>{list(read.run?.foundation_revision_ids)}</code></Fact>
+          <Fact term="Input set-up revisions"><code {...REF}>{list(read.run?.binding_set_revision_ids)}</code></Fact>
+          <Fact term="Latest reading used (taken)"><code {...REF}>{source?.source_time ?? "none"}</code></Fact>
+          <Fact term="Latest reading used (sent)"><code {...REF}>{source?.published_at ?? "none"}</code></Fact>
+          <Fact term="Latest reading used (received)"><code {...REF}>{source?.received_at ?? "none"}</code></Fact>
+          <Fact term="Latest reading used (accepted)"><code {...REF}>{source?.accepted_at ?? "none"}</code></Fact>
+          <Fact term="Analysis prepared"><code {...REF}>{read.watermarks?.analytic_built_at ?? "none"}</code></Fact>
+          <Fact term="Assessment prepared"><code {...REF}>{read.built_at ?? "none"}</code></Fact>
+          <Fact term="Read at"><code {...REF}>{read.read_at}</code></Fact>
+          <Fact term="What is not inferred"><code {...REF}>{read.not_inferred}</code></Fact>
         </FactList>
         {limit === null || limit.reasons.length === 0 ? null : (
           <ul data-claim-limit-reason-codes>
             {limit.reasons.map((r, index) => (
-              <li key={`${r.code}-${index}`} data-reason-code={r.code}>{`${r.code}: ${r.text}`}</li>
+              <li key={`${r.code}-${index}`} data-reason-code={r.code}>
+                <code {...REF}>{`${r.code}: ${r.text}`}</code>
+              </li>
             ))}
           </ul>
         )}
@@ -817,7 +824,7 @@ function Technical({
               {read.accepted_evidence_ids.map((id) => (
                 <li key={id}>
                   <Link to={recordHref(id)} data-accepted-evidence={id}>
-                    {id}
+                    <code {...REF}>{id}</code>
                   </Link>
                 </li>
               ))}
