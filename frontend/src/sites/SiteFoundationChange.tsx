@@ -367,7 +367,7 @@ function ChangeCard({
     <HeadlineVisualCard
       dataName="change"
       headingId="site-change-answer-heading"
-      title="Change and effect"
+      title="The change"
       description="A change is a setting recorded for the site by an applied Action. Its effect is judged only by a measured trial."
       question="What changed on the site, and what did it do?"
       headline={
