@@ -1,6 +1,6 @@
-# S3-02a — Selected assessment capability and claim-limit reads
+# S3-02a â€” Selected assessment capability and claim-limit reads
 
-Status: active (activated 2026-10-16 from main `71009bf6`); was implementation-ready. USER_REVIEW_REQUIRED: false; non-UI, mergeable after independent review. Size M, two phases. Branch `task/S3-02a-capability-read` from merged main. Depends on reviewed/merged S3-01 selected assessment and accepted `I-sim-dispatch-cases`. Authority: `.agent/architect-W1-remaining-answers.md`; `.ai/DECISIONS.md` `D-2026-10-16-s302-capability`, `D-2026-10-09-pre-s3-evidence-readiness-health`; registry `I-capability-read`, `I-claim-limit-read`. This part does not promote `evidence-analysis:2#b`.
+Status: in_review (built 2026-10-16 on `task/S3-02a-capability-read`; packet `.agent/S3-02a-review-packet.md`). USER_REVIEW_REQUIRED: false; non-UI, mergeable after independent review. Size M, two phases. Branch `task/S3-02a-capability-read` from merged main. Depends on reviewed/merged S3-01 selected assessment and accepted `I-sim-dispatch-cases`. Authority: `.agent/architect-W1-remaining-answers.md`; `.ai/DECISIONS.md` `D-2026-10-16-s302-capability`, `D-2026-10-09-pre-s3-evidence-readiness-health`; registry `I-capability-read`, `I-claim-limit-read`. This part does not promote `evidence-analysis:2#b`.
 
 ## Verified seams and read contract
 

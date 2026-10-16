@@ -4,6 +4,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**2026-10-16: S3-02a ([capability and claim-limit read](../tasks/S3-02a-capability-read.md)) is `in_review`** on `task/S3-02a-capability-read` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent review). Packet `.agent/S3-02a-review-packet.md`, S3-02b contract `.agent/S3-02a-handoff.md`, built state `.ai/CODE_STATE.md` "S3-02a". Reviewer: task, packet, `git diff 71009bf6..HEAD -- ':!.agent'`.
+
 **2026-10-16: S5-02 ([Finding list in Site Overview](../tasks/S5-02-overview-finding-list.md)) is `in_review`** on `task/S5-02-overview-finding-list` (USER_REVIEW_REQUIRED: slice review, then owner walkthrough `.agent/S5-02-owner-walkthrough.md`); packet `.agent/S5-02-review-packet.md`, built state `.ai/CODE_STATE.md` "S5-02". Reviewer: read the task, `.agent/architect-S5-02-answers.md`, the packet, then `git diff a88d3e8a..HEAD -- ':!.agent'`; walk with `tools/s502_overview_finding_list_walkthrough.py prepare|serve|late|settle|gate|drop` and `node tools/s502-overview-finding-list-evidence.mjs`.
 
 **2026-10-16: S4-04 (Site Finding index) and S6-01b (Action, recommendation and change surfaces) are done and merged** after the owner walkthrough (conditional acceptance, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`: user-focused copy and engaging visuals, with a dig-deeper option for advanced users, join the W1-conclusion task). Next: S6-02a (verification core, phase 1 reviewed; F1 fix + phase 2 on `task/S6-02a-verification-core`), then by next-work ranking.
