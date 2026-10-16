@@ -1,0 +1,12 @@
+# Planner brief - W1-UX-06 W1 closeout (evidence tooling, small backend wording, combined walkthrough)
+
+You are the AssetOps Planner (Codex). Write `tasks/W1-UX-06-closeout.md` on branch `plan/W1-UX-06` in this worktree (no code; coordinator commits). It is the last W1 slice before the owner's single combined walkthrough (`.agent/owner-walkthrough-policy-2026-10-16.md`). Runs after W1-UX-02, -03 and -04 merge.
+
+Scope, from the slice reviews `.agent/W1-UX-05-review.md`, `.agent/W1-UX-04-review.md`, `.agent/W1-UX-03-review.md` and the S7-01b carries in `.agent/S7-01b-review-packet.md`:
+1. Evidence tooling: fix the 390 px measurement in `tools/w1-ux-01-evidence.mjs` and every sibling (`w1-ux-03/04/05-evidence.mjs`, `v01a-foundation-evidence.mjs`): wait for `window.innerWidth === width`, and fail unless `document.documentElement.clientWidth` is within width-20..width; one shared helper if practical.
+2. Shared helper: `expectStateLineVisible` accepts "As of: time not recorded" (and the evidence regex); remove per-slice local substitutes.
+3. Small backend: null negative `receipt_lag_seconds` in `backend/assetops_backend/evidence/source_health.py:258` with contract-fixture update and test; reword the three backend "binding" sentences (`foundation_api.py:340`, `binding_service.py:774,937`) in plain language and remove the frontend overrides.
+4. Labels needing Architect confirmation: rename the S1 Readiness "Ready to report" badge to "Set up to report"; Readiness strip title vs stale contact; the selected gateway's "In contact" line when its latest report is old; the two headlines that can sound positive on an unrecognised code (Readiness "Nothing is missing", Health "All 0 enabled gateways are in contact") must fall back non-positively. List as Architect questions with recommendations.
+5. Combined W1 walkthrough: complete `.agent/W1-UX-combined-owner-walkthrough.md` for all 26 screens (plus S4-08's assumptions history) from the umbrella map: one ordered script for a non-developer (prerequisites, exact commands, ports, URLs, what to look for), and rerun every 1440/390 capture with the fixed tool as the final evidence set.
+
+Requirements: code-reality check (`path:line`), size S-M with at most two phases, focused tests plus full `npm.cmd test`, one full backend suite (backend changes), registry node `I-W1-UX-06` (or reuse an existing closeout node) and README row, registry valid, Status implementation-ready. Keep under ~120 lines. Print a short summary.
