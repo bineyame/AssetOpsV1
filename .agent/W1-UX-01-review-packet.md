@@ -43,7 +43,7 @@ Label-only changes: `SiteWindowOverview.tsx` "Input digest" -> "Input reference"
 - `npx.cmd tsc --noEmit`: clean.
 - Full `npm.cmd test` at `530da1c8`: 74 files, 1737 tests passed, 112 s. An earlier full run at `9b6e3128` had one failure, `siteFoundationChange.test.tsx` "shows old/new reserve..." (`Unable to find ... heading "Battery reserve change"`, the known flake); alone it passed 8/8.
 - `node frontend/docs/architecture/check_v69_dependency_registry.cjs`: `Registry valid: 239 nodes, 11 linked pilot panels`.
-- `tools/check-all.ps1` at `9b6e3128`: `All 9 guards passed` (rerun at closeout, see below).
+- `tools/check-all.ps1` (includes check-architecture and check-agent-workflow): `All 9 guards passed` at `9b6e3128` and again at closeout `e8a286d3`.
 - Mutation proofs (committed first, reverted with `git checkout`): a raw code in the Evidence state label, a STALE in the Overview headline, and "run payload" in an Action disclosure label each failed their route's W1 test.
 - Captures: `node tools/w1-ux-01-evidence.mjs %TEMP%\w1ux01-evidence ...` against served walkthroughs, one at a time, each dropped afterwards:
   - action-overview (`s601b_action_walkthrough.py` prepare/links/serve): 16/16 claims. State "No trial plan yet".
