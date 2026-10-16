@@ -439,7 +439,7 @@ describe("Key parameters renders only what the foundation declares", () => {
 
     // Three components, two rated. The meter declares no rating, so it
     // produces no parameter at all.
-    expect(terms).toEqual(["PV array", "Battery"]);
+    expect(terms).toEqual(["Solar array", "Battery"]);
     expect(terms).not.toContain("Site meter");
   });
 
@@ -1171,7 +1171,7 @@ describe("the screen asks the two questions it does not answer", () => {
     // about X" from becoming cover for saying X somewhere else in it.
     const asked = container.querySelector(REVIEW_QUESTION) as HTMLElement;
     const claim =
-      /It claims nothing about refrigeration performance, temperature, cold-chain compliance or product condition/i;
+      /It says nothing about refrigeration performance, temperature, cold-chain compliance or product condition/i;
 
     expect(spacedText(asked)).toMatch(claim);
     expect(spacedText(asked).replace(claim, "")).not.toMatch(COLD_CHAIN_CLAIMS);

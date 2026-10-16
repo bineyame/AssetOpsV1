@@ -23,6 +23,7 @@ import type { GatewayHealth, GatewayHealthClient, GatewayHealthEntry } from "../
 import { createSiteEvidenceClient } from "../../sites/siteEvidenceClient";
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import { UI_GAP_CATALOGUE } from "../../ui";
 
@@ -314,14 +315,16 @@ describe("the persisted Foundation version", () => {
       .closest("section") as HTMLElement;
     expect(within(controls).getByRole("row", { name: /Battery reserve/ }).textContent).toContain("30 %");
     expect(within(controls).getByRole("row", { name: /Generator start/ }).textContent).toContain("declares no generator start");
-    expect(within(controls).getByRole("row", { name: /Minimum generator runtime/ }).textContent).toContain("30 min");
+    expect(within(controls).getByRole("row", { name: /Shortest generator operation/ }).textContent).toContain("30 min");
     expect(controls.textContent).not.toMatch(/35\s?%|90\s?%/);
   });
 
   it("states Unknown readiness and a registered, not-connected gateway on the Readiness view", async () => {
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(byAt));
     await settledScreen();
-    expect(screen.getByText("No signal binding set is in effect for the period shown.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No channel-link set is in effect for the period shown. Every channel is unbound; the imported signal links are kept for comparison only."),
+    ).toBeInTheDocument();
     expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
     expect(screen.getByText(/registered\. Registration is configuration; central contact is under Gateway status/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/awaiting credentials|not sending data|no accepted evidence|no evidence has been accepted|nothing is reporting|accepted against/i);
@@ -544,7 +547,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       "c-storage: d-storage-controller / state-of-charge",
     );
     expect(readiness.textContent).toContain("It does not mean any device is connected, reporting or healthy");
-    const bindings = panel("Signal bindings");
+    const bindings = panel("Reading-channel links");
     const soc = within(bindings).getByRole("row", { name: /d-storage-controller \/ state-of-charge/ });
     expect(soc.textContent).toContain("c-storage");
     expect(soc.textContent).toContain("Battery state of charge");
@@ -579,12 +582,12 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     await settledScreen();
     const table = screen.getByRole("table", { name: "Signal mappings" });
     const caption = table.querySelector("caption")?.textContent ?? "";
-    expect(caption).toContain("device-to-asset links of the selected signal binding set");
-    expect(caption).toMatch(/binding v1 \(record bset-1\), aligned to Foundation v\d+/);
+    expect(caption).toContain("device-to-asset links of the selected channel-link set");
+    expect(caption).toMatch(/channel links v1 \(record bset-1\), aligned to Foundation v\d+/);
     expect(caption).toContain("legacy comparison data and are not shown here");
     expect(caption).not.toContain("Every row is a declaration in this site's foundation");
     const headers = within(table).getAllByRole("columnheader").map((th) => th.textContent);
-    expect(headers).toContain("Binding ID");
+    expect(headers).toContain("Link reference");
     expect(headers).not.toContain("Mapping ID");
     const ids = within(table).getAllByRole("row").slice(1).map((row) => row.lastElementChild?.textContent);
     expect(ids.sort()).toEqual(["b-battery-soc", "b-genset-power"]);
@@ -612,10 +615,10 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       expect(scope).toMatch(/does not mean a device is connected, records have arrived, Evidence is accepted/);
       // PRE-S3-04 separation sentence survives (round 3: gateway contact is now a separate panel).
       expect(readiness.textContent).toContain(
-        "Configuration readiness is distinct from claim readiness, which is on Site Evidence, and from gateway contact, which is reported separately below.",
+        "Configuration readiness is distinct from what the readings can support, which is on Site Evidence, and from gateway contact, which is reported separately below.",
       );
       // A publication/version badge is never coloured as health.
-      const version = within(panel("Signal bindings")).getByText(/^Binding v\d+$/);
+      const version = within(panel("Reading-channel links")).getByText(/^Channel links v\d+$/);
       expect(toneOf(version)).toBe("badge--neutral");
     });
 
@@ -715,11 +718,11 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     const client = fakeFoundation(bound);
     renderAt(`/sites/${ID}/foundation/readiness`, client);
     await settledScreen();
-    const form = screen.getByRole("form", { name: "Remove a binding" });
+    const form = screen.getByRole("form", { name: "Remove a channel link" });
     fireEvent.change(within(form).getByRole("combobox"), { target: { value: "b-battery-soc" } });
     fireEvent.change(within(form).getByLabelText("Effective from (UTC)"), { target: { value: "2026-10-05T00:00" } });
-    fireEvent.click(within(form).getByRole("button", { name: "Publish binding change" }));
-    expect(await within(form).findByRole("status")).toHaveTextContent("Published binding v3");
+    fireEvent.click(within(form).getByRole("button", { name: "Publish channel-link change" }));
+    expect(await within(form).findByRole("status")).toHaveTextContent("Published channel links v3");
     const [site, change] = client.publishBindings.mock.calls[0];
     expect(site).toBe(ID);
     expect(change.valid_from).toBe("2026-10-05T00:00:00Z");
@@ -730,17 +733,17 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
 
   it("names the end of a binding change that a later independent change stops, and says when it has none", async () => {
     for (const [extra, expected] of [
-      [{ applies_until: "2026-10-08T00:00:00Z", stopped_by_binding_version: 7 }, ["only until", "binding v7"]],
+      [{ applies_until: "2026-10-08T00:00:00Z", stopped_by_binding_version: 7 }, ["only until", "channel links v7"]],
       [{ applies_until: null, stopped_by_binding_version: null }, ["with no end"]],
     ] as const) {
       const client = fakeFoundation(bound);
       client.publishBindings.mockResolvedValue({ status: "published", binding_set: BINDING_SET_V3, ...extra });
       const view = renderAt(`/sites/${ID}/foundation/readiness`, client);
       await settledScreen();
-      const form = screen.getByRole("form", { name: "Remove a binding" });
+      const form = screen.getByRole("form", { name: "Remove a channel link" });
       fireEvent.change(within(form).getByRole("combobox"), { target: { value: "b-battery-soc" } });
       fireEvent.change(within(form).getByLabelText("Effective from (UTC)"), { target: { value: "2026-10-04T00:00" } });
-      fireEvent.click(within(form).getByRole("button", { name: "Publish binding change" }));
+      fireEvent.click(within(form).getByRole("button", { name: "Publish channel-link change" }));
       const status = await within(form).findByRole("status");
       for (const text of expected) expect(status).toHaveTextContent(text);
       view.unmount();
@@ -760,8 +763,8 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     await settledScreen();
     const picker = screen.getByRole("combobox", { name: "Foundation period" });
     const labels = within(picker).getAllByRole("option").map((option) => option.textContent);
-    expect(labels.some((label) => label?.startsWith("Binding v3 · from 2026-10-05 00:00 UTC"))).toBe(true);
-    expect(labels.filter((label) => label?.startsWith("Binding v")).length).toBe(1);
+    expect(labels.some((label) => label?.startsWith("Channel links v3 · from 2026-10-05 00:00 UTC"))).toBe(true);
+    expect(labels.filter((label) => label?.startsWith("Channel links v")).length).toBe(1);
     fireEvent.change(picker, { target: { value: "2026-10-05T00:00:00Z" } });
     expect(screen.getByTestId("location").textContent).toContain("at=2026-10-05T00%3A00%3A00Z");
   });
@@ -826,8 +829,8 @@ describe("S1-03: three Foundation views at one selected period", () => {
       const view = renderAt(path, fakeFoundation(bound));
       await settledScreen();
       expect(screen.queryAllByRole("form", { name: "Change battery reserve" })).toHaveLength(reserve);
-      expect(screen.queryAllByRole("form", { name: "Remove a binding" })).toHaveLength(binding);
-      expect(screen.queryAllByRole("heading", { name: "Signal bindings" })).toHaveLength(bindingTable);
+      expect(screen.queryAllByRole("form", { name: "Remove a channel link" })).toHaveLength(binding);
+      expect(screen.queryAllByRole("heading", { name: "Reading-channel links" })).toHaveLength(bindingTable);
       view.unmount();
     }
   });
@@ -894,7 +897,7 @@ describe("S1-03: a scheduled binding period is never called the configuration in
     renderAt(`/sites/${ID}/foundation/readiness?at=2026-10-05T00:00:00Z`, fakeFoundation(scheduled));
     await settledScreen();
     const note = screen.getByRole("note");
-    expect(note.textContent).toMatch(/Scheduled binding period: you are viewing binding v3/);
+    expect(note.textContent).toMatch(/Scheduled channel-link period: you are viewing channel links v3/);
     expect(note.textContent).toContain("not the ones in effect now");
     expect(screen.queryByText("This is the configuration in effect now.")).toBeNull();
   });
@@ -1002,7 +1005,7 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
       "Foundation version",
       "Configuration readiness",
       "Role coverage",
-      "Signal bindings",
+      "Reading-channel links",
       "Acquisition details",
     ]);
     expect(order[order.length - 1]).toBe("Acquisition details");
@@ -1061,7 +1064,7 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     };
     renderAt(`/sites/${ID}/foundation`, fakeFoundation(named));
     await settledScreen();
-    const row = within(panel("Time-valid control configuration")).getByRole("row", { name: /Critical-load priority/ });
+    const row = within(panel("Time-valid control configuration")).getByRole("row", { name: /Critical service order/ });
     expect(row.textContent).toContain("Health clinic → Residential feeder → Grain mill");
     expect(row.textContent).not.toMatch(/load-(clinic|res|mill)/);
   });
@@ -1276,8 +1279,8 @@ describe("V-01a round 2: the configured drawing in the bus-bar grammar, with typ
         expect(icon.querySelector("[data-component-icon]")).not.toBeNull();
         const type = types.get(parts[index]) ?? "";
         expect(icon.getAttribute("aria-label")).toBe(
-          { PV_ARRAY: "PV array", INVERTER: "Inverter", BATTERY: "Battery", POWER_CONVERSION_SYSTEM: "Power conversion system",
-            GENERATOR: "Generator", FUEL_TANK: "Fuel tank", METER: "Meter", LOAD: "Load" }[type],
+          { PV_ARRAY: "Solar array", INVERTER: "Inverter", BATTERY: "Battery", POWER_CONVERSION_SYSTEM: "Power conversion system",
+            GENERATOR: "Generator", FUEL_TANK: "Fuel tank", METER: "Meter", LOAD: "Supplied users" }[type],
         );
       });
     }
@@ -1474,23 +1477,23 @@ describe("V-01a round 3: the Readiness and commissioning evidence table", () => 
     expect(roles.textContent).toContain("Not configured: Battery state of charge.");
   });
 
-  it("keeps roles, channels and records behind one labelled Advanced disclosure, opened by Review or change bindings", async () => {
+  it("keeps roles, channels and records behind one labelled Advanced disclosure, opened by Review or change channel links", async () => {
     renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
     await settledScreen();
     const advanced = document.querySelector('details[data-disclosure="readiness-advanced"]') as HTMLDetailsElement;
     expect(advanced.open).toBe(false);
     expect(advanced.querySelector("summary")?.textContent).toBe("Advanced details — roles, channels and records");
-    for (const heading of ["Role coverage", "Signal bindings", "Registered gateway and sources", "Acquisition details"]) {
+    for (const heading of ["Role coverage", "Reading-channel links", "Registered gateway and sources", "Acquisition details"]) {
       expect(screen.getByRole("heading", { name: heading }).closest("details")).toBe(advanced);
     }
     expect(advanced.textContent).toContain("b-battery-soc");
-    expect(advanced.querySelector('form[aria-label="Remove a binding"]')).not.toBeNull();
+    expect(advanced.querySelector('form[aria-label="Remove a channel link"]')).not.toBeNull();
     // The plain layer names no binding ID.
     const plain = regionNamed("Readiness and commissioning evidence");
     expect(plain.textContent).not.toContain("b-battery-soc");
-    fireEvent.click(screen.getByRole("button", { name: "Review or change bindings" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review or change channel links" }));
     expect(advanced.open).toBe(true);
-    expect(document.activeElement).toBe(advanced.querySelector('form[aria-label="Remove a binding"] select'));
+    expect(document.activeElement).toBe(advanced.querySelector('form[aria-label="Remove a channel link"] select'));
   });
 });
 
@@ -1611,7 +1614,7 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
 
 describe("G-01: the catalogued gateway firmware missing state", () => {
   const gateway = () => regionNamed("Gateway status");
-  const FIRMWARE = "Firmware not available yet: no reviewed source reports what firmware a gateway runs.";
+  const FIRMWARE = "Firmware not available yet: no reviewed source reports what firmware a gateway has installed.";
   const READINESS = `/sites/${ID}/foundation/readiness`;
   // Distinct gap IDs on the page: a per-row placement (commissioning) renders once per row.
   const gapIdsOnPage = () =>
@@ -1692,7 +1695,7 @@ describe("V-01a round 3: Site model obligations, policy positions and Advanced r
     renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
     await settledScreen();
     const identity = regionNamed("Identity & operating obligations");
-    expect(identity.querySelector("[data-critical-load]")?.textContent).toContain("First in critical-load priority: load-clinic");
+    expect(identity.querySelector("[data-critical-load]")?.textContent).toContain("First in critical service order: load-clinic");
     expect(identity.querySelector("[data-configured-loads]")?.textContent).toBe("Distribution load");
     expect(identity.querySelector("[data-productive-use]")?.textContent).toBe("Not declared");
     expect(identity.textContent).not.toMatch(/Productive use:\s*\w/);
@@ -1715,7 +1718,7 @@ describe("V-01a round 3: Site model obligations, policy positions and Advanced r
     renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(none), healthOf(gatewayEntry()));
     await settledScreen();
     expect(regionNamed("Identity & operating obligations").querySelector("[data-critical-load]")?.textContent).toBe(
-      "Critical-load priority not configured",
+      "Critical service order not configured",
     );
   });
 
@@ -1726,7 +1729,7 @@ describe("V-01a round 3: Site model obligations, policy positions and Advanced r
     const cell = (row: RegExp) => within(controls).getByRole("row", { name: row }).querySelector("[data-control-link]") as HTMLElement;
     expect(cell(/Battery reserve/).textContent).toBe("Published configuration · Foundation v2");
     expect(cell(/Generator start/).textContent).toBe("No proposed-change record here");
-    expect(cell(/Minimum generator runtime/).textContent).toBe("No linked constraint evidence");
+    expect(cell(/Shortest generator operation/).textContent).toBe("No linked constraint evidence");
     const dispatch = within(cell(/Source priority/)).getByRole("link", { name: "Open Dispatch; choose an assessed day" });
     expect(dispatch.getAttribute("href")).toBe(`/sites/${ID}/performance/dispatch`);
     expect(cell(/Source priority/).textContent).toContain("not proof of this control's effect");
@@ -1801,7 +1804,7 @@ describe("G-02: V-01a pilot missing-state placements", () => {
     "readiness.gateway.completeness":
       "Expected-versus-delivered completeness not available yet: no reviewed source compares the reports a gateway should send with those received.",
     "readiness.gateway.signal-strength": "Signal strength not available yet: no reviewed source reports a gateway's signal strength.",
-    "readiness.gateway.firmware": "Firmware not available yet: no reviewed source reports what firmware a gateway runs.",
+    "readiness.gateway.firmware": "Firmware not available yet: no reviewed source reports what firmware a gateway has installed.",
     "readiness.gateway.source-connection": "Device connection not established here.",
     "readiness.gateway.source-connection-registration": "Device connection not established here.",
     "readiness.sources.arrival": "whether data is arriving is not assessed here.",
@@ -1973,4 +1976,47 @@ describe("G-02: V-01a pilot missing-state placements", () => {
       view.unmount();
     }
   });
+});
+
+describe("W1-UX-05: the Foundation views use the W1 vocabulary set", () => {
+  const STATES: [string, () => FoundationRead<FoundationReadModel>][] = [
+    ["published channel links with a missing role", () => ({ status: "loaded", value: foundation(PAST, published([GENSET_POWER], ["Battery state of charge"])) })],
+    ["the default Unknown readiness", () => ({ status: "loaded", value: foundation(PAST) })],
+    ["every role bound", () => ({ status: "loaded", value: foundation(PAST, published([GENSET_POWER, BATTERY_SOC], [])) })],
+  ];
+  const VIEWS: [string, string][] = [
+    ["model", `/sites/${ID}/foundation`],
+    ["readiness", `/sites/${ID}/foundation/readiness`],
+    ["sld", `/sites/${ID}/foundation/sld`],
+  ];
+
+  function expectW1(page: string) {
+    const main = document.querySelector("main") as HTMLElement;
+    const result = scanProductVocabulary(main, page, { set: "w1" });
+    expect(result.scanned).toBeGreaterThan(5);
+    expect(describeViolations(result.violations)).toBe("");
+    return main;
+  }
+
+  for (const [view, path] of VIEWS) {
+    it(`the ${view} view says nothing the W1 set bans, open or closed`, async () => {
+      for (const [state, read] of STATES) {
+        const page = `${view} (${state})`;
+        const rendered = renderAt(path, fakeFoundation(read));
+        await settledScreen();
+        const main = expectW1(page);
+        const card = main.querySelector("[data-headline-card]") as HTMLElement;
+        expect(card).not.toBeNull();
+        const disclosure = scanDisclosureVocabulary(card, page);
+        expect(disclosure.disclosures).toBe(1);
+        expect(disclosure.scanned).toBeGreaterThan(2);
+        expect(describeViolations(disclosure.violations)).toBe("");
+        const details = [...main.querySelectorAll("details")];
+        expect(details.length).toBeGreaterThan(0);
+        for (const d of details) d.open = true;
+        expectW1(`${page}, every disclosure open`);
+        rendered.unmount();
+      }
+    });
+  }
 });

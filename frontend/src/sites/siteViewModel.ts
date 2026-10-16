@@ -201,14 +201,14 @@ export interface SiteComponentView {
 export const NO_RATING_DECLARED = "No rating declared";
 
 export const COMPONENT_TYPE_LABELS: Record<string, string> = {
-  PV_ARRAY: "PV array",
+  PV_ARRAY: "Solar array",
   INVERTER: "Inverter",
   BATTERY: "Battery",
   POWER_CONVERSION_SYSTEM: "Power conversion system",
   GENERATOR: "Generator",
   FUEL_TANK: "Fuel tank",
   AC_BUS: "AC bus",
-  LOAD: "Load",
+  LOAD: "Supplied users",
   COLD_ROOM: "Cold room",
   METER: "Meter",
 };
@@ -284,8 +284,8 @@ export const DEVICES_NOT_DECLARED: SiteUnavailableFact = {
 export const SIGNAL_MAPPINGS_NOT_DECLARED: SiteUnavailableFact = {
   value: "Not declared",
   reason:
-    "This site's foundation document declares no device-to-signal mapping. " +
-    "A mapping is declared and never inferred: nothing derives one from a " +
+    "This site's foundation document declares no device-to-signal link. " +
+    "A link is declared and never inferred: nothing derives one from a " +
     "device name, a component type, or a position in the topology, so where " +
     "a document declares none, none is stated.",
 };
@@ -355,7 +355,7 @@ export const CONTROL_PROPERTIES_NOT_DECLARED: SiteUnavailableFact = {
   value: "Not declared",
   reason:
     "This site's foundation document declares no typed control property on " +
-    "any component, so no reserve level or minimum runtime is configured " +
+    "any component, so no reserve level or shortest generator operation is configured " +
     "here. That is a statement about the document, and it is not a statement " +
     "that this site is operated without limits.",
 };
@@ -375,21 +375,21 @@ export const CONTROL_PROPERTIES_NOT_DECLARED: SiteUnavailableFact = {
 export const CONTROL_PROPERTIES_ARE_NOT_CONTROLS =
   "These are declared configuration values, not controls. Nothing on this " +
   "screen issues a control action and nothing in this build writes one of " +
-  "these values to a machine. A simulated run may read one as a frozen " +
+  "these values to a machine. An analysis may read one as a fixed " +
   "input, and nothing else reads them.";
 
 export const SITE_CONTROLS_NOT_DECLARED: SiteUnavailableFact = {
   value: "Not declared",
   reason:
     "This site's foundation document declares no typed Site Control, so " +
-    "nothing here states a source or critical-load priority. A simulated run " +
+    "nothing here states a source priority or critical service order. An analysis " +
     "whose model needs one is blocked rather than given an invented order.",
 };
 
 /** What a typed Site Control is called on screen. */
 export const SITE_CONTROL_LABELS: Record<string, string> = {
   "source-priority": "Source priority",
-  "critical-load-priority": "Critical-load priority",
+  "critical-load-priority": "Critical service order",
 };
 
 /** One typed Site Control, as display. */
@@ -397,6 +397,8 @@ export interface SiteControlView {
   controlKey: string;
   displayName: string;
   order: string;
+  /** The same order as names (or codes where a member has no name), first to last. */
+  orderNames: string[];
   declaredBy: string;
 }
 
@@ -558,7 +560,7 @@ export const TOPOLOGY_NODE_ROLE_LABELS: Record<string, string> = {
   STORAGE: "Storage",
   BUS: "Bus",
   METERING: "Metering",
-  LOAD: "Load",
+  LOAD: "Supplied users",
   FUEL_STORAGE: "Fuel storage",
 };
 
@@ -864,6 +866,7 @@ export function deriveSiteControls(
       order: control.members
         .map((member) => names[member] ?? member)
         .join(", then "),
+      orderNames: control.members.map((member) => names[member] ?? member),
       declaredBy: `${label(control.source, COMPONENT_PROPERTY_SOURCE_LABELS)} version ${control.source_version}`,
     })),
   );
