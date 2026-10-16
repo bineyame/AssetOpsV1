@@ -673,4 +673,19 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     expect(card.textContent).toMatch(/11 of 12 readings/);
     view.unmount();
   });
+
+  it("Recommendation hold on a different Finding: the held state line keeps the blocking Action's latest recorded step as its as-of", async () => {
+    const body = prep(R.recommendation_overlap);
+    body.prior_action_block.blocking_actions[0].origin.finding_id = OTHER_FINDING;
+    body.prior_action_block.blocking_action_id = ACTION;
+    body.prior_action_block.blocking_actions[0].action_id = ACTION;
+    serve({ [`/api/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`]: ok(body) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`);
+    await settledScreen();
+    const card = w1Card("recommendation", "recommendation (W1) overlap hold");
+    expect(expectStateLineVisible(card)).toBe("Held: late evidence withdrew an earlier trial's result");
+    expect(tone(card)).toBe("problem");
+    expect(card.querySelector("[data-recommendation-card-held-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
+    expect(screen.getByRole("button", { name: /Accept trial/ })).toBeDisabled();
+  });
 });

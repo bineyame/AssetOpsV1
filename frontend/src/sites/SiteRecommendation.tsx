@@ -636,6 +636,16 @@ function inputsAsOf(segments: readonly { end: string }[] | null | undefined): st
   return ends.length === 0 ? null : ends[ends.length - 1];
 }
 
+/** The latest recorded step of the Actions holding new trials: resolution, failed attempt or acceptance. */
+function heldAsOf(body: RecommendationBody): string | null {
+  const blocking = (body.prior_action_block?.blocking_actions ?? []) as (PriorAction & { resolution?: { recorded_at?: string | null } | null })[];
+  const times = blocking
+    .flatMap((action) => [action.resolution?.recorded_at, action.application?.last_failure?.recorded_at, action.accepted_at])
+    .filter((t): t is string => typeof t === "string" && t !== "")
+    .sort((a, b) => Date.parse(a) - Date.parse(b));
+  return times.length === 0 ? null : times[times.length - 1];
+}
+
 /**
  * W1-UX-04: the Recommendation answer card - what action should be accepted
  * and how success will be judged. A proposal or acceptance is never a result.
@@ -654,9 +664,12 @@ function RecommendationCard({
   const words = recommendationWords(accepted ? "ACCEPTED" : body.state);
   const shown = accepted ? accepted.snapshot : body.proposal;
   // The read carries no read instant: the bound is the acceptance time, else the latest stored input it was computed from.
+  // A hold is bounded by the latest recorded step of the blocking Action(s).
   const asOf = accepted
     ? accepted.accepted_at
-    : inputsAsOf(shown?.inputs?.segments ?? body.live_status?.proposal?.inputs?.segments ?? body.segments);
+    : block !== null
+      ? heldAsOf(body)
+      : inputsAsOf(shown?.inputs?.segments ?? body.live_status?.proposal?.inputs?.segments ?? body.segments);
   const scope = `This Finding version, battery reserve rule${accepted ? " (stored when accepted)" : ""}`;
   return (
     <HeadlineVisualCard

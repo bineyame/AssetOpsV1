@@ -167,6 +167,7 @@ async function tabReaches(card) {
     await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Tab", code: "Tab", windowsVirtualKeyCode: 9 });
     const hit = await js(`(() => { const a = document.activeElement; return Boolean(a && a.tagName === 'SUMMARY' && a.closest('[data-headline-card="${card}"]')); })()`);
     if (hit) return i + 1;
+    if (process.env.W1_TAB_TRACE) console.log("tab", i, await js("(() => { const a = document.activeElement; return (a ? a.tagName + ':' + (a.textContent || '').trim().slice(0, 30) : 'none') + ' @ ' + location.pathname; })()"));
   }
   return 0;
 }
