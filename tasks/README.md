@@ -54,6 +54,16 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 | S7 Health | [S7-01b](S7-01b-health-ui.md) | Site Health and battery Unknown UI | Reviewed/merged S7-01a | M; implementation-ready; USER_REVIEW_REQUIRED true; owner walkthrough before merge |
 | S7 Health | [S7-01](S7-01-site-health.md) ([a](S7-01a-health-read.md), [b](S7-01b-health-ui.md)) | Central freshness and asset missing-input boundary | S7-01a and S7-01b | Implementation-ready umbrella; no third build |
 
+W1 conclusion presentation plan: [W1-UX umbrella](W1-UX-mockup-fidelity.md). These are frontend presentation slices, outside the S1–S7 capability ranking; they create no new panel claim. Independent review gates each merge; the owner walks the combined result once after all five slices, per `.agent/owner-walkthrough-policy-2026-10-16.md`.
+
+| W1 presentation | Packet | Product screens | Dependency | Status |
+| --- | --- | --- | --- | --- |
+| Shared | [W1-UX-01](W1-UX-01-shared-presentation.md) | Vocabulary, disclosure and headline/visual pattern across W1 | Merged W1 UI baseline | Implementation-ready; two phases |
+| Site and money | [W1-UX-02](W1-UX-02-site-money.md) | Sites, Overview, Finding family, Financials, Assumptions | Reviewed/merged W1-UX-01 | Implementation-ready; two phases |
+| Evidence and performance | [W1-UX-03](W1-UX-03-evidence-performance.md) | Evidence, claim limit, Dispatch, Analysis | Reviewed/merged W1-UX-01 | Implementation-ready; two phases |
+| Actions and work | [W1-UX-04](W1-UX-04-actions-work.md) | Recommendation, Action family, Changes, Verification, Site Work | Reviewed/merged W1-UX-01, S6-02b and S6-03 | Implementation-ready; two phases |
+| Configuration and health | [W1-UX-05](W1-UX-05-foundation-health.md) | Foundation, Readiness, SLD, Health, battery asset | Reviewed/merged W1-UX-01 and S7-01b | Implementation-ready; two phases |
+
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 
 | Tooling lane | Task | Activation | Status |

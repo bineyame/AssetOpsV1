@@ -1,0 +1,15 @@
+# Planner brief - W1-conclusion mockup-fidelity and UI/UX pass
+
+You are the AssetOps Planner (Codex). Write an implementation-ready plan for the owner's W1-conclusion task on branch `plan/W1-ux-pass` in this worktree. No code; the coordinator commits.
+
+Owner direction (read verbatim): `.agent/owner-LR01-S501-acceptance-2026-10-15.md`, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`, `.agent/owner-S405b-acceptance-2026-10-16.md`, `.agent/owner-S302b-acceptance-2026-10-16.md`, `.agent/owner-walkthrough-policy-2026-10-16.md`, and the earlier `.agent/owner-T028-presentation-direction-2026-10-04.md`. Backlog section "Owner W1-conclusion task: mockup-fidelity and UI/UX pass" in `.ai/MILESTONE_REVIEW_BACKLOG.md`. In short: product screens are for the people the system is built for, not its builders; simple understandable language and presentation; the v69 mockups (`frontend/mockups/v69/index.html` and its screen manifest) do this well and the app has drifted; engaging, clear, simple yet powerful visuals; detail for advanced users behind a dig-deeper layer; no internal analytics/system vocabulary, enums, rule IDs, model versions or IDs in the default reading.
+
+Scope: every W1 product screen in the registry's W1 `approved_manifest_ids` (`frontend/docs/architecture/v69-dependency-registry-pilot.json`, `delivery_plan`/`owner_inputs` W1) that is delivered or partial, plus S6-03, S6-02b and S7-01b screens (merging now). Lab screens are out of scope unless the owner's notes name them.
+
+Requirements:
+- Do a short screen-by-screen gap inventory (app vs mockup: layout, headline statement, wording, visuals, what moves to dig-deeper), citing component files `path:line`.
+- Define ONE shared presentation layer first (plain-language status/limitation vocabulary map replacing raw enums and reason codes; a reusable dig-deeper disclosure; headline-plus-visual card patterns from the mockups) so screens do not re-invent wording; extend the existing product-vocabulary scan (`frontend/src/test/productVocabulary`) to enforce it.
+- Split into a small number of reviewable UI slices (for example by area: Site overview/findings/financials; evidence/performance/claim limit; actions/verification/work/changes; health/asset), each at most two phases, frontend-only unless a backend label is truly missing. Honest-state guarantees from the slices must be preserved: no new claim, empty or current state may appear that the read does not prove; tests that assert fail-closed states must keep passing.
+- Each slice: focused tests, full `npm.cmd test`, layout evidence at 1440/390 against the mockup screens, fresh independent review; owner walkthrough deferred to ONE combined W1 walkthrough at the end (write that combined walkthrough plan too: one script preparing a single demo dataset across screens if feasible, else an ordered list of existing walkthrough tools).
+- README rows and registry `task` fields if you add tasks; registry checker valid; Status implementation-ready. Open choices as "Architect questions" with recommendations.
+Keep the umbrella under ~200 lines and each slice packet under ~120 lines. Print a short summary.
