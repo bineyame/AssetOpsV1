@@ -124,7 +124,10 @@ for (const [index, task] of expectedTasks.entries()) {
     fail(`${task}: missing S1–S7 task gate`);
   }
   if (!node.requires.some((id) => nodes.get(id).kind === 'architecture')) fail(`${task}: no direct architecture gate`);
-  const predecessor = index && !['S6-01', 'S7-01'].includes(task) ? [`I-${expectedTasks[index - 1]}`] : [];
+  // Reviewed exceptions: S6-02a (verification core, non-UI) follows the merged S6-01a store, not the
+  // owner-held S6-01b UI row that precedes it in the queue (D-2026-10-16-s6-verification; S6-02 plan review M1).
+  const predecessorOverride = {'S6-02a': ['I-S6-01a']};
+  const predecessor = predecessorOverride[task] || (index && !['S6-01', 'S7-01'].includes(task) ? [`I-${expectedTasks[index - 1]}`] : []);
   if (JSON.stringify(node.sequenced_after || []) !== JSON.stringify(predecessor)) fail(`${task}: queue order differs from S1–S7 plan`);
 }
 for (const node of nodes.values()) if (node.kind === 'implementation' && node.layer !== 'task' && expectedTasks.includes(node.task)) {

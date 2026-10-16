@@ -1,0 +1,3 @@
+# Architect request - S6-02a/S6-02b questions
+
+You are the AssetOps Architect (Codex). Packets `tasks/S6-02a-verification-core.md` and `tasks/S6-02b-verification-ui.md` on branch `plan/S6-02-refine` list Architect questions with the Planner's recommendations. Context: `D-2026-10-16-s6-verification` and `.agent/architect-A-S6-verification-answers.md`. Rule on each (accept/amend/replace), short and implementable; name packet changes. For copy-only questions, keep it brief: the owner wants plain-language status copy handled in one W1-conclusion task; pick a plain interim label. Write `.agent/architect-S6-02-answers.md` and `D-2026-10-16-s602-questions` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.
