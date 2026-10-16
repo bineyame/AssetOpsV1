@@ -25,6 +25,7 @@ import { Link } from "react-router-dom";
 import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type { ActionBody, ActionReadResult, Refusal } from "./actionClient";
 import { Ref, RefusalPanel, when } from "./actionPresentation";
+import { EvidenceCard, PlanCard, VerificationCard } from "./verificationCards";
 import type {
   DaySelection,
   EvidenceBody,
@@ -313,7 +314,22 @@ export function ActionVerification({
       {view === "verification" && outcome ? (
         <VerificationBody outcome={outcome} history={history} body={body} explicit={explicit} links={links} />
       ) : null}
-      {view === "plan" && plan ? <PlanBodyView body={plan} action={body} links={links} explicit={explicit} /> : null}
+      {view === "plan" && plan ? (
+        <>
+          <PlanCard body={plan} action={body} links={links} />
+          <PlanBodyView body={plan} action={body} links={links} explicit={explicit} />
+        </>
+      ) : null}
+      {view === "evidence" && evidence ? (
+        <EvidenceCard
+          body={evidence}
+          received={{
+            baseline: evidence.windows.baseline.slots.filter((slot) => slotProblems(slot).length === 0).length,
+            later: evidence.windows.later.slots.filter((slot) => slotProblems(slot).length === 0).length,
+          }}
+          links={links}
+        />
+      ) : null}
       {view === "evidence" && evidence ? (
         <EvidenceBodyView body={evidence} links={links} pinnedOutcome={outcome?.outcome ?? null} plan={evidenceLineage} />
       ) : null}
@@ -473,6 +489,7 @@ function VerificationBody({
   const prior = allOutcomes.length > 0 ? allOutcomes[allOutcomes.length - 1] : null;
   return (
     <>
+      <VerificationCard outcome={outcome} record={showRecord ? record : null} historical={historicalLabel} action={body} links={links} />
       {!showRecord ? (
         <Panel heading="Outcome" headingId="site-verification-outcome-heading">
           <p data-verification-no-current-outcome={current.state}>
