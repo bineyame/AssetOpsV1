@@ -9,7 +9,7 @@ import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
-import { PageHeader, Panel } from "../ui";
+import { PageHeader, Panel, plainTime, ProductStatus, readResultWords } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import {
@@ -179,6 +179,18 @@ export function SiteFoundationFrame({
         <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
         {tabs}
         <Panel heading="No stored version for this period" headingId="foundation-period-empty-heading">
+          {/* W1-UX-05: the plain state line; the bound is the selected time the read was asked for. */}
+          <ProductStatus
+            words={{
+              label: "No configuration for this period",
+              sentence: "No Foundation version is stored for the selected time, so nothing is shown as configured.",
+              tone: "limited",
+              code: state.foundation.status,
+              unrecognised: false,
+            }}
+            scope={`${siteId} · selected time ${plainTime(at) ?? at}`}
+            asOf={at}
+          />
           <p>{state.foundation.message}</p>
           <p>The configuration in effect now is not shown in its place.</p>
           <button type="button" onClick={() => selectAt(null)}>
@@ -202,6 +214,7 @@ export function SiteFoundationFrame({
         <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
         {tabs}
         <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+          <ProductStatus words={readResultWords("unavailable")} scope={`${siteId} · Foundation`} asOf={null} />
           <p>
             Stored Foundation versions could not be read
             {state.foundation.message === null ? "." : `: ${state.foundation.message}`} This view is

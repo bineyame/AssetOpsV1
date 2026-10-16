@@ -2120,6 +2120,26 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
     expect(answer.querySelector("[data-readiness-next-steps]")?.textContent).toContain("Register the site's gateway.");
   });
 
+  it("an empty selected period and an unreadable store keep a plain state line, scope and bound, with no card", async () => {
+    renderAt(`/sites/${ID}/foundation?at=2020-01-01T00:00:00Z`, fakeFoundation(byAt));
+    await settledScreen();
+    const empty = (document.getElementById("foundation-period-empty-heading") as HTMLElement).closest("section") as HTMLElement;
+    expect(expectStateLineVisible(empty)).toBe("No configuration for this period");
+    expect(empty.querySelector("[data-product-status-scope]")?.textContent).toContain("selected time 1 Jan 2020, 00:00 UTC");
+    expect(card("foundation-model")).toBeNull();
+    cleanup();
+    const down = { status: "unavailable" as const, message: "The store is down." };
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(() => down, down));
+    await settledScreen();
+    const unavailable = (document.getElementById("foundation-store-unavailable-heading") as HTMLElement).closest("section") as HTMLElement;
+    const status = unavailable.querySelector("[data-product-status]") as HTMLElement;
+    expect(status.querySelector("[data-product-status-label]")?.textContent).toBe("This could not be read right now");
+    expect(status.querySelector("[data-product-status-scope]")?.textContent).toBe(`${ID} · Foundation`);
+    // No read instant exists for an unreadable store: the bound says so, never now.
+    expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+    expect(card("foundation-readiness")).toBeNull();
+  });
+
   it("SLD: linked and unlinked devices, reporting drawn as not known (never zero), gap tags kept", async () => {
     renderAt(`/sites/${ID}/foundation/sld`, loaded(foundation(PAST, published([GENSET_POWER], ["Battery state of charge"]))));
     await settledScreen();
