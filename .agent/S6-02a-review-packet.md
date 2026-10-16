@@ -159,3 +159,12 @@ Checks (revision `7f5909fd`, code-identical for the backend to `060d0625` plus t
 - `tools/check-all.ps1`: all 9 guards passed (at `060d0625`).
 - Full suite: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=<abs>` on private base DB `assetops_s602afix2_test`: **2471 passed**, JUnit tests=2471 failures=0 errors=0 skipped=0, wall 1373 s. Another agent's suite overlapped part of this run.
 - Earlier attempt at `060d0625`: 2465 passed, 6 failed, all `FATAL: sorry, too many clients already` (concurrent foreign suite), JUnit tests=2471 failures=6, 1220 s.
+
+### Merge of main (S4-05b, `95d5261a`) at `97d101d4`
+
+- Conflicts resolved in `actions/service.py` (keeps `self.publish, self.source` + `source_provenance` and `verification_ports`) and `actions/composition.py` (keeps `publish=` and `source=` and sets `verification_ports`).
+- Both S6 contract fixtures regenerated (`ASSETOPS_WRITE_S6_CONTRACT=1`, `ASSETOPS_WRITE_S6_VERIFICATION_CONTRACT=1`), then compared on the next run; 0 `"demonstration"` keys remain.
+- `grep -rn "demonstration_" backend` (excluding `__pycache__`): one hit, main's own docstring in `evidence/provenance_read.py:5` naming the retired `demonstration_label.py`; no import or use.
+- S5 + `test_s6_*` backend (11 files, `-n 2`): 201 passed. `tools/check-all.ps1`: 9/9 passed.
+- Frontend: `npx.cmd tsc --noEmit` exit 0; focused vitest (`overviewDispatchAssessment`, `s502OverviewFindingList`, `s5SiteWindowOverview`, `siteOverviewScreen`, `siteAction`): 5 files, 108 passed.
+- Full suite at `97d101d4` (same command, no concurrent foreign suite): **2491 passed**, JUnit tests=2491 failures=0 errors=0 skipped=0, wall 1249 s.
