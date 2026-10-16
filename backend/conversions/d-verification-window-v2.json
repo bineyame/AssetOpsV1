@@ -1,0 +1,184 @@
+{
+  "schema": {
+    "id": "assetops.verification-window-replay",
+    "version": 2
+  },
+  "label": "Simulated policy trial; no savings claim; RESOLVED can later be withdrawn",
+  "status": "LABELLED REPLAY MANIFEST - D-verification-window under D-2026-10-16-s6-verification, D-2026-10-16-s602-questions, D-2026-10-16-s602a-cutoff and D-2026-10-16-s602a-replay (S6-02b). Two separate fixed-policy registered Lab runs of the reserve-aware mini-grid v5 model on the kobo-mini-grid-reserve-trial scenario, published by a real gateway process and accepted by the ordinary S2 batch ingestion; nothing in either window is authored or test-scoped. Not operator-entered Site truth and not a real-source verdict. v1 (mini-grid v4, INCONCLUSIVE) stays reproducible beside it.",
+  "site_code": "KOBO-001",
+  "role_set": "minigrid-roles-3",
+  "demo_configurations": [
+    "kobo-001-s3-dispatch-demo-config.json",
+    "kobo-001-s6-verification-demo-config.json"
+  ],
+  "scenario": {
+    "scenario_id": "kobo-mini-grid-reserve-trial",
+    "scenario_version": 1
+  },
+  "timestep_minutes": 5,
+  "model_profile": {
+    "profile_id": "mini-grid",
+    "profile_version": 5
+  },
+  "publication_profile": {
+    "profile_id": "registered-kobo-publication",
+    "profile_version": 4
+  },
+  "runs": {
+    "baseline": {
+      "start": "2026-10-13T03:00:00Z",
+      "end": "2026-10-13T11:00:00Z",
+      "seed": 20260929,
+      "sequence_epoch": "epoch-1",
+      "foundation_known_at": "2026-10-07T12:00:00Z",
+      "received_at": "2026-10-14T00:00:00Z",
+      "foundation": "old: battery reserve 30 % (kobo-mini-grid-60kw template); v5 start threshold min(35, 30+5) = 35 %"
+    },
+    "later": {
+      "start": "2026-10-15T03:00:00Z",
+      "end": "2026-10-15T11:00:00Z",
+      "seed": 20260929,
+      "sequence_epoch": "epoch-2",
+      "foundation_known_at": "2026-10-14T04:00:00Z",
+      "received_at": "2026-10-16T00:00:00Z",
+      "foundation": "new: the applied Action's reserve 25 % from effective_from; v5 start threshold min(35, 25+5) = 30 %"
+    }
+  },
+  "action": {
+    "finding_anchor_day": "2026-10-13",
+    "accept_at": "2026-10-14T01:00:00Z",
+    "apply_at": "2026-10-14T02:00:00Z",
+    "reserve_old": "30",
+    "reserve_new": "25",
+    "effective_from": "2026-10-15T00:00:00Z"
+  },
+  "plan": {
+    "freeze_at": "2026-10-14T03:00:00Z",
+    "note": "frozen before any later-window report is accepted and before the later run begins"
+  },
+  "windows": {
+    "baseline_start": "2026-10-13T06:00:00+00:00",
+    "later_start": "2026-10-15T06:00:00+00:00",
+    "minutes": 60,
+    "slots": 12
+  },
+  "evaluate_at": "2026-10-16T01:00:00Z",
+  "expected": {
+    "identifiers": "Run IDs, publication IDs, evidence IDs and message IDs are allocated per replay (random run_id; tenant/Site/gateway UUIDs per import), so none is pinned; counts are.",
+    "published": {
+      "baseline": {
+        "batches": 582,
+        "envelopes": 1036,
+        "publications": 582
+      },
+      "later": {
+        "batches": 582,
+        "envelopes": 1036,
+        "publications": 582
+      }
+    },
+    "window_evidence_ids": 121,
+    "window_publication_ids": 74,
+    "plan": {
+      "baseline_candidate_seconds": 3600
+    },
+    "windows": {
+      "baseline": {
+        "complete": true,
+        "feeder_demand_kwh": "15",
+        "pv_available_kwh": "48",
+        "unserved_critical_kwh": "0",
+        "below_reserve_seconds": 0,
+        "initial_soc": "63.105263",
+        "terminal_soc": "77.355263"
+      },
+      "later": {
+        "complete": true,
+        "feeder_demand_kwh": "15",
+        "pv_available_kwh": "48",
+        "unserved_critical_kwh": "0",
+        "below_reserve_seconds": 0,
+        "initial_soc": "63.105263",
+        "terminal_soc": "77.355263"
+      }
+    },
+    "source": {
+      "per_window_class": "REGISTERED_SIMULATION",
+      "runs_per_window": 1,
+      "distinct_run_digests": true,
+      "pair": "PASS"
+    },
+    "generator_running": {
+      "2026-10-13": [
+        "2026-10-13T04:05:00+00:00",
+        "2026-10-13T07:55:00+00:00"
+      ]
+    },
+    "metrics": {
+      "window_coverage@BASELINE": "PASS",
+      "window_coverage@LATER": "PASS",
+      "feeder_demand_energy_band@COMPARISON": "PASS",
+      "pv_available_energy_band@COMPARISON": "PASS",
+      "initial_soc_band@COMPARISON": "PASS",
+      "source_provenance@COMPARISON": "PASS",
+      "candidate_avoidable_seconds@BASELINE": "PASS",
+      "candidate_avoidable_seconds@LATER": "PASS",
+      "target_reduction@COMPARISON": "PASS",
+      "unserved_critical_energy@COMPARISON": "PASS",
+      "below_reserve_seconds@COMPARISON": "PASS",
+      "terminal_soc@COMPARISON": "PASS"
+    },
+    "candidate_seconds": {
+      "baseline": 3600,
+      "later": 0
+    },
+    "outcome": {
+      "outcome": "VERIFIED",
+      "reasons": [
+        "TARGET_AND_GUARDRAILS_PASS"
+      ],
+      "current_state": "VERIFIED",
+      "resolved_appended": true
+    },
+    "why_verified": "Under the old 30 % reserve the v5 start threshold is min(35, 30+5) = 35 %; the dark first hour draws the battery from 42.5 % to 34.6 % at sunrise, so the generator is requested and the 90 % stop policy keeps it running, unloaded, while PV alone covers every load and charges the battery at its 30 kW PCS limit (Candidate for the whole baseline window, 3600 s). Under the new 25 % reserve the start threshold is 30 %, the same dip never reaches it, and the generator stays stopped (0 Candidate seconds). The generator delivers no energy in either run, so both windows start at the same state of charge (63.105263 %) and end at the same one (77.355263 %): comparable, target met (0 <= 75 % of 3600) and every measured guardrail passes. A simulated policy trial: no causal or savings claim."
+  },
+  "cases": [
+    {
+      "case_id": "complete-pass",
+      "status": "replayed",
+      "test": "host/tests/test_s6_verification_replay.py",
+      "note": "the reserve-aware v5 pair, replayed end to end through the gateway and S2 acceptance"
+    },
+    {
+      "case_id": "target-miss",
+      "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_target_miss_only_releases_the_hold",
+      "note": "test-scoped complete windows; not a Lab replay"
+    },
+    {
+      "case_id": "guardrail-fail",
+      "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_guardrail_failure_closes_but_blocks_a_different_finding",
+      "note": "test-scoped complete windows; not a Lab replay"
+    },
+    {
+      "case_id": "missing-critical-role",
+      "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestRealRoles2Path::test_pending_gates_inconclusive_outcome_retries_and_access",
+      "note": "a minigrid-roles-2 Site has no critical-load roles, so both windows stay incomplete (authored S4 readings, not a Lab replay)"
+    },
+    {
+      "case_id": "late-evidence-reassessment",
+      "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestRealRoles2Path::test_late_evidence_reads_reassessment_pending_then_a_settled_outcome_supersedes",
+      "note": "authored S4 readings; not a Lab replay"
+    },
+    {
+      "case_id": "different-finding-hold",
+      "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_guardrail_failure_closes_but_blocks_a_different_finding",
+      "note": "test-scoped complete windows; not a Lab replay"
+    },
+    {
+      "case_id": "overlap",
+      "status": "proven-in backend/tests/test_s6_verification_evaluator_postgres.py::TestResolutionAndHolds::test_verified_resolves_then_late_evidence_withdraws_and_overlap_blocks",
+      "note": "test-scoped complete windows; not a Lab replay"
+    }
+  ],
+  "predeclared": "Scenario, model version and both windows were fixed (and committed) before the verification replay was run: baseline 06:00-07:00 UTC on the old-Foundation run day, later 06:00-07:00 UTC two days later on the new-Foundation run day. The bands, the target and the evaluator are the frozen version-1 rules, unchanged."
+}

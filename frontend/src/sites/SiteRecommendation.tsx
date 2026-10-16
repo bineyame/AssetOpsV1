@@ -29,6 +29,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { Disclosure, Fact, FactList, Panel } from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
+import { DeclaredSuccessPanel, EvidenceNeededPanel, type TrialLinks } from "./recommendationVerification";
 import {
   freshIdempotencyKey,
   type AcceptedRecommendation,
@@ -60,6 +61,8 @@ export interface SiteRecommendationLinks {
   finding: (revisionId: string | null) => string;
   /** The canonical Action root. */
   action: (actionId: string) => string;
+  /** S6-02b: an Action's Plan, Evidence or Verification child view. */
+  actionChild?: TrialLinks["child"];
   /** The Finding's money view, pinned to the exact Finding version. */
   money: (revisionId: string) => string;
 }
@@ -125,7 +128,7 @@ export function SiteRecommendation({
   };
 
   const accepted = body.accepted[0] ?? null;
-  const held = body.state === "PRIOR_ACTION_UNRESOLVED";
+  const held = HELD_STATES.has(body.state);
   const block = held ? blockFrom(body) : null;
   const priorActions = body.prior_actions?.items ?? [];
   return (
@@ -179,7 +182,7 @@ export function SiteRecommendation({
         </div>
       ) : held ? (
         <div className="site-recommendation__pair">
-          <PriorActionNotice block={block} links={links} />
+          <PriorActionNotice block={block} links={links} state={body.state} />
           <LivePanel
             live={body.live_status}
             note="Recomputed from the current stored inputs. This is a separate reason, shown for information; it does not make a new trial acceptable here."
@@ -231,7 +234,7 @@ export function SiteRecommendation({
               type="button"
               className="action-command"
               data-action-command="ACCEPT"
-              data-action-command-held="PRIOR_ACTION_UNRESOLVED"
+              data-action-command-held={body.state}
               disabled
               aria-describedby="site-recommendation-accept-held"
             >
@@ -240,16 +243,20 @@ export function SiteRecommendation({
             <p
               id="site-recommendation-accept-held"
               className="action-command-unavailable"
-              data-action-command-unavailable="PRIOR_ACTION_UNRESOLVED"
+              data-action-command-unavailable={body.state}
             >
-              Accepting is not offered: an earlier trial on this Finding
+              Accepting is not offered: an earlier trial {block?.otherFinding ? "on this battery" : "on this Finding"}
               {block ? (
                 <>
                   {" "}
                   (<Link to={links.action(block.actionId)}>{block.actionCode ?? "the earlier Action"}</Link>)
                 </>
               ) : null}{" "}
-              is still open. Follow that Action; a new trial waits until it is settled.
+              {body.state === "PRIOR_TRIAL_GUARDRAIL_FAILED"
+                ? "missed a safety or service limit, so no new trial on this battery can be accepted."
+                : body.state === "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
+                  ? "overlapped late evidence that withdrew its result, so new trials on this battery stay held."
+                  : "is still open. Follow that Action; a new trial waits until it is settled."}
             </p>
           </>
         ) : body.state === "AVAILABLE" ? (
@@ -259,6 +266,23 @@ export function SiteRecommendation({
         )}
         <AcceptOutcome outcome={outcome} links={links} />
       </Panel>
+
+      {accepted && links.actionChild ? (
+        <div className="site-recommendation__pair">
+          <DeclaredSuccessPanel
+            actionId={accepted.action_id}
+            summary={body.verification?.[accepted.action_id]}
+            links={{ child: links.actionChild }}
+          />
+          <EvidenceNeededPanel
+            actionId={accepted.action_id}
+            actionCode={accepted.action_code}
+            summary={body.verification?.[accepted.action_id]}
+            links={{ child: links.actionChild }}
+            actionHref={links.action(accepted.action_id)}
+          />
+        </div>
+      ) : null}
 
       {priorActions.length > 0 ? <PriorActionList items={priorActions} links={links} /> : null}
 
@@ -446,7 +470,17 @@ interface HeldBy {
   action: PriorAction | null;
   code: string;
   message: string | null;
+  /** The blocking Action was accepted on another Finding (the hold is per battery). */
+  otherFinding: boolean;
+  /** The guardrail-failed outcome behind `PRIOR_TRIAL_GUARDRAIL_FAILED`. */
+  outcomeId: string | null;
+  /** The withdrawn outcome behind `PRIOR_TRIAL_REASSESSMENT_OVERLAP`. */
+  withdrawnOutcomeId: string | null;
+  withdrawnActionId: string | null;
 }
+
+/** The typed prior-trial holds (S6-01 unresolved, S6-02a guardrail failure and reassessment overlap). */
+const HELD_STATES = new Set(["PRIOR_ACTION_UNRESOLVED", "PRIOR_TRIAL_GUARDRAIL_FAILED", "PRIOR_TRIAL_REASSESSMENT_OVERLAP"]);
 
 /** The blocking Action, from `prior_action_block`, else from the typed `unavailable` reason. */
 function blockFrom(body: RecommendationBody): HeldBy | null {
@@ -467,17 +501,57 @@ function blockFrom(body: RecommendationBody): HeldBy | null {
     action,
     code: typed?.code ?? reason?.code ?? "PRIOR_ACTION_UNRESOLVED",
     message: typed?.message ?? reason?.message ?? null,
+    otherFinding: action !== null && action.origin.finding_id !== body.finding_id,
+    outcomeId: typed?.blocking_outcome_id ?? (typed?.code === "PRIOR_TRIAL_GUARDRAIL_FAILED" ? action?.resolution?.outcome_id ?? null : null),
+    withdrawnOutcomeId: typeof typed?.overlaps?.[0]?.withdrawn_outcome_id === "string" ? (typed.overlaps[0].withdrawn_outcome_id as string) : null,
+    withdrawnActionId: typeof typed?.overlaps?.[0]?.closure_action_id === "string" ? (typed.overlaps[0].closure_action_id as string) : null,
   };
 }
 
 /** The plain notice naming and linking the earlier Action that holds a new acceptance. */
-function PriorActionNotice({ block, links }: { block: HeldBy | null; links: SiteRecommendationLinks }) {
+const HOLD_HEADINGS: Record<string, string> = {
+  PRIOR_ACTION_UNRESOLVED: "An earlier trial is still open",
+  PRIOR_TRIAL_GUARDRAIL_FAILED: "An earlier trial missed a safety or service limit",
+  PRIOR_TRIAL_REASSESSMENT_OVERLAP: "An earlier trial's result was withdrawn after a new acceptance",
+};
+
+function PriorActionNotice({ block, links, state }: { block: HeldBy | null; links: SiteRecommendationLinks; state: string }) {
+  const code = block?.code ?? state;
   return (
-    <Panel heading="An earlier trial is still open" headingId="site-recommendation-prior-block-heading">
+    <Panel heading={HOLD_HEADINGS[code] ?? HOLD_HEADINGS.PRIOR_ACTION_UNRESOLVED} headingId="site-recommendation-prior-block-heading">
       {block ? (
         <>
+          {block.otherFinding ? (
+            <p data-recommendation-prior-block-other-finding={block.action?.origin.finding_id ?? ""}>
+              The hold comes from a trial on the same battery that was accepted for a different Finding. This page's
+              Finding is not that one.
+            </p>
+          ) : null}
+          {code !== "PRIOR_ACTION_UNRESOLVED" ? (
+            <p data-recommendation-prior-block-code={code}>
+              {code === "PRIOR_TRIAL_GUARDRAIL_FAILED"
+                ? "That trial was resolved as ineffective because a measured safety or service limit failed. No new reserve trial on this battery can be accepted."
+                : "A trial was accepted after late evidence had invalidated an earlier result but before that result was withdrawn. New reserve trials on this battery stay held."}{" "}
+              {block.outcomeId && links.actionChild ? (
+                <Link
+                  to={links.actionChild(block.actionId, "verification", { outcomeId: block.outcomeId })}
+                  data-recommendation-prior-block-outcome={block.outcomeId}
+                >
+                  Open that outcome
+                </Link>
+              ) : null}
+              {block.withdrawnOutcomeId && block.withdrawnActionId && links.actionChild ? (
+                <Link
+                  to={links.actionChild(block.withdrawnActionId, "verification", { outcomeId: block.withdrawnOutcomeId })}
+                  data-recommendation-prior-block-withdrawn={block.withdrawnOutcomeId}
+                >
+                  Open the withdrawn outcome
+                </Link>
+              ) : null}
+            </p>
+          ) : null}
           <p data-recommendation-prior-block={block.actionId}>
-            This Finding already has a reserve trial:{" "}
+            {block.otherFinding ? "The earlier reserve trial on this battery:" : "This Finding already has a reserve trial:"}{" "}
             <Link to={links.action(block.actionId)} data-recommendation-prior-block-link>
               {block.actionCode ?? "the earlier Action"}
             </Link>
@@ -489,7 +563,8 @@ function PriorActionNotice({ block, links }: { block: HeldBy | null; links: Site
             ) : (
               "an earlier Finding version"
             )}
-            , not on the version shown on this page. A new trial cannot be accepted while that one is still open.
+            {block.otherFinding ? " of that other Finding." : ", not on the version shown on this page."}
+            {code === "PRIOR_ACTION_UNRESOLVED" ? " A new trial cannot be accepted while that one is still open." : null}
           </p>
           {block.action ? (
             <p className="action-note" data-recommendation-prior-block-state={block.action.application.state}>

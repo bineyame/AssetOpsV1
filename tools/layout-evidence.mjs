@@ -1660,6 +1660,65 @@ if (process.env.ASSETOPS_LAYOUT_S2_02_RUN) {
   process.exit(allPass ? 0 : 1);
 }
 
+if (process.env.ASSETOPS_LAYOUT_S602B_ACTION) {
+  // S6-02b: the Action Evidence view's dense per-window five-minute slot tables (and the Plan and Verification
+  // tables beside them) at 1440 and 390, against the walkthrough's replayed VERIFIED Action
+  // (`tools/s602b_verification_walkthrough.py serve`). The slot set must be non-empty, and at 390 at least one
+  // slot table must actually be wider than its scroller, so "scrolls inside its own region" is measured on a real
+  // overflow rather than on tables that happen to fit.
+  const action = process.env.ASSETOPS_LAYOUT_S602B_ACTION;
+  const site = process.env.ASSETOPS_KOBO_SITE ?? "KOBO-001";
+  const READ = `(() => {
+    for (const d of document.querySelectorAll("details")) d.open = true;
+    const doc = document.scrollingElement;
+    const right = (el) => (el ? Math.round(el.getBoundingClientRect().right) : null);
+    const widest = (els) => els.reduce((w, el) => Math.max(w, right(el) ?? 0), 0);
+    const main = document.querySelector("main");
+    const sections = main ? [...main.querySelectorAll("section")] : [];
+    const scrollers = main ? [...main.querySelectorAll(".data-table__scroll")] : [];
+    const slotScrollers = [...document.querySelectorAll("[data-verification-evidence-window] .data-table__scroll")];
+    return {
+      scrollWidth: doc.scrollWidth, clientWidth: doc.clientWidth,
+      sections: sections.length, sectionsRight: widest(sections),
+      scrollers: scrollers.length, scrollersRight: widest(scrollers),
+      slots: document.querySelectorAll("[data-verification-slot]").length,
+      slotScrollers: slotScrollers.length,
+      slotOverflowing: slotScrollers.filter((s) => s.scrollWidth > s.clientWidth + 1).length,
+      headings: [...document.querySelectorAll("main h1, main h2")].map((h) => h.textContent.trim()).slice(0, 6).join(" | "),
+    };
+  })()`;
+  const base = `/sites/${site}/actions/${action}`;
+  const pages = [
+    ["Action Evidence (dense slots)", `${base}/evidence`, "[data-verification-evidence-window]"],
+    ["Action Plan", `${base}/plan`, "[data-verification-plan-id]"],
+    ["Action Verification", `${base}/verification`, "[data-verification-outcome]"],
+  ];
+  for (const [width, height] of [[1440, 1000], [390, 900]]) {
+    for (const [label, path, waitFor] of pages) {
+      await visit(cdp, path, width, height, waitFor);
+      await sleep(400);
+      const m = (await cdp.send("Runtime.evaluate", { expression: READ, returnByValue: true })).result.value;
+      const checks = [
+        ["the page does not scroll horizontally", m.scrollWidth <= m.clientWidth, `scrollWidth ${m.scrollWidth} vs clientWidth ${m.clientWidth}`],
+        ["sections were drawn, so the set measured is not empty", m.sections > 0, `${m.sections} sections; ${m.headings}`],
+        ["every section ends inside the viewport", m.sectionsRight <= m.clientWidth, `widest right ${m.sectionsRight}`],
+        ["every table scrolls inside its own region within the viewport", m.scrollers > 0 && m.scrollersRight <= m.clientWidth, `${m.scrollers} scrollers, widest right ${m.scrollersRight}`],
+      ];
+      if (label.startsWith("Action Evidence")) {
+        checks.push(["both windows' slot tables are drawn with 2 x 12 five-minute slots", m.slotScrollers >= 2 && m.slots === 24, `${m.slotScrollers} slot tables, ${m.slots} slots`]);
+        if (width === 390) {
+          checks.push(["at 390 the slot tables are wider than their scrollers (a real overflow is measured)", m.slotOverflowing >= 1, `${m.slotOverflowing} of ${m.slotScrollers} slot tables overflow inside their own scroller`]);
+        }
+      }
+      allPass = report(`S6-02b ${label} at ${width}x${height}`, m, checks) && allPass;
+    }
+  }
+  console.log(`\n${allPass ? "ALL CLAIMS HOLD" : "AT LEAST ONE CLAIM FAILED"}\n`);
+  ws.close();
+  chrome.kill();
+  process.exit(allPass ? 0 : 1);
+}
+
 if (READBACK_ARG > 0) {
   // T025c's second invocation, made after the host was stopped and started
   // again over the same store: no live session exists for the run any more.

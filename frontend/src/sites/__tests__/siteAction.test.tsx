@@ -408,13 +408,22 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     expect(q("[data-action-newer-revision]")?.getAttribute("data-action-newer-revision")).toBe(body.newer_revision_notice.latest_revision_id);
     expect(body.newer_revision_notice.latest_revision_id).not.toBe(body.origin.finding_revision_id);
     expect(q("[data-action-basis-foundation]")?.textContent).toBe(body.basis.foundation_revision_id);
-    expect(q("[data-action-outcome-words]")?.textContent).toMatch(/^Pending\. Nothing has been verified yet/);
+    // S6-02b (F5): the Overview reads the verification block, not `state.outcome`.
+    expect(q("[data-action-verification-state]")).toHaveAttribute("data-action-verification-state", body.verification.state);
+    expect(q("[data-action-outcome-words]")?.textContent).toMatch(/^No verification plan yet\./);
     expect(q("[data-action-change-new-foundation]")?.textContent).toBe(body.change.new_foundation_revision_id);
     expect(q("[data-action-applied-event-link]")?.getAttribute("href")).toBe(
       `/sites/KOBO-001/actions/${ACTION}/history?event_id=${body.change.applied_event_id}`,
     );
-    // Only delivered sections: no Plan, Evidence or Verification tab.
-    expect(qa("[data-action-section]").map((a) => a.textContent)).toEqual(["Overview", "Application", "History"]);
+    // S6-02b: the mock's section order, with the verification children.
+    expect(qa("[data-action-section]").map((a) => a.textContent)).toEqual([
+      "Overview",
+      "Plan",
+      "Application",
+      "Evidence",
+      "Verification",
+      "History",
+    ]);
     expect(document.body.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator|approv/i);
     noVocabularyViolations("action-overview:1#a");
   });
@@ -751,7 +760,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
 
   it("an unknown Action section is refused", async () => {
     serve(actionReads(ov.accepted_pending, hi.events_latest));
-    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    mount(`/sites/KOBO-001/actions/${ACTION}/forecast`);
     await settledScreen();
     expect(q("[data-action-read='section-not-found']")).not.toBeNull();
   });

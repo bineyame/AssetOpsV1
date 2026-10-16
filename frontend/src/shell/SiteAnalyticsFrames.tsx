@@ -19,7 +19,7 @@ import {
 } from "../sites/findingIndexClient";
 import { SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
-import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionView } from "../sites/SiteAction";
+import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionSelector, type ActionView } from "../sites/SiteAction";
 import { SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
 import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
@@ -471,6 +471,7 @@ export function SiteFindingFrame({
                     links={{
                       finding: (rev) => siteFindingHref(site.site_id, id, rev),
                       action: (actionId) => siteActionHref(site.site_id, actionId),
+                      actionChild: (actionId, view, chosen) => siteActionHref(site.site_id, actionId, view, chosen),
                       money: (rev) => siteFinancialsHref(site.site_id, { findingId: id, revisionId: rev }),
                     }}
                   />
@@ -598,8 +599,9 @@ export function SiteFinancialsFrame({
  * `/sites/{site}/actions/{action}[/execution | /history]` with an optional
  * `?event_id=` or `?recorded_at=` selection carried into every section link.
  * There is no Site Action index: an Action is reached from its Finding's
- * Recommendation or by its address. Plan, Evidence and Verification sections
- * belong to S6-02 and are not rendered.
+ * Recommendation or by its address. S6-02b adds the Plan, Evidence and
+ * Verification sections with `?plan_revision_id=` / `?outcome_id=`, carried in
+ * every section link beside `event_id` / `recorded_at`.
  */
 export const SITE_ACTION_HEADING_ID = "site-action-heading";
 const ACTION_SECTIONS_LABEL = "Action sections";
@@ -617,6 +619,8 @@ export function SiteActionFrame({
   const [params] = useSearchParams();
   const eventId = params.get("event_id");
   const recordedAt = params.get("recorded_at");
+  const planRevisionId = params.get("plan_revision_id");
+  const outcomeId = params.get("outcome_id");
   const [title, setTitle] = useState("Action");
   const onTitle = useCallback((next: string) => setTitle(next), []);
   const view: ActionView | null =
@@ -629,9 +633,8 @@ export function SiteActionFrame({
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_ACTION_HEADING_ID}>
       {(site) => {
         const id = actionId ?? "";
-        const selector = { eventId, recordedAt };
-        const href = (target: ActionView, chosen: { eventId: string | null; recordedAt: string | null }) =>
-          siteActionHref(site.site_id, id, target, chosen);
+        const selector = { eventId, recordedAt, planRevisionId, outcomeId };
+        const href = (target: ActionView, chosen: ActionSelector) => siteActionHref(site.site_id, id, target, chosen);
         return (
           <main aria-labelledby={SITE_ACTION_HEADING_ID}>
             <Breadcrumbs
@@ -687,6 +690,7 @@ export function SiteActionFrame({
                     finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
                     recommendation: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "recommendation", rev),
                     change: (changeId) => siteFoundationChangeHref(site.site_id, changeId),
+                    evidenceRecord: (evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId),
                   }}
                 />
               </>
@@ -709,6 +713,7 @@ export const SITE_CHANGE_HEADING_ID = "site-change-heading";
 function changeLinks(siteId: string): SiteFoundationChangeLinks {
   return {
     action: (actionId, view, selector) => siteActionHref(siteId, actionId, view, selector),
+    actionChild: (actionId, view, chosen) => siteActionHref(siteId, actionId, view, chosen),
     foundation: siteFoundationHref(siteId),
   };
 }

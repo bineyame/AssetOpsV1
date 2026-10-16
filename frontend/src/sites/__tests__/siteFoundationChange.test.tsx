@@ -139,7 +139,8 @@ describe("Foundation change (changes:1#a)", () => {
       `/sites/KOBO-001/actions/${ACTION}/history?event_id=${CHANGE.applied_event_id}`,
     );
     expect(q("[data-change-id]")).toHaveAttribute("data-change-outcome", "PENDING");
-    expect(q("[data-change-outcome-words]")?.textContent).toMatch(/^Pending\. Nothing has been verified yet/);
+    // S6-02b (F5): the apply-time outcome stays on the record; the words read the verification block.
+    expect(q("[data-change-outcome-words]")?.textContent).toBe("Verification: No verification plan yet.");
     expect(document.body.textContent).toMatch(/SYSTEM demonstration/);
     // No measured-effect verdict, saving or approval.
     const main = (q("main")?.textContent ?? "").replace(/no effect or saving is claimed/g, "");
