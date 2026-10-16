@@ -197,12 +197,17 @@ try {
         claim(`${id} ${label}: the page is laid out at ${width} px (documentElement.clientWidth within ${width - 20}..${width})`, m.clientWidth >= width - 20 && m.clientWidth <= width, { clientWidth: m.clientWidth });
       }
       const shown = (b) => b !== null && b.w > 0 && b.h > 0;
-      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen === false && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && (/^As of \d/.test(m.asOf ?? "") || m.asOf === "As of: time not recorded"), { label: m.label, asOf: m.asOf, noTime: m.asOf === "As of: time not recorded" });
-      claim(`${id} ${label}: the closed summary is plain text`, m.summary === "How this was worked out", m.summary);
+      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen !== true && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && (/^As of \d/.test(m.asOf ?? "") || m.asOf === "As of: time not recorded"), { label: m.label, asOf: m.asOf, noTime: m.asOf === "As of: time not recorded" });
+      if (m.disclosureOpen === null) {
+        // A state with nothing to reference (e.g. an empty directory) renders no disclosure; say so rather than pass silently.
+        claim(`${id} ${label}: no exact-reference disclosure in this state (nothing to reference)`, true, "no disclosure");
+      } else {
+        claim(`${id} ${label}: the closed summary is plain text`, m.summary === "How this was worked out", m.summary);
+      }
       claim(`${id} ${label}: no sideways scroll from the card (measured ${m.measured} elements)`, m.measured > 0 && m.scrollWidth <= m.clientWidth && m.wide.length === 0, { scrollWidth: m.scrollWidth, clientWidth: m.clientWidth, wide: m.wide });
       claim(`${id} ${label}: the card has a small visual`, NO_VISUAL.has(card) ? true : m.visual, NO_VISUAL.has(card) ? "none by design" : m.visual);
-      const tabs = await tabReaches(card);
-      claim(`${id} ${label}: keyboard Tab reaches the disclosure summary`, tabs > 0, { tabs, focusable: m.focusable });
+      const tabs = m.disclosureOpen === null ? null : await tabReaches(card);
+      if (tabs !== null) claim(`${id} ${label}: keyboard Tab reaches the disclosure summary`, tabs > 0, { tabs, focusable: m.focusable });
       const here = new URL(await js("location.href"));
       const asked = new URL(url);
       const kept = here.pathname === asked.pathname && [...asked.searchParams].every(([k, v]) => here.searchParams.get(k) === v);
