@@ -56,13 +56,21 @@ interface Term {
   pattern: RegExp;
 }
 
-const TERMS: Term[] = vocabulary.terms.map((term) => ({
-  phrase: term.phrase,
-  pattern: new RegExp(
-    `(?<![\\p{L}\\p{N}])${escape(term.phrase).replace(/ /g, "\\s+")}(?![\\p{L}\\p{N}])`,
-    "caseSensitive" in term && term.caseSensitive ? "u" : "iu",
-  ),
-}));
+/** A `code` term also treats `_` as part of a word, so `PENDING` is not found inside `PENDING_REASSESSMENT`. */
+function phraseTerm(phrase: string, caseSensitive: boolean, code = false): Term {
+  const word = code ? "\\p{L}\\p{N}_" : "\\p{L}\\p{N}";
+  return {
+    phrase,
+    pattern: new RegExp(
+      `(?<![${word}])${escape(phrase).replace(/ /g, "\\s+")}(?![${word}])`,
+      caseSensitive ? "u" : "iu",
+    ),
+  };
+}
+
+const TERMS: Term[] = vocabulary.terms.map((term) =>
+  phraseTerm(term.phrase, "caseSensitive" in term && term.caseSensitive === true),
+);
 
 const GLOSSES = vocabulary.glosses.map(
   (gloss) => new RegExp(escape(gloss.text), "giu"),
@@ -72,13 +80,83 @@ function escape(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** The forbidden phrases one piece of text contains, after allowed glosses. */
-export function forbiddenPhrases(text: string): string[] {
-  let scanned = text;
-  for (const gloss of GLOSSES) {
-    scanned = scanned.replace(gloss, " ");
+/**
+ * The W1 set (D-2026-10-16-w1-ux, D-2026-10-16-w1-ux-disclosure), versioned
+ * separately inside the same file. A route opts in as its W1 slice migrates
+ * it; the T028 list keeps applying to every route either way.
+ *
+ * Raw codes are matched case-sensitively: a closed list of single-word state
+ * codes, plus shape patterns for uppercase underscore tokens, UUIDs, digests
+ * and rule/model versions. Allow-listed units and acronyms (SOC, UTC, kW, kWh,
+ * PV) are never reported as raw codes; the T028 gloss rule for acronyms is a
+ * separate rule and still applies.
+ */
+export const W1_VOCABULARY_VERSION: number = vocabulary.w1.version;
+const W1_ALLOWED = new Set<string>(vocabulary.w1.allowedAcronyms);
+const W1_TERMS: Term[] = vocabulary.w1.terms.map((term) => phraseTerm(term.phrase, false));
+const W1_CODES: Term[] = vocabulary.w1.codes.map((code) => phraseTerm(code, true, true));
+const W1_PATTERNS = vocabulary.w1.patterns.map((p) => ({ name: p.name, pattern: new RegExp(p.source, `${p.flags}g`) }));
+const W1_GLOSSES = vocabulary.w1.glosses.map((gloss) => new RegExp(escape(gloss.text), "giu"));
+const DISCLOSURE_TERMS: Term[] = [
+  ...vocabulary.w1.disclosure.phrases.map((phrase) => phraseTerm(phrase, false)),
+  ...vocabulary.w1.disclosure.words.map((word) => phraseTerm(word, false)),
+  ...vocabulary.w1.disclosure.codes.map((code) => phraseTerm(code, true, true)),
+];
+const UNDERSCORE_CODE = W1_PATTERNS[0];
+
+/** Which list a scan applies: the T028 list alone, or T028 plus the W1 set. */
+export type VocabularySet = "t028" | "w1";
+
+/**
+ * The raw codes one piece of text contains: closed-list state codes and the
+ * shape patterns, minus allow-listed units and acronyms. Case-sensitive, so
+ * ordinary lower-case words ("current", "pending") are never codes.
+ */
+export function rawCodes(text: string): string[] {
+  const found: string[] = [];
+  for (const code of W1_CODES) if (code.pattern.test(text)) found.push(code.phrase);
+  for (const { name, pattern } of W1_PATTERNS) {
+    for (const match of text.matchAll(pattern)) {
+      if (W1_ALLOWED.has(match[0])) continue;
+      found.push(`${name}: ${match[0]}`);
+    }
   }
-  return TERMS.filter((term) => term.pattern.test(scanned)).map((term) => term.phrase);
+  return found;
+}
+
+function withoutGlosses(text: string, glosses: RegExp[]): string {
+  let scanned = text;
+  for (const gloss of glosses) scanned = scanned.replace(gloss, " ");
+  return scanned;
+}
+
+/** The forbidden phrases one piece of text contains, after allowed glosses. */
+export function forbiddenPhrases(text: string, set: VocabularySet = "t028"): string[] {
+  if (set === "t028") {
+    const scanned = withoutGlosses(text, GLOSSES);
+    return TERMS.filter((term) => term.pattern.test(scanned)).map((term) => term.phrase);
+  }
+  const scanned = withoutGlosses(text, [...W1_GLOSSES, ...GLOSSES]);
+  return [
+    ...TERMS.filter((term) => term.pattern.test(scanned)).map((term) => term.phrase),
+    ...W1_TERMS.filter((term) => term.pattern.test(scanned)).map((term) => term.phrase),
+    ...rawCodes(scanned),
+  ];
+}
+
+/**
+ * The narrower disclosure list (D-2026-10-16-w1-ux-disclosure): internal
+ * analytics phrases, implementation words, raw state labels and any raw
+ * uppercase underscore token. Units and acronyms are not codes.
+ */
+export function disclosurePhrases(text: string): string[] {
+  const scanned = withoutGlosses(text, W1_GLOSSES);
+  const found = DISCLOSURE_TERMS.filter((term) => term.pattern.test(scanned)).map((term) => term.phrase);
+  for (const match of scanned.matchAll(UNDERSCORE_CODE.pattern)) {
+    if (W1_ALLOWED.has(match[0]) || found.includes(match[0])) continue;
+    found.push(`${UNDERSCORE_CODE.name}: ${match[0]}`);
+  }
+  return found;
 }
 
 function references(element: Element | null): string[] {
@@ -93,9 +171,14 @@ function withoutReferences(text: string, values: string[]): string {
   return out;
 }
 
-function exemptReason(element: Element | null): string | null {
-  const exempt = element?.closest(`[${EXEMPT_ATTRIBUTE}]`) ?? null;
-  return exempt === null ? null : exempt.getAttribute(EXEMPT_ATTRIBUTE);
+/** The exemption covering `element`, looking no higher than the scan root. */
+function exemptReason(element: Element | null, root: Element): string | null {
+  for (let node: Element | null = element; node !== null; node = node.parentElement) {
+    const reason = node.getAttribute(EXEMPT_ATTRIBUTE);
+    if (reason !== null) return reason;
+    if (node === root) break;
+  }
+  return null;
 }
 
 /**
@@ -107,11 +190,46 @@ function exemptReason(element: Element | null): string | null {
 export function scanProductVocabulary(
   root: HTMLElement,
   page: string,
+  options: { set?: VocabularySet } = {},
+): { violations: VocabularyViolation[]; scanned: number } {
+  return scanWith(root, page, (text) => forbiddenPhrases(text, options.set ?? "t028"));
+}
+
+/**
+ * Scan each closed exact-reference disclosure inside `root` (its summary, its
+ * labels and every text node and accessible name) against the narrower
+ * disclosure list. Individually exempt values are skipped one value at a
+ * time; nothing else is. Also returns the number of disclosures found, so a
+ * caller can prove the scan was not vacuous.
+ */
+export function scanDisclosureVocabulary(
+  root: HTMLElement,
+  page: string,
+): { violations: VocabularyViolation[]; scanned: number; disclosures: number } {
+  const disclosures = Array.from(root.querySelectorAll<HTMLElement>("[data-exact-references]"));
+  const violations: VocabularyViolation[] = [];
+  let scanned = 0;
+  for (const disclosure of disclosures) {
+    const result = scanWith(disclosure, page, disclosurePhrases);
+    violations.push(...result.violations);
+    scanned += result.scanned;
+  }
+  return { violations, scanned, disclosures: disclosures.length };
+}
+
+function scanWith(
+  root: HTMLElement,
+  page: string,
+  check: (text: string) => string[],
 ): { violations: VocabularyViolation[]; scanned: number } {
   const violations: VocabularyViolation[] = [];
   let scanned = 0;
 
-  for (const element of Array.from(root.querySelectorAll(`[${EXEMPT_ATTRIBUTE}]`))) {
+  // The root itself is checked too, so a scanned container cannot exempt itself.
+  const exemptElements = [root, ...Array.from(root.querySelectorAll(`[${EXEMPT_ATTRIBUTE}]`))].filter((e) =>
+    e.hasAttribute(EXEMPT_ATTRIBUTE),
+  );
+  for (const element of exemptElements) {
     const reason = element.getAttribute(EXEMPT_ATTRIBUTE) ?? "";
     if (!EXEMPTION_REASONS.includes(reason)) {
       violations.push({ page, phrase: `unknown exemption "${reason}"`, where: EXEMPT_ATTRIBUTE, text: element.outerHTML.slice(0, 160) });
@@ -135,21 +253,21 @@ export function scanProductVocabulary(
     if (text.length === 0) continue;
     const parent = node.parentElement;
     if (parent !== null && ["SCRIPT", "STYLE"].includes(parent.tagName)) continue;
-    if (exemptReason(parent) !== null) continue;
+    if (exemptReason(parent, root) !== null) continue;
     scanned += 1;
-    for (const phrase of forbiddenPhrases(withoutReferences(text, references(parent)))) {
+    for (const phrase of check(withoutReferences(text, references(parent)))) {
       violations.push({ page, phrase, where: "text", text });
     }
   }
 
   const elements = [root, ...Array.from(root.querySelectorAll("*"))];
   for (const element of elements) {
-    if (exemptReason(element) !== null) continue;
+    if (exemptReason(element, root) !== null) continue;
     for (const attribute of LABEL_ATTRIBUTES) {
       const value = element.getAttribute(attribute);
       if (value === null || value.trim().length === 0) continue;
       scanned += 1;
-      for (const phrase of forbiddenPhrases(withoutReferences(value, references(element)))) {
+      for (const phrase of check(withoutReferences(value, references(element)))) {
         violations.push({ page, phrase, where: attribute, text: value });
       }
     }

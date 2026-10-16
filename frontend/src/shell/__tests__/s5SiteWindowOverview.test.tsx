@@ -22,7 +22,8 @@ import { createSiteOverviewClient } from "../../sites/siteOverviewClient";
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { MONEY_STATE_WORDS } from "../../sites/SiteWindowOverview";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
 
@@ -288,7 +289,11 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     renderAt(`/sites/${SITE_ID}?date=2026-11-10`, client);
     await settledScreen();
     expect(document.querySelector('[data-freshness-state="UNASSESSED"]')?.textContent).toContain("Unknown");
-    expect(document.querySelector('[data-assessment-state="UNKNOWN"]')?.textContent).toContain("Unknown");
+    // W1-UX-01: the shared state words; the state line stays outside the closed exact-reference disclosure.
+    const unknownState = document.querySelector('[data-assessment-state="UNKNOWN"]') as HTMLElement;
+    expect(unknownState.textContent).toContain("We cannot judge this yet");
+    expect(unknownState.textContent).toContain("No assessment is selected for this day");
+    expect(expectStateLineVisible(objectiveCard())).toBe("We cannot judge this yet");
     expect(document.querySelector('[data-overview-finding-list="unavailable"]')?.textContent).toContain("no count is given");
     expect(document.body.textContent).not.toMatch(/no findings (for|in) this/i);
     expect(document.querySelector('[data-overview-finding-list="current-empty"]')).toBeNull();
@@ -325,7 +330,8 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     renderAt(`/sites/${SITE_ID}?date=2026-10-07`, client);
     await settledScreen();
     expect(document.querySelector('[data-freshness-state="FAILED"]')?.textContent).toContain("Failed");
-    expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("Reassessment failed");
+    expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("The latest check could not be completed");
+    expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
     expect(moneyCard().getAttribute("data-money-state")).toBe("UPSTREAM_FAILED");
   });
 
@@ -337,4 +343,23 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(scanned).toBeGreaterThan(5);
     expect(violations, describeViolations(violations)).toEqual([]);
   });
+
+  it("W1-UX-01: the objective card uses the W1 vocabulary set, its disclosure the narrower list, and its state line stays visible", async () => {
+    const { client } = clientOf(() => summary());
+    const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "selected-day overview (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(5);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const disclosure = scanDisclosureVocabulary(objectiveCard(), "overview objective disclosure");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.scanned).toBeGreaterThan(2);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+    expect(expectStateLineVisible(objectiveCard())).toBe("Using the latest checked readings");
+    expect(objectiveCard().querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2} UTC$/);
+  });
 });
+
+function objectiveCard(): HTMLElement {
+  return document.querySelector('[data-headline-card="overview-objective"]') as HTMLElement;
+}

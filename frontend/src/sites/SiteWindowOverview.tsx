@@ -19,7 +19,19 @@
 
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import {
+  Badge,
+  currentnessWords,
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  Panel,
+  ProductStatus,
+  type ProductWords,
+} from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import { clock, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
 import { portionWords } from "./findingWords";
@@ -67,19 +79,6 @@ const FRESHNESS_WORDS: Record<string, { label: string; sentence: string }> = {
   },
   FAILED: { label: "Failed", sentence: "Work for this day failed; nothing below is presented as current." },
   CURRENT: { label: "Current", sentence: "Every upstream step for this day has settled." },
-};
-
-/** The day's dispatch objective, by the server's assessment state name. */
-const ASSESSMENT_WORDS: Record<string, { label: string; sentence: string }> = {
-  UNKNOWN: { label: "Unknown", sentence: "No assessment is selected for this day. Nothing is shown in its place." },
-  CLOSED: {
-    label: "Closed",
-    sentence: "The Performance source is not open for current use, so no current objective is shown.",
-  },
-  CURRENT: { label: "Up to date", sentence: "This result uses every accepted record for the day." },
-  PENDING: { label: "Being assessed", sentence: "Records for this day are waiting to be assessed." },
-  STALE_PROJECTION: { label: "Out of date", sentence: "This result was made before newer records; it is kept for reference." },
-  FAILED: { label: "Reassessment failed", sentence: "The latest reassessment of this day failed; any earlier result is not current." },
 };
 
 /** Why the money card shows no amount, by the server's no-amount state name (packet "S5 no-amount states"). */
@@ -235,7 +234,7 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
               </span>
             )}
           </Fact>
-          <Fact term="Input digest">
+          <Fact term="Input reference">
             <Code value={summary.watermarks.input_sha256} />
           </Fact>
           <Fact term="Finding match pass">
@@ -256,55 +255,88 @@ function coverageRoles(coverage: unknown): string {
   return n === 0 ? "assessment coverage is not available for this day." : `${n} measured ${n === 1 ? "role" : "roles"} covered.`;
 }
 
+/**
+ * W1-UX-01: the day's objective on the shared answer card. The state words
+ * come from the shared map; CLOSED stays a domain state here. Nothing is
+ * derived: the headline says only what the assessment read states.
+ */
+function objectiveWords(state: string): ProductWords {
+  if (state === "CLOSED") {
+    return {
+      label: "Not open for current use",
+      sentence: "The source of these readings is not open for current use, so no current answer is shown.",
+      tone: "limited",
+      code: state,
+      unrecognised: false,
+    };
+  }
+  if (state === "UNKNOWN") {
+    return { ...currentnessWords("UNKNOWN"), sentence: "No assessment is selected for this day, so nothing is concluded about it." };
+  }
+  return currentnessWords(state);
+}
+
 function Objective({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const a = summary.assessment;
-  const w = words(ASSESSMENT_WORDS, a.state);
+  const w = objectiveWords(a.state);
   const day = summary.window.utc_date;
+  const closed = a.state === "CLOSED";
   return (
-    <Panel heading="Operating objective" headingId="site-window-objective-heading">
-      <p data-assessment-state={a.state}>
-        <Badge tone="neutral">{w.label}</Badge> {w.sentence}
-      </p>
-      {a.state === "CLOSED" ? null : (
-        <p data-objective-statement="not-stated">
-          The assessment does not state an operating objective for this day, so none is shown here.
-        </p>
-      )}
-      {a.state === "CLOSED" || a.claim_level === null ? null : (
-        <p data-assessment-claim={a.claim_level}>
-          Day reading: {OUTCOME_WORDS[a.claim_level] ?? "Assessed"}. {a.dispatch_intervals.length}{" "}
-          {a.dispatch_intervals.length === 1 ? "operating period" : "operating periods"} assessed;{" "}
-          {coverageRoles(a.coverage)}
-        </p>
-      )}
-      {a.state === "CLOSED" ? null : (
-        <p>
+    <HeadlineVisualCard
+      dataName="overview-objective"
+      headingId="site-window-objective-heading"
+      question="Is the site meeting its operating objective?"
+      headline={closed ? "No current answer for this day" : "No operating objective is stated for this day"}
+      status={
+        <div data-assessment-state={a.state}>
+          <ProductStatus words={w} scope={`${day}, one UTC day at this site`} asOf={summary.db_now} />
+        </div>
+      }
+      meaning={
+        <>
+          {closed ? (
+            <p>Nothing on this card is a current answer.</p>
+          ) : (
+            <p data-objective-statement="not-stated">
+              The assessment does not state an operating objective for this day, so none is shown here.
+            </p>
+          )}
+          {closed || a.claim_level === null ? null : (
+            <p data-assessment-claim={a.claim_level}>
+              Day reading: {OUTCOME_WORDS[a.claim_level] ?? "Assessed"}. {a.dispatch_intervals.length}{" "}
+              {a.dispatch_intervals.length === 1 ? "operating period" : "operating periods"} assessed;{" "}
+              {coverageRoles(a.coverage)}
+            </p>
+          )}
+          {a.limitations.length === 0 ? null : (
+            <ul className="cell-list" data-assessment-limitations={a.limitations.length}>
+              {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code) => (
+                <li key={code}>{limitationWords(code)}</li>
+              ))}
+            </ul>
+          )}
+        </>
+      }
+      todo={w.next === undefined ? undefined : <p>{w.next}</p>}
+      destination={
+        closed ? undefined : (
           <Link to={links.dispatchDay(day, a.window_assessment_revision_id)} data-window-dispatch-link={day}>
             Open this day in Performance &gt; Dispatch
           </Link>
-        </p>
-      )}
-      {a.limitations.length === 0 ? null : (
-        <ul className="cell-list" data-assessment-limitations={a.limitations.length}>
-          {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code) => (
-            <li key={code}>{limitationWords(code)}</li>
-          ))}
-        </ul>
-      )}
-      <Disclosure summary="Exact assessment identifiers" name="window-assessment">
-        <FactList>
-          <Fact term="Day assessment">
-            <Code value={a.window_assessment_revision_id} />
-          </Fact>
-          <Fact term="Assessment pass">
-            <Code value={a.run_id} />
-          </Fact>
-          <Fact term="Status reasons">
-            <Reasons reasons={a.status_reasons ?? []} name="assessment" />
-          </Fact>
-        </FactList>
-      </Disclosure>
-    </Panel>
+        )
+      }
+      references={
+        <ExactReferences
+          name="window-assessment"
+          references={[
+            { label: "Day assessment", value: a.window_assessment_revision_id },
+            { label: "Assessment pass", value: a.run_id },
+            { label: "Assessment state", value: a.state },
+            ...(a.status_reasons ?? []).map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
+          ]}
+        />
+      }
+    />
   );
 }
 
