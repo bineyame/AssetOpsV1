@@ -21,7 +21,7 @@
 import { useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { Fact, FactList } from "../ui";
+import { ExactReferences, Fact, FactList } from "../ui";
 import {
   AssessedPeriodTimeline,
   CoverageByInput,
@@ -239,28 +239,34 @@ export function AssessmentAnalysis({
 
       <Section heading="Assessment reference" id="analysis-reference-heading">
         <FactList>
-          <Fact term="Assessment method">{a.model_version}</Fact>
-          <Fact term="Assessment reference">
-            <span data-finding-assessment-id>{summary.assessment_id}</span>
-            {summary.finding_id === null ? " (an assessed period without a Finding)" : ""}
+          <Fact term="Assessed period">
+            {summary.finding_id === null ? "An assessed period without a Finding" : "The assessed period behind this Finding"}
             {summary.active ? "" : ` (withdrawn ${summary.retired_at === null ? "" : readableTime(summary.retired_at)})`}
           </Fact>
-          <Fact term="Records used">
-            {`${a.evidence_basis.message_ids.length} accepted records; verification reference ${a.evidence_basis.digest}`}
-          </Fact>
+          <Fact term="Records used">{`${a.evidence_basis.message_ids.length} accepted records`}</Fact>
           <Fact term="Revision">
             {`${summary.revision} of ${summary.revisions}. Every revision is kept.`}
             {revisionHistory === undefined ? null : (
               <ul className="cell-list" data-finding-revisions>
                 {revisionHistory.map((r) => (
                   <li key={r.revision}>
-                    {`Revision ${r.revision}, assessed ${readableTime(r.assessed_at)}, method ${r.model_version}: ${OUTCOME_WORDS[r.claim_level] ?? "Assessed"}; ${r.evidence_records} records`}
+                    {`Revision ${r.revision}, assessed ${readableTime(r.assessed_at)}: ${OUTCOME_WORDS[r.claim_level] ?? "Assessed"}; ${r.evidence_records} records`}
                   </li>
                 ))}
               </ul>
             )}
           </Fact>
         </FactList>
+        {/* W1-UX-03: method version, assessment reference and record-set reference are labelled exact values, closed by default. */}
+        <ExactReferences
+          name="analysis-assessment-references"
+          references={[
+            { label: "Assessment method version", value: a.model_version },
+            { label: "Assessment reference", value: summary.assessment_id },
+            { label: "Record set check reference", value: a.evidence_basis.digest },
+            ...(revisionHistory ?? []).map((r) => ({ label: `Method version of revision ${r.revision}`, value: r.model_version })),
+          ]}
+        />
         <ul className="cell-list" data-analysis-links>
           {records.kind === "tab" ? (
             <li>
