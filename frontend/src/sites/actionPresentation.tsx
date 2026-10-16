@@ -7,7 +7,7 @@
  */
 import type { ReactNode } from "react";
 
-import { Panel } from "../ui";
+import { Panel, UNRECOGNISED_SENTENCE, type ProductWords } from "../ui";
 import type { Limitation, Refusal, SystemDemoCapability } from "./actionClient";
 import { stamp } from "./dispatchWords";
 
@@ -67,6 +67,44 @@ export const APPLICATION_WORDS: Record<string, string> = {
   PENDING: "Not applied yet",
   APPLIED: "Applied to the Site Foundation",
 };
+
+/**
+ * W1-UX-04: the application state as shared state-line words. Domain-local
+ * (the shared map does not own application states). Applied is never
+ * positive: applying changes a recorded setting, not a measured result.
+ */
+export function applicationWords(code: string | null | undefined, failedAttempts = 0): ProductWords {
+  if (code === "PENDING") {
+    return {
+      label: failedAttempts > 0 ? "Not applied yet; an attempt failed" : "Not applied yet",
+      sentence:
+        failedAttempts > 0
+          ? "A failed attempt changed nothing on the site. The accepted change can be attempted again."
+          : "The change was accepted but has not been applied to the site's recorded settings.",
+      next: "Apply the accepted change, or open History to see what was attempted.",
+      tone: failedAttempts > 0 ? "problem" : "waiting",
+      code,
+      unrecognised: false,
+    };
+  }
+  if (code === "APPLIED") {
+    return {
+      label: "Applied; effect not yet measured",
+      sentence:
+        "The new setting is recorded for the site. This does not show that generator use, cost or safety changed.",
+      next: "Whether it worked is judged on Verification, from a trial plan fixed before the later readings.",
+      tone: "limited",
+      code,
+      unrecognised: false,
+    };
+  }
+  return { label: "Application state not recognised", sentence: UNRECOGNISED_SENTENCE, tone: "limited", code: code ?? null, unrecognised: true };
+}
+
+/** An event kind in plain words; an unknown kind never shows its raw code. */
+export function plainEventWords(kind: string): string {
+  return EVENT_WORDS[kind] ?? "Recorded event of a kind this screen does not recognise";
+}
 
 /** The pending outcome, in this build's own words (no effect, saving or verification is claimed). */
 export function outcomeWords(state: string): string {
