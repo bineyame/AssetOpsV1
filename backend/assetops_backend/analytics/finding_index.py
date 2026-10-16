@@ -234,10 +234,12 @@ class FindingIndexService:
         self.store, self.dispatch, self.continuity_limit = store, dispatch, continuity_limit
 
     def _day(self, read: dict[str, Any], day: date, seq: int | None,
-             match_pass: dict[str, Any] | None) -> dict[str, Any]:
+             match_pass: dict[str, Any] | None, deferred: frozenset[datetime] = frozenset()) -> dict[str, Any]:
         selection = read.get("selection") or {}
         window_rev = read.get("window_assessment") or {}
         matched = seq is not None and match_pass is not None and match_pass["matched_through_selection_seq"] >= seq
+        if _day_start(day) in deferred:  # the pass deferred this window: not matched, whatever its sequence
+            matched = False
         status, reasons = read["status"], list(read["status_reasons"])
         if status == CURRENT and not matched:
             status = PENDING
@@ -269,7 +271,8 @@ class FindingIndexService:
         days = discover(canonical, request.start, request.end, self.continuity_limit,
                         edge_reach=lambda day: candidate_reach(window(day), day))
         match_pass = snap["match_pass"]
-        inspected = [self._day(window(d), d, snap["selection_seqs"].get(_day_start(d)), match_pass) for d in days]
+        inspected = [self._day(window(d), d, snap["selection_seqs"].get(_day_start(d)), match_pass,
+                              frozenset(snap.get("deferred_windows") or ())) for d in days]
         moved = self.store.fence(t, s, analytic) != snap["fence"]
         reasons = [f"{d['day']}: {r}" for d in inspected for r in d["reasons"]]
         statuses = {d["status"] for d in inspected}

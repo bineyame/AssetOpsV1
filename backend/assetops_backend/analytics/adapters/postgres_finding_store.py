@@ -468,14 +468,16 @@ class PostgresFindingStore:
             seqs = {r[0]: int(r[1]) for r in c.execute(text(
                 "SELECT window_start, max(seq) FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
                 "AND analytic_id = :a GROUP BY window_start"), p)}
-            row = c.execute(text("SELECT id, selection_seq, completed_at FROM finding_match_pass WHERE tenant_id = :t "
+            row = c.execute(text("SELECT id, selection_seq, completed_at, deferred_window_starts "
+                                 "FROM finding_match_pass WHERE tenant_id = :t "
                                  "AND site_id = :s AND analytic_id = :a AND matcher_version = :m "
                                  "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"), p).one_or_none()
+            deferred = [] if row is None else list(row[3] or [])
             match_pass = None if row is None else {"match_pass_id": str(row[0]), "matcher_version": MATCHER_VERSION,
                                                    "matched_through_selection_seq": int(row[1]),
                                                    "match_completed_at": row[2]}
             return {"heads": heads, "merges": merges, "selection_seqs": seqs, "match_pass": match_pass,
-                    "fence": self._fence(c, tenant_id, site_id, analytic_id)}
+                    "deferred_windows": deferred, "fence": self._fence(c, tenant_id, site_id, analytic_id)}
         return self._read(work)
 
     def index_lineage(self, tenant_id: UUID, site_id: UUID, revision_ids: list[UUID]) -> dict[str, Any]:

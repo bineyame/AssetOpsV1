@@ -23,6 +23,7 @@ URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
 if URL:
+    import test_s4_finding_index_postgres as index_cases
     import test_s4_finding_store_postgres as finding_cases
     from test_lr01_money_eligibility_postgres import _release_connections  # noqa: F401
     from test_s1_bindings_postgres import engine, store  # noqa: F401
@@ -131,6 +132,12 @@ def test_scenario_a_deferred_edge_cluster_is_pending_not_absent(h) -> None:
     body = h.view()
     pending(h, body)
     assert body["known_finding"] is None
+    # S4-04 index (root-fix review L1): the deferred day reads PENDING with no claim, not matched at its sequence.
+    idx = index_cases.ok(index_cases.client_for(h.r), frm="2026-10-12T00:00:00Z", to="2026-10-13T00:00:00Z")
+    index_cases.assert_no_claim(idx, idx["status"])
+    day_d = next(d for d in idx["watermarks"]["days"] if d["day"] == D.isoformat())
+    assert day_d["s3"]["status"] == "CURRENT" and day_d["status"] == "PENDING", day_d
+    assert day_d["s4"]["matched"] is False and any("MATCH_PENDING" in r for r in day_d["reasons"]), day_d
 
     # Form 2: D+1 reassessed, no rematch yet: still pending (D+1's newer selection and D's deferral).
     h.assess()
