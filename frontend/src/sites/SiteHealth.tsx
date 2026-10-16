@@ -13,10 +13,9 @@
  *   with the clock reason. Never a signed age.
  * - Exact IDs, rule and watermark sit in "Technical details", closed by default.
  */
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { siteAssetHref, siteAssetsHref, siteHealthHref } from "../shell/operatorSiteRoutes";
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type {
   BatteryEntry,
@@ -26,6 +25,21 @@ import type {
   HealthRefusal,
   SourceHealthDocument,
 } from "./healthClient";
+
+/** Addresses the Health and battery screens link to, supplied by the shell frames (the substrate is a leaf). */
+export interface HealthLinks {
+  health(siteId: string, gatewayId?: string | null): string;
+  assets(siteId: string): string;
+  asset(siteId: string, assetId: string): string;
+}
+
+export const HealthLinksContext = createContext<HealthLinks | null>(null);
+
+export function useHealthLinks(): HealthLinks {
+  const links = useContext(HealthLinksContext);
+  if (links === null) throw new Error("HealthLinksContext is not provided");
+  return links;
+}
 
 /** An exact source-owned value, exempt from the plain-language scan. */
 export function HealthRef({ value }: { value: string | number | null | undefined }) {
@@ -238,6 +252,7 @@ function HealthBody({
   /** v69 order: the asset condition summary sits right under the status strip. */
   battery: ReactNode;
 }) {
+  const links = useHealthLinks();
   const s = doc.summary;
   const enabled = doc.gateways.filter((g) => g.registration === "ENABLED");
   const reported = enabled.filter((g) => g.diagnostic !== null);
@@ -263,7 +278,7 @@ function HealthBody({
         selected === null ? (
           <Panel heading="No such gateway" headingId="site-health-selected-heading">
             <p data-health-selected="not-found">
-              This site has no gateway with that ID. <Link to={siteHealthHref(siteId)}>Show all gateways</Link>
+              This site has no gateway with that ID. <Link to={links.health(siteId)}>Show all gateways</Link>
             </p>
           </Panel>
         ) : (
@@ -317,7 +332,7 @@ function HealthBody({
                   <td>every {formatAge(g.declared_cadence_seconds)}</td>
                   <td data-health-facts={g.reported_facts.status}>{reportedText(g)}</td>
                   <td>
-                    <Link to={siteHealthHref(siteId, g.gateway_id)} data-health-open={g.gateway_external_id}>
+                    <Link to={links.health(siteId, g.gateway_id)} data-health-open={g.gateway_external_id}>
                       Details
                     </Link>
                   </td>
@@ -433,6 +448,7 @@ function HealthBody({
 }
 
 function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRow }) {
+  const links = useHealthLinks();
   const f = row.reported_facts;
   const d = row.diagnostic;
   return (
@@ -474,7 +490,7 @@ function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRo
         </Fact>
       </FactList>
       <p>
-        <Link to={siteHealthHref(siteId)}>Show all gateways</Link>
+        <Link to={links.health(siteId)}>Show all gateways</Link>
       </p>
     </Panel>
   );
@@ -489,6 +505,7 @@ const BATTERY_TEXTS: Record<string, string> = {
 export { BATTERY_TEXTS };
 
 function BatterySection({ siteId, read }: { siteId: string; read: HealthRead<BatteryEntry> | null }) {
+  const links = useHealthLinks();
   if (read === null) {
     return <p>Loading the site's battery.</p>;
   }
@@ -513,7 +530,7 @@ function BatterySection({ siteId, read }: { siteId: string; read: HealthRead<Bat
       {entry.configuration === "NOT_CONFIGURED" ? (
         <p className="panel__note" data-health-battery="NOT_CONFIGURED">
           No battery is part of this site's configuration. Battery condition: Unknown (not configured).{" "}
-          <Link to={siteAssetsHref(siteId)}>Battery page</Link>
+          <Link to={links.assets(siteId)}>Battery page</Link>
         </p>
       ) : (
         <DataTable labelledBy="site-health-battery-heading">
@@ -534,7 +551,7 @@ function BatterySection({ siteId, read }: { siteId: string; read: HealthRead<Bat
                 <td>Unknown</td>
                 <td>The inputs needed to judge battery condition are missing</td>
                 <td>
-                  <Link to={siteAssetHref(siteId, b.asset_id)}>Open battery</Link>
+                  <Link to={links.asset(siteId, b.asset_id)}>Open battery</Link>
                 </td>
               </tr>
             ))}

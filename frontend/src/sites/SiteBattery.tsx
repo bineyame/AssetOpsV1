@@ -12,10 +12,9 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
-import { siteAssetHref, siteHealthHref } from "../shell/operatorSiteRoutes";
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type { BatteryDetail, HealthClient } from "./healthClient";
-import { BATTERY_TEXTS, HealthRef, HealthRefusalPanel, useHealthRead } from "./SiteHealth";
+import { BATTERY_TEXTS, HealthRef, HealthRefusalPanel, useHealthLinks, useHealthRead } from "./SiteHealth";
 
 const MISSING_INPUT_WORDS: Record<string, { name: string; why: string }> = {
   ACCEPTED_BATTERY_TEMPERATURE_HISTORY: {
@@ -62,6 +61,7 @@ function sentence(items: string[]): string {
 
 /** `/sites/{site}/assets`: the configured battery, or Unknown (not configured) with no asset ID. */
 export function SiteBatteryEntry({ siteId, client }: { siteId: string; client: HealthClient }) {
+  const links = useHealthLinks();
   const read = useHealthRead(() => client.getBatteryEntry(siteId), `battery:${siteId}`);
   if (read === null) {
     return <p>Loading the site's battery.</p>;
@@ -86,7 +86,7 @@ export function SiteBatteryEntry({ siteId, client }: { siteId: string; client: H
             battery is healthy or faulty.
           </p>
           <p>
-            <Link to={siteHealthHref(siteId)}>Back to Health</Link>
+            <Link to={links.health(siteId)}>Back to Health</Link>
           </p>
         </Panel>
         <BasisDetails entry={entry} />
@@ -99,7 +99,7 @@ export function SiteBatteryEntry({ siteId, client }: { siteId: string; client: H
         <ul>
           {entry.batteries.map((b) => (
             <li key={b.asset_id}>
-              <Link to={siteAssetHref(siteId, b.asset_id)} data-battery-link={b.asset_id}>
+              <Link to={links.asset(siteId, b.asset_id)} data-battery-link={b.asset_id}>
                 <span data-vocabulary-exempt="user-owned">{b.display_name ?? b.asset_code}</span>
               </Link>{" "}
               · condition Unknown
@@ -164,6 +164,7 @@ export function SiteBattery({
   client: HealthClient;
   onTitle?: (title: string) => void;
 }) {
+  const links = useHealthLinks();
   const read = useHealthRead(() => client.getBatteryDetail(siteId, assetId), `asset:${siteId}:${assetId}`);
   const name = read?.status === "loaded" ? read.value.asset.display_name ?? read.value.asset.asset_code : null;
   useEffect(() => {
@@ -176,7 +177,7 @@ export function SiteBattery({
     return (
       <HealthRefusalPanel refusal={read} subject="Battery" headingId="site-battery-refused-heading" texts={DETAIL_TEXTS}>
         <p>
-          <Link to={siteHealthHref(siteId)}>Back to Health</Link>
+          <Link to={links.health(siteId)}>Back to Health</Link>
         </p>
       </HealthRefusalPanel>
     );
@@ -260,7 +261,7 @@ export function SiteBattery({
       </Panel>
       <div className="notice notice--info" role="note">
         Unknown here means not yet measurable. It does not mean normal, and it does not mean faulty.{" "}
-        <Link to={siteHealthHref(siteId)}>Back to Health</Link>
+        <Link to={links.health(siteId)}>Back to Health</Link>
       </div>
       <Disclosure name="site-battery-asset-technical" summary="Technical details">
         <FactList>

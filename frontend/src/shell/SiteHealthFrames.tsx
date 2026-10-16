@@ -9,14 +9,15 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 import { createHealthClient, type HealthClient } from "../sites/healthClient";
 import { SiteBattery, SiteBatteryEntry } from "../sites/SiteBattery";
-import { SiteHealth } from "../sites/SiteHealth";
+import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteHealth";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { Breadcrumbs, PageHeader } from "../ui";
-import { siteAssetsHref, siteDetailHref, siteHealthHref } from "./operatorSiteRoutes";
+import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref } from "./operatorSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 const DEFAULT_HEALTH = createHealthClient();
+const LINKS: HealthLinks = { health: siteHealthHref, assets: siteAssetsHref, asset: siteAssetHref };
 export const SITE_HEALTH_HEADING_ID = "site-health-heading";
 export const SITE_BATTERY_HEADING_ID = "site-battery-heading";
 
@@ -50,7 +51,9 @@ export function SiteHealthFrame({
             subtitle="Health · gateway contact, what gateways report, and battery condition, kept separate"
           />
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
-          <SiteHealth siteId={site.site_id} client={health} selectedGateway={gateway} />
+          <HealthLinksContext.Provider value={LINKS}>
+            <SiteHealth siteId={site.site_id} client={health} selectedGateway={gateway} />
+          </HealthLinksContext.Provider>
         </main>
       )}
     </SiteScoped>
@@ -81,7 +84,9 @@ export function SiteAssetsFrame({
           />
           <PageHeader title="Battery" headingId={SITE_BATTERY_HEADING_ID} subtitle={`Site: ${site.display_name}`} />
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
-          <SiteBatteryEntry siteId={site.site_id} client={health} />
+          <HealthLinksContext.Provider value={LINKS}>
+            <SiteBatteryEntry siteId={site.site_id} client={health} />
+          </HealthLinksContext.Provider>
         </main>
       )}
     </SiteScoped>
@@ -115,7 +120,9 @@ export function SiteAssetFrame({
           />
           <PageHeader title={title} headingId={SITE_BATTERY_HEADING_ID} subtitle={`Health · site: ${site.display_name}`} />
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
-          <SiteBattery siteId={site.site_id} assetId={assetId ?? ""} client={health} onTitle={onTitle} />
+          <HealthLinksContext.Provider value={LINKS}>
+            <SiteBattery siteId={site.site_id} assetId={assetId ?? ""} client={health} onTitle={onTitle} />
+          </HealthLinksContext.Provider>
         </main>
       )}
     </SiteScoped>
