@@ -298,7 +298,7 @@ function HealthBody({
             </p>
           </Panel>
         ) : (
-          <SelectedGateway siteId={siteId} row={selected} />
+          <SelectedGateway siteId={siteId} row={selected} readAt={doc.read_at} />
         )
       ) : null}
       {battery}
@@ -463,7 +463,7 @@ function HealthBody({
   );
 }
 
-function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRow }) {
+function SelectedGateway({ siteId, row, readAt }: { siteId: string; row: GatewayHealthRow; readAt: string }) {
   const links = useHealthLinks();
   const f = row.reported_facts;
   const d = row.diagnostic;
@@ -476,7 +476,7 @@ function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRo
       <ProductStatus
         words={gatewayContactWords(row)}
         scope={<>Gateway <HealthRef value={row.gateway_external_id} /> · contact</>}
-        asOf={row.contact.last_received_at ?? null}
+        asOf={readAt}
       />
       <FactList>
         <Fact term="Registration">{row.registration === "DISABLED" ? "Disabled (not counted)" : "Enabled"}</Fact>
