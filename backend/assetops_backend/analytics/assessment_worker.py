@@ -46,13 +46,19 @@ from assetops_backend.analytics.assessment_ports import (
     RunOutput,
 )
 from assetops_backend.analytics.cohort import select_cohort
-from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2, roles_for
+from assetops_backend.sites.binding_roles import (
+    ROLE_SET_MINIGRID_1,
+    ROLE_SET_MINIGRID_2,
+    ROLE_SET_MINIGRID_3,
+    roles_for,
+)
 
 DOMAIN = "dispatch"
 DAY = timedelta(days=1)
 DISPATCH_ROLES = (dispatch_v3.GEN_STATE, dispatch_v3.GEN_POWER, dispatch_v3.LOAD, dispatch_v3.PV_AVAILABLE,
                   dispatch_v3.DISCHARGE, dispatch_v3.SOC)
-ROLES_BY_SET = {s: tuple(roles_for(s)) for s in (ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2)}
+ROLES_BY_SET = {s: tuple(roles_for(s)) for s in (ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2,
+                                                    ROLE_SET_MINIGRID_3)}
 
 
 def utc_now() -> datetime:

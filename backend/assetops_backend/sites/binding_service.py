@@ -35,6 +35,11 @@ from assetops_backend.sites.binding_alignment import (
 )
 from assetops_backend.sites.binding_roles import (
     ROLE_SET_BY_SITE_TYPE,
+    VERIFICATION_MESSAGES,
+    VERIFICATION_POINT_ROLES,
+    VERIFICATION_POWER_ROLES,
+    VERIFICATION_READINESS_VERSION,
+    VERIFICATION_ROLE_SETS,
     serves,
     Role,
     conversion_problem,
@@ -208,6 +213,15 @@ def _declared_signals(content: Mapping[str, Any]) -> dict[tuple[str, str], str]:
     }
 
 
+def critical_load_code(content: Mapping[str, Any]) -> str | None:
+    """The first member of a Foundation's critical-load-priority control, or None."""
+    for control in content.get("site_controls") or ():
+        if control.get("control_key") == "critical-load-priority":
+            members = list(control.get("members") or ())
+            return str(members[0]) if members else None
+    return None
+
+
 def validate_bindings(
     site: StoredSite,
     role_set: str,
@@ -254,6 +268,8 @@ def validate_bindings(
         for role in roles.values():
             if role.cardinality != "ONE" or not (role.required or role.role in requested_roles):
                 continue
+            if role.critical_load:
+                continue  # the critical-load-priority control names the one asset
             eligible = sorted(c["component_id"] for c in components if c.get("component_type") == role.asset_type)
             if len(eligible) > 1:
                 problem(
@@ -322,6 +338,15 @@ def validate_bindings(
                     "BINDING_ROLE_ASSET_MISMATCH", index,
                     f"{role.label} describes a {role.asset_type} asset; {asset.asset_code} is {asset.asset_type}.",
                 )
+            if role.critical_load and asset is not None:
+                for row in foundation:
+                    first = critical_load_code(row.content)
+                    if first != asset.asset_code:
+                        problem(
+                            "BINDING_CRITICAL_LOAD_MISMATCH", index,
+                            f"{role.label} must name the first load of the critical-load priority in Foundation "
+                            f"v{row.version} ({first or 'not configured'}), not {asset.asset_code}.",
+                        )
             if role.role == "battery_soc" and asset is not None:
                 # The state of charge and the reserve control must describe one battery.
                 for row in foundation:
@@ -731,7 +756,11 @@ def readiness(
         state = "INCOMPLETE"
     else:
         state = "READY_TO_REPORT"
+    extra: dict[str, Any] = {}
+    if binding_set is not None and role_set in VERIFICATION_ROLE_SETS:
+        extra["verification_readiness"] = verification_readiness(roles, bindings, loads)
     return {
+        **extra,
         "role_set": role_set,
         "state": state,
         "binding_set_revision_id": None if binding_set is None else str(binding_set.id),
@@ -747,6 +776,34 @@ def readiness(
     }
 
 
+
+
+def verification_readiness(
+    roles: dict[str, Role], bindings: Sequence[BindingRow], loads: Sequence[Any],
+) -> dict[str, Any]:
+    """S6-02a: which verification input roles this binding set leaves unbound.
+
+    Additive to configuration readiness and only for a verification role set
+    (roles-3); it says what to bind and publish, not whether data arrived.
+    `feeder_demand` needs a binding for every load asset.
+    """
+    missing: list[dict[str, Any]] = []
+    for name in VERIFICATION_POWER_ROLES + VERIFICATION_POINT_ROLES:
+        role = roles.get(name)
+        if role is None:
+            continue
+        bound = [b for b in bindings if b.role == name]
+        lab_message, site_message = VERIFICATION_MESSAGES[name]
+        entry = {"role": name, "label": role.label, "lab_message": lab_message, "site_message": site_message}
+        if role.cardinality == "PER_ASSET" and role.asset_type == "LOAD":
+            unbound = [load for load in loads if not any(b.asset_id == load.id for b in bound)]
+            if not loads:
+                missing.append({**entry, "asset_codes": []})
+            elif unbound:
+                missing.append({**entry, "asset_codes": [load.asset_code for load in unbound]})
+        elif not bound:
+            missing.append(entry)
+    return {"version": VERIFICATION_READINESS_VERSION, "ready": not missing, "missing": missing}
 
 
 @dataclass(frozen=True)

@@ -14,6 +14,11 @@ configuration, in this order (`--steps` may name only the first):
    every current binding unchanged
    plus the two declared simulated capability channels.
 
+S6-02a: `backend/conversions/kobo-001-s6-verification-demo-config.json` is the
+same shape under `minigrid-roles-3` (effective 2026-10-12): the capability
+channels plus the critical load's simulated requested and delivered power
+that `registered-kobo-publication` v4 publishes.
+
 Earlier periods are split, never rewritten, so roles-1 bases before the
 bindings instant stay selectable. Idempotent: a rerun publishes nothing and prints the
 versions already in effect. Not an operator route.
