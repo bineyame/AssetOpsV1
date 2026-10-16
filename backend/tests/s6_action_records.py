@@ -106,7 +106,10 @@ def _case(response, method: str, path: str, body: dict | None = None) -> dict:
     return out
 
 
-def build(runner, cases: dict, make_harness: Callable[..., Any]) -> tuple[dict, dict]:
+def build(runner, cases: dict, make_harness: Callable[..., Any], *,
+          second_created_after: timedelta | None = None) -> tuple[dict, dict]:
+    """`second_created_after` (S6-03): accept the second Action that much after the first, so the Site Work list
+    has two distinct creation times. The default keeps the committed contract fixture's single creation instant."""
     from sqlalchemy import text
 
     for case in (cases["F01"], cases["F02"], authored_case(INELIGIBLE_DAY, "30")):
@@ -145,7 +148,10 @@ def build(runner, cases: dict, make_harness: Callable[..., Any]) -> tuple[dict, 
         action_id = rec["accept_created"]["body"]["action"]["action_id"]
         # A second Action (F02, the same 20 -> 15 trial), accepted while its basis is current.
         # S6-02a's battery-scoped hold refuses it through the API now, so it is written as S6-01 accepted it.
+        if second_created_after is not None:
+            h.clock.at = T_ACCEPT + second_created_after
         second = accepted_before_battery_hold(h, f02, "fixture-accept-f02")
+        h.clock.at = T_ACCEPT
         action_path = f"{base}/actions/{action_id}"
 
         overview: dict[str, Any] = {"accepted_pending": get(h.client, action_path)}

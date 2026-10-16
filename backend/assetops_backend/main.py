@@ -48,6 +48,8 @@ from assetops_backend.finding_api import ACCESS_BASIS, build_finding_router, dev
 from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
+from assetops_backend.actions.site_index import ActionIndexService
+from assetops_backend.action_index_api import build_action_index_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
 from assetops_backend.financials.composition import (
@@ -386,10 +388,14 @@ def create_app(
         build_finding_index_service(database_url(), finding_manifest) if database_url() else None,
         registry.ledger_scope, finding_store_unavailable(), gate=performance_gate))
     # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
+    actions = (build_action_service(database_url(), finding_reads, registry=registry)
+               if finding_reads is not None else None)
     app.include_router(build_action_router(
-        build_action_service(database_url(), finding_reads, registry=registry)
-        if finding_reads is not None else None,
-        registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE), gate=performance_gate))
+        actions, registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE), gate=performance_gate))
+    # S6-03: the Site Work Action index over the same Action store (D-2026-10-16-a-action-index).
+    app.include_router(build_action_index_router(
+        ActionIndexService(actions.store, clock=actions.clock) if actions is not None else None,
+        registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE)))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
     # S4-02a phase 2: Site price reads (Finding-read scope semantics; typed 503 without a database).
