@@ -15,7 +15,7 @@ Site's current covering FoundationRevision.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
@@ -49,6 +49,17 @@ EVENT_COLUMNS = ("id, tenant_id, site_id, action_id, kind, occurred_at, recorded
                  "source_channel, authorization_basis, triggering_service, triggering_job, triggering_command, "
                  "triggering_fixture, idempotency_key, payload, payload_sha256, failure_code, observation_code, "
                  "expected_foundation_revision_id, current_foundation_revision_id")
+PLAN_COLUMNS = ("id, tenant_id, site_id, action_id, plan_version, supersedes_plan_id, origin_finding_revision_id, "
+                "applied_event_id, change_id, old_foundation_revision_id, new_foundation_revision_id, battery_asset_id, "
+                "field, rule_id, effective_from, baseline_start, baseline_end, later_start, later_end, "
+                "baseline_candidate_seconds, baseline_selection, baseline_evidence_ids, basis, target, guardrails, bands, "
+                "coverage, later_selection_rule, plan_sha256, actor_kind, actor_id, source_channel, "
+                "authorization_basis, triggering_service, triggering_fixture, idempotency_key, payload, payload_sha256, "
+                "recorded_at")
+PLAN_JSON = frozenset({"baseline_selection", "baseline_evidence_ids", "basis", "target", "guardrails", "bands",
+                       "coverage", "later_selection_rule", "payload"})
+BINDING_COLUMNS = ("id, tenant_id, site_id, plan_id, window_name, selection, selection_sha256, actor_kind, actor_id, "
+                   "triggering_service, triggering_job, triggering_fixture, recorded_at")
 CHANGE_COLUMNS = ("id, tenant_id, site_id, action_id, applied_event_id, command_idempotency_key, asset_id, field, unit, "
                   "old_value, new_value, expected_foundation_revision_id, superseded_foundation_revision_id, "
                   "new_foundation_revision_id, split_foundation_revision_id, effective_from, recorded_at, validity")
@@ -443,6 +454,191 @@ class PostgresActionStore:
              "svc": SYSTEM_DEMO.triggering_service, "cmd": command, "fx": fixture_id, "key": idempotency_key,
              "payload": json.dumps(payload, sort_keys=True), "ps": payload_sha256, "fail": failure_code,
              "obs": OBSERVATION_CODE if kind == OBSERVED else None, "exp": expected, "cur": current})
+
+    # ---- S6-02a verification plan and selection (D-2026-10-16-s6-verification) --------------------------------
+
+    @staticmethod
+    def _covering(c, tenant_id: UUID, site_id: UUID, valid_at: datetime, known_at: datetime) -> list[dict[str, Any]]:
+        """FoundationRevisions valid at `valid_at` under what was recorded by `known_at` (bitemporal)."""
+        return [dict(r._mapping) for r in c.execute(text(
+            "SELECT id, version, valid_from, valid_to FROM foundation_revision WHERE tenant_id = :t "
+            "AND site_id = :s AND valid_from <= :v AND (valid_to IS NULL OR valid_to > :v) AND recorded_at <= :k "
+            "AND (superseded_at IS NULL OR superseded_at > :k)"), {"t": tenant_id, "s": site_id, "v": valid_at,
+                                                                   "k": known_at})]
+
+    def verification_context(self, tenant_id: UUID, site_id: UUID, action_id: UUID, *,
+                             probes: list[datetime], windows: dict[str, tuple[datetime, datetime]],
+                             days: list[datetime], known_at: datetime) -> dict[str, Any] | None:
+        """Everything a plan freeze reads, in one snapshot: the Action and its events, its change artifact, the
+        covering FoundationRevision at each probe instant, bindings covering each whole window, the latest DEFAULT
+        dispatch selection of each UTC day (with its INTERVAL revisions), the Action's plans, and how much accepted
+        evidence already overlaps each window."""
+        def work(c):
+            row = c.execute(text(f"SELECT {ACTION_COLUMNS} FROM action WHERE tenant_id = :t AND site_id = :s "
+                                 "AND id = :a"), {"t": tenant_id, "s": site_id, "a": action_id}).first()
+            if row is None:
+                return None
+            out: dict[str, Any] = {"action": dict(row._mapping)}
+            out["events"] = self._rows(c.execute(text(
+                f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a ORDER BY recorded_at, id"),
+                {"a": action_id}))
+            change = c.execute(text(f"SELECT {CHANGE_COLUMNS} FROM action_policy_change WHERE action_id = :a"),
+                               {"a": action_id}).first()
+            out["change"] = None if change is None else dict(change._mapping)
+            out["covering"] = {p: [r["id"] for r in self._covering(c, tenant_id, site_id, p, known_at)]
+                               for p in probes}
+            out["bindings"] = {name: self._rows(c.execute(text(
+                "SELECT b.role, b.asset_id, b.binding_set_revision_id, bs.role_set FROM signal_binding_revision b "
+                "JOIN signal_binding_set_revision bs ON bs.id = b.binding_set_revision_id WHERE b.tenant_id = :t "
+                "AND b.site_id = :s AND b.valid_from <= :lo AND (b.valid_to IS NULL OR b.valid_to >= :hi) "
+                "AND b.recorded_at <= :k AND (b.superseded_at IS NULL OR b.superseded_at > :k) "
+                "ORDER BY b.role, b.asset_id"), {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known_at}))
+                for name, (lo, hi) in windows.items()}
+            out["days"] = [self._day_selection(c, tenant_id, site_id, day, known_at) for day in days]
+            out["plans"] = self._rows(c.execute(text(
+                f"SELECT {PLAN_COLUMNS} FROM verification_plan WHERE action_id = :a ORDER BY recorded_at, id"),
+                {"a": action_id}))
+            out["outcome_plan_ids"] = {r.plan_id for r in c.execute(text(
+                "SELECT DISTINCT plan_id FROM verification_outcome WHERE action_id = :a"), {"a": action_id})}
+            out["accepted_in_window"] = {name: self._accepted_count(c, tenant_id, site_id, lo, hi, known_at)
+                                         for name, (lo, hi) in windows.items()}
+            return out
+        return self._read(work)
+
+    @staticmethod
+    def _accepted_count(c, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime, known_at: datetime) -> int:
+        """Accepted evidence (any role) of this Site whose time overlaps `[lo, hi)`, accepted by `known_at`."""
+        return int(c.execute(text(
+            "SELECT count(*) FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+            "AND d.ordinal = e.ordinal WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
+            "AND d.accepted_evidence_id = e.id AND d.decided_at <= :k AND e.source_time >= :lo "
+            "AND COALESCE(e.interval_start, e.source_time) < :hi"),
+            {"t": tenant_id, "s": site_id, "k": known_at, "lo": lo, "hi": hi}).scalar_one())
+
+    def _day_selection(self, c, tenant_id: UUID, site_id: UUID, day: datetime, known_at: datetime) -> dict[str, Any]:
+        """The latest DEFAULT `dispatch` selection of one UTC day recorded by `known_at` (S3's head rule:
+        newest selection seq, never newest completion), with its WINDOW and INTERVAL revisions."""
+        head = c.execute(text(
+            "SELECT sel.seq, sel.selected_at, sel.run_id, r.model_version, r.cohort_status, r.cohort_sha256, "
+            "r.input_sha256, r.configuration_sha256 FROM analytic_run_selection sel JOIN analytic_run r "
+            "ON r.id = sel.run_id WHERE sel.tenant_id = :t AND sel.site_id = :s AND sel.analytic_id = 'dispatch' "
+            "AND sel.window_start = :ws AND sel.window_end = :we AND sel.selected_at <= :k "
+            "ORDER BY sel.seq DESC LIMIT 1"),
+            {"t": tenant_id, "s": site_id, "ws": day, "we": day + timedelta(days=1), "k": known_at}).first()
+        if head is None:
+            return {"day": day.date().isoformat(), "selected": False}
+        revisions = self._rows(c.execute(text(
+            "SELECT a.scope, r.id, r.assessment_key, r.result FROM analytic_run_assessment a "
+            "JOIN assessment_revision r ON r.id = a.assessment_revision_id WHERE a.run_id = :run "
+            "ORDER BY a.scope, r.assessment_key"), {"run": head.run_id}))
+        return {"day": day.date().isoformat(), "selected": True, "selection_seq": head.seq,
+                "selected_at": head.selected_at, "run_id": head.run_id, "model_version": head.model_version,
+                "cohort_status": head.cohort_status, "cohort_sha256": head.cohort_sha256,
+                "input_sha256": head.input_sha256, "configuration_sha256": head.configuration_sha256,
+                "window_revision_ids": [r["id"] for r in revisions if r["scope"] == "WINDOW"],
+                "intervals": [{"assessment_revision_id": r["id"], "assessment_key": r["assessment_key"],
+                               "result": r["result"]} for r in revisions if r["scope"] == "INTERVAL"]}
+
+    def day_selections(self, tenant_id: UUID, site_id: UUID, days: list[datetime],
+                       known_at: datetime) -> list[dict[str, Any]]:
+        return self._read(lambda c: [self._day_selection(c, tenant_id, site_id, d, known_at) for d in days])
+
+    def window_readings(self, tenant_id: UUID, site_id: UUID, start: datetime, end: datetime, roles: list[str],
+                        known_at: datetime) -> list[dict[str, Any]]:
+        """Accepted evidence of these roles touching `[start, end]` (the closed end keeps the terminal SOC sample),
+        as accepted by `known_at`."""
+        return self._read(lambda c: self._rows(c.execute(text(
+            "SELECT e.id, e.role, e.asset_id, e.measurement, e.source_time, e.interval_start, e.interval_end, "
+            "e.normalized_value_text, e.normalized_unit, e.quality, e.envelope_sha256, e.batch_id, d.decided_at "
+            "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+            "AND d.ordinal = e.ordinal WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
+            "AND d.accepted_evidence_id = e.id AND d.decided_at <= :k AND e.source_time >= :lo "
+            "AND COALESCE(e.interval_start, e.source_time) <= :hi AND e.role = ANY(:roles) "
+            "ORDER BY e.source_time, e.id"),
+            {"t": tenant_id, "s": site_id, "k": known_at, "lo": start, "hi": end, "roles": list(roles)})))
+
+    def reserve_history(self, tenant_id: UUID, site_id: UUID, battery_asset_id: Any, start: datetime,
+                        end: datetime, known_at: datetime) -> list[dict[str, Any]]:
+        """The battery's configured reserve on each FoundationRevision overlapping `[start, end)` as known at
+        `known_at`, with that revision's validity."""
+        def work(c):
+            assets = {r.asset_code: r.id for r in c.execute(text(
+                "SELECT id, asset_code FROM asset WHERE tenant_id = :t AND site_id = :s"),
+                {"t": tenant_id, "s": site_id})}
+            rows = self._rows(c.execute(text(
+                "SELECT id, version, valid_from, valid_to, content FROM foundation_revision WHERE tenant_id = :t "
+                "AND site_id = :s AND valid_from < :hi AND (valid_to IS NULL OR valid_to > :lo) "
+                "AND recorded_at <= :k AND (superseded_at IS NULL OR superseded_at > :k) ORDER BY valid_from"),
+                {"t": tenant_id, "s": site_id, "lo": start, "hi": end, "k": known_at}))
+            out = []
+            for row in rows:
+                for entry in _basis(row, assets).reserves:
+                    if str(entry.asset_id) == str(battery_asset_id):
+                        out.append({"foundation_revision_id": row["id"], "value": entry.value,
+                                    "valid_from": row["valid_from"], "valid_to": row["valid_to"]})
+            return out
+        return self._read(work)
+
+    def freeze_plan(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], *,
+                    check: Callable[[Any, list[dict[str, Any]]], None]) -> tuple[dict[str, Any], bool]:
+        """Insert one immutable plan revision under the battery trial lock, or return the plan already frozen
+        with this idempotency key (`replayed=True`; the caller compares the payload digest). `check(c, plans)`
+        re-validates the Action's plan chain and the later-window cutoff under the lock and raises to refuse."""
+        def work(c):
+            self.trial_lock(c, tenant_id, site_id, plan["battery_asset_id"], plan["rule_id"])
+            existing = c.execute(text(f"SELECT {PLAN_COLUMNS} FROM verification_plan WHERE action_id = :a "
+                                      "AND idempotency_key = :k"),
+                                 {"a": plan["action_id"], "k": plan["idempotency_key"]}).first()
+            if existing is not None:
+                return dict(existing._mapping), True
+            plans = self._rows(c.execute(text(
+                f"SELECT {PLAN_COLUMNS} FROM verification_plan WHERE action_id = :a ORDER BY recorded_at, id"),
+                {"a": plan["action_id"]}))
+            check(c, plans)
+            values = {**plan, "tenant_id": tenant_id, "site_id": site_id}
+            columns = [col.strip() for col in PLAN_COLUMNS.split(",")]
+            params = ", ".join(f"CAST(:{col} AS jsonb)" if col in PLAN_JSON else f":{col}" for col in columns)
+            c.execute(text(f"INSERT INTO verification_plan ({PLAN_COLUMNS}) VALUES ({params})"),
+                      {col: json.dumps(values[col], sort_keys=True, default=str) if col in PLAN_JSON else values[col]
+                       for col in columns})
+            return dict(c.execute(text(f"SELECT {PLAN_COLUMNS} FROM verification_plan WHERE id = :i"),
+                                  {"i": plan["id"]}).one()._mapping), False
+        return self._run(work)
+
+    def accepted_count(self, c, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                       known_at: datetime) -> int:
+        return self._accepted_count(c, tenant_id, site_id, lo, hi, known_at)
+
+    def append_selection_binding(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any],
+                                 binding: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+        """Append the later window's selection binding, or return the plan's latest binding when it already
+        pins the same selection digest (`replayed=True`)."""
+        def work(c):
+            self.trial_lock(c, tenant_id, site_id, plan["battery_asset_id"], plan["rule_id"])
+            latest = c.execute(text(
+                f"SELECT {BINDING_COLUMNS} FROM verification_selection_binding WHERE plan_id = :p "
+                "ORDER BY recorded_at DESC, id DESC LIMIT 1"), {"p": plan["id"]}).first()
+            if latest is not None and latest.selection_sha256 == binding["selection_sha256"]:
+                return dict(latest._mapping), True
+            values = {**binding, "tenant_id": tenant_id, "site_id": site_id, "plan_id": plan["id"]}
+            columns = [col.strip() for col in BINDING_COLUMNS.split(",")]
+            params = ", ".join("CAST(:selection AS jsonb)" if col == "selection" else f":{col}" for col in columns)
+            c.execute(text(f"INSERT INTO verification_selection_binding ({BINDING_COLUMNS}) VALUES ({params})"),
+                      {col: json.dumps(values[col], sort_keys=True, default=str) if col == "selection"
+                       else values[col] for col in columns})
+            return dict(c.execute(text(f"SELECT {BINDING_COLUMNS} FROM verification_selection_binding "
+                                       "WHERE id = :i"), {"i": binding["id"]}).one()._mapping), False
+        return self._run(work)
+
+    def plans(self, tenant_id: UUID, site_id: UUID, action_id: UUID) -> list[dict[str, Any]]:
+        return self._read(lambda c: self._rows(c.execute(text(
+            f"SELECT {PLAN_COLUMNS} FROM verification_plan WHERE tenant_id = :t AND site_id = :s AND action_id = :a "
+            "ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "a": action_id})))
+
+    def selection_bindings(self, tenant_id: UUID, site_id: UUID, plan_id: UUID) -> list[dict[str, Any]]:
+        return self._read(lambda c: self._rows(c.execute(text(
+            f"SELECT {BINDING_COLUMNS} FROM verification_selection_binding WHERE tenant_id = :t AND site_id = :s "
+            "AND plan_id = :p ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "p": plan_id})))
 
     # ---- change artifact reads -----------------------------------------------------------------------------
 

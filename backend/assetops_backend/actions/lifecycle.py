@@ -21,7 +21,9 @@ from uuid import UUID
 
 ACCEPTED, APPLIED, FAILED, OBSERVED = "ACCEPTED", "APPLIED", "FAILED", "OBSERVED"
 EVENT_KINDS = (ACCEPTED, APPLIED, FAILED, OBSERVED)
-COMMANDS = ("ACCEPT", "APPLY", "OBSERVE")
+# S6-02a: VERIFY lets a SYSTEM demonstration freeze a verification plan or bind its later selection; it never
+# supplies a metric, verdict or resolution event.
+COMMANDS = ("ACCEPT", "APPLY", "OBSERVE", "VERIFY")
 OBSERVATION_CODE = "DEMO_REVIEW_NOTE"
 
 # Reduced application states.
