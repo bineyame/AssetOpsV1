@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { DataTable, Disclosure, Fact, FactList, MissingClaim, Panel } from "../ui";
+import { ConsequenceHistoryPanel, ConsequenceHistoryRefused } from "./ConsequenceHistory";
 import type {
   AssumptionRevisionBody,
+  ConsequenceHistoryBody,
+  ConsequenceHistoryResult,
   AssumptionSeriesBody,
   FinancialReadResult,
   FinancialsClient,
@@ -34,7 +37,7 @@ export interface FinancialsLinks {
   /** The Finding version's accepted evidence (S4-03). */
   evidence: (findingId: string, revisionId: string) => string;
   /** Assumptions, optionally pinned to an exact version or a recorded cutoff. */
-  assumptions: (pin?: { revisionId?: string | null; recordedAt?: string | null }) => string;
+  assumptions: (pin?: { revisionId?: string | null; recordedAt?: string | null; historyAfter?: string | null }) => string;
   /** The Overview pinned to one exact fuel cost version of the same Finding version (null: the latest). */
   consequence: (findingId: string, revisionId: string, consequenceRevisionId: string | null) => string;
   findings: string;
@@ -87,8 +90,8 @@ function ReadRefused({ read, what }: { read: Exclude<FinancialReadResult<unknown
   );
 }
 
-function useRead<T>(load: () => Promise<FinancialReadResult<T>>, deps: unknown[]): FinancialReadResult<T> | null {
-  const [read, setRead] = useState<FinancialReadResult<T> | null>(null);
+function useRead<T, R = FinancialReadResult<T>>(load: () => Promise<R>, deps: unknown[]): R | null {
+  const [read, setRead] = useState<R | null>(null);
   useEffect(() => {
     let active = true;
     setRead(null);
@@ -194,16 +197,29 @@ export function SiteAssumptions({
   now?: () => string;
 }) {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const revisionId = params.get("revision_id");
   const recordedAtRaw = params.get("recorded_at");
   const recordedAt = recordedAtRaw !== null && !Number.isNaN(new Date(recordedAtRaw).getTime()) ? recordedAtRaw : null;
+  const historyAfter = recordedAt !== null ? params.get("history_after") : null;
   const [after, setAfter] = useState(0);
   // Review L5 (S4-02a): "Show later versions" appends to the versions already shown rather than replacing them.
   const [earlier, setEarlier] = useState<PriceRevision[]>([]);
   const [validAt] = useState(now);
-  const series = useRead(
-    () => client.getAssumptions(siteId, { validAt, recordedAt, afterRevisionNo: after }),
-    [client, siteId, validAt, recordedAt, after],
+  // S4-08: the fuel cost history is read first. On the default address its server-fixed cutoff string, passed on
+  // unchanged (review L-R1), is the moment the price list is read at, so both lists describe one instant; the
+  // address itself is not rewritten. An explicit `recorded_at` address reads both at that moment.
+  const historyRead = useRead<ConsequenceHistoryBody, ConsequenceHistoryResult>(
+    () => client.getConsequenceHistory(siteId, { recordedAt, after: historyAfter }),
+    [client, siteId, recordedAt, historyAfter],
+  );
+  const cutoff = recordedAt ?? (historyRead?.status === "loaded" ? historyRead.value.cutoff.recorded_at : null);
+  const series = useRead<AssumptionSeriesBody | null>(
+    () =>
+      cutoff === null
+        ? Promise.resolve({ status: "loaded", value: null } as const)
+        : client.getAssumptions(siteId, { validAt, recordedAt: cutoff, afterRevisionNo: after }),
+    [client, siteId, validAt, cutoff, after],
   );
   const exact = useRead<AssumptionRevisionBody | null>(
     () =>
@@ -215,16 +231,45 @@ export function SiteAssumptions({
   useEffect(() => {
     setAfter(0);
     setEarlier([]);
-  }, [recordedAt]);
+  }, [cutoff]);
+  // S4-08: a changed basis (typed 409) reloads the history from its first page at the same moment.
+  const basisChanged = historyRead?.status === "basis_changed";
+  useEffect(() => {
+    if (basisChanged) navigate(links.assumptions({ revisionId, recordedAt }), { replace: true });
+  }, [basisChanged, navigate, links, revisionId, recordedAt]);
 
   if (recordedAtRaw !== null && recordedAt === null) {
     return <ReadRefused read={{ status: "not_found", message: null }} what="recorded date" />;
   }
-  if (series === null || exact === null) {
+  if (historyRead === null || exact === null) {
+    return <p>Loading the site's prices.</p>;
+  }
+  const historyPanel =
+    historyRead.status === "loaded" ? (
+      <ConsequenceHistoryPanel body={historyRead.value} siteName={`Site ${siteId}`} links={links} />
+    ) : (
+      <ConsequenceHistoryRefused read={historyRead} />
+    );
+  if (cutoff === null) {
+    // Review L-R2: without the history's moment there is no shared moment for the prices either. A plain
+    // refusal, never a silent fall back to the current price list.
+    return (
+      <section className="site-financials" aria-label="Site prices" data-price-cutoff="NONE">
+        <Panel heading="Prices unavailable" headingId="site-financials-state-heading">
+          <p data-financials-read="no-cutoff">
+            The moment to show this site's prices at could not be fixed, so no prices are shown right now. Nothing is
+            assumed about them.
+          </p>
+        </Panel>
+        {historyPanel}
+      </section>
+    );
+  }
+  if (series === null || (series.status === "loaded" && series.value === null)) {
     return <p>Loading the site's prices.</p>;
   }
   if (series.status !== "loaded") return <ReadRefused read={series} what="price list" />;
-  const body = series.value;
+  const body = series.value as AssumptionSeriesBody;
   return (
     <section className="site-financials" aria-label="Site prices" data-price-cutoff={body.cutoff.selected_by}>
       {recordedAt !== null ? (
@@ -249,6 +294,7 @@ export function SiteAssumptions({
           setAfter(next);
         }}
       />
+      {historyPanel}
     </section>
   );
 }

@@ -10,7 +10,11 @@ import {
   type AssumptionRevisionBody,
   type AssumptionSeriesBody,
   type FinancialReadResult,
+  type ConsequenceHistoryBody,
+  type ConsequenceHistoryResult,
+  type ConsequenceHistoryRow,
   type ConsequencePin,
+  type HistoryQuery,
   type ConsequenceRevision,
   type FinancialsClient,
   type FindingConsequence,
@@ -247,6 +251,26 @@ interface Asked {
   exact: string[];
   bridge: (string | null)[];
   consequences: ConsequencePin[];
+  history: HistoryQuery[];
+}
+
+/** S4-08: the server-fixed default cutoff, with sub-millisecond digits a `Date` round trip would lose. */
+const CUT = "2026-10-16T09:30:00.123456+00:00";
+
+function historyBody(rows: ConsequenceHistoryRow[] = [], patch: Partial<ConsequenceHistoryBody> = {}): ConsequenceHistoryBody {
+  return {
+    site_code: "KOBO-001",
+    cutoff: { recorded_at: CUT, selected_by: "SERVER_DEFAULT", clock: "DATABASE", membership: "x" },
+    current_amount_shown: false,
+    source_gate: { open: true, reason: null },
+    classification: "x",
+    rows,
+    next_cursor: null,
+    page: { limit: 25, shown: rows.length, is_first: true },
+    zero_statement: rows.length ? null : "x",
+    exclusions: [],
+    ...patch,
+  };
 }
 
 function fake(opts: {
@@ -255,8 +279,9 @@ function fake(opts: {
   bridge?: FinancialReadResult<FindingFinancialsBody>;
   consequences?: FinancialReadResult<FindingConsequencesBody> | ((pin: ConsequencePin) => FinancialReadResult<FindingConsequencesBody>);
   seriesFor?: (query: SeriesQuery) => FinancialReadResult<AssumptionSeriesBody>;
+  history?: ConsequenceHistoryResult | ((query: HistoryQuery) => ConsequenceHistoryResult);
 } = {}): FinancialsClient & { asked: Asked } {
-  const asked: Asked = { series: [], exact: [], bridge: [], consequences: [] };
+  const asked: Asked = { series: [], exact: [], bridge: [], consequences: [], history: [] };
   return {
     asked,
     async getAssumptions(_site, query) {
@@ -282,6 +307,12 @@ function fake(opts: {
     async getFindingFinancials(_site, _finding, rev) {
       asked.bridge.push(rev);
       return opts.bridge ?? { status: "loaded", value: bridgeBody() };
+    },
+    async getConsequenceHistory(_site, query) {
+      asked.history.push(query);
+      const h = opts.history;
+      if (typeof h === "function") return h(query);
+      return h ?? { status: "loaded", value: historyBody([], query.recordedAt ? { cutoff: { recorded_at: query.recordedAt, selected_by: "RECORDED_CUTOFF", clock: "DATABASE", membership: "x" } } : {}) };
     },
     async getFindingConsequences(_site, _finding, pin) {
       asked.consequences.push(pin);
@@ -331,7 +362,10 @@ describe("Site > Financials > Assumptions", () => {
     // The ID is rendered only inside a closed disclosure.
     const id = within(panel).getAllByText(V1)[0];
     expect(id.closest("details")).not.toHaveAttribute("open");
-    expect(client.asked.series[0]).toMatchObject({ recordedAt: null, afterRevisionNo: 0 });
+    // S4-08 (review L-R2, deliberate change): the default view no longer reads the current price list. It reads the
+    // fuel cost history first and passes that read's exact cutoff string to the price read (was `recordedAt: null`).
+    expect(client.asked.history[0]).toEqual({ recordedAt: null, after: null });
+    expect(client.asked.series[0]).toMatchObject({ recordedAt: CUT, afterRevisionNo: 0 });
     const { violations, scanned } = scanProductVocabulary(container, "assumptions");
     expect(scanned).toBeGreaterThan(10);
     expect(violations, describeViolations(violations)).toEqual([]);
@@ -875,4 +909,213 @@ describe("Site > Financials > Overview: S4-05b stored source gate", () => {
       expect(violations, describeViolations(violations)).toEqual([]);
     },
   );
+});
+
+/** S4-08: one recorded fuel cost version as the history read returns it. */
+function hrow(id: string, patch: Partial<ConsequenceHistoryRow> = {}): ConsequenceHistoryRow {
+  return {
+    finding_id: FINDING,
+    finding_revision_id: FREV,
+    finding_revision_no: 2,
+    finding_title: "Generator ran while the battery could have carried the load",
+    finding_window: { from: "2026-10-06T08:05:00+00:00", to: "2026-10-06T08:30:00+00:00", bounds: "[from, to)" },
+    consequence_revision_id: id,
+    revision_no: 2,
+    prior_consequence_revision_id: null,
+    recorded_at: "2026-10-16T09:00:00.000321+00:00",
+    window: { from: "2026-10-06T08:05:00+00:00", to: "2026-10-06T08:30:00+00:00", bounds: "[from, to)" },
+    at_cutoff: "CURRENT_AT_CUTOFF",
+    state: "PRICED",
+    quantity: { state: "AVAILABLE", reason: null, unit: "L", high: "2.75" },
+    price: { state: "LINKED", price_revision_id: V1, reason: null, value: "1.25", currency: "USD", assignments: [] },
+    change_from_prior: "PRICE_ONLY",
+    recorded_amount: {
+      disposition: "SHOWN",
+      label: "Recorded amount — historical, assumption-conditioned audit history",
+      amount: { low: "0.00", high: "3.44", currency: "USD" },
+      is_current_amount: false,
+    },
+    source_provenance: authoredSource(id),
+    links: { finding: "x", finding_financials: "x", price_revision: "x", api_consequence: "x" },
+    ...patch,
+  };
+}
+
+const H1 = "c1000000-0000-4000-8000-000000000001";
+const H2 = "c2000000-0000-4000-8000-000000000002";
+const H3 = "c3000000-0000-4000-8000-000000000003";
+const H4 = "c4000000-0000-4000-8000-000000000004";
+
+function echoSeries(query: SeriesQuery): FinancialReadResult<AssumptionSeriesBody> {
+  return {
+    status: "loaded",
+    value: series({
+      cutoff: { recorded_at: query.recordedAt ?? null, selected_by: query.recordedAt ? "RECORDED_CUTOFF" : "CURRENT", basis: "x" },
+    }),
+  };
+}
+
+function escaped(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () => {
+  it("reads prices at the history's exact cutoff string on the default address, without rewriting it", async () => {
+    const client = fake({ seriesFor: echoSeries });
+    mount(client, "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    expect(client.asked.history).toEqual([{ recordedAt: null, after: null }]);
+    // Review L-R1: the same string, microseconds included, never a `Date` round trip.
+    expect(client.asked.series.map((q) => q.recordedAt)).toEqual([CUT]);
+    expect(screen.getByTestId("where")).toHaveTextContent(/^\/sites\/KOBO-001\/financials\/assumptions$/);
+    // Review L-R2 (deliberate change): the default price list is now read at a recorded cutoff, not CURRENT.
+    expect(document.querySelector("[data-price-cutoff]")).toHaveAttribute("data-price-cutoff", "RECORDED_CUTOFF");
+    expect(screen.queryByRole("link", { name: "Show the current prices" })).toBeNull();
+    expect(document.querySelector("[data-history-cutoff]")).toHaveAttribute("data-history-cutoff", CUT);
+  });
+
+  it("keeps an explicit cutoff for both reads and through the next-page address", async () => {
+    const at = "2026-10-15T07:00:00.000009+00:00";
+    const client = fake({
+      seriesFor: echoSeries,
+      history: (q) => ({
+        status: "loaded",
+        value: historyBody([hrow(H1)], {
+          cutoff: { recorded_at: q.recordedAt ?? CUT, selected_by: "RECORDED_CUTOFF", clock: "DATABASE", membership: "x" },
+          next_cursor: q.after ? null : "cursor-1",
+          page: { limit: 25, shown: 1, is_first: !q.after },
+        }),
+      }),
+    });
+    mount(client, `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}`);
+    await settledScreen();
+    expect(client.asked.history[0]).toEqual({ recordedAt: at, after: null });
+    expect(client.asked.series[0].recordedAt).toBe(at);
+    fireEvent.click(screen.getByRole("link", { name: "Show earlier versions" }));
+    await settledScreen();
+    expect(screen.getByTestId("where")).toHaveTextContent(
+      `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_after=cursor-1`,
+    );
+    expect(client.asked.history.at(-1)).toEqual({ recordedAt: at, after: "cursor-1" });
+    expect(client.asked.series.every((q) => q.recordedAt === at)).toBe(true);
+    expect(screen.getByRole("link", { name: "Back to the newest versions" })).toBeInTheDocument();
+  });
+
+  it("lists earlier and latest versions with recorded amounts only as labelled history, and exact links", async () => {
+    const rows = [
+      hrow(H4),
+      hrow(H3, {
+        at_cutoff: "HISTORICAL_AT_CUTOFF",
+        revision_no: 1,
+        change_from_prior: "FIRST_VERSION",
+        state: "UNPRICED",
+        price: { state: "NO_PRICE_LINK", price_revision_id: null, reason: "NO_PRICE", value: null, currency: null, assignments: [] },
+        recorded_amount: { disposition: "UNPRICED", label: null, amount: null, is_current_amount: false },
+      }),
+      hrow(H2, {
+        finding_id: "f0000000-0000-4000-8000-000000000009",
+        source_provenance: { ...authoredSource(H2), state: "MIXED" },
+        recorded_amount: { disposition: "MIXED_OR_UNKNOWN_SOURCE", label: null, amount: null, is_current_amount: false },
+      }),
+    ];
+    const { container } = mount(
+      fake({ seriesFor: echoSeries, history: { status: "loaded", value: historyBody(rows) } }),
+      "/sites/KOBO-001/financials/assumptions",
+    );
+    await settledScreen();
+    const panel = screen.getByRole("region", { name: "Interpretation history" });
+    const items = Array.from(panel.querySelectorAll("[data-history-row]")) as HTMLElement[];
+    expect(items.map((i) => i.getAttribute("data-history-at-cutoff"))).toEqual([
+      "CURRENT_AT_CUTOFF",
+      "HISTORICAL_AT_CUTOFF",
+      "CURRENT_AT_CUTOFF",
+    ]);
+    const latest = items[0];
+    expect(latest).toHaveTextContent("Latest at this moment");
+    expect(latest).toHaveTextContent("The price changed; the measured result did not.");
+    expect(latest).toHaveTextContent(
+      "0.00 to 3.44 USD. Recorded amount — historical, assumption-conditioned audit history. Not a current cost.",
+    );
+    expect(latest).toHaveTextContent("Prepared example data.");
+    expect(within(latest).getByRole("link", { name: "Open this fuel cost version" })).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}&consequence_revision_id=${H4}`,
+    );
+    expect(within(latest).getByRole("link", { name: "Open the finding" })).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001/findings/${FINDING}?revision_id=${FREV}`,
+    );
+    expect(within(latest).getByRole("link", { name: "The price version used" })).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001/financials/assumptions?revision_id=${V1}`,
+    );
+    expect(items[1]).toHaveTextContent("Earlier version");
+    expect(items[1]).toHaveTextContent("No amount. No diesel price is recorded");
+    expect(items[1].querySelector("[data-history-recorded-amount]")).toBeNull();
+    expect(items[2]).toHaveTextContent("Not shown: the source of the readings behind this version is not confirmed.");
+    expect(items[2]).toHaveTextContent("Sources do not agree.");
+    expect(panel).not.toHaveTextContent(/current amount|today.s (amount|cost)/i);
+    // Exact IDs only in each closed "How this was worked out" disclosure.
+    for (const id of within(panel).getAllByText(H4)) expect(id.closest("details")).not.toHaveAttribute("open");
+    const { violations } = scanProductVocabulary(container, "assumptions history");
+    expect(violations, describeViolations(violations)).toEqual([]);
+  });
+
+  it("keeps every version listed without amounts when the source is closed", async () => {
+    const closed = hrow(H1, { recorded_amount: { disposition: "SOURCE_CLOSED", label: null, amount: null, is_current_amount: false } });
+    mount(
+      fake({
+        seriesFor: echoSeries,
+        history: { status: "loaded", value: historyBody([closed], { source_gate: { open: false, reason: "closed" } }) },
+      }),
+      "/sites/KOBO-001/financials/assumptions",
+    );
+    await settledScreen();
+    expect(document.querySelector("[data-history-source-closed]")).toBeInTheDocument();
+    expect(document.querySelector("[data-history-row]")).toHaveTextContent("Not shown: this site's source is closed");
+  });
+
+  it("states an empty history plainly", async () => {
+    mount(fake({ seriesFor: echoSeries }), "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    expect(screen.getByText("No fuel cost version had been recorded for this site at this moment.")).toBeInTheDocument();
+  });
+
+  it("shows a plain refusal for the price list when the history cannot fix a moment (review L-R2)", async () => {
+    const client = fake({ history: { status: "unavailable", message: null } });
+    mount(client, "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    expect(client.asked.series).toEqual([]);
+    expect(document.querySelector("[data-financials-read='no-cutoff']")).toBeInTheDocument();
+    expect(document.querySelector("[data-consequence-history='unavailable']")).toHaveTextContent("This is not an empty history.");
+    expect(screen.queryByRole("region", { name: "Site diesel price" })).toBeNull();
+  });
+
+  it("reloads page one at the same moment when the basis changed (typed 409)", async () => {
+    const at = "2026-10-15T07:00:00.000009+00:00";
+    const client = fake({
+      seriesFor: echoSeries,
+      history: (q) => (q.after ? { status: "basis_changed", message: null } : { status: "loaded", value: historyBody([hrow(H1)]) }),
+    });
+    mount(client, `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}&history_after=stale`);
+    await settledScreen();
+    expect(screen.getByTestId("where")).toHaveTextContent(
+      new RegExp(`^${escaped(`/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}`)}$`),
+    );
+    await vi.waitFor(() => expect(client.asked.history.at(-1)).toEqual({ recordedAt: at, after: null }));
+    await settledScreen();
+    expect(document.querySelector("[data-history-row]")).toBeInTheDocument();
+  });
+
+  it("sends the history cutoff and cursor to the documented route", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => {
+      calls.push(url);
+      return new Response(JSON.stringify({ detail: { code: "CONSEQUENCE_HISTORY_BASIS_CHANGED" } }), { status: 409 });
+    });
+    const result = await createFinancialsClient("/api/sites").getConsequenceHistory("KOBO-001", { recordedAt: CUT, after: "abc" });
+    expect(result.status).toBe("basis_changed");
+    expect(calls[0]).toBe(`/api/sites/KOBO-001/financial-assumptions/consequences?recorded_at=${encodeURIComponent(CUT)}&after=abc`);
+    vi.unstubAllGlobals();
+  });
 });

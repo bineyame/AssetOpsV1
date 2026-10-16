@@ -3422,6 +3422,27 @@ tr[data-selected] > * {
   overflow-wrap: anywhere;
 }
 
+/* S4-08: the Interpretation history list (one recorded fuel cost version per item). */
+.consequence-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.consequence-history__row {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-3);
+}
+
+.consequence-history__row + .consequence-history__row {
+  margin-top: var(--space-4);
+}
+
+.consequence-history__row p {
+  margin: 0 0 var(--space-2);
+  overflow-wrap: anywhere;
+}
+
 .site-financials .data-table tr.is-selected td {
   background: var(--surface-sunken);
 }
