@@ -377,7 +377,7 @@ function AssessedPeriods({
   }
   return (
     <nav aria-label="Assessed periods on this day" data-claim-limit-periods="loaded">
-      <p className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? assessed.value.status}):`}</p>
+      <p className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? "in a state not known"}):`}</p>
       <ul className="claim-limit__periods">
         {assessed.value.periods.map((p) => (
           <li key={p.id}>
@@ -534,7 +534,7 @@ function Loaded({
         </>
       )}
       {read.currentness === "UNASSESSED" ? (
-        <p>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? read.window_status}.`}</p>
+        <p>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</p>
       ) : null}
       {current && read.scope === "WINDOW" && limit !== null && limit.support !== null ? (
         <p data-claim-limit-window-level>{`Across the whole day: ${WINDOW_SUPPORT_WORDS[limit.support] ?? "no overall level stated"}.`}</p>
