@@ -16,6 +16,7 @@ import {
   FOUNDATION_COMPONENT_PARAM,
   siteDetailHref,
   siteEvidenceHref,
+  siteHealthHref,
   siteFoundationHref,
   siteFoundationViewHref,
   sitePerformanceHref,
@@ -143,6 +144,7 @@ export function SiteFoundationFrame({
             siteFoundationViewHref(siteId, segmentOf(target), at, partDeclared === true ? component : null)
           }
           evidenceHref={siteEvidenceHref(siteId)}
+          healthHref={siteHealthHref(siteId)}
           gatewayHealth={gatewayHealth}
           dispatchHref={sitePerformanceHref(siteId, "dispatch")}
           tabs={tabs}

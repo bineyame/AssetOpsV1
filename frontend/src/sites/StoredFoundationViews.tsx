@@ -49,6 +49,7 @@ import {
 import { ComponentTypeIcon } from "./componentIcons";
 import type { GatewayHealthClient } from "./gatewayHealthClient";
 import { GatewayStatusPanel, ReadinessEvidenceTable } from "./ReadinessOverview";
+import { FoundationModelHeadline, FoundationReadinessHeadline, FoundationSldHeadline } from "./foundationHeadlines";
 import { SITE_SLD_HEADING_ID, SiteSldDetails, SiteSldPrimary } from "./SiteSingleLineDiagram";
 import type {
   BindingPublishOutcome,
@@ -73,6 +74,8 @@ export interface StoredFoundationViewsProps {
   dispatchHref?: string;
   /** The Site's Evidence address, where claim readiness lives. */
   evidenceHref: string;
+  /** The Site's Health address, where source contact and reporting live (W1-UX-05). */
+  healthHref: string;
   snapshotHref: string;
   onPublish: (assetCode: string, value: number, validFrom: string) => Promise<PublishOutcome>;
   onPublishBindings: (validFrom: string, bindings: SignalBinding[], note: string) => Promise<BindingPublishOutcome>;
@@ -179,6 +182,12 @@ function SiteModelView(props: ViewProps) {
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Review configuration readiness →</Link>)}
+      <FoundationModelHeadline
+        foundation={foundation}
+        site={props.site}
+        readinessHref={viewHref("readiness")}
+        sldHref={viewHref("sld")}
+      />
       {gaps.length === 0 ? null : (
         <Panel heading="Configuration gaps" headingId="foundation-gaps-heading">
           <ul aria-labelledby="foundation-gaps-heading">
@@ -491,6 +500,12 @@ function SldView(props: ViewProps) {
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Configuration readiness →</Link>)}
+      <FoundationSldHeadline
+        foundation={foundation}
+        site={site}
+        readinessHref={viewHref("readiness")}
+        healthHref={props.healthHref}
+      />
       <Panel
         heading={`${configuration.displayName} · configured single line diagram`}
         headingId={SITE_SLD_HEADING_ID}
@@ -772,6 +787,12 @@ function ReadinessView(props: ViewProps) {
           <Link to={viewHref("model")}>Site model</Link> or <Link to={viewHref("sld")}>Single line diagram</Link>
         </p>
       )}
+      <FoundationReadinessHeadline
+        foundation={foundation}
+        modelHref={viewHref("model")}
+        evidenceHref={evidenceHref}
+        healthHref={props.healthHref}
+      />
       <ReadinessVerdictPanel foundation={foundation} />
       <ReadinessEvidenceTable
         foundation={foundation}

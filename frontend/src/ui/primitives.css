@@ -4039,3 +4039,10 @@ tr[data-selected] > * {
   color: var(--text-secondary);
   overflow-wrap: anywhere;
 }
+
+/* W1-UX-05: the Foundation answer card's two small graphics side by side, stacked when narrow. */
+.foundation-headline__visuals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-4);
+}
