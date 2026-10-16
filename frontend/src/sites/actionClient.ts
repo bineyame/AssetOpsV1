@@ -194,6 +194,8 @@ export interface RecommendationBody {
   /** Absent or not `allowed`: the view is read-only (Architect Q4). */
   system_demo_capability?: SystemDemoCapability | null;
   unavailable: TypedReason | null;
+  /** The stored input windows the rule read when it proposes nothing (absent otherwise). */
+  segments?: ProposalSegment[] | null;
   /** S6-02a: each accepted Action's current verification read state, by Action ID. */
   verification?: Record<string, VerificationSummary> | null;
 }

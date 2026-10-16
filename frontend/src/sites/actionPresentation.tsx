@@ -101,6 +101,67 @@ export function applicationWords(code: string | null | undefined, failedAttempts
   return { label: "Application state not recognised", sentence: UNRECOGNISED_SENTENCE, tone: "limited", code: code ?? null, unrecognised: true };
 }
 
+/**
+ * W1-UX-04: the Recommendation state as state-line words. Domain-local (the
+ * shared map does not own recommendation states). Nothing here is positive:
+ * a proposal or an accepted trial is not a measured result.
+ */
+export function recommendationWords(code: string | null | undefined): ProductWords {
+  const base = { code: code ?? null, unrecognised: false } as const;
+  switch (code) {
+    case "AVAILABLE":
+      return {
+        ...base,
+        label: "Trial proposed; not accepted",
+        sentence: "The fixed rule proposes this trial from the stored inputs. Nothing has been accepted or changed.",
+        next: "Review the proposal and how success will be judged, then accept it or leave it.",
+        tone: "waiting",
+      };
+    case "UNAVAILABLE":
+      return {
+        ...base,
+        label: "No trial proposed",
+        sentence: "The fixed rule proposes no trial for this Finding version. This is not a sign that nothing can be improved.",
+        next: "Open the Finding to see what it found.",
+        tone: "limited",
+      };
+    case "ACCEPTED":
+      return {
+        ...base,
+        label: "Accepted; result not yet known",
+        sentence: "The trial was accepted as an Action. Accepting changes nothing on the site and proves no effect.",
+        next: "Follow the Action; whether it worked is judged on Verification.",
+        tone: "limited",
+      };
+    case "PRIOR_ACTION_UNRESOLVED":
+      return {
+        ...base,
+        label: "Held: an earlier trial is still open",
+        sentence: "A new trial cannot be accepted until the earlier trial on this battery is settled.",
+        next: "Open the earlier Action and follow it to its result.",
+        tone: "waiting",
+      };
+    case "PRIOR_TRIAL_GUARDRAIL_FAILED":
+      return {
+        ...base,
+        label: "Held: an earlier trial missed a safety or service limit",
+        sentence: "No new trial on this battery can be accepted after that miss.",
+        next: "Open the earlier Action to see which limit was missed.",
+        tone: "problem",
+      };
+    case "PRIOR_TRIAL_REASSESSMENT_OVERLAP":
+      return {
+        ...base,
+        label: "Held: late evidence withdrew an earlier trial's result",
+        sentence: "New trials on this battery stay held until that earlier trial is reassessed.",
+        next: "Open the earlier Action to see its current reassessment state.",
+        tone: "problem",
+      };
+    default:
+      return { label: "Recommendation state not recognised", sentence: UNRECOGNISED_SENTENCE, tone: "limited", code: code ?? null, unrecognised: true };
+  }
+}
+
 /** An event kind in plain words; an unknown kind never shows its raw code. */
 export function plainEventWords(kind: string): string {
   return EVENT_WORDS[kind] ?? "Recorded event of a kind this screen does not recognise";

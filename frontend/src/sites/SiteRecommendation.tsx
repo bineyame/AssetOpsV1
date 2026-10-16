@@ -27,7 +27,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { Disclosure, Fact, FactList, Panel } from "../ui";
+import { Disclosure, ExactReferences, Fact, FactList, HeadlineVisualCard, Panel, ProductStatus, ValueBars } from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import { DeclaredSuccessPanel, EvidenceNeededPanel, type TrialLinks } from "./recommendationVerification";
 import {
@@ -53,6 +53,7 @@ import {
   SYSTEM_DEMONSTRATION,
   TrialLimitation,
   outcomeWords,
+  recommendationWords,
   when,
 } from "./actionPresentation";
 
@@ -145,6 +146,7 @@ export function SiteRecommendation({
           <p className="action-note">The last successful read is still shown below.</p>
         </RefusalPanel>
       ) : null}
+      <RecommendationCard body={body} accepted={accepted} block={block} links={links} />
       <Panel heading="Battery reserve trial" headingId="site-recommendation-heading">
         <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="recommendation" />
         <FactList>
@@ -385,7 +387,7 @@ function ProposalPanel({ heading, proposal, pinnedNote }: { heading: string; pro
               ))}
             </span>
           </Fact>
-          <Fact term="Input digest">
+          <Fact term="Input reference">
             <Ref value={proposal.input_sha256} />
           </Fact>
         </FactList>
@@ -620,5 +622,118 @@ function PriorActionList({ items, links }: { items: PriorAction[]; links: SiteRe
         ))}
       </ul>
     </Panel>
+  );
+}
+
+function reserveNumber(value: string): number | null {
+  const n = Number(value);
+  return value.trim() === "" || !Number.isFinite(n) ? null : n;
+}
+
+/** The latest end of the stored input windows: the plain "as of" bound of a proposal. */
+function inputsAsOf(segments: readonly { end: string }[] | null | undefined): string | null {
+  const ends = (segments ?? []).map((segment) => segment.end).filter((end) => !!end).sort();
+  return ends.length === 0 ? null : ends[ends.length - 1];
+}
+
+/**
+ * W1-UX-04: the Recommendation answer card - what action should be accepted
+ * and how success will be judged. A proposal or acceptance is never a result.
+ */
+function RecommendationCard({
+  body,
+  accepted,
+  block,
+  links,
+}: {
+  body: RecommendationBody;
+  accepted: AcceptedRecommendation | null;
+  block: HeldBy | null;
+  links: SiteRecommendationLinks;
+}) {
+  const words = recommendationWords(accepted ? "ACCEPTED" : body.state);
+  const shown = accepted ? accepted.snapshot : body.proposal;
+  // The read carries no read instant: the bound is the acceptance time, else the latest stored input it was computed from.
+  const asOf = accepted
+    ? accepted.accepted_at
+    : inputsAsOf(shown?.inputs?.segments ?? body.live_status?.proposal?.inputs?.segments ?? body.segments);
+  const scope = `This Finding version, battery reserve rule${accepted ? " (stored when accepted)" : ""}`;
+  return (
+    <HeadlineVisualCard
+      dataName="recommendation"
+      headingId="site-recommendation-answer-heading"
+      title="Recommended action"
+      description="A recommendation is a proposed trial. Accepting it records an Action; it changes nothing on the site."
+      question="What action should be accepted, and how will success be judged?"
+      headline={
+        shown ? (
+          <>
+            Lower the battery reserve from {shown.old_value}
+            {shown.unit} to {shown.proposed_value}
+            {shown.unit} as a measured trial.
+          </>
+        ) : (
+          <>{words.label}.</>
+        )
+      }
+      status={<ProductStatus words={words} scope={scope} asOf={asOf} />}
+      visual={
+        shown ? (
+          <ValueBars
+            title="Battery reserve setting"
+            items={[
+              { label: "Current setting", key: "current", value: reserveNumber(shown.old_value), valueText: `${shown.old_value}${shown.unit}` },
+              { label: "Proposed for the trial", key: "proposed", value: reserveNumber(shown.proposed_value), valueText: `${shown.proposed_value}${shown.unit}` },
+            ]}
+          />
+        ) : undefined
+      }
+      meaning={
+        <p>
+          The trial tests whether a lower reserve is safe for this battery. It predicts no saving and no change in
+          generator use. Success is judged only after the trial, against a plan fixed before its readings arrive, on
+          Verification.
+        </p>
+      }
+      todo={words.next === undefined ? undefined : <p>{words.next}</p>}
+      destination={
+        accepted ? (
+          <>
+            <Link to={links.action(accepted.action_id)} data-recommendation-card-action-link>
+              Open the Action
+            </Link>
+            {links.actionChild ? (
+              <>
+                {" "}
+                <Link to={links.actionChild(accepted.action_id, "verification")} data-recommendation-card-verification-link>
+                  Open Verification
+                </Link>
+              </>
+            ) : null}
+          </>
+        ) : block ? (
+          <Link to={links.action(block.actionId)} data-recommendation-card-held-link>
+            Open the earlier Action
+          </Link>
+        ) : (
+          <Link to={links.finding(body.revision_id)} data-recommendation-card-finding-link>
+            Open the Finding
+          </Link>
+        )
+      }
+      references={
+        <ExactReferences
+          name="recommendation-references"
+          references={[
+            { label: "Rule", value: `${body.rule.id} v${body.rule.version}` },
+            { label: "Finding version", value: body.revision_id },
+            { label: "Recommendation state", value: body.state },
+            { label: "Reason no trial is proposed", value: body.unavailable?.code ?? null },
+            { label: "Input reference", value: shown?.input_sha256 ?? null },
+            { label: "Action reference", value: accepted?.action_id ?? null },
+          ]}
+        />
+      }
+    />
   );
 }

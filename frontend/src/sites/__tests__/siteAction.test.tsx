@@ -861,3 +861,37 @@ describe("W1-UX-04 phase 1: Application and History answer cards", () => {
     view.unmount();
   });
 });
+
+describe("W1-UX-04 phase 1: Recommendation answer card", () => {
+  function w1Scan(page: string) {
+    const main = document.body.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, page, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  }
+
+  for (const [name, label, tone, bars] of [
+    ["pre_accept_available", "Trial proposed; not accepted", "waiting", 2],
+    ["pre_accept_unavailable", "No trial proposed", "limited", 0],
+    ["accepted_snapshot_live_status", "Accepted; result not yet known", "limited", 2],
+    ["latest_revision_after_apply", "Held: an earlier trial is still open", "waiting", 0],
+  ] as const) {
+    it(`${name}: the state line, scope and as-of stay outside the closed disclosure; never positive`, async () => {
+      const fixture = rec[name];
+      serve({ [fixture.request.path]: served(fixture) });
+      mount(fixture.request.path.replace("/api", ""));
+      await settledScreen();
+      w1Scan(`recommendation (W1) ${name}`);
+      const card = q("[data-headline-card='recommendation']") as HTMLElement;
+      expect(expectStateLineVisible(card)).toBe(label);
+      expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe(tone);
+      expect(card.textContent).toContain("What action should be accepted, and how will success be judged?");
+      expect(card.querySelectorAll("[data-value-bar-key]")).toHaveLength(bars);
+      const disclosure = scanDisclosureVocabulary(card, `recommendation disclosure ${name}`);
+      expect(disclosure.disclosures).toBe(1);
+      expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+      expect(card.textContent).not.toMatch(/saving (?:of|was|is achieved)|verified/i);
+      expect(document.body.textContent).not.toMatch(/Input digest/);
+    });
+  }
+});
