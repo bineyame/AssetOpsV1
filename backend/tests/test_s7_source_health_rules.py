@@ -62,3 +62,14 @@ def test_summary_reason_names_why_there_is_no_source() -> None:
     enabled = sh.source_health_document(_snapshot(False, True), "S", READ, "test")["summary"]
     assert (enabled["status"], enabled["reason"]) == ("NOT_ALL_CURRENT", None)
     assert enabled["enabled_gateway_count"] == 1 and enabled["contact_counts"]["UNKNOWN"] == 1
+
+
+def test_receipt_lag_is_never_negative_and_keeps_legitimate_lag() -> None:
+    """W1-UX-06: a report observed after it was received publishes no lag (null), never a negative number."""
+    received = READ - timedelta(seconds=10)
+    assert sh.receipt_lag(received, received - timedelta(seconds=21_600)) == 21_600
+    assert sh.receipt_lag(received, received - timedelta(seconds=2)) == 2
+    assert sh.receipt_lag(received, received) == 0
+    assert sh.receipt_lag(received, received + timedelta(seconds=90)) is None
+    # Within the observed-after-receipt allowance the observation is still after receipt: no negative lag either.
+    assert sh.receipt_lag(received, received + timedelta(milliseconds=1)) is None

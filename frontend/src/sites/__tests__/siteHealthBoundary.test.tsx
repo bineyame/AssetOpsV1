@@ -160,6 +160,18 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     expect(gatewayRow("s7-clock-offset").reported_facts.fact_age_seconds).toBeNull();
   });
 
+  it("W1-UX-06: an observation after receipt carries a null receipt lag in the contract, and the page states no lag for it", async () => {
+    expect(gatewayRow("s7-clock-offset").reported_facts.receipt_lag_seconds).toBeNull();
+    expect(gatewayRow("s7-delayed-old").reported_facts.receipt_lag_seconds).toBe(21600);
+    serve(recorded());
+    mount("/sites/KOBO-001/health");
+    await settledScreen();
+    const clock = (q('[data-health-gateway="s7-clock-offset"]') as HTMLElement).textContent ?? "";
+    expect(clock).not.toMatch(/reached the server/);
+    expect(clock).not.toMatch(/-\d+\s?(s|min|h|d)\b/);
+    expect((q('[data-health-gateway="s7-delayed-old"]') as HTMLElement).textContent).toContain("it reached the server 6 h after");
+  });
+
   it("keeps queue, storage and device contact as last reported, in separately qualified sections", async () => {
     serve(recorded());
     mount("/sites/KOBO-001/health");

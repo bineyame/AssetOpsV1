@@ -463,7 +463,7 @@
        "oldest_age_seconds": null
       },
       "reason": "GATEWAY_CLOCK_UNTRUSTED",
-      "receipt_lag_seconds": -90,
+      "receipt_lag_seconds": null,
       "status": "UNKNOWN"
      },
      "source_watermark": {
