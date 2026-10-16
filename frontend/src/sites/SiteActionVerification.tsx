@@ -674,7 +674,7 @@ function OutcomeView({
               <Ref value={record.selection_binding_id} />
             </Fact>
             <Fact term="Supersedes">{record.supersedes_outcome_id ? <Ref value={record.supersedes_outcome_id} /> : "none"}</Fact>
-            <Fact term="Input fingerprint">
+            <Fact term="Input reference">
               <Ref value={record.basis_sha256} />
             </Fact>
             <Fact term="Recorded by">
@@ -703,9 +703,9 @@ function OutcomeView({
                   <td>
                     <Ref value={m.window_name} />
                   </td>
-                  <td>{m.value_text ?? "unknown"}</td>
-                  <td>{m.threshold_text ?? ""}</td>
-                  <td>{m.unit ?? ""}</td>
+                  <td>{m.value_text === null ? "unknown" : <Ref value={m.value_text} />}</td>
+                  <td>{m.threshold_text === null ? "" : <Ref value={m.threshold_text} />}</td>
+                  <td>{m.unit === null ? "" : <Ref value={m.unit} />}</td>
                   <td>{checkWord(m.state)}</td>
                   <td>{m.evidence_ids.length}</td>
                 </tr>
@@ -1025,7 +1025,7 @@ function PlanBodyView({ body, action, links, explicit }: { body: PlanBody; actio
             <Fact term="Rule">
               <Ref value={plan.rule_id} />
             </Fact>
-            <Fact term="Plan digest">
+            <Fact term="Plan content reference">
               <Ref value={plan.plan_sha256} />
             </Fact>
             <Fact term="Earlier Foundation version">
@@ -1358,18 +1358,20 @@ function WindowPanel({ name, window, source, links, lineage }: { name: "baseline
                 <tr>
                   <th scope="col">Day</th>
                   <th scope="col">Cohort</th>
-                  <th scope="col">Cohort digest</th>
+                  <th scope="col">Day group reference</th>
                   <th scope="col">Source</th>
                   <th scope="col">Model</th>
-                  <th scope="col">Input digest</th>
-                  <th scope="col">Configuration digest</th>
+                  <th scope="col">Input reference</th>
+                  <th scope="col">Configuration reference</th>
                 </tr>
               </thead>
               <tbody>
                 {lineage.days.map((d) => (
                   <tr key={d.day} data-verification-lineage-day={d.day}>
                     <th scope="row">{d.day}</th>
-                    <td>{d.cohort_status}</td>
+                    <td>
+                      <code data-vocabulary-exempt="source-reference">{d.cohort_status}</code>
+                    </td>
                     <td><Ref value={d.cohort_sha256} /></td>
                     <td><Ref value={d.run_id} /></td>
                     <td><Ref value={d.model_version} /></td>

@@ -250,7 +250,7 @@ export function PlanCard({ body, action, links }: { body: PlanBody; action: Acti
           name="plan-card-references"
           references={[
             { label: "Plan reference", value: plan?.plan_id ?? null },
-            { label: "Plan rule version", value: plan?.plan_version ?? null },
+            { label: "Plan version", value: plan?.plan_version ?? null },
             { label: "Change record", value: plan?.change_id ?? null },
             { label: "Current state code", value: body.verification_state.state },
           ]}
@@ -308,7 +308,17 @@ export function EvidenceCard({
           <>Some readings are missing{body.windows.later.complete ? " from the earlier window" : " from the later window"}.</>
         )
       }
-      status={<ProductStatus words={words} scope="This Action's trial plan, both windows" asOf={body.knowledge_cutoff} />}
+      status={
+        <ProductStatus
+          words={words}
+          scope={
+            body.verification_state.historical === true
+              ? "Both windows, as the readings stood at the selected earlier time"
+              : "This Action's trial plan, both windows"
+          }
+          asOf={body.knowledge_cutoff}
+        />
+      }
       visual={
         <ValueBars
           title="Complete five-minute readings per window"
