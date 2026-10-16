@@ -278,6 +278,47 @@ describe("V-01b Site Evidence analysis", () => {
     expect(detail.querySelector("[data-record-message]")?.textContent).toBe(LEDGER_RECORD.envelope.text);
   });
 
+  it("W1-UX-03: readings, gateway contact and analysis are three separate facts; a fresh contact never makes analysis current", async () => {
+    const stale = { ...TWO_SOURCES, projection: { ...TWO_SOURCES.projection, status: "STALE", pending_jobs: 2, failed_jobs: 0 } };
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: stale }));
+    await settledScreen();
+    const facts = document.querySelector("[data-evidence-reporting-facts]") as HTMLElement;
+    const fact = (key: string) => facts.querySelector(`[data-evidence-reporting-fact='${key}']`) as HTMLElement;
+    expect(fact("readings").dataset.factTone).toBe("known");
+    expect(fact("contact").dataset.factTone).toBe("known");
+    expect(fact("analysis").dataset.factTone).toBe("waiting");
+    expect(fact("analysis").textContent).toMatch(/do not yet include the newest readings/);
+    expect(document.querySelector("[data-evidence-reporting-note]")?.textContent).toMatch(/do not make the analysis up\s+to date\. As of \d/);
+    // The per-source strip: a source with accepted readings has a "latest taken" mark; a silent one has none and says so.
+    const strip = document.querySelector("[data-period-strip='evidence-sources']") as HTMLElement;
+    const rows = Array.from(strip.querySelectorAll<HTMLElement>("[data-period-strip-row]"));
+    expect(rows).toHaveLength(2);
+    const silent = rows.find((r) => /No accepted reading in this period/.test(r.textContent ?? "")) as HTMLElement;
+    expect(silent.querySelector("[data-period-strip-segment]")).toBeNull();
+    const reporting = rows.find((r) => r !== silent) as HTMLElement;
+    expect(reporting.querySelector("[data-period-strip-segment='marker']")).not.toBeNull();
+    expect(reporting.textContent).toMatch(/288 readings accepted; latest taken/);
+  });
+
+  it("W1-UX-03: unknown analysis and contact states stay 'Not known', never positive", async () => {
+    const odd = { ...TWO_SOURCES, projection: { ...TWO_SOURCES.projection, status: "SOMETHING_NEW", failed_jobs: 0 } };
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: odd }));
+    await settledScreen();
+    const analysis = document.querySelector("[data-evidence-reporting-fact='analysis']") as HTMLElement;
+    expect(analysis.dataset.factTone).toBe("not-known");
+    expect(analysis.textContent).not.toContain("SOMETHING_NEW");
+  });
+
+  it("W1-UX-03: the Evidence Analysis view uses the W1 set", async () => {
+    renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }, { rejections: { status: "loaded", value: WITH_CONFLICT } }));
+    await settledScreen();
+    const main = document.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, `${ANALYSIS_URL} (W1)`, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(describeViolations(w1.violations)).toBe("");
+    expect(main.querySelector("[data-evidence-analysis-question]")?.textContent).toMatch(/Which accepted readings sit behind/);
+  });
+
   it("uses no implementation vocabulary", async () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }, { rejections: { status: "loaded", value: WITH_CONFLICT } }));
     await settledScreen();

@@ -37,7 +37,9 @@ import {
   ProductStatus,
   type ProductWords,
   ValueBars,
+  asOfText,
 } from "../ui";
+import { PeriodStrip } from "./periodStrip";
 import { CountBars } from "./assessmentGraphics";
 import type { ClaimLimitClient } from "./claimLimitClient";
 import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
@@ -162,9 +164,12 @@ export function LedgerSiteEvidence({
           <StatusBar view="analysis" badge="Evidence · Analysis">
             <span className="evidence-statusbar__facts">Accepted records, timing and how each limit is set</span>
           </StatusBar>
-          <Inspector siteId={siteId} ledger={ledger} evidence={evidence} />
+          <p className="headline-card__question evidence-analysis__question" data-evidence-analysis-question>
+            Which accepted readings sit behind what the readings can support?
+          </p>
           <ClaimLimit evidence={evidence} />
           <EvidenceClaimLimit siteId={siteId} client={claimLimit} assessmentHref={assessmentHref} />
+          <Inspector siteId={siteId} ledger={ledger} evidence={evidence} />
           <Rejected siteId={siteId} ledger={ledger} evidence={evidence} />
           <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
             <Clocks evidence={evidence} />
@@ -489,6 +494,7 @@ function OverviewBody({
           />
         }
       />
+      <ReportingFacts evidence={evidence} health={health} />
       <div className="panel-pair evidence-pair">
         <SourcesOverview evidence={evidence} health={health} onInspect={onInspect} />
         <NextEvidence evidence={evidence} />
@@ -503,6 +509,111 @@ function OverviewBody({
         </Advanced>
       )}
     </>
+  );
+}
+
+/**
+ * W1-UX-03: three separate facts side by side - readings received, the gateway's
+ * own contact, and whether derived analysis includes the newest readings - and a
+ * per-source strip of when each source's latest accepted reading was taken.
+ * None of the three implies another: a recent gateway report is not recent
+ * readings, and neither makes analysis up to date.
+ */
+type FactTone = "known" | "waiting" | "problem" | "not-known";
+
+function receiptFact(evidence: LedgerEvidence): { tone: FactTone; text: string } {
+  if (evidence.counts.accepted === 0) {
+    return { tone: "waiting", text: "No reading was accepted for this period." };
+  }
+  const latest = evidence.extent.last_received_at;
+  return {
+    tone: "known",
+    text: `${plural(evidence.counts.accepted, "reading", "readings")} accepted. Latest delivery received ${latest === null ? "at a time not recorded" : when(latest)}.`,
+  };
+}
+
+function contactFact(health: EvidenceRead<GatewayHealth> | null): { tone: FactTone; text: string } {
+  if (health === null) return { tone: "not-known", text: "Loading the gateway's contact." };
+  if (health.status === "not_found") return { tone: "not-known", text: "No gateway is registered, so there is no contact to report." };
+  if (health.status !== "loaded") return { tone: "not-known", text: "The contact record could not be read, so contact is not known." };
+  const gateways = health.value.gateways;
+  if (gateways.length === 0) return { tone: "not-known", text: "No gateway contact is recorded." };
+  const current = gateways.filter((g) => g.status === "CURRENT").length;
+  const stale = gateways.filter((g) => g.status === "STALE").length;
+  if (current === gateways.length) {
+    return { tone: "known", text: gateways.length === 1 ? "The gateway is in contact." : "Every gateway is in contact." };
+  }
+  if (stale > 0) return { tone: "problem", text: `${plural(stale, "gateway has", "gateways have")} not been heard from recently.` };
+  return { tone: "not-known", text: "No gateway report has been received yet." };
+}
+
+function analysisFact(evidence: LedgerEvidence): { tone: FactTone; text: string } {
+  const p = evidence.projection;
+  if (p.status === "STALE") return { tone: "waiting", text: "Analysis results do not yet include the newest readings." };
+  if (p.failed_jobs > 0) return { tone: "problem", text: `${plural(p.failed_jobs, "analysis update has", "analysis updates have")} failed.` };
+  if (p.status === "NO_PENDING_DISPATCH") return { tone: "known", text: "No analysis update is waiting for these readings." };
+  return { tone: "not-known", text: "Whether analysis includes the newest readings is not known." };
+}
+
+const FACT_WORDS: Record<FactTone, string> = {
+  known: "Recorded",
+  waiting: "Not yet",
+  problem: "Needs a look",
+  "not-known": "Not known",
+};
+
+function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health: EvidenceRead<GatewayHealth> | null }) {
+  const facts = [
+    { key: "readings", title: "Readings received", ...receiptFact(evidence) },
+    { key: "contact", title: "Gateway contact", ...contactFact(health) },
+    { key: "analysis", title: "Analysis up to date", ...analysisFact(evidence) },
+  ];
+  const start = evidence.window.basis === "ALL" ? null : evidence.window.start;
+  const end = evidence.window.basis === "ALL" ? null : evidence.window.end;
+  return (
+    <Panel
+      heading="Which sources reported, and when"
+      headingId="site-evidence-reporting-heading"
+      description="Three separate facts: one does not make another true"
+    >
+      <ul className="source-facts" data-evidence-reporting-facts>
+        {facts.map((f) => (
+          <li key={f.key} className="source-facts__item" data-evidence-reporting-fact={f.key} data-fact-tone={f.tone}>
+            <h3>{f.title}</h3>
+            <p>
+              <strong>{FACT_WORDS[f.tone]}.</strong> {f.text}
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p className="panel__note" data-evidence-reporting-note>
+        A recent gateway report does not make the readings recent, and recent readings do not make the analysis up
+        to date. {asOfText(evidence.extent.last_received_at)}.
+      </p>
+      {evidence.sources.length === 0 ? null : (
+        <PeriodStrip
+          name="evidence-sources"
+          title="When each source's latest accepted reading in this period was taken"
+          start={start}
+          end={end}
+          startText={start === null ? undefined : (plainTime(start) ?? undefined)}
+          endText={end === null ? undefined : (plainTime(end) ?? undefined)}
+          legend={[{ tone: "marker", label: "Latest reading taken" }]}
+          rows={evidence.sources.map((s) => {
+            const taken = s.accepted_in_window === 0 ? null : s.last_source_time;
+            return {
+              key: s.source_id,
+              label: <span {...REF}>{s.external_id}</span>,
+              segments: taken === null ? [] : [{ key: "latest", start: taken, end: taken, tone: "marker" as const, label: "Latest reading taken" }],
+              summary:
+                s.accepted_in_window === 0
+                  ? "No accepted reading in this period."
+                  : `${plural(s.accepted_in_window, "reading", "readings")} accepted; latest taken ${when(s.last_source_time)} (${clockWords(s.clocks.source_time)}).`,
+            };
+          })}
+        />
+      )}
+    </Panel>
   );
 }
 
