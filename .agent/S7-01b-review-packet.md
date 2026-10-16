@@ -124,3 +124,10 @@ Task `tasks/S7-01b-health-ui.md`; branch `task/S7-01b-health-ui` from main `f3de
 ## User-review focus
 
 Check that the wording reads as gateway contact, not equipment health. Check that "Unknown" is shown with its reasons on both screens. Check that the mock's illustrative numbers are acceptable to omit until real sources exist.
+
+## Carried to W1-UX-05 (from S7-01b review, 2026-10-16)
+
+- L1: an `OBSERVED_AFTER_RECEIPT` gateway still shows "observed N s ago"; show Unknown age with the reason in the default reading (`SiteHealth.tsx:111,386-388`).
+- L2: the read sends a negative `receipt_lag_seconds` from an untrusted clock (`source_health.py:258`); null it.
+- L3: gateway/report IDs in the selected-gateway panel move to technical details (`SiteHealth.tsx:474-490`).
+- L4: add a UI test for the battery 409 `FOUNDATION_BASIS_UNAVAILABLE`; `isBatteryDetail` should check condition is UNKNOWN.
