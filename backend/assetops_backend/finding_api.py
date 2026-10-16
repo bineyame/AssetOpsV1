@@ -351,6 +351,9 @@ REASONS = {
                             "for the record.",
     "PRICED": "Modelled potential fuel-cost exposure under the reviewed fuel-cost-1 assumptions. This is not "
               "measured fuel saved or a physical maximum.",
+    # S4-05b phase 2: the stored source of the exact records behind the cost is mixed or not established.
+    "MIXED_OR_UNKNOWN_SOURCE": "The source of the records behind this cost is not established, so no current cost "
+                               "is shown. The recorded cost stays available for the record.",
 }
 
 
@@ -367,20 +370,34 @@ def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:
     row = result["consequence"]
     money = result.get("money_eligibility")
     empty["money_eligibility"] = money
+    # S4-05b phase 2: the stored source gate and every simultaneous failed gate (consequence read).
+    gate = currentness.get("source_gate") or {"permits_current_money": False, "reason": "MIXED_OR_UNKNOWN_SOURCE"}
+    empty["source_gate"] = gate
+    empty["withheld_reasons"] = list(currentness.get("withheld_reasons") or [])
+    source_reason = [] if gate["permits_current_money"] else ["MIXED_OR_UNKNOWN_SOURCE"]
     if row is not None and currentness["state"] == "CURRENT" and (money or {}).get("state") != "ELIGIBLE":
         # LR-01: the basis is current but the shared gate withholds money (never a UI-only predicate). The
         # recorded head stays linked as history; no amount, quantity or current label is given.
         state = (money or {}).get("state") or "PENDING_REASSESSMENT"
         return {**empty, "state": state, "currentness": "CURRENT", "consequence_revision_id": None,
                 "recorded_consequence_revision_id": row["id"],
-                "currentness_reasons": list(currentness["reasons"]) + [f"MONEY_{state}"], "reason": REASONS[state]}
+                "currentness_reasons": list(currentness["reasons"]) + [f"MONEY_{state}"] + source_reason,
+                "reason": REASONS[state]}
+    if row is not None and currentness["state"] == "CURRENT" and source_reason:
+        # The basis is current and LR-eligible, but the exact records' stored source is MIXED or UNKNOWN: the head
+        # stays linked as an audit-only record; no amount, quantity or current label is given.
+        return {**empty, "state": "MIXED_OR_UNKNOWN_SOURCE", "currentness": "CURRENT",
+                "consequence_revision_id": None, "recorded_consequence_revision_id": row["id"],
+                "currentness_reasons": list(currentness["reasons"]) + source_reason,
+                "reason": REASONS["MIXED_OR_UNKNOWN_SOURCE"]}
     if row is None or currentness["state"] != "CURRENT":
         state = currentness["state"]
         queued = bool(currentness["pending_work"])
         key = "STALE_QUEUED" if state == "STALE" and queued else state
         return {**empty, "state": state, "currentness": state, "recalculation_queued": queued,
                 "consequence_revision_id": None if row is None else row["id"],
-                "currentness_reasons": list(currentness["reasons"]), "reason": REASONS[key]}
+                "currentness_reasons": list(currentness["reasons"]) + (source_reason if row is not None else []),
+                "reason": REASONS[key]}
     priced = row["state"] == "PRICED" and row["display"] and row["display"]["state"] == "ROUNDED_OUTWARD"
     return {**empty, "state": row["state"], "currentness": "CURRENT", "consequence_revision_id": row["id"],
             "quantity": None if row["quantity"]["high"] is None else {

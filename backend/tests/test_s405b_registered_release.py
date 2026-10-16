@@ -65,3 +65,25 @@ def test_without_a_database_the_composed_publisher_refuses() -> None:
     with pytest.raises(LabControlRefused) as refused:
         rr.publisher_for(None).publish(Run(), Stage(Batch("b1", "STAGED")))
     assert refused.value.detail.startswith("LEDGER_UNAVAILABLE")
+
+
+@pytest.mark.parametrize("status", ["GATEWAY_UNAVAILABLE", "SEALING_PENDING", "SEALING_REFUSED", ""])
+def test_an_unreadable_or_partly_sealed_stage_refuses_the_whole_release(monkeypatch, status) -> None:
+    """Review L1 and D-2026-10-16-s405b-label item 2: an unreadable Stage (no batches visible) or a partly sealed
+    one is refused before any registration, never released as far as sealed or without a publication."""
+    called = []
+    monkeypatch.setattr(rr, "run_attestation", lambda run, stage: called.append("attest") or "attestation")
+    monkeypatch.setattr(rr, "register_run", lambda ledger, a: called.append("register") or ())
+    stage = Stage(Batch("b1", "STAGED")) if status.startswith("SEALING") else Stage()
+    stage.status = status
+    with pytest.raises(LabControlRefused) as refused:
+        rr.RegisteredRunPublisher(lambda: object()).publish(Run(), stage)
+    assert refused.value.kind == rr.SOURCE_PUBLICATION_REFUSED
+    assert "STAGE_NOT_ATTESTABLE" in refused.value.detail and called == []
+
+
+@pytest.mark.parametrize("status", ["NOT_STAGED", "HELD"])
+def test_a_readable_stage_with_nothing_admitted_publishes_nothing(status) -> None:
+    stage = Stage()
+    stage.status = status
+    assert rr.RegisteredRunPublisher(lambda: object()).publish(Run(), stage) == ()

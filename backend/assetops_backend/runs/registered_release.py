@@ -24,6 +24,8 @@ from assetops_backend.runs.models import SimulationRun
 from assetops_backend.runs.source_publication import run_attestation
 
 SOURCE_PUBLICATION_REFUSED = "SOURCE_PUBLICATION_REFUSED"
+#: Stage reads the publisher can stand on: fully sealed (`STAGED`), or readable with nothing admitted.
+READABLE_STAGE_STATUSES = frozenset({"STAGED", "NOT_STAGED", "HELD"})
 
 
 @dataclass(frozen=True)
@@ -44,6 +46,12 @@ class RegisteredRunPublisher:
 
     def publish(self, run: SimulationRun, stage: Any) -> tuple[str, ...]:
         """The publication IDs recorded (or identically re-read) for every still-`STAGED` batch of `run`."""
+        status = str(getattr(stage, "status", ""))
+        if status not in READABLE_STAGE_STATUSES:
+            # Review L1 + D-2026-10-16-s405b-label item 2: an unreadable Stage (GATEWAY_UNAVAILABLE) or one still
+            # sealing / refused cannot be attested, so the whole release is refused and nothing is uploaded.
+            raise LabControlRefused(SOURCE_PUBLICATION_REFUSED, run.run_id,
+                                    f"STAGE_NOT_ATTESTABLE: the run's Stage is {status or 'unreadable'}")
         pending = tuple(b for b in getattr(stage, "batches", ()) if getattr(b, "state", "STAGED") == "STAGED")
         if not pending:
             return ()

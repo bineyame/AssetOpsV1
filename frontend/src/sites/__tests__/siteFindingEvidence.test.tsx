@@ -752,7 +752,7 @@ describe("Finding Evidence client", () => {
     await settledScreen();
     const notice = container.querySelector("[data-source-provenance-subject='evidence']") as HTMLElement;
     expect(notice).toHaveAttribute("data-source-provenance", "MIXED");
-    expect(notice).toHaveTextContent("Mixed sources.");
+    expect(notice).toHaveTextContent("Sources do not agree.");
     expect(notice.querySelector("details")).not.toHaveAttribute("open");
     expect(notice.querySelector("[data-source-reason='BOUND_AND_UNBOUND']")).not.toBeNull();
   });

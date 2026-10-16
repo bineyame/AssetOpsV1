@@ -32,7 +32,7 @@ from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal
 from typing import Any
 from uuid import UUID
 
-from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance
+from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance, source_gate
 from assetops_backend.financials import fuel_cost as fc
 from assetops_backend.financials import money_eligibility as me
 from assetops_backend.financials.recompute import ConsequenceStore, PriceStore, derive
@@ -224,10 +224,22 @@ class ConsequenceReadService:
             if row is not None:  # S4-05b: each consequence revision keeps its own exact union provenance
                 row["source_provenance"] = consequence_provenance(
                     self._provenance, tenant_id, site_id, finding_revision_id, row["id"])
+        # S4-05b phase 2: the head's exact union source state is the third money gate (shared contract item 4).
+        # MIXED/UNKNOWN withholds the current amount whatever CURRENT PRICED and LR eligibility say.
+        if head is None:
+            head_source = None
+        elif selected is not None and is_head:
+            head_source = selected["source_provenance"]
+        else:
+            head_source = consequence_provenance(self._provenance, tenant_id, site_id, finding_revision_id,
+                                                 str(head["id"]))
+        gate = source_gate(head_source)
         if selected is not None:
             selected["is_head"] = is_head
-            selected["presented_as_current"] = is_head and state == "CURRENT" and eligible
+            selected["presented_as_current"] = (is_head and state == "CURRENT" and eligible
+                                                 and gate["permits_current_money"])
             selected["historical"] = not selected["presented_as_current"]
+        withheld = withheld_reasons(state, reasons, money["state"], gate, head)
         page = chain["page"]
         return {
             "consequence_selection": {
@@ -239,6 +251,7 @@ class ConsequenceReadService:
             "currentness": {
                 "state": state, "reasons": reasons, "pending_work": work, "money_eligibility": money["state"],
                 "current_amount_shown": selected is not None and selected["presented_as_current"],
+                "source_gate": gate, "withheld_reasons": withheld,
                 "derived_now": None if now is None or state == "CURRENT" else {
                     "quantity": {"state": now.quantity.state, "reason": now.quantity.reason},
                     "price": _selection(now.price),
@@ -256,3 +269,19 @@ class ConsequenceReadService:
             "exclusions": ["No total across Findings, FindingRevisions, consequence revisions, currencies or "
                            "windows is computed.", "Necessary and Indeterminate time is never priced."],
         }
+
+
+def withheld_reasons(state: str, reasons: list[str], money_state: str, gate: dict[str, Any],
+                     head: dict[str, Any] | None) -> list[str]:
+    """Every failed typed gate on the current amount at once (S4-05 shared contract item 4): currentness and its
+    reasons, the LR-01 money gate, the stored source gate and the head's own quantity/price state."""
+    out: list[str] = []
+    if state != "CURRENT":
+        out += [state, *reasons]
+    if money_state != me.ELIGIBLE:
+        out.append(f"MONEY_{money_state}")
+    if gate["reason"]:
+        out.append(gate["reason"])
+    if head is not None and head.get("state") not in (None, "PRICED"):
+        out.append(str(head["state"]))
+    return out

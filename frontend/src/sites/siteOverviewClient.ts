@@ -12,6 +12,7 @@
  * than a partial page.
  */
 
+import type { SourceProvenance } from "./sourceProvenance";
 import type { TimelineSource } from "./assessmentGraphics";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import {
@@ -361,7 +362,10 @@ export interface WindowMoney {
   quantity_state: string | null;
   price_state: string | null;
   limitation: string[] | null;
-  demonstration: { label: string; statement: string; case_id: string; spec: string } | null;
+  /** S4-05b phase 2: the stored exact-revision source of the card's head consequence (else Finding) version. */
+  source_provenance?: SourceProvenance | null;
+  source_gate?: { state: string; permits_current_money: boolean; reason: string | null } | null;
+  withheld_reasons?: string[];
   label: string;
   upstream: { status: string; stage: string | null; reasons: string[] };
   consequence_currentness?: { state: string | null; reasons: unknown; pending_work: unknown };

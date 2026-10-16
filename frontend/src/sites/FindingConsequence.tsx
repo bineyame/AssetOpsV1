@@ -8,7 +8,7 @@ import type {
   FindingFinancialsBody,
 } from "./financialsClient";
 import { formatInstant } from "./FoundationRevisionPanel";
-import { SourceProvenanceNotice } from "./sourceProvenance";
+import { SOURCE_WORDS, SourceProvenanceNotice, sourceState } from "./sourceProvenance";
 
 /**
  * S4-02b phase 2b: the Finding bridge on Site > Financials > Overview, over the stored `fuel-cost-1`
@@ -73,6 +73,7 @@ const PRICE_WORDS: Record<string, string> = {
 const STATE_HEADLINE: Record<string, string> = {
   WITHHELD_GENERATOR_SERIES: "Withheld: the generator records are not in a proven time order",
   PENDING_REASSESSMENT: "Being reassessed: no current cost yet",
+  MIXED_OR_UNKNOWN_SOURCE: "Source not established: no current cost",
   UNPRICED: "No price for the whole window",
   QUANTITY_UNAVAILABLE: "Not calculated",
   STALE: "Out of date: no current cost",
@@ -459,6 +460,11 @@ function MoneyLimit({
             ))}
           </ul>
         ) : null
+      ) : c.state === "MIXED_OR_UNKNOWN_SOURCE" ? (
+        <p data-financials-source-withheld="true">
+          The cost is calculated, but the source of the records behind it is not established, so it is not shown as a
+          current cost. The source record above says which records are affected.
+        </p>
       ) : (
         <p data-financials-pending-reassessment="true">
           New evidence or clock proof is being taken into account. The current cost appears once the reassessment and
@@ -495,7 +501,8 @@ export function FindingBridge({
   const findingId = bridge.finding.id;
   const rev = bridge.selection.revision_id;
   const shown = c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null;
-  const gated = c.state === "WITHHELD_GENERATOR_SERIES" || c.state === "PENDING_REASSESSMENT";
+  const gated =
+    c.state === "WITHHELD_GENERATOR_SERIES" || c.state === "PENDING_REASSESSMENT" || c.state === "MIXED_OR_UNKNOWN_SOURCE";
   const body = consequences?.status === "loaded" ? consequences.value : null;
   const head = body?.history.revisions.find((r) => r.id === body.consequence_selection.head_consequence_revision_id) ??
     (body?.consequence?.is_head ? body.consequence : null);
@@ -588,6 +595,7 @@ export function FindingBridge({
                 <Link to={links.consequence(findingId, rev, null)}>Show the current fuel cost</Link>
               </p>
             )}
+            <SourceProvenanceNotice provenance={pinned.source_provenance} subject="cost version" name="pinned" />
             <BridgeTable
               rev={pinned}
               current={false}
@@ -660,6 +668,10 @@ function ConsequenceHistory({
                   <p>
                     <strong>Version {r.revision_no}</strong> · recorded {day(r.recorded_at)} · {versionWords(r, hideAmounts)}
                     {current ? " · the current fuel cost" : " · kept for the record"}
+                    {" · "}
+                    <span data-consequence-source={sourceState(r.source_provenance)}>
+                      {SOURCE_WORDS[sourceState(r.source_provenance)].label}
+                    </span>
                   </p>
                   <p>
                     <Link to={links.consequence(findingId, findingRevisionId, head && !gated ? null : r.id)}>

@@ -522,9 +522,9 @@ describe("Site Finding detail: LR-01 series limit end", () => {
     const { container } = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")], 1, { source_provenance: stored("AUTHORED_DEMONSTRATION") }) }));
     await settledScreen();
     expect(container.querySelector("[data-source-provenance-subject='finding']")).toHaveAttribute("data-source-provenance", "AUTHORED_DEMONSTRATION");
-    expect(container.querySelector("[data-source-provenance]")).toHaveTextContent("Demonstration data.");
+    expect(container.querySelector("[data-source-provenance]")).toHaveTextContent("Prepared example data.");
     const plain = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
     await settledScreen();
-    expect(plain.container.querySelector("[data-source-provenance]")).toHaveTextContent("Source not confirmed.");
+    expect(plain.container.querySelector("[data-source-provenance]")).toHaveTextContent("Source unverified.");
   });
 });

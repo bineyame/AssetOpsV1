@@ -114,6 +114,7 @@ export interface FindingConsequence {
   state:
     | "WITHHELD_GENERATOR_SERIES"
     | "PENDING_REASSESSMENT"
+    | "MIXED_OR_UNKNOWN_SOURCE"
     | "PRICED"
     | "UNPRICED"
     | "QUANTITY_UNAVAILABLE"
@@ -138,6 +139,16 @@ export interface FindingConsequence {
   /** LR-01: the gate behind the state, and the recorded (not current) head it withholds. */
   money_eligibility?: MoneyEligibility | null;
   recorded_consequence_revision_id?: string | null;
+  /** S4-05b phase 2: the stored source gate and every failed typed gate at once. */
+  source_gate?: SourceGate | null;
+  withheld_reasons?: string[];
+}
+
+/** S4-05b phase 2: only a positive stored class may carry a current amount; otherwise `MIXED_OR_UNKNOWN_SOURCE`. */
+export interface SourceGate {
+  state: string;
+  permits_current_money: boolean;
+  reason: "MIXED_OR_UNKNOWN_SOURCE" | null;
 }
 
 export interface FindingFinancialsBody {
@@ -252,6 +263,8 @@ export interface FindingConsequencesBody {
     current_amount_shown: boolean;
     derived_now: unknown;
     money_eligibility?: MoneyEligibility["state"];
+    source_gate?: SourceGate;
+    withheld_reasons?: string[];
   };
   money_eligibility?: MoneyEligibility;
   consequence: ConsequenceRevision | null;

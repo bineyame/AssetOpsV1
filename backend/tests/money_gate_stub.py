@@ -21,3 +21,30 @@ class FixedEligibility:
 
 
 ELIGIBLE = FixedEligibility()
+
+
+class FixedProvenance:
+    """S4-05b phase 2: a stored-provenance resolver stub with one fixed state. Production composes the S4-05a
+    resolver; a consequence read without one reads UNKNOWN and withholds the current amount
+    (`MIXED_OR_UNKNOWN_SOURCE`). Tests that exercise basis currentness alone pass `AUTHORED` explicitly."""
+
+    def __init__(self, state: str = "AUTHORED_DEMONSTRATION") -> None:
+        self.state = state
+
+    def _block(self, tenant_id: UUID, site_id: UUID, finding_revision_id: Any, consequence_revision_id: Any = None
+               ) -> dict[str, Any]:
+        return {"tenant_id": str(tenant_id), "site_id": str(site_id),
+                "finding_revision_id": str(finding_revision_id),
+                "consequence_revision_id": None if consequence_revision_id is None else str(consequence_revision_id),
+                "cited_accepted_evidence_ids": [], "power_accepted_evidence_ids": None, "state": self.state,
+                "reasons": [], "accepted_evidence_ids": [], "problematic_accepted_evidence_ids": [],
+                "publication_ids": [], "source_classes": [], "fixtures": [], "runs": [], "evidence": []}
+
+    def finding_revision(self, tenant_id: UUID, site_id: UUID, finding_revision_id: UUID) -> dict[str, Any]:
+        return self._block(tenant_id, site_id, finding_revision_id)
+
+    def consequence_revision(self, tenant_id: UUID, site_id: UUID, consequence_revision_id: UUID) -> dict[str, Any]:
+        return self._block(tenant_id, site_id, "stub", consequence_revision_id)
+
+
+AUTHORED = FixedProvenance()

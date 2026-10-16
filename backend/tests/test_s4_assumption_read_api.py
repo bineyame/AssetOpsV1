@@ -159,8 +159,11 @@ class TestFindingFinancialsBridge:
                    "price": {"revision_id": "p1", "reason": None},
                    "amount": {"low": "0", "high": "3.4375", "currency": "USD"},
                    "display": {"state": "ROUNDED_OUTWARD", "amount_low": "0.00", "amount_high": "3.44"}}
-            return {"currentness": {"state": currentness, "reasons": [], "pending_work": []}, "consequence": row,
-                    "money_eligibility": {"state": "ELIGIBLE"}}  # LR-01: the shared gate lets it through
+            return {"currentness": {"state": currentness, "reasons": [], "pending_work": [],
+                                    # S4-05b phase 2: the stored source gate lets it through
+                                    "source_gate": {"state": "AUTHORED_DEMONSTRATION", "permits_current_money": True,
+                                                    "reason": None}},
+                    "consequence": row, "money_eligibility": {"state": "ELIGIBLE"}}  # LR-01: the shared gate too
 
         class Consequences:
             def __init__(self, out=None, error=None):
@@ -192,6 +195,34 @@ class TestFindingFinancialsBridge:
                            (None, "PENDING_REASSESSMENT")):
             held = bridge_consequence({**result("CURRENT"), "money_eligibility": gate})
             assert (held["state"], held["amount"], held["recorded_consequence_revision_id"]) == (want, None, "c1")
+        # S4-05b phase 2: CURRENT PRICED + LR ELIGIBLE, but the exact set is MIXED/UNKNOWN (or no gate was read).
+        for sgate in ({"state": "MIXED", "permits_current_money": False, "reason": "MIXED_OR_UNKNOWN_SOURCE"},
+                      {"state": "UNKNOWN", "permits_current_money": False, "reason": "MIXED_OR_UNKNOWN_SOURCE"}, None):
+            r = result("CURRENT")
+            r["currentness"] = {**r["currentness"], "source_gate": sgate}
+            held = bridge_consequence(r)
+            assert (held["state"], held["amount"], held["quantity"], held["consequence_revision_id"],
+                    held["recorded_consequence_revision_id"]) == ("MIXED_OR_UNKNOWN_SOURCE", None, None, None, "c1")
+            assert held["currentness_reasons"] == ["MIXED_OR_UNKNOWN_SOURCE"]
+            # beside the LR gate: both typed reasons are kept, the LR state names the bridge
+            both = bridge_consequence({**r, "money_eligibility": {"state": "WITHHELD_GENERATOR_SERIES"}})
+            assert both["state"] == "WITHHELD_GENERATOR_SERIES" and both["amount"] is None
+            assert both["currentness_reasons"] == ["MONEY_WITHHELD_GENERATOR_SERIES", "MIXED_OR_UNKNOWN_SOURCE"]
+
+
+def test_every_failed_money_gate_is_named_at_once() -> None:
+    """S4-05 shared contract item 4: MIXED_OR_UNKNOWN_SOURCE is exposed beside every other failed typed gate."""
+    from assetops_backend.evidence.provenance_read import source_gate
+    from assetops_backend.financials.consequence_read import withheld_reasons
+
+    mixed = source_gate({"state": "MIXED"})
+    assert withheld_reasons("STALE", ["PRICE_SELECTION_CHANGED"], "PENDING_REASSESSMENT", mixed,
+                            {"state": "UNPRICED"}) == [
+        "STALE", "PRICE_SELECTION_CHANGED", "MONEY_PENDING_REASSESSMENT", "MIXED_OR_UNKNOWN_SOURCE", "UNPRICED"]
+    assert withheld_reasons("CURRENT", [], "ELIGIBLE", source_gate({"state": "REGISTERED_SIMULATION"}),
+                            {"state": "PRICED"}) == []
+    assert source_gate(None)["reason"] == "MIXED_OR_UNKNOWN_SOURCE"
+    assert source_gate({"state": "UNKNOWN"})["permits_current_money"] is False
 
 
 # ---- S4-02b phase 2b: review carries M1 (closed source), L1 (route refusals) and L4 (STALE wording) ----
@@ -259,7 +290,9 @@ class TestConsequenceRouteCarries:
                                     "consequence": {"id": "c1", "state": "PRICED"}})
         assert (audit["state"], audit["amount"], audit["currency"], audit["quantity"]) == (
             "AUDIT_ONLY", None, None, None)
-        assert audit["currentness_reasons"] == ["SOURCE_CLOSED"] and "for the record only" in audit["reason"]
+        # S4-05b phase 2: no stored source gate was read, so the source refusal is named beside SOURCE_CLOSED.
+        assert audit["currentness_reasons"] == ["SOURCE_CLOSED", "MIXED_OR_UNKNOWN_SOURCE"]
+        assert "for the record only" in audit["reason"]
 
     def test_l4_stale_claims_a_queued_recalculation_only_when_work_exists(self) -> None:
         idle = bridge_consequence(stale([]))
@@ -333,52 +366,3 @@ class TestStoredSourceProvenanceNotTheDay:
             "UNKNOWN", "UNKNOWN", str(c))
         assert both["publication_ids"] == [] and both["source_classes"] == []
 
-
-class TestP02DemonstrationLabel:
-    """Architect D-2026-10-15-p02-demonstration-label: P02-power-late shares the P01 label."""
-
-    P02 = ("2026-10-24T06:05:00+00:00", "2026-10-24T08:00:00+00:00")
-
-    def test_p02_gets_the_same_label_with_its_own_case_and_spec(self) -> None:
-        from assetops_backend.demonstration_label import LABEL, STATEMENT, demonstration_case
-
-        demo = demonstration_case("KOBO-001", *self.P02)
-        assert demo == {"label": LABEL, "statement": STATEMENT, "case_id": "P02-power-late",
-                        "spec": "s4-power-late-demo-cases-v1"}
-        assert demonstration_case("OTHER-001", *self.P02) is None
-        assert demonstration_case("KOBO-001", "2026-10-25T06:05:00+00:00", "2026-10-25T08:00:00+00:00") is None
-
-    def _use_specs(self, monkeypatch, tmp_path, texts) -> None:
-        from assetops_backend import demonstration_label as dl
-
-        paths = []
-        for i, text in enumerate(texts):
-            f = tmp_path / f"spec{i}.json"
-            f.write_text(text, encoding="utf-8")
-            paths.append(f)
-        monkeypatch.setattr(dl, "SPEC_PATHS", tuple(paths))
-        dl._declared.cache_clear()
-        self._dl = dl
-
-    def test_a_malformed_declared_spec_is_cautious_not_attested(self, monkeypatch, tmp_path) -> None:
-        import json
-        good = json.dumps({"site_code": "KOBO-001", "label": "x", "cases": [{"case_id": "A", "day": "2026-10-24"}]})
-        try:
-            self._use_specs(monkeypatch, tmp_path, [good, '{"site_code": "KOBO-001"'])
-            demo = self._dl.demonstration_case("KOBO-001", *self.P02)
-            assert demo["case_id"] == "unverified" and demo["label"] == self._dl.UNVERIFIED_LABEL
-        finally:
-            monkeypatch.undo()
-            self._dl._declared.cache_clear()
-
-    def test_conflicting_declarations_are_refused(self, monkeypatch, tmp_path) -> None:
-        import json
-        def spec(case):
-            return json.dumps({"site_code": "KOBO-001", "label": case, "cases": [{"case_id": case, "day": "2026-10-24"}]})
-        try:
-            self._use_specs(monkeypatch, tmp_path, [spec("A"), spec("B")])
-            demo = self._dl.demonstration_case("KOBO-001", *self.P02)
-            assert demo["case_id"] == "unverified"
-        finally:
-            monkeypatch.undo()
-            self._dl._declared.cache_clear()

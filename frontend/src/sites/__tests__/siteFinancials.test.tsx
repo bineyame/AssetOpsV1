@@ -513,7 +513,7 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
     expect(bridge).toHaveTextContent(
       "Modelled potential fuel-cost exposure: 0.00 to 16.20 USD, under the reviewed fuel-cost-1 assumptions. This is not measured fuel saved or a physical maximum.",
     );
-    expect(bridge.querySelector("[data-source-provenance='AUTHORED_DEMONSTRATION']")).toHaveTextContent("Demonstration data");
+    expect(bridge.querySelector("[data-source-provenance='AUTHORED_DEMONSTRATION']")).toHaveTextContent("Prepared example data");
     expect(container.textContent ?? "").not.toMatch(/simulat/i);
     expect(bridge.querySelector("[data-bridge-amount]")).toHaveAttribute("data-bridge-amount", "current");
     expect(bridge.querySelector("[data-bridge-step='fuel']")).toHaveTextContent("0 to 12.65 litres");
@@ -821,4 +821,58 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
     expect(bridge.querySelector("[data-financials-pending-reassessment='true']")).not.toBeNull();
     expect(bridge.querySelector(`[data-financials-recorded-link='${C1}']`)).not.toBeNull();
   });
+});
+
+describe("Site > Financials > Overview: S4-05b stored source gate", () => {
+  const URL = `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`;
+
+  it.each(["MIXED", "UNKNOWN"] as const)(
+    "a %s set withholds the current amount beside an eligible priced head, keeps the record linked and labels each version",
+    async (state) => {
+      const union: SourceProvenance = {
+        ...authoredSource(C2),
+        state,
+        reasons: [{ code: state === "MIXED" ? "BOUND_AND_UNBOUND" : "NO_POSITIVE_BINDING", accepted_evidence_ids: ["ev-1"] }],
+        problematic_accepted_evidence_ids: ["ev-1"],
+      };
+      const history = consequencesBody([crev(1, C1), crev(2, C2)]);
+      const client = fake({
+        bridge: {
+          status: "loaded",
+          value: {
+            ...pricedBridge({
+              state: "MIXED_OR_UNKNOWN_SOURCE", currentness: "CURRENT", amount: null, currency: null, quantity: null,
+              consequence_revision_id: null, recorded_consequence_revision_id: C2,
+              currentness_reasons: ["MIXED_OR_UNKNOWN_SOURCE"],
+              reason: "The source of the records behind this cost is not established, so no current cost is shown.",
+            }),
+            source_provenance: { finding_revision: { ...authoredSource(), state }, consequence_revision: union },
+          },
+        },
+        consequences: {
+          status: "loaded",
+          value: {
+            ...history,
+            currentness: { ...history.currentness, current_amount_shown: false },
+            history: { ...history.history, revisions: history.history.revisions.map((r) => ({ ...r, source_provenance: union })) },
+          },
+        },
+      });
+      const { container } = mount(client, URL);
+      await settledScreen();
+      const bridge = container.querySelector("[data-financials-bridge]") as HTMLElement;
+      expect(bridge).toHaveAttribute("data-financials-bridge", "MIXED_OR_UNKNOWN_SOURCE");
+      expect(bridge).toHaveAttribute("data-financials-amount", "none");
+      expect(bridge.textContent ?? "").not.toMatch(/\d+\.\d\d USD/);
+      expect(bridge.querySelector(`[data-source-provenance='${state}']`)).toHaveTextContent("No current cost is shown.");
+      expect(bridge.querySelector("[data-financials-source-withheld]")).not.toBeNull();
+      expect(bridge.querySelector(`[data-financials-recorded-link='${C2}']`)).not.toBeNull();
+      const row = document.querySelector(`[data-consequence-revision='${C2}']`) as HTMLElement;
+      expect(row).toHaveAttribute("data-consequence-current", "false");
+      expect(row.querySelector(`[data-consequence-source='${state}']`)).not.toBeNull();
+      expect(document.body.textContent ?? "").not.toMatch(/the current fuel cost/);
+      const { violations } = scanProductVocabulary(container, `financials ${state}`);
+      expect(violations, describeViolations(violations)).toEqual([]);
+    },
+  );
 });

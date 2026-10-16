@@ -14,11 +14,29 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from assetops_backend.evidence.source_provenance import UNKNOWN
+from assetops_backend.evidence.source_provenance import AUTHORED_DEMONSTRATION, REGISTERED_SIMULATION, UNKNOWN
 
 PROVENANCE_NOT_WIRED = "PROVENANCE_NOT_WIRED"
 PROVENANCE_UNREADABLE = "PROVENANCE_UNREADABLE"
 PROVENANCE_REVISION_NOT_FOUND = "PROVENANCE_REVISION_NOT_FOUND"
+
+#: S4-05b phase 2 (shared contract item 4): the typed money gate a MIXED or UNKNOWN source raises beside every
+#: other failed gate. Only the two positive stored classes may carry a current amount; this is independent of
+#: CURRENT PRICED and LR eligibility, and an absent block is never positive.
+MIXED_OR_UNKNOWN_SOURCE = "MIXED_OR_UNKNOWN_SOURCE"
+POSITIVE_STATES = frozenset({AUTHORED_DEMONSTRATION, REGISTERED_SIMULATION})
+
+
+def permits_current_money(block: dict[str, Any] | None) -> bool:
+    """True only when the exact block resolved to a positive stored class."""
+    return block is not None and block.get("state") in POSITIVE_STATES
+
+
+def source_gate(block: dict[str, Any] | None) -> dict[str, Any]:
+    """The source half of the money composition for one exact block: its state and the typed refusal, if any."""
+    permits = permits_current_money(block)
+    return {"state": UNKNOWN if block is None else block.get("state", UNKNOWN), "permits_current_money": permits,
+            "reason": None if permits else MIXED_OR_UNKNOWN_SOURCE}
 
 
 def unresolved(code: str, tenant_id: UUID, site_id: UUID, finding_revision_id: Any,

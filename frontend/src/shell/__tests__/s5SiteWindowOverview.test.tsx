@@ -67,12 +67,25 @@ function money(over: Partial<WindowMoney> = {}): WindowMoney {
     quantity_state: "BOUNDED",
     price_state: "PRICED",
     limitation: null,
-    demonstration: {
-      label: "Demonstration data",
-      statement: "This Finding comes from an authored demonstration case.",
-      case_id: "P01-power",
-      spec: "s4-power-demo-cases-v1",
+    source_provenance: {
+      tenant_id: "t1",
+      site_id: "s1",
+      finding_revision_id: RID,
+      consequence_revision_id: CID,
+      cited_accepted_evidence_ids: [EVIDENCE],
+      power_accepted_evidence_ids: [EVIDENCE],
+      state: "AUTHORED_DEMONSTRATION",
+      reasons: [],
+      accepted_evidence_ids: [EVIDENCE],
+      problematic_accepted_evidence_ids: [],
+      publication_ids: ["pub-1"],
+      source_classes: ["AUTHORED_DEMONSTRATION"],
+      fixtures: [{ fixture_id: "s4-power-demo-cases-v1", fixture_version: "1" }],
+      runs: [],
+      evidence: [],
     },
+    source_gate: { state: "AUTHORED_DEMONSTRATION", permits_current_money: true, reason: null },
+    withheld_reasons: [],
     label: "fuel-cost-1 model-conditioned potential fuel-cost exposure: zero lower bound. Not savings.",
     upstream: { status: "CURRENT", stage: null, reasons: [] },
     links: {
@@ -274,14 +287,14 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
 });
 
 describe("S5-01 selected-window Overview: money states", () => {
-  it("shows the priced P01 amount with its demonstration label and exact links", async () => {
+  it("shows the priced P01 amount with its stored source label and exact links", async () => {
     const { client } = clientOf(() => summary());
     renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
     await settledScreen();
     const card = moneyCard();
     expect(card.getAttribute("data-money-state")).toBe("PRICED");
     expect(within(card).getByText("0.00 to 15.82 USD")).toBeTruthy();
-    expect(card.querySelector('[data-financials-demonstration="P01-power"]')).not.toBeNull();
+    expect(card.querySelector('[data-source-provenance="AUTHORED_DEMONSTRATION"]')).toHaveTextContent("Prepared example data.");
     // Slice review L3: the Operating objective panel reads the day's claim level and coverage; no objective is implied.
     expect(document.querySelector("[data-objective-statement]")?.textContent).toContain("does not state an operating objective");
     expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Possibly avoidable");
@@ -326,6 +339,34 @@ describe("S5-01 selected-window Overview: money states", () => {
     expect(moneyCard().querySelector("[data-money-amount]")?.getAttribute("data-money-amount")).toBe("none");
     expect(screen.queryByText("0.00 to 15.82 USD")).toBeNull();
   });
+
+  it.each(["MIXED", "UNKNOWN"] as const)(
+    "a %s stored source withholds the amount and names the source state (S4-05b)",
+    async (source) => {
+      const base = summary().money;
+      const { client } = clientOf(() =>
+        summary("2026-10-23", {}, {
+          state: "MIXED_OR_UNKNOWN_SOURCE",
+          amount_low: null,
+          amount_high: null,
+          limitation: ["MIXED_OR_UNKNOWN_SOURCE"],
+          source_provenance: { ...base.source_provenance!, state: source, problematic_accepted_evidence_ids: [EVIDENCE] },
+          source_gate: { state: source, permits_current_money: false, reason: "MIXED_OR_UNKNOWN_SOURCE" },
+        }),
+      );
+      const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+      await settledScreen();
+      const card = moneyCard();
+      expect(card.getAttribute("data-money-state")).toBe("MIXED_OR_UNKNOWN_SOURCE");
+      expect(card.querySelector("[data-money-amount]")?.getAttribute("data-money-amount")).toBe("none");
+      expect(card.querySelector(`[data-source-provenance="${source}"]`)).toHaveTextContent(
+        source === "MIXED" ? "Sources do not agree." : "Source unverified.",
+      );
+      expect(card).toHaveTextContent("No current cost is shown.");
+      const { violations } = scanProductVocabulary(container, `overview ${source}`);
+      expect(violations, describeViolations(violations)).toEqual([]);
+    },
+  );
 
   it("after attestation and before reassessment: upstream out of date while the gate reads pending reassessment", async () => {
     const { client } = clientOf(() =>
