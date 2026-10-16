@@ -1301,7 +1301,7 @@ function AnalysisView({
         <Disclosure name="dispatch-stored-record" summary="Technical details: stored record, versions and references">
         <FactList>
           {Object.entries(read.unavailable).map(([key, value]) => (
-            <Fact key={`unavailable-${key}`} term="Not yet available, as recorded">
+            <Fact key={`unavailable-${key}`} term="Recorded note on a result still to come">
               <code {...REF}>{`${key}: ${value}`}</code>
             </Fact>
           ))}
