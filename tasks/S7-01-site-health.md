@@ -1,38 +1,8 @@
-﻿# S7-01 — Site Health and first asset risk
+# S7-01 — Site Health and battery boundary umbrella
 
-Status: outline; refine after technical gates and owner wave input, before activation
-USER_REVIEW_REQUIRED: true
-Milestone: S7 Health
-Depends on: S2-02 central diagnostics, S1-02 bindings, bounded readiness/health contract and D-edge-health-cases. S6-02 is ordering history only.
-Branch: task/S7-01-site-health
-Planner: Codex, 2026-10-07
+Status: implementation-ready. Two reviewed parts; this umbrella is not an extra build. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-a-s7-health`. Registry `I-S7-01`, `health:2#a`, `asset:3#a` stays open until both parts and owner review.
 
-## Visible outcome
+1. [S7-01a](S7-01a-health-read.md): central persisted diagnostic fixture, source-health and battery Unknown reads. USER_REVIEW_REQUIRED: false; mergeable after independent review.
+2. [S7-01b](S7-01b-health-ui.md): Site Health and battery asset UI, 1440/390, exact links and reproducible owner walkthrough. USER_REVIEW_REQUIRED: true; owner checkpoint before merge.
 
-Site health and battery asset detail separate source freshness, observed stress and unknown state.
-
-## Persisted object and read contract
-
-Site source-health read model from cadence/heartbeat, ingestion lag and edge diagnostics; a bounded battery stress/asset-life assessment linked to Asset only when a causal observation supports it, otherwise an explicit Unknown state.
-
-## Demo acceptance
-
-Use centrally received gateway diagnostics from S2-02 for stale contact, queue age/depth, clock offset and disk pressure; a local Lab status alone cannot support Site Health. Planner names `D-edge-health-cases` for outage/pressure and verifies central reload. Show battery stress only if a causal simulator observation exists; otherwise name the missing input, show Unknown and withhold replacement exposure. `I-sim-battery-cases` is outside the S7 queue and captured-device replay is unavailable for this simulated-only demo. Reload the central diagnostic and asset states.
-
-## Missing/conflicting evidence
-
-Absent evidence is Unknown, not healthy; no remaining-life date or failure diagnosis without inputs.
-
-## Evidence lineage
-
-Source-health state resolves central diagnostic IDs and server receive times. Any supported battery claim additionally resolves accepted readings, configuration, assumptions and SourceEnvelope IDs; an Unknown state names the missing input.
-
-## Review and refinement
-
-`I-source-health-read/ui` owns `health:2` from centrally received diagnostics and `D-edge-health-cases`. `I-asset-boundary-read/ui` owns only the Unknown/missing-input core of `asset:3`; positive physical condition remains an unmapped, non-core gap pending accepted causal battery observations.
-
-Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
-
-## Defer
-
-Global Assets root, broad health rules and unsupported maintenance next steps.
+W1 uses registered central gateway diagnostics and effective S1 battery basis. Source contact freshness is separate from reported-fact age and physical condition. Unknown or unconfigured battery with named missing causal input closes only `asset:3#a`; positive `asset:3#b`, replacement/warranty exposure and broad Asset root remain unmapped. No private Lab state supplies a health claim. Owner direction is demo speed; copy and visual polish go to W1 conclusion.

@@ -1,0 +1,13 @@
+# S6-02a fix round 1 - implementer brief
+
+Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S6-02a-verification-core` (main merged in). Environment as in `.agent/S6-02a-phase-2-brief.md`; set PYTHONPATH yourself (do not use the shared scratchpad `env.sh`). Keep-awake is running. Memory is tight (other agents run Postgres): focused tests `-n 2` at most; check free memory before the full suite and wait if under 2.5 GB.
+
+Read `.agent/S6-02a-review.md` (RETURN, F1 Medium; Lows F2-F7) and the new ruling `D-2026-10-16-s602a-holds` (`.ai/DECISIONS.md`; full text in the main checkout at `C:\Users\assef\Bineyame\AssetOpsV1-plan2\..\AssetOpsV1-gap-planning\.agent\architect-S6-02a-holds-answers.md` - it is also merged into this branch via main if present under `.agent/`).
+
+Fix before merge:
+- F1: take `now` and run the assessment inside the battery trial lock (or refuse retryably when a stored outcome/event is newer than `now`); in the reuse branch withdraw when the outstanding RESOLVED belongs to a different outcome or the latest outcome is not final. Add an interleaving test reproducing the review's scenario.
+- F4 per the ruling: pending plans and plans whose latest settled outcome is INCONCLUSIVE may be superseded for the same APPLIED Action (new immutable plan, `supersedes_plan_id`, post-cutoff new later window strictly after the prior one, baseline reuse only if still valid); not eligible after guardrail fail, current VERIFIED/target-miss INEFFECTIVE, pending withdrawal reassessment, or permanent overlap. Postgres proofs as the ruling lists.
+- F2 per the ruling: persist the causal invalidating-reading set at withdrawal (bound tenant/Site/role/asset, inside a pinned window, accepted between RESOLVED and RESOLUTION_WITHDRAWN, and materially changing the pinned basis); empty for Foundation/source/worker-only withdrawals; indeterminate attribution leaves an ordinary hold, never a permanent overlap; overlap only for an Action accepted after a causal reading and before the withdrawal. Postgres proofs as the ruling lists. A migration change to 0019 is acceptable (unmerged).
+- Cheap Lows: F6 convert to UTC in `_wire`; F7 add 401/403 tests on outcome/history GETs; F3 document the moved-baseline INCONCLUSIVE deviation in the packet; F5 note for S6-02b in the handoff.
+
+Then: rerun writer probes if writers changed, mutation checks for the new hold/continuation predicates, `tools/check-all.ps1`, registry checker, and ONE full suite (`pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=<abs>`, copy `var/sites` first). Update `.agent/S6-02a-review-packet.md` with a "Fix round 1" section. Commit in logical steps; do not merge. Report concisely.

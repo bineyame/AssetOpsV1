@@ -5517,6 +5517,40 @@ Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Packet `.agent/S6-0
 - Rule 8 (`tools/checks/configuration-persistence.ps1`): ninth writer registered; INSERT-only into the six Action tables; Action-table writes refused from every other module.
 - Reopen (`D-2026-10-15-s601-reopen`): the recommendation read carries `prior_actions.items` (every Action on the canonical Finding with its own origin revision, application/outcome state, link) and `prior_action_block`; an unresolved earlier `reserve-trial-1` Action (PENDING or APPLIED; nothing releases it until S6-02) sets `state=PRIOR_ACTION_UNRESOLVED`, `proposal=null`, Accept capability false, live result in `live_status`. Accept refuses 409 `PRIOR_ACTION_UNRESOLVED`, rechecked in `PostgresActionStore.accept(..., guard=)` under an advisory lock per (Site, Finding, asset, field, rule).
 - Open: migration must be re-chained if LR-01 (`0014`/`0015`) merges first (head pins at `test_s1_bindings_postgres.py:118`, `test_s2_evidence_ledger_postgres.py:445`, `test_s4_evidence_consequence_work_postgres.py:516,539`). No runtime grants file is generated for a dev server: the loader builds it per run (`fixture_grants`). `application_basis` is read-time; an apply effective in a recorded future period must name that period's revision. The rule picks the lowest usable SOC per segment (stricter than the ruling). S6-01b UI, S6-02 verification and S6-03 Site ActionIndex not built.
+
+## S6-01b - Action, recommendation and change surfaces (in_review)
+
+Branch `task/S6-01b-action-ui`, stacked on unmerged S6-01a `c341599b`; no backend change. Packet `.agent/S6-01b-review-packet.md`; handoffs `.agent/S6-01b-phase-1-handoff.md`, `.agent/S6-01b-phase-2-handoff.md`; owner steps `.agent/S6-01b-owner-walkthrough.md`.
+
+- Client `frontend/src/sites/actionClient.ts`: recommendation, Action, events and change reads, accept and apply POSTs. Every refusal is a typed `Refusal`. `system_demo_capability` is optional; when it is absent or `allowed:false` the screens are read-only.
+- Shared words `sites/actionPresentation.tsx`:
+  - `granted()` requires `allowed === true` and the exact command;
+  - `TrialLimitation` carries plain copy, because the server's text uses a banned word;
+  - `Ref` is the exact-ID element, exempt from the vocabulary scan;
+  - `RefusalPanel` and `CommandRefusal`.
+- Recommendation `sites/SiteRecommendation.tsx`. It is a Finding child view `recommendation` (`operatorSiteRoutes.ts` `FINDING_CHILD_VIEWS`). Finding "What to do next" links to it at the exact version.
+- Reopen round (`D-2026-10-15-s601-reopen`): `SiteRecommendation.tsx` lists `prior_actions.items` ("Actions on this Finding", own origin version, never relabelled). `state=PRIOR_ACTION_UNRESOLVED` (from `state`, not block presence) shows the notice naming/linking the blocking Action, the live recomputation as a separate reason, and a disabled Accept with the stated reason; a 409 `PRIOR_ACTION_UNRESOLVED` on accept is reported likewise. Apply is disabled while the effective-time field is cleared; failure codes in the change page list do not wrap. Open: S6-02 must add the resolved/closed transition that releases the hold.
+- Action root `sites/SiteAction.tsx` + `SiteActionFrame` (`shell/SiteAnalyticsFrames.tsx`).
+  - Overview, Application (`/execution`) and History. The selector `event_id` | `recorded_at` is carried in every section link.
+  - 404 `ACTION_EVENT_NOT_FOUND` reads "Selected event not found" and links the latest record (phase-1 review M1).
+  - An untouched `effective_from` default is re-derived at click: next UTC midnight after max(read time, now) (L1).
+  - With no `application_basis.current_foundation_revision_id`, Apply is not offered and the reason is stated (L3).
+- Foundation change `sites/SiteFoundationChange.tsx` + `SiteFoundationChangeFrame`. It is the deep route `/sites/{site}/foundation/changes/{change_id}` (`SITE_FOUNDATION_CHANGE_ROUTE_PATH`).
+  - Content: old/new reserve, unit, asset, effective and recorded times, versions by role and origin, signal assignment set IDs, Action and application-event links, pending outcome, and the Action's FAILED attempts (a second read).
+  - Bare `/foundation/changes` is `SiteFoundationChangesFrame`, an unavailable state with a link back.
+  - Both are static segments, so they outrank `:foundationView`. `FOUNDATION_SUBTABS` is unchanged.
+- Styles: `ui/primitives.css` end, all under `.app-frame--operator`. Pairs go side by side from 1100px. Refs wrap, except inside dense tables, which scroll in their own scroller.
+- Tests:
+  - `sites/__tests__/siteAction.test.tsx` (30) and `siteFoundationChange.test.tsx` (8, mounted through `App`) load `backend/tests/fixtures/s6_action_api_contract.json`. Derived bodies are listed in the test headers.
+  - `siteFinding.test.tsx` adds the no-recommendation-link case.
+- Tools:
+  - `tools/s601b_action_walkthrough.py` (`prepare|links|serve|drop`). It uses DB `assetops_s601b*` (never `_test`), work folder `var/s601b*`, API 8961 and web 5461. It runs `s6_action_records.build` into the private DB and writes the scoped `ASSETOPS_ACTION_DEMO_GRANTS` document.
+  - `tools/s601b-action-evidence.mjs` (CDP 9461): 56 claims plus `comparison.md`.
+- Open:
+  - The Recommendation for a newer FindingRevision does not mention an Action accepted on an earlier one. This is S6-01a server behaviour, recorded for the owner.
+  - The served walkthrough uses the real clock against fixture-clock records.
+  - There is no OBSERVED command control.
+  - S6-02 owns Plan, Evidence and Verification, the change index and effect verdicts.
 ## S4-06 - equal-start future price succession (built, review pending)
 
 Branch `task/S4-06-price-succession` from main `7c72c6b3`; packet `.agent/S4-06-review-packet.md`.
@@ -5594,3 +5628,14 @@ Branch `task/S6-02a-verification-core` (main `e39a3c20` merged in; unmerged). Pa
 - Routes: POST `.../verification/evaluations`; GET `.../verification/outcome`, `.../verification/history`; Action, Change and Recommendation reads carry `verification`.
 - Fixtures: `backend/tests/fixtures/s6_verification_api_contract.json` (TEST-SCOPED complete windows over a real roles-2 Site; shape check), `s6_action_api_contract.json` regenerated (additive). Replay `backend/conversions/d-verification-window-v1.json` + `host/tests/test_s6_verification_replay.py`.
 - Open: the replay is complete (12/12 slots, REGISTERED_SIMULATION pair PASS) but settles INCONCLUSIVE: the shipped mini-grid generator ignores the reserve, so no VERIFIED Lab path exists (Architect). Registered scenario/profile lineage is not centrally observable (source pair checks class, fixtures or distinct run digests only). Change read keeps its apply-time `outcome: PENDING` beside `verification`. Late-evidence race between the evaluator's read and its commit is narrow, not closed. Registry nodes stay `open` until review.
+
+## S5-02 - Finding list in Site Overview (built, slice review pending)
+
+Branch `task/S5-02-overview-finding-list` (base main `5c1d9d42`, unmerged); packet `.agent/S5-02-review-packet.md`; owner steps `.agent/S5-02-owner-walkthrough.md`. No backend change.
+
+- UI: `sites/OverviewFindingList.tsx` reads the S4-04 index for the Overview's served `window.start/end` (domain `mini-grid-dispatch`, `OVERVIEW_FINDING_PREVIEW_LIMIT = 2`, first page), drops older answers, renders `current-empty` / non-current status / refusal / `current-rows` (`data-overview-finding-list`), full-list link with the identical window.
+- Parity: `compareParity` implements `D-2026-10-16-s502-parity` (index CURRENT+is_current with a row; card `DISCOVERED`, source open, not audit; both episodes intersect the day; Site, window, day selection seq, run, assessment record, model, input/config hashes, match pass and matched-through all present and equal; day matched) -> `same` / `different` / `not-compared` with both bases and "Reload both". Rows are never hidden.
+- Composition: `shell/SiteDetailFrame.tsx` injects `findingIndex` (default client; `App` `siteFindingIndex`) and `windowLinks.findingList`; `SiteWindowOverview` shows the list only when both are supplied, else the old placeholder. `SiteOverview` has a reload counter. `SiteFindingIndex.tsx` exports `STATUS_WORDS` and `Basis`.
+- Tests: `shell/__tests__/s502OverviewFindingList.test.tsx`; S5 summary builders in `shell/__tests__/s5WindowFixtures.ts`.
+- Walkthrough: `tools/s502_overview_finding_list_walkthrough.py` wraps the S4-04 tool (default DB `assetops_s404_owner_s502`, `var/s404_owner_s502`, API 8952, web 5452, TLS 8953, HTTP 8954), runs the S2 Evidence comparison after `prepare` and checks every day reads `site-window-summary-1`; browser claims `tools/s502-overview-finding-list-evidence.mjs <base> <initial|late|settled|closed> <out> <s502-manifest> <s404-manifest>`.
+- Open: backend still emits `finding_list: UNAVAILABLE` (validator requires it); owner record before merge and `mini:3#a/b` promotion; copy ("window" wording, status sentences) for the W1-conclusion task.

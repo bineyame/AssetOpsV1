@@ -1,0 +1,755 @@
+/**
+ * S6-01b phase 1: the Action root (Overview, Application, History) and the
+ * Finding Recommendation view, against S6-01a's committed wire contract
+ * `backend/tests/fixtures/s6_action_api_contract.json` (`D-action-records-v1`,
+ * keyed by manifest ID). `fetch` is stubbed to serve the recorded responses,
+ * so the real client and the real screens read real persisted shapes; no
+ * static mock value becomes product data.
+ *
+ * Derived bodies (phase-1 review L4), each marked "Derived" where it is built:
+ * 1. "capability absent": a recorded body with the capability field removed;
+ * 2. the events read at the ACCEPTED event: the recorded latest events cut
+ *    through that event, with the recorded Action read's selection;
+ * 3. the events read before APPLIED: the recorded latest events cut to the
+ *    first two (ACCEPTED, OBSERVED), served beside the recorded pending read;
+ * 4. store-unavailable 503 re-read bodies (no recorded case exists);
+ * 5. a capability granted for a different command (OBSERVE renamed APPLY's
+ *    slot) and a pending read whose application basis names no version.
+ * 6. (reopen round) a cleared effective-time field is a UI input, not a body;
+ * 7. (reopen round) the recorded accepted read with the recorded
+ *    `prior_action_block` of `latest_revision_after_apply` added: the server may
+ *    send a block while `state=ACCEPTED`, and the notice follows `state` only.
+ * Every other body is served exactly as recorded, including the reopen cases
+ * `latest_revision_after_apply`, `latest_revision_after_apply_served_clock_stale`
+ * and `accept_newer_revision_prior_action_unresolved` (D-2026-10-15-s601-reopen).
+ *
+ * Widths: jsdom has no layout, so the 1440 / 390 cases set the window width
+ * and prove the same structure (no command control, a read-only reason) at
+ * both; rendered layout at both widths is phase-2 browser evidence.
+ */
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
+import { SiteActionFrame, SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { settledScreen } from "../../test/settled";
+import type { SiteDetailClient } from "../siteDirectoryClient";
+import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+
+type Case = { request: { method: string; path: string; body?: Record<string, unknown> }; status: number; body: any };
+const M = contract.manifest as unknown as Record<string, Record<string, Case>>;
+const rec = M["recommendation:1#a"];
+const ov = M["action-overview:1#a"];
+const ex = M["action-execution:1#a"];
+const hi = M["action-history:1#a"];
+
+const ACTION = ov.accepted_pending.body.action.id as string;
+const FINDING = rec.pre_accept_available.body.finding_id as string;
+const REV = rec.pre_accept_available.body.revision_id as string;
+const INELIGIBLE_FINDING = rec.pre_accept_unavailable.body.finding_id as string;
+const ACCEPTED_EVENT = hi.action_event_id_accepted.body.selection.event_id as string;
+const OBSERVED_CUTOFF = hi.action_recorded_at_observed.body.selection.recorded_at as string;
+const ACTION_API = `/api/sites/KOBO-001/actions/${ACTION}`;
+const REC_API = `/api/sites/KOBO-001/findings/${FINDING}/recommendation`;
+
+/** Method + path + sorted, decoded query: how a request is matched to a recorded case. */
+function key(method: string, url: string): string {
+  const [path, query = ""] = url.split("?");
+  // Decoded by hand: a recorded path carries a raw "+" in an offset, which form decoding would turn into a space.
+  const params = query
+    .split("&")
+    .filter(Boolean)
+    .map((pair) => pair.split("=").map(decodeURIComponent) as [string, string])
+    .sort(([a], [b]) => a.localeCompare(b));
+  return `${method} ${decodeURIComponent(path)}${params.length ? `?${params.map(([k, v]) => `${k}=${v}`).join("&")}` : ""}`;
+}
+
+interface Served {
+  status: number;
+  body: unknown;
+}
+
+/** Stub `fetch`: GETs from a mutable table, POSTs from per-path queues; every request is recorded. */
+function serve(gets: Record<string, Served>, posts: Record<string, Served[]> = {}) {
+  const table = new Map<string, Served>();
+  for (const [url, value] of Object.entries(gets)) table.set(key("GET", url), value);
+  const queues = new Map<string, Served[]>();
+  for (const [url, list] of Object.entries(posts)) queues.set(key("POST", url), [...list]);
+  const requests: { method: string; url: string; body: any }[] = [];
+  const unmatched: string[] = [];
+  vi.stubGlobal("fetch", async (url: string, init?: RequestInit) => {
+    const method = init?.method ?? "GET";
+    requests.push({ method, url, body: init?.body ? JSON.parse(String(init.body)) : null });
+    const k = key(method, url);
+    const hit = method === "GET" ? table.get(k) : queues.get(k)?.shift();
+    if (!hit) {
+      unmatched.push(k);
+      return new Response(JSON.stringify({ detail: { code: "TEST_UNMATCHED", message: k } }), { status: 599 });
+    }
+    return new Response(JSON.stringify(hit.body), { status: hit.status });
+  });
+  return {
+    requests,
+    unmatched,
+    setGet(url: string, value: Served) {
+      table.set(key("GET", url), value);
+    },
+  };
+}
+
+const served = (c: Case): Served => ({ status: c.status, body: c.body });
+
+const detail: SiteDetailClient = {
+  getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId } }),
+} as SiteDetailClient;
+
+function Where() {
+  const location = useLocation();
+  return <output data-testid="where">{`${location.pathname}${location.search}`}</output>;
+}
+
+function mount(path: string) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        {["/sites/:siteId/actions/:actionId", "/sites/:siteId/actions/:actionId/:actionView"].map((p) => (
+          <Route key={p} path={p} element={<><SiteActionFrame detail={detail} sitesPath="/sites" /><Where /></>} />
+        ))}
+        {["/sites/:siteId/findings/:findingId", "/sites/:siteId/findings/:findingId/:findingView"].map((p) => (
+          <Route key={p} path={p} element={<><SiteFindingFrame detail={detail} sitesPath="/sites" /><Where /></>} />
+        ))}
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+const q = (selector: string) => document.body.querySelector(selector);
+const qa = (selector: string) => Array.from(document.body.querySelectorAll(selector));
+const where = () => screen.getByTestId("where").textContent;
+
+function withoutCapability<T extends { body: any }>(c: T): Served {
+  // Derived: the recorded body with the capability field removed ("absent").
+  const body = structuredClone(c.body);
+  delete body.system_demo_capability;
+  return { status: 200, body };
+}
+
+function atWidth(width: number) {
+  Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+  window.dispatchEvent(new Event("resize"));
+}
+
+function noVocabularyViolations(page: string) {
+  const main = document.body.querySelector("main") as HTMLElement;
+  const { violations, scanned } = scanProductVocabulary(main, page);
+  expect(scanned).toBeGreaterThan(10);
+  expect(violations, describeViolations(violations)).toEqual([]);
+}
+
+afterEach(() => {
+  vi.useRealTimers();
+  cleanup();
+  vi.unstubAllGlobals();
+  atWidth(1024);
+});
+
+describe("Recommendation (recommendation:1#a)", () => {
+  it("shows the eligible trial, its pinned inputs, the limitation and a labelled SYSTEM accept control", async () => {
+    const s = serve({ [`${REC_API}?revision_id=${REV}`]: served(rec.pre_accept_available) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    const proposal = rec.pre_accept_available.body.proposal;
+    expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("AVAILABLE");
+    expect(q("[data-recommendation-proposal]")?.textContent).toMatch(/20%.*to.*15%/);
+    expect(q("[data-recommendation-rule]")?.textContent).toBe("reserve-trial-1 v1");
+    expect(q("[data-pinned-finding-revision]")?.textContent).toBe(proposal.finding_revision_id);
+    expect(q("[data-pinned-foundation-revision]")?.textContent).toBe(proposal.foundation_revision_id);
+    expect(Number(q("[data-recommendation-input-count]")?.getAttribute("data-recommendation-input-count"))).toBeGreaterThan(0);
+    expect(q("[data-action-limitation='POLICY_SENSITIVITY_TRIAL_ONLY']")?.textContent).toMatch(/does not predict less generator time, any saving or any safety effect/);
+    const button = screen.getByRole("button", { name: "Accept trial (SYSTEM demonstration)" });
+    expect(button).toBeInTheDocument();
+    // Money is a labelled link to the Finding's own stored figure, never an amount here.
+    const money = q("[data-recommendation-money-link] a");
+    expect(money?.getAttribute("href")).toBe(`/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${REV}`);
+    expect(q("[data-recommendation-money-link]")?.textContent).toMatch(/predicts no saving/);
+    expect(document.body.textContent).not.toMatch(/approv/i);
+    expect(q("[data-finding-section='recommendation']")).toHaveAttribute("aria-current", "page");
+    noVocabularyViolations("recommendation:1#a available");
+    expect(s.unmatched).toEqual([]);
+  });
+
+  it("shows the typed unavailable reason and no control when the rule proposes nothing", async () => {
+    serve({ [`/api/sites/KOBO-001/findings/${INELIGIBLE_FINDING}/recommendation`]: served(rec.pre_accept_unavailable) });
+    mount(`/sites/KOBO-001/findings/${INELIGIBLE_FINDING}/recommendation`);
+    await settledScreen();
+    expect(q("[data-recommendation-unavailable]")?.getAttribute("data-recommendation-unavailable")).toBe("SOC_NOT_ABOVE_HEADROOM");
+    expect(document.body.textContent).toMatch(/not above the reserve plus the 10-point headroom/);
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("keeps the accepted snapshot and Action link beside a separately labelled live recomputation", async () => {
+    serve({ [`${REC_API}?revision_id=${REV}`]: served(rec.accepted_snapshot_live_status) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    expect(q("[data-recommendation-accepted]")?.textContent).toMatch(/20%.*to.*15%/);
+    expect(q("[data-recommendation-action-link]")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}`);
+    expect(q("[data-recommendation-live]")?.getAttribute("data-recommendation-live")).toBe("UNAVAILABLE");
+    expect(q("[data-recommendation-live]")?.textContent).toMatch(/FINDING_REVISION_NOT_LATEST/);
+    expect(screen.getByText(/This is not the accepted proposal/)).toBeInTheDocument();
+    expect(q("[data-recommendation-newer-revision]")?.getAttribute("data-recommendation-newer-revision")).toBe(
+      rec.accepted_snapshot_live_status.body.latest_revision_id,
+    );
+    expect(screen.queryByRole("button")).toBeNull();
+    noVocabularyViolations("recommendation:1#a accepted");
+  });
+
+  it("accepts through the SYSTEM command with a fresh key, then reloads to the accepted snapshot", async () => {
+    const url = `${REC_API}?revision_id=${REV}`;
+    const s = serve({ [url]: served(rec.pre_accept_available) }, { [`${REC_API}/accept`]: [served(rec.accept_created)] });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    s.setGet(url, served(rec.accepted_snapshot_live_status));
+    fireEvent.click(screen.getByRole("button", { name: /Accept trial/ }));
+    await waitFor(() => expect(q("[data-action-command-done='created']")).not.toBeNull());
+    await settledScreen();
+    const post = s.requests.find((r) => r.method === "POST");
+    const recorded = rec.accept_created.request.body as Record<string, unknown>;
+    expect(post?.body).toMatchObject({
+      revision_id: recorded.revision_id,
+      foundation_revision_id: recorded.foundation_revision_id,
+      recommendation_key: recorded.recommendation_key,
+      proposed_value: "15",
+    });
+    expect(post?.body.idempotency_key).toMatch(/^ui-/);
+    expect(Object.keys(post?.body ?? {}).sort()).toEqual(
+      ["foundation_revision_id", "idempotency_key", "proposed_value", "recommendation_key", "revision_id"],
+    );
+    expect(q("[data-action-command-done] a")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}`);
+    expect(q("[data-recommendation-accepted-action]")?.getAttribute("data-recommendation-accepted-action")).toBe(ACTION);
+  });
+
+  it("an identical accept replay says it was already recorded and links the same Action (accept_replayed)", async () => {
+    serve(
+      { [`${REC_API}?revision_id=${REV}`]: served(rec.pre_accept_available) },
+      { [`${REC_API}/accept`]: [served(rec.accept_replayed)] },
+    );
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Accept trial/ }));
+    await waitFor(() => expect(q("[data-action-command-done='replayed']")).not.toBeNull());
+    expect(q("[data-action-command-done]")?.textContent).toMatch(/already recorded/);
+    expect(q("[data-action-command-done] a")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}`);
+  });
+
+  for (const [name, width] of [
+    ["latest_revision_after_apply", 1440],
+    ["latest_revision_after_apply_served_clock_stale", 390],
+  ] as const) {
+    it(`the newer Finding version names and links the unresolved earlier Action, with Accept disabled (${name}, ${width})`, async () => {
+      atWidth(width);
+      const latest = rec[name];
+      const block = latest.body.prior_action_block;
+      serve({ [latest.request.path]: served(latest) });
+      mount(`/sites/KOBO-001/findings/${FINDING}/recommendation`);
+      await settledScreen();
+      expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("PRIOR_ACTION_UNRESOLVED");
+      // The notice names and links the blocking Action and its own (earlier) origin version.
+      expect(q("[data-recommendation-prior-block]")?.getAttribute("data-recommendation-prior-block")).toBe(block.blocking_action_id);
+      expect(q("[data-recommendation-prior-block-link]")?.textContent).toBe(block.blocking_action_code);
+      expect(q("[data-recommendation-prior-block-link]")?.getAttribute("href")).toBe(block.links.action);
+      expect(q("[data-recommendation-prior-block-origin]")?.getAttribute("href")).toBe(
+        `/sites/KOBO-001/findings/${FINDING}?revision_id=${block.origin_finding_revision_id}`,
+      );
+      expect(q("[data-recommendation-prior-block-origin]")?.textContent).toBe(`Finding version ${block.origin_revision_no}`);
+      expect(block.origin_finding_revision_id).not.toBe(latest.body.revision_id);
+      expect(q("[data-recommendation-prior-block]")?.textContent).toMatch(/not on the version shown on this page/);
+      expect(q("[data-recommendation-prior-block-state]")?.textContent).toMatch(/Applied to the Site Foundation.*Pending/);
+      // The live reason is separate: AVAILABLE on the recorded clock, FOUNDATION_BASIS_STALE on the served clock.
+      const live = latest.body.live_status;
+      expect(q("[data-recommendation-live]")?.getAttribute("data-recommendation-live")).toBe(live.state);
+      if (live.unavailable) expect(q("[data-recommendation-live]")?.textContent).toContain(live.unavailable.code);
+      expect(screen.getByText(/This is a separate reason/)).toBeInTheDocument();
+      // No proposal is offered for acceptance: Accept is disabled with the reason stated.
+      expect(q("[data-recommendation-proposal]")).toBeNull();
+      const button = screen.getByRole("button", { name: /Accept trial/ });
+      expect(button).toBeDisabled();
+      expect(button.getAttribute("aria-describedby")).toBe("site-recommendation-accept-held");
+      expect(q("[data-action-command-unavailable='PRIOR_ACTION_UNRESOLVED']")?.textContent).toMatch(
+        new RegExp(`earlier trial on this Finding \\(${block.blocking_action_code}\\) is still open`),
+      );
+      // The earlier Action is listed with its own origin version, never relabelled as this one.
+      const item = q(`[data-recommendation-prior-action='${block.blocking_action_id}']`);
+      expect(item?.getAttribute("data-prior-action-selected-revision")).toBe("no");
+      expect(item?.textContent).toMatch(/not the version on this page/);
+      expect(item?.querySelector("[data-prior-action-application]")?.getAttribute("data-prior-action-application")).toBe("APPLIED");
+      expect(item?.querySelector("[data-prior-action-outcome]")?.getAttribute("data-prior-action-outcome")).toBe("PENDING");
+      expect(item?.querySelector("[data-recommendation-prior-action-link]")?.getAttribute("href")).toBe(block.links.action);
+      expect(q("[data-recommendation-accepted-action]")).toBeNull();
+      noVocabularyViolations(`recommendation ${name}`);
+    });
+  }
+
+  it("lists the Action on the selected version as this version beside the accepted snapshot", async () => {
+    serve({ [`${REC_API}?revision_id=${REV}`]: served(rec.accepted_snapshot_live_status) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    const item = q(`[data-recommendation-prior-action='${ACTION}']`);
+    expect(item?.getAttribute("data-prior-action-selected-revision")).toBe("yes");
+    expect(item?.textContent).toMatch(/\(this version\)/);
+    expect(q("[data-recommendation-prior-block]")).toBeNull();
+  });
+
+  it("shows no held notice when state is ACCEPTED, even if a prior_action_block is present", async () => {
+    // Derived (7): the selected version has its own Action; the block alone never decides the notice.
+    const body = { ...rec.accepted_snapshot_live_status.body, prior_action_block: rec.latest_revision_after_apply.body.prior_action_block };
+    serve({ [`${REC_API}?revision_id=${REV}`]: { status: 200, body } });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("ACCEPTED");
+    expect(q("[data-recommendation-prior-block]")).toBeNull();
+    expect(q("[data-action-command-held]")).toBeNull();
+    expect(q("[data-recommendation-accepted]")?.textContent).toMatch(/20%.*to.*15%/);
+    expect(q("[data-recommendation-accepted-action]")?.getAttribute("data-recommendation-accepted-action")).toBe(ACTION);
+  });
+
+  it("a 409 PRIOR_ACTION_UNRESOLVED on accept names and links the earlier Action, with the live reason separate", async () => {
+    const url = `${REC_API}?revision_id=${REV}`;
+    const held = rec.accept_newer_revision_prior_action_unresolved;
+    const s = serve({ [url]: served(rec.pre_accept_available) }, { [`${REC_API}/accept`]: [served(held)] });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Accept trial/ }));
+    await waitFor(() => expect(q("[data-action-command-refused='PRIOR_ACTION_UNRESOLVED']")).not.toBeNull());
+    await settledScreen();
+    const refused = q("[data-action-command-refused='PRIOR_ACTION_UNRESOLVED']");
+    expect(refused?.textContent).toMatch(/Not accepted: an earlier trial on this Finding is still open, so no new Action was recorded/);
+    expect(refused?.textContent).toMatch(new RegExp(`accepted on Finding version ${held.body.detail.origin_revision_no}`));
+    expect(q("[data-accept-held-action-link]")?.getAttribute("href")).toBe(held.body.detail.links.action);
+    expect(q("[data-accept-held-action-link]")?.textContent).toBe(`Open ${held.body.detail.blocking_action_code}`);
+    expect(q("[data-accept-held-live]")?.getAttribute("data-accept-held-live")).toBe(held.body.detail.live_status.state);
+    expect(q("[data-action-command-done]")).toBeNull();
+    expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(1);
+    noVocabularyViolations("recommendation accept held");
+  });
+
+  it("treats ACTION_ACCEPTANCE_CONFLICT as already accepted and follows its action_id", async () => {
+    serve(
+      { [`${REC_API}?revision_id=${REV}`]: served(rec.pre_accept_available) },
+      { [`${REC_API}/accept`]: [served(rec.accept_conflict_already_accepted)] },
+    );
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Accept trial/ }));
+    await waitFor(() => expect(q("[data-action-command-done='already-accepted']")).not.toBeNull());
+    expect(q("[data-action-command-done='already-accepted'] a")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}`);
+  });
+
+  it("shows the server refusal when a command is attempted without the capability, keeping the proposal", async () => {
+    serve(
+      { [`${REC_API}?revision_id=${REV}`]: served(rec.pre_accept_available) },
+      { [`${REC_API}/accept`]: [served(rec.accept_capability_denied)] },
+    );
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Accept trial/ }));
+    await waitFor(() => expect(q("[data-action-command-refused='SYSTEM_DEMO_CAPABILITY_DENIED']")).not.toBeNull());
+    await settledScreen();
+    expect(q("[data-recommendation-proposal]")?.textContent).toMatch(/15%/);
+  });
+
+  for (const width of [1440, 390]) {
+    it(`is read-only with a reason when the capability is denied or absent (${width})`, async () => {
+      atWidth(width);
+      const url = `${REC_API}?revision_id=${REV}`;
+      serve({ [url]: served(rec.capability_denied) });
+      mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+      await settledScreen();
+      expect(screen.queryByRole("button")).toBeNull();
+      expect(q("[data-action-command-unavailable='ACCEPT']")?.textContent).toMatch(
+        /read-only here.*No SYSTEM demonstration capability is configured on this server/,
+      );
+      expect(q("[data-recommendation-proposal]")).not.toBeNull();
+      cleanup();
+      vi.unstubAllGlobals();
+      serve({ [url]: withoutCapability(rec.pre_accept_available) });
+      mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${REV}`);
+      await settledScreen();
+      expect(screen.queryByRole("button")).toBeNull();
+      expect(q("[data-action-command-unavailable='UNKNOWN']")?.textContent).toMatch(/read-only here/);
+    });
+  }
+});
+
+/** Overview/Application/History read both the Action and its events with the same selector. */
+function actionReads(action: Case | Served, events: Case | Served, query = "") {
+  return {
+    [`${ACTION_API}${query}`]: "request" in action ? served(action) : action,
+    [`${ACTION_API}/events${query}`]: "request" in events ? served(events) : events,
+  };
+}
+
+describe("Action root (action-overview / action-execution / action-history :1#a)", () => {
+  it("Overview shows code, origin beside the latest Finding version, pinned basis and a pending outcome", async () => {
+    serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}`);
+    await settledScreen();
+    const body = ov.applied_pending_newer_revision.body;
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(`${body.action.action_code} · Battery reserve trial`),
+    );
+    expect(q("[data-action-origin-link]")?.getAttribute("href")).toBe(
+      `/sites/KOBO-001/findings/${body.origin.finding_id}?revision_id=${body.origin.finding_revision_id}`,
+    );
+    expect(q("[data-action-newer-revision]")?.getAttribute("data-action-newer-revision")).toBe(body.newer_revision_notice.latest_revision_id);
+    expect(body.newer_revision_notice.latest_revision_id).not.toBe(body.origin.finding_revision_id);
+    expect(q("[data-action-basis-foundation]")?.textContent).toBe(body.basis.foundation_revision_id);
+    expect(q("[data-action-outcome-words]")?.textContent).toMatch(/^Pending\. Nothing has been verified yet/);
+    expect(q("[data-action-change-new-foundation]")?.textContent).toBe(body.change.new_foundation_revision_id);
+    expect(q("[data-action-applied-event-link]")?.getAttribute("href")).toBe(
+      `/sites/KOBO-001/actions/${ACTION}/history?event_id=${body.change.applied_event_id}`,
+    );
+    // Only delivered sections: no Plan, Evidence or Verification tab.
+    expect(qa("[data-action-section]").map((a) => a.textContent)).toEqual(["Overview", "Application", "History"]);
+    expect(document.body.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator|approv/i);
+    noVocabularyViolations("action-overview:1#a");
+  });
+
+  it("Application lists ACCEPTED, OBSERVED, FAILED and APPLIED with actor, provenance, effective revision and change record", async () => {
+    serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    const events = hi.events_latest.body.events as { id: string; kind: string }[];
+    expect(qa("[data-action-event-kind]").map((r) => r.getAttribute("data-action-event-kind"))).toEqual(events.map((e) => e.kind));
+    expect(qa("[data-action-event-failure]").map((e) => e.getAttribute("data-action-event-failure"))).toEqual([
+      "ACTION_FOUNDATION_STALE",
+      "ACTION_VALUE_INVALID",
+      "ACTION_EFFECTIVE_TIME_INVALID",
+    ]);
+    const change = ov.applied_pending_newer_revision.body.change;
+    expect(q("[data-action-event-change]")?.textContent).toBe(change.change_id);
+    expect(q("[data-action-event-effective-revision]")?.textContent).toBe(change.new_foundation_revision_id);
+    expect(document.body.textContent).toMatch(/assetops-backend\/action-api/);
+    expect(qa("[data-action-event-kind] td:nth-child(4)").every((td) => /SYSTEM demonstration/.test(td.textContent ?? ""))).toBe(true);
+    expect(q("[data-action-already-applied]")).not.toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(q("[data-action-section='execution']")).toHaveAttribute("aria-current", "page");
+    noVocabularyViolations("action-execution:1#a");
+  });
+
+  it("applies with a fresh key per attempt: a stale FAILED keeps it pending, a replay says so, then APPLIED", async () => {
+    // The clock is pinned before the recorded read time, so the default is the read time's next midnight.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-01T00:30:00Z"));
+    // Derived (3): the recorded latest events cut to ACCEPTED and OBSERVED.
+    const s = serve(actionReads(ov.accepted_pending, { status: 200, body: { ...hi.events_latest.body, events: hi.events_latest.body.events.slice(0, 2) } }), {
+      [`${ACTION_API}/apply`]: [served(ex.apply_stale_failed), served(ex.apply_stale_retry_same_key), served(ex.apply_applied)],
+    });
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    expect(q("[data-action-application-words]")?.textContent).toBe("Not applied yet");
+    const apply = () => fireEvent.click(screen.getByRole("button", { name: "Apply trial (SYSTEM demonstration)" }));
+
+    apply();
+    await waitFor(() => expect(q("[data-action-command-refused='ACTION_FOUNDATION_STALE']")).not.toBeNull());
+    expect(q("[data-action-failed-event]")?.textContent).toMatch(/A failed attempt was recorded\. The application is still pending/);
+    expect(q("[data-action-failed-event] a")?.getAttribute("href")).toBe(
+      `/sites/KOBO-001/actions/${ACTION}/history?event_id=${ex.apply_stale_failed.body.detail.event.id}`,
+    );
+    await settledScreen();
+
+    apply();
+    await waitFor(() => expect(q("[data-action-failed-event]")?.textContent).toMatch(/repeats an earlier attempt/));
+    await settledScreen();
+
+    s.setGet(ACTION_API, served(ov.applied_pending_newer_revision));
+    s.setGet(`${ACTION_API}/events`, served(hi.events_latest));
+    apply();
+    await waitFor(() => expect(q("[data-action-command-done='applied']")).not.toBeNull());
+    await settledScreen();
+    expect(q("[data-action-application-words]")?.textContent).toBe("Applied to the Site Foundation");
+
+    const posts = s.requests.filter((r) => r.method === "POST");
+    expect(posts).toHaveLength(3);
+    const basis = ov.accepted_pending.body.application_basis;
+    for (const post of posts) {
+      expect(post.body).toMatchObject({ value: "15", expected_foundation_revision_id: basis.current_foundation_revision_id });
+      expect(post.body.effective_from).toMatch(/^\d{4}-\d{2}-\d{2}T00:00:00\+00:00$/);
+      expect(Object.keys(post.body).sort()).toEqual(["effective_from", "expected_foundation_revision_id", "idempotency_key", "value"]);
+    }
+    expect(new Set(posts.map((p) => p.body.idempotency_key)).size).toBe(3);
+    // L1: the default is exactly the next UTC midnight after the read time (the clock is before it).
+    expect(posts.map((p) => p.body.effective_from)).toEqual(Array(3).fill("2026-11-02T00:00:00+00:00"));
+    vi.useRealTimers();
+  });
+
+  it("re-derives an untouched default effective time at click, so a page left open past midnight sends no past instant", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-11-01T01:00:00Z"));
+    try {
+      const s = serve(actionReads(ov.accepted_pending, hi.events_latest), {
+        [`${ACTION_API}/apply`]: [served(ex.apply_stale_failed), served(ex.apply_stale_failed)],
+      });
+      mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+      await settledScreen();
+      const field = q("[data-action-effective-from]") as HTMLInputElement;
+      expect(field.value).toBe("2026-11-02T00:00");
+      vi.setSystemTime(new Date("2026-11-03T05:00:00Z"));
+      fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+      await waitFor(() => expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(1));
+      expect(s.requests.find((r) => r.method === "POST")?.body.effective_from).toBe("2026-11-04T00:00:00+00:00");
+      await settledScreen();
+      // An edited value is the operator's own and is sent as typed.
+      fireEvent.change(q("[data-action-effective-from]") as HTMLInputElement, { target: { value: "2026-11-05T06:00" } });
+      fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+      await waitFor(() => expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(2));
+      expect(s.requests.filter((r) => r.method === "POST")[1].body.effective_from).toBe("2026-11-05T06:00:00+00:00");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("disables Apply while the effective-time field is cleared, and sends nothing (review L3)", async () => {
+    const s = serve(actionReads(ov.accepted_pending, hi.events_latest), {
+      [`${ACTION_API}/apply`]: [served(ex.apply_stale_failed)],
+    });
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    fireEvent.change(q("[data-action-effective-from]") as HTMLInputElement, { target: { value: "" } });
+    const button = screen.getByRole("button", { name: /Apply trial/ });
+    expect(button).toBeDisabled();
+    expect(q("[data-action-apply-no-time]")?.textContent).toBe("Enter the effective time to apply.");
+    fireEvent.click(button);
+    expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(0);
+    fireEvent.change(q("[data-action-effective-from]") as HTMLInputElement, { target: { value: "2026-11-05T06:00" } });
+    expect(screen.getByRole("button", { name: /Apply trial/ })).not.toBeDisabled();
+    expect(q("[data-action-apply-no-time]")).toBeNull();
+  });
+
+  it("offers no Apply when the capability names a different command (granted() checks the exact command)", async () => {
+    // Derived (5): APPLY's slot carries the recorded allowed OBSERVE capability.
+    const body = structuredClone(ov.accepted_pending.body);
+    body.system_demo_capability.apply = body.system_demo_capability.observe;
+    expect(body.system_demo_capability.apply.allowed).toBe(true);
+    serve(actionReads({ status: 200, body }, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    expect(screen.queryByRole("button", { name: /Apply trial/ })).toBeNull();
+    expect(q("[data-action-command-unavailable]")).not.toBeNull();
+  });
+
+  it("offers no Apply, with a stated reason, when the read names no current Foundation version", async () => {
+    // Derived (5): the recorded pending read with no current version in its application basis.
+    const body = structuredClone(ov.accepted_pending.body);
+    body.application_basis.current_foundation_revision_id = null;
+    serve(actionReads({ status: 200, body }, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    expect(screen.queryByRole("button", { name: /Apply trial/ })).toBeNull();
+    expect(q("[data-action-apply-no-basis]")?.textContent).toMatch(/did not state the current Foundation version/);
+  });
+
+  it("shows each recorded 422 FAILED variant typed and still pending", async () => {
+    for (const name of ["apply_invalid_value_failed", "apply_backdate_failed", "apply_no_change_failed"]) {
+      serve(actionReads(ov.accepted_pending, hi.events_latest), { [`${ACTION_API}/apply`]: [served(ex[name])] });
+      mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+      await settledScreen();
+      fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+      const code = ex[name].body.detail.code as string;
+      await waitFor(() => expect(q(`[data-action-command-refused='${code}']`)).not.toBeNull());
+      expect(ex[name].status).toBe(422);
+      expect(q("[data-action-failed-event]")?.textContent).toMatch(/still pending/);
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("a wrong-Site apply is refused not found (apply_wrong_site_404)", async () => {
+    serve(actionReads(ov.accepted_pending, hi.events_latest), { [`${ACTION_API}/apply`]: [served(ex.apply_wrong_site_404)] });
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+    await waitFor(() => expect(q("[data-action-command-refused='ACTION_NOT_FOUND']")).not.toBeNull());
+    expect(q("[data-action-command-refused]")?.textContent).toMatch(/HTTP 404/);
+  });
+
+  it("says ACTION_ALREADY_APPLIED attempted nothing, and keeps the prior read when the re-read fails", async () => {
+    const s = serve(actionReads(ov.accepted_pending, hi.events_latest), { [`${ACTION_API}/apply`]: [served(ex.apply_new_key_already_applied)] });
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    // Derived (4): no recorded store-unavailable case exists.
+    s.setGet(ACTION_API, { status: 503, body: { detail: { code: "STORE_UNAVAILABLE", message: "The store could not be read." } } });
+    fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+    await waitFor(() => expect(q("[data-action-already-applied-event]")).not.toBeNull());
+    await settledScreen();
+    expect(q("[data-action-already-applied-event]")?.textContent).toMatch(/nothing was attempted/);
+    expect(q("[data-action-read='refused'][data-action-code='STORE_UNAVAILABLE']")).not.toBeNull();
+    expect(screen.getByText("The last successful read is still shown below.")).toBeInTheDocument();
+    expect(q("[data-action-id]")?.getAttribute("data-action-id")).toBe(ACTION);
+  });
+
+  it("server refusal of an apply attempted without the capability is shown typed", async () => {
+    serve(actionReads(ov.accepted_pending, hi.events_latest), { [`${ACTION_API}/apply`]: [served(ex.apply_capability_denied)] });
+    mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: /Apply trial/ }));
+    await waitFor(() => expect(q("[data-action-command-refused='SYSTEM_DEMO_CAPABILITY_DENIED']")).not.toBeNull());
+  });
+
+  for (const width of [1440, 390]) {
+    it(`Application is read-only with a reason when the capability is denied or absent (${width})`, async () => {
+      atWidth(width);
+      // The recorded denied read (a pending Action, latest record) is served as recorded.
+      expect(ov.capability_denied.body.state.application).toBe("PENDING");
+      serve(actionReads(ov.capability_denied, hi.events_latest));
+      mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+      await settledScreen();
+      expect(screen.queryByRole("button")).toBeNull();
+      expect(q("[data-action-command-unavailable='APPLY']")?.textContent).toMatch(
+        /read-only here.*No SYSTEM demonstration capability is configured on this server/,
+      );
+      cleanup();
+      vi.unstubAllGlobals();
+      serve(actionReads(withoutCapability(ov.accepted_pending), hi.events_latest));
+      mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
+      await settledScreen();
+      expect(screen.queryByRole("button")).toBeNull();
+      expect(q("[data-action-command-unavailable]")?.textContent).toMatch(/read-only here/);
+    });
+  }
+
+  it("History lists events in server order with both times on the backdated observation and no invented revision", async () => {
+    serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    const events = hi.events_latest.body.events as { id: string; recorded_at: string; occurred_at: string; kind: string }[];
+    expect(qa("[data-action-event]").map((r) => r.getAttribute("data-action-event"))).toEqual(events.map((e) => e.id));
+    const observed = events.find((e) => e.kind === "OBSERVED")!;
+    const row = q(`[data-action-event='${observed.id}']`)!;
+    expect(row.querySelector("[data-action-recorded-at]")?.getAttribute("data-action-recorded-at")).toBe(observed.recorded_at);
+    expect(row.querySelector("[data-action-occurred-at]")?.getAttribute("data-action-occurred-at")).toBe(observed.occurred_at);
+    expect(row.textContent).toMatch(/recorded later than it happened/);
+    expect(row.textContent).toMatch(/changes no application or outcome state/);
+    expect(document.body.textContent).not.toMatch(/Action revision|revision \d+ of this Action/i);
+    noVocabularyViolations("action-history:1#a");
+  });
+
+  it("selects an exact event_id from the URL, keeps it across sections and on reload", async () => {
+    // Derived events read: the recorded latest events through the ACCEPTED event, with the recorded selection.
+    const selection = hi.action_event_id_accepted.body.selection;
+    const events = { status: 200, body: { ...hi.events_latest.body, selection, events: hi.events_latest.body.events.slice(0, 1) } };
+    const query = `?event_id=${ACCEPTED_EVENT}`;
+    const s = serve(actionReads(hi.action_event_id_accepted, events, query));
+    const path = `/sites/KOBO-001/actions/${ACTION}/history${query}`;
+    mount(path);
+    await settledScreen();
+    expect(q("[data-action-selection-notice='EVENT_ID']")?.getAttribute("data-action-cutoff-event")).toBe(ACCEPTED_EVENT);
+    expect(q(`[data-action-event='${ACCEPTED_EVENT}']`)).toHaveAttribute("aria-current", "true");
+    expect(qa("[data-action-event]")).toHaveLength(1);
+    expect(q("[data-action-section='overview']")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}${query}`);
+    expect(q("[data-action-section='execution']")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}/execution${query}`);
+    fireEvent.click(q("[data-action-section='overview']") as HTMLElement);
+    await settledScreen();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}${query}`);
+    expect(q("[data-action-application-words]")?.textContent).toBe("Not applied yet");
+    expect(q("[data-action-latest-link]")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}`);
+    // Reload: a fresh mount at the same address reads the same selection.
+    cleanup();
+    mount(path);
+    await settledScreen();
+    expect(q("[data-action-selection-notice='EVENT_ID']")).not.toBeNull();
+    const gets = s.requests.filter((r) => r.method === "GET").map((r) => r.url);
+    expect(gets.every((url) => url.includes(`event_id=${ACCEPTED_EVENT}`) && !url.includes("recorded_at"))).toBe(true);
+    expect(s.unmatched).toEqual([]);
+  });
+
+  it("selects a recorded_at cutoff from the URL, keeps it across sections and on reload", async () => {
+    const query = `?recorded_at=${encodeURIComponent(OBSERVED_CUTOFF)}`;
+    const s = serve(actionReads(hi.action_recorded_at_observed, hi.events_recorded_at_observed, `?recorded_at=${OBSERVED_CUTOFF}`));
+    const path = `/sites/KOBO-001/actions/${ACTION}/history${query}`;
+    mount(path);
+    await settledScreen();
+    expect(q("[data-action-selection-notice='RECORDED_AT']")).not.toBeNull();
+    expect(qa("[data-action-event-kind]").map((r) => r.getAttribute("data-action-event-kind"))).toEqual(["ACCEPTED", "OBSERVED"]);
+    expect(q("[data-action-section='execution']")?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}/execution${query}`);
+    fireEvent.click(q("[data-action-section='execution']") as HTMLElement);
+    await settledScreen();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}/execution${query}`);
+    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.getByText("Commands are offered on the latest record only.")).toBeInTheDocument();
+    cleanup();
+    mount(path);
+    await settledScreen();
+    expect(q("[data-action-selection-notice='RECORDED_AT']")).not.toBeNull();
+    const gets = s.requests.filter((r) => r.method === "GET").map((r) => decodeURIComponent(r.url));
+    expect(gets.every((url) => url.includes(`recorded_at=${OBSERVED_CUTOFF}`) && !url.includes("event_id"))).toBe(true);
+    expect(s.unmatched).toEqual([]);
+  });
+
+  it("History row links select an exact event or a recorded cutoff", async () => {
+    serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    const observed = (hi.events_latest.body.events as { id: string; kind: string; recorded_at: string }[]).find((e) => e.kind === "OBSERVED")!;
+    expect(q(`[data-action-select-event='${observed.id}']`)?.getAttribute("href")).toBe(
+      `/sites/KOBO-001/actions/${ACTION}/history?event_id=${observed.id}`,
+    );
+    expect(q(`[data-action-select-recorded='${observed.recorded_at}']`)?.getAttribute("href")).toBe(
+      `/sites/KOBO-001/actions/${ACTION}/history?recorded_at=${encodeURIComponent(observed.recorded_at)}`,
+    );
+  });
+
+  it("both selectors together show the typed ACTION_SELECTOR_CONFLICT with no silent preference", async () => {
+    const conflict = hi.action_selector_conflict.request.path.split("?")[1];
+    serve(actionReads(hi.action_selector_conflict, hi.events_selector_conflict, `?${conflict}`));
+    mount(`/sites/KOBO-001/actions/${ACTION}/history?${conflict}`);
+    await settledScreen();
+    expect(q("[data-action-read='refused']")?.getAttribute("data-action-code")).toBe("ACTION_SELECTOR_CONFLICT");
+    expect(q("[data-action-read='refused']")?.getAttribute("data-action-http")).toBe("422");
+    expect(qa("[data-action-event]")).toHaveLength(0);
+    const links = qa("[data-action-selector-conflict] a").map((a) => a.getAttribute("href") ?? "");
+    expect(links).toHaveLength(2);
+    expect(links[0]).toMatch(/\?event_id=[^&]+$/);
+    expect(links[1]).toMatch(/\?recorded_at=[^&]+$/);
+  });
+
+  it("an unknown or wrong-Site Action is not found, with no events shown", async () => {
+    const wrong = ov.wrong_site_404;
+    serve({
+      [wrong.request.path]: served(wrong),
+      [`${wrong.request.path}/events`]: served(wrong),
+    });
+    mount(`/sites/OTHER-001/actions/${ACTION}`);
+    await settledScreen();
+    expect(screen.getByRole("heading", { name: "Action not found" })).toBeInTheDocument();
+    expect(q("[data-action-read='refused']")?.getAttribute("data-action-http")).toBe("404");
+    expect(qa("[data-action-event]")).toHaveLength(0);
+  });
+
+  it("an unknown event_id is the selection not found, not the Action, with a link to the latest record (M1)", async () => {
+    const unknown = hi.unknown_event_404;
+    const query = "?event_id=00000000-0000-4000-8000-000000000000";
+    expect(unknown.request.path).toBe(`${ACTION_API}${query}`);
+    serve({ [unknown.request.path]: served(unknown), [`${ACTION_API}/events${query}`]: served(unknown), ...actionReads(ov.accepted_pending, hi.events_latest) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/history${query}`);
+    await settledScreen();
+    expect(screen.getByRole("heading", { name: "Selected event not found" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Action not found" })).toBeNull();
+    expect(document.body.textContent).not.toMatch(/no such action/i);
+    expect(q("[data-action-read='selection-not-found']")?.getAttribute("data-action-code")).toBe("ACTION_EVENT_NOT_FOUND");
+    const latest = q("[data-action-open-latest]") as HTMLAnchorElement;
+    expect(latest).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}/history`);
+    fireEvent.click(latest);
+    await settledScreen();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}/history`);
+    expect(q("[data-action-id]")?.getAttribute("data-action-id")).toBe(ACTION);
+  });
+
+  it("an unknown Action section is refused", async () => {
+    serve(actionReads(ov.accepted_pending, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await settledScreen();
+    expect(q("[data-action-read='section-not-found']")).not.toBeNull();
+  });
+});

@@ -51,7 +51,7 @@ export interface SiteFindingIndexProps {
 
 const HEADING_ID = "site-finding-index-heading";
 
-const STATUS_WORDS: Record<string, { label: string; sentence: string }> = {
+export const STATUS_WORDS: Record<string, { label: string; sentence: string }> = {
   PENDING: {
     label: "Not known yet",
     sentence: "The assessment or Finding matching for this window is still in progress.",
@@ -128,7 +128,7 @@ function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (sc
   );
 }
 
-function Basis({ body }: { body: FindingIndexBody }) {
+export function Basis({ body }: { body: FindingIndexBody }) {
   const matcher = body.watermarks.matcher;
   return (
     <Disclosure name="finding-index-basis" summary="What this list is based on">

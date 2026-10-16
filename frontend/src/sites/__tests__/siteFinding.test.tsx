@@ -146,7 +146,7 @@ function Where() {
   return <output data-testid="where">{at.pathname + at.search}</output>;
 }
 
-function mount(client: FindingClient, search = "", id = F) {
+function mount(client: FindingClient, search = "", id = F, withRecommendation = true) {
   return render(
     <MemoryRouter initialEntries={[`/sites/KOBO-001/findings/${id}${search}`]}>
       <Routes>
@@ -162,6 +162,9 @@ function mount(client: FindingClient, search = "", id = F) {
                   finding: (fid, rid) => `/sites/KOBO-001/findings/${fid}${rid ? `?revision_id=${rid}` : ""}`,
                   dispatch: (day, rid) => `/sites/KOBO-001/performance/dispatch?day=${day}${rid ? `&revision=${rid}` : ""}`,
                   evidence: "/sites/KOBO-001/evidence",
+                  ...(withRecommendation
+                    ? { recommendation: (rid: string | null) => `/sites/KOBO-001/findings/${id}/recommendation${rid ? `?revision_id=${rid}` : ""}` }
+                    : {}),
                 }}
               />
               <Where />
@@ -176,6 +179,13 @@ function mount(client: FindingClient, search = "", id = F) {
 const where = () => screen.getByTestId("where").textContent ?? "";
 
 describe("Site Finding detail (S4-01 phase 3)", () => {
+  it("offers no recommendation link, and says so, when the frame gives none (phase-1 review L5)", async () => {
+    const { container } = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }), "", F, false);
+    await settledScreen();
+    expect(container.querySelector("[data-finding-recommendation-link='none']")?.textContent).toMatch(/No recommendation link is offered here/);
+    expect(container.querySelector("[data-finding-recommendation-link] a")).toBeNull();
+  });
+
   it("shows what happened, its limits and where to look, in plain words, with the Dispatch drill-down", async () => {
     const client = fake({ status: "loaded", value: body([summary(1, "OPENED")]) });
     const { container } = mount(client);
@@ -188,7 +198,9 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(container.querySelector("[data-finding-card='NECESSARY']")?.textContent).toMatch(/15 min/);
     expect(container.querySelector("[data-finding-card='MONEY']")?.textContent).toMatch(/Not yet available/);
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Up to date");
-    expect(container.querySelector("[data-finding-unavailable='recommendation']")).not.toBeNull();
+    // S6-01b: "What to do next" links to the Recommendation view at the exact version read.
+    const next = container.querySelector("[data-finding-recommendation-link] a");
+    expect(next?.getAttribute("href")).toContain(`/sites/KOBO-001/findings/${F}/recommendation?revision_id=`);
     const day = container.querySelector("[data-finding-dispatch-day='2026-10-06']");
     expect(day?.getAttribute("href")).toBe(`/sites/KOBO-001/performance/dispatch?day=2026-10-06&revision=${I1}`);
     expect(container.querySelectorAll("[data-evidence-id]")).toHaveLength(2);

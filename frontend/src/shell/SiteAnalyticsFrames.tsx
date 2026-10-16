@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
+import { createActionClient, type ActionClient } from "../sites/actionClient";
 import {
   createFindingIndexClient,
   FINDING_INDEX_DOMAIN,
@@ -11,6 +12,9 @@ import {
 } from "../sites/findingIndexClient";
 import { SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
+import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionView } from "../sites/SiteAction";
+import { SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
+import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
 import { SiteFinding } from "../sites/SiteFinding";
@@ -29,6 +33,7 @@ import {
   FINDING_CHILD_VIEWS,
   FINDINGS_PATH,
   findingHref,
+  siteActionHref,
   siteDetailHref,
   siteEvidenceHref,
   siteEvidenceAssessmentHref,
@@ -39,6 +44,8 @@ import {
   siteFindingsHref,
   siteFinancialAssumptionsHref,
   siteFinancialsHref,
+  siteFoundationChangeHref,
+  siteFoundationHref,
   sitePerformanceHref,
   type FindingChildView,
   type FindingTab,
@@ -275,6 +282,7 @@ export function FindingsFrame({ analytics }: { analytics: SiteAnalyticsClient })
 
 export const FINDING_HEADING_ID = "finding-heading";
 const DEFAULT_FINDINGS = createFindingClient();
+const DEFAULT_ACTIONS = createActionClient();
 
 const FINDING_TABS: FindingTab[] = ["overview", "analysis", "evidence", "alternatives"];
 
@@ -353,16 +361,27 @@ const SITE_FINDING_HEADING_ID = "site-finding-heading";
  * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` (`FINDING_CHILD_VIEWS`).
  * The section links keep the exact selected version (Evidence and History).
  */
-const FINDING_SECTION_LABELS: Record<FindingChildView, string> = { evidence: "Evidence", history: "History" };
+const FINDING_SECTION_LABELS: Record<FindingChildView, string> = {
+  evidence: "Evidence",
+  history: "History",
+  recommendation: "Recommendation",
+};
+const FINDING_VIEW_TITLES: Record<FindingChildView, string> = {
+  evidence: "Finding evidence",
+  history: "Finding history",
+  recommendation: "Recommendation",
+};
 
 export function SiteFindingFrame({
   detail,
   sitesPath,
   findings = DEFAULT_FINDINGS,
+  actions = DEFAULT_ACTIONS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   findings?: FindingClient;
+  actions?: ActionClient;
 }) {
   const { siteId, findingId, findingView } = useParams<{ siteId: string; findingId: string; findingView?: string }>();
   const [params] = useSearchParams();
@@ -404,7 +423,7 @@ export function SiteFindingFrame({
               ]}
             />
             <PageHeader
-              title={view === "evidence" ? "Finding evidence" : view === "history" ? "Finding history" : title}
+              title={view === "finding" || view === null ? title : FINDING_VIEW_TITLES[view]}
               headingId={SITE_FINDING_HEADING_ID}
               subtitle={`${site.display_name} · ${site.site_id} · generator support`}
             />
@@ -436,6 +455,17 @@ export function SiteFindingFrame({
                       history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                     }}
                   />
+                ) : view === "recommendation" ? (
+                  <SiteRecommendation
+                    siteId={site.site_id}
+                    findingId={id}
+                    client={actions}
+                    links={{
+                      finding: (rev) => siteFindingHref(site.site_id, id, rev),
+                      action: (actionId) => siteActionHref(site.site_id, actionId),
+                      money: (rev) => siteFinancialsHref(site.site_id, { findingId: id, revisionId: rev }),
+                    }}
+                  />
                 ) : view === "history" ? (
                   <SiteFindingHistory
                     siteId={site.site_id}
@@ -459,6 +489,7 @@ export function SiteFindingFrame({
                       dispatch,
                       evidence: siteEvidenceHref(site.site_id),
                       history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                      recommendation: (rev) => siteFindingViewHref(site.site_id, id, "recommendation", rev),
                     }}
                   />
                 )}
@@ -550,6 +581,204 @@ export function SiteFinancialsFrame({
           </main>
         );
       }}
+    </SiteScoped>
+  );
+}
+
+/**
+ * S6-01b: the canonical Site Action root, at
+ * `/sites/{site}/actions/{action}[/execution | /history]` with an optional
+ * `?event_id=` or `?recorded_at=` selection carried into every section link.
+ * There is no Site Action index: an Action is reached from its Finding's
+ * Recommendation or by its address. Plan, Evidence and Verification sections
+ * belong to S6-02 and are not rendered.
+ */
+export const SITE_ACTION_HEADING_ID = "site-action-heading";
+const ACTION_SECTIONS_LABEL = "Action sections";
+
+export function SiteActionFrame({
+  detail,
+  sitesPath,
+  actions = DEFAULT_ACTIONS,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  actions?: ActionClient;
+}) {
+  const { siteId, actionId, actionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
+  const [params] = useSearchParams();
+  const eventId = params.get("event_id");
+  const recordedAt = params.get("recorded_at");
+  const [title, setTitle] = useState("Action");
+  const onTitle = useCallback((next: string) => setTitle(next), []);
+  const view: ActionView | null =
+    actionView === undefined
+      ? "overview"
+      : actionView !== "overview" && (ACTION_VIEWS as readonly string[]).includes(actionView)
+        ? (actionView as ActionView)
+        : null;
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_ACTION_HEADING_ID}>
+      {(site) => {
+        const id = actionId ?? "";
+        const selector = { eventId, recordedAt };
+        const href = (target: ActionView, chosen: { eventId: string | null; recordedAt: string | null }) =>
+          siteActionHref(site.site_id, id, target, chosen);
+        return (
+          <main aria-labelledby={SITE_ACTION_HEADING_ID}>
+            <Breadcrumbs
+              trail={[
+                { label: "Sites", to: sitesPath },
+                { label: site.site_id, to: siteDetailHref(site.site_id) },
+                { label: "Findings", to: siteFindingsHref(site.site_id) },
+                view === "overview" || view === null
+                  ? { label: "Action" }
+                  : { label: "Action", to: href("overview", selector) },
+                ...(view === "overview" || view === null ? [] : [{ label: ACTION_VIEW_LABELS[view] }]),
+              ]}
+            />
+            <PageHeader
+              title={title}
+              headingId={SITE_ACTION_HEADING_ID}
+              subtitle={`${site.display_name} · ${site.site_id} · SYSTEM demonstration`}
+            />
+            <OperatorSiteTabs siteId={siteId} current="Findings" />
+            {view === null ? (
+              <Panel heading="No such Action section" headingId="site-action-section-missing-heading">
+                <p data-action-read="section-not-found">
+                  An Action has no section with that name. <Link to={href("overview", selector)}>Open the Action</Link>
+                </p>
+              </Panel>
+            ) : (
+              <>
+                <nav className="site-tabs site-subtabs" aria-label={ACTION_SECTIONS_LABEL}>
+                  <ol className="site-tabs__list">
+                    {ACTION_VIEWS.map((section) => (
+                      <li className="site-tabs__item" key={section}>
+                        <Link
+                          className="site-tabs__link"
+                          to={href(section, selector)}
+                          data-action-section={section}
+                          aria-current={section === view ? "page" : undefined}
+                        >
+                          {ACTION_VIEW_LABELS[section]}
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                </nav>
+                <SiteAction
+                  siteId={site.site_id}
+                  actionId={id}
+                  view={view}
+                  selector={selector}
+                  client={actions}
+                  onTitle={onTitle}
+                  links={{
+                    view: href,
+                    finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
+                    recommendation: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "recommendation", rev),
+                    change: (changeId) => siteFoundationChangeHref(site.site_id, changeId),
+                  }}
+                />
+              </>
+            )}
+          </main>
+        );
+      }}
+    </SiteScoped>
+  );
+}
+
+/**
+ * S6-01b `changes:1#a`: one Foundation change by its change ID, a deep route
+ * under Foundation with the Foundation tab current and no Foundation view row
+ * (Changes is not a Foundation view). The bare `/foundation/changes` address
+ * is an explicit unavailable state: S6-01 has no Site change index.
+ */
+export const SITE_CHANGE_HEADING_ID = "site-change-heading";
+
+function changeLinks(siteId: string): SiteFoundationChangeLinks {
+  return {
+    action: (actionId, view, selector) => siteActionHref(siteId, actionId, view, selector),
+    foundation: siteFoundationHref(siteId),
+  };
+}
+
+export function SiteFoundationChangeFrame({
+  detail,
+  sitesPath,
+  actions = DEFAULT_ACTIONS,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  actions?: ActionClient;
+}) {
+  const { siteId, changeId } = useParams<{ siteId: string; changeId: string }>();
+  const [title, setTitle] = useState("Foundation change");
+  const onTitle = useCallback((next: string) => setTitle(next), []);
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Foundation change" headingId={SITE_CHANGE_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_CHANGE_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Foundation", to: siteFoundationHref(site.site_id) },
+              { label: "Change" },
+            ]}
+          />
+          <PageHeader
+            title={title}
+            headingId={SITE_CHANGE_HEADING_ID}
+            subtitle={`${site.display_name} · ${site.site_id} · SYSTEM demonstration`}
+          />
+          <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <SiteFoundationChange
+            siteId={site.site_id}
+            changeId={changeId ?? ""}
+            client={actions}
+            links={changeLinks(site.site_id)}
+            onTitle={onTitle}
+          />
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: SiteDetailClient; sitesPath: string }) {
+  const { siteId } = useParams<{ siteId: string }>();
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Foundation changes" headingId={SITE_CHANGE_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_CHANGE_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Foundation", to: siteFoundationHref(site.site_id) },
+              { label: "Changes" },
+            ]}
+          />
+          <PageHeader
+            title="Foundation changes"
+            headingId={SITE_CHANGE_HEADING_ID}
+            subtitle={`${site.display_name} · ${site.site_id}`}
+          />
+          <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <Panel heading="No list of changes yet" headingId="site-changes-unavailable-heading">
+            <p data-change-index="unavailable">
+              This site has no list of Foundation changes yet. A change opens by its own address from the Action
+              that made it.
+            </p>
+            <p>
+              <Link to={siteFoundationHref(site.site_id)}>Back to the Foundation</Link>
+            </p>
+          </Panel>
+        </main>
+      )}
     </SiteScoped>
   );
 }

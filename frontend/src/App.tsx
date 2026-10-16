@@ -8,6 +8,9 @@ import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
 import {
   FindingDetailFrame,
   FindingsFrame,
+  SiteActionFrame,
+  SiteFoundationChangeFrame,
+  SiteFoundationChangesFrame,
   SiteFinancialsFrame,
   SiteFindingFrame,
   SiteFindingsFrame,
@@ -22,6 +25,8 @@ import {
   FINDING_ROUTE_PATH,
   FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
+  SITE_ACTION_ROUTE_PATH,
+  SITE_ACTION_VIEW_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIALS_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
@@ -32,6 +37,8 @@ import {
   SITES_PATH,
   SITE_DETAIL_ROUTE_PATH,
   SITE_EVIDENCE_ROUTE_PATH,
+  SITE_FOUNDATION_CHANGE_ROUTE_PATH,
+  SITE_FOUNDATION_CHANGES_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
   SITE_FOUNDATION_VIEW_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
@@ -197,6 +204,7 @@ export function App({
                 sitesPath={SITES_PATH}
                 flags={flags}
                 templateLineage={templateLineage}
+                findingIndex={siteFindingIndex}
               />
             }
           />
@@ -223,6 +231,14 @@ export function App({
                 gatewayHealth={siteEvidence.gatewayHealth}
               />
             }
+          />
+          <Route
+            path={SITE_FOUNDATION_CHANGES_ROUTE_PATH}
+            element={<SiteFoundationChangesFrame detail={siteDetail} sitesPath={SITES_PATH} />}
+          />
+          <Route
+            path={SITE_FOUNDATION_CHANGE_ROUTE_PATH}
+            element={<SiteFoundationChangeFrame detail={siteDetail} sitesPath={SITES_PATH} />}
           />
           <Route
             path={SITE_EVIDENCE_ROUTE_PATH}
@@ -272,6 +288,13 @@ export function App({
               key={path}
               path={path}
               element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />}
+            />
+          ))}
+          {[SITE_ACTION_ROUTE_PATH, SITE_ACTION_VIEW_ROUTE_PATH].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={<SiteActionFrame detail={siteDetail} sitesPath={SITES_PATH} />}
             />
           ))}
           <Route

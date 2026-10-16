@@ -1,0 +1,3 @@
+# Architect request - S5-02 question 1
+
+You are the AssetOps Architect (Codex). The owner is away until 11:00 and asked for maximum W1 progress; decide within the Architect's remit. Read `tasks/S5-02-overview-finding-list.md` ("Architect questions"), `D-2026-10-15-s501-finding-choice`, `D-2026-10-15-a-finding-index` and `D-2026-10-15-s404-contract`. Rule on question 1 (cross-read parity between S5-01's latest-episode choice and S4-04's first row): accept, amend or replace the Planner's recommendation, short and implementable, naming any packet change. Write `.agent/architect-S5-02-answers.md` and a short `D-2026-10-16-s502-parity` entry in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.

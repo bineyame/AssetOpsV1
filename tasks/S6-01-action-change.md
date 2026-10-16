@@ -1,6 +1,6 @@
 # S6-01 — Action and controlled policy change
 
-Status: implementation-ready as two bounded slices
+Status: done (S6-01a merged 2026-10-16; S6-01b owner-accepted and merged 2026-10-16); was implementation-ready as two bounded slices
 Planner: Codex, 2026-10-15
 
 - [S6-01a — Action store, controlled application and exact read](S6-01a-action-store-read.md): non-UI, independently reviewable and mergeable on main only after persisted Action/event/application proof and exact S6-01b consumer API. `USER_REVIEW_REQUIRED: false` while no UI or owner-facing copy changes.
