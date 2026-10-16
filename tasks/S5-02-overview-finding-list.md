@@ -1,6 +1,6 @@
 # S5-02 — Finding list in Site Overview
 
-Status: in_review (built 2026-10-16 on `task/S5-02-overview-finding-list`; packet `.agent/S5-02-review-packet.md`, owner steps `.agent/S5-02-owner-walkthrough.md`); activated from main `5c1d9d42`; plan review ACCEPT; Architect `D-2026-10-16-s502-parity`
+Status: done (owner walkthrough accepted 2026-10-16, `.agent/owner-S502-acceptance-2026-10-16.md`; merged to main); was in_review (built 2026-10-16 on `task/S5-02-overview-finding-list`; packet `.agent/S5-02-review-packet.md`, owner steps `.agent/S5-02-owner-walkthrough.md`); activated from main `5c1d9d42`; plan review ACCEPT; Architect `D-2026-10-16-s502-parity`
 USER_REVIEW_REQUIRED: true — independent slice review, then owner visual walkthrough before merge or `mini:3#a/b` promotion.
 Size: S; one build phase plus one review.
 Branch: `task/S5-02-overview-finding-list` from current main (this refinement: `plan/S5-02-refine`).
