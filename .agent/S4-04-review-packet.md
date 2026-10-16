@@ -99,3 +99,12 @@ USER_REVIEW_REQUIRED: true - merge and `sitefindings:1#a/#b` promotion held for 
 Assessed-empty wording and basis disclosure; "Not known / Not current" pages; row columns (period, version,
 related, "No amount shown"); restart message; omitted mock elements (lens chips, "N open", global link, badges,
 sample money).
+
+## Main merge (main 7edbe396, deferred-match root fix)
+
+- `git merge main` was clean (no conflicts); migration head is 0018_finding_match_deferral. No S4-04 test pinned an older head (the 0017 hit is a downgrade-refusal test, unchanged).
+- Root-fix L1: `index_snapshot` now reads `deferred_window_starts` of the latest pass (`deferred_windows`); `FindingIndexService._day` treats a deferred day as not matched (PENDING, MATCH_PENDING reason). The S3 edge-reach guard is kept. Real-Postgres assertion added to `test_s4_deferred_match_postgres.py` scenario A (deferred day reads PENDING, s4.matched false, no claim). Mutation (deferred check disabled) fails it.
+- Slice L1: `tests/test_s4_finding_index_reach.py` covers `candidate_reach`/`discover` on both edges (00:00-00:20 reaches previous day). Mutation (lower-edge check removed) fails both tests.
+- Owner walkthrough: sentence added that neighbouring days of a failed day also read "Not known".
+- Checks: focused 56 passed; `tsc --noEmit` clean; s404 frontend test 15 passed; `tools/check-all.ps1` all 9 guards passed.
+- Full real-Postgres backend suite on this revision: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder --junitxml`, wall 12m25s, JUnit tests=2388 failures=0 errors=0 skipped=0.
