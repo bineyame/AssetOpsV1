@@ -167,6 +167,13 @@ async function main() {
     await size(width, height);
     // --- populated current ---
     claim(`${W}: Assumptions loads`, await go(assumptions, pricePage));
+    // S4-08 (packet item 1): the default address stays unrewritten and the price list and the fuel cost history
+    // report one identical cutoff string (the history's server-fixed instant, passed through unchanged).
+    const where = await js(`location.pathname + location.search`);
+    claim(`${W}: default Assumptions address is not rewritten`, where === `/sites/${SITE}/financials/assumptions`, where);
+    const cuts = await js(`[document.querySelector('[data-price-recorded-cutoff]')?.getAttribute('data-price-recorded-cutoff') ?? null,
+      document.querySelector('[data-history-cutoff]')?.getAttribute('data-history-cutoff') ?? null]`);
+    claim(`${W}: price list and fuel cost history read at one identical cutoff`, Boolean(cuts[0]) && cuts[0] === cuts[1], cuts);
     const lead = await js(`document.querySelector('[data-price-selection]')?.innerText ?? ''`);
     claim(`${W}: plain current price, set by the system`, /^Diesel price, set by the system on \d+ \w+ 2026: 1\.25 USD per litre/.test(lead), lead.slice(0, 120));
     const selected = await js(`document.querySelector('[data-price-selection]')?.getAttribute('data-price-selected-revision')`);

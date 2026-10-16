@@ -277,6 +277,82 @@ export interface FindingConsequencesBody {
   links: { evidence_records?: Record<string, string>; price_revisions?: Record<string, string> };
 }
 
+/** S4-08: one stored consequence revision at a recorded cutoff (`financials/consequence_history.py`). */
+export type HistoryAmountDisposition =
+  | "SHOWN"
+  | "SOURCE_CLOSED"
+  | "MIXED_OR_UNKNOWN_SOURCE"
+  | "UNPRICED"
+  | "QUANTITY_UNAVAILABLE"
+  | "MINOR_UNIT_UNKNOWN"
+  | "LINEAGE_INCONSISTENT";
+
+export interface HistoryPriceAssignment {
+  assumption_revision_id: string;
+  assignment_id: string;
+  used: boolean;
+  valid: { from: string | null; to: string | null; bounds: string };
+  recorded: { from: string | null; to: string | null; bounds: string };
+}
+
+export interface ConsequenceHistoryRow {
+  finding_id: string;
+  finding_revision_id: string;
+  finding_revision_no: number | null;
+  finding_title: string | null;
+  finding_window: { from: string | null; to: string | null; bounds: string } | null;
+  consequence_revision_id: string;
+  revision_no: number;
+  prior_consequence_revision_id: string | null;
+  recorded_at: string;
+  window: { from: string | null; to: string | null; bounds: string };
+  at_cutoff: "CURRENT_AT_CUTOFF" | "HISTORICAL_AT_CUTOFF";
+  state: "PRICED" | "UNPRICED" | "QUANTITY_UNAVAILABLE";
+  quantity: { state: string; reason: string | null; unit: string; high: string | null };
+  price: {
+    state: "LINKED" | "NO_PRICE_LINK" | "NOT_EVALUATED" | "LINEAGE_INCONSISTENT";
+    price_revision_id: string | null;
+    reason: string | null;
+    value: string | null;
+    currency: string | null;
+    assignments: HistoryPriceAssignment[];
+  };
+  change_from_prior: "FIRST_VERSION" | "PRICE_ONLY" | "SAME_INPUTS" | "MEASURED_RESULT_CHANGED" | "PRIOR_UNREADABLE";
+  recorded_amount: {
+    disposition: HistoryAmountDisposition;
+    label: string | null;
+    amount: { low: string | null; high: string | null; currency: string } | null;
+    is_current_amount: false;
+  };
+  source_provenance: SourceProvenance | null;
+  links: { finding: string; finding_financials: string; price_revision: string | null; api_consequence: string };
+}
+
+export interface ConsequenceHistoryBody {
+  site_code: string;
+  cutoff: { recorded_at: string; selected_by: "SERVER_DEFAULT" | "RECORDED_CUTOFF"; clock: string; membership: string };
+  current_amount_shown: false;
+  source_gate: { open: boolean; reason: string | null };
+  classification: string;
+  rows: ConsequenceHistoryRow[];
+  next_cursor: string | null;
+  page: { limit: number; shown: number; is_first: boolean };
+  zero_statement: string | null;
+  exclusions: string[];
+}
+
+export interface HistoryQuery {
+  /** The server's cutoff string, passed through unchanged (review L-R1); null fixes a new one. */
+  recordedAt: string | null;
+  after?: string | null;
+  limit?: number;
+}
+
+/** A history page, or the typed 409 telling the reader to reload page one without a cursor. */
+export type ConsequenceHistoryResult =
+  | FinancialReadResult<ConsequenceHistoryBody>
+  | { status: "basis_changed"; message: string | null };
+
 export interface ConsequencePin {
   revisionId: string | null;
   consequenceRevisionId?: string | null;
@@ -303,6 +379,18 @@ export interface FinancialsClient {
     findingId: string,
     pin: ConsequencePin,
   ): Promise<FinancialReadResult<FindingConsequencesBody>>;
+  /** S4-08: the Site's recorded fuel cost versions at one cutoff. */
+  getConsequenceHistory(siteId: string, query: HistoryQuery): Promise<ConsequenceHistoryResult>;
+}
+
+function isHistory(value: unknown): value is ConsequenceHistoryBody {
+  return (
+    hasKeys(value, ["cutoff", "rows", "current_amount_shown", "page"]) &&
+    Array.isArray((value as { rows: unknown }).rows) &&
+    isObject((value as { cutoff: unknown }).cutoff) &&
+    typeof ((value as { cutoff: { recorded_at?: unknown } }).cutoff.recorded_at) === "string" &&
+    (value as { current_amount_shown: unknown }).current_amount_shown === false
+  );
 }
 
 function isConsequences(value: unknown): value is FindingConsequencesBody {
@@ -330,7 +418,11 @@ function isBridge(value: unknown): value is FindingFinancialsBody {
   );
 }
 
-async function readFinancial<T>(path: string, valid: (value: unknown) => value is T): Promise<FinancialReadResult<T>> {
+async function readWith<T>(
+  path: string,
+  valid: (value: unknown) => value is T,
+  conflict?: (detail: unknown) => boolean,
+): Promise<FinancialReadResult<T> | { status: "basis_changed"; message: string | null }> {
   let response: Response;
   try {
     response = await fetch(path);
@@ -361,7 +453,10 @@ async function readFinancial<T>(path: string, valid: (value: unknown) => value i
     case 404:
     case 422:
       return { status: "not_found", message };
+    case 400:
+      return { status: "not_found", message };
     case 409:
+      if (conflict?.(detail)) return { status: "basis_changed", message };
       if (isObject(detail) && detail.code === "PERFORMANCE_CUTOVER_CLOSED") {
         return { status: "closed", message, note: typeof detail.note === "string" ? detail.note : null };
       }
@@ -369,6 +464,11 @@ async function readFinancial<T>(path: string, valid: (value: unknown) => value i
     default:
       return { status: "unavailable", message };
   }
+}
+
+/** Without a conflict reader no response is `basis_changed`, so the narrower result type holds. */
+function readFinancial<T>(path: string, valid: (value: unknown) => value is T): Promise<FinancialReadResult<T>> {
+  return readWith(path, valid) as Promise<FinancialReadResult<T>>;
 }
 
 export function createFinancialsClient(basePath: string = SITES_API_PATH): FinancialsClient {
@@ -401,6 +501,18 @@ export function createFinancialsClient(basePath: string = SITES_API_PATH): Finan
       return readFinancial(
         `${site(siteId)}/findings/${encodeURIComponent(findingId)}/financial-consequences${query ? `?${query}` : ""}`,
         isConsequences,
+      );
+    },
+    getConsequenceHistory(siteId, query) {
+      const params = new URLSearchParams();
+      if (query.recordedAt) params.set("recorded_at", query.recordedAt);
+      if (query.after) params.set("after", query.after);
+      if (query.limit) params.set("limit", String(query.limit));
+      const text = params.toString();
+      return readWith(
+        `${site(siteId)}/financial-assumptions/consequences${text ? `?${text}` : ""}`,
+        isHistory,
+        (detail) => isObject(detail) && detail.code === "CONSEQUENCE_HISTORY_BASIS_CHANGED",
       );
     },
   };
