@@ -31,6 +31,10 @@ INELIGIBLE_DAY = "2026-10-12"
 RECORDS = {"2026-10-06": "recommendation:1#a/eligible-F01", "2026-10-08": "recommendation:1#a/no-change-F02",
            INELIGIBLE_DAY: "recommendation:1#a/ineligible-soc-at-headroom"}
 NOTES = {
+    "pre_s6_02a_second_action": "PRE-S6-02a STATE (F8): the second same-battery Action (F02) in `blocking_actions` "
+                                "was written as S6-01's Finding-scoped hold allowed. S6-02a's battery-scoped hold "
+                                "refuses it through the API (409 PRIOR_ACTION_UNRESOLVED), so S6-02b must not treat "
+                                "two unresolved Actions on one battery as a live path.",
     "ACTION_ACCEPTANCE_CONFLICT": "409 with `action_id`: this recommendation key was already accepted (by a "
                                   "different command or idempotency key). Treat as 'already accepted' and follow "
                                   "`action_id`; it is not a failure of the existing Action.",
@@ -87,7 +91,9 @@ def fixture_grants(tenant_id: Any, site_id: Any, findings: dict[str, Any]) -> di
     """The v2 grants document for this run: tenant/Site IDs and the manifest records (day -> Finding ID)."""
     return {"schema": "assetops.action-demo-grants", "version": 2, "fixture_id": FIXTURE_ID,
             "grants": [{"tenant_id": str(tenant_id), "site_id": str(site_id), "site_code": "KOBO-001",
-                        "commands": ["ACCEPT", "APPLY", "OBSERVE"],
+                        # S6-02a: VERIFY lets the demo freeze a plan, bind the later selection and request
+                        # evaluation; it never supplies a verdict, metric or resolution event.
+                        "commands": ["ACCEPT", "APPLY", "OBSERVE", "VERIFY"],
                         "records": [{"manifest_id": RECORDS[day], "finding_id": str(fid)}
                                     for day, fid in sorted(findings.items()) if day in RECORDS]}]}
 
@@ -138,11 +144,8 @@ def build(runner, cases: dict, make_harness: Callable[..., Any]) -> tuple[dict, 
         rec["accept_capability_denied"] = post(denied.client, accept_path, accept_body)
         action_id = rec["accept_created"]["body"]["action"]["action_id"]
         # A second Action (F02, the same 20 -> 15 trial), accepted while its basis is current.
-        p2 = h.client.get(f"{base}/findings/{f02}/recommendation").json()["proposal"]
-        second = h.client.post(f"{base}/findings/{f02}/recommendation/accept", json={
-            "revision_id": p2["finding_revision_id"], "recommendation_key": p2["recommendation_key"],
-            "foundation_revision_id": p2["foundation_revision_id"], "proposed_value": p2["proposed_value"],
-            "idempotency_key": "fixture-accept-f02"}).json()["action"]["action_id"]
+        # S6-02a's battery-scoped hold refuses it through the API now, so it is written as S6-01 accepted it.
+        second = accepted_before_battery_hold(h, f02, "fixture-accept-f02")
         action_path = f"{base}/actions/{action_id}"
 
         overview: dict[str, Any] = {"accepted_pending": get(h.client, action_path)}
@@ -280,3 +283,25 @@ def written_rows(runner, change: dict) -> dict[str, list[dict]]:
             "FROM signal_binding_set_revision WHERE id = ANY(CAST(:ids AS uuid[])) ORDER BY recorded_at, version"),
             {"ids": sets})]
     return out
+
+
+def accepted_before_battery_hold(h, finding: Any, key: str) -> str:
+    """An Action on another Finding of the same battery, accepted as S6-01's Finding-scoped hold allowed.
+
+    S6-02a's battery-scoped hold (`D-2026-10-16-s6-verification`) refuses this through the API, so it is written
+    through the store with a pass-through guard to keep the older two-Action paths (and fixtures) covered. The
+    acceptance payload matches what the S6-01 API stored for the same command."""
+    from assetops_backend.actions.reserve_trial import sha
+
+    _, evaluation = h.service._evaluate(h.runner.tenant, h.runner.site, finding, None, True)
+    assert evaluation.available
+    p = evaluation.proposal
+    payload = {"command": "ACCEPT", "finding_id": str(finding), "revision_id": str(p["finding_revision_id"]),
+               "recommendation_key": p["recommendation_key"], "foundation_revision_id": str(p["foundation_revision_id"]),
+               "proposed_value": p["proposed_value"], "idempotency_key": key}
+    digest = sha(payload)
+    action, _, replayed = h.service.store.accept(
+        h.runner.tenant, h.runner.site, p, payload_sha256=digest, payload=payload, idempotency_key=key,
+        fixture_id="D-action-records-v1", recorded_at=h.clock(), guard=lambda actions: None)
+    assert not replayed
+    return str(action["id"])

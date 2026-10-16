@@ -1,0 +1,34 @@
+{
+  "schema": {"id": "assetops.demo-configuration", "version": 1},
+  "status": "SIMULATED DEMO CONFIGURATION - D-2026-10-08-s2-registered-kobo-demo-configuration; D-2026-10-16-s6-verification; D-2026-10-16-s602-questions (S6-02a phase 1). Not operator-entered Site truth.",
+  "label": "s6-verification-demo-config-v1",
+  "site_code": "KOBO-001",
+  "component_properties": {
+    "effective_from": "2026-10-01T00:00:00Z",
+    "asset_code": "generator",
+    "note": "S3-01 simulated demo configuration (s3-dispatch-demo-config-v1): the kobo-mini-grid-60kw template v2 generator control values, TEMPLATE provenance, under D-2026-10-08-s2-registered-kobo-demo-configuration.",
+    "properties": [
+      {"property_key": "generator-rated-power", "value": 40, "unit": "kW", "source": "TEMPLATE", "source_version": 2},
+      {"property_key": "start-soc-threshold", "value": 35, "unit": "%", "source": "TEMPLATE", "source_version": 2},
+      {"property_key": "stop-soc-threshold", "value": 90, "unit": "%", "source": "TEMPLATE", "source_version": 2},
+      {"property_key": "start-delay", "value": 5, "unit": "min", "source": "TEMPLATE", "source_version": 2}
+    ]
+  },
+  "bindings": {
+    "effective_from": "2026-10-12T00:00:00Z",
+    "role_set": "minigrid-roles-3",
+    "note": "S6-02a simulated demo configuration (s6-verification-demo-config-v1): every current binding carried unchanged, the two simulated capability channels of minigrid-roles-2, plus the critical load's (load-clinic, first in critical-load-priority) simulated requested and delivered power channels of minigrid-roles-3, published by registered-kobo-publication v4.",
+    "declare_signals": [
+      {"device_id": "pv-inverter-controller", "signal_id": "available-power", "display_name": "PV available power (simulated capability)", "unit": "kW"},
+      {"device_id": "battery-pcs-controller", "signal_id": "discharge-capability", "display_name": "PCS discharge capability (simulated capability)", "unit": "kW"},
+      {"device_id": "clinic-meter", "signal_id": "requested-power", "display_name": "Clinic requested power (simulated critical load)", "unit": "kW"},
+      {"device_id": "clinic-meter", "signal_id": "delivered-power", "display_name": "Clinic delivered power (simulated critical load)", "unit": "kW"}
+    ],
+    "add": [
+      {"device_id": "pv-inverter-controller", "signal_id": "available-power", "asset_code": "pv-inverter", "role": "pv_available_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "battery-pcs-controller", "signal_id": "discharge-capability", "asset_code": "battery-pcs", "role": "pcs_discharge_capability", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "clinic-meter", "signal_id": "requested-power", "asset_code": "load-clinic", "role": "critical_load_requested_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}},
+      {"device_id": "clinic-meter", "signal_id": "delivered-power", "asset_code": "load-clinic", "role": "critical_load_delivered_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}}
+    ]
+  }
+}

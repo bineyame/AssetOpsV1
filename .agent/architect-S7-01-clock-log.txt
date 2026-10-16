@@ -1,0 +1,1265 @@
+Reading additional input from stdin...
+OpenAI Codex v0.156.1
+--------
+workdir: C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+model: gpt-6-sol
+provider: openai
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: medium
+reasoning summaries: none
+session id: 01a1458b-9a02-7840-9c22-f1d05a354d6e
+--------
+user
+Read .agent/architect-S7-01-clock-request.md and do exactly what it asks.
+codex
+I’ll read the architect request and the repository guidance it points to, then make the requested change on a task branch and verify it.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .agent/architect-S7-01-clock-request.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/ACTIVE_CONTEXT.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git status --short --branch' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/START_HERE.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 968ms:
+# Start Here
+
+AssetOps turns mini-grid evidence into bounded operational and economic conclusions and verifies interventions. Current implementation documents: [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md).
+
+The [Architect S1-01 decision](DECISIONS.md) and [contract addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) resolve S1-01; no owner sign-off on the three Site-first documents or S1-01 is recorded here. Their proposal headers remain provenance.
+
+The [v6.9 mock screens](../frontend/mockups/v69/index.html) and their `screen-manifest.json` are the interaction/content references for each named surface. They do not authorize invented data or unfinished tabs; the active task and current architecture determine what becomes real.
+
+Current milestone: S1 Foundation.
+
+Planning status: S1-01 is ready for implementation; S2-S7 are outlined for refinement after predecessor review.
+
+## Current route
+
+1. Read `AGENTS.md` and this file.
+2. Read `.ai/ACTIVE_CONTEXT.md` and the active task it names.
+3. Use `tasks/README.md` for the only executable S1â€“S7 queue. S1-01 is next; S2â€“S7 packets are outlines until refined after predecessor review.
+4. Read `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md` and `.ai/DECISIONS.md` only when their semantics, boundaries or prior choices matter. Read `.ai/ROLE_CONFIG.md` for role binding and `.ai/WORKFLOW.md` for task/review rules.
+
+The open T0xx queue is [archived as superseded](../tasks/archive/pre-site-first-2026-10-07/README.md). Completed task packets and `.ai/CODE_STATE.md` remain built-state history. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and the old scoped handoffs are historical planning references, not current sequencing authority. Do not activate a T0xx packet because its title resembles a new slice.
+
+Use one task branch per slice, never `main`. The planned lane is Architect/Planner â†’ Implementer â†’ independent Reviewer â†’ owner review where required. Each task must show a persisted Site or Lab state and protect the simulator/private truth boundary. Do not load all history by default.
+
+ succeeded in 1101ms:
+# Architect request - S7-01a review L2/L3 (2026-10-16)
+
+You are the AssetOps Architect (Codex); decide within your remit, owner wants W1 progress. Read `.agent/S7-01a-review.md` (L2, L3, L5 and residual risks), `D-2026-10-16-a-s7-health`, and `backend/assetops_backend/evidence/source_health.py` (around lines 38 and 173).
+
+1. L2: the implementer chose a 5000 ms reported-clock offset tolerance (beyond it the gateway clock is UNTRUSTED), also used as the "observed after receipt" allowance. Confirm, amend, or set the value(s), and say whether the two uses should be separate constants.
+2. L3/L5 and residual risks: should `summary` carry `NO_ENABLED_GATEWAY` when only disabled gateways exist; must fact/contact ages be null when trust is UNTRUSTED; should `ALL_CURRENT` be labelled a contact summary rather than Site health. Short rulings that S7-01b (UI) and a small S7-01a follow-up can implement.
+
+Write `.agent/architect-S7-01-clock-answers.md` and `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.
+
+ succeeded in 1394ms:
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+## plan/S7-01-clock
+
+ succeeded in 1555ms:
+# Active Context
+The only executable queue is [tasks/README.md](../tasks/README.md). The current [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md) own the current direction. The [open T0xx archive](../tasks/archive/pre-site-first-2026-10-07/README.md) is superseded historical reference. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and old scoped handoffs do not route current work.
+
+The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and [S1-01 addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) control the first slice. Their decision status is distinct from owner acceptance; no owner sign-off on the three Site-first documents or S1-01 is recorded here.
+
+## Built state to carry forward
+
+The completed T001â€“T028 history remains in `tasks/completed/` and `.ai/CODE_STATE.md`: the existing Site shell, file-backed Foundation and Lab, causal mini-grid simulator, staged envelopes, demo Commit/Evidence/Overview and dispatch Finding. These are migration and regression inputs, not proof that the target Postgres/SQLite contracts already exist. Keep gitignored `var/sites`, Lab runs, stages and committed artifacts intact. Import or replay only through explicit migration steps and compare results; private world state never enters the product evidence store.
+
+## Next read
+
+Reviewer (S6-02a slice): read the task, the three S6 verification decisions, `.agent/S6-02a-phase-1-review.md`, `.agent/S6-02a-review-packet.md` and `.agent/S6-02a-phase-2-handoff.md`, then `git diff 07de54ac..HEAD -- ':!.agent'`. Focused proof: `backend/tests/test_s6_verification_*.py`, `host/tests/test_s6_verification_replay.py` on a private `*_test` DB; reuse the packet's full-suite evidence.
+Coordinator (OPS-02): merge `task/OPS-02-writer-guard-ast` to main; merge evidence in `.agent/OPS-02-review-packet.md` "Merge with main" and `.agent/OPS-02-merge-handoff.md`.
+Reviewer (S4-05a slice): read the task, the S4-05 umbrella shared contract, `.agent/architect-S4-05-answers.md`, `.agent/S4-05a-review-packet.md` and both phase handoffs, then `git diff fd7afd2c..HEAD`. Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB; reuse the packet's same-revision full-suite evidence.
+Reviewer (S6-01a slice): read the task, `.agent/architect-S6-01-answers.md`, `.agent/S6-01a-review-packet.md` and `.agent/S6-01a-phase-2-handoff.md`, then `git diff fd7afd2c..HEAD`. Focused proof: `backend/tests/test_s6_action_{rule,store_postgres,apply_postgres,records_postgres}.py` on a private `*_test` DB.
+Reviewer (S4-07): read the task (incl. coordinator note), `.agent/S4-07-review-packet.md` (Known Deviation 1: widened-job `available_at` lift), then `git diff 3ec3d765..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
+
+Reviewer (S4-06): read the task, `.agent/S4-06-review-packet.md`, then `git diff 7c72c6b3..HEAD`; reuse the packet's same-revision full-suite evidence; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a private `*_test` DB.
+Reviewer (S5-01 slice): read the task, `.agent/S5-01-review-packet.md`, both phase handoffs and `.agent/S5-01-phase-1-review.md`, then `git diff 440a2bad..HEAD -- ':!.agent'` (S5 files are listed in the packet; LR-01 merges are in the range). Walk it with `tools/s5_overview_walkthrough.py prepare|serve|attest|tick|stop-schedule|start-schedule|gate|drop --db assetops_s501_owner<x> --work var/s501_owner<x>` (its only accepted prefixes) and `node tools/s5-overview-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
+
+Reviewer (LR-01 slice): read the task (outcome table), `.agent/architect-LR-01-answers.md`, `.agent/LR-01-review-packet.md` and both phase handoffs, then `git diff d4c80e77..HEAD` (phase 2: `git diff 445f3d18..HEAD`). Walk it with `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01_<x>` and `node tools/lr01-money-evidence.mjs`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
+
+Reviewer (S4-02c phase 3 and slice): read the task (phase 3 row, carries C5, risks), `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-phase-2-review.md` "Carries for phase 3" and `.agent/S4-02c-phase-3-handoff.md`, then `git diff 6d4a1995..HEAD` (slice: `git diff f9d6d1a5..HEAD`). Rerun `tools/s402c_late_power_walkthrough.py run --db assetops_s402c3walk_<x> --work <dir named s402c3*>` then `drop`; Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB.
+
+Reviewer (S4-02b phase 2b and whole slice): read the task, `.agent/S4-02b-review-packet.md`, `.agent/S4-02b-phase-2b-handoff.md` and `.agent/S4-02b-phase-2a-review.md` carries, then `git diff 3793e4d..HEAD`. Use private DBs via `tools/s402b_fuel_cost_walkthrough.py --work-name <new> prepare` and `tools/s402b-fuel-cost-evidence.mjs`; the owner keeps 8872/8873/5372/5373 and `assetops_s402bwalk`/`assetops_s402bempty`.
+
+Reviewer (S4-02a phase 2 and closeout): read the task, `.agent/S4-02a-review-packet.md` and `.agent/S4-02a-phase-2-handoff.md`, then `git diff 5159b96..HEAD`. Walk it with `tools/s402a_assumptions_walkthrough.py --db assetops_s402a_<x> --empty-db assetops_s402a_<y> --work-name <new> prepare|links|serve|drop` and `node tools/s402a-assumptions-evidence.mjs <base> <empty-base> <finding-id> <out>`; the owner keeps 8870/8871/5370/5371.
+
+Reviewer (S4-03 phase 3 and closeout): read the task's phase 3 row, `.agent/S4-03-review-packet.md`, `.agent/S4-03-handoff.md` "Phase 3", `.agent/architect-S4-03-answers.md` (Q3) and `.agent/S4-03-questions-2.md`, then `git diff 26b5e7a..HEAD`. Walk it on a private copy with `tools/s4_finding_walkthrough.py --db <private> --work <new folder> prepare|serve` and `node tools/s4-finding-evidence.mjs` (`ASSETOPS_S4_WALK_WORK`, `ASSETOPS_CDP_PORT`, suites all/history/closed) on ports 8898/5398; the owner keeps 8866/8867/5366/5367.
+
+Reviewer (S4-01 phase 3 and closeout): read the task's phase 3 row and "Detail read and visible states", `.agent/S4-01-review-packet.md` and `.agent/S4-01-questions-5.md`, then `git diff 0f4808b..HEAD`; walk it with `tools/s4_finding_cases.py run`, `tools/s4_finding_walkthrough.py prepare|links|serve` (DB `assetops_s4walk`, API 8840, web 5340) and `node tools/s4-finding-evidence.mjs http://localhost:5340`.
+
+Reviewer (S3-01 phase 3b): read the task's phase 3 row and "Read states and acceptance", `.agent/S3-01-review-packet.md`, `.agent/S3-01-phase-3b-handoff.md` and `.agent/S3-01-questions-5.md`, then `git diff cdc24f7..HEAD`; walk it with `tools/s3_dispatch_walkthrough.py` (isolated DBs `assetops_s3cases`, `assetops_s3walk`; API port 8820).
+
+Reviewer (S2-02): read the task, `.agent/S2-02-review-packet.md`, `.agent/S2-02-owner-walkthrough.md` and the S2-02 decisions named in the task, then `git diff main...HEAD`. Postgres setup is in `backend/README-db.md`; the live path runs with `tools/s2_demo_walkthrough.py run` (isolated database `assetops_s2demo`). Run the workflow and architecture guards and checks applicable to changed behavior.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .agent/S7-01a-review.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n -A 90 -B 8 'D-2026-10-16-a-s7-health' .ai/DECISIONS.md" in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content backend/assetops_backend/evidence/source_health.py' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/ROLE_CONFIG.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 1348ms:
+# S7-01a review - Site source-health and battery boundary reads
+
+Reviewer: fresh independent Claude reviewer (did not author the slice). Reviewed `c5945e88`
+(`task/S7-01a-health-read`), diff `git diff 8b5d8137..c5945e88 -- ':!.agent'`, against
+`tasks/S7-01a-health-read.md` (incl. plan fix round 1), `D-2026-10-16-a-s7-health`, the S7-01 section of
+`.agent/architect-W1-remaining-answers.md` and item 2 of `.agent/architect-W1-remaining-q-answers.md`.
+
+## Verdict: ACCEPT
+
+No High or Medium finding. Six Low findings below; none blocks merge. L1, L4 and L5 are carried to S7-01b
+(they matter for the walkthrough and UI, not for the correctness of these reads); L2 and L3 are Architect
+confirmations.
+
+## Checks run (by this reviewer)
+
+- Focused, private DB `s701a_rev_test` (created and dropped), worktree `PYTHONPATH`, main venv:
+  `pytest backend/tests/test_s7_source_health_postgres.py backend/tests/test_s7_asset_boundary_postgres.py`
+  -> **14 passed** (156.8 s).
+- Adjacent, serial: `pytest backend/tests/test_s2_gateway_access_postgres.py` -> **29 passed** (28.8 s).
+- `tools/check-architecture.ps1` -> "Architecture check passed." exit 0.
+- `tools/check-agent-workflow.ps1` -> "Agent workflow check passed." exit 0.
+- Full suite not rerun. Cited: implementer's run on `c0bc25e1`, 2449 passed, JUnit 0 failures/errors/skipped,
+  1284 s. `git diff --stat c0bc25e1..c5945e88` touches only `.agent/S7-01a-handoff.md` and
+  `.agent/S7-01a-review-packet.md`, so that run covers the reviewed code.
+- Not run: `tools/writer_guard_probes.py --seam` (it mutates the tree; I cite the packet). I checked rule 8 by
+  reading the diff: the only product-module change in a writer module
+  (`postgres_gateway_access.py:205-250`) is SELECT-only, and the INSERTs are confined to
+  `backend/tests/s7_health_cases.py:109-117`. Non-UI slice: no frontend or layout evidence needed.
+
+## Focus points verified
+
+- **Contact freshness from server receipt only.** `source_health.py:197` uses `freshness(received_at, ...)`;
+  the reported-fact age (`fact_age`, `:166-177`) and the clock trust (`:158-163`) are separate fields. STALE
+  carries the reason `NO_RECEIPT_WITHIN_THRESHOLD_OUTAGE_START_NOT_DATED` and `not_claimed` includes `OUTAGE_START`.
+- **Queue and disk as last reported.** Both have `as: LAST_REPORTED` (`:251-255`), and `CURRENT_HARDWARE_STATE`
+  is not claimed.
+- **No green zero.** No enabled gateway gives `NO_REGISTERED_SOURCE`, and `ALL_CURRENT` needs at least one
+  enabled gateway (`:265-266`). A never-received gateway is `UNKNOWN`/`NEVER_RECEIVED` with null facts.
+- **409/503 with no rows.** Both refusal bodies carry `gateways: null` (`source_health_api.py:49-71`). An
+  unset DATABASE_URL raises `LedgerUnavailable` from `_connect_engine` and becomes 503. `check_consistent`
+  refuses a non-snapshot isolation, duplicate or foreign rows, a source not registered to its gateway, a receipt
+  after the read time, and a row that disagrees with its stored text.
+- **One repeatable-read snapshot.** `postgres_gateway_access.py:212-217` runs registration and the latest
+  diagnostic in one `REPEATABLE READ` transaction and records the isolation. The race test commits between the
+  two statements and passes.
+- **S2 gateway-health unchanged.** `gateway_api.py` and `gateway_access.py` are not in the diff, and
+  `test_s2_gateway_access_postgres.py` passes.
+- **401/403/404.** Both reads use the `finding_api.Access` seam. An unknown or foreign Site gives 404, and a
+  foreign, unknown or non-battery asset gives 404 `ASSET_NOT_IN_EFFECTIVE_BASIS` with `physical_condition: null`.
+- **Battery.** Physical condition is always `UNKNOWN` with three named missing causal inputs, or
+  `NOT_CONFIGURED` with no asset ID. Nothing reads gateway health or evidence tables. Nameplate carries the
+  `DECLARED_FOUNDATION_RATING` label, SOC is not selected, and the withheld list is complete.
+- **Deviations judged.** The fixture SQL inserts the case gateways and sources DISABLED
+  (`disabled_at = registered_at`, `s7_health_cases.py:111,115`), as an import does, and only the provisioning
+  CLI enables them. It is test-only, so rule 8 is clean. Treating `NO_REGISTERED_SOURCE` as "no enabled
+  gateway" is the only reading under which the state can ever occur for an imported Site, and the disabled
+  gateway is still listed. See L3 for the wording. The 5000 ms tolerance is covered in L2.
+- **Handoff for S7-01b.** It provides one gateway per case, a `deliver()` that reloads the manifest from a fresh
+  process, and the second Site (KOBO-002 via `NO_REGISTERED_SOURCE`, plus `without_battery` for an absent
+  battery). The gaps are in L1 and L4.
+
+## Findings
+
+1. **Low - S7-01b handoff omits that the cases break S1's single-gateway binding rule on the case Site.**
+   `backend/tests/s7_health_cases.py:107-117` adds eight gateways to KOBO-001. `validate_bindings` requires
+   exactly one registered gateway per Site and does not filter out disabled ones
+   (`backend/assetops_backend/sites/binding_service.py:232-234`; registrations are unfiltered,
+   `sites/adapters/postgres_foundation_store.py:246-250`). Any later binding publish on that Site is then
+   refused with `BINDING_GATEWAY_UNKNOWN`. That is harmless here, because tests convert first and register
+   after, but a shared walkthrough DB that later edits KOBO-001 bindings would fail in a confusing way.
+   **Fix:** add a line to `.agent/S7-01a-handoff.md` saying `register()` must run after the KOBO-001
+   bindings exist, and that S7-01b should use a walkthrough DB of its own or accept that limit.
+2. **Low (Architect confirmation) - the 5000 ms clock-trust tolerance is self-chosen and does two jobs.**
+   It is set at `backend/assetops_backend/evidence/source_health.py:38`, decides `UNTRUSTED` and therefore
+   fact `UNKNOWN` (`:161`), and is reused as the observed-after-receipt allowance (`:173`). The value is
+   disclosed (`tolerance_ms`) and versioned under `rule_id ...two-clock.v1`, so this is not a correctness
+   defect. It is still a product threshold that no decision records. **Fix:** ask the Architect to confirm or
+   replace it, and record the value in the decision log, before S7-01b shows `UNTRUSTED` to the owner.
+3. **Low (wording) - `NO_REGISTERED_SOURCE` is returned while the response lists a registered (disabled)
+   gateway.** See `source_health.py:263-266`. The behaviour is right; the code name reads literally false next
+   to `gateways[0].registration = DISABLED`. **Fix:** add `summary.reason` (for example
+   `NO_ENABLED_GATEWAY`) or have the Architect note that "registered" in the decision means enabled. This
+   does not block.
+4. **Low - on the real clock, four more cases go STALE within 120 s and `deliver()` does not refresh them.**
+   `s7_health_cases.py:192-200` refreshes only `s7-current` and `s7-delayed-old`. `s7-queue-growth`,
+   `s7-clock-offset`, `s7-disk-stop` and `s7-disk-recovery` (60 s cadence) also show STALE contact in a
+   walkthrough after about 2 minutes, yet the handoff table lists them as CURRENT and qualifies that only
+   for the test clock. The read stays honest, but the owner would see the disk-recovery and clock cases
+   behind a stale contact. **Fix:** let `deliver()` take keys (re-posting each case's last facts at the next
+   sequence), or state the behaviour in the handoff.
+5. **Low - signed ages are emitted from a clock the read itself marks untrusted.** For the `s7-clock-offset`
+   case, `reported_facts.fact_age_seconds` (`source_health.py:245`) and `sources[].reported_contact_age_seconds`
+   (`:214-215`) come out negative (about -85 s and -55 s), while `status` is `UNKNOWN` /
+   `GATEWAY_CLOCK_UNTRUSTED`. A UI could render "-85 s old". **Fix:** null both ages when trust is
+   `UNTRUSTED` (or when the observation is later than the receipt), or tell S7-01b in the handoff to suppress
+   them.
+6. **Low - the battery detail does not refuse a binding set that names a different Foundation revision.**
+   `backend/assetops_backend/sites/battery_boundary.py:104-106` reports `BOUND` channels from
+   `view.binding_set` without checking `binding_set.foundation_revision_id == view.revision.id`. The
+   established basis read refuses that case as `BASIS_INCONSISTENT` (`sites/registered_basis.py:119-125`).
+   S1's joint publish realigns binding sets in one transaction, so the mismatch can arise only from a race
+   between the separate `revisions` and `binding_sets` reads in `FoundationService.read`. Condition stays
+   `UNKNOWN` either way, so no condition claim results. **Fix:** return 409 `FOUNDATION_BASIS_UNAVAILABLE`
+   (or `binding_status: BASIS_INCONSISTENT`) on a mismatch.
+
+## Residual risk not named in the packet
+
+- `summary.status = ALL_CURRENT` reflects contact only. With `s7-disk-stop` reporting STOP, a Site could
+  still read `ALL_CURRENT`. S7-01b should label it as a contact summary, not as Site health.
+- Disabled gateways still get a computed `contact.status` (a gateway disabled after receipts may show
+  CURRENT). It is excluded from the counts. S7-01b should show the `registration` field next to it.
+- Frontend suite, build and layout: not applicable (non-UI slice); nothing was claimed.
+
+ succeeded in 1156ms:
+# Role Configuration
+
+Roles are project responsibilities. Agent bindings are configurable defaults.
+
+## Default Bindings
+
+| Role | Default agent | Purpose |
+| --- | --- | --- |
+| Architect | Codex; scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
+| Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
+| Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
+
+## Rules
+
+- Keep role responsibilities stable even if the bound agent changes.
+- Do not assume Planner, Architect, or Implementer means a specific vendor unless
+  this file says so.
+- Implementer may refine implementation steps, but should not redefine feature
+  sequencing without Architect or user review.
+- Reviewer must be independent from the agent that authored the implementation.
+- Claude Code commands in `.claude/commands/` should read this file before
+  acting so they can either run the role or prepare a handoff for the configured
+  agent.
+
+## Decision Requests Go To The Active Architect
+
+Set by the owner on 2026-10-04 (verbatim in `.agent/owner-T028-closeout-2026-10-04.md`):
+"for all decsion requests, let the active architect make them and inform me if
+the architect wants me to weigh in as well with its justification and decision".
+
+So the coordinator does not put decision requests to the owner. It sends them
+to the Architect bound above, which decides, records the decision with its
+justification, and informs the owner. Where the Architect wants the owner to
+weigh in, it says so, giving its decision and justification, and the owner may
+confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
+a decision request and still goes to the owner.
+
+## Scoped Claude Architect Exception: v6.9 Site Mock-ups (2026-10-06)
+
+The owner set Architect to Claude for one piece of work: comparing the site
+pages of the static mock-ups in `frontend/mockups/v69/` with v6.9 sections
+8.18-8.26 (mini-grid), 8.28-8.31 (cold chain), 8.35 (readiness) and 8.36
+(financials), and **updating the mock-up screens** with the enhanced version.
+Owner text verbatim: `.agent/owner-v69-site-mockup-comparison-2026-10-06.md`.
+
+- Extended by the owner the same day (follow-up 2 in the same file): EV
+  recommendations, interactive site selection across mini-grid, cold chain
+  and EV, a date-range selection bar, and the site single line diagram.
+- Extended again (follow-ups 3-6 in the same file): beyond the site pages to
+  the global Assets (incl. warranty/vendor economics, registration/edit),
+  Findings, Evidence, Work (Actions, Incidents, Maintenance, Operational
+  records) and a limited-demo Settings area of the mock-ups, and site
+  creation (form, template, batch upload; follow-up 8).
+- Scope: branch `arch/canonical-v69-pivot`, mock-up files only. Backend,
+  frontend app, gateway and simulator realization planning stay Codex-bound.
+- For this scope the Architect also edits the mock-up files directly (owner
+  instruction); the usual Architect/Implementer split does not apply to them.
+- Outputs state they were produced by Claude under this exception.
+- Revert this row to plain Codex when the owner accepts the enhanced mock-ups
+  or says so.
+
+## Architect, Reviewer And Planner Were Claude Until 2026-10-03 21:23
+
+Ended: the reset passed and the rows above are Codex again (reverted
+2026-10-04). Retrospective Codex reviews are queued in
+`.agent/coordinator-handoff.md`. The original record follows.
+
+On 2026-09-30 Codex hit its usage limit during an Architect review of the T025d
+cockpit layout and playback flicker, with reset at 2026-10-03 21:23. The user
+set **Architect** and **Reviewer** to Claude until that reset:
+`assetops-architect` and a fresh `assetops-reviewer` subagent do the work
+directly. Later the same day the user extended this to **Planner**:
+`assetops-planner` does the work directly, following the same guidance a Codex
+Planner would (this file, `.ai/PLANNING_GUIDANCE.md`, the task conventions).
+
+Revert all three rows in the table above when the reset has passed. Until then,
+every Architect pass, Planner task definition and review report states it was produced by Claude under
+this exception, so a later reader can decide whether a judgement should go back
+to Codex. Reviewer independence still applies: a fresh reviewer instance, never
+the implementer.
+
+**Nothing waits for Codex** (owner, 2026-10-01): "we do not wait for codex
+review, codex will review what is available to review when it returns." Every
+round in this window, first reviews and contract moves included, goes to a fresh
+Claude reviewer and the slice proceeds. After the reset Codex reviews,
+retrospectively, the slices reviewed only by Claude here: T025e (live-follow
+delta and merge mechanism), T025f (template fingerprints and lineage) and T025g
+(scenario-site contract, including the no-move contract reading that reversed
+the earlier 9 -> 10 clause).
+
+## Architect Was Temporarily Claude, And Is Codex Again
+
+On 2026-09-24 the user set Architect to Claude because Codex had exhausted its
+usage limit twice in one day while the task queue waited on an Architect
+review. That entry said to revert when capacity allowed. Codex capacity
+returned at 18:21 the same day and the binding was reverted at 18:53, so the
+exception is closed and the rule below applies again without qualification.
+
+Two Architect passes were produced under the exception, both on
+`arch/queue-review-feedback` and both merged: the queue resequencing at
+`2970d74` and the hardening-gate removal at `e02d267`. A later reader checking
+who authored them should know they were Claude by an explicit, recorded
+decision rather than by the coordinator routing around this file.
+
+The lesson worth keeping is the one the exception was written to respect: when
+a binding has to change, change it here first and then act. Routing around a
+control is worse than the mistake the control prevents.
+
+## Invoking A Codex-Bound Role
+
+A role bound to Codex is run by invoking Codex, not by dispatching the
+same-named Claude subagent and merging what it returns. Codex is on PATH and
+runs non-interactively:
+
+```
+codex exec "<the role brief>"
+```
+
+**The obligation is the coordinator's, not the subagent's.** On 2026-09-23 the
+Architect correctly flagged three times that it was producing Architect output
+while this file bound the role to Codex. Each time the coordinator relayed the
+flag to the user as a question and merged the output anyway. A subagent noticing
+a binding violation is not a control, because it has already done the work by
+the time it can tell anyone. The control is that the coordinator invokes the
+bound tool in the first place.
+
+So: before dispatching `assetops-architect` or `assetops-planner`, check the
+binding above. If it is Codex, run `codex exec`. The Claude subagents of those
+names refuse Codex-bound work rather than producing it.
+
+## The Reviewer Binding, And Its Backup
+
+The Reviewer is **Codex by default**. When Codex is unavailable - usage limit,
+outage, or a reset hours away - the backup is a **fresh Claude
+`assetops-reviewer` subagent**, and the substitution needs no permission. A
+slice waiting a day for quota is worse than a slice reviewed by the weaker of
+two independent readers.
+
+**Independence is the rule the backup must not break.** The backup is a NEW
+agent instance. It is never the agent that implemented the slice, and never
+that agent resumed with a different instruction. An implementer asked to
+review its own work will confirm it, which is why the binding exists.
+
+State in the report which reviewer produced it. A Claude review of Claude
+implementation is genuinely weaker than a Codex one on the same slice, and a
+later reader deciding how much weight to give a verdict needs to know which
+they are reading. Where the substitution happened because of quota, say so and
+say what was left unjudged, so the question can go back to Codex if it matters
+enough to wait for.
+
+## Which Reviewer For Which Round
+
+Set by the user on 2026-09-26 to conserve Codex quota, which has been the
+binding constraint on this milestone three times. This is not the same as the
+backup rule above: it applies whether or not Codex is available.
+
+**Codex reviews discovery.** The first review of any slice, a contract version
+move, a new mechanism or a restructure, and any round where the Implementer had
+to choose between legitimate treatments. T020B's R1 was that round - state a
+rule for unaligned windows or refuse them at setup - and it needed the stronger
+reader.
+
+**A fresh Claude `assetops-reviewer` reviews verification.** A correction round
+where an independent reviewer has already named the defects and the fix needs
+no design choice: prose, docstrings, claim corrections, test assertions,
+deletions. The job is confirming the named items closed and nothing else moved.
+Fresh rather than resumed, because there is no context worth preserving for
+checking named sentences and a clean reader is worth more.
+
+The honest risk, recorded so it is not discovered later: this relies on the
+previous review having found everything discoverable in that area. Four
+consecutive rounds on T020B each found something the last missed, which is the
+argument against cheap re-reviews. **So a Claude verification pass that finds
+something unexpected is a signal to escalate that round back to Codex, not a
+cheap verdict to accept.** Finding an unnamed defect means the round was
+discovery after all and was misclassified.
+
+Two classification traps worth naming, both seen on T020B:
+
+- **A correction round can widen under the Implementer's hand.** The R1a/R1b
+  round was three sentences and a deletion when dispatched; it came back having
+  also corrected an unnamed fourth sentence and added a property-based guard
+  over thirteen windows. Classify on what came back, not on what was sent.
+- **"Small" will drift to "everything" if it is not tested against the two
+  lists above.** The question is not how many lines changed. It is whether a
+  reader had to decide anything.
+
+## Owner Review Routing From S3 Onward (2026-10-11)
+
+Owner (verbatim, `.agent/owner-review-routing-and-merge-2026-10-11.md`): "codex usage optimizaion is important, so keep the same arragment for S2 going forward". For every slice from S3 onward: a fresh Claude `assetops-reviewer` does the slice's first review and every re-review; small written-list fix rounds run on a Sonnet implementer; one batched Codex review covers each milestone's slices together at the milestone's end; Codex Architect/Planner questions are batched rather than sent per question file. This overrides "Codex reviews discovery" below for per-slice first reviews; Codex remains the Architect, the Planner and the milestone reviewer.
+
+## Do Not Write The Review In The Brief
+
+Recorded on 2026-09-26 at the user's instruction, because this project had
+been doing the opposite. Reviewer briefs had grown to eight numbered questions,
+each naming the thing to judge and supplying the arguments on both sides. That
+is not a brief; it is a draft verdict with blanks. A reviewer steered to eight
+questions inspects eight things, and the ninth - the one nobody thought to ask
+about - is the one that reaches production.
+
+A brief gives the Reviewer:
+
+- the target: branch, commit, spec, packet, and where prior reviews live;
+- the standing criteria it is reviewing against, which live in the task file
+  and this project's records, not in the brief;
+- **what has already been run and verified**, with results, so quota is not
+  spent re-running a green suite. This is factual and does not steer;
+- the constraints: do not merge, do not fix, where to write, what not to touch.
+
+A brief does **not** give the Reviewer:
+
+- an enumerated list of what to judge;
+- the arguments for or against a conclusion;
+- which findings the coordinator considers important;
+- a named preferred outcome, or a hint of one.
+
+Pointing at an artifact is not steering; summarising what that artifact says is.
+Where a genuine question must be asked - a decision only the user can take, a
+constraint the Reviewer cannot infer - ask it plainly and separately, and do not
+dress an opinion as a question.
+
+The Implementer's packet already states its own uncertainties and residual
+risks. That is the right channel for "look at this": the author declaring what
+it is unsure of, in a document the Reviewer reads anyway.
+
+## Sort Findings Before Forwarding Them
+
+Recorded on 2026-09-26 after the user asked whether the Reviewer was applying
+`D-2026-09-22-milestone-speed-over-purity`. It was; all three T020A1 reviews
+cited it, and Codex used it to carry an HTTP-reachable 500, five overflow
+sites and several residuals rather than block on them. **The coordinator was
+the leak.**
+
+That decision's stopping rule is narrow. Stop only for a defect expensive to
+reverse, a claim that would mislead an Implementer, or a decision only the user
+can take. **Everything else is recorded and carried.** A Reviewer that rates a
+finding low and does not demand it has already applied the rule; forwarding it
+as fix work overrides the Reviewer in the direction the decision forbids.
+
+So when a review returns, the coordinator sorts every finding into block or
+carry against those three conditions before putting any of it to the user, and
+says which is which. A finding that is carried goes to
+`.ai/MILESTONE_REVIEW_BACKLOG.md` with the reason, not into the next round.
+
+T020A1 is the case to remember: five implementation rounds and three review
+passes, of which two rounds closed comment counts, a docstring and a Draft
+count that had drifted. Each was real. None was a reason to reopen a slice.
+
+## Using Codex Efficiently
+
+Codex quota is **account-level and shared across every model**. On 2026-09-24
+it was exhausted twice in one day, the second time mid-review, and switching
+to `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol` and `gpt-5.5` all returned the
+identical limit with the identical reset time. **You cannot route around an
+exhausted limit by changing model.** The only lever is spending less per call,
+before the limit is reached.
+
+What it cost that day, measured from the run logs:
+
+| Pass | Tokens | Shell calls | Started |
+| --- | --- | --- | --- |
+| Reviewer pass 1 | 145,247 | 31 | cold |
+| Reviewer pass 2 | 145,568 | 38 | cold |
+| Reviewer pass 3 | 25,259, then died | 5 | cold |
+
+Pass 2 spent 145k tokens re-deriving what pass 1 had already established.
+
+### Resume instead of restarting
+
+`codex exec resume <session-id> "<follow-up prompt>"` continues an existing
+session with its context intact. `--last` resumes the most recent. The session
+id is printed in the header of every run, so **capture it whenever a Codex
+role may be returned to** - which is every review, because a review that finds
+defects is returned to by definition.
+
+A second pass on the same slice is a follow-up, not a new engagement. Resume
+it and say what changed. Start cold only when the subject is genuinely
+different or the earlier session would mislead.
+
+**`resume` does not take the same flags as `exec`, and this cost two failed
+invocations on 2026-09-25 before it was pinned down.** Two rules:
+
+- Options go **before** the session id: `codex exec resume [OPTIONS]
+  <session-id> "<prompt>"`. After it they are parsed as the prompt.
+- **`--sandbox` does not exist on `resume`.** Pass it as config instead:
+  `-c sandbox_mode="workspace-write"`. `resume` accepts `-c`, `--last`,
+  `--all`, `-m`, `--skip-git-repo-check`, `--json`, `-o` and a few others;
+  run `codex exec resume --help` rather than assuming a flag carries over.
+
+The working form, verified:
+
+```
+codex exec resume -c sandbox_mode="workspace-write" --skip-git-repo-check   <session-id> "<follow-up prompt>" < /dev/null
+```
+
+Both failures were argument parsing, rejected before any model call, so they
+cost seconds and no quota. The point of recording them is that guidance which
+fails on first use is worse than none.
+
+A session resumes across a quota interruption: the third-pass review that died
+mid-run at its usage limit was resumed the next day into the same session id
+with its context intact.
+
+### Match the model to the work
+
+`-m <model>` selects one. `gpt-6-astra` is the default and the most expensive;
+`gpt-6-sol` is the workhorse coding model; `gpt-6-luna` is the cheap one. Full
+list: `gpt-6-astra`, `gpt-6-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`,
+`gpt-5.6-luna`, `gpt-5.5`.
+
+Reserve Astra for genuine architecture and review judgement. Mechanical passes
+- a fix round against a written list, a routine Planner expansion, a
+consistency sweep - do not need it.
+
+### Never spend a full session on a probe
+
+`~/.codex/config.toml` sets `model_reasoning_effort = "high"` globally, while
+the models' own default is `low`. A one-line availability probe therefore runs
+at high reasoning. If you must probe, use
+`-m gpt-6-luna -c model_reasoning_effort=low`. Better: attempt the real work
+and detect the limit from the error, which costs nothing when the limit is
+already hit.
+
+### Put verification in the brief, not in the session
+
+Every fact the brief states is work the session does not repeat. Say what you
+already ran and what you already verified - test counts, check results,
+confirmed line numbers - and say plainly that repeating it is not wanted.
+Ask Codex for judgement, not for re-running a green suite.
+
+### Invocation mechanics that have already gone wrong
+
+- **Pass the prompt as an argument, never on stdin.** `codex exec ... - < file`
+  blocked for three hours with no output on 2026-09-23. Always redirect
+  `< /dev/null`.
+- **Do not double-background.** `nohup codex ... &` inside an already
+  backgrounded call returns instantly, and the harness reports a completion
+  that has not happened. Background the call once.
+- **A branch carries a snapshot of these rules.** A session started on a task
+  branch reads that branch's `.ai/`, not main's. Merge main into the branch
+  before a review if a rule has changed.
+
+## Using The Claude Implementer Efficiently
+
+Set by the owner on 2026-09-29 after T023, T022B and T024 each cost 80-200M
+re-read tokens and one to three hours. Measured from the transcripts: cost is
+context size times turns, and context grew from resumed agents and from source
+code read whole into context. The agent's own rules are in
+`.claude/agents/assetops-implementer.md` "Context budget"; these are the
+coordinator's:
+
+- **A fresh implementer per build and per fix round. Never resume one.**
+  T024's build started at 209k tokens because the read-only planning agent was
+  resumed; T023's fix rounds started at 458k. If a slice needs a planning pass,
+  the planner writes its plan to `.agent/T0NN-implementer-plan.md` and a fresh
+  agent builds from that file.
+- **Fix rounds run on Sonnet** (`model: sonnet` on dispatch), briefed with the
+  review file and the findings to fix. New slices stay on the session model,
+  where design judgement matters.
+- **Keep slices small.** A task the implementer sizes at several times a
+  previous slice is a split candidate before it is built, not after.
+- **Build large slices in phases, a fresh agent per phase.** Set by the owner
+  on 2026-09-29 after T025a: bounded reads cut read volume by about two thirds,
+  but 508 turns still took context to 467k and cost 142M re-read tokens,
+  because cost grows with the square of the turn count. A slice beyond one
+  focused change is dispatched as phases (for example contracts and core, then
+  model and setup, then Lab and frontend). Each phase ends with committed work
+  and a short handoff at `.agent/T0NN-phase-N-handoff.md` (what landed, file
+  anchors, what is next, open risks); the coordinator dispatches a fresh agent
+  for the next phase from that file. Full suites and the packet belong to the
+  last phase.
+- **Hand off at about 120k context.** Set by the owner on 2026-10-02 after
+  usage showed 66% of tokens spent above 150k context and 67% in implementer
+  subagents. An implementer that nears 120k commits what is safe, writes its
+  handoff and stops, even mid-phase; a fresh agent continues from the handoff.
+  The coordinator plans phases so that none is expected to reach that size,
+  splitting a phase into sub-phases (2a, 2b) rather than letting one run long.
+- **Backend tests: focused per phase, full once per slice** (OPS-01,
+  `backend/TESTING.md`). Each phase runs the focused and adjacent backend files
+  it touched; the real-Postgres full suite runs once per slice, on the final
+  revision, with the guide's normal command and JUnit zero-skip check.
+  Reviewers (Claude or Codex) cite that same-revision full evidence and run
+  focused files; they rerun the full suite only for a finding that needs it.
+  Before any full run start `tools/keep-awake-during-tests.ps1` and cap the run
+  at twice its expected wall time; a run past the cap is stopped and reported,
+  never waited on. One full suite on this machine at a time.
+- **Mechanical sub-steps run on Sonnet.** Work fixed by an agreed contract or
+  handoff - tests written against a settled interface, an AC-by-AC evidence
+  pass, closeout records - is dispatched with `model: sonnet`, like fix rounds.
+  Steps that decide a design stay on the session model.
+
+## Updating Bindings
+
+Change bindings here when the team wants a different tool to own a role. Record
+material changes in `.ai/DECISIONS.md` if they affect workflow, review
+independence, or task ownership.
+
+
+ exited 1 in 1808ms:
+Get-Content : Cannot find path 
+'C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\backend\assetops_backend\evidence\source_health.py' because it does 
+not exist.
+At line:2 char:1
++ Get-Content backend/assetops_backend/evidence/source_health.py
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\assef\...ource_health.py:String) [Get-Content], ItemNotFoundEx 
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 
+
+ succeeded in 2380ms:
+4156-
+4157-Decision: `D-2026-10-16-s602-questions`. For `reserve-trial-verification-1`, freeze comparable total feeder-demand and PV-available energy bands at +/-10% of baseline (zero baseline requires zero later) and initial SOC at +/-2 percentage points; compare exact values and fail closed on absent/ambiguous input. Both 60-minute UTC windows use twelve aligned, half-open five-minute slots. Accepted interval power must cover each slot exactly for duration-weighted energy; SOC needs accepted samples at each slot start and window end, with start-sample reserve checks and 300 sampled breach seconds per below-reserve slot. Missing boundaries, conflicting spans or an intra-slot reserve change are unknown. A pending plan replacement receives a new immutable ID and may reuse bounds only before the later run begins and before any later-window acceptance; otherwise it needs a new later window. The S6-02b interim guardrail-failure label is `Trial missed a safety or service limit`, with the measured failure shown; target-only failure is `Target not met`, and unknown required facts are `Could not conclude` with known failures retained. Verification defaults to latest current read state; explicit historical selectors persist with a Historical label and separate current state. This refines `D-2026-10-16-s6-verification`; packet changes and edge proofs are in `.agent/architect-S6-02-answers.md`. Owner plain-language status-copy review remains a single W1-conclusion task, and S6-02b visual acceptance remains the owner's.
+4158-Decision: `D-2026-10-16-s602a-cutoff`. For `reserve-trial-verification-1`, the first accepted public report for the same tenant/Site with a declared interval ending at or after `later_start`, from any role or asset, is the observable central proxy for the later run beginning; an unaccepted run/batch does not trip this cutoff because there is no central Lab run table. A replacement after that report needs a new later window and immutable plan ID; identical freeze retries keep their ID, and the cutoff check and replacement insert serialize with acceptance. Freeze requires every needed baseline UTC-day S3 selection to be CURRENT. Later selection binding requires `later_end` to have passed and every needed later day to be CURRENT. Evaluation returns REASSESSMENT_PENDING unless both pinned windows remain CURRENT on their pinned basis. Verification API timestamps use ISO 8601 UTC with `+00:00` throughout. Edge tests and full ruling: `.agent/architect-S6-02a-cutoff-answers.md`. This refines `D-2026-10-16-s602-questions`; S6-02b owner visual acceptance remains the owner checkpoint.
+4159-
+4160-Decision: `D-2026-10-16-s502-parity`. Amend S5-02 question 1: assert parity between the S5-01 selected Finding and S4-04 first index row only for the same imported Site and half-open UTC day when the index is current, the Overview choice is freshly discovered under an open gate, comparable selected-day S3/S4 watermark fields agree, and both Finding and exact revision IDs match. The index's full continuity-day token and the Overview's accepted-source fingerprint have different scopes and are not equality keys. Otherwise display each read's basis and offer reload without a parity claim; persistent ID disagreement on settled comparable bases is a contract defect. Keep the reads separate and do not replace either choice. Required S5-02 packet and proof changes: `.agent/architect-S5-02-answers.md`.
+4161-
+4162-Decision: `D-2026-10-16-a-action-index`. Resolve `A-action-index` for the W1 Site Work Actions list only. Select persisted Actions created in an authenticated tenant/Site half-open UTC window of at most 31 days. Stable identity is `(tenant_id,site_id,action_id)`; order by `created_at` descending then Action UUID ascending, and bind bounded cursors to the consistent row/event selection fence. Return exact origin FindingRevision, latest selected ActionEvent and canonical/exact-event links. A watermarked zero means no persisted Actions created in this scope, not no work of another kind; changed cursors, store failure and unauthorized scope cannot produce empty success. Backdated `occurred_at` does not change recorded event order or list membership. S6-03 adds the index read and Site UI as one reviewed slice with separate persisted positive and zero cases, leaving Incidents, Maintenance and global/cross-domain Work out of scope. Full contract: `.agent/architect-W1-remaining-answers.md`.
+4163-
+4164:Decision: `D-2026-10-16-a-s7-health`. Resolve `A-S7-health` for W1 `health:2#a` and the Unknown-only `asset:3#a`. Site Health selects centrally received gateway diagnostics and registered cadence per authenticated Site; server-receipt contact freshness is separate from the age/trust of gateway-reported queue, clock, disk and source-contact facts. A newly received old diagnostic can show current gateway contact and old/Unknown facts. No gateway, no receipt, stale receipt, and stale projection are distinct watermarked states. Site Health makes no equipment-condition claim. The configured battery detail returns physical condition Unknown with named missing causal inputs; SOC or declared rating alone cannot yield degradation, remaining life, warranty or replacement exposure. Positive `asset:3#b` remains unmapped. `D-edge-health-cases` must persist central heartbeat, stale/no contact, delayed old fact, queue growth, clock offset and disk-pressure/recovery cases, with exact diagnostic IDs, server and reported times, reload, never-received and wrong-Site proofs. S7-01 uses a non-UI/read-and-fixture phase followed by UI and owner review. Full contract: `.agent/architect-W1-remaining-answers.md`; it narrows `D-2026-10-09-pre-s3-evidence-readiness-health` without promoting a panel.
+4165-
+4166-Decision: `D-2026-10-16-s302-capability`. `I-capability-read` is the bounded implementation of `D-2026-10-09-pre-s3-evidence-readiness-health` for one exact selected S3 mini-grid dispatch assessment and accepted public role coverage. S3-02 binds Site, UTC day/window, assessment revision, run/model/cohort, knowledge cutoff, effective Foundation/bindings, accepted evidence IDs and source/analytic watermarks; `I-claim-limit-read` maps that assessment's versioned rule and limitations to a supported classification ceiling with missing/quality/conflict reasons. Pending, stale, failed or unassessed selection cannot produce a current positive claim; an old exact revision may be shown only as historical. Do not substitute configured capability, gateway contact or private Lab truth. The positive `evidence-analysis:2#b` requires rule-backed complete and missing fixtures, exact Evidence drill-down, a reviewed non-UI read phase and then UI/owner review; S2's `#a` explanation stays distinct. This decision does not resolve the implementation node or panel. Full contract: `.agent/architect-W1-remaining-answers.md`.
+4167-
+4168-Decision: `D-2026-10-16-w1-remaining-questions`. Accept the five remaining W1 packet recommendations with bounded clarifications: S6-03 cursors fence all Actions and their events in the selected Site/creation window, including off-page rows, with maximum creation/event-recorded times and Action/event counts, and invalidate a later page when the fence changes; S7-01a uses a versioned two-clock health DTO and one repeatable-read registration/diagnostic snapshot without changing S2 gateway-health in place; S7-01b keys battery detail to the effective configured asset, shows `NOT_CONFIGURED` when absent, and refuses foreign or superseded asset IDs; S3-02a returns exact role-coverage spans and durations under one versioned rule without masking missing/conflicted subspans; S3-02b keeps S2 explanation separate and shows an explicit `UNASSESSED` S3 section until an assessment revision is selected. Implementation detail and review gates remain in the packets. Full answers: `.agent/architect-W1-remaining-q-answers.md`.
+4169-
+4170-Decision: `D-2026-10-16-s405b-label`. For S4-05b, use interim operator labels `Prepared example data` for exact authored evidence, `Generated test data` for exact registered generated evidence, `Sources do not agree` for mixed evidence, and `Source unverified` for unknown evidence, each with adjacent plain source-limit text. Positive labels explicitly say the records are not readings from physical equipment; mixed/unknown never imply a physical source or zero cost. Keep exact source IDs and basis in deeper detail, with no vocabulary-scan exemption for source-state prose. A partly sealed registered Lab stage refuses the entire Commit with `SOURCE_PUBLICATION_REFUSED`; no sealed subset is released. Phase 2 also retires `demonstration_label.py` from Action reads and resolves each Action's pinned origin FindingRevision, failing closed to unknown when unresolved. Full ruling: `.agent/architect-S4-05b-answers.md`. Final visible wording and placement remain the owner's W1 copy checkpoint before S4-05b merge.
+4171-
+4172-Decision: `D-2026-10-16-s602a-replay`. S6-02a may merge after fresh independent review with its complete, source-coherent but INCONCLUSIVE public Lab replay and labelled test-scoped positive evaluator proofs; the public complete-pass criterion remains a carried gap. S6-02b owns `reserve-aware-public-verification-replay` before its owner walkthrough: add a new mini-grid model/profile version whose declared generator-start policy reads effective reserve, preserve old versioned runs, and produce a two-run registered Lab replay through ordinary gateway/S2 acceptance that actually reaches VERIFIED under the existing frozen target, comparability bands, coverage and guardrails. Never synthesize readings, relax thresholds or substitute private truth. The walkthrough must show exact public lineage and reloadable current VERIFIED with simulated/no-savings and withdrawable-resolution limits, plus honestly labelled target-miss, guardrail-fail/hold, inconclusive, withdrawal and overlap cases. Keep `I-sim-verification-cases` and `D-verification-window` open, and withhold S6-02b owner acceptance and `I-S6-02` closure, until that positive public replay and case manifest pass review. Full ruling: `.agent/architect-S6-02a-replay-answers.md`.
+4173-
+4174-Decision: `D-2026-10-16-s602a-holds`. Resolve S6-02a review F4 and F2 before S6-02a merge. A pending plan with no outcome, or a plan with a latest settled INCONCLUSIVE outcome, may be superseded for the same APPLIED Action with a new immutable plan ID; after the observable later-run cutoff the replacement needs a new later window strictly after the old one. The original Action remains unresolved and battery-scoped until a later current final outcome satisfies the existing release rule. No manual or SYSTEM INCONCLUSIVE withdrawal is added. A permanent `PRIOR_TRIAL_REASSESSMENT_OVERLAP` requires exact accepted public reading IDs that arrived after a specific RESOLVED closure, match its frozen bound roles/assets and half-open window, and materially changed its pinned S3 selection or direct verification-input basis; persist old/new lineage and the causal set. An unrelated or unbound late reading, or a Foundation/source/worker-only withdrawal, cannot create that permanent block. A later Action overlaps only if accepted after causal evidence arrived and before that closure was withdrawn. Indeterminate attribution retains the ordinary unresolved hold without inventing permanent overlap. Full ruling and proofs: `.agent/architect-S6-02a-holds-answers.md`.
+
+codex
+The review accepts the slice and leaves a few contract choices for this pass. I’m checking the existing decision against the current age and clock fields before writing the rulings.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .ai/DECISIONS.md -Tail 28' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$p='"'backend/assetops_backend/evidence/source_health.py'; "'$a=Get-Content $p; for($i=0;$i -lt $a.Length;$i++){ if($i -lt 310){ '"'{0,4}: {1}' -f ("'$i+1),$a[$i] }}' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "rg -n -A 48 -B 10 'A-S7-health|D-edge-health-cases|two-clock|UNTRUSTED|NO_REGISTERED_SOURCE' .agent/architect-W1-remaining-answers.md .agent/architect-W1-remaining-q-answers.md tasks/S7-01a-health-read.md" in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 645ms:
+.agent/architect-W1-remaining-answers.md-5-## S6-03 - `A-action-index` / `sitework:1#a`
+.agent/architect-W1-remaining-answers.md-6-
+.agent/architect-W1-remaining-answers.md-7-**Source and scope.** Add a read over persisted `action` and `action_event`, authenticated to one tenant and resolved Site. W1 is mini-grid Actions only. Select a half-open UTC creation window `[from,to)` of at most 31 days; `created_at >= from AND created_at < to` is the membership rule, irrespective of later events. Echo scope and display timezone. The stable row key is `(tenant_id, site_id, action_id)`; include Action code, creation time, exact origin Finding and FindingRevision IDs, latest selected event ID, event recorded time, reduced lifecycle, and the canonical and exact-event Action links. The detail/event selection uses **recorded** order, `(recorded_at,id)`, not `occurred_at`; a backdated observation does not move the row in the list. Default order is `created_at DESC, action_id ASC`, with bounded pages and an opaque cursor bound to tenant, Site, window, selection watermark and last sort key. No unreviewed priority, owner, due date, verification verdict or cross-domain/global Work aggregate is inferred from v6.9.
+.agent/architect-W1-remaining-answers.md-8-
+.agent/architect-W1-remaining-answers.md-9-**Watermark and missingness.** Read one consistent DB snapshot; return `read_at`, max included Action creation/event recorded fence (or explicit zero-row fence), total, page cursor, selected window and `CURRENT` only if the scoped store read succeeds. A zero-row `CURRENT` means no **persisted Actions created in this Site/window**, not no Finding, recommendation, incident, maintenance or unrecorded work. Store unavailable, unauthorized scope or a page cursor whose bound fence changed never becomes an empty list: return a typed failure or invalid-cursor response and reload page one. For selected rows, show the state as of the fence and preserve exact origin/event links after reload. An event arriving after the first-page fence invalidates subsequent pages; do not splice states. Keep exact historical Action detail available separately.
+.agent/architect-W1-remaining-answers.md-10-
+.agent/architect-W1-remaining-answers.md-11-**Refusals and reuse.** Apply `D-2026-10-09-pre-s3-claim-routes-and-actor` identity rules: 401 unauthenticated, 403 known forbidden scope, 404 foreign/nonexistent Site or root. Refuse invalid/unbounded windows and changed cursors; no generic empty success on DB failure. Reuse the Site-scoped Action columns and event ordering in `backend/assetops_backend/actions/adapters/postgres_action_store.py:43-48,184-200`; the Action detail, origin, basis, state and stable links in `backend/assetops_backend/actions/service.py:524-581`; and S6-01 lifecycle/actor authority (`D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, `D-2026-10-15-s601-reopen`). The **new** producer is the Site/window index query, consistent selection/pagination and Site Work UI. The existing `actions_for_finding` is a Finding-scoped helper, not this index. The S4 FindingIndex decision `D-2026-10-15-a-finding-index` is the Site/window, cursor and zero-row precedent; it does not select Action rows.
+.agent/architect-W1-remaining-answers.md-12-
+.agent/architect-W1-remaining-answers.md-13-**Fixtures and packaging.** Reuse `D-action-records` for a persisted positive row, adding two Actions at distinct creation times and a later/backdated event to prove order, selected state, exact FindingRevision/event links, same-basis pagination, Site isolation and reload. Add an independently asserted assessed zero-row Site/window and a changed-fence cursor case; a client-filtered empty page is insufficient. S6-03 can be **one S slice**: one small read and one list UI, then independent review and owner checkpoint. It closes only the Actions tab of `sitework:1`, with Incidents/Maintenance and global queues honest gaps.
+.agent/architect-W1-remaining-answers.md-14-
+.agent/architect-W1-remaining-answers.md:15:## S7-01 - `A-S7-health` / `health:2#a` and `asset:3#a`
+.agent/architect-W1-remaining-answers.md-16-
+.agent/architect-W1-remaining-answers.md-17-**Source and scope.** Site Health reads registered gateway/source identities and the most recent centrally stored `GatewayDiagnosticsV1` per gateway for the authenticated Site. Use the server receipt clock for contact freshness under declared cadence, and separately report the diagnostic's own `observed_at`, source contact times, queue depth/oldest age, clock offset/trust, disk pressure and their reported-fact age. Return gateway/source/diagnostic IDs, registration, received/observed clocks, cadence, `read_at`, selected diagnostic sequence and a per-gateway source watermark. A fresh receipt of an old diagnostic makes contact potentially `CURRENT`, while queue/device facts remain old or `UNKNOWN`; virtual Lab time never measures real network lag. Per-source contact is reported only when the diagnostic supplies that source's timestamp; gateway contact alone does not prove a device is connected. `CURRENT | STALE | UNKNOWN` applies to **contact**, not battery condition. `STALE_PROJECTION` is separate if any derived read lags the selected central diagnostic.
+.agent/architect-W1-remaining-answers.md-18-
+.agent/architect-W1-remaining-answers.md-19-The battery asset detail is a separate Site/asset-scoped boundary read. Resolve the configured battery and binding from the effective S1 Site basis, and disclose the selected asset/configuration IDs. In W1, return `UNKNOWN` physical condition and explicit missing causal inputs (for example accepted temperature/capacity/stress history) unless a separately reviewed causal battery observation and rule actually exist. The asset may display accepted SOC or declared nameplate facts only under their own labels and exact accepted evidence/binding IDs; neither proves degradation or remaining life. Withhold replacement exposure, warranty-at-risk, stress score, diagnosis and date. An unbound or absent battery is `NOT_CONFIGURED`/`UNKNOWN` with reason, never a healthy asset or fabricated asset row. `asset:3#b` positive physical condition remains non-core and unmapped.
+.agent/architect-W1-remaining-answers.md-20-
+.agent/architect-W1-remaining-answers.md:21:**Watermark, empty and refusal.** No registered gateway is `NO_REGISTERED_SOURCE`; registered but never received is `UNKNOWN` contact. A stale contact is not proof that an outage began at the last receipt; queue pressure is the last **reported** state, not current hardware pressure. Return a watermarked empty or Unknown with reason, not a green zero. Any unreadable central store, inconsistent registration/diagnostic selection or stale projection refuses a current operational claim. Apply tenant/Site/asset 401/403/404 rules. Do not join diagnostic facts to accepted measurement evidence or claim battery condition from the gateway's own health. Reuse central latest-diagnostic selection in `backend/assetops_backend/evidence/adapters/postgres_gateway_access.py:172-194`, cadence-based contact and diagnostic fields in `backend/assetops_backend/evidence/gateway_access.py:289-343`, and the existing Site gateway read route in `backend/assetops_backend/gateway_api.py:94-109`. The **new** pieces are the selected two-clock fact-age/trust interpretation, bounded Site Health UI and asset Unknown/missing-input read/UI. `D-2026-10-09-pre-s3-evidence-readiness-health` already governs the semantic split; this decision narrows S7's first panel.
+.agent/architect-W1-remaining-answers.md-22-
+.agent/architect-W1-remaining-answers.md:23:**`D-edge-health-cases` and packaging.** Build persisted central diagnostic cases through registered gateway authentication: (1) received/current heartbeat, (2) no later receipt across the declared cadence threshold, (3) delayed old diagnostic received now with old reported facts, (4) growing queue and old queued item, (5) reported clock offset or untrusted clock, and (6) disk pressure/acquisition-stop then recovery. Preserve local sequence, diagnostic ID, server receipt and source reported time; reload the central read. Add never-received and wrong-Site cases plus battery configured-but-causal-input-missing; private Lab state cannot satisfy them. S7-01 needs a **non-UI/UI split** inside its one owner-facing slice: first review diagnostic fixture and two reads, then Health/Asset UI, desktop/narrow behavior, links and owner checkpoint. Do not wait for `I-sim-battery-cases` or a positive physical condition claim.
+.agent/architect-W1-remaining-answers.md-24-
+.agent/architect-W1-remaining-answers.md-25-## S3-02 - `I-capability-read` / `evidence-analysis:2#b`
+.agent/architect-W1-remaining-answers.md-26-
+.agent/architect-W1-remaining-answers.md-27-**Source and scope.** For one authenticated mini-grid Site, selected half-open UTC day and exact selected S3 dispatch window/interval `assessment_revision_id`, derive a versioned CapabilityReadiness/claim ceiling from that assessment's accepted public `EvidenceQuery`/`AnalyticInputSet`, role coverage, quality, cohort, effective Foundation/binding IDs, evidence IDs and S3 rule/limitations. `I-capability-read` returns per-required-role covered duration/quality, missing or conflicted spans, selected accepted IDs, rule and selection basis; `I-claim-limit-read` maps these to what the **selected** dispatch classification can support, including Candidate/Necessary/Indeterminate bounds and named reasons. Do not infer a physical capacity or treat configured capability as observed. The result is assessment-scoped; it cannot silently swap in latest readings or a different day/revision. Reuse `backend/assetops_backend/analytics/dispatch_read.py:123-166` for selected status, basis, coverage, watermarks, window/interval revisions and limitations, and `backend/assetops_backend/analytics/dispatch_read.py:178-202` for exact revision evidence/configuration lineage. The existing Evidence Analysis view in `frontend/src/sites/LedgerSiteEvidence.tsx:93-161,762-775` supplies S2's distinct no-conclusion/status explanation; the **new** read and UI join the S3 selected assessment and express its rule-backed limit.
+.agent/architect-W1-remaining-answers.md-28-
+.agent/architect-W1-remaining-answers.md-29-**Currentness, empty and refusals.** Echo tenant/Site, day/window, `assessment_revision_id`, selected run/model/cohort, knowledge cutoff, selected Foundation/binding IDs, accepted-source and analytic watermarks, `built_at` and current `read_at`. A positive supported ceiling requires a current S3 selection on the exact requested basis, a complete rule-backed assessment of the relevant portion and accepted public role evidence. A current assessment can still have `LIMITED` or `UNKNOWN` portions; name missing-role, poor-quality, conflicting, open-bound, source/cohort or configuration reasons. No selected assessment is `UNASSESSED`, not a zero capability. Pending/failed/dirty or changed S3 selection is `PENDING`/`FAILED`/`STALE_PROJECTION`; show a prior exact revision as historical only and withhold a current positive statement. Reject a foreign Site/revision, a revision outside the selected window, unsupported rule version or absent accepted lineage; preserve the usual 401/403/404 identity boundary. S2's delivered `evidence-analysis:2#a` remains a separate explanation and does not close positive `#b`.
+.agent/architect-W1-remaining-answers.md-30-
+.agent/architect-W1-remaining-answers.md-31-**Fixtures and packaging.** Reuse reviewed `I-sim-dispatch-cases` only after checking exact accepted IDs against this rule: one full Candidate-capability interval, one missing available-PV or PCS-discharge-capability interval, one poor-quality/conflicting interval and one late revision that withdraws currentness. If existing fixtures lack one case, add only that case via registered simulated gateway, ordinary Batch V2 ingestion and S3 assessment; do not use private simulator truth. Assert selected revision and Evidence drill-down after reload, wrong Site/window, stale selection, desktop/narrow and keyboard selection. S3-02 needs a **non-UI/UI split**: review the capability/claim read and fixture first, then the Evidence Analysis UI and owner checkpoint. No broad shared projections or cold-chain/EV role set is required.
+.agent/architect-W1-remaining-answers.md-32-
+.agent/architect-W1-remaining-answers.md-33-## Registry disposition
+.agent/architect-W1-remaining-answers.md-34-
+.agent/architect-W1-remaining-answers.md:35:Resolve only `A-action-index` and `A-S7-health` with the decision anchors below. `I-capability-read` is an implementation node and stays open until reviewed code; `D-edge-health-cases`, all S task nodes and all panel portions stay open until fixture, read, UI and review evidence exist. The three decisions are `D-2026-10-16-a-action-index`, `D-2026-10-16-a-s7-health` and `D-2026-10-16-s302-capability` in `.ai/DECISIONS.md`.
+--
+tasks/S7-01a-health-read.md-1-# S7-01a — Central source health and asset boundary reads
+tasks/S7-01a-health-read.md-2-
+tasks/S7-01a-health-read.md:3:Status: implementation-ready. USER_REVIEW_REQUIRED: false; non-UI, mergeable after independent review. Size M, two phases. Branch `task/S7-01a-health-read` from merged main. Depends on S2-02 central diagnostics and S1-02 effective bindings. Authority: `.agent/architect-W1-remaining-answers.md`; `.ai/DECISIONS.md` `D-2026-10-16-a-s7-health`, `D-2026-10-09-pre-s3-evidence-readiness-health`; registry `D-edge-health-cases`, `I-source-health-read`, `I-asset-boundary-read`. No UI/panel promotion in this part.
+tasks/S7-01a-health-read.md-4-
+tasks/S7-01a-health-read.md-5-## Verified seams and new contract
+tasks/S7-01a-health-read.md-6-
+tasks/S7-01a-health-read.md:7:Existing central diagnostic selection: `backend/assetops_backend/evidence/adapters/postgres_gateway_access.py:172-194`; cadence contact and diagnostic fields: `backend/assetops_backend/evidence/gateway_access.py:289-343`; `GET /api/sites/{site_id}/gateway-health`: `backend/assetops_backend/gateway_api.py:38,93-109`; existing client: `frontend/src/sites/gatewayHealthClient.ts:3,68`. Existing S1 asset/basis/binding tables: `backend/migrations/versions/0001_foundation_identity.py:95,149`, `backend/migrations/versions/0002_signal_bindings.py:37,65`. **New:** two-clock Site source-health interpretation/read and Site/asset-scoped configured-battery boundary read/API; neither is a physical health assessment.
+tasks/S7-01a-health-read.md-8-
+tasks/S7-01a-health-read.md-9-Use the request-level `finding_api.Access`/`development_access` seam, as in `finding_index_api.py:28,44-50`, for 401/403/404 on the new reads; the existing S2 gateway-health route is a data precedent, not the access boundary.
+tasks/S7-01a-health-read.md-10-
+tasks/S7-01a-health-read.md:11:Site read resolves registered gateway/source IDs, most recent centrally stored diagnostic per gateway, local sequence, diagnostic ID, server `received_at`, reported `observed_at`, cadence, read time, source watermark, source-specific contact time where supplied, queue depth/oldest age, clock offset/trust and disk pressure. Receipt freshness `CURRENT|STALE|UNKNOWN` is distinct from reported-fact age/trust and `STALE_PROJECTION`. If no derived projection is introduced, record `STALE_PROJECTION` as not applicable and test the inconsistent-selection refusal instead. Fresh receipt of old facts may have current gateway contact and old/Unknown facts. Gateway contact never proves source-device contact. No registered gateway = `NO_REGISTERED_SOURCE`; registered never received = `UNKNOWN`. Stale receipt does not date an outage; queue/disk are last reported, not current hardware state. Store failure or inconsistent registration/diagnostic selection cannot yield a current claim. No join from diagnostics to accepted measurements.
+tasks/S7-01a-health-read.md-12-
+tasks/S7-01a-health-read.md-13-Battery read resolves effective Site basis and configured asset/binding IDs. Return `UNKNOWN` physical condition with named missing accepted causal temperature/capacity/stress inputs, or `NOT_CONFIGURED`/Unknown reason if absent/unbound. SOC and nameplate may appear only under separate evidence/declared labels and exact accepted IDs. Withhold degradation, remaining life, stress score, warranty/replacement exposure and diagnosis. Enforce tenant/Site/asset 401/403/404; a foreign asset is never an empty healthy row.
+tasks/S7-01a-health-read.md-14-
+tasks/S7-01a-health-read.md-15-## Phases and proof
+tasks/S7-01a-health-read.md-16-
+tasks/S7-01a-health-read.md-17-| Phase | Deliverable and focused proof |
+tasks/S7-01a-health-read.md-18-| --- | --- |
+tasks/S7-01a-health-read.md:19:| 1. Central fixture/read | **New** `D-edge-health-cases` through registered gateway authentication and central ingestion: current heartbeat, stale cadence, delayed old diagnostic freshly received, growing queue/old item, clock offset/untrusted time, disk pressure/acquisition stop then recovery; also never received and wrong Site. Assert ID, sequence, server/reported times and reload. Add `backend/tests/test_s7_source_health_postgres.py` (new), including refusal and, only if a derived projection exists, stale-projection cases; otherwise record not applicable and test inconsistent-selection refusal. |
+tasks/S7-01a-health-read.md-20-| 2. Asset boundary/review | **New** configured battery with missing causal input, unbound/absent battery and wrong asset/Site checks in `backend/tests/test_s7_asset_boundary_postgres.py` (new). Pin basis/binding IDs after reload. If DDL is needed, allocate after main's `0018_finding_match_deferral`; S6-02a adds unmerged `0019_verification_core`, so re-chain migration at merge. Audit any new writer/fixture SQL against statement-level rule 8 and run `python tools/writer_guard_probes.py`. Run `tools/check-all.ps1`, registry checker and one final-revision full backend suite with private `*_test` DB per `backend/TESTING.md:104,112-125`: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=.pytest-junit.xml`, keep-awake, 20-minute cap, JUnit zero skipped/failed. Fresh independent review permits merge; S7-01b consumes this contract. |
+tasks/S7-01a-health-read.md-21-
+tasks/S7-01a-health-read.md-22-## Architect questions
+tasks/S7-01a-health-read.md-23-
+tasks/S7-01a-health-read.md-24-1. **Recommendation:** expose a versioned read DTO for fact age/trust rather than mutate S2 gateway-health fields in place; select diagnostics and registration in one repeatable-read transaction so the per-gateway statements share one DB snapshot.
+tasks/S7-01a-health-read.md-25-
+tasks/S7-01a-health-read.md-26-## Plan fix round 1
+tasks/S7-01a-health-read.md-27-
+tasks/S7-01a-health-read.md-28-Named the request identity seam, bounded stale-projection proof to an actual producer, and required one repeatable-read snapshot for registration and diagnostics.
+
+ succeeded in 838ms:
+Decision: `D-2026-10-15-s405-stored-demo-provenance`. Under the owner's 2026-10-15 absence delegation, accept S4-05 Q1-Q3 as amended by Follow-up (plan review M1) in `.agent/architect-S4-05-answers.md`. A server-authorized, immutable pre-admission publication binds an exact Batch V2 commitment to tenant/Site, gateway/source, external batch ID and canonical digest. `AUTHORED_DEMONSTRATION` additionally binds fixture/spec ID and version, including authored P01 and P02. `REGISTERED_SIMULATION` binds an ordinary simulator batch to a server-recorded run identity; `SIMULATED` mode or a private manifest alone is insufficient. Publication and admission serialize on the scoped batch key; post-admission registration and mismatched commitments fail. Accepted IDs inherit immutable provenance, duplicates retain their original accepted ID, and historical unbound IDs stay unknown. Finding and consequence source state derives from each revision's exact accepted IDs, including consequence power intervals. Coherent all-authored or all-registered-simulation sets may show a current amount only when LR eligibility, exact basis, currentness, source-open and quantity/price gates also pass. Mixed or unknown source blocks a current amount in Finding Financials, consequence and S5 Overview regardless of `CURRENT PRICED` or LR eligibility; prior values remain audit-only. Real data remains unknown and unable to show current money until a separate server-authorized `ATTESTED_REAL_SOURCE` follow-on is implemented. Create open registry node `I-attested-real-source-provenance` in `real_pilot_requires` before resolving `I-stored-demo-provenance` or installing a pilot timer; S4-05 may resolve before the real-source node, but its resolution is not pilot readiness. Amend S5-01's source gate to consume stored exact-revision provenance whichever slice merges second. Extend the existing PostgreSQL evidence-ledger writer, not the writer count: rule 8 permits only its INSERTs to publication/link rows, refuses other writers and mutations, preserves existing writer protections, and is backed by database immutability. Visible copy and pilot designation still require the owner's W1 checkpoint; this decision grants neither owner approval nor W1/pilot readiness.
+
+Decision: `D-2026-10-15-a-finding-index`. Under the owner-absence work order item 9, resolve `A-finding-index` for a tenant/Site/domain and selected half-open UTC window of at most 31 days. The W1 read selects the latest immutable S4-01 FindingRevision of each canonical Finding from one consistent S3/S4 basis, includes every intersecting lifecycle state, and uses strict half-open overlap. Its stable row key is `(tenant_id, site_id, finding_id)`; default order is episode start descending, then Finding UUID ascending. Return exact revision/detail and assessment/evidence lineage, scoped accepted-source and analytic/matcher watermarks, selection token, built time, coverage and typed currentness. Complete discovery requires every intersected UTC-day analytic window and neighbours reachable through 20-minute episode continuity matched through each current selection seq. Only complete current scoped discovery under an open S3 Performance cutover gate may state zero Findings; pending, stale, failed and unassessed reads remain visibly Unknown or historical. A closed gate refuses the unpinned index with HTTP 409 `PERFORMANCE_CUTOVER_CLOSED` and its reason, with neither current rows nor a no-Findings claim, as on Finding routes; S4-05 stored provenance joins that gate once merged. A changed basis invalidates the bound page cursor. S4-04 adds a new index read without changing the consumed `findings_over` helper, and must independently prove a watermarked assessed zero-row fixture, a closed-gate 409 variant, a persisted positive-row fixture, exact links after reload, invalidation, Site isolation, first-row equality with the S5-01 card Finding on the same basis, and narrow/desktop UI. Index rows do not depend on money; optional current consequence display consumes LR-01 money eligibility and S4-05 exact-revision source provenance after their reviewed branches enter the build baseline, plus the existing exact-head, quantity, price and currentness gates. Mixed/unknown source and withheld/pending eligibility expose no current amount. S5-02 reuses the Site/window rows for both `mini:3` variants after S4-04 and S5-01 review; S4-03, S5-01's other panels and S3 dispatch do not wait on the index. Full contract and implementation handoff: `.agent/architect-A-finding-index-answers.md`. This decision grants no owner UI copy or walkthrough acceptance and does not implement a global or cross-domain index.
+
+Decision: `D-2026-10-15-s404-contract`. Accept S4-04's separate `/api/sites/{site_code}/finding-index` route and HTTP 409 `INDEX_BASIS_CHANGED` for a well-formed cursor whose fenced basis or scope changed; malformed cursors are 422. Historical stale or failed rows require a durable prior selected snapshot with exact revision IDs; without one, report the applicable non-current status with no rows or current count. Amend continuity discovery to expand adjacent UTC days to a fixed point along actual 20-minute bridges, with a 62-day total cap. Exceeding the cap returns HTTP 409 `INDEX_CONTINUITY_LIMIT` and no current rows, count or empty claim. The selection token records every inspected day and S3/S4 selection seq. Full ruling and packet changes: `.agent/architect-S4-04-answers.md`.
+Decision: `D-2026-10-15-s601-reopen`. For `reserve-trial-1`, a newer FindingRevision of the same canonical Finding must show earlier same-Site Actions with their pinned origin revisions, application/outcome states and exact links, even when live recomputation is `FOUNDATION_BASIS_STALE`. An earlier Action for the same battery asset and reserve field blocks a new acceptance while application is pending (including failed attempts awaiting retry) or applied with verification pending. Serve `PRIOR_ACTION_UNRESOLVED` and the blocking Action link separately from the current-basis reason; withhold the new Accept capability and enforce the guard atomically on POST across revision keys. Identical retries retain the original Action and accepted snapshot. S6-02 must define an explicit resolved/closed transition before a later trial can be allowed; a newer Finding revision or completed outcome alone does not authorize one. This amendment is required before S6-01a/S6-01b merge, with updated API fixture, UI at both widths, fresh affected reviews and the unchanged S6-01b owner walkthrough gate. Full ruling: `.agent/architect-S6-01-reopen-answers.md`.
+Decision: `D-2026-10-15-p02-demonstration-label`. Resolve S5-01 phase-1 review M3 by declaring authored P02-power-late (KOBO-001, 2026-10-24, `s4-power-late-demo-cases-v1`) in the shared fixture-based demonstration label alongside P01. LR-01 owns this shared-label fix and Finding/Financials proof; S5-01 verifies the same label on eligible Overview money. Preserve 15.8125 USD exact / 15.82 USD displayed only when all existing eligibility, exact-head, currentness, source, quantity and price gates pass; unreadable or conflicting declarations fail closed. This bounded label is temporary presentation metadata. S4-05 replaces it with stored exact-revision provenance, under which unbound or mixed P01/P02 evidence has no current amount. Full ruling: `.agent/architect-S5-01-M3-answers.md`. Owner visual acceptance remains required for LR-01 and S5-01.
+
+Decision: `D-2026-10-16-s6-verification`. Resolve `A-S6-verification` under `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui` and the S6-01 reopen hold recorded in `.agent/owner-autonomy-2026-10-15.md` item 9 and merged Action code. `D-2026-10-15-s601-reopen` governs the prior-Action hold. S6-02 freezes a versioned plan before later evidence, comparing separate closed 60-minute baseline and post-effective windows under old and new persisted Foundation revisions, with the same Site, asset, dispatch model, signal roles and predeclared comparability rule. Target is at least 25% less Candidate segment seconds, clipped to each half-open plan window from selected UTC-day `dispatch-3` revisions under S3 bracket/continuity rules; pin exact day revision IDs in the plan selection binding and outcome. Indeterminate or open-bound time is INCONCLUSIVE. Never add an S3 60-minute selection kind or use runtime, money or Finding count as the target. S6-02 adds public requested/delivered critical-load roles and five-minute Lab publication/readiness support; required coverage includes those roles, dispatch roles, cohort/clock basis, SOC and time-valid reserve. No required gap or material conflict may be hidden. Service unserved energy may not increase; later reserve-breach minutes must be zero and not increase; terminal SOC at a comparable horizon may not fall. A missing guardrail is unknown. On a complete pair, target and every guardrail pass yields `VERIFIED`; target or measured guardrail failure yields `INEFFECTIVE`, with `GUARDRAIL_FAIL` as a reason, not an outcome. Missing/ambiguous coverage, comparability, source provenance or unsettled reassessment yields `INCONCLUSIVE` or pending read state; a known failure remains visible without promoting a verdict while other required facts are unknown. Resolve source per window; a compatible pair has the same coherent source class and registered scenario/profile lineage, distinct run digests and intact links. Only `REGISTERED_SIMULATION` or `AUTHORED_DEMONSTRATION` public evidence may support a labelled demo verdict; mixed/unknown source fails closed, and no real-source positive verdict is claimed before real attestation. Late evidence or changed basis withdraws current finality while S3/S4 reassess; append a new immutable outcome when settled, retaining exact plan, assessment, Finding, accepted-envelope and source IDs and old outcomes. The evaluator job appends `RESOLVED` for a final current `VERIFIED` or `INEFFECTIVE`; only VERIFIED or target-miss-only INEFFECTIVE releases the prior-Action hold. Measured reserve/service `GUARDRAIL_FAIL` keeps the Site/asset/field trial blocked with `PRIOR_TRIAL_GUARDRAIL_FAILED` until a future rollback/review contract. `INCONCLUSIVE`, pending and failed application retain the hold. If reassessment invalidates closure, the evaluator job appends `RESOLUTION_WITHDRAWN` and restores the guard atomically with acceptance; a closure/late-reading overlap permanently blocks further acceptance with a typed reason until a future reviewer contract. A changed covering FoundationRevision for either window makes the result pending, then INCONCLUSIVE without a new comparable plan. S6-02 migrates the `action_event` CHECKs for both events and updates `lifecycle.reduce`/`service.is_unresolved` to read latest event under the trial lock; never rewrite history. The system computes metrics and verdict; a server-authorized, labelled SYSTEM demonstration command may request evaluation or plan freeze, never dictate the result or append resolution events. Two fixed-policy Lab runs and success, guardrail-fail and inconclusive variants travel through normal gateway/ingestion; no causal saving is asserted. Non-UI store/rule/read/fixture proof precedes Action Plan/Evidence/Verification and related Recommendation/Changes UI; S6-02 owner visual acceptance remains the owner's. Full implementable contract: `.agent/architect-A-S6-verification-answers.md`.
+
+Decision: `D-2026-10-16-s602-questions`. For `reserve-trial-verification-1`, freeze comparable total feeder-demand and PV-available energy bands at +/-10% of baseline (zero baseline requires zero later) and initial SOC at +/-2 percentage points; compare exact values and fail closed on absent/ambiguous input. Both 60-minute UTC windows use twelve aligned, half-open five-minute slots. Accepted interval power must cover each slot exactly for duration-weighted energy; SOC needs accepted samples at each slot start and window end, with start-sample reserve checks and 300 sampled breach seconds per below-reserve slot. Missing boundaries, conflicting spans or an intra-slot reserve change are unknown. A pending plan replacement receives a new immutable ID and may reuse bounds only before the later run begins and before any later-window acceptance; otherwise it needs a new later window. The S6-02b interim guardrail-failure label is `Trial missed a safety or service limit`, with the measured failure shown; target-only failure is `Target not met`, and unknown required facts are `Could not conclude` with known failures retained. Verification defaults to latest current read state; explicit historical selectors persist with a Historical label and separate current state. This refines `D-2026-10-16-s6-verification`; packet changes and edge proofs are in `.agent/architect-S6-02-answers.md`. Owner plain-language status-copy review remains a single W1-conclusion task, and S6-02b visual acceptance remains the owner's.
+Decision: `D-2026-10-16-s602a-cutoff`. For `reserve-trial-verification-1`, the first accepted public report for the same tenant/Site with a declared interval ending at or after `later_start`, from any role or asset, is the observable central proxy for the later run beginning; an unaccepted run/batch does not trip this cutoff because there is no central Lab run table. A replacement after that report needs a new later window and immutable plan ID; identical freeze retries keep their ID, and the cutoff check and replacement insert serialize with acceptance. Freeze requires every needed baseline UTC-day S3 selection to be CURRENT. Later selection binding requires `later_end` to have passed and every needed later day to be CURRENT. Evaluation returns REASSESSMENT_PENDING unless both pinned windows remain CURRENT on their pinned basis. Verification API timestamps use ISO 8601 UTC with `+00:00` throughout. Edge tests and full ruling: `.agent/architect-S6-02a-cutoff-answers.md`. This refines `D-2026-10-16-s602-questions`; S6-02b owner visual acceptance remains the owner checkpoint.
+
+Decision: `D-2026-10-16-s502-parity`. Amend S5-02 question 1: assert parity between the S5-01 selected Finding and S4-04 first index row only for the same imported Site and half-open UTC day when the index is current, the Overview choice is freshly discovered under an open gate, comparable selected-day S3/S4 watermark fields agree, and both Finding and exact revision IDs match. The index's full continuity-day token and the Overview's accepted-source fingerprint have different scopes and are not equality keys. Otherwise display each read's basis and offer reload without a parity claim; persistent ID disagreement on settled comparable bases is a contract defect. Keep the reads separate and do not replace either choice. Required S5-02 packet and proof changes: `.agent/architect-S5-02-answers.md`.
+
+Decision: `D-2026-10-16-a-action-index`. Resolve `A-action-index` for the W1 Site Work Actions list only. Select persisted Actions created in an authenticated tenant/Site half-open UTC window of at most 31 days. Stable identity is `(tenant_id,site_id,action_id)`; order by `created_at` descending then Action UUID ascending, and bind bounded cursors to the consistent row/event selection fence. Return exact origin FindingRevision, latest selected ActionEvent and canonical/exact-event links. A watermarked zero means no persisted Actions created in this scope, not no work of another kind; changed cursors, store failure and unauthorized scope cannot produce empty success. Backdated `occurred_at` does not change recorded event order or list membership. S6-03 adds the index read and Site UI as one reviewed slice with separate persisted positive and zero cases, leaving Incidents, Maintenance and global/cross-domain Work out of scope. Full contract: `.agent/architect-W1-remaining-answers.md`.
+
+Decision: `D-2026-10-16-a-s7-health`. Resolve `A-S7-health` for W1 `health:2#a` and the Unknown-only `asset:3#a`. Site Health selects centrally received gateway diagnostics and registered cadence per authenticated Site; server-receipt contact freshness is separate from the age/trust of gateway-reported queue, clock, disk and source-contact facts. A newly received old diagnostic can show current gateway contact and old/Unknown facts. No gateway, no receipt, stale receipt, and stale projection are distinct watermarked states. Site Health makes no equipment-condition claim. The configured battery detail returns physical condition Unknown with named missing causal inputs; SOC or declared rating alone cannot yield degradation, remaining life, warranty or replacement exposure. Positive `asset:3#b` remains unmapped. `D-edge-health-cases` must persist central heartbeat, stale/no contact, delayed old fact, queue growth, clock offset and disk-pressure/recovery cases, with exact diagnostic IDs, server and reported times, reload, never-received and wrong-Site proofs. S7-01 uses a non-UI/read-and-fixture phase followed by UI and owner review. Full contract: `.agent/architect-W1-remaining-answers.md`; it narrows `D-2026-10-09-pre-s3-evidence-readiness-health` without promoting a panel.
+
+Decision: `D-2026-10-16-s302-capability`. `I-capability-read` is the bounded implementation of `D-2026-10-09-pre-s3-evidence-readiness-health` for one exact selected S3 mini-grid dispatch assessment and accepted public role coverage. S3-02 binds Site, UTC day/window, assessment revision, run/model/cohort, knowledge cutoff, effective Foundation/bindings, accepted evidence IDs and source/analytic watermarks; `I-claim-limit-read` maps that assessment's versioned rule and limitations to a supported classification ceiling with missing/quality/conflict reasons. Pending, stale, failed or unassessed selection cannot produce a current positive claim; an old exact revision may be shown only as historical. Do not substitute configured capability, gateway contact or private Lab truth. The positive `evidence-analysis:2#b` requires rule-backed complete and missing fixtures, exact Evidence drill-down, a reviewed non-UI read phase and then UI/owner review; S2's `#a` explanation stays distinct. This decision does not resolve the implementation node or panel. Full contract: `.agent/architect-W1-remaining-answers.md`.
+
+Decision: `D-2026-10-16-w1-remaining-questions`. Accept the five remaining W1 packet recommendations with bounded clarifications: S6-03 cursors fence all Actions and their events in the selected Site/creation window, including off-page rows, with maximum creation/event-recorded times and Action/event counts, and invalidate a later page when the fence changes; S7-01a uses a versioned two-clock health DTO and one repeatable-read registration/diagnostic snapshot without changing S2 gateway-health in place; S7-01b keys battery detail to the effective configured asset, shows `NOT_CONFIGURED` when absent, and refuses foreign or superseded asset IDs; S3-02a returns exact role-coverage spans and durations under one versioned rule without masking missing/conflicted subspans; S3-02b keeps S2 explanation separate and shows an explicit `UNASSESSED` S3 section until an assessment revision is selected. Implementation detail and review gates remain in the packets. Full answers: `.agent/architect-W1-remaining-q-answers.md`.
+
+Decision: `D-2026-10-16-s405b-label`. For S4-05b, use interim operator labels `Prepared example data` for exact authored evidence, `Generated test data` for exact registered generated evidence, `Sources do not agree` for mixed evidence, and `Source unverified` for unknown evidence, each with adjacent plain source-limit text. Positive labels explicitly say the records are not readings from physical equipment; mixed/unknown never imply a physical source or zero cost. Keep exact source IDs and basis in deeper detail, with no vocabulary-scan exemption for source-state prose. A partly sealed registered Lab stage refuses the entire Commit with `SOURCE_PUBLICATION_REFUSED`; no sealed subset is released. Phase 2 also retires `demonstration_label.py` from Action reads and resolves each Action's pinned origin FindingRevision, failing closed to unknown when unresolved. Full ruling: `.agent/architect-S4-05b-answers.md`. Final visible wording and placement remain the owner's W1 copy checkpoint before S4-05b merge.
+
+Decision: `D-2026-10-16-s602a-replay`. S6-02a may merge after fresh independent review with its complete, source-coherent but INCONCLUSIVE public Lab replay and labelled test-scoped positive evaluator proofs; the public complete-pass criterion remains a carried gap. S6-02b owns `reserve-aware-public-verification-replay` before its owner walkthrough: add a new mini-grid model/profile version whose declared generator-start policy reads effective reserve, preserve old versioned runs, and produce a two-run registered Lab replay through ordinary gateway/S2 acceptance that actually reaches VERIFIED under the existing frozen target, comparability bands, coverage and guardrails. Never synthesize readings, relax thresholds or substitute private truth. The walkthrough must show exact public lineage and reloadable current VERIFIED with simulated/no-savings and withdrawable-resolution limits, plus honestly labelled target-miss, guardrail-fail/hold, inconclusive, withdrawal and overlap cases. Keep `I-sim-verification-cases` and `D-verification-window` open, and withhold S6-02b owner acceptance and `I-S6-02` closure, until that positive public replay and case manifest pass review. Full ruling: `.agent/architect-S6-02a-replay-answers.md`.
+
+Decision: `D-2026-10-16-s602a-holds`. Resolve S6-02a review F4 and F2 before S6-02a merge. A pending plan with no outcome, or a plan with a latest settled INCONCLUSIVE outcome, may be superseded for the same APPLIED Action with a new immutable plan ID; after the observable later-run cutoff the replacement needs a new later window strictly after the old one. The original Action remains unresolved and battery-scoped until a later current final outcome satisfies the existing release rule. No manual or SYSTEM INCONCLUSIVE withdrawal is added. A permanent `PRIOR_TRIAL_REASSESSMENT_OVERLAP` requires exact accepted public reading IDs that arrived after a specific RESOLVED closure, match its frozen bound roles/assets and half-open window, and materially changed its pinned S3 selection or direct verification-input basis; persist old/new lineage and the causal set. An unrelated or unbound late reading, or a Foundation/source/worker-only withdrawal, cannot create that permanent block. A later Action overlaps only if accepted after causal evidence arrived and before that closure was withdrawn. Indeterminate attribution retains the ordinary unresolved hold without inventing permanent overlap. Full ruling and proofs: `.agent/architect-S6-02a-holds-answers.md`.
+
+ exited 1 in 923ms:
+Get-Content : Cannot find path 
+'C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\backend\assetops_backend\evidence\source_health.py' because it does 
+not exist.
+At line:2 char:61
++ ... ssetops_backend/evidence/source_health.py'; $a=Get-Content $p; for($i ...
++                                                    ~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\Users\assef\...ource_health.py:String) [Get-Content], ItemNotFoundEx 
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git status --porcelain=v1' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git show task/S7-01a-health-read:backend/assetops_backend/evidence/source_health.py' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command "git branch --list '*S7-01a*'" in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 943ms:
+"""Site source-health read (S7-01a, `I-source-health-read`, `D-2026-10-16-a-s7-health`).
+
+A versioned read DTO over the central gateway store, separate from the S2
+`gateway-health` contract (which stays unchanged). Two clocks are kept apart:
+
+* **Contact** is the server receipt clock only: `CURRENT | STALE | UNKNOWN` against the
+  gateway's declared cadence (`gateway_access.freshness`). A STALE contact does not date an
+  outage; it says only that no receipt arrived inside two declared cadences.
+* **Reported facts** are what the gateway said at its own `observed_at`: queue, disk pressure,
+  clock offset and per-source device contact. Their age and clock trust are judged separately
+  (`CURRENT | OLD | UNKNOWN`), so a fresh receipt of an old diagnostic is current contact with old
+  facts. Queue and disk are the last *reported* state, never current hardware state.
+
+Gateway contact never proves source-device contact: a source contact is shown only when the
+selected diagnostic supplies that source's timestamp. Nothing here is a physical asset or device
+health claim and nothing joins diagnostics to accepted measurement evidence.
+
+Registration and the latest diagnostic per gateway are selected by the store in ONE repeatable-read
+transaction; `check_consistent` refuses any selection whose rows disagree (409), and a store that
+cannot be read is a 503, so neither can yield a current claim. There is no derived projection:
+the read selects the central store directly, so `STALE_PROJECTION` is not applicable.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Protocol
+from uuid import UUID
+
+from assetops_backend.evidence.gateway_access import FRESHNESS_CADENCES, _z, freshness
+from assetops_contracts.gateway_diagnostics import DiagnosticRejected, parse_canonical_gateway_diagnostics_v1_text
+
+SCHEMA = {"id": "assetops.site-source-health", "version": 1}
+RULE_ID = "assetops.source-health.two-clock.v1"
+#: A measured clock offset larger than this makes the gateway's reported times untrusted.
+CLOCK_TRUST_TOLERANCE_MS = 5_000
+SNAPSHOT_ISOLATIONS = ("repeatable read", "serializable")
+
+
+@dataclass(frozen=True)
+class RegisteredGateway:
+    tenant_id: UUID
+    site_id: UUID
+    gateway_id: UUID
+    gateway_external_id: str
+    mode: str
+    registered_at: datetime
+    disabled: bool
+    cadence_seconds: int
+
+
+@dataclass(frozen=True)
+class RegisteredSource:
+    tenant_id: UUID
+    site_id: UUID
+    gateway_id: UUID
+    source_id: UUID
+    source_external_id: str
+    disabled: bool
+
+
+@dataclass(frozen=True)
+class SelectedDiagnostic:
+    tenant_id: UUID
+    site_id: UUID
+    gateway_id: UUID
+    diagnostic_id: UUID
+    sequence_epoch: str
+    diagnostic_sequence: int
+    observed_at: datetime
+    received_at: datetime
+    payload_sha256: str
+    diagnostic_text: str
+
+
+@dataclass(frozen=True)
+class SourceHealthSnapshot:
+    """Everything one read selected, from one database snapshot."""
+
+    tenant_id: UUID
+    site_id: UUID
+    isolation: str
+    gateways: tuple[RegisteredGateway, ...]
+    sources: tuple[RegisteredSource, ...]
+    diagnostics: tuple[SelectedDiagnostic, ...]  # at most one (the latest) per gateway
+
+
+class SourceHealthStore(Protocol):
+    def source_health_snapshot(self, tenant_id: UUID, site_id: UUID) -> SourceHealthSnapshot: ...
+
+
+class SelectionInconsistent(Exception):
+    """The registration and diagnostic selection disagree; no current claim is made."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
+        self.reason = reason
+
+
+def _parse_instant(value: str) -> datetime:
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def check_consistent(snapshot: SourceHealthSnapshot, read_at: datetime) -> dict[UUID, dict]:
+    """Refuse a selection that is not one consistent Site snapshot; return parsed facts per gateway."""
+    if snapshot.isolation.lower() not in SNAPSHOT_ISOLATIONS:
+        raise SelectionInconsistent(f"selection ran at isolation {snapshot.isolation!r}, not one snapshot")
+    scope = (snapshot.tenant_id, snapshot.site_id)
+    gateways = {g.gateway_id: g for g in snapshot.gateways}
+    if len(gateways) != len(snapshot.gateways):
+        raise SelectionInconsistent("a gateway was selected twice")
+    for g in snapshot.gateways:
+        if (g.tenant_id, g.site_id) != scope:
+            raise SelectionInconsistent(f"gateway {g.gateway_id} is not registered to this tenant Site")
+    sources_by_gateway: dict[UUID, set[UUID]] = {}
+    for s in snapshot.sources:
+        if (s.tenant_id, s.site_id) != scope or s.gateway_id not in gateways:
+            raise SelectionInconsistent(f"source {s.source_id} is not registered to a selected gateway of this Site")
+        sources_by_gateway.setdefault(s.gateway_id, set()).add(s.source_id)
+    parsed: dict[UUID, dict] = {}
+    for d in snapshot.diagnostics:
+        if (d.tenant_id, d.site_id) != scope or d.gateway_id not in gateways:
+            raise SelectionInconsistent(f"diagnostic {d.diagnostic_id} is not from a selected gateway of this Site")
+        if d.gateway_id in parsed:
+            raise SelectionInconsistent(f"gateway {d.gateway_id} has more than one selected latest diagnostic")
+        if d.received_at > read_at:
+            raise SelectionInconsistent(f"diagnostic {d.diagnostic_id} was received after the read time")
+        try:
+            body = parse_canonical_gateway_diagnostics_v1_text(d.diagnostic_text)
+        except DiagnosticRejected as error:
+            raise SelectionInconsistent(f"diagnostic {d.diagnostic_id} stored text does not parse: {error}") from None
+        if (body.site_id, body.gateway_id, body.sequence_epoch, body.diagnostic_sequence, body.payload_sha256) != (
+                str(d.site_id), str(d.gateway_id), d.sequence_epoch, d.diagnostic_sequence, d.payload_sha256) \
+                or _parse_instant(body.observed_at) != d.observed_at:
+            raise SelectionInconsistent(f"diagnostic {d.diagnostic_id} row and stored text disagree")
+        for source_text, _ in body.last_device_contact_by_source:
+            try:
+                reported_source = UUID(source_text)
+            except ValueError:
+                reported_source = None
+            if reported_source not in sources_by_gateway.get(d.gateway_id, set()):
+                raise SelectionInconsistent(
+                    f"diagnostic {d.diagnostic_id} reports source {source_text}, not registered to its gateway")
+        parsed[d.gateway_id] = {
+            "contacts": dict(body.last_device_contact_by_source), "queue_count": body.queue_count,
+            "oldest_queue_age_seconds": body.oldest_queue_age_seconds, "disk_pressure": body.disk_pressure,
+            "clock_offset_ms": body.clock_offset_ms, "mapping_error_count": body.mapping_error_count,
+        }
+    return parsed
+
+
+def _seconds(delta: timedelta) -> int:
+    return int(delta.total_seconds())
+
+
+def clock_trust(offset_ms: int | None) -> tuple[str, str]:
+    if offset_ms is None:
+        return "UNKNOWN", "OFFSET_NOT_MEASURED"
+    if abs(offset_ms) > CLOCK_TRUST_TOLERANCE_MS:
+        return "UNTRUSTED", "OFFSET_BEYOND_TOLERANCE"
+    return "WITHIN_TOLERANCE", "OFFSET_MEASURED_WITHIN_TOLERANCE"
+
+
+def fact_age(observed_at: datetime | None, received_at: datetime | None, trust: str, cadence_seconds: int,
+             read_at: datetime) -> tuple[str, str]:
+    """`CURRENT | OLD | UNKNOWN` for the reported facts, by the gateway's own clock."""
+    if observed_at is None or received_at is None:
+        return "UNKNOWN", "NEVER_RECEIVED"
+    if trust == "UNTRUSTED":
+        return "UNKNOWN", "GATEWAY_CLOCK_UNTRUSTED"
+    if observed_at - received_at > timedelta(milliseconds=CLOCK_TRUST_TOLERANCE_MS):
+        return "UNKNOWN", "OBSERVED_AFTER_RECEIPT"
+    if read_at - observed_at <= timedelta(seconds=FRESHNESS_CADENCES * cadence_seconds):
+        return "CURRENT", "OBSERVED_WITHIN_CADENCE_THRESHOLD"
+    return "OLD", "OBSERVED_BEFORE_CADENCE_THRESHOLD"
+
+
+def _watermark(diagnostics) -> dict:
+    ids = sorted(str(d.diagnostic_id) for d in diagnostics)
+    latest = max((d.received_at for d in diagnostics), default=None)
+    return {"selected_diagnostic_count": len(ids), "latest_received_at": _z(latest),
+            "selected_diagnostic_ids_sha256": hashlib.sha256("\n".join(ids).encode("ascii")).hexdigest()}
+
+
+def source_health_document(snapshot: SourceHealthSnapshot, site_code: str, read_at: datetime,
+                           access_basis: str) -> dict:
+    """The S7-01a versioned Site source-health DTO. Raises `SelectionInconsistent`."""
+    parsed = check_consistent(snapshot, read_at)
+    latest = {d.gateway_id: d for d in snapshot.diagnostics}
+    rows = []
+    for g in sorted(snapshot.gateways, key=lambda g: g.gateway_external_id):
+        d = latest.get(g.gateway_id)
+        facts = parsed.get(g.gateway_id)
+        received = None if d is None else d.received_at
+        contact = freshness(received, g.cadence_seconds, read_at)
+        trust, trust_reason = clock_trust(None if facts is None else facts["clock_offset_ms"])
+        age_status, age_reason = fact_age(None if d is None else d.observed_at, received, trust,
+                                          g.cadence_seconds, read_at)
+        provenance = "REPORTED_SIMULATED_GATEWAY" if g.mode == "SIMULATED" else "REPORTED_GATEWAY"
+        sources = []
+        for s in sorted((s for s in snapshot.sources if s.gateway_id == g.gateway_id),
+                        key=lambda s: s.source_external_id):
+            reported = None if facts is None else facts["contacts"].get(str(s.source_id))
+            in_report = facts is not None and str(s.source_id) in facts["contacts"]
+            sources.append({
+                "source_id": str(s.source_id), "source_external_id": s.source_external_id,
+                "registration": "DISABLED" if s.disabled else "ENABLED",
+                "reported_contact": reported,
+                "reported_contact_status": (
+                    "REPORTED" if reported is not None else
+                    "REPORTED_NEVER_HEARD" if in_report else "NOT_IN_SELECTED_DIAGNOSTIC"),
+                "reported_contact_age_seconds": (
+                    None if reported is None else _seconds(read_at - _parse_instant(reported))),
+                "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+            })
+        rows.append({
+            "gateway_id": str(g.gateway_id),
+            "gateway_external_id": g.gateway_external_id,
+            "mode": g.mode,
+            "registration": "DISABLED" if g.disabled else "ENABLED",
+            "registered_at": _z(g.registered_at),
+            "declared_cadence_seconds": g.cadence_seconds,
+            "contact": {
+                "status": contact,
+                "basis": "SERVER_RECEIVED_AT",
+                "last_received_at": _z(received),
+                "threshold_seconds": FRESHNESS_CADENCES * g.cadence_seconds,
+                "since_last_receipt_seconds": None if received is None else _seconds(read_at - received),
+                "reason": ("NEVER_RECEIVED" if received is None else
+                           "RECEIVED_WITHIN_THRESHOLD" if contact == "CURRENT" else
+                           "NO_RECEIPT_WITHIN_THRESHOLD_OUTAGE_START_NOT_DATED"),
+            },
+            "diagnostic": None if d is None else {
+                "diagnostic_id": str(d.diagnostic_id), "sequence_epoch": d.sequence_epoch,
+                "diagnostic_sequence": d.diagnostic_sequence, "received_at": _z(d.received_at),
+                "observed_at": _z(d.observed_at), "observed_at_clock": "GATEWAY_REPORTED_UTC",
+                "payload_sha256": d.payload_sha256,
+            },
+            "reported_facts": {
+                "status": age_status,
+                "reason": age_reason,
+                "observed_at": None if d is None else _z(d.observed_at),
+                "fact_age_seconds": None if d is None else _seconds(read_at - d.observed_at),
+                "receipt_lag_seconds": None if d is None else _seconds(d.received_at - d.observed_at),
+                "clock": {"offset_ms": None if facts is None else facts["clock_offset_ms"],
+                          "trust": trust if facts is not None else "UNKNOWN",
+                          "reason": trust_reason if facts is not None else "NEVER_RECEIVED",
+                          "tolerance_ms": CLOCK_TRUST_TOLERANCE_MS},
+                "queue": None if facts is None else {
+                    "count": facts["queue_count"], "oldest_age_seconds": facts["oldest_queue_age_seconds"],
+                    "as": "LAST_REPORTED"},
+                "disk_pressure": None if facts is None else {
+                    "value": facts["disk_pressure"], "as": "LAST_REPORTED", "provenance": provenance},
+                "mapping_error_count": None if facts is None else facts["mapping_error_count"],
+            },
+            "sources": sources,
+            "source_watermark": None if d is None else {
+                "diagnostic_id": str(d.diagnostic_id), "sequence_epoch": d.sequence_epoch,
+                "diagnostic_sequence": d.diagnostic_sequence, "received_at": _z(d.received_at)},
+        })
+    enabled = [r for r in rows if r["registration"] == "ENABLED"]
+    counts = {k: sum(1 for r in enabled if r["contact"]["status"] == k) for k in ("CURRENT", "STALE", "UNKNOWN")}
+    status = ("NO_REGISTERED_SOURCE" if not enabled else
+              "ALL_CURRENT" if counts["CURRENT"] == len(enabled) else "NOT_ALL_CURRENT")
+    return {
+        "schema": SCHEMA,
+        "rule_id": RULE_ID,
+        "site_code": site_code,
+        "site_id": str(snapshot.site_id),
+        "read_at": _z(read_at),
+        "read_at_clock": "SERVER_REAL_UTC",
+        "access_basis": access_basis,
+        "claim_scope": "GATEWAY_OPERATIONAL_REPORT",
+        "not_claimed": ["DEVICE_CONNECTED", "ASSET_CONDITION", "OUTAGE_START", "CURRENT_HARDWARE_STATE"],
+        "snapshot": {"isolation": snapshot.isolation.upper().replace(" ", "_"), "selection": "CONSISTENT"},
+        "stale_projection": {"applicable": False,
+                             "reason": "The read selects the central diagnostic store directly; there is no "
+                                       "derived projection to lag."},
+        "summary": {
+            "status": status,
+            "enabled_gateway_count": len(enabled),
+            "disabled_gateway_count": len(rows) - len(enabled),
+            "contact_counts": counts,
+            "source_watermark": _watermark(snapshot.diagnostics),
+        },
+        "gateways": rows,
+    }
+
+
+__all__ = [
+    "CLOCK_TRUST_TOLERANCE_MS", "RULE_ID", "SCHEMA", "RegisteredGateway", "RegisteredSource", "SelectedDiagnostic",
+    "SelectionInconsistent", "SourceHealthSnapshot", "SourceHealthStore", "check_consistent", "clock_trust",
+    "fact_age", "source_health_document",
+]
+
+ succeeded in 1076ms:
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+
+ succeeded in 966ms:
+  review/S7-01a-slice
++ task/S7-01a-health-read
+
+apply patch
+patch: completed
+C:\Users\assef\Bineyame\AssetOpsV1-gap-planning\.agent\architect-S7-01-clock-answers.md
+diff --git a/.agent/architect-S7-01-clock-answers.md b/.agent/architect-S7-01-clock-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..3971ba24bb25c48aa0c6deda4dc6f89c2344f180
+--- /dev/null
++++ b/.agent/architect-S7-01-clock-answers.md
+@@ -0,0 +1,13 @@
++# Architect answers - S7-01 clock and contact summary (2026-10-16)
++
++Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
++
++1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
++
++2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
++
++3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
++
++4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
++
++These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.
+
+diff --git a/.agent/architect-S7-01-clock-answers.md b/.agent/architect-S7-01-clock-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..3971ba24bb25c48aa0c6deda4dc6f89c2344f180
+--- /dev/null
++++ b/.agent/architect-S7-01-clock-answers.md
+@@ -0,0 +1,13 @@
++# Architect answers - S7-01 clock and contact summary (2026-10-16)
++
++Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
++
++1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
++
++2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
++
++3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
++
++4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
++
++These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Test-Path .agent/architect-S7-01-clock-answers.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 782ms:
+True
+
+diff --git a/.agent/architect-S7-01-clock-answers.md b/.agent/architect-S7-01-clock-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..3971ba24bb25c48aa0c6deda4dc6f89c2344f180
+--- /dev/null
++++ b/.agent/architect-S7-01-clock-answers.md
+@@ -0,0 +1,13 @@
++# Architect answers - S7-01 clock and contact summary (2026-10-16)
++
++Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
++
++1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
++
++2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
++
++3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
++
++4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
++
++These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.
+
+codex
+I’ve settled the thresholds as two separate 5000 ms rules and clarified the disabled-gateway and untrusted-age behavior. I’m recording the matching decision entry now, then I’ll check the exact file diff.
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command '$entry = '"'Decision: "'`D-2026-10-16-s701-clock`. For the S7-01 v1 two-clock read, a measured absolute gateway clock offset of at most 5000 ms is WITHIN_TOLERANCE; above it is UNTRUSTED. Separately, allow `observed_at` at most 5000 ms after server `received_at` before reported facts become UNKNOWN with OBSERVED_AFTER_RECEIPT. These are separate named constants despite equal initial values, disclosed in the versioned read; changing either requires rule/DTO version review. Server-receipt contact freshness is independent. Keep `summary.status = NO_REGISTERED_SOURCE` for no enabled gateway; add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist but all are disabled, or `NO_REGISTERED_GATEWAY` when none exist. Disabled gateways remain listed and excluded from contact summary counts. Null reported fact and source-contact ages when gateway clock trust is UNTRUSTED, and null any individual reported age while its timestamp is after `read_at`; preserve exact reported times and trust/reason, never display a negative age. `ALL_CURRENT` summarizes enabled gateway contact receipts only: S7-01b labels it Gateway contact, not Site or equipment health, and shows registration next to disabled-row receipt status. Full ruling: `.agent/architect-S7-01-clock-answers.md`. This refines `D-2026-10-16-a-s7-health` without promoting a health or asset-condition claim.'"'; Add-Content -LiteralPath .ai/DECISIONS.md -Value \""'`r`n$entry" -Encoding utf8' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 853ms:
+diff --git a/.agent/architect-S7-01-clock-answers.md b/.agent/architect-S7-01-clock-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..3971ba24bb25c48aa0c6deda4dc6f89c2344f180
+--- /dev/null
++++ b/.agent/architect-S7-01-clock-answers.md
+@@ -0,0 +1,13 @@
++# Architect answers - S7-01 clock and contact summary (2026-10-16)
++
++Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
++
++1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
++
++2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
++
++3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
++
++4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
++
++These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git diff --check' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git status --short' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'git diff -- .ai/DECISIONS.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 1567ms:
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+diff --git a/.ai/DECISIONS.md b/.ai/DECISIONS.md
+index 29e28332..3cecc182 100644
+--- a/.ai/DECISIONS.md
++++ b/.ai/DECISIONS.md
+@@ -4172,3 +4172,5 @@ Decision: `D-2026-10-16-s405b-label`. For S4-05b, use interim operator labels `P
+ Decision: `D-2026-10-16-s602a-replay`. S6-02a may merge after fresh independent review with its complete, source-coherent but INCONCLUSIVE public Lab replay and labelled test-scoped positive evaluator proofs; the public complete-pass criterion remains a carried gap. S6-02b owns `reserve-aware-public-verification-replay` before its owner walkthrough: add a new mini-grid model/profile version whose declared generator-start policy reads effective reserve, preserve old versioned runs, and produce a two-run registered Lab replay through ordinary gateway/S2 acceptance that actually reaches VERIFIED under the existing frozen target, comparability bands, coverage and guardrails. Never synthesize readings, relax thresholds or substitute private truth. The walkthrough must show exact public lineage and reloadable current VERIFIED with simulated/no-savings and withdrawable-resolution limits, plus honestly labelled target-miss, guardrail-fail/hold, inconclusive, withdrawal and overlap cases. Keep `I-sim-verification-cases` and `D-verification-window` open, and withhold S6-02b owner acceptance and `I-S6-02` closure, until that positive public replay and case manifest pass review. Full ruling: `.agent/architect-S6-02a-replay-answers.md`.
+ 
+ Decision: `D-2026-10-16-s602a-holds`. Resolve S6-02a review F4 and F2 before S6-02a merge. A pending plan with no outcome, or a plan with a latest settled INCONCLUSIVE outcome, may be superseded for the same APPLIED Action with a new immutable plan ID; after the observable later-run cutoff the replacement needs a new later window strictly after the old one. The original Action remains unresolved and battery-scoped until a later current final outcome satisfies the existing release rule. No manual or SYSTEM INCONCLUSIVE withdrawal is added. A permanent `PRIOR_TRIAL_REASSESSMENT_OVERLAP` requires exact accepted public reading IDs that arrived after a specific RESOLVED closure, match its frozen bound roles/assets and half-open window, and materially changed its pinned S3 selection or direct verification-input basis; persist old/new lineage and the causal set. An unrelated or unbound late reading, or a Foundation/source/worker-only withdrawal, cannot create that permanent block. A later Action overlaps only if accepted after causal evidence arrived and before that closure was withdrawn. Indeterminate attribution retains the ordinary unresolved hold without inventing permanent overlap. Full ruling and proofs: `.agent/architect-S6-02a-holds-answers.md`.
++
++Decision: `D-2026-10-16-s701-clock`. For the S7-01 v1 two-clock read, a measured absolute gateway clock offset of at most 5000 ms is WITHIN_TOLERANCE; above it is UNTRUSTED. Separately, allow `observed_at` at most 5000 ms after server `received_at` before reported facts become UNKNOWN with OBSERVED_AFTER_RECEIPT. These are separate named constants despite equal initial values, disclosed in the versioned read; changing either requires rule/DTO version review. Server-receipt contact freshness is independent. Keep `summary.status = NO_REGISTERED_SOURCE` for no enabled gateway; add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist but all are disabled, or `NO_REGISTERED_GATEWAY` when none exist. Disabled gateways remain listed and excluded from contact summary counts. Null reported fact and source-contact ages when gateway clock trust is UNTRUSTED, and null any individual reported age while its timestamp is after `read_at`; preserve exact reported times and trust/reason, never display a negative age. `ALL_CURRENT` summarizes enabled gateway contact receipts only: S7-01b labels it Gateway contact, not Site or equipment health, and shows registration next to disabled-row receipt status. Full ruling: `.agent/architect-S7-01-clock-answers.md`. This refines `D-2026-10-16-a-s7-health` without promoting a health or asset-condition claim.
+
+ succeeded in 1736ms:
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+warning: unable to access 'C:\Users\assef/.config/git/ignore': Permission denied
+ M .ai/DECISIONS.md
+
+ succeeded in 1802ms:
+warning: in the working copy of '.ai/DECISIONS.md', LF will be replaced by CRLF the next time Git touches it
+
+exec
+"C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -Command 'Get-Content .agent/architect-S7-01-clock-answers.md' in C:\Users\assef\Bineyame\AssetOpsV1-gap-planning
+ succeeded in 940ms:
+# Architect answers - S7-01 clock and contact summary (2026-10-16)
+
+Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
+
+1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
+
+2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
+
+3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
+
+4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
+
+These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.
+
+diff --git a/.agent/architect-S7-01-clock-answers.md b/.agent/architect-S7-01-clock-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..3971ba24bb25c48aa0c6deda4dc6f89c2344f180
+--- /dev/null
++++ b/.agent/architect-S7-01-clock-answers.md
+@@ -0,0 +1,13 @@
++# Architect answers - S7-01 clock and contact summary (2026-10-16)
++
++Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
++
++1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
++
++2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
++
++3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
++
++4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
++
++These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.
+
+codex
+Recorded the S7-01 rulings in [architect-S7-01-clock-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.agent/architect-S7-01-clock-answers.md) and [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.ai/DECISIONS.md).
+
+The ruling keeps two separate 5000 ms thresholds, adds `NO_ENABLED_GATEWAY` for disabled-only Sites, nulls untrusted or future-dated reported ages, and labels `ALL_CURRENT` as a gateway-contact summary. No code or packet files were edited. `git diff --check` passed.
+diff --git a/.agent/architect-S7-01-clock-answers.md b/.agent/architect-S7-01-clock-answers.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..3971ba24bb25c48aa0c6deda4dc6f89c2344f180
+--- /dev/null
++++ b/.agent/architect-S7-01-clock-answers.md
+@@ -0,0 +1,13 @@
++# Architect answers - S7-01 clock and contact summary (2026-10-16)
++
++Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
++
++1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
++
++2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
++
++3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
++
++4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
++
++These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.
+
+tokens used
+42,509
+Recorded the S7-01 rulings in [architect-S7-01-clock-answers.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.agent/architect-S7-01-clock-answers.md) and [DECISIONS.md](C:/Users/assef/Bineyame/AssetOpsV1-gap-planning/.ai/DECISIONS.md).
+
+The ruling keeps two separate 5000 ms thresholds, adds `NO_ENABLED_GATEWAY` for disabled-only Sites, nulls untrusted or future-dated reported ages, and labels `ALL_CURRENT` as a gateway-contact summary. No code or packet files were edited. `git diff --check` passed.

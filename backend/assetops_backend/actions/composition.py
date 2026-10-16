@@ -15,10 +15,11 @@ from assetops_backend.actions.adapters.postgres_action_store import PostgresActi
 from assetops_backend.actions.capability import CapabilityCheck, from_grants
 from assetops_backend.actions.ports import ActionStore, ActionStoreUnavailable, ApplyFailed, FoundationPublish
 from assetops_backend.actions.service import ActionService, FindingCurrentness
+from assetops_backend.actions.verification import VerificationPorts
 from assetops_backend.sites.foundation_service import CallerTransaction, FoundationRefused
 
 __all__ = ["ACTION_UNAVAILABLE", "GRANTS_ENV", "build_action_service", "build_action_store",
-           "capability_from_environment", "finding_currentness", "foundation_publish"]
+           "capability_from_environment", "finding_currentness", "foundation_publish", "verification_ports"]
 
 # S1 refusal under the Site lock -> the Action failure code a FAILED event records.
 S1_FAILURES = {
@@ -82,14 +83,47 @@ def foundation_publish(registry: Any) -> FoundationPublish:
     return publish
 
 
+def verification_ports(database_url: str | None) -> VerificationPorts:
+    """S6-02a: the S3/S4 day currentness and S4-05 per-window source resolution the verification service reads.
+
+    `day_status(tenant, site, day)` is S3's own `derive_status` for the UTC day's selection (via the dispatch read)
+    beside S4's `match_state` for that day window; `provenance(tenant, site, ids)` is the S4-05a resolver."""
+    from datetime import datetime, timezone
+
+    from assetops_backend.analytics.composition import build_dispatch_read_service, build_finding_store
+    from assetops_backend.evidence.composition import build_source_provenance
+
+    reads, findings = build_dispatch_read_service(database_url), build_finding_store(database_url)
+    resolver = build_source_provenance(database_url)
+
+    def day_status(tenant_id: UUID, site_id: UUID, day: Any) -> dict[str, Any]:
+        window = reads.window(tenant_id, site_id, day)
+        match = findings.match_state(tenant_id, site_id, "dispatch",
+                                     datetime(day.year, day.month, day.day, tzinfo=timezone.utc))
+        selection = window["selection"] or {}
+        return {"day": day.isoformat(), "s3_status": window["status"], "s3_reasons": list(window["status_reasons"]),
+                "run_id": None if not selection else str(selection["run_id"]),
+                "input_sha256": selection.get("input_sha256"),
+                "configuration_sha256": selection.get("configuration_sha256"),
+                "s4_matched": bool(match["matched"]), "s4_match_deferred": bool(match["match_deferred"]),
+                "s4_match_pass_id": match["match_pass_id"]}
+
+    def provenance(tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> dict[str, Any]:
+        return resolver.resolve(tenant_id, site_id, evidence_ids)
+
+    return VerificationPorts(day_status=day_status, provenance=provenance)
+
+
 def build_action_service(database_url: str | None, finding_reads: Any,
                          capability: CapabilityCheck | None = None,
                          clock: Callable | None = None, registry: Any = None) -> ActionService:
     kwargs: dict[str, Any] = {}
     if clock is not None:
         kwargs["clock"] = clock
-    return ActionService(build_action_store(database_url), finding_currentness(finding_reads),
-                         capability_from_environment() if capability is None else capability,
-                         publish=None if registry is None else foundation_publish(registry),
-                         # S4-05b phase 2: the Finding read's stored resolver for the exact pinned revision.
-                         source=getattr(finding_reads, "source_provenance", None), **kwargs)
+    service = ActionService(build_action_store(database_url), finding_currentness(finding_reads),
+                            capability_from_environment() if capability is None else capability,
+                            publish=None if registry is None else foundation_publish(registry),
+                            # S4-05b phase 2: the Finding read's stored resolver for the exact pinned revision.
+                            source=getattr(finding_reads, "source_provenance", None), **kwargs)
+    service.verification_ports = verification_ports(database_url)
+    return service

@@ -1,0 +1,13 @@
+# Architect answers - S7-01 clock and contact summary (2026-10-16)
+
+Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.
+
+1. **L2 - clock thresholds.** Confirm 5000 ms inclusive as the v1 limit for a measured gateway clock offset: `abs(offset_ms) <= 5000` is `WITHIN_TOLERANCE`; a larger offset is `UNTRUSTED`. Confirm a separate 5000 ms inclusive allowance for `observed_at - received_at`: a larger positive difference makes reported facts `UNKNOWN` with `OBSERVED_AFTER_RECEIPT`. Use separate named constants even though the values match, because measured offset trust and receipt-order plausibility are different rules. Keep the values disclosed in the versioned read; changing either value later requires a rule/DTO version review. Server-receipt contact freshness does not depend on either threshold.
+
+2. **L3 - disabled-only Site.** Keep `summary.status = NO_REGISTERED_SOURCE` for compatibility with the accepted S7-01a contract, but add `summary.reason = NO_ENABLED_GATEWAY` when registered gateways exist and all are disabled. Use `NO_REGISTERED_GATEWAY` as the reason when the registration list is empty. Counts continue to exclude disabled gateways; list them with `registration = DISABLED`. Neither case is a healthy zero or `ALL_CURRENT`.
+
+3. **L5 - ages.** Null `reported_facts.fact_age_seconds` and every `sources[].reported_contact_age_seconds` when that gateway clock is `UNTRUSTED`. Preserve the exact reported timestamps, offset, trust and `GATEWAY_CLOCK_UNTRUSTED` reason for inspection. Also null an individual reported age while its timestamp is later than `read_at`, so the UI never renders a negative age during an otherwise tolerated small skew. Do not use a gateway-reported time to change server-receipt contact freshness. S7-01b should display Unknown age and the clock reason, never a signed age.
+
+4. **Contact label and disabled rows.** `ALL_CURRENT` means all **enabled gateway contacts** have a receipt within their cadence threshold. Label the Site summary "Gateway contact" or "Gateway contact summary", with an enabled-gateway count; do not label it Site health or equipment health. Keep queue, disk, source contact and battery condition in separately qualified sections. A disabled gateway may retain a computed receipt status for history, but show `DISABLED` next to it and exclude it from the summary counts and status.
+
+These rulings do not reopen the S7-01a review verdict. The battery basis mismatch and walkthrough fixture refresh are separate carried review items, outside this clock and summary decision.

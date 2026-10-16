@@ -1319,6 +1319,22 @@ MINI_GRID_V3_MODEL = replace(
     ),
 )
 
+#: S6-02a. `mini-grid` v4: v3 unchanged beside it, plus one measured interval
+#: state - each load's requested (demand) power over the completed step - so
+#: `registered-kobo-publication` v4 can publish requested beside delivered
+#: critical-load power. Measurements only: v4 accepts the same flows and
+#: decides the same requests as v3 for one document; a new version so v1-v3
+#: trajectories and digests are unchanged.
+MINI_GRID_V4_MODEL = replace(
+    MINI_GRID_V3_MODEL,
+    model_profile_version=4,
+    statement=(
+        MINI_GRID_V3_MODEL.statement
+        + " Version four also measures, over each completed step, the power "
+        "each load requested."
+    ),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -1899,12 +1915,100 @@ REGISTERED_KOBO_PUBLICATION_PROFILE_V3 = replace(
     record_channels=(),
 )
 
+#: S6-02a phase 1 (`D-2026-10-16-s6-verification`, Architect S6-02a Q2). The
+#: registered-Kobo publication profile, version four: the five-minute
+#: verification profile. Version three's devices, resolution, states and
+#: virtual publication clock, with the verification inputs published every
+#: five minutes so each UTC five-minute slot `[t, t+5 min)` has one declared
+#: interval value: generator status (STATE, sampled at each boundary) and
+#: output power, the three load meters, PV available power and PCS discharge
+#: capability as interval means over the five minutes that just ended, and
+#: battery state of charge sampled at every five-minute boundary. Status and
+#: SOC samples do not drop out. Two new interval channels on the critical
+#: load's meter (`clinic-meter`, KOBO-001's first `critical-load-priority`
+#: load) carry the power that load requested (`load-requested-power`, needs
+#: `mini-grid` v4) and was delivered (`load-served-power`). They are ordinary
+#: device readings, published only where a `minigrid-roles-3` binding maps
+#: them, and reach central acceptance through the registered gateway like any
+#: other reading. A run should use a five-minute timestep, since an interval
+#: reading spans the run's timestep. Versions one to three are unchanged.
+_V4_FIVE_MINUTE = frozenset({
+    ("generator-controller", "status"),
+    ("generator-controller", "ac-power"),
+    ("battery-pcs-controller", "state-of-charge"),
+    ("residential-meter", "active-power"),
+    ("clinic-meter", "active-power"),
+    ("mill-meter", "active-power"),
+    ("pv-inverter-controller", "available-power"),
+    ("battery-pcs-controller", "discharge-capability"),
+})
+_V4_NO_DROPOUT = frozenset({("generator-controller", "status"), ("battery-pcs-controller", "state-of-charge")})
+CRITICAL_LOAD_REQUESTED_SIGNAL = ("clinic-meter", "requested-power")
+CRITICAL_LOAD_DELIVERED_SIGNAL = ("clinic-meter", "delivered-power")
+REGISTERED_KOBO_PUBLICATION_PROFILE_V4 = replace(
+    REGISTERED_KOBO_PUBLICATION_PROFILE_V3,
+    publication_profile_version=4,
+    statement=(
+        REGISTERED_KOBO_PUBLICATION_PROFILE_V3.statement
+        + " Version four is the five-minute verification profile: generator "
+        "status and power, the load meters, PV available power, PCS discharge "
+        "capability and battery state of charge are published every five "
+        "minutes (power as the mean over the five minutes that just ended), "
+        "and the critical load's meter also publishes the power it requested "
+        "and was delivered. Status and state-of-charge samples do not drop out."
+    ),
+    device_signals=tuple(
+        replace(
+            declaration,
+            cadence_minutes=5,
+            dropout_per_thousand=0 if declaration.signal_key in _V4_NO_DROPOUT else declaration.dropout_per_thousand,
+        )
+        if declaration.signal_key in _V4_FIVE_MINUTE
+        else declaration
+        for declaration in REGISTERED_KOBO_PUBLICATION_PROFILE_V3.device_signals
+    )
+    + (
+        DeviceSignalDeclaration(
+            device_id=CRITICAL_LOAD_REQUESTED_SIGNAL[0],
+            signal_id=CRITICAL_LOAD_REQUESTED_SIGNAL[1],
+            state_key="load-requested-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=5,
+            bias=0.0,
+            dropout_per_thousand=0,
+            resolution=REGISTERED_KOBO_RESOLUTION,
+            statement=(
+                "The critical load's meter publishes the mean power the load "
+                "requested over the five minutes that just ended - its demand, "
+                "whether or not it was served."
+            ),
+        ),
+        DeviceSignalDeclaration(
+            device_id=CRITICAL_LOAD_DELIVERED_SIGNAL[0],
+            signal_id=CRITICAL_LOAD_DELIVERED_SIGNAL[1],
+            state_key="load-served-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=5,
+            bias=0.0,
+            dropout_per_thousand=0,
+            resolution=REGISTERED_KOBO_RESOLUTION,
+            statement=(
+                "The critical load's meter publishes the mean power delivered "
+                "to the load over the five minutes that just ended."
+            ),
+        ),
+    ),
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
     MINI_GRID_MODEL,
     MINI_GRID_V2_MODEL,
     MINI_GRID_V3_MODEL,
+    MINI_GRID_V4_MODEL,
 )
 
 PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
@@ -1914,6 +2018,7 @@ PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     REGISTERED_KOBO_PUBLICATION_PROFILE,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V2,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V3,
+    REGISTERED_KOBO_PUBLICATION_PROFILE_V4,
 )
 
 

@@ -1,6 +1,6 @@
 # S7-01a — Central source health and asset boundary reads
 
-Status: implementation-ready. USER_REVIEW_REQUIRED: false; non-UI, mergeable after independent review. Size M, two phases. Branch `task/S7-01a-health-read` from merged main. Depends on S2-02 central diagnostics and S1-02 effective bindings. Authority: `.agent/architect-W1-remaining-answers.md`; `.ai/DECISIONS.md` `D-2026-10-16-a-s7-health`, `D-2026-10-09-pre-s3-evidence-readiness-health`; registry `D-edge-health-cases`, `I-source-health-read`, `I-asset-boundary-read`. No UI/panel promotion in this part.
+Status: done (merged to main 2026-10-16; non-UI; review ACCEPT); was in_review (built 2026-10-16 on `task/S7-01a-health-read` from main `8b5d8137`). USER_REVIEW_REQUIRED: false; non-UI, mergeable after independent review. Size M, two phases. Branch `task/S7-01a-health-read` from merged main. Depends on S2-02 central diagnostics and S1-02 effective bindings. Authority: `.agent/architect-W1-remaining-answers.md`; `.ai/DECISIONS.md` `D-2026-10-16-a-s7-health`, `D-2026-10-09-pre-s3-evidence-readiness-health`; registry `D-edge-health-cases`, `I-source-health-read`, `I-asset-boundary-read`. No UI/panel promotion in this part.
 
 ## Verified seams and new contract
 

@@ -38,3 +38,21 @@ Lab replay test, `f88f3c8c` closeout docs. Not merged. Phase 2 is the last phase
   `recorded_at`.
 - Change read keeps apply-time `outcome: PENDING` beside the live `verification` block.
 - `.venv` in this worktree is a junction to the main checkout's venv (check-all needs it).
+
+## Fix round 1 notes (for S6-02b and the merge)
+
+- F5 (S6-02b): take the verification presentation from the Action read's `verification` block (`current_state`), never from `state.outcome`; `state.outcome` follows resolution events and keeps VERIFIED until the evaluator appends RESOLUTION_WITHDRAWN, and the Change read keeps its apply-time `outcome: PENDING`.
+- F4: an INCONCLUSIVE Action continues by freezing a new plan with `supersedes_plan_id` (`VerificationService._continuation_check`); refusals are `VERIFICATION_PLAN_EVALUATED` with `reason`. The shipped Lab replay's INCONCLUSIVE can now lead to a later trial plan.
+- F2: RESOLUTION_WITHDRAWN payload carries `attribution`, `invalidating_evidence`, `basis_changes`, `candidate_evidence_ids`; overlap reads CAUSAL only.
+- F3 deviation: moved baseline selection settles INCONCLUSIVE (`BASELINE_SELECTION_CHANGED`), recoverable via F4 continuation.
+- Merge with S4-05b (coordinator note): whichever merges second keeps both `source=` and `publish=` wiring, drops every `demonstration` field, regenerates the contract fixtures, reruns `test_s6_*` and greps for `demonstration_`. This fix round touched `actions/service.py` only in `reassessment_overlaps` and added no `demonstration_label` use.
+
+## Fix round 2 notes (re-review R1; R2/R3 carried)
+
+- R1 fixed: `_attribution` replays each changed window by acceptance prefix (`arrivals`); a reading is causal only when its own arrival changes the window result and it entered the used evidence. Duplicates and no-change readings stay in `candidate_evidence_ids` only and never move the overlap boundary. Same-instant readings are tested one by one (others excluded via `_windows(exclude=...)`) and recorded jointly only when none changes the result alone.
+- R2 carried (Low, fail-toward-hold): a bound late reading whose only effect is to make the per-window source resolution non-coherent (identical values, another run/class) records `NONE`; the ordinary hold remains, no permanent overlap. Close by comparing per-window source resolution of the closed vs reassessed evidence ID sets under closure-time provenance.
+- R3 carried (Low, fail-toward-hold): a reading whose only effect is to move a pinned S3 selection while the window result is unchanged records `INDETERMINATE` (ordinary hold, never an overlap), per the ruling's "cannot be established" clause.
+
+## Carried after fix-2 re-review (2026-10-16)
+
+- N1 (Low): `_attribution` credits an instant with any change since the previous candidate instant; a reading of a role unbound at freeze (never a candidate) that changed the window would be credited to the next bound reading. Unreachable on roles-2 Lab (needs a plan frozen with a required role unbound that still VERIFIED). Fix later: compare each instant with its own readings excluded, or drop unbound-role readings in the rules. Carried with R2/R3 as fail-toward-hold.

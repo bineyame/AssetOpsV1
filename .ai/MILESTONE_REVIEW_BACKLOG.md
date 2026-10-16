@@ -2262,3 +2262,7 @@ Widened again 2026-10-16 (owner, accepting S4-05b, `.agent/owner-S405b-acceptanc
 ### S4 deferred-match fix carries (2026-10-16)
 
 Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 downgrade refusal. L3: rewrap `test_s4_finding_episode.py:206`. Risks: health can read IDLE while a day stays pending behind an UNASSESSED neighbour (no alarm); a deferred day holds back money eligibility for unrelated matched episodes that day; the matcher fence omits the input hash, so a STALE-to-CURRENT flip with no job/selection change leaves a deferral pending (now visible as pending rather than hidden).
+
+### Flaky test: schedule health 1 s threshold (2026-10-16)
+
+`backend/tests/test_s4_schedule_health_postgres.py:175` (`test_pending_current_stale_after_reload_idle_heartbeat_and_a_stopped_timer`) uses a 1 s stop threshold between `tick()` and the seam read; under concurrent suites it read STALE_PROJECTION (S6-02a merged-main run). Passes alone (11/11). Fix: widen the threshold or read the seam in the same DB-time instant.

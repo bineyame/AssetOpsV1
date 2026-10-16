@@ -21,6 +21,11 @@ ROLE_SET_MINIGRID_1 = "minigrid-roles-1"
 #: channels a dispatch Candidate needs. Observed `pv_power` and
 #: `battery_power` are not these capabilities.
 ROLE_SET_MINIGRID_2 = "minigrid-roles-2"
+#: S6-02a (`D-2026-10-16-s6-verification`, `D-2026-10-16-s602-questions`):
+#: roles-2 plus the requested and delivered critical-load power a reserve
+#: trial's service guardrail needs. A Site opts in by publishing with this
+#: role set explicitly; new publications still default to roles-2.
+ROLE_SET_MINIGRID_3 = "minigrid-roles-3"
 #: The set a new MINIGRID binding publication is recorded under.
 ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
 
@@ -44,6 +49,11 @@ class Role:
     #: "CHANNEL" roles are bound to a device signal; "FOUNDATION_CONTROL"
     #: roles are covered by a configured Foundation control (decision Q3).
     covered_by: str = "CHANNEL"
+    #: S6-02a: a ONE role describing the Site's critical load - the first
+    #: member of the Foundation's `critical-load-priority` control. The
+    #: control identifies the one asset, so several LOAD components are not
+    #: an ambiguity; a binding naming any other load is refused.
+    critical_load: bool = False
 
 
 MINIGRID_ROLES: tuple[Role, ...] = (
@@ -69,9 +79,21 @@ MINIGRID_ROLES_2: tuple[Role, ...] = MINIGRID_ROLES + (
     ),
 )
 
+MINIGRID_ROLES_3: tuple[Role, ...] = MINIGRID_ROLES_2 + (
+    Role(
+        "critical_load_requested_power", "Critical load requested power", "LOAD", "kW", "NUMBER", ONE, False,
+        critical_load=True,
+    ),
+    Role(
+        "critical_load_delivered_power", "Critical load delivered power", "LOAD", "kW", "NUMBER", ONE, False,
+        critical_load=True,
+    ),
+)
+
 ROLES_BY_SET: dict[str, tuple[Role, ...]] = {
     ROLE_SET_MINIGRID_1: MINIGRID_ROLES,
     ROLE_SET_MINIGRID_2: MINIGRID_ROLES_2,
+    ROLE_SET_MINIGRID_3: MINIGRID_ROLES_3,
 }
 #: The role set a new publication for a Site type is recorded under.
 ROLE_SET_BY_SITE_TYPE: dict[str, str] = {"MINIGRID": ROLE_SET_MINIGRID}
@@ -79,7 +101,58 @@ ROLE_SET_BY_SITE_TYPE: dict[str, str] = {"MINIGRID": ROLE_SET_MINIGRID}
 #: older version stays interpretable (and selectable as a historical basis)
 #: under the role definitions it was published with, never today's.
 SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
-    "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2}),
+    "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2, ROLE_SET_MINIGRID_3}),
+}
+
+#: S6-02a verification inputs (Architect S6-02a Q2). Interval-power roles
+#: need five-minute interval-valued readings covering each UTC slot; point
+#: roles need an accepted sample at each five-minute boundary.
+VERIFICATION_ROLE_SETS: frozenset[str] = frozenset({ROLE_SET_MINIGRID_3})
+VERIFICATION_POWER_ROLES: tuple[str, ...] = (
+    "generator_power", "feeder_demand", "pv_available_power", "pcs_discharge_capability",
+    "critical_load_requested_power", "critical_load_delivered_power",
+)
+VERIFICATION_POINT_ROLES: tuple[str, ...] = ("generator_state", "battery_soc")
+#: Names the wording below; any wording change is a new version.
+VERIFICATION_READINESS_VERSION = "verification-readiness-1"
+
+_LAB_INTERVAL = (
+    "Run the Lab with the five-minute publication profile (registered-kobo-publication v4), "
+    "which publishes this channel as an interval mean for every five-minute slot."
+)
+_LAB_POINT = (
+    "Run the Lab with the five-minute publication profile (registered-kobo-publication v4), "
+    "which publishes a sample at every five-minute boundary."
+)
+_SITE_INTERVAL = (
+    "Publish five-minute interval-valued power in kW: an interval mean whose interval covers "
+    "each UTC five-minute slot, or non-overlapping sub-intervals that exactly partition it. "
+    "Point readings alone do not count."
+)
+#: role -> (Lab message, real-Site message).
+VERIFICATION_MESSAGES: dict[str, tuple[str, str]] = {
+    "generator_power": (_LAB_INTERVAL, "Bind the generator output meter. " + _SITE_INTERVAL),
+    "feeder_demand": (_LAB_INTERVAL, "Bind a feeder meter for every load asset. " + _SITE_INTERVAL),
+    "pv_available_power": (
+        _LAB_INTERVAL, "Bind the inverter's available (uncurtailed) power. " + _SITE_INTERVAL,
+    ),
+    "pcs_discharge_capability": (
+        _LAB_INTERVAL, "Bind the battery converter's discharge capability. " + _SITE_INTERVAL,
+    ),
+    "critical_load_requested_power": (
+        _LAB_INTERVAL, "Bind the power the critical load requested. " + _SITE_INTERVAL,
+    ),
+    "critical_load_delivered_power": (
+        _LAB_INTERVAL, "Bind the power delivered to the critical load. " + _SITE_INTERVAL,
+    ),
+    "generator_state": (
+        _LAB_POINT, "Bind the generator state and publish a sample at every UTC five-minute boundary.",
+    ),
+    "battery_soc": (
+        _LAB_POINT,
+        "Bind battery state of charge (%) and publish a sample at every UTC five-minute boundary, "
+        "including the window end.",
+    ),
 }
 
 

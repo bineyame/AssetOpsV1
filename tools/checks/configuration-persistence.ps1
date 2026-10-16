@@ -700,12 +700,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $ledgerConflictAllowed = '(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b'
     $provenanceInsertsSeen = @{ 'evidence_publication' = 0; 'batch_publication_link' = 0 }
     # S6-01a adds the ninth writer, the Action store (D-2026-10-15-s601-action-store-and-ui M1): the sole runtime
-    # writer of the migration-0014 Action tables, INSERT-only (append-only rows; no UPDATE, DELETE, upsert,
+    # writer of the migration-0016 Action tables and S6-02a's migration-0019 verification tables, INSERT-only (append-only rows; no UPDATE, DELETE, upsert,
     # TRUNCATE or DDL), and it writes no other table. No other module - explicitly not the Foundation adapter,
     # whose caller-owned-connection publish (phase 2) writes only Foundation and binding rows - writes an Action table.
     $actionWriter = "$backendRoot/actions/adapters/postgres_action_store.py"
     $actionTables = @('action', 'action_basis_assessment', 'action_basis_evidence', 'action_event',
-        'action_policy_change', 'action_policy_change_binding')
+        'action_policy_change', 'action_policy_change_binding', 'verification_plan', 'verification_selection_binding',
+        'verification_evaluation_request', 'verification_outcome', 'verification_metric')
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter)
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.

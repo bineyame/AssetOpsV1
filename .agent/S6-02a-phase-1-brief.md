@@ -1,0 +1,9 @@
+# S6-02a phase 1 - implementer brief
+
+Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S6-02a-verification-core` (from main `1096ba48`). Touch no other worktree.
+
+Environment: main venv python with `PYTHONPATH` = this worktree's `backend;contracts;gateway;simulator` (confirm `assetops_backend.__file__`); `ASSETOPS_GUARD_PYTHON` = main venv python for guards; private `_test` DB; keep-awake (holds the display) running; `var/sites/*.yaml` copies from the main checkout only if a test needs them (remove afterwards).
+
+Packet `tasks/S6-02a-verification-core.md` (incl. Architect rulings and coordinator note R1/R2) - build **phase 1** as the packet defines it (migration after `0018_finding_match_deferral`, critical-load roles, Lab profile, plan freeze/window/coverage/comparability, battery-scoped lock shared by accept and evaluator, etc.). Authority: `D-2026-10-16-s6-verification`, `.agent/architect-A-S6-verification-answers.md`, `D-2026-10-16-s602-questions`, `.agent/architect-S6-02-answers.md`; reviews `.agent/A-S6-verification-review.md`, `-rereview.md`, `.agent/S6-02-plan-review.md`, `-rereview.md`. The ninth writer `actions/adapters/postgres_action_store.py` writes the verification tables (no tenth writer); rule 8 is statement-level (OPS-02) - extend its policy arrays and `tools/writer_guard_probes.py` probes for new tables.
+
+Process: focused tests only in phase 1; mutation checks for fail-closed outcome rules, the battery-scoped lock and the guardrail block. Owner direction: demo speed over perfection. Commit on the branch; do not merge; do not touch `.agent/coordinator-handoff.md` or `.agent/owner-autonomy-2026-10-15.md`. If an Architect ruling is unimplementable, stop and report. Handoff `.agent/S6-02a-phase-1-handoff.md` (git add -f). Report concisely.

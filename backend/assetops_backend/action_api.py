@@ -32,11 +32,15 @@ from fastapi import APIRouter, HTTPException, Request
 from assetops_backend.actions.lifecycle import OBSERVATION_CODE, SelectorConflict, selector
 from assetops_backend.actions.ports import ActionRefused, ActionStoreUnavailable
 from assetops_backend.actions.service import ActionService
+from assetops_backend.actions.verification import VerificationService
 from assetops_backend.finding_api import ACCESS_BASIS, Access, Gate, Scope, development_access, no_gate
 
 ACCEPT_FIELDS = ("revision_id", "recommendation_key", "foundation_revision_id", "proposed_value", "idempotency_key")
 OBSERVE_FIELDS = ("observation_code", "occurred_at", "idempotency_key")
 APPLY_FIELDS = ("expected_foundation_revision_id", "value", "effective_from", "idempotency_key")
+FREEZE_FIELDS = ("baseline_start", "later_start", "idempotency_key")
+BIND_FIELDS = ("idempotency_key",)
+EVALUATE_FIELDS = ("idempotency_key",)
 AUTHORITY_WORDS = ("actor", "author", "principal", "capability", "authority", "approved", "user")
 
 
@@ -90,7 +94,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         except down as error:
             raise _refuse(503, "ACTION_STORE_UNAVAILABLE", str(error)) from error
 
-    async def body_of(request: Request, fields: tuple[str, ...]) -> dict[str, Any]:
+    async def body_of(request: Request, fields: tuple[str, ...],
+                      optional: tuple[str, ...] = ()) -> dict[str, Any]:
         try:
             body = await request.json()
         except ValueError:
@@ -101,7 +106,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         if claimed:
             raise _refuse(422, "CLIENT_AUTHORITY_FORBIDDEN", "A client cannot name an actor or grant authority; "
                           "the server records the SYSTEM demonstration actor.", fields=claimed)
-        extra = sorted(set(body) - set(fields))
+        extra = sorted(set(body) - set(fields) - set(optional))
         missing = [f for f in fields if body.get(f) in (None, "")]
         if extra or missing:
             raise _refuse(422, "COMMAND_INVALID", "The command has unknown or missing fields.",
@@ -138,6 +143,10 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         body = run(lambda: service.recommendation(tenant_id, site_id, code, finding_id, revision_id, opened))
         if body is None:
             raise HTTPException(status_code=404, detail="No such Finding or revision for this Site.")
+        # S6-02a: each accepted Action's current verification state; the typed prior-trial block is
+        # `prior_action_block` (PRIOR_ACTION_UNRESOLVED, PRIOR_TRIAL_GUARDRAIL_FAILED or PRIOR_TRIAL_REASSESSMENT_OVERLAP).
+        body["verification"] = {a["action_id"]: run(lambda a=a: verification.summary(
+            tenant_id, site_id, code, UUID(a["action_id"]))) for a in body.get("accepted") or []}
         return {"access_basis": access_basis, "source_open": opened, **body}
 
     @router.post("/api/sites/{site_code}/findings/{finding_id}/recommendation/accept")
@@ -183,6 +192,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         body = run(lambda: service.change(tenant_id, site_id, code, change_id))
         if body is None:
             raise HTTPException(status_code=404, detail="No such change for this Site.")
+        action_id = UUID(body["change"]["action_id"])
+        body["verification"] = run(lambda: verification.summary(tenant_id, site_id, code, action_id))
         return {"access_basis": access_basis, **body}
 
     @router.post("/api/sites/{site_code}/actions/{action_id}/observations")
@@ -206,6 +217,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         body = run(lambda: service.action(tenant_id, site_id, code, action_id, pick))
         if body is None:
             raise HTTPException(status_code=404, detail="No such Action for this Site.")
+        # S6-02a: the current verification state beside (never instead of) the pinned S6-01 history.
+        body["verification"] = run(lambda: verification.summary(tenant_id, site_id, code, action_id))
         return {"access_basis": access_basis, **body}
 
     @router.get("/api/sites/{site_code}/actions/{action_id}/events")
@@ -217,6 +230,85 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         if body is None:
             raise HTTPException(status_code=404, detail="No such Action for this Site.")
         return {"access_basis": access_basis, **body}
+
+    # ---- S6-02a verification (D-2026-10-16-s6-verification) ---------------------------------------------------
+
+    verification = VerificationService(service) if service is not None else None
+
+    def plan_selector(plan_id: str | None, recorded_at: str | None) -> tuple[UUID | None, datetime | None]:
+        try:
+            chosen = None if plan_id is None else UUID(plan_id)
+        except ValueError:
+            raise _refuse(422, "VERIFICATION_SELECTOR_INVALID", "plan_id must be a UUID.", fields=["plan_id"]) from None
+        return chosen, None if recorded_at is None else _instant(recorded_at, "recorded_at")
+
+    @router.post("/api/sites/{site_code}/actions/{action_id}/verification/plans")
+    async def freeze_plan(request: Request, site_code: str, action_id: UUID) -> Any:
+        code, tenant_id, site_id = open_scope(request, site_code, command_access)
+        run(lambda: service.authorize_action(tenant_id, site_id, code, "VERIFY", action_id))
+        raw = await body_of(request, FREEZE_FIELDS, optional=("supersedes_plan_id",))
+        command = {"baseline_start": _instant(str(raw["baseline_start"]), "baseline_start"),
+                   "later_start": _instant(str(raw["later_start"]), "later_start"),
+                   "supersedes_plan_id": None if raw.get("supersedes_plan_id") in (None, "")
+                   else uuid_field(raw, "supersedes_plan_id"),
+                   "idempotency_key": raw["idempotency_key"]}
+        status, body = run(lambda: verification.freeze(tenant_id, site_id, code, action_id, command))
+        return _respond(status, body)
+
+    @router.post("/api/sites/{site_code}/actions/{action_id}/verification/plans/{plan_id}/later-selection")
+    async def bind_later_selection(request: Request, site_code: str, action_id: UUID, plan_id: UUID) -> Any:
+        code, tenant_id, site_id = open_scope(request, site_code, command_access)
+        run(lambda: service.authorize_action(tenant_id, site_id, code, "VERIFY", action_id))
+        raw = await body_of(request, BIND_FIELDS)
+        status, body = run(lambda: verification.bind_later_selection(tenant_id, site_id, code, action_id, plan_id,
+                                                                     raw))
+        return _respond(status, body)
+
+    @router.get("/api/sites/{site_code}/actions/{action_id}/verification/plan")
+    def verification_plan(request: Request, site_code: str, action_id: UUID, plan_id: str | None = None,
+                          recorded_at: str | None = None) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code, access)
+        chosen, cutoff = plan_selector(plan_id, recorded_at)
+        return {"access_basis": access_basis,
+                **run(lambda: verification.plan(tenant_id, site_id, code, action_id, chosen, cutoff))}
+
+    @router.post("/api/sites/{site_code}/actions/{action_id}/verification/evaluations")
+    async def request_evaluation(request: Request, site_code: str, action_id: UUID) -> Any:
+        """SYSTEM demonstration evaluation request: the evaluator job computes and appends; the caller never
+        supplies a verdict, metric or event (`CLIENT_AUTHORITY_FORBIDDEN` refuses such fields)."""
+        code, tenant_id, site_id = open_scope(request, site_code, command_access)
+        run(lambda: service.authorize_action(tenant_id, site_id, code, "VERIFY", action_id))
+        raw = await body_of(request, EVALUATE_FIELDS, optional=("plan_id",))
+        command = {"idempotency_key": raw["idempotency_key"],
+                   "plan_id": None if raw.get("plan_id") in (None, "") else uuid_field(raw, "plan_id")}
+        status, body = run(lambda: verification.evaluate(tenant_id, site_id, code, action_id, command))
+        return _respond(status, body)
+
+    @router.get("/api/sites/{site_code}/actions/{action_id}/verification/outcome")
+    def verification_outcome(request: Request, site_code: str, action_id: UUID, outcome_id: str | None = None,
+                             recorded_at: str | None = None) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code, access)
+        try:
+            chosen = None if outcome_id is None else UUID(outcome_id)
+        except ValueError:
+            raise _refuse(422, "VERIFICATION_SELECTOR_INVALID", "outcome_id must be a UUID.",
+                          fields=["outcome_id"]) from None
+        cutoff = None if recorded_at is None else _instant(recorded_at, "recorded_at")
+        return {"access_basis": access_basis,
+                **run(lambda: verification.outcome(tenant_id, site_id, code, action_id, chosen, cutoff))}
+
+    @router.get("/api/sites/{site_code}/actions/{action_id}/verification/history")
+    def verification_history(request: Request, site_code: str, action_id: UUID) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code, access)
+        return {"access_basis": access_basis, **run(lambda: verification.history(tenant_id, site_id, code, action_id))}
+
+    @router.get("/api/sites/{site_code}/actions/{action_id}/verification/evidence")
+    def verification_evidence(request: Request, site_code: str, action_id: UUID, plan_id: str | None = None,
+                              recorded_at: str | None = None) -> dict[str, Any]:
+        code, tenant_id, site_id = open_scope(request, site_code, access)
+        chosen, cutoff = plan_selector(plan_id, recorded_at)
+        return {"access_basis": access_basis,
+                **run(lambda: verification.evidence(tenant_id, site_id, code, action_id, chosen, cutoff))}
 
     return router
 
