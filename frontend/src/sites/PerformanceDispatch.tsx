@@ -1279,7 +1279,7 @@ function AnalysisView({
       </div>
       <Panel heading="Fuel, money and Finding comparison" headingId="durable-dispatch-gated-heading">
         <p data-dispatch-gated>
-          Not yet available. This assessment states no fuel quantity, saving or money amount, and an interval result
+          Not yet available. This assessment makes no fuel quantity, saving or money claim, and an interval result
           is not itself a Finding; Findings recorded over this day are linked in Overview. Fuel and money need
           later, separately reviewed work.
         </p>
