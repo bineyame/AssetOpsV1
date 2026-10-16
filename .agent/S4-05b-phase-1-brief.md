@@ -1,0 +1,11 @@
+# S4-05b phase 1 - implementer brief
+
+Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`, branch `task/S4-05b-producers-reads-walkthrough` (from main `7576ef9d`). Touch no other worktree.
+
+Environment: `.venv` here is a junction to the main venv; set `PYTHONPATH` = this worktree's `backend;contracts;gateway;simulator` and confirm `assetops_backend.__file__` resolves here. `ASSETOPS_GUARD_PYTHON` = the same python. Docker Postgres 127.0.0.1:55432, private `*_test` DBs (`assetops_s405*`). Copy `var/sites/*.yaml` from `C:\Users\assef\Bineyame\AssetOpsV1\var\sites\` only if a test needs them. Keep-awake is running. Memory is tight (~3.5 GB free) and another agent runs Postgres tests for S6-02a in `AssetOpsV1-review4`: run focused tests serially or `-n 2`, never a full suite in phase 1. Ports for any served check: API 8935, web 5435.
+
+Read: packet `tasks/S4-05b-producers-reads-walkthrough.md` (phase 1), shared contract `tasks/S4-05-stored-demo-provenance.md`, `.agent/S4-05a-phase-2-handoff.md` (S4-05b contract), `D-2026-10-15-s405-stored-demo-provenance`, and the merged S4-05a code (`backend/assetops_backend/evidence/source_provenance.py`, migration `0017_evidence_publication`). LR-01 and S5-01 are merged to main; recheck every line citation on this base before coding (main has moved since the packet was written). S6-02a (unmerged) adds `0019_verification_core`; if you need a migration, chain it after main's head and note that it will be re-chained at merge.
+
+Build phase 1 as the packet defines it: register before upload in the three walkthrough producers and the simulator and gateway paths (public identity only, no private truth), then exact read DTOs through Finding detail, Finding Evidence, the consequence read and both money routes, and the frontend client shape updates the packet names. Focused tests per the packet; rule-8 writer impact checked (`tools/writer_guard_probes.py` only for touched writers). Mutation checks only for fail-closed source classification.
+
+Owner direction: demo speed over perfection; no wording polish (W1-conclusion task). Commit on the branch; do not merge; do not touch `.agent/coordinator-handoff.md`. If an Architect ruling is unimplementable, stop and report. Write `.agent/S4-05b-phase-1-handoff.md` (git add -f). Report concisely: commits, tests and counts, deviations, risks.

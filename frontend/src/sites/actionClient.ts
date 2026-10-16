@@ -16,6 +16,7 @@
  * Every refusal is a typed result carrying the HTTP status and the server's
  * `detail.code`, never a thrown error and never an empty result.
  */
+import type { SourceProvenance } from "./sourceProvenance";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { hasKeys, isObject } from "./evidenceRead";
 
@@ -158,6 +159,8 @@ export interface RecommendationBody {
   latest_revision_id: string;
   links: { finding: string; recommendation: string; api_recommendation: string };
   live_status: LiveStatus | null;
+  /** S4-05b phase 2: the selected FindingRevision's stored source (absent on older servers: Source unverified). */
+  source_provenance?: SourceProvenance | null;
   money_consequence: {
     basis: { finding_id: string; finding_revision_id: string };
     label: string;
@@ -277,6 +280,8 @@ export interface PolicyChangeBody {
 }
 
 export interface ActionBody {
+  /** S4-05b phase 2: the pinned origin FindingRevision's stored source (absent on older servers: Source unverified). */
+  source_provenance?: SourceProvenance | null;
   accepted_recommendation: {
     field: string;
     limitation: Limitation;

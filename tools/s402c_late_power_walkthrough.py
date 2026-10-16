@@ -260,7 +260,8 @@ class LateWalk(p.PowerCases):
                     (pre["consequence"] or {}).get("revision_no") == 1, pre["consequence"])
 
         step("2. Leg A: the withheld mean is accepted late (same registered credential, TLS)")
-        late_batches = self.post(self.power_envelopes(self.late, s4.EPOCH_PREFIX + self.late["epoch"]))
+        late_batches = self.post(self.power_envelopes(self.late, s4.EPOCH_PREFIX + self.late["epoch"]),
+                                 fixture=self.authored_fixture())
         late_sequences = list(self.last_sequences)
         (late_id,) = self.accepted(late_batches)
         o["late"] = {"batch_ids": late_batches, "accepted_evidence_id": late_id,
@@ -515,7 +516,8 @@ class Lr01Walk(LateWalk):
             self.gate("after the attestation tick")
 
         step("2. The withheld 20 kW mean [07:00, 07:05) is accepted late")
-        late_batches = self.post(self.power_envelopes(self.late, state["epoch"]))
+        late_batches = self.post(self.power_envelopes(self.late, state["epoch"]),
+                                 fixture=self.authored_fixture())
         (late_id,) = self.accepted(late_batches)
         state["late_id"] = late_id
         o["late"] = {"accepted_evidence_id": late_id, "sequence": list(self.last_sequences)}

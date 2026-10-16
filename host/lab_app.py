@@ -35,8 +35,9 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-from assetops_backend.config import FeatureFlags, load_feature_flags
+from assetops_backend.config import FeatureFlags, database_url, load_feature_flags
 from assetops_backend.main import create_app
+from assetops_backend.runs.registered_release import publisher_for
 
 from lab_execution import HostLabExecution
 from gateway_publication import RegisteredGatewayPublisher
@@ -67,7 +68,7 @@ def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI
     """
     resolved = load_feature_flags() if flags is None else flags
     execution = (
-        HostLabExecution(gateway=gateway_from_environment())
+        HostLabExecution(gateway=gateway_from_environment(), source_publisher=publisher_for(database_url()))
         if resolved.simulator_lab_enabled
         else None
     )

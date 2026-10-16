@@ -38,6 +38,7 @@ import {
   transitionWords,
   versionWords,
 } from "./findingWords";
+import { SourceProvenanceNotice } from "./sourceProvenance";
 
 export const FINDING_VIEWS_LABEL = "Finding views";
 const EVIDENCE_PREVIEW = 8;
@@ -193,6 +194,7 @@ function LeadState({ body, links }: { body: FindingDetailBody; links: SiteFindin
                 ? `${lifecycle.label} · ${currentness.label.toLowerCase()}`
                 : lifecycle.label}
       </h2>
+      <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="finding" />
       {body.audit_only ? (
         <p data-finding-audit-only>
           This exact version is kept as a record. It is not a current result, and whether it is still up to date is

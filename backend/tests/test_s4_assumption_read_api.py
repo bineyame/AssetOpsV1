@@ -159,8 +159,11 @@ class TestFindingFinancialsBridge:
                    "price": {"revision_id": "p1", "reason": None},
                    "amount": {"low": "0", "high": "3.4375", "currency": "USD"},
                    "display": {"state": "ROUNDED_OUTWARD", "amount_low": "0.00", "amount_high": "3.44"}}
-            return {"currentness": {"state": currentness, "reasons": [], "pending_work": []}, "consequence": row,
-                    "money_eligibility": {"state": "ELIGIBLE"}}  # LR-01: the shared gate lets it through
+            return {"currentness": {"state": currentness, "reasons": [], "pending_work": [],
+                                    # S4-05b phase 2: the stored source gate lets it through
+                                    "source_gate": {"state": "AUTHORED_DEMONSTRATION", "permits_current_money": True,
+                                                    "reason": None}},
+                    "consequence": row, "money_eligibility": {"state": "ELIGIBLE"}}  # LR-01: the shared gate too
 
         class Consequences:
             def __init__(self, out=None, error=None):
@@ -192,6 +195,34 @@ class TestFindingFinancialsBridge:
                            (None, "PENDING_REASSESSMENT")):
             held = bridge_consequence({**result("CURRENT"), "money_eligibility": gate})
             assert (held["state"], held["amount"], held["recorded_consequence_revision_id"]) == (want, None, "c1")
+        # S4-05b phase 2: CURRENT PRICED + LR ELIGIBLE, but the exact set is MIXED/UNKNOWN (or no gate was read).
+        for sgate in ({"state": "MIXED", "permits_current_money": False, "reason": "MIXED_OR_UNKNOWN_SOURCE"},
+                      {"state": "UNKNOWN", "permits_current_money": False, "reason": "MIXED_OR_UNKNOWN_SOURCE"}, None):
+            r = result("CURRENT")
+            r["currentness"] = {**r["currentness"], "source_gate": sgate}
+            held = bridge_consequence(r)
+            assert (held["state"], held["amount"], held["quantity"], held["consequence_revision_id"],
+                    held["recorded_consequence_revision_id"]) == ("MIXED_OR_UNKNOWN_SOURCE", None, None, None, "c1")
+            assert held["currentness_reasons"] == ["MIXED_OR_UNKNOWN_SOURCE"]
+            # beside the LR gate: both typed reasons are kept, the LR state names the bridge
+            both = bridge_consequence({**r, "money_eligibility": {"state": "WITHHELD_GENERATOR_SERIES"}})
+            assert both["state"] == "WITHHELD_GENERATOR_SERIES" and both["amount"] is None
+            assert both["currentness_reasons"] == ["MONEY_WITHHELD_GENERATOR_SERIES", "MIXED_OR_UNKNOWN_SOURCE"]
+
+
+def test_every_failed_money_gate_is_named_at_once() -> None:
+    """S4-05 shared contract item 4: MIXED_OR_UNKNOWN_SOURCE is exposed beside every other failed typed gate."""
+    from assetops_backend.evidence.provenance_read import source_gate
+    from assetops_backend.financials.consequence_read import withheld_reasons
+
+    mixed = source_gate({"state": "MIXED"})
+    assert withheld_reasons("STALE", ["PRICE_SELECTION_CHANGED"], "PENDING_REASSESSMENT", mixed,
+                            {"state": "UNPRICED"}) == [
+        "STALE", "PRICE_SELECTION_CHANGED", "MONEY_PENDING_REASSESSMENT", "MIXED_OR_UNKNOWN_SOURCE", "UNPRICED"]
+    assert withheld_reasons("CURRENT", [], "ELIGIBLE", source_gate({"state": "REGISTERED_SIMULATION"}),
+                            {"state": "PRICED"}) == []
+    assert source_gate(None)["reason"] == "MIXED_OR_UNKNOWN_SOURCE"
+    assert source_gate({"state": "UNKNOWN"})["permits_current_money"] is False
 
 
 # ---- S4-02b phase 2b: review carries M1 (closed source), L1 (route refusals) and L4 (STALE wording) ----
@@ -259,7 +290,9 @@ class TestConsequenceRouteCarries:
                                     "consequence": {"id": "c1", "state": "PRICED"}})
         assert (audit["state"], audit["amount"], audit["currency"], audit["quantity"]) == (
             "AUDIT_ONLY", None, None, None)
-        assert audit["currentness_reasons"] == ["SOURCE_CLOSED"] and "for the record only" in audit["reason"]
+        # S4-05b phase 2: no stored source gate was read, so the source refusal is named beside SOURCE_CLOSED.
+        assert audit["currentness_reasons"] == ["SOURCE_CLOSED", "MIXED_OR_UNKNOWN_SOURCE"]
+        assert "for the record only" in audit["reason"]
 
     def test_l4_stale_claims_a_queued_recalculation_only_when_work_exists(self) -> None:
         idle = bridge_consequence(stale([]))
@@ -271,99 +304,65 @@ class TestConsequenceRouteCarries:
             assert "being recalculated" not in body["reason"] and body["amount"] is None
 
 
-class TestDemonstrationLabel:
-    """Owner ruling 2026-10-14: the authored P01-power case is labelled as demonstration data; others are not."""
+class TestStoredSourceProvenanceNotTheDay:
+    """S4-05b: the money routes carry the stored exact-revision provenance; the retired date/spec label is gone.
 
-    def test_only_the_declared_demonstration_day_at_its_site_is_labelled(self) -> None:
-        from assetops_backend.demonstration_label import demonstration_case
+    A same-day episode on the authored P01/P02 days is not authorship: only the resolver's stored binding is."""
 
-        demo = demonstration_case("KOBO-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00")
-        assert demo is not None and demo["case_id"] == "P01-power" and demo["label"] == "Demonstration data"
-        assert "simulat" not in demo["statement"].lower()
-        assert demonstration_case("KOBO-001", "2026-10-19T06:00:00+00:00", "2026-10-19T09:00:00+00:00") is None
-        assert demonstration_case("OTHER-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00") is None
-        assert demonstration_case("KOBO-001", "2026-10-23T22:00:00+00:00", "2026-10-24T01:00:00+00:00") is None
+    P01 = {"start": "2026-10-23T06:05:00+00:00", "end": "2026-10-23T08:00:00+00:00"}
+    P02 = {"start": "2026-10-24T06:05:00+00:00", "end": "2026-10-24T08:00:00+00:00"}
 
-    def test_an_open_episode_on_a_declared_day_is_labelled(self) -> None:
-        from assetops_backend.demonstration_label import demonstration_case
+    def body(self, episode, provenance) -> dict:
+        b = finding_body()
+        return {**b, "revision": {**b["revision"], "episode": episode}, "source_provenance": provenance}
 
-        demo = demonstration_case("KOBO-001", "2026-10-23T06:05:00+00:00", None)
-        assert demo is not None and demo["case_id"] == "P01-power"
-        assert demonstration_case("KOBO-001", "2026-10-19T06:05:00+00:00", None) is None
+    @staticmethod
+    def unknown(rid="r2") -> dict:
+        from assetops_backend.evidence.provenance_read import unresolved
 
-    def test_an_unreadable_spec_fails_closed_with_a_cautious_label(self, monkeypatch) -> None:
-        from assetops_backend import demonstration_label as dl
+        out = unresolved("NO_POSITIVE_BINDING", uuid4(), uuid4(), rid)
+        out["accepted_evidence_ids"] = out["problematic_accepted_evidence_ids"] = ["e1"]
+        return out
 
-        def broken():
-            raise dl.SpecUnreadable("missing")
+    def test_a_same_day_unbound_finding_is_not_labelled_demonstration(self) -> None:
+        for episode in (self.P01, self.P02):
+            out = bridge(FindingReads(self.body(episode, self.unknown()))).get(BRIDGE).json()
+            assert "demonstration" not in out
+            assert out["source_provenance"]["finding_revision"]["state"] == "UNKNOWN"
+            assert out["source_provenance"]["consequence_revision"] is None
 
-        monkeypatch.setattr(dl, "_declared", broken)
-        demo = dl.demonstration_case("KOBO-001", "2026-10-19T06:00:00+00:00", "2026-10-19T09:00:00+00:00")
-        assert demo is not None and demo["case_id"] == "unverified" and demo["label"] == dl.UNVERIFIED_LABEL
+    def test_the_bridge_passes_the_stored_provenance_unchanged(self) -> None:
+        stored = {**self.unknown(), "state": "AUTHORED_DEMONSTRATION", "reasons": [],
+                  "publication_ids": ["p1"], "source_classes": ["AUTHORED_DEMONSTRATION"]}
+        out = bridge(FindingReads(self.body(finding_body()["revision"]["episode"], stored))).get(BRIDGE).json()
+        assert out["source_provenance"]["finding_revision"] == stored  # an ordinary day, positively bound
 
-    def test_the_shipped_spec_parses_with_a_case(self) -> None:
-        from assetops_backend.demonstration_label import _declared
+    def test_the_consequence_route_carries_no_heuristic_label(self) -> None:
+        rid = str(uuid4())
+        reads = FindingReads({**self.body(self.P01, self.unknown(rid)),
+                              "selection": {"revision_id": rid, "revision_no": 2, "is_latest": True}})
+        result = {**stale([]), "consequence": None, "source_provenance": {"finding_revision": self.unknown(rid),
+                                                                         "consequence_revision": None},
+                  "history": {"revisions": [], "page": {"next_after_revision_no": None, "limit": 50}}}
+        out = bridge(reads, consequences=Consequences(result)).get(
+            f"/api/sites/KOBO-001/findings/{FINDING}/financial-consequences").json()
+        assert "demonstration" not in out
 
-        assert {c[1] for c in _declared()} == {"P01-power", "P02-power-late"}
+    def test_an_unwired_or_unreadable_resolver_is_unknown_never_positive(self) -> None:
+        from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance
 
-    def test_the_bridge_carries_the_label(self) -> None:
-        body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
-            "start": "2026-10-23T06:05:00+00:00", "end": "2026-10-23T08:00:00+00:00"}}}
-        assert bridge(FindingReads(body)).get(BRIDGE).json()["demonstration"]["case_id"] == "P01-power"
-        assert bridge(FindingReads(finding_body())).get(BRIDGE).json()["demonstration"] is None
+        class Broken:
+            def finding_revision(self, *a):
+                raise RuntimeError("down")
 
+            consequence_revision = finding_revision
 
-class TestP02DemonstrationLabel:
-    """Architect D-2026-10-15-p02-demonstration-label: P02-power-late shares the P01 label."""
+        t, s, r, c = uuid4(), uuid4(), uuid4(), uuid4()
+        assert finding_provenance(None, t, s, r)["reasons"][0]["code"] == "PROVENANCE_NOT_WIRED"
+        broken = finding_provenance(Broken(), t, s, r)
+        assert (broken["state"], broken["reasons"][0]["code"]) == ("UNKNOWN", "PROVENANCE_UNREADABLE")
+        both = consequence_provenance(Broken(), t, s, r, c)
+        assert (both["state"], both["finding_revision_state"], both["consequence_revision_id"]) == (
+            "UNKNOWN", "UNKNOWN", str(c))
+        assert both["publication_ids"] == [] and both["source_classes"] == []
 
-    P02 = ("2026-10-24T06:05:00+00:00", "2026-10-24T08:00:00+00:00")
-
-    def test_p02_gets_the_same_label_with_its_own_case_and_spec(self) -> None:
-        from assetops_backend.demonstration_label import LABEL, STATEMENT, demonstration_case
-
-        demo = demonstration_case("KOBO-001", *self.P02)
-        assert demo == {"label": LABEL, "statement": STATEMENT, "case_id": "P02-power-late",
-                        "spec": "s4-power-late-demo-cases-v1"}
-        assert demonstration_case("OTHER-001", *self.P02) is None
-        assert demonstration_case("KOBO-001", "2026-10-25T06:05:00+00:00", "2026-10-25T08:00:00+00:00") is None
-
-    def test_the_bridge_and_finding_reads_carry_the_p02_label(self) -> None:
-        body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
-            "start": self.P02[0], "end": self.P02[1]}}}
-        demo = bridge(FindingReads(body)).get(BRIDGE).json()["demonstration"]
-        assert demo["case_id"] == "P02-power-late" and demo["label"] == "Demonstration data"
-
-    def _use_specs(self, monkeypatch, tmp_path, texts) -> None:
-        from assetops_backend import demonstration_label as dl
-
-        paths = []
-        for i, text in enumerate(texts):
-            f = tmp_path / f"spec{i}.json"
-            f.write_text(text, encoding="utf-8")
-            paths.append(f)
-        monkeypatch.setattr(dl, "SPEC_PATHS", tuple(paths))
-        dl._declared.cache_clear()
-        self._dl = dl
-
-    def test_a_malformed_declared_spec_is_cautious_not_attested(self, monkeypatch, tmp_path) -> None:
-        import json
-        good = json.dumps({"site_code": "KOBO-001", "label": "x", "cases": [{"case_id": "A", "day": "2026-10-24"}]})
-        try:
-            self._use_specs(monkeypatch, tmp_path, [good, '{"site_code": "KOBO-001"'])
-            demo = self._dl.demonstration_case("KOBO-001", *self.P02)
-            assert demo["case_id"] == "unverified" and demo["label"] == self._dl.UNVERIFIED_LABEL
-        finally:
-            monkeypatch.undo()
-            self._dl._declared.cache_clear()
-
-    def test_conflicting_declarations_are_refused(self, monkeypatch, tmp_path) -> None:
-        import json
-        def spec(case):
-            return json.dumps({"site_code": "KOBO-001", "label": case, "cases": [{"case_id": case, "day": "2026-10-24"}]})
-        try:
-            self._use_specs(monkeypatch, tmp_path, [spec("A"), spec("B")])
-            demo = self._dl.demonstration_case("KOBO-001", *self.P02)
-            assert demo["case_id"] == "unverified"
-        finally:
-            monkeypatch.undo()
-            self._dl._declared.cache_clear()

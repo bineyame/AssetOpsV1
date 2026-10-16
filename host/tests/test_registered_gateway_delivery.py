@@ -127,3 +127,86 @@ def test_the_gateway_uploads_every_batch_and_the_run_reads_fully_released(draft,
     finally:
         process.kill()
         central.close()
+
+
+class _Publisher:
+    """S4-05b: records what the host offers for publication before its release; may refuse."""
+
+    def __init__(self, refuse: bool = False) -> None:
+        self.refuse, self.seen = refuse, []
+
+    def publish(self, run, stage):
+        self.seen.append((stage.status, tuple((b.batch_id, b.state) for b in stage.batches)))
+        if self.refuse:
+            raise LabControlRefused("SOURCE_PUBLICATION_REFUSED", run.run_id, "GATEWAY_NOT_SIMULATED: test")
+        return ()
+
+
+def test_commit_publishes_the_sealed_batches_before_release_and_a_refusal_releases_nothing(draft, tmp_path) -> None:
+    process = _gateway(tmp_path, draft)
+    try:
+        refusing = _Publisher(refuse=True)
+        port = HostLabExecution(artifacts=YamlExecutionArtifacts(tmp_path / "host"),
+                                stages=JsonSourceStages(tmp_path / "host" / "stages"),
+                                gateway=RegisteredGatewayPublisher(process.link), source_publisher=refusing)
+        port.start(draft)
+        with pytest.raises(LabControlRefused) as early:
+            port.release_registered(draft)
+        assert early.value.kind == "COMMIT_NOT_READY" and refusing.seen == []  # nothing offered before completion
+        assert port.run_to_end(draft).status == "COMPLETED"
+        with pytest.raises(LabControlRefused) as refused:
+            port.release_registered(draft)
+        assert refused.value.kind == "SOURCE_PUBLICATION_REFUSED"
+        (offered,) = refusing.seen
+        assert offered[0] == "STAGED" and offered[1] and {s for _, s in offered[1]} == {"STAGED"}
+        assert {b.state for b in port.registered_stage(draft).batches} == {"STAGED"}  # nothing released
+        accepting = _Publisher()
+        port._source_publisher = accepting
+        view = port.release_registered(draft)
+        assert view["released_now"] == len(offered[1]) and accepting.seen == [offered]
+        assert {b.state for b in port.registered_stage(draft).batches} == {"READY"}
+    finally:
+        process.kill()
+
+
+class _StageBlindLink:
+    """Review L1: a gateway link whose Stage read fails while every other call (release included) still works."""
+
+    def __init__(self, link) -> None:
+        self._link = link
+
+    def call(self, name, *args, **kwargs):
+        if name == "run_stage":
+            from assetops_gateway.ipc import GatewayUnavailable
+
+            raise GatewayUnavailable("stage read lost")
+        return self._link.call(name, *args, **kwargs)
+
+    def __getattr__(self, name):
+        return getattr(self._link, name)
+
+
+def test_an_unreadable_stage_refuses_commit_and_releases_nothing(draft, tmp_path) -> None:
+    """Review L1: with the real publisher, a Stage read that fails is refused (`SOURCE_PUBLICATION_REFUSED`)
+    before the release call, so no batch is uploaded without its publication; the readable Stage still shows
+    every batch STAGED."""
+    sys.path.insert(0, str(ROOT / "backend"))
+    from assetops_backend.runs.registered_release import RegisteredRunPublisher
+
+    process = _gateway(tmp_path, draft)
+    try:
+        ledger_calls = []
+        port = HostLabExecution(artifacts=YamlExecutionArtifacts(tmp_path / "host"),
+                                stages=JsonSourceStages(tmp_path / "host" / "stages"),
+                                gateway=RegisteredGatewayPublisher(_StageBlindLink(process.link)),
+                                source_publisher=RegisteredRunPublisher(lambda: ledger_calls.append(1)))
+        port.start(draft)
+        assert port.run_to_end(draft).status == "COMPLETED"
+        with pytest.raises(LabControlRefused) as refused:
+            port.release_registered(draft)
+        assert refused.value.kind == "SOURCE_PUBLICATION_REFUSED" and "GATEWAY_UNAVAILABLE" in refused.value.detail
+        assert ledger_calls == []
+        readable = _host(tmp_path / "reader", process.link)
+        assert {b.state for b in readable.registered_stage(draft).batches} == {"STAGED"}  # nothing released
+    finally:
+        process.kill()
