@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -2019,4 +2020,122 @@ describe("W1-UX-05: the Foundation views use the W1 vocabulary set", () => {
       }
     });
   }
+});
+
+describe("W1-UX-05: the Foundation answer cards answer only to the strength of the selected read", () => {
+  const card = (name: string) => document.querySelector(`[data-headline-card="${name}"]`) as HTMLElement;
+  const loaded = (value: FoundationReadModel) => fakeFoundation(() => ({ status: "loaded", value }));
+  const steps = (el: HTMLElement) =>
+    Object.fromEntries(
+      Array.from(el.querySelectorAll("[data-step]")).map((s) => [
+        s.querySelector(".step-strip__label")?.textContent,
+        s.getAttribute("data-step"),
+      ]),
+    );
+
+  it("Site model: the selected effective version, equipment by kind and settings, with the selected time in scope", async () => {
+    renderAt(`/sites/${ID}/foundation`, loaded(foundation(PAST)));
+    await settledScreen();
+    const answer = card("foundation-model");
+    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("What is configured for this period?");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toMatch(
+      /^\d+ pieces of equipment and 4 of 5 operating settings are recorded$/,
+    );
+    expect(expectStateLineVisible(answer)).toBe("Configuration in effect now");
+    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(answer.querySelector("[data-product-status-scope]")?.textContent).toContain(
+      "Foundation version 2, selected time 29 Sep 2026, 11:57 UTC",
+    );
+    expect(steps(answer)["Generator start and stop"]).toBe("waiting");
+    expect(answer.querySelectorAll('[data-value-bar="not-known"]')).toHaveLength(0);
+    const references = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(references.textContent).toContain("rev-2");
+    expect(references.textContent).toContain("2026-09-29T11:57:49Z");
+  });
+
+  it("Site model: a scheduled period is never called in effect now; a gap makes it incomplete", async () => {
+    renderAt(`/sites/${ID}/foundation?at=${FUTURE.valid_from}`, loaded(foundation(FUTURE)));
+    await settledScreen();
+    expect(expectStateLineVisible(card("foundation-model"))).toBe("Scheduled configuration");
+    cleanup();
+    const gap = { code: "COMPONENT_RATING_MISSING", subject: "battery", message: "The battery has no declared rating." };
+    renderAt(`/sites/${ID}/foundation`, loaded(foundation(PAST, { configuration_gaps: [gap] })));
+    await settledScreen();
+    expect(expectStateLineVisible(card("foundation-model"))).toBe("Configuration in effect now, incomplete");
+    cleanup();
+    const none = { code: "NO_EFFECTIVE_REVISION", subject: "foundation", message: "No Foundation revision is effective at this time." };
+    renderAt(`/sites/${ID}/foundation`, loaded(foundation(PAST, { configuration_gaps: [none] })));
+    await settledScreen();
+    const answer = card("foundation-model");
+    expect(expectStateLineVisible(answer)).toBe("No configuration for this period");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe(
+      "No equipment or settings are recorded for the selected time",
+    );
+    expect(answer.querySelectorAll("[data-value-bar], [data-step]")).toHaveLength(0);
+  });
+
+  it("Readiness: missing channel links are next steps, commissioning stays unconfirmed, never a positive state", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, published([GENSET_POWER], ["Battery state of charge"]))));
+    await settledScreen();
+    const answer = card("foundation-readiness");
+    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("What needs connecting or confirming?");
+    expect(expectStateLineVisible(answer)).toBe("Set-up incomplete");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe(
+      "1 item needs setting up; commissioning is not yet confirmed",
+    );
+    expect(answer.querySelector("[data-readiness-next-steps]")?.textContent).toContain(
+      "Link a reading channel for Battery state of charge.",
+    );
+    const s = steps(answer);
+    expect(s["Readings linked to equipment"]).toBe("problem");
+    expect(s["Commissioning confirmed"]).toBe("not-known");
+    expect(s["Gateway registered"]).toBe("done");
+    // The catalogued commissioning missing claim stays in the table below.
+    expect(document.body.textContent).toContain("Commissioning confirmation not recorded");
+    cleanup();
+    renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []))));
+    await settledScreen();
+    const ready = card("foundation-readiness");
+    expect(expectStateLineVisible(ready)).toBe("Set up to report");
+    expect(ready.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("neutral");
+    expect(ready.querySelector(".product-status__sentence")?.textContent).toContain(
+      "does not mean any device is connected, reporting or healthy",
+    );
+    expect(ready.querySelector(".headline-card__headline")?.textContent).toBe(
+      "Nothing is missing from the set-up; commissioning is not yet confirmed",
+    );
+  });
+
+  it("Readiness: Unknown with no linked set, and absent gateway facts as a next step", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, { gateways: [] })));
+    await settledScreen();
+    const answer = card("foundation-readiness");
+    expect(expectStateLineVisible(answer)).toBe("Set-up cannot be judged");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe(
+      "Readiness cannot be judged: no reading channels are linked for this period",
+    );
+    const s = steps(answer);
+    expect(s["Readings linked to equipment"]).toBe("not-known");
+    expect(s["Gateway registered"]).toBe("waiting");
+    expect(answer.querySelector("[data-readiness-next-steps]")?.textContent).toContain("Register the site's gateway.");
+  });
+
+  it("SLD: linked and unlinked devices, reporting drawn as not known (never zero), gap tags kept", async () => {
+    renderAt(`/sites/${ID}/foundation/sld`, loaded(foundation(PAST, published([GENSET_POWER], ["Battery state of charge"]))));
+    await settledScreen();
+    const answer = card("foundation-sld");
+    expect(answer.querySelector(".headline-card__question")?.textContent).toBe(
+      "How is the site connected, and which parts can report?",
+    );
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toMatch(
+      /^\d+ parts are drawn; 1 of \d+ devices have a linked reading channel$/,
+    );
+    expect(expectStateLineVisible(answer)).toBe("Configuration in effect now");
+    const reporting = answer.querySelector('[data-value-bar-key="reporting"]') as HTMLElement;
+    expect(reporting.getAttribute("data-value-bar")).toBe("not-known");
+    expect(reporting.querySelector('[data-value-bar-mark="known"]')).toBeNull();
+    expect(reporting.textContent).toContain("not known");
+    // The two catalogued SLD missing claims stay beside the drawing.
+    expect(document.querySelectorAll("[data-sld-missing] [data-gap-id]")).toHaveLength(2);
+  });
 });
