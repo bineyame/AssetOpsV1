@@ -1797,9 +1797,9 @@ for (const [label, width, height] of [
       [
         // D-2026-10-02-rendered-tabs-per-capability: Overview, Foundation and
         // Evidence render, and nothing else.
-        "exactly six tabs are rendered: Overview, Foundation, Performance, Findings, Financials (S4-02a), Evidence",
-        site.tabLabels.length === 6 &&
-          site.tabLabels.join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence",
+        "exactly seven tabs are rendered: Overview, Foundation, Health (S7-01b), Performance, Findings, Financials (S4-02a), Evidence",
+        site.tabLabels.length === 7 &&
+          site.tabLabels.join("|") === "Overview|Foundation|Health|Performance|Findings|Financials|Evidence",
         site.tabLabels.join(" | "),
       ],
       [
@@ -1890,8 +1890,8 @@ for (const [label, width, height] of [
       [
         // D-2026-10-02-rendered-tabs-per-capability (T027 AC23): only the
         // tabs whose capability exists render.
-        "the Site tab row is exactly Overview, Foundation, Performance, Findings, Financials, Evidence",
-        siteTabs.join("|") === "Overview|Foundation|Performance|Findings|Financials|Evidence",
+        "the Site tab row is exactly Overview, Foundation, Health, Performance, Findings, Financials, Evidence",
+        siteTabs.join("|") === "Overview|Foundation|Health|Performance|Findings|Financials|Evidence",
         siteTabs.join(" | "),
       ],
       [
