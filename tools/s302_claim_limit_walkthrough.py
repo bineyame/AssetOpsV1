@@ -353,10 +353,10 @@ class Walk:
 
     def late(self) -> None:
         self.load("runner-state.json")
-        say(f"=== Late battery-charge reading for {FULL_DAY} 08:12, then the S3 worker ===")
+        say(f"=== Late battery-charge reading for {FULL_DAY} 08:12 (recompute left outstanding) ===")
         say("  " + self.py("-c", LATE, self.url, str(self.work), FULL_DAY, tests=True,
                            cwd=self.tree / "backend" / "tests").stdout.strip().splitlines()[-1])
-        say("Reload the full-coverage URL: it now reads 'Out of date · being redone', with no current conclusion.")
+        say("Reload the full-coverage URL: it now reads \"Out of date - being redone\", with no current conclusion.")
 
     def attest(self, port: int) -> None:
         gates = self.load("gates.json")
