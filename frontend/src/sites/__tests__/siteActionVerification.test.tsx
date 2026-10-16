@@ -592,7 +592,8 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
       const status = card.querySelector("[data-product-status]") as HTMLElement;
       if (body.outcome.reasons.includes("GUARDRAIL_FAIL")) {
         // The failed limit is in the default reading, outside the closed disclosure.
-        expect(status.textContent).toContain("600");
+        // 600 seconds read, shown in plain minutes against its limit.
+        expect(status.textContent).toContain("measured 10 min, limit 0 min");
       }
       if (body.outcome.outcome === "INCONCLUSIVE") {
         expect(status.textContent).toMatch(/cannot tell|could not conclude/i);

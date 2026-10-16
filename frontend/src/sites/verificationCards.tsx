@@ -49,12 +49,25 @@ function find(metrics: readonly Metric[], key: string, window = "COMPARISON"): M
 export function failedLimits(metrics: readonly Metric[]): FailedLimit[] {
   return GUARDRAIL_KEYS.map((key) => find(metrics, key))
     .filter((m): m is Metric => m !== null && m.state === "FAIL")
-    .map((m) => ({
-      name: metricName(m.metric_key),
-      value: m.value_text ?? "not known",
-      threshold: m.threshold_text ?? "not recorded",
-      unit: m.unit ?? "",
-    }));
+    .map(plainLimit);
+}
+
+/** A failed limit in plain units: the measured value as read, and the limit in words (the exact text stays in the Outcome table). */
+function plainLimit(m: Metric): FailedLimit {
+  const name = metricName(m.metric_key);
+  const n = seconds(m.value_text);
+  if (m.metric_key === "below_reserve_seconds") {
+    return { name, value: n === null ? "not known" : String(Math.round(n / 60)), threshold: "0", unit: "min" };
+  }
+  if (m.metric_key === "terminal_soc") {
+    const before = seconds(m.threshold_text);
+    return { name, value: m.value_text ?? "not known", threshold: before === null ? "not recorded" : `at least ${m.threshold_text}`, unit: "%" };
+  }
+  if (m.metric_key === "unserved_critical_energy") {
+    const before = seconds(m.threshold_text);
+    return { name, value: m.value_text ?? "not known", threshold: before === null ? "not recorded" : `at most ${m.threshold_text}`, unit: "kWh" };
+  }
+  return { name, value: m.value_text ?? "not known", threshold: m.threshold_text ?? "not recorded", unit: m.unit ?? "" };
 }
 
 /**
