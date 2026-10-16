@@ -17,6 +17,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://127.0.0.1:5447";
 const OUT = process.argv[3] ?? join(tmpdir(), "s701-health-evidence");
@@ -92,20 +93,24 @@ async function waitFor(expression, ms = 30000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(400);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function reload(ready) {
   await send("Page.reload");
   await sleep(300);
   const ok = await waitFor(ready);
+  await requireWidth(viewport[0], viewport[1], "after reload or back");
   await sleep(300);
   return ok;
 }
@@ -116,6 +121,7 @@ async function shot(name) {
   const h = Math.min(Math.ceil(tall), 7000);
   await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: h, deviceScaleFactor: 1, mobile: viewport[0] < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(OUT, `${name}.png`), Buffer.from(r.data, "base64"));
   await size(viewport[0], viewport[1]);
@@ -205,6 +211,7 @@ async function suite(label) {
   claim(`${label} health: the selected gateway survives reload with the same report ID`, Boolean(diag) && diag === diag2, diag2);
   await js("history.back()");
   await waitFor("!document.querySelector('[data-health-selected-diagnostic]') && document.querySelector('[data-health-summary]')");
+  await requireWidth(viewport[0], viewport[1], "after reload or back");
   claim(`${label} health: Back returns to the unselected page`, (await url()) === `/sites/${SITE}/health`, await url());
 
   // battery, by the Health link

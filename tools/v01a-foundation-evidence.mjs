@@ -32,6 +32,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5360";
 const OUT = process.argv[3] ?? join(tmpdir(), "v01a-foundation-evidence");
@@ -104,14 +105,17 @@ async function waitFor(expression, ms = 45000) {
   }
   return false;
 }
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(300);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 let viewport = [1440, 1000];
@@ -123,6 +127,7 @@ async function shot(name) {
   const h = Math.min(Math.ceil(tall), 7000);
   await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: h, deviceScaleFactor: 1, mobile: viewport[0] < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(OUT, `${name}.png`), Buffer.from(r.data, "base64"));
   await size(viewport[0], viewport[1]);
@@ -424,6 +429,7 @@ async function main() {
     // Bound components stay stable across reload; they follow the selected period.
     await send("Page.reload");
     await waitFor(loaded("What each configured part is"));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await sleep(300);
     const reloaded = await js(`({ parts: ${PARTS}, sel: ${SEL}, url: location.pathname + location.search })`);
     claim(`${label}: reload keeps the selected period and every part's bound channels`,
@@ -480,6 +486,7 @@ async function main() {
       panelBox.left >= 0 && panelBox.right <= panelBox.vw + 1, panelBox);
     await send("Page.reload");
     await waitFor(loaded("What each configured part is"));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await sleep(300);
     const afterReload = await js(`document.querySelector('[data-selected-part]')?.getAttribute('data-selected-part')`);
     await go(view("foundation/readiness", CURRENT) + "&component=battery", loaded("Readiness and commissioning evidence"));

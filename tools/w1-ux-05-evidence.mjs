@@ -16,6 +16,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { AS_OF_PATTERN, widthGuard } from "./evidence-checks.mjs";
 
 const OUT = process.argv[2];
 const TARGETS = process.argv.slice(3).map((arg) => {
@@ -96,14 +97,17 @@ async function waitFor(expression, ms = 30000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(500);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function shot(name) {
@@ -113,6 +117,7 @@ async function shot(name) {
   const h = Math.min(Math.ceil(tall), 7000);
   await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: h, deviceScaleFactor: 1, mobile: viewport[0] < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(OUT, `${name}.png`), Buffer.from(r.data, "base64"));
   await size(viewport[0], viewport[1]);
@@ -181,7 +186,7 @@ try {
         continue;
       }
       const shown = (b) => b !== null && b.w > 0 && b.h > 0;
-      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen === false && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && /^As of /.test(m.asOf ?? ""), { label: m.label, asOf: m.asOf });
+      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen === false && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && AS_OF_PATTERN.test(m.asOf ?? ""), { label: m.label, asOf: m.asOf });
       claim(`${id} ${label}: the closed summary is plain text`, m.summary === "How this was worked out", m.summary);
       claim(`${id} ${label}: no sideways scroll from the card (measured ${m.measured} elements)`, m.measured > 0 && m.scrollWidth <= m.clientWidth && m.wide.length === 0, { scrollWidth: m.scrollWidth, clientWidth: m.clientWidth, wide: m.wide });
       claim(`${id} ${label}: the card has a small visual`, m.visual || mockId === "health", m.visual ? m.visual : "none when no gateway is reporting (no zero bars)");

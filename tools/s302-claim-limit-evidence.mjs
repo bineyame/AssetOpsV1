@@ -10,6 +10,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const [BASE, WORK, OUT] = process.argv.slice(2);
 mkdirSync(OUT, { recursive: true });
@@ -44,6 +45,19 @@ await new Promise((r) => ws.addEventListener("open", r));
 let id = 0; const pending = new Map();
 ws.addEventListener("message", (e) => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } });
 const send = (method, params = {}) => new Promise((res, rej) => { const i = ++id; pending.set(i, (m) => m.error ? rej(new Error(method + JSON.stringify(m.error))) : res(m.result)); ws.send(JSON.stringify({ id: i, method, params })); setTimeout(() => rej(new Error("timeout " + method)), 30000); });
+const requireWidth = widthGuard({ send });
+/** W1-UX-06 shared width check: a failure is counted and logged, and nothing is measured at that width. */
+async function widthHolds(width, where) {
+  try {
+    const w = await requireWidth(width, 900, where);
+    console.log(`PASS  ${where}: laid out at ${width}px (innerWidth ${w.innerWidth}, clientWidth ${w.clientWidth})`);
+    return w;
+  } catch (error) {
+    failed++;
+    console.error(`FAIL  ${error.message}`);
+    return null;
+  }
+}
 const ev = async (expression) => (await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true })).result.value;
 async function settle() {
   for (let i = 0; i < 200; i++) {
@@ -82,8 +96,10 @@ for (const [label, path] of links) {
     await send("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: false });
     await send("Page.navigate", { url: BASE + path });
     const ok = await settle();
+    const widthCheck = await widthHolds(width, `${label} @${width}`);
+    if (widthCheck === null) { results[`${label} @${width}`] = { settled: ok, widthCheck: "failed; not measured" }; continue; }
     const m = await ev(MEASURE);
-    results[`${label} @${width}`] = { settled: ok, ...m };
+    results[`${label} @${width}`] = { settled: ok, widthCheck, ...m };
     if (!ok || m.pageScrollsSideways || m.elementsPastViewport > 0) { failed++; console.error(`FAIL layout ${label} @${width}`); }
     if (m.wholeDay) {
       const w = m.wholeDay;
@@ -102,6 +118,7 @@ await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, dev
 const dayOnly = links.find(([l]) => l === "day-only")[1];
 await send("Page.navigate", { url: BASE + dayOnly });
 await settle();
+await widthHolds(1440, "keyboard day-only @1440");
 const target = await ev(`document.querySelectorAll('a[data-assessed-period]')[1]?.getAttribute('data-assessed-period')`);
 let tabs = 0; let focused = null;
 for (; tabs < 80; tabs++) {
@@ -120,9 +137,11 @@ await sleep(1500);
 const record = await ev(`({ search: location.search, recordShown: !!document.querySelector('[data-record-message]'), text: (document.querySelector('[data-record-message]')?.closest('section')?.textContent ?? '').slice(0, 200) })`);
 await send("Page.reload");
 await settle(); await sleep(800);
+await widthHolds(1440, "keyboard after reload @1440");
 const afterReload = await ev(`({ search: location.search, currentness: document.querySelector('[data-claim-limit-state]')?.dataset.currentness, recordShown: !!document.querySelector('[data-record-message]') })`);
 await ev(`history.back()`);
 await settle();
+await widthHolds(1440, "keyboard after back @1440");
 const afterBack = await ev(`({ search: location.search })`);
 results.keyboard = { target, tabs: tabs + 1, focused, afterEnter, firstRecord, record, afterReload, afterBack };
 writeFileSync(join(OUT, "layout.json"), JSON.stringify(results, null, 2));
