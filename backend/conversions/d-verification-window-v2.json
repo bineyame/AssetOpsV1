@@ -65,7 +65,82 @@
   "evaluate_at": "2026-10-16T01:00:00Z",
   "expected": {
     "identifiers": "Run IDs, publication IDs, evidence IDs and message IDs are allocated per replay (random run_id; tenant/Site/gateway UUIDs per import), so none is pinned; counts are.",
-    "pending": "filled from the first replay of the predeclared pair"
+    "published": {
+      "baseline": {
+        "batches": 582,
+        "envelopes": 1036,
+        "publications": 582
+      },
+      "later": {
+        "batches": 582,
+        "envelopes": 1036,
+        "publications": 582
+      }
+    },
+    "window_evidence_ids": 121,
+    "window_publication_ids": 74,
+    "plan": {
+      "baseline_candidate_seconds": 3600
+    },
+    "windows": {
+      "baseline": {
+        "complete": true,
+        "feeder_demand_kwh": "15",
+        "pv_available_kwh": "48",
+        "unserved_critical_kwh": "0",
+        "below_reserve_seconds": 0,
+        "initial_soc": "63.105263",
+        "terminal_soc": "77.355263"
+      },
+      "later": {
+        "complete": true,
+        "feeder_demand_kwh": "15",
+        "pv_available_kwh": "48",
+        "unserved_critical_kwh": "0",
+        "below_reserve_seconds": 0,
+        "initial_soc": "63.105263",
+        "terminal_soc": "77.355263"
+      }
+    },
+    "source": {
+      "per_window_class": "REGISTERED_SIMULATION",
+      "runs_per_window": 1,
+      "distinct_run_digests": true,
+      "pair": "PASS"
+    },
+    "generator_running": {
+      "2026-10-13": [
+        "2026-10-13T04:05:00+00:00",
+        "2026-10-13T07:55:00+00:00"
+      ]
+    },
+    "metrics": {
+      "window_coverage@BASELINE": "PASS",
+      "window_coverage@LATER": "PASS",
+      "feeder_demand_energy_band@COMPARISON": "PASS",
+      "pv_available_energy_band@COMPARISON": "PASS",
+      "initial_soc_band@COMPARISON": "PASS",
+      "source_provenance@COMPARISON": "PASS",
+      "candidate_avoidable_seconds@BASELINE": "PASS",
+      "candidate_avoidable_seconds@LATER": "PASS",
+      "target_reduction@COMPARISON": "PASS",
+      "unserved_critical_energy@COMPARISON": "PASS",
+      "below_reserve_seconds@COMPARISON": "PASS",
+      "terminal_soc@COMPARISON": "PASS"
+    },
+    "candidate_seconds": {
+      "baseline": 3600,
+      "later": 0
+    },
+    "outcome": {
+      "outcome": "VERIFIED",
+      "reasons": [
+        "TARGET_AND_GUARDRAILS_PASS"
+      ],
+      "current_state": "VERIFIED",
+      "resolved_appended": true
+    },
+    "why_verified": "Under the old 30 % reserve the v5 start threshold is min(35, 30+5) = 35 %; the dark first hour draws the battery from 42.5 % to 34.6 % at sunrise, so the generator is requested and the 90 % stop policy keeps it running, unloaded, while PV alone covers every load and charges the battery at its 30 kW PCS limit (Candidate for the whole baseline window, 3600 s). Under the new 25 % reserve the start threshold is 30 %, the same dip never reaches it, and the generator stays stopped (0 Candidate seconds). The generator delivers no energy in either run, so both windows start at the same state of charge (63.105263 %) and end at the same one (77.355263 %): comparable, target met (0 <= 75 % of 3600) and every measured guardrail passes. A simulated policy trial: no causal or savings claim."
   },
   "cases": [
     {
