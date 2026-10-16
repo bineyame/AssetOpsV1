@@ -1,6 +1,6 @@
 # S6-02b — Action verification surfaces
 
-Status: active (activated 2026-10-16 from main `cdb09767`; S6-02a merged); was implementation-ready. USER_REVIEW_REQUIRED: true; hold merge for owner walkthrough. Size M, two phases maximum. Branch `task/S6-02b-verification-ui` stacked on freshly reviewed/merged S6-02a **and** S6-01b; if S6-01b is still unmerged, label the stack and do not merge UI. Coordinator commits plan. Depends on S6-02a persisted fixture/API and S6-01b Action root; Site Work index S6-03 is independent. Contract: `D-2026-10-16-s6-verification` (`.ai/DECISIONS.md:4155`), `.agent/architect-A-S6-verification-answers.md`, S6-01b route/selector/actor rules.
+Status: in_review (built phases 1-2 on `task/S6-02b-verification-ui`; packet `.agent/S6-02b-review-packet.md`; activated 2026-10-16 from main `cdb09767`). USER_REVIEW_REQUIRED: true; hold merge for owner walkthrough. Size M, two phases maximum. Branch `task/S6-02b-verification-ui` stacked on freshly reviewed/merged S6-02a **and** S6-01b; if S6-01b is still unmerged, label the stack and do not merge UI. Coordinator commits plan. Depends on S6-02a persisted fixture/API and S6-01b Action root; Site Work index S6-03 is independent. Contract: `D-2026-10-16-s6-verification` (`.ai/DECISIONS.md:4155`), `.agent/architect-A-S6-verification-answers.md`, S6-01b route/selector/actor rules.
 
 ## Visible result and exact navigation
 
