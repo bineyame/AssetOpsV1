@@ -170,8 +170,11 @@ async function suite(label) {
     "s7-current": "CURRENT", "s7-delayed-old": "CURRENT", "s7-queue-growth": "CURRENT", "s7-clock-offset": "CURRENT",
     "s7-disk-stop": "CURRENT", "s7-disk-recovery": "CURRENT", "s7-stale-cadence": "STALE", "s7-never-received": "UNKNOWN",
   };
+  // Like `attest`: the 30 s-cadence case reads STALE only 60 s after its only receipt (S7-01a review L4).
+  const waited = (Date.now() - Date.parse(IDS.published_at)) / 1000;
+  if (waited < 60) delete want["s7-stale-cadence"];
   const got = Object.fromEntries(Object.keys(want).map((k) => [k, r[k]?.contact]));
-  claim(`${label} health: each case's contact after deliver (stale-cadence STALE, never-received UNKNOWN)`,
+  claim(`${label} health: each case's contact after deliver (stale-cadence STALE ${waited < 60 ? "not asserted before 60 s" : "asserted"}, never-received UNKNOWN)`,
     Object.entries(want).every(([k, v]) => got[k] === v), got);
   claim(`${label} health: disabled import gateway listed with Disabled`,
     r["edge-kobo-001"]?.reg === "DISABLED" && /Disabled/.test(r["edge-kobo-001"]?.text ?? ""), r["edge-kobo-001"]);
