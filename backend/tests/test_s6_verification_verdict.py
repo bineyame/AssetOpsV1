@@ -111,6 +111,10 @@ def test_source_pair_is_per_window_and_fails_closed() -> None:
     assert crossed["state"] == "UNKNOWN" and "crossed" in crossed["problems"][0]
     other = {**AUTHORED, "fixtures": [{"fixture_id": "D-other", "fixture_version": 1}]}
     assert vr.source_pair(AUTHORED, other)["state"] == "UNKNOWN"
+    # A MIXED or UNKNOWN set never passes, even shaped like two distinct single runs.
+    for state in ("MIXED", "UNKNOWN"):
+        assert vr.source_pair({**registered("a" * 64), "state": state},
+                              {**registered("b" * 64), "state": state})["state"] == "UNKNOWN"
     for bad in ({"state": "MIXED", "reasons": ["CROSSED"]}, {"state": "UNKNOWN"}, None):
         assert vr.source_pair(AUTHORED, bad)["state"] == "UNKNOWN"
     b, lt = pair()
