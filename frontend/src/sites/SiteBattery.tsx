@@ -112,10 +112,16 @@ export function SiteBatteryEntry({ siteId, client }: { siteId: string; client: H
   );
 }
 
-function BasisDetails({ entry }: { entry: { basis: BatteryDetail["basis"]; read_at: string; rule_id: string } }) {
+function BasisDetails({
+  entry,
+  summary = "Technical details",
+}: {
+  entry: { basis: BatteryDetail["basis"]; read_at: string; rule_id: string };
+  summary?: string;
+}) {
   const b = entry.basis;
   return (
-    <Disclosure name="site-battery-technical" summary="Technical details">
+    <Disclosure name="site-battery-technical" summary={summary}>
       <FactList>
         <Fact term="Foundation revision">
           <span data-battery-foundation={b.foundation_revision_id}>
@@ -323,7 +329,7 @@ export function SiteBattery({
           </DataTable>
         ) : null}
       </Disclosure>
-      <BasisDetails entry={d} />
+      <BasisDetails entry={d} summary="Configuration details" />
     </div>
   );
 }
