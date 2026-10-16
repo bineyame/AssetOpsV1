@@ -5748,3 +5748,14 @@ Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01
 - Migrated and opted into W1: Overview objective (`SiteWindowOverview.tsx` `Objective`), Evidence conclusion (`LedgerSiteEvidence.tsx` `OverviewBody`), Action state (`SiteAction.tsx` `ActionStateCard`).
 - Capture: `tools/w1-ux-01-evidence.mjs <out> <mock-id>[:<case>]=<url>`.
 - Open: the other 23 W1 routes remain on the T028 scan until UX-02..05; domain word maps still duplicate cross-screen states; the Evidence read has no read instant (as of = latest delivery received); the Action summary has no source class; registry Low D (`I-W1-UX-01` requires) untouched.
+
+## W1-UX-02 - Site, Finding and money presentation (built, in_review)
+
+Branch `task/W1-UX-02` (base main `a8cbb3d1`, code `bc1cea1b`, unmerged); packet `.agent/W1-UX-02-review-packet.md`; handoff `.agent/W1-UX-02-handoff.md`. Frontend only.
+
+- Migrated to the W1-UX-01 layer and opted into the W1 set: `sites` (`SitesIndex.tsx` `SitesAnswer`), `mini` freshness/money/timeline/Finding list (`SiteWindowOverview.tsx`, `OverviewFindingList.tsx`), `sitefindings` (`SiteFindingIndex.tsx`), `finding`/`finding-evidence`/`finding-history` (`SiteFinding.tsx`, `SiteFindingEvidence.tsx`, `SiteFindingHistory.tsx`), `financials` (`FindingConsequence.tsx`), `assumptions` (`SiteFinancials.tsx`, `ConsequenceHistory.tsx`).
+- Word maps: `findingCurrentnessWords` (`findingWords.ts`), `consequenceWords` (`FindingConsequence.tsx`), `MONEY_STATE_WORDS` on `moneyWords`; `FRESHNESS_WORDS`, `CURRENTNESS_WORDS`, `STATE_HEADLINE` removed. `FindingRefusalCard` (`findingPresentation.tsx`).
+- `LINK_WORDS` stays equal to backend `BROKEN_WORDS`; `LINK_DISPLAY_OVERRIDES` rewords two "fingerprint" codes on screen.
+- Money: a `ValueBars` amount only for a PRICED+CURRENT bridge with both bounds; every other state draws a not-known mark and gives a "why no current amount" line. The S4-08 history is recorded-only.
+- Evidence: `tools/w1-ux-02-evidence.mjs`; all eight screens captured at 1440/390 (packet).
+- Open: untimed reads say "As of: time not recorded"; `LINK_DISPLAY_OVERRIDES` awaits a backend rewording; there is no Financials Analysis tab; `FindingDetail.tsx` (legacy route) is not migrated; `s502-overview-finding-list-evidence.mjs:148` is stale.
