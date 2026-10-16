@@ -1,10 +1,30 @@
 # S6-03 — Site Work Action list
 
-Status: outline (S incremental closeout); refine after S6-01 review
-USER_REVIEW_REQUIRED: true
-Depends on: S6-01 reviewed Finding-linked Action and `A-action-index` Site list contract
-Branch when activated: task/S6-03-site-work-list
+Status: implementation-ready. USER_REVIEW_REQUIRED: true; independent review and owner walkthrough before merge. Size S, two phases. Branch `task/S6-03-site-work-list` from merged main. Depends on merged S6-01; S6-02 is queue order only. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-a-action-index`, `D-2026-10-09-pre-s3-claim-routes-and-actor`; registry `I-S6-03`, `I-site-action-index-read`, `I-sitework-ui`, `sitework:1#a`. Mock `frontend/mockups/v69/index.html` / `screen-manifest.json` `sitework` guides layout and navigation; its rows are illustrative.
 
-## Visible outcome and acceptance
+## Outcome and verified seams
 
-`sitework:1` lists Site-scoped Actions with stable Action/Event IDs and detail links. `I-site-action-index-read` returns persisted rows or a watermarked zero-row result; `I-sitework-ui` preserves Site/window selection and opens stable Action detail. Review positive and empty states after reload, exact ActionEvent and FindingRevision linkage, keyboard behavior and app/mock desktop/narrow comparison. The list does not imply a verified outcome. Independent review and owner checkpoint close this packet.
+Site Work Actions shows persisted rows for one authenticated tenant/Site and half-open UTC creation window `[from,to)` of at most 31 days, or an independently assessed, watermarked zero. No Incidents, Maintenance, global Work, priority, owner, due date or verification verdict. Existing `action` and `action_event` tables: `backend/migrations/versions/0016_action_store.py:46,123,169`; Site-scoped store and Finding helper: `backend/assetops_backend/actions/adapters/postgres_action_store.py:43-48,177-200`; exact detail/event selection and links: `backend/assetops_backend/actions/service.py:507-581`; Action route and UI: `frontend/src/shell/operatorSiteRoutes.ts:230-244`, `frontend/src/sites/SiteAction.tsx:80`. **New:** Site/window Action index store/service/API/client and Site Work route/list; `actions_for_finding` is only Finding-scoped. S4-04's `backend/assetops_backend/finding_index_api.py:3,40` is the scoped index precedent, not an Action producer.
+
+## Read and UI contract
+
+- One consistent DB snapshot selects `created_at >= from AND created_at < to` and latest event by `(recorded_at,id)`, never `occurred_at`. Return row key `(tenant_id,site_id,action_id)`, code, creation time, origin Finding and FindingRevision IDs, selected event ID/recorded time, reduced lifecycle, canonical and exact-event Action links. Order `created_at DESC, action_id ASC`; bounded page and opaque cursor bind tenant, Site, window, selection fence and last sort key.
+- Echo scope/display timezone, `read_at`, max included creation/event-recorded fence or explicit zero-row fence, total and next cursor. `CURRENT` only after successful scoped read. Zero means no persisted Actions created in this Site/window. A changed fence invalidates page 2 and requires reload from page 1. Preserve historical Action detail separately.
+- 401 unauthenticated, 403 known forbidden, 404 foreign/nonexistent Site or root. Invalid/unbounded window, changed cursor, unavailable store or inconsistent snapshot is typed refusal, never empty success. UI keeps Site/window in URL, shows count/page basis, exact FindingRevision and ActionEvent links, Unknown/error distinctly, native keyboard navigation and no invented verification result.
+
+## Phases and proof
+
+| Phase | Deliverable and focused checks |
+| --- | --- |
+| 1. Read and fixture | **New** bounded index query/API and persisted `D-action-records` fixture: two Actions at distinct creation times, later event with backdated `occurred_at`, exact origin/event IDs, same-fence paging, wrong Site, changed-fence cursor, independently assessed zero window. Add `backend/tests/test_s6_site_action_index_postgres.py` (new) with API refusals; assert reload and exact detail parity. New SQL writer/DDL, if any, must satisfy statement-level rule 8; run `python tools/writer_guard_probes.py`. No migration expected: main ends at `0018_finding_match_deferral`; if needed, re-chain after S6-02a's unmerged `0019_verification_core` at merge. |
+| 2. UI and review | **New** Site Work route/client/list and `frontend/src/sites/__tests__/siteWorkActions.test.tsx` (new): positive/zero/unknown/refusal, page invalidation, Site/window reload, exact links, keyboard, 1440/390. Run `npx.cmd tsc --noEmit` and `npm.cmd test` from `frontend/`, registry checker and `tools/check-all.ps1`. One final-revision full backend suite for this backend slice per `backend/TESTING.md:104,112-125`: private `*_test` DB, `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=.pytest-junit.xml`, keep-awake, 20-minute cap, JUnit zero skipped/failed. Independent review precedes owner walkthrough and merge. |
+
+## Reproducible owner walkthrough
+
+**New** `tools/s603_site_work_walkthrough.py` offers `prepare|serve|attest|drop`, accepts only private DB prefix `assetops_s603_owner*` and work prefix `var/s603_owner*`, and prints exact API/web start commands on reserved ports 8943/5443. `prepare` persists positive and assessed-zero windows via normal Action creation/event path. `serve` verifies the current app entry/env and prints the server commands. Open the printed positive and zero Site Work URLs for KOBO-001; record IDs, watermark, count, exact detail/event links after reload, changed-page refusal and 1440/390 app versus `index.html#/sitework`. Stop servers, then `drop` private fixture. User-facing copy/visual polish belongs to W1 conclusion.
+
+From repo root run `python tools/s603_site_work_walkthrough.py --db assetops_s603_owner1 --work var/s603_owner1 prepare`, then the same command ending `serve`; in a second PowerShell at `frontend/`, run `$env:ASSETOPS_API_PORT="8943"; npm.cmd run dev -- --port 5443 --strictPort`. The wrapper runs `python -m uvicorn lab_app:app --host 127.0.0.1 --port 8943` from the prepared host with private DB env, and prints exact `http://127.0.0.1:5443/sites/KOBO-001/work?from=<persisted-from>&to=<persisted-to>` positive/zero URLs. After capture run `python tools/s603_site_work_walkthrough.py --db assetops_s603_owner1 --work var/s603_owner1 attest`, stop servers, then `drop`. The fixture supplies dates from persisted creation times, not synthetic creation timestamps.
+
+## Architect questions
+
+1. **Recommendation:** encode the cursor fence from all scoped Actions/events, including off-page rows, so any later event invalidates following pages as ruled. Exact token serialization may be chosen in implementation.
