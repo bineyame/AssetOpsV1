@@ -1,40 +1,11 @@
-﻿# S6-02 — Later-window verification
+# S6-02 — Later-window verification
 
-Status: outline; refine after preceding task review, before activation
-USER_REVIEW_REQUIRED: true
-Milestone: S6 Work / Action / Verification
-Depends on: S6-01
-Branch: task/S6-02-verification
-Planner: Codex, 2026-10-07
+Status: implementation-ready as [S6-02a](S6-02a-verification-core.md) then [S6-02b](S6-02b-verification-ui.md). Planner: Codex, 2026-10-16.
 
-## Visible outcome
+S6-02a is non-UI (`USER_REVIEW_REQUIRED: false`) and mergeable after fresh independent review. S6-02b is UI (`USER_REVIEW_REQUIRED: true`) and held for the owner's served walkthrough. The contract is `D-2026-10-16-s6-verification` (`.ai/DECISIONS.md:4155`), `.agent/architect-A-S6-verification-answers.md` and review/re-review carries. Applied activity and measured effect remain separate. No causal or realized-savings claim.
 
-Site verification shows target, service/reserve guardrails and Verified, Ineffective or Inconclusive outcome.
+Registry ownership: S6-02a owns `D-verification-window`, `I-sim-verification-cases`, `I-verification-plan-read`, `I-verification-read`, `I-action-evidence-read`; its graph path depends on S6-01a, not the S6-01 umbrella or S6-01b owner gate. S6-02b owns the corresponding three UI nodes and closes `I-S6-02`, which requires S6-02b and retains its S6-01 umbrella dependency. The queue baseline includes both slice nodes. S6-03 Site Work index stays independent.
 
-## Persisted object and read contract
+**Architect rulings:** `D-2026-10-16-s602-questions` fixes version-1 10% feeder-demand/PV-available energy and 2-point initial-SOC comparability bands; UTC-aligned half-open five-minute interval integration with sampled SOC/reserve; plan replacement cutoff at first later report acceptance or later run start; interim labels **Trial missed a safety or service limit**, **Target not met**, **Could not conclude**; and latest-current default with explicit historical selector. The child packets carry the exact calculations, fail-closed cases and UI assertions.
 
-Immutable VerificationPlanRevision/Outcome and later-window analytic comparison read API.
-
-## Demo acceptance
-
-Planner names `I-sim-verification-cases`: use a baseline Lab run under the old effective Foundation and a separate later run under the S6-01 persisted policy revision. Produce a later public window with a target outcome, a guardrail failure and an inconclusive-evidence variant. Commit reports through the S2 gateway/ingestion path before evaluation. No policy change partway through one run is required; keep the fixed plan revision, applied-change event and both runs' public observations separately traceable.
-
-Evaluate later committed evidence against frozen baseline and plan; fail a guardrail; reopen both windows and later recurrence.
-
-## Missing/conflicting evidence
-
-Missing baseline, weak coverage or conflicting later evidence yields Inconclusive.
-
-## Evidence lineage
-
-Outcome resolves plan, baseline/later assessments and accepted SourceEnvelope IDs.
-
-## Review and refinement
-
-S6-02 owns `I-sim-verification-cases`, `D-verification-window`, `I-verification-plan-read/ui`, `I-verification-read/ui` and `I-action-evidence-read/ui`. These gate `verification:1-3`, effect `changes:1#b` (later-window effect of the applied change) and `changes:2`, `recommendation:2-3`, `action-plan:1` and `action-evidence:1`. The moved child views select the frozen `plan_revision_id`, predeclared target/guardrails and required evidence, accepted later-window IDs and explicit missing/inconclusive states. Compare exact Action child-view app/mock desktop and narrow behavior; no panel is delivered until its read and fixture paths are reviewed.
-
-Reviewer opens the selected-window surface and read API, verifies storage/reload and the state above, and follows lineage. Apply shared gates in the current task queue. Before implementation, refine exact fixture, wire/API fields, migration seam and focused checks using the reviewed predecessor and accepted architecture/technical design. This outline is not permission to change those contracts.
-
-## Defer
-
-Global Actions index and causal claims stronger than the comparison supports.
+**Plan fix round 1 (2026-10-16):** Applied Architect rulings and plan-review dependency correction; the core remains implementation-ready after S6-01a and the UI remains held for served owner review.
