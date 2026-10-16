@@ -53,7 +53,6 @@ USER_REVIEW_REQUIRED: true - merge and `sitefindings:1#a/#b` promotion held for 
 ## Checks run (final code revision `38c61cfd`)
 
 - `npx.cmd tsc --noEmit`: clean. `npm.cmd run build`: built.
-- `npm.cmd test` (full frontend): see "Suites" below.
 - `tools/check-architecture.ps1`: passed. Registry checker `node frontend/docs/architecture/check_v69_dependency_registry.cjs`:
   exit 0, "Registry valid: 228 nodes, 11 linked pilot panels".
 - Focused backend: `test_s4_finding_index_postgres.py` 10 passed (58.8 s).
@@ -65,7 +64,14 @@ USER_REVIEW_REQUIRED: true - merge and `sitefindings:1#a/#b` promotion held for 
 
 ## Suites
 
-SUITES_PLACEHOLDER
+- Full backend, real Postgres, revision `38c61cfd`, from PowerShell with keep-awake running:
+  `.venv\Scripts\python.exe -m pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --durations=30 --junitxml=.pytest-junit.xml`,
+  base `ASSETOPS_TEST_DATABASE_URL=.../assetops_s404p1_test`, `var/sites/*.yaml` copied in temporarily.
+  Result: 2382 passed in 981 s (wall 983 s, inside the 20-minute cap). JUnit: tests 2382, failures 0, errors 0,
+  skipped 0.
+- Full frontend `npm.cmd test` at `86a5cb8a`: 64 files, 1528 passed. (An earlier full run under load had one
+  timing failure in the new date-change test; the test now waits for the address change - fixed in `5ccedc70`.)
+- `tools/check-all.ps1` (temporary `.venv` junction): all 9 guards passed.
 
 ## Known deviations
 
