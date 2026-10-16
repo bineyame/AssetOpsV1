@@ -24,6 +24,8 @@ from assetops_backend.runs.profiles import (
     MINI_GRID_MODEL,
     MINI_GRID_V2_MODEL,
     MINI_GRID_V3_MODEL,
+    MINI_GRID_V4_MODEL,
+    MINI_GRID_V5_MODEL,
     LAB_PUBLICATION_PROFILE,
     LAB_PUBLICATION_PROFILE_V4,
     LAB_PUBLICATION_PROFILE_V5,
@@ -129,6 +131,8 @@ def kobo_draft(
         MINI_GRID_MODEL,
         MINI_GRID_V2_MODEL,
         MINI_GRID_V3_MODEL,
+    MINI_GRID_V4_MODEL,
+    MINI_GRID_V5_MODEL,
     )
     profile = next(
         p
