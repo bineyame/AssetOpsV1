@@ -3322,6 +3322,61 @@ tr[data-selected] > * {
   margin: 0 0 var(--space-3);
 }
 
+/* S3-02b: the selected assessment's claim limit on Evidence Analysis. */
+.claim-limit__day {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.claim-limit__periods-label {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.claim-limit__periods,
+.claim-limit__records {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.claim-limit__records {
+  overflow-wrap: anywhere;
+}
+
+.claim-limit__periods a[aria-current="true"] {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.claim-limit__status {
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.claim-limit__when {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.claim-limit__headline {
+  font-weight: 600;
+}
+
+.claim-limit__subheading {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.claim-limit__note {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
 .evidence-records__quality {
   color: var(--text-secondary);
 }

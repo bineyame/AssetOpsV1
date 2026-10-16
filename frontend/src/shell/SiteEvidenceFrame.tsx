@@ -8,7 +8,7 @@ import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import { useSiteRecord } from "../sites/useSiteRecord";
 import { Breadcrumbs, PageHeader, Panel } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { siteDetailHref } from "./operatorSiteRoutes";
+import { siteDetailHref, sitePerformanceHref } from "./operatorSiteRoutes";
 
 /** The heading id the Evidence landmark is labelled by. */
 export const SITE_EVIDENCE_HEADING_ID = "site-evidence-heading";
@@ -112,6 +112,9 @@ export function SiteEvidenceFrame({
         client={evidence}
         analytics={analytics}
         profile={presentationProfileFor(site.site_type)}
+        assessmentHref={(day, revisionId) =>
+          `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}&revision=${encodeURIComponent(revisionId)}`
+        }
       />
     </main>
   );
