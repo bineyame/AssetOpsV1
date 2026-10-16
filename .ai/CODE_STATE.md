@@ -5639,3 +5639,13 @@ Branch `task/S4-05b-producers-reads-walkthrough` (unmerged; owner W1 copy checkp
 - S5-01 packet amended (shared contract item 5).
 - Open: owner copy approval; `ATTESTED_REAL_SOURCE` class (separate task); `MoneyInputs.provenance_resolved`
   default True for unit tests; per-row provenance queries in consequence history; Action fixture size.
+## S5-02 - Finding list in Site Overview (built, slice review pending)
+
+Branch `task/S5-02-overview-finding-list` (base main `5c1d9d42`, unmerged); packet `.agent/S5-02-review-packet.md`; owner steps `.agent/S5-02-owner-walkthrough.md`. No backend change.
+
+- UI: `sites/OverviewFindingList.tsx` reads the S4-04 index for the Overview's served `window.start/end` (domain `mini-grid-dispatch`, `OVERVIEW_FINDING_PREVIEW_LIMIT = 2`, first page), drops older answers, renders `current-empty` / non-current status / refusal / `current-rows` (`data-overview-finding-list`), full-list link with the identical window.
+- Parity: `compareParity` implements `D-2026-10-16-s502-parity` (index CURRENT+is_current with a row; card `DISCOVERED`, source open, not audit; both episodes intersect the day; Site, window, day selection seq, run, assessment record, model, input/config hashes, match pass and matched-through all present and equal; day matched) -> `same` / `different` / `not-compared` with both bases and "Reload both". Rows are never hidden.
+- Composition: `shell/SiteDetailFrame.tsx` injects `findingIndex` (default client; `App` `siteFindingIndex`) and `windowLinks.findingList`; `SiteWindowOverview` shows the list only when both are supplied, else the old placeholder. `SiteOverview` has a reload counter. `SiteFindingIndex.tsx` exports `STATUS_WORDS` and `Basis`.
+- Tests: `shell/__tests__/s502OverviewFindingList.test.tsx`; S5 summary builders in `shell/__tests__/s5WindowFixtures.ts`.
+- Walkthrough: `tools/s502_overview_finding_list_walkthrough.py` wraps the S4-04 tool (default DB `assetops_s404_owner_s502`, `var/s404_owner_s502`, API 8952, web 5452, TLS 8953, HTTP 8954), runs the S2 Evidence comparison after `prepare` and checks every day reads `site-window-summary-1`; browser claims `tools/s502-overview-finding-list-evidence.mjs <base> <initial|late|settled|closed> <out> <s502-manifest> <s404-manifest>`.
+- Open: backend still emits `finding_list: UNAVAILABLE` (validator requires it); owner record before merge and `mini:3#a/b` promotion; copy ("window" wording, status sentences) for the W1-conclusion task.

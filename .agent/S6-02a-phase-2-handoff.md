@@ -1,0 +1,40 @@
+# S6-02a phase 2 handoff (verification core: evaluator, holds, reads, replay)
+
+Branch `task/S6-02a-verification-core` (worktree `AssetOpsV1-review4`), on top of the phase-2 brief `ffcfa1cf`:
+`3a564e27` review fixes F1-F8 + evaluator core, `02153973` evaluator Postgres/API tests + verdict tests + API fixture,
+`f4eaf141` demo grants include VERIFY, `d4a99292` source-pair mutation survivor pinned, `1b1f82b1` replay manifest +
+Lab replay test, `f88f3c8c` closeout docs. Not merged. Phase 2 is the last phase; next is the fresh slice review.
+
+## Anchors
+
+- Pure verdict: `actions/verification_rules.py` `decide`, `source_pair` (end of file); F6 filter and F7 `_iso` in
+  `window_evidence` / `_iso`.
+- Service: `actions/verification.py` `VerificationPorts`, `_day_states`, `freeze` (F1 `changed_from`, F2 baseline
+  CURRENT), `bind_later_selection` (F2/F4), `_assess`, `evaluate` (`compose` decides writes under the lock),
+  `current_state`, `outcome`, `history`, `summary`.
+- Store (ninth writer): `postgres_action_store.py` `acceptance_fence` (F3, shared with S2 `_coalesce_job`),
+  `record_evaluation`, `_insert_evaluator_event`, `late_evidence`, `outcomes`, `covering_ids`, `window_bindings`,
+  `is_superseded`; binding idempotency in `append_selection_binding`; migration 0019 binding columns.
+- Holds: `actions/service.py` `is_unresolved`, `guardrail_closed`, `reassessment_overlaps`, `trial_refusal`,
+  `prior_action_refusal`; `lifecycle.latest_resolution`.
+- Composition `actions/composition.py` `verification_ports`; routes in `action_api.py` (evaluations, outcome,
+  history; `verification` on Action/Change/Recommendation reads).
+- Tests: `test_s6_verification_verdict.py` (10), `test_s6_verification_evaluator_postgres.py` (11),
+  `test_s6_verification_plan_postgres.py` (5, updated for F2/F5), `host/tests/test_s6_verification_replay.py` (2).
+- Fixtures: `backend/tests/fixtures/s6_verification_api_contract.json` (write with
+  `ASSETOPS_WRITE_S6_VERIFICATION_CONTRACT=1`), `s6_action_api_contract.json` (regenerated, additive only),
+  `backend/conversions/d-verification-window-v1.json`.
+
+## Open risks
+
+- No VERIFIED Lab replay: the shipped mini-grid generator starts/stops on SOC thresholds and ignores the reserve, so
+  lowering the reserve lengthens generator time and breaks initial-SOC comparability; the replay is complete and
+  source-coherent but settles INCONCLUSIVE. Needs an Architect decision (model/profile change or accept).
+- Verdict/hold Postgres cases use TEST-SCOPED complete windows and an authored source fake over the roles-2 Site.
+- Registered scenario/profile lineage is not centrally observable; the pair check uses class, fixtures or distinct
+  run digests only.
+- Evaluator reads evidence before taking the lock; evidence accepted in that gap with an earlier `decided_at` is not
+  flagged late. Freeze fence: an acceptance waiting on the fence may carry a `decided_at` before the plan's
+  `recorded_at`.
+- Change read keeps apply-time `outcome: PENDING` beside the live `verification` block.
+- `.venv` in this worktree is a junction to the main checkout's venv (check-all needs it).

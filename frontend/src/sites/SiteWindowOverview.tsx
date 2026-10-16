@@ -25,6 +25,8 @@ import { clock, isDay, limitationCode, limitationWords, roleWords, shiftDay, sta
 import { portionWords } from "./findingWords";
 import { OUTCOME_WORDS } from "./findingPresentation";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
+import type { FindingIndexClient, FindingIndexScope } from "./findingIndexClient";
+import { OverviewFindingList } from "./OverviewFindingList";
 
 export interface WindowOverviewLinks {
   /** Performance > Dispatch for one UTC day, optionally opening one exact assessment revision. */
@@ -37,6 +39,8 @@ export interface WindowOverviewLinks {
   assumption: (revisionId: string) => string;
   /** Site > Evidence inspector for one accepted record. */
   evidenceRecord: (evidenceId: string) => string;
+  /** S5-02: the full Site Findings page for one index scope (the same window, domain and page). */
+  findingList?: (scope: FindingIndexScope) => string;
 }
 
 export interface SiteWindowOverviewProps {
@@ -44,6 +48,10 @@ export interface SiteWindowOverviewProps {
   links: WindowOverviewLinks;
   /** Select another UTC day (the parent writes it to the address, dropping any Finding pin). */
   onSelectDay: (day: string) => void;
+  /** S5-02: the Site Finding index read, handed in by the shell; without it the list stays unavailable. */
+  findingIndex?: FindingIndexClient;
+  /** S5-02: read the Overview again (the list's reload affordance). */
+  onReload?: () => void;
 }
 
 /** Freshness of the whole day, by the server's state name. `UNASSESSED` reads Unknown, never success. */
@@ -571,7 +579,18 @@ const PIN_WORDS: Record<string, string> = {
   NEWER_REVISION_OF_THE_SAME_FINDING: "A newer version of the Finding in the address is shown.",
 };
 
-function KnownFinding({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
+function KnownFinding({
+  summary,
+  links,
+  findingIndex,
+  onReload,
+}: {
+  summary: SiteWindowSummary;
+  links: WindowOverviewLinks;
+  findingIndex?: FindingIndexClient;
+  onReload?: () => void;
+}) {
+  const findingList = links.findingList;
   const k = summary.known_finding;
   const pin = summary.previous_pin ?? k?.previous_pin ?? null;
   return (
@@ -609,12 +628,21 @@ function KnownFinding({ summary, links }: { summary: SiteWindowSummary; links: W
       {pin ? (
         <p data-previous-pin={pin.reason}>{PIN_WORDS[pin.reason] ?? "The Finding in the address is not the one shown."}</p>
       ) : null}
-      <p data-finding-list={summary.finding_list.state}>{summary.finding_list.reason}</p>
+      {findingIndex && findingList ? (
+        <OverviewFindingList
+          summary={summary}
+          client={findingIndex}
+          links={{ finding: links.finding, findingList }}
+          onReload={onReload ?? (() => undefined)}
+        />
+      ) : (
+        <p data-finding-list={summary.finding_list.state}>{summary.finding_list.reason}</p>
+      )}
     </Panel>
   );
 }
 
-export function SiteWindowOverview({ summary, links, onSelectDay }: SiteWindowOverviewProps) {
+export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, onReload }: SiteWindowOverviewProps) {
   return (
     <div className="site-window-overview" data-overview-state="window" data-window-site={summary.site_code}>
       <DaySelector summary={summary} onSelectDay={onSelectDay} />
@@ -622,7 +650,7 @@ export function SiteWindowOverview({ summary, links, onSelectDay }: SiteWindowOv
         <FreshnessStrip summary={summary} />
         <Objective summary={summary} links={links} />
         <Money summary={summary} links={links} />
-        <KnownFinding summary={summary} links={links} />
+        <KnownFinding summary={summary} links={links} findingIndex={findingIndex} onReload={onReload} />
       </div>
       <Timeline summary={summary} links={links} />
       <Context summary={summary} links={links} />
