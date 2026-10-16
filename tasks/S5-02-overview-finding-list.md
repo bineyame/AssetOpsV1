@@ -1,6 +1,6 @@
 # S5-02 — Finding list in Site Overview
 
-Status: implementation-ready
+Status: active (activated 2026-10-16 from main `5c1d9d42`; plan review ACCEPT `.agent/S5-02-plan-review.md`; Architect `D-2026-10-16-s502-parity`); was implementation-ready
 USER_REVIEW_REQUIRED: true — independent slice review, then owner visual walkthrough before merge or `mini:3#a/b` promotion.
 Size: S; one build phase plus one review.
 Branch: `task/S5-02-overview-finding-list` from current main (this refinement: `plan/S5-02-refine`).
