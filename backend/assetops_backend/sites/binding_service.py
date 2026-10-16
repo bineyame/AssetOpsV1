@@ -771,7 +771,7 @@ def readiness(
         "channels": channels,
         "statement": READINESS_STATEMENT
         if binding_set is not None
-        else "No signal binding set is in effect for the period shown, so every role is unbound "
+        else "No channel-link set is in effect for the period shown, so every role is unbound "
         "and readiness is Unknown. Operational status is not assessed here.",
     }
 
@@ -934,7 +934,7 @@ def acquisition_snapshot(
     if binding_set is None:
         return SnapshotUnavailable(
             "ACQUISITION_SNAPSHOT_UNAVAILABLE",
-            "No signal binding set is in effect for the period shown, so no gateway snapshot exists.",
+            "No channel-link set is in effect for the period shown, so no gateway snapshot exists.",
             409,
         )
     foundation = next((r for r in revisions if r.id == binding_set.foundation_revision_id), None)

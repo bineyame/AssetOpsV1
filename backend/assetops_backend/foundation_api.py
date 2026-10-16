@@ -338,8 +338,8 @@ def _bindings(view: FoundationView) -> dict[str, Any]:
             "mappings": [],
             "legacy_signal_mapping_count": legacy_count,
             "statement": (
-                "No signal binding set is in effect for the period shown. Every channel is "
-                "unbound; the imported signal mappings are kept for comparison only."
+                "No channel-link set is in effect for the period shown. Every channel is "
+                "unbound; the imported signal links are kept for comparison only."
             ),
         }
     assets = {a.id: a for a in regs.assets}

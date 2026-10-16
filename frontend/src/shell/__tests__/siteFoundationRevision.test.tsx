@@ -69,7 +69,7 @@ const UNKNOWN_READINESS: ConfigurationReadiness = {
   missing_roles: ["Generator power"],
   foundation_gaps: [],
   channels: [],
-  statement: "No signal binding set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.",
+  statement: "No channel-link set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.",
 };
 
 function foundation(
@@ -116,13 +116,13 @@ function foundation(
       binding_set: null,
       mappings: [],
       legacy_signal_mapping_count: 9,
-      statement: "No signal binding set is in effect for the period shown.",
+      statement: "No channel-link set is in effect for the period shown. Every channel is unbound; the imported signal links are kept for comparison only.",
     },
     readiness: UNKNOWN_READINESS,
     acquisition_snapshot: {
       available: false,
       code: "ACQUISITION_SNAPSHOT_UNAVAILABLE",
-      reason: "No signal binding set is in effect for the period shown.",
+      reason: "No channel-link set is in effect for the period shown, so no gateway snapshot exists.",
     },
     evidence: { statement: "Operational status (contact, credentials, data received, accepted evidence) is not assessed here." },
     configuration_gaps: [],
@@ -326,6 +326,12 @@ describe("the persisted Foundation version", () => {
     expect(
       screen.getByText("No channel-link set is in effect for the period shown. Every channel is unbound; the imported signal links are kept for comparison only."),
     ).toBeInTheDocument();
+    // W1-UX-06: the server's own no-set sentences are shown as sent (no screen-side override).
+    expect(screen.getByText("No channel-link set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.")).toBeInTheDocument();
+    expect(document.querySelector("[data-snapshot-available='false']")?.textContent).toBe(
+      "Gateway snapshot: not available. No channel-link set is in effect for the period shown, so no gateway snapshot exists.",
+    );
+    expect(document.body.textContent).not.toMatch(/signal binding set/i);
     expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
     expect(screen.getByText(/registered\. Registration is configuration; central contact is under Gateway status/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/awaiting credentials|not sending data|no accepted evidence|no evidence has been accepted|nothing is reporting|accepted against/i);

@@ -91,6 +91,19 @@ class TestBeforeConversion:
         refused = client.get("/api/sites/KOBO-001/foundation/snapshot")
         assert refused.status_code == 409
         assert refused.json()["detail"]["code"] == "ACQUISITION_SNAPSHOT_UNAVAILABLE"
+        # W1-UX-06: the three no-set sentences in plain words, exactly; the screen shows them as sent.
+        assert body["bindings"]["statement"] == (
+            "No channel-link set is in effect for the period shown. Every channel is unbound; "
+            "the imported signal links are kept for comparison only."
+        )
+        assert body["readiness"]["statement"] == (
+            "No channel-link set is in effect for the period shown, so every role is unbound "
+            "and readiness is Unknown. Operational status is not assessed here."
+        )
+        assert body["acquisition_snapshot"]["reason"] == (
+            "No channel-link set is in effect for the period shown, so no gateway snapshot exists."
+        )
+        assert "signal binding set" not in json.dumps(body)
         text = json.dumps(body["readiness"]).lower()
         assert "healthy" not in text.replace("not mean any device is connected, reporting or healthy", "")
 

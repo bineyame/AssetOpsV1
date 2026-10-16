@@ -87,19 +87,6 @@ const ROLE_STATUS_WORD: Record<ReadinessRole["status"], string> = {
   NOT_CONFIGURED: "Not configured",
 };
 
-/*
- * W1-UX-05: the server's fixed statements for "no channel-link set in effect"
- * use implementation words. They are constants keyed on that one condition,
- * so the screen says the same thing in product words; every other statement
- * the server sends is shown as sent.
- */
-export const NO_CHANNEL_LINKS_READINESS =
-  "No channel-link set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.";
-export const NO_CHANNEL_LINKS_SNAPSHOT =
-  "No channel-link set is in effect for the period shown, so no gateway snapshot exists.";
-export const NO_CHANNEL_LINKS_STATEMENT =
-  "No channel-link set is in effect for the period shown. Every channel is unbound; the imported signal links are kept for comparison only.";
-
 function conversionText(binding: SignalBinding): string {
   const { kind } = binding.conversion;
   return kind === "IDENTITY" ? "Same unit" : "State labels mapped";
@@ -193,7 +180,7 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
           </ul>
         </div>
       ) : null}
-      <p>{readiness.binding_set_revision_id === null ? NO_CHANNEL_LINKS_READINESS : readiness.statement}</p>
+      <p>{readiness.statement}</p>
     </Panel>
   );
 }
@@ -246,7 +233,7 @@ export function SignalBindingsPanel({ foundation, onPublishBindings }: SignalBin
   return (
     <Panel heading="Reading-channel links" headingId={FOUNDATION_BINDINGS_HEADING_ID}>
       {bindings.binding_set === null ? (
-        <p data-bindings-state="NONE">{NO_CHANNEL_LINKS_STATEMENT}</p>
+        <p data-bindings-state="NONE">{bindings.statement}</p>
       ) : (
         <>
           <p data-bindings-state="PUBLISHED">
@@ -370,7 +357,7 @@ export function AcquisitionDetailsPanel({
       ) : (
         <p data-snapshot-available="false">
           Gateway snapshot: not available.{" "}
-          {foundation.bindings.binding_set === null ? NO_CHANNEL_LINKS_SNAPSHOT : snapshot.reason}
+          {snapshot.reason}
         </p>
       )}
     </Panel>
