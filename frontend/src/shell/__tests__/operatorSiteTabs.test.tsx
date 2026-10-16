@@ -54,6 +54,7 @@ const V69_OPERATOR_SITE_TABS = [
 const RENDERED_TABS = [
   "Overview",
   "Foundation",
+  "Health",
   "Performance",
   "Findings",
   "Financials",
@@ -61,7 +62,7 @@ const RENDERED_TABS = [
 ];
 
 /** Canonical aspects with no capability in this build: not rendered. */
-const UNRENDERED_TABS = ["Health", "Work"];
+const UNRENDERED_TABS = ["Work"];
 
 /**
  * The mockup's Site tabs from `ScreenMockups.png` screen 2, which are the

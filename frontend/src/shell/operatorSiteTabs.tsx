@@ -6,6 +6,7 @@ import {
   siteFinancialsHref,
   siteFindingsHref,
   siteFoundationHref,
+  siteHealthHref,
   sitePerformanceHref,
 } from "./operatorSiteRoutes";
 
@@ -75,7 +76,8 @@ function notYetRouted(label: string): (siteId: string) => string {
 export const CANONICAL_OPERATOR_SITE_TABS: OperatorSiteTab[] = [
   { label: "Overview", capability: true, href: siteDetailHref },
   { label: "Foundation", capability: true, href: siteFoundationHref },
-  { label: "Health", capability: false, href: notYetRouted("Health") },
+  // S7-01b: gateway contact, last-reported gateway facts and the battery entry.
+  { label: "Health", capability: true, href: (siteId) => siteHealthHref(siteId) },
   // T028: Performance (Dispatch its only subtab) and the scoped Findings index.
   { label: "Performance", capability: true, href: (siteId) => sitePerformanceHref(siteId) },
   { label: "Findings", capability: true, href: siteFindingsHref },

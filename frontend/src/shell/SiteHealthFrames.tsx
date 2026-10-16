@@ -1,0 +1,123 @@
+/**
+ * S7-01b route frames: Site Health (`/sites/{site}/health[?gateway=]`), the
+ * Site battery entry (`/sites/{site}/assets`) and one configured battery
+ * (`/sites/{site}/assets/{asset}`). Each is Site-scoped (unknown Site is "not
+ * found", never an empty healthy page) and highlights the Health tab.
+ */
+import { useCallback, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+
+import { createHealthClient, type HealthClient } from "../sites/healthClient";
+import { SiteBattery, SiteBatteryEntry } from "../sites/SiteBattery";
+import { SiteHealth } from "../sites/SiteHealth";
+import type { SiteDetailClient } from "../sites/siteDirectoryClient";
+import { Breadcrumbs, PageHeader } from "../ui";
+import { siteAssetsHref, siteDetailHref, siteHealthHref } from "./operatorSiteRoutes";
+import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { SiteScoped } from "./SiteAnalyticsFrames";
+
+const DEFAULT_HEALTH = createHealthClient();
+export const SITE_HEALTH_HEADING_ID = "site-health-heading";
+export const SITE_BATTERY_HEADING_ID = "site-battery-heading";
+
+export function SiteHealthFrame({
+  detail,
+  sitesPath,
+  health = DEFAULT_HEALTH,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  health?: HealthClient;
+}) {
+  const { siteId } = useParams<{ siteId: string }>();
+  const [params] = useSearchParams();
+  const gateway = params.get("gateway");
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Health" headingId={SITE_HEALTH_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_HEALTH_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              gateway === null ? { label: "Health" } : { label: "Health", to: siteHealthHref(site.site_id) },
+              ...(gateway === null ? [] : [{ label: "Gateway" }]),
+            ]}
+          />
+          <PageHeader
+            title={site.display_name}
+            headingId={SITE_HEALTH_HEADING_ID}
+            subtitle="Health · gateway contact, what gateways report, and battery condition, kept separate"
+          />
+          <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          <SiteHealth siteId={site.site_id} client={health} selectedGateway={gateway} />
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+export function SiteAssetsFrame({
+  detail,
+  sitesPath,
+  health = DEFAULT_HEALTH,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  health?: HealthClient;
+}) {
+  const { siteId } = useParams<{ siteId: string }>();
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Battery" headingId={SITE_BATTERY_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_BATTERY_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Health", to: siteHealthHref(site.site_id) },
+              { label: "Battery" },
+            ]}
+          />
+          <PageHeader title="Battery" headingId={SITE_BATTERY_HEADING_ID} subtitle={`Site: ${site.display_name}`} />
+          <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          <SiteBatteryEntry siteId={site.site_id} client={health} />
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+export function SiteAssetFrame({
+  detail,
+  sitesPath,
+  health = DEFAULT_HEALTH,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  health?: HealthClient;
+}) {
+  const { siteId, assetId } = useParams<{ siteId: string; assetId: string }>();
+  const [title, setTitle] = useState("Battery");
+  const onTitle = useCallback((next: string) => setTitle(next), []);
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Battery" headingId={SITE_BATTERY_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_BATTERY_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: "Health", to: siteHealthHref(site.site_id) },
+              { label: "Battery", to: siteAssetsHref(site.site_id) },
+              { label: title },
+            ]}
+          />
+          <PageHeader title={title} headingId={SITE_BATTERY_HEADING_ID} subtitle={`Health · site: ${site.display_name}`} />
+          <OperatorSiteTabs siteId={site.site_id} current="Health" />
+          <SiteBattery siteId={site.site_id} assetId={assetId ?? ""} client={health} onTitle={onTitle} />
+        </main>
+      )}
+    </SiteScoped>
+  );
+}

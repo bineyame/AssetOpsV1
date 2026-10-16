@@ -16,6 +16,7 @@ import {
   SiteFindingsFrame,
   SitePerformanceFrame,
 } from "./shell/SiteAnalyticsFrames";
+import { SiteAssetFrame, SiteAssetsFrame, SiteHealthFrame } from "./shell/SiteHealthFrames";
 import { SiteDetailFrame } from "./shell/SiteDetailFrame";
 import { SiteFoundationFrame } from "./shell/SiteFoundationFrame";
 import { SitesFrame } from "./shell/SitesFrame";
@@ -26,6 +27,9 @@ import {
   FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
   SITE_ACTION_ROUTE_PATH,
+  SITE_ASSET_ROUTE_PATH,
+  SITE_ASSETS_ROUTE_PATH,
+  SITE_HEALTH_ROUTE_PATH,
   SITE_ACTION_VIEW_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIALS_ROUTE_PATH,
@@ -290,6 +294,9 @@ export function App({
               element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />}
             />
           ))}
+          <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
+          <Route path={SITE_ASSETS_ROUTE_PATH} element={<SiteAssetsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
+          <Route path={SITE_ASSET_ROUTE_PATH} element={<SiteAssetFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           {[SITE_ACTION_ROUTE_PATH, SITE_ACTION_VIEW_ROUTE_PATH].map((path) => (
             <Route
               key={path}

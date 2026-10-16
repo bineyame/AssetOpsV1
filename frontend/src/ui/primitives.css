@@ -3579,3 +3579,22 @@ tr[data-selected] > * {
   display: inline-block;
   text-decoration: none;
 }
+
+/* S7-01b Site Health and battery: exact IDs inline, and the small line under a metric value. */
+.health-ref {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--text-xs);
+  overflow-wrap: anywhere;
+}
+
+.metric dd.metric__note {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular, 400);
+  color: var(--text-secondary);
+}
+
+.site-health .data-table td,
+.site-battery .data-table td {
+  min-width: 8ch;
+}

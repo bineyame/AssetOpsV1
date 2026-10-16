@@ -20,10 +20,11 @@ import { waitFor } from "@testing-library/react";
  *
  * S6-01b adds the Recommendation read and the Action screens' two reads (the
  * Action and its events), each with its own sentence, and the Foundation
- * change read with its application-attempts read.
+ * change read with its application-attempts read. S7-01b adds the Site
+ * battery entry and one battery (the gateway contact sentence was already here).
  */
 const LOADING =
-  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|the site's Foundation revision|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the site's overview|the inspected records|the inspected record|the site's analytics|the site's assessments|the assessment|the findings|the site's findings|the publication schedule|the gateway diagnostics|the site's gateway contact|the refused readings|the Finding|the Finding's evidence|the Finding's history|the site's prices|the finding's money view|the fuel cost versions|the recommendation|the Action|the Action's events|the Foundation change|the Action's application attempts)./;
+  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|the site's Foundation revision|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the site's overview|the inspected records|the inspected record|the site's analytics|the site's assessments|the assessment|the findings|the site's findings|the publication schedule|the gateway diagnostics|the site's gateway contact|the refused readings|the Finding|the Finding's evidence|the Finding's history|the site's prices|the finding's money view|the fuel cost versions|the recommendation|the Action|the Action's events|the Foundation change|the Action's application attempts|the site's battery|the battery)./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.
