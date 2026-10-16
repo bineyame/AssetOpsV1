@@ -58,6 +58,7 @@ import {
   CommandUnavailable,
   eventWords,
   granted,
+  trialStep,
   outcomeWords,
   plainEventWords,
   Ref,
@@ -340,12 +341,6 @@ function SelectionNotice({ selection, view, links }: { selection: Selection; vie
 
 const OUTCOME_STATES = new Set(["VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"]);
 
-function trialStep(state: string): StepState {
-  if (state === "VERIFIED") return "done";
-  if (state === "INEFFECTIVE") return "problem";
-  if (state === "NO_PLAN" || state === "PENDING" || state === "REASSESSMENT_PENDING") return "waiting";
-  return "not-known";
-}
 
 /**
  * W1-UX-01: the Action's intervention and outcome state on the shared answer

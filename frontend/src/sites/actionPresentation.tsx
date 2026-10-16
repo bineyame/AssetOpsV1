@@ -7,7 +7,7 @@
  */
 import type { ReactNode } from "react";
 
-import { Panel, UNRECOGNISED_SENTENCE, type ProductWords } from "../ui";
+import { Panel, UNRECOGNISED_SENTENCE, type ProductWords, type StepState } from "../ui";
 import type { Limitation, Refusal, SystemDemoCapability } from "./actionClient";
 import { stamp } from "./dispatchWords";
 
@@ -160,6 +160,14 @@ export function recommendationWords(code: string | null | undefined): ProductWor
     default:
       return { label: "Recommendation state not recognised", sentence: UNRECOGNISED_SENTENCE, tone: "limited", code: code ?? null, unrecognised: true };
   }
+}
+
+/** A trial outcome state as a step: only VERIFIED is done, INEFFECTIVE a problem, an unknown state not known. */
+export function trialStep(state: string): StepState {
+  if (state === "VERIFIED") return "done";
+  if (state === "INEFFECTIVE") return "problem";
+  if (state === "NO_PLAN" || state === "PENDING" || state === "REASSESSMENT_PENDING") return "waiting";
+  return "not-known";
 }
 
 /** An event kind in plain words; an unknown kind never shows its raw code. */

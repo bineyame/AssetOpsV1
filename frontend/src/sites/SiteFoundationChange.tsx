@@ -13,7 +13,19 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, Fact, FactList, Panel } from "../ui";
+import {
+  DataTable,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  outcomeWords,
+  Panel,
+  plainTime,
+  ProductStatus,
+  StepStrip,
+  type ProductWords,
+} from "../ui";
 import type {
   ActionClient,
   ActionEventsBody,
@@ -23,7 +35,7 @@ import type {
   PolicyChange,
   PolicyChangeBody,
 } from "./actionClient";
-import { eventWords, outcomeWords, Ref, RefusalPanel, SYSTEM_DEMONSTRATION, when } from "./actionPresentation";
+import { eventWords, outcomeWords as pendingOutcomeWords, Ref, RefusalPanel, SYSTEM_DEMONSTRATION, trialStep, when } from "./actionPresentation";
 import { stateLabel } from "./verificationWords";
 import { DecisionPathPanel, LaterEffectPanel, type TrialLinks } from "./recommendationVerification";
 
@@ -109,6 +121,7 @@ export function SiteFoundationChange({
       data-change-id={c.change_id}
       data-change-outcome={c.outcome.state}
     >
+      <ChangeCard body={read.value} attempts={attempts} links={links} appliedEvent={appliedEvent} />
       <p className="action-status" data-change-status>
         <span className="action-badge">{SYSTEM_DEMONSTRATION}</span> Applied to the Site Foundation by a{" "}
         {SYSTEM_DEMONSTRATION} command. <Link to={links.action(c.action_id, "overview", LATEST)}>Open the Action</Link>
@@ -158,7 +171,7 @@ export function SiteFoundationChange({
           <p data-change-outcome-words data-change-verification={read.value.verification?.state ?? "UNAVAILABLE"}>
             {read.value.verification
               ? `Verification: ${stateLabel(read.value.verification.state, read.value.verification.reasons)}.`
-              : outcomeWords(c.outcome.state)}
+              : pendingOutcomeWords(c.outcome.state)}
           </p>
           <p className="action-note">
             This page records that the setting changed. Whether the change had any effect on the Site is a later
@@ -316,5 +329,104 @@ function Attempts({
         </>
       )}
     </div>
+  );
+}
+
+/** W1-UX-04: the change itself, as state-line words. Changing a setting is never a measured result. */
+const CHANGE_WORDS: ProductWords = {
+  label: "Setting changed; effect judged separately",
+  sentence: "The new reserve is recorded for this battery. This does not show that generator use, cost or safety changed.",
+  next: "Open Verification to see whether the measured trial met its goal within its limits.",
+  tone: "limited",
+  code: "APPLIED",
+  unrecognised: false,
+};
+
+/**
+ * W1-UX-04: the Change answer card - what changed, when, and what it did, as
+ * a chronological change/effect strip. The effect step is the read's own
+ * verification state; failed attempts are "not known" until their read lands.
+ */
+function ChangeCard({
+  body,
+  attempts,
+  links,
+  appliedEvent,
+}: {
+  body: PolicyChangeBody;
+  attempts: ActionReadResult<ActionEventsBody> | null;
+  links: SiteFoundationChangeLinks;
+  appliedEvent: string;
+}) {
+  const c = body.change;
+  const v = body.verification ?? null;
+  const verificationState = v === null ? c.outcome.state : v.state;
+  const trial = outcomeWords(verificationState, v === null ? [] : v.reasons, null);
+  const failed = attempts?.status === "loaded" ? attempts.value.events.filter((event) => event.kind === "FAILED").length : null;
+  return (
+    <HeadlineVisualCard
+      dataName="change"
+      headingId="site-change-answer-heading"
+      title="Change and effect"
+      description="A change is a setting recorded for the site by an applied Action. Its effect is judged only by a measured trial."
+      question="What changed on the site, and what did it do?"
+      headline={
+        <>
+          Battery reserve changed from {c.old_value}
+          {c.unit} to {c.new_value}
+          {c.unit}, effective {plainTime(c.effective_from)}.
+        </>
+      }
+      status={<ProductStatus words={CHANGE_WORDS} scope="This battery's recorded settings" asOf={c.recorded_at} />}
+      visual={
+        <StepStrip
+          title="Change and effect, in order"
+          steps={[
+            {
+              label: "Earlier attempts that failed",
+              state: failed === null ? "not-known" : failed > 0 ? "problem" : "done",
+              detail: failed === null ? "Not known yet" : `${failed} recorded; none changed the site`,
+            },
+            { label: "Setting recorded", state: "done", detail: plainTime(c.recorded_at) },
+            { label: "Effective from", state: "done", detail: plainTime(c.effective_from) },
+            { label: "Measured effect", state: trialStep(verificationState), detail: trial.label },
+          ]}
+        />
+      }
+      meaning={
+        <p>
+          The change is a recorded setting, not a measured result. Whether it helped, and whether it stayed within its
+          safety and service limits, is shown on Verification.
+        </p>
+      }
+      todo={<p>{CHANGE_WORDS.next}</p>}
+      destination={
+        <>
+          <Link to={links.action(c.action_id, "overview", LATEST)} data-change-card-action-link>
+            Open the Action
+          </Link>{" "}
+          {links.actionChild ? (
+            <Link to={links.actionChild(c.action_id, "verification")} data-change-card-verification-link>
+              Open Verification
+            </Link>
+          ) : null}{" "}
+          <Link to={appliedEvent} data-change-card-event-link>
+            Open the application event
+          </Link>
+        </>
+      }
+      references={
+        <ExactReferences
+          name="change-references"
+          references={[
+            { label: "Change record", value: c.change_id },
+            { label: "Battery", value: c.asset_id },
+            { label: "Action reference", value: c.action_id },
+            { label: "Application event", value: c.applied_event_id },
+            { label: "Trial outcome state", value: verificationState },
+          ]}
+        />
+      }
+    />
   );
 }
