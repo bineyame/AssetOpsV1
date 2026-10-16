@@ -1,6 +1,6 @@
 # S4-08 — Site assumption and consequence history
 
-Status: implementation-ready. Size S: one read and one UI view, one build phase and fresh independent review. Branch for implementation: `task/S4-08-assumption-history` from reviewed main. Planning branch: `plan/S4-08-assumption-history`. Coordinator commits this packet.
+Status: done (merged to main 2026-10-17; review ACCEPT; owner walkthrough deferred to the combined W1 walkthrough); was in_review (built 2026-10-16 on `task/S4-08-assumption-history`; packet `.agent/S4-08-review-packet.md`). Size S: one read and one UI view, one build phase and fresh independent review. Branch for implementation: `task/S4-08-assumption-history` from reviewed main. Planning branch: `plan/S4-08-assumption-history`. Coordinator commits this packet.
 
 USER_REVIEW_REQUIRED: true. Under `.agent/owner-walkthrough-policy-2026-10-16.md`, fresh independent slice review (and fixes) is the merge gate; the owner reviews this screen in the combined W1 walkthrough, not a per-slice session. Registry: `I-assumption-consequence-history-read`, `I-assumption-consequence-history-ui`, `I-S4-08`; core portion `assumptions:3#a` remains open until implementation is reviewed. Authority: `D-2026-10-14-s402-post-review-follow-ons`, `.agent/architect-S4-02-batch-answers.md` Q4, `D-2026-10-16-s408` and `D-2026-10-16-w1-ux`.
 

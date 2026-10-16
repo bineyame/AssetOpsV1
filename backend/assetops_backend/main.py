@@ -54,10 +54,12 @@ from assetops_backend.actions.site_index import ActionIndexService
 from assetops_backend.action_index_api import build_action_index_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
+from assetops_backend.consequence_history_api import build_consequence_history_router
 from assetops_backend.financials.composition import (
     CONSEQUENCE_UNAVAILABLE,
     AssumptionStoreUnavailable,
     build_assumption_read_service,
+    build_consequence_history_service,
     build_consequence_read_service,
 )
 from assetops_backend.performance_api import build_performance_router
@@ -405,6 +407,11 @@ def create_app(
         registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE)))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
+    # S4-08: the Site consequence history at one recorded cutoff (read-only). Included before the price reads so
+    # `/financial-assumptions/consequences` is not taken for a price revision ID.
+    app.include_router(build_consequence_history_router(
+        build_consequence_history_service(database_url()) if database_url() else None,
+        registry.ledger_scope, CONSEQUENCE_UNAVAILABLE, gate=performance_gate))
     # S4-02a phase 2: Site price reads (Finding-read scope semantics; typed 503 without a database).
     app.include_router(build_financial_read_router(
         build_assumption_read_service(database_url()) if database_url() else None,

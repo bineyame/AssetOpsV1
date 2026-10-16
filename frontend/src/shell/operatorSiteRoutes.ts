@@ -188,12 +188,15 @@ export function siteFinancialsHref(
 
 export function siteFinancialAssumptionsHref(
   siteId: string,
-  pin?: { revisionId?: string | null; recordedAt?: string | null },
+  pin?: { revisionId?: string | null; recordedAt?: string | null; historyAfter?: string | null; historyLimit?: number | null },
 ): string {
   const base = `${siteDetailHref(siteId)}/financials/assumptions`;
   const query = new URLSearchParams();
   if (pin?.revisionId) query.set("revision_id", pin.revisionId);
+  // S4-08: the cutoff string is the server's own, passed through unchanged (review L-R1).
   if (pin?.recordedAt) query.set("recorded_at", pin.recordedAt);
+  if (pin?.historyAfter) query.set("history_after", pin.historyAfter);
+  if (pin?.historyLimit) query.set("history_limit", String(pin.historyLimit));
   const text = query.toString();
   return text ? `${base}?${text}` : base;
 }
