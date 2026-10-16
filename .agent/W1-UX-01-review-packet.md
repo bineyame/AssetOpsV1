@@ -72,3 +72,14 @@ Label-only changes: `SiteWindowOverview.tsx` "Input digest" -> "Input reference"
 ## User-review focus
 
 The answer-card hierarchy and wording on the three captures, the "not a conclusion" tone of the Evidence state line, and whether the Action card's "no source in this summary" note reads clearly.
+
+## Fix round 1
+
+Review: `.agent/W1-UX-01-review.md` (RETURN, 1 Medium, 3 Low). All four addressed.
+
+- M1: `receiptWords` (`LedgerSiteEvidence.tsx`) has an explicit `ACCEPTED` branch; any other state uses the shared unrecognised words ("We cannot judge this yet", tone limited), with the code kept on `code` only. New route test in `s2LedgerEvidence.test.tsx` (unknown state: neutral label, limited tone, no "accepted" in the state line). Proof: with the fallback reverted to "accepted" wording that test fails; restored.
+- L2: W1 single-word codes now include ACCEPTED, APPLIED, OBSERVED, REJECTED, EFFECTIVE, COMPLETED (`productVocabulary.json`; the disclosure list is unchanged). `w1Vocabulary.test.tsx` checks the new codes. Planted leak (`+ evidence.state` into the Evidence state-line sentence) failed `v01bEvidenceVisual` (1 failed, 30 passed); reverted.
+- L3: `SiteAction.tsx` no longer repeats the VERIFIED sentence under the qualified shared line (renders only the `data-action-verification-state` marker for VERIFIED; other states keep their sentence, so the "No verification plan yet" assertion holds).
+- L4: `exemptReason(element, root)` stops at the scan root. New test: exempt ancestor outside the root does not silence a leak. Proof: removing the stop made it fail; restored.
+
+Checks (frontend): `tsc --noEmit` clean; `vitest run src/ui` + `s2LedgerEvidence` 6 files, 93 passed. Full `npm.cmd test`: 73/74 files, 1738/1739 passed; the one failure was `siteFoundationChange.test.tsx` (known flake); rerun alone: 8/8 passed. `tools/check-all.ps1` (run with `-ExecutionPolicy Bypass`): all 9 guards passed. Layout evidence not rerun (no layout change).
