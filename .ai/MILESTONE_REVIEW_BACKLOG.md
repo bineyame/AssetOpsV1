@@ -2251,9 +2251,11 @@ Review `.agent/S4-06-review.md` ACCEPT. Residual: no test asserts the consequenc
 Review `.agent/S4-07-review.md` ACCEPT. L1: rename `test_s4_schedule_health_postgres.py:387` (alarm now only after the SQL restore). L2: no health signal ages a live PENDING job that keeps being missed (joins the health scan cost item). Residuals: manual app-clock `process-jobs` still mixes clocks (I3 not closed for manual CLIs; stop the tick first); `clock_timestamp()` vs `now()` reasoned not mutation-proved.
 
 
-### Owner W1-conclusion task: plain-language status copy (2026-10-15)
+### Owner W1-conclusion task: plain-language status copy and user-focused visuals (2026-10-15, widened 2026-10-16)
 
 Owner, accepting LR-01 and S5-01 (`.agent/owner-LR01-S501-acceptance-2026-10-15.md`): status wording such as "Not assessed", "Upstream out of date", "Pending reassessment" and visible reason codes must become plain language non-technical users understand. Schedule as one copy task at the conclusion of W1 across Overview, Financials, Finding, Evidence/Dispatch and Action screens; until then, demo speed over perfection.
+
+Widened 2026-10-16 (owner, accepting S4-04 and S6-01b, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`): "communication to the user should be better user focussed and less technical(with option for advanced user to dig deeper). The visuals should be enging, clear and simple yet powerful." The task now covers user-focused copy with a dig-deeper layer for advanced users, and engaging, clear, simple visuals across the W1 screens. It runs after core W1 functions are done.
 
 ### S4 deferred-match fix carries (2026-10-16)
 
