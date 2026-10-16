@@ -25,7 +25,7 @@ import { waitFor } from "@testing-library/react";
  * S3-02b adds the Evidence Analysis claim-limit section's two reads (the
  * selected assessment's limit and the day's assessed periods).
  *
- * change read with its application-attempts read. S7-01b adds the Site
+ * S7-01b adds the Site
  * battery entry and one battery (the gateway contact sentence was already here).
  */
 const LOADING =
