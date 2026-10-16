@@ -185,11 +185,18 @@ class TestRecommendationAcceptAndReload:
                 assert clash.status_code == 409 and clash.json()["detail"]["code"] == "ACTION_ACCEPTANCE_CONFLICT"
             assert h.counts() == counted
 
-            # A distinct Finding gets its own Action and the next tenant code.
-            p2 = h.recommendation(f02).json()["proposal"]
-            second = h.accept(f02, p2, idempotency_key="accept-f02-01")
-            assert second.status_code == 201
-            assert second.json()["action"]["action_code"] != made["action"]["action_code"]
+            # S6-02a (`D-2026-10-16-s6-verification`): the hold is battery-scoped, so a distinct Finding on the same
+            # battery is refused while the first trial is unresolved - no Accept capability and a typed 409.
+            held_read = h.recommendation(f02).json()
+            assert held_read["state"] == "PRIOR_ACTION_UNRESOLVED" and held_read["proposal"] is None
+            assert held_read["unavailable"]["blocking_action_id"] == action_id
+            assert held_read["system_demo_capability"]["allowed"] is False
+            second = h.accept(f02, {**p, "finding_revision_id": held_read["revision_id"], "recommendation_key": "1" * 64},
+                              idempotency_key="accept-f02-01")
+            assert second.status_code == 409, second.text
+            assert second.json()["detail"]["code"] == "PRIOR_ACTION_UNRESOLVED"
+            assert second.json()["detail"]["blocking_action_id"] == action_id
+            assert h.counts() == counted
 
             # Accepted: the snapshot is the proposal, with a separately labelled live recomputation.
             after = h.recommendation(f01).json()

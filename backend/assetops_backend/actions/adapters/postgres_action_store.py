@@ -185,12 +185,36 @@ class PostgresActionStore:
                          where: str = "", **params: Any) -> list[dict[str, Any]]:
         """The canonical Finding's Actions (any origin revision) in acceptance order, each with its origin
         revision number and its `(recorded_at, id)`-ordered events."""
+        return self._actions_where(c, tenant_id, site_id, f"AND a.origin_finding_id = :f {where}",
+                                   f=finding_id, **params)
+
+    def _trial_actions(self, c, tenant_id: UUID, site_id: UUID, asset_id: Any, rule_id: str, *,
+                       where: str = "", **params: Any) -> list[dict[str, Any]]:
+        """S6-02a: every Action of this battery trial scope (Site, battery asset, reserve field, rule), whatever
+        its Finding, in acceptance order with events. `asset_id=None` reads every battery of the Site."""
+        asset = "" if asset_id is None else "AND a.asset_id = CAST(:asset AS uuid) "
+        return self._actions_where(c, tenant_id, site_id, f"{asset}AND a.field = :field AND a.rule_id = :rule {where}",
+                                   **({} if asset_id is None else {"asset": str(asset_id)}), field=FIELD,
+                                   rule=rule_id, **params)
+
+    def trial_actions(self, tenant_id: UUID, site_id: UUID, asset_id: Any, rule_id: str) -> list[dict[str, Any]]:
+        return self._read(lambda c: self._trial_actions(c, tenant_id, site_id, asset_id, rule_id))
+
+    @staticmethod
+    def trial_lock(c, tenant_id: UUID, site_id: UUID, asset_id: Any, rule_id: str) -> None:
+        """The one `(tenant, Site, battery asset, reserve field, rule)` trial lock shared by accept, plan freeze and
+        the verification evaluator (`D-2026-10-16-s6-verification`)."""
+        c.execute(text("SELECT pg_advisory_xact_lock(hashtext('action-trial:' || :t || ':' || :s || ':' || :asset "
+                       "|| ':' || :field || ':' || :rule))"),
+                  {"t": str(tenant_id), "s": str(site_id), "asset": str(asset_id), "field": FIELD, "rule": rule_id})
+
+    def _actions_where(self, c, tenant_id: UUID, site_id: UUID, where: str, **params: Any) -> list[dict[str, Any]]:
         rows = self._rows(c.execute(text(
             f"SELECT {', '.join('a.' + col.strip() for col in ACTION_COLUMNS.split(','))}, "
             "fr.revision_no AS origin_revision_no FROM action a JOIN finding_revision fr ON fr.tenant_id = a.tenant_id "
             "AND fr.site_id = a.site_id AND fr.id = a.origin_finding_revision_id WHERE a.tenant_id = :t "
-            f"AND a.site_id = :s AND a.origin_finding_id = :f {where} ORDER BY a.created_at, a.action_no"),
-            {"t": tenant_id, "s": site_id, "f": finding_id, **params}))
+            f"AND a.site_id = :s {where} ORDER BY a.created_at, a.action_no"),
+            {"t": tenant_id, "s": site_id, **params}))
         for row in rows:
             row["events"] = self._rows(c.execute(text(
                 f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a ORDER BY recorded_at, id"),
@@ -206,16 +230,13 @@ class PostgresActionStore:
         """Insert the Action, its pinned basis and ACCEPTED, or return the existing Action for this
         recommendation key (`replayed=True`); the caller compares the stored payload digest.
 
-        `D-2026-10-15-s601-reopen`: one advisory lock per (Site, Finding, asset, field, rule) serialises every
-        acceptance of this trial on the canonical Finding, whatever its revision; under it `guard` sees the other
-        Actions of that trial (with events) and raises to refuse, so two accepts on different Finding revisions
-        cannot both pass the prior-Action check."""
+        S6-02a (`D-2026-10-16-s6-verification`) widens `D-2026-10-15-s601-reopen`'s Finding-scoped lock to one
+        advisory lock per (tenant, Site, battery asset, reserve field, rule), shared with plan freeze and the
+        evaluator; under it `guard` sees every other Action of that battery trial scope, on any Finding (with
+        events), and raises to refuse, so two accepts on the same battery cannot both pass the prior-Action check."""
         def work(c):
             scope = {"t": tenant_id, "s": site_id}
-            trial = {"f": proposal["finding_id"], "asset": proposal["asset_id"], "field": FIELD,
-                     "rule": proposal["rule"]["id"]}
-            c.execute(text("SELECT pg_advisory_xact_lock(hashtext('action-trial:' || :s || ':' || :f || ':' || "
-                           ":asset || ':' || :field || ':' || :rule))"), {"s": str(site_id), **trial})
+            self.trial_lock(c, tenant_id, site_id, proposal["asset_id"], proposal["rule"]["id"])
             c.execute(text("SELECT pg_advisory_xact_lock(hashtext('action-accept:' || :s || ':' || :k))"),
                       {"s": str(site_id), "k": proposal["recommendation_key"]})
             existing = c.execute(text(f"SELECT {ACTION_COLUMNS} FROM action WHERE tenant_id = :t AND site_id = :s "
@@ -225,10 +246,8 @@ class PostgresActionStore:
                 event = c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a "
                                        "AND kind = 'ACCEPTED'"), {"a": existing.id}).first()
                 return dict(existing._mapping), dict(event._mapping), True
-            guard(self._finding_actions(
-                c, tenant_id, site_id, UUID(str(proposal["finding_id"])),
-                where="AND a.asset_id = :asset AND a.field = :field AND a.rule_id = :rule AND a.recommendation_key <> :k",
-                asset=proposal["asset_id"], field=FIELD, rule=proposal["rule"]["id"], k=proposal["recommendation_key"]))
+            guard(self._trial_actions(c, tenant_id, site_id, proposal["asset_id"], proposal["rule"]["id"],
+                                      where="AND a.recommendation_key <> :k", k=proposal["recommendation_key"]))
             number = c.execute(text("SELECT nextval('action_code_seq')")).scalar_one()
             action_id, event_id = uuid4(), uuid4()
             snapshot = {k: v for k, v in proposal.items() if k != "current_foundation_revision_id"}

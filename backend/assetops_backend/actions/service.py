@@ -185,8 +185,15 @@ class ActionService:
         # A new acceptance is held while another unresolved trial on this Finding exists: against the live key when
         # one is offered, otherwise (stale basis, later revision, failure) for any. An accepted selected revision
         # with no new key on offer shows its own snapshot instead.
+        # S6-02a: the hold is battery-scoped - every Action of this (Site, battery asset, reserve field, rule) trial
+        # scope, on any Finding, counts (`D-2026-10-16-s6-verification`). With no live key on offer the battery is
+        # not known, so every battery of the Site is that scope.
+        seen = {p["action_id"] for p in prior}
+        pool = list(prior) + [p for p in (prior_action(a, site_code, selected) for a in self.store.trial_actions(
+            tenant_id, site_id, offered["asset_id"] if offered else None, reserve_trial.RULE_ID))
+            if p["action_id"] not in seen]
         blocking = [] if accepted and offered is None else [
-            p for p in prior if blocks_trial(p) and (offered is None or (
+            p for p in pool if blocks_trial(p) and (offered is None or (
                 p["asset_id"] == offered["asset_id"] and p["recommendation_key"] != offered["recommendation_key"]))]
         block = prior_action_refusal(blocking) if blocking else None
         capability = self.capability(tenant_id, site_id, site_code, "ACCEPT", finding_id)
@@ -271,9 +278,9 @@ class ActionService:
         guard = self._prior_guard(site_code, revision_id, evaluation)
         # Checked here so a stale or unavailable live result is reported beside the prior Action, and again
         # atomically under the store's trial lock (two accepts on different revisions cannot both pass).
-        guard([a for a in self.store.actions_for_finding(tenant_id, site_id, finding_id)
-               if offered is None or (str(a["asset_id"]) == offered["asset_id"]
-                                      and a["recommendation_key"] != offered["recommendation_key"])])
+        guard([a for a in self.store.trial_actions(tenant_id, site_id, offered["asset_id"] if offered else None,
+                                                    reserve_trial.RULE_ID)
+               if offered is None or a["recommendation_key"] != offered["recommendation_key"]])
         if not evaluation.available:
             raise ActionRefused(422, "RECOMMENDATION_UNAVAILABLE", "No trial can be accepted for this revision.",
                                 unavailable=evaluation.unavailable())
