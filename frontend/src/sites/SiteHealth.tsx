@@ -16,7 +16,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import { Badge, DataTable, Disclosure, ExactReferences, Fact, FactList, Panel, ProductStatus, readResultWords } from "../ui";
+import { gatewayContactWords, HealthHeadline } from "./healthHeadlines";
 import type {
   BatteryEntry,
   GatewayHealthRow,
@@ -99,7 +100,8 @@ function reportedText(row: GatewayHealthRow): string {
   const f = row.reported_facts;
   if (f.reason === "NEVER_RECEIVED") return "Nothing received yet";
   const age = f.fact_age_seconds;
-  if (age === null) return `Unknown age: ${unknownAgeReason(row)}`;
+  // S7-01b L1: a time observed after the server received it has no stated age, whatever the read's number.
+  if (age === null || f.reason === "OBSERVED_AFTER_RECEIPT") return `Unknown age: ${unknownAgeReason(row)}`;
   if (f.status === "OLD") {
     const lag =
       f.receipt_lag_seconds !== null && f.receipt_lag_seconds >= 60
@@ -130,9 +132,12 @@ export function HealthRefusalPanel({
   headingId,
   texts = {},
   children,
+  scope,
 }: {
   refusal: HealthRefusal;
   subject: string;
+  /** What the refused read was about, in plain words (W1-UX-05 state line). */
+  scope?: ReactNode;
   headingId: string;
   texts?: Record<string, string>;
   children?: ReactNode;
@@ -157,19 +162,24 @@ export function HealthRefusalPanel({
           : refusal.http === 404
             ? "This site is not configured, so it has nothing to show."
             : `The ${subject.toLowerCase()} could not be read (HTTP ${refusal.http}), so nothing is stated.`);
+  const words = readResultWords(
+    refusal.http === 401 || refusal.http === 403 ? "refused" : refusal.http === 404 ? "not-found" : "unavailable",
+  );
   return (
     <Panel heading={heading} headingId={headingId}>
+      {/* W1-UX-05: the plain state line; a refused read has no read time, so "as of" says so. */}
+      <ProductStatus words={words} scope={scope ?? subject} asOf={null} />
       <p data-health-read="refused" data-health-http={refusal.http ?? "none"} data-health-code={refusal.code ?? ""}>
         {text}
       </p>
       {children}
-      {refusal.code ? (
-        <Disclosure name={`${headingId}-code`} summary="Technical details">
-          <p>
-            Code: <HealthRef value={refusal.code} />
-          </p>
-        </Disclosure>
-      ) : null}
+      <ExactReferences
+        name={`${headingId}-code`}
+        references={[
+          { label: "Server answer code", value: refusal.code },
+          { label: "Web status", value: refusal.http === null ? null : String(refusal.http) },
+        ]}
+      />
     </Panel>
   );
 }
@@ -260,6 +270,12 @@ function HealthBody({
   const selected = selectedGateway === null ? null : doc.gateways.find((g) => g.gateway_id === selectedGateway) ?? null;
   return (
     <>
+      <HealthHeadline
+        doc={doc}
+        siteName={doc.site_code}
+        gatewayHref={(gatewayId) => links.health(siteId, gatewayId)}
+        batteryHref={links.assets(siteId)}
+      />
       <div className="evidence-statusbar" data-health-summary={s.status} data-health-summary-reason={s.reason ?? ""}>
         <Badge tone="neutral">{`Gateway contact: ${SUMMARY_WORDS[s.status] ?? s.status}`}</Badge>
         <span className="evidence-statusbar__facts" data-health-counts>
@@ -455,8 +471,13 @@ function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRo
     <Panel
       heading={`Gateway ${row.gateway_external_id}`}
       headingId="site-health-selected-heading"
-      description="This gateway's contact and its latest report, with the exact records they come from."
+      description="This gateway's contact and its latest report. The exact records are under How this was worked out."
     >
+      <ProductStatus
+        words={gatewayContactWords(row)}
+        scope={<>Gateway <HealthRef value={row.gateway_external_id} /> · contact</>}
+        asOf={row.contact.last_received_at ?? null}
+      />
       <FactList>
         <Fact term="Registration">{row.registration === "DISABLED" ? "Disabled (not counted)" : "Enabled"}</Fact>
         <Fact term="Contact">{contactText(row)}</Fact>
@@ -471,24 +492,19 @@ function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRo
                 f.clock.trust === "UNTRUSTED" ? "not trusted" : "within the allowed range"
               }`}
         </Fact>
-        <Fact term="Gateway ID">
-          <HealthRef value={row.gateway_id} />
-        </Fact>
-        <Fact term="Latest report ID">
-          <span data-health-selected-diagnostic={d?.diagnostic_id ?? ""}>
-            <HealthRef value={d?.diagnostic_id ?? null} />
-          </span>
-        </Fact>
-        <Fact term="Report sequence">
-          {d ? (
-            <>
-              <HealthRef value={d.sequence_epoch} /> #{d.diagnostic_sequence}
-            </>
-          ) : (
-            "none"
-          )}
-        </Fact>
       </FactList>
+      {/* S7-01b L3: gateway and report IDs move to the exact-reference disclosure. */}
+      <div data-health-selected-diagnostic={d?.diagnostic_id ?? ""}>
+        <ExactReferences
+          name="site-health-selected-references"
+          references={[
+            { label: "Gateway reference", value: row.gateway_id },
+            { label: "Latest report reference", value: d?.diagnostic_id ?? null },
+            { label: "Report sequence", value: d ? `${d.sequence_epoch} #${d.diagnostic_sequence}` : null },
+            { label: "Contact basis (exact)", value: `${row.contact.status} ${row.contact.reason}` },
+          ]}
+        />
+      </div>
       <p>
         <Link to={links.health(siteId)}>Show all gateways</Link>
       </p>
@@ -586,7 +602,7 @@ function HealthTechnical({ doc }: { doc: SourceHealthDocument }) {
         <Fact term="Latest receipt among them">
           <HealthRef value={w.latest_received_at} />
         </Fact>
-        <Fact term="Selected report IDs digest">
+        <Fact term="Selected report IDs reference">
           <span data-health-watermark={w.selected_diagnostic_ids_sha256}>
             <HealthRef value={w.selected_diagnostic_ids_sha256} />
           </span>
