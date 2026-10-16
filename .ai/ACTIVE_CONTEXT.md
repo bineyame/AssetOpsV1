@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**2026-10-16: S7-01a ([Site source-health and battery boundary reads](../tasks/S7-01a-health-read.md)) is `in_review`** on `task/S7-01a-health-read` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent review). Packet `.agent/S7-01a-review-packet.md`, S7-01b contract `.agent/S7-01a-handoff.md`, built state `.ai/CODE_STATE.md` "S7-01a". Reviewer: task, packet, `git diff 8b5d8137..HEAD -- ':!.agent'`.
+**2026-10-16: S7-01b ([Site Health and battery UI](../tasks/S7-01b-health-ui.md)) is `in_review`** on `task/S7-01b-health-ui` (USER_REVIEW_REQUIRED: slice review, then owner walkthrough `.agent/S7-01b-owner-walkthrough.md` before merge). Packet `.agent/S7-01b-review-packet.md`, built state `.ai/CODE_STATE.md` "S7-01b". S7-01a is merged (main `f3de235a`).
 
 **2026-10-16: S6-02a ([frozen verification and exact read](../tasks/S6-02a-verification-core.md)) is built (phases 1-2), `in_review`** on `task/S6-02a-verification-core` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent slice review). Packet `.agent/S6-02a-review-packet.md`; built state `.ai/CODE_STATE.md` "S6-02a". Architect item: the shipped mini-grid model gives no VERIFIED Lab replay (packet Known Deviation 1).
 
@@ -52,6 +52,7 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 
 ## Next read
 
+Reviewer (S7-01b slice): read the task, `.agent/architect-S7-01-clock-answers.md`, `.agent/S7-01b-review-packet.md`, then `git diff f3de235a..HEAD -- ':!.agent'`; walk with `tools/s701_health_walkthrough.py` and `node tools/s701-health-evidence.mjs`.
 Reviewer (S6-02a slice): read the task, the three S6 verification decisions, `.agent/S6-02a-phase-1-review.md`, `.agent/S6-02a-review-packet.md` and `.agent/S6-02a-phase-2-handoff.md`, then `git diff 07de54ac..HEAD -- ':!.agent'`. Focused proof: `backend/tests/test_s6_verification_*.py`, `host/tests/test_s6_verification_replay.py` on a private `*_test` DB; reuse the packet's full-suite evidence.
 Coordinator (OPS-02): merge `task/OPS-02-writer-guard-ast` to main; merge evidence in `.agent/OPS-02-review-packet.md` "Merge with main" and `.agent/OPS-02-merge-handoff.md`.
 Reviewer (S4-05a slice): read the task, the S4-05 umbrella shared contract, `.agent/architect-S4-05-answers.md`, `.agent/S4-05a-review-packet.md` and both phase handoffs, then `git diff fd7afd2c..HEAD`. Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB; reuse the packet's same-revision full-suite evidence.
