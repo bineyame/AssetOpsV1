@@ -156,10 +156,11 @@ function priceReferences(price: PriceRevision, assignment?: PriceAssignment): Ex
   ];
 }
 
-type StripState = "in-use" | "ended" | "later" | "not-known";
+type StripState = "in-use" | "recorded-then" | "ended" | "later" | "not-known";
 
 const STRIP_WORDS: Record<StripState, string> = {
   "in-use": "In use today",
+  "recorded-then": "Covered today, as recorded then",
   ended: "Ended",
   later: "Starts later",
   "not-known": "Not known",
@@ -170,12 +171,12 @@ const STRIP_WORDS: Record<StripState, string> = {
  * price and whether it applies at the time the read was asked about. The entry in use is the one the read
  * selected; the others are placed only by their own recorded dates. Nothing is inferred beyond that.
  */
-function PriceTimeStrip({ body }: { body: AssumptionSeriesBody }) {
+function PriceTimeStrip({ body, historical }: { body: AssumptionSeriesBody; historical: boolean }) {
   if (body.timeline.length === 0) return null;
   const selected = body.selection?.state === "PRICED" ? body.selection.assignment_id : null;
   const at = body.selection ? new Date(body.selection.valid_at).getTime() : Number.NaN;
   const stateOf = (a: PriceAssignment): StripState => {
-    if (a.assignment_id === selected) return "in-use";
+    if (a.assignment_id === selected) return historical ? "recorded-then" : "in-use";
     if (Number.isNaN(at)) return "not-known";
     if (a.valid.to !== null && new Date(a.valid.to).getTime() <= at) return "ended";
     if (new Date(a.valid.from).getTime() > at) return "later";
@@ -409,7 +410,8 @@ function CurrentPrice({ body, siteId, historical }: { body: AssumptionSeriesBody
       headline={
         priced !== null ? (
           <>
-            Diesel price in use: <strong>{priceText(priced.price)}</strong>
+            {historical ? "Diesel price covering today, as recorded then: " : "Diesel price in use: "}
+            <strong>{priceText(priced.price)}</strong>
           </>
         ) : state === "CONFLICT" ? (
           "No single diesel price can be used"
@@ -422,7 +424,7 @@ function CurrentPrice({ body, siteId, historical }: { body: AssumptionSeriesBody
           <ProductStatus words={words} scope={`Diesel price for site ${siteId}`} asOf={body.cutoff.recorded_at} />
         </div>
       }
-      visual={body.timeline.length > 0 ? <PriceTimeStrip body={body} /> : undefined}
+      visual={body.timeline.length > 0 ? <PriceTimeStrip body={body} historical={historical} /> : undefined}
       meaning={
         priced !== null ? (
           <div data-price-selection="PRICED" data-price-selected-revision={priced.revision_id}>
@@ -653,6 +655,7 @@ export function SiteFinancialsOverview({
           consequences={consequenceRead}
           links={links}
           pinnedConsequence={consequenceRevisionId}
+          consequencesLoading={consequences === null}
         />
       ) : (
         <Panel heading="What this finding means in money" headingId="site-financials-bridge-heading">
@@ -686,7 +689,7 @@ function PriceInUse({ siteId, client, links }: { siteId: string; client: Financi
           No diesel price is recorded for today at this site.
         </p>
       )}
-      {read !== null && read.status === "loaded" ? <PriceTimeStrip body={read.value} /> : null}
+      {read !== null && read.status === "loaded" ? <PriceTimeStrip body={read.value} historical={false} /> : null}
       <p>
         <Link to={links.assumptions()}>See the price schedule and history</Link>
       </p>

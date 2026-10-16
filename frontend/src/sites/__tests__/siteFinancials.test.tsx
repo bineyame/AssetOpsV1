@@ -1190,6 +1190,23 @@ function expectW1Clean(container: HTMLElement, cardEl: HTMLElement, page: string
 describe("W1-UX-02: Site > Financials (financials)", () => {
   const URL = `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`;
 
+  it("W1-UX-02: while the consequences read is loading no current amount is shown", async () => {
+    const base = fake({ bridge: { status: "loaded", value: pricedBridge() } });
+    let release: (r: FinancialReadResult<FindingConsequencesBody>) => void = () => undefined;
+    const client = {
+      ...base,
+      getFindingConsequences: () => new Promise<FinancialReadResult<FindingConsequencesBody>>((res) => { release = res; }),
+    } as typeof base;
+    mount(client, URL);
+    await vi.waitFor(() => expect(document.querySelector("[data-financials-bridge-loading]")).not.toBeNull());
+    expect(document.querySelector("[data-financials-headline='amount']")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/0\.00 to 16\.20/);
+    expect(document.body.textContent).not.toContain("time not recorded");
+    release({ status: "loaded", value: consequencesBody([crev(1, C1), crev(2, C2)]) });
+    await settledScreen();
+    expect(card("financials-consequence").querySelector("[data-financials-headline='amount']")).toHaveTextContent("0.00 to 16.20 USD");
+  });
+
   it("W1-UX-02: a current priced Finding leads with the bounded range, its bars and basis, and the W1 vocabulary", async () => {
     const client = fake({
       bridge: { status: "loaded", value: pricedBridge() },
@@ -1338,6 +1355,13 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     await settledScreen();
     expect(expectStateLineVisible(card("assumptions-price"))).toBe("Prices as recorded at an earlier moment");
     expect(card("assumptions-price").querySelector("[data-product-status-as-of]")).toHaveTextContent("As of 13 Oct 2026, 09:00 UTC");
+    // M1: a past-cutoff list does not prove the price is in use now, so neither phrase appears.
+    const priced = card("assumptions-price");
+    expect(priced).toHaveTextContent("as recorded then");
+    expect(priced.querySelector(".headline-card__headline")?.textContent ?? "").not.toMatch(/in use/i);
+    expect(priced.querySelector("[data-price-strip]")?.textContent ?? "").not.toMatch(/in use/i);
+    expect(priced.querySelector("[data-price-strip-entry='in-use']")).toBeNull();
+    expect(priced.querySelector("[data-price-strip-entry='recorded-then']")).not.toBeNull();
     first.unmount();
     const { container } = mount(client, path);
     await settledScreen();

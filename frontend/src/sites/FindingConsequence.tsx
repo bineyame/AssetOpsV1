@@ -562,11 +562,14 @@ export function FindingBridge({
   consequences,
   links,
   pinnedConsequence,
+  consequencesLoading = false,
 }: {
   bridge: FindingFinancialsBody;
   consequences: FinancialReadResult<FindingConsequencesBody> | null;
   links: BridgeLinks;
   pinnedConsequence: string | null;
+  /** The consequences read has not settled: no amount is drawn until it has (its time bounds the amount). */
+  consequencesLoading?: boolean;
 }) {
   const c = bridge.consequence;
   const findingId = bridge.finding.id;
@@ -583,6 +586,9 @@ export function FindingBridge({
     pinnedConsequence !== null && body?.consequence && (!body.consequence.is_head || (gated && body.consequence.presented_as_current === false))
       ? body.consequence
       : null;
+  if (shown && consequencesLoading) {
+    return <p data-financials-bridge-loading="true">Loading the finding's money view.</p>;
+  }
   const words = consequenceWords(c, shown);
   const stepHead = shown && body !== null && head ? head : null;
   const scope = `Finding version ${bridge.revision.revision_no}${bridge.selection.is_latest ? " (latest)" : " (an earlier version)"}, ${formatInstant(

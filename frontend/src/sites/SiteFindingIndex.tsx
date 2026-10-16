@@ -82,11 +82,9 @@ const NOT_CURRENT_CODES = ["PENDING", "UNASSESSED", "STALE_PROJECTION", "FAILED"
 
 /**
  * The index's non-current states, wrapped onto the shared currentness words
- * (W1-UX-02 wrap-then-replace). This view no longer reads it; it stays
- * exported, with the shared words, for `OverviewFindingList` until that view
- * migrates in its own W1-UX-02 group.
+ * (W1-UX-02 wrap-then-replace). Local to this view.
  */
-export const STATUS_WORDS: Record<string, { label: string; sentence: string }> = Object.fromEntries(
+const STATUS_WORDS: Record<string, { label: string; sentence: string }> = Object.fromEntries(
   NOT_CURRENT_CODES.map((code) => {
     const words = currentnessWords(code);
     return [code, { label: words.label, sentence: words.sentence }];

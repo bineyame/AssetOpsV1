@@ -615,9 +615,10 @@ function MoneyLinks({ money, links, day }: { money: WindowMoney; links: WindowOv
  */
 function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const m = summary.money;
-  const w = overviewMoneyWords(m.state);
   const gate = m.eligibility?.state ?? null;
   const priced = m.state === "PRICED" && m.amount_low !== null && m.amount_high !== null;
+  // A PRICED read missing a bound has no amount to call current: use the shared non-positive fallback words.
+  const w = m.state === "PRICED" && !priced ? { ...moneyWords("PRICED"), code: "PRICED" } : overviewMoneyWords(m.state);
   const low = priced ? Number(m.amount_low) : Number.NaN;
   const high = priced ? Number(m.amount_high) : Number.NaN;
   const scope = m.finding_id ? `One Finding overlapping ${summary.window.utc_date}` : dayScope(summary);

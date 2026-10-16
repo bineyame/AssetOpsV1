@@ -184,6 +184,18 @@ describe("S5-01 selected-window Overview: money states", () => {
     expect(document.querySelector(`[data-known-finding="${FID}"]`)).not.toBeNull();
   });
 
+  it.each([["amount_low"], ["amount_high"]])("a PRICED read missing %s shows no amount and no positive Current amount label", async (missing) => {
+    const { client } = clientOf(() => summary("2026-10-24", {}, { state: "PRICED", [missing]: null }));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
+    await settledScreen();
+    const card = moneyCard();
+    expect(card.querySelector('[data-money-amount="none"]')).not.toBeNull();
+    expect(card.querySelector("[data-money-amount]:not([data-money-amount='none'])")).toBeNull();
+    expect(within(card).queryByText("Current amount")).toBeNull();
+    expect(card.textContent).not.toMatch(/\d+\.\d\d to \d/);
+    expect(card.querySelector("[data-product-status-tone='positive']")).toBeNull();
+  });
+
   it("never shows an amount the server did not price, even when amount fields are present", async () => {
     const { client } = clientOf(() => summary("2026-10-24", {}, { state: "WITHHELD_GENERATOR_SERIES" }));
     renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
