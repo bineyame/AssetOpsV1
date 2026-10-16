@@ -220,7 +220,7 @@ describe("a site is opened from a Sites row", () => {
     // T008's plain `Site configuration` link with the canonical Site tab row,
     // so the destinations are Overview and Foundation, and T027 adds
     // Evidence, and T028 adds Performance and Findings between Foundation and
-    // Evidence, and S4-02a adds Financials before Evidence. All of it is navigation, none of it is an action on the site,
+    // Evidence, and S4-02a adds Financials before Evidence, and S7-01b adds Health after Foundation. All of it is navigation, none of it is an action on the site,
     // and aspects without a capability are not rendered at all.
     expect(
       within(main)
@@ -230,6 +230,7 @@ describe("a site is opened from a Sites row", () => {
       ["/sites", "Sites"],
       ["/sites/MG-002", "Overview"],
       ["/sites/MG-002/foundation", "Foundation"],
+      ["/sites/MG-002/health", "Health"],
       ["/sites/MG-002/performance", "Performance"],
       ["/sites/MG-002/findings", "Findings"],
       ["/sites/MG-002/financials", "Financials"],

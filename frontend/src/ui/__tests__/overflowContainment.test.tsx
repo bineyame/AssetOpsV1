@@ -63,6 +63,7 @@ const SITES_INDEX_COLUMNS = ["Site", "Type", "Mode", "Operating view", "Setup de
 const OPERATOR_SITE_TABS = [
   "Overview",
   "Foundation",
+  "Health",
   "Performance",
   "Findings",
   "Financials",
@@ -245,7 +246,7 @@ describe("the correction buys no space from the inventories", () => {
     ).toEqual(SITES_INDEX_COLUMNS);
   });
 
-  it("leaves the operator Site tab row with all six rendered labels", async () => {
+  it("leaves the operator Site tab row with all seven rendered labels", async () => {
     renderAt("/sites/MG-002");
     await settledScreen();
 
