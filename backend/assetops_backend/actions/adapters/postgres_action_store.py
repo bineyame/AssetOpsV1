@@ -886,6 +886,27 @@ class PostgresActionStore:
             f"SELECT {EVENT_COLUMNS} FROM action_event WHERE tenant_id = :t AND site_id = :s AND action_id = :a "
             "ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "a": action_id})))
 
+    # ---- S6-03 Site/window Action index (read only) --------------------------------------------------------
+
+    def site_window(self, tenant_id: UUID, site_id: UUID, start: datetime, end: datetime) -> dict[str, Any]:
+        """Every Action of this Site created in `[start, end)` and every event of those Actions, from ONE
+        repeatable-read snapshot (`D-2026-10-16-a-action-index`). The fence over the whole selection, including
+        rows a page will not show, is computed by the caller from exactly these rows."""
+        def work(c):
+            actions = self._rows(c.execute(text(
+                "SELECT a.id, a.action_code, a.created_at, a.origin_finding_id, a.origin_finding_revision_id, "
+                "fr.revision_no AS origin_revision_no FROM action a JOIN finding_revision fr "
+                "ON fr.tenant_id = a.tenant_id AND fr.site_id = a.site_id AND fr.id = a.origin_finding_revision_id "
+                "WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi "
+                "ORDER BY a.created_at DESC, a.id"), {"t": tenant_id, "s": site_id, "lo": start, "hi": end}))
+            events = self._rows(c.execute(text(
+                f"SELECT {', '.join('e.' + col.strip() for col in EVENT_COLUMNS.split(','))} FROM action_event e "
+                "JOIN action a ON a.id = e.action_id AND a.tenant_id = e.tenant_id AND a.site_id = e.site_id "
+                "WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi "
+                "ORDER BY e.recorded_at, e.id"), {"t": tenant_id, "s": site_id, "lo": start, "hi": end}))
+            return {"actions": actions, "events": events}
+        return self._read(work)
+
 
 def _basis(row: dict[str, Any], assets: dict[str, UUID]) -> FoundationBasis:
     entries = []

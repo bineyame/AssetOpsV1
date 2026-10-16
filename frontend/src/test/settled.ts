@@ -24,9 +24,11 @@ import { waitFor } from "@testing-library/react";
  *
  * S3-02b adds the Evidence Analysis claim-limit section's two reads (the
  * selected assessment's limit and the day's assessed periods).
+ *
+ * S6-03 adds the Site Work Action list read.
  */
 const LOADING =
-  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|the site's Foundation revision|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the site's overview|the inspected records|the inspected record|the site's analytics|the site's assessments|the assessment|the findings|the site's findings|the publication schedule|the gateway diagnostics|the site's gateway contact|the refused readings|the Finding|the Finding's evidence|the Finding's history|the site's prices|the finding's money view|the fuel cost versions|the recommendation|the Action|the Action's events|the Foundation change|the Action's application attempts|the selected assessment's limit|the day's assessed periods|the verification plan|the verification evidence|the verification outcome|the verification history|the Action's verification)./;
+  /Loading (?:configured sites|the configured sites|the configured site|the chosen site|the site's Foundation version|the site's Foundation revision|shipped site templates|the shipped site template|saved scenarios|the saved scenario|the run setup inputs|the persisted runs|the persisted run|the execution of the persisted run|the staged source envelopes|the recorded history|the commit status|the site's evidence|the site's overview|the inspected records|the inspected record|the site's analytics|the site's assessments|the assessment|the findings|the site's findings|the publication schedule|the gateway diagnostics|the site's gateway contact|the refused readings|the Finding|the Finding's evidence|the Finding's history|the site's prices|the finding's money view|the fuel cost versions|the recommendation|the Action|the Action's events|the Foundation change|the Action's application attempts|the selected assessment's limit|the day's assessed periods|the site's Actions|the verification plan|the verification evidence|the verification outcome|the verification history|the Action's verification)./;
 
 /**
  * Await a screen whose store read has settled, whatever it settled to.
