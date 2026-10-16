@@ -4,7 +4,7 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
-**2026-10-16: S3-02a ([capability and claim-limit read](../tasks/S3-02a-capability-read.md)) is `in_review`** on `task/S3-02a-capability-read` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent review). Packet `.agent/S3-02a-review-packet.md`, S3-02b contract `.agent/S3-02a-handoff.md`, built state `.ai/CODE_STATE.md` "S3-02a". Reviewer: task, packet, `git diff 71009bf6..HEAD -- ':!.agent'`.
+**2026-10-16: S3-02b ([Evidence Analysis selected claim limit UI](../tasks/S3-02b-claim-limit-ui.md)) is `in_review`** on `task/S3-02b-claim-limit-ui` (S3-02a merged at `8b5d8137`; USER_REVIEW_REQUIRED: true, owner walkthrough `.agent/S3-02b-owner-walkthrough.md` before merge). Packet `.agent/S3-02b-review-packet.md`, built state `.ai/CODE_STATE.md` "S3-02b". Reviewer: task, packet, `git diff 8b5d8137..HEAD -- ':!.agent'`; walk with `tools/s302_claim_limit_walkthrough.py`.
 
 **2026-10-16: S5-02 ([Finding list in Site Overview](../tasks/S5-02-overview-finding-list.md)) is `in_review`** on `task/S5-02-overview-finding-list` (USER_REVIEW_REQUIRED: slice review, then owner walkthrough `.agent/S5-02-owner-walkthrough.md`); packet `.agent/S5-02-review-packet.md`, built state `.ai/CODE_STATE.md` "S5-02". Reviewer: read the task, `.agent/architect-S5-02-answers.md`, the packet, then `git diff a88d3e8a..HEAD -- ':!.agent'`; walk with `tools/s502_overview_finding_list_walkthrough.py prepare|serve|late|settle|gate|drop` and `node tools/s502-overview-finding-list-evidence.mjs`.
 
