@@ -24,6 +24,7 @@ from test_s6_verification_evaluator_postgres import (
     bound_plan,
     caught_up,
     complete_windows,
+    continuation,
     evaluate,
     guard_code,
     kinds,
@@ -113,6 +114,15 @@ class TestF4InconclusiveContinuation:
             first = evaluate(h, action_id, "eval-0001").json()["outcome"]
             assert first["outcome"] == "INCONCLUSIVE"
 
+            # Late evidence makes the INCONCLUSIVE read REASSESSMENT_PENDING: no continuation until it is reassessed.
+            h.clock.at = CLOSED + timedelta(hours=2)
+            late_reading(runner, "2026-11-02T12:00:00Z")
+            assert continuation(h, action_id, plan)["reason"] == "REASSESSMENT_PENDING"
+            caught_up(runner, h, h.clock.at)
+            assert bind(h, action_id, plan["plan_id"], "bind-0002").status_code == 201
+            first = evaluate(h, action_id, "eval-0001b").json()["outcome"]
+            assert first["outcome"] == "INCONCLUSIVE"
+
             # After the later-run cutoff the same later window cannot be reused.
             same = freeze(h, action_id, key="freeze-0002", supersedes_plan_id=plan["plan_id"])
             assert same.json()["detail"]["code"] == "VERIFICATION_LATER_WINDOW_STARTED", same.text
@@ -135,7 +145,7 @@ class TestF4InconclusiveContinuation:
             # History retained; the Action stays unresolved and the battery hold is unchanged.
             history = h.client.get(f"{base(action_id)}/history").json()
             assert [p["plan_id"] for p in history["plans"]] == [plan["plan_id"], second["plan_id"]]
-            assert [o["outcome_id"] for o in history["outcomes"]] == [first["outcome_id"]]
+            assert [o["outcome_id"] for o in history["outcomes"]][-1] == first["outcome_id"]
             assert history["current_state"]["state"] == "PENDING"
             assert history["current_state"]["plan_id"] == second["plan_id"]
             old = h.client.get(f"{base(action_id)}/outcome", params={"outcome_id": first["outcome_id"]}).json()
@@ -150,7 +160,7 @@ class TestF4InconclusiveContinuation:
                            later_start=NEXT_LATER)
             assert third.status_code == 201, third.text
             assert third.json()["plan"]["supersedes_plan_id"] == second["plan_id"]
-            assert rows(runner, "SELECT count(*) FROM verification_outcome")[0][0] == 1
+            assert rows(runner, "SELECT count(*) FROM verification_outcome")[0][0] == 2
         finally:
             h.close()
 
