@@ -230,6 +230,48 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(container.querySelector("[data-claim-limit-intervals]")?.getAttribute("data-claim-limit-intervals")).toBe("earlier");
   });
 
+  it("a whole-day read states its coverage in minutes derived from the spans, never 0", async () => {
+    const read = sample("late-revision/withdrawn-window");
+    const { container } = mount(fake(() => ({ status: "loaded", value: read })), SEARCH);
+    await settledScreen();
+    const rows = [...container.querySelectorAll<HTMLElement>("tr[data-claim-role]")];
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      expect(row.textContent).toContain("30 min of 30 min");
+      expect(row.textContent).not.toMatch(/(^|\D)0 min of/);
+      expect(row.getAttribute("data-role-status")).toBe("COVERED");
+    }
+  });
+
+  it.each(["late-revision/withdrawn-window", "stale-selection/window"] as const)(
+    "%s: the whole day's per-period list is introduced as history, with each period's time",
+    async (name) => {
+      const { container } = mount(fake(() => ({ status: "loaded", value: sample(name) })), SEARCH);
+      await settledScreen();
+      expect(container.querySelector("[data-claim-limit-earlier-periods]")?.textContent).toContain("At the time, this version listed");
+      expect(container.querySelector("[data-claim-limit-intervals]")?.getAttribute("data-claim-limit-intervals")).toBe("earlier");
+      expect(container.querySelector("[data-claim-limit-window-level]")).toBeNull();
+    },
+  );
+
+  it("a current whole day shows its own level and each period's time range", async () => {
+    const base = sample("late-revision/withdrawn-window");
+    const item = base.claim_limit!.historical_ceiling!.interval_ceilings![0];
+    const read = {
+      ...base,
+      currentness: "CURRENT",
+      claim_limit: { ...base.claim_limit!, ceiling: null, support: "COMPLETE", interval_ceilings: [item], current_positive_claim: false },
+    } as ClaimLimitRead;
+    const day: AssessedDay = {
+      status: "CURRENT",
+      periods: [{ id: item.assessment_revision_id, scope: "INTERVAL", start: "2026-10-13T08:00:00Z", end: "2026-10-13T08:30:00Z", claim_level: "CANDIDATE_AVOIDABLE" }],
+    };
+    const { container } = mount(fake(() => ({ status: "loaded", value: read }), { status: "loaded", value: day }), SEARCH);
+    await settledScreen();
+    expect(container.querySelector("[data-claim-limit-window-level]")?.textContent).toContain("every reading needed is present");
+    expect(container.querySelector("[data-claim-limit-intervals]")?.textContent).toContain("Period 08:00–08:30 UTC");
+  });
+
   it("links every selected accepted ID to its exact Evidence drill-down, keeping day and revision", async () => {
     const read = sample("full-candidate");
     const { container } = mount(fake(() => ({ status: "loaded", value: read })), SEARCH);
@@ -342,6 +384,21 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     const s = state(container);
     expect(s.dataset.claimLimitState).toBe(named);
     expect(s.textContent).toContain(words);
+    expect(container.querySelector("[data-claim-limit-headline]")).toBeNull();
+  });
+
+  it.each([
+    ["another day", { day: "2026-10-07" }],
+    ["another revision", { assessment_revision_id: "99999999-9999-4999-8999-999999999999" }],
+  ])("the real client does not show a response for %s", async (_name, override) => {
+    vi.stubGlobal("fetch", async (path: string) =>
+      path.includes("/claim-limit")
+        ? new Response(JSON.stringify({ ...sample("full-candidate"), ...override }), { status: 200 })
+        : new Response(JSON.stringify({ status: "CURRENT", intervals: [], window_assessment: null }), { status: 200 }),
+    );
+    const { container } = mount(createClaimLimitClient("/api/sites"), SEARCH);
+    await settledScreen();
+    expect(state(container).dataset.claimLimitState).toBe("unavailable");
     expect(container.querySelector("[data-claim-limit-headline]")).toBeNull();
   });
 

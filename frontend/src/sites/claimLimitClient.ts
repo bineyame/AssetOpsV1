@@ -37,8 +37,9 @@ export interface RoleSpan {
 }
 
 export interface RoleCapability {
-  status: "COVERED" | "INCOMPLETE" | "NO_SPANS" | string;
-  covered_minutes: number | string;
+  /** Absent on the whole-day (WINDOW) read, which carries only spans and minutes by status. */
+  status?: "COVERED" | "INCOMPLETE" | "NO_SPANS" | string;
+  covered_minutes?: number | string;
   minutes_by_status: Record<string, number | string>;
   evidence_ids: string[];
   spans: RoleSpan[];
@@ -242,7 +243,13 @@ export function createClaimLimitClient(basePath: string = SITES_API_PATH): Claim
   return {
     getClaimLimit(siteId, day, revision, signal) {
       const query = revision === null ? "" : `?revision=${encodeURIComponent(revision)}`;
-      return readJson(`${windowPath(siteId, day)}/claim-limit${query}`, isClaimLimitRead, signal);
+      return readJson(`${windowPath(siteId, day)}/claim-limit${query}`, isClaimLimitRead, signal).then((answer) =>
+        // A response for another day or revision than the one asked for is not shown.
+        answer.status === "loaded" &&
+        (answer.value.day !== day || (revision !== null && answer.value.assessment_revision_id !== revision))
+          ? { status: "unavailable" as const, code: null, message: null }
+          : answer,
+      );
     },
     async getAssessedDay(siteId, day, signal) {
       const answer = await readJson(windowPath(siteId, day), isWindowBody, signal);

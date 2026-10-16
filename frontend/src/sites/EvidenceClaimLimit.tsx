@@ -23,6 +23,7 @@ import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import { isDay } from "./dispatchWords";
 import type {
   AssessedDay,
+  AssessedPeriod,
   CeilingBody,
   ClaimLimitClient,
   ClaimLimitRead,
@@ -122,6 +123,28 @@ function assessedPeriod(read: ClaimLimitRead): string {
   const starts = spans.map((s) => s.start).sort();
   const ends = spans.map((s) => s.end).sort();
   return period(starts[0], ends[ends.length - 1]);
+}
+
+const WINDOW_SUPPORT_WORDS: Record<string, string> = {
+  COMPLETE: "every reading needed is present",
+  LIMITED: "some needed readings are missing or unreliable",
+  INDETERMINATE: "the readings cannot support a conclusion",
+};
+
+type AssessedPeriodItem = AssessedPeriod;
+
+function periodLabel(id: string, periods: AssessedPeriodItem[]): string {
+  const found = periods.find((p) => p.id === id);
+  const when = found === undefined ? "" : period(found.start, found.end);
+  return when === "" ? "An assessed period" : `Period ${when}`;
+}
+
+/** Covered and total minutes of a role; the whole-day read carries only minutes by status. */
+function roleCoverage(role: RoleCapability): { covered: number; total: number } {
+  const byStatus = role.minutes_by_status ?? {};
+  const total = Object.values(byStatus).reduce<number>((sum, v) => sum + asNumber(v), 0);
+  const covered = role.covered_minutes !== undefined ? asNumber(role.covered_minutes) : asNumber(byStatus.COVERED);
+  return { covered, total };
 }
 
 function reasonSentence(reason: ClaimReason): string | null {
@@ -293,6 +316,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
           read={read}
           hrefFor={select}
           assessmentHref={assessmentHref}
+          periods={assessed !== null && assessed.status === "loaded" ? assessed.value.periods : []}
         />
       </div>
     </Panel>
@@ -387,6 +411,7 @@ function Body({
   read,
   hrefFor,
   assessmentHref,
+  periods,
 }: {
   siteId: string;
   client: ClaimLimitClient | undefined;
@@ -395,6 +420,7 @@ function Body({
   read: ClaimLimitResult<ClaimLimitRead> | null;
   hrefFor: (revisionId: string | null) => string;
   assessmentHref?: (day: string, revisionId: string) => string;
+  periods: AssessedPeriodItem[];
 }) {
   if (day === null) {
     return (
@@ -434,7 +460,7 @@ function Body({
       </div>
     );
   }
-  return <Loaded siteId={siteId} read={read.value} revision={revision} hrefFor={hrefFor} assessmentHref={assessmentHref} />;
+  return <Loaded siteId={siteId} read={read.value} revision={revision} hrefFor={hrefFor} assessmentHref={assessmentHref} periods={periods} />;
 }
 
 function Loaded({
@@ -442,12 +468,14 @@ function Loaded({
   revision,
   hrefFor,
   assessmentHref,
+  periods,
 }: {
   siteId: string;
   read: ClaimLimitRead;
   revision: string | null;
   hrefFor: (revisionId: string | null) => string;
   assessmentHref?: (day: string, revisionId: string) => string;
+  periods: AssessedPeriodItem[];
 }) {
   const [params] = useSearchParams();
   const recordHref = (evidenceId: string) => {
@@ -492,15 +520,25 @@ function Loaded({
       {read.currentness === "UNASSESSED" ? (
         <p>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? read.window_status}.`}</p>
       ) : null}
+      {current && read.scope === "WINDOW" && limit !== null && limit.support !== null ? (
+        <p data-claim-limit-window-level>{`Across the whole day: ${WINDOW_SUPPORT_WORDS[limit.support] ?? "no overall level stated"}.`}</p>
+      ) : null}
       {earlierSentence === null ? null : (
         <p data-claim-limit-earlier>{`At the time, this version said: ${earlierSentence}`}</p>
+      )}
+      {intervals.length === 0 || current ? null : (
+        <p data-claim-limit-earlier-periods>
+          {read.scope === "WINDOW"
+            ? "At the time, this version listed these assessed periods:"
+            : "At the time, this version listed:"}
+        </p>
       )}
       {intervals.length === 0 ? null : (
         <ul className="claim-limit__intervals" data-claim-limit-intervals={current ? "current" : "earlier"}>
           {intervals.map((item) => (
             <li key={item.assessment_revision_id}>
               <Link to={hrefFor(item.assessment_revision_id)} data-interval-ceiling={item.assessment_revision_id}>
-                {`An assessed period: ${item.ceiling === null ? "no conclusion" : (CLASS_WORDS[item.ceiling] ?? item.ceiling)}${item.support === "COMPLETE" ? ", fully covered" : item.support === "LIMITED" ? ", partly covered" : ""}`}
+                {`${periodLabel(item.assessment_revision_id, periods)}: ${item.ceiling === null ? "no conclusion" : (CLASS_WORDS[item.ceiling] ?? item.ceiling)}${item.support === "COMPLETE" ? ", fully covered" : item.support === "LIMITED" ? ", partly covered" : ""}`}
               </Link>
             </li>
           ))}
@@ -571,12 +609,13 @@ function RoleTable({
                 </tr>
               );
             }
-            const total = Object.values(role.minutes_by_status).reduce<number>((sum, v) => sum + asNumber(v), 0);
+            const { covered, total } = roleCoverage(role);
+            const status = role.status ?? (total > 0 && covered >= total ? "COVERED" : covered > 0 ? "INCOMPLETE" : "NO_SPANS");
             const gaps = role.spans.filter((s) => s.status !== "COVERED");
             return (
-              <tr key={key} data-claim-role={key} data-role-status={role.status}>
+              <tr key={key} data-claim-role={key} data-role-status={status}>
                 <th scope="row">{roleName(key)}</th>
-                <td>{total > 0 ? `${mins(role.covered_minutes)} of ${mins(total)}` : mins(role.covered_minutes)}</td>
+                <td>{total > 0 ? `${mins(covered)} of ${mins(total)}` : "no readings"}</td>
                 <td>
                   {gaps.length === 0
                     ? "none"
