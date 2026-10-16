@@ -131,6 +131,17 @@ def test_inconsistent_snapshot_is_refused_not_listed() -> None:
         assert caught.value.detail["reason"] == reason and caught.value.detail["total_count"] is None
 
 
+def test_an_event_recorded_before_acceptance_is_listed_not_refused() -> None:
+    """Served-clock case (walkthrough): an apply attempt recorded on a clock behind the fixture's acceptance time
+    sorts before ACCEPTED. The Action is still consistent; the row shows the latest event in recorded order."""
+    a = action(T0)
+    accepted = event(a["id"], "ACCEPTED", T0)
+    early = event(a["id"], "FAILED", T0 - timedelta(days=15))
+    body = read(Store([a], [early, accepted]))
+    [row] = body["rows"]
+    assert row["selected_event"]["id"] == str(accepted["id"]) and row["event_count"] == 2
+
+
 def test_cursor_round_trip() -> None:
     payload = {"v": 1, "tenant_id": "t", "site_id": "s", "from": "a", "to": "b", "fence": "f",
                "after": ["2026-11-01T00:00:00Z", str(uuid4())]}

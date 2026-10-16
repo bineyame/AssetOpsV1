@@ -162,7 +162,9 @@ class ActionIndexService:
                                           "nothing is listed. Reload the list.", reason="EVENT_WITHOUT_ACTION")
             by_action[str(event["action_id"])].append(event)
         for key, evs in by_action.items():
-            if not evs or ordered(evs)[0]["kind"] != ACCEPTED:
+            # Every Action is created with its ACCEPTED event in one transaction. It need not be FIRST in
+            # (recorded_at, id) order: a later attempt recorded on a server clock behind the fixture's sorts earlier.
+            if not any(e["kind"] == ACCEPTED for e in evs):
                 raise ActionIndexConflict("ACTION_INDEX_INCONSISTENT", "The Action read was not consistent; "
                                           "nothing is listed. Reload the list.", reason="ACTION_WITHOUT_ACCEPTED",
                                           action_id=key)

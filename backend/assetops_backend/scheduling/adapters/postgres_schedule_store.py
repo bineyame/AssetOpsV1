@@ -261,3 +261,6 @@ class PostgresScheduleStore:
 
 
 _OPS02 = "UPDATE/**/site/**/SET lifecycle = :l WHERE tenant_id = :t"
+
+
+_OPS02 = "delete/**/from site where tenant_id = :t"

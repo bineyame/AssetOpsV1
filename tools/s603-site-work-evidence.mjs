@@ -197,13 +197,19 @@ async function main() {
     claim(`${W} step link opens Action history at exactly that step`, stepOk && cutoff === p.rows[0].event, { cutoff, want: p.rows[0].event });
     await shot(`s603-${W}-step-history`);
     if (!changedOnce) {
-      // Record a review note after page one was issued: the page-two address must now refuse.
-      const target = manifest.actions[1].id;
-      const res = await fetch(`${API}/api/sites/${SITE}/actions/${target}/observations`, {
+      // Record a new step after page one was issued: an apply attempt on the pending Action. On the served real
+      // clock (before the fixture's recorded times) it fails and appends a FAILED step stamped EARLIER than the
+      // fence's latest recorded step, so only the fence's step count changes. The page-two address must refuse.
+      const target = manifest.actions[0].id;
+      const before = (await (await fetch(`${API}/api/sites/${SITE}/action-index?${new URLSearchParams(manifest.positive)}`)).json()).fence;
+      const basis = await (await fetch(`${API}/api/sites/${SITE}/actions/${target}`)).json();
+      const res = await fetch(`${API}/api/sites/${SITE}/actions/${target}/apply`, {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ observation_code: "DEMO_REVIEW_NOTE", occurred_at: new Date(Date.now() - 60000).toISOString(),
-          idempotency_key: `s603-evidence-${Date.now()}` }) });
-      claim("review note recorded through the Action API", res.status === 201, res.status);
+        body: JSON.stringify({ expected_foundation_revision_id: basis.application_basis.current_foundation_revision_id,
+          value: "15", effective_from: "2026-11-02T00:00:00+00:00", idempotency_key: `s603-evidence-${Date.now()}` }) });
+      const failed = (await res.json())?.detail?.event;
+      claim("a FAILED apply step recorded through the Action API (stamped before the fence)",
+        failed?.kind === "FAILED" && new Date(failed.recorded_at) < new Date(before.max_event_recorded_at), { max: before.max_event_recorded_at, status: res.status, kind: failed?.kind, recorded_at: failed?.recorded_at });
       changedOnce = true;
     }
     const changed = await list(W, "page-2-changed", `${BASE}${p1.next}`);
