@@ -96,7 +96,12 @@ def _selected(url: str, runner, day: str) -> dict[str, Any]:
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
     from assetops_backend.analytics.dispatch_read import DispatchReadService
 
-    body = DispatchReadService(PostgresAssessmentStore(url)).window(runner.tenant, runner.site, date.fromisoformat(day))
+    store = PostgresAssessmentStore(url)
+    try:
+        body = DispatchReadService(store).window(runner.tenant, runner.site, date.fromisoformat(day))
+    finally:
+        if store._engine is not None:  # one short-lived pool per read; never left open for the suite
+            store._engine.dispose()
     return {"status": body["status"],
             "run_id": None if body["selection"] is None else str(body["selection"]["run_id"]),
             "window_revision_id": None if body["window_assessment"] is None else str(body["window_assessment"]["id"]),

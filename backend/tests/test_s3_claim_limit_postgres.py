@@ -48,8 +48,9 @@ def built(engine):
     store = PostgresFoundationStore(URL)
     runner = CaseRunner(store, engine)
     manifest = records.build(runner, URL)
-    yield runner, manifest
-    pg_harness.dispose(store)
+    assessments = PostgresAssessmentStore(URL)  # one pool for the module's reads, disposed at teardown
+    yield runner, manifest, assessments
+    pg_harness.dispose(store, assessments, runner.findings)
 
 
 def client(built, *, gate_open=True, access=None, store=None) -> "TestClient":
@@ -58,7 +59,7 @@ def client(built, *, gate_open=True, access=None, store=None) -> "TestClient":
              "OTHER-1": ("OTHER-1", uuid4(), uuid4())}
     app = FastAPI()
     app.include_router(build_claim_limit_router(
-        ClaimLimitReadService(store or PostgresAssessmentStore(URL)), scope.get,
+        ClaimLimitReadService(store or built[2]), scope.get,
         gate=lambda code, t, s: (gate_open, "test: gate open" if gate_open else CLOSED),
         **({} if access is None else {"access": access})))
     return TestClient(app)
@@ -73,7 +74,11 @@ def get(built, name: str, revision: str | None = "interval", **kw) -> "object":
     rid = c["interval_revision_ids"][0] if revision == "interval" else revision
     params = {} if rid is None else {"revision": rid}
     params.update(kw.pop("params", {}))
-    return client(built, **kw).get(f"{BASE}/{c['day']}/claim-limit", params=params)
+    try:
+        return client(built, **kw).get(f"{BASE}/{c['day']}/claim-limit", params=params)
+    finally:
+        if kw.get("store") is not None:
+            pg_harness.dispose(kw["store"])
 
 
 def ok(response) -> dict:
@@ -293,10 +298,12 @@ class TestLaterStates:
 
         runner = built[0]
         now = runner.tick()
+        jobs = PostgresAssessmentStore(URL)
         for _ in range(3):
-            DispatchAssessmentWorker(PostgresAssessmentStore(URL), clock=Clock(now), model=Broken,
+            DispatchAssessmentWorker(jobs, clock=Clock(now), model=Broken,
                                      backoff=timedelta(0)).run_pending(reconcile=False)
             now += timedelta(minutes=1)
+        pg_harness.dispose(jobs)
         body = ok(get(built, "stale-selection"))
         assert body["window_status"] == body["currentness"] == "FAILED"
         assert body["claim_limit"]["ceiling"] is None and body["claim_limit"]["current_positive_claim"] is False

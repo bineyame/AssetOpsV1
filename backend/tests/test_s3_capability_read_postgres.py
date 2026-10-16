@@ -44,19 +44,16 @@ def built(engine):
     if out:
         with open(out, "w", encoding="utf-8") as handle:
             json.dump(manifest, handle, indent=2, default=str)
-    yield runner, manifest
-    pg_harness.dispose(store)
-
-
-def reads() -> "ClaimLimitReadService":
-    return ClaimLimitReadService(PostgresAssessmentStore(URL))
+    assessments = PostgresAssessmentStore(URL)
+    yield runner, manifest, ClaimLimitReadService(assessments)
+    pg_harness.dispose(store, assessments, runner.findings)
 
 
 def read(built, case: str, revision: str | None = "interval") -> dict:
-    runner, manifest = built
+    runner, manifest, reads = built
     c = manifest["cases"][case]
     rid = c["interval_revision_ids"][0] if revision == "interval" else revision
-    return reads().read(runner.tenant, runner.site, date.fromisoformat(c["day"]), None if rid is None else UUID(rid))
+    return reads.read(runner.tenant, runner.site, date.fromisoformat(c["day"]), None if rid is None else UUID(rid))
 
 
 def spans(body: dict, role: str) -> list[tuple[str, str, str]]:
