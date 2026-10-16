@@ -96,7 +96,7 @@ class TestCapabilityRead:
         pv = body["capability"]["roles"]["pv_available_power"]
         assert pv["status"] == "INCOMPLETE" and pv["covered_minutes"] == 0.0
         assert pv["minutes_by_status"] == {"MISSING": 30.0} and pv["evidence_ids"] == []
-        assert spans(body, "pv_available_power") == [("MISSING", "2026-10-08T08:00:00Z", "2026-10-08T08:30:00Z")]
+        assert spans(body, "pv_available_power") == [("MISSING", "2026-10-08T08:00:00.000000Z", "2026-10-08T08:30:00.000000Z")]
         assert body["capability"]["roles"]["pcs_discharge_capability"]["status"] == "COVERED"
         assert any(r["code"] == "MISSING_ROLE" and r["role"] == "pv_available_power"
                    for r in body["claim_limit"]["reasons"])
@@ -104,7 +104,7 @@ class TestCapabilityRead:
     def test_poor_quality_and_conflict_keep_their_exact_subspans(self, built) -> None:
         body = read(built, "poor-quality-conflict")
         dis = spans(body, "pcs_discharge_capability")
-        assert ("POOR_QUALITY", "2026-10-11T08:05:00Z", "2026-10-11T08:20:00Z") in dis, dis
+        assert ("POOR_QUALITY", "2026-10-11T08:05:00.000000Z", "2026-10-11T08:20:00.000000Z") in dis, dis
         assert dis[0][0] == "COVERED" and dis[-1][0] == "COVERED"
         pv = spans(body, "pv_available_power")
         assert any(s[0] == "CONFLICTED" for s in pv), pv
