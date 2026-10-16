@@ -1,6 +1,6 @@
 # W1-UX-04 — Action, work, change and verification presentation
 
-Status: implementation-ready. Branch `task/W1-UX-04` after W1-UX-01 **and reviewed/merged S6-02b and S6-03**; re-inventory their actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `recommendation`, `changes`, `action-overview`, `action-plan`, `action-execution`, `action-evidence`, `action-history`, `verification`, `sitework`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S6-01b/S6-02b/S6-03 packets and the S6 verification decisions.
+Status: active (activated 2026-10-16 from main `b4a89314`); was implementation-ready. Branch `task/W1-UX-04` after W1-UX-01 **and reviewed/merged S6-02b and S6-03**; re-inventory their actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `recommendation`, `changes`, `action-overview`, `action-plan`, `action-execution`, `action-evidence`, `action-history`, `verification`, `sitework`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S6-01b/S6-02b/S6-03 packets and the S6 verification decisions.
 
 ## Visible result
 
