@@ -1,6 +1,6 @@
 # S4-05 — stored source provenance
 
-Status: implementation-ready (plan fix round 1)
+Status: done (S4-05a and S4-05b merged 2026-10-16); was implementation-ready (plan fix round 1)
 USER_REVIEW_REQUIRED: true — owner approval of visible source wording at W1 holds S4-05b merge. This plan and the Architect ruling do not approve a real pilot.
 Milestone: S4 Finding + Financials / S2 Evidence follow-on. This work exceeds M as one slice: implement [S4-05a](S4-05a-provenance-binding-resolver.md) then [S4-05b](S4-05b-producers-reads-walkthrough.md), each M or smaller and at most two phases. Coordinator commits this plan; use separate task branches from reviewed main.
 

@@ -28,6 +28,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { Disclosure, Fact, FactList, Panel } from "../ui";
+import { SourceProvenanceNotice } from "./sourceProvenance";
 import {
   freshIdempotencyKey,
   type AcceptedRecommendation,
@@ -142,6 +143,7 @@ export function SiteRecommendation({
         </RefusalPanel>
       ) : null}
       <Panel heading="Battery reserve trial" headingId="site-recommendation-heading">
+        <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="recommendation" />
         <FactList>
           <Fact term="Rule">
             <Ref value={`${body.rule.id} v${body.rule.version}`} attr="data-recommendation-rule" />

@@ -203,6 +203,13 @@ def prepare(db: str, empty: str, work: Path) -> None:
     if not exists:
         raise SystemExit(f"Missing template {TEMPLATE_DB}: run `.venv/Scripts/python.exe tools/s402b_power_cases.py "
                          "run` first (about 2.5 minutes).")
+    # S4-05b: P01 keeps its authored label only through a fresh publication before upload. A template produced
+    # before the producer registered its batches has no binding, so it would read as UNKNOWN: refuse it.
+    bound = query(TEMPLATE_DB, "SELECT CASE WHEN to_regclass('batch_publication_link') IS NULL THEN 0 ELSE "
+                               "(SELECT count(*) FROM batch_publication_link) END AS n")
+    if not bound or not bound[0]["n"]:
+        raise SystemExit(f"Template {TEMPLATE_DB} has no published P01 batches (made before S4-05b): rerun "
+                         "`.venv/Scripts/python.exe tools/s402b_power_cases.py run` first.")
     say(f"=== 1. Private code trees in {work} (one per database) ===")
     stage_tree(work, db)
     stage_tree(work, empty)

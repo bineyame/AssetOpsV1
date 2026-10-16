@@ -49,7 +49,7 @@ if URL:
     )
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
-    from money_gate_stub import ELIGIBLE
+    from money_gate_stub import AUTHORED, ELIGIBLE
     from assetops_backend.financials.consequence_read import ConsequenceReadService
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
     from assetops_backend.finding_api import build_finding_router
@@ -65,7 +65,7 @@ class Rig:
     def __init__(self, site) -> None:
         self.site = site
         self.worker = ConsequenceRecomputeWorker(site.store, site.prices, CONSEQUENCE_UNAVAILABLE)
-        self.reads = ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE)
+        self.reads = ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE, provenance=AUTHORED)
 
     def run(self):
         return self.worker.run_pending(self.site.tenant, self.site.site)
@@ -289,7 +289,7 @@ class TestRoute:
         app.include_router(build_finding_router(
             build_finding_read_service(URL), scope.get, CONSEQUENCE_UNAVAILABLE,
             gate=lambda c, t, s: (gate_open, "test gate open" if gate_open else "test gate closed"),
-            consequences=ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE) if consequences else None,
+            consequences=ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE, provenance=AUTHORED) if consequences else None,
             consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
         return TestClient(app)
 

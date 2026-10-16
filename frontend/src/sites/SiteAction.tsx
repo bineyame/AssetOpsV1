@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
+import { SourceProvenanceNotice } from "./sourceProvenance";
 import {
   freshIdempotencyKey,
   type ActionBody,
@@ -317,6 +318,7 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
               Recommendation at that version
             </Link>
           </p>
+          <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="action-origin" />
         </Panel>
         <Panel heading="Latest Finding version" headingId="site-action-latest-heading">
           {notice ? (

@@ -198,7 +198,29 @@ class Cases(s2.Demo):
             self.control(control, "setup")
 
     # ------------------------------------------------------------ steps
-    def post(self, envelopes: list[tuple[str, str]]) -> list[str]:
+    def publish_authored(self, body: str, fixture: tuple[str, str]) -> str:
+        """S4-05b: the server's SYSTEM publication command for one exact sealed batch, run BEFORE its upload.
+
+        Any refusal (non-zero exit) stops the producer: the batch is never uploaded unpublished."""
+        batch_id = json.loads(body)["batch_id"]
+        folder = self.work / "publications"
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / f"{batch_id}.json"
+        path.write_text(body, encoding="utf-8")
+        done = self.py("-m", "assetops_backend.publish_source", "--site", s2.SITE, "--fixture-id", fixture[0],
+                       "--fixture-version", fixture[1], "--batch-file", str(path),
+                       check=False)
+        if done.returncode != 0:
+            raise SystemExit(f"source publication of batch {batch_id} refused; nothing uploaded: "
+                             f"{done.stdout} {done.stderr}")
+        line = done.stdout.strip().splitlines()[-1]
+        self.publications = getattr(self, "publications", {})
+        self.publications[batch_id] = {"fixture_id": fixture[0], "fixture_version": fixture[1],
+                                       "publication_id": line.rsplit("publication ", 1)[-1]}
+        return self.publications[batch_id]["publication_id"]
+
+    def post(self, envelopes: list[tuple[str, str]], fixture: tuple[str, str] | None = None) -> list[str]:
+        """Seal and upload; with `fixture` (S4-05b) each exact batch is published as authored before upload."""
         from assetops_contracts.ingestion_batch_v2 import seal_batch_v2
 
         by_device: dict[str, list[str]] = {}
@@ -213,6 +235,8 @@ class Cases(s2.Demo):
                 foundation_valid_from=self.doc["foundation"]["valid_from"],
                 binding_set_id=self.doc["mapping"]["binding_set_id"], binding_version=self.doc["mapping"]["version"],
                 snapshot_sha256=self.snapshot_sha, envelope_texts=texts)
+            if fixture is not None:
+                self.publish_authored(body, fixture)
             status, receipt = self.call("POST", "/api/ingestion/batches", raw=body.encode("utf-8"), base=self.https,
                                         headers=self.bearer(self.credential))
             if status != 200 or (receipt or {}).get("status") != "COMPLETED":

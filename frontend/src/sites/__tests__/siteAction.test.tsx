@@ -164,6 +164,9 @@ describe("Recommendation (recommendation:1#a)", () => {
     expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("AVAILABLE");
     expect(q("[data-recommendation-proposal]")?.textContent).toMatch(/20%.*to.*15%/);
     expect(q("[data-recommendation-rule]")?.textContent).toBe("reserve-trial-1 v1");
+    // S4-05b phase 2: the recorded walkthrough is unpublished, so the stored source reads Source unverified.
+    expect(q("[data-source-provenance-subject='recommendation']")?.getAttribute("data-source-provenance")).toBe("UNKNOWN");
+    expect(q("[data-source-provenance-subject='recommendation']")?.textContent).toContain("Source unverified.");
     expect(q("[data-pinned-finding-revision]")?.textContent).toBe(proposal.finding_revision_id);
     expect(q("[data-pinned-foundation-revision]")?.textContent).toBe(proposal.foundation_revision_id);
     expect(Number(q("[data-recommendation-input-count]")?.getAttribute("data-recommendation-input-count"))).toBeGreaterThan(0);

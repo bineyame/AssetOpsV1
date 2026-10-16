@@ -127,7 +127,8 @@ def summary_line(day: str, status: int, body: Any) -> dict[str, Any]:
             "assessment": body["assessment"]["state"], "money": m["state"],
             "gate": (m.get("eligibility") or {}).get("state"), "amount": [m["amount_low"], m["amount_high"],
                                                                            m["currency"]],
-            "demonstration": (m.get("demonstration") or {}).get("case_id"), "finding_id": k.get("id"),
+            # S4-05b phase 2: the stored exact-revision source state (the date/spec label is retired).
+            "source": (m.get("source_provenance") or {}).get("state"), "finding_id": k.get("id"),
             "finding_revision_id": k.get("revision_id"), "consequence_revision_id": m.get("consequence_revision_id"),
             "accepted_source": body["watermarks"]["accepted_source"],
             "analytic_selection_seq": body["watermarks"]["analytic_selection_seq"],
@@ -204,8 +205,8 @@ class S5Walk(lr.Lr01Walk):
         for name, line in lines.items():
             say(f"  {name:10} {json.dumps(line)[:400]}")
         p01, p02 = lines["p01"], lines["p02"]
-        self.expect("P01 2026-10-23: PRICED, labelled demonstration data, settled neighbourhood (CURRENT)",
-                    p01.get("money") == "PRICED" and p01.get("demonstration") is not None
+        self.expect("P01 2026-10-23: PRICED, stored source Prepared example data, settled neighbourhood (CURRENT)",
+                    p01.get("money") == "PRICED" and p01.get("source") == "AUTHORED_DEMONSTRATION"
                     and p01.get("freshness") == "CURRENT", p01)
         self.expect("P02 2026-10-24: WITHHELD_GENERATOR_SERIES, no amount",
                     p02.get("money") == "WITHHELD_GENERATOR_SERIES" and p02["amount"] == [None, None, None], p02)

@@ -5629,6 +5629,28 @@ Branch `task/S6-02a-verification-core` (main `e39a3c20` merged in; unmerged). Pa
 - Fixtures: `backend/tests/fixtures/s6_verification_api_contract.json` (TEST-SCOPED complete windows over a real roles-2 Site; shape check), `s6_action_api_contract.json` regenerated (additive). Replay `backend/conversions/d-verification-window-v1.json` + `host/tests/test_s6_verification_replay.py`.
 - Open: the replay is complete (12/12 slots, REGISTERED_SIMULATION pair PASS) but settles INCONCLUSIVE: the shipped mini-grid generator ignores the reserve, so no VERIFIED Lab path exists (Architect). Registered scenario/profile lineage is not centrally observable (source pair checks class, fixtures or distinct run digests only). Change read keeps its apply-time `outcome: PENDING` beside `verification`. Late-evidence race between the evaluator's read and its commit is narrow, not closed. Registry nodes stay `open` until review.
 
+## S4-05b - registered producers, stored-source reads and owner walkthrough (phases 1-2 built, in_review)
+
+Branch `task/S4-05b-producers-reads-walkthrough` (unmerged; owner W1 copy checkpoint first). Packet
+`.agent/S4-05b-review-packet.md`; owner steps `.agent/S4-05b-owner-walkthrough.md`; ruling D-2026-10-16-s405b-label
+(`.agent/architect-S4-05b-answers.md`).
+
+- Producers: `tools/s4_finding_cases.py` `publish_authored`/`post(fixture=)` publish each exact batch before upload
+  (P01/P02); Lab Commit registers the whole sealed Stage first (`runs/registered_release.py` `publisher_for`, wired in
+  `host/lab_app.py`); any Stage status outside STAGED/NOT_STAGED/HELD -> `SOURCE_PUBLICATION_REFUSED`
+  (`STAGE_NOT_ATTESTABLE`), nothing released; Lab shows the refusal (`RunCommitPanel`).
+- Reads: `evidence/provenance_read.py` (`source_gate`, `permits_current_money`, `MIXED_OR_UNKNOWN_SOURCE`) feeds
+  `financials/consequence_read.py`, `finding_api.py` `bridge_consequence`, `site_overview/read.py`
+  (`source_provenance`, `source_gate`, `withheld_reasons`) and `actions/service.py` (pinned origin revision; unwired
+  or failing -> UNKNOWN). `demonstration_label.py` deleted.
+- UI: `frontend/src/sites/sourceProvenance.tsx` (`SOURCE_WORDS` per ruling; unknown states -> UNKNOWN), used by
+  Finding, Evidence, consequence/Financials, Overview, Action, Recommendation; marker `[data-source-provenance]`.
+- Pilot install gate (`tools/schedule-install-gate.py`) always requires `I-attested-real-source-provenance`.
+- Walkthrough `tools/s405_provenance_walkthrough.py` (DBs `assetops_s405_{owner,old,mixed}<suffix>`, work
+  `var/s405_*`, API 8935/web 5435, `serve --case`); browser claims `tools/s405-provenance-evidence.mjs`.
+- S5-01 packet amended (shared contract item 5).
+- Open: owner copy approval; `ATTESTED_REAL_SOURCE` class (separate task); `MoneyInputs.provenance_resolved`
+  default True for unit tests; per-row provenance queries in consequence history; Action fixture size.
 ## S5-02 - Finding list in Site Overview (built, slice review pending)
 
 Branch `task/S5-02-overview-finding-list` (base main `5c1d9d42`, unmerged); packet `.agent/S5-02-review-packet.md`; owner steps `.agent/S5-02-owner-walkthrough.md`. No backend change.

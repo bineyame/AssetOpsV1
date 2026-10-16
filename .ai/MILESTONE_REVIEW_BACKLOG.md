@@ -2251,12 +2251,14 @@ Review `.agent/S4-06-review.md` ACCEPT. Residual: no test asserts the consequenc
 Review `.agent/S4-07-review.md` ACCEPT. L1: rename `test_s4_schedule_health_postgres.py:387` (alarm now only after the SQL restore). L2: no health signal ages a live PENDING job that keeps being missed (joins the health scan cost item). Residuals: manual app-clock `process-jobs` still mixes clocks (I3 not closed for manual CLIs; stop the tick first); `clock_timestamp()` vs `now()` reasoned not mutation-proved.
 
 
-### Owner W1-conclusion task: plain-language status copy and user-focused visuals (2026-10-15, widened 2026-10-16)
+### Owner W1-conclusion task: mockup-fidelity and UI/UX pass (plain language, user-focused visuals) (2026-10-15, widened 2026-10-16)
 
 Owner, accepting LR-01 and S5-01 (`.agent/owner-LR01-S501-acceptance-2026-10-15.md`): status wording such as "Not assessed", "Upstream out of date", "Pending reassessment" and visible reason codes must become plain language non-technical users understand. Schedule as one copy task at the conclusion of W1 across Overview, Financials, Finding, Evidence/Dispatch and Action screens; until then, demo speed over perfection.
 
 Widened 2026-10-16 (owner, accepting S4-04 and S6-01b, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`): "communication to the user should be better user focussed and less technical(with option for advanced user to dig deeper). The visuals should be enging, clear and simple yet powerful." The task now covers user-focused copy with a dig-deeper layer for advanced users, and engaging, clear, simple visuals across the W1 screens. It runs after core W1 functions are done.
 
+
+Widened again 2026-10-16 (owner, accepting S4-05b, `.agent/owner-S405b-acceptance-2026-10-16.md`): "Internal sytem analysitics and vovabulary are leaked to the user in a way that is confusing. The user is not who builds the system but who the system is built for for. Everything should be shared with the user in a simple, understandable langauge and presentation format, which the mockups do very well but i am seeing drift from the mockups. This should be adderessed on the mockup fedility and UI/UX pass at teh conclusion of wave1." The task is now a **mockup-fidelity and UI/UX pass** over every W1 product screen: return to the v69 mockups' language and layout, remove internal analytics and system vocabulary from the default reading, keep detail behind a dig-deeper layer, and revisit S4-05b's interim source labels.
 ### S4 deferred-match fix carries (2026-10-16)
 
 Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 downgrade refusal. L3: rewrap `test_s4_finding_episode.py:206`. Risks: health can read IDLE while a day stays pending behind an UNASSESSED neighbour (no alarm); a deferred day holds back money eligibility for unrelated matched episodes that day; the matcher fence omits the input hash, so a STALE-to-CURRENT flip with no job/selection change leaves a deferral pending (now visible as pending rather than hidden).

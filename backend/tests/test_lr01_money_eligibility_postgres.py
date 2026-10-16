@@ -43,6 +43,7 @@ def _release_connections():
 
 if URL:
     from sqlalchemy import text
+    from money_gate_stub import AUTHORED
     from test_s1_bindings_postgres import engine, store  # noqa: F401
     from test_s2_evidence_ledger_postgres import SourceEnvelopeV3, _z, canonical_envelope_v3_text, v3_message_id
     from test_s4_assumptions_postgres import run_fixture
@@ -90,8 +91,10 @@ class Walk:
         self.first, self.late = first, late
         self.prices, self.cstore = PostgresAssumptionStore(URL), PostgresConsequenceStore(URL)
         self.assessments = PostgresAssessmentStore(URL)
+        # S4-05b phase 2: these tests exercise the LR-01 gate; the stored source gate is held positive here and
+        # proved on real publications in the production-composition test below.
         self.reads = ConsequenceReadService(self.cstore, self.prices, eligibility=MoneyEligibility(
-            DispatchReadService(self.assessments), self.r.findings))
+            DispatchReadService(self.assessments), self.r.findings), provenance=AUTHORED)
         self.worker = ConsequenceRecomputeWorker(self.cstore, self.prices, CONSEQUENCE_UNAVAILABLE)
 
     def close(self) -> None:
@@ -273,10 +276,15 @@ def test_on_time_sequenced_attested_upload_is_eligible_at_15_8125(store, engine,
         w.close()
 
 
-def test_production_composition_wires_the_persisted_gate_and_a_failed_gate_shows_no_amount(store, engine, capsys) -> None:  # noqa: F811
+def test_production_composition_wires_the_persisted_gate_and_a_failed_gate_shows_no_amount(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
     """Architect ruling 5: `build_consequence_read_service` carries the persisted S3/S4 gate; an unreadable gate
-    (or none) never shows a current amount."""
+    (or none) never shows a current amount. S4-05b phase 2: the batches are published (authored P02) before upload,
+    so the composed stored source gate passes; an unwired resolver withholds the amount though LR is ELIGIBLE."""
     from assetops_backend.financials.composition import build_consequence_read_service
+    from test_s405_publication_postgres import P02
+    from test_s405_resolver_postgres import publishing_submit
+
+    monkeypatch.setattr(CaseRunner, "submit", publishing_submit(lambda device, texts: P02))
 
     w = Walk(store, engine, capsys, on_time=True)
     prod = build_consequence_read_service(URL)
@@ -297,6 +305,18 @@ def test_production_composition_wires_the_persisted_gate_and_a_failed_gate_shows
         wired = read(prod)  # the production composition reads the same persisted lineage
         assert wired["money_eligibility"]["state"] == "ELIGIBLE"
         assert wired["currentness"]["current_amount_shown"] is True and amount(wired) == Decimal("15.8125")
+        assert wired["currentness"]["source_gate"]["state"] == "AUTHORED_DEMONSTRATION"
+        assert wired["currentness"]["withheld_reasons"] == []
+
+        resolver, prod._provenance = prod._provenance, None  # LR ELIGIBLE + CURRENT PRICED, source unresolved
+        unsourced = read(prod)
+        assert unsourced["money_eligibility"]["state"] == "ELIGIBLE" and unsourced["currentness"]["state"] == "CURRENT"
+        assert unsourced["consequence"]["state"] == "PRICED" and unsourced["consequence"]["presented_as_current"] is False
+        assert unsourced["currentness"]["withheld_reasons"] == ["MIXED_OR_UNKNOWN_SOURCE"]
+        held = bridge_consequence(unsourced)
+        assert held["state"] == "MIXED_OR_UNKNOWN_SOURCE" and held["amount"] is None and held["quantity"] is None
+        assert held["recorded_consequence_revision_id"] == unsourced["consequence"]["id"]
+        prod._provenance = resolver
 
         class Broken:
             def for_finding(self, *a, **k):

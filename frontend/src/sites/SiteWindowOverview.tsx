@@ -20,6 +20,7 @@
 import { Link } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import { SourceProvenanceNotice } from "./sourceProvenance";
 import { clock, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
 import { portionWords } from "./findingWords";
 import { OUTCOME_WORDS } from "./findingPresentation";
@@ -120,8 +121,8 @@ export const MONEY_STATE_WORDS: Record<string, { label: string; sentence: string
   UNPRICED: { label: "No price", sentence: "No diesel price covers this Finding's time." },
   MINOR_UNIT_UNKNOWN: { label: "Currency unit unknown", sentence: "The currency's minor unit is not known, so no amount is displayed." },
   MIXED_OR_UNKNOWN_SOURCE: {
-    label: "Source not confirmed",
-    sentence: "The origin of this Finding's data could not be confirmed, so no amount is shown.",
+    label: "No current cost: source not established",
+    sentence: "The source of the records behind this Finding's cost is mixed or not established, so no amount is shown.",
   },
 };
 
@@ -513,10 +514,8 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
         data-money-gate={gate ?? "none"}
         data-consequence-revision-id={m.consequence_revision_id ?? ""}
       >
-        {m.demonstration ? (
-          <p className="notice notice--info" data-financials-demonstration={m.demonstration.case_id}>
-            <strong>{m.demonstration.label}.</strong> {m.demonstration.statement}
-          </p>
+        {m.finding_id ? (
+          <SourceProvenanceNotice provenance={m.source_provenance} subject="cost" name="overview-money" />
         ) : null}
         {priced ? (
           <p className="window-money__amount" data-money-amount>
