@@ -12,6 +12,7 @@ import {
   ProductOutcome,
   ProductStatus,
   readResultWords,
+  StepStrip,
   UNRECOGNISED_SENTENCE,
   ValueBars,
   type ProductWords,
@@ -273,5 +274,28 @@ describe("W1 shared presentation: primitives", () => {
     expect(container.querySelector("ul")?.getAttribute("aria-label")).toBe(
       "Readings by outcome. Accepted: 288; Rejected: 0; Late: not known",
     );
+  });
+
+  it("a step strip says each step's state in words, including not known", () => {
+    const { container } = render(
+      <StepStrip
+        title="Where this stands"
+        steps={[
+          { label: "Accepted", state: "done", detail: "16 Oct" },
+          { label: "Applied", state: "waiting", detail: "Not applied yet" },
+          { label: "Trial outcome", state: "not-known", detail: "We cannot judge this yet" },
+        ]}
+      />,
+    );
+    const steps = Array.from(container.querySelectorAll("[data-step]"));
+    expect(steps.map((s) => s.querySelector(".step-strip__state")?.textContent)).toEqual(["Done", "Not yet", "Not known"]);
+    expect(container.querySelector("ol")).not.toBeNull();
+  });
+
+  it("no plan is a waiting state, never an outcome", () => {
+    const words = outcomeWords("NO_PLAN", [], "LIVE");
+    expect(words.label).toBe("No trial plan yet");
+    expect(words.tone).not.toBe("positive");
+    expect(words.showsFailedLimit).toBe(false);
   });
 });
