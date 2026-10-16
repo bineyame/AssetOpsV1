@@ -1,0 +1,477 @@
+/**
+ * S6-02b: the Action Plan / Evidence / Verification child views, the
+ * Recommendation success panels and the Foundation change later-effect panels,
+ * against S6-02a's committed wire contract
+ * `backend/tests/fixtures/s6_verification_api_contract.json` (TEST-SCOPED
+ * complete windows and authored source resolution). `fetch` is stubbed to serve
+ * the recorded responses, so the real clients and screens read real persisted
+ * shapes.
+ *
+ * The contract normalises identifiers to `<uuid>`; `prep` gives the ones the
+ * screens link by (Action, plan, outcomes, change, event, Finding) fixed values
+ * and every other `<uuid>` one shared value. Derived bodies, each marked
+ * "Derived" where built:
+ * 1. INEFFECTIVE with a measured GUARDRAIL_FAIL, INEFFECTIVE target-only and
+ *    INCONCLUSIVE outcome reads, from the recorded current outcome read with
+ *    the typed outcome, reasons and metrics changed as the evaluator writes them
+ *    (`verification_rules.decide`);
+ * 2. a plan read with no later selection appended, and one with no plan;
+ * 3. an evidence read with one later slot's demand reading missing (GAP);
+ * 4. a recommendation/change read carrying a verification block (S6-01 contract
+ *    bodies plus the S6-02a `verification` field);
+ * 5. the overlap recommendation with the blocking Action's origin on another
+ *    Finding.
+ */
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import actionContract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
+import contract from "../../../../backend/tests/fixtures/s6_verification_api_contract.json";
+import { SiteActionFrame, SiteFindingFrame, SiteFoundationChangeFrame } from "../../shell/SiteAnalyticsFrames";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { settledScreen } from "../../test/settled";
+import type { SiteDetailClient } from "../siteDirectoryClient";
+import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+
+type Body = any;
+const R = contract.responses as unknown as Record<string, Body>;
+type Case = { request: { method: string; path: string }; status: number; body: Body };
+const AM = actionContract.manifest as unknown as Record<string, Record<string, Case>>;
+
+const ACTION = "a0000000-0000-4000-8000-000000000001";
+const PLAN = "a0000000-0000-4000-8000-000000000002";
+const OUT1 = "a0000000-0000-4000-8000-000000000003";
+const OUT2 = "a0000000-0000-4000-8000-000000000004";
+const CHANGE = "a0000000-0000-4000-8000-000000000005";
+const EVENT = "a0000000-0000-4000-8000-000000000006";
+const FINDING = "a0000000-0000-4000-8000-000000000007";
+const OTHER_FINDING = "a0000000-0000-4000-8000-000000000008";
+const PLAN2 = "a0000000-0000-4000-8000-000000000009";
+const ANY = "a0000000-0000-4000-8000-0000000000ff";
+const CUTOFF = "2026-11-02T12:30:00+00:00";
+
+const BY_KEY: Record<string, string> = {
+  action_id: ACTION,
+  plan_id: PLAN,
+  verification_plan_id: PLAN,
+  change_id: CHANGE,
+  applied_event_id: EVENT,
+  finding_id: FINDING,
+};
+
+/** Fixed IDs for linked identifiers, one shared value for the rest; `outcomes` names the outcome IDs. */
+function prep<T>(value: T, outcomes: Record<string, string> = {}): T {
+  const walk = (node: unknown, key: string | null): unknown => {
+    if (Array.isArray(node)) return node.map((item) => walk(item, key));
+    if (node && typeof node === "object") {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(node)) out[k] = walk(v, k);
+      return out;
+    }
+    if (node === "<uuid>") {
+      if (key !== null && outcomes[key]) return outcomes[key];
+      if (key !== null && BY_KEY[key]) return BY_KEY[key];
+      return ANY;
+    }
+    if (node === "ACT-<n>") return "ACT-7";
+    return node;
+  };
+  return walk(structuredClone(value), null) as T;
+}
+
+const API = `/api/sites/KOBO-001/actions/${ACTION}`;
+const V = `${API}/verification`;
+
+function key(method: string, url: string): string {
+  const [path, query = ""] = url.split("?");
+  const params = query
+    .split("&")
+    .filter(Boolean)
+    .map((pair) => pair.split("=").map(decodeURIComponent) as [string, string])
+    .sort(([a], [b]) => a.localeCompare(b));
+  return `${method} ${decodeURIComponent(path)}${params.length ? `?${params.map(([k, v]) => `${k}=${v}`).join("&")}` : ""}`;
+}
+
+function serve(gets: Record<string, { status: number; body: unknown }>) {
+  const table = new Map<string, { status: number; body: unknown }>();
+  for (const [url, value] of Object.entries(gets)) table.set(key("GET", url), value);
+  const requests: string[] = [];
+  vi.stubGlobal("fetch", async (url: string) => {
+    const k = key("GET", url);
+    requests.push(k);
+    const hit = table.get(k);
+    if (!hit) return new Response(JSON.stringify({ detail: { code: "TEST_UNMATCHED", message: k } }), { status: 599 });
+    return new Response(JSON.stringify(hit.body), { status: hit.status });
+  });
+  return { requests };
+}
+
+const ok = (body: unknown) => ({ status: 200, body });
+
+const detail: SiteDetailClient = {
+  getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId } }),
+} as SiteDetailClient;
+
+function Where() {
+  const location = useLocation();
+  return <output data-testid="where">{`${location.pathname}${location.search}`}</output>;
+}
+
+function mount(path: string) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        {["/sites/:siteId/actions/:actionId", "/sites/:siteId/actions/:actionId/:actionView"].map((p) => (
+          <Route key={p} path={p} element={<><SiteActionFrame detail={detail} sitesPath="/sites" /><Where /></>} />
+        ))}
+        {["/sites/:siteId/findings/:findingId", "/sites/:siteId/findings/:findingId/:findingView"].map((p) => (
+          <Route key={p} path={p} element={<><SiteFindingFrame detail={detail} sitesPath="/sites" /><Where /></>} />
+        ))}
+        <Route path="/sites/:siteId/foundation/changes/:changeId" element={<><SiteFoundationChangeFrame detail={detail} sitesPath="/sites" /><Where /></>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+const q = (selector: string) => document.body.querySelector(selector);
+const qa = (selector: string) => Array.from(document.body.querySelectorAll(selector));
+const where = () => screen.getByTestId("where").textContent;
+
+function noVocabularyViolations(page: string) {
+  const main = document.body.querySelector("main") as HTMLElement;
+  const { violations, scanned } = scanProductVocabulary(main, page);
+  expect(scanned).toBeGreaterThan(10);
+  expect(violations, describeViolations(violations)).toEqual([]);
+}
+
+function atWidth(width: number) {
+  Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+  window.dispatchEvent(new Event("resize"));
+}
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+  atWidth(1024);
+});
+
+/** The Action and its events: the recorded resolved Action read, beside the S6-01 events read. */
+function actionReads(query = "") {
+  const action = prep(R.action_resolved);
+  action.action.id = ACTION;
+  action.selection.cutoff_recorded_at = CUTOFF;
+  return {
+    [`${API}${query}`]: ok(action),
+    [`${API}/events${query}`]: ok(AM["action-history:1#a"].events_latest.body),
+  };
+}
+
+const history = () => {
+  const h = prep(R.history);
+  h.outcomes[0].outcome_id = OUT1;
+  h.outcomes[1].outcome_id = OUT2;
+  h.outcomes[1].supersedes_outcome_id = OUT1;
+  h.resolution_events[0].verification_outcome_id = OUT1;
+  h.resolution_events[1].verification_outcome_id = OUT1;
+  return h;
+};
+
+const outcomeCurrent = () => {
+  const o = prep(R.outcome_current, { outcome_id: OUT1 });
+  o.current_state.outcome_id = OUT1;
+  return o;
+};
+
+/** Derived (1): the recorded current outcome read with the evaluator's typed outcome, reasons and metrics changed. */
+function outcomeAs(outcome: string, reasons: string[], fail: Record<string, [string, string]> = {}) {
+  const o = outcomeCurrent();
+  o.outcome.outcome = outcome;
+  o.outcome.reasons = reasons;
+  o.current_state.state = outcome;
+  o.current_state.last_outcome = outcome;
+  o.current_state.reasons = reasons;
+  for (const m of o.metrics) {
+    if (fail[m.metric_key]) {
+      m.state = "FAIL";
+      [m.value_text, m.threshold_text] = fail[m.metric_key];
+    }
+    if (outcome === "INCONCLUSIVE" && m.metric_key === "below_reserve_seconds") m.state = "UNKNOWN";
+  }
+  return o;
+}
+
+describe("Verification view (verification:1-3)", () => {
+  it("defaults to the latest current state: a current VERIFIED outcome with target and limits, policy-trial label and withdrawable resolution", async () => {
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(outcomeCurrent()) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    expect(q("[data-verification-current-state]")).toHaveAttribute("data-verification-current-state", "VERIFIED");
+    expect(q("[data-verification-historical]")).toBeNull();
+    const headline = q("[data-verification-outcome]");
+    expect(headline).toHaveAttribute("data-verification-outcome", "VERIFIED");
+    expect(headline).toHaveAttribute("data-verification-historical-outcome", "no");
+    expect(headline?.textContent).toContain("Target met within every limit");
+    expect(q("[data-verification-row='target_reduction']")?.textContent).toMatch(/45 min.*0 min.*At least 25% lower.*Pass/);
+    expect(q("[data-verification-row='below_reserve_seconds']")?.textContent).toContain("checked every five minutes");
+    expect(q("[data-verification-row='source_provenance']")?.textContent).toContain("Authored test data (test-scoped example)");
+    expect(q("[data-verification-trial-label]")?.textContent).toMatch(/Policy trial.*no savings or realized benefit.*never permanent/);
+    expect(q("[data-verification-resolution-kind='RESOLVED']")).not.toBeNull();
+    expect(q("[data-verification-resolution-kind='RESOLUTION_WITHDRAWN']")).not.toBeNull();
+    expect(q("[data-verification-resolved-withdrawable]")?.textContent).toMatch(/not permanent/);
+    // Typed values only in Dig deeper; the default reading has no enum.
+    expect(q("[data-disclosure='verification-outcome'] [data-verification-typed-outcome]")?.textContent).toBe("VERIFIED");
+    expect(q("[data-verification-outcome]")?.textContent).not.toMatch(/VERIFIED|TARGET_AND_GUARDRAILS_PASS/);
+    expect(document.body.textContent).not.toMatch(/saved|savings of|reduced cost/i);
+    noVocabularyViolations("verification:1-3");
+  });
+
+  it("REASSESSMENT_PENDING is the current read state; the withdrawn outcome is only an explicit Historical link", async () => {
+    const o = prep(R.outcome_reassessment_pending, { outcome_id: OUT1 });
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(o), [`${V}/outcome?outcome_id=${OUT2}`]: ok(prep(R.outcome_historical, { outcome_id: OUT2 })) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    expect(q("[data-verification-current-state]")).toHaveAttribute("data-verification-current-state", "REASSESSMENT_PENDING");
+    expect(q("[data-verification-state-label]")?.textContent).toBe("Being reassessed");
+    expect(q("[data-verification-outcome]")).toBeNull();
+    expect(q("[data-verification-no-current-outcome]")).toHaveAttribute("data-verification-no-current-outcome", "REASSESSMENT_PENDING");
+    const prior = q("[data-verification-prior-outcome-link]") as HTMLAnchorElement;
+    expect(prior).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}/verification?outcome_id=${OUT2}`);
+    noVocabularyViolations("verification:reassessment");
+  });
+
+  it("an explicit historical VERIFIED is labelled Historical beside a separate current state, and is not shown as current", async () => {
+    const o = prep(R.outcome_historical, { outcome_id: OUT1 });
+    o.superseded_by_outcome_id = OUT2;
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome?outcome_id=${OUT1}`]: ok(o) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification?outcome_id=${OUT1}`);
+    await settledScreen();
+    expect(q("[data-verification-historical]")?.textContent).toMatch(/^Historical/);
+    expect(q("[data-verification-current-state]")).toHaveAttribute("data-verification-current-state", "INCONCLUSIVE");
+    expect(q("[data-verification-state-label]")?.textContent).toBe("Could not conclude");
+    expect(q("[data-verification-outcome]")).toHaveAttribute("data-verification-outcome", "VERIFIED");
+    expect(q("[data-verification-outcome]")).toHaveAttribute("data-verification-historical-outcome", "yes");
+    expect(q("[data-verification-superseded-by]")).toHaveAttribute("data-verification-superseded-by", OUT2);
+    // The selection survives every section link.
+    for (const section of ["plan", "evidence", "verification", "history"]) {
+      const link = q(`[data-action-section='${section}']`);
+      expect(link?.getAttribute("href")).toContain(`outcome_id=${OUT1}`);
+    }
+  });
+
+  it("shows the three interim labels with typed outcomes; GUARDRAIL_FAIL is a reason with metric, value, threshold, unit and evidence", async () => {
+    const cases: [Body, string, string][] = [
+      [outcomeAs("INEFFECTIVE", ["GUARDRAIL_FAIL", "GUARDRAIL:below_reserve_seconds"], { below_reserve_seconds: ["600", "0 and <= baseline"] }), "Trial missed a safety or service limit", "INEFFECTIVE"],
+      [outcomeAs("INEFFECTIVE", ["TARGET_MISS"], { target_reduction: [null as unknown as string, "4 * later_seconds <= 3 * baseline_seconds"] }), "Target not met", "INEFFECTIVE"],
+      [outcomeAs("INCONCLUSIVE", ["GUARDRAIL_UNKNOWN:below_reserve_seconds", "INCOMPLETE_LATER_WINDOW", "KNOWN_FAILURE:target_reduction"]), "Could not conclude", "INCONCLUSIVE"],
+    ];
+    for (const [body, label, typed] of cases) {
+      serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(body) });
+      mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+      await settledScreen();
+      const headline = q("[data-verification-outcome]");
+      expect(headline).toHaveAttribute("data-verification-outcome", typed);
+      expect(headline).toHaveAttribute("data-verification-label", label);
+      expect(q("[data-verification-typed-outcome]")?.textContent).toBe(typed);
+      if (label === "Trial missed a safety or service limit") {
+        const failed = q("[data-verification-failed-metric='below_reserve_seconds']");
+        expect(failed?.textContent).toMatch(/Time below the reserve.*600.*s.*0 and <= baseline/);
+        expect(Number(failed?.querySelector("[data-verification-evidence-count]")?.getAttribute("data-verification-evidence-count"))).toBeGreaterThan(0);
+        expect(qa("[data-verification-outcome]").map((e) => e.getAttribute("data-verification-outcome"))).not.toContain("GUARDRAIL_FAIL");
+      }
+      if (label === "Could not conclude") {
+        expect(q("[data-verification-unknown-reasons]")?.textContent).toContain("The later window is missing required readings.");
+        expect(q("[data-verification-known-failures]")?.textContent).toContain("Known failure");
+      }
+      noVocabularyViolations(`verification:${label}`);
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("conflicting selectors are a typed error with no read and no silent preference", async () => {
+    const s = serve({ ...actionReads(`?recorded_at=${encodeURIComponent(CUTOFF)}`) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification?recorded_at=${encodeURIComponent(CUTOFF)}&outcome_id=${OUT1}`);
+    await settledScreen();
+    expect(q("[data-verification-selector-conflict]")).toHaveAttribute("data-verification-selector-conflict", "VERIFICATION_SELECTOR_CONFLICT");
+    expect(s.requests.some((r) => r.includes("/verification/"))).toBe(false);
+    cleanup();
+    vi.unstubAllGlobals();
+    // A plan and an outcome of another plan.
+    serve({ ...actionReads(), [`${V}/outcome?outcome_id=${OUT1}`]: ok(prep(R.outcome_historical, { outcome_id: OUT1 })) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan?plan_revision_id=${PLAN2}&outcome_id=${OUT1}`);
+    await settledScreen();
+    expect(q("[data-verification-selector-conflict]")).not.toBeNull();
+    expect(q("[data-verification-plan-id]")).toBeNull();
+  });
+
+  it("a recorded cutoff is historical across child links and a reload", async () => {
+    const at = encodeURIComponent(CUTOFF);
+    const reads = {
+      ...actionReads(`?recorded_at=${at}`),
+      [`${V}/history`]: ok(history()),
+      [`${V}/outcome?recorded_at=${at}`]: ok(prep(R.outcome_historical, { outcome_id: OUT1 })),
+      [`${V}/plan?recorded_at=${at}`]: ok(prep(R.plan)),
+    };
+    serve(reads);
+    const { unmount } = mount(`/sites/KOBO-001/actions/${ACTION}/verification?recorded_at=${at}`);
+    await settledScreen();
+    expect(q("[data-verification-historical]")?.textContent).toContain("recorded through");
+    fireEvent.click(q("[data-action-section='plan']") as HTMLAnchorElement);
+    await settledScreen();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}/plan?recorded_at=${at}`);
+    expect(q("[data-verification-plan-id]")).toHaveAttribute("data-verification-plan-id", PLAN);
+    unmount();
+    // Reload: the same address reads the same selection.
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan?recorded_at=${at}`);
+    await settledScreen();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}/plan?recorded_at=${at}`);
+    expect(q("[data-verification-historical]")).not.toBeNull();
+  });
+});
+
+describe("Plan view (action-plan:1)", () => {
+  it("shows frozen criteria, half-open windows, day selections, applied change and new-reserve classification", async () => {
+    serve({ ...actionReads(), [`${V}/plan`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await settledScreen();
+    expect(q("[data-verification-plan-id]")).toHaveAttribute("data-verification-plan-current", "yes");
+    expect(q("[data-verification-criterion='target']")?.textContent).toMatch(/At least 25% lower.*times 4.*times 3.*whole seconds.*45 min/);
+    expect(q("[data-verification-criterion='comparability']")?.textContent).toMatch(/within 10%.*within 2 points.*inclusive/);
+    expect(q("[data-verification-window='baseline']")?.textContent).toContain("2026-10-06");
+    expect(q("[data-verification-window='later']")).toHaveAttribute("data-verification-later-bound", "yes");
+    expect(document.body.textContent).toMatch(/new, lower reserve/);
+    expect(document.body.textContent).toMatch(/not proof of cause/);
+    expect(q("[data-verification-plan-change-link]")).toHaveAttribute("href", `/sites/KOBO-001/foundation/changes/${CHANGE}`);
+    expect(q("[data-verification-plan-version]")?.textContent).toBe("reserve-trial-verification-1");
+    noVocabularyViolations("action-plan:1");
+  });
+
+  it("before the later selection is appended the later window is pending with the missing day; before a plan, says why", async () => {
+    const plan = prep(R.plan);
+    plan.selection_bindings = []; // Derived (2)
+    serve({ ...actionReads(), [`${V}/plan`]: ok(plan) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await settledScreen();
+    expect(q("[data-verification-later-pending]")?.textContent).toContain("2026-11-02");
+    cleanup();
+    vi.unstubAllGlobals();
+    const none = prep(R.plan);
+    none.plan = null; // Derived (2)
+    none.verification_state = { state: "NO_PLAN", reasons: [], plan_id: null, outcome_id: null, statement: "" };
+    serve({ ...actionReads(), [`${V}/plan`]: ok(none) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await settledScreen();
+    expect(q("[data-verification-plan='none']")?.textContent).toMatch(/No verification plan exists/);
+    expect(q("[data-verification-state-label]")?.textContent).toBe("No verification plan yet");
+  });
+});
+
+describe("Evidence view (action-evidence:1)", () => {
+  it("shows both windows' twelve five-minute slots, sampled reserve, source per window and comparability", async () => {
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await settledScreen();
+    for (const name of ["baseline", "later"]) {
+      const win = q(`[data-verification-evidence-window='${name}']`);
+      expect(win).toHaveAttribute("data-verification-window-complete", "yes");
+      expect(win?.querySelectorAll("[data-verification-slot]").length).toBe(12);
+      expect(win?.querySelector("[data-verification-window-source]")?.textContent).toBe("Authored test data (test-scoped example)");
+    }
+    expect(q("[data-verification-comparability='feeder_demand_energy']")).toHaveAttribute("data-verification-comparability-state", "PASS");
+    expect(document.body.textContent).toMatch(/five-minute sample, not continuous/);
+    expect(q("[data-verification-requirement='target']")?.textContent).toMatch(/45 min to 0 min/);
+    noVocabularyViolations("action-evidence:1");
+  });
+
+  it("names a gap explicitly and, for an exact outcome, reads the evidence as known when it was recorded", async () => {
+    const ev = prep(R.evidence);
+    const slot = ev.windows.later.slots[3]; // Derived (3)
+    const load = Object.keys(slot.feeder_demand)[0];
+    slot.feeder_demand[load] = { ...slot.feeder_demand[load], state: "MISSING", kwh: null, evidence_ids: [], problems: [{ code: "GAP", detail: "no interval reading covers the slot" }] };
+    slot.complete = false;
+    ev.windows.later.complete = false;
+    const o = prep(R.outcome_historical, { outcome_id: OUT1 });
+    serve({
+      ...actionReads(),
+      [`${V}/outcome?outcome_id=${OUT1}`]: ok(o),
+      [`${V}/evidence?recorded_at=${o.outcome.recorded_at}`]: ok(ev),
+    });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence?outcome_id=${OUT1}`);
+    await settledScreen();
+    expect(q("[data-verification-evidence-window='later']")).toHaveAttribute("data-verification-window-complete", "no");
+    expect(q("[data-verification-problem='GAP']")?.textContent).toMatch(/^Gap/);
+    expect(q("[data-verification-requirement='later']")).toHaveAttribute("data-verification-requirement-ok", "no");
+    expect(q("[data-verification-knowledge-cutoff]")?.textContent).toContain("when the selected outcome was recorded");
+    expect(q("[data-verification-historical]")).not.toBeNull();
+  });
+
+  it("keeps the same structure at 1440 and 390 (layout is browser evidence)", async () => {
+    for (const width of [1440, 390]) {
+      atWidth(width);
+      serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)) });
+      mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+      await settledScreen();
+      expect(qa("[data-verification-slot]").length).toBe(24);
+      expect(q(".data-table__scroll")).not.toBeNull();
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
+describe("Recommendation and Change panels (recommendation:2-3, changes:1#b, changes:2)", () => {
+  it("an accepted recommendation links the frozen plan and keeps the accepted snapshot", async () => {
+    const c = AM["recommendation:1#a"].accepted_snapshot_live_status;
+    const body = structuredClone(c.body); // Derived (4)
+    const actionId = body.accepted[0].action_id as string;
+    body.verification = { [actionId]: { state: "VERIFIED", reasons: ["TARGET_AND_GUARDRAILS_PASS"], plan_id: PLAN, outcome_id: OUT1, statement: "" } };
+    const path = new URL(`http://x${c.request.path}`);
+    serve({ [`${path.pathname}${path.search}`]: ok(body) });
+    mount(`/sites/KOBO-001/findings/${body.finding_id}/recommendation?revision_id=${body.revision_id}`);
+    await settledScreen();
+    expect(q("[data-recommendation-accepted]")).not.toBeNull();
+    expect(q("[data-recommendation-plan-link] a")).toHaveAttribute("href", `/sites/KOBO-001/actions/${actionId}/plan?plan_revision_id=${PLAN}`);
+    expect(q("[data-trial-verification-state]")).toHaveAttribute("data-trial-verification-state", "VERIFIED");
+    expect(q("[data-recommendation-verification-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${actionId}/verification`);
+    noVocabularyViolations("recommendation:2-3");
+  });
+
+  it("a different-Finding overlap hold shows its typed block and links the Action and the withdrawn outcome", async () => {
+    const body = prep(R.recommendation_overlap); // Derived (5)
+    body.prior_action_block.blocking_actions[0].origin.finding_id = OTHER_FINDING;
+    body.prior_action_block.overlaps[0].withdrawn_outcome_id = OUT1;
+    body.prior_action_block.overlaps[0].closure_action_id = ACTION;
+    body.prior_action_block.blocking_action_id = ACTION;
+    body.prior_action_block.blocking_actions[0].action_id = ACTION;
+    serve({ [`/api/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`]: ok(body) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`);
+    await settledScreen();
+    expect(q("[data-recommendation-state]")).toHaveAttribute("data-recommendation-state", "PRIOR_TRIAL_REASSESSMENT_OVERLAP");
+    expect(q("[data-recommendation-prior-block-code]")).toHaveAttribute("data-recommendation-prior-block-code", "PRIOR_TRIAL_REASSESSMENT_OVERLAP");
+    expect(q("[data-recommendation-prior-block-other-finding]")).toHaveAttribute("data-recommendation-prior-block-other-finding", OTHER_FINDING);
+    expect(q("[data-recommendation-prior-block-withdrawn]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}/verification?outcome_id=${OUT1}`);
+    expect(q("[data-recommendation-prior-block-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
+    expect(q("[data-action-command-held]")).toHaveAttribute("data-action-command-held", "PRIOR_TRIAL_REASSESSMENT_OVERLAP");
+    expect(screen.getByRole("button", { name: /Accept trial/ })).toBeDisabled();
+    noVocabularyViolations("recommendation:hold");
+  });
+
+  it("the change page shows the later effect from the verification block, never APPLIED as success", async () => {
+    const c = AM["changes:1#a"].change;
+    const body = structuredClone(c.body); // Derived (4)
+    body.verification = { state: "REASSESSMENT_PENDING", reasons: ["FOUNDATION_CHANGED"], plan_id: PLAN, outcome_id: OUT1, statement: "" };
+    serve({
+      [c.request.path]: ok(body),
+      [`/api/sites/KOBO-001/actions/${body.change.action_id}/events`]: ok(AM["action-history:1#a"].events_latest.body),
+    });
+    mount(c.request.path.replace("/api", ""));
+    await settledScreen();
+    expect(q("[data-trial-verification-state]")).toHaveAttribute("data-trial-verification-state", "REASSESSMENT_PENDING");
+    expect(q("[data-change-outcome-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${body.change.action_id}/verification?outcome_id=${OUT1}`);
+    expect(q("[data-change-plan-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${body.change.action_id}/plan?plan_revision_id=${PLAN}`);
+    expect(q("[data-change-decision-path]")?.querySelectorAll("li").length).toBe(3);
+    expect(document.body.textContent).toMatch(/being applied is not success/);
+    noVocabularyViolations("changes:1#b-2");
+  });
+});

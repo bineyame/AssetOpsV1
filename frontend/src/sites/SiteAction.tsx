@@ -23,6 +23,9 @@ import { Link } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel } from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
+import { ActionVerification } from "./SiteActionVerification";
+import { createVerificationClient, type VerificationClient } from "./verificationClient";
+import { stateLabel } from "./verificationWords";
 import {
   freshIdempotencyKey,
   type ActionBody,
@@ -50,26 +53,39 @@ import {
   when,
 } from "./actionPresentation";
 
-export const ACTION_VIEWS = ["overview", "execution", "history"] as const;
+export const ACTION_VIEWS = ["overview", "plan", "execution", "evidence", "verification", "history"] as const;
 export type ActionView = (typeof ACTION_VIEWS)[number];
 
 /** Section labels. The address segment stays `execution`; the label is the operator's word. */
 export const ACTION_VIEW_LABELS: Record<ActionView, string> = {
   overview: "Overview",
+  plan: "Plan",
   execution: "Application",
+  evidence: "Evidence",
+  verification: "Verification",
   history: "History",
 };
 
+/** S6-02b: the verification selection carried beside the S6-01b event selection. */
+export interface ActionSelector extends EventSelector {
+  planRevisionId?: string | null;
+  outcomeId?: string | null;
+}
+
 export interface SiteActionLinks {
-  /** A section of this Action with an exact selection (or the latest when both are null). */
-  view: (view: ActionView, selector: EventSelector) => string;
+  /** A section of this Action with an exact selection (or the latest when every selector is null). */
+  view: (view: ActionView, selector: ActionSelector) => string;
   /** A Finding of this Site at an exact version. */
   finding: (findingId: string, revisionId: string | null) => string;
   /** The Recommendation child view of a Finding at an exact version. */
   recommendation: (findingId: string, revisionId: string | null) => string;
   /** The Site Foundation change record an APPLIED event made. */
   change: (changeId: string) => string;
+  /** S6-02b: the Site Evidence inspector at one accepted evidence ID. */
+  evidenceRecord?: (evidenceId: string) => string;
 }
+
+const DEFAULT_VERIFICATION = createVerificationClient();
 
 const LATEST: EventSelector = { eventId: null, recordedAt: null };
 
@@ -86,14 +102,16 @@ export function SiteAction({
   client,
   links,
   onTitle,
+  verification = DEFAULT_VERIFICATION,
 }: {
   siteId: string;
   actionId: string;
   view: ActionView;
-  selector: EventSelector;
+  selector: ActionSelector;
   client: ActionClient;
   links: SiteActionLinks;
   onTitle?: (title: string) => void;
+  verification?: VerificationClient;
 }) {
   const [reads, setReads] = useState<Reads>({ action: null, events: null });
   const [lastAction, setLastAction] = useState<ActionBody | null>(null);
@@ -101,6 +119,8 @@ export function SiteAction({
   const [reload, setReload] = useState(0);
   const [outcome, setOutcome] = useState<CommandResult | null>(null);
   const { eventId, recordedAt } = selector;
+  const planRevisionId = selector.planRevisionId ?? null;
+  const outcomeId = selector.outcomeId ?? null;
 
   useEffect(() => {
     setLastAction(null);
@@ -196,8 +216,30 @@ export function SiteAction({
             setReload((n) => n + 1);
           }}
         />
-      ) : (
+      ) : view === "history" ? (
         <History body={body} events={events} links={links} view={view} />
+      ) : (
+        <ActionVerification
+          siteId={siteId}
+          actionId={actionId}
+          view={view}
+          selection={{ eventId, recordedAt, planRevisionId, outcomeId }}
+          body={body}
+          client={verification}
+          links={{
+            view: (target, chosen) =>
+              links.view(target, {
+                eventId: null,
+                recordedAt: chosen.recordedAt ?? null,
+                planRevisionId: chosen.planRevisionId ?? null,
+                outcomeId: chosen.outcomeId ?? null,
+              }),
+            change: links.change,
+            event: (id) => links.view("history", { eventId: id, recordedAt: null }),
+            finding: links.finding,
+            evidenceRecord: links.evidenceRecord ?? ((id) => `#evidence-${id}`),
+          }}
+        />
       )}
     </section>
   );
@@ -298,8 +340,17 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
             <span data-action-application-words>{APPLICATION_WORDS[body.state.application] ?? body.state.application}</span>
             {body.state.failed_attempts > 0 ? ` (${body.state.failed_attempts} failed attempts)` : ""}
           </Fact>
-          <Fact term="Outcome">
-            <span data-action-outcome-words>{outcomeWords(body.state.outcome.state)}</span>
+          <Fact term="Verification">
+            {body.verification ? (
+              <span data-action-outcome-words data-action-verification-state={body.verification.state}>
+                {stateLabel(body.verification.state, body.verification.reasons)}.{" "}
+                <Link to={links.view("verification", LATEST)} data-action-verification-link>
+                  Open verification
+                </Link>
+              </span>
+            ) : (
+              <span data-action-outcome-words>{outcomeWords(body.state.outcome.state)}</span>
+            )}
           </Fact>
         </FactList>
         <p className="action-note">
@@ -355,8 +406,9 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
       </Panel>
       {body.change ? <ChangeSummary change={body.change} links={links} /> : null}
       <p className="action-note" data-action-later-sections>
-        Plan, evidence and verification sections belong to the verification step and are not part of this Action
-        view.
+        Whether the change worked is judged in{" "}
+        <Link to={links.view("plan", LATEST)}>Plan</Link>, <Link to={links.view("evidence", LATEST)}>Evidence</Link> and{" "}
+        <Link to={links.view("verification", LATEST)}>Verification</Link>, from a plan fixed before the later window.
       </p>
     </div>
   );

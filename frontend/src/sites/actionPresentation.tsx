@@ -12,6 +12,8 @@ import type { Limitation, Refusal, SystemDemoCapability } from "./actionClient";
 import { stamp } from "./dispatchWords";
 
 /** The label every command control and resulting actor carries (Architect Q4). */
+import { stateLabel } from "./verificationWords";
+
 export const SYSTEM_DEMONSTRATION = "SYSTEM demonstration";
 
 /**
@@ -70,7 +72,7 @@ export const APPLICATION_WORDS: Record<string, string> = {
 export function outcomeWords(state: string): string {
   return state === "PENDING"
     ? "Pending. Nothing has been verified yet, and no effect or saving is claimed."
-    : `Outcome state ${state}.`;
+    : `${stateLabel(state)}.`;
 }
 
 export function when(instant: string | null | undefined): string {

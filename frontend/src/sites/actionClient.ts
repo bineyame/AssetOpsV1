@@ -19,6 +19,7 @@
 import type { SourceProvenance } from "./sourceProvenance";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { hasKeys, isObject } from "./evidenceRead";
+import type { VerificationSummary } from "./verificationClient";
 
 export interface Refusal {
   status: "refused";
@@ -133,6 +134,19 @@ export interface PriorAction {
   outcome: { state: string; statement: string };
   rule_id: string;
   unresolved: boolean;
+  /** S6-02a: the latest resolution event (RESOLVED or RESOLUTION_WITHDRAWN), when one exists. */
+  resolution?: {
+    event_id: string;
+    guardrail_failed: boolean;
+    outcome: string | null;
+    outcome_id: string | null;
+    plan_id: string | null;
+    reasons: string[];
+    recorded_at: string;
+    state: string;
+  } | null;
+  /** S6-02a: a guardrail-failed closure blocks the battery trial scope. */
+  trial_block?: string | null;
 }
 
 /** The typed hold on a new acceptance while an earlier trial is unresolved. */
@@ -145,6 +159,10 @@ export interface PriorActionBlock {
   message: string;
   origin_finding_revision_id: string;
   origin_revision_no: number;
+  /** S6-02a: the guardrail-failed outcome behind `PRIOR_TRIAL_GUARDRAIL_FAILED`. */
+  blocking_outcome_id?: string | null;
+  /** S6-02a: closure/late-reading overlaps behind `PRIOR_TRIAL_REASSESSMENT_OVERLAP`. */
+  overlaps?: Record<string, unknown>[] | null;
 }
 
 export interface RecommendationBody {
@@ -176,6 +194,8 @@ export interface RecommendationBody {
   /** Absent or not `allowed`: the view is read-only (Architect Q4). */
   system_demo_capability?: SystemDemoCapability | null;
   unavailable: TypedReason | null;
+  /** S6-02a: each accepted Action's current verification read state, by Action ID. */
+  verification?: Record<string, VerificationSummary> | null;
 }
 
 export interface EventActor {
@@ -277,6 +297,8 @@ export interface PolicyChangeBody {
   access_basis?: string;
   change: PolicyChange;
   site_code: string;
+  /** S6-02a: the Action's current verification read state (absent on older servers). */
+  verification?: VerificationSummary | null;
 }
 
 export interface ActionBody {
@@ -339,6 +361,8 @@ export interface ActionBody {
   state: ActionState;
   /** Absent or not `allowed`: the view is read-only (Architect Q4). */
   system_demo_capability?: { apply?: SystemDemoCapability | null; observe?: SystemDemoCapability | null } | null;
+  /** S6-02a: the current verification read state, beside (never instead of) `state.outcome` (F5). */
+  verification?: VerificationSummary | null;
 }
 
 export interface ActionEventsBody {
@@ -450,7 +474,8 @@ async function exchange(path: string, init?: RequestInit): Promise<{ http: numbe
   return { http: response.status, ok: response.ok, body };
 }
 
-async function read<T>(path: string, valid: (value: unknown) => value is T): Promise<ActionReadResult<T>> {
+/** One typed read (S6-02b reuses it for the verification reads). */
+export async function read<T>(path: string, valid: (value: unknown) => value is T): Promise<ActionReadResult<T>> {
   const { http, ok, body } = await exchange(path);
   if (ok && valid(body)) {
     return { status: "loaded", value: body };
