@@ -1,0 +1,11 @@
+# S3-02a build - implementer brief
+
+Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review3`, branch `task/S3-02a-capability-read` (from main `71009bf6`). Touch no other worktree.
+
+Environment: `.venv` junction to the main venv; `PYTHONPATH` = this worktree's `backend;contracts;gateway;simulator` (confirm `assetops_backend.__file__` resolves here); `ASSETOPS_GUARD_PYTHON` = the same python; Docker Postgres 127.0.0.1:55432 with private `assetops_s302*_test` DBs; keep-awake running. Memory is tight (~3.5 GB free) and two other agents run Postgres suites (S6-02a in `AssetOpsV1-review4`, S4-05b in `AssetOpsV1-review2`): write code first, run focused tests serially (no `-n`), and before the final full suite check free memory (`Get-CimInstance Win32_OperatingSystem`) - if under 2.5 GB, wait and recheck every 5 minutes rather than starting it. Copy `var/sites/*.yaml` from `C:\Users\assef\Bineyame\AssetOpsV1\var\sites\` only if needed; remove afterwards.
+
+Read: packet `tasks/S3-02a-capability-read.md` (incl. plan fix round 1), umbrella `tasks/S3-02-claim-limit-follow-up.md`, Architect `D-2026-10-16-s302-capability` and `D-2026-10-16-w1-remaining-questions` (`.agent/architect-W1-remaining-answers.md`, `.agent/architect-W1-remaining-q-answers.md`), plan reviews `.agent/W1-remaining-plan-review.md` and `-rereview.md`. The packet must also define the callable fixture builder `backend/tests/s3_claim_limit_records.py::build` that S3-02b's walkthrough will call.
+
+Build the packet's phases. If you add a migration, chain it after main's head and note that S6-02a's unmerged `0019_verification_core` will force a re-chain at merge. Final revision: `tools/check-all.ps1`, registry checker, ONE full backend suite from PowerShell (`pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=<absolute path>`, cap 25 min, zero failed/skipped). Mutation checks only for fail-closed claim-limit rules and the cutover gate.
+
+Owner direction: demo speed over perfection; no wording polish. Commit in logical steps; do not merge; do not touch `.agent/coordinator-handoff.md`. Write `.agent/S3-02a-review-packet.md` and `.agent/S3-02a-handoff.md` (git add -f), including the exact fixture IDs and API responses S3-02b needs. Report concisely.
