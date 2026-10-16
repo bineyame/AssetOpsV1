@@ -15,7 +15,18 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Fact, FactList, MissingClaim, Panel } from "../ui";
+import {
+  DataTable,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  MissingClaim,
+  Panel,
+  ProductStatus,
+  StepStrip,
+  type Step,
+} from "../ui";
 import { durationText, minutes, qualityWords, roleWords, stamp } from "./dispatchWords";
 import type {
   EvidenceAssessment,
@@ -25,11 +36,15 @@ import type {
   FindingReadResult,
   FindingWindowBody,
 } from "./findingClient";
-import { dayOf, LIFECYCLE_WORDS, sourceModeWords } from "./findingWords";
+import { FindingRefusalCard } from "./findingPresentation";
+import { dayOf, findingCurrentnessWords, LIFECYCLE_WORDS, sourceModeWords } from "./findingWords";
 import { SourceProvenanceNotice } from "./sourceProvenance";
+import "./w1ux02-finding.css";
 
 export const FINDING_SECTIONS_LABEL = "Finding sections";
 export const EVIDENCE_PAGE_SIZE = 50;
+/** The v69 `finding-evidence` screen question (W1-UX-02). */
+export const FINDING_EVIDENCE_QUESTION = "Which accepted records support this Finding?";
 
 export interface FindingSectionLink {
   id: string;
@@ -73,14 +88,14 @@ export const LINK_WORDS: Record<string, string> = {
   BATCH: "the delivery batch it arrived in cannot be found",
   ACCEPTANCE_DISPOSITION: "no acceptance decision for this record can be found",
   ENVELOPE: "the stored original message is missing",
-  ENVELOPE_DIGEST: "the stored original message does not match its saved fingerprint",
+  ENVELOPE_DIGEST: "the stored original message does not match the check value saved with it",
   FOUNDATION_REVISION: "the site setup version it was accepted under cannot be found",
   BINDING_SET_REVISION: "the device links version it was accepted under cannot be found",
   BINDING_REVISION: "the device link it was accepted under cannot be found",
   ASSESSMENT_CITATION: "no assessment behind this version lists this record",
   RUN_INPUT: "this record is not among the records the analysis read",
   ANALYTIC_RUN: "the analysis behind an assessment cannot be found",
-  CITED_SET_DIGEST: "the cited records do not match the fingerprint saved with this version",
+  CITED_SET_DIGEST: "the cited records do not match the check value saved with this version",
 };
 
 const WITHHELD = "No accepted record with this reference exists for this site, so no measurement, source or message is shown.";
@@ -237,17 +252,24 @@ function Refused({
   };
   const chosen = words[read.status];
   return (
-    <Panel heading={chosen.heading} headingId="finding-evidence-refused-heading">
-      <p data-finding-read={read.status}>{chosen.text}</p>
-      {read.message ? <p className="site-finding__note">Reason given: {read.message}</p> : null}
+    <FindingRefusalCard
+      status={read.status}
+      dataName="finding-evidence"
+      headingId="finding-evidence-refused-heading"
+      question={FINDING_EVIDENCE_QUESTION}
+      heading={chosen.heading}
+      text={chosen.text}
+      message={read.message}
+      scope={pinned ? "This Finding's evidence, at the version in the address" : "This Finding's evidence"}
+    >
       {read.status === "not_found" && pinned ? (
         <p>
           <Link to={latestHref} data-evidence-open-latest>
             Open the evidence of the latest version instead
           </Link>
         </p>
-      ) : null}
-    </Panel>
+      ) : undefined}
+    </FindingRefusalCard>
   );
 }
 
@@ -261,65 +283,157 @@ const EVIDENCE_LIFECYCLE_SENTENCE: Partial<Record<string, string>> = {
     "versions stay available in this Finding's history.",
 };
 
-/** Which version is shown, and how it was chosen: non-current status first. */
+/** The step of the record trail each lineage link belongs to; an unknown link belongs to none. */
+const TRAIL_STEP: Record<string, string> = {
+  ACCEPTED_EVIDENCE: "Accepted record",
+  ACCEPTANCE_DISPOSITION: "Accepted record",
+  BATCH: "Delivery batch",
+  ENVELOPE: "Stored message",
+  ENVELOPE_DIGEST: "Stored message",
+  FOUNDATION_REVISION: "Site setup",
+  BINDING_SET_REVISION: "Site setup",
+  BINDING_REVISION: "Site setup",
+  ASSESSMENT_CITATION: "Assessment",
+  RUN_INPUT: "Assessment",
+  ANALYTIC_RUN: "Assessment",
+  CITED_SET_DIGEST: "Assessment",
+};
+const TRAIL = ["Accepted record", "Delivery batch", "Stored message", "Site setup", "Assessment"];
+
+/**
+ * The record trail as a strip. A complete trail marks every step done; a
+ * broken one marks each step a named break belongs to as a problem, and the
+ * others done only when every break is a known link (an unknown link leaves
+ * them not known, never done).
+ */
+function trailSteps(body: FindingEvidenceBody): Step[] {
+  if (body.lineage.status === "COMPLETE") {
+    return TRAIL.map((label) => ({ label, state: "done", detail: "Traced for every cited record" }));
+  }
+  const links = [...body.lineage.set_breaks.map((b) => b.link), ...body.lineage.broken_records.flatMap((r) => r.links)];
+  const broken = new Set(links.map((link) => TRAIL_STEP[link]).filter((step): step is string => step !== undefined));
+  const unknown = links.some((link) => TRAIL_STEP[link] === undefined) || links.length === 0;
+  return TRAIL.map((label) =>
+    broken.has(label)
+      ? { label, state: "problem", detail: "A link does not resolve; named below" }
+      : unknown
+        ? { label, state: "not-known", detail: "Not confirmed while a link cannot be checked" }
+        : { label, state: "done", detail: "No broken link named" },
+  );
+}
+
+/** How the version was chosen, in the shared product words (this read carries no currentness of its own). */
+function selectionWords(body: FindingEvidenceBody) {
+  if (body.audit_only) return findingCurrentnessWords("SOURCE_CLOSED");
+  if (!body.selection.is_latest) return findingCurrentnessWords("SUPERSEDED_BY_LATER_REVISION");
+  return findingCurrentnessWords(body.selection.selected_by === "LATEST_RECORDED" ? "LATEST_AT_READ" : "LATEST_PINNED");
+}
+
+function evidenceHeadline(body: FindingEvidenceBody): string {
+  const total = body.counts.cited_total;
+  if (total === 0) return "This version cites no accepted records";
+  const records = total === 1 ? "1 cited record" : `${total} cited records`;
+  return body.lineage.status === "COMPLETE"
+    ? `${records}, each traced back to its accepted record`
+    : `${records}; part of the record trail does not resolve`;
+}
+
+/**
+ * W1-UX-02: which version is shown and how it was chosen leads, as the
+ * screen's answer card: the record count and trail, the plain state line
+ * (with the non-current notes and the stored source beside it), the record
+ * trail strip, the way back to the Finding and its history, and the exact
+ * references last.
+ */
 function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFindingEvidenceLinks }) {
   const { selection } = body;
   const no = selection.revision_no;
   const lifecycle = LIFECYCLE_WORDS[body.revision.lifecycle];
+  const words = selectionWords(body);
+  const notSupported = lifecycle !== undefined && body.revision.lifecycle !== "SUPPORTED";
   return (
-    <Panel heading={`Evidence for version ${no}`} headingId="finding-evidence-selection-heading">
-      {lifecycle === undefined || body.revision.lifecycle === "SUPPORTED" ? null : (
-        <p
-          className="site-finding__lead"
-          data-evidence-lifecycle={body.revision.lifecycle}
-        >
-          State of this version: <strong>{lifecycle.label}</strong>.{" "}
-          {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
-        </p>
-      )}
-      {body.audit_only ? (
-        <p className="site-finding__lead" data-evidence-audit-only>
-          Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a record,
-          not as the current Finding, and no Dispatch period is linked.
-        </p>
-      ) : null}
-      <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
-      {!selection.is_latest ? (
-        <p className="site-finding__lead" data-evidence-earlier-version>
-          Earlier version {no}. A later version replaces it; these are the records this earlier version cited.{" "}
-          <Link to={links.evidence(selection.latest_revision_id)}>Open the latest version&apos;s evidence</Link>
-        </p>
-      ) : selection.selected_by === "LATEST_RECORDED" ? (
-        <p data-evidence-latest-at-read>
-          Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
-          <Link to={links.evidence(selection.revision_id)} data-evidence-pin>
-            Keep this exact version
+    <HeadlineVisualCard
+      dataName="finding-evidence"
+      headingId="finding-evidence-selection-heading"
+      title={`Evidence for version ${no}`}
+      question={FINDING_EVIDENCE_QUESTION}
+      headline={evidenceHeadline(body)}
+      status={
+        <ProductStatus words={words} scope={`Version ${no} of this Finding`} asOf={body.revision.recorded_at}>
+          {notSupported ? (
+            <p className="site-finding__lead" data-evidence-lifecycle={body.revision.lifecycle}>
+              State of this version: <strong>{lifecycle.label}</strong>.{" "}
+              {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
+            </p>
+          ) : null}
+          {body.audit_only ? (
+            <p className="site-finding__lead" data-evidence-audit-only>
+              Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a
+              record, not as the current Finding, and no Dispatch period is linked.
+            </p>
+          ) : null}
+          <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
+          {!selection.is_latest ? (
+            <p className="site-finding__lead" data-evidence-earlier-version>
+              Earlier version {no}. A later version replaces it; these are the records this earlier version cited.{" "}
+              <Link to={links.evidence(selection.latest_revision_id)}>Open the latest version&apos;s evidence</Link>
+            </p>
+          ) : selection.selected_by === "LATEST_RECORDED" ? (
+            <p data-evidence-latest-at-read>
+              Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
+              <Link to={links.evidence(selection.revision_id)} data-evidence-pin>
+                Keep this exact version
+              </Link>
+            </p>
+          ) : (
+            <p data-evidence-pinned-latest>Version {no}, the latest recorded version, opened by its exact reference.</p>
+          )}
+        </ProductStatus>
+      }
+      visual={<StepStrip title="How each cited record is traced" steps={trailSteps(body)} />}
+      meaning={
+        <>
+          {lifecycle === undefined || body.revision.lifecycle !== "SUPPORTED" ? null : (
+            <p data-evidence-lifecycle={body.revision.lifecycle}>
+              State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
+            </p>
+          )}
+          <p>
+            These are the accepted records this version cites as support. A record with a broken link is named, never
+            dropped or counted as zero evidence.
+          </p>
+        </>
+      }
+      todo={<p>Choose a record&apos;s reference in the list below to follow its full trail.</p>}
+      destination={
+        <>
+          <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
+            Back to this version of the Finding
           </Link>
-        </p>
-      ) : (
-        <p data-evidence-pinned-latest>Version {no}, the latest recorded version, opened by its exact reference.</p>
-      )}
-      {lifecycle === undefined || body.revision.lifecycle !== "SUPPORTED" ? null : (
-        <p
-          data-evidence-lifecycle={body.revision.lifecycle}
-        >
-          State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
-        </p>
-      )}
-      <p>
-        <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
-          Back to this version of the Finding
-        </Link>
-        {links.history ? (
-          <>
-            {" · "}
-            <Link to={links.history(selection.revision_id)} data-evidence-to-history>
-              See version {no} in the Finding&apos;s history
-            </Link>
-          </>
-        ) : null}
-      </p>
-    </Panel>
+          {links.history ? (
+            <>
+              {" · "}
+              <Link to={links.history(selection.revision_id)} data-evidence-to-history>
+                See version {no} in the Finding&apos;s history
+              </Link>
+            </>
+          ) : null}
+        </>
+      }
+      references={
+        <ExactReferences
+          name="finding-evidence-references"
+          references={[
+            { label: "Finding reference", value: body.finding.id },
+            { label: "Shown version reference", value: selection.revision_id },
+            { label: "Latest version reference", value: selection.latest_revision_id },
+            { label: "How the version was chosen", value: selection.selected_by },
+            { label: "Assessment method reference", value: body.revision.model_version },
+            { label: "Cited set check code", value: body.lineage.cited_set_digest?.status ?? null },
+          ]}
+        />
+      }
+    />
   );
 }
 
@@ -332,7 +446,7 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
         <p data-evidence-lineage-complete>
           Every one of the {body.counts.cited_total} cited records traces to its accepted record, delivery batch,
           stored message, the site setup it was accepted under, and the assessment that used it. The cited set
-          matches the fingerprint saved with this version.
+          matches the check value saved with this version.
         </p>
       </Panel>
     );
@@ -398,7 +512,6 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
         <Fact term="Possibly avoidable time">
           {minutes(body.revision.minutes.candidate) === null ? "–" : durationText(minutes(body.revision.minutes.candidate) ?? 0)}
         </Fact>
-        <Fact term="Model">{body.revision.model_version}</Fact>
       </FactList>
       <InputsByMeasurement body={body} />
       <h3 className="site-finding__subheading" id="finding-evidence-sources">
@@ -527,7 +640,7 @@ function Assessments({ body, links }: { body: FindingEvidenceBody; links: SiteFi
           <tr>
             <th scope="col">Period (UTC)</th>
             <th scope="col">Kind</th>
-            <th scope="col">Model</th>
+            <th scope="col">Assessment method</th>
             <th scope="col">Site setup used</th>
             <th scope="col">Cited records</th>
             <th scope="col">Dispatch</th>
@@ -540,7 +653,7 @@ function Assessments({ body, links }: { body: FindingEvidenceBody; links: SiteFi
         </tbody>
       </DataTable>
       <p className="site-finding__note">
-        Control settings such as the generator&apos;s minimum operating time are recorded only inside the settings fingerprint of each
+        Control settings such as the generator&apos;s minimum operating time are recorded only inside the settings check value of each
         analysis; no separate control version exists.
       </p>
     </Panel>
@@ -559,7 +672,9 @@ function AssessmentRow({ a, body, links }: { a: EvidenceAssessment; body: Findin
         {a.scope === "WINDOW" ? "Whole day" : "Period"}
         {a.is_primary ? " (primary)" : ""}
       </td>
-      <td>{a.model_version}</td>
+      <td>
+        <code data-vocabulary-exempt="source-reference">{a.model_version}</code>
+      </td>
       <td>
         {a.basis === null ? (
           <span data-evidence-basis-broken>
@@ -631,7 +746,7 @@ function Records({
             <th scope="col">Value</th>
             <th scope="col">Quality</th>
             <th scope="col">Batch</th>
-            <th scope="col">Message fingerprint</th>
+            <th scope="col">Message check value</th>
             <th scope="col">Record trail</th>
             <th scope="col">Record</th>
           </tr>
@@ -773,7 +888,7 @@ function RecordLineage({
               <Fact term="Message">
                 <code data-vocabulary-exempt="source-reference">{r.message_id ?? "–"}</code>
               </Fact>
-              <Fact term="Message fingerprint">
+              <Fact term="Message check value">
                 {r.envelope?.digest_verified ? (
                   <span data-evidence-envelope-verified>
                     <code data-vocabulary-exempt="source-reference">{r.envelope.sha256}</code> (the stored message matches it)
@@ -801,7 +916,7 @@ function RecordLineage({
                         const a = body.assessments.find((x) => x.assessment_revision_id === id);
                         return a === undefined
                           ? id.slice(0, 8)
-                          : `${a.scope === "WINDOW" ? "whole-day" : "period"} assessment ${stamp(a.window.start)}, model ${a.model_version}`;
+                          : `${a.scope === "WINDOW" ? "whole-day" : "period"} assessment ${stamp(a.window.start)}`;
                       })
                       .join("; ")}
               </Fact>
