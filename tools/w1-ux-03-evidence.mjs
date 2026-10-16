@@ -34,6 +34,13 @@ const CARD = {
   dispatch: '[data-headline-card="dispatch-story"]',
   analysis: "[data-dispatch-status]",
 };
+// The closed disclosure each screen keeps its exact references in.
+const DETAILS = {
+  evidence: "details[data-exact-references]",
+  "evidence-analysis": 'details[data-disclosure="claim-limit-technical"]',
+  dispatch: "details[data-exact-references]",
+  analysis: 'details[data-disclosure="dispatch-stored-record"]',
+};
 const SUMMARY = {
   evidence: "How this was worked out",
   "evidence-analysis": "Technical details: rule, versions and record references",
@@ -131,15 +138,17 @@ async function shot(name) {
 }
 
 /** Measurements of one migrated card: state line visible, disclosure closed, no overflow, keyboard reach. */
-const measure = (card) =>
+const measure = (card, detailsSel) =>
   js(`(() => {
     const c = document.querySelector('${card}');
     if (!c) return null;
     const box = (e) => { if (!e) return null; const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), right: Math.round(r.right) }; };
     const d = document.documentElement;
-    const details = c.querySelector('details[data-exact-references]') ?? c.querySelector('details');
+    const details = document.querySelector('${detailsSel}');
     const inside = [...c.querySelectorAll('*')];
-    const wide = inside.filter(e => e.getBoundingClientRect().right > d.clientWidth + 1 && !e.closest('details:not([open]) > :not(summary)'))
+    // An element inside its own sideways scroller (a wide table) is not page overflow.
+    const scrolls = (e) => { for (let p = e.parentElement; p && p !== c.parentElement; p = p.parentElement) { const o = getComputedStyle(p).overflowX; if (o === 'auto' || o === 'scroll') return true; } return false; };
+    const wide = inside.filter(e => e.getBoundingClientRect().right > d.clientWidth + 1 && !e.closest('details:not([open]) > :not(summary)') && !scrolls(e))
       .map(e => (e.className || e.tagName) + ':' + Math.round(e.getBoundingClientRect().right)).slice(0, 6);
     const focusable = [...c.querySelectorAll('a[href], summary, button, [tabindex]:not([tabindex="-1"])')].map(e => e.tagName + ':' + e.textContent.trim().slice(0, 40));
     return {
@@ -158,12 +167,12 @@ const measure = (card) =>
   })()`);
 
 /** Tab from the top of the page until the card's disclosure summary takes focus. */
-async function tabReaches(card) {
+async function tabReaches(card, detailsSel) {
   await js("document.activeElement && document.activeElement.blur(); window.scrollTo(0, 0); true");
-  for (let i = 0; i < 120; i += 1) {
+  for (let i = 0; i < 250; i += 1) {
     await send("Input.dispatchKeyEvent", { type: "keyDown", key: "Tab", code: "Tab", windowsVirtualKeyCode: 9 });
     await send("Input.dispatchKeyEvent", { type: "keyUp", key: "Tab", code: "Tab", windowsVirtualKeyCode: 9 });
-    const hit = await js(`(() => { const a = document.activeElement; return Boolean(a && a.tagName === 'SUMMARY' && a.closest('${card}')); })()`);
+    const hit = await js(`(() => { const a = document.activeElement; return Boolean(a && a.tagName === 'SUMMARY' && a.closest('${detailsSel}')); })()`);
     if (hit) return i + 1;
   }
   return 0;
@@ -188,7 +197,7 @@ try {
       await size(width, height);
       const ok = await go(url, `document.querySelector('${card} [data-product-status-label]')`);
       claim(`${id} ${label}: the migrated card renders at ${url}`, ok);
-      const m = await measure(card);
+      const m = await measure(card, DETAILS[mockId]);
       if (m === null) {
         claim(`${id} ${label}: card measured`, false);
         continue;
@@ -198,7 +207,7 @@ try {
       claim(`${id} ${label}: the closed summary is plain text`, m.summary === SUMMARY[mockId], m.summary);
       claim(`${id} ${label}: no sideways scroll from the card (measured ${m.measured} elements)`, m.measured > 0 && m.scrollWidth <= m.clientWidth && m.wide.length === 0, { scrollWidth: m.scrollWidth, clientWidth: m.clientWidth, wide: m.wide });
       claim(`${id} ${label}: the screen has a small visual with readable text`, m.visual, { visual: m.visual, stripRows: m.strip });
-      const tabs = await tabReaches(card);
+      const tabs = await tabReaches(card, DETAILS[mockId]);
       claim(`${id} ${label}: keyboard Tab reaches the disclosure summary`, tabs > 0, { tabs, focusable: m.focusable });
       const here = new URL(await js("location.href"));
       const asked = new URL(url);

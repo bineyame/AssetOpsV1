@@ -26,6 +26,7 @@ import {
   isDay,
   limitationWords,
   minutes,
+  missingWords,
   qualityWords,
   reasonWords,
   roleWords,
@@ -1159,7 +1160,7 @@ function ReadingsToOutcome({
           </p>
           {missing.length === 0 && unobserved === 0 ? null : (
             <p data-dispatch-story-missing>
-              {missing.length === 0 ? "" : `Missing: ${missing.map(roleWords).join(", ")}. `}
+              {missing.length === 0 ? "" : `Missing: ${Array.from(new Set(missing.map(missingWords))).join(", ")}. `}
               {unobserved === 0 ? "" : `${plural(unobserved, "block was", "blocks were")} not observed directly.`}
             </p>
           )}
@@ -1240,7 +1241,7 @@ function AnalysisView({
                     <td>{seg.load_kw ? `${seg.load_kw} kW` : "not reported"}</td>
                     <td>{seg.margin_kw ? `${seg.margin_kw} kW` : "not shown"}</td>
                     <td>
-                      {[...(seg.reasons ?? []).map(constraintWords), ...(seg.missing ?? []).map((m) => `missing: ${roleWords(m)}`)].join("; ") ||
+                      {[...(seg.reasons ?? []).map(constraintWords), ...(seg.missing ?? []).map((m) => `missing: ${missingWords(m)}`)].join("; ") ||
                         "none recorded"}
                     </td>
                   </tr>
@@ -1261,19 +1262,17 @@ function AnalysisView({
                   : "No single settled series of records for this day; results are limited"
                 : "none"}
             </Fact>
-            {Object.entries(read.unavailable).map(([key, value]) => (
+            {Object.entries(read.unavailable).map(([key]) => (
               <Fact key={key} term={UNAVAILABLE_TERMS[key] ?? "Another result"}>
-                <span data-unavailable={key}>Not yet available. {value.replace(/^UNAVAILABLE:\s*/, "")}</span>
+                <span data-unavailable={key}>Not yet available.</span>
               </Fact>
             ))}
-            {result?.alternatives
-              ? Object.entries(result.alternatives).map(([key, value]) => (
-                  <Fact key={`alt-${key}`} term={`Alternative: ${key.replace(/_/g, " ")}`}>
-                    {value}
-                  </Fact>
-                ))
-              : null}
-            {result?.candidate_bound ? <Fact term="Possibly avoidable bound">{result.candidate_bound}</Fact> : null}
+            {result?.alternatives && Object.keys(result.alternatives).length > 0 ? (
+              <Fact term="Other explanations">
+                {`${Object.keys(result.alternatives).length} recorded; their exact wording is in the technical details below.`}
+              </Fact>
+            ) : null}
+            {result?.candidate_bound ? <Fact term="Possibly avoidable bound">Recorded; its exact wording is in the technical details below.</Fact> : null}
           </FactList>
         </Panel>
       </div>
@@ -1301,6 +1300,21 @@ function AnalysisView({
       <Panel heading="Stored assessment record" headingId="durable-dispatch-record-heading">
         <Disclosure name="dispatch-stored-record" summary="Technical details: stored record, versions and references">
         <FactList>
+          {Object.entries(read.unavailable).map(([key, value]) => (
+            <Fact key={`unavailable-${key}`} term="Not yet available, as recorded">
+              <code {...REF}>{`${key}: ${value}`}</code>
+            </Fact>
+          ))}
+          {Object.entries(result?.alternatives ?? {}).map(([key, value]) => (
+            <Fact key={`alt-${key}`} term="Other explanation, as recorded">
+              <code {...REF}>{`${key}: ${value}`}</code>
+            </Fact>
+          ))}
+          {result?.candidate_bound ? (
+            <Fact term="Possibly avoidable bound, as recorded">
+              <code {...REF}>{result.candidate_bound}</code>
+            </Fact>
+          ) : null}
           {result?.confidence ? (
             <Fact term="Confidence basis">
               <code {...REF}>{result.confidence.basis.join("; ")}</code>

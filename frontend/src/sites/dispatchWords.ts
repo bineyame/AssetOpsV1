@@ -102,6 +102,12 @@ export function roleWords(role: string): string {
   return ROLE_WORDS[role] ?? role.replace(/_/g, " ");
 }
 
+/** W1-UX-03: a missing-input entry ("role" or "role: detail") in plain words; never its code or detail text. */
+export function missingWords(entry: string): string {
+  const key = entry.split(":")[0].trim();
+  return ROLE_WORDS[key] ?? "another needed reading (in the stored record)";
+}
+
 const COVERAGE_WORDS: Record<string, string> = {
   BOUND: "Set up",
   MISSING: "Not set up",
