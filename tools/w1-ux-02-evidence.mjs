@@ -153,7 +153,7 @@ const measure = (card) =>
       summary: details?.querySelector('summary')?.textContent ?? null,
       measured: inside.length, wide, scrollWidth: d.scrollWidth, clientWidth: d.clientWidth,
       focusable,
-      visual: Boolean(c.querySelector('[data-value-bars], [data-step-strip]')),
+      visual: Boolean(c.querySelector('[data-value-bars], [data-step-strip], [data-price-strip]')),
     };
   })()`);
 
