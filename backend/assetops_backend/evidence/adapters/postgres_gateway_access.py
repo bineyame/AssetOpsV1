@@ -335,9 +335,3 @@ class PostgresGatewayAccess:
             self._source_enabled(c, g, gateway_external_id, source_external_id, enabled, actor, at)
 
         self._run(work, write=True)
-
-
-_OPS02 = (
-    "UPDATE gateway "
-    "SET name = :n WHERE id = :g"
-)
