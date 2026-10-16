@@ -249,6 +249,31 @@ class TestRefusals:
                 409, "ACCEPTED_LINEAGE_ABSENT")
 
 
+class TestSamples:
+    def test_every_case_answers_and_samples_can_be_written(self, built) -> None:
+        """One 200 response per case (and the withdrawn revision); with ASSETOPS_S3_CLAIM_LIMIT_SAMPLES_OUT set,
+        the normalised bodies are written for S3-02b (`backend/tests/fixtures/s3_claim_limit_api_samples.json`)."""
+        import json
+
+        from s6_action_records import normalise
+
+        samples = {name: ok(get(built, name)) for name in records.DAYS}
+        samples["late-revision/withdrawn"] = ok(get(built, "late-revision",
+                                                    case(built, "late-revision")["withdrawn"]["interval_revision_ids"][0]))
+        samples["no-revision-selected"] = ok(get(built, "full-candidate", None))
+        for name, expect in records.EXPECT.items():
+            assert samples[name]["currentness"] == expect["currentness"], name
+            if "ceiling" in expect:
+                assert samples[name]["claim_limit"]["ceiling"] == expect["ceiling"], name
+        out = os.environ.get("ASSETOPS_S3_CLAIM_LIMIT_SAMPLES_OUT")
+        if out:
+            with open(out, "w", encoding="utf-8", newline="\n") as handle:
+                json.dump({"fixture_id": records.FIXTURE_ID, "note": "UUIDs and digests normalised; read_at, "
+                           "built_at and knowledge_cutoff differ per run", "responses": normalise(samples)},
+                          handle, indent=1, sort_keys=True)
+                handle.write("\n")
+
+
 class TestLaterStates:
     """Run last: they add a pending day and a failing recompute to the module database."""
 
