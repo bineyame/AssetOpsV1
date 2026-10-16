@@ -272,7 +272,12 @@ def links(args: argparse.Namespace, cases: dict[str, tuple[str, Path]]) -> int:
                 say(f"    Evidence:   {web}/findings/{fid}/evidence?revision_id={rid}")
                 say(f"    Financials: {web}/financials?finding_id={fid}&revision_id={rid}")
                 for c in pick.get("consequences", []):
-                    tag = "current head" if c["id"] == seen.get("consequence_revision_id") else "history, audit only"
+                    if c["id"] == seen.get("consequence_revision_id"):
+                        tag = "current head"
+                    elif c["finding_revision_id"] == rid:
+                        tag = f"recorded for this version, not shown as current: {seen.get('money')}"
+                    else:
+                        tag = "history, audit only"
                     say(f"    fuel cost version {c['revision_no']} ({c['state']}, {tag}): {web}/financials?finding_id="
                         f"{fid}&revision_id={c['finding_revision_id']}&consequence_revision_id={c['id']}")
                 for r in pick.get("revisions", []):
