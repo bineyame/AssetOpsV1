@@ -4,6 +4,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**2026-10-16: S7-01a ([Site source-health and battery boundary reads](../tasks/S7-01a-health-read.md)) is `in_review`** on `task/S7-01a-health-read` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent review). Packet `.agent/S7-01a-review-packet.md`, S7-01b contract `.agent/S7-01a-handoff.md`, built state `.ai/CODE_STATE.md` "S7-01a". Reviewer: task, packet, `git diff 8b5d8137..HEAD -- ':!.agent'`.
+
 **2026-10-16: S3-02a ([capability and claim-limit read](../tasks/S3-02a-capability-read.md)) is `in_review`** on `task/S3-02a-capability-read` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent review). Packet `.agent/S3-02a-review-packet.md`, S3-02b contract `.agent/S3-02a-handoff.md`, built state `.ai/CODE_STATE.md` "S3-02a". Reviewer: task, packet, `git diff 71009bf6..HEAD -- ':!.agent'`.
 
 **2026-10-16: S5-02 ([Finding list in Site Overview](../tasks/S5-02-overview-finding-list.md)) is `in_review`** on `task/S5-02-overview-finding-list` (USER_REVIEW_REQUIRED: slice review, then owner walkthrough `.agent/S5-02-owner-walkthrough.md`); packet `.agent/S5-02-review-packet.md`, built state `.ai/CODE_STATE.md` "S5-02". Reviewer: read the task, `.agent/architect-S5-02-answers.md`, the packet, then `git diff a88d3e8a..HEAD -- ':!.agent'`; walk with `tools/s502_overview_finding_list_walkthrough.py prepare|serve|late|settle|gate|drop` and `node tools/s502-overview-finding-list-evidence.mjs`.

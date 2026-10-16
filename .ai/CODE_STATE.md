@@ -5660,3 +5660,15 @@ Branch `task/S3-02a-capability-read` (base main `71009bf6`, unmerged); packet `.
 - Fixture: `backend/tests/s3_claim_limit_records.py::build(runner, url)` (S4 `CaseRunner`, Batch V2 + S3 worker) -> manifest `s3-claim-limit-records-v1` (days 10-06 full-candidate, 10-08 missing-pv, 10-11 poor-quality-conflict, 10-13 late-revision with `withdrawn`, 10-15 stale-selection). Normalised sample responses `backend/tests/fixtures/s3_claim_limit_api_samples.json`.
 - Tests: `test_s3_capability_read_postgres.py`, `test_s3_claim_limit_postgres.py` (gate, fail-closed and currentness mutations proven).
 - Open: registry `I-capability-read`/`I-claim-limit-read`/`I-S3-02a` stay open until review; Necessary/open-bound/cohort/configuration/absent-lineage are proven by mutating the real snapshot, not by separate ingested cases; S3-02b UI and walkthrough; S6-02a's `0019` does not interact (no migration here).
+
+## S7-01a - Site source-health and battery boundary reads (built, slice review pending)
+
+Branch `task/S7-01a-health-read` (base main `8b5d8137`, unmerged); packet `.agent/S7-01a-review-packet.md`; S7-01b contract `.agent/S7-01a-handoff.md`. No migration.
+
+- Source health: `evidence/source_health.py` (schema `assetops.site-source-health` v1, rule `assetops.source-health.two-clock.v1`): contact `CURRENT|STALE|UNKNOWN` from server receipt (`freshness`), reported facts `CURRENT|OLD|UNKNOWN` from `observed_at` and clock trust (`|offset| > 5000 ms` UNTRUSTED, null UNKNOWN), queue/disk as `LAST_REPORTED`, per-source contact only when the diagnostic carries it. `check_consistent` refuses a non-snapshot isolation, duplicate/foreign/unregistered rows, row/text mismatch and a receipt after `read_at`. No derived projection: `stale_projection.applicable = false`.
+- Store: `PostgresGatewayAccess.source_health_snapshot` (read only; `_health_registration`, `_health_latest` `DISTINCT ON` with the S2 order) in one REPEATABLE READ transaction. S2 `gateway_health` and its route unchanged.
+- Battery: `sites/battery_boundary.py` (schema `assetops.asset-boundary` v1) over `FoundationService.read` (effective Foundation + binding set); physical condition always `UNKNOWN` (missing temperature history, measured capacity, stress history) or `NOT_CONFIGURED`; declared rating and bound channel IDs under their own labels; no SOC value.
+- Routes: `source_health_api.py` `GET /api/sites/{code}/source-health`; `asset_boundary_api.py` `GET /api/sites/{code}/battery`, `GET /api/sites/{code}/assets/{asset_id}/battery`; both use `finding_api.Access`, wired in `main.py`.
+- Fixture: `backend/tests/s7_health_cases.py` `HealthCases.register/publish/deliver` (`D-edge-health-cases`, one gateway per case, provisioning CLI + authenticated central ingestion; fixture SQL only for case gateway/source registration).
+- Tests: `test_s7_source_health_postgres.py`, `test_s7_asset_boundary_postgres.py`.
+- Open: registry `D-edge-health-cases`, `I-source-health-read`, `I-asset-boundary-read`, `I-S7-01a` stay open until review; no superseded-revision battery case (no Foundation revision writer used); accepted SOC not selected; S7-01b UI and walkthrough.
