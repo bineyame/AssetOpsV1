@@ -1,6 +1,6 @@
 # S4-05b — registered producers, Finding reads and owner walkthrough
 
-Status: active (activated 2026-10-16 from main `7576ef9d`; S4-05a merged); was implementation-ready. Size M, two phases. USER_REVIEW_REQUIRED: true — owner W1 source-copy checkpoint before merge. Branch `task/S4-05b-producers-reads-walkthrough` after S4-05a is independently reviewed and merged. Coordinator commits the plan.
+Status: in_review (phases 1-2 built; packet `.agent/S4-05b-review-packet.md`); activated 2026-10-16 from main `7576ef9d`; S4-05a merged); was implementation-ready. Size M, two phases. USER_REVIEW_REQUIRED: true — owner W1 source-copy checkpoint before merge. Branch `task/S4-05b-producers-reads-walkthrough` after S4-05a is independently reviewed and merged. Coordinator commits the plan.
 
 Depends on `I-S4-05a`, merged S2-02/S4-01/S4-02b and resolved `A-S2-evidence`, `A-actor-identity`. Completes registry `I-stored-demo-provenance`; shared contract in [S4-05](S4-05-stored-demo-provenance.md). Inspect LR-01/S5-01 merge state before coding.
 

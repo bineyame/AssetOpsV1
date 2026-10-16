@@ -5616,3 +5616,26 @@ Branch `task/S4-04-site-finding-index` (base main `f8a131e3`, unmerged); handoff
 - UI: `sites/findingIndexClient.ts` (typed result union incl. `not_imported`, `closed`, `continuity_limit`, `basis_changed`, `invalid`), `sites/SiteFindingIndex.tsx`; `shell/SiteAnalyticsFrames.tsx` `SiteFindingsFrame` keeps scope in the URL (`domain/from/to/limit/cursor`, default today's UTC day) and falls back to the T028 `SiteFindings` on a 404. `App` prop `siteFindingIndex`. Row link text is the lifecycle title (stored titles fail the product-vocabulary scan).
 - Walkthrough: `tools/s404_finding_index_walkthrough.py` (`assetops_s404_owner*`, `var/s404_owner*`, API 8934/web 5434, TLS 8935/HTTP 8936): prepare/serve/late/settle/gate/drop; browser claims `tools/s404-finding-index-evidence.mjs <base> <initial|late|settled|closed> <out> <manifest>`.
 - Open: owner record; `mini:3#a/b` (S5-02 consumes this order); money stays unavailable until S4-05 provenance + LR-01 both reviewed in baseline; S5-01 Overview `finding_list` still says unavailable; plain-language copy for the W1 task; merge main after the deferred-match fix and rerun the focused index tests.
+
+## S4-05b - registered producers, stored-source reads and owner walkthrough (phases 1-2 built, in_review)
+
+Branch `task/S4-05b-producers-reads-walkthrough` (unmerged; owner W1 copy checkpoint first). Packet
+`.agent/S4-05b-review-packet.md`; owner steps `.agent/S4-05b-owner-walkthrough.md`; ruling D-2026-10-16-s405b-label
+(`.agent/architect-S4-05b-answers.md`).
+
+- Producers: `tools/s4_finding_cases.py` `publish_authored`/`post(fixture=)` publish each exact batch before upload
+  (P01/P02); Lab Commit registers the whole sealed Stage first (`runs/registered_release.py` `publisher_for`, wired in
+  `host/lab_app.py`); any Stage status outside STAGED/NOT_STAGED/HELD -> `SOURCE_PUBLICATION_REFUSED`
+  (`STAGE_NOT_ATTESTABLE`), nothing released; Lab shows the refusal (`RunCommitPanel`).
+- Reads: `evidence/provenance_read.py` (`source_gate`, `permits_current_money`, `MIXED_OR_UNKNOWN_SOURCE`) feeds
+  `financials/consequence_read.py`, `finding_api.py` `bridge_consequence`, `site_overview/read.py`
+  (`source_provenance`, `source_gate`, `withheld_reasons`) and `actions/service.py` (pinned origin revision; unwired
+  or failing -> UNKNOWN). `demonstration_label.py` deleted.
+- UI: `frontend/src/sites/sourceProvenance.tsx` (`SOURCE_WORDS` per ruling; unknown states -> UNKNOWN), used by
+  Finding, Evidence, consequence/Financials, Overview, Action, Recommendation; marker `[data-source-provenance]`.
+- Pilot install gate (`tools/schedule-install-gate.py`) always requires `I-attested-real-source-provenance`.
+- Walkthrough `tools/s405_provenance_walkthrough.py` (DBs `assetops_s405_{owner,old,mixed}<suffix>`, work
+  `var/s405_*`, API 8935/web 5435, `serve --case`); browser claims `tools/s405-provenance-evidence.mjs`.
+- S5-01 packet amended (shared contract item 5).
+- Open: owner copy approval; `ATTESTED_REAL_SOURCE` class (separate task); `MoneyInputs.provenance_resolved`
+  default True for unit tests; per-row provenance queries in consequence history; Action fixture size.

@@ -1,4 +1,4 @@
-# S4-05b phase 2 handoff - PARTIAL (context budget reached)
+# S4-05b phase 2 handoff - COMPLETE
 
 Branch `task/S4-05b-producers-reads-walkthrough` (worktree `AssetOpsV1-review2`). Environment as in
 `.agent/S4-05b-phase-1-brief.md`; focused Postgres DB `assetops_s405b_test`. Phase-1 review cherry-picked
@@ -83,3 +83,18 @@ producer run) is still open and blocking for the phase-2 review.
 - Mutation: `permits_current_money` -> always True: 5 failed in `test_s4_assumption_read_api`/`test_s5_overview_read`;
   reverted with `git checkout --`.
 - Not yet run: check-all, registry checker, full `npm.cmd test`, full backend suite, layout evidence, walkthrough.
+
+## Completion (resumed session)
+
+All resume items done; packet `.agent/S4-05b-review-packet.md` is the evidence record.
+
+- `69931361` Lab regression test: `runCommitPanel.test.tsx` "keeps a source publication refusal visible and claims no
+  partial release".
+- `b3c49300` S5-01 packet amendment (lines 34/39/52; `demonstration_case` trigger replaced).
+- `edecf2ba`, `b32e6c6b` `tools/s405_provenance_walkthrough.py` (owner/old/mixed private DBs) and
+  `tools/s405-provenance-evidence.mjs`; run end to end: prepare 0 failed checks in 455 s, layout 98/98 + 40/40 +
+  40/40, then `drop`. Phase-1 review L3 closed.
+- `64c6f6bd` owner steps `.agent/S4-05b-owner-walkthrough.md`.
+- Final checks: check-all 9/9, tsc clean, `npm.cmd test` 1588 passed (67 files), full backend 2408 passed, JUnit
+  0 failed/errored/skipped, 18:50 wall.
+- Next: independent phase-2/slice review, then owner W1 copy checkpoint, then merge.
