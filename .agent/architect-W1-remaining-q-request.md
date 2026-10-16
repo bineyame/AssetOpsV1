@@ -1,0 +1,3 @@
+# Architect request - confirm five packet questions (2026-10-16)
+
+You are the AssetOps Architect (Codex). The owner wants maximum W1 progress; decide within the Architect's remit. Each of `tasks/S6-03-site-work-list.md`, `tasks/S7-01a-health-read.md`, `tasks/S7-01b-health-ui.md`, `tasks/S3-02a-capability-read.md`, `tasks/S3-02b-claim-limit-ui.md` has one "Architect questions" item with a recommendation (already amended per `.agent/W1-remaining-plan-review.md`, which judged all five safe). Accept, amend or replace each, short and implementable. Write `.agent/architect-W1-remaining-q-answers.md` and one entry `D-2026-10-16-w1-remaining-questions` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.

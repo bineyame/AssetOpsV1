@@ -1,18 +1,8 @@
-# S3-02 — Selected-window claim limit
+# S3-02 — Selected-window claim limit umbrella
 
-Status: outline; refine after S3-01 review, before activation
-USER_REVIEW_REQUIRED: true
-Depends on: S3-01 selected assessment, resolved evidence-readiness and dispatch contracts
-Branch when activated: task/S3-02-claim-limit
+Status: implementation-ready. Two reviewed parts; this umbrella is not an extra build. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-s302-capability`. Registry `I-S3-02` and `evidence-analysis:2#b` remain open until both parts and owner review.
 
-## Visible outcome
+1. [S3-02a](S3-02a-capability-read.md): exact selected S3 assessment, accepted role coverage and versioned classification ceiling. USER_REVIEW_REQUIRED: false; mergeable after independent review.
+2. [S3-02b](S3-02b-claim-limit-ui.md): Evidence Analysis UI, exact Evidence drill-down, 1440/390 and reproducible owner walkthrough. USER_REVIEW_REQUIRED: true; owner checkpoint before merge.
 
-The positive `evidence-analysis:2#b` view shows a rule-backed capability and coverage limit for one selected Site/window/assessment. S2's no-conclusion explanation remains its distinct delivered portion.
-
-## Acceptance
-
-- `I-capability-read` uses accepted public coverage for the selected S3 assessment. The complete and missing cases in `I-sim-dispatch-cases` are reusable only when review proves they cover this rule; otherwise add one bounded fixture before activation.
-- `I-claim-limit-read` returns the governing rule, limit, selected assessment revision, accepted evidence IDs and missing-role reason. `I-evidence-analysis-claim-limit-ui` shows positive and unavailable states with stable selection after reload.
-- Compare the app's `evidence-analysis` panel with v6.9 at desktop and narrow widths, including keyboard selection and Evidence drill-down. Review the exact claim lineage and the distinction from S2 text.
-
-Independent review and the owner checkpoint close this packet. No open path is delivered by this mapping.
+S2's `evidence-analysis:2#a` no-conclusion/status explanation stays distinct. Current positive `#b` requires a complete rule-backed selected assessment; configured capability, latest unselected readings and private Lab truth cannot supply it. Copy and visual polish go to W1 conclusion.
