@@ -181,25 +181,13 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      ACTION_ONLY),
     ("verification plan split update", ACTION, split("verification_plan", "later_start = :l WHERE id = :i"),
      ACTION_NEVER),
-    ("verification outcome delete", ACTION, '_OPS02 = (
-    "DELETE "
-    "FROM verification_outcome WHERE id = :i"
-)
-',
+    ("verification outcome delete", ACTION, '_OPS02 = (\n    "DELETE "\n    "FROM verification_outcome WHERE id = :i"\n)\n',
      ACTION_NEVER),
     ("verification binding upsert", ACTION,
-     '_OPS02 = (
-    "INSERT INTO verification_selection_binding (id) VALUES (:i) "
-'
-     '    "ON CONFLICT (id) DO UPDATE SET selection = :x"
-)
-', UPSERT),
+     '_OPS02 = (\n    "INSERT INTO verification_selection_binding (id) VALUES (:i) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET selection = :x"\n)\n', UPSERT),
     ("reverse verification insert", FINDING,
-     '_OPS02 = (
-    "INSERT INTO verification_metric "
-    "(outcome_id) VALUES (:i)"
-)
-',
+     '_OPS02 = (\n    "INSERT INTO verification_metric "\n    "(outcome_id) VALUES (:i)"\n)\n',
      "writes Action table 'verification_metric'"),
     ("reverse action update", FOUNDATION, split("action", "status = :s WHERE id = :i"), "writes Action table 'action'"),
     ("reverse action insert", LEDGER,
@@ -249,11 +237,7 @@ WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls action insert", ACTION,
      '_OPS02 = (\n    "INSERT INTO action_event (id, kind) "\n    "VALUES (:i, :k)"\n)\n'),
     ("controls verification plan insert", ACTION,
-     '_OPS02 = (
-    "INSERT INTO verification_plan (id, action_id) "
-    "VALUES (:i, :a)"
-)
-'),
+     '_OPS02 = (\n    "INSERT INTO verification_plan (id, action_id) "\n    "VALUES (:i, :a)"\n)\n'),
     ("controls provenance insert and arbiter", LEDGER,
      '_OPS02_A = (\n    "INSERT INTO evidence_publication (id) "\n    "VALUES (:i)"\n)\n'
      '_OPS02_B = (\n    "INSERT INTO ingestion_batch (id) VALUES (:i) ON CONFLICT ON CONSTRAINT "\n'
