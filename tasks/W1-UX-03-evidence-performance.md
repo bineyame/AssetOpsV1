@@ -1,6 +1,6 @@
 # W1-UX-03 — Evidence, Dispatch and Analysis presentation
 
-Status: implementation-ready. Branch `task/W1-UX-03`, after reviewed/merged W1-UX-01. Frontend only. Owner walkthrough deferred to combined W1. Scope: registry IDs `evidence`, `evidence-analysis`, `dispatch`, `analysis`. Use [umbrella inventory](W1-UX-mockup-fidelity.md), v69 named screens/manifest and S2-02/S3-01/S3-02b exact-read packets.
+Status: active (activated 2026-10-16 from main `b4a89314`); was implementation-ready. Branch `task/W1-UX-03`, after reviewed/merged W1-UX-01. Frontend only. Owner walkthrough deferred to combined W1. Scope: registry IDs `evidence`, `evidence-analysis`, `dispatch`, `analysis`. Use [umbrella inventory](W1-UX-mockup-fidelity.md), v69 named screens/manifest and S2-02/S3-01/S3-02b exact-read packets.
 
 ## Visible result
 
