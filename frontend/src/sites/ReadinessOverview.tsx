@@ -211,15 +211,15 @@ function rows(
     },
     {
       key: "roles",
-      area: "Required role bindings",
+      area: "Required role channel links",
       declared:
         foundation.bindings.binding_set === null
-          ? `No binding set in effect; ${configured} of ${required.length} required roles configured`
-          : `Binding v${foundation.bindings.binding_set.version}; ${configured} of ${required.length} required roles configured`,
+          ? `No channel-link set in effect; ${configured} of ${required.length} required roles configured`
+          : `Channel links v${foundation.bindings.binding_set.version}; ${configured} of ${required.length} required roles configured`,
       needed: missingRoles.length === 0 ? [] : [`Not configured: ${missingRoles.join(", ")}.`],
       next: (
         <button type="button" className="link-button" data-review-bindings="" onClick={onReviewBindings}>
-          Review or change bindings
+          Review or change channel links
         </button>
       ),
     },
@@ -332,7 +332,7 @@ export const GATEWAY_SIGNAL_NOT_AVAILABLE_YET =
   "Signal strength not available yet: no reviewed source reports a gateway's signal strength.";
 /** Catalogued as G-readiness-gateway-firmware: no producer, edge field or read carries a firmware report. */
 export const GATEWAY_FIRMWARE_NOT_AVAILABLE_YET =
-  "Firmware not available yet: no reviewed source reports what firmware a gateway runs.";
+  "Firmware not available yet: no reviewed source reports what firmware a gateway has installed.";
 export const DEVICE_CONNECTION_NOT_ESTABLISHED = "Device connection not established here.";
 export const GATEWAY_CONTACT_UNAVAILABLE = "Gateway contact unavailable";
 export const GATEWAY_CONTACT_UNKNOWN = "Contact unknown — no central diagnostic received";

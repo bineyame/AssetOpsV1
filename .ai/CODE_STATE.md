@@ -5727,6 +5727,17 @@ Branch `task/S7-01b-health-ui` (base main `f3de235a`, unmerged); packet `.agent/
 - Walkthrough: `tools/s701_health_walkthrough.py prepare|serve|links|deliver|attest|drop` (KOBO-001 bindings before case gateways; KOBO-002 without battery); evidence `tools/s701-health-evidence.mjs` (40 claims at 1440/390).
 - Open: no `STALE_PROJECTION` state (read has none); accepted SOC not shown; positive `asset:3#b`, warranty/replacement stay unmapped; plain-language and visual polish carry to the W1-conclusion fidelity pass; registry `I-source-health-ui`, `I-asset-boundary-ui`, `health:2#a`, `asset:3#a` close only after review and owner walkthrough.
 
+## S4-08 - Site assumption and consequence history (built, in_review; slice review gates merge)
+
+Branch `task/S4-08-assumption-history` (base main `e46bbd7c`, unmerged); packet `.agent/S4-08-review-packet.md`. No migration; read-only (no new writer).
+
+- Read: `financials/consequence_history.py` (`ConsequenceHistoryService`, cursor/fence, `classify`), store method `PostgresConsequenceStore.site_history` (one REPEATABLE READ snapshot: DB-clock default cutoff, fence count + max `(recorded_at, id)`, keyset page, FindingRevisions with latest consequence at cutoff, price links joined to assignments, prior digests). Route `consequence_history_api.py` `GET /api/sites/{site}/financial-assumptions/consequences?recorded_at=&after=&limit=`, included in `main.py` before the price-revision route; composed by `financials/composition.build_consequence_history_service`.
+- Row contract: exact Finding/FindingRevision/consequence/price IDs, `at_cutoff` CURRENT/HISTORICAL, price state `LINKED|NO_PRICE_LINK|NOT_EVALUATED|LINEAGE_INCONSISTENT`, `change_from_prior` (`PRICE_ONLY` drives the plain sentence), `recorded_amount.disposition` `SHOWN|SOURCE_CLOSED|MIXED_OR_UNKNOWN_SOURCE|UNPRICED|QUANTITY_UNAVAILABLE|MINOR_UNIT_UNKNOWN|LINEAGE_INCONSISTENT`, per-row S4-05b block; `current_amount_shown` is always false. Cutoff string is `isoformat()` UTC (`+00:00`, microseconds), equal to the price read's echo.
+- Refusals: 400 `INVALID_CURSOR`, 409 `CONSEQUENCE_HISTORY_BASIS_CHANGED` (`SCOPE_CHANGED|FENCE_CHANGED`), 422 `INSTANT_NOT_ZONED|INVALID_CUTOFF|INVALID_LIMIT|CUTOFF_REQUIRED_WITH_CURSOR`, 503 `CONSEQUENCE_HISTORY_UNAVAILABLE`; closed S3 gate lists rows with `SOURCE_CLOSED`.
+- UI: `frontend/src/sites/ConsequenceHistory.tsx` ("Interpretation history" panel), `SiteAssumptions` reads history first and passes its cutoff string to the price read (default URL unchanged; `data-price-cutoff` now RECORDED_CUTOFF on default; history failure = plain price refusal `data-financials-read="no-cutoff"`); URL params `history_after`, `history_limit`; client `getConsequenceHistory` (`basis_changed` result reloads page one).
+- Tests: `backend/tests/test_s4_consequence_history.py` (25), `test_s4_consequence_history_postgres.py` (7, incl. interleaved late commit), `frontend/src/sites/__tests__/siteFinancials.test.tsx` (+8).
+- Walkthrough: `tools/s408_assumption_history_walkthrough.py` (wraps s405 owner+mixed under `assetops_s408*`; adds v2-v6 incl. S4-06 equal-start v5 and part-way v6); evidence `tools/s408-assumption-history-evidence.mjs` (owner/closed/mixed modes); S4-02a evidence asserts the unchanged default URL and one cutoff.
+- Open: recorded amount display does not apply LR-01 eligibility (history is audit, as pinned versions on Finding Financials); Finding links pin exact IDs, not the cutoff; `assumptions:3#a` promotion waits for review; wording to W1-UX-02.
 ## W1-UX-01 - shared product presentation (built, in_review)
 
 Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01-review-packet.md`; shared API `.agent/W1-UX-01-handoff.md`. Frontend only.
@@ -5751,3 +5762,14 @@ Branch `task/W1-UX-04` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-04
 - Capture: `tools/w1-ux-01-evidence.mjs` knows all W1-UX-04 cards; `W1_NO_VISUAL_OK`, `W1_TAB_TRACE` env.
 - Open: refusal states cannot meet `expectStateLineVisible` (no instant to show); Evidence completeness counts slots with no problems (caller-side `slotProblems`); duplicate word maps in `verificationWords.ts` remain (wrapped, not replaced).
 
+## W1-UX-05 - Foundation, Readiness, SLD, Health and battery presentation (built, in_review)
+
+Branch `task/W1-UX-05` (base main `815888f0`). Packet `.agent/W1-UX-05-review-packet.md`.
+
+- Settled: the five routes `foundation`, `readiness`, `sld`, `health`, `asset` lead with the shared `HeadlineVisualCard` and are opted into the W1 vocabulary set. Cards live in `frontend/src/sites/foundationHeadlines.tsx` and `healthHeadlines.tsx`, with domain-local `ProductWords` (period, set-up readiness, contact summary, gateway contact, battery condition); none is `positive`.
+- Foundation wording: signal binding -> "channel link", digest -> "content reference", type labels "Solar array"/"Supplied users"; single values marked via `frontend/src/sites/exactValues.tsx` (`UserName`, `ExactRef`).
+- SLD reporting is drawn as a not-known mark; Health contact and reported-fact age are separate lanes; battery "cannot yet be judged" with missing inputs as a step strip.
+- S7-01b Lows: L1 (observed-after-receipt -> Unknown age), L3 (selected-gateway IDs to the disclosure), L4 (`isBatteryDetail` requires UNKNOWN; 409 test) done.
+- Refusals, the empty Foundation period and the unreadable store carry the state line.
+- Open: S7-01b L2 (backend negative `receipt_lag_seconds`); shared `expectStateLineVisible` rejects `asOfText(null)`; three backend "binding" statements replaced in the UI only when no link set is in effect; green S1 "Ready to report" verdict remains under the neutral card; `tools/w1-ux-05-evidence.mjs` 390 px overflow measurement inherits a UX-01 timing issue.
+- Proof at `af9b6406`: tsc 0; full frontend 1755 passed; check-all 9/9; served captures for all five screens (empty-period page not run by design).

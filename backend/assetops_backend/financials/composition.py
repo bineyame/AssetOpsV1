@@ -13,12 +13,13 @@ from assetops_backend.financials.adapters.postgres_consequence_store import (
     PostgresConsequenceStore,
 )
 from assetops_backend.financials.assumption_read import AssumptionReadService
+from assetops_backend.financials.consequence_history import ConsequenceHistoryService
 from assetops_backend.financials.consequence_read import ConsequenceReadService
 from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
 __all__ = ["Appended", "AssumptionStoreUnavailable", "ConsequenceStoreUnavailable", "PostgresAssumptionStore",
            "PostgresConsequenceStore", "Published", "build_assumption_read_service", "build_assumption_store",
-           "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
+           "build_consequence_history_service", "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
            "CONSEQUENCE_UNAVAILABLE"]
 
 # Store failures the consequence read and the recompute worker report as typed unavailable.
@@ -48,6 +49,14 @@ def build_consequence_read_service(database_url: str | None) -> ConsequenceReadS
         PostgresConsequenceStore(database_url), PostgresAssumptionStore(database_url),
         eligibility=MoneyEligibility(build_dispatch_read_service(database_url), build_finding_store(database_url)),
         provenance=build_source_provenance(database_url))
+
+
+def build_consequence_history_service(database_url: str | None) -> ConsequenceHistoryService:
+    """S4-08: the read-only Site consequence history with the S4-05b exact-revision source resolver."""
+    from assetops_backend.evidence.composition import build_source_provenance
+
+    return ConsequenceHistoryService(PostgresConsequenceStore(database_url),
+                                     provenance=build_source_provenance(database_url))
 
 
 def build_recompute_worker(database_url: str | None) -> ConsequenceRecomputeWorker:

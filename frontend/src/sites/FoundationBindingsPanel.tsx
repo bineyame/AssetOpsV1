@@ -87,6 +87,19 @@ const ROLE_STATUS_WORD: Record<ReadinessRole["status"], string> = {
   NOT_CONFIGURED: "Not configured",
 };
 
+/*
+ * W1-UX-05: the server's fixed statements for "no channel-link set in effect"
+ * use implementation words. They are constants keyed on that one condition,
+ * so the screen says the same thing in product words; every other statement
+ * the server sends is shown as sent.
+ */
+export const NO_CHANNEL_LINKS_READINESS =
+  "No channel-link set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.";
+export const NO_CHANNEL_LINKS_SNAPSHOT =
+  "No channel-link set is in effect for the period shown, so no gateway snapshot exists.";
+export const NO_CHANNEL_LINKS_STATEMENT =
+  "No channel-link set is in effect for the period shown. Every channel is unbound; the imported signal links are kept for comparison only.";
+
 function conversionText(binding: SignalBinding): string {
   const { kind } = binding.conversion;
   return kind === "IDENTITY" ? "Same unit" : "State labels mapped";
@@ -143,7 +156,7 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
     <Panel
       heading="Configuration readiness"
       headingId={FOUNDATION_READINESS_HEADING_ID}
-      description="Configuration readiness is distinct from claim readiness, which is on Site Evidence, and from gateway contact, which is reported separately below."
+      description="Configuration readiness is distinct from what the readings can support, which is on Site Evidence, and from gateway contact, which is reported separately below."
     >
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
@@ -162,7 +175,7 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
                 <strong>{role.label}</strong>: {ROLE_STATUS_WORD[role.status].toLowerCase()}.{" "}
                 {role.covered_by === "FOUNDATION_CONTROL"
                   ? "This is a Foundation control; set it in the Site model."
-                  : "No channel in the binding set shown is bound to this role."}
+                  : "No channel in the channel-link set shown is bound to this role."}
               </li>
             ))}
           </ul>
@@ -170,7 +183,7 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
       ) : null}
       {readiness.foundation_gaps.length > 0 ? (
         <div data-readiness-gaps="">
-          <p>Foundation gaps (configuration, not channel bindings):</p>
+          <p>Foundation gaps (configuration, not channel links):</p>
           <ul>
             {readiness.foundation_gaps.map((gap) => (
               <li key={`${gap.code}:${gap.subject}`} data-readiness-gap={gap.code}>
@@ -180,7 +193,7 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
           </ul>
         </div>
       ) : null}
-      <p>{readiness.statement}</p>
+      <p>{readiness.binding_set_revision_id === null ? NO_CHANNEL_LINKS_READINESS : readiness.statement}</p>
     </Panel>
   );
 }
@@ -193,7 +206,7 @@ export function RoleCoveragePanel({ foundation }: { foundation: FoundationReadMo
       <DataTable labelledBy={FOUNDATION_ROLES_HEADING_ID}>
         <caption>
           Roles the analysis of this Site needs, and what in this configuration covers each one.
-          Configuration only; claim readiness is on Evidence.
+          Configuration only; what the readings can support is on Evidence.
         </caption>
         <thead>
           <tr>
@@ -231,13 +244,13 @@ export function SignalBindingsPanel({ foundation, onPublishBindings }: SignalBin
   const unbound = readiness.channels.filter((channel) => channel.status !== "BOUND");
 
   return (
-    <Panel heading="Signal bindings" headingId={FOUNDATION_BINDINGS_HEADING_ID}>
+    <Panel heading="Reading-channel links" headingId={FOUNDATION_BINDINGS_HEADING_ID}>
       {bindings.binding_set === null ? (
-        <p data-bindings-state="NONE">{bindings.statement}</p>
+        <p data-bindings-state="NONE">{NO_CHANNEL_LINKS_STATEMENT}</p>
       ) : (
         <>
           <p data-bindings-state="PUBLISHED">
-            <Badge tone="neutral">{`Binding v${bindings.binding_set.version}`}</Badge> Effective{" "}
+            <Badge tone="neutral">{`Channel links v${bindings.binding_set.version}`}</Badge> Effective{" "}
             {formatInstant(bindings.binding_set.valid_from)} to{" "}
             {formatInstant(bindings.binding_set.valid_to)} · {bindings.statement}
           </p>
@@ -254,52 +267,54 @@ export function SignalBindingsPanel({ foundation, onPublishBindings }: SignalBin
                 <th scope="col">Role</th>
                 <th scope="col">Units</th>
                 <th scope="col">Conversion</th>
-                <th scope="col">Binding ID</th>
+                <th scope="col">Link reference</th>
               </tr>
             </thead>
             <tbody>
               {bindings.mappings.map((binding) => (
                 <tr key={binding.binding_revision_id} data-binding-channel={`${binding.device_id}/${binding.signal_id}`}>
                   <th scope="row">
-                    <code>{`${binding.device_id} / ${binding.signal_id}`}</code>
+                    <code data-vocabulary-exempt="source-reference">{`${binding.device_id} / ${binding.signal_id}`}</code>
                   </th>
                   <td>
-                    <code>{binding.source_external_id ?? binding.source_id}</code>
+                    <code data-vocabulary-exempt="source-reference">{binding.source_external_id ?? binding.source_id}</code>
                   </td>
-                  <td>{binding.asset_code ?? "Unknown"}</td>
+                  <td>{binding.asset_code === null ? "Unknown" : <code data-vocabulary-exempt="source-reference">{binding.asset_code}</code>}</td>
                   <td>{binding.role_label}</td>
                   <td>{`${binding.source_unit} → ${binding.canonical_unit}`}</td>
                   <td>{conversionText(binding)}</td>
                   <td>
-                    <code>{binding.binding_revision_id}</code>
+                    <code data-vocabulary-exempt="source-reference">{binding.binding_revision_id}</code>
                   </td>
                 </tr>
               ))}
             </tbody>
           </DataTable>
-          <Disclosure name="binding-set-record" summary="Binding set record and digest">
+          <Disclosure name="binding-set-record" summary="Channel-link set record and content reference">
             <FactList>
-              <Fact term="Binding set ID">
-                <code>{bindings.binding_set.binding_set_id}</code>
+              <Fact term="Channel-link set reference">
+                <code data-vocabulary-exempt="source-reference">{bindings.binding_set.binding_set_id}</code>
               </Fact>
-              <Fact term="Binding version record ID">
-                <code>{bindings.binding_set.binding_set_revision_id}</code>
+              <Fact term="Channel-link version record reference">
+                <code data-vocabulary-exempt="source-reference">{bindings.binding_set.binding_set_revision_id}</code>
               </Fact>
-              <Fact term="Bindings digest (SHA-256)">
-                <code>{bindings.binding_set.bindings_sha256}</code>
+              <Fact term="Channel links content reference (SHA-256)">
+                <code data-vocabulary-exempt="source-reference">{bindings.binding_set.bindings_sha256}</code>
               </Fact>
-              <Fact term="Role set">{bindings.binding_set.role_set}</Fact>
+              <Fact term="Role set">
+                <code data-vocabulary-exempt="source-reference">{bindings.binding_set.role_set}</code>
+              </Fact>
             </FactList>
           </Disclosure>
         </>
       )}
       {unbound.length === 0 ? null : (
         <>
-          <p>Declared channels with no binding (Unknown until bound):</p>
+          <p>Declared channels with no channel link (Unknown until bound):</p>
           <ul aria-label="Unbound channels">
             {unbound.map((channel) => (
               <li key={`${channel.device_id}/${channel.signal_id}`} data-channel-status={channel.status}>
-                <code>{`${channel.device_id} / ${channel.signal_id}`}</code> ({channel.unit}):{" "}
+                <code data-vocabulary-exempt="source-reference">{`${channel.device_id} / ${channel.signal_id}`}</code> ({channel.unit}):{" "}
                 {channel.status === "UNREGISTERED" ? "no registered source" : "not bound"}
               </li>
             ))}
@@ -338,20 +353,25 @@ export function AcquisitionDetailsPanel({
           </p>
           <FactList>
             <Fact term="Snapshot SHA-256">
-              <code>{snapshot.sha256}</code>
+              <code data-vocabulary-exempt="source-reference">{snapshot.sha256}</code>
             </Fact>
-            <Fact term="Schema">{snapshot.schema}</Fact>
+            <Fact term="Schema">
+              <code data-vocabulary-exempt="source-reference">{snapshot.schema}</code>
+            </Fact>
             <Fact term="Foundation version record">
-              <code>{snapshot.foundation_revision_id}</code>
+              <code data-vocabulary-exempt="source-reference">{snapshot.foundation_revision_id}</code>
             </Fact>
-            <Fact term="Binding version record">
-              <code>{snapshot.binding_set_revision_id}</code>
+            <Fact term="Channel-link version record">
+              <code data-vocabulary-exempt="source-reference">{snapshot.binding_set_revision_id}</code>
             </Fact>
             <Fact term="Access">{snapshot.access}</Fact>
           </FactList>
         </div>
       ) : (
-        <p data-snapshot-available="false">Gateway snapshot: not available. {snapshot.reason}</p>
+        <p data-snapshot-available="false">
+          Gateway snapshot: not available.{" "}
+          {foundation.bindings.binding_set === null ? NO_CHANNEL_LINKS_SNAPSHOT : snapshot.reason}
+        </p>
       )}
     </Panel>
   );
@@ -373,7 +393,7 @@ function RemoveBindingForm({
     event.preventDefault();
     const instant = effective === "" ? null : utcInstantFromLocal(effective);
     if (selected === "" || instant === null) {
-      setMessage("Choose a binding and the instant its removal takes effect.");
+      setMessage("Choose a channel link and the instant its removal takes effect.");
       return;
     }
     const removed = mappings.find((m) => m.binding_revision_id === selected);
@@ -387,7 +407,7 @@ function RemoveBindingForm({
     setPending(false);
     setMessage(
       outcome.status === "published"
-        ? `Published binding v${outcome.binding_set.version}, effective ${formatInstant(
+        ? `Published channel links v${outcome.binding_set.version}, effective ${formatInstant(
             outcome.binding_set.valid_from,
           )} ${
             outcome.applies_until == null
@@ -395,7 +415,7 @@ function RemoveBindingForm({
               : `only until ${formatInstant(outcome.applies_until)}${
                   outcome.stopped_by_binding_version == null
                     ? ""
-                    : `, where binding v${outcome.stopped_by_binding_version} (a later, separately published change) takes over`
+                    : `, where channel links v${outcome.stopped_by_binding_version} (a later, separately published change) takes over`
                 }`
           }.`
         : `Not published: ${outcome.message}`,
@@ -403,17 +423,17 @@ function RemoveBindingForm({
   }
 
   return (
-    <form className="action-form" aria-label="Remove a binding" onSubmit={submit}>
-      <h3 className="action-form__heading">Change the binding set</h3>
+    <form className="action-form" aria-label="Remove a channel link" onSubmit={submit}>
+      <h3 className="action-form__heading">Change the channel links</h3>
       <p>
-        Remove one binding from a chosen instant. This publishes a new binding version; earlier
-        periods keep their stored bindings.
+        Remove one channel link from a chosen instant. This publishes a new channel-link version;
+        earlier periods keep their stored channel links.
       </p>
       <div className="action-form__fields">
         <label>
-          Binding{" "}
+          Channel link{" "}
           <select value={selected} onChange={(event) => setSelected(event.target.value)}>
-            <option value="">Choose a binding</option>
+            <option value="">Choose a channel link</option>
             {mappings.map((m) => (
               <option key={m.binding_revision_id} value={m.binding_revision_id}>
                 {`${m.role_label} · ${m.device_id} / ${m.signal_id}`}
@@ -426,7 +446,7 @@ function RemoveBindingForm({
           <input type="datetime-local" value={effective} onChange={(event) => setEffective(event.target.value)} />
         </label>
         <button type="submit" disabled={pending}>
-          Publish binding change
+          Publish channel-link change
         </button>
       </div>
       {message === null ? null : <p role="status">{message}</p>}

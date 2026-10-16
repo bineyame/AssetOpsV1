@@ -73,7 +73,7 @@ W1-UX-05 closeout writes `.agent/W1-UX-combined-owner-walkthrough.md` with the o
 | `finding-history` | `s4_finding_walkthrough.py` P/S | `/sites/{site}/findings/{finding}/history?revision_id={revision}` | historical |
 | `sitefindings` | `s404_finding_index_walkthrough.py` P/S/T late | `/sites/{site}/findings?from={from}&to={to}` | supported/proved-zero/stale |
 | `financials` | `s402b_fuel_cost_walkthrough.py` P/S; `s405_provenance_walkthrough.py` P/S/links | `/sites/{site}/financials?finding_id={finding}&revision_id={revision}` | priced/withheld/unknown source |
-| `assumptions` | `s402a_assumptions_walkthrough.py` P/S; S4-08 guarded case P/S/links (new) | `/sites/{site}/financials/assumptions?recorded_at={cutoff}` from tool output | effective/historical price and consequence versions; missing/withheld/closed source, exact Finding link and source label after reload |
+| `assumptions` | `s402a_assumptions_walkthrough.py` P/S; `s408_assumption_history_walkthrough.py` P/S/links/close-gate (owner + mixed cases; evidence `s408-assumption-history-evidence.mjs`) | `/sites/{site}/financials/assumptions` (default) and `?recorded_at={T1/T3}` from `links` output | effective/historical price and consequence versions; missing/withheld/closed source, exact Finding link and source label after reload |
 | `recommendation` | `s601b_action_walkthrough.py` P/S/links | `/sites/{site}/findings/{finding}/recommendation?revision_id={revision}` | proposed/limited |
 | `changes` | `s601b_action_walkthrough.py` P/S/links | `/sites/{site}/foundation/changes/{change}` | applied/unknown effect |
 | `action-overview` | `s601b_action_walkthrough.py` P/S/links | `/sites/{site}/actions/{action}` | recorded/pending |

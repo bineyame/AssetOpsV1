@@ -208,7 +208,9 @@ export function isBatteryDetail(value: unknown): value is BatteryDetail {
   return (
     schemaIs(value, SCHEMA_ASSET) &&
     hasKeys(value, ["asset", "binding_status", "bound_channels", "physical_condition", "basis"]) &&
-    hasKeys((value as Record<string, unknown>).physical_condition, ["status", "reason", "missing_causal_inputs"])
+    hasKeys((value as Record<string, unknown>).physical_condition, ["status", "reason", "missing_causal_inputs"]) &&
+    // S7-01b L4: only an Unknown condition is a battery detail this page can show; anything else is refused.
+    ((value as Record<string, Record<string, unknown>>).physical_condition.status === "UNKNOWN")
   );
 }
 

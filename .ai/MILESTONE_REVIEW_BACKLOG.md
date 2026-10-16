@@ -2270,3 +2270,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ### Flaky test: Foundation change heading (2026-10-16)
 
 `frontend/src/sites/__tests__/siteFoundationChange.test.tsx` ("shows old/new reserve ... pending outcome") intermittently cannot find the heading "Battery reserve change" (seen on S3-02b, S4-05b and S5-02 runs; passes 3/3 alone on both main and branch). Likely the title is set after the settled read. Fix: await the heading with `findByRole`.
+
+### Flaky test: schedule tick 8 s stage cap (2026-10-17)
+
+`backend/tests/test_s4_schedule_tick_postgres.py:435` (`test_a_hung_stage_is_killed_...`): the real-children tick exceeds the 8 s S3 stage cap under machine load (18 s while three UX builds ran tests), reading FAILED. Passes 7/7 alone on main and on the S4-08 branch. Fix: widen the cap for the recovery tick or isolate the load.
