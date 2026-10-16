@@ -102,7 +102,12 @@ only on `I-sim-verification-cases`, `D-verification-window` (both stay `open`).
 
 ## Full backend suite
 
-(filled in below after the run)
+Revision `45405421` (code identical to `64d2feb3`), real Postgres on a private `assetops_s602b_test` base, var/sites
+copied from main: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q -p no:cacheprovider
+--junitxml=<scratchpad>/s602b-junit.xml`, started after the wait for another agent's pytest to end (no other pytest,
+3.1 GB free). **2518 passed in 1526 s (25 min 26 s; cap 30 min)**; JUnit tests=2518 failures=0 errors=0
+skipped=0. Wall time is about 3x the guide's 8 min under the shared machine's load. Afterwards the base DB and the
+copied `var/sites` were removed.
 
 ## Residual risk
 

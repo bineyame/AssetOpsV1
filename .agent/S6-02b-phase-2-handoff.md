@@ -1,4 +1,4 @@
-# S6-02b phase 2 handoff (PARTIAL - stopped near the context cap)
+# S6-02b phase 2 handoff (COMPLETE - resumed and closed; see .agent/S6-02b-review-packet.md)
 
 Branch `task/S6-02b-verification-ui`, worktree `AssetOpsV1-review5`. Phase 1: see `.agent/S6-02b-phase-1-handoff.md`.
 Phase 2 commits: `b25d91d4` (UI + tests), `08d2d127` (walkthrough tool + evidence script, partial). Not merged.
