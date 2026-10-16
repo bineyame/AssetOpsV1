@@ -4,7 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SiteFinancialsFrame } from "../../shell/SiteAnalyticsFrames";
 import { settledScreen } from "../../test/settled";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import {
   createFinancialsClient,
   type AssumptionRevisionBody,
@@ -478,7 +479,13 @@ describe("Site > Financials > Overview: the Finding bridge", () => {
     mount(fake({ bridge: { status: "loaded", value: bridgeBody("UNPRICED") } }), `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`);
     await settledScreen();
     expect(document.querySelector("[data-financials-bridge]")).toHaveAttribute("data-financials-bridge", "UNPRICED");
-    expect(screen.getByText("No price for the whole window")).toBeInTheDocument();
+    // W1-UX-02 (wording moved to the shared money words): was getByText("No price for the whole window").
+    const card = document.querySelector("[data-headline-card='financials-consequence']") as HTMLElement;
+    expect(card.querySelector("[data-product-status-label]")).toHaveTextContent(/^No price recorded$/);
+    expect(card.querySelector(".product-status__sentence")).toHaveTextContent(
+      "No single recorded price covers the whole time, so no amount is shown. This is not zero.",
+    );
+    expect(card.querySelector("[data-financials-why='NO_PRICE']")).toHaveTextContent("No diesel price is recorded for this finding's time.");
   });
 
   it("a foreign or unknown Finding version is refused, never replaced", async () => {
@@ -544,8 +551,10 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
     expect(bridge).toHaveAttribute("data-financials-bridge", "PRICED");
     expect(bridge).toHaveAttribute("data-financials-amount", "shown");
     expect(bridge).toHaveTextContent("0.00 to 16.20 USD");
+    // W1-UX-02: the model version moved to the closed exact-reference disclosure (was "... under the reviewed
+    // fuel-cost-1 assumptions. ..."); the version must not be in the default reading.
     expect(bridge).toHaveTextContent(
-      "Modelled potential fuel-cost exposure: 0.00 to 16.20 USD, under the reviewed fuel-cost-1 assumptions. This is not measured fuel saved or a physical maximum.",
+      "Modelled potential fuel-cost exposure: 0.00 to 16.20 USD, under the reviewed fuel cost assumptions. This is not measured fuel saved or a physical maximum.",
     );
     expect(bridge.querySelector("[data-source-provenance='AUTHORED_DEMONSTRATION']")).toHaveTextContent("Prepared example data");
     expect(container.textContent ?? "").not.toMatch(/simulat/i);
@@ -557,14 +566,18 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
       `/sites/KOBO-001/financials/assumptions?revision_id=${V4}`,
     );
     // identifiers, the model version and enum names only inside the closed disclosure
-    const details = within(bridge).getByText("How this is worked out").closest("details") as HTMLElement;
+    // W1-UX-02: the shared exact-reference disclosure ("How this was worked out", was "How this is worked out");
+    // the counted readings table moved to its own closed disclosure beside the visible method.
+    const details = within(bridge).getByText("How this was worked out").closest("details") as HTMLElement;
     expect(details).not.toHaveAttribute("open");
     expect(details).toHaveTextContent("MODELLED_CONDITIONAL");
     expect(details).toHaveTextContent("sfc_upper_multiplier = 1.10");
-    expect(details.querySelector("[data-consequence-reading='ev-1']")).not.toBeNull();
+    expect(details).toHaveTextContent("fuel-cost-1");
+    const readings = bridge.querySelector("[data-consequence-reading='ev-1']") as HTMLElement;
+    expect(readings.closest("details")).not.toHaveAttribute("open");
     const outside = bridge.cloneNode(true) as HTMLElement;
     outside.querySelectorAll("details").forEach((d) => d.remove());
-    expect(outside.textContent ?? "").not.toMatch(/MODELLED_CONDITIONAL|POTENTIAL_FUEL_COST|c2000000/);
+    expect(outside.textContent ?? "").not.toMatch(/MODELLED_CONDITIONAL|POTENTIAL_FUEL_COST|c2000000|fuel-cost-1|ev-1/);
     const { violations } = scanProductVocabulary(container, "financials fuel cost");
     expect(violations, describeViolations(violations)).toEqual([]);
     expect(client.asked.consequences).toEqual([{ revisionId: FREV, consequenceRevisionId: null }]);
@@ -778,7 +791,11 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
     expect(bridge).toHaveAttribute("data-financials-amount", "none");
     expect(bridge.querySelector("[data-financials-headline='amount']")).toBeNull();
     expect(bridge.textContent ?? "").not.toMatch(/\d+\.\d\d USD/);
-    expect(bridge).toHaveTextContent("Withheld: the generator records are not in a proven time order");
+    // W1-UX-02 (shared money words): was "Withheld: the generator records are not in a proven time order".
+    expect(bridge.querySelector("[data-product-status-label]")).toHaveTextContent(/^No current amount can be shown$/);
+    expect(bridge).toHaveTextContent(
+      "The generator records are not in a proven time order, so no current amount is shown. This is not zero.",
+    );
     expect(bridge.querySelector("[data-financials-series-limit='SEQUENCE_ORDER_INVERTED']")).toHaveTextContent(
       "arrived before an earlier reading and their clock is not proven",
     );
@@ -851,7 +868,11 @@ describe("Site > Financials > Overview: LR-01 money eligibility gate", () => {
     await settledScreen();
     const bridge = document.querySelector("[data-financials-bridge]") as HTMLElement;
     expect(bridge).toHaveAttribute("data-financials-amount", "none");
-    expect(bridge).toHaveTextContent("Being reassessed: no current cost yet");
+    // W1-UX-02 (shared money words): was "Being reassessed: no current cost yet".
+    expect(bridge.querySelector("[data-product-status-label]")).toHaveTextContent(/^No current amount can be shown$/);
+    expect(bridge).toHaveTextContent(
+      "Newer readings mean this should be checked again, so no current amount is shown yet. This is not zero.",
+    );
     expect(bridge.querySelector("[data-financials-pending-reassessment='true']")).not.toBeNull();
     expect(bridge.querySelector(`[data-financials-recorded-link='${C1}']`)).not.toBeNull();
   });
@@ -1118,5 +1139,313 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     expect(result.status).toBe("basis_changed");
     expect(calls[0]).toBe(`/api/sites/KOBO-001/financial-assumptions/consequences?recorded_at=${encodeURIComponent(CUT)}&after=abc`);
     vi.unstubAllGlobals();
+  });
+});
+
+// --- W1-UX-02 (group D): Financials and Assumptions on the shared W1 presentation layer -------------------------
+
+function mainOf(container: HTMLElement): HTMLElement {
+  return container.querySelector("main") as HTMLElement;
+}
+
+function card(name: string): HTMLElement {
+  return document.querySelector(`[data-headline-card='${name}']`) as HTMLElement;
+}
+
+/**
+ * The closed-disclosure acceptance for a state whose read carries no instant: the state, sentence and scope are
+ * present outside the closed disclosure and the bound says plainly that the time is not recorded (never "now").
+ */
+function expectUntimedStateLine(within: Element): string {
+  const status = within.querySelector("[data-product-status]");
+  expect(status, "a shared state line is rendered").not.toBeNull();
+  for (const details of Array.from(within.querySelectorAll<HTMLDetailsElement>("details[data-exact-references]"))) {
+    expect(details.open, "the exact-reference disclosure is closed").toBe(false);
+  }
+  const parts = [
+    ["state", status!.querySelector("[data-product-status-label]")],
+    ["sentence", status!.querySelector(".product-status__sentence")],
+    ["scope", status!.querySelector("[data-product-status-scope]")],
+    ["as of", status!.querySelector("[data-product-status-as-of]")],
+  ] as const;
+  for (const [name, el] of parts) {
+    expect(el, name).not.toBeNull();
+    expect((el!.textContent ?? "").trim().length, `${name} has text`).toBeGreaterThan(0);
+    expect(visibleOutsideClosedDisclosure(el!), `${name} is outside the closed disclosure`).toBe(true);
+  }
+  expect(parts[3][1]!.textContent).toBe("As of: time not recorded");
+  return parts[0][1]!.textContent ?? "";
+}
+
+function expectW1Clean(container: HTMLElement, cardEl: HTMLElement, page: string, floor: number) {
+  const w1 = scanProductVocabulary(mainOf(container), `${page} (W1)`, { set: "w1" });
+  expect(w1.scanned).toBeGreaterThan(floor);
+  expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  const disclosure = scanDisclosureVocabulary(cardEl, `${page} disclosure`);
+  expect(disclosure.disclosures).toBeGreaterThan(0);
+  expect(disclosure.scanned).toBeGreaterThan(0);
+  expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+}
+
+describe("W1-UX-02: Site > Financials (financials)", () => {
+  const URL = `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`;
+
+  it("W1-UX-02: a current priced Finding leads with the bounded range, its bars and basis, and the W1 vocabulary", async () => {
+    const client = fake({
+      bridge: { status: "loaded", value: pricedBridge() },
+      consequences: { status: "loaded", value: consequencesBody([crev(1, C1), crev(2, C2)]) },
+    });
+    const { container } = mount(client, URL);
+    await settledScreen();
+    const c = card("financials-consequence");
+    expect(c.querySelector(".headline-card__question")).toHaveTextContent("What is the bounded economic consequence?");
+    expect(c.querySelector("[data-financials-headline='amount']")).toHaveTextContent("0.00 to 16.20 USD");
+    expect(expectStateLineVisible(c)).toBe("Modelled range, using the latest checked readings");
+    // The bound is the time the shown range was worked out, as the read returned it.
+    expect(c.querySelector("[data-product-status-as-of]")).toHaveTextContent(/^As of 14 Oct 2026, 10:00 UTC$/);
+    // S4-05 source provenance stays beside the headline, outside the disclosure.
+    const source = c.querySelector("[data-source-provenance='AUTHORED_DEMONSTRATION']") as HTMLElement;
+    expect(visibleOutsideClosedDisclosure(source)).toBe(true);
+    const bars = Array.from(c.querySelectorAll("[data-value-bar]"));
+    expect(bars.map((b) => b.getAttribute("data-value-bar"))).toEqual(["known", "known"]);
+    expect(c.querySelector("[data-value-bar-key='high']")).toHaveTextContent("16.20 USD");
+    expect(Array.from(c.querySelectorAll("[data-step]")).map((x) => x.getAttribute("data-step"))).toEqual(["done", "done", "done", "done"]);
+    expect(within(c).getByRole("link", { name: "See the evidence for this finding version" })).toHaveAttribute(
+      "href",
+      `/sites/KOBO-001/findings/${FINDING}/evidence?revision_id=${FREV}`,
+    );
+    expectW1Clean(container, c, "financials", 20);
+  });
+
+  const NON_POSITIVE = [
+    ["QUANTITY_UNAVAILABLE", { state: "QUANTITY_UNAVAILABLE", quantity_reason: "POWER_COVERAGE_GAP" }, "Not calculated: no fuel amount, so no cost"],
+    ["UNPRICED", { state: "UNPRICED", price_reason: "PRICE_SPANS_WINDOW" }, "No price recorded"],
+    ["STALE", { state: "STALE", currentness: "STALE" }, "No current amount can be shown"],
+    ["PENDING", { state: "PENDING", currentness: "PENDING" }, "No current amount can be shown"],
+    ["HISTORICAL", { state: "HISTORICAL", currentness: "HISTORICAL" }, "No current amount can be shown"],
+    ["UNAVAILABLE", { state: "UNAVAILABLE", currentness: null }, "The cost could not be read"],
+    ["PRICED but stale", { state: "PRICED", currentness: "STALE" }, "No current amount can be shown"],
+    ["PRICED with no rounding rule", { state: "PRICED", currentness: "CURRENT", amount: null }, "No current amount can be shown"],
+    ["an unknown state", { state: "SOMETHING_NEW" as never }, "We cannot judge this yet"],
+  ] as const;
+
+  it.each(NON_POSITIVE)(
+    "W1-UX-02: %s says why there is no current amount, draws a not-known mark and keeps its state line visible",
+    async (_name, patch, label) => {
+      const value = pricedBridge({ amount: null, currency: null, quantity: null, reason: "No current cost is shown.", ...(patch as object) });
+      if ("amount" in patch) value.consequence.currency = "USD";
+      const { container } = mount(fake({ bridge: { status: "loaded", value }, consequences: { status: "loaded", value: consequencesBody([crev(1, C1)], { state: "STALE" }) } }), URL);
+      await settledScreen();
+      const c = card("financials-consequence");
+      expect(expectUntimedStateLine(c)).toBe(label);
+      expect(c.querySelector("[data-product-status]")).not.toHaveAttribute("data-product-status", "positive");
+      expect(c.querySelector("[data-financials-headline='amount']")).toBeNull();
+      expect(c.querySelector("[data-financials-headline='none']")).toHaveTextContent("No current amount is shown for this finding version");
+      expect((c.querySelector("[data-financials-why]")?.textContent ?? "").trim().length).toBeGreaterThan(0);
+      // Never a zero bar: one not-known mark and no known bar.
+      expect(Array.from(c.querySelectorAll("[data-value-bar]")).map((b) => b.getAttribute("data-value-bar"))).toEqual(["not-known"]);
+      expect(c.querySelector("[data-value-bar-mark='not-known']")).not.toBeNull();
+      expect(c.textContent ?? "").not.toMatch(/\d+\.\d\d USD(?! per litre)/);
+      expect(document.querySelector("[data-bridge-amount='current']")).toBeNull();
+      expectW1Clean(container, c, `financials ${_name}`, 10);
+    },
+  );
+
+  it.each(["WITHHELD_GENERATOR_SERIES", "PENDING_REASSESSMENT", "MIXED_OR_UNKNOWN_SOURCE"] as const)(
+    "W1-UX-02: money withheld (%s) keeps the LR-01 limit, the exact link to the recorded cost and a visible state line",
+    async (state) => {
+      const value = pricedBridge({
+        state, amount: null, currency: null, quantity: null, consequence_revision_id: null, recorded_consequence_revision_id: C1,
+        money_eligibility: { version: "x", state: state === "MIXED_OR_UNKNOWN_SOURCE" ? "ELIGIBLE" : state, note: "", finding_id: FINDING,
+          latest_finding_revision_id: FREV, pending_reasons: [], series_limits: [], windows: [] } as never,
+        reason: "No current cost is shown.",
+      });
+      const { container } = mount(fake({ bridge: { status: "loaded", value } }), URL);
+      await settledScreen();
+      const c = card("financials-consequence");
+      expect(expectUntimedStateLine(c)).toBe("No current amount can be shown");
+      expect(c.querySelector(`[data-financials-money-limit='${state}']`)).not.toBeNull();
+      const link = c.querySelector(`[data-financials-recorded-link='${C1}']`) as HTMLAnchorElement;
+      expect(link.getAttribute("href")).toBe(`/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}&consequence_revision_id=${C1}`);
+      expect(c.querySelector("[data-value-bar='known']")).toBeNull();
+      expect(c.querySelector("[data-step='problem'], [data-step='waiting']")).not.toBeNull();
+      expectW1Clean(container, c, `financials ${state}`, 10);
+    },
+  );
+
+  it("W1-UX-02: a refused Finding version read has its own state line and no money card", async () => {
+    const { container } = mount(fake({ bridge: { status: "not_found", message: null } }), `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=bad`);
+    await settledScreen();
+    const refused = document.querySelector("[data-financials-state='not_found']") as HTMLElement;
+    expect(expectUntimedStateLine(refused)).toBe("This record was not found");
+    expect(card("financials-consequence")).toBeNull();
+    const w1 = scanProductVocabulary(mainOf(container), "financials refused (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: the exact Finding version link survives a reload at the same address", async () => {
+    const client = fake({
+      bridge: { status: "loaded", value: pricedBridge() },
+      consequences: { status: "loaded", value: consequencesBody([crev(1, C1), crev(2, C2)]) },
+    });
+    const first = mount(client, URL);
+    await settledScreen();
+    const before = card("financials-consequence").querySelector("[data-financials-range]")?.textContent;
+    first.unmount();
+    mount(client, URL);
+    await settledScreen();
+    expect(client.asked.bridge).toEqual([FREV, FREV]);
+    expect(screen.getByTestId("where")).toHaveTextContent(`finding_id=${FINDING}&revision_id=${FREV}`);
+    expect(card("financials-consequence").querySelector("[data-financials-range]")?.textContent).toBe(before);
+  });
+
+  it("W1-UX-02: the Price in use panel draws the effective-time strip from the read", async () => {
+    mount(fake(), "/sites/KOBO-001/financials");
+    await settledScreen();
+    const entries = Array.from(document.querySelectorAll("[data-price-strip-entry]"));
+    expect(entries.map((e) => e.getAttribute("data-price-strip-entry"))).toEqual(["ended", "ended", "in-use"]);
+    expect(entries[2]).toHaveTextContent("1.25 USD per litre");
+    expect(entries[2]).toHaveTextContent("In use today");
+  });
+});
+
+describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
+  const ASSUMPTIONS = "/sites/KOBO-001/financials/assumptions";
+
+  it("W1-UX-02: leads with the price in use, its effective-time strip and the W1 vocabulary; ids only in the disclosure", async () => {
+    const { container } = mount(fake({ seriesFor: echoSeries }), ASSUMPTIONS);
+    await settledScreen();
+    const c = card("assumptions-price");
+    expect(c.querySelector(".headline-card__question")).toHaveTextContent("Which assumptions turn this quantity into money?");
+    expect(c.querySelector(".headline-card__headline")).toHaveTextContent("Diesel price in use: 1.25 USD per litre");
+    expect(expectStateLineVisible(c)).toBe("Price recorded for this site");
+    expect(c.querySelector("[data-product-status-as-of]")).toHaveTextContent(/^As of 16 Oct 2026, 09:30 UTC$/);
+    expect(Array.from(c.querySelectorAll("[data-price-strip-entry]")).map((e) => e.getAttribute("data-price-strip-entry"))).toEqual([
+      "ended",
+      "ended",
+      "in-use",
+    ]);
+    for (const id of within(c).getAllByText(V1)) expect(visibleOutsideClosedDisclosure(id)).toBe(false);
+    expect(c.querySelector("[data-gap-id='G-assumptions-human-edit']")).toHaveAttribute("data-gap-placement", "assumptions.price.human-edit");
+    expectW1Clean(container, c, "assumptions", 20);
+  });
+
+  it("W1-UX-02: an earlier recorded moment is its own state, with the moment as its bound, and survives reload", async () => {
+    const at = "2026-10-13T09:00:00+00:00";
+    const client = fake({ seriesFor: echoSeries });
+    const path = `${ASSUMPTIONS}?recorded_at=${encodeURIComponent(at)}`;
+    const first = mount(client, path);
+    await settledScreen();
+    expect(expectStateLineVisible(card("assumptions-price"))).toBe("Prices as recorded at an earlier moment");
+    expect(card("assumptions-price").querySelector("[data-product-status-as-of]")).toHaveTextContent("As of 13 Oct 2026, 09:00 UTC");
+    first.unmount();
+    const { container } = mount(client, path);
+    await settledScreen();
+    expect(client.asked.series.map((q) => q.recordedAt)).toEqual([at, at]);
+    expect(expectStateLineVisible(card("assumptions-price"))).toBe("Prices as recorded at an earlier moment");
+    expectW1Clean(container, card("assumptions-price"), "assumptions earlier moment", 20);
+  });
+
+  it("W1-UX-02: selecting a price version opens that exact version, marks it in the schedule and survives reload", async () => {
+    const exact: FinancialReadResult<AssumptionRevisionBody> = {
+      status: "loaded",
+      value: { site_code: "KOBO-001", selection: { revision_id: V3, selected_by: "EXACT_REVISION_ID" }, revision: P3, assignments: [], recorded_by_this_publication: [] },
+    };
+    const client = fake({ seriesFor: echoSeries, exact });
+    const first = mount(client, ASSUMPTIONS);
+    await settledScreen();
+    fireEvent.click(within(screen.getByRole("table", { name: "Price schedule" })).getByRole("link", { name: "Version 3" }));
+    await settledScreen();
+    expect(screen.getByTestId("where")).toHaveTextContent(`${ASSUMPTIONS}?revision_id=${V3}`);
+    const version = screen.getByRole("region", { name: "Price version 3" });
+    expect(version).toHaveTextContent("1.19 USD per litre");
+    expect(within(version).getByText(V3).closest("details")).not.toHaveAttribute("open");
+    expect(document.querySelector(`tr[data-price-revision='${V3}']`)).toHaveClass("is-selected");
+    // The current price card still names the current price; the selected version never replaces it.
+    expect(card("assumptions-price").querySelector(".headline-card__headline")).toHaveTextContent("1.25 USD per litre");
+    first.unmount();
+    mount(client, `${ASSUMPTIONS}?revision_id=${V3}`);
+    await settledScreen();
+    expect(client.asked.exact).toEqual([V3, V3]);
+    expect(screen.getByRole("region", { name: "Price version 3" })).toBeInTheDocument();
+  });
+
+  it.each([
+    ["NO_PRICE", { state: "NO_PRICE", valid_at: "x", revision_id: null, assignment_id: null, note: "" }, "No price recorded"],
+    ["CONFLICT", { state: "CONFLICT", valid_at: "x", revision_id: null, assignment_id: null }, "Two prices cover this time"],
+  ] as const)("W1-UX-02: %s states no price in use, never a default, with a visible state line", async (_name, selection, label) => {
+    const { container } = mount(
+      fake({
+        seriesFor: (q) => ({
+          status: "loaded",
+          value: series({
+            cutoff: { recorded_at: q.recordedAt ?? null, selected_by: "RECORDED_CUTOFF", basis: "x" },
+            selection: selection as never,
+            timeline: [],
+            revisions: [],
+            revision_page: { after_revision_no: 0, limit: 200, total: 0, next_after_revision_no: null },
+          }),
+        }),
+      }),
+      ASSUMPTIONS,
+    );
+    await settledScreen();
+    const c = card("assumptions-price");
+    expect(expectStateLineVisible(c)).toBe(label);
+    expect(c.querySelector("[data-product-status]")).not.toHaveAttribute("data-product-status", "positive");
+    expect(c.querySelector("[data-price-strip]")).toBeNull();
+    expect(c.textContent ?? "").not.toMatch(/\d+\.\d\d USD/);
+    expectW1Clean(container, c, `assumptions ${_name}`, 10);
+  });
+
+  it.each([
+    ["unavailable", "This could not be read right now"],
+    ["forbidden", "This cannot be shown to you"],
+  ] as const)("W1-UX-02: a %s price list read keeps its own state line", async (status, label) => {
+    mount(fake({ series: { status, message: null } }), ASSUMPTIONS);
+    await settledScreen();
+    expect(expectUntimedStateLine(document.querySelector(`[data-financials-state='${status}']`) as HTMLElement)).toBe(label);
+    expect(card("assumptions-price")).toBeNull();
+  });
+
+  it("W1-UX-02: the Interpretation history is recorded-only, with its moment as the bound and never a current amount", async () => {
+    const rows = [
+      hrow(H4),
+      hrow(H3, { at_cutoff: "HISTORICAL_AT_CUTOFF", recorded_amount: { disposition: "UNPRICED", label: null, amount: null, is_current_amount: false }, price: { state: "NO_PRICE_LINK", price_revision_id: null, reason: "NO_PRICE", value: null, currency: null, assignments: [] } }),
+    ];
+    const { container } = mount(fake({ seriesFor: echoSeries, history: { status: "loaded", value: historyBody(rows) } }), ASSUMPTIONS);
+    await settledScreen();
+    const panel = screen.getByRole("region", { name: "Interpretation history" });
+    const state = panel.querySelector("[data-history-state='recorded']") as HTMLElement;
+    expect(expectStateLineVisible(state)).toBe("Recorded versions, kept for the record");
+    expect(state.querySelector("[data-product-status]")).toHaveAttribute("data-product-status", "neutral");
+    expect(state.querySelector("[data-product-status-as-of]")).toHaveTextContent("As of 16 Oct 2026, 09:30 UTC");
+    // The no-current-amount guarantee: a recorded amount is labelled as history, never as current.
+    expect(panel.querySelector(`[data-history-row='${H4}'] [data-history-recorded-amount]`)).toHaveTextContent("Not a current cost.");
+    expect(panel).not.toHaveTextContent(/current amount|today.s (amount|cost)|the current fuel cost/i);
+    expect(panel.querySelector("[data-value-bar='known']")).toBeNull();
+    expect(panel.querySelector("[data-product-status='positive']")).toBeNull();
+    for (const row of Array.from(panel.querySelectorAll("[data-history-row]"))) {
+      const refs = row.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+      expect(refs.open).toBe(false);
+    }
+    const w1 = scanProductVocabulary(mainOf(container), "assumptions history (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const disclosure = scanDisclosureVocabulary(panel, "assumptions history disclosure");
+    expect(disclosure.disclosures).toBe(2);
+    expect(disclosure.scanned).toBeGreaterThan(0);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: an unreadable history and the unfixed price moment each keep a plain state line", async () => {
+    mount(fake({ history: { status: "unavailable", message: null } }), ASSUMPTIONS);
+    await settledScreen();
+    expect(expectUntimedStateLine(document.querySelector("[data-history-state='unavailable']") as HTMLElement)).toBe(
+      "This could not be read right now",
+    );
+    expect(expectUntimedStateLine(document.querySelector("[data-financials-state='no-cutoff']") as HTMLElement)).toBe(
+      "This could not be read right now",
+    );
+    expect(card("assumptions-price")).toBeNull();
   });
 });
