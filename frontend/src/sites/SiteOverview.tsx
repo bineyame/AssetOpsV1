@@ -24,6 +24,7 @@ import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { SiteWindowOverview, type WindowOverviewLinks } from "./SiteWindowOverview";
+import type { FindingIndexClient } from "./findingIndexClient";
 
 import { Badge, Fact, FactList, Panel } from "../ui";
 import { AssessedPeriodTimeline, FuelRange } from "./assessmentGraphics";
@@ -67,6 +68,8 @@ export interface SiteOverviewProps {
   analysisHref?: (assessmentId: string, isFinding: boolean) => string;
   /** S5-01: destinations for an imported Site's selected-window Overview. */
   windowLinks?: WindowOverviewLinks;
+  /** S5-02: the Site Finding index read for the selected day's list, handed in by the shell (imported Sites only). */
+  findingIndex?: FindingIndexClient;
 }
 
 /** S5-01: the address parameters an imported Site's Overview keeps across reloads. */
@@ -102,6 +105,7 @@ export function SiteOverview({
   dispatchHref,
   analysisHref,
   windowLinks,
+  findingIndex,
 }: SiteOverviewProps) {
   const [result, setResult] =
     useState<EvidenceRead<SiteOverviewReadModel | SiteWindowSummary> | null>(null);
@@ -111,6 +115,12 @@ export function SiteOverview({
   // The selection the shown result already answers: writing the served day and Finding into the address must
   // not read the same thing again.
   const answered = useRef<string | null>(null);
+  // S5-02: the Finding list's reload reads the Overview again even when the address is unchanged.
+  const [reloads, setReloads] = useState(0);
+  const reload = () => {
+    answered.current = null;
+    setReloads((n) => n + 1);
+  };
 
   useEffect(() => {
     if (answered.current === `${siteId}#${key}`) {
@@ -149,7 +159,7 @@ export function SiteOverview({
     };
     // `params` is read through `key`, which names every parameter this read uses.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, siteId, key]);
+  }, [client, siteId, key, reloads]);
 
   const selectDay = (day: string) => {
     const next = new URLSearchParams(params);
@@ -191,7 +201,15 @@ export function SiteOverview({
         </Panel>
       );
     }
-    return <SiteWindowOverview summary={result.value} links={windowLinks} onSelectDay={selectDay} />;
+    return (
+      <SiteWindowOverview
+        summary={result.value}
+        links={windowLinks}
+        onSelectDay={selectDay}
+        findingIndex={findingIndex}
+        onReload={reload}
+      />
+    );
   }
   const overview = result.value;
   const profile = presentationProfileFor(overview.site_type);

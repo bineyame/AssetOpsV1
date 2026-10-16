@@ -204,6 +204,7 @@ export function App({
                 sitesPath={SITES_PATH}
                 flags={flags}
                 templateLineage={templateLineage}
+                findingIndex={siteFindingIndex}
               />
             }
           />
