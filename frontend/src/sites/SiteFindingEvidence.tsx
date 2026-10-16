@@ -277,13 +277,13 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
           {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
         </p>
       )}
-      <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
       {body.audit_only ? (
         <p className="site-finding__lead" data-evidence-audit-only>
           Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a record,
           not as the current Finding, and no Dispatch period is linked.
         </p>
       ) : null}
+      <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
       {!selection.is_latest ? (
         <p className="site-finding__lead" data-evidence-earlier-version>
           Earlier version {no}. A later version replaces it; these are the records this earlier version cited.{" "}

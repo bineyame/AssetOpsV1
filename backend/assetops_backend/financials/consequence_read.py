@@ -219,7 +219,7 @@ class ConsequenceReadService:
         selected_row = chain["exact"] if consequence_revision_id is not None else head
         selected = None if selected_row is None else dto(selected_row, links)
         is_head = selected_row is not None and head is not None and selected_row["id"] == head["id"]
-        history = [dto(r, links) for r in page]
+        history = [dto(r, links) for r in chain["page"]]
         for row in [selected, *history]:
             if row is not None:  # S4-05b: each consequence revision keeps its own exact union provenance
                 row["source_provenance"] = consequence_provenance(

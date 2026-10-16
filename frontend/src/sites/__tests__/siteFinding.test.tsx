@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import type { SourceProvenance } from "../sourceProvenance";
 import {
   createFindingClient,
   type FindingClient,
@@ -177,6 +178,19 @@ function mount(client: FindingClient, search = "", id = F, withRecommendation = 
 }
 
 const where = () => screen.getByTestId("where").textContent ?? "";
+
+
+/** S4-05b: a stored source provenance block for the selected version. */
+function stored(state: "AUTHORED_DEMONSTRATION" | "MIXED"): SourceProvenance {
+  return {
+    tenant_id: "t1", site_id: "s1", finding_revision_id: "rev-x", consequence_revision_id: null,
+    cited_accepted_evidence_ids: ["ev-1", "ev-2"], power_accepted_evidence_ids: null, state,
+    reasons: state === "MIXED" ? [{ code: "BOUND_AND_UNBOUND", accepted_evidence_ids: ["ev-2"] }] : [],
+    accepted_evidence_ids: ["ev-1", "ev-2"], problematic_accepted_evidence_ids: state === "MIXED" ? ["ev-2"] : [],
+    publication_ids: ["pub-1"], source_classes: ["AUTHORED_DEMONSTRATION"],
+    fixtures: [{ fixture_id: "assetops.s4-power-demo-cases", fixture_version: "1" }], runs: [], evidence: [],
+  };
+}
 
 describe("Site Finding detail (S4-01 phase 3)", () => {
   it("offers no recommendation link, and says so, when the frame gives none (phase-1 review L5)", async () => {
@@ -502,5 +516,15 @@ describe("Site Finding detail: LR-01 series limit end", () => {
     mount(fake({ status: "loaded", value: base }));
     await settledScreen();
     expect(document.querySelector("[data-finding-end-reason]")).toBeNull();
+  });
+
+  it("names the selected version's stored source, and an unrecorded source as not confirmed (S4-05b)", async () => {
+    const { container } = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")], 1, { source_provenance: stored("AUTHORED_DEMONSTRATION") }) }));
+    await settledScreen();
+    expect(container.querySelector("[data-source-provenance-subject='finding']")).toHaveAttribute("data-source-provenance", "AUTHORED_DEMONSTRATION");
+    expect(container.querySelector("[data-source-provenance]")).toHaveTextContent("Demonstration data.");
+    const plain = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
+    await settledScreen();
+    expect(plain.container.querySelector("[data-source-provenance]")).toHaveTextContent("Source not confirmed.");
   });
 });

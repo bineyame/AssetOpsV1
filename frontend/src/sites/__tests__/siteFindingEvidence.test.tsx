@@ -10,6 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import type { SourceProvenance } from "../sourceProvenance";
 import {
   createFindingClient,
   type EvidenceRecord,
@@ -253,6 +254,19 @@ async function mount(client: FindingClient, search = "") {
 }
 
 const q = (selector: string) => document.querySelector(selector);
+
+
+/** S4-05b: a stored source provenance block for the selected version. */
+function stored(state: "AUTHORED_DEMONSTRATION" | "MIXED"): SourceProvenance {
+  return {
+    tenant_id: "t1", site_id: "s1", finding_revision_id: "rev-x", consequence_revision_id: null,
+    cited_accepted_evidence_ids: ["ev-1", "ev-2"], power_accepted_evidence_ids: null, state,
+    reasons: state === "MIXED" ? [{ code: "BOUND_AND_UNBOUND", accepted_evidence_ids: ["ev-2"] }] : [],
+    accepted_evidence_ids: ["ev-1", "ev-2"], problematic_accepted_evidence_ids: state === "MIXED" ? ["ev-2"] : [],
+    publication_ids: ["pub-1"], source_classes: ["AUTHORED_DEMONSTRATION"],
+    fixtures: [{ fixture_id: "assetops.s4-power-demo-cases", fixture_version: "1" }], runs: [], evidence: [],
+  };
+}
 
 describe("Finding Evidence child view (S4-03 phase 2)", () => {
   it("labels an omitted version as the latest at read time and separates cited from input records", async () => {
@@ -731,5 +745,15 @@ describe("Finding Evidence client", () => {
     expect((await createFindingClient().getFindingEvidence("KOBO-001", F, null, 0, 50)).status).toBe("loaded");
     vi.stubGlobal("fetch", async () => new Response(JSON.stringify({ records: [] }), { status: 200 }));
     expect((await createFindingClient().getFindingEvidence("KOBO-001", F, null, 0, 50)).status).toBe("unavailable");
+  });
+
+  it("names a mixed stored source with its problem records in a closed disclosure (S4-05b)", async () => {
+    const { container } = await mount(fake({ status: "loaded", value: body({ source_provenance: stored("MIXED") }) }));
+    await settledScreen();
+    const notice = container.querySelector("[data-source-provenance-subject='evidence']") as HTMLElement;
+    expect(notice).toHaveAttribute("data-source-provenance", "MIXED");
+    expect(notice).toHaveTextContent("Mixed sources.");
+    expect(notice.querySelector("details")).not.toHaveAttribute("open");
+    expect(notice.querySelector("[data-source-reason='BOUND_AND_UNBOUND']")).not.toBeNull();
   });
 });
