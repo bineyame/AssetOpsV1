@@ -1,6 +1,6 @@
 /**
  * S4-01 phase 3: the Site-scoped durable Finding detail (mock `finding:1,2,4`;
- * `finding:3` "What to do next" is shown as not yet available).
+ * `finding:3` "What to do next" links to the S6-01b Recommendation view).
  *
  * Reads `GET /api/sites/{site}/findings/{id}[?revision_id=]`. The selected
  * version (`?revision_id=`) and the view (`?view=analysis`) stay in the
@@ -51,6 +51,8 @@ export interface SiteFindingLinks {
   evidence: string;
   /** S4-03: this Finding's History child view, with the exact version selected. */
   history?: (revisionId: string | null) => string;
+  /** S6-01b: this Finding's Recommendation child view, with the exact version selected. */
+  recommendation?: (revisionId: string | null) => string;
 }
 
 export function SiteFinding({
@@ -116,10 +118,17 @@ export function SiteFinding({
           <div className="site-finding__pair">
             <WhatLimits body={body} links={links} />
             <Panel heading="What to do next" headingId="site-finding-next-heading">
-              <p data-finding-unavailable="recommendation">
-                Not yet available. Recommendations and actions, with fuel and money estimates, come later; nothing
-                here asks you to change how the generator is operated.
-              </p>
+              {links.recommendation ? (
+                <p data-finding-recommendation-link>
+                  A fixed rule may propose a battery reserve trial for this version.{" "}
+                  <Link to={links.recommendation(body.selection.revision_id)}>Open the recommendation</Link>. Nothing
+                  here asks you to change how the generator is operated.
+                </p>
+              ) : (
+                <p data-finding-recommendation-link="none">
+                  No recommendation link is offered here; nothing here asks you to change how the generator is operated.
+                </p>
+              )}
             </Panel>
           </div>
           <WhereToLook body={body} links={links} />

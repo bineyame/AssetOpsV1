@@ -3375,6 +3375,112 @@ tr[data-selected] > * {
   overflow-wrap: anywhere;
 }
 
+/* S6-01b: Recommendation, Action and Foundation change screens. Scoped to the operator shell. The pairs sit side by
+   side from 1100px and stack below; every grid item may shrink so dense tables scroll inside their own scroller and
+   long stored references wrap instead of widening the page at 390px. */
+.app-frame--operator .site-action,
+.app-frame--operator .site-action__body,
+.app-frame--operator .site-recommendation,
+.app-frame--operator .site-change {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.app-frame--operator .site-action > *,
+.app-frame--operator .site-action__body > *,
+.app-frame--operator .site-recommendation > *,
+.app-frame--operator .site-change > * { min-width: 0; }
+.app-frame--operator .site-action__pair,
+.app-frame--operator .site-recommendation__pair,
+.app-frame--operator .action-pair {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+.app-frame--operator .site-action__pair > *,
+.app-frame--operator .site-recommendation__pair > *,
+.app-frame--operator .action-pair > * { min-width: 0; }
+@media (min-width: 1100px) {
+  .app-frame--operator .site-action__pair,
+  .app-frame--operator .site-recommendation__pair,
+  .app-frame--operator .action-pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+.app-frame--operator .action-ref {
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+/* Inside a dense table the reference stays on one line; the table scrolls in its own scroller instead. */
+.app-frame--operator .data-table .action-ref { white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+/* A failure code in the change page's attempts list is one token; it moves to its own line rather than breaking inside (S6-01b review L2). */
+.app-frame--operator .action-list--codes .action-ref { white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+.app-frame--operator .action-note { color: var(--text-secondary); font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.app-frame--operator .action-proposal {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  margin: 0 0 var(--space-2);
+}
+.app-frame--operator .action-limitation,
+.app-frame--operator .action-command-unavailable,
+.app-frame--operator .action-command-refusal {
+  border-left: 3px solid var(--attention-border);
+  background: var(--attention-bg);
+  color: var(--attention-text);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  margin: var(--space-3) 0;
+}
+.app-frame--operator .action-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+.app-frame--operator .action-badge {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--badge-provenance-border);
+  background: var(--badge-provenance-bg);
+  color: var(--badge-provenance-text);
+}
+.app-frame--operator .action-command {
+  font: inherit;
+  font-weight: var(--weight-semibold);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  cursor: pointer;
+  max-width: 100%;
+  white-space: normal;
+}
+.app-frame--operator .action-command:hover { background: var(--accent-hover); }
+.app-frame--operator .action-command[aria-busy="true"] { opacity: 0.7; cursor: progress; }
+/* Held or incomplete commands (PRIOR_ACTION_UNRESOLVED, a cleared effective time) read as unavailable, as `.action:disabled` does. */
+.app-frame--operator .action-command:disabled,
+.app-frame--operator .action-command:disabled:hover {
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  border-color: var(--border-subtle);
+  cursor: not-allowed;
+}
+.app-frame--operator .action-field {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) var(--space-3) var(--space-3) 0;
+  max-width: 100%;
+}
+.app-frame--operator .action-field input { font: inherit; max-width: 100%; }
+.app-frame--operator .action-list { margin: var(--space-2) 0 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
 /* S5-01: the imported-Site selected-window Overview (sites/SiteWindowOverview.tsx). */
 .site-window-overview {
   display: grid;
