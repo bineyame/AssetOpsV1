@@ -75,3 +75,8 @@ What to look for at `http://localhost:5468/sites/KOBO-001/financials/assumptions
 - Closed source: stop step 4 (Ctrl+C), run `...walkthrough.py close-gate`, repeat step 4, reload: every version is listed with "Not shown: this site's source is closed". Then Ctrl+C and `...walkthrough.py open-gate`.
 - Mixed source: stop step 4, run `...walkthrough.py serve --case mixed`, reload: amounts say "Not shown: the source of the readings behind this version is not confirmed" beside "Sources do not agree".
 - When finished: Ctrl+C both servers, then `...walkthrough.py drop`.
+
+## Coordinator after slice review (2026-10-17)
+
+- Review L1 fixed: on an explicitly selected moment (`RECORDED_CUTOFF`) the "price version used" link now carries `recorded_at`; the default view stays default (`ConsequenceHistory.tsx` `pinnedCutoff`). tsc clean; `siteFinancials.test.tsx` 48 passed.
+- Review L2 recorded as residual risk: the paging fence counts consequence rows only, so a FindingRevision committed between pages can change one row's "latest at this moment" label without a 409; no amount changes and no row is labelled latest twice.

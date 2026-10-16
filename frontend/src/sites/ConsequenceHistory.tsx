@@ -61,7 +61,7 @@ function Ref({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function Row({ row, links }: { row: ConsequenceHistoryRow; links: FinancialsLinks }) {
+function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: FinancialsLinks; pinnedCutoff?: string }) {
   const current = row.at_cutoff === "CURRENT_AT_CUTOFF";
   const source = SOURCE_WORDS[sourceState(row.source_provenance)];
   const amount = row.recorded_amount.disposition === "SHOWN" ? row.recorded_amount.amount : null;
@@ -93,7 +93,7 @@ function Row({ row, links }: { row: ConsequenceHistoryRow; links: FinancialsLink
           {row.price.price_revision_id !== null && row.price.state === "LINKED" ? (
             <>
               {" · "}
-              <Link to={links.assumptions({ revisionId: row.price.price_revision_id })} data-history-price-link>
+              <Link to={links.assumptions({ revisionId: row.price.price_revision_id, recordedAt: pinnedCutoff })} data-history-price-link>
                 The price version used
               </Link>
             </>
@@ -181,7 +181,13 @@ export function ConsequenceHistoryPanel({
         ) : (
           <ol className="consequence-history">
             {body.rows.map((row) => (
-              <Row key={row.consequence_revision_id} row={row} links={links} />
+              <Row
+                key={row.consequence_revision_id}
+                row={row}
+                links={links}
+                // S4-08 review L1: an explicitly selected moment carries into the price link; the default view stays default.
+                pinnedCutoff={body.cutoff.selected_by === "RECORDED_CUTOFF" ? cutoff : undefined}
+              />
             ))}
           </ol>
         )}
