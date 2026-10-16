@@ -15,7 +15,7 @@ import pytest
 from test_s4_finding_store_postgres import URL, run_case  # noqa: F401
 from test_s1_bindings_postgres import engine, store  # noqa: F401
 from test_s6_action_store_postgres import CASES, runner  # noqa: F401
-from test_s6_verification_plan_postgres import applied_action, freeze, verifying, base
+from test_s6_verification_plan_postgres import release_engines, applied_action, freeze, verifying, base  # noqa: F401
 from test_s6_verification_evaluator_postgres import (
     AUTHORED,
     CLOSED,

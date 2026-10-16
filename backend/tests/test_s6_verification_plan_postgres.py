@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import threading
 import time
+import weakref
 from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import event, text
+from sqlalchemy.engine import Engine
 from sqlalchemy.exc import DBAPIError
 
 from test_s4_finding_store_postgres import URL, CaseRunner, run_case  # noqa: F401
@@ -33,6 +35,26 @@ COMMANDS = ["ACCEPT", "APPLY", "OBSERVE", "VERIFY"]
 BASELINE = "2026-10-06T08:00:00+00:00"   # F01's Candidate interval 08:00-09:00 on the old Foundation
 LATER = "2026-11-02T08:00:00+00:00"      # same UTC clock hour, after effective_from 2026-11-02T00:00Z
 T_FREEZE = datetime(2026, 11, 1, 2, 0, tzinfo=timezone.utc)
+
+
+@pytest.fixture(autouse=True)
+def release_engines():
+    """Fix round 2: `verification_ports` builds three stores (dispatch reads, Finding store, provenance) whose pooled
+    connections otherwise stay open until garbage collection; across a worker's verification tests they reached
+    Postgres's connection limit. Dispose every engine that connected during the test (a shared engine reopens on
+    demand). Imported, with its autouse, by the evaluator and holds modules."""
+    seen: weakref.WeakSet = weakref.WeakSet()
+
+    def connected(connection) -> None:
+        seen.add(connection.engine)
+
+    event.listen(Engine, "engine_connect", connected)
+    try:
+        yield
+    finally:
+        event.remove(Engine, "engine_connect", connected)
+        for owned in list(seen):
+            owned.dispose()
 
 
 def verifying(runner):

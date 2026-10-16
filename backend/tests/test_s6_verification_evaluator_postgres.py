@@ -38,6 +38,7 @@ from test_s6_verification_plan_postgres import (
     applied_action,
     base,
     freeze,
+    release_engines,  # noqa: F401  (autouse)
     settle,
     verifying,
 )
