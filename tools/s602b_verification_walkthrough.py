@@ -15,15 +15,18 @@ What `prepare` does (nothing outside the named database(s) and work folder is wr
    real gateway process, accepted by ordinary S2 batch ingestion, assessed (S3) and matched (S4); then
    recommendation -> accept -> apply -> freeze plan -> later selection -> evaluation through the real Action API.
    The served Action is that real VERIFIED one with its exact lineage. Nothing is hand-inserted.
-3. `CREATE DATABASE <db>_cases`: the TEST-SCOPED cases (target miss, measured guardrail failure with its hold,
-   missing/inconclusive, late evidence -> withdrawn resolution and re-settled outcome, a different-Finding
-   overlap hold) built by S6-02a's own evaluator test builders (authored complete windows, authored source
-   resolution). They are test-scoped examples, never Lab runs, and are served by a second API.
+3. One database per TEST-SCOPED case, `<db>_<case>` (holds are battery-scoped, so cases cannot share one):
+   target_miss, guardrail (with the hold on a different Finding), inconclusive, withdrawn (late evidence ->
+   withdrawn resolution, overlap hold, re-settled outcome), built by `tools/s602b_test_scoped_cases.py` from
+   S6-02a's own evaluator test builders. They are test-scoped examples, never Lab runs.
 
-`serve` starts both APIs (`host/lab_app.py`) - the replay on --port (default 8966), the test-scoped cases on
---port + 1 - and prints the frontend commands (web --web-port, default 5466, and --web-port + 1). `capture` runs
-`tools/s602b-verification-evidence.mjs` against both. `drop` removes the databases and the work folder, only
-when the work folder's marker records this tool made them.
+`serve [--case NAME]` starts the replay API (`host/lab_app.py`) on --port (default 8966) and one test-scoped case
+on --port + 1 through the cases tool's wrapper (Action clock pinned to the case's recorded end; the authored
+window/source fakes for the authored cases), and prints the frontend commands (web --web-port, default 5466, and
+--web-port + 1). Restart `serve` with another --case to look at the next case; the frontends keep running.
+`capture` (with both frontends running and no `serve` running) starts the APIs itself, runs
+`tools/s602b-verification-evidence.mjs` for the replay and then for each case in turn, and stops them. `drop`
+removes the databases and the work folder, only when the work folder's marker records this tool made them.
 
 Guards: `--db` must start with `assetops_s602b`, be a plain identifier and never end in `_test`; `--work` must be a
 `var/s602b*` folder directly under this repository's `var/`.
@@ -50,6 +53,8 @@ PG_ADMIN = f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops"
 API_PORT, WEB_PORT = 8966, 5466
 MARKER = ".s602b-walkthrough-work"
 SITE = "KOBO-001"
+CASES = ("target_miss", "guardrail", "inconclusive", "withdrawn")
+CASES_TOOL = REPO / "tools" / "s602b_test_scoped_cases.py"
 
 # The public replay: the replay test's own helpers, without its pytest database fixture.
 REPLAY = r'''
@@ -150,7 +155,9 @@ class Walk:
         path = (REPO / work).resolve() if not Path(work).is_absolute() else Path(work).resolve()
         if path.parent != (REPO / "var").resolve() or not path.name.startswith("s602b"):
             raise SystemExit(f"Refused: --work {path} must be a var/s602b* folder directly under {REPO / 'var'}")
-        self.db, self.cases_db = db, f"{db}_cases"
+        self.db = db
+        self.case_dbs = {name: f"{db}_{name}" for name in CASES}
+        self.all_dbs = (db, *self.case_dbs.values())
         self.work, self.tree = path, path / "tree"
 
     def url(self, db: str) -> str:
@@ -199,7 +206,7 @@ class Walk:
         if self.work.exists() and any(self.work.iterdir()) and not self.owned():
             raise SystemExit(f"Refused: {self.work} exists, is not empty and was not made by this tool")
         with psycopg.connect(PG_ADMIN, autocommit=True) as c:
-            for db in (self.db, self.cases_db):
+            for db in self.all_dbs:
                 if self.exists(c, db) and self.marker_db() != self.db:
                     raise SystemExit(f"Refused: database {db} exists and {self.work / MARKER} does not record that "
                                      "this tool made it; drop it yourself or choose another --db")
@@ -223,9 +230,9 @@ class Walk:
         if str(self.tree).lower() not in probe.lower():
             raise SystemExit(f"Isolation failed: assetops_backend resolves to {probe}")
 
-        say(f"=== 2. Databases {self.db} and {self.cases_db} ===")
+        say(f"=== 2. Databases {', '.join(self.all_dbs)} ===")
         with psycopg.connect(PG_ADMIN, autocommit=True) as c:
-            for db in (self.db, self.cases_db):
+            for db in self.all_dbs:
                 c.execute(f"DROP DATABASE IF EXISTS {db} WITH (FORCE)")
                 c.execute(f"CREATE DATABASE {db}")
         say("  created")
@@ -235,13 +242,17 @@ class Walk:
                        cwd=self.tree / "host" / "tests")
         say("  " + done.stdout.strip().splitlines()[-1])
 
-        say("=== 4. Test-scoped cases (S6-02a evaluator builders; not Lab runs) ===")
-        done = self.py(self.cases_db, str(REPO / "tools" / "s602b_test_scoped_cases.py"), self.url(self.cases_db),
-                       str(self.work), tests=True, cwd=self.tree / "backend" / "tests")
-        say("  " + done.stdout.strip().splitlines()[-1])
+        say("=== 4. Test-scoped cases (S6-02a evaluator builders; not Lab runs), one database each ===")
+        merged = {}
+        for name, db in self.case_dbs.items():
+            done = self.py(db, str(CASES_TOOL), "build", self.url(db), str(self.work), name, tests=True,
+                           cwd=self.tree / "backend" / "tests")
+            say("  " + done.stdout.strip().splitlines()[-1])
+            merged[name] = json.loads((self.work / f"case-{name}.json").read_text(encoding="utf-8"))
+        (self.work / "cases.json").write_text(json.dumps({"cases": merged}, indent=2), encoding="utf-8")
 
         say("=== 5. Performance comparison (releases the Finding reads) ===")
-        for db in (self.db, self.cases_db):
+        for db in self.all_dbs:
             done = self.py(db, "-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site",
                            SITE, check=False)
             say(f"  {db}: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
@@ -272,24 +283,45 @@ class Walk:
         for label, url in rows:
             say(f"  {label}\n    {url}")
         cbase = f"http://localhost:{web + 1}/sites/{SITE}"
-        say(f"TEST-SCOPED examples (authored windows, not Lab runs) on the second frontend, port {web + 1}:")
+        say(f"TEST-SCOPED examples (not Lab runs) on the second frontend, port {web + 1}, one case at a time "
+            "(serve --case NAME):")
         for name, case in cases["cases"].items():
-            say(f"  {case['label']}\n    {cbase}/actions/{case['action']}/verification")
+            say(f"  [{name}] TEST-SCOPED: {case['label']}\n    {cbase}/actions/{case['action']}/verification")
             if case.get("recommendation"):
                 say(f"    hold: {cbase}/findings/{case['recommendation']['finding']}/recommendation"
                     f"?revision_id={case['recommendation']['revision']}")
 
-    def serve(self, port: int, web: int) -> None:
-        self.ids()
+    def start_api(self, db: str, port: int, case: str | None = None) -> subprocess.Popen:
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
-        procs = []
-        for db, p in ((self.db, port), (self.cases_db, port + 1)):
-            log = open(logs / f"api-{p}.log", "w", encoding="utf-8")
-            procs.append(subprocess.Popen([str(PY), "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port",
-                                           str(p)], cwd=str(self.tree / "host"), env=self.env(db), stdout=log,
-                                          stderr=subprocess.STDOUT))
-            say(f"API for {db} on http://127.0.0.1:{p} (log {logs / f'api-{p}.log'})")
+        log = open(logs / f"api-{port}-{case or 'replay'}.log", "w", encoding="utf-8")
+        if case is None:
+            argv, cwd, env = ["-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", str(port)], \
+                self.tree / "host", self.env(db)
+        else:
+            argv, cwd, env = [str(CASES_TOOL), "serve", self.url(db), str(self.work), case, str(port)], \
+                self.tree / "backend" / "tests", self.env(db, tests=True)
+        proc = subprocess.Popen([str(PY), *argv], cwd=str(cwd), env=env, stdout=log, stderr=subprocess.STDOUT)
+        import time
+        import urllib.request
+
+        for _ in range(240):
+            if proc.poll() is not None:
+                raise SystemExit(f"API for {db} exited; see {log.name}")
+            try:
+                urllib.request.urlopen(f"http://127.0.0.1:{port}/api/health", timeout=2).read()
+                break
+            except Exception:
+                time.sleep(0.5)
+        else:
+            proc.terminate()
+            raise SystemExit(f"API for {db} did not answer on port {port}")
+        say(f"API for {db}{' (TEST-SCOPED ' + case + ')' if case else ''} on http://127.0.0.1:{port}")
+        return proc
+
+    def serve(self, port: int, web: int, case: str) -> None:
+        self.ids()
+        procs = [self.start_api(self.db, port), self.start_api(self.case_dbs[case], port + 1, case)]
         say("Frontends, each in its own PowerShell window, from frontend/:")
         say(f'  $env:ASSETOPS_API_PORT="{port}"; npm.cmd run dev -- --port {web} --strictPort')
         say(f'  $env:ASSETOPS_API_PORT="{port + 1}"; npm.cmd run dev -- --port {web + 1} --strictPort')
@@ -301,20 +333,31 @@ class Walk:
             for proc in procs:
                 proc.terminate()
 
-    def capture(self, web: int, out: str | None) -> None:
+    def capture(self, port: int, web: int, out: str | None) -> None:
         self.ids()
         target = out or str(self.work / "evidence")
-        env = dict(os.environ, ASSETOPS_S602B_WORK=str(self.work))
-        done = subprocess.run(["node", str(REPO / "tools" / "s602b-verification-evidence.mjs"),
-                               f"http://localhost:{web}", f"http://localhost:{web + 1}", target], cwd=REPO, env=env)
-        raise SystemExit(done.returncode)
+        failed = 0
+        for part in ("replay", *CASES):
+            proc = self.start_api(self.db, port) if part == "replay" else \
+                self.start_api(self.case_dbs[part], port + 1, part)
+            try:
+                env = dict(os.environ, ASSETOPS_S602B_WORK=str(self.work), ASSETOPS_S602B_PART=part)
+                done = subprocess.run(["node", str(REPO / "tools" / "s602b-verification-evidence.mjs"),
+                                       f"http://localhost:{web}", f"http://localhost:{web + 1}", target],
+                                      cwd=REPO, env=env)
+                failed += done.returncode != 0
+            finally:
+                proc.terminate()
+                proc.wait(timeout=30)
+        say(f"capture: {failed} part(s) with failed claims; screenshots and results in {target}")
+        raise SystemExit(1 if failed else 0)
 
     def drop(self) -> None:
         import psycopg
 
         recorded = self.marker_db()
         with psycopg.connect(PG_ADMIN, autocommit=True) as c:
-            for db in (self.db, self.cases_db):
+            for db in self.all_dbs:
                 if self.exists(c, db):
                     if recorded != self.db:
                         raise SystemExit(f"Not dropping {db}: {self.work / MARKER} does not record that this tool "
@@ -341,7 +384,9 @@ def main() -> None:
     s = sub.add_parser("serve")
     s.add_argument("--port", type=int, default=API_PORT)
     s.add_argument("--web-port", type=int, default=WEB_PORT)
+    s.add_argument("--case", choices=CASES, default=CASES[0])
     cp = sub.add_parser("capture")
+    cp.add_argument("--port", type=int, default=API_PORT)
     cp.add_argument("--web-port", type=int, default=WEB_PORT)
     cp.add_argument("--out", default=None)
     sub.add_parser("drop")
@@ -352,9 +397,9 @@ def main() -> None:
     elif args.cmd == "links":
         walk.links(args.web_port)
     elif args.cmd == "serve":
-        walk.serve(args.port, args.web_port)
+        walk.serve(args.port, args.web_port, args.case)
     elif args.cmd == "capture":
-        walk.capture(args.web_port, args.out)
+        walk.capture(args.port, args.web_port, args.out)
     else:
         walk.drop()
 

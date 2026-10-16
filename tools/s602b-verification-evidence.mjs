@@ -26,6 +26,7 @@ const PORT = Number(process.env.ASSETOPS_CDP_PORT ?? 9466);
 const WORK = process.env.ASSETOPS_S602B_WORK ?? resolve("var", "s602b_owner");
 const R = JSON.parse(readFileSync(join(WORK, "replay.json"), "utf8"));
 const CASES = JSON.parse(readFileSync(join(WORK, "cases.json"), "utf8")).cases;
+const PART = process.env.ASSETOPS_S602B_PART ?? "all";
 const CHROME = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const WIDTHS = [
   ["desktop", 1440, 1000],
@@ -163,6 +164,11 @@ async function denseTables(label, what) {
 }
 
 async function suite(label) {
+  if (PART === "all" || PART === "replay") await replaySuite(label);
+  if (PART !== "replay") await casesSuite(label);
+}
+
+async function replaySuite(label) {
   // --- verification:1-3, current (the replayed VERIFIED Action) ---
   const mockVer = await mockScreen(label, "verification", "document.body.innerText.includes('Target and guardrails evaluated together')");
   await go(`${site}/actions/${A}/verification`, `${settled} && document.querySelector('[data-verification-outcome]')`);
@@ -253,9 +259,12 @@ async function suite(label) {
   await noOverflow(label, "change");
   comparison.push(["changes:1#b, changes:2", label, mockChg, await headings()]);
   await shot(`app-change-${label}`);
+}
 
+async function casesSuite(label) {
   // --- TEST-SCOPED cases (cases.json: { cases: { name: { label, action, expect, recommendation? } } }) ---
-  for (const [name, c] of Object.entries(CASES)) {
+  // ASSETOPS_S602B_PART=<case> runs one case: the walkthrough serves one case database at a time.
+  for (const [name, c] of Object.entries(CASES).filter(([n]) => PART === "all" || PART === n)) {
     await go(`${csite}/actions/${c.action}/verification`, `${settled} && document.querySelector('[data-verification-current-state]')`);
     const got = await js(`({ state: document.querySelector('[data-verification-current-state]')?.dataset.verificationCurrentState,
       outcome: document.querySelector('[data-verification-outcome]')?.dataset.verificationOutcome ?? null,
@@ -269,6 +278,10 @@ async function suite(label) {
       (x.label === undefined || got.label === x.label) && (x.failed === undefined || x.failed.every((m) => got.failed.includes(m))) &&
       (x.resolution === undefined || x.resolution.every((k) => got.resolved.includes(k))) && (x.prior_link !== true || got.prior !== null);
     claim(`${label} TEST-SCOPED ${name}: ${c.label}`, ok, got);
+    if (c.authored_windows) {
+      claim(`${label} TEST-SCOPED ${name}: the served source row says authored test data (test-scoped example)`,
+        /test-scoped example/.test(got.source ?? ""), got.source);
+    }
     await noOverflow(label, `case ${name}`);
     await shot(`app-case-${name}-${label}`);
     if (c.recommendation) {
@@ -310,7 +323,8 @@ async function main() {
     await size(width, height);
     await suite(label);
   }
-  writeFileSync(join(OUT, "comparison.md"), comparisonMarkdown());
+  if (comparison.length > 0) writeFileSync(join(OUT, "comparison.md"), comparisonMarkdown());
+  writeFileSync(join(OUT, `results-${PART}.json`), JSON.stringify(results, null, 2));
   const failed = results.filter((r) => !r.ok);
   console.log(`\n${results.length - failed.length}/${results.length} claims passed; screenshots and comparison.md in ${OUT}`);
   return failed.length === 0 ? 0 : 1;
