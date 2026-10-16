@@ -209,9 +209,14 @@ export function SiteHealth({
           texts={HEALTH_TEXTS}
         />
       ) : (
-        <HealthBody siteId={siteId} doc={health.value} selectedGateway={selectedGateway} />
+        <HealthBody
+          siteId={siteId}
+          doc={health.value}
+          selectedGateway={selectedGateway}
+          battery={<BatterySection siteId={siteId} read={battery} />}
+        />
       )}
-      <BatterySection siteId={siteId} read={battery} />
+      {health.status === "refused" ? <BatterySection siteId={siteId} read={battery} /> : null}
       <div className="notice notice--info" role="note">
         A gateway being heard from does not make equipment healthy. Gateway contact, what gateways report about
         themselves, and battery condition are separate, and none of them is a statement about equipment condition.
@@ -225,10 +230,13 @@ function HealthBody({
   siteId,
   doc,
   selectedGateway,
+  battery,
 }: {
   siteId: string;
   doc: SourceHealthDocument;
   selectedGateway: string | null;
+  /** v69 order: the asset condition summary sits right under the status strip. */
+  battery: ReactNode;
 }) {
   const s = doc.summary;
   const enabled = doc.gateways.filter((g) => g.registration === "ENABLED");
@@ -262,6 +270,7 @@ function HealthBody({
           <SelectedGateway siteId={siteId} row={selected} />
         )
       ) : null}
+      {battery}
       <Panel
         heading="Gateway contact"
         headingId="site-health-contact-heading"
