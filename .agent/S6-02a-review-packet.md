@@ -137,3 +137,25 @@ Fix-round checks (revision `3924ee03`):
 - Focused: `test_s6_verification_holds_postgres.py` 5 passed; evaluator + plan + verdict + rules files 71 passed (contract fixture regenerated once with `ASSETOPS_WRITE_S6_VERIFICATION_CONTRACT=1`, then compared).
 - `tools/check-all.ps1`: all 9 guards passed. Registry checker: exit 0.
 - Full suite: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=<abs>` on private base DB `assetops_s602afix_test`: **2469 passed**, JUnit tests=2469 failures=0 errors=0 skipped=0, wall 1116 s.
+
+## Fix round 2 (re-review RETURN R1 Medium)
+
+Commits: `060d0625` (`_attribution` prefix replay + Postgres test), `7f5909fd` (test-only engine disposal).
+
+| Finding | Fix | Proof |
+| --- | --- | --- |
+| R1 Medium | `_attribution` replays each changed window by acceptance prefix (`arrivals`, reserves held at the closure cutoff). Rule: a candidate is causal only when its own arrival changes that window's result relative to the previous prefix, and it entered the window's used evidence. Exact duplicates and any no-change reading stay in `candidate_evidence_ids` only and cannot move the overlap boundary. Readings accepted at the same instant are each tested with the others excluded (`_windows(exclude=...)`); they are recorded together as jointly causal only when the instant changes the result and no single one changes it alone. | `TestF2CausalAttribution::test_a_duplicate_reading_never_moves_the_overlap_boundary` (re-review sequence: VERIFIED/RESOLVED 12:00, duplicate SOC "50" 12:15, conflicting "79" 13:00, evaluation 14:00): CAUSAL set = the conflicting reading only, candidates = both; Action at 12:30 -> `PRIOR_ACTION_UNRESOLVED`; control Action at 13:30 -> `PRIOR_TRIAL_REASSESSMENT_OVERLAP`. |
+| R2, R3 Low | Carried, fail-toward-hold; named in the phase-2 handoff. | - |
+
+Mutation checks (on the committed tree, restored with `git checkout --`):
+- Prefix "no change" skip disabled (every arriving group causal): killed, both parametrizations.
+- Old behaviour (every entered candidate causal): killed, both parametrizations.
+- Not mutation-covered: the same-instant one-by-one split (the roles-2 Lab cannot deliver two bound readings for one window in one accepted instant with distinct effects).
+
+Fix-round deviation: `release_engines` autouse fixture (test-only, `test_s6_verification_plan_postgres.py`, imported by the evaluator and holds modules) disposes engines opened during a verification test; `verification_ports` builds three stores whose pools stayed open. The first full suite at `060d0625` failed 6 tests with Postgres `too many clients` while another agent's `assetops_s302a` suite ran on the same server; serial holds-file peak connections, uncontended: 68 without, 52 with the fixture.
+
+Checks (revision `7f5909fd`, code-identical for the backend to `060d0625` plus the fixture):
+- Focused S6 verification + action files (8 files, `-n 2 --dist loadfile`): 99 passed (also at `060d0625`).
+- `tools/check-all.ps1`: all 9 guards passed (at `060d0625`).
+- Full suite: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=<abs>` on private base DB `assetops_s602afix2_test`: **2471 passed**, JUnit tests=2471 failures=0 errors=0 skipped=0, wall 1373 s. Another agent's suite overlapped part of this run.
+- Earlier attempt at `060d0625`: 2465 passed, 6 failed, all `FATAL: sorry, too many clients already` (concurrent foreign suite), JUnit tests=2471 failures=6, 1220 s.
