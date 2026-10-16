@@ -4,6 +4,8 @@ Routing only. Built history remains in `.ai/CODE_STATE.md`; decisions remain in 
 
 ## Current milestone and task
 
+**2026-10-16: S6-03 ([Site Work Action list](../tasks/S6-03-site-work-list.md)) is built (phases 1-2), `in_review`** on `task/S6-03-site-work-list` (USER_REVIEW_REQUIRED: independent review, then owner walkthrough `.agent/S6-03-owner-walkthrough.md`). Packet `.agent/S6-03-review-packet.md`; built state `.ai/CODE_STATE.md` "S6-03".
+
 **2026-10-16: S6-02a ([frozen verification and exact read](../tasks/S6-02a-verification-core.md)) is built (phases 1-2), `in_review`** on `task/S6-02a-verification-core` (non-UI, USER_REVIEW_REQUIRED false; mergeable after fresh independent slice review). Packet `.agent/S6-02a-review-packet.md`; built state `.ai/CODE_STATE.md` "S6-02a". Architect item: the shipped mini-grid model gives no VERIFIED Lab replay (packet Known Deviation 1).
 
 **2026-10-16: S4-04 ([Site Finding index](../tasks/S4-04-site-finding-index.md)) is built (phases 1-2), `in_review`** on `task/S4-04-site-finding-index`: slice review, then owner walkthrough `.agent/S4-04-owner-walkthrough.md` (USER_REVIEW_REQUIRED). Packet `.agent/S4-04-review-packet.md`; built state in `.ai/CODE_STATE.md` "S4-04". Merge main after `fix/S4-deferred-match` lands and rerun the focused index tests.
@@ -50,6 +52,7 @@ The completed T001–T028 history remains in `tasks/completed/` and `.ai/CODE_ST
 
 ## Next read
 
+Reviewer (S6-03 slice): read the task, `.agent/architect-W1-remaining-answers.md` (S6-03), `.agent/architect-W1-remaining-q-answers.md` (1) and `.agent/S6-03-review-packet.md`, then `git diff cdb09767..HEAD -- ':!.agent'`. Focused proof: `backend/tests/test_s6_site_action_index*.py` on a private `*_test` DB and `frontend/src/sites/__tests__/siteWorkActions.test.tsx`; walk with `tools/s603_site_work_walkthrough.py` and `node tools/s603-site-work-evidence.mjs`.
 Reviewer (S6-02a slice): read the task, the three S6 verification decisions, `.agent/S6-02a-phase-1-review.md`, `.agent/S6-02a-review-packet.md` and `.agent/S6-02a-phase-2-handoff.md`, then `git diff 07de54ac..HEAD -- ':!.agent'`. Focused proof: `backend/tests/test_s6_verification_*.py`, `host/tests/test_s6_verification_replay.py` on a private `*_test` DB; reuse the packet's full-suite evidence.
 Coordinator (OPS-02): merge `task/OPS-02-writer-guard-ast` to main; merge evidence in `.agent/OPS-02-review-packet.md` "Merge with main" and `.agent/OPS-02-merge-handoff.md`.
 Reviewer (S4-05a slice): read the task, the S4-05 umbrella shared contract, `.agent/architect-S4-05-answers.md`, `.agent/S4-05a-review-packet.md` and both phase handoffs, then `git diff fd7afd2c..HEAD`. Postgres tests need `ASSETOPS_TEST_DATABASE_URL` on a `*_test` DB; reuse the packet's same-revision full-suite evidence.

@@ -46,7 +46,7 @@ PY = Path(sys.executable)
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 PG_ADMIN = f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops"
-API_PORT, WEB_PORT = 8943, 5443
+API_PORT, WEB_PORT = 8963, 5463  # this worktree's reserved ports (S6-03 build brief)
 MARKER = ".s603-walkthrough-work"
 SITE = "KOBO-001"
 
