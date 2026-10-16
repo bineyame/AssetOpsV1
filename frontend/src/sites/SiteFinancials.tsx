@@ -271,7 +271,12 @@ export function SiteAssumptions({
   if (series.status !== "loaded") return <ReadRefused read={series} what="price list" />;
   const body = series.value as AssumptionSeriesBody;
   return (
-    <section className="site-financials" aria-label="Site prices" data-price-cutoff={body.cutoff.selected_by}>
+    <section
+      className="site-financials"
+      aria-label="Site prices"
+      data-price-cutoff={body.cutoff.selected_by}
+      data-price-recorded-cutoff={body.cutoff.recorded_at ?? undefined}
+    >
       {recordedAt !== null ? (
         <p className="notice" data-price-recorded-at={recordedAt}>
           Showing the prices as they were recorded on {formatInstant(recordedAt)}. Later changes are not shown.{" "}
