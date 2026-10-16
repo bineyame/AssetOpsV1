@@ -37,6 +37,7 @@ statuses each window read at prepare time.
    per-day assessment selection and record, Finding matching pass, selection token.
 2. **Not assessed / stale / failed.** Heading "Not known", "Not current" or "Not known" with the reason; the page
    says no Findings are listed, no count is given, and that this is not a "no Findings" statement.
+   The two days either side of a failed day also read "Not known" (by design: a Finding could continue across the edge).
 3. **Positive.** "3 Findings in this window", newest period first. Each Finding link opens that exact version
    (`?revision_id=`); reload keeps it. Open one, then its History. "Related" links merged/split/recurrence
    Findings. Amount reads "No amount shown" on every row.
