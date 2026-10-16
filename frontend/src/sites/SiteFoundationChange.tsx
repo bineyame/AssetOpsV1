@@ -387,8 +387,8 @@ function ChangeCard({
               state: failed === null ? "not-known" : failed > 0 ? "problem" : "done",
               detail: failed === null ? "Not known yet" : `${failed} recorded; none changed the site`,
             },
-            { label: "Setting recorded", state: "done", detail: plainTime(c.recorded_at) },
-            { label: "Effective from", state: "done", detail: plainTime(c.effective_from) },
+            { label: "Setting recorded", state: "done", detail: plainTime(c.recorded_at) ?? "Time not recorded" },
+            { label: "Effective from", state: "done", detail: plainTime(c.effective_from) ?? "Time not recorded" },
             { label: "Measured effect", state: trialStep(verificationState), detail: trial.label },
           ]}
         />
