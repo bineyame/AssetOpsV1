@@ -1,6 +1,6 @@
 # S6-03 — Site Work Action list
 
-Status: implementation-ready. USER_REVIEW_REQUIRED: true; independent review and owner walkthrough before merge. Size S, two phases. Branch `task/S6-03-site-work-list` from merged main. Depends on merged S6-01; S6-02 is queue order only. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-a-action-index`, `D-2026-10-09-pre-s3-claim-routes-and-actor`; registry `I-S6-03`, `I-site-action-index-read`, `I-sitework-ui`, `sitework:1#a`. Mock `frontend/mockups/v69/index.html` / `screen-manifest.json` `sitework` guides layout and navigation; its rows are illustrative.
+Status: active (activated 2026-10-16 from main `cdb09767`); was implementation-ready. USER_REVIEW_REQUIRED: true; independent review and owner walkthrough before merge. Size S, two phases. Branch `task/S6-03-site-work-list` from merged main. Depends on merged S6-01; S6-02 is queue order only. Authority: `.agent/architect-W1-remaining-answers.md`, `.ai/DECISIONS.md` `D-2026-10-16-a-action-index`, `D-2026-10-09-pre-s3-claim-routes-and-actor`; registry `I-S6-03`, `I-site-action-index-read`, `I-sitework-ui`, `sitework:1#a`. Mock `frontend/mockups/v69/index.html` / `screen-manifest.json` `sitework` guides layout and navigation; its rows are illustrative.
 
 ## Outcome and verified seams
 
