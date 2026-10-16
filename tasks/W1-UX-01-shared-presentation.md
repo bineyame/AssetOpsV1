@@ -1,6 +1,6 @@
 # W1-UX-01 — shared product presentation
 
-Status: implementation-ready. Branch `task/W1-UX-01` after S6-02b, S6-03 and S7-01b merge, from that merged W1 UI baseline. Frontend only. This slice precedes W1-UX-02–05. Read [umbrella](W1-UX-mockup-fidelity.md), owner notes named there, `frontend/mockups/v69/index.html`, screen manifest and current `frontend/src/test/productVocabulary.ts` / `.json`. USER_REVIEW_REQUIRED: one combined W1 walkthrough after all slices; independent slice review is the merge gate.
+Status: active (activated 2026-10-16 from main `3e6dbc88`; S6-02b, S6-03, S7-01b merged); was implementation-ready. Branch `task/W1-UX-01` after S6-02b, S6-03 and S7-01b merge, from that merged W1 UI baseline. Frontend only. This slice precedes W1-UX-02–05. Read [umbrella](W1-UX-mockup-fidelity.md), owner notes named there, `frontend/mockups/v69/index.html`, screen manifest and current `frontend/src/test/productVocabulary.ts` / `.json`. USER_REVIEW_REQUIRED: one combined W1 walkthrough after all slices; independent slice review is the merge gate.
 
 ## Result and contract
 
