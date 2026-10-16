@@ -40,3 +40,8 @@ S3 day selection `backend/assetops_backend/analytics/assessment_worker.py:62-69`
 `D-2026-10-16-s602-questions` fixes version-1 10% load/PV and 2-point initial-SOC bands, exact interval integration and sampled SOC/reserve convention, and immutable replacement with the later-report/run cutoff. The persisted plan and API fixture carry these values; the evaluator and fixture cannot change them after freeze.
 
 **Plan fix round 1 (2026-10-16):** Folded Architect rulings into freeze, slot, evaluator and API contracts; named the ninth writer, re-evaluation trigger, battery-scoped guard/read and adjacent tests; carried interval-publication, load-binding and withdrawable-resolution risks from plan review.
+
+## Coordinator note after plan re-review (`.agent/S6-02-plan-rereview.md`: ACCEPT)
+
+Implementer carries: R1 - the overlap block applies only when the late accepted evidence that invalidated a closure overlaps the verification window (name that evidence); an Action accepted before such evidence arrived is not permanently blocked by it - test both sides. R2 - recheck the LR-01 read-state citation and all line citations on the build base (main moved; e.g. `$actionTables` is at `configuration-persistence.ps1:707-708`). Optional: add a test in `test_delivery_next_work.cjs` pinning the S6-02a predecessor exception.
+
