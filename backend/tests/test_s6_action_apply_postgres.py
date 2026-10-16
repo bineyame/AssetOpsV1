@@ -19,6 +19,7 @@ import pytest
 
 from test_s4_finding_store_postgres import URL, CaseRunner, run_case  # noqa: F401
 from test_s6_action_store_postgres import CASES, T_ACCEPT, harness, runner  # noqa: F401
+from s6_action_records import accepted_before_battery_hold
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -182,7 +183,7 @@ class TestFailedAfterRollback:
         h = applying(runner)
         try:
             action_id, proposal = accepted(h, "2026-10-06")
-            other_id, _ = accepted(h, "2026-10-08", key="accept-0002")
+            other_id = accepted_before_battery_hold(h, h.findings()["2026-10-08"], "accept-0002")
             expected = current_foundation(h, action_id)
             with runner.engine.connect() as c:
                 older = str(c.execute(text(
@@ -427,14 +428,13 @@ class TestFixtureScopeAndCrossSite:
             ids = full.findings()
             f01, f02 = ids["2026-10-06"], ids["2026-10-08"]
             p2 = full.recommendation(f02).json()["proposal"]
-            other_action, _ = accepted(full, "2026-10-08", key="accept-f02-01")
             narrow = applying(runner, capability=from_grants(fixture_grants(runner, findings=[f01])))
-            start = table_counts(runner)
             view = narrow.recommendation(f02).json()["system_demo_capability"]
             assert view["allowed"] is False and "not a record" in view["unavailable_reason"]
             assert narrow.recommendation(f01).json()["system_demo_capability"]["manifest_id"] == "test-record:0"
             p1 = narrow.recommendation(f01).json()["proposal"]
             assert narrow.accept(f01, p1, idempotency_key="accept-f01-ok").status_code == 201
+            other_action = accepted_before_battery_hold(full, f02, "accept-f02-01")
             start = table_counts(runner)
             refused = narrow.accept(f02, p2, idempotency_key="accept-f02-02")
             assert refused.status_code == 403 and refused.json()["detail"]["code"] == "SYSTEM_DEMO_CAPABILITY_DENIED"

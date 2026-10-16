@@ -1085,3 +1085,53 @@ MINI_GRID_V3_MODEL = replace(
     measured_interval_states=MINI_GRID_V2_MODEL.measured_interval_states
     | {PV_AVAILABLE_POWER, BATTERY_DISCHARGE_CAPABILITY},
 )
+
+
+# --- `mini-grid` v4 (S6-02a) ------------------------------------------------
+
+#: What a load's meter reports the load REQUESTED over the completed step: its
+#: forced demand, as mean power. Beside `load-served-power` (what it was
+#: delivered) it lets a device publish requested and delivered critical-load
+#: power. A measurement of an existing forcing input; nothing it decides.
+LOAD_REQUESTED_POWER = "load-requested-power"
+
+
+def resolve_v4(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v3's resolution, plus each load's requested (demand) energy as a measurement.
+
+    Measurements only: no flow, stock, control or decision changes, so a v4 run
+    and a v3 run of one document accept the same flows and decide the same
+    requests. v1-v3 are untouched; their interval measurements and digests are
+    what they were.
+    """
+    accepted = resolve_v3(context, intent)
+    plant, _ = _both(context)
+    energy = {flow.flow_id: flow.energy for flow in accepted.flows}
+    return replace(
+        accepted,
+        interval_energies=tuple(
+            sorted(
+                accepted.interval_energies
+                + tuple(
+                    (f"{LOAD_REQUESTED_POWER}@{load}", energy[f"demand:{load}"])
+                    for load in plant.loads
+                )
+            )
+        ),
+    )
+
+
+MINI_GRID_V4_COUPLING = replace(MINI_GRID_V3_COUPLING, resolve=resolve_v4)
+
+MINI_GRID_V4_MODEL = replace(
+    MINI_GRID_V3_MODEL,
+    model_profile_version=4,
+    statement=(
+        MINI_GRID_V3_MODEL.statement
+        + " It also measures, over each completed step, the power each load "
+        "requested, so a meter can report requested beside delivered power."
+    ),
+    coupling=MINI_GRID_V4_COUPLING,
+    measured_interval_states=MINI_GRID_V3_MODEL.measured_interval_states
+    | {LOAD_REQUESTED_POWER},
+)

@@ -6,7 +6,8 @@
 - ACCEPTED -> application PENDING. APPLIED -> APPLIED (only with a committed Foundation change). FAILED is an
   attempt: it records a failed application but leaves the application PENDING and never reverts APPLIED, even if
   it is recorded later. OBSERVED is state-neutral.
-- No event infers verification or human approval: the outcome stays PENDING (S6-02 owns verification).
+- No event infers human approval. S6-02a: RESOLVED / RESOLUTION_WITHDRAWN (evaluator job only) are reduced as the
+  latest ordered resolution; RESOLVED is withdrawable, never permanent. Without them the outcome stays PENDING.
 - `event_id` selects the exact event and its ordered prefix; `recorded_at` selects every event recorded through
   that server instant (ties included). Both together are a typed conflict. Neither is an `occurred_at` cutoff.
 """
@@ -20,8 +21,12 @@ from urllib.parse import quote
 from uuid import UUID
 
 ACCEPTED, APPLIED, FAILED, OBSERVED = "ACCEPTED", "APPLIED", "FAILED", "OBSERVED"
-EVENT_KINDS = (ACCEPTED, APPLIED, FAILED, OBSERVED)
-COMMANDS = ("ACCEPT", "APPLY", "OBSERVE")
+# S6-02a: appended only by the verification evaluator job (SYSTEM_JOB), never by a command.
+RESOLVED, RESOLUTION_WITHDRAWN = "RESOLVED", "RESOLUTION_WITHDRAWN"
+EVENT_KINDS = (ACCEPTED, APPLIED, FAILED, OBSERVED, RESOLVED, RESOLUTION_WITHDRAWN)
+# S6-02a: VERIFY lets a SYSTEM demonstration freeze a verification plan or bind its later selection; it never
+# supplies a metric, verdict or resolution event.
+COMMANDS = ("ACCEPT", "APPLY", "OBSERVE", "VERIFY")
 OBSERVATION_CODE = "DEMO_REVIEW_NOTE"
 
 # Reduced application states.
@@ -80,10 +85,36 @@ def reduce(events: Sequence[dict[str, Any]]) -> dict[str, Any]:
             failed += 1
             last_failure = {"event_id": str(event["id"]), "failure_code": event["failure_code"],
                             "recorded_at": event["recorded_at"]}
-    return {"application": state, "accepted_at": accepted_at, "applied_at": applied_at,
-            "application_attempts": attempts, "failed_attempts": failed, "last_failure": last_failure,
-            "outcome": {"state": "PENDING", "statement": "No verification exists yet; nothing is claimed about "
-                                                          "an effect, a saving or approval."}}
+    resolution = latest_resolution(events)
+    out = {"application": state, "accepted_at": accepted_at, "applied_at": applied_at,
+           "application_attempts": attempts, "failed_attempts": failed, "last_failure": last_failure,
+           "outcome": {"state": "PENDING", "statement": "No verification exists yet; nothing is claimed about "
+                                                         "an effect, a saving or approval."}}
+    if resolution is not None:
+        out["resolution"] = resolution
+        if resolution["state"] == RESOLVED:
+            out["outcome"] = {"state": resolution["outcome"], "statement": (
+                "Resolved by the verification evaluator from a frozen simulated/authored policy trial; no causal or "
+                "savings claim. RESOLVED can later be withdrawn.")}
+        else:
+            out["outcome"] = {"state": "REASSESSMENT_PENDING", "statement": (
+                "The earlier resolution was withdrawn by the verification evaluator; the trial is unresolved again.")}
+    return out
+
+
+def latest_resolution(events: Sequence[dict[str, Any]]) -> dict[str, Any] | None:
+    """The latest ordered RESOLVED / RESOLUTION_WITHDRAWN event, reduced (None when there is none)."""
+    last = None
+    for event in ordered(events):
+        if event["kind"] in (RESOLVED, RESOLUTION_WITHDRAWN):
+            last = event
+    if last is None:
+        return None
+    payload = last.get("payload") or {}
+    return {"state": last["kind"], "event_id": str(last["id"]), "recorded_at": last["recorded_at"],
+            "outcome_id": str(last.get("verification_outcome_id")), "plan_id": str(last.get("verification_plan_id")),
+            "outcome": payload.get("outcome"), "reasons": list(payload.get("reasons") or []),
+            "guardrail_failed": bool(payload.get("guardrail_failed"))}
 
 
 class SelectorConflict(Exception):
