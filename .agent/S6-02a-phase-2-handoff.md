@@ -38,3 +38,11 @@ Lab replay test, `f88f3c8c` closeout docs. Not merged. Phase 2 is the last phase
   `recorded_at`.
 - Change read keeps apply-time `outcome: PENDING` beside the live `verification` block.
 - `.venv` in this worktree is a junction to the main checkout's venv (check-all needs it).
+
+## Fix round 1 notes (for S6-02b and the merge)
+
+- F5 (S6-02b): take the verification presentation from the Action read's `verification` block (`current_state`), never from `state.outcome`; `state.outcome` follows resolution events and keeps VERIFIED until the evaluator appends RESOLUTION_WITHDRAWN, and the Change read keeps its apply-time `outcome: PENDING`.
+- F4: an INCONCLUSIVE Action continues by freezing a new plan with `supersedes_plan_id` (`VerificationService._continuation_check`); refusals are `VERIFICATION_PLAN_EVALUATED` with `reason`. The shipped Lab replay's INCONCLUSIVE can now lead to a later trial plan.
+- F2: RESOLUTION_WITHDRAWN payload carries `attribution`, `invalidating_evidence`, `basis_changes`, `candidate_evidence_ids`; overlap reads CAUSAL only.
+- F3 deviation: moved baseline selection settles INCONCLUSIVE (`BASELINE_SELECTION_CHANGED`), recoverable via F4 continuation.
+- Merge with S4-05b (coordinator note): whichever merges second keeps both `source=` and `publish=` wiring, drops every `demonstration` field, regenerates the contract fixtures, reruns `test_s6_*` and greps for `demonstration_`. This fix round touched `actions/service.py` only in `reassessment_overlaps` and added no `demonstration_label` use.

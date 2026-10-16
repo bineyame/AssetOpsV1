@@ -105,3 +105,35 @@ scripts must expect 503 on 5 s lock contention; registry nodes stay `open` until
 
 None required (non-UI). Architect: KD1. Reviewer: `evaluate.compose` resolution sequencing, `reassessment_overlaps`
 window, `current_state` reasons, and the F3 fence choice.
+
+## Fix round 1 (slice review RETURN F1; ruling `D-2026-10-16-s602a-holds`)
+
+Commits: `2c1e4f31` (code), `a0efc673` + `3924ee03` (Postgres proofs, regenerated `s6_verification_api_contract.json`).
+
+| Finding | Fix | Proof |
+| --- | --- | --- |
+| F1 Medium | `evaluate`'s `compose` now re-checks the head, takes `now` and runs `_assess` under the battery trial lock; `now` is bumped past any stored outcome/event stamp so a write always orders after what it was decided against. Reuse branch withdraws an outstanding RESOLVED that belongs to another outcome or to a non-final one (`RESOLUTION_NOT_CURRENT`). | `test_s6_verification_holds_postgres.py::TestF1...` replays the review interleaving (B commits INCONCLUSIVE at t1 inside A's `record_evaluation`, A resumes with clock t0): A reuses B's outcome, no RESOLVED, hold kept. |
+| F4 | `freeze` → `_continuation_check` under the lock: no-outcome plans supersede as before; a plan with an outcome continues only when the Action's latest outcome is that plan's INCONCLUSIVE, the read state is INCONCLUSIVE (not REASSESSMENT_PENDING), any RESOLUTION_WITHDRAWN was settled by an outcome of that run or later, no RESOLVED is outstanding (VERIFIED / target-miss / guardrail), and no reassessment overlap involves the Action. Refusal `VERIFICATION_PLAN_EVALUATED` with `reason` (RESOLVED, GUARDRAIL_FAILED, REASSESSMENT_PENDING, NOT_INCONCLUSIVE, PRIOR_TRIAL_REASSESSMENT_OVERLAP). Once the replaced plan's later window has an accepted report, the new later window must start at/after its end (`VERIFICATION_LATER_WINDOW_STARTED`, `reason=NOT_AFTER_PRIOR_LATER_WINDOW`). Baseline is re-validated by the normal freeze preconditions. | `TestF4InconclusiveContinuation` (real roles-2 INCONCLUSIVE): pending-reassessment refusal, same-window refusal, new next-day plan with `supersedes_plan_id`, original and replacement retries keep IDs, stray new keys refused NOT_HEAD, history/old outcome retained, hold `PRIOR_ACTION_UNRESOLVED`, no RESOLVED, new head PENDING, pending plan superseded with same bounds. Negative reasons asserted in the evaluator file (RESOLVED, REASSESSMENT_PENDING, GUARDRAIL_FAILED, PRIOR_TRIAL_REASSESSMENT_OVERLAP). |
+| F2 | `VerificationService._attribution` at withdrawal: candidates = late readings accepted after RESOLVED and by the withdrawal, touching a pinned window, matching the frozen role/bound asset (battery for SOC). Causal = candidates that entered the window's used evidence where the window result (coverage, kWh, reserve seconds, SOC, problems) changed, with reserve history held at the closure cutoff. Payload: `attribution` CAUSAL/NONE/INDETERMINATE, `invalidating_evidence` (id, role, asset, window, accepted_at), `basis_changes` (closed vs reassessed window result, pinned vs current S3 days), `candidate_evidence_ids`. `reassessment_overlaps` uses only CAUSAL sets and requires `resolved < first causal acceptance < other Action acceptance < withdrawal`. No migration change was needed (payload is jsonb). | Bound causal reading on both sides of the timing boundary (existing overlap tests, now asserting the exact ID set); INDETERMINATE (bound reading, result unchanged, S3 pending) → ordinary hold; unbound asset / unrelated role (TEST-SCOPED row rewrite) → NONE; source-only and Foundation-only withdrawals → NONE, no overlap. |
+| F6 | `_wire` converts aware datetimes to UTC; plan/history/evidence stamps use `_wire`. | Contract fixture `+00:00` assertion. |
+| F7 | — | 401/403 on `.../verification/outcome` and `/history` in `TestRealRoles2Path`. |
+| F3 | Deviation (documented): a moved baseline S3 selection settles INCONCLUSIVE (`BASELINE_SELECTION_CHANGED`) instead of REASSESSMENT_PENDING, because an immutable plan cannot re-pin its baseline; with F4 the Action can now continue with a new plan. | — |
+| F5 | Handoff note for S6-02b. | — |
+
+Mutation checks (each on the committed tree, restored with `git checkout --`):
+- F1 assessment moved back before the lock: killed (A VERIFIED).
+- F2 every bound candidate causal: killed (INDETERMINATE test). Bound filter off: killed (NONE test). Overlap timing without the reading bound: killed (accepted-before test). CAUSAL gate in `reassessment_overlaps` alone off: survives, by construction (`invalidating_evidence` is only populated for CAUSAL); kept as a backstop for non-CAUSAL payloads.
+- F4 overlap refusal off, awaiting-reassessment refusal off, read-state refusal off, INCONCLUSIVE-only + RESOLVED refusal off, prior-window cutoff off: all killed.
+- Not mutation-covered: the reuse-branch `RESOLUTION_NOT_CURRENT` withdrawal (no reachable state produces it now that decisions are under the lock; defensive).
+
+Fix-round known deviations:
+- Unbound-asset and unrelated-role reports are proven with a TEST-SCOPED rewrite of the late row, because the roles-2 Lab cannot produce an accepted reading for an unbound asset or role.
+- Attribution is per window: when a window's result changed, every bound candidate that entered its used evidence is recorded (jointly causal); a finer leave-one-out test is not done.
+- A bound reading whose effect on a still-pending or moved S3 selection cannot be established is INDETERMINATE (ordinary hold, never an overlap), per the ruling.
+- The overlap regression test's re-settle is now INCONCLUSIVE (the injected late SOC sample conflicts), so the contract fixture's `evaluate_resettled` shows no new RESOLVED; fixture regenerated, shape-compared.
+- `tools/writer_guard_probes.py` not rerun to completion: no writer changed (no new INSERT/UPDATE; `late_evidence` is a read). A partial run caught every probe it reached (4/4) before a 600 s cap.
+
+Fix-round checks (revision `3924ee03`):
+- Focused: `test_s6_verification_holds_postgres.py` 5 passed; evaluator + plan + verdict + rules files 71 passed (contract fixture regenerated once with `ASSETOPS_WRITE_S6_VERIFICATION_CONTRACT=1`, then compared).
+- `tools/check-all.ps1`: all 9 guards passed. Registry checker: exit 0.
+- Full suite: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --junitxml=<abs>` on private base DB `assetops_s602afix_test`: **2469 passed**, JUnit tests=2469 failures=0 errors=0 skipped=0, wall 1116 s.
