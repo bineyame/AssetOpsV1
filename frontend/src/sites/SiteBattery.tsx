@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type { BatteryDetail, HealthClient } from "./healthClient";
+import { BatteryHeadline } from "./healthHeadlines";
 import { BATTERY_TEXTS, HealthRef, HealthRefusalPanel, useHealthLinks, useHealthRead } from "./SiteHealth";
 
 const MISSING_INPUT_WORDS: Record<string, { name: string; why: string }> = {
@@ -188,6 +189,12 @@ export function SiteBattery({
   const channels = d.bound_channels;
   return (
     <div className="site-battery" data-battery-asset={d.asset.asset_id} data-battery-condition={condition.status}>
+      <BatteryHeadline
+        detail={d}
+        name={d.asset.display_name ?? d.asset.asset_code}
+        inputName={(code) => MISSING_INPUT_WORDS[code]?.name ?? null}
+        healthHref={links.health(siteId)}
+      />
       <div className="evidence-statusbar">
         <Badge tone="neutral">Condition: Unknown</Badge>
         <Badge tone="neutral">Capacity: unverified</Badge>

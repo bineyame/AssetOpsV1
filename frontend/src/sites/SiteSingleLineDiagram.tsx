@@ -1,4 +1,4 @@
-import type { KeyboardEvent, ReactNode } from "react";
+import { useId, type KeyboardEvent, type ReactNode } from "react";
 
 import { Badge, DataTable, MissingClaim, MissingClaimSvg } from "../ui";
 import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape } from "./componentIcons";
@@ -333,7 +333,7 @@ export interface SldSelection {
 }
 
 /** What makes a drawn part a toggle, when the caller supplies a selection. */
-function choiceProps(node: SldNodeView, selection: SldSelection | null) {
+function choiceProps(node: SldNodeView, selection: SldSelection | null, labelId: string) {
   if (selection === null) return {};
   const pressed = selection.selected === node.componentId;
   const toggle = () => selection.onSelect(pressed ? null : node.componentId);
@@ -341,7 +341,7 @@ function choiceProps(node: SldNodeView, selection: SldSelection | null) {
     tabIndex: 0,
     role: "button",
     "aria-pressed": pressed,
-    "aria-label": `${node.displayName}, ${label(node.componentType, COMPONENT_TYPE_LABELS)}`,
+    "aria-labelledby": labelId,
     "data-selected": pressed ? "" : undefined,
     onClick: toggle,
     onKeyDown: (event: KeyboardEvent<SVGGElement>) => {
@@ -351,6 +351,21 @@ function choiceProps(node: SldNodeView, selection: SldSelection | null) {
       }
     },
   };
+}
+
+/**
+ * W1-UX-05: a drawn part's accessible name, "<name>, <type>", held in a
+ * non-drawn element the part points at, so the person-entered name is marked
+ * user-owned one value at a time and the type word stays product wording.
+ */
+function SldNodeName({ id, node, selection }: { id: string; node: SldNodeView; selection: SldSelection | null }) {
+  if (selection === null) return null;
+  return (
+    <text id={id} className="sld-node__name" display="none">
+      <tspan data-vocabulary-exempt="user-owned">{`${node.displayName},`}</tspan>
+      {` ${label(node.componentType, COMPONENT_TYPE_LABELS)}`}
+    </text>
+  );
 }
 
 /** The one declared bus: a bar spanning the rows, named above it. */
@@ -368,65 +383,69 @@ function SldBus({
   selection: SldSelection | null;
 }) {
   const content = slots?.nodes.get(node.componentId) ?? null;
+  const labelId = useId();
   const top = PADDING + 14;
   return (
-    <g
-      className="sld-node sld-node--bus"
-      data-sld-node={node.nodeId}
-      data-sld-component={node.componentId}
-      data-sld-visual-role={node.visualRole}
-      data-component-icon={node.symbol}
-      {...choiceProps(node, selection)}
-    >
-      <rect
-        className="sld-node__halo"
-        x={box.x - 80}
-        y={PADDING}
-        width={160}
-        height={lattice.busBottom - PADDING + 6}
-        rx={6}
-      />
-      <text className="sld-node__name sld-node__name--bus" x={box.x} y={top} textAnchor="middle">
-        {wrapName(node.displayName).map((line, index) => (
-          <tspan key={line} x={box.x} dy={index === 0 ? 0 : 15}>
-            {line}
-          </tspan>
-        ))}
-      </text>
-      <text className="sld-node__rating" x={box.x} y={top + 16} textAnchor="middle">
-        {ratingText(node)}
-      </text>
-      {slots === null ? (
-        <MissingClaimSvg
-          gapId="G-sld-reporting-status"
-          placement="sld.diagram.bus-slot"
-          className="sld-node__slot"
-          data-sld-slot="unfilled"
-          x={box.x}
-          y={top + 31}
-          textAnchor="middle"
-        >
-          {AWAITING_RUNTIME_OR_EVIDENCE}
-        </MissingClaimSvg>
-      ) : (
-        <text
-          className="sld-node__slot"
-          data-sld-slot={content === null ? "unfilled" : "filled"}
-          x={box.x}
-          y={top + 31}
-          textAnchor="middle"
-        >
-          {content?.text ?? slots.unfilled}
+    <>
+      <g
+        className="sld-node sld-node--bus"
+        data-sld-node={node.nodeId}
+        data-sld-component={node.componentId}
+        data-sld-visual-role={node.visualRole}
+        data-component-icon={node.symbol}
+        {...choiceProps(node, selection, labelId)}
+      >
+        <rect
+          className="sld-node__halo"
+          x={box.x - 80}
+          y={PADDING}
+          width={160}
+          height={lattice.busBottom - PADDING + 6}
+          rx={6}
+        />
+        <text className="sld-node__name sld-node__name--bus" x={box.x} y={top} textAnchor="middle">
+          {wrapName(node.displayName).map((line, index) => (
+            <tspan key={line} x={box.x} dy={index === 0 ? 0 : 15} data-vocabulary-exempt="user-owned">
+              {line}
+            </tspan>
+          ))}
         </text>
-      )}
-      <line
-        className="sld-node__bar"
-        x1={box.x}
-        x2={box.x}
-        y1={lattice.busTop}
-        y2={lattice.busBottom}
-      />
-    </g>
+        <text className="sld-node__rating" x={box.x} y={top + 16} textAnchor="middle">
+          {ratingText(node)}
+        </text>
+        {slots === null ? (
+          <MissingClaimSvg
+            gapId="G-sld-reporting-status"
+            placement="sld.diagram.bus-slot"
+            className="sld-node__slot"
+            data-sld-slot="unfilled"
+            x={box.x}
+            y={top + 31}
+            textAnchor="middle"
+          >
+            {AWAITING_RUNTIME_OR_EVIDENCE}
+          </MissingClaimSvg>
+        ) : (
+          <text
+            className="sld-node__slot"
+            data-sld-slot={content === null ? "unfilled" : "filled"}
+            x={box.x}
+            y={top + 31}
+            textAnchor="middle"
+          >
+            {content?.text ?? slots.unfilled}
+          </text>
+        )}
+        <line
+          className="sld-node__bar"
+          x1={box.x}
+          x2={box.x}
+          y1={lattice.busTop}
+          y2={lattice.busBottom}
+        />
+      </g>
+      <SldNodeName id={labelId} node={node} selection={selection} />
+    </>
   );
 }
 
@@ -443,76 +462,80 @@ function SldNode({
   selection: SldSelection | null;
 }) {
   const content = slots?.nodes.get(node.componentId) ?? null;
+  const labelId = useId();
   const text = box.y + ICON_H + 17;
   const nameLines = wrapName(node.displayName);
   // The lines under the name follow it, so a one-line name leaves no gap.
   const rating = text + 15 * (nameLines.length - 1) + 16;
 
   return (
-    <g
-      className="sld-node"
-      data-sld-node={node.nodeId}
-      data-sld-component={node.componentId}
-      data-sld-visual-role={node.visualRole}
-      data-sld-candidate={node.candidate === null ? undefined : "unsettled"}
-      {...choiceProps(node, selection)}
-    >
-      <rect
-        className="sld-node__halo"
-        x={box.x - 6}
-        y={box.y - 6}
-        width={NODE_WIDTH + 12}
-        height={NODE_HEIGHT + 6}
-        rx={6}
-      />
-      <g transform={`translate(${box.x} ${box.y})`}>
-        {/* The frame keeps `sld-node__box`: the Lab drawing's label-collision
-            measurement reads it as the part's drawn extent on the line. */}
-        <ComponentIconShape symbol={node.symbol} frameClassName="sld-node__box" />
+    <>
+      <g
+        className="sld-node"
+        data-sld-node={node.nodeId}
+        data-sld-component={node.componentId}
+        data-sld-visual-role={node.visualRole}
+        data-sld-candidate={node.candidate === null ? undefined : "unsettled"}
+        {...choiceProps(node, selection, labelId)}
+      >
+        <rect
+          className="sld-node__halo"
+          x={box.x - 6}
+          y={box.y - 6}
+          width={NODE_WIDTH + 12}
+          height={NODE_HEIGHT + 6}
+          rx={6}
+        />
+        <g transform={`translate(${box.x} ${box.y})`}>
+          {/* The frame keeps `sld-node__box`: the Lab drawing's label-collision
+              measurement reads it as the part's drawn extent on the line. */}
+          <ComponentIconShape symbol={node.symbol} frameClassName="sld-node__box" />
+        </g>
+        {/*
+          * One `text` element holding the whole name, wrapped into `tspan`
+          * lines. One element per line would put the name on the screen as two
+          * separate strings, and an assertion comparing a label to the record
+          * would then have to know how this component chose to break it.
+          */}
+        <text className="sld-node__name" x={box.x} y={text}>
+          {nameLines.map((line, index) => (
+            <tspan key={line} x={box.x} dy={index === 0 ? 0 : 15} data-vocabulary-exempt="user-owned">
+              {line}
+            </tspan>
+          ))}
+        </text>
+        <text className="sld-node__rating" x={box.x} y={rating}>
+          {ratingText(node)}
+        </text>
+        {node.candidate === null ? null : (
+          <text className="sld-node__candidate" x={box.x} y={rating + 15}>
+            Proposed treatment
+          </text>
+        )}
+        {slots === null ? (
+          <MissingClaimSvg
+            gapId="G-sld-reporting-status"
+            placement="sld.diagram.node-slot"
+            className="sld-node__slot"
+            data-sld-slot="unfilled"
+            x={box.x}
+            y={rating + (node.candidate === null ? 15 : 30)}
+          >
+            {AWAITING_RUNTIME_OR_EVIDENCE}
+          </MissingClaimSvg>
+        ) : (
+          <text
+            className="sld-node__slot"
+            data-sld-slot={content === null ? "unfilled" : "filled"}
+            x={box.x}
+            y={rating + (node.candidate === null ? 15 : 30)}
+          >
+            {content?.text ?? slots.unfilled}
+          </text>
+        )}
       </g>
-      {/*
-        * One `text` element holding the whole name, wrapped into `tspan`
-        * lines. One element per line would put the name on the screen as two
-        * separate strings, and an assertion comparing a label to the record
-        * would then have to know how this component chose to break it.
-        */}
-      <text className="sld-node__name" x={box.x} y={text}>
-        {nameLines.map((line, index) => (
-          <tspan key={line} x={box.x} dy={index === 0 ? 0 : 15}>
-            {line}
-          </tspan>
-        ))}
-      </text>
-      <text className="sld-node__rating" x={box.x} y={rating}>
-        {ratingText(node)}
-      </text>
-      {node.candidate === null ? null : (
-        <text className="sld-node__candidate" x={box.x} y={rating + 15}>
-          Proposed treatment
-        </text>
-      )}
-      {slots === null ? (
-        <MissingClaimSvg
-          gapId="G-sld-reporting-status"
-          placement="sld.diagram.node-slot"
-          className="sld-node__slot"
-          data-sld-slot="unfilled"
-          x={box.x}
-          y={rating + (node.candidate === null ? 15 : 30)}
-        >
-          {AWAITING_RUNTIME_OR_EVIDENCE}
-        </MissingClaimSvg>
-      ) : (
-        <text
-          className="sld-node__slot"
-          data-sld-slot={content === null ? "unfilled" : "filled"}
-          x={box.x}
-          y={rating + (node.candidate === null ? 15 : 30)}
-        >
-          {content?.text ?? slots.unfilled}
-        </text>
-      )}
-    </g>
+      <SldNodeName id={labelId} node={node} selection={selection} />
+    </>
   );
 }
 
@@ -827,7 +850,7 @@ function SldContents({
           <caption>
             Every component the diagram draws, with the devices configured
             against it and the signals this site&apos;s foundation declares are
-            available about it. The runtime and evidence column is the slot
+            available about it. The readings and evidence column is the slot
             each drawn component carries:{" "}
             <MissingClaim gapId="G-sld-reporting-status" placement="sld.contents.caption">
               both are empty in this build, for every component, and neither
@@ -849,14 +872,16 @@ function SldContents({
             <th scope="col">Declared rating</th>
             <th scope="col">Devices attached</th>
             <th scope="col">Signals available</th>
-            <th scope="col">{slots === null ? "Runtime and evidence" : "Value"}</th>
+            <th scope="col">{slots === null ? "Readings and evidence" : "Value"}</th>
             <th scope="col">Node ID</th>
           </tr>
         </thead>
         <tbody>
           {diagram.nodes.map((node) => (
             <tr key={node.nodeId} data-sld-row={node.nodeId}>
-              <td>{node.displayName}</td>
+              <td>
+                <span data-vocabulary-exempt="user-owned">{node.displayName}</span>
+              </td>
               <td>{label(node.nodeRole, TOPOLOGY_NODE_ROLE_LABELS)}</td>
               <td>{ratingText(node)}</td>
               <td>
@@ -866,15 +891,16 @@ function SldContents({
                   <ul className="cell-list">
                     {node.attachedDevices.map((device) =>
                       boundDevices === null ? (
-                        <li key={device.deviceId}>{device.displayName}</li>
+                        <li key={device.deviceId}>
+                          <span data-vocabulary-exempt="user-owned">{device.displayName}</span>
+                        </li>
                       ) : (
                         <li
                           key={device.deviceId}
                           data-sld-device-binding={boundDevices.has(device.deviceId) ? "bound" : "unbound"}
                         >
-                          {boundDevices.has(device.deviceId)
-                            ? device.displayName
-                            : `${device.displayName} - no bound channel`}
+                          <span data-vocabulary-exempt="user-owned">{device.displayName}</span>
+                          {boundDevices.has(device.deviceId) ? null : " - no bound channel"}
                         </li>
                       ),
                     )}
@@ -888,7 +914,7 @@ function SldContents({
                   <ul className="cell-list">
                     {node.availableSignals.map((signal) => (
                       <li key={signal.mappingId}>
-                        {signal.signalName} ({signal.unit})
+                        <span data-vocabulary-exempt="user-owned">{signal.signalName}</span> ({signal.unit})
                       </li>
                     ))}
                   </ul>
@@ -903,7 +929,9 @@ function SldContents({
                   <SlotCell content={slots.nodes.get(node.componentId) ?? null} unfilled={slots.unfilled} />
                 )}
               </td>
-              <td>{node.nodeId}</td>
+              <td>
+                <code data-vocabulary-exempt="source-reference">{node.nodeId}</code>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -1066,10 +1094,10 @@ function SldOpenQuestions({ diagram }: { diagram: SldDiagramView | null }) {
             <p>
               The proposal on offer is to draw a declared cold room in the lane
               its declared topology role puts it in, with its own shape, marked
-              as a proposal rather than as settled practice. It claims nothing
+              as a proposal rather than as settled practice. It says nothing
               about refrigeration performance, temperature, cold-chain
               compliance or product condition, and this build holds no such
-              fact to claim it with.
+              fact to say it with.
             </p>
             <p className="sld-questions__witness">
               {coldRoom === null
@@ -1145,7 +1173,7 @@ export function ConfiguredSingleLineDrawing({
 /** S1-02: what the SLD says when its signals are a published binding set. */
 export const SITE_SLD_BINDINGS_STATEMENT =
   "For this stored Site, the signals listed are the channels bound in the " +
-  "binding set in effect for the period shown. A device marked as having no " +
+  "channel-link set in effect for the period shown. A device marked as having no " +
   "bound channel is registered, but nothing it could report is bound to a role.";
 
 export function SiteSingleLineDiagram({

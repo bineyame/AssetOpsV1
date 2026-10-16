@@ -341,8 +341,8 @@ async function main() {
         loads: q('[data-configured-loads]')?.textContent ?? null, productive: q('[data-productive-use]')?.textContent ?? null,
         financial: q('[data-financial-assumptions]')?.textContent ?? null }; })()`);
     claim(`${label}: Identity shows the typed critical-load priority and the stored loads, and names the undeclared productive use and missing financial assumptions`,
-      (ident.critical === "configured" ? /^First in critical-load priority: \S/.test(ident.criticalText ?? "")
-        : ident.criticalText === "Critical-load priority not configured")
+      (ident.critical === "configured" ? /^First in critical service order: \S/.test(ident.criticalText ?? "")
+        : ident.criticalText === "Critical service order not configured")
         && (ident.loads ?? "").split(", ").filter((x) => x && x !== "No load declared").length >= 1
         && ident.productive === "Not declared" && /^Financial assumptions not available here\./.test(ident.financial ?? ""), ident);
     const ctl = await js(`(() => { const p = ${panelOf("Time-valid control configuration")};
@@ -505,7 +505,7 @@ async function main() {
     claim(`${label}: Readiness leads with the verdict, then the evidence table and Gateway status; role coverage and bindings are kept under Advanced`,
       !!ready.state && at("Configuration readiness") >= 0 && at("Configuration readiness") < at("Readiness and commissioning evidence")
         && at("Readiness and commissioning evidence") < at("Gateway status") && at("Gateway status") < at("Role coverage")
-        && at("Signal bindings") > at("Gateway status") && !ready.text.includes("Role coverage"),
+        && at("Reading-channel links") > at("Gateway status") && !ready.text.includes("Role coverage"),
       { h2: ready.h2, state: ready.state });
     const cards = await js(`[...document.querySelectorAll('[data-readiness-card]')].map(c => ({ key: c.dataset.readinessCard,
       state: c.dataset.cardState, word: c.querySelector('.badge')?.textContent ?? null, tone: c.querySelector('.badge')?.className ?? null }))`);
@@ -530,7 +530,7 @@ async function main() {
         && JSON.stringify(table.rows.map((r) => r.key)) === JSON.stringify(["definition", "topology", "controls", "roles", "gateway", "commissioning"])
         && table.rows.every((r) => r.confirmed === "not-recorded" && r.confirmedText === "Not recorded" && r.needs && (r.next ?? "") !== ""),
       table.rows);
-    const wording = ["Configuration readiness is distinct from claim readiness", "operational status is not assessed here",
+    const wording = ["Configuration readiness is distinct from what the readings can support", "operational status is not assessed here",
       "Whether any channel is reporting is not assessed here"];
     // The third sentence sits with the bindings under Advanced details: retained in the page, read from its text.
     const lower = ready.all.toLowerCase();

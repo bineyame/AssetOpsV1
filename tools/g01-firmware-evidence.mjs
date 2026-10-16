@@ -37,7 +37,7 @@ const WIDTHS = [
 ];
 const GAP_ID = "G-readiness-gateway-firmware";
 const PLACEMENT = "readiness.gateway.firmware";
-const FIRMWARE_TEXT = "Firmware not available yet: no reviewed source reports what firmware a gateway runs.";
+const FIRMWARE_TEXT = "Firmware not available yet: no reviewed source reports what firmware a gateway has installed.";
 const NOT_AVAILABLE_GATEWAY =
   "Not available yet: uptime trend, expected-versus-delivered completeness and signal strength. No reviewed source for these fields.";
 const FIRMWARE_VALUE = /firmware v\d|firmware:\s*\S|version \d/i;

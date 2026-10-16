@@ -5748,3 +5748,15 @@ Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01
 - Migrated and opted into W1: Overview objective (`SiteWindowOverview.tsx` `Objective`), Evidence conclusion (`LedgerSiteEvidence.tsx` `OverviewBody`), Action state (`SiteAction.tsx` `ActionStateCard`).
 - Capture: `tools/w1-ux-01-evidence.mjs <out> <mock-id>[:<case>]=<url>`.
 - Open: the other 23 W1 routes remain on the T028 scan until UX-02..05; domain word maps still duplicate cross-screen states; the Evidence read has no read instant (as of = latest delivery received); the Action summary has no source class; registry Low D (`I-W1-UX-01` requires) untouched.
+
+## W1-UX-05 - Foundation, Readiness, SLD, Health and battery presentation (built, in_review)
+
+Branch `task/W1-UX-05` (base main `815888f0`). Packet `.agent/W1-UX-05-review-packet.md`.
+
+- Settled: the five routes `foundation`, `readiness`, `sld`, `health`, `asset` lead with the shared `HeadlineVisualCard` and are opted into the W1 vocabulary set. Cards live in `frontend/src/sites/foundationHeadlines.tsx` and `healthHeadlines.tsx`, with domain-local `ProductWords` (period, set-up readiness, contact summary, gateway contact, battery condition); none is `positive`.
+- Foundation wording: signal binding -> "channel link", digest -> "content reference", type labels "Solar array"/"Supplied users"; single values marked via `frontend/src/sites/exactValues.tsx` (`UserName`, `ExactRef`).
+- SLD reporting is drawn as a not-known mark; Health contact and reported-fact age are separate lanes; battery "cannot yet be judged" with missing inputs as a step strip.
+- S7-01b Lows: L1 (observed-after-receipt -> Unknown age), L3 (selected-gateway IDs to the disclosure), L4 (`isBatteryDetail` requires UNKNOWN; 409 test) done.
+- Refusals, the empty Foundation period and the unreadable store carry the state line.
+- Open: S7-01b L2 (backend negative `receipt_lag_seconds`); shared `expectStateLineVisible` rejects `asOfText(null)`; three backend "binding" statements replaced in the UI only when no link set is in effect; green S1 "Ready to report" verdict remains under the neutral card; `tools/w1-ux-05-evidence.mjs` 390 px overflow measurement inherits a UX-01 timing issue.
+- Proof at `af9b6406`: tsc 0; full frontend 1755 passed; check-all 9/9; served captures for all five screens (empty-period page not run by design).
