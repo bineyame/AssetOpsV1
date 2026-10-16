@@ -2266,3 +2266,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ### Flaky test: schedule health 1 s threshold (2026-10-16)
 
 `backend/tests/test_s4_schedule_health_postgres.py:175` (`test_pending_current_stale_after_reload_idle_heartbeat_and_a_stopped_timer`) uses a 1 s stop threshold between `tick()` and the seam read; under concurrent suites it read STALE_PROJECTION (S6-02a merged-main run). Passes alone (11/11). Fix: widen the threshold or read the seam in the same DB-time instant.
+
+### Flaky test: Foundation change heading (2026-10-16)
+
+`frontend/src/sites/__tests__/siteFoundationChange.test.tsx` ("shows old/new reserve ... pending outcome") intermittently cannot find the heading "Battery reserve change" (seen on S3-02b, S4-05b and S5-02 runs; passes 3/3 alone on both main and branch). Likely the title is set after the settled read. Fix: await the heading with `findByRole`.

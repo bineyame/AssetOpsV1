@@ -25,6 +25,8 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import { CountBars } from "./assessmentGraphics";
+import type { ClaimLimitClient } from "./claimLimitClient";
+import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
 import { LocalViews, localView, localViewSearch, readablePeriod, readableTime } from "./findingPresentation";
 import type { EvidenceRead } from "./evidenceRead";
 import type { GatewayHealth, GatewayHealthClient } from "./gatewayHealthClient";
@@ -88,9 +90,18 @@ export interface LedgerSiteEvidenceProps {
   evidence: LedgerEvidence;
   ledger: LedgerEvidenceClient | undefined;
   gatewayHealth: GatewayHealthClient | undefined;
+  claimLimit?: ClaimLimitClient;
+  assessmentHref?: (day: string, revisionId: string) => string;
 }
 
-export function LedgerSiteEvidence({ siteId, evidence, ledger, gatewayHealth }: LedgerSiteEvidenceProps) {
+export function LedgerSiteEvidence({
+  siteId,
+  evidence,
+  ledger,
+  gatewayHealth,
+  claimLimit,
+  assessmentHref,
+}: LedgerSiteEvidenceProps) {
   const [params, setParams] = useSearchParams();
   const view = localView(params);
   const [health, setHealth] = useState<EvidenceRead<GatewayHealth> | null>(null);
@@ -139,6 +150,7 @@ export function LedgerSiteEvidence({ siteId, evidence, ledger, gatewayHealth }: 
           </StatusBar>
           <Inspector siteId={siteId} ledger={ledger} evidence={evidence} />
           <ClaimLimit evidence={evidence} />
+          <EvidenceClaimLimit siteId={siteId} client={claimLimit} assessmentHref={assessmentHref} />
           <Rejected siteId={siteId} ledger={ledger} evidence={evidence} />
           <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
             <Clocks evidence={evidence} />
