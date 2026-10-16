@@ -51,16 +51,25 @@ On 2026-10-15 also:
 5. Back on the Overview, click "Next day": the panel now shows 2026-10-16, never the 2026-10-15 rows.
 
 Note on the comparison line: the Finding card above the list and the list are two separate reads. The page only
-says "the same Finding version" when both reads are current on the same basis. Otherwise it says they cannot be
-compared and offers "Reload both". Money on these pages reads limited because no schedule runs in this walkthrough;
-that is expected and not part of this check.
+says "the same Finding version" when both reads are current on the same basis, and that includes the Overview
+itself. No schedule runs in this walkthrough, so right after `prepare` (and again five minutes after any schedule
+pass) the Overview reads "not current" and the line says the two cannot be compared, with "Reload both". That is
+correct. To see "the same Finding version", run one schedule pass in a new window (same `$env:PYTHONPATH` line
+first), then reload 2026-10-15 within five minutes:
+
+```powershell
+.\.venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py tick
+```
+
+Look at every other day first: the schedule pass also settles the waiting work, so 2026-10-27 then reads "No Findings for this day" instead of "Not current". It ends with `Positive day Overview freshness: CURRENT []`. If the freshness line is stale again (more than five
+minutes), run `tick` again.
 
 ## 4. Change the data (Window C, same `$env:PYTHONPATH` line first)
 
 | Run | Then open 2026-10-15 and look for |
 | --- | --- |
 | `.\.venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py late` | "Not current", no rows, no count. |
-| `.\.venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py settle` | Rows again, now led by the late Finding, and the comparison line again says "the same Finding version". |
+| `.\.venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py settle` | Rows again, now led by the late Finding, and the comparison line says "cannot be compared" until you run `tick` again, then "the same Finding version". |
 | `.\.venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py gate --close` | "Not known. The Findings list is closed for this Site..." no rows, no count; the rest of the Overview still shows. |
 | `.\.venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py gate --open` | Back to normal. |
 

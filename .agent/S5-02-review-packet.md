@@ -78,3 +78,10 @@ No backend change.
 
 The Findings panel on 2026-10-15 (rows, first-page notice, comparison line) and on 2026-10-25/10-30 (zero vs not
 known), at desktop and phone width; follow `.agent/S5-02-owner-walkthrough.md`.
+
+## Fix round 1 (review `.agent/S5-02-review.md`: M1, L1)
+
+- M1: `compareParity` now returns "not compared" ("The Overview itself is not current...") when `summary.freshness.state !== "CURRENT"`, per `D-2026-10-16-s502-parity` ("either read non-current"). Tests: a `STALE_PROJECTION` Overview with otherwise matching reads shows `not-compared`, the reason, a reload and no "same" text; the existing positive test still says "same" on a `CURRENT` Overview.
+- L1: a current read with `total_count > 0` and empty `rows` renders `unavailable` ("incomplete, nothing is said") with "Reload both"; never "Showing the first 0 of N". Test added.
+- Walkthrough: the wrapper gained `tick` (one explicit schedule pass via `s5_overview_walkthrough.tick`, prints the positive day's freshness). Owner steps updated: the positive-day line reads "cannot be compared" until `tick` (valid for 5 minutes), then "same"; tick also settles the dirty day 2026-10-27 (becomes "No Findings"), so look at the other days first. The evidence script gained claims that parity follows the Overview's freshness.
+- Checks: s502 (24), s5SiteWindowOverview (28), s404 (15) = 67 passed; `tsc --noEmit` clean; full `npm.cmd test` 67 files / 1596 tests passed, no timeouts; registry checker run. Walkthrough rerun on a fresh DB: prepare 0 failures; evidence initial 62/62 (pre-tick, parity not-compared), tick -> CURRENT, late 8/8, settled 10/10 (parity same after tick), closed 16/16; `gate --open`; `drop` done.

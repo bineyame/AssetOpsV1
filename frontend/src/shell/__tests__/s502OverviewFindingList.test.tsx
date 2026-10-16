@@ -296,6 +296,27 @@ describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () 
     expect(screen.queryByText(/is the same Finding version/)).toBeNull();
   });
 
+  it("a non-current Overview with otherwise matching reads makes no same claim", async () => {
+    const stale = day(DAY);
+    stale.freshness = { ...stale.freshness, state: "STALE_PROJECTION", reasons: ["SCHEDULE_STOPPED"] };
+    renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => stale).client, indexOf(() => ({ status: "loaded", value: positive(DAY) })).client);
+    await settledScreen();
+    expect(parity()).toBe("not-compared");
+    expect(document.querySelector("[data-overview-finding-parity]")?.textContent).toContain("The Overview itself is not current");
+    expect(document.querySelector("[data-overview-finding-reload]")).not.toBeNull();
+    expect(screen.queryByText(/is the same Finding version/)).toBeNull();
+    expect(rowIds()).toEqual([FID, OTHER_FID]);
+  });
+
+  it("a current read with a count but an empty first page makes no count claim and offers a reload", async () => {
+    const body = positive(DAY, { rows: [], total_count: 3, next_cursor: "cursor-2" });
+    renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client, indexOf(() => ({ status: "loaded", value: body })).client);
+    await settledScreen();
+    expect(listState()).toBe("unavailable");
+    expect(screen.queryByText(/Showing the first 0/)).toBeNull();
+    expect(document.querySelector("[data-overview-finding-reload]")).not.toBeNull();
+  });
+
   it("a differing basis (another assessment selection) is not compared", async () => {
     const body = positive(DAY);
     body.watermarks.days[0].s3.selection_seq = 5;

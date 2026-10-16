@@ -208,6 +208,9 @@ async function main() {
       const mp = manifest.positive_parity ?? {};
       claim(`${W} positive: parity outcome shown`, p.parity !== null,
         { ui: p.parity, apiFirstEqualsKnown: mp.equal, known: [p.known, p.knownRevision], first: p.rows[0], text: p.parityText });
+      claim(`${W} positive: parity follows the Overview's own freshness (same only when CURRENT)`,
+        p.freshness === "CURRENT" ? (mp.equal ? p.parity === "same" : p.parity !== "same") : p.parity === "not-compared",
+        { freshness: p.freshness, ui: p.parity });
       // Enter on the first row link opens its exact revision; Back returns to the selected Overview day.
       const before = p.href;
       await js(`document.querySelector('[data-overview-finding-link]').focus()`);
@@ -254,6 +257,8 @@ async function main() {
       const p = await overview(W, "positive-settled", overviewUrl(DAYS.positive));
       claim(`${W} positive after settle: CURRENT rows again`, p.state === "current-rows" && p.rows.length > 0,
         { rows: p.rows, parity: p.parity, known: [p.known, p.knownRevision], text: p.parityText });
+      claim(`${W} positive after settle: parity follows the Overview's own freshness`,
+        p.freshness === "CURRENT" ? p.parity === "same" : p.parity === "not-compared", { freshness: p.freshness, ui: p.parity });
       record[W] = { p };
     } else if (STAGE === "closed") {
       const p = await overview(W, "positive-closed", overviewUrl(DAYS.positive));

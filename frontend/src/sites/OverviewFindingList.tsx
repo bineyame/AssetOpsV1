@@ -71,6 +71,9 @@ export function compareParity(summary: SiteWindowSummary, body: FindingIndexBody
     return { state: "not-compared", reasons: ["The list is not current or has no first row."] };
   }
   if (k === null) return { state: "not-compared", reasons: ["The Overview selected no Finding for this day."] };
+  if (summary.freshness.state !== "CURRENT") {
+    reasons.push("The Overview itself is not current, so its Finding choice cannot be compared.");
+  }
   if (k.selected_by !== "DISCOVERED" || !summary.freshness.source_open || k.audit_only) {
     reasons.push("The Overview's Finding is a kept address pin or audit material, not a fresh choice.");
   }
@@ -209,6 +212,18 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
     );
   }
   const shown = body.rows.length;
+  if (shown === 0) {
+    return (
+      <div data-overview-finding-list="unavailable">
+        <p>The Findings list for this day is incomplete, so nothing is said about it.</p>
+        <p>
+          <button type="button" onClick={onReload} data-overview-finding-reload>
+            Reload both
+          </button>
+        </p>
+      </div>
+    );
+  }
   const partial = body.next_cursor !== null || shown < body.total_count;
   return (
     <div data-overview-finding-list="current-rows">

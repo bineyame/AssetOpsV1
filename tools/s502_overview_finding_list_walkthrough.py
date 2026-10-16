@@ -14,7 +14,7 @@ known Finding or the list.
 Commands (database `assetops_s404_owner*`, work directory `var/s404_owner*`; defaults below use the `_s502`
 suffix, API 8952, web 5452):
 
-    prepare | serve | late | settle | gate --close | gate --open | drop     (as the S4-04 tool)
+    prepare | serve | tick | late | settle | gate --close | gate --open | drop     (as the S4-04 tool)
 
 Run from the repository root with the repository venv (`.venv`).
 """
@@ -30,6 +30,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import s402c_late_power_walkthrough as lr  # noqa: E402
 import s404_finding_index_walkthrough as w  # noqa: E402
+import s5_overview_walkthrough as s5  # noqa: E402
 
 DEFAULTS = {"--db": "assetops_s404_owner_s502", "--work": "var/s404_owner_s502", "--api-port": "8952",
             "--web-port": "5452", "--tls-port": "8953", "--http-port": "8954"}
@@ -96,6 +97,21 @@ def verify_overview(work: Path, db: str, port: int) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     argv = with_defaults(list(sys.argv[1:] if argv is None else argv))
     command = argv[0] if argv else ""
+    if command == "tick":
+        work = w.args_work(type("A", (), {"work": opt(argv, "--work")})())
+        step("One explicit schedule pass (no OS schedule is installed), then the positive day's freshness")
+        out = s5.tick(work, opt(argv, "--db"))
+        proc = w.start_api(work, opt(argv, "--db"), int(opt(argv, "--api-port")) + 20)
+        try:
+            port = int(opt(argv, "--api-port")) + 20
+            w.wait_api(port, proc)
+            _, body = w.get_json(overview_url(port, w.DAYS["positive"]))
+            f = (body or {}).get("freshness", {}) if isinstance(body, dict) else {}
+            say(f"Positive day Overview freshness: {f.get('state')} {f.get('reasons')}")
+        finally:
+            proc.terminate()
+            proc.wait(timeout=30)
+        return 0 if out["exit"] == 0 else 1
     if command != "prepare":
         if command == "serve":
             web = int(opt(argv, "--web-port"))
