@@ -3,12 +3,12 @@ import { Link } from "react-router-dom";
 import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type {
   ConsequenceRevision,
-  DemonstrationLabel,
   FinancialReadResult,
   FindingConsequencesBody,
   FindingFinancialsBody,
 } from "./financialsClient";
 import { formatInstant } from "./FoundationRevisionPanel";
+import { SourceProvenanceNotice } from "./sourceProvenance";
 
 /**
  * S4-02b phase 2b: the Finding bridge on Site > Financials > Overview, over the stored `fuel-cost-1`
@@ -110,14 +110,6 @@ function minutes(start: string, end: string | null): string | null {
 /** "0.00 to 15.82 USD": the display strings exactly as served (low rounded down, high rounded up). */
 function range(low: string, high: string, unit: string): string {
   return `${low} to ${high} ${unit}`;
-}
-
-function Demonstration({ demo }: { demo: DemonstrationLabel }) {
-  return (
-    <p className="notice notice--info" data-financials-demonstration={demo.case_id}>
-      <strong>{demo.label}.</strong> {demo.statement}
-    </p>
-  );
 }
 
 /** Why a stored revision has no amount, or why its amount is not current. */
@@ -531,7 +523,11 @@ export function FindingBridge({
             {bridge.selection.is_latest ? " (latest)" : " (an earlier version)"}, {formatInstant(bridge.window.start)} to{" "}
             {formatInstant(bridge.window.end)}.
           </p>
-          {bridge.demonstration ? <Demonstration demo={bridge.demonstration} /> : null}
+          <SourceProvenanceNotice
+            provenance={bridge.source_provenance?.consequence_revision ?? bridge.source_provenance?.finding_revision}
+            subject="cost"
+            name="bridge"
+          />
           {bridge.audit_only ? <p className="notice">{bridge.audit_only.statement}</p> : null}
           <Headline bridge={bridge} />
           {gated ? <MoneyLimit c={c} links={links} findingId={findingId} rev={rev} /> : null}

@@ -9,6 +9,7 @@
 import { hasKeys, isObject } from "./evidenceRead";
 import type { FindingReadResult } from "./findingClient";
 import { SITES_API_PATH } from "./siteDirectoryClient";
+import type { SourceProvenance, SourceProvenancePair } from "./sourceProvenance";
 
 export type FinancialReadResult<T> = FindingReadResult<T>;
 
@@ -139,14 +140,6 @@ export interface FindingConsequence {
   recorded_consequence_revision_id?: string | null;
 }
 
-/** The owner-ruled label for authored demonstration content (S4-02b P01-power). */
-export interface DemonstrationLabel {
-  label: string;
-  statement: string;
-  case_id: string;
-  spec: string;
-}
-
 export interface FindingFinancialsBody {
   site_code: string;
   audit_only: { non_current: boolean; statement: string } | null;
@@ -154,7 +147,8 @@ export interface FindingFinancialsBody {
   selection: { revision_id: string; revision_no: number; is_latest: boolean; selected_by: string };
   revision: { id: string; revision_no: number; title: string; lifecycle: string; claim_level: string };
   window: { start: string; end: string | null };
-  demonstration?: DemonstrationLabel | null;
+  /** S4-05b: the stored source provenance of the exact Finding version and the summarised consequence version. */
+  source_provenance?: SourceProvenancePair | null;
   consequence: FindingConsequence;
 }
 
@@ -231,6 +225,8 @@ export interface ConsequenceRevision {
   is_head?: boolean;
   presented_as_current?: boolean;
   historical?: boolean;
+  /** S4-05b: this consequence version's own union provenance (its Finding version's cited set and power IDs). */
+  source_provenance?: SourceProvenance | null;
 }
 
 export interface FindingConsequencesBody {
@@ -239,7 +235,8 @@ export interface FindingConsequencesBody {
   finding: { id: string };
   selection: { revision_id: string; revision_no: number; is_latest: boolean };
   window: { start: string; end: string | null };
-  demonstration?: DemonstrationLabel | null;
+  /** S4-05b: the stored source provenance of the exact Finding version and the selected consequence version. */
+  source_provenance?: SourceProvenancePair | null;
   consequence_selection: {
     selected_by: "EXACT_CONSEQUENCE_REVISION_ID" | "HEAD";
     consequence_revision_id: string | null;

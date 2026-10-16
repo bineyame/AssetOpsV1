@@ -26,6 +26,7 @@ import type {
   FindingWindowBody,
 } from "./findingClient";
 import { dayOf, LIFECYCLE_WORDS, sourceModeWords } from "./findingWords";
+import { SourceProvenanceNotice } from "./sourceProvenance";
 
 export const FINDING_SECTIONS_LABEL = "Finding sections";
 export const EVIDENCE_PAGE_SIZE = 50;
@@ -276,6 +277,7 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
           {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
         </p>
       )}
+      <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
       {body.audit_only ? (
         <p className="site-finding__lead" data-evidence-audit-only>
           Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a record,

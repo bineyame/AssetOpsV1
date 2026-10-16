@@ -32,6 +32,7 @@ from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal
 from typing import Any
 from uuid import UUID
 
+from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance
 from assetops_backend.financials import fuel_cost as fc
 from assetops_backend.financials import money_eligibility as me
 from assetops_backend.financials.recompute import ConsequenceStore, PriceStore, derive
@@ -146,9 +147,11 @@ def _selection(p: fc.PriceSelection) -> dict[str, Any]:
 
 
 class ConsequenceReadService:
-    def __init__(self, store: Any, prices: PriceStore, *, eligibility: Any = None) -> None:
+    def __init__(self, store: Any, prices: PriceStore, *, eligibility: Any = None, provenance: Any = None) -> None:
         self._store = store
         self._prices = prices
+        #: S4-05b: the exact-revision source provenance resolver; None reads every revision as UNKNOWN.
+        self._provenance = provenance
         #: The shared money eligibility reader (`MoneyEligibility`); None fails closed.
         self._eligibility = eligibility
 
@@ -216,6 +219,11 @@ class ConsequenceReadService:
         selected_row = chain["exact"] if consequence_revision_id is not None else head
         selected = None if selected_row is None else dto(selected_row, links)
         is_head = selected_row is not None and head is not None and selected_row["id"] == head["id"]
+        history = [dto(r, links) for r in page]
+        for row in [selected, *history]:
+            if row is not None:  # S4-05b: each consequence revision keeps its own exact union provenance
+                row["source_provenance"] = consequence_provenance(
+                    self._provenance, tenant_id, site_id, finding_revision_id, row["id"])
         if selected is not None:
             selected["is_head"] = is_head
             selected["presented_as_current"] = is_head and state == "CURRENT" and eligible
@@ -239,7 +247,10 @@ class ConsequenceReadService:
             "money_eligibility": {**money, "head_consequence_revision_id": None if head is None else str(head["id"]),
                                   "finding_revision_id": str(finding_revision_id)},
             "consequence": selected,
-            "history": {"revisions": [dto(r, links) for r in page], "total": chain["total"],
+            "source_provenance": {
+                "finding_revision": finding_provenance(self._provenance, tenant_id, site_id, finding_revision_id),
+                "consequence_revision": None if selected is None else selected["source_provenance"]},
+            "history": {"revisions": history, "total": chain["total"],
                         "page": {"after_revision_no": after_revision_no, "limit": limit,
                                  "next_after_revision_no": page[-1]["revision_no"] if chain["has_more"] else None}},
             "exclusions": ["No total across Findings, FindingRevisions, consequence revisions, currencies or "

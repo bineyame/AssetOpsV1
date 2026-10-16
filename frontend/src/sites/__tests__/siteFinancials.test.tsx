@@ -20,6 +20,7 @@ import {
   type SeriesQuery,
 } from "../financialsClient";
 import type { SiteDetailClient } from "../siteDirectoryClient";
+import type { SourceProvenance } from "../sourceProvenance";
 
 const V1 = "11111111-1111-4111-8111-111111111111";
 const V3 = "33333333-3333-4333-8333-333333333333";
@@ -197,18 +198,33 @@ function consequencesBody(
   };
 }
 
+/** S4-05b: a stored authored-demonstration provenance block (one publication, one fixture version). */
+function authoredSource(consequenceRevisionId: string | null = null): SourceProvenance {
+  return {
+    tenant_id: "t1",
+    site_id: "s1",
+    finding_revision_id: FREV,
+    consequence_revision_id: consequenceRevisionId,
+    cited_accepted_evidence_ids: ["ev-1"],
+    power_accepted_evidence_ids: consequenceRevisionId ? ["ev-2"] : null,
+    state: "AUTHORED_DEMONSTRATION",
+    reasons: [],
+    accepted_evidence_ids: consequenceRevisionId ? ["ev-1", "ev-2"] : ["ev-1"],
+    problematic_accepted_evidence_ids: [],
+    publication_ids: ["pub-1"],
+    source_classes: ["AUTHORED_DEMONSTRATION"],
+    fixtures: [{ fixture_id: "assetops.s4-power-demo-cases", fixture_version: "1" }],
+    runs: [],
+    evidence: [],
+  };
+}
+
 function pricedBridge(patch: Partial<FindingConsequence> = {}): FindingFinancialsBody {
   const base = bridgeBody();
   return {
     ...base,
     window: { start: "2026-10-23T06:05:00+00:00", end: "2026-10-23T08:00:00+00:00" },
-    demonstration: {
-      label: "Demonstration data",
-      statement:
-        "This finding comes from demonstration readings written by the AssetOps team to show a complete fuel-cost calculation. They are not measurements from a working generator.",
-      case_id: "P01-power",
-      spec: "s4-power-demo-cases-v1",
-    },
+    source_provenance: { finding_revision: authoredSource(), consequence_revision: authoredSource(C2) },
     consequence: {
       ...base.consequence,
       state: "PRICED",
@@ -497,7 +513,7 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
     expect(bridge).toHaveTextContent(
       "Modelled potential fuel-cost exposure: 0.00 to 16.20 USD, under the reviewed fuel-cost-1 assumptions. This is not measured fuel saved or a physical maximum.",
     );
-    expect(bridge.querySelector("[data-financials-demonstration='P01-power']")).toHaveTextContent("Demonstration data");
+    expect(bridge.querySelector("[data-source-provenance='AUTHORED_DEMONSTRATION']")).toHaveTextContent("Demonstration data");
     expect(container.textContent ?? "").not.toMatch(/simulat/i);
     expect(bridge.querySelector("[data-bridge-amount]")).toHaveAttribute("data-bridge-amount", "current");
     expect(bridge.querySelector("[data-bridge-step='fuel']")).toHaveTextContent("0 to 12.65 litres");

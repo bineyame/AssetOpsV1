@@ -66,8 +66,11 @@ def build_finding_read_service(database_url: str | None, demo_manifest_path: str
     `demo_manifest_path` only annotates exact matching evidence IDs (fixture or gateway case labels)."""
     from assetops_backend.analytics.finding_read import FindingReadService
 
+    from assetops_backend.evidence.composition import build_source_provenance
+
     return FindingReadService(build_finding_store(database_url),
-                              build_dispatch_read_service(database_url, demo_manifest_path))
+                              build_dispatch_read_service(database_url, demo_manifest_path),
+                              build_source_provenance(database_url))
 
 
 def build_finding_index_service(database_url: str | None, demo_manifest_path: str | None = None):

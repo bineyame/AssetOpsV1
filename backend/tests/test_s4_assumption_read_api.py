@@ -271,46 +271,67 @@ class TestConsequenceRouteCarries:
             assert "being recalculated" not in body["reason"] and body["amount"] is None
 
 
-class TestDemonstrationLabel:
-    """Owner ruling 2026-10-14: the authored P01-power case is labelled as demonstration data; others are not."""
+class TestStoredSourceProvenanceNotTheDay:
+    """S4-05b: the money routes carry the stored exact-revision provenance; the retired date/spec label is gone.
 
-    def test_only_the_declared_demonstration_day_at_its_site_is_labelled(self) -> None:
-        from assetops_backend.demonstration_label import demonstration_case
+    A same-day episode on the authored P01/P02 days is not authorship: only the resolver's stored binding is."""
 
-        demo = demonstration_case("KOBO-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00")
-        assert demo is not None and demo["case_id"] == "P01-power" and demo["label"] == "Demonstration data"
-        assert "simulat" not in demo["statement"].lower()
-        assert demonstration_case("KOBO-001", "2026-10-19T06:00:00+00:00", "2026-10-19T09:00:00+00:00") is None
-        assert demonstration_case("OTHER-001", "2026-10-23T06:05:00+00:00", "2026-10-23T08:00:00+00:00") is None
-        assert demonstration_case("KOBO-001", "2026-10-23T22:00:00+00:00", "2026-10-24T01:00:00+00:00") is None
+    P01 = {"start": "2026-10-23T06:05:00+00:00", "end": "2026-10-23T08:00:00+00:00"}
+    P02 = {"start": "2026-10-24T06:05:00+00:00", "end": "2026-10-24T08:00:00+00:00"}
 
-    def test_an_open_episode_on_a_declared_day_is_labelled(self) -> None:
-        from assetops_backend.demonstration_label import demonstration_case
+    def body(self, episode, provenance) -> dict:
+        b = finding_body()
+        return {**b, "revision": {**b["revision"], "episode": episode}, "source_provenance": provenance}
 
-        demo = demonstration_case("KOBO-001", "2026-10-23T06:05:00+00:00", None)
-        assert demo is not None and demo["case_id"] == "P01-power"
-        assert demonstration_case("KOBO-001", "2026-10-19T06:05:00+00:00", None) is None
+    @staticmethod
+    def unknown(rid="r2") -> dict:
+        from assetops_backend.evidence.provenance_read import unresolved
 
-    def test_an_unreadable_spec_fails_closed_with_a_cautious_label(self, monkeypatch) -> None:
-        from assetops_backend import demonstration_label as dl
+        out = unresolved("NO_POSITIVE_BINDING", uuid4(), uuid4(), rid)
+        out["accepted_evidence_ids"] = out["problematic_accepted_evidence_ids"] = ["e1"]
+        return out
 
-        def broken():
-            raise dl.SpecUnreadable("missing")
+    def test_a_same_day_unbound_finding_is_not_labelled_demonstration(self) -> None:
+        for episode in (self.P01, self.P02):
+            out = bridge(FindingReads(self.body(episode, self.unknown()))).get(BRIDGE).json()
+            assert "demonstration" not in out
+            assert out["source_provenance"]["finding_revision"]["state"] == "UNKNOWN"
+            assert out["source_provenance"]["consequence_revision"] is None
 
-        monkeypatch.setattr(dl, "_declared", broken)
-        demo = dl.demonstration_case("KOBO-001", "2026-10-19T06:00:00+00:00", "2026-10-19T09:00:00+00:00")
-        assert demo is not None and demo["case_id"] == "unverified" and demo["label"] == dl.UNVERIFIED_LABEL
+    def test_the_bridge_passes_the_stored_provenance_unchanged(self) -> None:
+        stored = {**self.unknown(), "state": "AUTHORED_DEMONSTRATION", "reasons": [],
+                  "publication_ids": ["p1"], "source_classes": ["AUTHORED_DEMONSTRATION"]}
+        out = bridge(FindingReads(self.body(finding_body()["revision"]["episode"], stored))).get(BRIDGE).json()
+        assert out["source_provenance"]["finding_revision"] == stored  # an ordinary day, positively bound
 
-    def test_the_shipped_spec_parses_with_a_case(self) -> None:
-        from assetops_backend.demonstration_label import _declared
+    def test_the_consequence_route_carries_no_heuristic_label(self) -> None:
+        rid = str(uuid4())
+        reads = FindingReads({**self.body(self.P01, self.unknown(rid)),
+                              "selection": {"revision_id": rid, "revision_no": 2, "is_latest": True}})
+        result = {**stale([]), "consequence": None, "source_provenance": {"finding_revision": self.unknown(rid),
+                                                                         "consequence_revision": None},
+                  "history": {"revisions": [], "page": {"next_after_revision_no": None, "limit": 50}}}
+        out = bridge(reads, consequences=Consequences(result)).get(
+            f"/api/sites/KOBO-001/findings/{FINDING}/financial-consequences").json()
+        assert "demonstration" not in out
 
-        assert {c[1] for c in _declared()} == {"P01-power", "P02-power-late"}
+    def test_an_unwired_or_unreadable_resolver_is_unknown_never_positive(self) -> None:
+        from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance
 
-    def test_the_bridge_carries_the_label(self) -> None:
-        body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
-            "start": "2026-10-23T06:05:00+00:00", "end": "2026-10-23T08:00:00+00:00"}}}
-        assert bridge(FindingReads(body)).get(BRIDGE).json()["demonstration"]["case_id"] == "P01-power"
-        assert bridge(FindingReads(finding_body())).get(BRIDGE).json()["demonstration"] is None
+        class Broken:
+            def finding_revision(self, *a):
+                raise RuntimeError("down")
+
+            consequence_revision = finding_revision
+
+        t, s, r, c = uuid4(), uuid4(), uuid4(), uuid4()
+        assert finding_provenance(None, t, s, r)["reasons"][0]["code"] == "PROVENANCE_NOT_WIRED"
+        broken = finding_provenance(Broken(), t, s, r)
+        assert (broken["state"], broken["reasons"][0]["code"]) == ("UNKNOWN", "PROVENANCE_UNREADABLE")
+        both = consequence_provenance(Broken(), t, s, r, c)
+        assert (both["state"], both["finding_revision_state"], both["consequence_revision_id"]) == (
+            "UNKNOWN", "UNKNOWN", str(c))
+        assert both["publication_ids"] == [] and both["source_classes"] == []
 
 
 class TestP02DemonstrationLabel:
@@ -326,12 +347,6 @@ class TestP02DemonstrationLabel:
                         "spec": "s4-power-late-demo-cases-v1"}
         assert demonstration_case("OTHER-001", *self.P02) is None
         assert demonstration_case("KOBO-001", "2026-10-25T06:05:00+00:00", "2026-10-25T08:00:00+00:00") is None
-
-    def test_the_bridge_and_finding_reads_carry_the_p02_label(self) -> None:
-        body = {**finding_body(), "revision": {**finding_body()["revision"], "episode": {
-            "start": self.P02[0], "end": self.P02[1]}}}
-        demo = bridge(FindingReads(body)).get(BRIDGE).json()["demonstration"]
-        assert demo["case_id"] == "P02-power-late" and demo["label"] == "Demonstration data"
 
     def _use_specs(self, monkeypatch, tmp_path, texts) -> None:
         from assetops_backend import demonstration_label as dl

@@ -31,7 +31,6 @@ from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailab
 from assetops_backend.analytics.finding_read import FindingReadService
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable as FileAssessmentStoreUnavailable
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
-from assetops_backend.demonstration_label import demonstration_case
 
 Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 # (request, site_code) -> None to admit, else 401 or 403.
@@ -271,9 +270,9 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
             "finding": body["finding"], "selection": selection,
             "revision": {"id": selection["revision_id"], "revision_no": selection["revision_no"],
                          "lifecycle": body["revision"]["lifecycle"]},
+            # S4-05b: `result["source_provenance"]` names the selected FindingRevision's and consequence
+            # revision's exact stored source provenance (the retired date/spec label is gone).
             "window": body["revision"]["episode"], **result,
-            "demonstration": demonstration_case(code, body["revision"]["episode"]["start"],
-                                                body["revision"]["episode"]["end"]),
             "links": consequence_links(code, finding_id, selection["revision_id"], source["permitted"], result)})
 
     # ---- S4-02a phase 2 bridge, S4-02b phase 2a consequence ----
@@ -296,6 +295,7 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
         links = child_links(code, finding_id, selected, source["permitted"])
         links["financials"] = f"/sites/{code}/financials?finding_id={finding_id}&revision_id={selected}"
         links["assumptions"] = f"/sites/{code}/financials/assumptions"
+        result = bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"]))
         return jsonable_encoder({
             "site_code": code, "access_basis": access_basis, "source_gate": source, "audit_only": audit_only(source),
             "finding": body["finding"], "selection": body["selection"],
@@ -303,21 +303,24 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
                          "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
                          "claim_level": body["revision"]["claim_level"]},
             "window": episode,
-            "demonstration": demonstration_case(code, episode["start"], episode["end"]),
-            "consequence": bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"])),
+            # S4-05b: the exact stored source provenance of the selected FindingRevision and of the consequence
+            # revision the bridge summarises (None when no consequence revision was read).
+            "source_provenance": {"finding_revision": body.get("source_provenance"),
+                                  "consequence_revision": None if result is None
+                                  else (result.get("source_provenance") or {}).get("consequence_revision")},
+            "consequence": bridge_consequence(result),
             "links": links})
 
     def bridge(tenant_id: UUID, site_id: UUID, finding_id: UUID, selection: dict[str, Any],
-               source_open: bool) -> dict[str, Any]:
+               source_open: bool) -> dict[str, Any] | None:
         if consequences is None:
-            return bridge_consequence(None)
+            return None
         try:
-            result = consequences.read(tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
-                                       finding_revision_is_latest=bool(selection.get("is_latest")),
-                                       source_open=source_open, limit=1)
+            return consequences.read(tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
+                                     finding_revision_is_latest=bool(selection.get("is_latest")),
+                                     source_open=source_open, limit=1)
         except consequence_down:
-            return bridge_consequence(None)
-        return bridge_consequence(result)
+            return None
 
     return router
 
