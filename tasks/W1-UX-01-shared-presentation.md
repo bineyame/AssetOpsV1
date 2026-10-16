@@ -1,6 +1,6 @@
 # W1-UX-01 — shared product presentation
 
-Status: in_review (built 2026-10-16 on `task/W1-UX-01`, phases 1-2; packet `.agent/W1-UX-01-review-packet.md`, shared API `.agent/W1-UX-01-handoff.md`). Was active from main `3e6dbc88`; S6-02b, S6-03, S7-01b merged. Branch `task/W1-UX-01`. Frontend only. This slice precedes W1-UX-02–05. Read [umbrella](W1-UX-mockup-fidelity.md), owner notes named there, `frontend/mockups/v69/index.html`, screen manifest and current `frontend/src/test/productVocabulary.ts` / `.json`. USER_REVIEW_REQUIRED: one combined W1 walkthrough after all slices; independent slice review is the merge gate.
+Status: done (merged to main 2026-10-16; review ACCEPT after fix round 1; owner visual acceptance in the combined W1 walkthrough); was in_review (built 2026-10-16 on `task/W1-UX-01`, phases 1-2; packet `.agent/W1-UX-01-review-packet.md`, shared API `.agent/W1-UX-01-handoff.md`). Was active from main `3e6dbc88`; S6-02b, S6-03, S7-01b merged. Branch `task/W1-UX-01`. Frontend only. This slice precedes W1-UX-02–05. Read [umbrella](W1-UX-mockup-fidelity.md), owner notes named there, `frontend/mockups/v69/index.html`, screen manifest and current `frontend/src/test/productVocabulary.ts` / `.json`. USER_REVIEW_REQUIRED: one combined W1 walkthrough after all slices; independent slice review is the merge gate.
 
 ## Result and contract
 
