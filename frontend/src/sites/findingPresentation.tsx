@@ -8,7 +8,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Badge, DataTable, Fact, FactList } from "../ui";
+import { Badge, DataTable, Fact, FactList, HeadlineVisualCard, ProductStatus, readResultWords, type ProductWords } from "../ui";
 import { RecordDetail } from "./SiteEvidence";
 import type {
   AssessmentSummary,
@@ -407,5 +407,79 @@ export function LocalViews({
         ))}
       </ol>
     </nav>
+  );
+}
+
+/** W1-UX-02: the five ways a Finding read can end without a Finding. */
+export type FindingRefusal = "not_found" | "unauthenticated" | "forbidden" | "closed" | "unavailable";
+
+/**
+ * Plain state words for a Finding read that returned no Finding. Refused and
+ * unavailable are never empty; a closed source is not a no-Finding result.
+ */
+export function findingRefusalWords(status: FindingRefusal): ProductWords {
+  switch (status) {
+    case "not_found":
+      return readResultWords("not-found");
+    case "unauthenticated":
+    case "forbidden":
+      return readResultWords("refused");
+    case "unavailable":
+      return readResultWords("unavailable");
+    case "closed":
+      return {
+        label: "Not released for use yet",
+        sentence:
+          "This site's assessments are not released, so no current result is shown. This is not a no-Finding result.",
+        next: "A link to an exact saved version still opens as a record.",
+        tone: "limited",
+        code: "closed",
+        unrecognised: false,
+      };
+  }
+}
+
+/**
+ * The W1 card for a Finding read that returned no Finding: the screen's
+ * question, the plain heading, the shared state line (the read records no
+ * time, so it says so) and what the reader can do. Nothing is shown in the
+ * Finding's place.
+ */
+export function FindingRefusalCard({
+  status,
+  dataName,
+  headingId,
+  question,
+  heading,
+  text,
+  message,
+  scope,
+  children,
+}: {
+  status: FindingRefusal;
+  dataName: string;
+  headingId: string;
+  question: string;
+  heading: string;
+  text: string;
+  message: string | null;
+  scope: string;
+  children?: ReactNode;
+}) {
+  return (
+    <HeadlineVisualCard
+      dataName={dataName}
+      headingId={headingId}
+      question={question}
+      headline={heading}
+      status={<ProductStatus words={findingRefusalWords(status)} scope={scope} asOf={null} />}
+      meaning={
+        <>
+          <p data-finding-read={status}>{text}</p>
+          {message ? <p className="site-finding__note">Reason given: {message}</p> : null}
+        </>
+      }
+      todo={children}
+    />
   );
 }
