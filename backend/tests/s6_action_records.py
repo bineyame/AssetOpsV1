@@ -91,7 +91,9 @@ def fixture_grants(tenant_id: Any, site_id: Any, findings: dict[str, Any]) -> di
     """The v2 grants document for this run: tenant/Site IDs and the manifest records (day -> Finding ID)."""
     return {"schema": "assetops.action-demo-grants", "version": 2, "fixture_id": FIXTURE_ID,
             "grants": [{"tenant_id": str(tenant_id), "site_id": str(site_id), "site_code": "KOBO-001",
-                        "commands": ["ACCEPT", "APPLY", "OBSERVE"],
+                        # S6-02a: VERIFY lets the demo freeze a plan, bind the later selection and request
+                        # evaluation; it never supplies a verdict, metric or resolution event.
+                        "commands": ["ACCEPT", "APPLY", "OBSERVE", "VERIFY"],
                         "records": [{"manifest_id": RECORDS[day], "finding_id": str(fid)}
                                     for day, fid in sorted(findings.items()) if day in RECORDS]}]}
 
