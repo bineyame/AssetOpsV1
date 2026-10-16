@@ -20,7 +20,7 @@ import {
   type FindingReadResult,
   type FindingWindowBody,
 } from "../findingClient";
-import { LegacyFindingEvidence, SiteFindingEvidence } from "../SiteFindingEvidence";
+import { LINK_DISPLAY_OVERRIDES, LINK_DISPLAY_WORDS, LINK_WORDS, LegacyFindingEvidence, SiteFindingEvidence } from "../SiteFindingEvidence";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 
@@ -794,6 +794,12 @@ function defaultReading(card: HTMLElement): string {
 }
 
 describe("W1-UX-02: Finding Evidence answer card", () => {
+  it("rewords only backend-held link codes on screen, keeping every code and banning the W1 word", () => {
+    for (const key of Object.keys(LINK_DISPLAY_OVERRIDES)) expect(Object.keys(LINK_WORDS)).toContain(key);
+    expect(Object.keys(LINK_DISPLAY_WORDS).sort()).toEqual(Object.keys(LINK_WORDS).sort());
+    for (const text of Object.values(LINK_DISPLAY_WORDS)) expect(text).not.toMatch(/fingerprint/i);
+  });
+
   const card = () => document.querySelector("[data-headline-card='finding-evidence']") as HTMLElement;
   const main = () => document.querySelector("main") as HTMLElement;
   const steps = () => Array.from(card().querySelectorAll("[data-step-strip] li")).map((li) => [li.querySelector(".step-strip__label")?.textContent, li.getAttribute("data-step")]);

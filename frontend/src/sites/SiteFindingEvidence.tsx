@@ -88,15 +88,28 @@ export const LINK_WORDS: Record<string, string> = {
   BATCH: "the delivery batch it arrived in cannot be found",
   ACCEPTANCE_DISPOSITION: "no acceptance decision for this record can be found",
   ENVELOPE: "the stored original message is missing",
-  ENVELOPE_DIGEST: "the stored original message does not match the check value saved with it",
+  ENVELOPE_DIGEST: "the stored original message does not match its saved fingerprint",
   FOUNDATION_REVISION: "the site setup version it was accepted under cannot be found",
   BINDING_SET_REVISION: "the device links version it was accepted under cannot be found",
   BINDING_REVISION: "the device link it was accepted under cannot be found",
   ASSESSMENT_CITATION: "no assessment behind this version lists this record",
   RUN_INPUT: "this record is not among the records the analysis read",
   ANALYTIC_RUN: "the analysis behind an assessment cannot be found",
+  CITED_SET_DIGEST: "the cited records do not match the fingerprint saved with this version",
+};
+
+/**
+ * W1-UX-02: the words shown on screen. Equal to `LINK_WORDS` (which stays word
+ * for word with the backend, under its parity test) except where the backend
+ * wording uses a term the W1 vocabulary set bans ("fingerprint"); those keys
+ * are reworded here only. A backend rewording would retire this overlay.
+ */
+export const LINK_DISPLAY_OVERRIDES: Readonly<Record<string, string>> = {
+  ENVELOPE_DIGEST: "the stored original message does not match the check value saved with it",
   CITED_SET_DIGEST: "the cited records do not match the check value saved with this version",
 };
+
+export const LINK_DISPLAY_WORDS: Readonly<Record<string, string>> = { ...LINK_WORDS, ...LINK_DISPLAY_OVERRIDES };
 
 const WITHHELD = "No accepted record with this reference exists for this site, so no measurement, source or message is shown.";
 
@@ -104,7 +117,7 @@ export const UNKNOWN_LINK_WORDS = "A record link could not be checked";
 
 /** One lineage link in plain words; an unknown code is named only as technical detail. */
 function LinkText({ link }: { link: string }) {
-  const known = LINK_WORDS[link];
+  const known = LINK_DISPLAY_WORDS[link];
   if (known !== undefined) {
     return <>{known}</>;
   }
