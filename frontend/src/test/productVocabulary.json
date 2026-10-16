@@ -1,9 +1,10 @@
 {
-  "version": 2,
+  "version": 3,
   "decision": "D-2026-10-04-plain-language-analysis-views (.agent/T028-architect-presentation.md section 4)",
   "changes": [
     "1 (2026-10-04, T028 presentation checkpoint 2b): first list, from the section 4 table.",
-    "2 (2026-10-04, T028 presentation fix round): added the implementation terms the review found on the journey: interval mean(s), measured intervals, dispatch interval."
+    "2 (2026-10-04, T028 presentation fix round): added the implementation terms the review found on the journey: interval mean(s), measured intervals, dispatch interval.",
+    "3 (2026-10-16, W1-UX-01): added the versioned W1 set (D-2026-10-16-w1-ux, D-2026-10-16-w1-ux-disclosure): more terms, a closed list of single-word state codes, raw-code shape patterns with allow-listed units and acronyms, operational glosses, and the narrower list for the closed exact-reference disclosure. The T028 list is unchanged and still applies to every route."
   ],
   "terms": [
     { "phrase": "run", "row": "simulation and implementation: run" },
@@ -87,5 +88,47 @@
     "source-reference": "An exact source-owned identifier (record, source, device, signal, delivery or digest) in a labelled reference field. Section 4: such identifiers may remain; they are not product prose and are never rewritten.",
     "user-owned": "A name or note a person entered (site name, equipment name). Section 4 excludes user-owned names and notes.",
     "lab": "A Simulator Lab surface or the entry that leads to it. Section 4: Lab screens retain their own vocabulary."
+  },
+  "w1": {
+    "version": 1,
+    "decision": "D-2026-10-16-w1-ux (.agent/architect-W1-ux-answers.md); D-2026-10-16-w1-ux-disclosure (.agent/architect-W1-ux-disclosure-answers.md)",
+    "terms": [
+      {"phrase": "claim limit", "row": "internal analytics"},
+      {"phrase": "claim limits", "row": "internal analytics"},
+      {"phrase": "basis fingerprint", "row": "internal analytics"},
+      {"phrase": "fingerprint", "row": "internal analytics"},
+      {"phrase": "typed reason", "row": "internal analytics"},
+      {"phrase": "typed reasons", "row": "internal analytics"},
+      {"phrase": "rule version", "row": "versions"},
+      {"phrase": "model version", "row": "versions"},
+      {"phrase": "cursor", "row": "cursor and watermark mechanics"},
+      {"phrase": "watermark", "row": "cursor and watermark mechanics"},
+      {"phrase": "cutoff token", "row": "cursor and watermark mechanics"},
+      {"phrase": "stage", "row": "implementation: stage"},
+      {"phrase": "staged", "row": "implementation: stage"},
+      {"phrase": "fixture", "row": "implementation: fixture"},
+      {"phrase": "fixtures", "row": "implementation: fixture"},
+      {"phrase": "UUID", "row": "identifiers"},
+      {"phrase": "digest", "row": "identifiers"}
+    ],
+    "codes": ["CURRENT", "STALE", "UNKNOWN", "UNASSESSED", "PENDING", "FAILED", "REFUSED", "WITHDRAWN", "INCONCLUSIVE", "INEFFECTIVE", "VERIFIED", "HISTORICAL", "PRICED", "UNPRICED", "ELIGIBLE", "WITHHELD", "SUPERSEDED", "CLOSED", "ACCEPTED", "APPLIED", "OBSERVED", "REJECTED", "EFFECTIVE", "COMPLETED"],
+    "patterns": [
+      {"name": "uppercase underscore code", "source": "(?<![A-Za-z0-9_])[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+(?![A-Za-z0-9_])", "flags": "u"},
+      {"name": "UUID", "source": "(?<![0-9A-Fa-f-])[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(?![0-9A-Fa-f-])", "flags": "u"},
+      {"name": "digest", "source": "(?<![0-9A-Za-z])(?:sha256:)?[0-9a-f]{32,}(?![0-9A-Za-z])", "flags": "u"},
+      {"name": "rule or model version", "source": "(?<![\\p{L}\\p{N}])[A-Za-z][A-Za-z0-9._-]*[-_.@]v\\d+(?:\\.\\d+)*(?![\\p{L}\\p{N}])", "flags": "u"}
+    ],
+    "allowedAcronyms": ["SOC", "UTC", "kW", "kWh", "PV"],
+    "glosses": [
+      {"text": "generator ran", "why": "D-2026-10-16-w1-ux: ordinary operational wording such as the generator ran is allowed."},
+      {"text": "generator running", "why": "D-2026-10-16-w1-ux: ordinary operational wording."},
+      {"text": "generator run time", "why": "D-2026-10-16-w1-ux: ordinary operational wording."}
+    ],
+    "disclosure": {
+      "why": "D-2026-10-16-w1-ux-disclosure: the exact narrower list for prose inside the closed How this was worked out disclosure, including its summary. Individually labelled exact values are removed only at their own positions.",
+      "phrases": ["claim ceiling", "claim limit", "basis fingerprint", "basis digest", "typed reason", "analytic declaration", "read model"],
+      "words": ["run", "runs", "rerun", "runtime", "binding", "stage", "staged envelope", "commit", "committed", "fixture", "payload", "backend", "frontend", "projection", "replay", "ingest", "ingested", "ingestion", "normalization", "normalized"],
+      "codes": ["CURRENT", "STALE", "UNKNOWN", "UNASSESSED", "PENDING", "PENDING_REASSESSMENT", "STALE_PROJECTION", "FAILED", "REFUSED", "WITHDRAWN", "INCONCLUSIVE", "INEFFECTIVE", "VERIFIED", "GUARDRAIL_FAIL", "NO_FINDING", "NOT_ASSESSED"]
+    }
   }
 }

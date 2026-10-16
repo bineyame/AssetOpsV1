@@ -5738,3 +5738,13 @@ Branch `task/S4-08-assumption-history` (base main `e46bbd7c`, unmerged); packet 
 - Tests: `backend/tests/test_s4_consequence_history.py` (25), `test_s4_consequence_history_postgres.py` (7, incl. interleaved late commit), `frontend/src/sites/__tests__/siteFinancials.test.tsx` (+8).
 - Walkthrough: `tools/s408_assumption_history_walkthrough.py` (wraps s405 owner+mixed under `assetops_s408*`; adds v2-v6 incl. S4-06 equal-start v5 and part-way v6); evidence `tools/s408-assumption-history-evidence.mjs` (owner/closed/mixed modes); S4-02a evidence asserts the unchanged default URL and one cutoff.
 - Open: recorded amount display does not apply LR-01 eligibility (history is audit, as pinned versions on Finding Financials); Finding links pin exact IDs, not the cutoff; `assumptions:3#a` promotion waits for review; wording to W1-UX-02.
+## W1-UX-01 - shared product presentation (built, in_review)
+
+Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01-review-packet.md`; shared API `.agent/W1-UX-01-handoff.md`. Frontend only.
+
+- Words: `frontend/src/ui/productWords.ts` - `currentnessWords`, `readResultWords`, `moneyWords`, `outcomeWords(outcome, reasons, sourceClass)`, `limitationWords`, `sourceQualification`, `asOfText`/`plainTime`; unknown codes -> `UNRECOGNISED_SENTENCE`, never positive.
+- Components: `frontend/src/ui/ProductStatus.tsx` - `ProductStatus`, `ProductOutcome`, `ProductLimitation`, `HeadlineVisualCard`, `ExactReferences` (closed "How this was worked out"), `ValueBars` (null = hatched "not known"), `StepStrip`; CSS at the end of `primitives.css`.
+- Scan: `productVocabulary.json` v3 with `w1` set v1; `scanProductVocabulary(root, page, { set: "w1" })`, `scanDisclosureVocabulary`, `rawCodes` (case-sensitive; SOC/UTC/kW/kWh/PV allow-listed); a scan root cannot exempt itself. Shared check `frontend/src/test/productPresentation.ts` `expectStateLineVisible`.
+- Migrated and opted into W1: Overview objective (`SiteWindowOverview.tsx` `Objective`), Evidence conclusion (`LedgerSiteEvidence.tsx` `OverviewBody`), Action state (`SiteAction.tsx` `ActionStateCard`).
+- Capture: `tools/w1-ux-01-evidence.mjs <out> <mock-id>[:<case>]=<url>`.
+- Open: the other 23 W1 routes remain on the T028 scan until UX-02..05; domain word maps still duplicate cross-screen states; the Evidence read has no read instant (as of = latest delivery received); the Action summary has no source class; registry Low D (`I-W1-UX-01` requires) untouched.

@@ -23,7 +23,21 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import {
+  Badge,
+  DataTable,
+  Disclosure,
+  currentnessWords,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  Panel,
+  plainTime,
+  ProductStatus,
+  type ProductWords,
+  ValueBars,
+} from "../ui";
 import { CountBars } from "./assessmentGraphics";
 import type { ClaimLimitClient } from "./claimLimitClient";
 import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
@@ -345,17 +359,45 @@ function OutcomeBars({ evidence }: { evidence: LedgerEvidence }) {
   );
 }
 
-function OutcomeFacts({ evidence }: { evidence: LedgerEvidence }) {
-  return (
-    <dl className="evidence-outcome-facts" data-evidence-outcome-facts>
-      {OUTCOMES.map((o) => (
-        <div key={o.key} data-evidence-outcome={o.key}>
-          <dt>{o.label}</dt>
-          <dd>{evidence.counts[o.key]}</dd>
-        </div>
-      ))}
-    </dl>
-  );
+/**
+ * W1-UX-01: the receipt state on the shared state line. These count readings
+ * received; none of them is a conclusion about the site, so none is positive.
+ */
+function receiptWords(evidence: LedgerEvidence): ProductWords {
+  const base = { code: evidence.state, unrecognised: false };
+  if (evidence.state === "NO_DATA") {
+    return {
+      ...base,
+      label: "No readings received for this period",
+      sentence: "No reading arrived for this period, so nothing can be relied on for it.",
+      tone: "neutral",
+    };
+  }
+  if (evidence.state === "REJECTED_ONLY") {
+    return {
+      ...base,
+      label: "Readings arrived, but none were accepted",
+      sentence: "Nothing from this period can be relied on until readings are accepted.",
+      tone: "limited",
+    };
+  }
+  if (evidence.state === "ACCEPTED") {
+    return {
+      ...base,
+      label: "Readings received and accepted",
+      sentence: "These counts say what arrived and was accepted. They are not a conclusion about how the site operated.",
+      tone: "neutral",
+    };
+  }
+  // A state this screen does not know claims nothing positive; the code stays in the detail only.
+  return { ...currentnessWords(null), code: evidence.state };
+}
+
+function periodScope(evidence: LedgerEvidence): string {
+  if (evidence.window.basis === "ALL") return "Every period on record at this site";
+  const start = plainTime(evidence.window.start) ?? "an unrecorded start";
+  const end = plainTime(evidence.window.end) ?? "an unrecorded end";
+  return `${start} to ${end}, end excluded`;
 }
 
 function OverviewBody({
@@ -383,37 +425,70 @@ function OverviewBody({
           {`${plural(evidence.counts.accepted, "reading", "readings")} accepted · ${reportingSources(evidence).length} of ${plural(evidence.sources.length, "source", "sources")} with accepted readings · ${refused} not accepted`}
         </span>
       </StatusBar>
-      <Panel
-        heading="What we can conclude now"
+      <HeadlineVisualCard
+        dataName="evidence-conclusion"
         headingId="site-evidence-state-heading"
+        title="What we can conclude now"
         description="Evidence readiness is not equipment condition"
-      >
-        <p className="panel-lede" data-evidence-headline={evidence.state}>
-          {headlineOf(evidence)}
-        </p>
-        {notes.length === 0 ? null : (
-          <ul data-evidence-notes>
-            {notes.map((state) => (
-              <li key={state} data-evidence-note={state}>
-                {STATE_NOTES[state]}
-              </li>
-            ))}
-          </ul>
-        )}
-        <OutcomeFacts evidence={evidence} />
-        <p data-evidence-rejection-count={refused}>
-          {refused === 0
-            ? "No reading in this period was refused."
-            : `${plural(refused, "reading", "readings")} in this period could not be accepted; the reasons are on the Analysis view.`}
-        </p>
-        <p className="overview-note" data-evidence-limits>
-          This page shows the readings received and what happened to each. It draws no conclusion about how the
-          site or its equipment is operating.
-        </p>
-        <NotAvailableYet name="capability-conclusions">
-          Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
-        </NotAvailableYet>
-      </Panel>
+        question="What can we rely on?"
+        headline={<span data-evidence-headline={evidence.state}>{headlineOf(evidence)}</span>}
+        status={<ProductStatus words={receiptWords(evidence)} scope={periodScope(evidence)} asOf={evidence.extent.last_received_at} />}
+        visual={
+          <ValueBars
+            title="Readings that arrived for this period, by what happened to them"
+            items={OUTCOMES.map((o) => ({ key: o.key, label: o.label, value: evidence.counts[o.key], valueText: String(evidence.counts[o.key]) }))}
+          />
+        }
+        meaning={
+          <>
+            {notes.length === 0 ? null : (
+              <ul data-evidence-notes>
+                {notes.map((state) => (
+                  <li key={state} data-evidence-note={state}>
+                    {STATE_NOTES[state]}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p data-evidence-rejection-count={refused}>
+              {refused === 0
+                ? "No reading in this period was refused."
+                : `${plural(refused, "reading", "readings")} in this period could not be accepted; the reasons are on the Analysis view.`}
+            </p>
+            <p className="overview-note" data-evidence-limits>
+              This page shows the readings received and what happened to each. It draws no conclusion about how the
+              site or its equipment is operating.
+            </p>
+            <NotAvailableYet name="capability-conclusions">
+              Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
+            </NotAvailableYet>
+          </>
+        }
+        todo={
+          evidence.state === "NO_DATA" ? (
+            <p>Check that the site&apos;s data source is reporting.</p>
+          ) : refused > 0 ? (
+            <p>See why readings were not accepted on Evidence › Analysis.</p>
+          ) : undefined
+        }
+        destination={
+          <Link to={{ search: analysis }} data-evidence-analysis-link>
+            Open Evidence › Analysis for this period
+          </Link>
+        }
+        references={
+          <ExactReferences
+            name="evidence-conclusion-references"
+            references={[
+              { label: "Period start", value: evidence.window.start },
+              { label: "Period end (excluded)", value: evidence.window.end },
+              { label: "Latest delivery received", value: evidence.extent.last_received_at },
+              { label: "Evidence state", value: evidence.state },
+              ...evidence.states.map((state, i) => ({ label: `Recorded condition ${i + 1}`, value: state })),
+            ]}
+          />
+        }
+      />
       <div className="panel-pair evidence-pair">
         <SourcesOverview evidence={evidence} health={health} onInspect={onInspect} />
         <NextEvidence evidence={evidence} />

@@ -36,3 +36,41 @@ export {
 } from "./ReviewProposal";
 export { MissingClaim, MissingClaimSvg, type MissingClaimProps, type MissingClaimSvgProps } from "./MissingClaim";
 export { isKnownGapPlacement, UI_GAP_CATALOGUE, type GapId, type GapPlacement } from "./gapCatalogue";
+export {
+  asOfText,
+  currentnessWords,
+  DEMONSTRATION_OUTCOME_NOTE,
+  limitationWords,
+  moneyWords,
+  outcomeWords,
+  plainTime,
+  readResultWords,
+  REASON_GUARDRAIL_FAIL,
+  sourceQualification,
+  UNRECOGNISED_SENTENCE,
+  type OutcomeWords,
+  type ProductTone,
+  type ProductWords,
+  type ReadResultKind,
+  type SourceQualification,
+} from "./productWords";
+export {
+  ExactReferences,
+  HeadlineVisualCard,
+  ProductLimitation,
+  ProductOutcome,
+  ProductStatus,
+  StepStrip,
+  ValueBars,
+  type Step,
+  type StepState,
+  type ExactReference,
+  type ExactReferencesProps,
+  type FailedLimit,
+  type HeadlineVisualCardProps,
+  type ProductLimitationProps,
+  type ProductOutcomeProps,
+  type ProductStatusProps,
+  type ValueBarItem,
+  type ValueBarsProps,
+} from "./ProductStatus";
