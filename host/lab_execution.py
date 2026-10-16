@@ -46,6 +46,7 @@ from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -1948,9 +1949,14 @@ class HostLabExecution:
         # S2-01c: the Lab-private publication schedules of registered runs on a
         # virtual publication clock. None places them beside the Stage root.
         schedules: JsonPublicationSchedules | None = None,
+        # S4-05b: publishes a registered run's sealed batches as REGISTERED_SIMULATION before the gateway
+        # release (`runs/registered_release.py`). None keeps the pre-S4-05b release (uploads stay unbound,
+        # so their source reads UNKNOWN); the Lab app always composes one.
+        source_publisher: Any = None,
     ) -> None:
         self._model = model
         self._gateway = gateway
+        self._source_publisher = source_publisher
         if schedules is None:
             stage_root = getattr(stages, "_root", None)
             schedules = (
@@ -2818,6 +2824,13 @@ class HostLabExecution:
                 raise LabControlRefused(
                     "GATEWAY_RELEASE_UNAVAILABLE", run.run_id, "no gateway is configured for this host"
                 )
+            if self._source_publisher is not None:
+                # S4-05b: register before upload; a refusal raises LabControlRefused and nothing is released.
+                session = self._sessions.get(run.run_id)
+                stage = self._gateway.stage(
+                    run.run_id, run.registered_basis, execution_status=execution_status,
+                    notes=() if session is None else tuple(session.staging_notes))
+                self._source_publisher.publish(run, stage)
             try:
                 released = self._gateway.release(run.run_id)
             except (GatewayUnavailable, GatewayRequestRefused) as failure:

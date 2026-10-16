@@ -36,6 +36,7 @@ from assetops_backend.analytics.assessment_inputs import sha256_json
 from assetops_backend.analytics.dispatch import CANDIDATE
 from assetops_backend.analytics.dispatch_read import CURRENT, FAILED, PENDING, STALE, UNASSESSED, DispatchReadService
 from assetops_backend.analytics.dispatch_v3 import _NOT_EVIDENCE_GAPS
+from assetops_backend.evidence.provenance_read import finding_provenance
 
 REPLAY = ("Exact stored revisions only. The S3 knowledge cutoff is a worker selection timestamp, not a "
           "commit-ordered acceptance fence, so no arbitrary knowledge_at replay is offered.")
@@ -304,8 +305,14 @@ def _off_bounds(claim: dict[str, Any]) -> list[tuple[str, str]]:
 
 
 class FindingReadService:
-    def __init__(self, store: FindingReadStore, dispatch: DispatchReadService) -> None:
+    def __init__(self, store: FindingReadStore, dispatch: DispatchReadService, provenance: Any = None) -> None:
         self.store, self.dispatch = store, dispatch
+        #: S4-05b: the exact-revision source provenance resolver; None reads every revision as UNKNOWN.
+        self.provenance = provenance
+
+    def source_provenance(self, tenant_id: UUID, site_id: UUID, finding_revision_id: Any) -> dict[str, Any]:
+        """S4-05b: the selected FindingRevision's stored source provenance (its own immutable cited set)."""
+        return finding_provenance(self.provenance, tenant_id, site_id, finding_revision_id)
 
     def _indeterminate_reasons(self, tenant_id: UUID, site_id: UUID, rev: dict[str, Any]) -> list[dict[str, Any]]:
         """Read-time only: why the selected revision's cited interval assessments could not decide a portion."""
@@ -437,6 +444,7 @@ class FindingReadService:
                     for (g, s, e, m), n in sorted(groups.items())],
                 "case_annotations": self.dispatch._annotate(evidence_ids),
             },
+            "source_provenance": self.source_provenance(tenant_id, site_id, selected["id"]),
             "watermarks": {"finding_recorded_at": selected["created_at"],
                            "analytic_built_at": max((r["completed_at"] for r in lineage["runs"]
                                                      if r["completed_at"]), default=None)},
@@ -548,6 +556,7 @@ class FindingReadService:
                     for k, v in sorted(by_role.items(), key=lambda kv: str(kv[0]))],
                 "case_annotations": self.dispatch._annotate(
                     {str(r["evidence_id"]) for r in page if r["evidence_id"] is not None})},
+            "source_provenance": self.source_provenance(tenant_id, site_id, selected["id"]),
             "currentness": None if source_open else {
                 "state": "SOURCE_CLOSED",
                 "basis": "the Performance source is closed: no current S3 selection is read or claimed"},

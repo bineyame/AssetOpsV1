@@ -82,6 +82,12 @@ def no_amount(money: dict, state: str) -> None:
 
 def test_late_power_day_through_the_overview_route(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
     monkeypatch.setattr(finding_cases, "SETUP_AT", DAY0.replace(day=10, hour=12))
+    # S4-05b phase 2: the authored P02 producer publishes each exact batch before upload, so the stored source
+    # gate (not a date or spec file) lets the Overview show the amount.
+    from test_s405_publication_postgres import P02
+    from test_s405_resolver_postgres import publishing_submit
+
+    monkeypatch.setattr(finding_cases.CaseRunner, "submit", publishing_submit(lambda device, texts: P02))
     w = Walk(store, engine, capsys, on_time=False)
     tick, _ = make_tick(TickLimits(**FAST))
     ledger = PostgresEvidenceLedger(URL)
@@ -173,8 +179,11 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         body = get()
         money = body["money"]
         assert money["state"] == "PRICED", money
-        # Architect M3 ruling: authored P02 demonstration money carries the shared demonstration label.
-        assert (money["demonstration"] or {}).get("case_id") == "P02-power-late", money["demonstration"]
+        # S4-05b phase 2: the stored exact-revision source of the head consequence (cited and power IDs).
+        assert "demonstration" not in money
+        assert money["source_provenance"]["state"] == "AUTHORED_DEMONSTRATION", money["source_provenance"]
+        assert money["source_provenance"]["fixtures"] == [{"fixture_id": P02[0], "fixture_version": P02[1]}]
+        assert money["source_gate"]["permits_current_money"] is True and money["withheld_reasons"] == []
         assert money["finding_revision_id"] == str(r3["id"]) != str(r2["id"])
         head = w.read(r3)["consequence"]
         assert money["consequence_revision_id"] == head["id"] == money["seam_head_consequence_revision_id"]
@@ -191,6 +200,15 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         assert set(money["links"]["evidence_records"]) == set(head["lineage"]["evidence_ids"])
         same_day = get("from=2026-10-24T00:00:00Z&to=2026-10-25T00:00:00Z")
         assert same_day["money"]["consequence_revision_id"] == head["id"]  # reload of the same day
+        # S4-05b phase 2: the same ELIGIBLE, CURRENT PRICED head with the source resolver unwired reads UNKNOWN,
+        # so the composed Overview withholds the amount (MIXED_OR_UNKNOWN_SOURCE), whatever LR and pricing say.
+        resolver, read.consequences._provenance = read.consequences._provenance, None
+        unsourced = get()["money"]
+        read.consequences._provenance = resolver
+        assert unsourced["eligibility"]["state"] == "ELIGIBLE"
+        no_amount(unsourced, "MIXED_OR_UNKNOWN_SOURCE")
+        assert unsourced["source_provenance"]["state"] == "UNKNOWN"
+        assert "MIXED_OR_UNKNOWN_SOURCE" in unsourced["withheld_reasons"]
 
         # Architect LR-01 deviations item 2: a stopped schedule leaves the raw gate ELIGIBLE and blocks the amount.
         time.sleep(1.5)

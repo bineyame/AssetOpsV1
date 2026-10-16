@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.evidence.ledger_service import BatchIngestionService
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
-    from money_gate_stub import ELIGIBLE
+    from money_gate_stub import AUTHORED, ELIGIBLE
     from assetops_backend.financials.consequence_read import NO_WORK_RECORDED, ConsequenceReadService
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
     from assetops_backend.finding_api import REASONS, bridge_consequence
@@ -414,7 +414,7 @@ class TestReadAndWorkerGuard:
             self, site, engine) -> None:  # noqa: F811
         site.publish("v1")
         worker = ConsequenceRecomputeWorker(site.store, site.prices, CONSEQUENCE_UNAVAILABLE)
-        reads = ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE)
+        reads = ConsequenceReadService(site.store, site.prices, eligibility=ELIGIBLE, provenance=AUTHORED)
         assert all(o.succeeded for o in worker.run_pending(site.tenant, site.site))
         rev = site.on(POWER_DAY)
 

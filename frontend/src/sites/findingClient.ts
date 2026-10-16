@@ -10,6 +10,7 @@
  * an exact revision still reads as audit material), 503 store unavailable.
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
+import type { SourceProvenance } from "./sourceProvenance";
 import { hasKeys, isObject } from "./evidenceRead";
 
 export type UndecidedKind = "RECORD_GAP" | "MODELLING" | "UNSTATED";
@@ -269,6 +270,8 @@ export interface FindingDetailBody {
   };
   watermarks: { finding_recorded_at: string; analytic_built_at: string | null };
   unavailable: Record<string, string>;
+  /** S4-05b: the selected version's stored source provenance (its own exact cited set). */
+  source_provenance?: SourceProvenance | null;
   links: {
     canonical: string;
     selected_revision: string;
@@ -408,6 +411,8 @@ export interface FindingEvidenceBody {
     case_annotations: { kind?: string; label?: string; note?: string; [key: string]: unknown }[];
   };
   currentness: { state: string; basis?: string } | null;
+  /** S4-05b: the selected version's stored source provenance (its own exact cited set). */
+  source_provenance?: SourceProvenance | null;
   links: {
     canonical: string;
     evidence: string;

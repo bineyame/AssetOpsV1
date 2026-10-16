@@ -90,4 +90,6 @@ def build_action_service(database_url: str | None, finding_reads: Any,
         kwargs["clock"] = clock
     return ActionService(build_action_store(database_url), finding_currentness(finding_reads),
                          capability_from_environment() if capability is None else capability,
-                         publish=None if registry is None else foundation_publish(registry), **kwargs)
+                         publish=None if registry is None else foundation_publish(registry),
+                         # S4-05b phase 2: the Finding read's stored resolver for the exact pinned revision.
+                         source=getattr(finding_reads, "source_provenance", None), **kwargs)

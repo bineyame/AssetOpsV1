@@ -28,11 +28,14 @@ from assetops_backend.actions.lifecycle import (
     select,
 )
 from assetops_backend.actions.ports import ActionRefused, ActionStore, ApplyFailed, FoundationPublish
-from assetops_backend.demonstration_label import demonstration_case
+from assetops_backend.evidence.provenance_read import PROVENANCE_NOT_WIRED, PROVENANCE_UNREADABLE, unresolved
 
 # (tenant_id, site_id, finding_id, revision_id | None, source_open) ->
 #   {"revision_id", "latest_revision_id", "is_latest", "claim_is_current"} | None (unknown in this Site)
 FindingCurrentness = Callable[[UUID, UUID, UUID, "UUID | None", bool], "dict[str, Any] | None"]
+# S4-05b phase 2 (D-2026-10-16-s405b-label item 3): (tenant_id, site_id, finding_revision_id) -> the stored
+# exact-revision source provenance block (`evidence/provenance_read.py`). Never a Site, date, spec or latest head.
+SourceRead = Callable[[UUID, UUID, Any], "dict[str, Any]"]
 
 OBSERVATION_WINDOW = timedelta(days=30)
 FAILURE_STATUS = {"ACTION_FOUNDATION_STALE": 409, "ACTION_PUBLISH_REFUSED": 409}
@@ -122,9 +125,19 @@ def event_wire(event: dict[str, Any]) -> dict[str, Any]:
 class ActionService:
     def __init__(self, store: ActionStore, currentness: FindingCurrentness,
                  capability: CapabilityCheck = no_capability, clock: Callable[[], datetime] = utc_now,
-                 publish: FoundationPublish | None = None) -> None:
+                 publish: FoundationPublish | None = None, source: SourceRead | None = None) -> None:
         self.store, self.currentness, self.capability, self.clock = store, currentness, capability, clock
-        self.publish = publish
+        self.publish, self.source = publish, source
+
+    def source_provenance(self, tenant_id: UUID, site_id: UUID, finding_revision_id: Any) -> dict[str, Any]:
+        """The exact pinned FindingRevision's stored source; unwired or failing reads are UNKNOWN, never positive."""
+        if self.source is None:
+            return unresolved(PROVENANCE_NOT_WIRED, tenant_id, site_id, finding_revision_id)
+        try:
+            return self.source(tenant_id, site_id, finding_revision_id)
+        except Exception as error:  # noqa: BLE001 - fail closed: Source unverified
+            return unresolved(PROVENANCE_UNREADABLE, tenant_id, site_id, finding_revision_id,
+                              detail=type(error).__name__)
 
     # ---- capability --------------------------------------------------------------------------------------
 
@@ -198,10 +211,9 @@ class ActionService:
                 "unavailable": evaluation.unavailable(), "segments": list(evaluation.segments),
                 "proposal": evaluation.proposal}
         base = f"/sites/{site_code}/findings/{finding_id}"
-        episode = current.get("episode") or {}
         body: dict[str, Any] = {
             "site_code": site_code, "finding_id": str(finding_id), "revision_id": selected,
-            "demonstration": demonstration_case(site_code, episode.get("start"), episode.get("end")),
+            "source_provenance": self.source_provenance(tenant_id, site_id, selected),
             "money_consequence": {
                 "label": "Consequence", "basis": {"finding_id": str(finding_id), "finding_revision_id": selected},
                 "statement": "The stored S4 cost consequence belongs to this exact Finding revision, not to the "
@@ -566,8 +578,7 @@ class ActionService:
             "last_event": event_wire(prefix[-1]) if prefix else None,
             "change": self._change_in(tenant_id, site_id, site_code, action, prefix),
             "application_basis": self._application_basis(tenant_id, site_id, action),
-            "demonstration": demonstration_case(site_code, action["origin_episode"]["start"],
-                                                action["origin_episode"]["end"]),
+            "source_provenance": self.source_provenance(tenant_id, site_id, action["origin_finding_revision_id"]),
             "system_demo_capability": capability,
             "links": self._links(site_code, action, chosen),
         }

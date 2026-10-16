@@ -8,7 +8,8 @@ host class, printing the reason; exit 0 when open, 2 when closed.
 - `private`: a developer's private database; open (optional one-minute tick, the per-Site timer removed).
 - `walkthrough`: an isolated walkthrough database; never a timer (explicit `tick` invocations only); exit 2.
 - `demo`: owner-visible; open only when `I-late-reading-series-and-money-limit` is `resolved`.
-- `pilot`: a real-Site pilot; open only when that node and every `real_pilot_requires` node are `resolved`.
+- `pilot`: a real-Site pilot; open only when that node, `I-attested-real-source-provenance` (always required, even
+  if `real_pilot_requires` omits it or is stale; S4-05b) and every `real_pilot_requires` node are `resolved`.
 """
 
 from __future__ import annotations
@@ -21,6 +22,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "frontend" / "docs" / "architecture" / "v69-dependency-registry-pilot.json"
 F1 = "I-late-reading-series-and-money-limit"
+#: S4-05b phase 2: real-source provenance is a pilot requirement independent of the registry's own list.
+REAL_SOURCE = "I-attested-real-source-provenance"
 
 
 def decide(registry: dict, host_class: str) -> tuple[bool, str]:
@@ -29,8 +32,8 @@ def decide(registry: dict, host_class: str) -> tuple[bool, str]:
         return True, "private development database: an optional one-minute tick is allowed; remove the per-Site timer"
     if host_class == "walkthrough":
         return False, "isolated walkthrough database: explicit tick invocations only, no persistent timer"
-    needed = [F1] + (list(registry.get("real_pilot_requires") or []) if host_class == "pilot" else [])
-    needed = list(dict.fromkeys(n if isinstance(n, str) else n.get("id") for n in needed))  # F1 is listed once
+    needed = [F1] + ([REAL_SOURCE] + list(registry.get("real_pilot_requires") or []) if host_class == "pilot" else [])
+    needed = list(dict.fromkeys(n if isinstance(n, str) else n.get("id") for n in needed))  # each listed once
     open_ = [f"{n} ({status.get(n, 'missing')})" for n in needed if status.get(n) != "resolved"]
     if open_:
         return False, (f"{host_class} host is owner-visible or real: do not install the tick until resolved: "

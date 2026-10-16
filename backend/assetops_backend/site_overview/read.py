@@ -21,10 +21,10 @@ A moved fence never yields mixed CURRENT: freshness is stale and money is `UPSTR
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID
 
-from assetops_backend.demonstration_label import demonstration_case
+from assetops_backend.evidence.provenance_read import PROVENANCE_NOT_WIRED, source_gate, unresolved
 from assetops_backend.site_overview import money_state as ms
 
 SCHEMA_VERSION = "site-window-summary-1"
@@ -38,9 +38,15 @@ CONTEXT_LIMIT = 500
 MONEY_LABEL = ("fuel-cost-1 model-conditioned potential fuel-cost exposure: zero lower bound, bounded upper "
                "value, with assumption and evidence lineage. Not savings and not a physical maximum.")
 
-#: (site_code, episode_start, episode_end) -> label dict or None. The single replaceable provenance input
-#: (S4-05 replaces it with a stored provenance resolver). The unverified label always gives no amount.
-Provenance = Callable[[str, Any, Any], "dict[str, Any] | None"]
+#: S4-05b phase 2: the money card's source is the stored exact-revision provenance the consequence read carries
+#: (the head consequence revision's union of cited and power IDs, else the selected FindingRevision's cited set).
+#: The retired date/spec heuristic is gone; MIXED/UNKNOWN gives `MIXED_OR_UNKNOWN_SOURCE` and no amount.
+
+
+def stored_source(body: dict[str, Any], t: UUID, s: UUID, rid: str) -> dict[str, Any]:
+    pair = body.get("source_provenance") or {}
+    block = pair.get("consequence_revision") or pair.get("finding_revision")
+    return block if block is not None else unresolved(PROVENANCE_NOT_WIRED, t, s, rid)
 
 
 class InvalidSelection(ValueError):
@@ -87,10 +93,10 @@ def choose(candidates: list[dict[str, Any]]) -> dict[str, Any] | None:
 
 class SiteOverviewRead:
     def __init__(self, upstream: Any, ledger: Any, consequences: Any, findings: Any, *,
-                 provenance: Provenance = demonstration_case, environment: str = "default",
+                 environment: str = "default",
                  context_limit: int = CONTEXT_LIMIT) -> None:
         self.upstream, self.ledger, self.consequences, self.findings = upstream, ledger, consequences, findings
-        self.provenance, self.environment, self.context_limit = provenance, environment, context_limit
+        self.environment, self.context_limit = environment, context_limit
 
     def dispose(self) -> None:
         self.upstream.dispose()
@@ -271,7 +277,8 @@ class SiteOverviewRead:
         out: dict[str, Any] = {"amount_low": None, "amount_high": None, "currency": None, "model_version": None,
                                "finding_id": None, "finding_revision_id": None, "consequence_revision_id": None,
                                "eligibility": None, "quantity_state": None, "price_state": None,
-                               "limitation": None, "demonstration": None, "links": {}, "label": MONEY_LABEL,
+                               "limitation": None, "source_provenance": None, "source_gate": None,
+                               "withheld_reasons": [], "links": {}, "label": MONEY_LABEL,
                                "upstream": {"status": upstream["status"], "stage": upstream["stage"],
                                             "reasons": upstream["reasons"]}}
         inputs = dict(source_open=source_open, upstream_status=upstream["status"],
@@ -292,7 +299,9 @@ class SiteOverviewRead:
         gate = body.get("money_eligibility") or {}
         seam_row = seam.get(fid) or {}
         head = selection.get("head_consequence_revision_id")
-        demo = self.provenance(code, chosen["episode_start"], chosen["episode_end"])
+        source = stored_source(body, t, s, rid)
+        # The head's union gate the consequence read composed; recomputed from the block when absent.
+        sgate = cur.get("source_gate") or source_gate(source)
         inputs.update(
             eligibility=gate.get("state"), revision_is_latest=is_latest,
             merged=bool((root.get("relations") or {}).get("merged_into")),
@@ -305,7 +314,7 @@ class SiteOverviewRead:
             consequence_row_state=row.get("state"), quantity_state=(row.get("quantity") or {}).get("state"),
             price_state=(row.get("price") or {}).get("state"),
             display_state=(row.get("display") or {}).get("state"),
-            provenance_resolved=not (demo is not None and demo.get("case_id") == "unverified"),
+            provenance_resolved=bool(sgate.get("permits_current_money")) and source_gate(source)["permits_current_money"],
             presented_as_current=bool(row.get("presented_as_current")) and bool(cur.get("current_amount_shown")))
         state = ms.money_state(ms.MoneyInputs(**inputs))
         out.update({
@@ -320,8 +329,11 @@ class SiteOverviewRead:
             "seam_head_consequence_revision_id": seam_row.get("head_consequence_revision_id"),
             "seam_upstream_status": seam_row.get("upstream_status"),
             "seam_current_amount_permitted": seam_row.get("current_amount_permitted"),
-            "demonstration": demo,
-            "limitation": None if state == ms.PRICED else (moved or [state]),
+            "source_provenance": source, "source_gate": sgate,
+            "withheld_reasons": list(cur.get("withheld_reasons") or []),
+            "limitation": None if state == ms.PRICED else (moved or [state] + (
+                [ms.MIXED_OR_UNKNOWN_SOURCE] if sgate.get("reason") and state != ms.MIXED_OR_UNKNOWN_SOURCE
+                else [])),
             "links": self._money_links(code, fid, rid, head, row)})
         if state == ms.PRICED:
             display = row["display"]

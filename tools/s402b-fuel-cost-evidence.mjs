@@ -12,7 +12,7 @@
  *   s402b-evidence).
  *
  * Claims (each PASS/FAIL with its measured value): priced range from zero with the plain wording and the
- * demonstration label; counted readings in the disclosure; identifiers only in closed disclosures; missing
+ * stored source label (S4-05b: Prepared example data); counted readings in the disclosure; identifiers only in closed disclosures; missing
  * (coverage gap), historical, pending, stale, unpriced and closed-source states with no amount; the v4
  * recompute's old/new versions over the same finding version and fuel amount; keyboard Enter, reload,
  * back/forward on a pinned version; Evidence round trip; price link into Assumptions; no page-level
@@ -149,7 +149,7 @@ const VISIBLE = `(() => { const m = document.querySelector('main').cloneNode(tru
   return m.innerText; })()`;
 const STATE = `(() => { const b = document.querySelector('[data-financials-bridge]'); return b && { state: b.getAttribute('data-financials-bridge'),
   currentness: b.getAttribute('data-financials-currentness'), amount: b.getAttribute('data-financials-amount'), rev: b.getAttribute('data-finding-revision'),
-  demo: b.querySelector('[data-financials-demonstration]')?.getAttribute('data-financials-demonstration') ?? null,
+  demo: b.querySelector('[data-source-provenance]')?.getAttribute('data-source-provenance') ?? null,
   why: b.querySelector('[data-financials-why]')?.innerText ?? null, range: b.querySelector('[data-financials-range]')?.innerText ?? null,
   text: b.innerText,
   // H1: visible text, not an attribute. Currency amounts in the money panel and (excluding a per-litre price) on the whole screen.
@@ -206,7 +206,7 @@ async function main() {
     let s = await js(STATE);
     claim(`${W} priced: amount shown as a range from zero`, s.state === "PRICED" && s.amount === "shown" && s.range === "0.00 to 15.82 USD", { state: s.state, range: s.range });
     claim(`${W} priced: plain wording, not a saving`, s.text.includes("Modelled potential fuel-cost exposure: 0.00 to 15.82 USD, under the reviewed fuel-cost-1 assumptions. This is not measured fuel saved or a physical maximum."));
-    claim(`${W} priced: labelled as demonstration data`, s.demo === "P01-power" && /Demonstration data/.test(s.text));
+    claim(`${W} priced: labelled from the stored source as prepared example data`, s.demo === "AUTHORED_DEMONSTRATION" && /Prepared example data/.test(s.text));
     const readings = await js(`document.querySelectorAll('[data-consequence-reading]').length`);
     claim(`${W} priced: counted readings listed in the disclosure (non-empty set)`, readings === p01.consequence.lineage.power_intervals.length && readings > 0, { readings });
     await common(W, "priced");

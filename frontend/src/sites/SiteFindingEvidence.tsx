@@ -26,6 +26,7 @@ import type {
   FindingWindowBody,
 } from "./findingClient";
 import { dayOf, LIFECYCLE_WORDS, sourceModeWords } from "./findingWords";
+import { SourceProvenanceNotice } from "./sourceProvenance";
 
 export const FINDING_SECTIONS_LABEL = "Finding sections";
 export const EVIDENCE_PAGE_SIZE = 50;
@@ -282,6 +283,7 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
           not as the current Finding, and no Dispatch period is linked.
         </p>
       ) : null}
+      <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
       {!selection.is_latest ? (
         <p className="site-finding__lead" data-evidence-earlier-version>
           Earlier version {no}. A later version replaces it; these are the records this earlier version cited.{" "}

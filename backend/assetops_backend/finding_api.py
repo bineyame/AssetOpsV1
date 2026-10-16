@@ -31,7 +31,6 @@ from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailab
 from assetops_backend.analytics.finding_read import FindingReadService
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable as FileAssessmentStoreUnavailable
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
-from assetops_backend.demonstration_label import demonstration_case
 
 Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 # (request, site_code) -> None to admit, else 401 or 403.
@@ -271,9 +270,9 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
             "finding": body["finding"], "selection": selection,
             "revision": {"id": selection["revision_id"], "revision_no": selection["revision_no"],
                          "lifecycle": body["revision"]["lifecycle"]},
+            # S4-05b: `result["source_provenance"]` names the selected FindingRevision's and consequence
+            # revision's exact stored source provenance (the retired date/spec label is gone).
             "window": body["revision"]["episode"], **result,
-            "demonstration": demonstration_case(code, body["revision"]["episode"]["start"],
-                                                body["revision"]["episode"]["end"]),
             "links": consequence_links(code, finding_id, selection["revision_id"], source["permitted"], result)})
 
     # ---- S4-02a phase 2 bridge, S4-02b phase 2a consequence ----
@@ -296,6 +295,7 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
         links = child_links(code, finding_id, selected, source["permitted"])
         links["financials"] = f"/sites/{code}/financials?finding_id={finding_id}&revision_id={selected}"
         links["assumptions"] = f"/sites/{code}/financials/assumptions"
+        result = bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"]))
         return jsonable_encoder({
             "site_code": code, "access_basis": access_basis, "source_gate": source, "audit_only": audit_only(source),
             "finding": body["finding"], "selection": body["selection"],
@@ -303,21 +303,24 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
                          "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
                          "claim_level": body["revision"]["claim_level"]},
             "window": episode,
-            "demonstration": demonstration_case(code, episode["start"], episode["end"]),
-            "consequence": bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"])),
+            # S4-05b: the exact stored source provenance of the selected FindingRevision and of the consequence
+            # revision the bridge summarises (None when no consequence revision was read).
+            "source_provenance": {"finding_revision": body.get("source_provenance"),
+                                  "consequence_revision": None if result is None
+                                  else (result.get("source_provenance") or {}).get("consequence_revision")},
+            "consequence": bridge_consequence(result),
             "links": links})
 
     def bridge(tenant_id: UUID, site_id: UUID, finding_id: UUID, selection: dict[str, Any],
-               source_open: bool) -> dict[str, Any]:
+               source_open: bool) -> dict[str, Any] | None:
         if consequences is None:
-            return bridge_consequence(None)
+            return None
         try:
-            result = consequences.read(tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
-                                       finding_revision_is_latest=bool(selection.get("is_latest")),
-                                       source_open=source_open, limit=1)
+            return consequences.read(tenant_id, site_id, finding_id, UUID(str(selection["revision_id"])),
+                                     finding_revision_is_latest=bool(selection.get("is_latest")),
+                                     source_open=source_open, limit=1)
         except consequence_down:
-            return bridge_consequence(None)
-        return bridge_consequence(result)
+            return None
 
     return router
 
@@ -348,6 +351,9 @@ REASONS = {
                             "for the record.",
     "PRICED": "Modelled potential fuel-cost exposure under the reviewed fuel-cost-1 assumptions. This is not "
               "measured fuel saved or a physical maximum.",
+    # S4-05b phase 2: the stored source of the exact records behind the cost is mixed or not established.
+    "MIXED_OR_UNKNOWN_SOURCE": "The source of the records behind this cost is not established, so no current cost "
+                               "is shown. The recorded cost stays available for the record.",
 }
 
 
@@ -364,20 +370,34 @@ def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:
     row = result["consequence"]
     money = result.get("money_eligibility")
     empty["money_eligibility"] = money
+    # S4-05b phase 2: the stored source gate and every simultaneous failed gate (consequence read).
+    gate = currentness.get("source_gate") or {"permits_current_money": False, "reason": "MIXED_OR_UNKNOWN_SOURCE"}
+    empty["source_gate"] = gate
+    empty["withheld_reasons"] = list(currentness.get("withheld_reasons") or [])
+    source_reason = [] if gate["permits_current_money"] else ["MIXED_OR_UNKNOWN_SOURCE"]
     if row is not None and currentness["state"] == "CURRENT" and (money or {}).get("state") != "ELIGIBLE":
         # LR-01: the basis is current but the shared gate withholds money (never a UI-only predicate). The
         # recorded head stays linked as history; no amount, quantity or current label is given.
         state = (money or {}).get("state") or "PENDING_REASSESSMENT"
         return {**empty, "state": state, "currentness": "CURRENT", "consequence_revision_id": None,
                 "recorded_consequence_revision_id": row["id"],
-                "currentness_reasons": list(currentness["reasons"]) + [f"MONEY_{state}"], "reason": REASONS[state]}
+                "currentness_reasons": list(currentness["reasons"]) + [f"MONEY_{state}"] + source_reason,
+                "reason": REASONS[state]}
+    if row is not None and currentness["state"] == "CURRENT" and source_reason:
+        # The basis is current and LR-eligible, but the exact records' stored source is MIXED or UNKNOWN: the head
+        # stays linked as an audit-only record; no amount, quantity or current label is given.
+        return {**empty, "state": "MIXED_OR_UNKNOWN_SOURCE", "currentness": "CURRENT",
+                "consequence_revision_id": None, "recorded_consequence_revision_id": row["id"],
+                "currentness_reasons": list(currentness["reasons"]) + source_reason,
+                "reason": REASONS["MIXED_OR_UNKNOWN_SOURCE"]}
     if row is None or currentness["state"] != "CURRENT":
         state = currentness["state"]
         queued = bool(currentness["pending_work"])
         key = "STALE_QUEUED" if state == "STALE" and queued else state
         return {**empty, "state": state, "currentness": state, "recalculation_queued": queued,
                 "consequence_revision_id": None if row is None else row["id"],
-                "currentness_reasons": list(currentness["reasons"]), "reason": REASONS[key]}
+                "currentness_reasons": list(currentness["reasons"]) + (source_reason if row is not None else []),
+                "reason": REASONS[key]}
     priced = row["state"] == "PRICED" and row["display"] and row["display"]["state"] == "ROUNDED_OUTWARD"
     return {**empty, "state": row["state"], "currentness": "CURRENT", "consequence_revision_id": row["id"],
             "quantity": None if row["quantity"]["high"] is None else {

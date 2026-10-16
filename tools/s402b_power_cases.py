@@ -44,6 +44,11 @@ class PowerCases(s4.Cases):
         super().__init__(args)
         self.power_spec = json.loads((s2.REPO / POWER_SPEC_PATH).read_text(encoding="utf-8"))
 
+    def authored_fixture(self) -> tuple[str, str]:
+        """S4-05b: the authored fixture/spec ID and version the server's registry declares for this spec."""
+        schema = self.power_spec["schema"]
+        return str(schema["id"]), str(schema["version"])
+
     def power_envelopes(self, step: dict[str, Any], epoch: str) -> list[tuple[str, str]]:
         from assetops_contracts.source_envelope_v3 import SourceEnvelopeV3, canonical_envelope_v3_text, v3_message_id
 
@@ -79,7 +84,8 @@ class PowerCases(s4.Cases):
                 context = s4.block_rows(spec_step["context"], self.spec["reading_rules"])
                 now, _ = self.seal([(r, None) for r in sorted(context, key=lambda x: x[2])], epoch + "-context")
                 power = self.power_envelopes(spec_step, epoch)
-                record["batch_ids"] += self.post(power + now)
+                # S4-05b: every exact batch (power means and authored context) is published as authored before upload.
+                record["batch_ids"] += self.post(power + now, fixture=self.authored_fixture())
                 say(f"  {case['case_id']} deliver_power ({epoch}): {len(power)} power means, {len(now)} context "
                     f"readings")
             elif do in ("assess", "match"):
@@ -91,6 +97,8 @@ class PowerCases(s4.Cases):
         ids = [r[0] for r in self.pg("SELECT e.id::text FROM accepted_evidence e JOIN ingestion_batch b ON "
                                      "b.id = e.batch_id WHERE b.external_batch_id = ANY(%s)", record["batch_ids"])]
         record["evidence_count"], record["evidence_id_sha256"] = len(ids), s4.digest(ids)
+        pubs = getattr(self, "publications", {})
+        record["publications"] = {b: pubs[b] for b in record["batch_ids"] if b in pubs}
         self.case_evidence[record["case_id"]] = ids
         self.cases.append(record)
 

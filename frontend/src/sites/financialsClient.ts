@@ -9,6 +9,7 @@
 import { hasKeys, isObject } from "./evidenceRead";
 import type { FindingReadResult } from "./findingClient";
 import { SITES_API_PATH } from "./siteDirectoryClient";
+import type { SourceProvenance, SourceProvenancePair } from "./sourceProvenance";
 
 export type FinancialReadResult<T> = FindingReadResult<T>;
 
@@ -113,6 +114,7 @@ export interface FindingConsequence {
   state:
     | "WITHHELD_GENERATOR_SERIES"
     | "PENDING_REASSESSMENT"
+    | "MIXED_OR_UNKNOWN_SOURCE"
     | "PRICED"
     | "UNPRICED"
     | "QUANTITY_UNAVAILABLE"
@@ -137,14 +139,16 @@ export interface FindingConsequence {
   /** LR-01: the gate behind the state, and the recorded (not current) head it withholds. */
   money_eligibility?: MoneyEligibility | null;
   recorded_consequence_revision_id?: string | null;
+  /** S4-05b phase 2: the stored source gate and every failed typed gate at once. */
+  source_gate?: SourceGate | null;
+  withheld_reasons?: string[];
 }
 
-/** The owner-ruled label for authored demonstration content (S4-02b P01-power). */
-export interface DemonstrationLabel {
-  label: string;
-  statement: string;
-  case_id: string;
-  spec: string;
+/** S4-05b phase 2: only a positive stored class may carry a current amount; otherwise `MIXED_OR_UNKNOWN_SOURCE`. */
+export interface SourceGate {
+  state: string;
+  permits_current_money: boolean;
+  reason: "MIXED_OR_UNKNOWN_SOURCE" | null;
 }
 
 export interface FindingFinancialsBody {
@@ -154,7 +158,8 @@ export interface FindingFinancialsBody {
   selection: { revision_id: string; revision_no: number; is_latest: boolean; selected_by: string };
   revision: { id: string; revision_no: number; title: string; lifecycle: string; claim_level: string };
   window: { start: string; end: string | null };
-  demonstration?: DemonstrationLabel | null;
+  /** S4-05b: the stored source provenance of the exact Finding version and the summarised consequence version. */
+  source_provenance?: SourceProvenancePair | null;
   consequence: FindingConsequence;
 }
 
@@ -231,6 +236,8 @@ export interface ConsequenceRevision {
   is_head?: boolean;
   presented_as_current?: boolean;
   historical?: boolean;
+  /** S4-05b: this consequence version's own union provenance (its Finding version's cited set and power IDs). */
+  source_provenance?: SourceProvenance | null;
 }
 
 export interface FindingConsequencesBody {
@@ -239,7 +246,8 @@ export interface FindingConsequencesBody {
   finding: { id: string };
   selection: { revision_id: string; revision_no: number; is_latest: boolean };
   window: { start: string; end: string | null };
-  demonstration?: DemonstrationLabel | null;
+  /** S4-05b: the stored source provenance of the exact Finding version and the selected consequence version. */
+  source_provenance?: SourceProvenancePair | null;
   consequence_selection: {
     selected_by: "EXACT_CONSEQUENCE_REVISION_ID" | "HEAD";
     consequence_revision_id: string | null;
@@ -255,6 +263,8 @@ export interface FindingConsequencesBody {
     current_amount_shown: boolean;
     derived_now: unknown;
     money_eligibility?: MoneyEligibility["state"];
+    source_gate?: SourceGate;
+    withheld_reasons?: string[];
   };
   money_eligibility?: MoneyEligibility;
   consequence: ConsequenceRevision | null;

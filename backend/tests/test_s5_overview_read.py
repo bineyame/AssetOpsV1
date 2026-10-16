@@ -15,7 +15,6 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from assetops_backend import demonstration_label
 from assetops_backend.evidence.ledger_reads import AwaitingComparison
 from assetops_backend.evidence_api import build_evidence_router
 from assetops_backend.site_overview import money_state as ms
@@ -37,11 +36,15 @@ def finding(start: datetime, end: datetime, fid: str | None = None, head: str | 
 
 
 def priced(fid: str, rid: str, *, head="c-head", currency="USD", state="CURRENT", gate="ELIGIBLE",
-           quantity="AVAILABLE", price="PRICED", row_state="PRICED", shown=True) -> dict:
+           quantity="AVAILABLE", price="PRICED", row_state="PRICED", shown=True,
+           source: str | None = "AUTHORED_DEMONSTRATION") -> dict:
     display = ({"state": "ROUNDED_OUTWARD", "currency": currency, "amount_low": "0.00", "amount_high": "15.82"}
                if currency == "USD" else {"state": "MINOR_UNIT_UNKNOWN", "currency": currency,
                                           "amount_low": None, "amount_high": None})
+    block = None if source is None else {"state": source, "finding_revision_id": rid, "consequence_revision_id": head,
+                                         "accepted_evidence_ids": ["e-1"], "reasons": []}
     return {"consequence_selection": {"head_consequence_revision_id": head, "finding_revision_id": rid},
+            "source_provenance": {"finding_revision": block, "consequence_revision": block},
             "currentness": {"state": state, "reasons": [], "pending_work": [], "current_amount_shown": shown},
             "money_eligibility": {"version": "money-eligibility-1", "state": gate, "pending_reasons": []},
             "consequence": {"id": head, "state": row_state, "presented_as_current": shown,
@@ -188,14 +191,39 @@ def test_seam_that_does_not_permit_the_amount_fails_closed() -> None:
     assert money["seam_current_amount_permitted"] is False
 
 
-def test_unverified_demonstration_source_gives_no_amount(monkeypatch) -> None:
-    def unreadable():
-        raise demonstration_label.SpecUnreadable("missing")
-    monkeypatch.setattr(demonstration_label, "_declared", unreadable)
+@pytest.mark.parametrize("source", ["UNKNOWN", "MIXED", None])
+def test_mixed_or_unknown_stored_source_gives_no_amount(source) -> None:
+    """S4-05b phase 2: the stored exact-revision source gates the card whatever CURRENT PRICED and ELIGIBLE say;
+    an absent block reads as UNKNOWN (never positive). No date or spec file is consulted."""
     f = finding(D0 + timedelta(hours=6), D0 + timedelta(hours=8))
-    money = run(World([f]))["money"]
+    w = World([f])
+    w.bodies[f["finding_id"]] = priced(f["finding_id"], f["finding_revision_id"], source=source)
+    money = run(w)["money"]
     assert money["state"] == ms.MIXED_OR_UNKNOWN_SOURCE and money["amount_high"] is None
-    assert money["demonstration"]["case_id"] == "unverified"
+    assert money["source_gate"]["reason"] == ms.MIXED_OR_UNKNOWN_SOURCE
+    assert money["source_provenance"]["state"] == (source or "UNKNOWN")
+    assert "demonstration" not in money
+
+
+@pytest.mark.parametrize("source", ["AUTHORED_DEMONSTRATION", "REGISTERED_SIMULATION"])
+def test_positive_stored_source_keeps_the_amount(source) -> None:
+    f = finding(D0 + timedelta(hours=6), D0 + timedelta(hours=8))
+    w = World([f])
+    w.bodies[f["finding_id"]] = priced(f["finding_id"], f["finding_revision_id"], source=source)
+    money = run(w)["money"]
+    assert money["state"] == ms.PRICED and money["amount_high"] == "15.82"
+    assert money["source_provenance"]["state"] == source and money["source_gate"]["reason"] is None
+
+
+def test_mixed_source_is_kept_beside_another_failed_gate() -> None:
+    """Simultaneous reasons: an UNPRICED head on a MIXED set names both."""
+    f = finding(D0 + timedelta(hours=6), D0 + timedelta(hours=8))
+    w = World([f])
+    w.bodies[f["finding_id"]] = priced(f["finding_id"], f["finding_revision_id"], source="MIXED", price="UNPRICED",
+                                       row_state="UNPRICED", shown=False)
+    money = run(w)["money"]
+    assert money["state"] == ms.UNPRICED and money["amount_high"] is None
+    assert money["limitation"] == [ms.UNPRICED, ms.MIXED_OR_UNKNOWN_SOURCE]
 
 
 def test_stopped_schedule_keeps_the_raw_gate_eligible_and_blocks_the_amount_upstream() -> None:

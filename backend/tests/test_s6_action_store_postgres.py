@@ -27,6 +27,7 @@ if URL:
     from test_s1_bindings_postgres import engine, store  # noqa: F401
 
     import pg_harness
+    from assetops_backend.evidence.composition import build_source_provenance
     from assetops_backend.action_api import build_action_router
     from assetops_backend.actions.adapters.postgres_action_store import PostgresActionStore
     from assetops_backend.actions.capability import from_grants, no_capability
@@ -68,10 +69,12 @@ class Harness:
     def __init__(self, runner, *, capability=None, access=None, command_access=None, gate_open=True) -> None:
         self.runner, self.clock = runner, Clock(T_ACCEPT)
         self.store = PostgresActionStore(URL)
-        reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)))
+        # S4-05b phase 2: the production stored resolver, read for the exact pinned origin FindingRevision.
+        reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)),
+                                   build_source_provenance(URL))
         self.service = ActionService(self.store, finding_currentness(reads),
                                      from_grants(fixture_grants(runner)) if capability is None else capability,
-                                     self.clock)
+                                     self.clock, source=reads.source_provenance)
         self.wrong_site = uuid4()
         scope = {"KOBO-001": ("KOBO-001", runner.tenant, runner.site),
                  "OTHER-001": ("OTHER-001", runner.tenant, self.wrong_site)}
@@ -360,6 +363,14 @@ class TestRuleOnPersistedEvidence:
             assert body["latest_finding_revision"]["id"] == str(revs[1]["id"])
             assert body["latest_finding_revision"]["is_origin"] is False
             assert body["newer_revision_notice"]["latest_revision_id"] == str(revs[1]["id"])
+            # S4-05b phase 2 (D-2026-10-16-s405b-label item 3): source state for the exact pinned origin revision
+            # from the stored resolver, never the latest head or the date; these cases are unpublished -> UNKNOWN.
+            assert "demonstration" not in body and "demonstration" not in latest
+            assert body["source_provenance"]["finding_revision_id"] == str(revs[0]["id"])
+            assert body["source_provenance"]["state"] == "UNKNOWN"
+            assert body["source_provenance"]["reasons"][0]["code"] == "NO_POSITIVE_BINDING"
+            assert latest["source_provenance"]["finding_revision_id"] == str(revs[1]["id"])
+            assert old["source_provenance"]["finding_revision_id"] == str(revs[0]["id"])
             shut = closed.recommendation(finding).json()
             assert shut["source_open"] is False and shut["unavailable"]["code"] == "PRIOR_ACTION_UNRESOLVED"
             assert shut["live_status"]["unavailable"]["code"] == "FINDING_NOT_CURRENT"
@@ -597,3 +608,22 @@ class TestSchema:
                          "asset": row["asset_id"]})  # duplicate tenant action_code
         finally:
             h.close()
+
+
+def test_action_source_is_unverified_when_the_resolver_is_unwired_or_fails() -> None:
+    """S4-05b phase 2: no resolver, or a failing one, gives Source unverified (UNKNOWN), never a positive class."""
+    from assetops_backend.actions.service import ActionService
+
+    t, s, r = uuid4(), uuid4(), uuid4()
+    unwired = ActionService(None, lambda *a: None).source_provenance(t, s, r)
+    assert (unwired["state"], unwired["reasons"][0]["code"], unwired["finding_revision_id"]) == (
+        "UNKNOWN", "PROVENANCE_NOT_WIRED", str(r))
+
+    def broken(*a):
+        raise RuntimeError("down")
+
+    failed = ActionService(None, lambda *a: None, source=broken).source_provenance(t, s, r)
+    assert (failed["state"], failed["reasons"][0]["code"]) == ("UNKNOWN", "PROVENANCE_UNREADABLE")
+    seen = []
+    exact = ActionService(None, lambda *a: None, source=lambda *a: seen.append(a) or {"state": "AUTHORED_DEMONSTRATION"})
+    assert exact.source_provenance(t, s, r)["state"] == "AUTHORED_DEMONSTRATION" and seen == [(t, s, r)]
