@@ -1,0 +1,1151 @@
+{
+ "battery_detail_foreign": {
+  "body": {
+   "detail": {
+    "code": "ASSET_NOT_IN_EFFECTIVE_BASIS",
+    "message": "Asset 00000000-0000-4000-8000-000000000001 is not a battery of the effective basis of KOBO-NB.",
+    "physical_condition": null
+   }
+  },
+  "status": 404
+ },
+ "battery_detail_invalid": {
+  "body": {
+   "detail": {
+    "code": "INVALID_ASSET_ID",
+    "message": "'not-an-id' is not an asset ID."
+   }
+  },
+  "status": 422
+ },
+ "battery_detail_kobo001": {
+  "body": {
+   "accepted_state_of_charge": {
+    "included": false,
+    "reason": "The W1 boundary read selects no accepted SOC value; SOC would not prove physical condition."
+   },
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "asset": {
+    "asset_code": "battery",
+    "asset_id": "00000000-0000-4000-8000-000000000001",
+    "asset_type": "BATTERY",
+    "display_name": "Battery energy storage"
+   },
+   "basis": {
+    "binding_set_foundation_revision_id": "00000000-0000-4000-8000-000000000002",
+    "binding_set_revision_id": "00000000-0000-4000-8000-000000000003",
+    "binding_set_version": 1,
+    "effective_at": "2026-10-07T12:00:00.000000Z",
+    "foundation_revision_id": "00000000-0000-4000-8000-000000000002",
+    "foundation_version": 2,
+    "knowledge_at": "2026-10-07T12:00:00.000000Z"
+   },
+   "binding_status": "BOUND",
+   "bound_channels": [
+    {
+     "binding_revision_id": "00000000-0000-4000-8000-000000000004",
+     "device_id": "battery-pcs-controller",
+     "gateway_id": "00000000-0000-4000-8000-000000000005",
+     "label": "BOUND_CHANNEL_NOT_A_CONDITION_INPUT",
+     "role": "battery_soc",
+     "signal_id": "state-of-charge",
+     "source_id": "00000000-0000-4000-8000-000000000006"
+    }
+   ],
+   "claim_scope": "CONFIGURED_ASSET_BOUNDARY",
+   "configuration": "CONFIGURED",
+   "declared_nameplate": {
+    "component_id": "battery",
+    "foundation_revision_id": "00000000-0000-4000-8000-000000000002",
+    "label": "DECLARED_FOUNDATION_RATING",
+    "unit": "kWh",
+    "value": 200.0
+   },
+   "physical_condition": {
+    "missing_causal_inputs": [
+     {
+      "input": "ACCEPTED_BATTERY_TEMPERATURE_HISTORY",
+      "reason": "No battery temperature role is defined or bound, so no accepted temperature history exists.",
+      "status": "MISSING"
+     },
+     {
+      "input": "ACCEPTED_MEASURED_CAPACITY",
+      "reason": "No accepted capacity test or measured usable-capacity evidence exists; the declared rating is not a measurement.",
+      "status": "MISSING"
+     },
+     {
+      "input": "ACCEPTED_CYCLE_STRESS_HISTORY",
+      "reason": "No reviewed stress rule over accepted charge/discharge history exists.",
+      "status": "MISSING"
+     }
+    ],
+    "reason": "NO_REVIEWED_CAUSAL_BATTERY_RULE",
+    "status": "UNKNOWN"
+   },
+   "read_at": "2026-10-07T12:00:00.000000Z",
+   "read_at_clock": "SERVER_REAL_UTC",
+   "rule_id": "assetops.battery-condition-boundary.w1",
+   "schema": {
+    "id": "assetops.asset-boundary",
+    "version": 1
+   },
+   "site_code": "KOBO-001",
+   "site_id": "00000000-0000-4000-8000-000000000007",
+   "withheld": [
+    "DEGRADATION",
+    "REMAINING_LIFE",
+    "STRESS_SCORE",
+    "WARRANTY_EXPOSURE",
+    "REPLACEMENT_EXPOSURE",
+    "DIAGNOSIS"
+   ]
+  },
+  "status": 200
+ },
+ "battery_detail_kobo002": {
+  "body": {
+   "accepted_state_of_charge": {
+    "included": false,
+    "reason": "The W1 boundary read selects no accepted SOC value; SOC would not prove physical condition."
+   },
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "asset": {
+    "asset_code": "battery",
+    "asset_id": "00000000-0000-4000-8000-000000000008",
+    "asset_type": "BATTERY",
+    "display_name": "Battery energy storage"
+   },
+   "basis": {
+    "binding_set_foundation_revision_id": null,
+    "binding_set_revision_id": null,
+    "binding_set_version": null,
+    "effective_at": "2026-10-07T12:00:00.000000Z",
+    "foundation_revision_id": "00000000-0000-4000-8000-000000000009",
+    "foundation_version": 1,
+    "knowledge_at": "2026-10-07T12:00:00.000000Z"
+   },
+   "binding_status": "NO_BINDING_SET",
+   "bound_channels": [],
+   "claim_scope": "CONFIGURED_ASSET_BOUNDARY",
+   "configuration": "CONFIGURED",
+   "declared_nameplate": {
+    "component_id": "battery",
+    "foundation_revision_id": "00000000-0000-4000-8000-000000000009",
+    "label": "DECLARED_FOUNDATION_RATING",
+    "unit": "kWh",
+    "value": 200.0
+   },
+   "physical_condition": {
+    "missing_causal_inputs": [
+     {
+      "input": "ACCEPTED_BATTERY_TEMPERATURE_HISTORY",
+      "reason": "No battery temperature role is defined or bound, so no accepted temperature history exists.",
+      "status": "MISSING"
+     },
+     {
+      "input": "ACCEPTED_MEASURED_CAPACITY",
+      "reason": "No accepted capacity test or measured usable-capacity evidence exists; the declared rating is not a measurement.",
+      "status": "MISSING"
+     },
+     {
+      "input": "ACCEPTED_CYCLE_STRESS_HISTORY",
+      "reason": "No reviewed stress rule over accepted charge/discharge history exists.",
+      "status": "MISSING"
+     }
+    ],
+    "reason": "NO_BINDING_SET",
+    "status": "UNKNOWN"
+   },
+   "read_at": "2026-10-07T12:00:00.000000Z",
+   "read_at_clock": "SERVER_REAL_UTC",
+   "rule_id": "assetops.battery-condition-boundary.w1",
+   "schema": {
+    "id": "assetops.asset-boundary",
+    "version": 1
+   },
+   "site_code": "KOBO-002",
+   "site_id": "00000000-0000-4000-8000-000000000010",
+   "withheld": [
+    "DEGRADATION",
+    "REMAINING_LIFE",
+    "STRESS_SCORE",
+    "WARRANTY_EXPOSURE",
+    "REPLACEMENT_EXPOSURE",
+    "DIAGNOSIS"
+   ]
+  },
+  "status": 200
+ },
+ "battery_entry_kobo001": {
+  "body": {
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "basis": {
+    "binding_set_foundation_revision_id": "00000000-0000-4000-8000-000000000002",
+    "binding_set_revision_id": "00000000-0000-4000-8000-000000000003",
+    "binding_set_version": 1,
+    "effective_at": "2026-10-07T12:00:00.000000Z",
+    "foundation_revision_id": "00000000-0000-4000-8000-000000000002",
+    "foundation_version": 2,
+    "knowledge_at": "2026-10-07T12:00:00.000000Z"
+   },
+   "batteries": [
+    {
+     "asset_code": "battery",
+     "asset_id": "00000000-0000-4000-8000-000000000001",
+     "detail_path": "/api/sites/KOBO-001/assets/00000000-0000-4000-8000-000000000001/battery",
+     "display_name": "Battery energy storage"
+    }
+   ],
+   "claim_scope": "CONFIGURED_ASSET_BOUNDARY",
+   "configuration": "CONFIGURED",
+   "read_at": "2026-10-07T12:00:00.000000Z",
+   "read_at_clock": "SERVER_REAL_UTC",
+   "reason": null,
+   "rule_id": "assetops.battery-condition-boundary.w1",
+   "schema": {
+    "id": "assetops.asset-boundary",
+    "version": 1
+   },
+   "site_code": "KOBO-001",
+   "site_id": "00000000-0000-4000-8000-000000000007",
+   "withheld": [
+    "DEGRADATION",
+    "REMAINING_LIFE",
+    "STRESS_SCORE",
+    "WARRANTY_EXPOSURE",
+    "REPLACEMENT_EXPOSURE",
+    "DIAGNOSIS"
+   ]
+  },
+  "status": 200
+ },
+ "battery_entry_kobo002": {
+  "body": {
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "basis": {
+    "binding_set_foundation_revision_id": null,
+    "binding_set_revision_id": null,
+    "binding_set_version": null,
+    "effective_at": "2026-10-07T12:00:00.000000Z",
+    "foundation_revision_id": "00000000-0000-4000-8000-000000000009",
+    "foundation_version": 1,
+    "knowledge_at": "2026-10-07T12:00:00.000000Z"
+   },
+   "batteries": [
+    {
+     "asset_code": "battery",
+     "asset_id": "00000000-0000-4000-8000-000000000008",
+     "detail_path": "/api/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000008/battery",
+     "display_name": "Battery energy storage"
+    }
+   ],
+   "claim_scope": "CONFIGURED_ASSET_BOUNDARY",
+   "configuration": "CONFIGURED",
+   "read_at": "2026-10-07T12:00:00.000000Z",
+   "read_at_clock": "SERVER_REAL_UTC",
+   "reason": null,
+   "rule_id": "assetops.battery-condition-boundary.w1",
+   "schema": {
+    "id": "assetops.asset-boundary",
+    "version": 1
+   },
+   "site_code": "KOBO-002",
+   "site_id": "00000000-0000-4000-8000-000000000010",
+   "withheld": [
+    "DEGRADATION",
+    "REMAINING_LIFE",
+    "STRESS_SCORE",
+    "WARRANTY_EXPOSURE",
+    "REPLACEMENT_EXPOSURE",
+    "DIAGNOSIS"
+   ]
+  },
+  "status": 200
+ },
+ "battery_entry_kobonb": {
+  "body": {
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "basis": {
+    "binding_set_foundation_revision_id": null,
+    "binding_set_revision_id": null,
+    "binding_set_version": null,
+    "effective_at": "2026-10-07T12:00:00.000000Z",
+    "foundation_revision_id": "00000000-0000-4000-8000-000000000011",
+    "foundation_version": 1,
+    "knowledge_at": "2026-10-07T12:00:00.000000Z"
+   },
+   "batteries": [],
+   "claim_scope": "CONFIGURED_ASSET_BOUNDARY",
+   "configuration": "NOT_CONFIGURED",
+   "physical_condition": {
+    "missing_causal_inputs": [],
+    "reason": "NOT_CONFIGURED",
+    "status": "UNKNOWN"
+   },
+   "read_at": "2026-10-07T12:00:00.000000Z",
+   "read_at_clock": "SERVER_REAL_UTC",
+   "reason": "NO_BATTERY_IN_EFFECTIVE_FOUNDATION",
+   "rule_id": "assetops.battery-condition-boundary.w1",
+   "schema": {
+    "id": "assetops.asset-boundary",
+    "version": 1
+   },
+   "site_code": "KOBO-NB",
+   "site_id": "00000000-0000-4000-8000-000000000012",
+   "withheld": [
+    "DEGRADATION",
+    "REMAINING_LIFE",
+    "STRESS_SCORE",
+    "WARRANTY_EXPOSURE",
+    "REPLACEMENT_EXPOSURE",
+    "DIAGNOSIS"
+   ]
+  },
+  "status": 200
+ },
+ "health_kobo001": {
+  "body": {
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "claim_scope": "GATEWAY_OPERATIONAL_REPORT",
+   "gateways": [
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": null,
+      "reason": "NEVER_RECEIVED",
+      "since_last_receipt_seconds": null,
+      "status": "UNKNOWN",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": null,
+     "gateway_external_id": "edge-kobo-001",
+     "gateway_id": "00000000-0000-4000-8000-000000000005",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-07T10:00:00.000000Z",
+     "registration": "DISABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": null,
+       "reason": "NEVER_RECEIVED",
+       "tolerance_ms": 5000,
+       "trust": "UNKNOWN"
+      },
+      "disk_pressure": null,
+      "fact_age_seconds": null,
+      "mapping_error_count": null,
+      "observed_at": null,
+      "queue": null,
+      "reason": "NEVER_RECEIVED",
+      "receipt_lag_seconds": null,
+      "status": "UNKNOWN"
+     },
+     "source_watermark": null,
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "battery-pcs-controller",
+       "source_id": "00000000-0000-4000-8000-000000000006"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "clinic-meter",
+       "source_id": "00000000-0000-4000-8000-000000000013"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "fuel-level-sensor",
+       "source_id": "00000000-0000-4000-8000-000000000014"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "generator-controller",
+       "source_id": "00000000-0000-4000-8000-000000000015"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "mill-meter",
+       "source_id": "00000000-0000-4000-8000-000000000016"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "pv-inverter-controller",
+       "source_id": "00000000-0000-4000-8000-000000000017"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "pv-irradiance-sensor",
+       "source_id": "00000000-0000-4000-8000-000000000018"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "residential-meter",
+       "source_id": "00000000-0000-4000-8000-000000000019"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": "2026-10-16T09:10:00.000000Z",
+      "reason": "RECEIVED_WITHIN_THRESHOLD",
+      "since_last_receipt_seconds": 5,
+      "status": "CURRENT",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000020",
+      "diagnostic_sequence": 1,
+      "observed_at": "2026-10-16T09:11:30.000000Z",
+      "observed_at_clock": "GATEWAY_REPORTED_UTC",
+      "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "gateway_external_id": "s7-clock-offset",
+     "gateway_id": "00000000-0000-4000-8000-000000000021",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": 95000,
+       "reason": "OFFSET_BEYOND_TOLERANCE",
+       "tolerance_ms": 5000,
+       "trust": "UNTRUSTED"
+      },
+      "disk_pressure": {
+       "as": "LAST_REPORTED",
+       "provenance": "REPORTED_SIMULATED_GATEWAY",
+       "value": "OK"
+      },
+      "fact_age_seconds": null,
+      "mapping_error_count": 0,
+      "observed_at": "2026-10-16T09:11:30.000000Z",
+      "queue": {
+       "as": "LAST_REPORTED",
+       "count": 0,
+       "oldest_age_seconds": null
+      },
+      "reason": "GATEWAY_CLOCK_UNTRUSTED",
+      "receipt_lag_seconds": -90,
+      "status": "UNKNOWN"
+     },
+     "source_watermark": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000020",
+      "diagnostic_sequence": 1,
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": "2026-10-16T09:11:00Z",
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "REPORTED",
+       "source_external_id": "s7-clock-offset-device",
+       "source_id": "00000000-0000-4000-8000-000000000022"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": "2026-10-16T09:10:00.000000Z",
+      "reason": "RECEIVED_WITHIN_THRESHOLD",
+      "since_last_receipt_seconds": 5,
+      "status": "CURRENT",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000023",
+      "diagnostic_sequence": 1,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "observed_at_clock": "GATEWAY_REPORTED_UTC",
+      "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000002",
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "gateway_external_id": "s7-current",
+     "gateway_id": "00000000-0000-4000-8000-000000000024",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": 150,
+       "reason": "OFFSET_MEASURED_WITHIN_TOLERANCE",
+       "tolerance_ms": 5000,
+       "trust": "WITHIN_TOLERANCE"
+      },
+      "disk_pressure": {
+       "as": "LAST_REPORTED",
+       "provenance": "REPORTED_SIMULATED_GATEWAY",
+       "value": "OK"
+      },
+      "fact_age_seconds": 7,
+      "mapping_error_count": 0,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "queue": {
+       "as": "LAST_REPORTED",
+       "count": 0,
+       "oldest_age_seconds": null
+      },
+      "reason": "OBSERVED_WITHIN_CADENCE_THRESHOLD",
+      "receipt_lag_seconds": 2,
+      "status": "CURRENT"
+     },
+     "source_watermark": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000023",
+      "diagnostic_sequence": 1,
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": "2026-10-16T09:09:28Z",
+       "reported_contact_age_seconds": 37,
+       "reported_contact_status": "REPORTED",
+       "source_external_id": "s7-current-device",
+       "source_id": "00000000-0000-4000-8000-000000000025"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": "2026-10-16T09:10:00.000000Z",
+      "reason": "RECEIVED_WITHIN_THRESHOLD",
+      "since_last_receipt_seconds": 5,
+      "status": "CURRENT",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000026",
+      "diagnostic_sequence": 1,
+      "observed_at": "2026-10-16T03:10:00.000000Z",
+      "observed_at_clock": "GATEWAY_REPORTED_UTC",
+      "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000003",
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "gateway_external_id": "s7-delayed-old",
+     "gateway_id": "00000000-0000-4000-8000-000000000027",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": 150,
+       "reason": "OFFSET_MEASURED_WITHIN_TOLERANCE",
+       "tolerance_ms": 5000,
+       "trust": "WITHIN_TOLERANCE"
+      },
+      "disk_pressure": {
+       "as": "LAST_REPORTED",
+       "provenance": "REPORTED_SIMULATED_GATEWAY",
+       "value": "OK"
+      },
+      "fact_age_seconds": 21605,
+      "mapping_error_count": 0,
+      "observed_at": "2026-10-16T03:10:00.000000Z",
+      "queue": {
+       "as": "LAST_REPORTED",
+       "count": 12,
+       "oldest_age_seconds": 21600
+      },
+      "reason": "OBSERVED_BEFORE_CADENCE_THRESHOLD",
+      "receipt_lag_seconds": 21600,
+      "status": "OLD"
+     },
+     "source_watermark": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000026",
+      "diagnostic_sequence": 1,
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": "2026-10-16T03:09:30Z",
+       "reported_contact_age_seconds": 21635,
+       "reported_contact_status": "REPORTED",
+       "source_external_id": "s7-delayed-old-device",
+       "source_id": "00000000-0000-4000-8000-000000000028"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": "2026-10-16T09:10:00.000000Z",
+      "reason": "RECEIVED_WITHIN_THRESHOLD",
+      "since_last_receipt_seconds": 5,
+      "status": "CURRENT",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000029",
+      "diagnostic_sequence": 2,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "observed_at_clock": "GATEWAY_REPORTED_UTC",
+      "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000004",
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "gateway_external_id": "s7-disk-recovery",
+     "gateway_id": "00000000-0000-4000-8000-000000000030",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": 150,
+       "reason": "OFFSET_MEASURED_WITHIN_TOLERANCE",
+       "tolerance_ms": 5000,
+       "trust": "WITHIN_TOLERANCE"
+      },
+      "disk_pressure": {
+       "as": "LAST_REPORTED",
+       "provenance": "REPORTED_SIMULATED_GATEWAY",
+       "value": "OK"
+      },
+      "fact_age_seconds": 7,
+      "mapping_error_count": 0,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "queue": {
+       "as": "LAST_REPORTED",
+       "count": 0,
+       "oldest_age_seconds": null
+      },
+      "reason": "OBSERVED_WITHIN_CADENCE_THRESHOLD",
+      "receipt_lag_seconds": 2,
+      "status": "CURRENT"
+     },
+     "source_watermark": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000029",
+      "diagnostic_sequence": 2,
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": "2026-10-16T09:09:28Z",
+       "reported_contact_age_seconds": 37,
+       "reported_contact_status": "REPORTED",
+       "source_external_id": "s7-disk-recovery-device",
+       "source_id": "00000000-0000-4000-8000-000000000031"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": "2026-10-16T09:10:00.000000Z",
+      "reason": "RECEIVED_WITHIN_THRESHOLD",
+      "since_last_receipt_seconds": 5,
+      "status": "CURRENT",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000032",
+      "diagnostic_sequence": 2,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "observed_at_clock": "GATEWAY_REPORTED_UTC",
+      "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000005",
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "gateway_external_id": "s7-disk-stop",
+     "gateway_id": "00000000-0000-4000-8000-000000000033",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": 150,
+       "reason": "OFFSET_MEASURED_WITHIN_TOLERANCE",
+       "tolerance_ms": 5000,
+       "trust": "WITHIN_TOLERANCE"
+      },
+      "disk_pressure": {
+       "as": "LAST_REPORTED",
+       "provenance": "REPORTED_SIMULATED_GATEWAY",
+       "value": "STOP"
+      },
+      "fact_age_seconds": 7,
+      "mapping_error_count": 0,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "queue": {
+       "as": "LAST_REPORTED",
+       "count": 300,
+       "oldest_age_seconds": 720
+      },
+      "reason": "OBSERVED_WITHIN_CADENCE_THRESHOLD",
+      "receipt_lag_seconds": 2,
+      "status": "CURRENT"
+     },
+     "source_watermark": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000032",
+      "diagnostic_sequence": 2,
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": "2026-10-16T09:09:28Z",
+       "reported_contact_age_seconds": 37,
+       "reported_contact_status": "REPORTED",
+       "source_external_id": "s7-disk-stop-device",
+       "source_id": "00000000-0000-4000-8000-000000000034"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": null,
+      "reason": "NEVER_RECEIVED",
+      "since_last_receipt_seconds": null,
+      "status": "UNKNOWN",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": null,
+     "gateway_external_id": "s7-never-received",
+     "gateway_id": "00000000-0000-4000-8000-000000000035",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": null,
+       "reason": "NEVER_RECEIVED",
+       "tolerance_ms": 5000,
+       "trust": "UNKNOWN"
+      },
+      "disk_pressure": null,
+      "fact_age_seconds": null,
+      "mapping_error_count": null,
+      "observed_at": null,
+      "queue": null,
+      "reason": "NEVER_RECEIVED",
+      "receipt_lag_seconds": null,
+      "status": "UNKNOWN"
+     },
+     "source_watermark": null,
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "s7-never-received-device",
+       "source_id": "00000000-0000-4000-8000-000000000036"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": "2026-10-16T09:10:00.000000Z",
+      "reason": "RECEIVED_WITHIN_THRESHOLD",
+      "since_last_receipt_seconds": 5,
+      "status": "CURRENT",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000037",
+      "diagnostic_sequence": 2,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "observed_at_clock": "GATEWAY_REPORTED_UTC",
+      "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000006",
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "gateway_external_id": "s7-queue-growth",
+     "gateway_id": "00000000-0000-4000-8000-000000000038",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": 150,
+       "reason": "OFFSET_MEASURED_WITHIN_TOLERANCE",
+       "tolerance_ms": 5000,
+       "trust": "WITHIN_TOLERANCE"
+      },
+      "disk_pressure": {
+       "as": "LAST_REPORTED",
+       "provenance": "REPORTED_SIMULATED_GATEWAY",
+       "value": "OK"
+      },
+      "fact_age_seconds": 7,
+      "mapping_error_count": 0,
+      "observed_at": "2026-10-16T09:09:58.000000Z",
+      "queue": {
+       "as": "LAST_REPORTED",
+       "count": 900,
+       "oldest_age_seconds": 5400
+      },
+      "reason": "OBSERVED_WITHIN_CADENCE_THRESHOLD",
+      "receipt_lag_seconds": 2,
+      "status": "CURRENT"
+     },
+     "source_watermark": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000037",
+      "diagnostic_sequence": 2,
+      "received_at": "2026-10-16T09:10:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": "2026-10-16T09:09:28Z",
+       "reported_contact_age_seconds": 37,
+       "reported_contact_status": "REPORTED",
+       "source_external_id": "s7-queue-growth-device",
+       "source_id": "00000000-0000-4000-8000-000000000039"
+      }
+     ]
+    },
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": "2026-10-16T09:00:00.000000Z",
+      "reason": "NO_RECEIPT_WITHIN_THRESHOLD_OUTAGE_START_NOT_DATED",
+      "since_last_receipt_seconds": 605,
+      "status": "STALE",
+      "threshold_seconds": 60
+     },
+     "declared_cadence_seconds": 30,
+     "diagnostic": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000040",
+      "diagnostic_sequence": 1,
+      "observed_at": "2026-10-16T08:59:58.000000Z",
+      "observed_at_clock": "GATEWAY_REPORTED_UTC",
+      "payload_sha256": "0000000000000000000000000000000000000000000000000000000000000007",
+      "received_at": "2026-10-16T09:00:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "gateway_external_id": "s7-stale-cadence",
+     "gateway_id": "00000000-0000-4000-8000-000000000041",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-16T09:00:00.000000Z",
+     "registration": "ENABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": 150,
+       "reason": "OFFSET_MEASURED_WITHIN_TOLERANCE",
+       "tolerance_ms": 5000,
+       "trust": "WITHIN_TOLERANCE"
+      },
+      "disk_pressure": {
+       "as": "LAST_REPORTED",
+       "provenance": "REPORTED_SIMULATED_GATEWAY",
+       "value": "OK"
+      },
+      "fact_age_seconds": 607,
+      "mapping_error_count": 0,
+      "observed_at": "2026-10-16T08:59:58.000000Z",
+      "queue": {
+       "as": "LAST_REPORTED",
+       "count": 0,
+       "oldest_age_seconds": null
+      },
+      "reason": "OBSERVED_BEFORE_CADENCE_THRESHOLD",
+      "receipt_lag_seconds": 2,
+      "status": "OLD"
+     },
+     "source_watermark": {
+      "diagnostic_id": "00000000-0000-4000-8000-000000000040",
+      "diagnostic_sequence": 1,
+      "received_at": "2026-10-16T09:00:00.000000Z",
+      "sequence_epoch": "s7-epoch-1"
+     },
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "ENABLED",
+       "reported_contact": "2026-10-16T08:59:28Z",
+       "reported_contact_age_seconds": 637,
+       "reported_contact_status": "REPORTED",
+       "source_external_id": "s7-stale-cadence-device",
+       "source_id": "00000000-0000-4000-8000-000000000042"
+      }
+     ]
+    }
+   ],
+   "not_claimed": [
+    "DEVICE_CONNECTED",
+    "ASSET_CONDITION",
+    "OUTAGE_START",
+    "CURRENT_HARDWARE_STATE"
+   ],
+   "read_at": "2026-10-16T09:10:05.000000Z",
+   "read_at_clock": "SERVER_REAL_UTC",
+   "rule_id": "assetops.source-health.two-clock.v1",
+   "schema": {
+    "id": "assetops.site-source-health",
+    "version": 1
+   },
+   "site_code": "KOBO-001",
+   "site_id": "00000000-0000-4000-8000-000000000007",
+   "snapshot": {
+    "isolation": "REPEATABLE_READ",
+    "selection": "CONSISTENT"
+   },
+   "stale_projection": {
+    "applicable": false,
+    "reason": "The read selects the central diagnostic store directly; there is no derived projection to lag."
+   },
+   "summary": {
+    "contact_counts": {
+     "CURRENT": 6,
+     "STALE": 1,
+     "UNKNOWN": 1
+    },
+    "disabled_gateway_count": 1,
+    "enabled_gateway_count": 8,
+    "reason": null,
+    "source_watermark": {
+     "latest_received_at": "2026-10-16T09:10:00.000000Z",
+     "selected_diagnostic_count": 7,
+     "selected_diagnostic_ids_sha256": "0000000000000000000000000000000000000000000000000000000000000008"
+    },
+    "status": "NOT_ALL_CURRENT"
+   }
+  },
+  "status": 200
+ },
+ "health_kobo002": {
+  "body": {
+   "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
+   "claim_scope": "GATEWAY_OPERATIONAL_REPORT",
+   "gateways": [
+    {
+     "contact": {
+      "basis": "SERVER_RECEIVED_AT",
+      "last_received_at": null,
+      "reason": "NEVER_RECEIVED",
+      "since_last_receipt_seconds": null,
+      "status": "UNKNOWN",
+      "threshold_seconds": 120
+     },
+     "declared_cadence_seconds": 60,
+     "diagnostic": null,
+     "gateway_external_id": "edge-kobo-002",
+     "gateway_id": "00000000-0000-4000-8000-000000000043",
+     "mode": "SIMULATED",
+     "registered_at": "2026-10-07T10:00:00.000000Z",
+     "registration": "DISABLED",
+     "reported_facts": {
+      "clock": {
+       "observed_after_receipt_allowance_ms": 5000,
+       "offset_ms": null,
+       "reason": "NEVER_RECEIVED",
+       "tolerance_ms": 5000,
+       "trust": "UNKNOWN"
+      },
+      "disk_pressure": null,
+      "fact_age_seconds": null,
+      "mapping_error_count": null,
+      "observed_at": null,
+      "queue": null,
+      "reason": "NEVER_RECEIVED",
+      "receipt_lag_seconds": null,
+      "status": "UNKNOWN"
+     },
+     "source_watermark": null,
+     "sources": [
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "battery-pcs-controller",
+       "source_id": "00000000-0000-4000-8000-000000000044"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "clinic-meter",
+       "source_id": "00000000-0000-4000-8000-000000000045"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "fuel-level-sensor",
+       "source_id": "00000000-0000-4000-8000-000000000046"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "generator-controller",
+       "source_id": "00000000-0000-4000-8000-000000000047"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "mill-meter",
+       "source_id": "00000000-0000-4000-8000-000000000048"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "pv-inverter-controller",
+       "source_id": "00000000-0000-4000-8000-000000000049"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "pv-irradiance-sensor",
+       "source_id": "00000000-0000-4000-8000-000000000050"
+      },
+      {
+       "contact_basis": "GATEWAY_REPORTED_DEVICE_CONTACT",
+       "registration": "DISABLED",
+       "reported_contact": null,
+       "reported_contact_age_seconds": null,
+       "reported_contact_status": "NOT_IN_SELECTED_DIAGNOSTIC",
+       "source_external_id": "residential-meter",
+       "source_id": "00000000-0000-4000-8000-000000000051"
+      }
+     ]
+    }
+   ],
+   "not_claimed": [
+    "DEVICE_CONNECTED",
+    "ASSET_CONDITION",
+    "OUTAGE_START",
+    "CURRENT_HARDWARE_STATE"
+   ],
+   "read_at": "2026-10-16T09:10:05.000000Z",
+   "read_at_clock": "SERVER_REAL_UTC",
+   "rule_id": "assetops.source-health.two-clock.v1",
+   "schema": {
+    "id": "assetops.site-source-health",
+    "version": 1
+   },
+   "site_code": "KOBO-002",
+   "site_id": "00000000-0000-4000-8000-000000000010",
+   "snapshot": {
+    "isolation": "REPEATABLE_READ",
+    "selection": "CONSISTENT"
+   },
+   "stale_projection": {
+    "applicable": false,
+    "reason": "The read selects the central diagnostic store directly; there is no derived projection to lag."
+   },
+   "summary": {
+    "contact_counts": {
+     "CURRENT": 0,
+     "STALE": 0,
+     "UNKNOWN": 0
+    },
+    "disabled_gateway_count": 1,
+    "enabled_gateway_count": 0,
+    "reason": "NO_ENABLED_GATEWAY",
+    "source_watermark": {
+     "latest_received_at": null,
+     "selected_diagnostic_count": 0,
+     "selected_diagnostic_ids_sha256": "0000000000000000000000000000000000000000000000000000000000000009"
+    },
+    "status": "NO_REGISTERED_SOURCE"
+   }
+  },
+  "status": 200
+ },
+ "health_unavailable": {
+  "body": {
+   "detail": {
+    "code": "SOURCE_HEALTH_UNAVAILABLE",
+    "gateways": null,
+    "message": "store down"
+   }
+  },
+  "status": 503
+ },
+ "health_unknown_site": {
+  "body": {
+   "detail": "No imported Site 'NOT-A-SITE' in this tenant."
+  },
+  "status": 404
+ }
+}
