@@ -304,6 +304,34 @@ describe("the Commit panel", () => {
     expect(panel().querySelector('[data-commit-state="COMMITTED"]')).toBeNull();
   });
 
+  // S4-05b (D-2026-10-16-s405b-label item 2): a partly sealed registered stage is refused whole.
+  // Lab keeps the refusal visible so the operator knows no partial release happened.
+  it("keeps a source publication refusal visible and claims no partial release", async () => {
+    const refused: RunCommitResult = {
+      status: "refused",
+      code: "SOURCE_PUBLICATION_REFUSED",
+      message:
+        "Commit first records each sealed batch of this run as the output of this recorded run, so the " +
+        "product can say where its readings came from. That record was refused or could not be written, so " +
+        "nothing was released; the reason is on the refusal. " +
+        "STAGE_NOT_ATTESTABLE: the run's Stage is SEALING_IN_PROGRESS",
+      releaseBlockers: [],
+    };
+    renderAt(client(ELIGIBLE, NOT_COMMITTED, [refused]));
+    await settledScreen();
+
+    fireEvent.click(within(panel()).getByRole("button", { name: "Commit and release" }));
+    await screen.findByText(/so\s+nothing was released/);
+    expect(
+      panel().querySelector("[data-commit-refusal]")?.getAttribute("data-commit-refusal"),
+    ).toBe("SOURCE_PUBLICATION_REFUSED");
+    const text = spacedText(panel());
+    expect(text).toContain("Commit not completed.");
+    expect(text).toContain("STAGE_NOT_ATTESTABLE");
+    expect(panel().querySelector('[data-commit-state="COMMITTED"]')).toBeNull();
+    expect(panel().querySelector("[data-release-status]")).toBeNull();
+  });
+
   it("states the stage's eligibility as Commit's condition, not as a missing capability", async () => {
     renderAt(client(ELIGIBLE, NOT_COMMITTED));
     await settledScreen();
