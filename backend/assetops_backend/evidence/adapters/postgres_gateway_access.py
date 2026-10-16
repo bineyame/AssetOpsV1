@@ -30,6 +30,12 @@ from assetops_backend.evidence.gateway_access import (
     StoredDiagnostic,
 )
 from assetops_backend.evidence.ledger import GatewayPrincipal, LedgerUnavailable
+from assetops_backend.evidence.source_health import (
+    RegisteredGateway,
+    RegisteredSource,
+    SelectedDiagnostic,
+    SourceHealthSnapshot,
+)
 from assetops_contracts.gateway_diagnostics import GatewayDiagnosticsV1
 
 
@@ -195,6 +201,53 @@ class PostgresGatewayAccess:
             return facts
 
         return self._run(work)
+
+    # --- S7-01a source-health snapshot (read only) -------------------------------------
+
+    def source_health_snapshot(self, tenant_id: UUID, site_id: UUID) -> SourceHealthSnapshot:
+        """Registration and the latest diagnostic per gateway in ONE repeatable-read transaction,
+        so every gateway row and the Site summary share one database snapshot."""
+        engine = self._connect_engine()
+        try:
+            with engine.connect() as raw:
+                c = raw.execution_options(isolation_level="REPEATABLE READ")
+                with c.begin():
+                    isolation = c.execute(text("SHOW transaction_isolation")).scalar_one()
+                    gateways, sources = self._health_registration(c, tenant_id, site_id)
+                    diagnostics = self._health_latest(c, tenant_id, site_id)
+        except (OperationalError, ProgrammingError) as error:
+            raise LedgerUnavailable(f"Source health could not be read: {error.orig}") from error
+        except DBAPIError as error:
+            if error.connection_invalidated:
+                raise LedgerUnavailable(str(error.orig)) from error
+            raise
+        return SourceHealthSnapshot(tenant_id, site_id, isolation, gateways, sources, diagnostics)
+
+    @staticmethod
+    def _health_registration(c: Connection, tenant_id: UUID, site_id: UUID):
+        params = {"t": tenant_id, "s": site_id}
+        gateways = tuple(RegisteredGateway(
+            r.tenant_id, r.site_id, r.id, r.gateway_external_id, r.mode, r.registered_at, r.disabled,
+            r.diagnostic_cadence_seconds) for r in c.execute(text(
+                "SELECT tenant_id, site_id, id, gateway_external_id, mode, registered_at, "
+                "disabled_at IS NOT NULL AS disabled, diagnostic_cadence_seconds FROM gateway "
+                "WHERE tenant_id = :t AND site_id = :s ORDER BY gateway_external_id"), params))
+        sources = tuple(RegisteredSource(
+            r.tenant_id, r.site_id, r.gateway_id, r.id, r.source_external_id, r.disabled) for r in c.execute(text(
+                "SELECT tenant_id, site_id, gateway_id, id, source_external_id, disabled_at IS NOT NULL AS disabled "
+                "FROM source WHERE tenant_id = :t AND site_id = :s ORDER BY source_external_id"), params))
+        return gateways, sources
+
+    @staticmethod
+    def _health_latest(c: Connection, tenant_id: UUID, site_id: UUID) -> tuple[SelectedDiagnostic, ...]:
+        # The S2 latest-diagnostic order (received_at, then sequence), for every gateway at once.
+        return tuple(SelectedDiagnostic(
+            r.tenant_id, r.site_id, r.gateway_id, r.id, r.sequence_epoch, r.diagnostic_sequence, r.observed_at,
+            r.received_at, r.payload_sha256, r.diagnostic_text) for r in c.execute(text(
+                "SELECT DISTINCT ON (gateway_id) tenant_id, site_id, gateway_id, id, sequence_epoch, "
+                "diagnostic_sequence, observed_at, received_at, payload_sha256, diagnostic_text "
+                "FROM gateway_diagnostic WHERE tenant_id = :t AND site_id = :s "
+                "ORDER BY gateway_id, received_at DESC, diagnostic_sequence DESC"), {"t": tenant_id, "s": site_id}))
 
     # --- operator provisioning ---------------------------------------------------------
 

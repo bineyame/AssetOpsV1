@@ -19,6 +19,7 @@
 
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { arrayOf, hasKeys, isObject, query, read, type EvidenceRead } from "./evidenceRead";
+import { createClaimLimitClient, type ClaimLimitClient } from "./claimLimitClient";
 import { createGatewayHealthClient, type GatewayHealthClient } from "./gatewayHealthClient";
 import { createLedgerEvidenceClient, isLedgerEvidence, type LedgerEvidence, type LedgerEvidenceClient } from "./ledgerEvidenceClient";
 
@@ -212,6 +213,8 @@ export interface SiteEvidenceClient {
   ledger?: LedgerEvidenceClient;
   /** The Site's central gateway contact, shown beside ledger evidence. */
   gatewayHealth?: GatewayHealthClient;
+  /** S3-02b: the selected assessment's claim limit on Evidence Analysis. */
+  claimLimit?: ClaimLimitClient;
 }
 
 function isOverview(value: unknown): value is EvidenceOverview {
@@ -281,6 +284,7 @@ export function createSiteEvidenceClient(
   return {
     ledger: createLedgerEvidenceClient(basePath),
     gatewayHealth: createGatewayHealthClient(basePath),
+    claimLimit: createClaimLimitClient(basePath),
     getEvidence(siteId, window) {
       return read(
         `${evidencePath(siteId)}${query({ from: window.from, to: window.to })}`,

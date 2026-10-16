@@ -40,6 +40,7 @@ import type {
   SiteEvidenceClient,
 } from "./siteEvidenceClient";
 import { sourceReferences } from "./vocabularyReference";
+import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
 
 /** How many records the inspector lists for one row, newest first. */
 export const INSPECTOR_RECORD_LIMIT = 50;
@@ -59,6 +60,8 @@ export interface SiteEvidenceProps {
   /** The analytics read model; absent, no capability table is rendered. */
   analytics?: SiteAnalyticsClient;
   profile?: DomainPresentationProfile | null;
+  /** S3-02b: the Performance > Dispatch address of one pinned assessment revision. */
+  assessmentHref?: (day: string, revisionId: string) => string;
 }
 
 /** Shown for a rejection when the backend serves no plain reason; never its code. */
@@ -90,6 +93,7 @@ export function SiteEvidence({
   client,
   analytics,
   profile = null,
+  assessmentHref,
 }: SiteEvidenceProps) {
   const [params, setParams] = useSearchParams();
   const from = params.get("from");
@@ -164,6 +168,8 @@ export function SiteEvidence({
         evidence={overview.value}
         ledger={client.ledger}
         gatewayHealth={client.gatewayHealth}
+        claimLimit={client.claimLimit}
+        assessmentHref={assessmentHref}
       />
     );
   }
@@ -187,6 +193,7 @@ export function SiteEvidence({
       ) : (
         <>
           <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
+          <EvidenceClaimLimit siteId={siteId} client={client.claimLimit} assessmentHref={assessmentHref} />
           {analytics === undefined || params.get("assessment") === null ? null : (
             <SelectedAssessmentCoverage
               siteId={siteId}
