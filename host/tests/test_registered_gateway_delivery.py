@@ -127,3 +127,43 @@ def test_the_gateway_uploads_every_batch_and_the_run_reads_fully_released(draft,
     finally:
         process.kill()
         central.close()
+
+
+class _Publisher:
+    """S4-05b: records what the host offers for publication before its release; may refuse."""
+
+    def __init__(self, refuse: bool = False) -> None:
+        self.refuse, self.seen = refuse, []
+
+    def publish(self, run, stage):
+        self.seen.append((stage.status, tuple((b.batch_id, b.state) for b in stage.batches)))
+        if self.refuse:
+            raise LabControlRefused("SOURCE_PUBLICATION_REFUSED", run.run_id, "GATEWAY_NOT_SIMULATED: test")
+        return ()
+
+
+def test_commit_publishes_the_sealed_batches_before_release_and_a_refusal_releases_nothing(draft, tmp_path) -> None:
+    process = _gateway(tmp_path, draft)
+    try:
+        refusing = _Publisher(refuse=True)
+        port = HostLabExecution(artifacts=YamlExecutionArtifacts(tmp_path / "host"),
+                                stages=JsonSourceStages(tmp_path / "host" / "stages"),
+                                gateway=RegisteredGatewayPublisher(process.link), source_publisher=refusing)
+        port.start(draft)
+        with pytest.raises(LabControlRefused) as early:
+            port.release_registered(draft)
+        assert early.value.kind == "COMMIT_NOT_READY" and refusing.seen == []  # nothing offered before completion
+        assert port.run_to_end(draft).status == "COMPLETED"
+        with pytest.raises(LabControlRefused) as refused:
+            port.release_registered(draft)
+        assert refused.value.kind == "SOURCE_PUBLICATION_REFUSED"
+        (offered,) = refusing.seen
+        assert offered[0] == "STAGED" and offered[1] and {s for _, s in offered[1]} == {"STAGED"}
+        assert {b.state for b in port.registered_stage(draft).batches} == {"STAGED"}  # nothing released
+        accepting = _Publisher()
+        port._source_publisher = accepting
+        view = port.release_registered(draft)
+        assert view["released_now"] == len(offered[1]) and accepting.seen == [offered]
+        assert {b.state for b in port.registered_stage(draft).batches} == {"READY"}
+    finally:
+        process.kill()

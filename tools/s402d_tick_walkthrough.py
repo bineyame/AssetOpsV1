@@ -242,7 +242,8 @@ class TickWalk(lw.LateWalk):
                     {"s4": ((t2["site"] or {}).get("stages", {}).get("s4")), "passes": len(self.passes())})
 
         step("2. The withheld mean is accepted late (same registered credential, TLS); no tick yet")
-        late_batches = self.post(self.power_envelopes(self.late, s4.EPOCH_PREFIX + self.late["epoch"]))
+        late_batches = self.post(self.power_envelopes(self.late, s4.EPOCH_PREFIX + self.late["epoch"]),
+                                 fixture=self.authored_fixture())
         (late_id,) = self.accepted(late_batches)
         o["late"] = {"batch_ids": late_batches, "accepted_evidence_id": late_id,
                      "source_sequence": list(self.last_sequences)}

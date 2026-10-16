@@ -117,6 +117,8 @@ LAB_CONTROL_REFUSALS = frozenset(
         # S2-02 phase 2: Lab Commit of a registered run (a local gateway release).
         "COMMIT_NOT_READY",
         "GATEWAY_RELEASE_UNAVAILABLE",
+        # S4-05b: the run's sealed batches could not be published as registered simulation before release.
+        "SOURCE_PUBLICATION_REFUSED",
     }
 )
 
@@ -159,6 +161,11 @@ LAB_CONTROL_REFUSAL_STATEMENTS: dict[str, str] = {
         "so nothing was moved, admitted or sealed. Where ordinary publication "
         "is admitted through and where the world reached are on the refusal; "
         "recovery is a new run."
+    ),
+    "SOURCE_PUBLICATION_REFUSED": (
+        "Commit first records each sealed batch of this run as the output of this recorded run, so the "
+        "product can say where its readings came from. That record was refused or could not be written, so "
+        "nothing was released; the reason is on the refusal."
     ),
     "COMMIT_NOT_READY": (
         "Commit releases a registered run's sealed batches only after its world "
