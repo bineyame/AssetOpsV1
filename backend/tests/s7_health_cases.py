@@ -26,6 +26,9 @@ Cases (gateway external id -> what the read must show):
 
 `deliver()` posts the next local sequence on `s7-current` and `s7-delayed-old` so both carry a
 fresh server receipt immediately before viewing (the delayed case keeps its 6 h old facts).
+`deliver(CURRENT_CONTACT_KEYS)` refreshes every case meant to read CURRENT contact (S7-01b walkthrough).
+`register()` adds eight gateways to the Site, which breaks S1's one-gateway rule for later binding publishes
+there: run it only after the Site's bindings exist, on a DB of its own (S7-01a review L1).
 """
 
 from __future__ import annotations
@@ -50,6 +53,10 @@ from assetops_contracts.gateway_diagnostics import seal_gateway_diagnostics_v1
 EPOCH = "s7-epoch-1"
 MANIFEST = "s7_health_cases.json"
 DELAY = timedelta(hours=6)
+DELIVER_DEFAULT = ("s7-current", "s7-delayed-old")
+#: Cases whose contact is meant to read CURRENT; `s7-stale-cadence` and `s7-never-received` are not refreshed.
+CURRENT_CONTACT_KEYS = ("s7-current", "s7-delayed-old", "s7-queue-growth", "s7-clock-offset", "s7-disk-stop",
+                        "s7-disk-recovery")
 
 
 @dataclass(frozen=True)
@@ -189,15 +196,25 @@ class HealthCases:
                 "AND sequence_epoch = :e"), {"g": self.manifest["gateways"][key]["gateway_id"], "e": EPOCH}
             ).scalar_one()
 
-    def deliver(self) -> dict[str, dict]:
-        """Fresh receipts for the current and old-facts cases; each advances its gateway's local sequence."""
-        now = self.clock()
+    def last_facts(self, key: str, now: datetime) -> dict:
+        """The facts a case last published, restated for a delivery at ``now`` (same meaning, new receipt)."""
+        recent = now - timedelta(seconds=2)
         return {
-            "s7-current": self.post("s7-current", self.next_sequence("s7-current"),
-                                    observed=now - timedelta(seconds=2)),
-            "s7-delayed-old": self.post("s7-delayed-old", self.next_sequence("s7-delayed-old"),
-                                        observed=now - DELAY, queue=12, oldest=21600),
-        }
+            "s7-current": dict(observed=recent),
+            "s7-delayed-old": dict(observed=now - DELAY, queue=12, oldest=21600),
+            "s7-queue-growth": dict(observed=recent, queue=900, oldest=5400),
+            "s7-clock-offset": dict(observed=now + timedelta(seconds=90), offset=95_000,
+                                    contact=now + timedelta(seconds=60)),
+            "s7-disk-stop": dict(observed=recent, disk="STOP", queue=300, oldest=720),
+            "s7-disk-recovery": dict(observed=recent, disk="OK", queue=0, oldest=None),
+        }[key]
+
+    def deliver(self, keys: tuple[str, ...] = DELIVER_DEFAULT) -> dict[str, dict]:
+        """Fresh receipts for ``keys`` (default: the current and old-facts cases). Each re-posts the case's
+        last facts at its gateway's next local sequence. The walkthrough passes `CURRENT_CONTACT_KEYS` so every
+        case meant to read CURRENT contact on the real clock is refreshed just before viewing (review L4)."""
+        now = self.clock()
+        return {key: self.post(key, self.next_sequence(key), **self.last_facts(key, now)) for key in keys}
 
 
-__all__ = ["CASES", "DELAY", "EPOCH", "HealthCases", "MANIFEST"]
+__all__ = ["CASES", "CURRENT_CONTACT_KEYS", "DELAY", "DELIVER_DEFAULT", "EPOCH", "HealthCases", "MANIFEST"]

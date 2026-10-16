@@ -157,6 +157,26 @@ class TestBatteryBoundary:
         assert answer.json()["detail"]["code"] == "ASSET_BOUNDARY_UNAVAILABLE"
 
 
+    def test_binding_set_of_another_foundation_revision_is_refused(self, store, sites, monkeypatch) -> None:
+        """S7-01a review L6: a binding set naming another Foundation revision fails closed (409)."""
+        from dataclasses import replace
+
+        configured, _, _, _ = sites
+        api = client(store)
+        [battery] = api.get("/api/sites/KOBO-001/battery").json()["batteries"]
+        real_read = FoundationService.read
+
+        def mismatched(self, *args, **kwargs):
+            view = real_read(self, *args, **kwargs)
+            return replace(view, binding_set=replace(view.binding_set, foundation_revision_id=uuid4()))
+
+        monkeypatch.setattr(FoundationService, "read", mismatched)
+        answer = api.get(battery["detail_path"])
+        assert answer.status_code == 409
+        assert answer.json()["detail"]["code"] == "FOUNDATION_BASIS_UNAVAILABLE"
+        assert answer.json()["detail"]["physical_condition"] is None
+        assert "bound_channels" not in answer.text
+
 class TestComposition:
     def test_create_app_serves_both_s7_reads(self, store, sites, tmp_path) -> None:
         import shutil

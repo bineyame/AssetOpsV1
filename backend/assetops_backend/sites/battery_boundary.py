@@ -96,12 +96,21 @@ def battery_entry(view: FoundationView, read_at: datetime, access_basis: str) ->
         for b in batteries]}
 
 
+class BindingBasisInconsistent(Exception):
+    """The selected binding set does not name the selected Foundation revision (fail closed)."""
+
+
 def battery_detail(view: FoundationView, asset_id: UUID, read_at: datetime, access_basis: str) -> dict[str, Any]:
     match = next((b for b in configured_batteries(view) if b["asset"].id == asset_id), None)
     if match is None:
         raise AssetNotInBasis(f"Asset {asset_id} is not a battery of the effective basis of {view.site.site_code}.")
     asset, component = match["asset"], match["component"]
     bs = view.binding_set
+    if bs is not None and bs.foundation_revision_id != view.revision.id:
+        # S7-01a review L6: never report channels from a binding set of another Foundation revision.
+        raise BindingBasisInconsistent(
+            f"Binding set {bs.id} names Foundation revision {bs.foundation_revision_id}, not the selected "
+            f"{view.revision.id}.")
     bound = [] if bs is None else [b for b in bs.bindings if b.asset_id == asset.id]
     binding_status = "NO_BINDING_SET" if bs is None else "BOUND" if bound else "UNBOUND"
     rating = component.get("rating")
@@ -127,5 +136,5 @@ def battery_detail(view: FoundationView, asset_id: UUID, read_at: datetime, acce
     }
 
 
-__all__ = ["AssetNotInBasis", "RULE_ID", "SCHEMA", "WITHHELD", "battery_detail", "battery_entry",
+__all__ = ["AssetNotInBasis", "BindingBasisInconsistent", "RULE_ID", "SCHEMA", "WITHHELD", "battery_detail", "battery_entry",
            "configured_batteries"]

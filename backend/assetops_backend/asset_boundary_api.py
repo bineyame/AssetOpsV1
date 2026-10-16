@@ -19,7 +19,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Request
 
 from assetops_backend.finding_api import ACCESS_BASIS, Access, development_access
-from assetops_backend.sites.battery_boundary import AssetNotInBasis, battery_detail, battery_entry
+from assetops_backend.sites.battery_boundary import AssetNotInBasis, BindingBasisInconsistent, battery_detail, battery_entry
 from assetops_backend.sites.cutover import ImportedSiteRegistry
 from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.sites.foundation_service import FoundationRefused, FoundationView
@@ -75,6 +75,10 @@ def build_asset_boundary_router(registry: ImportedSiteRegistry, access: Access =
             return battery_detail(view, wanted, view.now, access_basis)
         except AssetNotInBasis as error:
             raise HTTPException(status_code=404, detail={"code": "ASSET_NOT_IN_EFFECTIVE_BASIS",
+                                                         "message": str(error), "physical_condition": None}
+                                ) from error
+        except BindingBasisInconsistent as error:
+            raise HTTPException(status_code=409, detail={"code": "FOUNDATION_BASIS_UNAVAILABLE",
                                                          "message": str(error), "physical_condition": None}
                                 ) from error
 
