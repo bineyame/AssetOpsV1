@@ -5749,6 +5749,17 @@ Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01
 - Capture: `tools/w1-ux-01-evidence.mjs <out> <mock-id>[:<case>]=<url>`.
 - Open: the other 23 W1 routes remain on the T028 scan until UX-02..05; domain word maps still duplicate cross-screen states; the Evidence read has no read instant (as of = latest delivery received); the Action summary has no source class; registry Low D (`I-W1-UX-01` requires) untouched.
 
+## W1-UX-03 - Evidence, Dispatch and Analysis presentation (built, in_review)
+
+Branch `task/W1-UX-03` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-03-review-packet.md`; handoff `.agent/W1-UX-03-handoff.md`. Frontend only.
+
+- `frontend/src/sites/periodStrip.tsx` (+ `.css`): local `PeriodStrip` - rows of read-returned time segments on the period's own bounds, optional exact links per segment, required summary text, hatched "not known" row; used by Evidence and Dispatch.
+- Evidence Overview: `ReportingFacts` (readings / gateway contact / analysis up to date as separate facts, as-of, per-source latest-taken strip). Evidence Analysis: lead question; S2 limit panel and the S3-02b section ("What the readings can support") precede the inspector.
+- `EvidenceClaimLimit.tsx`: shared `ProductStatus` (currentnessWords; CURRENT without a positive conclusion -> limited tone; refusals via `readResultWords`, as of = answer time), `RoleStrip` covered/missing per needed reading; local `CURRENTNESS_WORDS` removed; Technical disclosure values are single labelled references.
+- `PerformanceDispatch.tsx`: `statusWords` wraps `currentnessWords` with dispatch `STATUS_SENTENCES` (`dispatchWords.ts`, replaces `STATUS_WORDS`); Overview `HeadlineVisualCard` "dispatch-story" with `DayBlockStrip` (exact revision+block links), totals (unstated portion = not known), limitations, Analysis link, `DispatchReferences`; Analysis `ReadingsToOutcome` (readings -> rule -> bounded conclusion), versions list, stored record and comparison as closed technical disclosures; `constraintWords` unknown -> plain fallback.
+- `assessmentAnalysis.tsx`: method version / assessment reference / record-set reference -> `ExactReferences`.
+- W1 set opted in: `evidence-analysis`, `dispatch`, `analysis` (`evidence` since UX-01). Capture tool `tools/w1-ux-03-evidence.mjs`.
+- Open: G-04 baselined fuel/money sentence keeps "claim" (W1 scan allows only it); no-day claim-limit state has no read instant; source strip shows latest-taken only (no per-source span in the read).
 ## W1-UX-04 - Action, work, change and verification presentation (built, in_review)
 
 Branch `task/W1-UX-04` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-04-review-packet.md`. Frontend only. All nine routes opted into the W1 vocabulary set (action-overview was opted in by W1-UX-01).

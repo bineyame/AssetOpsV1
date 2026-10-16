@@ -207,9 +207,11 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     expect(values.querySelector('[data-value-row="reserve_pct"]')).toHaveTextContent(
       "Minimum battery reserve30 % (site setting)",
     );
-    expect(analysis).toHaveTextContent("Assessment methoddispatch-2");
-    expect(analysis).toHaveTextContent("dispatch-2");
-    expect(analysis).toHaveTextContent("(an assessed period without a Finding)");
+    // W1-UX-03: the method version is a labelled exact reference in the closed disclosure.
+    expect(analysis.querySelector("details[data-disclosure='analysis-assessment-references']")).toHaveTextContent(
+      "Assessment method versiondispatch-2",
+    );
+    expect(analysis).toHaveTextContent("An assessed period without a Finding");
     // Record links open the Site Evidence inspector, not the Lab.
     expect(analysis.querySelector("[data-analysis-record]")).toHaveAttribute(
       "href",
@@ -412,8 +414,11 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
     expect(analysis).toHaveTextContent("0.3 L/kWh, ±10 %");
     // References: method version, assessment reference, verification reference, revisions.
     expect(analysis).toHaveTextContent("dispatch-2");
-    expect(analysis.querySelector("[data-finding-assessment-id]")).toHaveTextContent(CANDIDATE_ID);
-    expect(analysis).toHaveTextContent("verification reference abc123");
+    // W1-UX-03: the assessment and record-set references stay available as labelled exact values in the closed disclosure.
+    const references = analysis.querySelector("details[data-disclosure='analysis-assessment-references']") as HTMLDetailsElement;
+    expect(references.open).toBe(false);
+    expect(references).toHaveTextContent(`Assessment reference${CANDIDATE_ID}`);
+    expect(references).toHaveTextContent("Record set check referenceabc123");
     // Links to Evidence and Alternatives instead of copying their lists.
     expect(within(analysis).getByRole("link", { name: "Other possible explanations (Alternatives)" })).toHaveAttribute(
       "href",

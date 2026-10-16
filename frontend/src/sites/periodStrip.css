@@ -1,0 +1,187 @@
+/* W1-UX-03 period strip (Evidence and Dispatch). Tokens only; meaning is always also in text. */
+.period-strip {
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.period-strip__title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.period-strip__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.period-strip__row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+  grid-template-areas: "label track" "label summary";
+  column-gap: 0.75rem;
+  row-gap: 0.125rem;
+  align-items: center;
+  min-width: 0;
+}
+.period-strip__label {
+  grid-area: label;
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.period-strip__track {
+  grid-area: track;
+  position: relative;
+  display: block;
+  height: 0.875rem;
+  border-radius: 3px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+.period-strip__summary {
+  grid-area: summary;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.period-strip__row:not(:has(.period-strip__track)) .period-strip__summary {
+  grid-row: 1 / span 2;
+}
+.period-strip__segment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: block;
+}
+a.period-strip__segment:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--series-1));
+  outline-offset: 1px;
+  z-index: 1;
+}
+.period-strip__segment--selected {
+  box-shadow: inset 0 0 0 2px var(--text-primary, #0f172a);
+}
+.period-strip__segment--covered,
+.period-strip__segment--necessary {
+  background: var(--series-1);
+}
+.period-strip__segment--avoidable {
+  background: var(--series-2);
+}
+.period-strip__segment--marker {
+  background: var(--series-3);
+}
+.period-strip__segment--gap,
+.period-strip__segment--undetermined,
+.period-strip__segment--not-known,
+.period-strip__unknown {
+  background: repeating-linear-gradient(135deg, var(--border-strong) 0 3px, transparent 3px 7px);
+}
+.period-strip__segment--problem {
+  background: repeating-linear-gradient(45deg, var(--series-4) 0 3px, transparent 3px 7px);
+}
+.period-strip__unknown {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.period-strip__axis {
+  margin: 0 0 0 calc(min(12rem, 30%) + 0.75rem);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.period-strip__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+.period-strip__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.period-strip__swatch {
+  position: static;
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.625rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 2px;
+}
+.source-facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.source-facts__item {
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+  min-width: 0;
+}
+.source-facts__item h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+}
+.source-facts__item p {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+}
+.dispatch-story {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  counter-reset: story;
+}
+.dispatch-story__step {
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+  min-width: 0;
+}
+.dispatch-story__step h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+}
+.dispatch-story__step h3::before {
+  counter-increment: story;
+  content: counter(story) ". ";
+}
+.dispatch-story__step p,
+.dispatch-story__step ul {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+}
+@media (max-width: 640px) {
+  .period-strip__row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "label" "track" "summary";
+  }
+  .period-strip__row:not(:has(.period-strip__track)) .period-strip__summary {
+    grid-row: auto;
+  }
+  .period-strip__axis {
+    margin-left: 0;
+  }
+  .source-facts,
+  .dispatch-story {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

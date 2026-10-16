@@ -10,6 +10,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import samples from "../../../../backend/tests/fixtures/s3_claim_limit_api_samples.json";
 import { settledScreen } from "../../test/settled";
+import { expectStateLineVisible } from "../../test/productPresentation";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { currentnessWords, readResultWords } from "../../ui";
 import {
   createClaimLimitClient,
   type AssessedDay,
@@ -158,7 +161,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(s.dataset.ceiling).toBe("CANDIDATE_AVOIDABLE");
     expect(s.dataset.support).toBe("COMPLETE");
     expect(container.querySelector("[data-claim-limit-headline]")?.textContent).toBe(
-      "The readings support calling this generator run avoidable for 30 min. Every reading it needs is present for that time.",
+      "The readings support calling this period of generator operation avoidable for 30 min. Every reading it needs is present for that time.",
     );
     const rows = [...container.querySelectorAll("tr[data-claim-role]")];
     expect(rows.map((r) => r.getAttribute("data-claim-role"))).toEqual([
@@ -204,7 +207,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     const pv = container.querySelector("tr[data-claim-role='pv_available_power']") as HTMLElement;
     expect(pv.textContent).toContain("conflicting reports 08:20–08:30 UTC");
     const reasons = container.querySelector("[data-claim-limit-reasons]")?.textContent ?? "";
-    expect(reasons).toContain("Battery discharge capability: unreliable readings, 08:05–08:20 UTC.");
+    expect(reasons).toContain("Battery output limit: unreliable readings, 08:05–08:20 UTC.");
     expect(reasons).toContain("Solar power available: conflicting reports, 08:20–08:30 UTC.");
   });
 
@@ -480,5 +483,123 @@ describe("the section on the Evidence Analysis page", () => {
     fireEvent.click(container.querySelector(`a[data-accepted-evidence='${id}']`) as HTMLElement);
     await settledScreen();
     expect(ledger.recordKeys).toContain(id);
+  });
+});
+
+describe("W1-UX-03: evidence-analysis on the shared state line and span strip", () => {
+  it("opts the selected assessment into the W1 vocabulary set; the default reading has no raw codes", async () => {
+    for (const name of ["full-candidate", "missing-pv", "poor-quality-conflict", "stale-selection", "late-revision/withdrawn"] as const) {
+      const { container, unmount } = mount(fake(() => ({ status: "loaded", value: sample(name) })), SEARCH);
+      await settledScreen();
+      // The whole section, the S3-02b technical disclosure included: its exact values are individually labelled references.
+      const scan = scanProductVocabulary(section(container), `evidence-analysis ${name} (W1)`, { set: "w1" });
+      expect(scan.scanned).toBeGreaterThan(10);
+      expect(describeViolations(scan.violations)).toBe("");
+      expect(plainText(container)).not.toMatch(/claim limit|ceiling/i);
+      unmount();
+    }
+  });
+
+  it("fix round 1 (F4): the technical disclosure exempts single exact values only, never a recorded sentence", async () => {
+    const read = sample("missing-pv");
+    const sentences = [read.claim_limit?.statement, read.not_inferred, ...(read.claim_limit?.reasons ?? []).map((r) => r.text)].filter(
+      (t): t is string => typeof t === "string" && t.length > 0,
+    );
+    expect(sentences.length).toBeGreaterThan(2);
+    const { container, unmount } = mount(fake(() => ({ status: "loaded", value: read })), SEARCH);
+    await settledScreen();
+    const technical = container.querySelector("[data-disclosure='claim-limit-technical']") as HTMLElement;
+    const exempt = Array.from(technical.querySelectorAll("[data-vocabulary-exempt]")).map((e) => e.textContent ?? "");
+    expect(exempt.length).toBeGreaterThan(5);
+    for (const sentence of sentences) {
+      expect(exempt.filter((t) => t.includes(sentence))).toEqual([]);
+      expect(technical.textContent).not.toContain(sentence);
+    }
+    expect(technical.querySelector("[data-claim-limit-not-inferred]")?.getAttribute("data-claim-limit-not-inferred")).toBe("known");
+    expect(Array.from(technical.querySelectorAll("[data-reason-code] code")).map((c) => c.textContent)).toEqual(
+      (read.claim_limit?.reasons ?? []).map((r) => r.code),
+    );
+    unmount();
+
+    // A different recorded "not inferred" sentence is named as not shown, never echoed.
+    const odd = { ...read, not_inferred: "Something NEW_CODE is not inferred." };
+    const second = mount(fake(() => ({ status: "loaded", value: odd })), SEARCH);
+    await settledScreen();
+    const marker = second.container.querySelector("[data-claim-limit-not-inferred]") as HTMLElement;
+    expect(marker.getAttribute("data-claim-limit-not-inferred")).toBe("unrecognised");
+    expect(second.container.textContent).not.toContain("NEW_CODE");
+  });
+
+  it("CURRENT is the only positive state line; it carries scope and 'as of' the read", async () => {
+    const { container } = mount(fake(() => ({ status: "loaded", value: sample("full-candidate") })), SEARCH);
+    await settledScreen();
+    const s = state(container);
+    expect(expectStateLineVisible(s)).toBe(currentnessWords("CURRENT").label);
+    expect(s.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("positive");
+    expect(s.querySelector("[data-product-status-scope]")?.textContent).toBe("2026-10-06, 08:00–08:30 UTC");
+    expect(s.querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d/);
+  });
+
+  it.each(["missing-pv", "poor-quality-conflict", "stale-selection", "late-revision/withdrawn"] as const)(
+    "%s: a non-positive state line stays visible beside the headline", async (name) => {
+    const { container } = mount(fake(() => ({ status: "loaded", value: sample(name) })), SEARCH);
+    await settledScreen();
+    const s = state(container);
+    const label = expectStateLineVisible(s);
+    expect(label.length).toBeGreaterThan(0);
+    // An undetermined or limited period is current but not a positive state; audit-only versions never are.
+    if (name === "missing-pv" || name === "stale-selection" || name === "late-revision/withdrawn") {
+      expect(s.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    }
+    expect(s.querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of /);
+  });
+
+  it("an unknown currentness code falls back non-positively and never shows the code", async () => {
+    const odd = { ...sample("full-candidate"), currentness: "SOMETHING_NEW" } as ClaimLimitRead;
+    const { container } = mount(fake(() => ({ status: "loaded", value: odd })), SEARCH);
+    await settledScreen();
+    const s = state(container);
+    expectStateLineVisible(s);
+    expect(s.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(plainText(container)).not.toContain("SOMETHING_NEW");
+    expect(container.querySelector("[data-claim-limit-headline]")?.textContent).toBe("No conclusion is drawn from this assessment.");
+  });
+
+  it("draws covered and missing time per needed reading; a missing role is a 'not known' mark, never an empty bar", async () => {
+    const { container } = mount(fake(() => ({ status: "loaded", value: sample("missing-pv") })), SEARCH);
+    await settledScreen();
+    const strip = container.querySelector("[data-period-strip='claim-limit-roles']") as HTMLElement;
+    expect(strip).not.toBeNull();
+    const pv = strip.querySelector("[data-period-strip-row='pv_available_power']") as HTMLElement;
+    expect(pv.querySelector("[data-period-strip-segment='gap']")).not.toBeNull();
+    expect(pv.textContent).toContain("missing 08:00–08:30 UTC");
+    expect(strip.querySelectorAll("[data-period-strip-segment='covered']").length).toBeGreaterThan(0);
+
+    const read = sample("missing-pv");
+    const roles = { ...(read.capability?.roles ?? {}) };
+    delete roles.pv_available_power;
+    const withoutPv = { ...read, capability: { ...read.capability!, roles } } as ClaimLimitRead;
+    const second = mount(fake(() => ({ status: "loaded", value: withoutPv })), SEARCH);
+    await settledScreen();
+    const row = second.container.querySelector("[data-period-strip='claim-limit-roles'] [data-period-strip-row='pv_available_power']") as HTMLElement;
+    expect(row.dataset.periodStripKnown).toBe("not-known");
+    expect(row.querySelector("[data-period-strip-mark='not-known']")).not.toBeNull();
+    expect(row.querySelector("[data-period-strip-segment]")).toBeNull();
+    expect(row.textContent).toContain("not known");
+  });
+
+  it.each([
+    [{ status: "forbidden", message: null }, "refused"],
+    [{ status: "unavailable", message: null }, "unavailable"],
+    [{ status: "not_found", code: "ASSESSMENT_REVISION_NOT_FOUND", message: null }, "not-found"],
+    [{ status: "refused", code: "REVISION_OUTSIDE_WINDOW", message: null }, "refused"],
+  ] as const)("a refused or unread assessment keeps a plain non-positive state line (%o)", async (answer, kind) => {
+    const { container } = mount(fake(() => answer as ClaimLimitResult<ClaimLimitRead>), SEARCH);
+    await settledScreen();
+    const s = state(container);
+    expect(expectStateLineVisible(s)).toBe(readResultWords(kind).label);
+    expect(s.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(container.querySelector("[data-claim-limit-headline]")).toBeNull();
+    expect(container.querySelector("[data-period-strip]")).toBeNull();
   });
 });
