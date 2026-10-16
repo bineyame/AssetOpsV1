@@ -208,6 +208,7 @@ async function suite(label) {
   claim(`${label} health: Back returns to the unselected page`, (await url()) === `/sites/${SITE}/health`, await url());
 
   // battery, by the Health link
+  await waitFor("document.querySelector('[data-health-battery] a')");
   const battery = await js(`document.querySelector('[data-health-battery] a')?.getAttribute('href')`);
   await go(`${BASE}${battery}`, "document.querySelector('[data-battery-condition]')");
   const b = await js(`({ cond: document.querySelector('[data-battery-condition]')?.dataset.batteryCondition,
