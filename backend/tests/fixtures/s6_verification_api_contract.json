@@ -886,6 +886,7 @@
        "test-scoped-20261006T0800-108"
       ],
       "later": [
+       "<uuid>",
        "test-scoped-20261102T0800-000",
        "test-scoped-20261102T0800-001",
        "test-scoped-20261102T0800-002",
@@ -1042,9 +1043,10 @@
      "plan_sha256": "<sha256>",
      "result": {
       "guardrail_failed": [],
-      "outcome": "VERIFIED",
+      "outcome": "INCONCLUSIVE",
       "reasons": [
-       "TARGET_AND_GUARDRAILS_PASS"
+       "GUARDRAIL_UNKNOWN:below_reserve_seconds",
+       "INCOMPLETE_LATER_WINDOW"
       ],
       "target_met": true
      },
@@ -1259,11 +1261,19 @@
        "window_start": "2026-10-06T08:00:00+00:00"
       },
       "later": {
-       "below_reserve_seconds": 0,
-       "complete": true,
+       "below_reserve_seconds": null,
+       "complete": false,
        "feeder_demand_kwh": "20",
        "initial_soc": "50",
-       "problems": [],
+       "problems": [
+        {
+         "asset_id": "bat",
+         "code": "CONFLICT",
+         "detail": "different values at 2026-11-02T08:30:00+00:00",
+         "role": "battery_soc",
+         "slot_start": "2026-11-02T08:30:00+00:00"
+        }
+       ],
        "pv_available_kwh": "6",
        "terminal_soc": "50",
        "unserved_critical_kwh": "0",
@@ -1278,11 +1288,12 @@
      "outcome": "/api/sites/KOBO-001/actions/<uuid>/verification/outcome?outcome_id=<uuid>",
      "plan": "/api/sites/KOBO-001/actions/<uuid>/verification/plan?plan_id=<uuid>"
     },
-    "outcome": "VERIFIED",
+    "outcome": "INCONCLUSIVE",
     "outcome_id": "<uuid>",
     "plan_id": "<uuid>",
     "reasons": [
-     "TARGET_AND_GUARDRAILS_PASS"
+     "GUARDRAIL_UNKNOWN:below_reserve_seconds",
+     "INCOMPLETE_LATER_WINDOW"
     ],
     "recorded_at": "2026-11-02T14:03:00+00:00",
     "selection_binding_id": "<uuid>",
@@ -1292,7 +1303,7 @@
    "reasons": [],
    "replayed": false,
    "request_id": "<uuid>",
-   "resolved": true,
+   "resolved": false,
    "state": "SETTLED",
    "withdrawn": false
   },
@@ -4854,13 +4865,14 @@
    "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
    "action_id": "<uuid>",
    "current_state": {
-    "last_outcome": "VERIFIED",
+    "last_outcome": "INCONCLUSIVE",
     "outcome_id": "<uuid>",
     "plan_id": "<uuid>",
     "reasons": [
-     "TARGET_AND_GUARDRAILS_PASS"
+     "GUARDRAIL_UNKNOWN:below_reserve_seconds",
+     "INCOMPLETE_LATER_WINDOW"
     ],
-    "state": "VERIFIED",
+    "state": "INCONCLUSIVE",
     "statement": "Current outcome of a simulated/authored policy trial; no causal or savings claim."
    },
    "evaluation_requests": [
@@ -4921,11 +4933,12 @@
       "outcome": "/api/sites/KOBO-001/actions/<uuid>/verification/outcome?outcome_id=<uuid>",
       "plan": "/api/sites/KOBO-001/actions/<uuid>/verification/plan?plan_id=<uuid>"
      },
-     "outcome": "VERIFIED",
+     "outcome": "INCONCLUSIVE",
      "outcome_id": "<uuid>",
      "plan_id": "<uuid>",
      "reasons": [
-      "TARGET_AND_GUARDRAILS_PASS"
+      "GUARDRAIL_UNKNOWN:below_reserve_seconds",
+      "INCOMPLETE_LATER_WINDOW"
      ],
      "recorded_at": "2026-11-02T14:03:00+00:00",
      "selection_binding_id": "<uuid>",
@@ -4965,11 +4978,69 @@
      "id": "<uuid>",
      "kind": "RESOLUTION_WITHDRAWN",
      "payload": {
+      "attribution": "CAUSAL",
+      "basis_changes": [
+       {
+        "closed": {
+         "below_reserve_seconds": 0,
+         "complete": true,
+         "feeder_demand_kwh": "20",
+         "initial_soc": "50",
+         "problems": [],
+         "pv_available_kwh": "6",
+         "terminal_soc": "50",
+         "unserved_critical_kwh": "0"
+        },
+        "current_s3_days": [
+         {
+          "day": "2026-11-02",
+          "moved": [],
+          "pending": [
+           "S3 STALE_PROJECTION: RECOMPUTE_OUTSTANDING: job <uuid> PENDING, INPUT_BASIS_CHANGED: the current accepted basis gives another input hash"
+          ],
+          "run_id": "<uuid>"
+         }
+        ],
+        "pinned_s3_days": [
+         {
+          "day": "2026-11-02",
+          "run_id": "<uuid>"
+         }
+        ],
+        "reassessed": {
+         "below_reserve_seconds": null,
+         "complete": false,
+         "feeder_demand_kwh": "20",
+         "initial_soc": "50",
+         "problems": [
+          {
+           "asset_id": "bat",
+           "code": "CONFLICT",
+           "detail": "different values at 2026-11-02T08:30:00+00:00",
+           "role": "battery_soc",
+           "slot_start": "2026-11-02T08:30:00+00:00"
+          }
+         ],
+         "pv_available_kwh": "6",
+         "terminal_soc": "50",
+         "unserved_critical_kwh": "0"
+        },
+        "window": "later",
+        "window_end": "2026-11-02T09:00:00+00:00",
+        "window_start": "2026-11-02T08:00:00+00:00"
+       }
+      ],
+      "candidate_evidence_ids": [
+       "<uuid>"
+      ],
       "invalidating_evidence": [
        {
+        "accepted_at": "2026-11-02T13:00:00+00:00",
+        "asset_id": "<uuid>",
         "decided_at": "2026-11-02T13:00:00+00:00",
         "id": "<uuid>",
-        "role": "battery_soc"
+        "role": "battery_soc",
+        "window": "later"
        }
       ],
       "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
@@ -4982,26 +5053,6 @@
       "withdrawn_resolved_event_id": "<uuid>"
      },
      "recorded_at": "2026-11-02T14:00:00.000001+00:00",
-     "triggering_job": "verification-evaluation:<uuid>",
-     "verification_outcome_id": "<uuid>",
-     "verification_plan_id": "<uuid>"
-    },
-    {
-     "id": "<uuid>",
-     "kind": "RESOLVED",
-     "payload": {
-      "guardrail_failed": false,
-      "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
-      "outcome": "VERIFIED",
-      "outcome_id": "<uuid>",
-      "plan_id": "<uuid>",
-      "reasons": [
-       "TARGET_AND_GUARDRAILS_PASS"
-      ],
-      "releases_hold": true,
-      "statement": "Final current verification outcome; RESOLVED can later be withdrawn."
-     },
-     "recorded_at": "2026-11-02T14:03:00.000001+00:00",
      "triggering_job": "verification-evaluation:<uuid>",
      "verification_outcome_id": "<uuid>",
      "verification_plan_id": "<uuid>"
@@ -5931,13 +5982,14 @@
    "access_basis": "DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is",
    "action_id": "<uuid>",
    "current_state": {
-    "last_outcome": "VERIFIED",
+    "last_outcome": "INCONCLUSIVE",
     "outcome_id": "<uuid>",
     "plan_id": "<uuid>",
     "reasons": [
-     "TARGET_AND_GUARDRAILS_PASS"
+     "GUARDRAIL_UNKNOWN:below_reserve_seconds",
+     "INCOMPLETE_LATER_WINDOW"
     ],
-    "state": "VERIFIED",
+    "state": "INCONCLUSIVE",
     "statement": "Current outcome of a simulated/authored policy trial; no causal or savings claim."
    },
    "historical_label": "Historical: an exact earlier outcome; the current state is separate.",

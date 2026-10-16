@@ -79,8 +79,16 @@ def later_generator_off(runner, decided: str = "2026-11-02T10:00:00Z") -> None:
          "stop_before": True, "stop_after": True}]})
 
 
-def late_reading(runner, decided: str, at: str = "2026-11-02T08:30:00Z", soc: str = "79") -> None:
+def late_reading(runner, decided: str, at: str = "2026-11-02T08:30:00Z", soc: str = "79") -> list[str]:
+    """Deliver one SOC reading; returns the accepted evidence IDs decided at `decided`."""
     runner.step({"do": "deliver", "decided": decided, "blocks": [{"from": at, "to": at, "soc": soc, "only": ["soc"]}]})
+    return accepted_ids(runner, decided)
+
+
+def accepted_ids(runner, decided: str) -> list[str]:
+    return sorted(str(r.id) for r in rows(runner, (
+        "SELECT e.id FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+        f"AND d.ordinal = e.ordinal WHERE d.accepted_evidence_id = e.id AND d.decided_at = '{decided}'")))
 
 
 def bound_plan(runner, h, *, later=later_generator_off) -> tuple[str, dict, dict]:
@@ -94,14 +102,28 @@ def bound_plan(runner, h, *, later=later_generator_off) -> tuple[str, dict, dict
     return action_id, plan, made.json()["binding"]
 
 
-def complete_windows(monkeypatch, h, *, baseline_soc: str = "50", later_soc: str = "50") -> None:
+SYNTHETIC_ASSET = {"battery_soc": "bat", "pv_available_power": "inv", "generator_power": "gen",
+                   "generator_state": "gen", "pcs_discharge_capability": "pcs", "feeder_demand": "load-a"}
+
+
+def complete_windows(monkeypatch, h, *, baseline_soc: str = "50", later_soc: str = "50",
+                     inject: set | None = None) -> None:
     """TEST-SCOPED: complete twelve-slot windows (labelled authored source) in place of the roles-2 Site's real,
-    never-complete evidence. Currentness, plans, bindings, outcomes, events and the trial lock stay real."""
+    never-complete evidence. Currentness, plans, bindings, outcomes, events and the trial lock stay real.
+
+    `inject` (fix round 1, F2): real accepted readings with these IDs that pass the real bound role/asset filter
+    are added to the synthetic window under their real ID (mapped onto the synthetic asset), so a late real reading
+    can materially change a window the way it would on a complete Site."""
     def fake(start, readings, *, load_asset_ids, critical_load_asset_id, reserves, battery_asset_id=None,
              role_assets=None):
         soc = baseline_soc if start.date() < datetime(2026, 11, 2).date() else later_soc
         synthetic = [replace(r, id=f"test-scoped-{start:%Y%m%dT%H%M}-{i:03d}")
                      for i, r in enumerate(full_window(start, soc=soc))]
+        allowed = {role: set(ids) for role, ids in (role_assets or {}).items()}
+        if battery_asset_id is not None:
+            allowed["battery_soc"] = {str(battery_asset_id)}
+        synthetic += [replace(r, asset_id=SYNTHETIC_ASSET[r.role]) for r in readings
+                      if r.id in (inject or ()) and r.asset_id in allowed.get(r.role, ()) and r.role in SYNTHETIC_ASSET]
         return REAL_WINDOW_EVIDENCE(start, synthetic, load_asset_ids=["load-a", "load-b"],
                                     critical_load_asset_id="crit",
                                     reserves=[vr.ReserveValue(vr.Fraction(30), start - timedelta(days=1), None, "r")])
@@ -125,6 +147,22 @@ def rows(runner, sql: str) -> list:
 def kinds(runner, action_id: str) -> list[str]:
     return [r.kind for r in rows(runner, f"SELECT kind FROM action_event WHERE action_id = '{action_id}' "
                                          "ORDER BY recorded_at, id")]
+
+
+def withdrawal(runner, action_id: str) -> dict:
+    [payload] = [r.payload for r in rows(runner, f"SELECT payload FROM action_event WHERE action_id = '{action_id}' "
+                                                 "AND kind = 'RESOLUTION_WITHDRAWN' ORDER BY recorded_at DESC LIMIT 1")]
+    return payload
+
+
+NEXT_LATER = "2026-11-03T08:00:00+00:00"  # the next day's same clock hour: strictly after the first later window
+
+
+def continuation(h, action_id: str, plan: dict, *, later: str = NEXT_LATER, key: str = "freeze-next") -> dict:
+    """F4: try to freeze a continuation plan; returns the refusal detail (asserts it was refused)."""
+    made = freeze(h, action_id, key=key, supersedes_plan_id=plan["plan_id"], later_start=later)
+    assert made.status_code == 409, made.text
+    return made.json()["detail"]
 
 
 def proposal_of(h, day: str) -> dict:
@@ -222,6 +260,15 @@ class TestRealRoles2Path:
             finally:
                 no_verify.close()
                 anon.close()
+            # Fix round 1 F7: the outcome and history reads refuse 401/403 like every Action read.
+            blind, unknown = harness(runner, access=lambda r, c: 403), harness(runner, access=lambda r, c: 401)
+            try:
+                for path in ("outcome", "history"):
+                    assert blind.client.get(f"{base(action_id)}/{path}").status_code == 403
+                    assert unknown.client.get(f"{base(action_id)}/{path}").status_code == 401
+            finally:
+                blind.close()
+                unknown.close()
         finally:
             h.close()
 
@@ -367,7 +414,8 @@ class TestResolutionAndHolds:
         h = verifying(runner)
         try:
             p2 = proposal_of(h, "2026-10-08")
-            complete_windows(monkeypatch, h)
+            inject: set = set()
+            complete_windows(monkeypatch, h, inject=inject)
             contract: dict = {}
             action_id, plan, _ = bound_plan(runner, h)
             h.clock.at = CLOSED + timedelta(hours=1)
@@ -384,10 +432,12 @@ class TestResolutionAndHolds:
             contract["plan"] = h.client.get(f"{base(action_id)}/plan").json()
             contract["evidence"] = h.client.get(f"{base(action_id)}/evidence").json()
             contract["outcome_current"] = h.client.get(f"{base(action_id)}/outcome").json()
+            assert continuation(h, action_id, plan)["reason"] == "RESOLVED"  # F4: a current VERIFIED is not eligible
 
             # Late evidence for the later window arrives; a second Finding's trial is accepted after it, before the
             # evaluator withdraws the closure: that overlap permanently blocks the battery.
-            late_reading(runner, "2026-11-02T13:00:00Z")
+            late = late_reading(runner, "2026-11-02T13:00:00Z")
+            inject.update(late)  # the bound battery SOC sample conflicts with the pinned later window
             contract["outcome_reassessment_pending"] = h.client.get(f"{base(action_id)}/outcome").json()
             assert contract["outcome_reassessment_pending"]["current_state"]["state"] == "REASSESSMENT_PENDING"
             _, _, replayed = store_accept(h, runner, p2, "accept-f02-late", datetime(2026, 11, 2, 13, 30, tzinfo=UTC))
@@ -399,21 +449,28 @@ class TestResolutionAndHolds:
             assert kinds(runner, action_id)[-1] == "RESOLUTION_WITHDRAWN"
             [payload] = [r.payload for r in rows(runner, f"SELECT payload FROM action_event WHERE action_id = "
                                                          f"'{action_id}' AND kind = 'RESOLUTION_WITHDRAWN'")]
-            assert payload["invalidating_evidence"] and payload["withdrawn_outcome"] == "VERIFIED"
+            assert payload["withdrawn_outcome"] == "VERIFIED" and payload["attribution"] == "CAUSAL"
+            assert [e["id"] for e in payload["invalidating_evidence"]] == late  # exactly the causal reading
+            assert payload["invalidating_evidence"][0]["window"] == "later"
+            assert [c["window"] for c in payload["basis_changes"]] == ["later"]
+            assert continuation(h, action_id, plan)["reason"] == "REASSESSMENT_PENDING"
             assert guard_code(h, runner, p2 | {"recommendation_key": "another-key"}) == \
                 "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
             contract["recommendation_overlap"] = h.recommendation(h.findings()["2026-10-06"]).json()
 
-            # S3/S4 settle, the later selection is re-bound, and the evaluator appends a superseding outcome and a
-            # new RESOLVED: the overlap block stays (no reviewer override).
+            # S3/S4 settle, the later selection is re-bound, and the evaluator appends a superseding INCONCLUSIVE
+            # outcome (the conflicting sample): the overlap block stays (no reviewer override), and the overlap also
+            # makes the INCONCLUSIVE trial ineligible for a continuation plan (F4).
             caught_up(runner, h, h.clock.at)
             assert bind(h, action_id, plan["plan_id"], "bind-0002").status_code == 201
             again = evaluate(h, action_id, "eval-0003")
             assert again.status_code == 201, again.text
             assert again.json()["outcome"]["supersedes_outcome_id"] == first["outcome_id"]
-            assert kinds(runner, action_id)[-1] == "RESOLVED"
+            assert again.json()["outcome"]["outcome"] == "INCONCLUSIVE"
+            assert kinds(runner, action_id)[-1] == "RESOLUTION_WITHDRAWN"
             assert guard_code(h, runner, p2 | {"recommendation_key": "another-key"}) == \
                 "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
+            assert continuation(h, action_id, plan)["reason"] == "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
             contract["evaluate_resettled"] = again.json()
             contract["history"] = h.client.get(f"{base(action_id)}/history").json()
             contract["outcome_historical"] = h.client.get(f"{base(action_id)}/outcome",
@@ -428,14 +485,16 @@ class TestResolutionAndHolds:
         h = verifying(runner)
         try:
             p2 = proposal_of(h, "2026-10-08")
-            complete_windows(monkeypatch, h)
+            inject: set = set()
+            complete_windows(monkeypatch, h, inject=inject)
             action_id, _, _ = bound_plan(runner, h)
             h.clock.at = CLOSED + timedelta(hours=1)
             assert evaluate(h, action_id, "eval-0001").json()["outcome"]["outcome"] == "VERIFIED"
             store_accept(h, runner, p2, "accept-f02-early", datetime(2026, 11, 2, 12, 30, tzinfo=UTC))
-            late_reading(runner, "2026-11-02T13:00:00Z")
+            inject.update(late_reading(runner, "2026-11-02T13:00:00Z"))
             h.clock.at = datetime(2026, 11, 2, 14, 0, tzinfo=UTC)
             assert evaluate(h, action_id, "eval-0002").json()["withdrawn"] is True
+            assert withdrawal(runner, action_id)["attribution"] == "CAUSAL"  # causal, but accepted before it
             assert guard_code(h, runner, p2 | {"recommendation_key": "another-key"}) == "PRIOR_ACTION_UNRESOLVED"
         finally:
             h.close()
@@ -453,6 +512,7 @@ class TestResolutionAndHolds:
             assert outcome["outcome"] == "INEFFECTIVE" and outcome["reasons"][0] == "GUARDRAIL_FAIL"
             assert made["resolved"] is True and kinds(runner, action_id)[-1] == "RESOLVED"
             assert guard_code(h, runner, p2) == "PRIOR_TRIAL_GUARDRAIL_FAILED"
+            assert continuation(h, action_id, {"plan_id": outcome["plan_id"]})["reason"] == "GUARDRAIL_FAILED"
             with pytest.raises(ActionRefused) as refused:
                 store_accept(h, runner, p2, "accept-f02", CLOSED + timedelta(hours=1))
             assert refused.value.code == "PRIOR_TRIAL_GUARDRAIL_FAILED"
