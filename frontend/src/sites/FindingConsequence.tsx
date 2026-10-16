@@ -1,6 +1,20 @@
 import { Link } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import {
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  HeadlineVisualCard,
+  moneyWords,
+  Panel,
+  ProductStatus,
+  StepStrip,
+  ValueBars,
+  type ExactReference,
+  type ProductWords,
+  type Step,
+} from "../ui";
+import "./w1ux02-money.css";
 import type {
   ConsequenceRevision,
   FinancialReadResult,
@@ -70,19 +84,77 @@ const PRICE_WORDS: Record<string, string> = {
   PRICE_REVISION_MISSING: "The recorded diesel price version could not be found.",
 };
 
-const STATE_HEADLINE: Record<string, string> = {
-  WITHHELD_GENERATOR_SERIES: "Withheld: the generator records are not in a proven time order",
-  PENDING_REASSESSMENT: "Being reassessed: no current cost yet",
-  MIXED_OR_UNKNOWN_SOURCE: "Source not established: no current cost",
-  UNPRICED: "No price for the whole window",
-  QUANTITY_UNAVAILABLE: "Not calculated",
-  STALE: "Out of date: no current cost",
-  PENDING: "Not worked out yet",
-  HISTORICAL: "Earlier finding version: kept for the record",
-  AUDIT_ONLY: "For the record only: no current cost",
-  UNAVAILABLE: "Could not be read",
-  PRICED: "No rounded amount",
+/**
+ * W1-UX-02: the plain words for the money state of one exact Finding version. Wrap-then-replace of the former
+ * local `STATE_HEADLINE` map: the money codes the shared map owns (withheld, source not established, pending
+ * reassessment, unpriced) come from `moneyWords`; the rest stay here as domain words. Nothing is derived: the
+ * caller passes the state the bridge read returned. An unknown state falls back to the shared non-positive words.
+ */
+const NO_AMOUNT = "No current amount can be shown";
+
+const LOCAL_MONEY_WORDS: Readonly<Record<string, Omit<ProductWords, "code" | "unrecognised">>> = {
+  QUANTITY_UNAVAILABLE: {
+    label: "Not calculated: no fuel amount, so no cost",
+    sentence: "No fuel amount was worked out for this finding, so no price is applied and no cost is shown. This is not zero.",
+    tone: "limited",
+  },
+  STALE: {
+    label: NO_AMOUNT,
+    sentence: "Readings arrived after this cost was worked out, so it is out of date and no current amount is shown. This is not zero.",
+    next: "Look again after the finding has been checked again.",
+    tone: "limited",
+  },
+  PENDING: {
+    label: NO_AMOUNT,
+    sentence: "The cost of this finding has not been worked out yet, so no amount is shown. This is not zero.",
+    next: "Look again after the cost has been worked out.",
+    tone: "waiting",
+  },
+  HISTORICAL: {
+    label: NO_AMOUNT,
+    sentence: "This is an earlier version of the finding, kept for the record, so no current amount is shown for it.",
+    next: "Open the latest version of the finding to see its money view.",
+    tone: "neutral",
+  },
+  AUDIT_ONLY: {
+    label: NO_AMOUNT,
+    sentence: "The source of these readings is closed, so this is kept for the record only and no amount is shown.",
+    tone: "neutral",
+  },
+  UNAVAILABLE: {
+    label: "The cost could not be read",
+    sentence: "The cost of this finding could not be read, so nothing is known about it right now. This is not zero.",
+    next: "Try again shortly.",
+    tone: "problem",
+  },
+  PRICED_NOT_ROUNDED: {
+    label: NO_AMOUNT,
+    sentence: "No rounding rule is known for this price's currency, so no amount is shown. This is not zero.",
+    tone: "limited",
+  },
 };
+
+const SHARED_MONEY_STATES = new Set(["WITHHELD_GENERATOR_SERIES", "MIXED_OR_UNKNOWN_SOURCE", "PENDING_REASSESSMENT", "UNPRICED"]);
+
+/** The money words for a bridge state; `shown` is true only for a current priced amount. */
+export function consequenceWords(c: FindingFinancialsBody["consequence"], shown: boolean): ProductWords {
+  if (shown) {
+    return {
+      label: "Modelled range, using the latest checked readings",
+      sentence:
+        "This is a modelled range of potential fuel cost, from zero up to an upper amount. It is not measured fuel saved, money spent or a physical maximum.",
+      tone: "positive",
+      code: c.state,
+      unrecognised: false,
+    };
+  }
+  if (SHARED_MONEY_STATES.has(c.state)) return moneyWords(c.state);
+  // A priced cost whose currentness is not current reads by its currentness, never as a current amount.
+  const key =
+    c.state === "PRICED" ? (c.currentness !== null && c.currentness !== "CURRENT" ? c.currentness : "PRICED_NOT_ROUNDED") : c.state;
+  const local = LOCAL_MONEY_WORDS[key];
+  return local === undefined ? moneyWords(c.state) : { ...local, code: c.state, unrecognised: false };
+}
 
 export function quantityWords(reason: string | null): string {
   return (reason && QUANTITY_WORDS[reason]) || "The fuel amount could not be bounded from the accepted generator data.";
@@ -203,21 +275,61 @@ function BridgeTable({
   );
 }
 
-/** The lineage disclosure: model, multiplier, IDs, digests and every counted reading. */
-function HowWorkedOut({
-  rev,
-  body,
-  findingId,
-  findingRevisionId,
-}: {
-  rev: ConsequenceRevision;
-  body: FindingConsequencesBody;
-  findingId: string;
-  findingRevisionId: string;
-}) {
+/**
+ * W1-UX-02: the labelled exact values behind one fuel cost version, for the closed "How this was worked out"
+ * disclosure. Values only (IDs, references, the site model and the codes as stored); the method and limits are
+ * plain prose in the visible "From finding to money" section.
+ */
+export function consequenceReferences(
+  rev: ConsequenceRevision,
+  body: FindingConsequencesBody,
+  findingId: string,
+  findingRevisionId: string,
+): ExactReference[] {
+  return [
+    { label: "Finding reference", value: findingId },
+    { label: "Finding version reference", value: findingRevisionId },
+    { label: "Fuel cost version reference", value: rev.id },
+    { label: "Previous fuel cost version reference", value: rev.prior_consequence_revision_id },
+    { label: "Kind and basis", value: `${rev.consequence_type} · ${rev.basis_kind} · ${rev.state}` },
+    { label: "Site fuel model", value: `${rev.model.model_id} · ${rev.model.formula_version} · ${rev.model.parameter_version}` },
+    { label: "Fuel use allowance", value: `sfc_upper_multiplier = ${rev.model.sfc_upper_multiplier ?? "none"}` },
+    { label: "Fuel use allowance reference", value: rev.model.parameter_sha256 },
+    {
+      label: "Fuel amount, unrounded",
+      value: `${rev.quantity.low ?? "none"} to ${rev.quantity.high ?? "none"} ${rev.quantity.unit} · ${rev.quantity.state}${
+        rev.quantity.reason ? ` · ${rev.quantity.reason}` : ""
+      }`,
+    },
+    {
+      label: "Price chosen",
+      value: `${rev.price.state}${rev.price.reason ? ` · ${rev.price.reason}` : ""}${rev.price.revision_id ? ` · ${rev.price.revision_id}` : ""}`,
+    },
+    { label: "Amount, unrounded", value: `${rev.amount.low ?? "none"} to ${rev.amount.high ?? "none"} ${rev.amount.currency ?? ""}`.trim() },
+    { label: "Readings reference", value: rev.digests.technical_input_sha256 },
+    { label: "Fuel cost record reference", value: rev.digests.consequence_basis_sha256 },
+    {
+      label: "Assessments used",
+      value:
+        rev.lineage.assessments.map((x) => `${x.assessment_revision_id}${x.is_primary ? " (primary)" : ""}`).join(", ") || null,
+    },
+    {
+      label: "Linked price and site model records",
+      value: rev.lineage.assumptions.map((x) => `${x.role} ${x.assumption_revision_id}`).join(", ") || null,
+    },
+    ...[...rev.limitations, ...body.exclusions].map((l, i) => ({ label: `Limit recorded with this version ${i + 1}`, value: l })),
+  ];
+}
+
+/**
+ * The visible method and limits of one fuel cost version, and its counted readings in their own closed table.
+ * Plain prose; exact values are in `consequenceReferences`.
+ */
+function HowWorkedOut({ rev, body }: { rev: ConsequenceRevision; body: FindingConsequencesBody }) {
   const evidence = body.links.evidence_records ?? {};
   return (
-    <Disclosure summary="How this is worked out" name={`consequence-lineage-${rev.revision_no}`}>
+    <div className="w1-money-method" data-consequence-method={rev.revision_no}>
+      <h3 className="panel__subheading">How the range is worked out</h3>
       <p>
         The fuel amount is a modelled upper limit: each accepted generator power reading inside the observed avoidable time
         is multiplied by its length, by the site model's fuel use per kWh, and by an allowance of{" "}
@@ -228,85 +340,30 @@ function HowWorkedOut({
         The price is the one site diesel price that covers this finding's whole time, as it was recorded. A later price
         correction adds a new fuel cost version; it never rewrites this one.
       </p>
-      <FactList>
-        <Fact term="Finding ID">
-          <code data-vocabulary-exempt="source-reference">{findingId}</code>
-        </Fact>
-        <Fact term="Finding version ID">
-          <code data-vocabulary-exempt="source-reference">{findingRevisionId}</code>
-        </Fact>
-        <Fact term="Fuel cost version ID">
-          <code data-vocabulary-exempt="source-reference" data-consequence-lineage-id={rev.id}>{rev.id}</code>
-        </Fact>
-        <Fact term="Previous fuel cost version ID">
-          <code data-vocabulary-exempt="source-reference">{rev.prior_consequence_revision_id ?? "none (first version)"}</code>
-        </Fact>
-        <Fact term="Kind and basis">
-          <code data-vocabulary-exempt="source-reference">
-            {rev.consequence_type} · {rev.basis_kind} · {rev.state}
-          </code>
-        </Fact>
-        <Fact term="Model">
-          <code data-vocabulary-exempt="source-reference">
-            {rev.model.model_id} · {rev.model.formula_version} · {rev.model.parameter_version} · sfc_upper_multiplier ={" "}
-            {rev.model.sfc_upper_multiplier ?? "none"}
-          </code>
-        </Fact>
-        <Fact term="Model allowance reviewed">
-          {rev.model.parameter_is_reviewed ? "Yes, the reviewed allowance" : "No: this allowance is not the reviewed one"}
-        </Fact>
-        <Fact term="Model allowance digest">
-          <code data-vocabulary-exempt="source-reference">{rev.model.parameter_sha256}</code>
-        </Fact>
-        <Fact term="Quantity, unrounded">
-          <code data-vocabulary-exempt="source-reference">
-            {rev.quantity.low ?? "none"} to {rev.quantity.high ?? "none"} {rev.quantity.unit} · {rev.quantity.state}
-            {rev.quantity.reason ? ` · ${rev.quantity.reason}` : ""}
-          </code>
-        </Fact>
-        <Fact term="Price selection">
-          <code data-vocabulary-exempt="source-reference">
-            {rev.price.state}
-            {rev.price.reason ? ` · ${rev.price.reason}` : ""}
-            {rev.price.revision_id ? ` · ${rev.price.revision_id}` : ""}
-          </code>
-        </Fact>
-        <Fact term="Amount, unrounded">
-          <code data-vocabulary-exempt="source-reference">
-            {rev.amount.low ?? "none"} to {rev.amount.high ?? "none"} {rev.amount.currency ?? ""}
-          </code>
-        </Fact>
-        <Fact term="Technical input digest">
-          <code data-vocabulary-exempt="source-reference">{rev.digests.technical_input_sha256}</code>
-        </Fact>
-        <Fact term="Fuel cost record digest">
-          <code data-vocabulary-exempt="source-reference">{rev.digests.consequence_basis_sha256}</code>
-        </Fact>
-        <Fact term="Assessments">
-          <code data-vocabulary-exempt="source-reference">
-            {rev.lineage.assessments.map((a) => `${a.assessment_revision_id}${a.is_primary ? " (primary)" : ""}`).join(", ") ||
-              "none"}
-          </code>
-        </Fact>
-        <Fact term="Price and model versions linked">
-          <code data-vocabulary-exempt="source-reference">
-            {rev.lineage.assumptions.map((a) => `${a.role} ${a.assumption_revision_id}`).join(", ") || "none"}
-          </code>
-        </Fact>
-      </FactList>
+      <p data-consequence-allowance-reviewed={rev.model.parameter_is_reviewed ? "true" : "false"}>
+        {rev.model.parameter_is_reviewed
+          ? "The fuel use allowance is the reviewed one."
+          : "The fuel use allowance is not the reviewed one, so treat this range with care."}
+      </p>
+      <h3 className="panel__subheading">Limits of this figure</h3>
+      <ul>
+        <li>It is a modelled range from zero up to an upper amount, not fuel saved, not money spent and not a physical maximum.</li>
+        <li>Generator time that was needed, or that could not be judged, is never priced.</li>
+        <li>No total is added up across findings, versions, currencies or time windows.</li>
+      </ul>
       {rev.lineage.power_intervals.length > 0 ? (
-        <>
-          <h3 className="panel__subheading" id={`consequence-readings-${rev.revision_no}`}>
-            Generator power readings counted ({rev.lineage.power_intervals.length})
-          </h3>
-          <DataTable labelledBy={`consequence-readings-${rev.revision_no}`}>
+        <Disclosure
+          summary={`Generator power readings counted (${rev.lineage.power_intervals.length})`}
+          name={`consequence-readings-${rev.revision_no}`}
+        >
+          <DataTable>
             <thead>
               <tr>
                 <th scope="col">From</th>
                 <th scope="col">To</th>
                 <th scope="col">Average kW</th>
                 <th scope="col">Litres per kWh</th>
-                <th scope="col">Record</th>
+                <th scope="col">Record reference</th>
               </tr>
             </thead>
             <tbody>
@@ -329,23 +386,9 @@ function HowWorkedOut({
               ))}
             </tbody>
           </DataTable>
-        </>
+        </Disclosure>
       ) : null}
-      <h3 className="panel__subheading">Limits of this figure</h3>
-      <ul>
-        <li>It is a modelled range from zero up to an upper amount, not fuel saved, not money spent and not a physical maximum.</li>
-        <li>Generator time that was needed, or that could not be judged, is never priced.</li>
-        <li>No total is added up across findings, versions, currencies or time windows.</li>
-      </ul>
-      <p className="muted">Limits as recorded with this version:</p>
-      <ul data-consequence-limitations={rev.limitations.length}>
-        {[...rev.limitations, ...body.exclusions].map((l) => (
-          <li key={l}>
-            <code data-vocabulary-exempt="source-reference">{l}</code>
-          </li>
-        ))}
-      </ul>
-    </Disclosure>
+    </div>
   );
 }
 
@@ -361,40 +404,68 @@ function versionWords(rev: ConsequenceRevision, hideAmount: boolean): string {
   return "No cost shown";
 }
 
-/** The money headline: an amount only for a CURRENT PRICED bridge with a display range. */
-function Headline({ bridge }: { bridge: FindingFinancialsBody }) {
+/** A served display string as a bar length only; the text always stays the served string. */
+function barValue(text: string): number | null {
+  const n = Number(text);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * W1-UX-02: the basis and limit visual. An amount is drawn only for a current priced bridge; every other state
+ * draws the shared "not known" mark, never a zero bar. The step strip says what the amount rests on, from the
+ * bridge read only.
+ */
+function MoneyVisual({ bridge, shown }: { bridge: FindingFinancialsBody; shown: boolean }) {
   const c = bridge.consequence;
-  const shown = c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null && c.currency !== null;
-  if (shown && c.amount && c.currency) {
-    return (
-      <div data-financials-headline="amount">
-        <dl className="metric-row">
-          <div className="metric">
-            <dt>Modelled potential fuel-cost exposure</dt>
-            <dd data-financials-range={`${c.amount.low}-${c.amount.high}`}>{range(c.amount.low, c.amount.high, c.currency)}</dd>
-          </div>
-        </dl>
-        <p>
-          Modelled potential fuel-cost exposure: {c.amount.low} to {c.amount.high} {c.currency}, under the reviewed fuel-cost-1
-          assumptions. This is not measured fuel saved or a physical maximum.
-        </p>
-      </div>
-    );
-  }
-  const why =
-    c.state === "QUANTITY_UNAVAILABLE"
-      ? quantityWords(c.quantity_reason)
+  const steps: Step[] = [
+    {
+      label: "Finding time",
+      state: bridge.window.end === null ? "not-known" : "done",
+      detail: `${formatInstant(bridge.window.start)} to ${formatInstant(bridge.window.end)}`,
+    },
+    shown && c.quantity !== null
+      ? { label: "Fuel amount", state: "done", detail: `Up to ${c.quantity.high} litres` }
+      : c.state === "QUANTITY_UNAVAILABLE"
+        ? { label: "Fuel amount", state: "problem", detail: "Not calculated" }
+        : { label: "Fuel amount", state: "not-known", detail: "Not current" },
+    shown
+      ? { label: "Diesel price", state: "done", detail: "The site price version used" }
       : c.state === "UNPRICED"
-        ? priceWords(c.price_reason)
-        : c.reason;
+        ? { label: "Diesel price", state: "problem", detail: "No single price for the whole time" }
+        : c.state === "QUANTITY_UNAVAILABLE"
+          ? { label: "Diesel price", state: "waiting", detail: "Not applied without a fuel amount" }
+          : { label: "Diesel price", state: "not-known", detail: "Not current" },
+    shown
+      ? { label: "Current amount", state: "done", detail: "Modelled range" }
+      : c.state === "WITHHELD_GENERATOR_SERIES" || c.state === "MIXED_OR_UNKNOWN_SOURCE"
+        ? { label: "Current amount", state: "problem", detail: "Withheld" }
+        : c.state === "PENDING_REASSESSMENT" || c.state === "PENDING"
+          ? { label: "Current amount", state: "waiting", detail: "Not worked out yet" }
+          : { label: "Current amount", state: "not-known", detail: "Not shown" },
+  ];
   return (
-    <FactList>
-      <Fact term="Cost">{STATE_HEADLINE[c.state] ?? "No cost shown"}</Fact>
-      <Fact term="Why">
-        <span data-financials-why={c.quantity_reason ?? c.price_reason ?? c.state}>{why}</span>
-      </Fact>
-    </FactList>
+    <div className="w1-money-visual">
+      {shown && c.amount !== null && c.currency !== null ? (
+        <ValueBars
+          title="Modelled fuel-cost range"
+          items={[
+            { label: "Lower end", key: "low", value: barValue(c.amount.low), valueText: `${c.amount.low} ${c.currency}` },
+            { label: "Upper end", key: "high", value: barValue(c.amount.high), valueText: `${c.amount.high} ${c.currency}` },
+          ]}
+        />
+      ) : (
+        <ValueBars title="Current fuel-cost amount" items={[{ label: "Current amount", key: "none", value: null, valueText: "" }]} />
+      )}
+      <StepStrip title="What the amount rests on" steps={steps} />
+    </div>
   );
+}
+
+/** Why no current amount is shown, in plain words: the specific stored reason where the read gives one. */
+function whyNoAmount(c: FindingFinancialsBody["consequence"]): string {
+  if (c.state === "QUANTITY_UNAVAILABLE") return quantityWords(c.quantity_reason);
+  if (c.state === "UNPRICED") return priceWords(c.price_reason);
+  return c.reason;
 }
 
 const SERIES_KIND_WORDS: Record<string, string> = {
@@ -500,7 +571,8 @@ export function FindingBridge({
   const c = bridge.consequence;
   const findingId = bridge.finding.id;
   const rev = bridge.selection.revision_id;
-  const shown = c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null;
+  // The only amount this page may call current: a PRICED bridge, CURRENT, with a served range and currency.
+  const shown = c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null && c.currency !== null;
   const gated =
     c.state === "WITHHELD_GENERATOR_SERIES" || c.state === "PENDING_REASSESSMENT" || c.state === "MIXED_OR_UNKNOWN_SOURCE";
   const body = consequences?.status === "loaded" ? consequences.value : null;
@@ -511,55 +583,118 @@ export function FindingBridge({
     pinnedConsequence !== null && body?.consequence && (!body.consequence.is_head || (gated && body.consequence.presented_as_current === false))
       ? body.consequence
       : null;
+  const words = consequenceWords(c, shown);
+  const stepHead = shown && body !== null && head ? head : null;
+  const scope = `Finding version ${bridge.revision.revision_no}${bridge.selection.is_latest ? " (latest)" : " (an earlier version)"}, ${formatInstant(
+    bridge.window.start,
+  )} to ${formatInstant(bridge.window.end)}`;
   return (
     <>
-      <Panel
-        heading="What this finding means in money"
-        headingId="site-financials-bridge-heading"
-        description="A modelled estimate, not a measured saving. Financials have no status of their own; the finding keeps its own status."
+      <div
+        data-financials-bridge={c.state}
+        data-financials-currentness={c.currentness ?? "NONE"}
+        data-finding-id={findingId}
+        data-finding-revision={rev}
+        data-financials-amount={shown ? "shown" : "none"}
       >
-        <div
-          data-financials-bridge={c.state}
-          data-financials-currentness={c.currentness ?? "NONE"}
-          data-finding-id={findingId}
-          data-finding-revision={rev}
-          data-financials-amount={shown ? "shown" : "none"}
-        >
-          <p className="financials-lead">
-            <strong>{bridge.revision.title}</strong>, version {bridge.revision.revision_no}
-            {bridge.selection.is_latest ? " (latest)" : " (an earlier version)"}, {formatInstant(bridge.window.start)} to{" "}
-            {formatInstant(bridge.window.end)}.
-          </p>
-          <SourceProvenanceNotice
-            provenance={bridge.source_provenance?.consequence_revision ?? bridge.source_provenance?.finding_revision}
-            subject="cost"
-            name="bridge"
-          />
-          {bridge.audit_only ? <p className="notice">{bridge.audit_only.statement}</p> : null}
-          <Headline bridge={bridge} />
-          {gated ? <MoneyLimit c={c} links={links} findingId={findingId} rev={rev} /> : null}
-          {head && body && shown ? (
+        <HeadlineVisualCard
+          dataName="financials-consequence"
+          headingId="site-financials-bridge-heading"
+          title="What this finding means in money"
+          description="A modelled estimate, not a measured saving. Financials have no status of their own; the finding keeps its own status."
+          question="What is the bounded economic consequence?"
+          headline={
+            shown && c.amount !== null && c.currency !== null ? (
+              <span data-financials-headline="amount">
+                Modelled potential fuel-cost exposure:{" "}
+                <strong data-financials-range={`${c.amount.low}-${c.amount.high}`}>{range(c.amount.low, c.amount.high, c.currency)}</strong>
+              </span>
+            ) : (
+              <span data-financials-headline="none">No current amount is shown for this finding version</span>
+            )
+          }
+          status={
+            <ProductStatus
+              words={words}
+              scope={scope}
+              // The time the shown range was worked out; no other state has a read instant, so it says so.
+              asOf={stepHead !== null ? stepHead.recorded_at : null}
+            >
+              <SourceProvenanceNotice
+                provenance={bridge.source_provenance?.consequence_revision ?? bridge.source_provenance?.finding_revision}
+                subject="cost"
+                name="bridge"
+              />
+              {bridge.audit_only ? <p className="notice">{bridge.audit_only.statement}</p> : null}
+            </ProductStatus>
+          }
+          visual={<MoneyVisual bridge={bridge} shown={shown} />}
+          meaning={
             <>
-              <h3 className="panel__subheading" id="site-financials-bridge-steps">
-                From finding to money
-              </h3>
-              <BridgeTable rev={head} current links={links} headingId="site-financials-bridge-steps" />
-              <HowWorkedOut rev={head} body={body} findingId={findingId} findingRevisionId={rev} />
+              <p className="financials-lead">
+                For the finding <strong>{bridge.revision.title}</strong>.
+              </p>
+              {shown && c.amount !== null && c.currency !== null ? (
+                <p>
+                  Modelled potential fuel-cost exposure: {c.amount.low} to {c.amount.high} {c.currency}, under the reviewed
+                  fuel cost assumptions. This is not measured fuel saved or a physical maximum.
+                </p>
+              ) : (
+                <p className="w1-money-why">
+                  <strong>Why no current amount: </strong>
+                  <span data-financials-why={c.quantity_reason ?? c.price_reason ?? c.state}>{whyNoAmount(c)}</span>
+                </p>
+              )}
+              {gated ? <MoneyLimit c={c} links={links} findingId={findingId} rev={rev} /> : null}
+              {!shown && head && body && !gated ? (
+                <p data-financials-recorded-pointer="true">
+                  {bridge.audit_only
+                    ? "No amount is shown while the source is closed."
+                    : "No amount is shown here because this is not a current cost. Earlier fuel cost versions are listed under Fuel cost versions, kept for the record."}
+                </p>
+              ) : null}
             </>
-          ) : head && body && !gated ? (
-            <p data-financials-recorded-pointer="true">
-              {bridge.audit_only
-                ? "No amount is shown while the source is closed."
-                : "No amount is shown here because this is not a current cost. Earlier fuel cost versions are listed under Fuel cost versions, kept for the record."}
-            </p>
-          ) : null}
-          <p>
-            <Link to={links.evidence(findingId, rev)}>See the evidence for this finding version</Link>
-            {" · "}
-            <Link to={links.finding(findingId, rev)}>Back to the finding</Link>
-          </p>
-        </div>
-      </Panel>
+          }
+          todo={words.next === undefined ? undefined : <p>{words.next}</p>}
+          destination={
+            <>
+              <Link to={links.evidence(findingId, rev)}>See the evidence for this finding version</Link>
+              {" · "}
+              <Link to={links.finding(findingId, rev)}>Back to the finding</Link>
+            </>
+          }
+          references={
+            <ExactReferences
+              name="financials-consequence"
+              references={
+                stepHead !== null && body !== null
+                  ? consequenceReferences(stepHead, body, findingId, rev)
+                  : [
+                      { label: "Finding reference", value: findingId },
+                      { label: "Finding version reference", value: rev },
+                      { label: "Money state", value: c.state },
+                      { label: "How current", value: c.currentness },
+                      {
+                        label: "Recorded fuel cost reference",
+                        value: c.recorded_consequence_revision_id ?? c.consequence_revision_id ?? null,
+                      },
+                      { label: "Price version reference", value: c.price_revision_id },
+                      ...[...(c.currentness_reasons ?? []), ...(c.withheld_reasons ?? [])].map((r, i) => ({
+                        label: `Recorded reason ${i + 1}`,
+                        value: r,
+                      })),
+                    ]
+              }
+            />
+          }
+        />
+        {stepHead !== null && body !== null ? (
+          <Panel heading="From finding to money" headingId="site-financials-bridge-steps">
+            <BridgeTable rev={stepHead} current links={links} headingId="site-financials-bridge-steps" />
+            <HowWorkedOut rev={stepHead} body={body} />
+          </Panel>
+        ) : null}
+      </div>
       {pinned && body && bridge.audit_only ? (
         <Panel
           heading={`Fuel cost version ${pinned.revision_no}`}
@@ -602,7 +737,8 @@ export function FindingBridge({
               links={links}
               headingId="site-financials-consequence-version-heading"
             />
-            <HowWorkedOut rev={pinned} body={body} findingId={findingId} findingRevisionId={rev} />
+            <HowWorkedOut rev={pinned} body={body} />
+            <ExactReferences name={`consequence-pinned-${pinned.revision_no}`} references={consequenceReferences(pinned, body, findingId, rev)} />
           </div>
         </Panel>
       ) : null}

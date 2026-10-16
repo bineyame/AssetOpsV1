@@ -1,7 +1,22 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, MissingClaim, Panel } from "../ui";
+import {
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  MissingClaim,
+  moneyWords,
+  Panel,
+  ProductStatus,
+  readResultWords,
+  type ExactReference,
+  type ProductWords,
+  type ReadResultKind,
+} from "../ui";
 import { ConsequenceHistoryPanel, ConsequenceHistoryRefused } from "./ConsequenceHistory";
 import type {
   AssumptionRevisionBody,
@@ -17,6 +32,7 @@ import type {
 } from "./financialsClient";
 import { FindingBridge } from "./FindingConsequence";
 import { formatInstant } from "./FoundationRevisionPanel";
+import "./w1ux02-money.css";
 
 /**
  * S4-02a/S4-02b: Site > Financials. The Overview holds the Finding bridge (an exact Finding version, its typed
@@ -89,11 +105,24 @@ function ReadRefused({ read, what }: { read: Exclude<FinancialReadResult<unknown
   };
   return (
     <Panel heading={words[read.status].heading} headingId="site-financials-state-heading">
-      <p data-financials-read={read.status}>{words[read.status].text}</p>
+      <div data-financials-state={read.status}>
+        <ProductStatus words={readResultWords(READ_KIND[read.status])} scope={`This site's ${what}`} asOf={null}>
+          <p data-financials-read={read.status}>{words[read.status].text}</p>
+        </ProductStatus>
+      </div>
       {read.message ? <p className="muted">Reason given: {read.message}</p> : null}
     </Panel>
   );
 }
+
+/** W1-UX-02: how a refused read ended, in the shared words. Refused and unavailable are never empty. */
+const READ_KIND: Record<Exclude<FinancialReadResult<unknown>, { status: "loaded" }>["status"], ReadResultKind> = {
+  not_found: "not-found",
+  unauthenticated: "refused",
+  forbidden: "refused",
+  closed: "refused",
+  unavailable: "unavailable",
+};
 
 function useRead<T, R = FinancialReadResult<T>>(load: () => Promise<R>, deps: unknown[]): R | null {
   const [read, setRead] = useState<R | null>(null);
@@ -111,50 +140,63 @@ function useRead<T, R = FinancialReadResult<T>>(load: () => Promise<R>, deps: un
   return read;
 }
 
-function RecordDetails({ price, assignment }: { price: PriceRevision; assignment?: PriceAssignment }) {
+/** W1-UX-02: the labelled exact values of one price version, for the closed "How this was worked out" disclosure. */
+function priceReferences(price: PriceRevision, assignment?: PriceAssignment): ExactReference[] {
+  return [
+    { label: "Price version reference", value: price.revision_id },
+    { label: "Previous price version reference", value: price.prior_revision_id },
+    ...(assignment ? [{ label: "Schedule entry reference", value: assignment.assignment_id }] : []),
+    { label: "Key and unit", value: `${price.assumption_key} · ${price.unit}` },
+    { label: "Basis and change", value: `${price.basis} · ${price.change_kind}` },
+    { label: "Published by", value: `${price.actor.kind} · ${price.actor.id} · ${price.channel}` },
+    { label: "Authority", value: price.authorization_basis },
+    { label: "Recorded at", value: price.recorded_at },
+    { label: "Publication key", value: price.idempotency_key },
+    { label: "Request reference", value: price.request_sha256 },
+  ];
+}
+
+type StripState = "in-use" | "ended" | "later" | "not-known";
+
+const STRIP_WORDS: Record<StripState, string> = {
+  "in-use": "In use today",
+  ended: "Ended",
+  later: "Starts later",
+  "not-known": "Not known",
+};
+
+/**
+ * W1-UX-02: the price effective-time strip. Each schedule entry the read returned, in order, with its dates,
+ * price and whether it applies at the time the read was asked about. The entry in use is the one the read
+ * selected; the others are placed only by their own recorded dates. Nothing is inferred beyond that.
+ */
+function PriceTimeStrip({ body }: { body: AssumptionSeriesBody }) {
+  if (body.timeline.length === 0) return null;
+  const selected = body.selection?.state === "PRICED" ? body.selection.assignment_id : null;
+  const at = body.selection ? new Date(body.selection.valid_at).getTime() : Number.NaN;
+  const stateOf = (a: PriceAssignment): StripState => {
+    if (a.assignment_id === selected) return "in-use";
+    if (Number.isNaN(at)) return "not-known";
+    if (a.valid.to !== null && new Date(a.valid.to).getTime() <= at) return "ended";
+    if (new Date(a.valid.from).getTime() > at) return "later";
+    return "not-known";
+  };
   return (
-    <Disclosure summary="Record details" name={`price-record-${price.revision_no}`}>
-      <FactList>
-        <Fact term="Price version ID">
-          <code data-vocabulary-exempt="source-reference" data-price-revision-id={price.revision_id}>{price.revision_id}</code>
-        </Fact>
-        <Fact term="Previous version ID">
-          <code data-vocabulary-exempt="source-reference">{price.prior_revision_id ?? "none (first version)"}</code>
-        </Fact>
-        {assignment ? (
-          <Fact term="Schedule entry ID">
-            <code data-vocabulary-exempt="source-reference">{assignment.assignment_id}</code>
-          </Fact>
-        ) : null}
-        <Fact term="Key and unit">
-          <code data-vocabulary-exempt="source-reference">
-            {price.assumption_key} · {price.unit}
-          </code>
-        </Fact>
-        <Fact term="Basis and change">
-          <code data-vocabulary-exempt="source-reference">
-            {price.basis} · {price.change_kind}
-          </code>
-        </Fact>
-        <Fact term="Published by">
-          <code data-vocabulary-exempt="source-reference">
-            {price.actor.kind} · {price.actor.id} · {price.channel}
-          </code>
-        </Fact>
-        <Fact term="Authority">
-          <code data-vocabulary-exempt="source-reference">{price.authorization_basis}</code>
-        </Fact>
-        <Fact term="Recorded at">
-          <code data-vocabulary-exempt="source-reference">{price.recorded_at}</code>
-        </Fact>
-        <Fact term="Publication key">
-          <code data-vocabulary-exempt="source-reference">{price.idempotency_key}</code>
-        </Fact>
-        <Fact term="Request digest">
-          <code data-vocabulary-exempt="source-reference">{price.request_sha256}</code>
-        </Fact>
-      </FactList>
-    </Disclosure>
+    <figure className="w1-money-strip" data-price-strip={body.timeline.length}>
+      <figcaption className="w1-money-strip__title">When each price applies</figcaption>
+      <ol className="w1-money-strip__list">
+        {body.timeline.map((a) => {
+          const state = stateOf(a);
+          return (
+            <li key={a.assignment_id} className={`w1-money-strip__item w1-money-strip__item--${state}`} data-price-strip-entry={state}>
+              <span className="w1-money-strip__when">{applies(a.valid)}</span>
+              <span>{priceText(a.price)}</span>
+              <span className="w1-money-strip__state">{STRIP_WORDS[state]}</span>
+            </li>
+          );
+        })}
+      </ol>
+    </figure>
   );
 }
 
@@ -264,10 +306,14 @@ export function SiteAssumptions({
     return (
       <section className="site-financials" aria-label="Site prices" data-price-cutoff="NONE">
         <Panel heading="Prices unavailable" headingId="site-financials-state-heading">
-          <p data-financials-read="no-cutoff">
-            The moment to show this site's prices at could not be fixed, so no prices are shown right now. Nothing is
-            assumed about them.
-          </p>
+          <div data-financials-state="no-cutoff">
+            <ProductStatus words={readResultWords("unavailable")} scope={`Diesel price for site ${siteId}`} asOf={null}>
+              <p data-financials-read="no-cutoff">
+                The moment to show this site's prices at could not be fixed, so no prices are shown right now. Nothing is
+                assumed about them.
+              </p>
+            </ProductStatus>
+          </div>
         </Panel>
         {historyPanel}
       </section>
@@ -296,7 +342,7 @@ export function SiteAssumptions({
       ) : exact.value !== null ? (
         <ExactVersion body={exact.value} links={links} />
       ) : null}
-      <CurrentPrice body={body} />
+      <CurrentPrice body={body} siteId={siteId} historical={recordedAt !== null} />
       <Schedule body={body} links={links} selectedRevision={revisionId} />
       <History
         body={body}
@@ -312,34 +358,102 @@ export function SiteAssumptions({
   );
 }
 
-function CurrentPrice({ body }: { body: AssumptionSeriesBody }) {
+const PRICED_WORDS: ProductWords = {
+  label: "Price recorded for this site",
+  sentence: "This recorded price turns litres of diesel into money for this site. It is an assumption, not a measured cost.",
+  tone: "positive",
+  code: "PRICED",
+  unrecognised: false,
+};
+
+const EARLIER_WORDS: ProductWords = {
+  label: "Prices as recorded at an earlier moment",
+  sentence: "This is the price list as it was recorded then. Later changes are not shown, so it may not be the price in use now.",
+  tone: "neutral",
+  code: "RECORDED_CUTOFF",
+  unrecognised: false,
+};
+
+const CONFLICT_WORDS: ProductWords = {
+  label: "Two prices cover this time",
+  sentence: "Two stored prices both cover today, so neither is shown and no amount uses either. This is not zero.",
+  next: "The price list needs to be checked before any price is used.",
+  tone: "problem",
+  code: "CONFLICT",
+  unrecognised: false,
+};
+
+/**
+ * W1-UX-02: the v69 `assumptions` answer card. It leads with the price in use and its effective-time strip;
+ * version, actor and reference move to the closed exact-reference disclosure. The state line's "as of" is the
+ * moment the price list was read at, exactly as the read returned it.
+ */
+function CurrentPrice({ body, siteId, historical }: { body: AssumptionSeriesBody; siteId: string; historical: boolean }) {
   const selection = body.selection;
+  const priced = selection?.state === "PRICED" ? selection : null;
+  const state = priced !== null ? "PRICED" : selection?.state === "CONFLICT" ? "CONFLICT" : "NO_PRICE";
+  const words = historical
+    ? EARLIER_WORDS
+    : state === "PRICED"
+      ? PRICED_WORDS
+      : state === "CONFLICT"
+        ? CONFLICT_WORDS
+        : moneyWords("NO_PRICE");
   return (
-    <Panel
-      heading="Site diesel price"
+    <HeadlineVisualCard
+      dataName="assumptions-price"
       headingId="site-price-heading"
+      title="Site diesel price"
       description="The price this site uses to turn litres of diesel into money. Technical findings do not change when it changes."
-    >
-      {selection?.state === "PRICED" ? (
-        <div data-price-selection="PRICED" data-price-selected-revision={selection.revision_id}>
-          <p className="financials-lead">
-            Diesel price, set by {setBy(selection.price)} on {day(selection.price.recorded_at)}:{" "}
-            <strong>{priceText(selection.price)}</strong>, {applies(selection.valid)}.
-          </p>
-          <PriceFacts price={selection.price} valid={selection.valid} />
-          <RecordDetails price={selection.price} assignment={selection} />
+      question="Which assumptions turn this quantity into money?"
+      headline={
+        priced !== null ? (
+          <>
+            Diesel price in use: <strong>{priceText(priced.price)}</strong>
+          </>
+        ) : state === "CONFLICT" ? (
+          "No single diesel price can be used"
+        ) : (
+          "No diesel price is in use for this site"
+        )
+      }
+      status={
+        <div data-price-state={historical ? "RECORDED_CUTOFF" : state}>
+          <ProductStatus words={words} scope={`Diesel price for site ${siteId}`} asOf={body.cutoff.recorded_at} />
         </div>
-      ) : selection?.state === "CONFLICT" ? (
-        <p data-price-selection="CONFLICT">
-          Two stored prices claim today, so neither is shown. This needs to be checked before any price is used.
-        </p>
-      ) : (
-        <p data-price-selection="NO_PRICE">
-          No diesel price is recorded for today at this site. No default or company-wide price is used in its place.
-        </p>
-      )}
-      <DisabledEdit />
-    </Panel>
+      }
+      visual={body.timeline.length > 0 ? <PriceTimeStrip body={body} /> : undefined}
+      meaning={
+        priced !== null ? (
+          <div data-price-selection="PRICED" data-price-selected-revision={priced.revision_id}>
+            <p className="financials-lead">
+              Diesel price, set by {setBy(priced.price)} on {day(priced.price.recorded_at)}:{" "}
+              <strong>{priceText(priced.price)}</strong>, {applies(priced.valid)}.
+            </p>
+            <PriceFacts price={priced.price} valid={priced.valid} />
+          </div>
+        ) : state === "CONFLICT" ? (
+          <p data-price-selection="CONFLICT">
+            Two stored prices both cover today, so neither is used. This needs to be checked before any price is used.
+          </p>
+        ) : (
+          <p data-price-selection="NO_PRICE">
+            No diesel price is recorded for today at this site. No default or company-wide price is used in its place.
+          </p>
+        )
+      }
+      todo={<DisabledEdit />}
+      destination={<a href="#site-price-history-heading">See every recorded price version</a>}
+      references={
+        <ExactReferences
+          name="assumptions-price"
+          references={[
+            ...(priced !== null ? priceReferences(priced.price, priced) : [{ label: "Price state", value: state }]),
+            { label: "Prices read at", value: body.cutoff.recorded_at },
+          ]}
+        />
+      }
+    />
   );
 }
 
@@ -480,7 +594,7 @@ function ExactVersion({ body, links }: { body: AssumptionRevisionBody; links: Fi
         <p>
           <Link to={links.assumptions()}>Back to the current prices</Link>
         </p>
-        <RecordDetails price={price} />
+        <ExactReferences name={`price-record-${price.revision_no}`} references={priceReferences(price)} />
       </div>
     </Panel>
   );
@@ -572,6 +686,7 @@ function PriceInUse({ siteId, client, links }: { siteId: string; client: Financi
           No diesel price is recorded for today at this site.
         </p>
       )}
+      {read !== null && read.status === "loaded" ? <PriceTimeStrip body={read.value} /> : null}
       <p>
         <Link to={links.assumptions()}>See the price schedule and history</Link>
       </p>
