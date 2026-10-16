@@ -293,6 +293,11 @@ class _Site:
         a, b = lo - CONTINUITY_TOLERANCE, hi + CONTINUITY_TOLERANCE
         return all(w in self.usable for w in self.windows if w.start <= b and a < w.end)
 
+    def margin_windows(self, lo: datetime, hi: datetime) -> set[datetime]:
+        """Starts of every selected window, usable or not, touching [lo - 20 min, hi + 20 min]."""
+        a, b = lo - CONTINUITY_TOLERANCE, hi + CONTINUITY_TOLERANCE
+        return {w.start for w in self.windows if w.start <= b and a < w.end}
+
     def windows_over(self, lo: datetime, hi: datetime) -> list[WindowBasis]:
         return [w for w in self.usable if w.start <= hi and lo < w.end]
 
@@ -678,7 +683,21 @@ def _new(site: _Site, cluster: _Cluster, *, recurrence: tuple[Episode | None, di
 
 
 def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str) -> list[Write]:
+    return plan_pass(windows, episodes, model_version)[0]
+
+
+def plan_pass(windows: list[WindowBasis], episodes: list[Episode], model_version: str
+              ) -> tuple[list[Write], frozenset[datetime]]:
+    """The pass's writes, and the starts of the selected windows it could not match: every window touching (with
+    the 20-minute continuity margin) a group it deferred because a window is missing or not CURRENT, or an
+    episode whose closure was not decidable. Those windows are not matched by this pass; the store records them
+    on the pass so `match_state` reads them as pending until a later pass matches them."""
     site = _Site(windows, model_version)
+    deferred: set[datetime] = set()
+
+    def defer(lo: datetime, hi: datetime) -> None:
+        deferred.update(site.margin_windows(lo, hi))
+
     live = [e for e in episodes if e.lifecycle != MERGED]
     clusters = _clusters(site)
     writes: list[Write] = []
@@ -708,11 +727,17 @@ def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str
         cs.sort(key=lambda c: c.start)
         if any(not site.covered(c.start, c.end) or not site.margin_ok(c.start, c.end) for c in cs) or any(
                 not site.covered(e.episode_start, e.episode_end) for e in es if cs):
+            for c in cs:
+                defer(c.start, c.end)
+            for e in es:
+                defer(e.episode_start, e.episode_end)
             continue
         if not cs:
             for e in es:
                 w = _unsupported_write(site, e)
-                if w is not None and w.basis_sha256 != e.basis_sha256:
+                if w is None:
+                    defer(e.episode_start, e.episode_end)
+                elif w.basis_sha256 != e.basis_sha256:
                     writes.append(w)
             continue
         if not es:
@@ -775,7 +800,7 @@ def plan(windows: list[WindowBasis], episodes: list[Episode], model_version: str
                 mw.lifecycle, mw.merged_into = MERGED, owner.finding_id
                 mw.basis_sha256 = sha256_json({"merged_into": owner.finding_id, "basis": mw.basis_sha256})
                 writes.append(mw)
-    return writes
+    return writes, frozenset(deferred)
 
 
 def _when(value: Any) -> datetime | None:

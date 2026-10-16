@@ -20,6 +20,7 @@ from assetops_backend.analytics.finding_episode import (
     WindowBasis,
     Write,
     plan,
+    plan_pass,
 )
 
 MODEL = "dispatch-3.1"
@@ -192,6 +193,23 @@ class TestLifecycle:
         late = run([seg(at("23:30"), at("23:50"))], at("23:25"), None)
         assert plan([day(6, late), day(7, status="STALE_PROJECTION")], [], MODEL) == []
         assert [w.transition for w in plan([day(6, late)], [], MODEL)] == ["OPENED"]
+
+    def test_the_pass_names_the_windows_it_deferred(self) -> None:
+        """S4 deferred-match fix: a group skipped for its continuity margin names both the CURRENT window it lies
+        in and the non-CURRENT neighbour, so neither reads as matched by this pass; a clear pass names none."""
+        late = run([seg(at("23:30"), at("23:50"))], at("23:25"), None)
+        early = run([seg(at("08:00", 5), at("08:30", 5))], at("07:55", 5), at("08:35", 5))
+        writes, deferred = plan_pass([day(6, late), day(7, status="STALE_PROJECTION")], [], MODEL)
+        assert writes == [] and deferred == {datetime(2026, 10, 6, tzinfo=timezone.utc),
+                                             datetime(2026, 10, 7, tzinfo=timezone.utc)}
+        writes, deferred = plan_pass([day(5, early), day(6, late), day(7, status="STALE_PROJECTION")], [], MODEL)
+        assert [w.transition for w in writes] == ["OPENED"] and datetime(2026, 10, 5, tzinfo=timezone.utc)             not in deferred and len(deferred) == 2
+        writes, deferred = plan_pass([day(6, late), day(7)], [], MODEL)
+        assert [w.transition for w in writes] == ["OPENED"] and deferred == frozenset()
+        # A stored episode whose window is no longer CURRENT cannot be closed or confirmed: deferred too.
+        _, eps = opened([day(5, early)])
+        writes, deferred = plan_pass([day(5, status="STALE_PROJECTION")], eps, MODEL)
+        assert writes == [] and deferred == {datetime(2026, 10, 5, tzinfo=timezone.utc)}
 
 
 class TestBridges:

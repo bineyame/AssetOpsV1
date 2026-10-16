@@ -2254,3 +2254,7 @@ Review `.agent/S4-07-review.md` ACCEPT. L1: rename `test_s4_schedule_health_post
 ### Owner W1-conclusion task: plain-language status copy (2026-10-15)
 
 Owner, accepting LR-01 and S5-01 (`.agent/owner-LR01-S501-acceptance-2026-10-15.md`): status wording such as "Not assessed", "Upstream out of date", "Pending reassessment" and visible reason codes must become plain language non-technical users understand. Schedule as one copy task at the conclusion of W1 across Overview, Financials, Finding, Evidence/Dispatch and Action screens; until then, demo speed over perfection.
+
+### S4 deferred-match fix carries (2026-10-16)
+
+Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 downgrade refusal. L3: rewrap `test_s4_finding_episode.py:206`. Risks: health can read IDLE while a day stays pending behind an UNASSESSED neighbour (no alarm); a deferred day holds back money eligibility for unrelated matched episodes that day; the matcher fence omits the input hash, so a STALE-to-CURRENT flip with no job/selection change leaves a deferral pending (now visible as pending rather than hidden).
