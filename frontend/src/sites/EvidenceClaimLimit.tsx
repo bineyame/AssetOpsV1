@@ -113,16 +113,29 @@ function ceilingSentence(body: CeilingBody | null): string | null {
     : `The readings support calling this generator run ${word} for at most${minutes.replace(" for", "")}; the rest of the period is limited by the gaps below.`;
 }
 
+/** The selected interval's own period from its role spans (the read's `window` is the whole UTC day). */
+function assessedPeriod(read: ClaimLimitRead): string {
+  const spans = Object.values(read.capability?.roles ?? {}).flatMap((role) => role.spans);
+  if (spans.length === 0) {
+    return "period not stated";
+  }
+  const starts = spans.map((s) => s.start).sort();
+  const ends = spans.map((s) => s.end).sort();
+  return period(starts[0], ends[ends.length - 1]);
+}
+
 function reasonSentence(reason: ClaimReason): string | null {
   const when = period(reason.start, reason.end);
   const at = when === "" ? "" : `, ${when}`;
   switch (reason.code) {
     case "MISSING_ROLE":
-      return `${roleName(reason.role)} missing${at}.`;
+      return reason.role === undefined ? `Some needed readings are missing${at}.` : `${roleName(reason.role)} missing${at}.`;
     case "POOR_QUALITY":
-      return `${roleName(reason.role)}: unreliable readings${at}.`;
+      return reason.role === undefined ? `Some readings are unreliable${at}.` : `${roleName(reason.role)}: unreliable readings${at}.`;
     case "CONFLICTING":
-      return `${roleName(reason.role)}: conflicting reports${at}.`;
+      return reason.role === undefined
+        ? `Some readings ${reason.scope === "WINDOW" ? "for this day " : ""}conflict${at}.`
+        : `${roleName(reason.role)}: conflicting reports${at}.`;
     case "GENERATOR_UNOBSERVED":
       return `The generator's on or off state was not observed${at}.`;
     case "OPEN_BOUND":
@@ -470,7 +483,7 @@ function Loaded({
           {CURRENTNESS_WORDS[read.currentness] ?? read.currentness}
         </Badge>{" "}
         <span className="claim-limit__when">
-          {selected === null ? `Day ${read.day}` : `${read.day}, ${read.scope === "WINDOW" ? "whole day" : period(read.window.start, read.window.end) || read.day}`}
+          {selected === null ? `Day ${read.day}` : `${read.day}, ${read.scope === "WINDOW" ? "whole day" : assessedPeriod(read)}`}
         </span>
       </p>
       <p className="claim-limit__headline" data-claim-limit-headline>

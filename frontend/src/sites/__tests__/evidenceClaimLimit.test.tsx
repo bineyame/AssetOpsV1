@@ -169,6 +169,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
       "battery_soc",
     ]);
     expect(rows.every((r) => r.getAttribute("data-role-status") === "COVERED")).toBe(true);
+    expect(container.querySelector(".claim-limit__when")?.textContent).toBe("2026-10-06, 08:00–08:30 UTC");
     const plain = plainText(container);
     for (const internal of ["s3-claim-limit-1", "CANDIDATE_AVOIDABLE", "COMPLETE", "dispatch-3.2", REV, "pv_available_power"]) {
       expect(plain).not.toContain(internal);
@@ -352,7 +353,15 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
             JSON.stringify({
               status: "CURRENT",
               window_assessment: { id: "w", window_start: "2026-10-06T00:00:00Z", window_end: "2026-10-07T00:00:00Z", claim_level: "LIMITED" },
-              intervals: [{ id: "i", window_start: "2026-10-06T08:00:00Z", window_end: "2026-10-06T08:30:00Z", claim_level: "CANDIDATE_AVOIDABLE" }],
+              intervals: [
+                {
+                  id: "i",
+                  window_start: "2026-10-06T00:00:00Z",
+                  window_end: "2026-10-07T00:00:00Z",
+                  claim_level: "CANDIDATE_AVOIDABLE",
+                  result: { segments: [{ start: "2026-10-06T08:15:00Z", end: "2026-10-06T08:30:00Z" }, { start: "2026-10-06T08:00:00Z", end: "2026-10-06T08:15:00Z" }] },
+                },
+              ],
             }),
             { status: 200 },
           ),
@@ -360,6 +369,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     const { container } = mount(createClaimLimitClient("/api/sites"), "?view=analysis&day=2026-10-06");
     await settledScreen();
     expect([...container.querySelectorAll("[data-assessed-period]")].map((a) => a.getAttribute("data-assessed-period"))).toEqual(["w", "i"]);
+    expect(container.querySelector("[data-assessed-period='i']")?.textContent).toBe("08:00–08:30 UTC");
   });
 });
 

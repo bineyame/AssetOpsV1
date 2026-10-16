@@ -163,6 +163,22 @@ interface WindowRevision {
   window_start: string;
   window_end: string;
   claim_level: string;
+  result?: { segments?: { start: string; end: string }[]; interval?: { first_on?: string | null; last_on?: string | null } };
+}
+
+/** An interval revision's own bounds: its segments, else its first/last ON, else the day window it was read in. */
+function bounds(item: WindowRevision): { start: string; end: string } {
+  const segments = item.result?.segments ?? [];
+  if (segments.length > 0) {
+    const starts = segments.map((s) => s.start).sort();
+    const ends = segments.map((s) => s.end).sort();
+    return { start: starts[0], end: ends[ends.length - 1] };
+  }
+  const on = item.result?.interval;
+  if (on?.first_on && on?.last_on) {
+    return { start: on.first_on, end: on.last_on };
+  }
+  return { start: item.window_start, end: item.window_end };
 }
 
 function isWindowRevision(value: unknown): value is WindowRevision {
@@ -240,7 +256,7 @@ export function createClaimLimitClient(basePath: string = SITES_API_PATH): Claim
       }
       for (const item of answer.value.intervals) {
         if (isWindowRevision(item)) {
-          periods.push({ id: item.id, scope: "INTERVAL", start: item.window_start, end: item.window_end, claim_level: item.claim_level });
+          periods.push({ id: item.id, scope: "INTERVAL", ...bounds(item), claim_level: item.claim_level });
         }
       }
       return { status: "loaded", value: { status: answer.value.status, periods } };

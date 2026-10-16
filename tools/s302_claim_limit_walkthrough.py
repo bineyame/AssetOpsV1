@@ -320,7 +320,7 @@ class Walk:
 
     def links(self, web: int) -> None:
         m = self.load("manifest.json")
-        base = f"http://127.0.0.1:{web}/sites/{SITE}/evidence?view=analysis"
+        base = f"http://localhost:{web}/sites/{SITE}/evidence?view=analysis"
         c = m["cases"]
         rows = [
             ("No assessment selected (Analysis, nothing chosen)", base),
