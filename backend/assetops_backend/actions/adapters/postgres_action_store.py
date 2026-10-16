@@ -48,7 +48,8 @@ ACTION_COLUMNS = ("id, tenant_id, site_id, action_no, action_code, recommendatio
 EVENT_COLUMNS = ("id, tenant_id, site_id, action_id, kind, occurred_at, recorded_at, actor_kind, actor_id, "
                  "source_channel, authorization_basis, triggering_service, triggering_job, triggering_command, "
                  "triggering_fixture, idempotency_key, payload, payload_sha256, failure_code, observation_code, "
-                 "expected_foundation_revision_id, current_foundation_revision_id")
+                 "expected_foundation_revision_id, current_foundation_revision_id, verification_plan_id, "
+                 "verification_outcome_id")
 PLAN_COLUMNS = ("id, tenant_id, site_id, action_id, plan_version, supersedes_plan_id, origin_finding_revision_id, "
                 "applied_event_id, change_id, old_foundation_revision_id, new_foundation_revision_id, battery_asset_id, "
                 "field, rule_id, effective_from, baseline_start, baseline_end, later_start, later_end, "
@@ -59,7 +60,15 @@ PLAN_COLUMNS = ("id, tenant_id, site_id, action_id, plan_version, supersedes_pla
 PLAN_JSON = frozenset({"baseline_selection", "baseline_evidence_ids", "basis", "target", "guardrails", "bands",
                        "coverage", "later_selection_rule", "payload"})
 BINDING_COLUMNS = ("id, tenant_id, site_id, plan_id, window_name, selection, selection_sha256, actor_kind, actor_id, "
-                   "triggering_service, triggering_job, triggering_fixture, recorded_at")
+                   "triggering_service, triggering_job, triggering_fixture, idempotency_key, payload_sha256, recorded_at")
+OUTCOME_COLUMNS = ("id, tenant_id, site_id, action_id, plan_id, selection_binding_id, evaluation_request_id, "
+                   "supersedes_outcome_id, outcome, reasons, basis, basis_sha256, details, actor_kind, actor_id, "
+                   "triggering_job, idempotency_key, recorded_at")
+METRIC_COLUMNS = ("outcome_id, tenant_id, site_id, metric_key, window_name, state, value_text, threshold_text, unit, "
+                  "reason, evidence_ids")
+REQUEST_COLUMNS = ("id, tenant_id, site_id, action_id, plan_id, actor_kind, actor_id, source_channel, "
+                   "authorization_basis, triggering_service, triggering_fixture, idempotency_key, payload, "
+                   "payload_sha256, recorded_at")
 CHANGE_COLUMNS = ("id, tenant_id, site_id, action_id, applied_event_id, command_idempotency_key, asset_id, field, unit, "
                   "old_value, new_value, expected_foundation_revision_id, superseded_foundation_revision_id, "
                   "new_foundation_revision_id, split_foundation_revision_id, effective_from, recorded_at, validity")
@@ -591,6 +600,7 @@ class PostgresActionStore:
                                  {"a": plan["action_id"], "k": plan["idempotency_key"]}).first()
             if existing is not None:
                 return dict(existing._mapping), True
+            self.acceptance_fence(c, site_id)  # F3: the cutoff check and insert serialize with S2 acceptance
             plans = self._rows(c.execute(text(
                 f"SELECT {PLAN_COLUMNS} FROM verification_plan WHERE action_id = :a ORDER BY recorded_at, id"),
                 {"a": plan["action_id"]}))
@@ -610,11 +620,20 @@ class PostgresActionStore:
         return self._accepted_count(c, tenant_id, site_id, lo, hi, known_at)
 
     def append_selection_binding(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any],
-                                 binding: dict[str, Any]) -> tuple[dict[str, Any], bool]:
-        """Append the later window's selection binding, or return the plan's latest binding when it already
-        pins the same selection digest (`replayed=True`)."""
+                                 binding: dict[str, Any], *,
+                                 check: Callable[[Any], None] | None = None) -> tuple[dict[str, Any], bool]:
+        """Append the later window's selection binding, or return the binding already made with this idempotency
+        key, or the plan's latest binding when it already pins the same selection digest (`replayed=True`; the
+        caller compares the payload digest). `check(c)` re-validates the plan head under the lock and raises."""
         def work(c):
             self.trial_lock(c, tenant_id, site_id, plan["battery_asset_id"], plan["rule_id"])
+            keyed = c.execute(text(f"SELECT {BINDING_COLUMNS} FROM verification_selection_binding WHERE plan_id = :p "
+                                   "AND idempotency_key = :k"),
+                              {"p": plan["id"], "k": binding["idempotency_key"]}).first()
+            if keyed is not None:
+                return dict(keyed._mapping), True
+            if check is not None:
+                check(c)
             latest = c.execute(text(
                 f"SELECT {BINDING_COLUMNS} FROM verification_selection_binding WHERE plan_id = :p "
                 "ORDER BY recorded_at DESC, id DESC LIMIT 1"), {"p": plan["id"]}).first()
@@ -639,6 +658,143 @@ class PostgresActionStore:
         return self._read(lambda c: self._rows(c.execute(text(
             f"SELECT {BINDING_COLUMNS} FROM verification_selection_binding WHERE tenant_id = :t AND site_id = :s "
             "AND plan_id = :p ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "p": plan_id})))
+
+    # ---- S6-02a phase 2: evaluation request, outcome, metrics and evaluator events --------------------------
+
+    @staticmethod
+    def is_superseded(c, plan_id: UUID) -> bool:
+        return c.execute(text("SELECT 1 FROM verification_plan WHERE supersedes_plan_id = :p"),
+                         {"p": plan_id}).first() is not None
+
+    def covering_ids(self, tenant_id: UUID, site_id: UUID, instants: list[datetime],
+                     known_at: datetime) -> list[list[str]]:
+        """The covering FoundationRevision IDs at each instant, as recorded by `known_at`."""
+        return self._read(lambda c: [sorted(str(r["id"]) for r in self._covering(c, tenant_id, site_id, i, known_at))
+                                     for i in instants])
+
+    def window_bindings(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                        known_at: datetime) -> list[dict[str, Any]]:
+        """Signal bindings covering the whole window `[lo, hi]`, as recorded by `known_at`."""
+        return self._read(lambda c: self._rows(c.execute(text(
+            "SELECT b.role, b.asset_id, b.binding_set_revision_id, bs.role_set FROM signal_binding_revision b "
+            "JOIN signal_binding_set_revision bs ON bs.id = b.binding_set_revision_id WHERE b.tenant_id = :t "
+            "AND b.site_id = :s AND b.valid_from <= :lo AND (b.valid_to IS NULL OR b.valid_to >= :hi) "
+            "AND b.recorded_at <= :k AND (b.superseded_at IS NULL OR b.superseded_at > :k) "
+            "ORDER BY b.role, b.asset_id"), {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known_at})))
+
+    @staticmethod
+    def acceptance_fence(c, site_id: UUID) -> None:
+        """The advisory lock every S2 accepting transaction takes before it commits (the evidence ledger's
+        `_coalesce_job`, key `hashtextextended(site || ':dispatch', 0)`). Taking it here serializes a plan freeze's
+        later-window cutoff check and insert against acceptance (`D-2026-10-16-s602a-cutoff`): an acceptance that
+        holds it commits first and is seen by the check; one that arrives later waits for the freeze to commit."""
+        c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || ':' || :d, 0))"),
+                  {"site": site_id, "d": "dispatch"})
+
+    def late_evidence(self, tenant_id: UUID, site_id: UUID, windows: list[tuple[datetime, datetime]],
+                      roles: list[str], after: datetime) -> list[dict[str, Any]]:
+        """Accepted evidence of these roles touching any window (closed end), decided after `after`."""
+        def work(c):
+            out: dict[Any, dict[str, Any]] = {}
+            for lo, hi in windows:
+                for r in c.execute(text(
+                        "SELECT e.id, e.role, e.source_time, d.decided_at FROM accepted_evidence e "
+                        "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+                        "WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
+                        "AND d.accepted_evidence_id = e.id AND d.decided_at > :after AND e.source_time >= :lo "
+                        "AND COALESCE(e.interval_start, e.source_time) <= :hi AND e.role = ANY(:roles)"),
+                        {"t": tenant_id, "s": site_id, "after": after, "lo": lo, "hi": hi, "roles": list(roles)}):
+                    out[r.id] = dict(r._mapping)
+            return sorted(out.values(), key=lambda r: (r["decided_at"], str(r["id"])))
+        return self._read(work)
+
+    def outcomes(self, tenant_id: UUID, site_id: UUID, action_id: UUID) -> list[dict[str, Any]]:
+        def work(c):
+            rows = self._rows(c.execute(text(
+                f"SELECT {OUTCOME_COLUMNS} FROM verification_outcome WHERE tenant_id = :t AND site_id = :s "
+                "AND action_id = :a ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "a": action_id}))
+            for row in rows:
+                row["metrics"] = self._rows(c.execute(text(
+                    f"SELECT {METRIC_COLUMNS} FROM verification_metric WHERE outcome_id = :o "
+                    "ORDER BY metric_key, window_name"), {"o": row["id"]}))
+            return rows
+        return self._read(work)
+
+    def evaluation_requests(self, tenant_id: UUID, site_id: UUID, action_id: UUID) -> list[dict[str, Any]]:
+        return self._read(lambda c: self._rows(c.execute(text(
+            f"SELECT {REQUEST_COLUMNS} FROM verification_evaluation_request WHERE tenant_id = :t AND site_id = :s "
+            "AND action_id = :a ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "a": action_id})))
+
+    @staticmethod
+    def _insert(c, table: str, columns: str, values: dict[str, Any], json_cols: frozenset[str]) -> None:
+        cols = [col.strip() for col in columns.split(",")]
+        params = ", ".join(f"CAST(:{col} AS jsonb)" if col in json_cols else f":{col}" for col in cols)
+        c.execute(text(f"INSERT INTO {table} ({columns}) VALUES ({params})"),
+                  {col: json.dumps(values[col], sort_keys=True, default=str) if col in json_cols else values[col]
+                   for col in cols})
+
+    def record_evaluation(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], request: dict[str, Any],
+                          compose: Callable[[Any, dict[str, Any], dict[str, Any] | None, list[dict[str, Any]]],
+                                            dict[str, Any]]) -> dict[str, Any]:
+        """The evaluator job's one serialized transaction under the battery trial lock.
+
+        Returns the earlier request's outcome when this idempotency key already produced one (`replayed=True`;
+        the caller compares the payload digest). Otherwise inserts the request (once per key), re-reads the
+        Action's latest outcome and events under the lock and lets `compose(c, request, latest, events)` decide
+        the writes: `{"outcome": row | None, "metrics": [...], "events": [...], "result": {...}}`. Outcome,
+        metrics and RESOLVED / RESOLUTION_WITHDRAWN events commit together or not at all."""
+        def work(c):
+            self.trial_lock(c, tenant_id, site_id, plan["battery_asset_id"], plan["rule_id"])
+            scope = {"t": tenant_id, "s": site_id}
+            existing = c.execute(text(f"SELECT {REQUEST_COLUMNS} FROM verification_evaluation_request "
+                                      "WHERE plan_id = :p AND idempotency_key = :k"),
+                                 {"p": plan["id"], "k": request["idempotency_key"]}).first()
+            if existing is not None:
+                stored = dict(existing._mapping)
+                made = c.execute(text(f"SELECT {OUTCOME_COLUMNS} FROM verification_outcome "
+                                      "WHERE evaluation_request_id = :r"), {"r": stored["id"]}).first()
+                if made is not None or stored["payload_sha256"] != request["payload_sha256"]:
+                    return {"replayed": True, "request": stored,
+                            "outcome": None if made is None else dict(made._mapping)}
+                request = stored
+            else:
+                self._insert(c, "verification_evaluation_request", REQUEST_COLUMNS,
+                             {**request, "tenant_id": tenant_id, "site_id": site_id}, frozenset({"payload"}))
+            latest = c.execute(text(f"SELECT {OUTCOME_COLUMNS} FROM verification_outcome WHERE action_id = :a "
+                                    "ORDER BY recorded_at DESC, id DESC LIMIT 1"), {"a": plan["action_id"]}).first()
+            events = self._rows(c.execute(text(
+                f"SELECT {EVENT_COLUMNS} FROM action_event WHERE action_id = :a ORDER BY recorded_at, id"),
+                {"a": plan["action_id"], **scope}))
+            writes = compose(c, request, None if latest is None else dict(latest._mapping), events)
+            outcome = writes.get("outcome")
+            if outcome is not None and writes.get("insert_outcome"):
+                self._insert(c, "verification_outcome", OUTCOME_COLUMNS,
+                             {**outcome, "tenant_id": tenant_id, "site_id": site_id}, frozenset({"basis", "details"}))
+                for metric in writes.get("metrics", []):
+                    self._insert(c, "verification_metric", METRIC_COLUMNS,
+                                 {**metric, "outcome_id": outcome["id"], "tenant_id": tenant_id, "site_id": site_id},
+                                 frozenset({"evidence_ids"}))
+            for event in writes.get("events", []):
+                self._insert_evaluator_event(c, tenant_id, site_id, plan["action_id"], event)
+            return {"replayed": False, "request": request, "outcome": outcome, **writes.get("result", {})}
+        return self._run(work)
+
+    @staticmethod
+    def _insert_evaluator_event(c, tenant_id: UUID, site_id: UUID, action_id: UUID, event: dict[str, Any]) -> None:
+        """RESOLVED / RESOLUTION_WITHDRAWN, written only by the evaluator job (SYSTEM_JOB channel, migration 0019
+        `action_event_evaluator_job`)."""
+        c.execute(text(
+            "INSERT INTO action_event (id, tenant_id, site_id, action_id, kind, occurred_at, recorded_at, "
+            "actor_kind, actor_id, source_channel, authorization_basis, triggering_service, triggering_job, "
+            "triggering_command, triggering_fixture, idempotency_key, payload, payload_sha256, "
+            "verification_plan_id, verification_outcome_id) VALUES (:id, :t, :s, :a, :kind, :rec, :rec, 'SYSTEM', "
+            "'service:verification-evaluator', 'SYSTEM_JOB', 'SYSTEM_VERIFICATION_EVALUATOR', :svc, :job, "
+            "'EVALUATE', :fx, :key, CAST(:payload AS jsonb), :ps, :plan, :outcome)"),
+            {"id": event["id"], "t": tenant_id, "s": site_id, "a": action_id, "kind": event["kind"],
+             "rec": event["recorded_at"], "svc": event["triggering_service"], "job": event["triggering_job"],
+             "fx": event["triggering_fixture"], "key": event["idempotency_key"],
+             "payload": json.dumps(event["payload"], sort_keys=True, default=str), "ps": sha(event["payload"]),
+             "plan": event["verification_plan_id"], "outcome": event["verification_outcome_id"]})
 
     # ---- change artifact reads -----------------------------------------------------------------------------
 

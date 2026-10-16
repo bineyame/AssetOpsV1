@@ -31,6 +31,10 @@ INELIGIBLE_DAY = "2026-10-12"
 RECORDS = {"2026-10-06": "recommendation:1#a/eligible-F01", "2026-10-08": "recommendation:1#a/no-change-F02",
            INELIGIBLE_DAY: "recommendation:1#a/ineligible-soc-at-headroom"}
 NOTES = {
+    "pre_s6_02a_second_action": "PRE-S6-02a STATE (F8): the second same-battery Action (F02) in `blocking_actions` "
+                                "was written as S6-01's Finding-scoped hold allowed. S6-02a's battery-scoped hold "
+                                "refuses it through the API (409 PRIOR_ACTION_UNRESOLVED), so S6-02b must not treat "
+                                "two unresolved Actions on one battery as a live path.",
     "ACTION_ACCEPTANCE_CONFLICT": "409 with `action_id`: this recommendation key was already accepted (by a "
                                   "different command or idempotency key). Treat as 'already accepted' and follow "
                                   "`action_id`; it is not a failure of the existing Action.",

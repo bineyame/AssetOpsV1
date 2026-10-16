@@ -22,6 +22,7 @@ from test_s6_action_store_postgres import CASES, T_ACCEPT, fixture_grants, harne
 from test_s6_action_apply_postgres import T_APPLY, accepted, applying, apply, current_foundation
 
 from assetops_backend.actions.capability import from_grants
+from assetops_backend.actions.composition import verification_ports
 from assetops_backend.actions.ports import ActionRefused
 from assetops_backend.actions.reserve_trial import sha
 from assetops_backend.actions.service import ActionService
@@ -35,7 +36,9 @@ T_FREEZE = datetime(2026, 11, 1, 2, 0, tzinfo=timezone.utc)
 
 
 def verifying(runner):
-    return applying(runner, capability=from_grants(fixture_grants(runner, commands=COMMANDS)))
+    h = applying(runner, capability=from_grants(fixture_grants(runner, commands=COMMANDS)))
+    h.service.verification_ports = verification_ports(URL)
+    return h
 
 
 def applied_action(runner, h) -> str:
@@ -43,8 +46,17 @@ def applied_action(runner, h) -> str:
     h.clock.at = T_APPLY
     made = apply(h, action_id, current_foundation(h, action_id), "apply-0001")
     assert made.status_code == 201, made.text
+    settle(runner, T_APPLY)
     h.clock.at = T_FREEZE
     return action_id
+
+
+def settle(runner, after: datetime) -> None:
+    """S3 reassesses what the publish (and any late reading) made stale, then S4 matches (F2: freeze, binding and
+    evaluation need CURRENT selections). The runner's clock moves past `after` so the worker sees that write."""
+    runner.now = max(runner.now, after)
+    runner.step({"do": "assess"})
+    runner.step({"do": "match"})
 
 
 def base(action_id: str) -> str:
@@ -137,6 +149,7 @@ class TestFreeze:
             assert pending.status_code == 409 and pending.json()["detail"]["code"] == "VERIFICATION_ACTION_NOT_APPLIED"
             h.clock.at = T_APPLY
             assert apply(h, action_id, current_foundation(h, action_id), "apply-0001").status_code == 201
+            settle(runner, T_APPLY)
             h.clock.at = T_FREEZE
             cases = {
                 "VERIFICATION_WINDOW_INVALID": {"baseline_start": "2026-10-06T08:02:00+00:00",
@@ -232,8 +245,11 @@ class TestEvidenceAndSelection:
 
             bind = f"{base(action_id)}/plans/{plan['plan_id']}/later-selection"
             early = h.client.post(bind, json={"idempotency_key": "bind-0001"})
-            assert early.status_code == 409 and early.json()["detail"]["code"] == "VERIFICATION_LATER_NOT_SELECTED"
+            assert early.status_code == 409 and early.json()["detail"]["code"] == "VERIFICATION_LATER_WINDOW_OPEN"
             h.clock.at = datetime(2026, 11, 2, 11, 0, tzinfo=timezone.utc)
+            unselected = h.client.post(bind, json={"idempotency_key": "bind-0001"})
+            assert unselected.status_code == 409
+            assert unselected.json()["detail"]["code"] == "VERIFICATION_LATER_NOT_SELECTED"
             deliver_later(runner)
             runner.step({"do": "assess"})
             made = h.client.post(bind, json={"idempotency_key": "bind-0002"})
@@ -271,7 +287,7 @@ class TestBatteryScopedLock:
 
                 def slow(prior: list) -> None:
                     strict(prior)
-                    time.sleep(1.0)  # hold the transaction after the check, before the insert
+                    time.sleep(0.2)  # hold the transaction after the check, before the insert (well under lock_timeout)
 
                 payload = {"command": "ACCEPT", "idempotency_key": key}
                 gate.wait()
@@ -289,7 +305,8 @@ class TestBatteryScopedLock:
                 t.start()
             for t in threads:
                 t.join()
-            assert sorted(o[0] for o in out) == ["PRIOR_ACTION_UNRESOLVED", "created"], out
+            print("race outcomes:", out, flush=True)  # F5: visible in the captured output on failure
+            assert sorted(o[0] for o in out) == ["PRIOR_ACTION_UNRESOLVED", "created"], f"race outcomes: {out!r}"
             assert h.counts()["action"] == 1
         finally:
             h.close()

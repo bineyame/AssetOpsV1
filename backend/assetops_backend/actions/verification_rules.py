@@ -133,7 +133,8 @@ def bands_payload() -> dict[str, Any]:
 def _iso(instant: datetime | None) -> str | None:
     if instant is None:
         return None
-    return instant.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    # D-2026-10-16-s602a-cutoff (F7): ISO 8601 UTC with `+00:00`; value and precision retained.
+    return instant.astimezone(timezone.utc).isoformat()
 
 
 def _parse_time(text: Any) -> datetime | None:
@@ -375,13 +376,22 @@ def _by_role_asset(readings: list[Reading], role: str, asset_id: str | None) -> 
 
 
 def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_ids: list[str],
-                    critical_load_asset_id: str | None, reserves: Iterable[ReserveValue]) -> dict[str, Any]:
-    """Per-slot coverage and exact window totals for one 60-minute verification window."""
+                    critical_load_asset_id: str | None, reserves: Iterable[ReserveValue],
+                    battery_asset_id: str | None = None,
+                    role_assets: dict[str, list[str]] | None = None) -> dict[str, Any]:
+    """Per-slot coverage and exact window totals for one 60-minute verification window.
+
+    F6: `battery_asset_id` keeps only the plan's battery for SOC, and `role_assets` (role -> bound asset IDs) keeps
+    only bound assets for the single-asset roles; a reading of any other asset is ignored, never mixed in."""
     end = start + WINDOW
     bad_window = window_problem(start, end)
     if bad_window:
         raise ValueError(bad_window)
-    readings = list(readings)
+    allowed: dict[str, set[str]] = {role: {str(a) for a in ids} for role, ids in (role_assets or {}).items()
+                                    if role in (*_SINGLE_POWER_ROLES, "generator_state")}
+    if battery_asset_id is not None:
+        allowed["battery_soc"] = {str(battery_asset_id)}
+    readings = [r for r in readings if r.role not in allowed or r.asset_id in allowed[r.role]]
     reserves = list(reserves)
     starts = slot_starts(start)
     problems: list[dict] = []
@@ -640,3 +650,138 @@ def target_met(baseline_seconds: int | None, later_seconds: int | None) -> bool 
         return None
     num, den = BANDS_V1["target_ratio"]
     return den * later_seconds <= num * baseline_seconds
+
+
+# --------------------------------------------------------------------------- verdict (phase 2)
+
+VERIFIED, INEFFECTIVE, INCONCLUSIVE = "VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"
+GUARDRAIL_FAIL = "GUARDRAIL_FAIL"
+TARGET_MISS = "TARGET_MISS"
+POSITIVE_SOURCE_CLASSES = ("REGISTERED_SIMULATION", "AUTHORED_DEMONSTRATION")
+
+
+def _metric(key: str, window: str, state: str, *, value: Any = None, threshold: str | None = None,
+            unit: str | None = None, reason: str | None = None, evidence_ids: Iterable[str] = ()) -> dict[str, Any]:
+    if isinstance(value, (Fraction, int)) and not isinstance(value, bool):
+        value = fmt(value)
+    return {"metric_key": key, "window_name": window, "state": state,
+            "value_text": None if value is None else str(value), "threshold_text": threshold, "unit": unit,
+            "reason": reason, "evidence_ids": sorted(set(evidence_ids))}
+
+
+def _fixtures(res: dict[str, Any]) -> list[tuple[str, Any]]:
+    return sorted((f["fixture_id"], f["fixture_version"]) for f in res.get("fixtures") or [])
+
+
+def _run_digests(res: dict[str, Any]) -> set[str]:
+    return {r["run_identity_sha256"] for r in res.get("runs") or []}
+
+
+def source_pair(baseline: dict[str, Any] | None, later: dict[str, Any] | None) -> dict[str, Any]:
+    """Per-window S4-05 source resolutions (never their union) judged as a pair for a labelled demo verdict.
+
+    PASS needs each window to resolve to one coherent REGISTERED_SIMULATION or AUTHORED_DEMONSTRATION set, the same
+    class in both, the same authored fixture lineage (authored) or two distinct run identity digests (registered).
+    Anything else - MIXED, UNKNOWN, a crossed class, a shared run, a missing resolution - is UNKNOWN."""
+    problems: list[str] = []
+    for name, res in (("baseline", baseline), ("later", later)):
+        if res is None:
+            problems.append(f"{name}: no source resolution")
+        elif res.get("state") not in POSITIVE_SOURCE_CLASSES:
+            problems.append(f"{name}: source resolves {res.get('state')} {sorted(res.get('reasons') or [])}")
+    if not problems:
+        assert baseline is not None and later is not None
+        if baseline["state"] != later["state"]:
+            problems.append(f"crossed source classes: {baseline['state']} then {later['state']}")
+        elif baseline["state"] == "AUTHORED_DEMONSTRATION":
+            if not _fixtures(baseline) or _fixtures(baseline) != _fixtures(later):
+                problems.append("authored fixture lineage differs between windows")
+        else:
+            b_runs, l_runs = _run_digests(baseline), _run_digests(later)
+            if len(b_runs) != 1 or len(l_runs) != 1:
+                problems.append("each window needs exactly one registered run")
+            elif b_runs == l_runs:
+                problems.append("both windows come from one registered run; two distinct runs are required")
+    return {"state": "UNKNOWN" if problems else "PASS", "problems": problems,
+            "source_class": None if problems else baseline["state"],  # type: ignore[index]
+            "statement": ("Simulated or authored policy trial evidence; no real-source verdict before a separate "
+                          "real attestation.")}
+
+
+def decide(*, baseline: dict[str, Any], later: dict[str, Any], comparable: dict[str, Any],
+           baseline_seconds: int | None, later_target: dict[str, Any] | None, source: dict[str, Any],
+           blockers: Iterable[str] = ()) -> dict[str, Any]:
+    """The version-1 verdict over two window evidence payloads (exact): outcome, reasons and metrics.
+
+    VERIFIED: target and every guardrail pass on a complete, comparable, source-coherent pair. INEFFECTIVE: on a
+    fully assessable pair, a target miss and/or a measured guardrail failure (`GUARDRAIL_FAIL` only for the latter).
+    INCONCLUSIVE: any unknown required fact (coverage, comparability, target, guardrail, source, `blockers`), even
+    with a known failure, which stays in the reasons as `KNOWN_FAILURE:<metric>`."""
+    metrics: list[dict[str, Any]] = []
+    unknown: list[str] = [f"BLOCKED:{b}" for b in blockers]
+    for name, w in (("BASELINE", baseline), ("LATER", later)):
+        complete = bool(w.get("complete"))
+        covered = sum(1 for s in w.get("slots", []) if s.get("complete"))
+        metrics.append(_metric("window_coverage", name, "PASS" if complete else "UNKNOWN",
+                               value=f"{covered}/{SLOTS_PER_WINDOW}",
+                               reason="every slot and role covered" if complete else
+                               f"{len(w.get('problems') or [])} coverage problem(s)",
+                               evidence_ids=w.get("evidence_ids") or []))
+        if not complete:
+            unknown.append(f"INCOMPLETE_{name}_WINDOW")
+    for check in comparable.get("checks", []):
+        metrics.append(_metric(f"{check['metric']}_band", "COMPARISON", check["state"],
+                               value=check.get("difference"), threshold=check.get("threshold"),
+                               unit=check.get("unit"), reason=check.get("reason")))
+    if comparable.get("state") == "UNKNOWN" or not comparable.get("checks"):
+        unknown.append("COMPARABILITY_UNKNOWN")
+    elif comparable.get("state") == "FAIL":
+        unknown.append("NOT_COMPARABLE")
+    metrics.append(_metric("source_provenance", "COMPARISON", source["state"], value=source.get("source_class"),
+                           reason="; ".join(source.get("problems") or []) or "coherent per-window source pair"))
+    if source["state"] != "PASS":
+        unknown.append("SOURCE_NOT_COHERENT")
+
+    known = later_target is not None and later_target.get("state") == "KNOWN"
+    later_seconds = later_target.get("candidate_seconds") if known else None  # type: ignore[union-attr]
+    met = target_met(baseline_seconds, later_seconds) if baseline_seconds else None
+    metrics.append(_metric("candidate_avoidable_seconds", "BASELINE", "PASS" if baseline_seconds else "UNKNOWN",
+                           value=baseline_seconds, unit="s"))
+    metrics.append(_metric("candidate_avoidable_seconds", "LATER", "UNKNOWN" if later_seconds is None else "PASS",
+                           value=later_seconds, unit="s",
+                           reason=None if later_target is None else
+                           ("; ".join(later_target.get("reasons") or []) or later_target.get("state"))))
+    metrics.append(_metric("target_reduction", "COMPARISON", {True: "PASS", False: "FAIL", None: "UNKNOWN"}[met],
+                           threshold="4 * later_seconds <= 3 * baseline_seconds", unit="s"))
+    if met is None:
+        unknown.append("TARGET_UNKNOWN")
+
+    b_un, l_un = parse_exact(baseline.get("unserved_critical_kwh")), parse_exact(later.get("unserved_critical_kwh"))
+    unserved = "UNKNOWN" if b_un is None or l_un is None else ("PASS" if l_un <= b_un else "FAIL")
+    metrics.append(_metric("unserved_critical_energy", "COMPARISON", unserved, value=l_un, threshold=fmt(b_un),
+                           unit="kWh", reason="later_kwh <= baseline_kwh"))
+    b_br, l_br = baseline.get("below_reserve_seconds"), later.get("below_reserve_seconds")
+    below = "UNKNOWN" if b_br is None or l_br is None else ("PASS" if l_br == 0 and l_br <= b_br else "FAIL")
+    metrics.append(_metric("below_reserve_seconds", "COMPARISON", below, value=l_br, threshold="0 and <= baseline",
+                           unit="s", reason=f"{GUARDRAIL_BASIS}: five-minute sampled guardrail, not continuous "
+                                            "physical SOC proof"))
+    b_t, l_t = parse_exact(baseline.get("terminal_soc")), parse_exact(later.get("terminal_soc"))
+    terminal = "UNKNOWN" if b_t is None or l_t is None else ("PASS" if l_t >= b_t else "FAIL")
+    metrics.append(_metric("terminal_soc", "COMPARISON", terminal, value=l_t, threshold=fmt(b_t), unit="%",
+                           reason="later_terminal_soc >= baseline_terminal_soc"))
+    guardrails = {"unserved_critical_energy": unserved, "below_reserve_seconds": below, "terminal_soc": terminal}
+    unknown += [f"GUARDRAIL_UNKNOWN:{k}" for k, v in guardrails.items() if v == "UNKNOWN"]
+    failed = [k for k, v in guardrails.items() if v == "FAIL"]
+
+    known_failures = [f"KNOWN_FAILURE:{k}" for k in failed] + (["KNOWN_FAILURE:target_reduction"] if met is False else [])
+    if unknown:
+        outcome, reasons = INCONCLUSIVE, sorted(set(unknown)) + known_failures
+    elif failed:
+        outcome = INEFFECTIVE
+        reasons = [GUARDRAIL_FAIL] + [f"GUARDRAIL:{k}" for k in failed] + ([TARGET_MISS] if met is False else [])
+    elif met is False:
+        outcome, reasons = INEFFECTIVE, [TARGET_MISS]
+    else:
+        outcome, reasons = VERIFIED, ["TARGET_AND_GUARDRAILS_PASS"]
+    return {"outcome": outcome, "reasons": reasons, "metrics": metrics, "guardrail_failed": failed,
+            "target_met": met}

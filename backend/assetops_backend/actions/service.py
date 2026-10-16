@@ -21,6 +21,8 @@ from assetops_backend.actions.lifecycle import (
     FAILED,
     OBSERVATION_CODE,
     PENDING,
+    RESOLUTION_WITHDRAWN,
+    RESOLVED,
     SYSTEM_DEMO,
     Selector,
     UnknownEvent,
@@ -48,6 +50,21 @@ PRIOR_ACTION_MESSAGE = ("An earlier reserve-trial-1 Action on this Finding is un
 # Both are unresolved: no verification exists yet, and even a completed verification outcome is not permission for
 # another trial until S6-02 defines an explicit resolved/closed transition. So no reduced state releases the guard.
 UNRESOLVED_APPLICATION = (PENDING, APPLIED)
+# S6-02a (`D-2026-10-16-s6-verification`): the latest ordered RESOLVED releases the hold; RESOLUTION_WITHDRAWN restores
+# it. A RESOLVED INEFFECTIVE with a measured GUARDRAIL_FAIL closes the trial but blocks the battery trial scope, and a
+# closure/late-reading overlap blocks it permanently (no reviewer override here).
+PRIOR_TRIAL_GUARDRAIL_FAILED = "PRIOR_TRIAL_GUARDRAIL_FAILED"
+PRIOR_TRIAL_REASSESSMENT_OVERLAP = "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
+BLOCK_MESSAGES = {
+    PRIOR_ACTION_UNRESOLVED: PRIOR_ACTION_MESSAGE,
+    PRIOR_TRIAL_GUARDRAIL_FAILED: (
+        "An earlier reserve-trial-1 Action on this battery was resolved INEFFECTIVE with a measured reserve/service "
+        "guardrail failure, so no new trial can be accepted until a future rollback/review contract."),
+    PRIOR_TRIAL_REASSESSMENT_OVERLAP: (
+        "An Action on this battery was accepted after late evidence had invalidated an earlier trial's resolution "
+        "but before the evaluator withdrew it; new trials on this battery are permanently blocked (no reviewer "
+        "override exists yet)."),
+}
 
 
 def utc_now() -> datetime:
@@ -55,7 +72,55 @@ def utc_now() -> datetime:
 
 
 def is_unresolved(state: dict[str, Any]) -> bool:
-    return state["application"] in UNRESOLVED_APPLICATION
+    resolution = state.get("resolution")
+    return state["application"] in UNRESOLVED_APPLICATION and not (
+        resolution is not None and resolution["state"] == RESOLVED)
+
+
+def _instant_of(value: Any) -> datetime | None:
+    if isinstance(value, datetime):
+        return value
+    try:
+        return datetime.fromisoformat(str(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def ordered_events(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sorted(events, key=lambda e: (e["recorded_at"], str(e["id"])))
+
+
+def reassessment_overlaps(actions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Closure/late-reading overlaps among one battery trial scope's Actions, from persisted times and lineage.
+
+    For each RESOLUTION_WITHDRAWN that names the late accepted evidence which invalidated the closure (R1: only that
+    evidence counts), every other Action accepted at or after both the closure and that evidence's earliest
+    acceptance, but before the withdrawal was recorded, overlaps. An Action accepted before the evidence arrived
+    does not."""
+    out = []
+    for closed in actions:
+        resolved_at = resolved_id = None
+        for event in ordered_events(closed["events"]):
+            if event["kind"] == RESOLVED:
+                resolved_at, resolved_id = event["recorded_at"], event["id"]
+            elif event["kind"] == RESOLUTION_WITHDRAWN and resolved_at is not None:
+                evidence = (event.get("payload") or {}).get("invalidating_evidence") or []
+                arrived = [t for t in (_instant_of(e.get("decided_at")) for e in evidence) if t is not None]
+                if arrived:
+                    lo, hi = max(min(arrived), resolved_at), event["recorded_at"]
+                    for other in actions:
+                        if other["id"] != closed["id"] and lo <= other["created_at"] < hi:
+                            out.append({"action_id": str(other["id"]), "action_code": other["action_code"],
+                                        "closure_action_id": str(closed["id"]),
+                                        "closure_action_code": closed["action_code"],
+                                        "resolved_event_id": str(resolved_id),
+                                        "withdrawn_event_id": str(event["id"]),
+                                        "withdrawn_outcome_id": str(event.get("verification_outcome_id")),
+                                        "invalidating_evidence_ids": sorted(str(e["id"]) for e in evidence),
+                                        "earliest_invalidating_accepted_at": lo.isoformat(),
+                                        "withdrawn_at": hi.isoformat()})
+                resolved_at = None
+    return out
 
 
 def action_links(site_code: str, action_id: Any) -> dict[str, str]:
@@ -78,21 +143,57 @@ def prior_action(action: dict[str, Any], site_code: str, selected_revision_id: s
                             "failed_attempts": state["failed_attempts"],
                             "last_failure": _wire(state["last_failure"])},
             "outcome": state["outcome"], "unresolved": is_unresolved(state),
+            **({"resolution": _wire(state["resolution"])} if state.get("resolution") else {}),
+            **({"trial_block": PRIOR_TRIAL_GUARDRAIL_FAILED} if guardrail_closed(state) else {}),
             "links": action_links(site_code, action["id"])}
 
 
+def guardrail_closed(state: dict[str, Any]) -> bool:
+    resolution = state.get("resolution")
+    return bool(resolution and resolution["state"] == RESOLVED and resolution["guardrail_failed"])
+
+
 def blocks_trial(prior: dict[str, Any]) -> bool:
-    return prior["unresolved"] and prior["rule_id"] == reserve_trial.RULE_ID and prior["field"] == reserve_trial.FIELD
+    return (prior["unresolved"] or prior.get("trial_block") == PRIOR_TRIAL_GUARDRAIL_FAILED) \
+        and prior["rule_id"] == reserve_trial.RULE_ID and prior["field"] == reserve_trial.FIELD
 
 
-def prior_action_refusal(blocking: list[dict[str, Any]]) -> dict[str, Any]:
-    """The typed PRIOR_ACTION_UNRESOLVED reason over `prior_action` entries (the first is the earliest)."""
-    first = blocking[0]
-    return {"code": PRIOR_ACTION_UNRESOLVED, "message": PRIOR_ACTION_MESSAGE,
-            "blocking_action_id": first["action_id"], "blocking_action_code": first["action_code"],
-            "origin_finding_revision_id": first["origin"]["finding_revision_id"],
-            "origin_revision_no": first["origin"]["revision_no"], "links": first["links"],
-            "blocking_actions": blocking}
+def prior_action_refusal(blocking: list[dict[str, Any]],
+                         overlaps: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """The typed prior-trial reason over `prior_action` entries (the first is the earliest). Precedence: a
+    closure/late-reading overlap, then a guardrail-failed closure, then an unresolved trial."""
+    by_id = {p["action_id"]: p for p in blocking}
+    if overlaps:
+        code = PRIOR_TRIAL_REASSESSMENT_OVERLAP
+        first = by_id.get(overlaps[0]["closure_action_id"]) or blocking[0]
+    elif any(p.get("trial_block") == PRIOR_TRIAL_GUARDRAIL_FAILED for p in blocking):
+        code = PRIOR_TRIAL_GUARDRAIL_FAILED
+        first = next(p for p in blocking if p.get("trial_block") == PRIOR_TRIAL_GUARDRAIL_FAILED)
+    else:
+        code, first = PRIOR_ACTION_UNRESOLVED, blocking[0]
+    out = {"code": code, "message": BLOCK_MESSAGES[code],
+           "blocking_action_id": first["action_id"], "blocking_action_code": first["action_code"],
+           "origin_finding_revision_id": first["origin"]["finding_revision_id"],
+           "origin_revision_no": first["origin"]["revision_no"], "links": first["links"],
+           "blocking_actions": blocking}
+    if code == PRIOR_TRIAL_GUARDRAIL_FAILED:
+        out["blocking_outcome_id"] = first["resolution"]["outcome_id"]
+    if overlaps:
+        out["overlaps"] = overlaps
+    return out
+
+
+def trial_refusal(actions: list[dict[str, Any]], priors: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The block over one battery trial scope: `actions` are its store rows (with events), `priors` the
+    `prior_action` entries that may block (already filtered to the offered scope)."""
+    overlaps = reassessment_overlaps(actions)
+    blocking = [p for p in priors if blocks_trial(p)]
+    if overlaps:
+        ids = {o["closure_action_id"] for o in overlaps} | {o["action_id"] for o in overlaps}
+        blocking += [p for p in priors if p["action_id"] in ids and p not in blocking]
+    if not blocking:
+        return None
+    return prior_action_refusal(blocking, overlaps)
 
 
 def _wire(value: Any) -> Any:
@@ -125,6 +226,7 @@ class ActionService:
                  publish: FoundationPublish | None = None) -> None:
         self.store, self.currentness, self.capability, self.clock = store, currentness, capability, clock
         self.publish = publish
+        self.verification_ports = None  # S6-02a: S3/S4 day currentness and source provenance (composition sets it)
 
     # ---- capability --------------------------------------------------------------------------------------
 
@@ -189,17 +291,18 @@ class ActionService:
         # scope, on any Finding, counts (`D-2026-10-16-s6-verification`). With no live key on offer the battery is
         # not known, so every battery of the Site is that scope.
         seen = {p["action_id"] for p in prior}
-        pool = list(prior) + [p for p in (prior_action(a, site_code, selected) for a in self.store.trial_actions(
-            tenant_id, site_id, offered["asset_id"] if offered else None, reserve_trial.RULE_ID))
-            if p["action_id"] not in seen]
-        blocking = [] if accepted and offered is None else [
-            p for p in pool if blocks_trial(p) and (offered is None or (
-                p["asset_id"] == offered["asset_id"] and p["recommendation_key"] != offered["recommendation_key"]))]
-        block = prior_action_refusal(blocking) if blocking else None
+        scope_rows = self.store.trial_actions(tenant_id, site_id, offered["asset_id"] if offered else None,
+                                              reserve_trial.RULE_ID)
+        pool = list(prior) + [p for p in (prior_action(a, site_code, selected) for a in scope_rows)
+                              if p["action_id"] not in seen]
+        candidates = [p for p in pool if offered is None or (
+            p["asset_id"] == offered["asset_id"] and p["recommendation_key"] != offered["recommendation_key"])]
+        rows = [a for a in scope_rows if offered is None or a["recommendation_key"] != offered["recommendation_key"]]
+        block = None if accepted and offered is None else trial_refusal(rows, candidates)
         capability = self.capability(tenant_id, site_id, site_code, "ACCEPT", finding_id)
-        if block is not None:  # no Accept capability for a new key while the earlier trial is unresolved
+        if block is not None:  # no Accept capability for a new key while the battery trial scope is held
             capability = Capability(False, "ACCEPT", capability.fixture_id,
-                                    f"{PRIOR_ACTION_UNRESOLVED}: {PRIOR_ACTION_MESSAGE}", capability.manifest_id)
+                                    f"{block['code']}: {block['message']}", capability.manifest_id)
         live = {"label": "Live recomputation from current persisted inputs (not the accepted proposal)",
                 "state": "AVAILABLE" if evaluation.available else "UNAVAILABLE",
                 "unavailable": evaluation.unavailable(), "segments": list(evaluation.segments),
@@ -235,7 +338,7 @@ class ActionService:
                                 for a in accepted)})
         elif block is not None:
             # The prior Action is the reason; the current-basis result stays a separate live reason beside it.
-            body.update(state=PRIOR_ACTION_UNRESOLVED, basis="SERVED_FROM_PERSISTED_INPUTS", proposal=None,
+            body.update(state=block["code"], basis="SERVED_FROM_PERSISTED_INPUTS", proposal=None,
                         unavailable={k: block[k] for k in ("code", "message", "blocking_action_id",
                                                            "origin_finding_revision_id", "links")},
                         segments=list(evaluation.segments), accepted=[], live_status=live)
@@ -302,12 +405,12 @@ class ActionService:
 
     @staticmethod
     def _prior_guard(site_code: str, revision_id: UUID, evaluation: reserve_trial.Evaluation):
-        """Raise 409 PRIOR_ACTION_UNRESOLVED if any given Action of this trial is unresolved."""
+        """Raise 409 with the typed prior-trial code (unresolved, guardrail-failed closure or reassessment overlap)
+        over the given Actions of this battery trial scope."""
         def guard(actions: list[dict[str, Any]]) -> None:
-            blocking = [p for p in (prior_action(a, site_code, str(revision_id)) for a in actions) if blocks_trial(p)]
-            if blocking:
-                refusal = prior_action_refusal(blocking)
-                raise ActionRefused(409, PRIOR_ACTION_UNRESOLVED, PRIOR_ACTION_MESSAGE,
+            refusal = trial_refusal(actions, [prior_action(a, site_code, str(revision_id)) for a in actions])
+            if refusal is not None:
+                raise ActionRefused(409, refusal["code"], refusal["message"],
                                     **{k: v for k, v in refusal.items() if k not in ("code", "message")},
                                     live_status={"label": "Live recomputation from current persisted inputs (a "
                                                           "separate reason, not the refusal)",

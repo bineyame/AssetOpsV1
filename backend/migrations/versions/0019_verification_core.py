@@ -124,7 +124,10 @@ CREATE TABLE verification_selection_binding (
     triggering_service text NOT NULL CHECK (length(triggering_service) BETWEEN 1 AND 128),
     triggering_job text NULL CHECK (triggering_job IS NULL OR length(triggering_job) BETWEEN 1 AND 128),
     triggering_fixture text NOT NULL CHECK (length(triggering_fixture) BETWEEN 1 AND 128),
+    idempotency_key text NOT NULL {KEY.format('idempotency_key')},
+    payload_sha256 text NOT NULL {SHA.format('payload_sha256')},
     recorded_at timestamptz NOT NULL,
+    CONSTRAINT verification_selection_binding_idempotency_unique UNIQUE (plan_id, idempotency_key),
     CONSTRAINT verification_selection_binding_plan_fk FOREIGN KEY (tenant_id, site_id, plan_id)
         REFERENCES verification_plan(tenant_id, site_id, id),
     CONSTRAINT verification_selection_binding_site_unique UNIQUE (tenant_id, site_id, id),
