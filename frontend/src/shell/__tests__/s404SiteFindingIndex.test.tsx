@@ -287,6 +287,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
     expect(card().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
     expect(card().querySelectorAll("[data-finding-index-row]")).toHaveLength(2);
+    expect(card().querySelectorAll("[data-step-strip] [data-step]").length, "the day strip is the card's visual beside the rows").toBeGreaterThan(0);
     expect(within(card()).getByRole("link", { name: "Open the newest Finding" })).toHaveAttribute(
       "href",
       `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,

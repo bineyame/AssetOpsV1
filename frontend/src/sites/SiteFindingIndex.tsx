@@ -473,6 +473,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
         status={<ProductStatus words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
         visual={
           <>
+            <DayStrip body={body} />
             <Rows body={body} links={links} />
             <nav aria-label="Findings pages" data-finding-index-pages>
               <span>
