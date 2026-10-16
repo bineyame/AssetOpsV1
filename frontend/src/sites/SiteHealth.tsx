@@ -279,9 +279,7 @@ function HealthBody({
                 <th scope="col">Last received (server clock)</th>
                 <th scope="col">Reporting interval</th>
                 <th scope="col">What it last reported</th>
-                <th scope="col">
-                  <span className="visually-hidden">Open</span>
-                </th>
+                <th scope="col">Open</th>
               </tr>
             </thead>
             <tbody>
@@ -515,9 +513,7 @@ function BatterySection({ siteId, read }: { siteId: string; read: HealthRead<Bat
               <th scope="col">Asset</th>
               <th scope="col">Condition</th>
               <th scope="col">Why</th>
-              <th scope="col">
-                <span className="visually-hidden">Open</span>
-              </th>
+              <th scope="col">Open</th>
             </tr>
           </thead>
           <tbody>

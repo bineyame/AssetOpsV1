@@ -159,7 +159,7 @@ async function suite(label) {
   const h = await js(`({ summary: document.querySelector('[data-health-summary]')?.innerText,
     rows: Object.fromEntries([...document.querySelectorAll('[data-health-gateway]')].map(r => [r.dataset.healthGateway,
       { contact: r.dataset.healthContact, reg: r.dataset.healthRegistration, text: r.innerText.replace(/\\s+/g, ' ') }])),
-    tab: document.querySelector('nav a[aria-current="page"]')?.textContent,
+    tab: document.querySelector('.site-tabs a[aria-current="page"]')?.textContent,
     technicalOpen: document.querySelector('[data-disclosure="site-health-technical"]')?.open,
     text: document.querySelector('main').innerText })`);
   claim(`${label} health: summary labelled Gateway contact with enabled count and disabled not counted`,
