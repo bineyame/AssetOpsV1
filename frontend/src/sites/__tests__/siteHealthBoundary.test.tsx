@@ -402,21 +402,10 @@ describe("W1-UX-05: Health and battery answer cards", () => {
     expect(scanned).toBeGreaterThan(5);
     expect(violations, describeViolations(violations)).toEqual([]);
   };
-  /**
-   * A refused read has no read instant, so its bound is the shared "As of: time not recorded" (never now). The shared
-   * `expectStateLineVisible` requires "As of <time>", so the same visibility checks are made here directly.
-   */
+  /** A refused read has no read instant, so its bound is the shared "As of: time not recorded" (never now). */
   const expectRefusedStateLine = (panel: HTMLElement, label: string) => {
-    const status = panel.querySelector("[data-product-status]") as HTMLElement;
-    expect(status, label).not.toBeNull();
-    expect(status.querySelector("[data-product-status-label]")?.textContent).toBe(label);
-    expect((status.querySelector(".product-status__sentence")?.textContent ?? "").length).toBeGreaterThan(0);
-    expect((status.querySelector("[data-product-status-scope]")?.textContent ?? "").length).toBeGreaterThan(0);
-    expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
-    expect(status.closest("details")).toBeNull();
-    for (const d of Array.from(panel.querySelectorAll<HTMLDetailsElement>("details[data-exact-references]"))) {
-      expect(d.open).toBe(false);
-    }
+    expect(expectStateLineVisible(panel)).toBe(label);
+    expect(panel.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
   };
   const disclosureOf = (el: HTMLElement, page: string) => {
     const result = scanDisclosureVocabulary(el, page);

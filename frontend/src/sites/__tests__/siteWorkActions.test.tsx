@@ -347,7 +347,7 @@ describe("W1-UX-04 phase 1: Site Work answer card", () => {
     await settledScreen();
     const card = q("[data-headline-card='site-work']") as HTMLElement;
     // The read returned no instant, so the as-of line says so instead of "As of <time>" (never now).
-    expect(card.querySelector("[data-product-status-label]")?.textContent).toBe("This could not be read right now");
+    expect(expectStateLineVisible(card)).toBe("This could not be read right now");
     expect(card.querySelector("[data-product-status-scope]")?.textContent).toMatch(/KOBO|Actions/);
     expect(card.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
     expect(card.querySelector("[data-site-work-proved-zero]")).toBeNull();

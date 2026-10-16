@@ -2132,11 +2132,10 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(() => down, down));
     await settledScreen();
     const unavailable = (document.getElementById("foundation-store-unavailable-heading") as HTMLElement).closest("section") as HTMLElement;
-    const status = unavailable.querySelector("[data-product-status]") as HTMLElement;
-    expect(status.querySelector("[data-product-status-label]")?.textContent).toBe("This could not be read right now");
-    expect(status.querySelector("[data-product-status-scope]")?.textContent).toBe(`${ID} · Foundation`);
+    expect(expectStateLineVisible(unavailable)).toBe("This could not be read right now");
+    expect(unavailable.querySelector("[data-product-status-scope]")?.textContent).toBe(`${ID} · Foundation`);
     // No read instant exists for an unreadable store: the bound says so, never now.
-    expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+    expect(unavailable.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
     expect(card("foundation-readiness")).toBeNull();
   });
 

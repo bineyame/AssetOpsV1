@@ -18,16 +18,7 @@ import {
   type ProductWords,
 } from "..";
 
-/** True when `el` is rendered outside the body of any closed disclosure. */
-function visibleOutsideClosedDisclosure(el: Element): boolean {
-  let details: HTMLDetailsElement | null = el.closest("details");
-  while (details !== null) {
-    const summary: Element | null = details.querySelector(":scope > summary");
-    if (!details.open && !(summary !== null && summary.contains(el))) return false;
-    details = details.parentElement === null ? null : details.parentElement.closest("details");
-  }
-  return true;
-}
+import { AS_OF_PATTERN, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 
 /** Words that claim a current, verified or positive state. */
 const POSITIVE = /\b(up to date|latest checked|verified|confirmed|target met|saving|savings achieved)\b/i;
@@ -233,6 +224,15 @@ describe("W1 shared presentation: primitives", () => {
     expect(asOfText("2026-10-16T10:05:00Z")).toBe("As of 16 Oct 2026, 10:05 UTC");
     expect(asOfText(null)).toBe("As of: time not recorded");
     expect(asOfText("not a time")).toBe("As of: time not recorded");
+  });
+
+  it("the shared as-of acceptance pattern takes exactly the two forms asOfText emits (W1-UX-06)", () => {
+    for (const instant of ["2026-10-16T10:05:00Z", "2026-01-01T00:00:00Z", "2026-12-31T23:59:00Z", null, "not a time"]) {
+      expect(asOfText(instant)).toMatch(AS_OF_PATTERN);
+    }
+    for (const wrong of ["As of now", "As of ", "As of : time not recorded", "As of 16 Oct 2026", "As of 16 Oct 2026, 10:05", "as of 16 Oct 2026, 10:05 UTC", "Updated 16 Oct 2026, 10:05 UTC"]) {
+      expect(wrong).not.toMatch(AS_OF_PATTERN);
+    }
   });
 
   it("the disclosure summary is fixed text, keyboard reachable, and holds labelled values only", () => {

@@ -6,6 +6,14 @@
  */
 import { expect } from "vitest";
 
+/**
+ * The only two forms an "as of" bound may take (`asOfText`): a formatted UTC
+ * instant, or the honest "time not recorded" when the read returned none.
+ * Mirrored by `AS_OF_PATTERN` in `tools/evidence-checks.mjs` for the browser
+ * evidence scripts.
+ */
+export const AS_OF_PATTERN = /^As of(?: \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}, \d{2}:\d{2} UTC|: time not recorded)$/;
+
 /** True when `el` is rendered outside the body of any closed disclosure. */
 export function visibleOutsideClosedDisclosure(el: Element): boolean {
   let details: HTMLDetailsElement | null = el.closest("details");
@@ -37,6 +45,6 @@ export function expectStateLineVisible(within: Element): string {
     expect((el!.textContent ?? "").trim().length, `${name} has text`).toBeGreaterThan(0);
     expect(visibleOutsideClosedDisclosure(el!), `${name} is outside the closed disclosure`).toBe(true);
   }
-  expect(asOf!.textContent).toMatch(/^As of /);
+  expect(asOf!.textContent).toMatch(AS_OF_PATTERN);
   return label!.textContent ?? "";
 }
