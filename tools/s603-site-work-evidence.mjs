@@ -7,7 +7,7 @@
  * <api-base> that API (e.g. http://127.0.0.1:8963), <walkthrough.json> the file `prepare` wrote. Per width: the
  * positive window (rows, exact Finding-version and step links, ids), its reload, the assessed-zero window, the
  * choose-window state, one-per-page paging, the exact step link opening Action history at that step, and the
- * mockup `index.html#/sitework`. Once (desktop): a review note is recorded through the API after page one was
+ * mockup `index.html#/sitework`. Per width: a failed apply step is recorded through the API after page one was
  * issued, so the page-two address must refuse with "This list changed" and restart at page one.
  *
  * Every claim prints PASS/FAIL with its measured value; each page checks no page-level horizontal overflow, and the
@@ -169,7 +169,7 @@ async function main() {
   await send("Runtime.enable");
   const record = {};
   const want = manifest.actions.map((a) => a.id);
-  let changedOnce = false;
+
   for (const [W, width, height] of WIDTHS) {
     await size(width, height);
     const p = await list(W, "positive", work(manifest.positive));
@@ -196,7 +196,7 @@ async function main() {
     const cutoff = await js(`document.querySelector('[data-action-cutoff-event]')?.getAttribute('data-action-cutoff-event')`);
     claim(`${W} step link opens Action history at exactly that step`, stepOk && cutoff === p.rows[0].event, { cutoff, want: p.rows[0].event });
     await shot(`s603-${W}-step-history`);
-    if (!changedOnce) {
+    {
       // Record a new step after page one was issued: an apply attempt on the pending Action. On the served real
       // clock (before the fixture's recorded times) it fails and appends a FAILED step stamped EARLIER than the
       // fence's latest recorded step, so only the fence's step count changes. The page-two address must refuse.
@@ -210,7 +210,7 @@ async function main() {
       const failed = (await res.json())?.detail?.event;
       claim("a FAILED apply step recorded through the Action API (stamped before the fence)",
         failed?.kind === "FAILED" && new Date(failed.recorded_at) < new Date(before.max_event_recorded_at), { max: before.max_event_recorded_at, status: res.status, kind: failed?.kind, recorded_at: failed?.recorded_at });
-      changedOnce = true;
+
     }
     const changed = await list(W, "page-2-changed", `${BASE}${p1.next}`);
     claim(`${W} changed list: page 2 refuses with no rows or count`, changed.state === "basis-changed" && changed.rows.length === 0 && !changed.countClaim && !changed.zeroClaim, changed.state);
@@ -219,7 +219,7 @@ async function main() {
     const restarted = await js(READ);
     claim(`${W} restart: page 1 reloads on the new fence`, restarted.state === "current-rows" && restarted.rows.length === 1 && restarted.fence !== p1.fence, restarted.fence);
     await shot(`s603-${W}-restarted`);
-    const mockOk = await go(`${MOCK}#/sitework`, `document.body.innerText.match(/Actions at this site/)`);
+    const mockOk = await go(`${MOCK}#/sitework`, `document.body && document.body.innerText.match(/Actions at this site/)`);
     const mockOverflow = await js("document.documentElement.scrollWidth - window.innerWidth");
     claim(`${W} mockup #/sitework rendered for comparison`, mockOk, { overflow: mockOverflow });
     await shot(`s603-${W}-mockup-sitework`);

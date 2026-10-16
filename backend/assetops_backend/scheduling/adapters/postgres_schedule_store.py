@@ -264,3 +264,6 @@ _OPS02 = "UPDATE/**/site/**/SET lifecycle = :l WHERE tenant_id = :t"
 
 
 _OPS02 = "delete/**/from site where tenant_id = :t"
+
+
+_OPS02 = "MERGE INTO site s USING (SELECT 1) x ON true WHEN MATCHED THEN UPDATE SET lifecycle = 'x'"
