@@ -15,7 +15,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { Disclosure, Fact, FactList } from "../ui";
+import {
+  currentnessWords,
+  Disclosure,
+  ExactReferences,
+  ProductStatus,
+  readResultWords,
+  type ExactReference,
+  type ProductWords,
+} from "../ui";
 import type { SiteWindowSummary } from "./siteOverviewClient";
 import {
   FINDING_INDEX_DOMAIN,
@@ -24,7 +32,7 @@ import {
   type FindingIndexResult,
   type FindingIndexScope,
 } from "./findingIndexClient";
-import { Basis, STATUS_WORDS, utcText } from "./SiteFindingIndex";
+import { utcText } from "./SiteFindingIndex";
 import { LIFECYCLE_WORDS } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
 
@@ -50,8 +58,6 @@ export type ParityOutcome =
   | { state: "same" }
   | { state: "different"; reasons: string[] }
   | { state: "not-compared"; reasons: string[] };
-
-const short = (id: string) => id.slice(0, 8);
 
 function intersects(start: string | null, end: string | null, from: string, to: string): boolean {
   if (start === null) return false;
@@ -92,11 +98,11 @@ export function compareParity(summary: SiteWindowSummary, body: FindingIndexBody
     if (w.status !== "CURRENT" || !w.s4.matched) reasons.push("The list does not report this day as assessed and matched.");
     const pairs: [string, unknown, unknown][] = [
       ["assessment selection", w.s3.selection_seq, summary.watermarks.analytic_selection_seq],
-      ["assessment run", w.s3.run_id, summary.assessment.run_id],
+      ["assessment pass", w.s3.run_id, summary.assessment.run_id],
       ["assessment record", w.s3.window_assessment_revision_id, summary.assessment.window_assessment_revision_id],
-      ["model version", w.s3.model_version, summary.model_version],
-      ["input hash", w.s3.input_sha256, summary.watermarks.input_sha256],
-      ["configuration hash", w.s3.configuration_sha256, summary.watermarks.configuration_sha256],
+      ["assessment method", w.s3.model_version, summary.model_version],
+      ["input reference", w.s3.input_sha256, summary.watermarks.input_sha256],
+      ["configuration reference", w.s3.configuration_sha256, summary.watermarks.configuration_sha256],
       ["matching pass", m?.match_pass_id, summary.watermarks.match_pass_id],
       ["matched through", m?.matched_through_selection_seq, summary.watermarks.matched_through_selection_seq],
     ];
@@ -115,23 +121,23 @@ export function compareParity(summary: SiteWindowSummary, body: FindingIndexBody
   return { state: "same" };
 }
 
-function OverviewBasis({ summary }: { summary: SiteWindowSummary }) {
+/**
+ * W1-UX-02: the exact values behind the Overview's own Finding choice, for the parity disclosure's references.
+ * Labelled one value at a time; the plain reasons stay in the "Why they are not compared" list.
+ */
+function overviewBasisReferences(summary: SiteWindowSummary): ExactReference[] {
   const w = summary.watermarks;
-  return (
-    <FactList>
-      <Fact term="Day (UTC)">{summary.window.utc_date}</Fact>
-      <Fact term="Assessment selection">{String(w.analytic_selection_seq ?? "none")}</Fact>
-      <Fact term="Assessment record">
-        {summary.assessment.window_assessment_revision_id ? <code>{short(summary.assessment.window_assessment_revision_id)}</code> : "none"}
-      </Fact>
-      <Fact term="Finding matching">
-        {w.match_pass_id ? `pass ${short(w.match_pass_id)} through selection ${String(w.matched_through_selection_seq ?? "?")}` : "no matching pass recorded"}
-      </Fact>
-      <Fact term="Finding chosen by">{summary.known_finding?.selected_by ?? "no Finding chosen"}</Fact>
-    </FactList>
-  );
+  const text = (v: unknown) => (v === null || v === undefined || v === "" ? null : String(v));
+  return [
+    { label: "Overview day assessment reference", value: summary.assessment.window_assessment_revision_id },
+    { label: "Overview assessment selection number", value: text(w.analytic_selection_seq) },
+    { label: "Overview Finding match reference", value: w.match_pass_id },
+    { label: "Overview matched through selection number", value: text(w.matched_through_selection_seq) },
+    { label: "How the Overview chose its Finding", value: summary.known_finding?.selected_by ?? null },
+  ];
 }
 
+/** S5-02 parity (`D-2026-10-16-s502-parity`): a same claim only on a shared, current, comparable basis. */
 function Parity({ summary, body, onReload }: { summary: SiteWindowSummary; body: FindingIndexBody; onReload: () => void }) {
   const outcome = compareParity(summary, body);
   if (outcome.state === "same") {
@@ -148,7 +154,7 @@ function Parity({ summary, body, onReload }: { summary: SiteWindowSummary; body:
         {outcome.state === "different"
           ? "The first Finding listed is not the one chosen above, although both reads report the same basis."
           : "This list and the Finding chosen above come from separate reads that cannot be compared right now."}{" "}
-        No claim is made that they are the same.{" "}
+        They are not said to be the same.{" "}
         <button type="button" onClick={onReload} data-overview-finding-reload>
           Reload both
         </button>
@@ -159,8 +165,7 @@ function Parity({ summary, body, onReload }: { summary: SiteWindowSummary; body:
             <li key={r}>{r}</li>
           ))}
         </ul>
-        <p>Basis of the Finding chosen above:</p>
-        <OverviewBasis summary={summary} />
+        <p>The exact values behind both choices are listed under How this was worked out.</p>
       </Disclosure>
     </div>
   );
@@ -176,18 +181,70 @@ function FullList({ href }: { href: string }) {
   );
 }
 
+/** The list's plain scope, used by every state line in it. */
+function listScope(summary: SiteWindowSummary): string {
+  return `Findings overlapping ${summary.window.utc_date}`;
+}
+
+/** A CURRENT status that is not `is_current`, or has no count: never a positive claim. */
+const NOT_CONFIRMED_WORDS: ProductWords = {
+  label: "Not confirmed as current yet",
+  sentence: "This list is not confirmed as current for this day, so no Findings are listed and no count is given.",
+  next: "Look again after the day has been checked.",
+  tone: "waiting",
+  code: "CURRENT",
+  unrecognised: false,
+};
+
+const INCOMPLETE_WORDS: ProductWords = {
+  label: "List incomplete",
+  sentence: "The Findings list for this day is incomplete, so nothing is said about it.",
+  next: "Reload both reads.",
+  tone: "limited",
+  code: null,
+  unrecognised: false,
+};
+
+/** The non-current list states in the shared words; CURRENT without a confirmed count is never positive. */
+function listWords(body: FindingIndexBody): ProductWords {
+  if (body.status === "CURRENT") return NOT_CONFIRMED_WORDS;
+  return currentnessWords(body.status);
+}
+
+/**
+ * W1-UX-02: the list's exact references - the list selection reference, its recorded reasons, each listed row's
+ * exact version, and (when parity is not claimed) the Overview's own basis. Labelled one value at a time.
+ */
+function ListReferences({ summary, body, withBasis }: { summary: SiteWindowSummary; body: FindingIndexBody; withBasis: boolean }) {
+  return (
+    <div data-finding-index-reasons>
+      <ExactReferences
+        name="overview-finding-list"
+        references={[
+          { label: "List state", value: body.status },
+          ...body.status_reasons.map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
+          { label: "List selection reference", value: body.selection_token },
+          { label: "List built at", value: body.built_at },
+          ...body.rows.flatMap((row, i) => [
+            { label: `Listed Finding ${i + 1} reference`, value: row.finding_id },
+            { label: `Listed Finding ${i + 1} version reference`, value: row.finding_revision_id },
+          ]),
+          ...(withBasis ? overviewBasisReferences(summary) : []),
+        ]}
+      />
+    </div>
+  );
+}
+
 function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindowSummary; body: FindingIndexBody; scope: FindingIndexScope; links: OverviewFindingListLinks; onReload: () => void }) {
   const full = links.findingList({ ...scope, limit: null, cursor: null });
   if (body.status !== "CURRENT" || !body.is_current || body.total_count === null) {
-    const words = STATUS_WORDS[body.status] ?? { label: "Not known", sentence: "This read is not current." };
     return (
       <div data-overview-finding-list={body.status}>
-        <p>
-          <strong>{words.label}.</strong> {words.sentence}
-        </p>
+        <ProductStatus words={listWords(body)} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>No Findings are listed and no count is given. This is not a statement that the day has no Findings.</p>
-        <Basis body={body} />
         <FullList href={full} />
+        <ListReferences summary={summary} body={body} withBasis={false} />
       </div>
     );
   }
@@ -195,19 +252,20 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
     if (body.rows.length > 0 || !body.selection_token || body.watermarks.days.length === 0) {
       return (
         <div data-overview-finding-list="unavailable">
-          <p>The Findings list for this day is incomplete, so nothing is said about it.</p>
+          <ProductStatus words={INCOMPLETE_WORDS} scope={listScope(summary)} asOf={body.knowledge_at} />
         </div>
       );
     }
     return (
       <div data-overview-finding-list="current-empty">
+        <ProductStatus words={readResultWords("proved-empty")} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>
           <strong>No Findings for this day.</strong> Every day this read inspected (
           {body.discovery.days.join(", ")}) was assessed and matched for Findings through its latest selection, and
           no Finding overlaps {summary.window.utc_date}.
         </p>
-        <Basis body={body} />
         <FullList href={full} />
+        <ListReferences summary={summary} body={body} withBasis={false} />
       </div>
     );
   }
@@ -215,7 +273,7 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
   if (shown === 0) {
     return (
       <div data-overview-finding-list="unavailable">
-        <p>The Findings list for this day is incomplete, so nothing is said about it.</p>
+        <ProductStatus words={INCOMPLETE_WORDS} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>
           <button type="button" onClick={onReload} data-overview-finding-reload>
             Reload both
@@ -225,8 +283,10 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
     );
   }
   const partial = body.next_cursor !== null || shown < body.total_count;
+  const parity = compareParity(summary, body);
   return (
     <div data-overview-finding-list="current-rows">
+      <ProductStatus words={currentnessWords("CURRENT")} scope={listScope(summary)} asOf={body.knowledge_at} />
       <p>
         <strong>
           {body.total_count} {body.total_count === 1 ? "Finding" : "Findings"} overlap this day.
@@ -241,8 +301,7 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
             </Link>{" "}
             <small>
               {utcText(row.episode.start)} to {utcText(row.episode.end)} ·{" "}
-              {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.label ?? row.lifecycle}
- · version {row.revision_no} <code>{short(row.finding_revision_id)}</code>
+              {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.label ?? "Status not recognised"} · version {row.revision_no}
             </small>
           </li>
         ))}
@@ -254,7 +313,7 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
       </p>
       <FullList href={full} />
       <Parity summary={summary} body={body} onReload={onReload} />
-      <Basis body={body} />
+      <ListReferences summary={summary} body={body} withBasis={parity.state !== "same"} />
     </div>
   );
 }
@@ -270,13 +329,28 @@ const REFUSAL_WORDS: Record<string, string> = {
   unavailable: "The Findings list could not be read.",
 };
 
-function Refused({ result, href }: { result: Exclude<FindingIndexResult, { status: "loaded" }>; href: string }) {
+/** A refused or failed read: access refusals and an unreadable list use the shared words; the rest are not known. */
+function refusalWords(status: string): ProductWords {
+  if (status === "unauthenticated" || status === "forbidden") return readResultWords("refused");
+  if (status === "unavailable") return readResultWords("unavailable");
+  return {
+    label: "Not known",
+    sentence: REFUSAL_WORDS[status] ?? REFUSAL_WORDS.unavailable,
+    tone: "limited",
+    code: status,
+    unrecognised: !Object.prototype.hasOwnProperty.call(REFUSAL_WORDS, status),
+  };
+}
+
+function Refused({ result, href, summary }: { result: Exclude<FindingIndexResult, { status: "loaded" }>; href: string; summary: SiteWindowSummary }) {
   return (
     <div data-overview-finding-list={result.status}>
-      <p>
-        <strong>Not known.</strong> {REFUSAL_WORDS[result.status] ?? REFUSAL_WORDS.unavailable}
-        {result.message ? ` ${result.message}` : ""}
-      </p>
+      <ProductStatus words={refusalWords(result.status)} scope={listScope(summary)} asOf={null}>
+        <p className="product-status__note" data-overview-finding-refusal>
+          {REFUSAL_WORDS[result.status] ?? REFUSAL_WORDS.unavailable}
+          {result.message ? ` ${result.message}` : ""}
+        </p>
+      </ProductStatus>
       <p>No Findings are listed and no count is given. This is not a statement that the day has no Findings.</p>
       <FullList href={href} />
     </div>
@@ -310,7 +384,7 @@ export function OverviewFindingList({ summary, client, links, onReload }: Overvi
       ) : read.result.status === "loaded" ? (
         <Loaded summary={summary} body={read.result.value} scope={scope} links={links} onReload={onReload} />
       ) : (
-        <Refused result={read.result} href={links.findingList({ ...scope, limit: null })} />
+        <Refused result={read.result} href={links.findingList({ ...scope, limit: null })} summary={summary} />
       )}
     </section>
   );

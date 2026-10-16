@@ -20,7 +20,6 @@
 import { Link } from "react-router-dom";
 
 import {
-  Badge,
   currentnessWords,
   DataTable,
   Disclosure,
@@ -28,8 +27,11 @@ import {
   Fact,
   FactList,
   HeadlineVisualCard,
+  moneyWords,
   Panel,
   ProductStatus,
+  ValueBars,
+  type ExactReference,
   type ProductWords,
 } from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
@@ -39,6 +41,7 @@ import { OUTCOME_WORDS } from "./findingPresentation";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
 import type { FindingIndexClient, FindingIndexScope } from "./findingIndexClient";
 import { OverviewFindingList } from "./OverviewFindingList";
+import "./w1ux02-site.css";
 
 export interface WindowOverviewLinks {
   /** Performance > Dispatch for one UTC day, optionally opening one exact assessment revision. */
@@ -66,75 +69,101 @@ export interface SiteWindowOverviewProps {
   onReload?: () => void;
 }
 
-/** Freshness of the whole day, by the server's state name. `UNASSESSED` reads Unknown, never success. */
-const FRESHNESS_WORDS: Record<string, { label: string; sentence: string }> = {
-  UNASSESSED: {
-    label: "Unknown",
-    sentence: "No assessment is selected for this day, so whether the site met its objective is unknown.",
-  },
-  PENDING: { label: "Pending", sentence: "Work for this day is still waiting; nothing below is presented as current." },
-  STALE_PROJECTION: {
-    label: "Out of date",
-    sentence: "Something this day depends on has changed or stopped; what is shown is kept for reference only.",
-  },
-  FAILED: { label: "Failed", sentence: "Work for this day failed; nothing below is presented as current." },
-  CURRENT: { label: "Current", sentence: "Every upstream step for this day has settled." },
+/**
+ * W1-UX-02: why the money card shows no amount, by the server's state name (packet "S5 no-amount states").
+ * The shared money words own the states they cover; the rest are Overview domain states kept here as
+ * `ProductWords`. An unrecognised state falls back to the shared neutral words, never a positive claim.
+ */
+function localMoney(label: string, sentence: string, tone: ProductWords["tone"], next?: string): ProductWords {
+  return { label, sentence, tone, code: null, unrecognised: false, ...(next === undefined ? {} : { next }) };
+}
+
+const LOCAL_MONEY_WORDS: Record<string, ProductWords> = {
+  PRICED: localMoney(
+    "Current amount",
+    "This range uses the current version of this Finding and a recorded diesel price.",
+    "positive",
+  ),
+  ABSENT: localMoney(
+    "No Finding on this day",
+    "A complete, current search found no Finding overlapping this day, so there is no fuel cost to show.",
+    "neutral",
+  ),
+  SOURCE_CLOSED: localMoney(
+    "No current amount: source not open",
+    "The source of these readings is not open for current use, so only records kept for the audit are shown. This is not zero.",
+    "limited",
+  ),
+  UPSTREAM_UNASSESSED: localMoney(
+    "No amount: day not checked",
+    "This day has not been assessed, so no amount is shown. This is not zero.",
+    "neutral",
+  ),
+  UPSTREAM_PENDING: localMoney(
+    "No amount yet: checks still waiting",
+    "A check this day depends on is still waiting, or changed while it was read, so no amount is shown. This is not zero.",
+    "waiting",
+    "Look again after the day has been checked.",
+  ),
+  UPSTREAM_STALE: localMoney(
+    "Upstream out of date",
+    "Something this day depends on is out of date, or its checks have stopped, so no amount is shown. This is not zero.",
+    "limited",
+    "Treat the day as out of date until it is checked again.",
+  ),
+  UPSTREAM_FAILED: localMoney(
+    "No amount: a check did not finish",
+    "A check this day depends on did not finish, so no amount is shown. This is not zero.",
+    "problem",
+  ),
+  SUPERSEDED: localMoney(
+    "Earlier Finding version",
+    "A newer version of this Finding exists, so no current amount is shown for this earlier one.",
+    "neutral",
+  ),
+  CONSEQUENCE_PENDING: localMoney(
+    "Fuel cost still being worked out",
+    "The fuel cost for this Finding version is still being worked out, so no amount is shown yet. This is not zero.",
+    "waiting",
+  ),
+  CONSEQUENCE_STALE: localMoney(
+    "Fuel cost out of date",
+    "The fuel cost for this Finding version is out of date, so no current amount is shown. This is not zero.",
+    "limited",
+  ),
+  QUANTITY_UNAVAILABLE: localMoney(
+    "Fuel quantity not known",
+    "The generator power readings do not bound a fuel quantity for this Finding, so no amount is shown. This is not zero.",
+    "limited",
+  ),
+  MINOR_UNIT_UNKNOWN: localMoney(
+    "Currency unit not known",
+    "The currency's smallest unit is not known, so no amount is displayed. This is not zero.",
+    "limited",
+  ),
 };
 
-/** Why the money card shows no amount, by the server's no-amount state name (packet "S5 no-amount states"). */
-export const MONEY_STATE_WORDS: Record<string, { label: string; sentence: string }> = {
-  PRICED: { label: "Current amount", sentence: "Every gate for this Finding version passed." },
-  ABSENT: {
-    label: "No Finding on this day",
-    sentence: "A complete, current search found no Finding whose time overlaps this day.",
-  },
-  PENDING_REASSESSMENT: {
-    label: "Pending reassessment",
-    sentence: "New source-time information arrived for this Finding's generator power and it has not been reassessed yet.",
-  },
-  WITHHELD_GENERATOR_SERIES: {
-    label: "Withheld: generator power series",
-    sentence: "A generator power reading arrived late or out of order for this Finding, so no amount is shown.",
-  },
-  SOURCE_CLOSED: {
-    label: "Source closed",
-    sentence: "The Performance source is not open for current use; only pinned records are shown, for audit.",
-  },
-  UPSTREAM_UNASSESSED: { label: "Day not assessed", sentence: "The day has not been assessed, so no amount is shown." },
-  UPSTREAM_PENDING: {
-    label: "Upstream pending",
-    sentence: "Assessment, Finding or schedule work this day depends on is still waiting, or moved while it was read.",
-  },
-  UPSTREAM_STALE: {
-    label: "Upstream out of date",
-    sentence: "Something this day depends on is out of date or the schedule has stopped, so no amount is shown.",
-  },
-  UPSTREAM_FAILED: { label: "Upstream failed", sentence: "Work this day depends on failed, so no amount is shown." },
-  SUPERSEDED: { label: "Earlier Finding version", sentence: "A newer version of this Finding exists." },
-  CONSEQUENCE_PENDING: { label: "Fuel cost pending", sentence: "The fuel cost for this Finding version is still being worked out." },
-  CONSEQUENCE_STALE: { label: "Fuel cost out of date", sentence: "The fuel cost for this Finding version is out of date." },
-  QUANTITY_UNAVAILABLE: {
-    label: "Fuel quantity unavailable",
-    sentence: "The generator power readings do not bound a fuel quantity for this Finding.",
-  },
-  UNPRICED: { label: "No price", sentence: "No diesel price covers this Finding's time." },
-  MINOR_UNIT_UNKNOWN: { label: "Currency unit unknown", sentence: "The currency's minor unit is not known, so no amount is displayed." },
-  MIXED_OR_UNKNOWN_SOURCE: {
-    label: "No current cost: source not established",
-    sentence: "The source of the records behind this Finding's cost is mixed or not established, so no amount is shown.",
-  },
+/** Shared money states (W1-UX-01 `moneyWords`) the card uses as they are. */
+const SHARED_MONEY_STATES = ["PENDING_REASSESSMENT", "WITHHELD_GENERATOR_SERIES", "UNPRICED", "MIXED_OR_UNKNOWN_SOURCE"];
+
+/** Every money state the card names, by the server's state name. */
+export const MONEY_STATE_WORDS: Record<string, ProductWords> = {
+  ...LOCAL_MONEY_WORDS,
+  ...Object.fromEntries(SHARED_MONEY_STATES.map((state) => [state, moneyWords(state)])),
 };
 
-/** The shared LR-01 money gate's own state, shown raw beside the card's state. */
+/** Words for one money state: the card's own, the shared map's, or the shared neutral fallback. */
+export function overviewMoneyWords(state: string): ProductWords {
+  const own = Object.prototype.hasOwnProperty.call(MONEY_STATE_WORDS, state) ? MONEY_STATE_WORDS[state] : undefined;
+  return own === undefined ? moneyWords(state) : { ...own, code: state };
+}
+
+/** The shared LR-01 money gate's own state, shown beside the card's state. */
 const GATE_WORDS: Record<string, string> = {
   ELIGIBLE: "Eligible",
   PENDING_REASSESSMENT: "Pending reassessment",
   WITHHELD_GENERATOR_SERIES: "Withheld: generator power series",
 };
-
-function words<T extends { label: string }>(table: Record<string, T>, state: string): T | { label: string; sentence: string } {
-  return table[state] ?? { label: state.toLowerCase().replace(/_/g, " "), sentence: "" };
-}
 
 function Code({ value }: { value: string | null | undefined }) {
   return (
@@ -142,19 +171,14 @@ function Code({ value }: { value: string | null | undefined }) {
   );
 }
 
-function Reasons({ reasons, name }: { reasons: string[]; name: string }) {
-  if (reasons.length === 0) {
-    return <span>none</span>;
-  }
-  return (
-    <ul className="cell-list" data-window-reasons={name}>
-      {reasons.map((r) => (
-        <li key={r}>
-          <Code value={r} />
-        </li>
-      ))}
-    </ul>
-  );
+/** One labelled exact value per recorded reason. */
+function reasonReferences(label: string, reasons: readonly string[] | null | undefined): ExactReference[] {
+  return (reasons ?? []).map((reason, i) => ({ label: `${label} ${i + 1}`, value: reason }));
+}
+
+/** The day's plain scope, used by every state line on this page. */
+function dayScope(summary: SiteWindowSummary): string {
+  return `${summary.window.utc_date}, one UTC day at this site`;
 }
 
 /** Position of an instant within the selected day, as a percentage (layout only). */
@@ -201,50 +225,46 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
   );
 }
 
+/**
+ * W1-UX-02: whether the day's answer is current, in the shared words, with the source's open state beside it.
+ * The recorded reasons and exact read references move to the closed disclosure.
+ */
 function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   const f = summary.freshness;
-  const w = words(FRESHNESS_WORDS, f.state);
+  const accepted = summary.watermarks.accepted_source;
   return (
     <Panel heading="This day" headingId="site-window-freshness-heading">
-      <p data-freshness-state={f.state}>
-        <Badge tone="neutral">{w.label}</Badge> {w.sentence}
-      </p>
-      <p data-source-open={f.source_open ? "open" : "closed"}>
-        {f.source_open
-          ? "The Performance source is open for current use."
-          : "The Performance source is closed for current use: only pinned records are shown, for audit."}
-      </p>
-      <Disclosure summary="Why, and the exact read basis" name="window-freshness">
-        <FactList>
-          <Fact term="Reasons">
-            <Reasons reasons={f.reasons} name="freshness" />
-          </Fact>
-          <Fact term="Source gate">
-            <span data-vocabulary-exempt="source-reference">{f.source_reason}</span>
-          </Fact>
-          <Fact term="Database time">{stamp(summary.db_now)}</Fact>
-          <Fact term="Accepted records in the read bracket">
-            {summary.watermarks.accepted_source === null ? (
-              <span>
-                Unreadable: <Code value={summary.watermarks.accepted_source_reason} />
-              </span>
-            ) : (
-              <span>
-                {summary.watermarks.accepted_source.count} (<Code value={summary.watermarks.accepted_source.sha256} />)
-              </span>
-            )}
-          </Fact>
-          <Fact term="Input reference">
-            <Code value={summary.watermarks.input_sha256} />
-          </Fact>
-          <Fact term="Finding match pass">
-            <Code value={summary.watermarks.match_pass_id} />
-          </Fact>
-          <Fact term="Access basis">
-            <Code value={summary.access_basis} />
-          </Fact>
-        </FactList>
-      </Disclosure>
+      <div className="window-freshness" data-freshness-card>
+        <div data-freshness-state={f.state}>
+          <ProductStatus words={currentnessWords(f.state)} scope={dayScope(summary)} asOf={summary.db_now} />
+        </div>
+        <p data-source-open={f.source_open ? "open" : "closed"}>
+          {f.source_open
+            ? "The source of these readings is open for current use."
+            : "The source of these readings is closed for current use: only records kept for the audit are shown."}
+        </p>
+        <div data-window-reasons="freshness">
+          <ExactReferences
+            name="window-freshness"
+            references={[
+              { label: "Day state", value: f.state },
+              ...reasonReferences("Recorded reason", f.reasons),
+              { label: "Source state", value: f.source_reason },
+              {
+                label: "Accepted records counted",
+                value: accepted === null ? null : String(accepted.count),
+              },
+              {
+                label: accepted === null ? "Why the records could not be counted" : "Accepted records reference",
+                value: accepted === null ? summary.watermarks.accepted_source_reason : accepted.sha256,
+              },
+              { label: "Input reference", value: summary.watermarks.input_sha256 },
+              { label: "Finding match reference", value: summary.watermarks.match_pass_id },
+              { label: "Access reference", value: summary.access_basis },
+            ]}
+          />
+        </div>
+      </div>
     </Panel>
   );
 }
@@ -285,8 +305,8 @@ function Objective({ summary, links }: { summary: SiteWindowSummary; links: Wind
     <HeadlineVisualCard
       dataName="overview-objective"
       headingId="site-window-objective-heading"
-      question="Is the site meeting its operating objective?"
-      headline={closed ? "No current answer for this day" : "No operating objective is stated for this day"}
+      question="Is the mini-grid meeting its operating objective?"
+      headline={a.state === "CURRENT" ? "No operating objective is stated for this day" : "No current answer for this day"}
       status={
         <div data-assessment-state={a.state}>
           <ProductStatus words={w} scope={`${day}, one UTC day at this site`} asOf={summary.db_now} />
@@ -340,55 +360,109 @@ function Objective({ summary, links }: { summary: SiteWindowSummary; links: Wind
   );
 }
 
+/** Plain names for the assessed-period fills the timeline draws (the bar classes in primitives.css). */
+const TIMELINE_LEGEND: { key: string; label: string }[] = [
+  { key: "necessary", label: "Generator needed" },
+  { key: "candidate_avoidable", label: "Generator possibly avoidable" },
+  { key: "indeterminate", label: "Not clear" },
+  { key: "other", label: "Other" },
+];
+
+/**
+ * W1-UX-02: the day as a visual timeline - assessed periods and when each kind of reading arrived - with a
+ * readable legend and a text description. It draws only the read's periods and reading spans; a not-current
+ * day says so beside the drawing.
+ */
 function Timeline({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const day = summary.window.utc_date;
   const intervals = summary.assessment.dispatch_intervals;
   const coverage = summary.context.coverage ?? [];
+  const current = summary.freshness.state === "CURRENT";
+  const shownKeys = new Set(intervals.map((i) => (i.claim_level ?? "other").toLowerCase()));
+  const legend = TIMELINE_LEGEND.filter((l) => shownKeys.has(l.key));
+  const description =
+    intervals.length === 0
+      ? `No assessed period is drawn for ${day}.`
+      : intervals
+          .map((i) => `${clock(i.start)} to ${clock(i.end)}: generator ${portionWords(i.claim_level ?? "").toLowerCase()}`)
+          .join("; ");
   return (
     <Panel heading="Day timeline" headingId="site-window-timeline-heading">
-      <div className="window-timeline" data-window-timeline={intervals.length}>
-        <div className="window-timeline__axis" aria-hidden="true">
-          <span>00:00</span>
-          <span>06:00</span>
-          <span>12:00</span>
-          <span>18:00</span>
-          <span>24:00</span>
-        </div>
-        <div className="window-timeline__row">
-          <span className="window-timeline__label">Assessed periods</span>
-          <div className="window-timeline__track">
-            {intervals.map((i) => {
-              const lo = dayPercent(i.start, summary.window.start) ?? 0;
-              const hi = dayPercent(i.end, summary.window.start) ?? 100;
-              return (
-                <span
-                  key={i.revision_id}
-                  className={`window-timeline__bar window-timeline__bar--${(i.claim_level ?? "other").toLowerCase()}`}
-                  style={{ left: `${lo}%`, width: `${Math.max(0.5, hi - lo)}%` }}
-                  title={`${clock(i.start)} to ${clock(i.end)}: generator ${portionWords(i.claim_level ?? "")}`}
-                />
-              );
-            })}
+      <figure
+        className="window-timeline-figure"
+        data-window-timeline-figure
+        aria-label={`Day timeline for ${day}, 00:00 to 24:00 UTC. ${description}`}
+      >
+        <figcaption className="window-timeline-figure__caption">
+          When the generator was in use and when readings arrived on {day}, 00:00 to 24:00 UTC.
+          {current ? "" : " These periods come from an answer that is not current; see This day."}
+        </figcaption>
+        <div className="window-timeline" data-window-timeline={intervals.length}>
+          <div className="window-timeline__axis" aria-hidden="true">
+            <span>00:00</span>
+            <span>06:00</span>
+            <span>12:00</span>
+            <span>18:00</span>
+            <span>24:00</span>
           </div>
-        </div>
-        {coverage.map((c) => {
-          const lo = dayPercent(c.first_source_time, summary.window.start);
-          const hi = dayPercent(c.last_source_time, summary.window.start);
-          return (
-            <div className="window-timeline__row" key={`${c.device_id}/${c.signal_id}`}>
-              <span className="window-timeline__label">{c.role ? roleWords(c.role) : `${c.device_id} ${c.signal_id}`}</span>
-              <div className="window-timeline__track">
-                {lo === null || hi === null ? null : (
+          <div className="window-timeline__row">
+            <span className="window-timeline__label">Assessed periods</span>
+            <div className="window-timeline__track">
+              {intervals.map((i) => {
+                const lo = dayPercent(i.start, summary.window.start) ?? 0;
+                const hi = dayPercent(i.end, summary.window.start) ?? 100;
+                return (
                   <span
-                    className="window-timeline__bar window-timeline__bar--readings"
+                    key={i.revision_id}
+                    className={`window-timeline__bar window-timeline__bar--${(i.claim_level ?? "other").toLowerCase()}`}
                     style={{ left: `${lo}%`, width: `${Math.max(0.5, hi - lo)}%` }}
+                    title={`${clock(i.start)} to ${clock(i.end)}: generator ${portionWords(i.claim_level ?? "")}`}
                   />
-                )}
-              </div>
+                );
+              })}
             </div>
-          );
-        })}
-      </div>
+          </div>
+          {coverage.map((c) => {
+            const lo = dayPercent(c.first_source_time, summary.window.start);
+            const hi = dayPercent(c.last_source_time, summary.window.start);
+            return (
+              <div className="window-timeline__row" key={`${c.device_id}/${c.signal_id}`}>
+                <span className="window-timeline__label">{c.role ? roleWords(c.role) : "Unnamed reading"}</span>
+                <div className="window-timeline__track">
+                  {lo === null || hi === null ? null : (
+                    <span
+                      className="window-timeline__bar window-timeline__bar--readings"
+                      style={{ left: `${lo}%`, width: `${Math.max(0.5, hi - lo)}%` }}
+                    />
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {legend.length === 0 && coverage.length === 0 ? null : (
+          <ul className="window-timeline-legend" data-window-timeline-legend>
+            {legend.map((l) => (
+              <li className="window-timeline-legend__item" key={l.key}>
+                <span
+                  className={`window-timeline-legend__swatch window-timeline__bar window-timeline__bar--${l.key}`}
+                  aria-hidden="true"
+                />
+                {l.label}
+              </li>
+            ))}
+            {coverage.length === 0 ? null : (
+              <li className="window-timeline-legend__item">
+                <span
+                  className="window-timeline-legend__swatch window-timeline__bar window-timeline__bar--readings"
+                  aria-hidden="true"
+                />
+                Readings received
+              </li>
+            )}
+          </ul>
+        )}
+      </figure>
       {intervals.length === 0 ? (
         <p>No assessed period is selected for this day.</p>
       ) : (
@@ -533,11 +607,20 @@ function MoneyLinks({ money, links, day }: { money: WindowMoney; links: WindowOv
   );
 }
 
+/**
+ * W1-UX-02: the bounded money card. An amount (and its low/high bars) appears only for `PRICED` with both display
+ * bounds; every other state is named in the shared or local words, never as zero. The plain "as of" bound sits
+ * beside the state; Finding, fuel-cost and method references, limiting states and the recorded label move to the
+ * closed disclosure.
+ */
 function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const m = summary.money;
-  const w = words(MONEY_STATE_WORDS, m.state);
+  const w = overviewMoneyWords(m.state);
   const gate = m.eligibility?.state ?? null;
   const priced = m.state === "PRICED" && m.amount_low !== null && m.amount_high !== null;
+  const low = priced ? Number(m.amount_low) : Number.NaN;
+  const high = priced ? Number(m.amount_high) : Number.NaN;
+  const scope = m.finding_id ? `One Finding overlapping ${summary.window.utc_date}` : dayScope(summary);
   return (
     <Panel heading="Potential fuel-cost exposure, one Finding" headingId="site-window-money-heading">
       <div
@@ -546,9 +629,6 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
         data-money-gate={gate ?? "none"}
         data-consequence-revision-id={m.consequence_revision_id ?? ""}
       >
-        {m.finding_id ? (
-          <SourceProvenanceNotice provenance={m.source_provenance} subject="cost" name="overview-money" />
-        ) : null}
         {priced ? (
           <p className="window-money__amount" data-money-amount>
             {m.amount_low} to {m.amount_high} {m.currency}
@@ -558,44 +638,51 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
             No current amount.
           </p>
         )}
-        <p>
-          <Badge tone="neutral">{w.label}</Badge> {w.sentence}
-        </p>
+        <ProductStatus words={w} scope={scope} asOf={summary.db_now} />
+        {m.finding_id ? (
+          <SourceProvenanceNotice provenance={m.source_provenance} subject="cost" name="overview-money" />
+        ) : null}
+        {priced && Number.isFinite(low) && Number.isFinite(high) ? (
+          <ValueBars
+            title="Possible extra fuel cost for this Finding"
+            items={[
+              { label: "Lower bound", key: "low", value: low, valueText: `${m.amount_low} ${m.currency ?? ""}`.trim() },
+              { label: "Upper bound", key: "high", value: high, valueText: `${m.amount_high} ${m.currency ?? ""}`.trim() },
+            ]}
+          />
+        ) : null}
+        {m.finding_id ? (
+          <p className="overview-note" data-money-qualifier>
+            A modelled range of possible extra fuel cost for one Finding, not money lost or saved.
+          </p>
+        ) : null}
         <FactList>
           <Fact term="Money gate">
-            <span data-money-gate-state={gate ?? "none"}>{gate === null ? "Not read" : (GATE_WORDS[gate] ?? gate)}</span>
+            <span data-money-gate-state={gate ?? "none"}>
+              {gate === null ? "Not read" : (GATE_WORDS[gate] ?? "Not recognised")}
+            </span>
           </Fact>
           <Fact term="Upstream">
-            <span data-money-upstream={m.upstream.status}>{words(FRESHNESS_WORDS, m.upstream.status).label}</span>
+            <span data-money-upstream={m.upstream.status}>{currentnessWords(m.upstream.status).label}</span>
           </Fact>
         </FactList>
-        <p className="overview-note">{m.label}</p>
         <MoneyLinks money={m} links={links} day={summary.window.utc_date} />
-        <Disclosure summary="Exact identifiers and limiting states" name="window-money">
-          <FactList>
-            <Fact term="Finding">
-              <Code value={m.finding_id} />
-            </Fact>
-            <Fact term="Finding version">
-              <Code value={m.finding_revision_id} />
-            </Fact>
-            <Fact term="Fuel cost version">
-              <Code value={m.consequence_revision_id} />
-            </Fact>
-            <Fact term="Model">
-              <Code value={m.model_version} />
-            </Fact>
-            <Fact term="Limiting states">
-              <Reasons reasons={m.limitation ?? []} name="money" />
-            </Fact>
-            <Fact term="Upstream reasons">
-              <Reasons reasons={m.upstream.reasons} name="money-upstream" />
-            </Fact>
-            <Fact term="Gate note">
-              <span data-vocabulary-exempt="source-reference">{m.eligibility?.note ?? "none"}</span>
-            </Fact>
-          </FactList>
-        </Disclosure>
+        <ExactReferences
+          name="window-money"
+          references={[
+            { label: "Amount state", value: m.state },
+            { label: "Finding reference", value: m.finding_id },
+            { label: "Finding version reference", value: m.finding_revision_id },
+            { label: "Fuel cost version reference", value: m.consequence_revision_id },
+            { label: "Cost method reference", value: m.model_version },
+            { label: "Money gate state", value: gate },
+            ...reasonReferences("Limiting reason", m.limitation),
+            { label: "Upstream state", value: m.upstream.status },
+            ...reasonReferences("Upstream reason", m.upstream.reasons),
+            { label: "Money gate note", value: m.eligibility?.note ?? null },
+            { label: "Recorded cost label", value: m.label },
+          ]}
+        />
       </div>
     </Panel>
   );
@@ -637,24 +724,25 @@ function KnownFinding({
             </Link>
             {k.audit_only ? " (kept for audit; not current)" : ""}
           </p>
+          {k.audit_only ? (
+            <div data-known-finding-state="audit-only">
+              <ProductStatus
+                words={currentnessWords("AUDIT_ONLY")}
+                scope={`The Finding chosen for ${summary.window.utc_date}`}
+                asOf={summary.db_now}
+              />
+            </div>
+          ) : null}
           {k.several_intersect ? <p>{k.note}</p> : null}
-
-          <Disclosure summary="How this Finding was chosen" name="window-finding-choice">
-            <FactList>
-              <Fact term="Chosen by">
-                <Code value={k.selected_by} />
-              </Fact>
-              <Fact term="Rule">
-                <span data-vocabulary-exempt="source-reference">{k.selection_rule}</span>
-              </Fact>
-              <Fact term="Finding">
-                <Code value={k.id} />
-              </Fact>
-              <Fact term="Finding version">
-                <Code value={k.revision_id} />
-              </Fact>
-            </FactList>
-          </Disclosure>
+          <ExactReferences
+            name="window-finding-choice"
+            references={[
+              { label: "How it was chosen", value: k.selected_by },
+              { label: "Choice rule", value: k.selection_rule },
+              { label: "Finding reference", value: k.id },
+              { label: "Finding version reference", value: k.revision_id },
+            ]}
+          />
         </div>
       )}
       {pin ? (
@@ -678,9 +766,11 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
   return (
     <div className="site-window-overview" data-overview-state="window" data-window-site={summary.site_code}>
       <DaySelector summary={summary} onSelectDay={onSelectDay} />
+      <div className="site-window-overview__lead">
+        <Objective summary={summary} links={links} />
+      </div>
       <div className="site-window-overview__grid">
         <FreshnessStrip summary={summary} />
-        <Objective summary={summary} links={links} />
         <Money summary={summary} links={links} />
         <KnownFinding summary={summary} links={links} findingIndex={findingIndex} onReload={onReload} />
       </div>
