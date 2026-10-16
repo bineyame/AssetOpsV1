@@ -119,3 +119,27 @@ copied `var/sites` were removed.
 
 Walk `.agent/S6-02b-owner-walkthrough.md`: does the Verification page read clearly for an operator (result,
 limits, no-savings note), is "Historical" unmistakable, and do the test-scoped examples read as examples?
+
+## Fix round 1 (Architect D-2026-10-16-s602-closure)
+
+Branch `fix/S6-02b-truth` from `364d7bbe`. Frontend only; no backend change.
+
+- **F1.** On Plan and Evidence views with any explicit selection (cutoff, event, exact plan or outcome), the screen also
+  reads `/verification/history` and shows "Actual current state" beside "State at the selected time". The Historical
+  banner now says the actual state is shown below, or that it could not be read (or is still being read) and the
+  historical state must not be taken as current. A failed read is stated, never hidden. Verification view unchanged
+  (its history read already supplies the current state).
+- **F5.** `sourceWords` default reads "Source not recognised (treated as unverified)".
+- **F3.** The Evidence view reads the plan it belongs to (`/plan?plan_id=`, exact) and each window shows a plain
+  summary (assessed days, registered sources, generator-time assessments, source records) and, in Dig deeper: origin
+  FindingRevision ID, selected assessment revision IDs, source records, and a per-day table (cohort status and digest,
+  run ID, model version, input and configuration digests). Later-window days come from the selection binding named by
+  `later_selection_binding_id` (else the last LATER binding recorded by the knowledge cutoff). All fields already come
+  from the API; none is missing. Note: the run ID/source runs read "run" in Dig deeper only as IDs; default text avoids
+  the banned word. The Evidence read carries `source_resolution.*.runs` (empty in the TEST-SCOPED authored fixture, so
+  "none recorded" is shown there).
+- **Tests** (`siteActionVerification.test.tsx`, new describe): F1 evidence and plan with a historical VERIFIED beside a
+  current INCONCLUSIVE, and the unreadable-current case; F5; F3 summary and IDs.
+- **Checks.** `npx tsc --noEmit`: clean. Focused verification file: 18 passed. Full `npm test`: see the final report.
+- **Full `npm test` (run 1):** 68/69 files, 1629/1630 tests; one failure, `s404SiteFindingIndex.test.tsx` "changing the
+  dates writes a new window..." (S4-04, unrelated, under full-suite load). **Rerun alone:** 15/15 passed.

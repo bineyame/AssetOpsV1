@@ -24,12 +24,16 @@ import type {
   PolicyChangeBody,
 } from "./actionClient";
 import { eventWords, outcomeWords, Ref, RefusalPanel, SYSTEM_DEMONSTRATION, when } from "./actionPresentation";
+import { stateLabel } from "./verificationWords";
+import { DecisionPathPanel, LaterEffectPanel, type TrialLinks } from "./recommendationVerification";
 
 export interface SiteFoundationChangeLinks {
   /** A section of the Action that made the change, at an exact selection. */
   action: (actionId: string, view: "overview" | "execution" | "history", selector: EventSelector) => string;
   /** The Site Foundation (its model view). */
   foundation: string;
+  /** S6-02b: an Action's Plan, Evidence or Verification child view. */
+  actionChild?: TrialLinks["child"];
 }
 
 export const FOUNDATION_CHANGE_LOADING = "Loading the Foundation change.";
@@ -151,7 +155,11 @@ export function SiteFoundationChange({
           </FactList>
         </Panel>
         <Panel heading="Outcome" headingId="site-change-outcome-heading">
-          <p data-change-outcome-words>{outcomeWords(c.outcome.state)}</p>
+          <p data-change-outcome-words data-change-verification={read.value.verification?.state ?? "UNAVAILABLE"}>
+            {read.value.verification
+              ? `Verification: ${stateLabel(read.value.verification.state, read.value.verification.reasons)}.`
+              : outcomeWords(c.outcome.state)}
+          </p>
           <p className="action-note">
             This page records that the setting changed. Whether the change had any effect on the Site is a later
             verification step and is not judged here.
@@ -159,6 +167,17 @@ export function SiteFoundationChange({
           <Attempts attempts={attempts} change={c} links={links} />
         </Panel>
       </div>
+      {links.actionChild ? (
+        <div className="action-pair">
+          <LaterEffectPanel actionId={c.action_id} summary={read.value.verification} links={{ child: links.actionChild }} />
+          <DecisionPathPanel
+            actionId={c.action_id}
+            summary={read.value.verification}
+            appliedEventHref={appliedEvent}
+            links={{ child: links.actionChild }}
+          />
+        </div>
+      ) : null}
       <Panel heading="Application" headingId="site-change-application-heading">
         <FactList>
           <Fact term="Action">

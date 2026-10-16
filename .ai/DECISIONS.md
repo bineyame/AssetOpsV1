@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-10-16
+
+Decision: `D-2026-10-16-w1-ux-disclosure`. Codex Architect accepts the W1-UX-01 narrow disclosure scan as an amendment to `D-2026-10-04-plain-language-analysis-views`, with the exact banned disclosure-prose terms, permitted individually labelled references, and case-sensitive raw-code detection defined in `.agent/architect-W1-ux-disclosure-answers.md`. The closed disclosure is scanned, never exempted as a container; the existing single-value exemption rule stays. Raw IDs, versions, digests and reasons may appear only as labelled exact values, never in the collapsed summary. Raw-code matching does not flag ordinary units or acronyms including SOC, UTC, kW, kWh and PV. Plain state, material limits, scope and as-of time stay visible outside the disclosure. This does not record owner acceptance or change the W1 walkthrough gate.
+
+Decision: `D-2026-10-16-w1-ux`. Codex Architect. For W1 product surfaces, substantive deeper analysis has a separate contextual destination, following the owner-directed T028 Analysis tabs. Compact cards and indexes link to their owning detail; a closed inline "How this was worked out" disclosure holds only small exact-reference detail and is not the sole route to method or evidence. Keep the same destination at 1440 and 390 px. Approve Site, Evidence, Finding, Action, Verification and Analysis as explained domain/navigation labels; ban raw states, codes, IDs, implementation analytics and simulator vocabulary from the default reading, with narrowly labelled exact-reference exceptions in detail. Honest selected-read states and material limits take precedence over copy or mockup fidelity. Full screen-placement and vocabulary ruling: `.agent/architect-W1-ux-answers.md`. This amends the W1-UX-01 disclosure-only proposal and preserves `D-2026-10-04-plain-language-analysis-views`; owner acceptance remains the combined W1 walkthrough.
+
 ## 2026-10-07
 
 Decision: `D-2026-10-07-s1-foundation-import-and-cutover`. Codex Architect, responding to the S1-01 handoff review under the delegated decision authority in `.ai/ROLE_CONFIG.md`. The controlling detail is [the S1-01 Foundation contract addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md). This records an Architect choice, not owner acceptance of S1-01 or a new owner sign-off on the three Site-first documents. Current project routing treats those documents as implementation authority; their proposal headers remain provenance until an owner acceptance record is identified.
@@ -34,6 +40,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-16-w1-ux` | 2026-10-16 | W1 separate contextual analysis, narrow reference disclosures, approved domain labels and honest-state-first plain language. |
 | `D-2026-10-04-plain-language-analysis-views` | 2026-10-04 | Owner-directed plain-language defaults, assessment graphics and separate Analysis tabs in T028; amends practitioner-first presentation and the Finding tab inventory; product vocabulary guard. |
 | `D-2026-10-04-practitioner-first-finding-presentation` | 2026-10-04 | Findings lead with a bounded operational explanation; provenance and method detail remain accessible through progressive disclosure. Narrow T028 correction before merge; money and prepared demo remain T029. |
 | `D-2026-10-04-analytic-readiness-scope-and-gap-impact` | 2026-10-04 | Analytic readiness describes evidence sufficiency, site-wide in T028; claim-dependent gap treatment is interim, with versioned configurable impact types assigned to T028A. |

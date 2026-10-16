@@ -225,6 +225,18 @@ def event_wire(event: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def selected_action_links(site_code: str, action: dict[str, Any], chosen: Selector) -> dict[str, Any]:
+    """The canonical and selector-exact Action links (shared by Action detail and the S6-03 Site Action index)."""
+    base = f"/sites/{site_code}/actions/{action['id']}"
+    finding = f"/sites/{site_code}/findings/{action['origin_finding_id']}"
+    q = chosen.query()
+    return {"site": f"/sites/{site_code}", "canonical": base, "selected": f"{base}{q}",
+            "history": f"{base}/history{q}", "api_action": f"/api{base}{q}", "api_events": f"/api{base}/events{q}",
+            "origin_finding": f"{finding}?revision_id={action['origin_finding_revision_id']}",
+            "finding": finding,
+            "recommendation": f"/api{finding}/recommendation?revision_id={action['origin_finding_revision_id']}"}
+
+
 class ActionService:
     def __init__(self, store: ActionStore, currentness: FindingCurrentness,
                  capability: CapabilityCheck = no_capability, clock: Callable[[], datetime] = utc_now,
@@ -636,14 +648,7 @@ class ActionService:
                 "cutoff_recorded_at": prefix[-1]["recorded_at"].isoformat() if prefix else None}
 
     def _links(self, site_code: str, action: dict[str, Any], chosen: Selector) -> dict[str, Any]:
-        base = f"/sites/{site_code}/actions/{action['id']}"
-        finding = f"/sites/{site_code}/findings/{action['origin_finding_id']}"
-        q = chosen.query()
-        return {"site": f"/sites/{site_code}", "canonical": base, "selected": f"{base}{q}",
-                "history": f"{base}/history{q}", "api_action": f"/api{base}{q}", "api_events": f"/api{base}/events{q}",
-                "origin_finding": f"{finding}?revision_id={action['origin_finding_revision_id']}",
-                "finding": finding,
-                "recommendation": f"/api{finding}/recommendation?revision_id={action['origin_finding_revision_id']}"}
+        return selected_action_links(site_code, action, chosen)
 
     def action(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
                chosen: Selector) -> dict[str, Any] | None:

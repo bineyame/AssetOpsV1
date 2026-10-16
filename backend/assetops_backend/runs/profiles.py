@@ -1335,6 +1335,22 @@ MINI_GRID_V4_MODEL = replace(
     ),
 )
 
+#: S6-02b (`D-2026-10-16-s602a-replay`). `mini-grid` v5: v4's measurements and
+#: physics unchanged, but the generator-start policy reads the battery reserve
+#: in effect - the generator is requested at or below the lower of the Site's
+#: start threshold and the reserve plus five percentage points. A new version,
+#: never an edit of v4, so v1-v4 runs keep their decisions and digests.
+MINI_GRID_V5_MODEL = replace(
+    MINI_GRID_V4_MODEL,
+    model_profile_version=5,
+    statement=(
+        MINI_GRID_V4_MODEL.statement
+        + " Version five's generator-start policy reads the battery reserve in "
+        "effect: the generator is requested at or below the lower of the Site's "
+        "start threshold and the reserve plus five percentage points."
+    ),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -2009,6 +2025,7 @@ MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINI_GRID_V2_MODEL,
     MINI_GRID_V3_MODEL,
     MINI_GRID_V4_MODEL,
+    MINI_GRID_V5_MODEL,
 )
 
 PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (

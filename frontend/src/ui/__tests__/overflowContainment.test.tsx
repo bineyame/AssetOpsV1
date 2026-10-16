@@ -66,6 +66,7 @@ const OPERATOR_SITE_TABS = [
   "Health",
   "Performance",
   "Findings",
+  "Work",
   "Financials",
   "Evidence",
 ];

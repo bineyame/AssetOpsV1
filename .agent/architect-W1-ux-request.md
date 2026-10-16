@@ -1,0 +1,5 @@
+# Architect request - W1 UX pass questions (2026-10-16)
+
+You are the AssetOps Architect (Codex); decide within your remit. Read `tasks/W1-UX-mockup-fidelity.md` ("Architect questions") and the slice packets `tasks/W1-UX-0*.md`, the owner direction files `.agent/owner-S405b-acceptance-2026-10-16.md`, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`, `.agent/owner-walkthrough-policy-2026-10-16.md`, `.agent/owner-T028-presentation-direction-2026-10-04.md`, and the v69 mockups (`frontend/mockups/v69/index.html`).
+
+Rule on both questions (accept/amend/replace), short and implementable: (1) the dig-deeper pattern (inline closed "How this was worked out" disclosure vs a separate tab, per screen size); (2) the approved domain-word exceptions and what is banned from default prose. Keep honest-state guarantees (no claim the read does not prove) explicitly above presentation. Write `.agent/architect-W1-ux-answers.md` and `D-2026-10-16-w1-ux` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.

@@ -206,12 +206,14 @@ def owner_shaped_copy(path: Path) -> dict:
 #: S2-01c phase 3 adds the post-run release fixture, likewise first shipped at v1.
 #: S3-01 phase 1 adds the s3-dispatch-cases-v1 degraded-reporting fixture, likewise.
 #: S3-01 phase 3 adds the s3-dispatch-cases-v1 necessary-run fixture, likewise.
+#: S6-02b adds the reserve-trial scenario (D-verification-window v2), likewise.
 NEVER_SHIPPED_AS_V1 = {
     "kobo-mini-grid-degraded-evidence",
     "kobo-daytime-delayed-publication",
     "kobo-daytime-post-run-publication",
     "kobo-s3-dispatch-degraded-reporting",
     "kobo-s3-dispatch-necessary-run",
+    "kobo-mini-grid-reserve-trial",
 }
 
 SHIPPED_DOCUMENTS = sorted(

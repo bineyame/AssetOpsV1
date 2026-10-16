@@ -1135,3 +1135,73 @@ MINI_GRID_V4_MODEL = replace(
     measured_interval_states=MINI_GRID_V3_MODEL.measured_interval_states
     | {LOAD_REQUESTED_POWER},
 )
+
+
+# --- `mini-grid` v5 (S6-02b) ------------------------------------------------
+
+#: How far above the reserve in effect the v5 generator-start policy lets the
+#: battery fall before it requests the generator, in percentage points. A
+#: model constant, declared with the version: v5 starts the generator at the
+#: lower of the Site's start threshold and (reserve in effect + this headroom).
+#: With the kobo-mini-grid-60kw template's 30 % reserve and 35 % start
+#: threshold both terms are 35 %, so a v5 run on that Foundation starts the
+#: generator exactly where v4 does.
+START_HEADROOM_OVER_RESERVE = Fraction(5)
+
+
+def effective_start_threshold(start: Fraction, reserve: Fraction) -> Fraction:
+    """The v5 start threshold: the Site's start threshold, lowered to the
+    reserve in effect plus `START_HEADROOM_OVER_RESERVE` when that is lower."""
+    return min(start, reserve + START_HEADROOM_OVER_RESERVE)
+
+
+def decide_v5(view: ControllerView) -> ControlIntent:
+    """v4's Site policy, except that the generator-start decision reads the
+    battery reserve in effect (`D-2026-10-16-s602a-replay`).
+
+    The generator is requested when the state of charge is at or below
+    `effective_start_threshold(start, reserve)`; the stop rule, the minimum
+    runtime, the start delay and the battery request are v4's, unchanged. A
+    lower reserve therefore lets the battery ride further through a dip before
+    the generator starts. It never starts the generator above the Site's start
+    threshold.
+    """
+    start = view.value("start-soc-threshold")
+    reserve = view.value("reserve-in-effect")
+    effective = effective_start_threshold(start, reserve)
+    entries = tuple(
+        replace(item, value=effective) if item.name == "start-soc-threshold" else item
+        for item in view.entries
+    )
+    intent = decide(replace(view, entries=entries))
+    if effective == start:
+        return intent
+    note = (
+        f" (v5 start threshold {effective} %: the Site start threshold {start} % "
+        f"lowered to the reserve in effect {reserve} % plus "
+        f"{START_HEADROOM_OVER_RESERVE} points)"
+    )
+    return replace(
+        intent,
+        requests=tuple(
+            replace(item, reason=item.reason + note)
+            if item.quantity == "generator-run"
+            else item
+            for item in intent.requests
+        ),
+    )
+
+
+MINI_GRID_V5_COUPLING = replace(MINI_GRID_V4_COUPLING, decide=decide_v5)
+
+MINI_GRID_V5_MODEL = replace(
+    MINI_GRID_V4_MODEL,
+    model_profile_version=5,
+    statement=(
+        MINI_GRID_V4_MODEL.statement
+        + " Its generator-start policy reads the battery reserve in effect: "
+        "the generator is requested at or below the lower of the Site's start "
+        "threshold and the reserve plus five percentage points."
+    ),
+    coupling=MINI_GRID_V5_COUPLING,
+)

@@ -233,6 +233,7 @@ describe("a site is opened from a Sites row", () => {
       ["/sites/MG-002/health", "Health"],
       ["/sites/MG-002/performance", "Performance"],
       ["/sites/MG-002/findings", "Findings"],
+      ["/sites/MG-002/work", "Work"],
       ["/sites/MG-002/financials", "Financials"],
       ["/sites/MG-002/evidence", "Evidence"],
     ]);

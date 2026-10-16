@@ -27,7 +27,7 @@ import { spacedText } from "../../test/text";
  * 1. One canonical inventory lists all eight aspects in v6.9's order; the
  *    RENDERED row is that inventory filtered by capability: Overview,
  *    Foundation, Performance, Findings, Evidence (Performance and Findings
- *    gained their capability at T028).
+ *    gained their capability at T028; Work, with its Actions list, at S6-03).
  * 2. Every rendered tab is a destination: a link to an identified route.
  * 3. No tab is labelled in place or disabled. An aspect whose capability does
  *    not exist is not rendered at all and has no route behind it.
@@ -57,12 +57,13 @@ const RENDERED_TABS = [
   "Health",
   "Performance",
   "Findings",
+  "Work",
   "Financials",
   "Evidence",
 ];
 
 /** Canonical aspects with no capability in this build: not rendered. */
-const UNRENDERED_TABS = ["Work"];
+const UNRENDERED_TABS: string[] = [];
 
 /**
  * The mockup's Site tabs from `ScreenMockups.png` screen 2, which are the
@@ -187,7 +188,7 @@ describe("the operator Site tab inventory is defined once", () => {
 describe.each(SITE_SURFACES)(
   "the Site tab row on %s",
   (_name, path, currentTab) => {
-    it("renders exactly Overview, Foundation, Health, Performance, Findings, Financials, Evidence, in order", async () => {
+    it("renders exactly Overview, Foundation, Health, Performance, Findings, Work, Financials, Evidence, in order", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -222,6 +223,7 @@ describe.each(SITE_SURFACES)(
         ["Health", "/sites/MG-002/health"],
         ["Performance", "/sites/MG-002/performance"],
         ["Findings", "/sites/MG-002/findings"],
+        ["Work", "/sites/MG-002/work"],
         ["Financials", "/sites/MG-002/financials"],
         ["Evidence", "/sites/MG-002/evidence"],
       ]);
@@ -293,7 +295,8 @@ describe.each(SITE_SURFACES)(
 );
 
 describe("an unrendered aspect has no route behind it", () => {
-  it.each(UNRENDERED_TABS)("serves nothing under a site at %s", (label) => {
+  // Every canonical aspect renders since S6-03 (Work) and S7-01b (Health); a non-canonical one still has no route.
+  it.each([...UNRENDERED_TABS, "Incidents"])("serves nothing under a site at %s", (label) => {
     renderAt(`/sites/MG-002/${label.toLowerCase()}`);
 
     expect(

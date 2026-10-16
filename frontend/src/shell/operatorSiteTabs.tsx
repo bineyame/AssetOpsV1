@@ -8,6 +8,7 @@ import {
   siteFoundationHref,
   siteHealthHref,
   sitePerformanceHref,
+  siteWorkHref,
 } from "./operatorSiteRoutes";
 
 /**
@@ -61,15 +62,6 @@ export interface OperatorSiteTab {
 }
 
 /**
- * Where a not-yet-built aspect would live. Never rendered while its
- * capability is false, so it is never followed; it exists so the inventory
- * stays total and a later slice flips a flag rather than inventing a tab.
- */
-function notYetRouted(label: string): (siteId: string) => string {
-  return (siteId) => `${siteDetailHref(siteId)}/${label.toLowerCase()}`;
-}
-
-/**
  * The canonical Site tab inventory, in v6.9's order with Health placed where
  * the decision puts it.
  */
@@ -81,7 +73,8 @@ export const CANONICAL_OPERATOR_SITE_TABS: OperatorSiteTab[] = [
   // T028: Performance (Dispatch its only subtab) and the scoped Findings index.
   { label: "Performance", capability: true, href: (siteId) => sitePerformanceHref(siteId) },
   { label: "Findings", capability: true, href: siteFindingsHref },
-  { label: "Work", capability: false, href: notYetRouted("Work") },
+  // S6-03: Work, with Actions its only list (Incidents and Maintenance are not built).
+  { label: "Work", capability: true, href: (siteId) => siteWorkHref(siteId) },
   // S4-02a: Overview (Finding bridge, price in use) and Assumptions.
   { label: "Financials", capability: true, href: (siteId) => siteFinancialsHref(siteId) },
   { label: "Evidence", capability: true, href: siteEvidenceHref },

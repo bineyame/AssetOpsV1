@@ -1,0 +1,199 @@
+# Shipped scenario (S6-02b, `D-2026-10-16-s602a-replay`): the reserve-trial
+# recipe. A Kobo-like full mini-grid through a dark start into a clear
+# morning, run against a Site built from the current kobo-mini-grid-60kw
+# template, chosen at run setup.
+#
+# Set a run up with the mini-grid model profile VERSION 5 (whose generator
+# start policy reads the battery reserve in effect), an interval of 480
+# minutes (06:00 to 14:00 local time is the intended reading) and a 5-minute
+# timestep.
+#
+# This document declares only causes: irradiance, each load's demand, and the
+# three run-start states. It never authors generator output, a generator
+# state change or a conclusion about whether the runtime was avoidable: what
+# the generator does follows from the Site's frozen policy and reserve and the
+# physics. Under the template's 30 % reserve the v5 start threshold is 35 %;
+# under a 25 % reserve it is 30 %.
+#
+# The numbers are demonstration values proposed by the S6-02b Implementer for
+# the owner's verification walkthrough, not a recommendation for any real
+# site.
+scenario_id: kobo-mini-grid-reserve-trial
+display_name: Kobo mini-grid (reserve policy trial)
+purpose: >-
+  A dark start with a steady 15 kW of residential and clinic load draws the battery from 42.5 % to just under 35 % by sunrise. A clear morning then gives the PV inverter more surplus than the battery PCS can take, so the battery charges at its PCS limit whatever else runs. Whether the generator starts at sunrise depends on the reserve in effect: with a 30 % reserve the dip crosses the start threshold and the stop policy (90 %) keeps the generator requested, unloaded, for most of the morning while PV alone covers every load; with a 25 % reserve the dip never reaches the start threshold. The runtime follows from the frozen policy and the causes above; this document authors no generator output.
+
+version:
+  scenario_version: 1
+  version_valid_from: '2026-10-01T00:00:00Z'
+
+# What a site must honour for this scenario, in prose. Never evaluated:
+# run setup checks the chosen site against the document and the chosen
+# model profile, and the site is chosen there, not here.
+site_contract:
+  description: >-
+    A mini-grid created from the kobo-mini-grid-60kw template: one PV array
+    behind one inverter, one battery behind one PCS, one generator on the bus
+    fed by one fuel tank, and three addressed loads - load-res, load-clinic
+    and load-mill - with typed source-priority and critical-load-priority Site
+    Controls and the generator's start/stop policy on the Foundation.
+
+observation_sources: []
+
+public_parameters:
+  # The battery's state of charge at run start, stated explicitly.
+  - parameter_id: starting-state-of-charge
+    display_name: Battery state of charge at the start of the interval
+    value: 42.5
+    unit: "%"
+    execution_role: CAUSAL_INPUT
+    state_key: battery-state-of-charge@battery
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: true
+  # The fuel in the tank at run start. Scenario-owned physical state.
+  - parameter_id: starting-fuel
+    display_name: Fuel in the tank at the start of the interval
+    value: 300
+    unit: L
+    execution_role: CAUSAL_INPUT
+    state_key: fuel-tank-volume@fuel-tank
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: true
+  # The generator's lifecycle state at run start: a typed member, not a
+  # number. STOPPED or FAILED only.
+  - parameter_id: starting-generator-state
+    display_name: Generator state at the start of the interval
+    value: STOPPED
+    unit: state
+    execution_role: CAUSAL_INPUT
+    state_key: generator-state@generator
+    execution_requirement: REQUIRED
+    ownership:
+      owner: SCENARIO_INPUT
+      initializes: true
+
+timeline:
+  - event_id: irradiance-1
+    sequence: 1
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 06:00 to 07:00 (before sunrise).
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 60
+    parameters:
+      - parameter_id: irradiance-1-level
+        display_name: Plane-of-array irradiance
+        value: 0
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: irradiance-2
+    sequence: 2
+    offset_minutes: 60
+    entry_kind: EVENT
+    category: WEATHER
+    description: >-
+      Plane-of-array irradiance from 07:00 to 14:00 (a clear morning).
+    execution_role: FORCING_INPUT
+    state_key: site:plane-of-array-irradiance
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 420
+    parameters:
+      - parameter_id: irradiance-2-level
+        display_name: Plane-of-array irradiance
+        value: 800
+        unit: W/m2
+        execution_role: FORCING_INPUT
+        state_key: site:plane-of-array-irradiance
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: residential-demand-1
+    sequence: 3
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Residential demand from 06:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-res
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 480
+    parameters:
+      - parameter_id: residential-demand-1-level
+        display_name: Residential demand
+        value: 10
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-res
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: clinic-demand-1
+    sequence: 4
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Clinic demand from 06:00 to 14:00, at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-clinic
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 480
+    parameters:
+      - parameter_id: clinic-demand-1-level
+        display_name: Clinic demand
+        value: 5
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-clinic
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false
+  - event_id: mill-demand-1
+    sequence: 5
+    offset_minutes: 0
+    entry_kind: EVENT
+    category: LOAD
+    description: >-
+      Mill demand from 06:00 to 14:00 (the mill is idle), at this load's own address.
+    execution_role: FORCING_INPUT
+    state_key: load-demand@load-mill
+    execution_requirement: REQUIRED
+    timing:
+      shape: WINDOW
+      duration_minutes: 480
+    parameters:
+      - parameter_id: mill-demand-1-level
+        display_name: Mill demand
+        value: 0
+        unit: kW
+        execution_role: FORCING_INPUT
+        state_key: load-demand@load-mill
+        execution_requirement: REQUIRED
+        ownership:
+          owner: SCENARIO_INPUT
+          initializes: false

@@ -116,6 +116,7 @@ from assetops_simulator.packs.mini_grid import (
     MINI_GRID_V2_MODEL,
     MINI_GRID_V3_MODEL,
     MINI_GRID_V4_MODEL,
+    MINI_GRID_V5_MODEL,
 )
 from assetops_simulator.packs.minigrid import DAYTIME_MINI_GRID_MODEL
 
@@ -130,6 +131,7 @@ EXECUTABLE_MODELS: tuple[ModelSpec, ...] = (
     MINI_GRID_V2_MODEL,
     MINI_GRID_V3_MODEL,
     MINI_GRID_V4_MODEL,
+    MINI_GRID_V5_MODEL,
 )
 
 

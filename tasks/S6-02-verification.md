@@ -1,6 +1,6 @@
 # S6-02 — Later-window verification
 
-Status: implementation-ready as [S6-02a](S6-02a-verification-core.md) then [S6-02b](S6-02b-verification-ui.md). Planner: Codex, 2026-10-16.
+Status: done (S6-02a and S6-02b merged 2026-10-16; W1 closure per D-2026-10-16-s602-closure); was implementation-ready as [S6-02a](S6-02a-verification-core.md) then [S6-02b](S6-02b-verification-ui.md). Planner: Codex, 2026-10-16.
 
 S6-02a is non-UI (`USER_REVIEW_REQUIRED: false`) and mergeable after fresh independent review. S6-02b is UI (`USER_REVIEW_REQUIRED: true`) and held for the owner's served walkthrough. The contract is `D-2026-10-16-s6-verification` (`.ai/DECISIONS.md:4155`), `.agent/architect-A-S6-verification-answers.md` and review/re-review carries. Applied activity and measured effect remain separate. No causal or realized-savings claim.
 

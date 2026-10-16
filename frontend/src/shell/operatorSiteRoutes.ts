@@ -227,22 +227,50 @@ export function siteFindingViewHref(
  * so reload and navigation keep it. The `execution` segment is the address
  * only; its label is "Application".
  */
+/**
+ * S6-03 (`sitework:1#a`): Site > Work > Actions. The creation window and page
+ * cursor ride in the query (`?from=&to=&limit=&cursor=`); without a window the
+ * page shows a choose-window state and reads nothing.
+ */
+export const SITE_WORK_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/work`;
+
+export function siteWorkHref(siteId: string, query?: string): string {
+  const base = `${siteDetailHref(siteId)}/work`;
+  return query ? `${base}?${query}` : base;
+}
+
 export const SITE_ACTION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/actions/:actionId`;
 export const SITE_ACTION_VIEW_ROUTE_PATH = `${SITE_ACTION_ROUTE_PATH}/:actionView`;
-export const ACTION_CHILD_VIEWS = ["execution", "history"] as const;
+export const ACTION_CHILD_VIEWS = ["plan", "execution", "evidence", "verification", "history"] as const;
 export type ActionChildView = (typeof ACTION_CHILD_VIEWS)[number];
+
+/**
+ * S6-02b: the verification children take `?plan_revision_id=` (an exact
+ * frozen plan) and `?outcome_id=` (an exact immutable outcome) beside the
+ * S6-01b `event_id` / `recorded_at`. Every selector present is carried into
+ * every section link, so an explicit historical selection survives navigation
+ * and reload; a conflicting combination is shown as a typed error.
+ */
+export interface ActionHrefSelector {
+  eventId?: string | null;
+  recordedAt?: string | null;
+  planRevisionId?: string | null;
+  outcomeId?: string | null;
+}
 
 export function siteActionHref(
   siteId: string,
   actionId: string,
   view: ActionChildView | "overview" = "overview",
-  selector?: { eventId?: string | null; recordedAt?: string | null },
+  selector?: ActionHrefSelector,
 ): string {
   const root = `${siteDetailHref(siteId)}/actions/${encodeURIComponent(actionId)}`;
   const base = view === "overview" ? root : `${root}/${view}`;
   const query = new URLSearchParams();
   if (selector?.eventId) query.set("event_id", selector.eventId);
   if (selector?.recordedAt) query.set("recorded_at", selector.recordedAt);
+  if (selector?.planRevisionId) query.set("plan_revision_id", selector.planRevisionId);
+  if (selector?.outcomeId) query.set("outcome_id", selector.outcomeId);
   const text = query.toString();
   return text ? `${base}?${text}` : base;
 }

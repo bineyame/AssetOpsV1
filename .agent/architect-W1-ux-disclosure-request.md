@@ -1,0 +1,5 @@
+# Architect request - W1-UX disclosure scan amendment (2026-10-16)
+
+You are the AssetOps Architect (Codex); decide within your remit. `tasks/W1-UX-01-shared-presentation.md` proposes, per `.agent/W1-UX-plan-review.md` (finding 3) and `.agent/W1-UX-plan-rereview.md`, that the closed "How this was worked out" disclosure be scanned against a narrower banned list instead of being exempt, while the existing one-value exemption rule from `D-2026-10-04-plain-language-analysis-views` stays. Read those files, `D-2026-10-16-w1-ux` and `D-2026-10-04-plain-language-analysis-views`.
+
+Rule: accept, amend or replace the amendment; name exactly which terms remain banned inside the disclosure and what may appear there (labelled exact references, IDs, versions, raw reasons). Also confirm the raw-code detection approach in UX-01 should be case-sensitive and must not flag ordinary units/acronyms (SOC, UTC, kW, kWh, PV). Write `.agent/architect-W1-ux-disclosure-answers.md` and `D-2026-10-16-w1-ux-disclosure` in `.ai/DECISIONS.md` (UTF-8, ASCII hyphens). No code, no packet edits. Print a short summary.

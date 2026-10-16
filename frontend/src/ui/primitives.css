@@ -3653,3 +3653,95 @@ tr[data-selected] > * {
 .site-battery .data-table td {
   min-width: 8ch;
 }
+
+/* S6-02b: Action Plan, Evidence and Verification views. Chips carry their word, so colour is never the only signal;
+   the KPI cards wrap to two columns, then one, and dense slot tables scroll inside their own scroller. */
+.app-frame--operator .site-verification {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.app-frame--operator .site-verification > * { min-width: 0; }
+.app-frame--operator .verify-chip {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--badge-neutral-border);
+  background: var(--badge-neutral-bg);
+  color: var(--badge-neutral-text);
+  white-space: nowrap;
+}
+.app-frame--operator .verify-chip--pass {
+  border-color: var(--badge-configured-border);
+  background: var(--badge-configured-bg);
+  color: var(--badge-configured-text);
+}
+.app-frame--operator .verify-chip--fail {
+  border-color: var(--attention-border);
+  background: var(--attention-bg);
+  color: var(--attention-text);
+}
+.app-frame--operator .verify-chip--unknown {
+  border-color: var(--badge-config-gap-border);
+  background: var(--badge-config-gap-bg);
+  color: var(--badge-config-gap-text);
+}
+.app-frame--operator .verify-strip {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  padding: var(--space-3) var(--space-4);
+}
+.app-frame--operator .verify-strip__term { font-weight: var(--weight-semibold); }
+.app-frame--operator .verify-historical {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--attention-border);
+  background: var(--attention-bg);
+  color: var(--attention-text);
+  border-radius: var(--radius-sm);
+}
+.app-frame--operator .verify-historical-tag {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--attention-border);
+  background: var(--attention-bg);
+  color: var(--attention-text);
+  margin-bottom: var(--space-2);
+}
+.app-frame--operator .verify-headline { border-left: 4px solid var(--border-strong); padding-left: var(--space-3); }
+.app-frame--operator .verify-headline--pass { border-left-color: var(--badge-configured-border); }
+.app-frame--operator .verify-headline--fail { border-left-color: var(--attention-border); }
+.app-frame--operator .verify-headline--unknown { border-left-color: var(--badge-config-gap-border); }
+.app-frame--operator .verify-cards {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  margin: var(--space-3) 0;
+}
+.app-frame--operator .verify-card {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+.app-frame--operator .verify-card--pass { border-top: 3px solid var(--badge-configured-border); }
+.app-frame--operator .verify-card--fail { border-top: 3px solid var(--attention-border); }
+.app-frame--operator .verify-card--unknown { border-top: 3px solid var(--badge-config-gap-border); }
+.app-frame--operator .verify-card__label { font-size: var(--text-sm); color: var(--text-secondary); }
+.app-frame--operator .verify-card__value { font-size: var(--text-lg); font-weight: var(--weight-semibold); overflow-wrap: anywhere; }
+.app-frame--operator .verify-card__note { font-size: var(--text-xs); color: var(--text-secondary); }
+.app-frame--operator .verify-subheading { font-size: var(--text-subsection-title); margin: var(--space-3) 0 var(--space-1); }
+.app-frame--operator .verify-ids { overflow-wrap: anywhere; }
+.app-frame--operator .verify-steps { padding-left: var(--space-5); }

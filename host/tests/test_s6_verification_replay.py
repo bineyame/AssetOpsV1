@@ -19,6 +19,11 @@ With the shipped `mini-grid` model the settled verdict is INCONCLUSIVE, not VERI
 only the start/stop SOC thresholds, never the reserve, so the lower reserve leaves the later run five SOC points
 lower (initial SOC outside the 2-point band) with the generator running longer (target miss). The manifest's
 `expected.why_not_verified` states this, and the test pins the generator ON spans that show it.
+
+S6-02b (`D-2026-10-16-s602a-replay`) adds manifest v2, replayed by the same test: the reserve-aware `mini-grid` v5
+(generator start at min(start threshold, reserve + 5)) on the `kobo-mini-grid-reserve-trial` scenario, windows
+predeclared before the first replay. It settles VERIFIED on the frozen bands (`expected.why_verified`); v1 stays
+pinned beside it, so the earlier model version remains reproducible.
 """
 
 from __future__ import annotations
@@ -39,7 +44,12 @@ sys.path.insert(0, str(ROOT / "gateway" / "tests"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
-MANIFEST = json.loads((ROOT / "backend" / "conversions" / "d-verification-window-v1.json").read_text("utf-8"))
+#: v1: mini-grid v4 on the prolonged scenario (settles INCONCLUSIVE, kept reproducible). v2 (S6-02b,
+#: `D-2026-10-16-s602a-replay`): the reserve-aware mini-grid v5 on the reserve-trial scenario (settles VERIFIED).
+MANIFESTS = {
+    name: json.loads((ROOT / "backend" / "conversions" / f"d-verification-window-{name}.json").read_text("utf-8"))
+    for name in ("v1", "v2")
+}
 FIVE = timedelta(minutes=5)
 
 
@@ -47,8 +57,11 @@ def _at(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def test_manifest_is_labelled_and_lists_only_proven_cases() -> None:
-    assert MANIFEST["schema"] == {"id": "assetops.verification-window-replay", "version": 1}
+@pytest.mark.parametrize("version", sorted(MANIFESTS))
+def test_manifest_is_labelled_and_lists_only_proven_cases(version: str) -> None:
+    MANIFEST = MANIFESTS[version]
+    assert MANIFEST["schema"]["version"] == int(version[1:])
+    assert MANIFEST["schema"]["id"] == "assetops.verification-window-replay"
     assert MANIFEST["label"] == "Simulated policy trial; no savings claim; RESOLVED can later be withdrawn"
     cases = {c["case_id"]: c for c in MANIFEST["cases"]}
     assert cases["complete-pass"]["status"] == (
@@ -112,15 +125,37 @@ class LabRunner:
         return PostgresFindingStore(URL).rows(self.tenant, self.site)
 
 
-def _draft(store, run_spec: dict):
+def _scenario(MANIFEST: dict):
+    import test_s6_verification_publication as pub
+    import yaml
+
+    sid = MANIFEST["scenario"]["scenario_id"]
+    scenario = pub.registered.parse_scenario_document(
+        yaml.safe_load((ROOT / "config" / "scenarios" / f"{sid}.yaml").read_text(encoding="utf-8")),
+        source=sid, origin="SHIPPED")
+    assert scenario.version.scenario_version == MANIFEST["scenario"]["scenario_version"]
+    return scenario
+
+
+def _model(MANIFEST: dict):
+    from assetops_backend.runs.profiles import MODEL_PROFILES, find_model_profile
+
+    want = MANIFEST["model_profile"]
+    model = find_model_profile(MODEL_PROFILES, want["profile_id"], want["profile_version"])
+    assert model is not None, want
+    return model
+
+
+def _draft(store, run_spec: dict, MANIFEST: dict):
     import test_s6_verification_publication as pub
 
     registered = pub.registered
+    scenario = _scenario(MANIFEST)
     known = registered.Clock(_at(run_spec["foundation_known_at"]))
     registry = registered.ImportedSiteRegistry(registered.FoundationService(store, "demo", known))
     service = registered.RunSetupService(
-        registered.FakeRuns(), registered.FakeSites(()), registered.FakeScenarios((pub.PROLONGED,)),
-        model_profiles=(pub.MINI_GRID_V4_MODEL,),
+        registered.FakeRuns(), registered.FakeSites(()), registered.FakeScenarios((scenario,)),
+        model_profiles=(_model(MANIFEST),),
         publication_profiles=(pub.REGISTERED_KOBO_PUBLICATION_PROFILE_V3, pub.V4),
         now=lambda: run_spec["foundation_known_at"],
         registered_bases=registered.RegisteredLabBasis(registry),
@@ -129,8 +164,8 @@ def _draft(store, run_spec: dict):
     tenant = foundation.tenant()
     view = foundation.read(foundation.site(tenant, MANIFEST["site_code"]), tenant, _at(run_spec["start"]), None)
     body = registered.request(
-        foundation_version=view.revision.version, scenario_id=pub.PROLONGED.scenario_id,
-        scenario_version=pub.PROLONGED.version.scenario_version,
+        foundation_version=view.revision.version, scenario_id=scenario.scenario_id,
+        scenario_version=scenario.version.scenario_version,
         interval={"start_time": run_spec["start"], "end_time": run_spec["end"]},
         timestep_minutes=MANIFEST["timestep_minutes"], seed=run_spec["seed"],
         model_profile=MANIFEST["model_profile"], publication_profile=MANIFEST["publication_profile"],
@@ -251,7 +286,8 @@ def _slots_all_present(engine, site_id, start: datetime) -> None:
 
 
 @pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
-def test_d_verification_window_replays_the_complete_path(tmp_path) -> None:
+@pytest.mark.parametrize("version", sorted(MANIFESTS))
+def test_d_verification_window_replays_the_complete_path(tmp_path, version: str) -> None:
     import pg_harness
     import test_s1_bindings_postgres as pgb
     import test_s6_verification_publication as pub
@@ -260,6 +296,7 @@ def test_d_verification_window_replays_the_complete_path(tmp_path) -> None:
 
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
+    MANIFEST = MANIFESTS[version]
     expected = MANIFEST["expected"]
     act, win = MANIFEST["action"], MANIFEST["windows"]
     b0, l0 = _at(win["baseline_start"]), _at(win["later_start"])
@@ -276,7 +313,7 @@ def test_d_verification_window_replays_the_complete_path(tmp_path) -> None:
 
         # 1. Baseline run on the old Foundation -> S2 -> S3 -> S4.
         spec = MANIFEST["runs"]["baseline"]
-        base_run, base_view = _draft(store, spec)
+        base_run, base_view = _draft(store, spec, MANIFEST)
         assert base_view.binding_set.role_set == MANIFEST["role_set"]
         published = {"baseline": _publish_and_accept(tmp_path / "baseline", base_run, spec["sequence_epoch"],
                                                      _at(spec["received_at"]))}
@@ -318,7 +355,7 @@ def test_d_verification_window_replays_the_complete_path(tmp_path) -> None:
 
         # 4. Later run, separate, on the new Foundation -> S2 -> S3 -> S4.
         spec = MANIFEST["runs"]["later"]
-        later_run, later_view = _draft(store, spec)
+        later_run, later_view = _draft(store, spec, MANIFEST)
         assert str(later_view.revision.id) == plan["new_foundation_revision_id"]
         assert later_run.run_id != base_run.run_id
         published["later"] = _publish_and_accept(tmp_path / "later", later_run, spec["sequence_epoch"],
@@ -341,6 +378,7 @@ def test_d_verification_window_replays_the_complete_path(tmp_path) -> None:
         kinds = [e["kind"] for e in h.client.get(f"/api/sites/KOBO-001/actions/{action_id}/events").json()["events"]]
         _dump(tmp_path, plan=plan, outcome=outcome, read=read, evidence=evidence, kinds=kinds, published=published)
 
+        assert "pending" not in expected, "fill the expected block from ASSETOPS_REPLAY_DUMP"
         # --- the expected block --------------------------------------------------------------------------
         assert published["baseline"] == expected["published"]["baseline"]
         assert published["later"] == expected["published"]["later"]
@@ -369,6 +407,8 @@ def test_d_verification_window_replays_the_complete_path(tmp_path) -> None:
         for name, state in expected["metrics"].items():
             key, window = name.split("@")
             assert metrics[(key, window)]["state"] == state, (key, window, metrics[(key, window)])
+        for window, seconds in (expected.get("candidate_seconds") or {}).items():
+            assert metrics[("candidate_avoidable_seconds", window.upper())]["value_text"] == str(seconds), window
         assert evidence["comparability"]["state"] == ("PASS" if expected["metrics"][
             "initial_soc_band@COMPARISON"] == "PASS" else "FAIL")
         assert ("RESOLVED" in kinds) is expected["outcome"]["resolved_appended"], kinds
