@@ -1,6 +1,6 @@
 # W1-UX-05 — Foundation, Readiness, SLD, Health and battery presentation
 
-Status: implementation-ready. Branch `task/W1-UX-05` after W1-UX-01 **and reviewed/merged S7-01b**; inspect its actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `foundation`, `readiness`, `sld`, `health`, `asset`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S1-01/02/03 and S7-01b packets.
+Status: active (activated 2026-10-16 from main `b4a89314`); was implementation-ready. Branch `task/W1-UX-05` after W1-UX-01 **and reviewed/merged S7-01b**; inspect its actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `foundation`, `readiness`, `sld`, `health`, `asset`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S1-01/02/03 and S7-01b packets.
 
 ## Visible result
 
