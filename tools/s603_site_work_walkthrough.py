@@ -260,8 +260,8 @@ class Walk:
         entry = self.tree / "host" / "lab_app.py"
         if not entry.is_file():
             raise SystemExit(f"App entry missing: {entry}")
-        probe = self.py("-c", "import lab_app;print(any(getattr(r,'path','')=='/api/sites/{site_code}/action-index' "
-                              "for r in lab_app.app.routes))", cwd=self.tree / "host", check=False)
+        probe = self.py("-c", "import lab_app;print('/api/sites/{site_code}/action-index' in lab_app.app.openapi()['paths'])",
+                        cwd=self.tree / "host", check=False)
         if probe.stdout.strip().splitlines()[-1:] != ["True"]:
             raise SystemExit(f"The private app does not serve the Site Action index:\n{probe.stdout}\n{probe.stderr}")
         logs = self.work / "logs"

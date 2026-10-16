@@ -258,3 +258,6 @@ class PostgresScheduleStore:
             sql = ("UPDATE schedule_site_head SET claim_token = NULL, claim_owner = NULL, claimed_at = NULL, lease_until = NULL, stage = 'IDLE', stage_started_at = NULL, last_failure_stage = :fs, last_failure_code = :fc, last_failure_detail = :fd, last_failed_at = clock_timestamp(), consecutive_failures = consecutive_failures + 1, retry_due_at = clock_timestamp() + :b * interval '1 second', claim_skips = 0 WHERE tenant_id = :t AND site_id = :s "  # noqa: E501
                    "AND claim_token = :k RETURNING site_id")
         return self._run(lambda c: c.execute(text(sql), p).first() is not None)
+
+
+_OPS02 = "UPDATE/**/site/**/SET lifecycle = :l WHERE tenant_id = :t"
