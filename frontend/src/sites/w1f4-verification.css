@@ -1,0 +1,175 @@
+/* W1-F4 group C2: the Action Plan, Evidence and Verification views at the v69
+   mock's sizes (`.statusbar`, `.chart-note`, `.key-values`, `.two-col`). */
+
+.w1f4-verification-strip .verify-chip {
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.w1f4-verification-strip .verify-strip__term {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.w1f4-verification-strip .muted {
+  color: var(--text-secondary);
+}
+
+/* Chart-note lists: the mock's small caption lines, without bullets' body size. */
+.w1f4-verification-list {
+  margin: 10px 0 0;
+  padding-left: 16px;
+}
+
+.w1f4-verification-list li + li {
+  margin-top: 2px;
+}
+
+.w1f4-verification-list--problem {
+  color: var(--attention-text, #8e580c);
+}
+
+.w1f4-verification-gap {
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.w1f4-verification-outcome {
+  margin: 0 0 10px;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.w1f4-verification-outcome .verify-historical-tag {
+  margin-right: 4px;
+}
+
+.w1f4-verification-inline-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.w1f4-verification-muted {
+  color: var(--text-secondary);
+}
+
+.w1f4-verification-action {
+  margin: 13px 0 0;
+}
+
+.w1f4-verification-notice {
+  margin-top: 10px;
+}
+
+/* Inside the Evidence panel's closed disclosure: one block per window. */
+.w1f4-verification-window {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle, #e3e8f0);
+}
+
+.w1f4-verification-window__title {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+
+/* W1-F4 trimming pass: panels at the mock's height. One-line table cells, the
+   mock's 10px notes, a compact closed disclosure and inline problem text. */
+.site-verification .panel .data-table th,
+.site-verification .panel .data-table td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  line-height: 1.5;
+}
+
+.site-verification .panel .data-table thead th {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.site-verification .panel .data-table .verify-chip {
+  font-size: 10px;
+  padding: 2px 7px;
+}
+
+.site-verification .panel > .disclosure,
+.site-verification .panel .disclosure {
+  margin: 10px 0 0;
+}
+
+.site-verification .panel .disclosure__summary {
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.w1f4-verification-lede {
+  margin: 0 0 10px;
+}
+
+.w1f4-verification-problem {
+  color: var(--attention-text, #8e580c);
+}
+
+.w1f4-verification-inline-list li {
+  display: inline;
+}
+
+.w1f4-verification-inline-list li + li::before {
+  content: " ";
+}
+
+.site-verification .panel .w1f4-verification-action {
+  margin: 10px 0 0;
+}
+
+/* Pair panels at mock density: labels take their own width, values one line,
+   inline badges at chip size. */
+.site-verification .panel .v69-key-values {
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 16px;
+}
+
+.site-verification .panel .v69-key-values dd .badge,
+.site-verification .panel .v69-key-values dd .v69-badge {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  font-size: 10px;
+}
+
+.site-verification .panel .v69-key-values dt,
+.site-verification .panel .v69-key-values dd {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* The plan's recorded reasons on one note line, and every in-panel
+   "Dig deeper" disclosure as the small link-style summary the mock implies. */
+.site-verification .panel ul[data-verification-current-reasons] {
+  padding-left: 0;
+  list-style: none;
+}
+
+.site-verification .panel ul[data-verification-current-reasons] li {
+  display: inline;
+  margin: 0;
+}
+
+.site-verification .panel ul[data-verification-current-reasons] li + li::before {
+  content: " · ";
+}
+
+.site-verification .panel details[data-disclosure^="verification-"] {
+  margin-top: 6px;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.site-verification .panel details[data-disclosure^="verification-"] > .disclosure__summary {
+  padding: 2px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--link, #1d4ed8);
+}
