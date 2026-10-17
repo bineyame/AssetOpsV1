@@ -1,6 +1,6 @@
 # W2-01 — Cold Foundation, readiness and configured topology
 
-Status: implementation-ready (planned). Size S; two phases. Branch `task/W2-01-cold-foundation` from merged main. USER_REVIEW_REQUIRED: true through the owner's later W2 walkthrough, after independent slice review. W1-F1 must merge before phase 2 UI work/review. This slice makes a selected `COLDCHAIN` configuration visible; it makes no temperature, commissioning or equipment-health claim from configuration alone.
+Status: active (activated 2026-10-17 from main `8e0af014`; W2-00 and W1-F1 merged); was implementation-ready (planned). Size S; two phases. Branch `task/W2-01-cold-foundation` from merged main. USER_REVIEW_REQUIRED: true through the owner's later W2 walkthrough, after independent slice review. W1-F1 must merge before phase 2 UI work/review. This slice makes a selected `COLDCHAIN` configuration visible; it makes no temperature, commissioning or equipment-health claim from configuration alone.
 
 ## Binding design and dependencies
 
