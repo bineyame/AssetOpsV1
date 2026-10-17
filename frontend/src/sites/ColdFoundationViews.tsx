@@ -92,6 +92,8 @@ const AREAS: { key: string; area: string; roles: string[] }[] = [
   { key: "ambient", area: "Ambient temperature", roles: ["ambient_temperature"] },
 ];
 const DEFINITION_CODES = new Set(["ROOM_MISSING", "POLICY_MISSING"]);
+/** The optional `cold-roles-1` channel roles (backend `sites/binding_roles.py`, required flag false). */
+const OPTIONAL_ROLES = new Set(["compressor_power", "transfer_result", "door_event", "ambient_temperature", "manual_temperature"]);
 
 /* Frame -------------------------------------------------------------------- */
 
@@ -404,7 +406,7 @@ function ColdModelView(props: ViewProps) {
             rows={[
               ["Temperature policy", policy ?? NOT_CONFIGURED],
               ["Product or stock context", NOT_CONFIGURED],
-              ["Loading observations", <SourceBadge key="door" configured={bound(read, "door_event")} />],
+              ["Door and loading observations", <SourceBadge key="door" configured={bound(read, "door_event")} />],
               ["Temperature probes", <SourceBadge key="probe" configured={bound(read, "chamber_temperature")} />],
               ["Backup sequence", <SourceBadge key="backup" configured={allBound(read, backupRoles)} />],
               ["Effective period", periodText(read)],
@@ -462,15 +464,25 @@ function ReadinessView(props: ViewProps) {
   });
   const rows = AREAS.map((area) => {
     const missing = area.roles.filter((role) => !bound(read, role));
+    const missingRequired = missing.filter((role) => !OPTIONAL_ROLES.has(role));
+    // Needs a source: a required reading has none, or no reading of the area has one.
+    const configured = missingRequired.length === 0 && missing.length < area.roles.length;
+    const shown = missing.length === area.roles.length ? [] : missing;
     return {
       key: area.key,
       area: area.area,
       declared: (
         <>
-          <SourceBadge configured={missing.length === 0} />
-          {missing.length === 0 || missing.length === area.roles.length ? null : (
-            <span className="muted"> {missing.map(roleLabel).join(", ")}</span>
+          <SourceBadge configured={configured} />
+          {shown.length === 0 ? null : (
+            <span className="muted">
+              {" "}
+              No source: {shown.map((role) => `${roleLabel(role)}${OPTIONAL_ROLES.has(role) ? " (optional)" : ""}`).join(", ")}
+            </span>
           )}
+          {missing.length === area.roles.length && area.roles.every((role) => OPTIONAL_ROLES.has(role)) ? (
+            <span className="muted"> Optional</span>
+          ) : null}
         </>
       ),
       needed: needed(forRoles(area.roles)),
@@ -749,10 +761,10 @@ export function undeclaredParts(read: ColdFoundationReadModel): string[] {
 
 /* The configured drawing: columns by connection depth, boxes per part, one line per declared connection. */
 
-const BOX_W = 156;
-const BOX_H = 58;
-const COL_W = 196;
-const ROW_H = 84;
+const BOX_W = 170;
+const BOX_H = 74;
+const COL_W = 204;
+const ROW_H = 132;
 
 function ColdDiagram({ read, byAsset }: { read: ColdFoundationReadModel; byAsset: Map<string, ColdBinding[]> }) {
   const layout = useMemo(() => diagramLayout(read.topology?.nodes ?? [], read.topology?.edges ?? []), [read]);
@@ -761,6 +773,7 @@ function ColdDiagram({ read, byAsset }: { read: ColdFoundationReadModel; byAsset
   const at = (id: string) => layout.position.get(id);
   return (
     <figure className="cold-sld" data-cold-diagram="">
+      <div className="cold-sld__scroll" role="region" aria-label="Configured single line diagram" tabIndex={0}>
       <svg
         className="cold-sld__svg"
         viewBox={`0 0 ${width} ${height}`}
@@ -795,19 +808,20 @@ function ColdDiagram({ read, byAsset }: { read: ColdFoundationReadModel; byAsset
           return (
             <g key={node.node_id} transform={`translate(${p.x} ${p.y})`} data-cold-node={node.component_id}>
               <rect className={`cold-sld__box cold-sld__box--${family(node.node_role)}`} width={BOX_W} height={BOX_H} rx={6} />
-              <text className="cold-sld__label" x={10} y={21}>
-                {name.length > 22 ? `${name.slice(0, 21)}…` : name}
+              <text className="cold-sld__label" x={10} y={26}>
+                {name.length > 24 ? `${name.slice(0, 23)}…` : name}
               </text>
-              <text className="cold-sld__small" x={10} y={37}>
+              <text className="cold-sld__small" x={10} y={46}>
                 {NODE_ROLE_WORD[node.node_role] ?? node.node_role}
               </text>
-              <text className="cold-sld__small" x={10} y={51}>
+              <text className="cold-sld__small" x={10} y={63}>
                 {readings === 0 ? "No reading configured" : `${readings} reading${readings === 1 ? "" : "s"} configured`}
               </text>
             </g>
           );
         })}
       </svg>
+      </div>
       <figcaption className="cold-sld__legend">
         <span><span className="cold-sld__key cold-sld__key--ac" aria-hidden="true" />Power</span>
         <span><span className="cold-sld__key cold-sld__key--thermal" aria-hidden="true" />Cooling</span>
@@ -844,6 +858,14 @@ export function diagramLayout(nodes: ColdTopologyNode[], edges: { connection_id:
   for (const [d, list] of columns) {
     rows = Math.max(rows, list.length);
     list.forEach((node, i) => position.set(node.node_id, { x: 8 + d * COL_W, y: 8 + i * ROW_H }));
+  }
+  // Centre each column on the tallest one, so a chain reads as one line across the drawing.
+  for (const list of columns.values()) {
+    const offset = ((rows - list.length) * ROW_H) / 2;
+    for (const node of list) {
+      const p = position.get(node.node_id);
+      if (p !== undefined) p.y += offset;
+    }
   }
   return { nodes, edges, position, columns: Math.max(1, columns.size === 0 ? 1 : Math.max(...columns.keys()) + 1), rows };
 }

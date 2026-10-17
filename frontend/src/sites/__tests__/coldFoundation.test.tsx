@@ -282,7 +282,7 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(operating.textContent).toContain("2–8 °C");
     expect(operating.textContent).toContain("Product or stock contextNot configured");
     expect(operating.textContent).toContain("Temperature probesNeeds a source");
-    expect(operating.textContent).toContain("Loading observationsConfigured");
+    expect(operating.textContent).toContain("Door and loading observationsConfigured");
   });
 
   it("Readiness names the missing probe, unconfirmed commissioning, never-contacted gateway and unknown confidence", async () => {
@@ -293,6 +293,10 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(probeRow.textContent).toContain("Needs a source");
     expect(probeRow.textContent).toContain("Add a chamber temperature probe and bind its °C reading");
     expect(table.querySelector('[data-cold-readiness-row="transfer"]')?.textContent).toContain("Transfer position is not reported");
+    const doorRow = table.querySelector('[data-cold-readiness-row="door"]') as HTMLElement;
+    expect(doorRow.textContent).toContain("Configured");
+    expect(doorRow.textContent).toContain("No source: Manual temperature log (optional)");
+    expect(table.querySelector('[data-cold-readiness-row="transfer"]')?.textContent).toContain("Needs a source");
     expect(table.textContent).toContain("Unconfirmed");
     expect(table.textContent).toContain("Set-up incomplete: 1 required item needs attention");
     const gateway = panelTitled("Gateway status · No gateway selected");

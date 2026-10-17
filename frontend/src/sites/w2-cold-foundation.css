@@ -36,13 +36,13 @@
 }
 
 .cold-sld__label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   fill: var(--sld-ink);
 }
 
 .cold-sld__small {
-  font-size: 10px;
+  font-size: 11px;
   fill: #617087;
 }
 
@@ -87,4 +87,16 @@
 
 .cold-sld__key--signal {
   border-top: 2px dotted #3d7a8c;
+}
+
+/* At phone width the drawing keeps a readable scale and scrolls inside its own region. */
+.cold-sld__scroll {
+  overflow-x: auto;
+}
+
+@media (max-width: 760px) {
+  .cold-sld__svg {
+    width: 760px;
+    max-width: none;
+  }
 }
