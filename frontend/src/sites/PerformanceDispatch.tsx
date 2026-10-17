@@ -454,6 +454,15 @@ function WindowView({
                   {/* W1-F2: the mock's one segment strip and its chart-note; the lead answer is one line. */}
                   <ChartNote data={{ "data-dispatch-headline": "" }}>{dayHeadline(read)}</ChartNote>
                   <DayBlockStrip read={read} selected={selected} blockIndex={segment === null ? null : blockIndex} params={params} />
+                  {/* W1-F2 fix round (H1): the period chips and the selectable block tiles sit under the strip,
+                      as the mock's chart above its row of 15-minute tiles. */}
+                  <PeriodsAndBlocks
+                    read={read}
+                    selected={selected}
+                    blockIndex={segment === null ? null : blockIndex}
+                    onPeriod={(id) => choose({ revision: id, block: null })}
+                    onBlock={(id, index) => choose({ revision: id, block: String(index) })}
+                  />
                   <PeriodsEmpty read={read} />
                   <ChartNote data={{ "data-dispatch-question": "" }}>
                     Select a block to see what the readings show. Gaps between reports are not filled in. Times are UTC.
@@ -473,14 +482,6 @@ function WindowView({
             second={{
               body: (
                 <>
-                  {/* W1-F2: the period chooser sits with the selection, so panel 1 keeps one strip. */}
-                  <PeriodsAndBlocks
-                    read={read}
-                    selected={selected}
-                    blockIndex={segment === null ? null : blockIndex}
-                    onPeriod={(id) => choose({ revision: id, block: null })}
-                    onBlock={(id, index) => choose({ revision: id, block: String(index) })}
-                  />
                   <SelectedPeriod
                     read={read}
                     revisionId={revisionId}
@@ -869,31 +870,43 @@ function PeriodsAndBlocks({
       {current === null ? (
         <ChartNote>Select a period to see its 15-minute blocks.</ChartNote>
       ) : (
-        <>
-          <ol className="dispatch-blocks" aria-label="15-minute blocks of the selected period">
-            {current.result.segments.map((seg, index) => (
-              <li key={seg.start} style={{ flexGrow: Math.max(minutes(seg.minutes) ?? 15, 1) }}>
-                <button
-                  type="button"
-                  className={`dispatch-block dispatch-fill--${CLASS_FILL[seg.classification] ?? "unknown"}`}
-                  aria-pressed={blockIndex === index}
-                  aria-label={`${clock(seg.start)} to ${clock(seg.end)}: ${outcome(seg.classification)}`}
-                  title={`${clock(seg.start)}–${clock(seg.end)} ${outcome(seg.classification)}`}
-                  data-block={index}
-                  onClick={() => onBlock(current.id, index)}
-                />
-              </li>
-            ))}
-          </ol>
-          <ChartNote>
-            Select a block to see what the readings show and open its records. Blocks are coloured Needed, Possibly
-            avoidable or Cannot determine, as on the strip; gaps between reports are not filled in.
-          </ChartNote>
-        </>
+        <ol className="dispatch-blocks" aria-label="15-minute blocks of the selected period">
+          {current.result.segments.map((seg, index) => (
+            <li key={seg.start}>
+              {/* The mock's selectable tile: outcome word over the block's start time. */}
+              <button
+                type="button"
+                className={`dispatch-block dispatch-fill--${CLASS_FILL[seg.classification] ?? "unknown"}`}
+                aria-pressed={blockIndex === index}
+                aria-label={`${clock(seg.start)} to ${clock(seg.end)}: ${outcome(seg.classification)}`}
+                data-block={index}
+                onClick={() => onBlock(current.id, index)}
+              >
+                <span className="dispatch-block__word">{TILE_WORDS[seg.classification] ?? "Unclear"}</span>
+                <strong>{clock(seg.start)}</strong>
+              </button>
+            </li>
+          ))}
+        </ol>
       )}
     </div>
   );
 }
+
+/** The short word on a block tile; the full outcome is the tile's accessible name. */
+const TILE_WORDS: Record<string, string> = {
+  NECESSARY: "Needed",
+  CANDIDATE_AVOIDABLE: "Avoidable",
+  INDETERMINATE: "Unclear",
+};
+
+/** One plain sentence for the selected block's outcome (W1-F2 fix round, H1). */
+const BLOCK_SENTENCE: Record<string, string> = {
+  NECESSARY: "A recorded reason required the generator in this block.",
+  CANDIDATE_AVOIDABLE:
+    "The reported solar and battery output were above the demand in this block. This is a bounded estimate, not proof of wasted fuel.",
+  INDETERMINATE: "The records this block needs are missing or conflicting, so its outcome cannot be determined.",
+};
 
 /** The not-current notice for a stored version outside the day's current set (Overview and Analysis). */
 function PinnedNotice({ read }: { read: DispatchWindow }) {
@@ -960,8 +973,32 @@ function SelectedPeriod({
           {statusWords(read.status).label}: this result is kept for reference and is not current.
         </ChartNote>
       ) : null}
+      {segment !== null ? (
+        <div className="dispatch-block-detail dispatch-block-detail--lead" data-selected-block={segment.start}>
+          {/* W1-F2 fix round (H1): the panel leads with the selected block's own outcome, as the mock. */}
+          <ClaimBadge level={segment.classification} label={outcome(segment.classification)} />
+          <p className="dispatch-block-detail__lead">
+            {BLOCK_SENTENCE[segment.classification] ?? "The outcome of this block is not stated."}
+          </p>
+          <ul>
+            {segment.load_kw ? <li>Site demand {segment.load_kw} kW.</li> : null}
+            {segment.binding_constraint ? <li>{constraintWords(segment.binding_constraint)}.</li> : null}
+            {(segment.missing ?? []).length > 0 ? (
+              <li data-block-limited>
+                Some readings this block needs are missing or limited; the Analysis view lists them.
+              </li>
+            ) : null}
+            {segment.observed === false ? <li>No report falls inside this block; it is bounded by its neighbours.</li> : null}
+          </ul>
+        </div>
+      ) : null}
+      {segment !== null ? (
+        <p className="dispatch-period-label" data-dispatch-period-label>
+          The period this block is in: {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"} UTC
+        </p>
+      ) : null}
       <FactList>
-        <Fact term="Outcome">
+        <Fact term={segment !== null ? "Period outcome" : "Outcome"}>
           <ClaimBadge level={revision.claim_level} label={outcome(revision.claim_level)} />
         </Fact>
         <Fact term="Generator ran">
@@ -988,26 +1025,6 @@ function SelectedPeriod({
           </Fact>
         ) : null}
       </FactList>
-      {segment !== null ? (
-        <div className="dispatch-block-detail" data-selected-block={segment.start}>
-          {/* W1-F2: the block's own line in its panel, not an h3 subsection. */}
-          <p className="dispatch-block-detail__title">
-            <strong>
-              Block {clock(segment.start)} to {clock(segment.end)} UTC: {outcome(segment.classification)}
-            </strong>
-          </p>
-          <ul>
-            {segment.load_kw ? <li>Site demand {segment.load_kw} kW.</li> : null}
-            {segment.binding_constraint ? <li>{constraintWords(segment.binding_constraint)}.</li> : null}
-            {(segment.missing ?? []).length > 0 ? (
-              <li data-block-limited>
-                Some readings this block needs are missing or limited; the Analysis view lists them.
-              </li>
-            ) : null}
-            {segment.observed === false ? <li>No report falls inside this block; it is bounded by its neighbours.</li> : null}
-          </ul>
-        </div>
-      ) : null}
       <p className="chart-note">
         <Link to={{ search: analysisSearch }}>See how the readings lead to this outcome</Link>
       </p>
@@ -1311,6 +1328,14 @@ const UNAVAILABLE_TERMS: Record<string, string> = {
   finding: "Finding comparison",
 };
 
+/** Every not-yet-available key gets a named term: the known words, else the key in plain words. */
+function unavailableTerm(key: string): string {
+  const known = UNAVAILABLE_TERMS[key];
+  if (known) return known;
+  const words = key.replace(/[_-]+/g, " ").trim().toLowerCase();
+  return words ? words[0].toUpperCase() + words.slice(1) : "Unnamed result";
+}
+
 function confidenceWords(level: string): string {
   switch (level) {
     case "HIGH":
@@ -1495,6 +1520,7 @@ function AnalysisView({
   notes: ReactNode;
 }) {
   const result = selected?.result ?? null;
+  const hasAlternatives = Object.keys(result?.alternatives ?? {}).length > 0;
   return (
     <DispatchSlots
       view="analysis"
@@ -1537,12 +1563,15 @@ function AnalysisView({
                     : "No single settled series of records for this day; results are limited"
                   : "none"}
               </Fact>
-              {Object.entries(read.unavailable).map(([key]) => (
-                <Fact key={key} term={UNAVAILABLE_TERMS[key] ?? "Another result"}>
+              {/* Review fix M6: one "Other explanations" line; recorded alternatives replace the not-available row. */}
+              {Object.entries(read.unavailable)
+                .filter(([key]) => !(key === "alternatives" && hasAlternatives))
+                .map(([key]) => (
+                <Fact key={key} term={unavailableTerm(key)}>
                   <span data-unavailable={key}>Not yet available.</span>
                 </Fact>
               ))}
-              {result?.alternatives && Object.keys(result.alternatives).length > 0 ? (
+              {hasAlternatives ? (
                 <Fact term="Other explanations">
                   {`${Object.keys(result.alternatives).length} recorded; their exact wording is in the technical details below.`}
                 </Fact>

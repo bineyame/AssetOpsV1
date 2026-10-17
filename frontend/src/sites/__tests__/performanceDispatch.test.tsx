@@ -383,10 +383,30 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current&view=analysis");
     await settledScreen();
     expect(container.querySelectorAll("[data-constraint-block]")).toHaveLength(2);
+    // Review fix M6: the result records alternatives, so the not-available "alternatives" row is suppressed and
+    // exactly one "Other explanations" line remains, stating the recorded count.
     expect([...container.querySelectorAll("[data-unavailable]")].map((e) => e.getAttribute("data-unavailable")))
-      .toEqual(["alternatives", "fuel_and_money", "finding"]);
+      .toEqual(["fuel_and_money", "finding"]);
+    const terms = (c: HTMLElement) => [...c.querySelectorAll("dt")].map((dt) => dt.textContent);
+    expect(terms(container).filter((t) => t === "Other explanations")).toHaveLength(1);
+    expect(container.textContent).toMatch(/Other explanations\s*1 recorded/);
     expect(container.querySelector("[data-dispatch-gated]")?.textContent).toMatch(/Not yet available/);
     expect(container.querySelector("[data-history-revision='rev-current']")).not.toBeNull();
+  });
+
+  it("Analysis without recorded alternatives keeps the not-available row once, and names every unavailable key (M6)", async () => {
+    const r = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    const bare = { ...r, result: { ...r.result, alternatives: {} } };
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [bare],
+      unavailable: { alternatives: "UNAVAILABLE: none", grid_import_cost: "UNAVAILABLE: later" } }) }, { "rev-current": detail(bare) });
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current&view=analysis");
+    await settledScreen();
+    expect([...container.querySelectorAll("[data-unavailable]")].map((e) => e.getAttribute("data-unavailable")))
+      .toEqual(["alternatives", "grid_import_cost"]);
+    const terms = [...container.querySelectorAll("dt")].map((dt) => dt.textContent);
+    expect(terms.filter((t) => t === "Other explanations")).toHaveLength(1);
+    expect(terms).toContain("Grid import cost");
+    expect(container.textContent).not.toMatch(/Another result/);
   });
 });
 
@@ -481,6 +501,17 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     expect(chosen.getAttribute("href")).toContain("revision=rev-current");
     expect(chosen.getAttribute("href")).toContain("block=1");
     expect(chosen.getAttribute("aria-label")).toBe("04:00 to 04:15 UTC: Possibly avoidable");
+    // Review fix H1: the period chips and the selectable block tiles are in panel 1 under the strip, and
+    // panel 2 leads with the selected block's own outcome; the period facts follow under a period label.
+    expect(blocks.querySelector("[data-revision-id='rev-current']")).not.toBeNull();
+    expect(blocks.querySelector("[data-block='1'][aria-pressed='true']")?.textContent).toBe("Avoidable04:00");
+    const selectedPanel = panelTitled("Selected block · 04:00–04:15 UTC", container);
+    expect(selectedPanel.querySelector("[data-block], [data-revision-id]")).toBeNull();
+    const firstBadge = selectedPanel.querySelector("[data-claim-level]") as HTMLElement;
+    expect(firstBadge.closest("[data-selected-block]")).not.toBeNull();
+    expect(firstBadge.textContent).toBe("Possibly avoidable");
+    expect(selectedPanel.querySelector(".dispatch-block-detail__lead")?.textContent).toMatch(/above the demand in this block/);
+    expect(selectedPanel.querySelector("[data-dispatch-period-label]")?.textContent).toMatch(/^The period this block is in: \d\d:\d\d to/);
     expect(card.querySelector("[data-dispatch-analysis-link]")?.getAttribute("href")).toContain("view=analysis");
     // The rule versions are labelled exact references in the closed disclosure, never default prose.
     expect(defaultText(container)).not.toMatch(/dispatch-3\.1|model version/);

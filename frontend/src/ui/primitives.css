@@ -2928,24 +2928,40 @@ input:focus-visible,
 .dispatch-fill--needed { background: var(--graphic-needed); }
 .dispatch-fill--avoidable { background: var(--graphic-avoidable); }
 .dispatch-fill--unknown { background: var(--graphic-unknown); }
+/* W1-F2 fix round (H1): the mock's row of large selectable 15-minute tiles under the strip. */
 .dispatch-blocks {
   list-style: none;
-  margin: var(--space-3) 0 0;
+  margin: var(--space-3) 0 var(--space-1);
   padding: 0;
-  display: flex;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  gap: 3px;
   min-width: 0;
 }
-.dispatch-blocks li { flex-basis: 0; min-width: 6px; display: flex; }
+.dispatch-blocks li { display: flex; min-width: 0; }
 .dispatch-block {
   flex: 1 1 auto;
-  height: 32px;
   min-width: 0;
-  border: 0;
-  border-radius: 2px;
-  padding: 0;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  padding: var(--space-2) 2px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 3px;
+  font: inherit;
+  font-size: var(--text-xs);
+  line-height: 1.3;
+  color: var(--graphic-ink);
   cursor: pointer;
 }
+.dispatch-block strong { font-variant-numeric: tabular-nums; }
+/* Tiles are tinted with the outcome colour as a top bar, so the dark label stays readable. */
+.dispatch-blocks .dispatch-block { background: var(--surface-raised); border-top: 4px solid var(--graphic-unknown); }
+.dispatch-blocks .dispatch-fill--needed { border-top-color: var(--graphic-needed); }
+.dispatch-blocks .dispatch-fill--avoidable { border-top-color: var(--graphic-avoidable); background: var(--attention-bg); }
+.dispatch-block-detail--lead { margin-top: 0; border-top: 0; padding-top: 0; }
+.dispatch-block-detail__lead { margin: var(--space-2) 0 var(--space-1); }
+.dispatch-period-label { margin: var(--space-3) 0 0; font-size: var(--text-xs); color: var(--text-muted); }
 .dispatch-block[aria-pressed="true"] { outline: 3px solid var(--graphic-ink); outline-offset: 1px; }
 .dispatch-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: var(--space-1); }
 .dispatch-pinned {
