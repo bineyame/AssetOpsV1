@@ -17,6 +17,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { AS_OF_PATTERN, widthGuard } from "./evidence-checks.mjs";
 
 const OUT = process.argv[2];
 const TARGETS = process.argv.slice(3).map((arg) => {
@@ -108,14 +109,17 @@ async function waitFor(expression, ms = 30000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(500);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function shot(name) {
@@ -125,6 +129,7 @@ async function shot(name) {
   const h = Math.min(Math.ceil(tall), 7000);
   await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: h, deviceScaleFactor: 1, mobile: viewport[0] < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(OUT, `${name}.png`), Buffer.from(r.data, "base64"));
   await size(viewport[0], viewport[1]);
@@ -155,7 +160,8 @@ const measure = (card) =>
       focusable,
       visual: Boolean(c.querySelector('[data-value-bars], [data-step-strip], [data-price-strip]')),
       // A drawn amount is always timed: its time comes from the second (consequences) read.
-      amountShown: Boolean(document.querySelector('[data-financials-amount="shown"], [data-price-selection="PRICED"]')),
+      // Scoped to the measured card (W1-UX-02 re-review N2): the Overview's "Price in use" panel is not this card.
+      amountShown: Boolean(c.querySelector('[data-financials-amount="shown"], [data-price-selection="PRICED"]')),
     };
   })()`);
 
@@ -204,7 +210,7 @@ try {
         claim(`${id} ${label}: the page is laid out at ${width} px (documentElement.clientWidth within ${width - 20}..${width})`, m.clientWidth >= width - 20 && m.clientWidth <= width, { clientWidth: m.clientWidth });
       }
       const shown = (b) => b !== null && b.w > 0 && b.h > 0;
-      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen !== true && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && (/^As of \d/.test(m.asOf ?? "") || (m.asOf === "As of: time not recorded" && !m.amountShown)), { label: m.label, asOf: m.asOf, amountShown: m.amountShown, noTime: m.asOf === "As of: time not recorded" });
+      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen !== true && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && AS_OF_PATTERN.test(m.asOf ?? "") && (m.asOf !== "As of: time not recorded" || !m.amountShown), { label: m.label, asOf: m.asOf, amountShown: m.amountShown, noTime: m.asOf === "As of: time not recorded" });
       if (m.disclosureOpen === null) {
         // A state with nothing to reference (e.g. an empty directory) renders no disclosure; say so rather than pass silently.
         claim(`${id} ${label}: no exact-reference disclosure in this state (nothing to reference)`, true, "no disclosure");

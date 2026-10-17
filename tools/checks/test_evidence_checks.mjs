@@ -120,7 +120,7 @@ export function unguardedTriggers(source, window = 6) {
 
 test("the inventory is non-empty and names the walkthrough's scripts", () => {
   const found = browserScripts();
-  for (const name of ["w1-ux-01-evidence.mjs", "w1-ux-03-evidence.mjs", "w1-ux-05-evidence.mjs", "v01a-foundation-evidence.mjs", "s408-assumption-history-evidence.mjs", "s502-overview-finding-list-evidence.mjs", "s602b-verification-evidence.mjs", "s603-site-work-evidence.mjs", "s601b-action-evidence.mjs", "s3-dispatch-evidence.mjs", "s302-claim-limit-evidence.mjs", "s404-finding-index-evidence.mjs", "s701-health-evidence.mjs"]) {
+  for (const name of ["w1-ux-01-evidence.mjs", "w1-ux-02-evidence.mjs", "w1-ux-03-evidence.mjs", "w1-ux-05-evidence.mjs", "v01a-foundation-evidence.mjs", "s408-assumption-history-evidence.mjs", "s502-overview-finding-list-evidence.mjs", "s602b-verification-evidence.mjs", "s603-site-work-evidence.mjs", "s601b-action-evidence.mjs", "s3-dispatch-evidence.mjs", "s302-claim-limit-evidence.mjs", "s404-finding-index-evidence.mjs", "s701-health-evidence.mjs"]) {
     assert.ok(found.includes(name), `${name} is in the inventory`);
   }
   assert.ok(found.length >= 20, `found ${found.length}`);
