@@ -31,7 +31,8 @@ import actionContract from "../../../../backend/tests/fixtures/s6_action_api_con
 import contract from "../../../../backend/tests/fixtures/s6_verification_api_contract.json";
 import { SiteActionFrame, SiteFindingFrame, SiteFoundationChangeFrame } from "../../shell/SiteAnalyticsFrames";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
-import { expectStateLineVisible } from "../../test/productPresentation";
+import { panelTitled } from "../../test/panelStructure";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -567,31 +568,42 @@ describe("Recommendation and Change panels (recommendation:2-3, changes:1#b, cha
   });
 });
 
-describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () => {
-  function w1Card(name: string, page: string): HTMLElement {
+describe("W1-UX-04 phase 2 / W1-F4: Verification, Plan and Evidence state lines (cards folded into the v69 strip and panels)", () => {
+
+  // W1-F4: the W1-UX-04 answer cards of the Verification, Plan and Evidence views are gone. Their state line
+  // now leads the v69 status strip, and their failed limits, known failures and gaps sit in the owning panel.
+  // Each guarantee below is the card test's guarantee, asserted where the content now lives.
+  function w1View(page: string): HTMLElement {
     const main = document.body.querySelector("main") as HTMLElement;
     const w1 = scanProductVocabulary(main, page, { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(10);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const card = q(`[data-headline-card='${name}']`) as HTMLElement;
-    expect(card, `${name} card`).not.toBeNull();
-    const disclosure = scanDisclosureVocabulary(card, `${page} disclosure`);
+    expect(q("[data-headline-card]"), "no leading answer card").toBeNull();
+    const strip = q(".w1f4-verification-strip") as HTMLElement;
+    expect(strip, `${page} status strip`).not.toBeNull();
+    const disclosure = scanDisclosureVocabulary(strip, `${page} disclosure`);
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
-    return card;
+    return q(".site-verification") as HTMLElement;
   }
-  const tone = (card: Element) => card.querySelector("[data-product-status]")?.getAttribute("data-product-status");
+  const stripTone = () => q(".w1f4-verification-strip")?.getAttribute("data-product-status");
+  const visible = (selector: string, within: Element) => {
+    const el = within.querySelector(selector);
+    expect(el, selector).not.toBeNull();
+    expect(visibleOutsideClosedDisclosure(el!), `${selector} is outside the closed disclosure`).toBe(true);
+    return el as HTMLElement;
+  };
 
-  it("current VERIFIED: the outcome, source and as-of stay outside the closed disclosure; before/after bars come from the read", async () => {
+  it("current VERIFIED: the outcome, scope and as-of lead the strip outside the closed disclosure; the metric cards come from the read", async () => {
     serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(outcomeCurrent()) });
     mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
     await settledScreen();
-    const card = w1Card("verification", "verification (W1) verified");
-    const label = expectStateLineVisible(card);
+    const view = w1View("verification (W1) verified");
+    const label = expectStateLineVisible(view);
     expect(label).not.toMatch(/historical|earlier/i);
-    expect(card.querySelectorAll("[data-value-bar-key]")).toHaveLength(2);
-    expect(card.textContent).toMatch(/45 min/);
-    expect(card.textContent).not.toMatch(/saved|savings of|reduced cost/i);
+    expect(visible("[data-product-outcome-source]", view).textContent).toMatch(/^Source: .+/);
+    expect(q("[data-verification-card='target']")?.textContent).toMatch(/45 min → 0 min/);
+    expect(view.textContent).not.toMatch(/saved|savings of|reduced cost/i);
   });
 
   it("guardrail miss and target miss stay prominent with measured value, limit and unit; INCONCLUSIVE keeps known failures", async () => {
@@ -612,23 +624,22 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
       serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(body) });
       const view = mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
       await settledScreen();
-      const card = w1Card("verification", `verification (W1) ${body.outcome.outcome} ${body.outcome.reasons[0]}`);
-      expect(expectStateLineVisible(card)).toMatch(label);
-      expect(tone(card)).not.toBe("positive");
-      const status = card.querySelector("[data-product-status]") as HTMLElement;
+      const scope = w1View(`verification (W1) ${body.outcome.outcome} ${body.outcome.reasons[0]}`);
+      expect(expectStateLineVisible(scope)).toMatch(label);
+      expect(stripTone()).not.toBe("positive");
+      const panel = panelTitled("Target and guardrails evaluated together");
       if (body.outcome.reasons.includes("GUARDRAIL_FAIL")) {
-        // The failed limit is in the default reading, outside the closed disclosure.
+        // The failed limit is in the default reading of panel 1, outside the closed disclosure.
         // 600 seconds read, shown in plain minutes against its limit.
-        expect(status.textContent).toContain("measured 10 min, limit 0 min");
+        expect(visible("[data-product-outcome-failed-limits]", panel).textContent).toContain("measured 10 min, limit 0 min");
       }
       if (body.outcome.outcome === "INCONCLUSIVE") {
-        expect(status.textContent).toMatch(/cannot tell|could not conclude/i);
-        const known = status.querySelector("[data-product-outcome-known-failures]") as HTMLElement;
-        expect(known, "known failure list").not.toBeNull();
+        expect(q(".w1f4-verification-strip")?.textContent).toMatch(/cannot tell|could not conclude/i);
+        const known = visible("[data-product-outcome-known-failures]", panel);
         expect(known.textContent).toMatch(/^Known failure: /);
         expect(known.textContent).not.toMatch(/Known failure: Known failure/);
         expect(known.textContent).toMatch(/reserve/i);
-        expect(status.textContent).toContain("measured 60 min, limit 0 min");
+        expect(visible("[data-product-outcome-failed-limits]", panel).textContent).toContain("measured 60 min, limit 0 min");
       }
       view.unmount();
       vi.unstubAllGlobals();
@@ -640,21 +651,25 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(o), [`${V}/outcome?outcome_id=${OUT2}`]: ok(prep(R.outcome_historical, { outcome_id: OUT2 })) });
     let view = mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
     await settledScreen();
-    let card = w1Card("verification", "verification (W1) reassessment");
-    expect(expectStateLineVisible(card)).not.toMatch(/verified|met/i);
-    expect(tone(card)).not.toBe("positive");
-    expect(card.querySelector("[data-value-bar-key]")).toBeNull();
+    let scope = w1View("verification (W1) reassessment");
+    expect(expectStateLineVisible(scope)).not.toMatch(/verified|met/i);
+    expect(stripTone()).not.toBe("positive");
+    // No measured value from the withdrawn outcome: every card is a gap word.
+    expect(q("[data-verification-cards]")).toHaveAttribute("data-verification-cards", "gap");
+    for (const card of qa("[data-verification-card]")) expect(card.textContent).toMatch(/Pending/);
     view.unmount();
 
     view = mount(`/sites/KOBO-001/actions/${ACTION}/verification?outcome_id=${OUT2}`);
     await settledScreen();
-    card = w1Card("verification", "verification (W1) historical");
-    const shown = expectStateLineVisible(card);
+    scope = w1View("verification (W1) historical");
+    const shown = expectStateLineVisible(scope);
     expect(shown).not.toMatch(/current/i);
-    expect(tone(card)).not.toBe("positive");
-    expect(card.querySelector("[data-verification-card-historical-outcome]")?.textContent).toMatch(/Current state:/);
-    expect(card.querySelector("[data-verification-card-historical-source]")?.textContent).toMatch(/^Source: .+/);
-    expect(card.querySelector("[data-verification-card-historical-demonstration]")?.textContent).toMatch(/policy|no saving|not a saving/i);
+    expect(stripTone()).not.toBe("positive");
+    expect(visible("[data-verification-historical]", scope).textContent).toMatch(/^Historical/);
+    expect(visible("[data-verification-state-label]", scope).textContent).not.toBe("");
+    expect(visible("[data-product-outcome-source]", scope).textContent).toMatch(/^Source: .+/);
+    expect(visible("[data-product-outcome-demonstration]", scope).textContent).toMatch(/policy|no saving|not a saving/i);
+    expect(panelTitled("Target and guardrails evaluated together").querySelector("[data-verification-outcome]")).toHaveAttribute("data-verification-historical-outcome", "yes");
     expect(where()).toContain(`outcome_id=${OUT2}`);
     view.unmount();
   });
@@ -663,10 +678,11 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     serve({ ...actionReads(), [`${V}/plan`]: ok(prep(R.plan)) });
     let view = mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
     await settledScreen();
-    let card = w1Card("action-plan", "action-plan (W1)");
-    expect(expectStateLineVisible(card)).toBe("Plan fixed before the later readings");
-    expect(card.querySelectorAll("[data-step]")).toHaveLength(3);
-    expect(card.textContent).toMatch(/25% lower/);
+    let scope = w1View("action-plan (W1)");
+    expect(expectStateLineVisible(scope)).toBe("Plan fixed before the later readings");
+    const panel = panelTitled("Success criteria");
+    expect(panel.querySelectorAll("[data-verification-window]")).toHaveLength(2);
+    expect(panel.textContent).toMatch(/25% lower/);
     view.unmount();
     vi.unstubAllGlobals();
 
@@ -676,10 +692,11 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     serve({ ...actionReads(), [`${V}/plan`]: ok(none) });
     view = mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
     await settledScreen();
-    card = w1Card("action-plan", "action-plan (W1) no plan");
-    expect(expectStateLineVisible(card)).not.toBe("");
-    expect(tone(card)).not.toBe("positive");
-    expect(card.querySelector("[data-step]")).toBeNull();
+    scope = w1View("action-plan (W1) no plan");
+    expect(expectStateLineVisible(scope)).not.toBe("");
+    expect(stripTone()).not.toBe("positive");
+    expect(q("[data-verification-window]")).toBeNull();
+    expect(panelTitled("Success criteria").querySelector("[data-panel-gap]")?.textContent).toMatch(/^No success criteria recorded\./);
     view.unmount();
   });
 
@@ -687,9 +704,9 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
     let view = mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
     await settledScreen();
-    let card = w1Card("action-evidence", "action-evidence (W1)");
-    expect(expectStateLineVisible(card)).toBe("Both windows have their readings");
-    expect(card.textContent).toMatch(/12 of 12 readings/);
+    let scope = w1View("action-evidence (W1)");
+    expect(expectStateLineVisible(scope)).toBe("Both windows have their readings");
+    expect(visible("[data-verification-requirement='later']", scope).textContent).toMatch(/12\/12 slots complete/);
     view.unmount();
     vi.unstubAllGlobals();
 
@@ -702,10 +719,14 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     serve({ ...actionReads(), [`${V}/evidence`]: ok(ev), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
     view = mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
     await settledScreen();
-    card = w1Card("action-evidence", "action-evidence (W1) gap");
-    expect(expectStateLineVisible(card)).toBe("Some readings are missing");
-    expect(tone(card)).not.toBe("positive");
-    expect(card.textContent).toMatch(/11 of 12 readings/);
+    scope = w1View("action-evidence (W1) gap");
+    expect(expectStateLineVisible(scope)).toBe("Some readings are missing");
+    expect(stripTone()).not.toBe("positive");
+    const later = visible("[data-verification-requirement='later']", scope);
+    expect(later.textContent).toMatch(/11\/12 slots complete/);
+    expect(later).toHaveAttribute("data-verification-requirement-ok", "no");
+    // The gap itself is in the panel's default reading, not only in the closed readings disclosure.
+    expect(visible("[data-verification-window-problems='later'] [data-verification-problem='GAP']", scope).textContent).toMatch(/^Gap/);
     view.unmount();
   });
 

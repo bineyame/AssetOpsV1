@@ -1,30 +1,17 @@
 /**
- * W1-UX-04 phase 2: the answer cards of the Verification, Plan and Evidence
- * child views of an Action. Words only from the reads already made: the
- * outcome, reasons and source class come from the verification reads, never
- * from the Action summary. A historical selection says so and never reads as
- * current; a missing or unknown value is drawn as "not known", never zero.
+ * W1-F4 (D-2026-10-17-mockup-layout-spec): the state words and metric cards of
+ * the Verification, Plan and Evidence child views of an Action. They replace the
+ * W1-UX-04 answer cards: the verdict now leads the one-line status strip, and
+ * the Verification view's four metric cards sit above panel 1, as in the v69
+ * mock. Words only from the reads already made: the outcome, reasons and source
+ * class come from the verification reads, never from the Action summary. A
+ * historical selection says so and never reads as current; a missing or unknown
+ * value is drawn as a gap word, never zero.
  */
-import { Link } from "react-router-dom";
-
-import {
-  currentnessWords,
-  ExactReferences,
-  HeadlineVisualCard,
-  limitationWords,
-  outcomeWords,
-  plainTime,
-  ProductOutcome,
-  ProductStatus,
-  StepStrip,
-  ValueBars,
-  type FailedLimit,
-  type ProductWords,
-} from "../ui";
+import { MetricCard, MetricCards, currentnessWords, limitationWords, outcomeWords, type FailedLimit, type MetricTone, type OutcomeWords, type ProductWords } from "../ui";
 import type { ActionBody } from "./actionClient";
-import type { VerificationLinks } from "./SiteActionVerification";
 import type { EvidenceBody, Metric, OutcomeBody, OutcomeRecord, PlanBody } from "./verificationClient";
-import { GUARDRAIL_KEYS, metricName, reasonWords, stateLabel } from "./verificationWords";
+import { checkWord, decimal, GUARDRAIL_KEYS, metricName, minutes, outcomeName, stateLabel, type Tone } from "./verificationWords";
 
 /** The plain "as of" bound of a read that carries no instant of its own: the Action read's cutoff, else its last event. */
 export function actionReadAsOf(action: ActionBody): string | null {
@@ -37,23 +24,19 @@ function seconds(text: string | null | undefined): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function minutesText(value: number | null): string {
-  return value === null ? "not known" : `${Math.round(value / 60)} min`;
-}
-
-function find(metrics: readonly Metric[], key: string, window = "COMPARISON"): Metric | null {
+export function findMetric(metrics: readonly Metric[], key: string, window = "COMPARISON"): Metric | null {
   return metrics.find((m) => m.metric_key === key && m.window_name === window) ?? null;
 }
 
 /** Failed safety or service limits, exactly as the read returned them. */
 export function failedLimits(metrics: readonly Metric[]): FailedLimit[] {
-  return GUARDRAIL_KEYS.map((key) => find(metrics, key))
+  return GUARDRAIL_KEYS.map((key) => findMetric(metrics, key))
     .filter((m): m is Metric => m !== null && m.state === "FAIL")
     .map(plainLimit);
 }
 
-/** A failed limit in plain units: the measured value as read, and the limit in words (the exact text stays in the Outcome table). */
-function plainLimit(m: Metric): FailedLimit {
+/** A failed limit in plain units: the measured value as read, and the limit in words (the exact text stays beside it). */
+export function plainLimit(m: Metric): FailedLimit {
   const name = metricName(m.metric_key);
   const n = seconds(m.value_text);
   if (m.metric_key === "below_reserve_seconds") {
@@ -70,342 +53,144 @@ function plainLimit(m: Metric): FailedLimit {
   return { name, value: m.value_text ?? "not known", threshold: m.threshold_text ?? "not recorded", unit: m.unit ?? "" };
 }
 
-/**
- * W1-UX-04: the Verification answer card - did the measured trial meet its
- * goal without harmful trade-offs. With no shown record it states the current
- * read state; a selected earlier outcome is Historical beside the current state.
- */
-export function VerificationCard({
-  outcome,
-  record,
-  historical,
-  action,
-  links,
-}: {
-  outcome: OutcomeBody;
-  record: OutcomeRecord | null;
-  historical: boolean;
-  action: ActionBody;
-  links: VerificationLinks;
-}) {
+/** The verdict that leads the status strip: what it says, what it is about, and the instant it is bounded by. */
+export interface StripVerdict {
+  words: ProductWords;
+  scope: string;
+  asOf: string | null;
+  /** Set for an outcome: the source qualification and demonstration note. */
+  outcome?: OutcomeWords;
+}
+
+/** The Verification view: the shown outcome record, else the current read state. */
+export function verificationVerdict(outcome: OutcomeBody | null, record: OutcomeRecord | null, historical: boolean, action: ActionBody): StripVerdict {
+  if (outcome === null) {
+    return { words: outcomeWords("PENDING", [], null), scope: "This Action's measured trial", asOf: actionReadAsOf(action) };
+  }
   const current = outcome.current_state;
-  const currentWords = outcomeWords(current.state, current.reasons, null);
-  const limits = record === null ? [] : failedLimits(outcome.metrics);
-  const known =
-    record === null
-      ? []
-      : record.reasons.filter((r) => r.startsWith("KNOWN_FAILURE")).map((r) => reasonWords(r).replace(/^Known failure: /, ""));
-  const words = record === null ? currentWords : outcomeWords(record.outcome, record.reasons, record.details?.source?.source_class ?? null);
-  const before = record === null ? null : find(outcome.metrics, "candidate_avoidable_seconds", "BASELINE");
-  const after = record === null ? null : find(outcome.metrics, "candidate_avoidable_seconds", "LATER");
-  const beforeSeconds = seconds(before?.value_text);
-  const afterSeconds = seconds(after?.value_text);
-  const scope = "This Action's measured trial";
-  const status =
-    record !== null && historical ? (
-      <ProductStatus words={currentnessWords("HISTORICAL")} scope="An earlier outcome of this Action" asOf={record.recorded_at}>
-        <p data-verification-card-historical-outcome>
-          Outcome then: {words.label}. Current state: {stateLabel(current.state, current.reasons)}.
-        </p>
-        <p className="product-status__source" data-verification-card-historical-source>
-          Source: {words.source.label}
-        </p>
-        {words.demonstrationNote === null ? null : (
-          <p className="product-status__note" data-verification-card-historical-demonstration>
-            {words.demonstrationNote}
-          </p>
-        )}
-        {limits.map((limit) => (
-          <p key={limit.name} data-verification-card-failed-limit>
-            {limit.name} missed its limit: measured {limit.value} {limit.unit}, limit {limit.threshold} {limit.unit}.
-          </p>
-        ))}
-        {words.showsKnownFailures && known.length > 0 ? (
-          <ul className="product-status__list" data-verification-card-historical-known-failures>
-            {known.map((failure) => (
-              <li key={failure}>Known failure: {failure}</li>
-            ))}
-          </ul>
-        ) : null}
-      </ProductStatus>
-    ) : (
-      <ProductOutcome
-        words={words}
-        scope={scope}
-        asOf={record === null ? actionReadAsOf(action) : record.recorded_at}
-        failedLimits={limits}
-        showLimits={limits.length > 0}
-        knownFailures={known}
-      />
-    );
-  return (
-    <HeadlineVisualCard
-      dataName="verification"
-      headingId="site-verification-answer-heading"
-      title="Trial result"
-      description="Whether the measured trial met its goal, and whether it stayed within its safety and service limits."
-      question="Did the action work without harmful trade-offs?"
-      headline={
-        record === null ? (
-          <>{currentWords.label}.</>
-        ) : historical ? (
-          <>An earlier outcome, shown as a record: {words.label.toLowerCase()}.</>
-        ) : (
-          <>{words.label}.</>
-        )
-      }
-      status={status}
-      visual={
-        record === null ? undefined : (
-          <ValueBars
-            title="Avoidable generator time, before and after the change"
-            items={[
-              { label: "Before the change", key: "before", value: beforeSeconds, valueText: minutesText(beforeSeconds) },
-              { label: "After the change", key: "after", value: afterSeconds, valueText: minutesText(afterSeconds) },
-            ]}
-          />
-        )
-      }
-      meaning={
-        <p>
-          A trial result is judged against a plan fixed before the later readings arrived. It is a policy trial: it
-          shows no saving or realized benefit, and a result can be withdrawn if late evidence changes it.
-        </p>
-      }
-      todo={words.next === undefined ? undefined : <p>{words.next}</p>}
-      destination={
-        <>
-          <Link to={links.view("evidence", { outcomeId: record?.outcome_id ?? null })} data-verification-card-evidence-link>
-            Open Evidence
-          </Link>{" "}
-          <Link to={links.view("plan", { planRevisionId: record?.plan_id ?? current.plan_id ?? null })} data-verification-card-plan-link>
-            Open the Plan
-          </Link>
-        </>
-      }
-      references={
-        <ExactReferences
-          name="verification-card-references"
-          references={[
-            { label: "Outcome reference", value: record?.outcome_id ?? current.outcome_id ?? null },
-            { label: "Plan reference", value: record?.plan_id ?? current.plan_id ?? null },
-            { label: "Outcome code", value: record?.outcome ?? null },
-            { label: "Current state code", value: current.state },
-            { label: "Reason codes", value: (record?.reasons ?? current.reasons).join(", ") || null },
-            { label: "Recorded", value: record === null ? null : plainTime(record.recorded_at) },
-          ]}
-        />
-      }
-    />
-  );
+  if (record === null) {
+    return { words: outcomeWords(current.state, current.reasons, null), scope: "This Action's measured trial", asOf: actionReadAsOf(action) };
+  }
+  const words = outcomeWords(record.outcome, record.reasons, record.details?.source?.source_class ?? null);
+  // A selected earlier outcome is a record, never the current answer: the strip leads with "Historical" words and
+  // the outcome then stays in panel 1 under its Historical tag, beside the current state badge.
+  return {
+    words: historical ? currentnessWords("HISTORICAL") : words,
+    outcome: words,
+    scope: historical ? "An earlier outcome of this Action" : "This Action's measured trial",
+    asOf: record.recorded_at,
+  };
 }
 
 const PLAN_FIXED: ProductWords = {
   label: "Plan fixed before the later readings",
-  sentence:
-    "The goal, the safety and service limits and both comparison windows were recorded before the later readings arrived. A plan is not a result.",
-  next: "Open Verification to see whether the trial met this plan.",
+  sentence: "The goal, the safety and service limits and both comparison windows were recorded before the later readings arrived. A plan is not a result.",
   tone: "neutral",
   code: "CURRENT_PLAN",
   unrecognised: false,
 };
 
-/**
- * W1-UX-04: the Plan answer card - what the trial will be judged on. A
- * replaced plan is Historical; no plan is the read's own NO_PLAN state.
- */
-export function PlanCard({ body, action, links }: { body: PlanBody; action: ActionBody; links: VerificationLinks }) {
+/** The Plan view: a replaced or time-selected plan is Historical; no plan is the read's own NO_PLAN state. */
+export function planVerdict(body: PlanBody, action: ActionBody): StripVerdict {
   const plan = body.plan;
-  const replaced = plan !== null && body.is_current_plan === false;
-  const words: ProductWords =
-    plan === null ? outcomeWords(body.verification_state.state, body.verification_state.reasons, null) : replaced ? currentnessWords("HISTORICAL") : PLAN_FIXED;
-  const later = plan === null ? null : body.selection_bindings.find((b) => b.window_name.toUpperCase().startsWith("LATER")) ?? null;
-  return (
-    <HeadlineVisualCard
-      dataName="action-plan"
-      headingId="site-verification-plan-answer-heading"
-      title="Trial plan"
-      description="What the trial is judged on, fixed before the later readings arrive."
-      question="What will this trial be judged on?"
-      headline={
-        plan === null ? (
-          <>No plan has been fixed for this trial yet.</>
-        ) : (
-          <>
-            Avoidable generator time at least {Math.round((1 - plan.target.ratio[0] / plan.target.ratio[1]) * 100)}% lower,
-            within every safety and service limit{replaced ? " (an earlier plan, since replaced)" : ""}.
-          </>
-        )
-      }
-      status={
-        <>
-          {!replaced && plan !== null && body.verification_state.historical === true ? (
-            <ProductStatus
-              words={currentnessWords("HISTORICAL")}
-              scope="The plan as it stood at the selected earlier time"
-              // W1-UX-04 re-review N1: the selected time when the reader chose one, else when the plan was recorded.
-              asOf={body.selector.recorded_at ?? plan.recorded_at}
-            />
-          ) : null}
-          <ProductStatus
-            words={words}
-            scope={replaced ? "An earlier plan of this Action" : "This Action's trial plan"}
-            asOf={plan === null ? actionReadAsOf(action) : plan.recorded_at}
-          />
-        </>
-      }
-      visual={
-        plan === null ? undefined : (
-          <StepStrip
-            title="The two comparison windows"
-            steps={[
-              { label: "Earlier window", state: "done", detail: `${plainTime(plan.baseline_start) ?? "not recorded"} to ${plainTime(plan.baseline_end) ?? "not recorded"}` },
-              { label: "Change in effect", state: "done", detail: plainTime(plan.effective_from) ?? "Time not recorded" },
-              {
-                label: "Later window",
-                state: later === null ? "waiting" : "done",
-                detail: `${plainTime(plan.later_start) ?? "not recorded"} to ${plainTime(plan.later_end) ?? "not recorded"}${later === null ? "; days not chosen yet" : ""}`,
-              },
-            ]}
-          />
-        )
-      }
-      meaning={
-        <p>
-          The trial compares an earlier window with a later one of similar demand and sunshine. A difference is not
-          proof of cause, and the trial shows no saving.
-        </p>
-      }
-      todo={words.next === undefined ? undefined : <p>{words.next}</p>}
-      destination={
-        <>
-          <Link to={links.view("verification", {})} data-plan-card-verification-link>
-            Open Verification
-          </Link>{" "}
-          <Link to={links.view("evidence", {})} data-plan-card-evidence-link>
-            Open Evidence
-          </Link>
-        </>
-      }
-      references={
-        <ExactReferences
-          name="plan-card-references"
-          references={[
-            { label: "Plan reference", value: plan?.plan_id ?? null },
-            { label: "Plan version", value: plan?.plan_version ?? null },
-            { label: "Change record", value: plan?.change_id ?? null },
-            { label: "Current state code", value: body.verification_state.state },
-          ]}
-        />
-      }
-    />
-  );
+  if (plan === null) {
+    return { words: outcomeWords(body.verification_state.state, body.verification_state.reasons, null), scope: "This Action's trial plan", asOf: actionReadAsOf(action) };
+  }
+  if (body.is_current_plan === false) {
+    return { words: currentnessWords("HISTORICAL"), scope: "An earlier plan of this Action", asOf: plan.recorded_at };
+  }
+  if (body.verification_state.historical === true) {
+    return { words: currentnessWords("HISTORICAL"), scope: "The plan as it stood at the selected earlier time", asOf: body.selector.recorded_at ?? plan.recorded_at };
+  }
+  return { words: PLAN_FIXED, scope: "This Action's trial plan", asOf: plan.recorded_at };
 }
 
 const BOTH_WINDOWS: ProductWords = {
   label: "Both windows have their readings",
   sentence: "Every five-minute reading the plan needs was received for both windows by the cutoff.",
-  next: "Open Verification to see what the readings showed.",
   tone: "neutral",
   code: "COMPLETE",
   unrecognised: false,
 };
 
-/**
- * W1-UX-04: the Evidence answer card - what evidence was received and what is
- * missing. Received counts come from the caller's slot check; an empty window
- * is "not known", never zero received.
- */
-export function EvidenceCard({
-  body,
-  received,
-  links,
-}: {
-  body: EvidenceBody;
-  received: { baseline: number; later: number };
-  links: VerificationLinks;
-}) {
+/** The Evidence view: complete windows, else missing readings (never complete). */
+export function evidenceVerdict(body: EvidenceBody): StripVerdict {
   const complete = body.windows.baseline.complete && body.windows.later.complete;
-  const words = complete ? BOTH_WINDOWS : limitationWords("MISSING_READINGS");
-  const item = (label: string, key: "baseline" | "later") => {
-    const total = body.windows[key].slots.length;
-    return {
-      label,
-      key,
-      value: total === 0 ? null : received[key],
-      valueText: `${received[key]} of ${total} readings`,
-    };
+  const historical = body.verification_state.historical === true;
+  return {
+    words: complete ? BOTH_WINDOWS : limitationWords("MISSING_READINGS"),
+    scope: historical ? "Both windows, as the readings stood at the selected earlier time" : "This Action's trial plan, both windows",
+    asOf: body.knowledge_cutoff,
   };
+}
+
+export function metricTone(tone: Tone): MetricTone {
+  return tone === "pass" ? "green" : tone === "fail" ? "red" : tone === "unknown" ? "amber" : "muted";
+}
+
+function checkTone(state: string | undefined): MetricTone {
+  return state === "PASS" ? "green" : state === "FAIL" ? "red" : "amber";
+}
+
+/**
+ * The mock's four Verification cards, from the shown outcome's metrics. With
+ * no shown outcome every card is a gap word: `gap` says which (Pending while
+ * no outcome is current; Not available when the read failed).
+ */
+export function VerificationMetricCards({ outcome, record, gap }: { outcome: OutcomeBody | null; record: OutcomeRecord | null; gap: "Pending" | "Not available" }) {
+  const label = "Verification measures";
+  if (outcome === null || record === null) {
+    const note = gap === "Pending" ? "No current outcome to measure" : "The verification read failed";
+    return (
+      <MetricCards label={label} data={{ "data-verification-cards": "gap" }}>
+        <MetricCard label="Target change" value={gap} note={note} word tone="muted" data={{ "data-verification-card": "target" }} />
+        <MetricCard label="Reserve breaches" value={gap} note={note} word tone="muted" data={{ "data-verification-card": "reserve" }} />
+        <MetricCard label="Critical service" value={gap} note={note} word tone="muted" data={{ "data-verification-card": "service" }} />
+        <MetricCard label="Final outcome" value={gap} note={gap === "Pending" ? "A plan or activity alone is not a result" : note} assessment tone="muted" data={{ "data-verification-card": "outcome" }} />
+      </MetricCards>
+    );
+  }
+  const metrics = outcome.metrics;
+  const target = findMetric(metrics, "target_reduction");
+  const before = minutes(findMetric(metrics, "candidate_avoidable_seconds", "BASELINE")?.value_text);
+  const after = minutes(findMetric(metrics, "candidate_avoidable_seconds", "LATER")?.value_text);
+  const below = findMetric(metrics, "below_reserve_seconds");
+  const unserved = findMetric(metrics, "unserved_critical_energy");
+  const unservedKwh = decimal(unserved?.value_text ?? null);
   return (
-    <HeadlineVisualCard
-      dataName="action-evidence"
-      headingId="site-verification-evidence-answer-heading"
-      title="Trial evidence"
-      description="The readings the plan needs for each window, as accepted by the cutoff."
-      question="What evidence was received, and what is missing?"
-      headline={
-        complete ? (
-          <>Both comparison windows are complete.</>
-        ) : (
-          <>
-            Some readings are missing from{" "}
-            {!body.windows.baseline.complete && !body.windows.later.complete
-              ? "both windows"
-              : body.windows.later.complete
-                ? "the earlier window"
-                : "the later window"}
-            .
-          </>
-        )
-      }
-      status={
-        <>
-          {body.verification_state.historical === true ? (
-            <ProductStatus
-              words={currentnessWords("HISTORICAL")}
-              scope="The readings as they stood at the selected earlier time"
-              asOf={body.knowledge_cutoff}
-            />
-          ) : null}
-          <ProductStatus
-            words={words}
-            scope={
-              body.verification_state.historical === true
-                ? "Both windows, as the readings stood at the selected earlier time"
-                : "This Action's trial plan, both windows"
-            }
-            asOf={body.knowledge_cutoff}
-          />
-        </>
-      }
-      visual={
-        <ValueBars
-          title="Complete five-minute readings per window"
-          items={[item("Earlier window", "baseline"), item("Later window", "later")]}
-        />
-      }
-      meaning={
-        <p>
-          Missing readings are never filled in. A window with missing readings cannot support a result, so the trial
-          reads as "cannot tell yet" until they arrive or the plan says otherwise.
-        </p>
-      }
-      todo={words.next === undefined ? undefined : <p>{words.next}</p>}
-      destination={
-        <Link to={links.view("verification", {})} data-evidence-card-verification-link>
-          Open Verification
-        </Link>
-      }
-      references={
-        <ExactReferences
-          name="evidence-card-references"
-          references={[
-            { label: "Plan reference", value: body.plan_id },
-            { label: "Reading cutoff", value: plainTime(body.knowledge_cutoff) },
-            { label: "Source of both windows", value: body.source_resolution.pair.source_class },
-          ]}
-        />
-      }
-    />
+    <MetricCards label={label} data={{ "data-verification-cards": "outcome" }}>
+      <MetricCard
+        label="Target change"
+        value={before === null && after === null ? "Unknown" : `${before ?? "unknown"} → ${after ?? "unknown"}`}
+        word={before === null && after === null}
+        note={target ? `Avoidable generator time · target ${checkWord(target.state).toLowerCase()}` : "Target not evaluated"}
+        tone={target ? checkTone(target.state) : "muted"}
+        data={{ "data-verification-card": "target" }}
+      />
+      <MetricCard
+        label="Reserve breaches"
+        value={minutes(below?.value_text) ?? "Unknown"}
+        word={minutes(below?.value_text) === null}
+        note={below ? `Time below reserve, sampled every five minutes · ${checkWord(below.state).toLowerCase()}` : "Not evaluated"}
+        tone={below ? checkTone(below.state) : "muted"}
+        data={{ "data-verification-card": "reserve" }}
+      />
+      <MetricCard
+        label="Critical service"
+        value={unservedKwh === null ? "Unknown" : `${unservedKwh} kWh`}
+        word={unservedKwh === null}
+        note={unserved ? `Critical demand not served · ${checkWord(unserved.state).toLowerCase()}` : "Not evaluated"}
+        tone={unserved ? checkTone(unserved.state) : "muted"}
+        data={{ "data-verification-card": "service" }}
+      />
+      <MetricCard
+        label="Final outcome"
+        value={outcomeName(record.outcome)}
+        note={stateLabel(record.outcome, record.reasons)}
+        assessment
+        tone={record.outcome === "VERIFIED" ? "green" : record.outcome === "INEFFECTIVE" ? "red" : "amber"}
+        data={{ "data-verification-card": "outcome" }}
+      />
+    </MetricCards>
   );
 }

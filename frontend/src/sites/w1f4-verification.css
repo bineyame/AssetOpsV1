@@ -1,0 +1,76 @@
+/* W1-F4 group C2: the Action Plan, Evidence and Verification views at the v69
+   mock's sizes (`.statusbar`, `.chart-note`, `.key-values`, `.two-col`). */
+
+.w1f4-verification-strip .verify-chip {
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.w1f4-verification-strip .verify-strip__term {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.w1f4-verification-strip .muted {
+  color: var(--text-secondary);
+}
+
+/* Chart-note lists: the mock's small caption lines, without bullets' body size. */
+.w1f4-verification-list {
+  margin: 10px 0 0;
+  padding-left: 16px;
+}
+
+.w1f4-verification-list li + li {
+  margin-top: 2px;
+}
+
+.w1f4-verification-list--problem {
+  color: var(--attention-text, #8e580c);
+}
+
+.w1f4-verification-gap {
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.w1f4-verification-outcome {
+  margin: 0 0 10px;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.w1f4-verification-outcome .verify-historical-tag {
+  margin-right: 4px;
+}
+
+.w1f4-verification-inline-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.w1f4-verification-muted {
+  color: var(--text-secondary);
+}
+
+.w1f4-verification-action {
+  margin: 13px 0 0;
+}
+
+.w1f4-verification-notice {
+  margin-top: var(--v69-gap, 16px);
+  font-size: 11px;
+}
+
+/* Inside the Evidence panel's closed disclosure: one block per window. */
+.w1f4-verification-window {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle, #e3e8f0);
+}
+
+.w1f4-verification-window__title {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
