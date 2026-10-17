@@ -9,6 +9,7 @@ period that has none.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Callable, Mapping, Sequence
@@ -471,6 +472,31 @@ class FoundationService:
             change=lambda content, _version: with_component_properties(
                 content, asset_code=asset_code, properties=properties
             ),
+        )
+
+    def publish_topology(
+        self,
+        tenant: TenantRef,
+        site: StoredSite,
+        *,
+        topology: Mapping[str, Any],
+        effective_from: datetime,
+        note: str,
+    ) -> PublishResult:
+        """W2-01: a later-effective revision replacing the declared topology.
+
+        Not an operator route: the cold-chain fixtures and tests change topology through the same S1
+        revision path as properties. Earlier revisions are split, never rewritten; the strict parser
+        (and, for a COLDCHAIN Site, the cold Foundation validator) re-validates the whole document.
+        """
+        replacement = json.loads(json.dumps(topology))
+
+        def unchanged(content: Mapping[str, Any]) -> str | None:
+            return "This topology is already declared" if content.get("topology") == replacement else None
+
+        return self._publish_content_change(
+            tenant, site, effective_from=effective_from, note=note, unchanged=unchanged,
+            change=lambda content, _version: {**json.loads(json.dumps(content)), "topology": replacement},
         )
 
     def _publish_content_change(
