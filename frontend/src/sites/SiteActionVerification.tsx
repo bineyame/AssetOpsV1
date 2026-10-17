@@ -385,7 +385,13 @@ export function ActionVerification({
             gapped={blocked || refusals.length > 0}
             stateWord={verdict?.words.label ?? null}
             source={<Link to={links.finding(body.origin.finding_id, body.origin.finding_revision_id)}>Source Finding version</Link>}
-            criterion={metric(outcome?.metrics ?? [], "target_reduction") ? "At least 25% lower" : null}
+            criterion={
+              metric(outcome?.metrics ?? [], "target_reduction") || plan !== null
+                ? "At least 25% lower"
+                : current?.plan_id || shown?.plan_id
+                  ? "Not available"
+                  : null
+            }
           />
           <VerificationMetricCards outcome={outcome} record={shown} gap={blocked || refusals.length > 0 ? "Not available" : "Pending"} />
           <TargetPanel
@@ -1206,7 +1212,6 @@ function OutcomeEvidencePanel({
         </dl>
       )}
       <p className="v69-chart-note">
-        {demonstration ? <span data-product-outcome-demonstration>{demonstration} </span> : null}
         {history === null && historyGap ? (
           <span className="w1f4-verification-gap" data-panel-gap={historyGap.kind}>
             {historyGap.text}{" "}
@@ -1251,7 +1256,15 @@ function OutcomeEvidencePanel({
           </p>
         </DigDeeper>
       ) : null}
-      <TrialNotice />
+      {demonstration ? (
+        <p className="v69-chart-note w1f4-verification-notice" data-verification-trial-label="POLICY_TRIAL_NO_SAVINGS">
+          <span data-product-outcome-demonstration>
+            Policy trial on demonstration data: no proof of cause, no savings or realized benefit; a resolution is never permanent.
+          </span>
+        </p>
+      ) : (
+        <TrialNotice />
+      )}
     </Panel>
   );
 }

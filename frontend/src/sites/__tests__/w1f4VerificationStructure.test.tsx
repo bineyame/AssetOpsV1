@@ -217,6 +217,16 @@ describe("W1-F4 C2: Verification keeps the v69 panel structure (verification)", 
     for (const card of Array.from(document.querySelectorAll("[data-verification-card]"))) expect(card.textContent).toContain("Pending");
   });
 
+  it("a page opened on a plan with no outcome yet still names the criterion in the summary row", async () => {
+    const h = history();
+    h.outcomes = [];
+    serve({ ...actionReads(), [`${V}/history`]: ok(h), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification?plan_revision_id=${PLAN}`);
+    await structure("verification");
+    const criterion = summaryCells().find(([l]) => l === "Success criterion");
+    expect(criterion?.[1]).toBe("At least 25% lower");
+  });
+
   it("refused: the outcome refusal is stated before the slots; cards read Not available and panels state the gap", async () => {
     serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: down });
     mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
