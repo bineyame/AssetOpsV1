@@ -15,6 +15,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectV69Panels, panelTitled, renderedPanelTitles } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { coldDrawingLayout } from "../SiteSingleLineDiagram";
 
 /*
  * W2-01 phase 2: the three Foundation routes of a COLDCHAIN Site render `cold-foundation`,
@@ -295,12 +296,24 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(table.querySelector('[data-cold-readiness-row="transfer"]')?.textContent).toContain("Transfer position is not reported");
     const doorRow = table.querySelector('[data-cold-readiness-row="door"]') as HTMLElement;
     expect(doorRow.textContent).toContain("Configured");
-    expect(doorRow.textContent).toContain("No source: Manual temperature log (optional)");
+    // Review Low 3: a Configured row never also says "No source"; the optional manual log has its own row.
+    expect(doorRow.textContent).not.toMatch(/No source|Manual temperature/);
+    const manualRow = table.querySelector('[data-cold-readiness-row="manual"]') as HTMLElement;
+    expect(manualRow.querySelector("th")?.textContent).toBe("Manual temperature log");
+    expect(manualRow.textContent).toContain("Needs a source");
+    expect(manualRow.textContent).toContain("Optional");
+    for (const row of Array.from(table.querySelectorAll("[data-cold-readiness-row]"))) {
+      if (row.textContent?.includes("Configured") && !row.textContent.includes("Not configured")) expect(row.textContent).not.toMatch(/No source/);
+    }
     expect(table.querySelector('[data-cold-readiness-row="transfer"]')?.textContent).toContain("Needs a source");
     expect(table.textContent).toContain("Unconfirmed");
     expect(table.textContent).toContain("Set-up incomplete: 1 required item needs attention");
     const gateway = panelTitled("Gateway status · No gateway selected");
     expect(gateway.querySelector('[data-cold-gateway-metric="status"]')?.textContent).toContain("Never contacted");
+    // Review Low 5: the mock's availability timeline is kept as an empty track, marked not available yet.
+    const timeline = gateway.querySelector("[data-cold-gateway-timeline]") as HTMLElement;
+    expect(timeline.querySelector('[data-gap-id="G-readiness-gateway-uptime"]')?.textContent).toBe("Availability timeline not available yet");
+    expect(timeline.textContent).toContain("Short outage or missing readings");
     expect(panelTitled("Connected sources").textContent).toContain("Source contact unavailable");
     expect(panelTitled("Effect on readiness and confidence").textContent).toContain("Confidence is not assessed");
   });
@@ -314,7 +327,47 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(diagram.textContent).toContain("Undeclared in this version: chamber temperature probe, solar array, battery.");
     const parts = panelTitled("What each part does");
     expect(parts.querySelectorAll("[data-cold-part]")).toHaveLength(7);
-    expect(parts.textContent).toContain("Function description not recorded");
+    // Review M2: the unknown function is stated once, in the footnote, never per row.
+    expect((parts.textContent ?? "").split("Function description not recorded")).toHaveLength(2);
+    expect(parts.querySelector("tbody")?.textContent).not.toMatch(/Function description|\(configured\)/);
+  });
+
+  it("draws the bus-bar single line diagram with icons, wrapped names and the monitoring strip (review H1)", async () => {
+    renderCold(`${BASE}/sld`, loaded(STOCKED), healthOf([]));
+    await settledScreen();
+    const diagram = panelTitled("Kobo vaccine cold store");
+    expect(diagram.querySelectorAll(".sld-node__bar")).toHaveLength(1);
+    const icons = Array.from(diagram.querySelectorAll("[data-component-icon]")).map((el) => el.getAttribute("data-component-icon"));
+    for (const symbol of ["COLD_ROOM", "TEMPERATURE_PROBE", "COMPRESSOR", "TRANSFER_SWITCH", "GENERATOR", "METER"]) expect(icons).toContain(symbol);
+    const svgText = Array.from(diagram.querySelectorAll("svg text")).map((t) => t.textContent ?? "");
+    expect(svgText.join("|")).not.toContain("…");
+    expect(svgText).toContain("Chamber temperatureprobe");
+    expect(svgText).toContain("Automatic transferswitch");
+    const monitor = diagram.querySelector("[data-cold-monitoring]") as HTMLElement;
+    expect(monitor.querySelectorAll("[data-cold-monitor]")).toHaveLength(STOCKED.bindings.length);
+    for (const box of Array.from(monitor.querySelectorAll("[data-cold-monitor]"))) {
+      expect(box.getAttribute("title")).toBe("Reporting not assessed here");
+      expect(box.querySelector(".gw-dot--none")).not.toBeNull();
+    }
+    expect(diagram.textContent).toContain("Reporting not assessed here");
+    expect(diagram.querySelector(".gw-dot:not(.gw-dot--none)")).toBeNull();
+  });
+
+  it("places supplies and the switch left of the bus bar and the cooling chain right of it", () => {
+    const layout = coldDrawingLayout(STOCKED.topology!.nodes, STOCKED.topology!.edges);
+    const bus = layout.busX.get("backup-bus") as number;
+    const x = (id: string) => layout.position.get(id)!.x;
+    const y = (id: string) => layout.position.get(id)!.y;
+    for (const id of ["grid-meter", "generator", "transfer-switch"]) expect(x(id)).toBeLessThan(bus);
+    expect(x("grid-meter")).toBeLessThan(x("transfer-switch"));
+    expect(bus).toBeLessThan(x("compressor"));
+    expect(x("compressor")).toBeLessThan(x("cold-room"));
+    expect(x("cold-room")).toBeLessThan(x("chamber-probe"));
+    expect(y("compressor")).toBe(y("cold-room"));
+    expect(y("cold-room")).toBe(y("chamber-probe"));
+    expect(y("ambient-probe")).toBeGreaterThan(y("chamber-probe"));
+    expect(y("grid-meter")).toBeLessThan(y("transfer-switch"));
+    expect(y("transfer-switch")).toBeLessThan(y("generator"));
   });
 
   it("uses Configured and Needs a source, never Mapped or Not mapped, and keeps the W1 vocabulary on every route", async () => {

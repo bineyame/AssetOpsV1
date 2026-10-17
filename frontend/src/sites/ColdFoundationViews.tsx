@@ -11,6 +11,7 @@ import {
   KeyValues,
   MetricCard,
   MetricCards,
+  MissingClaim,
   Panel,
   SITE_SCREEN_DESCRIPTIONS,
   SitePageHeader,
@@ -42,6 +43,7 @@ export const NOT_DECLARED = "Not declared";
 export const SOURCE_CONTACT_UNAVAILABLE = "Source contact unavailable";
 export const CONFIDENCE_NOT_ASSESSED = "Confidence is not assessed";
 export const FUNCTION_UNKNOWN = "Function description not recorded";
+export const COLD_GATEWAY_TIMELINE_NOT_AVAILABLE_YET = "Availability timeline not available yet";
 
 /** Plain labels of the `cold-roles-1` roles (backend `sites/binding_roles.py`). */
 const ROLE_LABEL: Record<string, string> = {
@@ -89,7 +91,8 @@ const AREAS: { key: string; area: string; roles: string[] }[] = [
   { key: "grid", area: "Grid supply", roles: ["grid_state", "grid_power_event"] },
   { key: "backup", area: "Backup generator and bus", roles: ["generator_state", "backup_start_event", "backup_bus_state"] },
   { key: "transfer", area: "Transfer switch", roles: ["transfer_result"] },
-  { key: "door", area: "Door and loading log", roles: ["door_event", "manual_temperature"] },
+  { key: "door", area: "Door and loading log", roles: ["door_event"] },
+  { key: "manual", area: "Manual temperature log", roles: ["manual_temperature"] },
   { key: "ambient", area: "Ambient temperature", roles: ["ambient_temperature"] },
 ];
 const DEFINITION_CODES = new Set(["ROOM_MISSING", "POLICY_MISSING"]);
@@ -468,25 +471,29 @@ function ReadinessView(props: ViewProps) {
     const missingRequired = missing.filter((role) => !OPTIONAL_ROLES.has(role));
     // Needs a source: a required reading has none, or no reading of the area has one.
     const configured = missingRequired.length === 0 && missing.length < area.roles.length;
-    const shown = missing.length === area.roles.length ? [] : missing;
+    const roleNeeds = forRoles(area.roles);
+    const explained = new Set(messages.map((m) => m.role));
+    // One short line under the chip. A configured area names only its unconfigured optional readings;
+    // a required gap already explained under What is needed is not repeated here.
+    const detail = configured
+      ? missing.length === 0
+        ? null
+        : `${missing.map(roleLabel).join(", ")} (optional) not configured`
+      : missing.length === area.roles.length && area.roles.every((role) => OPTIONAL_ROLES.has(role))
+        ? "Optional"
+        : missing.filter((role) => !explained.has(role)).length === 0 || missing.length === area.roles.length
+          ? null
+          : `No source: ${missing.filter((role) => !explained.has(role)).map(roleLabel).join(", ")}`;
     return {
       key: area.key,
       area: area.area,
       declared: (
         <>
           <SourceBadge configured={configured} />
-          {shown.length === 0 ? null : (
-            <span className="muted">
-              {" "}
-              No source: {shown.map((role) => `${roleLabel(role)}${OPTIONAL_ROLES.has(role) ? " (optional)" : ""}`).join(", ")}
-            </span>
-          )}
-          {missing.length === area.roles.length && area.roles.every((role) => OPTIONAL_ROLES.has(role)) ? (
-            <span className="muted"> Optional</span>
-          ) : null}
+          {detail === null ? null : <span className="cold-readiness__detail muted">{detail}</span>}
         </>
       ),
-      needed: needed(forRoles(area.roles)),
+      needed: needed(roleNeeds),
       next: <Link to={props.viewHref("sld")}>Single line diagram →</Link>,
     };
   });
@@ -511,6 +518,7 @@ function ReadinessView(props: ViewProps) {
         action={<Link to={props.viewHref("sld")}>Single line diagram →</Link>}
       />
       <Panel
+        className="cold-readiness-panel"
         heading="Readiness and commissioning evidence"
         headingId="cold-readiness-table-heading"
         description="Declared means configured in the selected version. Confirmed needs a commissioning record; none is stored."
@@ -529,8 +537,8 @@ function ReadinessView(props: ViewProps) {
             <tr data-cold-readiness-row="definition">
               <th scope="row">Site definition</th>
               <td>
-                {policy === null ? <Badge tone="config-gap">{NOT_CONFIGURED}</Badge> : <Badge tone="configured">{CONFIGURED}</Badge>}{" "}
-                <span className="muted">
+                {policy === null ? <Badge tone="config-gap">{NOT_CONFIGURED}</Badge> : <Badge tone="configured">{CONFIGURED}</Badge>}
+                <span className="cold-readiness__detail muted">
                   {read.rooms.length === 0 ? "No cold room" : `Cold room${read.rooms.length === 1 ? "" : "s"}`}
                   {policy === null ? "" : ` · ${policy} policy`}
                 </span>
@@ -595,6 +603,19 @@ function ReadinessView(props: ViewProps) {
           <MetricCard word tone="muted" label="Data completeness" value="Not available" note="Completeness needs accepted records, which this view does not read" data={{ "data-cold-gateway-metric": "completeness" }} />
           <MetricCard word tone="muted" label="Clock and delivery" value="Unknown" note="No gateway clock report is read here" data={{ "data-cold-gateway-metric": "clock" }} />
         </MetricCards>
+        <div className="cold-gw-timeline" data-cold-gateway-timeline="">
+          <div className="cold-gw-track" role="img" aria-label="Gateway availability timeline: no history to draw">
+            <MissingClaim gapId="G-readiness-gateway-uptime" placement="cold-readiness.gateway.uptime">
+              {COLD_GATEWAY_TIMELINE_NOT_AVAILABLE_YET}
+            </MissingClaim>
+          </div>
+          <div className="cold-gw-legend">
+            <span><span className="cold-gw-key cold-gw-key--up" aria-hidden="true" />Online</span>
+            <span><span className="cold-gw-key cold-gw-key--part" aria-hidden="true" />Short outage or missing readings</span>
+            <span><span className="cold-gw-key cold-gw-key--down" aria-hidden="true" />Offline 1 h or more</span>
+            <span><span className="cold-gw-key" aria-hidden="true" />No history</span>
+          </div>
+        </div>
         <p className="v69-chart-note" data-cold-contact-note="">
           Contact is checked now on the server clock, not at the selected time. It shows that diagnostics reach the server, never that equipment works.
           {limitations.length === 0 ? null : ` ${limitations.join(". ")}.`}
@@ -681,18 +702,33 @@ function SldView(props: ViewProps) {
       >
         <p className="v69-chart-note" data-cold-sld-summary="">
           {nodes.length} part{nodes.length === 1 ? " is" : "s are"} drawn; {read.bindings.length} reading
-          {read.bindings.length === 1 ? " has" : "s have"} a configured source. Whether any part is reporting is unknown here.
+          {read.bindings.length === 1 ? " has" : "s have"} a configured source.
         </p>
         {read.topology === null || nodes.length === 0 ? (
           <p className="not-available-yet v69-chart-note" data-panel-gap="cold-sld-heading">
             No topology is declared in this version, so there is nothing to draw.
           </p>
         ) : (
-          <ColdTopologyDiagram read={read} byAsset={byAsset} roleWord={NODE_ROLE_WORD} mediumWord={MEDIUM_WORD} />
+          <ColdTopologyDiagram read={read} byAsset={byAsset} roleWord={NODE_ROLE_WORD} mediumWord={MEDIUM_WORD}>
+            <div className="cold-sld__monitor" data-cold-monitoring="">
+              <p className="cold-sld__monitor-label">Monitoring</p>
+              {read.bindings.length === 0 ? (
+                <p className="v69-chart-note">No reading source is configured in this version.</p>
+              ) : (
+                <ul className="cold-sld__monitor-list">
+                  {read.bindings.map((b) => (
+                    <li className="cold-sld__monitor-box" key={`${b.role}|${b.asset_id}`} data-cold-monitor={b.role} title="Reporting not assessed here">
+                      <span className="gw-dot gw-dot--none" aria-hidden="true" />
+                      {roleLabel(b.role)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </ColdTopologyDiagram>
         )}
         <p className="not-available-yet v69-chart-note" data-cold-sld-undeclared="">
-          {undeclared.length === 0 ? "Every cold-chain part is declared." : `Undeclared in this version: ${undeclared.join(", ")}.`} Live state is unknown: this is the
-          configured site, not a live view.
+          {undeclared.length === 0 ? "Every cold-chain part is declared." : `Undeclared in this version: ${undeclared.join(", ")}.`}
         </p>
       </Panel>
       <Panel heading="What each part does" headingId="cold-sld-parts-heading">
@@ -711,8 +747,7 @@ function SldView(props: ViewProps) {
                 <tr key={node.node_id} data-cold-part={node.component_id}>
                   <th scope="row">{node.display_name ?? node.component_id}</th>
                   <td>
-                    {NODE_ROLE_WORD[node.node_role] ?? node.node_role} (configured)
-                    <span className="muted"> · {FUNCTION_UNKNOWN}</span>
+                    {NODE_ROLE_WORD[node.node_role] ?? node.node_role}
                   </td>
                   <td>
                     {readings.length === 0 ? (
@@ -727,7 +762,7 @@ function SldView(props: ViewProps) {
           </tbody>
         </DataTable>
         <p className="v69-chart-note" data-cold-parts-note="">
-          Roles come from the configuration only. What each part does in operation is not recorded, and no row is a reading or a state.
+          {FUNCTION_UNKNOWN}: roles come from the configuration only, and no row is a reading or a state.
         </p>
         <ExactReferences
           name="cold-parts-references"

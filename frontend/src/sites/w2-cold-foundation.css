@@ -10,40 +10,66 @@
 .cold-sld__svg {
   display: block;
   width: 100%;
-  max-width: 1060px;
+  max-width: 1120px;
   height: auto;
   margin: 0 auto;
 }
 
-.cold-sld__box {
-  fill: var(--sld-load-fill);
-  stroke: var(--sld-bus);
-  stroke-width: 1.4;
+/* The hollow dashed marker: whether a part or source is reporting is not assessed here (mock "not connected" ring). */
+.cold-sld__unassessed {
+  fill: #fff;
+  stroke: #8a9bb3;
+  stroke-width: 1.5;
+  stroke-dasharray: 2 2;
 }
 
-.cold-sld__box--supply {
-  fill: var(--sld-supply-fill);
-  stroke: var(--sld-supply-stroke);
+/* Monitoring strip (mock "Monitoring & communication"): one box per configured source. */
+.cold-sld__monitor {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 2px dotted #8a9bb3;
 }
 
-.cold-sld__box--sensor {
-  fill: var(--sld-network-fill);
-  stroke: #3d7a8c;
-}
-
-.cold-sld__box--network {
-  fill: var(--sld-network-fill);
-}
-
-.cold-sld__label {
-  font-size: 13px;
-  font-weight: 600;
-  fill: var(--sld-ink);
-}
-
-.cold-sld__small {
+.cold-sld__monitor-label {
+  margin: 0 0 8px;
   font-size: 11px;
-  fill: #617087;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sld-ink);
+}
+
+.cold-sld__monitor-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cold-sld__monitor-box {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1.4px solid var(--sld-bus);
+  border-radius: 5px;
+  background: var(--sld-network-fill);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--sld-ink);
+}
+
+@media (max-width: 640px) {
+  .cold-sld__monitor-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .cold-sld__monitor-box {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
 }
 
 .cold-sld__edge {
@@ -89,14 +115,76 @@
   border-top: 2px dotted #3d7a8c;
 }
 
-/* At phone width the drawing keeps a readable scale and scrolls inside its own region. */
-.cold-sld__scroll {
-  overflow-x: auto;
+/* Readiness: the Declared detail sits under its chip as one short line. */
+.cold-readiness__detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
-@media (max-width: 760px) {
-  .cold-sld__svg {
-    width: 760px;
-    max-width: none;
+/* Gateway availability timeline (mock `.gw-strip`): an empty grey track, since no history is stored. */
+.cold-gw-timeline {
+  margin-top: 12px;
+}
+
+.cold-gw-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 16px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(135deg, #eef1f6 0 6px, #e3e8f0 6px 12px);
+  font-size: 11px;
+  color: var(--text-muted, #617087);
+}
+
+.cold-gw-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted, #617087);
+}
+
+.cold-gw-key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 2px;
+  vertical-align: -1px;
+  background: #e3e8f0;
+}
+
+.cold-gw-key--up {
+  background: #8cc7af;
+}
+
+.cold-gw-key--part {
+  background: #e8c27c;
+}
+
+.cold-gw-key--down {
+  background: #e49a9a;
+}
+
+/* Narrow widths: compact readiness rows (about two lines each) and source chips. */
+@media (max-width: 640px) {
+  .cold-readiness-panel .data-table th,
+  .cold-readiness-panel .data-table td {
+    padding: 7px 6px;
+    line-height: 1.35;
+  }
+  .cold-readiness-panel .data-table tbody th {
+    min-width: 9.5em;
+  }
+  .cold-readiness__detail {
+    font-size: 11px;
+  }
+  .gw-panel .gw-src {
+    padding: 3px 6px;
   }
 }

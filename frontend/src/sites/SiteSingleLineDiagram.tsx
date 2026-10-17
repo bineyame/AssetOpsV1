@@ -1,7 +1,7 @@
 import { useId, useMemo, type KeyboardEvent, type ReactNode } from "react";
 
 import { Badge, DataTable, MissingClaim, MissingClaimSvg } from "../ui";
-import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape } from "./componentIcons";
+import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape, type ComponentIconSymbol } from "./componentIcons";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import type { ColdBinding, ColdFoundationReadModel, ColdTopologyNode } from "./coldFoundationClient";
 import {
@@ -13,6 +13,7 @@ import {
 } from "./siteViewModel";
 import {
   deriveSiteSldView,
+  sldSymbolFor,
   type SiteSldView,
   type SldConnectionView,
   type SldDiagramView,
@@ -1277,126 +1278,250 @@ export function SiteSldDetails({
     </>
   );
 }
-
 /*
- * W2-01: the configured cold-chain drawing (kept in this diagram module, which owns its overflow
- * region). The configured drawing: columns by connection depth, boxes per part, one line per declared connection. */
+ * W2-01: the configured cold-chain drawing, in the mini-grid bus-bar idiom (kept in this diagram
+ * module, which owns SVG). Supplies on the left feed the transfer switch, the switch feeds a vertical
+ * AC bus bar, and the cooling feeder leaves the bar on the right with its cooling link to the cold
+ * room and the room's probe beyond it. Placement is by declared node role; every line is a declared
+ * connection, never an inferred one. Frame colour names an equipment family, line style the medium.
+ */
 
-const BOX_W = 170;
-const BOX_H = 74;
-const COL_W = 204;
-const ROW_H = 132;
+const COLD_TOP = 74;
+const COLD_PITCH = 150;
+const COLD_BUS_X = 436;
+const COLD_BUS_STEP = 26;
+const COLD_TEXT_BLOCK = 80;
+const COLD_LANE_X = { supply: 16, switch: 236, cooling: 500, room: 670, sensor: 840 } as const;
+const COLD_WIDTH = COLD_LANE_X.sensor + 156;
+
+type ColdLane = keyof typeof COLD_LANE_X | "bus";
+
+const COLD_LANE_OF: Record<string, ColdLane> = {
+  METERING: "supply",
+  GENERATION: "supply",
+  SWITCH: "switch",
+  BUS: "bus",
+  COOLING: "cooling",
+  COLD_ROOM: "room",
+  SENSOR: "sensor",
+};
+
+const COLD_SYMBOL: Record<string, ComponentIconSymbol> = {
+  COLD_ROOM: "COLD_ROOM",
+  TEMPERATURE_PROBE: "TEMPERATURE_PROBE",
+  COMPRESSOR: "COMPRESSOR",
+  TRANSFER_SWITCH: "TRANSFER_SWITCH",
+};
+
+/** The cold symbol for a component type, or null: an unknown type is drawn as a plain frame, never as another type. */
+function coldSymbolFor(componentType: string): ComponentIconSymbol | null {
+  return COLD_SYMBOL[componentType] ?? sldSymbolFor(componentType);
+}
+
+type ColdEdgeShape = { connection_id: string; from_node: string; to_node: string; medium: string };
+
+export interface ColdDrawingLayout {
+  /** Icon top-left per non-bus node, in drawing units. */
+  position: Map<string, { x: number; y: number }>;
+  /** Bar x per bus node. */
+  busX: Map<string, number>;
+  rows: number;
+  width: number;
+  height: number;
+  busTop: number;
+  busBottom: number;
+}
+
+export function coldDrawingLayout(nodes: ColdTopologyNode[], edges: ColdEdgeShape[]): ColdDrawingLayout {
+  const laneOf = (node: ColdTopologyNode): ColdLane => COLD_LANE_OF[node.node_role] ?? "supply";
+  const row = new Map<string, number>();
+  const taken = new Map<ColdLane, Set<number>>();
+  const busX = new Map<string, number>();
+  const place = (node: ColdTopologyNode, preferred: number | null, start: number) => {
+    const used = taken.get(laneOf(node)) ?? new Set<number>();
+    let r = preferred !== null && !used.has(preferred) ? preferred : start;
+    if (preferred === null || used.has(preferred)) while (used.has(r)) r += 1;
+    used.add(r);
+    taken.set(laneOf(node), used);
+    row.set(node.node_id, r);
+  };
+  const predecessors = (id: string) =>
+    edges.filter((e) => e.to_node === id).map((e) => row.get(e.from_node)).filter((r): r is number => r !== undefined);
+  const connected = (id: string) => edges.some((e) => e.from_node === id || e.to_node === id);
+  const inLane = (lane: ColdLane) => nodes.filter((n) => laneOf(n) === lane);
+  const rightOfBus = new Set<ColdLane>(["cooling", "room", "sensor"]);
+
+  // Supplies: grid metering above generation, as the mock draws the grid feeder first.
+  const supplies = inLane("supply").sort(
+    (a, b) => Number(a.node_role === "GENERATION") - Number(b.node_role === "GENERATION"),
+  );
+  supplies.forEach((n, i) => place(n, i, i));
+  // A switch sits level with the middle of what feeds it.
+  inLane("switch").forEach((n, i) => {
+    const from = predecessors(n.node_id);
+    place(n, from.length === 0 ? null : from.reduce((s, r) => s + r, 0) / from.length, i);
+  });
+  inLane("bus").forEach((n, i) => busX.set(n.node_id, COLD_BUS_X + i * COLD_BUS_STEP));
+  // Right of the bar: each part on the row of what feeds it; an unconnected part starts below the chain.
+  for (const lane of ["cooling", "room", "sensor"] as const) {
+    for (const n of inLane(lane)) {
+      const from = predecessors(n.node_id);
+      const chainStarted = nodes.some((m) => rightOfBus.has(laneOf(m)) && row.get(m.node_id) === 0);
+      place(n, from.length === 0 ? null : from[0], connected(n.node_id) || !chainStarted ? 0 : 1);
+    }
+  }
+  const rows = Math.max(1, ...Array.from(row.values()).map((r) => Math.ceil(r) + 1));
+  const position = new Map<string, { x: number; y: number }>();
+  for (const node of nodes) {
+    const lane = laneOf(node);
+    if (lane === "bus") continue;
+    position.set(node.node_id, { x: COLD_LANE_X[lane], y: COLD_TOP + (row.get(node.node_id) ?? 0) * COLD_PITCH });
+  }
+  const lastIconBottom = COLD_TOP + (rows - 1) * COLD_PITCH + ICON_H;
+  return {
+    position,
+    busX,
+    rows,
+    width: COLD_WIDTH,
+    height: lastIconBottom + COLD_TEXT_BLOCK,
+    busTop: COLD_TOP - 14,
+    busBottom: lastIconBottom + 14,
+  };
+}
+
+function coldEdgePath(edge: ColdEdgeShape, layout: ColdDrawingLayout): string | null {
+  const a = layout.position.get(edge.from_node);
+  const b = layout.position.get(edge.to_node);
+  const aBus = layout.busX.get(edge.from_node);
+  const bBus = layout.busX.get(edge.to_node);
+  const mid = ICON_H / 2;
+  if (a !== undefined && bBus !== undefined) {
+    return a.x < bBus ? `M ${a.x + ICON_W} ${a.y + mid} H ${bBus}` : `M ${a.x} ${a.y + mid} H ${bBus}`;
+  }
+  if (aBus !== undefined && b !== undefined) {
+    return b.x > aBus ? `M ${aBus} ${b.y + mid} H ${b.x}` : `M ${aBus} ${b.y + mid} H ${b.x + ICON_W}`;
+  }
+  if (a === undefined || b === undefined) return null;
+  if (b.x > a.x + ICON_W) {
+    const turn = (a.x + ICON_W + b.x) / 2;
+    return `M ${a.x + ICON_W} ${a.y + mid} H ${turn} V ${b.y + mid} H ${b.x}`;
+  }
+  if (b.x === a.x) return `M ${a.x} ${a.y + mid} H ${a.x - 12} V ${b.y + mid} H ${b.x}`;
+  const turn = (b.x + ICON_W + a.x) / 2;
+  return `M ${a.x} ${a.y + mid} H ${turn} V ${b.y + mid} H ${b.x + ICON_W}`;
+}
+
+function readingsText(count: number): string {
+  return count === 0 ? "No reading configured" : `${count} reading${count === 1 ? "" : "s"} configured`;
+}
 
 export function ColdTopologyDiagram({
   read,
   byAsset,
   roleWord,
   mediumWord,
+  children,
 }: {
   read: ColdFoundationReadModel;
   byAsset: Map<string, ColdBinding[]>;
   roleWord: Record<string, string>;
   mediumWord: Record<string, string>;
+  /** Drawn under the drawing and above the legend: the monitoring strip. */
+  children?: ReactNode;
 }) {
-  const layout = useMemo(() => diagramLayout(read.topology?.nodes ?? [], read.topology?.edges ?? []), [read]);
-  const width = layout.columns * COL_W - (COL_W - BOX_W) + 16;
-  const height = layout.rows * ROW_H - (ROW_H - BOX_H) + 16;
-  const at = (id: string) => layout.position.get(id);
+  const nodes = read.topology?.nodes ?? [];
+  const edges = read.topology?.edges ?? [];
+  const layout = useMemo(
+    () => coldDrawingLayout(read.topology?.nodes ?? [], read.topology?.edges ?? []),
+    [read],
+  );
+  const readings = (node: ColdTopologyNode) => (node.asset_id === null ? 0 : (byAsset.get(node.asset_id)?.length ?? 0));
+  const nameOf = (node: ColdTopologyNode) => node.display_name ?? node.component_id;
   return (
     <figure className="cold-sld" data-cold-diagram="">
-      <div className="cold-sld__scroll" role="region" aria-label="Configured single line diagram" tabIndex={0}>
       <svg
         className="cold-sld__svg"
-        viewBox={`0 0 ${width} ${height}`}
+        viewBox={`0 0 ${layout.width} ${layout.height}`}
         role="img"
-        aria-label={`Configured single line diagram: ${layout.nodes.length} parts and ${layout.edges.length} declared connections`}
+        aria-label={`Configured single line diagram: ${nodes.length} parts and ${edges.length} declared connections`}
       >
-        {layout.edges.map((edge) => {
-          const from = at(edge.from_node);
-          const to = at(edge.to_node);
-          if (from === undefined || to === undefined) return null;
-          const x1 = from.x + BOX_W;
-          const y1 = from.y + BOX_H / 2;
-          const x2 = to.x;
-          const y2 = to.y + BOX_H / 2;
-          const mid = (x1 + x2) / 2;
+        {nodes
+          .filter((node) => layout.busX.has(node.node_id))
+          .map((node) => {
+            const x = layout.busX.get(node.node_id) ?? COLD_BUS_X;
+            const lines = wrapName(nameOf(node));
+            const top = layout.busTop - 8 - 15 * lines.length;
+            return (
+              <g key={node.node_id} className="cold-sld__bus" data-cold-node={node.component_id}>
+                <text className="sld-node__name sld-node__name--bus" x={x} y={top - 6} textAnchor="middle">
+                  {lines.map((line, index) => (
+                    <tspan key={line} x={x} dy={index === 0 ? 0 : 15} data-vocabulary-exempt="user-owned">
+                      {line}
+                    </tspan>
+                  ))}
+                </text>
+                <text className="sld-node__rating" x={x} y={layout.busTop - 8} textAnchor="middle">
+                  {readingsText(readings(node))}
+                </text>
+                <line className="sld-node__bar" x1={x} x2={x} y1={layout.busTop} y2={layout.busBottom} />
+              </g>
+            );
+          })}
+        {edges.map((edge) => {
+          const d = coldEdgePath(edge, layout);
+          if (d === null) return null;
           return (
             <path
               key={edge.connection_id}
               className={`cold-sld__edge cold-sld__edge--${edge.medium.toLowerCase()}`}
-              d={`M ${x1} ${y1} H ${mid} V ${y2} H ${x2}`}
+              d={d}
               data-cold-edge={edge.connection_id}
             >
               <title>{`${edge.from_node} to ${edge.to_node} (${mediumWord[edge.medium] ?? edge.medium})`}</title>
             </path>
           );
         })}
-        {layout.nodes.map((node) => {
-          const p = at(node.node_id);
+        {nodes.map((node) => {
+          const p = layout.position.get(node.node_id);
           if (p === undefined) return null;
-          const readings = node.asset_id === null ? 0 : (byAsset.get(node.asset_id)?.length ?? 0);
-          const name = node.display_name ?? node.component_id;
+          const symbol = coldSymbolFor(node.component_type);
+          const lines = wrapName(nameOf(node));
+          const text = p.y + ICON_H + 17;
+          const after = text + 15 * (lines.length - 1);
           return (
-            <g key={node.node_id} transform={`translate(${p.x} ${p.y})`} data-cold-node={node.component_id}>
-              <rect className={`cold-sld__box cold-sld__box--${family(node.node_role)}`} width={BOX_W} height={BOX_H} rx={6} />
-              <text className="cold-sld__label" x={10} y={26}>
-                {name.length > 24 ? `${name.slice(0, 23)}…` : name}
+            <g key={node.node_id} className="sld-node" data-cold-node={node.component_id}>
+              <g transform={`translate(${p.x} ${p.y})`}>
+                {symbol === null ? (
+                  <rect className="component-icon__frame" width={ICON_W} height={ICON_H} rx={5} />
+                ) : (
+                  <ComponentIconShape symbol={symbol} />
+                )}
+                <circle className="cold-sld__unassessed" cx={ICON_W} cy={0} r={5} />
+              </g>
+              <text className="sld-node__name" x={p.x} y={text}>
+                {lines.map((line, index) => (
+                  <tspan key={line} x={p.x} dy={index === 0 ? 0 : 15} data-vocabulary-exempt="user-owned">
+                    {line}
+                  </tspan>
+                ))}
               </text>
-              <text className="cold-sld__small" x={10} y={46}>
+              <text className="sld-node__rating" x={p.x} y={after + 16}>
                 {roleWord[node.node_role] ?? node.node_role}
               </text>
-              <text className="cold-sld__small" x={10} y={63}>
-                {readings === 0 ? "No reading configured" : `${readings} reading${readings === 1 ? "" : "s"} configured`}
+              <text className="sld-node__rating" x={p.x} y={after + 31}>
+                {readingsText(readings(node))}
               </text>
             </g>
           );
         })}
       </svg>
-      </div>
+      {children}
       <figcaption className="cold-sld__legend">
         <span><span className="cold-sld__key cold-sld__key--ac" aria-hidden="true" />Power</span>
         <span><span className="cold-sld__key cold-sld__key--thermal" aria-hidden="true" />Cooling</span>
         <span><span className="cold-sld__key cold-sld__key--signal" aria-hidden="true" />Sensing</span>
+        <span><span className="gw-dot gw-dot--none" aria-hidden="true" />Reporting not assessed here</span>
       </figcaption>
     </figure>
   );
-}
-
-function family(role: string): string {
-  if (role === "GENERATION" || role === "METERING") return "supply";
-  if (role === "COLD_ROOM" || role === "COOLING") return "load";
-  if (role === "SENSOR") return "sensor";
-  return "network";
-}
-
-export function diagramLayout(nodes: ColdTopologyNode[], edges: { connection_id: string; from_node: string; to_node: string; medium: string }[]) {
-  const depth = new Map(nodes.map((n) => [n.node_id, 0]));
-  // Longest path from any source; the configuration is a directed acyclic graph, so this settles in |nodes| passes.
-  for (let pass = 0; pass < nodes.length; pass += 1) {
-    for (const edge of edges) {
-      const from = depth.get(edge.from_node);
-      const to = depth.get(edge.to_node);
-      if (from !== undefined && to !== undefined && to < from + 1) depth.set(edge.to_node, from + 1);
-    }
-  }
-  const columns = new Map<number, ColdTopologyNode[]>();
-  for (const node of nodes) {
-    const d = depth.get(node.node_id) ?? 0;
-    columns.set(d, [...(columns.get(d) ?? []), node]);
-  }
-  const position = new Map<string, { x: number; y: number }>();
-  let rows = 1;
-  for (const [d, list] of columns) {
-    rows = Math.max(rows, list.length);
-    list.forEach((node, i) => position.set(node.node_id, { x: 8 + d * COL_W, y: 8 + i * ROW_H }));
-  }
-  // Centre each column on the tallest one, so a chain reads as one line across the drawing.
-  for (const list of columns.values()) {
-    const offset = ((rows - list.length) * ROW_H) / 2;
-    for (const node of list) {
-      const p = position.get(node.node_id);
-      if (p !== undefined) p.y += offset;
-    }
-  }
-  return { nodes, edges, position, columns: Math.max(1, columns.size === 0 ? 1 : Math.max(...columns.keys()) + 1), rows };
 }
