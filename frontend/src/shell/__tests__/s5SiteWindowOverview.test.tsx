@@ -471,8 +471,10 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     expect(coverage.open).toBe(false);
     expect(coverage.querySelector("table")).not.toBeNull();
     expect(coverage.querySelector("[data-window-readings]")).not.toBeNull();
-    // Panel 1: the day's bounds sit in the chip row; Next step keeps its button and Dispatch link on one line.
+    // The day chooser is the leading chip row (before panel 1, outside every panel), with the day's bounds in it;
+    // Next step keeps its button and Dispatch link on one line.
     expect(container.querySelector(".window-day [data-window-bounds]")?.textContent).toContain("start included, end excluded");
+    expect(container.querySelector(".window-day")?.closest(".panel")).toBeNull();
     const actions = container.querySelector(".overview-next__actions") as HTMLElement;
     expect(actions.querySelector("[data-overview-next-finding]")).not.toBeNull();
     expect(actions.querySelector("[data-overview-next-dispatch]")).not.toBeNull();

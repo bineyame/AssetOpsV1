@@ -70,3 +70,6 @@
 .site-window-overview .window-day__bounds {
   margin: 0;
 }
+.site-window-overview .window-day .window-day__bounds {
+  flex-basis: auto;
+}

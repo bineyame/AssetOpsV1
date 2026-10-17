@@ -885,6 +885,9 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
             <DayStatus summary={summary} links={links} />
             <ObjectiveLine summary={summary} />
             <ObjectiveCards summary={summary} />
+            {/* W1-F2 compaction (phase B): the app-only day chooser is the v69 chip row before panel 1, as on
+                Dispatch and Evidence, so panel 1 keeps the mock's short sequence. */}
+            <DaySelector summary={summary} onSelectDay={onSelectDay} />
           </>
         }
         happened={{
@@ -892,7 +895,6 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
           body: (
             <>
               <HourNotSelected scope={`one whole UTC day (${day})`} />
-              <DaySelector summary={summary} onSelectDay={onSelectDay} />
               <PeriodStrip summary={summary} links={links} />
               <DayReading summary={summary} />
               <FreshnessStrip summary={summary} />
