@@ -107,7 +107,7 @@ function ceilingSentence(body: CeilingBody | null): string | null {
   const minutes = body.supported_minutes === null ? "" : ` for ${mins(body.supported_minutes)}`;
   return body.support === "COMPLETE"
     ? `The readings support calling this period of generator operation ${word}${minutes}. Every reading it needs is present for that time.`
-    : `The readings support calling this period of generator operation ${word} for at most${minutes.replace(" for", "")}; the rest of the period is limited by the gaps below.`;
+    : `The readings support calling this period of generator operation ${word} for at most${minutes.replace(" for", "")}; for the rest of the period a reading it needs is missing or unreliable.`;
 }
 
 /** The selected interval's own period from its role spans (the read's `window` is the whole UTC day). */
