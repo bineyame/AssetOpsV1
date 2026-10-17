@@ -428,7 +428,9 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     const main = container.querySelector("main") as HTMLElement;
     // W1-F2: the day state leads as the mock's statusbar; no answer card precedes the five v69 panels.
     expect(main.querySelector("[data-headline-card]")).toBeNull();
-    expect(main.querySelector(".site-window-overview")?.firstElementChild).toBe(objectiveCard());
+    // Review Low 7b: the day chooser chip row comes first (as on Dispatch and Evidence), then the statusbar leads the content.
+    expect(main.querySelector(".site-window-overview")?.firstElementChild?.classList.contains("window-day")).toBe(true);
+    expect(main.querySelector(".site-window-overview .window-day")?.nextElementSibling).toBe(objectiveCard());
     expectV69Panels("mini");
     const w1 = scanProductVocabulary(main, "selected-day overview (W1-UX-02)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(30);

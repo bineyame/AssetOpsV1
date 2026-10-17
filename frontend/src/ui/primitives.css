@@ -4958,3 +4958,6 @@ input.v69-chip-control[type="datetime-local"] {
   font-weight: 400;
   color: var(--text-muted);
 }
+/* Review Low 7a: "Show all" and "Next page" at note size. */
+.evidence-records__paging button,
+.evidence-records__paging a { font-size: inherit; }

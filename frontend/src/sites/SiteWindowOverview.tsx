@@ -38,7 +38,7 @@ import {
   type ProductWords,
 } from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
-import { clock, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
+import { clock, idWords, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
 import { portionWords } from "./findingWords";
 import { OUTCOME_WORDS } from "./findingPresentation";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
@@ -506,11 +506,14 @@ function Timeline({ summary }: { summary: SiteWindowSummary }) {
             </div>
           </div>
           {coverage.map((c) => {
+            // Review Low 7c: a reading kind that repeats is told apart by its device, in words.
+            const name = c.role ? roleWords(c.role) : "Unnamed reading";
+            const repeats = coverage.filter((o) => (o.role ? roleWords(o.role) : "Unnamed reading") === name).length > 1;
             const lo = dayPercent(c.first_source_time, summary.window.start);
             const hi = dayPercent(c.last_source_time, summary.window.start);
             return (
               <div className="window-timeline__row" key={`${c.device_id}/${c.signal_id}`}>
-                <span className="window-timeline__label">{c.role ? roleWords(c.role) : "Unnamed reading"}</span>
+                <span className="window-timeline__label">{repeats ? `${name} · ${idWords(c.device_id)}` : name}</span>
                 <div className="window-timeline__track">
                   {lo === null || hi === null ? null : (
                     <span
@@ -898,12 +901,12 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
       <OverviewGrid
         lead={
           <>
+            {/* Review Low 7b: the app-only day chooser is the v69 chip row above the statusbar, the same place as
+                on Dispatch and Evidence. */}
+            <DaySelector summary={summary} onSelectDay={onSelectDay} />
             <DayStatus summary={summary} links={links} />
             <ObjectiveLine summary={summary} />
             <ObjectiveCards summary={summary} />
-            {/* W1-F2 compaction (phase B): the app-only day chooser is the v69 chip row before panel 1, as on
-                Dispatch and Evidence, so panel 1 keeps the mock's short sequence. */}
-            <DaySelector summary={summary} onSelectDay={onSelectDay} />
           </>
         }
         happened={{

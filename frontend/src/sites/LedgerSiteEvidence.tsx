@@ -44,7 +44,7 @@ import {
 import { PeriodStrip } from "./periodStrip";
 import { CountBars } from "./assessmentGraphics";
 import type { ClaimLimitClient } from "./claimLimitClient";
-import { qualityWords, roleWords } from "./dispatchWords";
+import { idWords, qualityWords, roleWords } from "./dispatchWords";
 import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
 import { LocalViews, localView, localViewSearch, readablePeriod, readableTime } from "./findingPresentation";
 import type { EvidenceRead } from "./evidenceRead";
@@ -100,21 +100,6 @@ function readingValue(value: { value: string | null; unit: string | null }): str
   }
   const unit = value.unit === null || value.unit === "state" ? "" : ` ${value.unit}`;
   return `${value.value}${unit}`;
-}
-
-const ID_WORDS: Record<string, string> = { pcs: "power converter", soc: "charge", pv: "solar", gw: "gateway" };
-
-/**
- * Review fix M5(b): a source or channel identifier shown once, in words ("generator-controller" reads
- * "Generator controller"); the exact identifier stays in the element's title and the record detail.
- */
-export function idWords(id: string): string {
-  const words = id
-    .split(/[-_./\s]+/)
-    .filter((w) => w !== "")
-    .map((w) => ID_WORDS[w.toLowerCase()] ?? w.toLowerCase())
-    .join(" ");
-  return words === "" ? id : words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /** The reading's name: its configured role in words, else its channel identifier in words. */
@@ -1144,21 +1129,22 @@ function Rejected({
   const refused = notAccepted(evidence);
   return (
     <div className="evidence-rejected" aria-labelledby="site-evidence-rejected-heading">
-      <p id="site-evidence-rejected-heading">
-        <strong>Readings not accepted</strong>
-      </p>
-      <p className="v69-chart-note" data-evidence-not-accepted-line={refused}>
-        {refused === 0
-          ? "No reading in this period was refused."
-          : `${plural(refused, "reading", "readings")} in this period ${refused === 1 ? "was" : "were"} not accepted (${evidence.counts.rejected} refused, ${evidence.counts.conflicts} arrived again with different contents). They are never counted as accepted.`}
-      </p>
-      <p className="v69-chart-note" data-evidence-untimed={typeof untimed === "number" ? String(untimed) : "unavailable"}>
-        {typeof untimed !== "number"
-          ? "How many refused readings had no readable time is not available."
-          : untimed === 0
-            ? "Every refused reading had a readable time."
-            : `${plural(untimed, "refused reading has", "refused readings have")} no readable time, so no period can hold ${untimed === 1 ? "it" : "them"}; ${untimed === 1 ? "it is" : "they are"} listed in the advanced details below.`}{" "}
-        A delivery that was rejected as a whole is kept for audit and not listed as a reading.
+      {/* Review Low 7a: the not-accepted facts fold into one note line, before the one closed disclosure. */}
+      <p className="v69-chart-note">
+        <strong id="site-evidence-rejected-heading">Readings not accepted:</strong>{" "}
+        <span data-evidence-not-accepted-line={refused}>
+          {refused === 0
+            ? "No reading in this period was refused."
+            : `${plural(refused, "reading", "readings")} in this period ${refused === 1 ? "was" : "were"} not accepted (${evidence.counts.rejected} refused, ${evidence.counts.conflicts} arrived again with different contents). They are never counted as accepted.`}
+        </span>{" "}
+        <span data-evidence-untimed={typeof untimed === "number" ? String(untimed) : "unavailable"}>
+          {typeof untimed !== "number"
+            ? "How many refused readings had no readable time is not available."
+            : untimed === 0
+              ? "Every refused reading had a readable time."
+              : `${plural(untimed, "refused reading has", "refused readings have")} no readable time, so no period can hold ${untimed === 1 ? "it" : "them"}; ${untimed === 1 ? "it is" : "they are"} listed in the advanced details below.`}{" "}
+          A delivery that was rejected as a whole is kept for audit and not listed as a reading.
+        </span>
       </p>
       <Advanced name="evidence-not-accepted" summary="Advanced details — readings not accepted">
         {evidence.state === "NO_DATA" ? null : <OutcomeBars evidence={evidence} />}
@@ -1426,7 +1412,7 @@ function Inspector({
                 ))}
               </tbody>
             </DataTable>
-            <p className="evidence-records__paging">
+            <p className="evidence-records__paging v69-chart-note">
               {list.value.records.length <= RECORD_PREVIEW_ROWS || selectedIndex >= RECORD_PREVIEW_ROWS ? null : (
                 <button
                   type="button"
