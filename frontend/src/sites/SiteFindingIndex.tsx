@@ -39,6 +39,7 @@ import {
   StatusBar,
   plainTime,
   ProductStatus,
+  ShowAll,
   StepStrip,
   currentnessWords,
   readResultWords,
@@ -304,7 +305,12 @@ function dayStep(day: FindingIndexDayWatermark): Step {
 
 function DayStrip({ body }: { body: FindingIndexBody }) {
   if (body.watermarks.days.length === 0) return null;
-  return <StepStrip title="Days in this window" steps={body.watermarks.days.map(dayStep)} />;
+  // W1-F3 height phase: the days read as one compact line of marks; a day that is not done keeps its detail.
+  return (
+    <div className="v69-step-line">
+      <StepStrip title="Days in this window" steps={body.watermarks.days.map(dayStep)} />
+    </div>
+  );
 }
 
 /** The labelled exact values behind a loaded list: references, raw state and reasons. */
@@ -365,7 +371,28 @@ function Relations({ row, links }: { row: FindingIndexRow; links: FindingIndexLi
   );
 }
 
+/** W1-F3 height phase: the mock shows three rows; the rest of the page stays behind "Show all N". */
+const ROWS_SHOWN = 3;
+
 function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLinks }) {
+  const first = body.rows.slice(0, ROWS_SHOWN);
+  const rest = body.rows.slice(ROWS_SHOWN);
+  return (
+    <>
+      <RowTable rows={first} links={links} />
+      {rest.length === 0 ? null : (
+        <ShowAll name="finding-index-rows" summary={`Show all ${body.rows.length} Findings on this page`}>
+          <RowTable rows={rest} links={links} />
+        </ShowAll>
+      )}
+      <p className="v69-gap-line" data-finding-index-amount-note>
+        No amount is shown in this list. Open a Finding for its consequence and evidence.
+      </p>
+    </>
+  );
+}
+
+function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: FindingIndexLinks }) {
   return (
     <DataTable labelledBy={HEADING_ID}>
       <thead>
@@ -378,7 +405,7 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
         </tr>
       </thead>
       <tbody>
-        {body.rows.map((row) => {
+        {rows.map((row) => {
           const lifecycle = LIFECYCLE_WORDS[row.lifecycle as Lifecycle];
           return (
             <tr
@@ -412,7 +439,7 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
                 ) : null}
               </td>
               <td data-finding-index-amount={row.amount.state}>
-                No amount shown in this list. Open the Finding for its consequence and evidence.
+                Not in this list
               </td>
               <td>
                 <Relations row={row} links={links} />

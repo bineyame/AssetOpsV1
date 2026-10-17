@@ -78,3 +78,29 @@
     flex: 1 1 100%;
   }
 }
+
+/* W1-F3 height phase: rows are two short lines; related Findings read inline. */
+.finding-index-row td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.finding-index-relations {
+  padding-left: 0;
+  list-style: none;
+}
+
+.finding-index-relations li {
+  display: inline;
+}
+
+.finding-index-relations li + li::before {
+  content: " · ";
+  color: var(--text-secondary);
+}
+
+.finding-index .v69-gap-line {
+  margin-top: 6px;
+}

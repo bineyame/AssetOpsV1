@@ -518,7 +518,7 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
   const { lineage } = body;
   // W1-F3 height phase: the five trail steps read as one compact line; a broken step keeps its detail.
   const strip = (
-    <div className="finding-evidence__trail-line">
+    <div className="v69-step-line">
       <StepStrip title="How each cited record is traced" steps={trailSteps(body)} />
     </div>
   );

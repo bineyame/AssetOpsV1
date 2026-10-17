@@ -168,17 +168,17 @@
   display: block;
 }
 
-.finding-evidence__trail-line .step-strip {
+.v69-step-line .step-strip {
   margin: 0 0 6px;
 }
 
-.finding-evidence__trail-line .step-strip figcaption {
+.v69-step-line .step-strip .value-bars__title {
   display: inline;
   margin-right: 8px;
   font-size: 12px;
 }
 
-.finding-evidence__trail-line .step-strip__list {
+.v69-step-line .step-strip .step-strip__list {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 4px 14px;
@@ -187,7 +187,7 @@
   grid-template-columns: none;
 }
 
-.finding-evidence__trail-line .step-strip__step {
+.v69-step-line .step-strip .step-strip__step {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -197,26 +197,26 @@
   font-size: 12px;
 }
 
-.finding-evidence__trail-line .step-strip__mark {
+.v69-step-line .step-strip .step-strip__mark {
   grid-row: auto;
   width: 0.6rem;
   height: 0.6rem;
   margin-top: 0;
 }
 
-.finding-evidence__trail-line .step-strip__label {
+.v69-step-line .step-strip .step-strip__label {
   font-weight: 400;
 }
 
-.finding-evidence__trail-line .step-strip__step--done .step-strip__state {
+.v69-step-line .step-strip .step-strip__step--done .step-strip__state {
   display: none;
 }
 
-.finding-evidence__trail-line .step-strip__step--done .step-strip__detail {
+.v69-step-line .step-strip .step-strip__step--done .step-strip__detail {
   display: none;
 }
 
-.finding-evidence__trail-line .step-strip__detail {
+.v69-step-line .step-strip .step-strip__detail {
   color: var(--text-secondary);
   font-size: 11px;
 }

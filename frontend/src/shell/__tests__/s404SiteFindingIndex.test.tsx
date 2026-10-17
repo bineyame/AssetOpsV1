@@ -27,7 +27,7 @@ import {
 } from "../../sites/__tests__/findingIndexFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
-import { expectStateLineVisible } from "../../test/productPresentation";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 
@@ -459,5 +459,27 @@ describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings
       expect(panel.querySelector("[data-finding-index-row]")).toBeNull();
       expect(panel.textContent).not.toMatch(/\d+ Findings? in this window/);
     }
+  });
+});
+
+describe("W1-F3 height phase: Site Findings index shows the mock's three rows", () => {
+  it("shows the first 3 rows of the page; the rest stay reachable, in the read's order, behind 'Show all N'; one amount note", async () => {
+    const ids = [1, 2, 3, 4, 5].map((n) => `f-${n}`);
+    const five = indexBody({
+      rows: ids.map((id, i) => indexRow(id, `r-${i + 1}`, `2026-10-25T1${5 - i}:00:00Z`, `2026-10-25T1${5 - i}:30:00Z`)),
+      total_count: 5,
+      next_cursor: null,
+    });
+    const { client } = indexClient(() => ({ status: "loaded", value: five }));
+    renderAt(PATH, client);
+    await settledScreen();
+    const rows = Array.from(document.querySelectorAll("[data-finding-index-row]"));
+    expect(rows.map((r) => r.getAttribute("data-finding-index-row"))).toEqual(ids);
+    expect(rows.filter((r) => visibleOutsideClosedDisclosure(r)).map((r) => r.getAttribute("data-finding-index-row"))).toEqual(ids.slice(0, 3));
+    const showAll = document.querySelector("details[data-show-all='finding-index-rows']") as HTMLDetailsElement;
+    expect(showAll.open).toBe(false);
+    expect(showAll.querySelector("summary")).toHaveTextContent("Show all 5 Findings on this page");
+    expect(document.querySelectorAll("[data-finding-index-amount-note]")).toHaveLength(1);
+    expect(visibleOutsideClosedDisclosure(document.querySelector("[data-finding-index-amount-note]")!)).toBe(true);
   });
 });
