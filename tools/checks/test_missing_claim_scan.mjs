@@ -285,3 +285,25 @@ test('W1-UX-07 mutation: the exemption is narrow (other file, other const, inlin
   const none = world((w) => { w.files.push({ path: RAIL_PATH, text: RAIL }); w.exemptions = []; });
   assert.ok(none.errors.some((e) => e.type === 'untagged_copy' && e.where === `${RAIL_PATH}:1`));
 });
+
+// W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the in-page status const in UnavailableEntry.tsx is the second
+// reviewed exemption, equally narrow.
+const IN_PAGE = `const IN_PAGE_UNAVAILABLE_STATUS = "Not available yet";
+export function UnavailableTab({ label }) {
+  return <li aria-label={\`\${label}, \${IN_PAGE_UNAVAILABLE_STATUS}\`}><span>{\`\${label} · \${IN_PAGE_UNAVAILABLE_STATUS}\`}</span></li>;
+}
+`;
+const IN_PAGE_PATH = 'frontend/src/ui/UnavailableEntry.tsx';
+
+test('W1-F5b: the in-page status const in UnavailableEntry.tsx is a reviewed exemption', () => {
+  const r = world((w) => { w.files.push({ path: IN_PAGE_PATH, text: IN_PAGE }); });
+  assert.deepEqual(r.errors, []);
+});
+
+test('W1-F5b mutation: the in-page exemption is narrow (other file, inline copy)', () => {
+  const moved = world((w) => { w.files.push({ path: 'frontend/src/sites/Tabs2.tsx', text: IN_PAGE }); });
+  assert.deepEqual(moved.errors.map((e) => [e.type, e.where]), [['untagged_copy', 'frontend/src/sites/Tabs2.tsx:1']]);
+  const inline = world((w) => { w.files.push({ path: IN_PAGE_PATH, text: `${IN_PAGE}export const P = () => <p>Not available yet</p>;
+` }); });
+  assert.deepEqual(inline.errors.map((e) => [e.type, e.where]), [['untagged_copy', `${IN_PAGE_PATH}:5`]]);
+});

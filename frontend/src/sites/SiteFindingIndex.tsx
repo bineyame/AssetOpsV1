@@ -25,7 +25,7 @@
  * No amount is shown: exact-revision money provenance is not in this read.
  * A Site with no imported record keeps the older summary (`fallback`).
  */
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -58,6 +58,31 @@ import type {
 import { LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
 import "./w1ux02-findings-index.css";
+import { UnavailableChip } from "../ui/UnavailableEntry";
+
+/**
+ * W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's lens chips and the real window control, at the top
+ * of the single Findings panel in every state. Supplied once by the index and read by `View`.
+ */
+const PanelControls = createContext<ReactNode>(null);
+
+/**
+ * The mock's `All | Cost | Risks | Opportunities` lens row. `All` is the selected live view; the other lenses
+ * have no authoritative classification or Site/window filter yet, so they are "Not available yet" text and
+ * cannot change or discard the window selection.
+ */
+function LensChips() {
+  return (
+    <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>
+      <li className="v69-chip" aria-current="true" data-lens="all">
+        All
+      </li>
+      <UnavailableChip label="Cost" />
+      <UnavailableChip label="Risks" />
+      <UnavailableChip label="Opportunities" />
+    </ul>
+  );
+}
 
 export interface FindingIndexLinks {
   /** The same page at another scope (a new window, page one, or the next page). */
@@ -412,6 +437,7 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
           <th scope="col">Confidence</th>
           <th scope="col">State</th>
           <th scope="col">Main consequence</th>
+          <th scope="col">Lens</th>
           <th scope="col">Period</th>
         </tr>
       </thead>
@@ -456,6 +482,11 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
               <td data-finding-index-amount={row.amount.state}>
                 Not in this list
               </td>
+              <td>
+                <span className="badge badge--not-assessed" data-finding-index-lens data-not-assessed>
+                  Not assessed
+                </span>
+              </td>
               <td className="finding-index-period">{periodText(row.episode.start, row.episode.end)}</td>
             </tr>
           );
@@ -491,6 +522,7 @@ function View({
   references?: ReactNode;
   attributes?: Record<string, string>;
 }) {
+  const controls = useContext(PanelControls);
   return (
     <div className="site-findings-view" data-finding-index-state={state} {...attributes}>
       <StatusBar items label="Findings state" data={{ "data-site-findings-status": "" }}>
@@ -498,6 +530,7 @@ function View({
         {status}
       </StatusBar>
       <Panel heading="Findings at this site" headingId={HEADING_ID} description={QUESTION} actions={action}>
+        {controls}
         {body}
         {references ?? null}
       </Panel>
@@ -798,12 +831,20 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
   }
   return (
     <div className="finding-index" data-findings-index="site-window">
-      <WindowForm scope={scope} onScope={onScope} />
-      {result.status === "loaded" ? (
-        <Loaded body={result.value} scope={scope} links={links} />
-      ) : (
-        <Refused result={result} scope={scope} links={links} />
-      )}
+      <PanelControls.Provider
+        value={
+          <div className="site-findings-controls" data-site-findings-controls>
+            <LensChips />
+            <WindowForm scope={scope} onScope={onScope} />
+          </div>
+        }
+      >
+        {result.status === "loaded" ? (
+          <Loaded body={result.value} scope={scope} links={links} />
+        ) : (
+          <Refused result={result} scope={scope} links={links} />
+        )}
+      </PanelControls.Provider>
     </div>
   );
 }

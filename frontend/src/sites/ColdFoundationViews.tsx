@@ -198,7 +198,7 @@ export function ColdFoundationFrame(props: ColdFoundationFrameProps) {
       <Breadcrumbs trail={trail} />
       <SitePageHeader siteName={siteName} siteId={siteId} mode={props.mode} description={DESCRIPTION[view]} headingId={COLD_HEADING_ID} />
       {props.tabs}
-      <FoundationSubtabs current={view} hrefFor={props.viewHref} />
+      <FoundationSubtabs current={view} hrefFor={props.viewHref} withChanges={false} />
       {current === null ? (
         <p>{COLD_FOUNDATION_LOADING}</p>
       ) : current.status === "loaded" ? (

@@ -141,7 +141,7 @@ export function SiteFoundationFrame({
         tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
         parentTrail={[
           { label: "Sites", to: sitesPath },
-          { label: siteId, to: siteDetailHref(siteId) },
+          { label: record?.status === "loaded" ? record.site.display_name : (state.foundation?.status === "loaded" ? state.foundation.value.site.display_name : siteId), to: siteDetailHref(siteId) },
         ]}
       />
     );
@@ -160,9 +160,11 @@ export function SiteFoundationFrame({
   const screenDescription = SITE_SCREEN_DESCRIPTIONS[view === "model" ? "foundation" : view];
 
   const tabs = <OperatorSiteTabs siteId={siteId} current="Foundation" />;
+  // W1-F5b (carry 11): the crumb names the site as the mock does; the code only while no read has named it.
+  const knownSiteName = record?.status === "loaded" ? record.site.display_name : (loaded?.site.display_name ?? null);
   const parentTrail = (canonicalSiteId: string) => [
     { label: "Sites", to: sitesPath },
-    { label: canonicalSiteId, to: siteDetailHref(canonicalSiteId) },
+    { label: knownSiteName ?? canonicalSiteId, to: siteDetailHref(canonicalSiteId) },
   ];
 
   if (state.foundation === null) {

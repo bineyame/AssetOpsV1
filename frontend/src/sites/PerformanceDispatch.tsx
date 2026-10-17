@@ -1552,7 +1552,7 @@ function AnalysisView({
       third={{
         body: (
           <>
-            <FactList>
+            <FactList className="fact-list--stack-narrow">
               <Fact term="Confidence">
                 {result?.confidence ? confidenceWords(result.confidence.level) : "no period selected"}
               </Fact>

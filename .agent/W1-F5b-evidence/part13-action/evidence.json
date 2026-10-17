@@ -1,0 +1,932 @@
+{
+  "revision": "d02849db",
+  "captured_at": "2026-10-17T19:35:26.835Z",
+  "pairs": [
+    {
+      "screen": "recommendation",
+      "case": "accepted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation?revision_id=ed3b53ae-48f0-4b1b-a59a-a6622e73975b",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-accepted-1440-app.png",
+      "mock_image": "recommendation-accepted-1440-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 248,
+            "y": 346,
+            "w": 725,
+            "h": 475
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 991,
+            "y": 346,
+            "w": 403,
+            "h": 475
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 248,
+            "y": 935,
+            "w": 1145,
+            "h": 260
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 234,
+            "y": 366,
+            "w": 735,
+            "h": 370
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 987,
+            "y": 366,
+            "w": 408,
+            "h": 370
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "accepted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation?revision_id=ed3b53ae-48f0-4b1b-a59a-a6622e73975b",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-accepted-390-app.png",
+      "mock_image": "recommendation-accepted-390-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 16,
+            "y": 553,
+            "w": 358,
+            "h": 604
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 16,
+            "y": 1173,
+            "w": 358,
+            "h": 475
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 16,
+            "y": 1805,
+            "w": 358,
+            "h": 352
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 15,
+            "y": 577,
+            "w": 360,
+            "h": 457
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 15,
+            "y": 1051,
+            "w": 360,
+            "h": 367
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 15,
+            "y": 1515,
+            "w": 360,
+            "h": 251
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "held",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-held-1440-app.png",
+      "mock_image": "recommendation-held-1440-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 248,
+            "y": 346,
+            "w": 725,
+            "h": 481
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 991,
+            "y": 346,
+            "w": 403,
+            "h": 481
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 248,
+            "y": 941,
+            "w": 1145,
+            "h": 123
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 234,
+            "y": 366,
+            "w": 735,
+            "h": 370
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 987,
+            "y": 366,
+            "w": 408,
+            "h": 370
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "held",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-held-390-app.png",
+      "mock_image": "recommendation-held-390-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 16,
+            "y": 530,
+            "w": 358,
+            "h": 633
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 16,
+            "y": 1180,
+            "w": 358,
+            "h": 139
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 16,
+            "y": 1475,
+            "w": 358,
+            "h": 123
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 15,
+            "y": 577,
+            "w": 360,
+            "h": 457
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 15,
+            "y": 1051,
+            "w": 360,
+            "h": 367
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 15,
+            "y": 1515,
+            "w": 360,
+            "h": 251
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "unavailable",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/findings/77d76d2c-25fb-46d9-bedc-5181a669f82f/recommendation",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-unavailable-1440-app.png",
+      "mock_image": "recommendation-unavailable-1440-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 248,
+            "y": 346,
+            "w": 725,
+            "h": 496
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 991,
+            "y": 346,
+            "w": 403,
+            "h": 496
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 248,
+            "y": 956,
+            "w": 1145,
+            "h": 123
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 234,
+            "y": 366,
+            "w": 735,
+            "h": 370
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 987,
+            "y": 366,
+            "w": 408,
+            "h": 370
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "unavailable",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/findings/77d76d2c-25fb-46d9-bedc-5181a669f82f/recommendation",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-unavailable-390-app.png",
+      "mock_image": "recommendation-unavailable-390-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 16,
+            "y": 530,
+            "w": 358,
+            "h": 648
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 16,
+            "y": 1195,
+            "w": 358,
+            "h": 139
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 16,
+            "y": 1490,
+            "w": 358,
+            "h": 123
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 15,
+            "y": 577,
+            "w": 360,
+            "h": 457
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 15,
+            "y": 1051,
+            "w": 360,
+            "h": 367
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 15,
+            "y": 1515,
+            "w": 360,
+            "h": 251
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "changes",
+      "case": "applied",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/foundation/changes/9d547f84-5f4a-4c1f-904a-01e2e151f933",
+      "mock_hash": "#/changes",
+      "app_image": "changes-applied-1440-app.png",
+      "mock_image": "changes-applied-1440-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 248,
+            "y": 471,
+            "w": 734,
+            "h": 401
+          },
+          {
+            "title": "Decision path",
+            "x": 1000,
+            "y": 471,
+            "w": 408,
+            "h": 401
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 234,
+            "y": 547,
+            "w": 735,
+            "h": 319
+          },
+          {
+            "title": "Decision path",
+            "x": 987,
+            "y": 547,
+            "w": 408,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "changes",
+      "case": "applied",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/foundation/changes/9d547f84-5f4a-4c1f-904a-01e2e151f933",
+      "mock_hash": "#/changes",
+      "app_image": "changes-applied-390-app.png",
+      "mock_image": "changes-applied-390-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 16,
+            "y": 813,
+            "w": 358,
+            "h": 552
+          },
+          {
+            "title": "Decision path",
+            "x": 16,
+            "y": 1382,
+            "w": 358,
+            "h": 330
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 15,
+            "y": 932,
+            "w": 360,
+            "h": 411
+          },
+          {
+            "title": "Decision path",
+            "x": 15,
+            "y": 1361,
+            "w": 360,
+            "h": 353
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "recorded",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-recorded-1440-app.png",
+      "mock_image": "action-overview-recorded-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 368
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 268
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-overview",
+      "case": "recorded",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66",
+      "mock_hash": "#/action-overview",
+      "app_image": "action-overview-recorded-390-app.png",
+      "mock_image": "action-overview-recorded-390-mock.png",
+      "app": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 16,
+            "y": 325,
+            "w": 358,
+            "h": 582
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Action scope"
+        ],
+        "panels": [
+          {
+            "title": "Action scope",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 268
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "applied",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-applied-1440-app.png",
+      "mock_image": "action-execution-applied-1440-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 322
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 211
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "applied",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-applied-390-app.png",
+      "mock_image": "action-execution-applied-390-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 16,
+            "y": 325,
+            "w": 358,
+            "h": 626
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 233
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "failed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/0e729bcf-7e4d-4f0f-9322-b05cefc6f82b/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-failed-1440-app.png",
+      "mock_image": "action-execution-failed-1440-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 364
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 211
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-execution",
+      "case": "failed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/0e729bcf-7e4d-4f0f-9322-b05cefc6f82b/execution",
+      "mock_hash": "#/action-execution",
+      "app_image": "action-execution-failed-390-app.png",
+      "mock_image": "action-execution-failed-390-mock.png",
+      "app": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 16,
+            "y": 325,
+            "w": 358,
+            "h": 676
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Activity log"
+        ],
+        "panels": [
+          {
+            "title": "Activity log",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 233
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "all",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-all-1440-app.png",
+      "mock_image": "action-history-all-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 355
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "all",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-all-390-app.png",
+      "mock_image": "action-history-all-390-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 16,
+            "y": 376,
+            "w": 358,
+            "h": 431
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "event",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history?event_id=e7a3ddd7-5e4d-435d-890e-4e113abcdf7a",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-event-1440-app.png",
+      "mock_image": "action-history-event-1440-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 247
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-history",
+      "case": "event",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history?event_id=e7a3ddd7-5e4d-435d-890e-4e113abcdf7a",
+      "mock_hash": "#/action-history",
+      "app_image": "action-history-event-390-app.png",
+      "mock_image": "action-history-event-390-mock.png",
+      "app": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 16,
+            "y": 391,
+            "w": 358,
+            "h": 401
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Action history"
+        ],
+        "panels": [
+          {
+            "title": "Action history",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

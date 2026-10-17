@@ -99,5 +99,62 @@ function Invoke-NavigationRailFixturesCheck {
                 "for this violation.")) | Out-Null
         }
     }
+
+    # W1-F5b (D-2026-10-17-f5-subtabs-and-contact): Get-InPageUnavailableEntryFailures is not vacuous. Each case
+    # mutates one real module in memory and must fail; the real tree must pass.
+    $modules = @(Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))
+    function Set-ModuleLines([object[]] $all, [string] $path, [string] $pattern, [string] $replacement) {
+        $hit = $false
+        $out = foreach ($m in $all) {
+            if ($m.Path -ne $path) { $m; continue }
+            $lines = foreach ($line in $m.Lines) {
+                if (-not $hit -and $line -match $pattern) { $hit = $true; $line -replace $pattern, $replacement } else { $line }
+            }
+            [pscustomobject]@{ Path = $m.Path; Lines = @($lines) }
+        }
+        if (-not $hit) { throw "in-page fixture pattern not found in ${path}: $pattern" }
+        return @($out)
+    }
+    $component = "frontend/src/ui/UnavailableEntry.tsx"
+    $frames = "frontend/src/shell/SiteAnalyticsFrames.tsx"
+    $index = "frontend/src/sites/SiteFindingIndex.tsx"
+    try {
+        $inPageCases = @(
+            @{ Name = "baseline: the real tree passes"; Expect = $null; Modules = $modules },
+            @{ Name = "the entry gains a tab stop"; Expect = "carries tabIndex";
+               Modules = (Set-ModuleLines $modules $component 'data-tab-unavailable=\{label\}' 'data-tab-unavailable={label} tabIndex={0}') },
+            @{ Name = "the entry gains a click handler"; Expect = "carries an event handler";
+               Modules = (Set-ModuleLines $modules $component 'data-chip-unavailable=\{label\}' 'data-chip-unavailable={label} onClick={go}') },
+            @{ Name = "the entry becomes a disabled button"; Expect = "carries a button";
+               Modules = (Set-ModuleLines $modules $component '<li$' '<button') },
+            @{ Name = "an undeclared unbuilt tab is added"; Expect = "the W1 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Maintenance" />' '<UnavailableTab label="Maintenance" /><UnavailableTab label="Reports" />') },
+            @{ Name = "a declared unbuilt tab is dropped"; Expect = "the W1 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '') },
+            @{ Name = "Alternatives loses its declared unavailable entry"; Expect = "the W1 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames 'label: "Alternatives", unavailable: true' 'label: "Alternatives", href: "/x"') },
+            @{ Name = "a lens chip with a computed label"; Expect = "non-literal label";
+               Modules = (Set-ModuleLines $modules $index '<UnavailableChip label="Risks" />' '<UnavailableChip label={lens} />') },
+            @{ Name = "the component is missing (fail closed)"; Expect = "check is vacuous";
+               Modules = @($modules | Where-Object { $_.Path -ne $component }) }
+        )
+    }
+    catch {
+        $fixtureFailures.Add("In-page unavailable fixtures could not be built: $($_.Exception.Message). Update the fixtures with the rows.") | Out-Null
+        return $fixtureFailures
+    }
+    foreach ($case in $inPageCases) {
+        $result = @(Get-InPageUnavailableEntryFailures -Modules $case.Modules)
+        if ($null -eq $case.Expect) {
+            if ($result.Count -ne 0) {
+                $fixtureFailures.Add(("In-page fixture '$($case.Name)': the real tree should pass but got " +
+                    "[$($result -join ' || ')]")) | Out-Null
+            }
+        }
+        elseif (@($result | Where-Object { $_ -like "*$($case.Expect)*" }).Count -eq 0) {
+            $fixtureFailures.Add(("In-page fixture '$($case.Name)' did not fail as expected ('$($case.Expect)'); " +
+                "got [$($result -join ' || ')]. The in-page unavailable guard is vacuous for this violation.")) | Out-Null
+        }
+    }
     return $fixtureFailures
 }

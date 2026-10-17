@@ -493,6 +493,11 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
       expect(detail.querySelector(sel), sel).not.toBeNull();
       expect(shown(card.querySelector(sel)), sel).toBe(false);
     }
+    // W1-F5b carry 8: the panel has exactly one closed row; the cost's source record folds into it.
+    const topLevelRows = [...card.querySelectorAll("details")].filter((d) => d.parentElement?.closest("details") === null);
+    expect(topLevelRows).toEqual([detail]);
+    expect(card.querySelector('details[data-disclosure="source-provenance-overview-money"]')).toBeNull();
+    expect(detail.querySelector("[data-source-record='overview-money'] [data-source-method]")).not.toBeNull();
     // Context: the count line stays visible; the per-input table and record links are closed detail.
     expect(shown(container.querySelector("[data-window-context]"))).toBe(true);
     const coverage = container.querySelector('details[data-disclosure="window-coverage"]') as HTMLDetailsElement;

@@ -1,0 +1,830 @@
+{
+  "revision": "e7d73fd7",
+  "captured_at": "2026-10-17T20:07:40.935Z",
+  "pairs": [
+    {
+      "screen": "mini",
+      "case": "priced",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-10-23",
+      "mock_hash": "#/mini",
+      "app_image": "mini-priced-1440-app.png",
+      "mock_image": "mini-priced-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 499,
+            "w": 1145,
+            "h": 357
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 874,
+            "w": 725,
+            "h": 538
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 874,
+            "w": 403,
+            "h": 538
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1430,
+            "w": 725,
+            "h": 247
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1430,
+            "w": 403,
+            "h": 247
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "priced",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-10-23",
+      "mock_hash": "#/mini",
+      "app_image": "mini-priced-390-app.png",
+      "mock_image": "mini-priced-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 968,
+            "w": 358,
+            "h": 474
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1460,
+            "w": 358,
+            "h": 706
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2182,
+            "w": 358,
+            "h": 467
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2666,
+            "w": 358,
+            "h": 334
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 3016,
+            "w": 358,
+            "h": 226
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "held",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-10-24",
+      "mock_hash": "#/mini",
+      "app_image": "mini-held-1440-app.png",
+      "mock_image": "mini-held-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 499,
+            "w": 1145,
+            "h": 357
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 874,
+            "w": 725,
+            "h": 538
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 874,
+            "w": 403,
+            "h": 538
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1430,
+            "w": 725,
+            "h": 247
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1430,
+            "w": 403,
+            "h": 247
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "held",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-10-24",
+      "mock_hash": "#/mini",
+      "app_image": "mini-held-390-app.png",
+      "mock_image": "mini-held-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 968,
+            "w": 358,
+            "h": 507
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1493,
+            "w": 358,
+            "h": 706
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2215,
+            "w": 358,
+            "h": 467
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2699,
+            "w": 358,
+            "h": 334
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 3049,
+            "w": 358,
+            "h": 226
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "unassessed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-11-10",
+      "mock_hash": "#/mini",
+      "app_image": "mini-unassessed-1440-app.png",
+      "mock_image": "mini-unassessed-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 499,
+            "w": 1145,
+            "h": 244
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 761,
+            "w": 725,
+            "h": 404
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 761,
+            "w": 403,
+            "h": 404
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1182,
+            "w": 725,
+            "h": 176
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1182,
+            "w": 403,
+            "h": 176
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "unassessed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-11-10",
+      "mock_hash": "#/mini",
+      "app_image": "mini-unassessed-390-app.png",
+      "mock_image": "mini-unassessed-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1004,
+            "w": 358,
+            "h": 344
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1366,
+            "w": 358,
+            "h": 336
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1719,
+            "w": 358,
+            "h": 404
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2138,
+            "w": 358,
+            "h": 212
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2367,
+            "w": 358,
+            "h": 154
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "failed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-10-07",
+      "mock_hash": "#/mini",
+      "app_image": "mini-failed-1440-app.png",
+      "mock_image": "mini-failed-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 537,
+            "w": 1145,
+            "h": 236
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 791,
+            "w": 725,
+            "h": 454
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 791,
+            "w": 403,
+            "h": 454
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1262,
+            "w": 725,
+            "h": 176
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1262,
+            "w": 403,
+            "h": 176
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "failed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6302/sites/KOBO-001?date=2026-10-07",
+      "mock_hash": "#/mini",
+      "app_image": "mini-failed-390-app.png",
+      "mock_image": "mini-failed-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1042,
+            "w": 358,
+            "h": 287
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1347,
+            "w": 358,
+            "h": 336
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1699,
+            "w": 358,
+            "h": 454
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2169,
+            "w": 358,
+            "h": 212
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2397,
+            "w": 358,
+            "h": 154
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

@@ -60,6 +60,13 @@ export const REVIEWED_EXEMPTIONS = [
     decision: 'D-2026-10-17-w1-rail',
     reason: 'The operator rail status for a root with no cross-site destination yet (owner-directed inventory exception); it describes a missing destination, not a missing claim about a site, so it is not a mock_gaps placement.',
   },
+  {
+    file: 'frontend/src/ui/UnavailableEntry.tsx',
+    constName: 'IN_PAGE_UNAVAILABLE_STATUS',
+    text: 'Not available yet',
+    decision: 'D-2026-10-17-f5-subtabs-and-contact',
+    reason: 'The status of an unbuilt v69 in-page tab or lens chip (the rail rule extended to the named rows); it describes a destination this build has not made, not a missing claim about a site, so it is not a mock_gaps placement.',
+  },
 ];
 
 const toPosix = (p) => p.split(path.sep).join('/');

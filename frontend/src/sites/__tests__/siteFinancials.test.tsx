@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { expectUnavailableEntry, rowLabels, UNAVAILABLE_STATUS } from "../../test/unavailableEntry";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -554,14 +555,19 @@ describe("Site > Financials > Overview: the Finding bridge", () => {
     expect(document.querySelector("[data-financials-bridge]")).toBeNull();
   });
 
-  it("marks the Financials tab and the Overview subtab current, and the subtabs omit Scenarios", async () => {
+  it("marks the Financials tab and the Overview subtab current; Scenarios is shown unbuilt in the mock's place (W1-F5b)", async () => {
     mount(fake(), "/sites/KOBO-001/financials");
     await settledScreen();
     expect(screen.getByRole("link", { name: "Financials", current: "page" })).toBeInTheDocument();
     const sections = screen.getByRole("navigation", { name: "Financials sections" });
     expect(within(sections).getAllByRole("link").map((l) => l.textContent)).toEqual(["Overview", "Assumptions"]);
     expect(within(sections).getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
-    expect(screen.queryByText(/Scenario/i)).toBeNull();
+    // D-2026-10-17-f5-subtabs-and-contact: v69 order Overview, Assumptions, Scenarios; Scenarios has no route.
+    expect(rowLabels(sections)).toEqual(["Overview", "Assumptions", `Scenarios (${UNAVAILABLE_STATUS})`]);
+    expectUnavailableEntry(sections, "Scenarios");
+    expect(document.querySelectorAll('a[href*="scenario" i]')).toHaveLength(0);
+    // Nothing outside the row names Scenarios.
+    expect(screen.getAllByText(/Scenario/i).every((el) => sections.contains(el))).toBe(true);
     expect(document.querySelector("[data-price-selection='PRICED']")).toHaveTextContent("1.25 USD per litre");
     // W1-F3: with no finding selected the three v69 panels still render, panel 1 stating the gap.
     expectV69Panels("financials");

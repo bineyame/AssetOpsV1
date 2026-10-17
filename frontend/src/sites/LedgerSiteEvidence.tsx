@@ -1559,26 +1559,25 @@ function RecordView({ detail, onClose }: { detail: EvidenceRead<LedgerRecordDeta
   );
 }
 
+/** W1-F5b review M3: a coded word reads as a plain word ("GOOD" as "Good"); an unknown code is not guessed at. */
+function plainCode(value: string): string {
+  if (!/^[A-Z][A-Z_]*$/.test(value)) return value;
+  const word = value.toLowerCase().replace(/_/g, " ");
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
 function RecordFacts({ item }: { item: LedgerRecordDetail }) {
   const r = item.receipt;
   return (
     <div data-record-detail={item.evidence_id}>
       <FactList>
-        <Fact term="Reading">
-          <span {...REF}>{item.evidence_id}</span>
-        </Fact>
-        <Fact term="Message">
-          <span {...REF}>{item.message_id}</span>
-        </Fact>
-        <Fact term="Source and gateway">
-          <span {...REF}>{`${item.source.external_id} / ${item.gateway.external_id}`}</span>
-        </Fact>
-        <Fact term="Device and signal">
-          <span {...REF}>{`${item.device_id} / ${item.signal_id}`}</span>
-        </Fact>
+        <Fact term="Reading">{readingName(item)}</Fact>
         <Fact term="Value as reported by the source">{readingValue(item.original)}</Fact>
         <Fact term="Value in site units">{readingValue(item.normalized)}</Fact>
-        <Fact term="Quality">{item.quality}{item.unavailable_reason === null ? "" : ` (${item.unavailable_reason})`}</Fact>
+        <Fact term="Quality">
+          {plainCode(item.quality)}
+          {item.unavailable_reason === null ? "" : ` (${plainCode(item.unavailable_reason).toLowerCase()})`}
+        </Fact>
         <Fact term={`Taken (${clockWords(item.clocks.source_time)})`}>{when(item.source_time)}</Fact>
         <Fact term={`Sent (${clockWords(item.clocks.published_at)})`}>{when(item.published_at)}</Fact>
         <Fact term={`Received (${clockWords(item.clocks.received_at)})`}>{when(item.received_at)}</Fact>
@@ -1586,76 +1585,90 @@ function RecordFacts({ item }: { item: LedgerRecordDetail }) {
           <Fact term="Covers">{readablePeriod(item.interval.start, item.interval.end)}</Fact>
         )}
         <Fact term="Origin">{sourceKind(item.source_mode)}</Fact>
-      </FactList>
-      <h3>Configuration it was accepted under</h3>
-      <FactList>
-        <Fact term="Site configuration version">
-          <span {...REF}>{item.accepted_as.foundation_revision_id}</span>
-        </Fact>
-        <Fact term="Input set version">
-          <span {...REF}>{item.accepted_as.binding_set_revision_id}</span>
-        </Fact>
-        <Fact term="Input version">
-          <span {...REF}>{item.accepted_as.binding_revision_id}</span>
-        </Fact>
-        <Fact term="Equipment">
-          <span {...REF}>{item.accepted_as.asset_id ?? "none"}</span>
-        </Fact>
-        <Fact term="Configuration since updated">{item.accepted_as.configuration_outdated ? "Yes" : "No"}</Fact>
-      </FactList>
-      <h3>Delivery receipt</h3>
-      <FactList>
-        <Fact term="Delivery and position">
-          <span {...REF}>{`${r.batch_id} / ${r.ordinal}`}</span>
-        </Fact>
-        <Fact term="Decision">{r.decision}</Fact>
+        <Fact term="Decision">{plainCode(r.decision)}</Fact>
         <Fact term="Delivery first received (server clock, UTC)">{when(r.received_at)}</Fact>
         <Fact term="This reading decided (server clock, UTC)">{when(r.decided_at)}</Fact>
         <Fact term="Delivery progress">
           {`${r.processed} of ${r.total}${r.completed_at === null ? ", still being processed" : `, finished ${when(r.completed_at)}`}`}
         </Fact>
-        <Fact term="Delivery fingerprint (SHA-256)">
-          <span {...REF}>{r.payload_sha256}</span>
-        </Fact>
+        <Fact term="Site configuration since updated">{item.accepted_as.configuration_outdated ? "Yes" : "No"}</Fact>
       </FactList>
-      <h3>Exact message as received</h3>
-      <FactList>
-        <Fact term="Message fingerprint (SHA-256)">
-          <span {...REF}>{item.envelope.sha256}</span>
-        </Fact>
-      </FactList>
-      <pre className="evidence-message-text" data-vocabulary-exempt="source-reference" data-record-message>
-        {item.envelope.text}
-      </pre>
       {item.duplicates.length === 0 ? null : (
-        <>
-          <h3>Identical repeats</h3>
-          <ul className="cell-list">
-            {item.duplicates.map((d) => (
-              <li key={`${d.batch_id}/${d.ordinal}`} data-record-duplicate={`${d.batch_id}/${d.ordinal}`}>
-                <span {...REF}>{`${d.batch_id} / ${d.ordinal}`}</span>
-                {`: received ${when(d.received_at)}, kept once as this reading.`}
-              </li>
-            ))}
-          </ul>
-        </>
+        <p>{`${plural(item.duplicates.length, "identical repeat", "identical repeats")} arrived and ${item.duplicates.length === 1 ? "was" : "were"} kept once as this reading.`}</p>
       )}
       {item.conflicts.length === 0 ? null : (
-        <>
-          <h3>Arrived again with different contents</h3>
-          {item.conflicts.map((c) => (
-            <div key={c.rejection_id} data-record-conflict={c.rejection_id}>
-              <p>
-                <span {...REF}>{`${c.batch_id} / ${c.ordinal}`}</span>
-                {`: received ${when(c.received_at)}. This reading was kept; the later message was not accepted.`}
-              </p>
-              <pre className="evidence-message-text" data-vocabulary-exempt="source-reference">
-                {c.envelope_text ?? "The later message text is not available."}
-              </pre>
-            </div>
-          ))}
-        </>
+        <p>{`${plural(item.conflicts.length, "later message", "later messages")} arrived with different contents. This reading was kept; the later ${item.conflicts.length === 1 ? "message was" : "messages were"} not accepted.`}</p>
       )}
+      <Advanced name="evidence-record-references" summary="Exact references">
+        <FactList>
+          <Fact term="Reading">
+            <span {...REF}>{item.evidence_id}</span>
+          </Fact>
+          <Fact term="Message">
+            <span {...REF}>{item.message_id}</span>
+          </Fact>
+          <Fact term="Source and gateway">
+            <span {...REF}>{`${item.source.external_id} / ${item.gateway.external_id}`}</span>
+          </Fact>
+          <Fact term="Device and signal">
+            <span {...REF}>{`${item.device_id} / ${item.signal_id}`}</span>
+          </Fact>
+          <Fact term="Site configuration version">
+            <span {...REF}>{item.accepted_as.foundation_revision_id}</span>
+          </Fact>
+          <Fact term="Input set version">
+            <span {...REF}>{item.accepted_as.binding_set_revision_id}</span>
+          </Fact>
+          <Fact term="Input version">
+            <span {...REF}>{item.accepted_as.binding_revision_id}</span>
+          </Fact>
+          <Fact term="Equipment">
+            <span {...REF}>{item.accepted_as.asset_id ?? "none"}</span>
+          </Fact>
+          <Fact term="Delivery and position">
+            <span {...REF}>{`${r.batch_id} / ${r.ordinal}`}</span>
+          </Fact>
+          <Fact term="Delivery fingerprint (SHA-256)">
+            <span {...REF}>{r.payload_sha256}</span>
+          </Fact>
+          <Fact term="Message fingerprint (SHA-256)">
+            <span {...REF}>{item.envelope.sha256}</span>
+          </Fact>
+        </FactList>
+        <h3>Exact message as received</h3>
+        <pre className="evidence-message-text" data-vocabulary-exempt="source-reference" data-record-message>
+          {item.envelope.text}
+        </pre>
+        {item.duplicates.length === 0 ? null : (
+          <>
+            <h3>Identical repeats</h3>
+            <ul className="cell-list">
+              {item.duplicates.map((d) => (
+                <li key={`${d.batch_id}/${d.ordinal}`} data-record-duplicate={`${d.batch_id}/${d.ordinal}`}>
+                  <span {...REF}>{`${d.batch_id} / ${d.ordinal}`}</span>
+                  {`: received ${when(d.received_at)}, kept once as this reading.`}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {item.conflicts.length === 0 ? null : (
+          <>
+            <h3>Arrived again with different contents</h3>
+            {item.conflicts.map((c) => (
+              <div key={c.rejection_id} data-record-conflict={c.rejection_id}>
+                <p>
+                  <span {...REF}>{`${c.batch_id} / ${c.ordinal}`}</span>
+                  {`: received ${when(c.received_at)}. This reading was kept; the later message was not accepted.`}
+                </p>
+                <pre className="evidence-message-text" data-vocabulary-exempt="source-reference">
+                  {c.envelope_text ?? "The later message text is not available."}
+                </pre>
+              </div>
+            ))}
+          </>
+        )}
+      </Advanced>
     </div>
   );
 }

@@ -39,17 +39,23 @@ import { findingRefusalWords } from "./findingPresentation";
 import { dayOf, findingCurrentnessWords, LIFECYCLE_WORDS, sourceModeWords } from "./findingWords";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
+import { UnavailableTab } from "../ui/UnavailableEntry";
+import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 
 export const FINDING_SECTIONS_LABEL = "Finding sections";
 export const EVIDENCE_PAGE_SIZE = 50;
+/** The Finding name before its version is read, or for an unrecognised lifecycle (the mock's child-view heading). */
+export const FINDING_NAME = "Generator support review";
 /** The v69 `finding-evidence` screen question (W1-UX-02). */
 export const FINDING_EVIDENCE_QUESTION = "Which accepted records support this Finding?";
 
-export interface FindingSectionLink {
-  id: string;
-  label: string;
-  href: string;
-}
+/**
+ * A live section has an address; an unbuilt mock section (W1-F5b, `unavailable: true`) has none and renders as
+ * "Not available yet" text, never a link.
+ */
+export type FindingSectionLink =
+  | { id: string; label: string; href: string; unavailable?: never }
+  | { id: string; label: string; unavailable: true; href?: never };
 
 /**
  * The Finding root's sections (the Finding itself and its named child views).
@@ -65,10 +71,14 @@ export function FindingSections({
   /** W1-F3: a related-screen link at the end of the section row (chrome, not a content block). */
   aside?: ReactNode;
 }) {
+  const rowRef = useCurrentTabInView<HTMLElement>();
   return (
-    <nav className="site-tabs site-subtabs finding-sections" aria-label={FINDING_SECTIONS_LABEL}>
+    <nav className="site-tabs site-subtabs finding-sections" aria-label={FINDING_SECTIONS_LABEL} ref={rowRef}>
       <ol className="site-tabs__list">
-        {sections.map((section) => (
+        {sections.map((section) =>
+          section.unavailable ? (
+            <UnavailableTab key={section.id} label={section.label} />
+          ) : (
           <li className="site-tabs__item" key={section.id}>
             <Link
               className="site-tabs__link"
@@ -79,7 +89,8 @@ export function FindingSections({
               {section.label}
             </Link>
           </li>
-        ))}
+          ),
+        )}
       </ol>
       {aside === undefined ? null : <span className="finding-sections__aside">{aside}</span>}
     </nav>
@@ -177,11 +188,14 @@ export function SiteFindingEvidence({
   findingId,
   client,
   links,
+  onTitle,
 }: {
   siteId: string;
   findingId: string;
   client: FindingClient;
   links: SiteFindingEvidenceLinks;
+  /** W1-F5b (carry 10): the page heading is the Finding's own name, as on the Finding and in the mock. */
+  onTitle?: (title: string) => void;
 }) {
   const [params] = useSearchParams();
   const revisionId = params.get("revision_id");
@@ -201,6 +215,11 @@ export function SiteFindingEvidence({
       active = false;
     };
   }, [client, siteId, findingId, revisionId, offset]);
+
+  const title = read?.status === "loaded" ? (LIFECYCLE_WORDS[read.value.revision.lifecycle]?.title ?? FINDING_NAME) : FINDING_NAME;
+  useEffect(() => {
+    onTitle?.(title);
+  }, [onTitle, title]);
 
   if (read === null) {
     return <p>Loading the Finding&apos;s evidence.</p>;

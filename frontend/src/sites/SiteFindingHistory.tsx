@@ -26,6 +26,7 @@ import { durationText, minutes, stamp } from "./dispatchWords";
 import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevision } from "./findingClient";
 import { findingRefusalWords } from "./findingPresentation";
 import { findingCurrentnessWords, LIFECYCLE_WORDS, transitionWords } from "./findingWords";
+import { FINDING_NAME } from "./SiteFindingEvidence";
 import "./w1ux02-finding.css";
 import "./w1f3-finding-history.css";
 
@@ -68,11 +69,14 @@ export function SiteFindingHistory({
   findingId,
   client,
   links,
+  onTitle,
 }: {
   siteId: string;
   findingId: string;
   client: FindingClient;
   links: SiteFindingHistoryLinks;
+  /** W1-F5b (carry 10): the page heading is the selected version's Finding name, as on the Finding and in the mock. */
+  onTitle?: (title: string) => void;
 }) {
   const [params] = useSearchParams();
   const revisionId = params.get("revision_id");
@@ -121,6 +125,13 @@ export function SiteFindingHistory({
       active = false;
     };
   }, [client, siteId, findingId, revisionId]);
+
+  const selectedRow =
+    read.status === "loaded" ? read.rows.find((row) => row.revision_no === read.first.selection.revision_no) : undefined;
+  const title = selectedRow ? (LIFECYCLE_WORDS[selectedRow.lifecycle]?.title ?? FINDING_NAME) : FINDING_NAME;
+  useEffect(() => {
+    onTitle?.(title);
+  }, [onTitle, title]);
 
   if (read.status === "loading") {
     return <p>Loading the Finding&apos;s history.</p>;

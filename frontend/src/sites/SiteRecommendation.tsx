@@ -69,6 +69,7 @@ import {
   recommendationWords,
   when,
 } from "./actionPresentation";
+import { FINDING_NAME } from "./SiteFindingEvidence";
 import "./w1f4-recommendation.css";
 
 export interface SiteRecommendationLinks {
@@ -95,11 +96,14 @@ export function SiteRecommendation({
   findingId,
   client,
   links,
+  onTitle,
 }: {
   siteId: string;
   findingId: string;
   client: ActionClient;
   links: SiteRecommendationLinks;
+  /** W1-F5b review M2: the page heads with the Finding's name, as Finding, Evidence and History do. */
+  onTitle?: (title: string) => void;
 }) {
   const [params] = useSearchParams();
   const revisionId = params.get("revision_id");
@@ -108,6 +112,10 @@ export function SiteRecommendation({
   const [reload, setReload] = useState(0);
   const [outcome, setOutcome] = useState<CommandResult | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    onTitle?.(FINDING_NAME);
+  }, [onTitle]);
 
   useEffect(() => {
     setLastLoaded(null);

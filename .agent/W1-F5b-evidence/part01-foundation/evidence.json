@@ -1,0 +1,966 @@
+{
+  "revision": "e7d73fd7",
+  "captured_at": "2026-10-17T20:04:06.425Z",
+  "pairs": [
+    {
+      "screen": "sites",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6300/sites",
+      "mock_hash": "#/sites",
+      "app_image": "sites-stocked-1440-app.png",
+      "mock_image": "sites-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 248,
+            "y": 291,
+            "w": 1160,
+            "h": 289
+          },
+          {
+            "title": "In setup",
+            "x": 248,
+            "y": 598,
+            "w": 1160,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 314
+          },
+          {
+            "title": "In setup",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 253
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sites",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6300/sites",
+      "mock_hash": "#/sites",
+      "app_image": "sites-stocked-390-app.png",
+      "mock_image": "sites-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 16,
+            "y": 687,
+            "w": 358,
+            "h": 469
+          },
+          {
+            "title": "In setup",
+            "x": 16,
+            "y": 1175,
+            "w": 358,
+            "h": 274
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 384
+          },
+          {
+            "title": "In setup",
+            "x": 15,
+            "y": 1147,
+            "w": 360,
+            "h": 409
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sites",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6301/sites",
+      "mock_hash": "#/sites",
+      "app_image": "sites-empty-1440-app.png",
+      "mock_image": "sites-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 248,
+            "y": 243,
+            "w": 1160,
+            "h": 282
+          },
+          {
+            "title": "In setup",
+            "x": 248,
+            "y": 543,
+            "w": 1160,
+            "h": 161
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 234,
+            "y": 482,
+            "w": 1161,
+            "h": 314
+          },
+          {
+            "title": "In setup",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 253
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sites",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6301/sites",
+      "mock_hash": "#/sites",
+      "app_image": "sites-empty-390-app.png",
+      "mock_image": "sites-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 16,
+            "y": 561,
+            "w": 358,
+            "h": 393
+          },
+          {
+            "title": "In setup",
+            "x": 16,
+            "y": 972,
+            "w": 358,
+            "h": 201
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Site inventory",
+          "In setup"
+        ],
+        "panels": [
+          {
+            "title": "Site inventory",
+            "x": 15,
+            "y": 745,
+            "w": 360,
+            "h": 384
+          },
+          {
+            "title": "In setup",
+            "x": 15,
+            "y": 1147,
+            "w": 360,
+            "h": 409
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "now",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-now-1440-app.png",
+      "mock_image": "foundation-now-1440-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 248,
+            "y": 339,
+            "w": 725,
+            "h": 595
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 991,
+            "y": 339,
+            "w": 403,
+            "h": 595
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 248,
+            "y": 952,
+            "w": 1145,
+            "h": 759
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 234,
+            "y": 416,
+            "w": 735,
+            "h": 397
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 987,
+            "y": 416,
+            "w": 408,
+            "h": 397
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 234,
+            "y": 831,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "now",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-now-390-app.png",
+      "mock_image": "foundation-now-390-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 16,
+            "y": 542,
+            "w": 358,
+            "h": 738
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 16,
+            "y": 1296,
+            "w": 358,
+            "h": 678
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 16,
+            "y": 1990,
+            "w": 358,
+            "h": 1152
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 15,
+            "y": 681,
+            "w": 360,
+            "h": 657
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 15,
+            "y": 1357,
+            "w": 360,
+            "h": 340
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 393
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "no-version",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-no-version-1440-app.png",
+      "mock_image": "foundation-no-version-1440-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 248,
+            "y": 521,
+            "w": 734,
+            "h": 122
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 1000,
+            "y": 521,
+            "w": 408,
+            "h": 122
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 248,
+            "y": 661,
+            "w": 1160,
+            "h": 101
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 234,
+            "y": 416,
+            "w": 735,
+            "h": 397
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 987,
+            "y": 416,
+            "w": 408,
+            "h": 397
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 234,
+            "y": 831,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "foundation",
+      "case": "no-version",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/foundation",
+      "app_image": "foundation-no-version-390-app.png",
+      "mock_image": "foundation-no-version-390-mock.png",
+      "app": {
+        "titles": [
+          "Configured topology",
+          "Identity and operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 16,
+            "y": 691,
+            "w": 358,
+            "h": 122
+          },
+          {
+            "title": "Identity and operating obligations",
+            "x": 16,
+            "y": 829,
+            "w": 358,
+            "h": 122
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 16,
+            "y": 968,
+            "w": 358,
+            "h": 122
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Configured topology",
+          "Identity & operating obligations",
+          "Time-valid control configuration"
+        ],
+        "panels": [
+          {
+            "title": "Configured topology",
+            "x": 15,
+            "y": 681,
+            "w": 360,
+            "h": 657
+          },
+          {
+            "title": "Identity & operating obligations",
+            "x": 15,
+            "y": 1357,
+            "w": 360,
+            "h": 340
+          },
+          {
+            "title": "Time-valid control configuration",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 393
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "readiness",
+      "case": "now",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/readiness",
+      "mock_hash": "#/readiness",
+      "app_image": "readiness-now-1440-app.png",
+      "mock_image": "readiness-now-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-kobo-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 499,
+            "w": 1145,
+            "h": 592
+          },
+          {
+            "title": "Gateway status · edge-kobo-001",
+            "x": 248,
+            "y": 1109,
+            "w": 1145,
+            "h": 822
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-MG-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 542,
+            "w": 1161,
+            "h": 364
+          },
+          {
+            "title": "Gateway status · GW-MG-01",
+            "x": 234,
+            "y": 924,
+            "w": 1161,
+            "h": 561
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "readiness",
+      "case": "now",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/readiness",
+      "mock_hash": "#/readiness",
+      "app_image": "readiness-now-390-app.png",
+      "mock_image": "readiness-now-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-kobo-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 953,
+            "w": 358,
+            "h": 1009
+          },
+          {
+            "title": "Gateway status · edge-kobo-001",
+            "x": 16,
+            "y": 1980,
+            "w": 358,
+            "h": 1919
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-MG-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 892,
+            "w": 360,
+            "h": 508
+          },
+          {
+            "title": "Gateway status · GW-MG-01",
+            "x": 15,
+            "y": 1418,
+            "w": 360,
+            "h": 1236
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "readiness",
+      "case": "no-version",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/readiness",
+      "app_image": "readiness-no-version-1440-app.png",
+      "mock_image": "readiness-no-version-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · No gateway selected",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 521,
+            "w": 1160,
+            "h": 101
+          },
+          {
+            "title": "Gateway status · No gateway selected",
+            "x": 248,
+            "y": 640,
+            "w": 1160,
+            "h": 237
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-MG-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 542,
+            "w": 1161,
+            "h": 364
+          },
+          {
+            "title": "Gateway status · GW-MG-01",
+            "x": 234,
+            "y": 924,
+            "w": 1161,
+            "h": 561
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "readiness",
+      "case": "no-version",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/readiness",
+      "app_image": "readiness-no-version-390-app.png",
+      "mock_image": "readiness-no-version-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · No gateway selected",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 673,
+            "w": 358,
+            "h": 122
+          },
+          {
+            "title": "Gateway status · No gateway selected",
+            "x": 16,
+            "y": 813,
+            "w": 358,
+            "h": 440
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-MG-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 892,
+            "w": 360,
+            "h": 508
+          },
+          {
+            "title": "Gateway status · GW-MG-01",
+            "x": 15,
+            "y": 1418,
+            "w": 360,
+            "h": 1236
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "now",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/sld",
+      "mock_hash": "#/sld",
+      "app_image": "sld-now-1440-app.png",
+      "mock_image": "sld-now-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 974
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1331,
+            "w": 1145,
+            "h": 640
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "now",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/sld",
+      "mock_hash": "#/sld",
+      "app_image": "sld-now-390-app.png",
+      "mock_image": "sld-now-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 524,
+            "w": 358,
+            "h": 1221
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1763,
+            "w": 358,
+            "h": 940
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "battery",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
+      "mock_hash": "#/sld",
+      "app_image": "sld-battery-1440-app.png",
+      "mock_image": "sld-battery-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 1097
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1453,
+            "w": 1145,
+            "h": 640
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 596
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1030,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sld",
+      "case": "battery",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6300/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
+      "mock_hash": "#/sld",
+      "app_image": "sld-battery-390-app.png",
+      "mock_image": "sld-battery-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo mini-grid",
+            "x": 16,
+            "y": 550,
+            "w": 358,
+            "h": 1435
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 2003,
+            "w": 358,
+            "h": 940
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Kobo Mini-grid · AC-coupled mini-grid",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo Mini-grid · AC-coupled mini-grid",
+            "x": 15,
+            "y": 654,
+            "w": 360,
+            "h": 318
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 990,
+            "w": 360,
+            "h": 481
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

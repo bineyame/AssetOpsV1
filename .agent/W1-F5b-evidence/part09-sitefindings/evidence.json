@@ -1,0 +1,474 @@
+{
+  "revision": "4ffb5193",
+  "captured_at": "2026-10-17T20:31:49.668Z",
+  "pairs": [
+    {
+      "screen": "sitefindings",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-stocked-1440-app.png",
+      "mock_image": "sitefindings-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 250,
+            "w": 1160,
+            "h": 451
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-stocked-390-app.png",
+      "mock_image": "sitefindings-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 423,
+            "w": 358,
+            "h": 704
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "page2",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-page2-1440-app.png",
+      "mock_image": "sitefindings-page2-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 250,
+            "w": 1160,
+            "h": 399
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "page2",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-page2-390-app.png",
+      "mock_image": "sitefindings-page2-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 423,
+            "w": 358,
+            "h": 634
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-empty-1440-app.png",
+      "mock_image": "sitefindings-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 250,
+            "w": 1160,
+            "h": 262
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-empty-390-app.png",
+      "mock_image": "sitefindings-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 423,
+            "w": 358,
+            "h": 495
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "stale",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-stale-1440-app.png",
+      "mock_image": "sitefindings-stale-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 291,
+            "w": 1160,
+            "h": 242
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "stale",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-stale-390-app.png",
+      "mock_image": "sitefindings-stale-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 458,
+            "w": 358,
+            "h": 457
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "failed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-failed-1440-app.png",
+      "mock_image": "sitefindings-failed-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 291,
+            "w": 1160,
+            "h": 242
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "failed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-failed-390-app.png",
+      "mock_image": "sitefindings-failed-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 458,
+            "w": 358,
+            "h": 472
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "unassessed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-unassessed-1440-app.png",
+      "mock_image": "sitefindings-unassessed-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 273,
+            "w": 1160,
+            "h": 268
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "unassessed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-unassessed-390-app.png",
+      "mock_image": "sitefindings-unassessed-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 439,
+            "w": 358,
+            "h": 502
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

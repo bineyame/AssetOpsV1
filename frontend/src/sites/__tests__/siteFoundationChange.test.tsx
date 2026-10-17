@@ -14,6 +14,7 @@ import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { foundationViewFor } from "../FoundationSubtabs";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
@@ -98,7 +99,18 @@ function noVocabularyViolations(page: string) {
 function foundationTabCurrent() {
   const current = qa('[aria-current="page"]').map((el) => el.textContent);
   expect(current).toContain("Foundation");
-  expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
+  // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the Foundation row shows here with Change & effect current,
+  // linking to this Changes route; the three period views link to their own addresses.
+  const row = screen.getByRole("navigation", { name: "Foundation views" });
+  const links = within(row).getAllByRole("link");
+  expect(links.map((l) => l.textContent)).toEqual(["Site model", "Single line diagram", "Readiness", "Change & effect"]);
+  expect(links.map((l) => l.getAttribute("aria-current"))).toEqual([null, null, null, "page"]);
+  expect(links.map((l) => l.getAttribute("href"))).toEqual([
+    "/sites/KOBO-001/foundation",
+    "/sites/KOBO-001/foundation/sld",
+    "/sites/KOBO-001/foundation/readiness",
+    "/sites/KOBO-001/foundation/changes",
+  ]);
 }
 
 afterEach(() => {
@@ -203,16 +215,21 @@ describe("Foundation change (changes:1#a)", () => {
 });
 
 describe("bare /foundation/changes", () => {
-  it("is an explicit unavailable state with a link back, and adds no Foundation view", async () => {
+  it("is an explicit unavailable state with a link back, keeps the changes screen's v69 slots, and adds no Foundation view", async () => {
     const requests = serve({});
     mount("/sites/KOBO-001/foundation/changes");
     await settledScreen();
     expect(q("[data-change-index='unavailable']")).not.toBeNull();
-    const panel = screen.getByRole("heading", { name: "No list of changes yet" }).closest("section") ?? document.body;
-    expect(within(panel as HTMLElement).getByRole("link", { name: "Back to the Foundation" })).toHaveAttribute(
+    // W1-F5b: the page states "no change selected" once, then both v69 changes panels with the gap inside each.
+    const refusal = q("[data-page-refusal='no-change-selected']") as HTMLElement;
+    expect(refusal.textContent).toContain("This site has no list of Foundation changes yet.");
+    expect(within(refusal).getByRole("link", { name: "Back to the Foundation" })).toHaveAttribute(
       "href",
       "/sites/KOBO-001/foundation",
     );
+    expectV69Panels("changes");
+    expect(panelTitled("Change and effect").querySelector("[data-panel-gap]")?.textContent).toContain("No change is selected");
+    expect(panelTitled("Decision path").querySelector("[data-panel-gap]")?.textContent).toContain("No change is selected");
     expect(requests.filter((r) => r.includes("/changes"))).toEqual([]);
     expect(foundationViewFor("changes")).toBeNull();
     foundationTabCurrent();

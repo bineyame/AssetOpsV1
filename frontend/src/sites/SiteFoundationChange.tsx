@@ -616,6 +616,41 @@ function Attempts({
   );
 }
 
+/**
+ * W1-F5b: the bare Changes address (the Foundation row's Change & effect entry) with no change selected. This
+ * site has no list of changes yet, so the page says so once and keeps both v69 slots with the gap inside each.
+ */
+export function NoChangeSelected({ foundationHref }: { foundationHref: string }) {
+  return (
+    <div className="w1f4-changes-work" data-change-index="unavailable">
+      <div className="page-refusal" role="status" data-page-refusal="no-change-selected">
+        <p className="page-refusal__title">
+          <strong>No change selected</strong>
+        </p>
+        <p>
+          This site has no list of Foundation changes yet. A change opens by its own address from the Action that
+          made it.
+        </p>
+        <p>
+          <Link to={foundationHref}>Back to the Foundation</Link>
+        </p>
+      </div>
+      <div className="panel-pair">
+        <Panel heading={CHANGE_PANEL_TITLE} headingId="site-change-summary-heading">
+          <p className="not-available-yet v69-chart-note" data-panel-gap="site-change-summary-heading">
+            No change is selected, so no setting, version or outcome is shown.
+          </p>
+        </Panel>
+        <Panel heading={DECISION_PATH_PANEL_TITLE} headingId="site-change-path-heading">
+          <p className="not-available-yet v69-chart-note" data-panel-gap="site-change-path-heading">
+            No change is selected, so no Action, plan or verification is shown.
+          </p>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
 /** A refused change read: the page-level refusal, then both v69 slots with the gap inside. */
 function RefusedChange({ refusal, links }: { refusal: Refusal; links: SiteFoundationChangeLinks }) {
   const words = refusalWords(refusal, "Foundation change");

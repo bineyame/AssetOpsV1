@@ -155,7 +155,7 @@ describe("the breadcrumb trail leads from the Sites index to this Site", () => {
 
     expect(
       Array.from(trail.querySelectorAll("li")).map((item) => item.textContent),
-    ).toEqual(["Sites", "MG-002"]);
+    ).toEqual(["Sites", "Kalangala Mini-Grid"]);
   });
 
   it("does not link the page to itself", async () => {
@@ -170,21 +170,21 @@ describe("the breadcrumb trail leads from the Sites index to this Site", () => {
         .map((link) => [link.textContent, link.getAttribute("href")]),
     ).toEqual([["Sites", "/sites"]]);
     expect(trail.querySelector('[aria-current="page"]')?.textContent).toBe(
-      "MG-002",
+      "Kalangala Mini-Grid",
     );
   });
 
-  it("spells the Site the way the record spells it", async () => {
-    // The crumb is built from the loaded record, not from the address. A trail
-    // built from the address would render the requested case and disagree with
-    // the heading directly above it.
+  it("names the Site the way the record names it, never the raw code (W1-F5b carry 11)", async () => {
+    // The crumb is built from the loaded record, not from the address: the site's name, as the mock and the
+    // heading above it do. A trail built from the address would render the requested code instead.
     renderAt("/sites/mg-002");
     await settledScreen();
 
     const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
 
-    expect(trail.textContent).toContain("MG-002");
+    expect(trail.textContent).toContain("Kalangala Mini-Grid");
     expect(trail.textContent).not.toContain("mg-002");
+    expect(trail.textContent).not.toContain("MG-002");
   });
 
   it("renders no trail for a Site that is not configured", async () => {

@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { useCurrentTabInView } from "../ui/useCurrentTabInView";
+
 import {
   siteDetailHref,
   siteEvidenceHref,
@@ -99,12 +101,13 @@ export interface OperatorSiteTabsProps {
 }
 
 export function OperatorSiteTabs({ siteId, current }: OperatorSiteTabsProps) {
+  const rowRef = useCurrentTabInView<HTMLElement>();
   if (siteId === undefined) {
     return null;
   }
 
   return (
-    <nav className="site-tabs" aria-label={OPERATOR_SITE_TABS_LABEL}>
+    <nav className="site-tabs" aria-label={OPERATOR_SITE_TABS_LABEL} ref={rowRef}>
       <ol className="site-tabs__list">
         {OPERATOR_SITE_TABS.map((tab) => (
           <li className="site-tabs__item" key={tab.label}>
