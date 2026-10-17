@@ -4,6 +4,8 @@ Status: implementation-ready (planned). Size M; two phases. Branch `task/W2-03-c
 
 ## Binding design and dependencies
 
+**Architect build closure:** `D-2026-10-17-w2-02-buildspec` and `.agent/W2-03-build-spec.md` fix exact `0022` schema, accepted-evidence selection, episode keys, one-transaction writer ownership, replay-derived assertions, selected reads and four route proof. They supersede unspecified implementation shorthand below.
+
 - `.agent/W2-technical-design-cold.md` §2 owns `0022_w2_cold_assessment`, scoped FKs, Finding domain widening and downgrade; §5 owns selection, excursion/start-chain rules and episode identity; §6 owns reads/panel maps; §7 owns rule-8 writers, response vocabulary and cases. `.agent/architect-W2-design.md` "Domain seams and claim rules"/"Ordered slices" fix bounded claims and late recompute. Decisions `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold`, `D-2026-10-17-w2-00-answers`, `D-2026-10-17-mockup-layout-spec` apply.
 - Requires merged W2-02 public replay, W2-01 time-valid Foundation/bindings, W2-00 AcceptedEvidence, S4-05 exact lineage and merged W1-F1 guard/CSS for phase 2. Consume only accepted public evidence with effective role, quality, source clock, received time and `known_at`; private world and illustrative mock values are never claim inputs.
 

@@ -1,5 +1,19 @@
 # W2-02 build stopped: Architect questions (Implementer, 2026-10-17)
 
+## Architect answers — `D-2026-10-17-w2-02-buildspec`
+
+The exact implementation instructions are `.agent/W2-02-build-spec.md` and `.agent/W2-03-build-spec.md`. These answers supersede the alternatives posed below.
+
+1. **New registered fixture.** Use `COLD-LAB-001`, with room/probe/generator/grid/bus/compressor codes and all thirteen exact §4 Foundation values in the W2-02 spec. `door-1` is a scenario forcing address linked to the room's door sensor. COLD-001/002 stay untouched. The pack consumes the effective frozen Foundation values; the six-case fixture requires the §4 values exactly. No default silently overrides a stored value.
+2. **New immutable v4 binding revision.** `BindingService.validate_bindings` supplies `v4_mapping` from the closed tuple table after validating role/unit. Publish a new revision at `2026-10-01T00:01:00Z`; no rewrite of W2-01 snapshots or their golden bytes. The scenario is later than this effective instant.
+3. **Gateway constructs v4.** Add a strict `DeviceReport` schema version 2 with the exact fields in the W2-02 spec. Activated binding metadata selects the v4 branch, and the gateway remains the sole sequence/message allocator. Stage displays the gateway's canonical v4 outbox bytes; host does not forge envelopes.
+4. **Separate strict document.** `cold-scenario/1` has its own parser and closed keys specified in the W2-02 spec. Forcing and observation fault rows both live in each scenario document; `cold-observation/1` is the versioned transform implementation. Add six catalog entries for the registered cold Lab Site, leaving legacy scenario parsing unchanged.
+5. **Run identity.** Optional `FrozenScenarioBinding.scenario_sha256` and optional `FrozenProfileBinding.observation_profile_id`, `observation_profile_version`, `observation_sha256`. Cold requires them. `runs/parsing.py` omits them entirely for old runs; old fingerprints and serialized bytes remain unchanged.
+6. **Replay is an explicit run read.** Require `run_id`, scope by authenticated tenant/Site/owner, join `evidence_publication` through `batch_publication_link` to batches, dispositions and accepted evidence, and read frozen profile/digest from the persisted run. Select all batches of that run in recorded order; report latest publication ID plus all IDs. Hash canonical ordered public disposition tuples as `public_digest`, defined in the W2-02 spec. Use 401/403 injection tests like the Foundation route and enforce an owner Lab role in production; `development_access` alone is insufficient as production authorization.
+7. **Yes.** `cold-publication/1` publishes one probe-failure `UNAVAILABLE`/`SENSOR_FAILURE` reading, followed by no numeric sample. A unit forcing tests it; none of the six scenarios forces physical probe failure.
+8. **Move and re-export.** Put `PhysicallyUnacceptable` in neutral `packs/errors.py`, re-export from `packs/fuel.py`; cold imports the neutral module. Existing imports keep working.
+9. **No manual log in W2-02.** The v4 tuple stays reserved, but COLD-LAB-001 declares no operator-log device/binding and the six scenarios emit none.
+
 Step 0 (W2-01 re-review Lows) is committed (`ff0a4906`). The producer build is stopped before any producer code, per the brief's "if anything is unspecified, stop". The code anchors below come from the current `main`-based worktree.
 
 ## Blocking
