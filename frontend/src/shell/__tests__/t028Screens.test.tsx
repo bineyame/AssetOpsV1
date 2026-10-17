@@ -45,6 +45,7 @@ import type {
 } from "../../sites/siteDirectoryClient";
 import type { SiteOverviewReadModel } from "../../sites/siteOverviewClient";
 import { expectV69Panels } from "../../test/panelStructure";
+import { SITE_SCREEN_DESCRIPTIONS } from "../../ui";
 import { settledScreen } from "../../test/settled";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
@@ -658,10 +659,16 @@ describe("W1-F2: legacy dispatch and analysis panel structure", () => {
     let view = renderAt(`/sites/${SITE_ID}/performance/dispatch`);
     await settledScreen();
     expectV69Panels("dispatch", { interval: "No block selected" });
+    // W1-F2: the v69 Site page heading: the site name as h1, the provenance badge and the screen description.
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading.textContent).not.toBe("Performance");
+    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain(SITE_ID);
+    expect(document.querySelector("header.page-header")?.textContent).toContain(SITE_SCREEN_DESCRIPTIONS.dispatch);
     view.unmount();
     view = renderAt(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`);
     await settledScreen();
     expectV69Panels("analysis");
+    expect(document.querySelector("header.page-header")?.textContent).toContain(SITE_SCREEN_DESCRIPTIONS.analysis);
     view.unmount();
     view = renderAt(`/sites/${SITE_ID}/performance/dispatch`, { analytics: analyticsClient(SITE_ID, { emptyDispatch: true }) });
     await settledScreen();

@@ -4566,6 +4566,45 @@ tr[data-selected] > * {
   color: var(--color-text-muted, #6b7a90);
 }
 
+/* W1-F2 dispatch: the state line, its reasons and the not-current totals stay on the strip line. */
+.v69-statusbar .dispatch-status,
+.dispatch-status__reasons,
+.dispatch-status__totals {
+  display: inline;
+}
+
+.dispatch-status__reason + .dispatch-status__reason::before {
+  content: " · ";
+}
+
+.dispatch-status__totals {
+  color: #8a5a00;
+  font-weight: 550;
+}
+
+/* The Dispatch day picker as the v69 chip row (chip-sized controls, .button). */
+.v69-chips.dispatch-day {
+  align-items: center;
+  margin: 0 0 16px;
+}
+
+.dispatch-day__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #5c6c86;
+}
+
+input.v69-chip-control[type="date"] {
+  width: auto;
+}
+
+/* The period and block choosers inside the Selected block panel (panel 1 keeps one strip). */
+.dispatch-choosers {
+  margin-bottom: 12px;
+}
+
 /* W1-F1 fix round 1: mock patterns ported from `mockups.css` ---------------------- */
 
 /* The mock's page heading: the site name, a provenance tag beside it, the

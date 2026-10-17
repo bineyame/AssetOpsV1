@@ -306,7 +306,8 @@ function DispatchView({
       : readablePeriod(selected.interval.first_running_observed, selected.interval.last_running_observed);
 
   return (
-    <section aria-label="Was the generator needed?" className="dispatch-view">
+    // W1-F2: a plain wrapper, not a section: no section may sit outside the v69 panels.
+    <div className="dispatch-view" data-dispatch-root>
       <LocalViews label={DISPATCH_VIEWS_LABEL} current={view} params={params} />
       {selectedId !== null && selected === null ? (
         <StatusBar data={{ "data-dispatch-selected-missing": "" }}>
@@ -332,10 +333,10 @@ function DispatchView({
           first={
             <>
               {rows.length === 0 ? (
-                <p data-dispatch-empty>
+                <ChartNote data={{ "data-dispatch-empty": "" }}>
                   No period of generator operation has been assessed from this
                   site&apos;s accepted records.
-                </p>
+                </ChartNote>
               ) : (
                 <DataTable labelledBy="legacy-dispatch-blocks-heading">
                   <thead>
@@ -409,9 +410,9 @@ function DispatchView({
           }
           second={
             selected === null ? (
-              <p className="chart-note" data-dispatch-selected="none">
+              <ChartNote data={{ "data-dispatch-selected": "none" }}>
                 No period selected. Select a period in the list to see its reading.
-              </p>
+              </ChartNote>
             ) : (
               <SelectedInterval
                 row={selected}
@@ -421,14 +422,14 @@ function DispatchView({
             )
           }
           third={
-            <p data-dispatch-coverage="per-period">
+            <ChartNote data={{ "data-dispatch-coverage": "per-period" }}>
               This list carries no accepted-sample coverage for the day. Each period&apos;s record coverage is on its
               Analysis view.
-            </p>
+            </ChartNote>
           }
         />
       )}
-    </section>
+    </div>
   );
 }
 
@@ -576,10 +577,10 @@ function DispatchAnalysis({
         interval=""
         first={
           rows.length === 0 ? (
-            <p data-dispatch-analysis-empty>
+            <ChartNote data={{ "data-dispatch-analysis-empty": "" }}>
               No period of generator operation has been assessed from this site&apos;s
               accepted records, so there is nothing to analyse yet.
-            </p>
+            </ChartNote>
           ) : (
             <>
               <ul className="cell-list" data-dispatch-analysis-periods aria-label="Choose a period">
@@ -595,7 +596,7 @@ function DispatchAnalysis({
                 ))}
               </ul>
               {selected === null ? (
-                <p className="chart-note">Choose a period to see how its outcome follows from the reported values.</p>
+                <ChartNote>Choose a period to see how its outcome follows from the reported values.</ChartNote>
               ) : (
                 <AssessmentAnalysis
                   summary={selected}
@@ -621,14 +622,14 @@ function DispatchAnalysis({
         }
         second={
           fuel === null || fuel.text === null ? (
-            <p data-dispatch-fuel="none">No supported calculation for the selected period.</p>
+            <ChartNote data={{ "data-dispatch-fuel": "none" }}>No supported calculation for the selected period.</ChartNote>
           ) : (
             <p data-dispatch-fuel="stated">{`${fuel.label}: ${fuel.text}. ${fuel.note}`}</p>
           )
         }
         third={
           selected === null || selected.reading === undefined ? (
-            <p data-dispatch-confidence="none">No period selected, so no coverage or confidence is stated.</p>
+            <ChartNote data={{ "data-dispatch-confidence": "none" }}>No period selected, so no coverage or confidence is stated.</ChartNote>
           ) : (
             <>
               <p>

@@ -798,6 +798,8 @@ function DayTotals({ read }: { read: DispatchWindow }) {
             key={key}
             label={label}
             value={value}
+            word={value === "not known"}
+            tone={value === "not known" ? "muted" : read.stale ? "amber" : undefined}
             note={`${read.stale ? "Not current. " : ""}${note}`}
             data={{ "data-total": key, ...(read.stale ? { "data-stale": "true" } : {}) }}
           />
@@ -985,9 +987,12 @@ function SelectedPeriod({
       </FactList>
       {segment !== null ? (
         <div className="dispatch-block-detail" data-selected-block={segment.start}>
-          <h3>
-            Block {clock(segment.start)} to {clock(segment.end)} UTC: {outcome(segment.classification)}
-          </h3>
+          {/* W1-F2: the block's own line in its panel, not an h3 subsection. */}
+          <p className="dispatch-block-detail__title">
+            <strong>
+              Block {clock(segment.start)} to {clock(segment.end)} UTC: {outcome(segment.classification)}
+            </strong>
+          </p>
           <ul>
             {segment.load_kw ? <li>Site demand {segment.load_kw} kW.</li> : null}
             {segment.binding_constraint ? <li>{constraintWords(segment.binding_constraint)}.</li> : null}

@@ -206,6 +206,8 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   foundation: "Definition, topology and controls · stored configuration for the period shown",
   readiness: "Definition, commissioning and gateway readiness",
   sld: "Foundation · single line diagram",
+  dispatch: "Performance · source coordination and generator support",
+  analysis: "Performance · analytical method, input comparison and uncertainty",
 } as const;
 
 export interface SitePageHeaderProps {
