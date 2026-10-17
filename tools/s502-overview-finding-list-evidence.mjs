@@ -150,7 +150,9 @@ const READ = `(() => {
     knownRevision: document.querySelector('[data-known-finding-revision]')?.getAttribute('data-known-finding-revision') ?? null,
     freshness: document.querySelector('[data-freshness-state]')?.getAttribute('data-freshness-state') ?? null,
     money: document.querySelector('[data-money-state]')?.getAttribute('data-money-state') ?? null,
-    token: list?.querySelector('[data-finding-index-token]')?.textContent ?? null,
+    // W1-UX-02 moved the list selection token into the shared exact references (label "List selection reference").
+    token: [...(list?.querySelectorAll('.exact-references__row') ?? [])]
+      .find((r) => r.querySelector('dt')?.textContent === 'List selection reference')?.querySelector('code')?.textContent ?? null,
     emptyClaim: /No Findings for this day/.test(text),
     countClaim: /\\d+ Findings? overlap this day/.test(text),
     overflow: document.documentElement.scrollWidth - window.innerWidth,
