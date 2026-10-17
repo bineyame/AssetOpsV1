@@ -918,19 +918,27 @@ function AssumptionsInUse({ siteId, client, links }: { siteId: string; client: F
             label="Diesel price in use"
             rows={[
               ["Diesel price", <strong key="p">{priceText(selection.price)}</strong>, "price"],
-              [
-                "Price version",
-                <Link key="v" to={links.assumptions({ revisionId: selection.revision_id })}>
-                  Version {selection.price.revision_no}
-                </Link>,
-                "version",
-              ],
-              ["Currency", selection.price.currency, "currency"],
               ["Effective period", applies(selection.valid), "effective"],
-              ["Basis", BASIS_WORDS[selection.price.basis] ?? "Another basis", "basis"],
               ["Set by", `${setBy(selection.price) === "the system" ? "The system" : "An operator"}, recorded on ${day(selection.price.recorded_at)}`, "set-by"],
             ]}
           />
+          {/* W1-F3 height phase: the mock shows three key values; version, currency and basis are one click away. */}
+          <Disclosure summary="How this was worked out" name="financials-price-detail">
+            <KeyValues
+              label="Diesel price detail"
+              rows={[
+                [
+                  "Price version",
+                  <Link key="v" to={links.assumptions({ revisionId: selection.revision_id })}>
+                    Version {selection.price.revision_no}
+                  </Link>,
+                  "version",
+                ],
+                ["Currency", selection.price.currency, "currency"],
+                ["Basis", BASIS_WORDS[selection.price.basis] ?? "Another basis", "basis"],
+              ]}
+            />
+          </Disclosure>
         </div>
       ) : (
         <div data-price-selection={selection?.state ?? "NO_PRICE"}>

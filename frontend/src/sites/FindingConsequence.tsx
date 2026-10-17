@@ -634,7 +634,7 @@ function MoneyLimit({
     <div data-financials-money-limit={c.state}>
       {c.state === "WITHHELD_GENERATOR_SERIES" ? (
         spans.length > 0 ? (
-          <ul>
+          <ul className="v69-chart-note w1-money-limits">
             {spans.map((x) => (
               <li key={`${x.start}|${x.end}|${x.kind}`} data-financials-series-limit={x.kind}>
                 The order of generator records from {formatInstant(x.start)} to {formatInstant(x.end)} is not proven:{" "}
@@ -644,18 +644,18 @@ function MoneyLimit({
           </ul>
         ) : null
       ) : c.state === "MIXED_OR_UNKNOWN_SOURCE" ? (
-        <p data-financials-source-withheld="true">
+        <p className="v69-chart-note" data-financials-source-withheld="true">
           The cost is calculated, but the source of the records behind it is not established, so it is not shown as a
           current cost. The source record above says which records are affected.
         </p>
       ) : (
-        <p data-financials-pending-reassessment="true">
+        <p className="v69-chart-note" data-financials-pending-reassessment="true">
           New evidence or clock proof is being taken into account. The current cost appears once the reassessment and
           the fuel cost recalculation have finished.
         </p>
       )}
       {c.recorded_consequence_revision_id ? (
-        <p>
+        <p className="v69-chart-note">
           <Link
             to={links.consequence(findingId, rev, c.recorded_consequence_revision_id)}
             data-financials-recorded-link={c.recorded_consequence_revision_id}
@@ -765,8 +765,9 @@ export function FindingBridge({
           headingId="site-financials-bridge-heading"
           description="Translated once here for this finding version · select the source to return to its finding"
         >
-          <div data-financials-state-line="">
+          <div className="v69-state-line w1-money-state-line" data-financials-state-line="">
             <ProductStatus
+              inline
               words={words}
               scope={scope}
               // The time the shown range was worked out; no other state has a read instant, so it says so.
@@ -777,7 +778,7 @@ export function FindingBridge({
                 subject="cost"
                 name="bridge"
               />
-              {bridge.audit_only ? <p className="notice">{bridge.audit_only.statement}</p> : null}
+              {bridge.audit_only ? <span className="notice"> {bridge.audit_only.statement}</span> : null}
             </ProductStatus>
           </div>
           <p className="v69-chart-note">
@@ -842,7 +843,6 @@ export function FindingBridge({
               The fuel cost versions of this finding version could not be read, so none is shown.
             </p>
           ) : null}
-          {words.next === undefined ? null : <p className="v69-chart-note">{words.next}</p>}
           <p className="v69-chart-note">
             <Link to={links.evidence(findingId, rev)}>See the evidence for this finding version</Link>
             {" · "}

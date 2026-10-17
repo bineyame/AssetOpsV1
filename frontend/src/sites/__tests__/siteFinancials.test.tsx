@@ -1471,6 +1471,13 @@ describe("W1-UX-02: Site > Financials (financials)", () => {
     expect(panel.querySelector("[data-key-value='effective']")).toHaveTextContent("from 1 Jul 2026, with no end date");
     expect(within(panel).getByRole("link", { name: "Review assumptions" })).toHaveAttribute("href", "/sites/KOBO-001/financials/assumptions");
     expect(document.querySelector("[data-price-strip]")).toBeNull();
+    // Height phase: price, effective period and set-by are visible; version, currency and basis are one click away.
+    for (const key of ["price", "effective", "set-by"]) {
+      expect(visibleOutsideClosedDisclosure(panel.querySelector(`[data-key-value='${key}']`)!), key).toBe(true);
+    }
+    const detail = panel.querySelector("details[data-disclosure='financials-price-detail']") as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    for (const key of ["version", "currency", "basis"]) expect(detail.querySelector(`[data-key-value='${key}']`), key).not.toBeNull();
   });
 
   it.each([

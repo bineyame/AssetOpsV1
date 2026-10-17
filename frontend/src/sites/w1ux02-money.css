@@ -220,3 +220,21 @@
 .site-financials [data-price-history-part] > .v69-eyebrow {
   margin-top: 10px;
 }
+
+/* The withheld bridge's limits and record link are 12px notes, not body text. */
+.site-financials [data-financials-money-limit] .v69-chart-note,
+.site-financials .w1-money-limits {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.site-financials .w1-money-limits {
+  padding-left: 18px;
+}
+
+/* The money state line keeps its tone on the label when it is one compact line. */
+.w1-money-state-line .product-status--problem .product-status__label,
+.w1-money-state-line .product-status--waiting .product-status__label {
+  color: #8a5300;
+}
