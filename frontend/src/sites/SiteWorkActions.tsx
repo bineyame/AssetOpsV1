@@ -413,6 +413,7 @@ function LoadedRows({ body, scope, links }: { body: ActionIndexBody; scope: Acti
   return (
     <div data-site-work-state="current-rows">
       <Rows body={body} links={links} all={all} />
+      <div className="w1f4-work-foot">
       <nav aria-label="Actions pages" data-site-work-pages className="w1f4-work-pages">
         <span>
           Showing {body.rows.length} of {body.total_count}. Newest first.
@@ -434,6 +435,7 @@ function LoadedRows({ body, scope, links }: { body: ActionIndexBody; scope: Acti
         ) : null}
       </nav>
       <Basis body={body} />
+      </div>
     </div>
   );
 }

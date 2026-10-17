@@ -193,3 +193,21 @@
   font-size: 10px;
   white-space: nowrap;
 }
+
+/* Site Work foot: the count line, the basis disclosure link and (when open) its body share one compact row. */
+.w1f4-work-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 14px;
+  margin-top: 6px;
+}
+
+.w1f4-work-foot .w1f4-work-pages,
+.w1f4-work-foot .disclosure {
+  margin: 0;
+}
+
+.w1f4-work-foot .disclosure[open] {
+  flex: 1 1 100%;
+}
