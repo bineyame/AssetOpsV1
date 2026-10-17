@@ -71,10 +71,12 @@ export function DataTable({ labelledBy, children }: DataTableProps) {
  */
 export interface FactListProps {
   children: ReactNode;
+  /** An extra class for a list that needs its own narrow-width shape (W1-F5b: label above value). */
+  className?: string;
 }
 
-export function FactList({ children }: FactListProps) {
-  return <dl className="fact-list">{children}</dl>;
+export function FactList({ children, className }: FactListProps) {
+  return <dl className={className ? `fact-list ${className}` : "fact-list"}>{children}</dl>;
 }
 
 export interface FactProps {

@@ -185,3 +185,14 @@ a.period-strip__segment:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* W1-F5b review L4: below 480px the label sits above its value, so a long value is not wrapped into a narrow right column. */
+@media (max-width: 480px) {
+  .fact-list.fact-list--stack-narrow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .fact-list--stack-narrow .fact-list__value {
+    margin-bottom: var(--space-2);
+  }
+}
