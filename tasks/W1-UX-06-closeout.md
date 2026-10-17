@@ -1,6 +1,6 @@
 # W1-UX-06 — W1 presentation closeout and combined owner walkthrough
 
-Status: **in_review**. Size **S–M**, at most two phases. Implement on `task/W1-UX-06` after W1-UX-02, -03 and -04 are reviewed and merged; this packet is written on `plan/W1-UX-06`. Coordinator commits the plan. This is the last W1 slice before the owner's single combined walkthrough under `.agent/owner-walkthrough-policy-2026-10-16.md`. Fresh independent slice review gates merge; the owner walks the combined result once and W1 closes only after that acceptance. No new panel claim or source promotion.
+Status: **done** (merged to main 2026-10-17; reviews ACCEPT after fix round 1; owner acceptance in the combined W1 walkthrough); was in_review. Size **S–M**, at most two phases. Implement on `task/W1-UX-06` after W1-UX-02, -03 and -04 are reviewed and merged; this packet is written on `plan/W1-UX-06`. Coordinator commits the plan. This is the last W1 slice before the owner's single combined walkthrough under `.agent/owner-walkthrough-policy-2026-10-16.md`. Fresh independent slice review gates merge; the owner walks the combined result once and W1 closes only after that acceptance. No new panel claim or source promotion.
 
 ## Result and boundaries
 
