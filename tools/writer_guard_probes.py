@@ -56,6 +56,7 @@ MERGE_COPY = "No product writer runs MERGE or COPY"
 LITERAL_TARGET = "names its target table literally"
 ASSESS_ONLY = "The assessment store inserts only"
 FINDING_ONLY = "The Finding store only inserts into"
+WORKER_WRITER = "A second product database writer in backend/assetops_backend/analytics/assessment_worker.py"
 ACTION_NEVER = "The Action store never updates, deletes, truncates, upserts or runs DDL"
 ACTION_ONLY = "The Action store only inserts"
 PROV = "Source provenance is insert-only"
@@ -262,7 +263,7 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
     # every one of these names (configuration-persistence.ps1 fails closed when one is missing).
     ("cold cold_episode foreign insert", WORKER,
      '_OPS02 = (\n    "INSERT INTO cold_episode "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
-     "writes assessment table 'cold_episode'"),
+     WORKER_WRITER),
     ("cold cold_episode update", ASSESS, split("cold_episode", "site_id = :s WHERE id = :i"), ASSESS_ONLY),
     ("cold cold_episode delete", ASSESS, '_OPS02 = (\n    "delete from "\n    "cold_episode where id = :i"\n)\n', ASSESS_ONLY),
     ("cold cold_episode upsert", ASSESS,
@@ -270,7 +271,7 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
     ("cold cold_episode_revision foreign insert", WORKER,
      '_OPS02 = (\n    "INSERT INTO cold_episode_revision "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
-     "writes assessment table 'cold_episode_revision'"),
+     WORKER_WRITER),
     ("cold cold_episode_revision update", ASSESS, split("cold_episode_revision", "site_id = :s WHERE id = :i"), ASSESS_ONLY),
     ("cold cold_episode_revision delete", ASSESS, '_OPS02 = (\n    "delete from "\n    "cold_episode_revision where id = :i"\n)\n', ASSESS_ONLY),
     ("cold cold_episode_revision upsert", ASSESS,
@@ -278,7 +279,7 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
     ("cold cold_episode_evidence foreign insert", WORKER,
      '_OPS02 = (\n    "INSERT INTO cold_episode_evidence "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
-     "writes assessment table 'cold_episode_evidence'"),
+     WORKER_WRITER),
     ("cold cold_episode_evidence update", ASSESS, split("cold_episode_evidence", "site_id = :s WHERE id = :i"), ASSESS_ONLY),
     ("cold cold_episode_evidence delete", ASSESS, '_OPS02 = (\n    "delete from "\n    "cold_episode_evidence where id = :i"\n)\n', ASSESS_ONLY),
     ("cold cold_episode_evidence upsert", ASSESS,
@@ -286,7 +287,7 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
     ("cold finding foreign insert", WORKER,
      '_OPS02 = (\n    "INSERT INTO finding "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
-     "writes Finding table 'finding'"),
+     WORKER_WRITER),
     ("cold finding update", FINDING, split("finding", "site_id = :s WHERE id = :i"), FINDING_ONLY),
     ("cold finding delete", FINDING, '_OPS02 = (\n    "delete from "\n    "finding where id = :i"\n)\n', FINDING_ONLY),
     ("cold finding upsert", FINDING,
@@ -294,7 +295,7 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
     ("cold finding_revision foreign insert", WORKER,
      '_OPS02 = (\n    "INSERT INTO finding_revision "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
-     "writes Finding table 'finding_revision'"),
+     WORKER_WRITER),
     ("cold finding_revision update", FINDING, split("finding_revision", "site_id = :s WHERE id = :i"), FINDING_ONLY),
     ("cold finding_revision delete", FINDING, '_OPS02 = (\n    "delete from "\n    "finding_revision where id = :i"\n)\n', FINDING_ONLY),
     ("cold finding_revision upsert", FINDING,
