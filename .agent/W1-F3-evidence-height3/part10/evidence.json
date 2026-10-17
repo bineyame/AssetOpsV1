@@ -1,0 +1,574 @@
+{
+  "revision": "de19aeff",
+  "captured_at": "2026-10-17T15:22:44.674Z",
+  "pairs": [
+    {
+      "screen": "financials",
+      "case": "priced",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5863/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
+      "mock_hash": "#/financials",
+      "app_image": "financials-priced-1440-app.png",
+      "mock_image": "financials-priced-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1145,
+            "h": 347
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 831,
+            "w": 725,
+            "h": 275
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 991,
+            "y": 831,
+            "w": 403,
+            "h": 368
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "priced",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5863/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
+      "mock_hash": "#/financials",
+      "app_image": "financials-priced-390-app.png",
+      "mock_image": "financials-priced-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1326,
+            "w": 358,
+            "h": 631
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1976,
+            "w": 358,
+            "h": 292
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 2283,
+            "w": 358,
+            "h": 387
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "notcalculated",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5863/sites/KOBO-001/financials?finding_id=81b63e65-b87a-4d2b-a4dd-7819ef2dcf9f&revision_id=fcd0a325-d68a-4bc9-8898-ac880a4df7d1",
+      "mock_hash": "#/financials",
+      "app_image": "financials-notcalculated-1440-app.png",
+      "mock_image": "financials-notcalculated-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1145,
+            "h": 374
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 857,
+            "w": 725,
+            "h": 275
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 991,
+            "y": 857,
+            "w": 403,
+            "h": 295
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "notcalculated",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5863/sites/KOBO-001/financials?finding_id=81b63e65-b87a-4d2b-a4dd-7819ef2dcf9f&revision_id=fcd0a325-d68a-4bc9-8898-ac880a4df7d1",
+      "mock_hash": "#/financials",
+      "app_image": "financials-notcalculated-390-app.png",
+      "mock_image": "financials-notcalculated-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1312,
+            "w": 358,
+            "h": 654
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1984,
+            "w": 358,
+            "h": 292
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 2291,
+            "w": 358,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "notworkedout",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5864/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
+      "mock_hash": "#/financials",
+      "app_image": "financials-notworkedout-1440-app.png",
+      "mock_image": "financials-notworkedout-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1145,
+            "h": 347
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 831,
+            "w": 725,
+            "h": 227
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 991,
+            "y": 831,
+            "w": 403,
+            "h": 295
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "notworkedout",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5864/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
+      "mock_hash": "#/financials",
+      "app_image": "financials-notworkedout-390-app.png",
+      "mock_image": "financials-notworkedout-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1315,
+            "w": 358,
+            "h": 594
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1928,
+            "w": 358,
+            "h": 244
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 2188,
+            "w": 358,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "notfound",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5863/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/financials",
+      "app_image": "financials-notfound-1440-app.png",
+      "mock_image": "financials-notfound-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 470,
+            "w": 1160,
+            "h": 99
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 588,
+            "w": 734,
+            "h": 275
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 1000,
+            "y": 588,
+            "w": 408,
+            "h": 295
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "notfound",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5863/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/financials",
+      "app_image": "financials-notfound-390-app.png",
+      "mock_image": "financials-notfound-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1112,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1249,
+            "w": 358,
+            "h": 292
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 1557,
+            "w": 358,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

@@ -240,6 +240,45 @@ Commits `def88117`..`de19aeff` on the branch. Money gates untouched: `FindingCon
 - Finding History keeps one panel-head link ("Open version N of the Finding"). The review's height table asked to drop the head links as duplicates of row links, but with "Open this version" dropped from rows (same table) the head link is the only way to the Finding at a version; the head evidence link is dropped.
 - Sitefindings Lens column waits for F5, as the review allows.
 
+
+### Fix-round checks (final code revision `8a6a294c`)
+- `npx.cmd tsc --noEmit`: clean.
+- Structure and screen tests (`w1f3PanelGuard`, `panelStructure`, `siteFinancials`, `siteFinding*`, `s404SiteFindingIndex`): 7 files, 286/286 at `de19aeff`; `siteFindingEvidence` + `siteFindingHistory` 81/81 at `9aaa8c05`.
+- Full `npm.cmd test` at `8a6a294c`: 77 files, 2015/2016, 362 s. The one failure is the known `siteFoundationChange` flake ("Battery reserve" heading not found under load); alone it passes 10/10.
+- `tools/check-all.ps1` at `de19aeff`: all 10 guards passed (`8a6a294c` changes only one TSX class and CSS).
+- Captures: `node tools/w1-fidelity-evidence.mjs`, 1440 and 390, API 9460-9470, web 5860-5866, CDP 9489. All 24 cases at `de19aeff` into `.agent/W1-F3-evidence-height3/part{5,8,9,10,10-emptyprice,11}`, 288/288 claims; Part 11 recaptured at `8a6a294c` (48/48). Panel counts equal the mock everywhere; overflowX 0 at 390 everywhere. Screens read: no raw IDs in default views, no grey box on inline state lines (the remaining boxes are block `ProductStatus` inside not-found alerts and the `.notice` "source is closed" line, both shared styling for F2). Part 10 "notworkedout" showed a one-off "could not be read" at 1440 on the first load; re-prepared and recaptured clean. The tool's claims do not catch that state. Sitefindings rows at 390 are now about 80-95 px (were about 170). All fixtures dropped, servers and Chrome stopped, ports free.
+
+### Panel height at 1440 after the fix round (app / mock; before = height2 at `cbf8819a`)
+| Case | Panel | App px | Mock px | Ratio | Before |
+| --- | --- | --- | --- | --- | --- |
+| finding-evidence | Evidence bundle | 411 | 287 | 1.43 OVER | 1.44 |
+| finding-evidence | Inspect source lineage | 126 | 100 | 1.26 | 1.75 |
+| financials priced | What happened -> money | 347 | 288 | 1.20 | 1.30 |
+| financials priced | Trade-offs and exclusions | 368 | 306 | 1.20 | 1.39 |
+| financials withheld | What happened -> money | 417 | 288 | 1.45 OVER | 1.54 |
+| financials notcalculated / emptyprice | What happened -> money | 374 | 288 | 1.30 | 1.30 |
+| finding default | What limits this conclusion | 261 | 233 | 1.12 | 1.30 |
+| finding stale | What limits this conclusion | 318 | 233 | 1.36 OVER | 1.40 |
+| finding-history default | Revision history | 396 | 243 | 1.63 OVER | 1.63 |
+| finding-history latest | Revision history | 455 | 243 | 1.87 OVER | 1.95 |
+| sitefindings default | Findings at this site | 385 | 288 | 1.34 OVER | 1.51 |
+| assumptions default / version1 | Financial assumptions | 506 | 368 | 1.38 OVER | 1.38 / 1.59 |
+| assumptions recordedv1 | Financial assumptions | 527 | 368 | 1.43 OVER | 1.43 |
+| assumptions default / version1 | Interpretation history | 481 | 211 | 2.28 OVER | 1.59 |
+| assumptions recordedv1 | Interpretation history | 318 | 211 | 1.51 OVER | 1.19 |
+| assumptions emptyprice | Interpretation history | 292 | 211 | 1.38 OVER | 1.55 |
+
+All other panels are at or under 1.30 (full per-case table in each `evidence.json`).
+
+Accepted overages, recorded as the review's residual risk asked:
+- **finding stale limits (1.36):** every material limit is visible by H1; with many limits the panel grows. This many-limits overage is accepted honest content; height is not bought by hiding limits.
+- **Interpretation history (1.38-2.28):** H3 required a 5-column table; 3 price versions against the mock's 2 rows, and each row's reference disclosure on its own line so the Status column fits the card at 1440 (at `de19aeff` it was clipped behind a sideways scroll, 2.02). A further cut (one panel-level reference disclosure instead of one per row) is possible but changes the per-row disclosure pattern shared with the fuel-cost rows; left for review.
+- **finding-history (1.63/1.87), evidence bundle (1.43), financials withheld (1.45), sitefindings (1.34), Financial assumptions (1.38-1.43):** the review's exact cuts are applied; what remains is the version table, the withheld state with its series-limit bullet, the Not-assessed columns H2 added, and the disabled edit with its reason.
+
+### Fix-round residual risk
+- assumptions version1: the in-use line says "from 1 Jul 2026 until 1 Jan 2030" while the selected version 1 field says "from 1 Jan 2026, with no end date". The line describes the price in use today and the field the selected version, but side by side they read as a contradiction. This predates the fix round and is not changed here; flag for review.
+- At 390 the finding-history Basis column and the price table wrap narrowly and scroll inside their cards (page overflowX 0).
+
 ## Residual risk
 
 - jsdom has no layout. Size and prominence claims rest on the captures above.
