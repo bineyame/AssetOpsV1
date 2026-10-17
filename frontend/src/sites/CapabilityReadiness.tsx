@@ -18,7 +18,8 @@
  * scope is site-wide, never the selected window.
  */
 
-import { Badge, DataTable, Fact, FactList, Panel } from "../ui";
+import { Badge, DataTable, Fact, FactList } from "../ui";
+import { Part } from "./panelPart";
 import type { DomainPresentationProfile } from "./presentationProfile";
 import { servedCapabilities } from "./presentationProfile";
 import type { EvidenceRead } from "./siteEvidenceClient";
@@ -60,12 +61,12 @@ function served(
 
 function Unavailable({ message }: { message: string | null }) {
   return (
-    <Panel heading={QUESTION} headingId={CAPABILITY_HEADING_ID}>
+    <Part heading={QUESTION} headingId={CAPABILITY_HEADING_ID}>
       <p data-capability-state="unavailable">
         {message ??
           "What can be assessed for this site could not be read, so nothing is said here about it."}
       </p>
-    </Panel>
+    </Part>
   );
 }
 
@@ -99,7 +100,7 @@ export function CapabilityReadinessTable({
   }
   const scored = rows.find((row) => row.analytic.readiness)?.analytic.readiness;
   return (
-    <Panel heading={scored?.question ?? QUESTION} headingId={CAPABILITY_HEADING_ID} flush>
+    <Part heading={scored?.question ?? QUESTION} headingId={CAPABILITY_HEADING_ID} flush>
       <p className="note" data-capability-question>
         <strong>Scope: whole site.</strong>
         {scored?.scope === undefined ? "" : ` ${scored.scope}`}
@@ -119,7 +120,7 @@ export function CapabilityReadinessTable({
           ))}
         </tbody>
       </DataTable>
-    </Panel>
+    </Part>
   );
 }
 
@@ -222,7 +223,7 @@ export function CapabilityReadinessAnalysis({
     );
   }
   return (
-    <Panel heading="How readiness is scored" headingId={CAPABILITY_METHOD_HEADING_ID}>
+    <Part heading="How readiness is scored" headingId={CAPABILITY_METHOD_HEADING_ID}>
       {rows.map(({ id, label, analytic }) => {
         const readiness = analytic.readiness;
         return (
@@ -274,6 +275,6 @@ export function CapabilityReadinessAnalysis({
           </section>
         );
       })}
-    </Panel>
+    </Part>
   );
 }

@@ -4497,3 +4497,19 @@ tr[data-selected] > * {
     flex: 1 1 140px;
   }
 }
+
+/* W1-F2: a former panel now inside its owning v69 panel (sites/panelPart.tsx). */
+.panel-part + .panel-part,
+.panel-part {
+  margin-top: 14px;
+}
+
+.panel-part__title {
+  margin: 0 0 6px;
+  font-size: 12px;
+}
+
+.panel-part__description {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
