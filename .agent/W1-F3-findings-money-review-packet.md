@@ -88,84 +88,130 @@ Captured at `c3b198f7`. The code changes since then (`23671e6a`) add one test an
 - Folders under `.agent/W1-F3-evidence/` (added with `git add -f`): `part5` (finding-evidence and financials, s405), `part8` (finding and finding-history, s4_finding), `part9` (sitefindings, s404), `part10` and `part10-emptyprice` (financials, s402b), `part11` (assumptions, s402a). Each holds `<id>[-case]-{1440,390}-{app,mock}.png`, `evidence.json` and an `index.html` side-by-side page.
 - All 276 tool claims passed. The panel count matches the mock in every case at both widths, and `overflowX` is 0 at 390 everywhere. Fixtures were dropped and the servers stopped.
 
-### Panel height at 1440, app vs mock (coordinator rule: about 1.3x or less; OVER = above 1.3)
-
-| Screen-case | Panel | App px | Mock px | Ratio |
-| --- | --- | --- | --- | --- |
-| financials-emptyprice | What happened → what it means in money | 525 | 288 | 1.82 OVER |
-| financials-emptyprice | Assumptions in use | 313 | 306 | 1.02 |
-| financials-emptyprice | Trade-offs and exclusions | 313 | 306 | 1.02 |
-| financials-priced | What happened → what it means in money | 477 | 288 | 1.66 OVER |
-| financials-priced | Assumptions in use | 485 | 306 | 1.58 OVER |
-| financials-priced | Trade-offs and exclusions | 485 | 306 | 1.58 OVER |
-| financials-notcalculated | What happened → what it means in money | 477 | 288 | 1.66 OVER |
-| financials-notcalculated | Assumptions in use | 358 | 306 | 1.17 |
-| financials-notcalculated | Trade-offs and exclusions | 358 | 306 | 1.17 |
-| financials-notworkedout | What happened → what it means in money | 525 | 288 | 1.82 OVER |
-| financials-notworkedout | Assumptions in use | 313 | 306 | 1.02 |
-| financials-notworkedout | Trade-offs and exclusions | 313 | 306 | 1.02 |
-| financials-notfound | What happened → what it means in money | 99 | 288 | 0.34 |
-| financials-notfound | Assumptions in use | 358 | 306 | 1.17 |
-| financials-notfound | Trade-offs and exclusions | 358 | 306 | 1.17 |
-| assumptions | Financial assumptions | 913 | 368 | 2.48 OVER |
-| assumptions | Impact preview | 913 | 368 | 2.48 OVER |
-| assumptions | Interpretation history | 514 | 211 | 2.44 OVER |
-| assumptions-emptyprice | Financial assumptions | 391 | 368 | 1.06 |
-| assumptions-emptyprice | Impact preview | 391 | 368 | 1.06 |
-| assumptions-emptyprice | Interpretation history | 424 | 211 | 2.01 OVER |
-| assumptions-recordedv1 | Financial assumptions | 783 | 368 | 2.13 OVER |
-| assumptions-recordedv1 | Impact preview | 783 | 368 | 2.13 OVER |
-| assumptions-recordedv1 | Interpretation history | 391 | 211 | 1.85 OVER |
-| assumptions-version1 | Financial assumptions | 1187 | 368 | 3.23 OVER |
-| assumptions-version1 | Impact preview | 1187 | 368 | 3.23 OVER |
-| assumptions-version1 | Interpretation history | 514 | 211 | 2.44 OVER |
-| finding-evidence | Evidence bundle · Generator support merits review | 903 | 287 | 3.15 OVER |
-| finding-evidence | Inspect source lineage | 332 | 100 | 3.32 OVER |
-| finding-evidence-notfound | Evidence bundle · Selected Finding | 99 | 287 | 0.34 |
-| finding-evidence-notfound | Inspect source lineage | 99 | 100 | 0.99 |
-| financials-priced | What happened → what it means in money | 477 | 288 | 1.66 OVER |
-| financials-priced | Assumptions in use | 485 | 306 | 1.58 OVER |
-| financials-priced | Trade-offs and exclusions | 485 | 306 | 1.58 OVER |
-| financials-withheld | What happened → what it means in money | 632 | 288 | 2.19 OVER |
-| financials-withheld | Assumptions in use | 358 | 306 | 1.17 |
-| financials-withheld | Trade-offs and exclusions | 358 | 306 | 1.17 |
-| financials-nofinding | What happened → what it means in money | 103 | 288 | 0.36 |
-| financials-nofinding | Assumptions in use | 358 | 306 | 1.17 |
-| financials-nofinding | Trade-offs and exclusions | 358 | 306 | 1.17 |
-| finding | What happened | 436 | 279 | 1.56 OVER |
-| finding | What limits this conclusion | 389 | 233 | 1.67 OVER |
-| finding | What to do next | 389 | 233 | 1.67 OVER |
-| finding | Where to look next | 511 | 404 | 1.26 |
-| finding-stale | What happened | 477 | 279 | 1.71 OVER |
-| finding-stale | What limits this conclusion | 468 | 233 | 2.01 OVER |
-| finding-stale | What to do next | 468 | 233 | 2.01 OVER |
-| finding-stale | Where to look next | 511 | 404 | 1.26 |
-| finding-notfound | What happened | 99 | 279 | 0.35 |
-| finding-notfound | What limits this conclusion | 119 | 233 | 0.51 |
-| finding-notfound | What to do next | 119 | 233 | 0.51 |
-| finding-notfound | Where to look next | 99 | 404 | 0.25 |
-| finding-history | Revision history | 600 | 243 | 2.47 OVER |
-| finding-history-latest | Revision history | 713 | 243 | 2.93 OVER |
-| sitefindings | Findings at this site | 560 | 288 | 1.94 OVER |
-| sitefindings-empty | Findings at this site | 279 | 288 | 0.97 |
-| sitefindings-stale | Findings at this site | 259 | 288 | 0.90 |
-| sitefindings-failed | Findings at this site | 259 | 288 | 0.90 |
-| sitefindings-unassessed | Findings at this site | 285 | 288 | 0.99 |
-
-**Status: NOT MET.** Most stocked panels are 1.5-3.3x the mock's height. Refused and empty panels are at or under the mock. The height work is the next phase; its plan is in `.agent/W1-F3-findings-money-handoff.md`.
+The pre-height-phase table is superseded by "Height phase" below (its "Before" column).
 
 ## Known deviations
 
 - The Finding money-view link sits at the right end of the Finding section row. It is chrome, not a panel; the mock has no such link on finding-evidence or finding-history, and the S4-02a bridge test needs it.
 - F1 shared API changes are additive only: `ProductStatus inline`, `FindingSections aside`, `.input-row + .input-row` spacing, `.finding-sections*`.
 
-## Open: the 1.3x height rule (added by the coordinator during the build)
+## Height phase (coordinator's 1.3x rule)
 
-This rule is not met yet; see the table above. The slice is not ready for review until a height phase brings the stocked panels within 1.3x and the captures are re-run.
+Commits after `50ff8fa4`: `5e6e170a`, `f1c48973`, `f7a14429`, `92dfe93d`, `136f8e6e`, `6e364cac`, `08979345`, `cbf8819a` (captured), and `d79a9705` (fixes the singular "1 price" and stops the Finding version label wrapping; CSS and copy only).
+
+### What changed, by screen
+- **Shared, additive:**
+  - `ShowAll` (`ui/Disclosure.tsx`): a plain "Show all N" expander. Its content stays mounted, so every row stays in the document.
+  - `Disclosure variant="inline"`: the summary reads as one small link on a row's link line.
+  - `.v69-state-line`: the state sentence, scope and "as of" on one compact line (`ProductStatus inline`).
+  - `.v69-step-line`: a step strip shown as one line of marks. A step that is not done keeps its detail visible.
+- **finding-history:**
+  - The state shows as one line, and only the latest 3 versions show.
+  - The earlier versions sit oldest first behind "Show all N versions (M earlier)", placed above the visible table, so the document order stays 1..N.
+  - The expander opens by itself when the selected version is one of the hidden ones.
+  - Each row has two lines. The per-row "Times and references" disclosure is now an inline link.
+- **finding-evidence:**
+  - The bundle shows the state line, the input table and one gap line, which holds both registered MissingClaims.
+  - The counts, sources, cited-record pages and assessments are in one closed "How this was worked out". It opens by itself on a later page or when a record is selected.
+  - The demonstration note stays visible.
+  - The lineage trail is one step line, and broken steps stay visible. The links moved to the panel head.
+- **assumptions:**
+  - The pair is `align-items: start`, so Impact preview no longer stretches.
+  - The state shows as one line.
+  - The strip and the full schedule sit behind "When each price applies (N prices)".
+  - "Where this version applied (N)" is now an expander.
+  - The edit reason is shorter. The registered gap is unchanged and still says "signed-in operator".
+  - Price history shows the latest 3 plus "Show all". The "How these times are read" disclosure is an inline link.
+  - The contradiction is fixed: an empty fuel cost history beside listed price versions now adds, on the same line, "The price versions below are prices only; no fuel cost was worked out from them by this moment."
+- **financials:**
+  - The bridge state shows as one line. The withheld limits, the record link and the source/pending notes are 12px. The next step appears once.
+  - Assumptions in use shows price, effective period and set-by. Version, currency and basis sit in the closed "How this was worked out".
+  - Trade-offs and the method notes are 12px.
+- **finding:**
+  - The state shows as one line.
+  - Three limits show and the rest sit behind "Show all N limits". The record-gap and series-limit lines are moved ahead of the others so they stay in the first three.
+  - For a supported version, the lifecycle sentence moves inside the expander. A non-supported one, and "What could change it", stay visible.
+  - "Open the recommendation" is a primary button. The pair is aligned to start.
+- **sitefindings:**
+  - 3 rows show, plus "Show all N Findings on this page".
+  - The repeated amount sentence is now "Not in this list" in the cell, plus one gap note.
+  - Related Findings sit inline. A same-day period names the day once. The day strip is one step line.
+
+Every money gate is unchanged. No condition that decides whether an amount, price or default is shown was edited. Only the layout and the copy around them changed.
+
+### Assertions: none of the existing ones changed or weakened
+Every pre-existing test passed unchanged. The full list stays reachable, because hidden rows stay mounted inside `<details>`. The new tests below assert the default view and that every hidden item is still reachable:
+- `siteFindingHistory`:
+  - latest 3 shown, and versions 1..202 reachable in order behind a closed expander;
+  - the state, completeness and no-replay lines visible;
+  - a hidden selected version opens the expander;
+  - no expander for 3 or fewer versions.
+- `siteFindingEvidence`: the bundle's default reading is the state line, the input table and both MissingClaims, with the detail in one closed disclosure; a broken step and the named broken links stay visible.
+- `siteFinancials`:
+  - prices-only clarifier;
+  - strip and schedule reachable behind the closed expander, with the state, price and disabled edit visible;
+  - price history: latest 3 visible, the rest reachable in order;
+  - Assumptions in use: 3 key values visible, 3 in the closed disclosure.
+- `siteFinding`: at most 3 limits visible, the rest reachable (the fixture is asserted to have more than 3); could-change visible; primary button.
+- `s404SiteFindingIndex`: 3 rows visible, 5 reachable in the read's order, one visible amount note.
+
+Copy edits that existing tests still match as substrings: the history no-replay line and the evidence lineage-complete line are shorter.
+
+### Checks (height phase)
+- `npx.cmd tsc --noEmit`: clean at `d79a9705`. The production build passed at `08979345`.
+- Full `npm.cmd test`:
+  - At `08979345`: 77 files, 2014/2014 passed.
+  - At `cbf8819a`: 2013/2014. The one failure was `s404SiteFindingIndex` "changing the dates writes a new window" (a date-input value under load, in code this phase did not touch), and the file passes 36/36 on its own.
+  - At `d79a9705` (copy and CSS only after that): `siteFinancials` and `s404` pass 118/118.
+- `tools/check-all.ps1`: 10/10 guards passed at `08979345` and again at `d79a9705`.
+- Captures:
+  - Round 2 used `node tools/w1-fidelity-evidence.mjs` at `cbf8819a`, 1440 and 390. Evidence is in `.agent/W1-F3-evidence-height2/part{5,8,9,10,10-emptyprice,11}`, and round 1 is in `.agent/W1-F3-evidence-height/`.
+  - 29 cases on unused ports (97xx/57xx, CDP 9773). Prepares ran one at a time, which avoided the Postgres "too many clients" cap.
+  - 288/288 tool claims passed. The panel count matches the mock in every case at both widths, and overflowX is 0 at 390 everywhere.
+  - Screenshots were checked for "could not be read" states, because the tool passes those when the titles still match.
+  - All fixtures were dropped and every server stopped.
+
+### Panel height at 1440, app vs mock at `cbf8819a` (OVER = above 1.3)
+| Screen-case | Panel | Before | App px | Mock px | Ratio |
+| --- | --- | --- | --- | --- | --- |
+| finding-evidence | Evidence bundle | 903 | 414 | 287 | 1.44 OVER |
+| finding-evidence | Inspect source lineage | 332 | 175 | 100 | 1.75 OVER |
+| finding-evidence-notfound | both | 99 / 99 | 99 / 99 | 287 / 100 | 0.34 / 0.99 |
+| financials-priced | What happened → money | 477 | 374 | 288 | 1.30 |
+| financials-priced | Assumptions in use | 485 | 275 | 306 | 0.90 |
+| financials-priced | Trade-offs and exclusions | 485 | 424 | 306 | 1.39 OVER |
+| financials-withheld | What happened → money | 632 | 443 | 288 | 1.54 OVER |
+| financials-withheld | Assumptions / Trade-offs | 358 / 358 | 275 / 295 | 306 / 306 | 0.90 / 0.96 |
+| financials-notcalculated | Bridge / Assumptions / Trade-offs | 477 / 358 / 358 | 374 / 275 / 295 | 288 / 306 / 306 | 1.30 / 0.90 / 0.96 |
+| financials-notworkedout, -emptyprice | Bridge / Assumptions / Trade-offs | 525 / 313 / 313 | 374 / 227 / 295 | 288 / 306 / 306 | 1.30 / 0.74 / 0.96 |
+| financials-nofinding, -notfound | Bridge / Assumptions / Trade-offs | ≤103 / 358 / 358 | ≤103 / 275 / 295 | 288 / 306 / 306 | ≤0.36 / 0.90 / 0.96 |
+| finding | What happened / Limits / Next / Where | 436 / 389 / 389 / 511 | 338 / 304 / 179 / 502 | 279 / 233 / 233 / 404 | 1.21 / 1.30 OVER (1.305) / 0.77 / 1.24 |
+| finding-stale | What happened / Limits / Next / Where | 477 / 468 / 468 / 511 | 357 / 326 / 179 / 502 | 279 / 233 / 233 / 404 | 1.28 / 1.40 OVER / 0.77 / 1.24 |
+| finding-notfound | four panels | 99-119 | 99-119 | 233-404 | 0.25-0.51 |
+| finding-history | Revision history | 600 | 396 | 243 | 1.63 OVER |
+| finding-history-latest | Revision history | 713 | 475 | 243 | 1.95 OVER |
+| sitefindings | Findings at this site | 560 | 435 | 288 | 1.51 OVER |
+| sitefindings-empty / stale / failed / unassessed | Findings at this site | 259-285 | 179-205 | 288 | 0.62-0.71 |
+| assumptions | Financial assumptions / Impact preview / Interpretation history | 913 / 913 / 514 | 506 / 256 / 335 | 368 / 368 / 211 | 1.38 OVER / 0.70 / 1.59 OVER |
+| assumptions-emptyprice | same | 391 / 391 / 424 | 295 / 256 / 326 | 368 / 368 / 211 | 0.80 / 0.70 / 1.55 OVER |
+| assumptions-recordedv1 | same | 783 / 783 / 391 | 527 / 256 / 251 | 368 / 368 / 211 | 1.43 OVER / 0.70 / 1.19 |
+| assumptions-version1 | same | 1187 / 1187 / 514 | 584 / 256 / 335 | 368 / 368 / 211 | 1.59 OVER / 0.70 / 1.59 OVER |
+
+**Status: improved but not fully met.** Every stocked panel is shorter, with the worst at 1.95x (it was 3.3x), and refused and empty panels are at or under the mock.
+
+Twelve rows are still OVER, from 1.305x to 1.95x. In each case the remaining height is content the brief says must stay visible: the compact state line, honest-state lines, registered gap lines, the exact-reference link, and the mock's own form rows. Going further would mean hiding one of those. That is a call for the coordinator or the Architect, not for me:
+- **finding-history (1.63-1.95x):** the mock has a bare 3-row table. The app adds the state line (with "latest at read / keep this exact version"), the completeness line, the no-replay line and the references link.
+- **finding-evidence lineage (1.75x, 175 px against 100):** the trail line, the trail claim, the "choose a record" gap line and the references link.
+- **assumptions Interpretation history (1.55-1.59x):** the state line, the fuel-cost empty line with the prices-only clarifier, and 3 price versions instead of the mock's 2 rows.
+- **assumptions Financial assumptions (1.38-1.59x):** the mock's two field rows, plus the in-use line, the selected-version line, the disabled edit with its registered reason, and the expanders.
+- **The rest (1.39-1.54x):** sitefindings, the withheld bridge, priced trade-offs, and the finding limits in the stale case.
+
+Not re-captured after `d79a9705`. That commit only changes one word and a `white-space: nowrap`, and can only shorten the sitefindings rows.
 
 ## Residual risk
 
 - jsdom has no layout. Size and prominence claims rest on the captures above.
+- `ShowAll` keeps hidden rows mounted; a very long list (205 versions) still renders every row in the DOM, as before.
 
 ## User review
 

@@ -1,0 +1,574 @@
+{
+  "revision": "cbf8819a",
+  "captured_at": "2026-10-17T12:12:44.853Z",
+  "pairs": [
+    {
+      "screen": "assumptions",
+      "case": null,
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5760/sites/KOBO-001/financials/assumptions",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-1440-app.png",
+      "mock_image": "assumptions-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 247,
+            "w": 725,
+            "h": 506
+          },
+          {
+            "title": "Impact preview",
+            "x": 991,
+            "y": 247,
+            "w": 403,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 248,
+            "y": 831,
+            "w": 1145,
+            "h": 335
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 414,
+            "w": 735,
+            "h": 368
+          },
+          {
+            "title": "Impact preview",
+            "x": 987,
+            "y": 414,
+            "w": 408,
+            "h": 368
+          },
+          {
+            "title": "Interpretation history",
+            "x": 234,
+            "y": 800,
+            "w": 1161,
+            "h": 211
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "assumptions",
+      "case": null,
+      "viewport": "390x900",
+      "app_url": "http://localhost:5760/sites/KOBO-001/financials/assumptions",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-390-app.png",
+      "mock_image": "assumptions-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 853,
+            "w": 358,
+            "h": 803
+          },
+          {
+            "title": "Impact preview",
+            "x": 16,
+            "y": 1672,
+            "w": 358,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 16,
+            "y": 2040,
+            "w": 358,
+            "h": 623
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 619,
+            "w": 360,
+            "h": 563
+          },
+          {
+            "title": "Impact preview",
+            "x": 15,
+            "y": 1200,
+            "w": 360,
+            "h": 270
+          },
+          {
+            "title": "Interpretation history",
+            "x": 15,
+            "y": 1488,
+            "w": 360,
+            "h": 269
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "assumptions",
+      "case": "emptyprice",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5761/sites/KOBO-001/financials/assumptions",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-emptyprice-1440-app.png",
+      "mock_image": "assumptions-emptyprice-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 247,
+            "w": 734,
+            "h": 295
+          },
+          {
+            "title": "Impact preview",
+            "x": 1000,
+            "y": 247,
+            "w": 408,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 248,
+            "y": 620,
+            "w": 1160,
+            "h": 326
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 414,
+            "w": 735,
+            "h": 368
+          },
+          {
+            "title": "Impact preview",
+            "x": 987,
+            "y": 414,
+            "w": 408,
+            "h": 368
+          },
+          {
+            "title": "Interpretation history",
+            "x": 234,
+            "y": 800,
+            "w": 1161,
+            "h": 211
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "assumptions",
+      "case": "emptyprice",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5761/sites/KOBO-001/financials/assumptions",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-emptyprice-390-app.png",
+      "mock_image": "assumptions-emptyprice-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 853,
+            "w": 358,
+            "h": 412
+          },
+          {
+            "title": "Impact preview",
+            "x": 16,
+            "y": 1281,
+            "w": 358,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 16,
+            "y": 1649,
+            "w": 358,
+            "h": 499
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 619,
+            "w": 360,
+            "h": 563
+          },
+          {
+            "title": "Impact preview",
+            "x": 15,
+            "y": 1200,
+            "w": 360,
+            "h": 270
+          },
+          {
+            "title": "Interpretation history",
+            "x": 15,
+            "y": 1488,
+            "w": 360,
+            "h": 269
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "assumptions",
+      "case": "recordedv1",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5760/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T12:12:08.975046%2B00:00",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-recordedv1-1440-app.png",
+      "mock_image": "assumptions-recordedv1-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 247,
+            "w": 725,
+            "h": 527
+          },
+          {
+            "title": "Impact preview",
+            "x": 991,
+            "y": 247,
+            "w": 403,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 248,
+            "y": 870,
+            "w": 1145,
+            "h": 251
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 414,
+            "w": 735,
+            "h": 368
+          },
+          {
+            "title": "Impact preview",
+            "x": 987,
+            "y": 414,
+            "w": 408,
+            "h": 368
+          },
+          {
+            "title": "Interpretation history",
+            "x": 234,
+            "y": 800,
+            "w": 1161,
+            "h": 211
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "assumptions",
+      "case": "recordedv1",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5760/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T12:12:08.975046%2B00:00",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-recordedv1-390-app.png",
+      "mock_image": "assumptions-recordedv1-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 853,
+            "w": 358,
+            "h": 824
+          },
+          {
+            "title": "Impact preview",
+            "x": 16,
+            "y": 1693,
+            "w": 358,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 16,
+            "y": 2098,
+            "w": 358,
+            "h": 441
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 619,
+            "w": 360,
+            "h": 563
+          },
+          {
+            "title": "Impact preview",
+            "x": 15,
+            "y": 1200,
+            "w": 360,
+            "h": 270
+          },
+          {
+            "title": "Interpretation history",
+            "x": 15,
+            "y": 1488,
+            "w": 360,
+            "h": 269
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "assumptions",
+      "case": "version1",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5760/sites/KOBO-001/financials/assumptions?revision_id=48d4a8c3-3548-4259-a2a7-27a80e16ce6c",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-version1-1440-app.png",
+      "mock_image": "assumptions-version1-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 247,
+            "w": 725,
+            "h": 584
+          },
+          {
+            "title": "Impact preview",
+            "x": 991,
+            "y": 247,
+            "w": 403,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 248,
+            "y": 909,
+            "w": 1145,
+            "h": 335
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 414,
+            "w": 735,
+            "h": 368
+          },
+          {
+            "title": "Impact preview",
+            "x": 987,
+            "y": 414,
+            "w": 408,
+            "h": 368
+          },
+          {
+            "title": "Interpretation history",
+            "x": 234,
+            "y": 800,
+            "w": 1161,
+            "h": 211
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "assumptions",
+      "case": "version1",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5760/sites/KOBO-001/financials/assumptions?revision_id=48d4a8c3-3548-4259-a2a7-27a80e16ce6c",
+      "mock_hash": "#/assumptions",
+      "app_image": "assumptions-version1-390-app.png",
+      "mock_image": "assumptions-version1-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 853,
+            "w": 358,
+            "h": 914
+          },
+          {
+            "title": "Impact preview",
+            "x": 16,
+            "y": 1783,
+            "w": 358,
+            "h": 256
+          },
+          {
+            "title": "Interpretation history",
+            "x": 16,
+            "y": 2151,
+            "w": 358,
+            "h": 623
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions",
+          "Impact preview",
+          "Interpretation history"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 619,
+            "w": 360,
+            "h": 563
+          },
+          {
+            "title": "Impact preview",
+            "x": 15,
+            "y": 1200,
+            "w": 360,
+            "h": 270
+          },
+          {
+            "title": "Interpretation history",
+            "x": 15,
+            "y": 1488,
+            "w": 360,
+            "h": 269
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}
