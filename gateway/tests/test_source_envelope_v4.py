@@ -239,3 +239,48 @@ def test_closed_channel_table_holds_the_section_4_tuples_and_two_reserved_ev_tup
 
 def test_v3_binding_rows_have_no_v4_metadata() -> None:
     assert canonical_binding_metadata({"device_id": "pv", "signal_id": "p"}) is None
+
+
+# --- gateway snapshot: optional v4 binding keys (ruling 4) ------------------------------------
+
+
+def _v4_row(**extra) -> dict:
+    from conftest import _rows
+
+    row = dict(_rows()[0])
+    row.update(V4_CHANNEL_MAPPINGS[("door-sensor", "event")].metadata(), **extra)
+    return row
+
+
+def test_gateway_snapshot_admits_v3_rows_and_v4_rows_with_all_five_keys() -> None:
+    from conftest import PROVISIONING, _rows, snapshot
+
+    from assetops_gateway.snapshot import verify_snapshot
+
+    text3, claimed3 = snapshot()
+    verify_snapshot(text3, claimed3, PROVISIONING)  # no v4 key anywhere
+    text4, claimed4 = snapshot(rows=[_v4_row(), *_rows()[1:]])
+    verify_snapshot(text4, claimed4, PROVISIONING)
+
+
+@pytest.mark.parametrize("change,field", [
+    ({"drop": "requires_session"}, "requires_session"),
+    ({"requires_correlation": "yes"}, "requires_correlation"),
+    ({"allowed_units": "degC"}, "allowed_units"),
+    ({"allowed_outcomes": {"DOOR_OPEN": "OPEN"}}, "allowed_outcomes"),
+    ({"private_cause": "x"}, "private_cause"),
+])
+def test_gateway_snapshot_refuses_partial_ill_typed_or_unknown_v4_keys(change, field) -> None:
+    from conftest import PROVISIONING, _rows, snapshot
+
+    from assetops_gateway.snapshot import SnapshotRefused, verify_snapshot
+
+    row = _v4_row()
+    if "drop" in change:
+        del row[change["drop"]]
+    else:
+        row.update(change)
+    text4, claimed4 = snapshot(rows=[row, *_rows()[1:]])
+    with pytest.raises(SnapshotRefused) as caught:
+        verify_snapshot(text4, claimed4, PROVISIONING)
+    assert caught.value.kind == "MALFORMED_SNAPSHOT" and caught.value.field.endswith(field)
