@@ -11,6 +11,11 @@
 # cannot show yet is a label and nothing else - never a disabled control, which
 # would say the capability exists and is switched off.
 #
+# W1-UX-07 (D-2026-10-17-w1-rail) shows the full v6.9 operator rail: two live
+# roots and nine unavailable ones rendered as text. Get-OperatorRailFailures
+# holds that inventory to the ruling; its fixtures are
+# tools/checks/test-navigation-rail.ps1.
+#
 # Do not weaken the checks below to make a task pass.
 
 function Invoke-NavigationTruthfulnessCheck {
@@ -255,52 +260,9 @@ function Get-OperatorSiteTabFailures {
         }
     }
 
-    # 2. The operator rail holds exactly the live items of the grouped rail, in
-    #    order and each under its group (D-2026-10-02-grammar-ownership-test):
-    #    OPERATE: Sites; INTELLIGENCE: Findings (T028). No `Operator home`
-    #    item. An item outside this list needs a route that renders a truthful
-    #    surface, a review, and this list changed with it.
-    $railPath = "frontend/src/shell/OperatorShellLayout.tsx"
-    $expectedRail = @(
-        @{ To = "/sites"; Label = "Sites"; Group = "OPERATE" },
-        @{ To = "/findings"; Label = "Findings"; Group = "INTELLIGENCE" }
-    )
-    $rail = @(Get-ScannedModules -Root "frontend/src/shell" -Extensions @(".tsx") |
-        Where-Object { $_.Path -eq $railPath })
-    if ($rail.Count -eq 0) {
-        $failures.Add(("$railPath was not found, so the operator rail check is " +
-            "vacuous. Update the check, do not delete it.")) | Out-Null
-    }
-    else {
-        $found = @()
-        $lineNumber = 0
-        foreach ($line in $rail[0].Lines) {
-            $lineNumber++
-            if ($line -match '^\s*(//|/?\*)') { continue }
-            if ($line -match 'Operator home') {
-                $failures.Add(("Operator home returned to the operator rail at " +
-                    "${railPath}:${lineNumber}: $($line.Trim()). T027 removed it; " +
-                    "/ redirects to Sites.")) | Out-Null
-            }
-            if ($line -match '\bto\s*:\s*["'']([^"'']+)["'']') {
-                $to = $Matches[1]
-                $label = if ($line -match '\blabel\s*:\s*["'']([^"'']+)["'']') { $Matches[1] } else { "" }
-                $group = if ($line -match '\bgroup\s*:\s*["'']([^"'']+)["'']') { $Matches[1] } else { "" }
-                $found += "$to|$label|$group"
-            }
-        }
-        $expected = @($expectedRail | ForEach-Object { "$($_.To)|$($_.Label)|$($_.Group)" })
-        if ($found.Count -eq 0) {
-            $failures.Add(("$railPath declares no operator rail items, so the " +
-                "rail-items rule is vacuous. Update the check, do not delete it.")) | Out-Null
-        }
-        elseif (($found -join ";") -ne ($expected -join ";")) {
-            $failures.Add(("$railPath declares the rail items " +
-                "[$($found -join '; ')] but the grouped rail at T028 is exactly " +
-                "[$($expected -join '; ')] (to|label|group, in order; " +
-                "D-2026-10-02-grammar-ownership-test). Another item needs a " +
-                "route that renders a truthful surface and a review.")) | Out-Null
-        }
+    # 2. The operator rail: see Get-OperatorRailFailures (W1-UX-07).
+    foreach ($failure in (Get-OperatorRailFailures)) {
+        $failures.Add($failure) | Out-Null
     }
 
     # 3. `/` redirects to Sites rather than rendering a placeholder frame.
@@ -501,6 +463,236 @@ function Get-FoundationSubtabFailures {
                     "disabled and not labelled in place.")) | Out-Null
             }
         }
+    }
+
+    return $failures
+}
+
+# The operator rail (W1-UX-07, owner decision 2026-10-17,
+# D-2026-10-17-w1-rail): the full v6.9 root inventory is visible, and only
+# roots with a truthful cross-site destination are links. This is a scoped
+# exception to the live-items-only rail, never to the Site tab rules above,
+# which still reject disabled affordances and labelled-in-place capabilities.
+#
+# Invariants, all fail-closed:
+#   - the inventory `operatorRailItems` is found, parsed line by line, and is
+#     what the shell passes to NavRail; an unparseable line fails;
+#   - exactly the six groups and eleven roots, in v6.9 order, with exactly two
+#     live roots: Sites -> /sites and Findings -> /findings;
+#   - an unavailable root carries no destination or handler (to, href, end,
+#     onClick, onKeyDown, tabIndex);
+#   - each live target is registered in the operator route table, inside
+#     OperatorShellLayout and not as the `*` catch-all (whose `Page not
+#     available` frame never counts as a route);
+#   - NavRail's model still forbids `to` on an unavailable item.
+#
+# Parameters exist so tools/checks/test-navigation-rail.ps1 can feed mutated
+# fixtures; with none, the real files are read.
+function Get-OperatorRailFailures {
+    param(
+        [string[]] $RailLines,
+        [string[]] $AppLines,
+        [string[]] $RouteConstantLines,
+        [string[]] $NavRailLines
+    )
+    $failures = New-Object System.Collections.Generic.List[string]
+    $railPath = "frontend/src/shell/OperatorShellLayout.tsx"
+    $appPath = "frontend/src/App.tsx"
+    $navRailPath = "frontend/src/ui/NavRail.tsx"
+
+    if ($null -eq $RailLines -and (Test-Path -LiteralPath $railPath -PathType Leaf)) {
+        $RailLines = @(Get-Content -LiteralPath $railPath)
+    }
+    if ($null -eq $AppLines -and (Test-Path -LiteralPath $appPath -PathType Leaf)) {
+        $AppLines = @(Get-Content -LiteralPath $appPath)
+    }
+    if ($null -eq $NavRailLines -and (Test-Path -LiteralPath $navRailPath -PathType Leaf)) {
+        $NavRailLines = @(Get-Content -LiteralPath $navRailPath)
+    }
+    if ($null -eq $RouteConstantLines) {
+        $RouteConstantLines = @()
+        foreach ($file in @(Get-ChildItem -LiteralPath "frontend/src/shell" -File |
+                Where-Object { $_.Extension -in @(".ts", ".tsx") })) {
+            $RouteConstantLines += @(Get-Content -LiteralPath $file.FullName)
+        }
+    }
+    foreach ($pair in @(@($railPath, $RailLines), @($appPath, $AppLines), @($navRailPath, $NavRailLines))) {
+        if ($null -eq $pair[1] -or @($pair[1]).Count -eq 0) {
+            $failures.Add(("$($pair[0]) was not found or is empty, so the operator " +
+                "rail check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    if ($failures.Count -gt 0) { return $failures }
+
+    $expected = @(
+        "unavailable|Portfolio|OPERATIONS|",
+        "live|Sites|OPERATIONS|/sites",
+        "unavailable|Assets|OPERATIONS|",
+        "live|Findings|INTELLIGENCE|/findings",
+        "unavailable|Actions|WORK|",
+        "unavailable|Incidents|WORK|",
+        "unavailable|Maintenance|WORK|",
+        "unavailable|Operational records|WORK|",
+        "unavailable|Evidence|ASSURANCE|",
+        "unavailable|Financials|BUSINESS|",
+        "unavailable|Settings|ADMIN|"
+    )
+    $allowedKeys = @("kind", "to", "label", "end", "group", "icon")
+    $forbiddenOnUnavailable = @("to", "href", "end", "onClick", "onKeyDown", "tabIndex")
+    $propPattern = '(\w+)\s*:\s*("([^"]*)"|''([^'']*)''|true|false|[^,}]+)'
+
+    # Locate the inventory.
+    $start = -1
+    for ($i = 0; $i -lt $RailLines.Count; $i++) {
+        if ($RailLines[$i] -match '^\s*const\s+operatorRailItems\s*:\s*NavRailItem\[\]\s*=\s*\[\s*$') {
+            $start = $i
+            break
+        }
+    }
+    if ($start -lt 0) {
+        $failures.Add(("$railPath declares no 'const operatorRailItems: NavRailItem[] = [' " +
+            "inventory, so the operator rail cannot be checked. Update the check, " +
+            "do not delete it.")) | Out-Null
+        return $failures
+    }
+    $found = @()
+    $end = -1
+    $liveTargets = @()
+    for ($i = $start + 1; $i -lt $RailLines.Count; $i++) {
+        $line = $RailLines[$i]
+        $lineNumber = $i + 1
+        if ($line -match '^\s*\];\s*$') { $end = $i; break }
+        if ($line -match '^\s*$' -or $line -match '^\s*(//|/?\*)') { continue }
+        if ($line -notmatch '^\s*\{(.*)\},?\s*$') {
+            $failures.Add(("Unparseable operator rail line at ${railPath}:${lineNumber}: " +
+                "$($line.Trim()). One item object per line.")) | Out-Null
+            continue
+        }
+        $body = $Matches[1]
+        $props = @{}
+        foreach ($m in [regex]::Matches($body, $propPattern)) {
+            $value = if ($m.Groups[3].Success) { $m.Groups[3].Value }
+                elseif ($m.Groups[4].Success) { $m.Groups[4].Value }
+                else { $m.Groups[2].Value.Trim() }
+            $props[$m.Groups[1].Value] = $value
+        }
+        $residue = ([regex]::Replace($body, $propPattern, '')) -replace '[\s,]', ''
+        if ($residue -ne "") {
+            $failures.Add(("Unparseable operator rail item at ${railPath}:${lineNumber}: " +
+                "$($line.Trim()) (left over: $residue).")) | Out-Null
+        }
+        foreach ($key in $props.Keys) {
+            if ($allowedKeys -notcontains $key) {
+                $failures.Add(("Operator rail item at ${railPath}:${lineNumber} carries " +
+                    "'$key', which the rail model does not have: $($line.Trim())")) | Out-Null
+            }
+        }
+        $kind = if ($props.ContainsKey("kind")) { $props["kind"] } else { "" }
+        if ($kind -notin @("live", "unavailable")) {
+            $failures.Add(("Operator rail item at ${railPath}:${lineNumber} has no explicit " +
+                "kind 'live' or 'unavailable': $($line.Trim())")) | Out-Null
+        }
+        if ($kind -eq "unavailable") {
+            foreach ($key in $forbiddenOnUnavailable) {
+                if ($props.ContainsKey($key)) {
+                    $failures.Add(("Dead link: the unavailable operator rail root " +
+                        "'$($props["label"])' carries '$key' at ${railPath}:${lineNumber}. " +
+                        "An unavailable root is text, never a destination " +
+                        "(D-2026-10-17-w1-rail).")) | Out-Null
+                }
+            }
+        }
+        $to = if ($props.ContainsKey("to")) { $props["to"] } else { "" }
+        if ($kind -eq "live") {
+            $liveTargets += [pscustomobject]@{ To = $to; Label = $props["label"]; Line = $lineNumber }
+        }
+        $found += "$kind|$($props["label"])|$($props["group"])|$to"
+    }
+    if ($end -lt 0) {
+        $failures.Add(("The operator rail inventory in $railPath is not closed by '];' " +
+            "on its own line, so it cannot be parsed. Update the check.")) | Out-Null
+        $end = $RailLines.Count - 1
+    }
+    if ($found.Count -eq 0) {
+        $failures.Add(("$railPath declares no operator rail items, so the rail rule " +
+            "is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    elseif (($found -join ";") -ne ($expected -join ";")) {
+        $failures.Add(("$railPath declares the rail items [$($found -join '; ')] but " +
+            "the W1 rail is exactly [$($expected -join '; ')] (kind|label|group|to, in " +
+            "order; D-2026-10-17-w1-rail). A root becomes live only in the slice " +
+            "that supplies its cross-site route, with this list changed and reviewed.")) | Out-Null
+    }
+
+    # The shell renders this inventory, and no destination outside it.
+    if (($RailLines -join "`n") -notmatch '<NavRail\s+label="Operator routes"\s+items=\{operatorRailItems\}\s*/>') {
+        $failures.Add(("$railPath does not pass operatorRailItems to the 'Operator routes' " +
+            "NavRail, so the checked inventory is not what renders.")) | Out-Null
+    }
+    for ($i = 0; $i -lt $RailLines.Count; $i++) {
+        $line = $RailLines[$i]
+        $lineNumber = $i + 1
+        if ($line -match '^\s*(//|/?\*)') { continue }
+        if ($line -match 'Operator home') {
+            $failures.Add(("Operator home returned to the operator rail at " +
+                "${railPath}:${lineNumber}: $($line.Trim()). T027 removed it; " +
+                "/ redirects to Sites.")) | Out-Null
+        }
+        if ($i -ge $start -and $i -le $end) { continue }
+        if ($line -match '<(NavLink|Link|a)\b|\bhref\s*=|\bto\s*[:=]') {
+            $failures.Add(("A navigation destination outside the checked inventory at " +
+                "${railPath}:${lineNumber}: $($line.Trim()).")) | Out-Null
+        }
+    }
+
+    # Each live target is a registered operator route, not the catch-all.
+    $constants = @{}
+    foreach ($line in $RouteConstantLines) {
+        if ($line -match '^\s*export\s+const\s+(\w+)\s*=\s*"([^"]+)"\s*;') {
+            $constants[$Matches[1]] = $Matches[2]
+        }
+    }
+    $operatorStart = -1
+    $catchAll = -1
+    for ($i = 0; $i -lt $AppLines.Count; $i++) {
+        if ($operatorStart -lt 0 -and $AppLines[$i] -match '<Route\s+element=\{<OperatorShellLayout\s*/>\}>') {
+            $operatorStart = $i
+        }
+        if ($AppLines[$i] -match 'path\s*=\s*"\*"') { $catchAll = $i }
+    }
+    if ($operatorStart -lt 0 -or $catchAll -lt 0 -or $catchAll -lt $operatorStart) {
+        $failures.Add(("$appPath has no '<Route element={<OperatorShellLayout />}>' block " +
+            "before a 'path=""*""' catch-all, so live rail targets cannot be proven " +
+            "registered. Update the check, do not delete it.")) | Out-Null
+    }
+    else {
+        foreach ($target in $liveTargets) {
+            $registered = $false
+            for ($i = $operatorStart + 1; $i -lt $catchAll; $i++) {
+                $line = $AppLines[$i]
+                if ($line -match 'path\s*=\s*"([^"]+)"' -and $Matches[1] -eq $target.To) {
+                    $registered = $true
+                }
+                elseif ($line -match 'path\s*=\s*\{(\w+)\}' -and $constants.ContainsKey($Matches[1]) -and
+                    $constants[$Matches[1]] -eq $target.To) {
+                    $registered = $true
+                }
+            }
+            if (-not $registered) {
+                $failures.Add(("The live operator rail root '$($target.Label)' points at " +
+                    "'$($target.To)' (${railPath}:$($target.Line)), which is not a route " +
+                    "registered in the operator route table of $appPath. The catch-all " +
+                    "'Page not available' frame is not a destination.")) | Out-Null
+            }
+        }
+    }
+
+    # NavRail's model forbids a destination on an unavailable item.
+    if (($NavRailLines -join "`n") -notmatch
+        'interface\s+NavRailUnavailableItem[^{]*\{[^}]*kind:\s*"unavailable";[^}]*to\?:\s*never;') {
+        $failures.Add(("$navRailPath no longer declares NavRailUnavailableItem with " +
+            "kind: ""unavailable"" and to?: never, so the type no longer forbids a " +
+            "destination on an unavailable root.")) | Out-Null
     }
 
     return $failures

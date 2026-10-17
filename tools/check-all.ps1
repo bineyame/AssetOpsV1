@@ -62,6 +62,7 @@ Write-Output "Navigation truthfulness check passed."
     Invoke-Guard "Architecture seams"            $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check-architecture.ps1")
     Invoke-Guard "Navigation truthfulness"       $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-EncodedCommand",
         [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($navigationScript)))
+    Invoke-Guard "Operator rail fixtures (W1-UX-07)" $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/checks/test-navigation-rail.ps1")
     Invoke-Guard "Agent workflow"                $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check-agent-workflow.ps1")
     Invoke-Guard "Dependency registry"           $Node @("frontend/docs/architecture/check_v69_dependency_registry.cjs")
     Invoke-Guard "Delivery checker fixtures"     $Node @("--test", "frontend/docs/architecture/test_delivery_next_work.cjs")
