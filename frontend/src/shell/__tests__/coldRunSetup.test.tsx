@@ -323,7 +323,7 @@ describe("cold run setup (W2-02)", () => {
     await screen.findByText("Loading the registered configuration for the scenario start.");
     once("Loading the registered configuration for the scenario start.");
     const fact = screen.getByText("Foundation version").nextElementSibling;
-    expect(fact?.textContent).toBe("Not available yet");
+    expect(fact?.textContent).toBe("Not available");
     expect(createButton().disabled).toBe(true);
   });
 

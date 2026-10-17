@@ -347,7 +347,7 @@ export function ColdRunSetupFrame({
             <Fact term="Publication profile">{chosen.publication_profile}</Fact>
             <Fact term="Observation profile">{chosen.observation_profile}</Fact>
             <Fact term="Foundation version">
-              {foundationVersion === null ? "Not available yet" : String(foundationVersion)}
+              {foundationVersion === null ? "Not available" : String(foundationVersion)}
             </Fact>
             {basis?.status === "loaded" ? (
               <RegisteredBasisFacts model={basis.value} />
