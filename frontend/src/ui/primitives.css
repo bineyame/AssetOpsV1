@@ -4849,6 +4849,8 @@ td .disclosure.disclosure--inline {
 }
 
 /* Coordinator note (F2 re-review): an inline state line is never a grey/attention box with mixed sizes. */
+.status-strip__state.product-status,
+.status-strip__state.product-status--inline,
 .status-strip__state.product-status--positive,
 .status-strip__state.product-status--waiting,
 .status-strip__state.product-status--limited,
