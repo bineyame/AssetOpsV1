@@ -65,7 +65,7 @@ def v4(kit, monkeypatch):
         for (device, signal), entry in V4_CHANNEL_MAPPINGS.items():
             unit = entry.allowed_units[0] if entry.allowed_units else "none"
             extra[(device, signal)] = replace(
-                template, device_id=device, signal_id=signal, role=f"test-{device}-{signal}",
+                template, device_id=device, signal_id=signal, role=entry.role or f"test-{device}-{signal}",  # W2-01: the table names the role
                 source_unit=unit, canonical_unit=unit, conversion={"kind": "IDENTITY", "parameters": {}},
                 **entry.metadata(),
             )
