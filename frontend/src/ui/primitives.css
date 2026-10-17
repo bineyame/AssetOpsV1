@@ -3582,8 +3582,8 @@ tr[data-selected] > * {
 .app-frame--operator .action-list { margin: var(--space-2) 0 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
 /* S5-01: the imported-Site selected-window Overview (sites/SiteWindowOverview.tsx). */
 .site-window-overview {
-  display: grid;
-  gap: var(--space-4, 1rem);
+  /* W1-F2: the v69 panel rhythm comes from the panels' own margins (mock .panel / .two-col). */
+  display: block;
   min-width: 0;
 }
 .site-window-overview__grid {
