@@ -1162,3 +1162,5 @@ These are not defects in W1. They are choices the reviews left for you. Mark eac
 ## Gate
 
 W1 closes only after you have walked this script and recorded your acceptance. Screenshots and passing checks do not count as acceptance, and nothing in this script promotes a screen or panel.
+
+14. **Menu height and status text size at phone width.** At 390 px the full menu sits above the page and is about 575 px tall, and the "Not available yet" status text is small (9 px, readable contrast). Judge whether the menu should collapse on phones or the status text be larger.
