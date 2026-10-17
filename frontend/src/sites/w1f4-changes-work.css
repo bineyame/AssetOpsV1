@@ -155,3 +155,29 @@
     overflow-x: auto;
   }
 }
+
+/* Site Work at mock density: chip-height window inputs and the basis
+   disclosure as a small link-style summary (the tech disclosure look). */
+.w1f4-work-window input {
+  height: 30px;
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.w1f4-work-window .button {
+  padding: 5px 12px;
+}
+
+.w1f4-changes-work [data-disclosure="site-work-basis"] {
+  margin-top: 4px;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.w1f4-changes-work [data-disclosure="site-work-basis"] > .disclosure__summary {
+  padding: 2px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--link, #1d4ed8);
+}

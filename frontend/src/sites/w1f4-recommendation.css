@@ -96,3 +96,37 @@
   margin-top: 10px;
   font-size: 11px;
 }
+
+/* Mock density for the held and unavailable states: the hold sentence as a
+   note line beside its disabled control, the method disclosure as a small
+   link-style summary. */
+.w1f4-recommendation .panel p.action-command-unavailable {
+  margin: 6px 0 0;
+  padding: 4px 8px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.w1f4-recommendation .panel [data-disclosure="recommendation-method"] {
+  margin-top: 6px;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.w1f4-recommendation .panel [data-disclosure="recommendation-method"] > .disclosure__summary {
+  padding: 2px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--link, #1d4ed8);
+}
+
+.w1f4-recommendation .form-footer {
+  margin-top: 10px;
+}
+
+.w1f4-recommendation .w1f4-recommendation__proposed .v69-key-values dt,
+.w1f4-recommendation .w1f4-recommendation__proposed .v69-key-values dd {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}

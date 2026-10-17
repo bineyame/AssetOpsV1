@@ -144,3 +144,33 @@
   padding-top: 9px;
   padding-bottom: 9px;
 }
+
+/* The plan's recorded reasons on one note line, and every in-panel
+   "Dig deeper" disclosure as the small link-style summary the mock implies. */
+.site-verification .panel ul[data-verification-current-reasons] {
+  padding-left: 0;
+  list-style: none;
+}
+
+.site-verification .panel ul[data-verification-current-reasons] li {
+  display: inline;
+  margin: 0;
+}
+
+.site-verification .panel ul[data-verification-current-reasons] li + li::before {
+  content: " · ";
+}
+
+.site-verification .panel details[data-disclosure^="verification-"] {
+  margin-top: 6px;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.site-verification .panel details[data-disclosure^="verification-"] > .disclosure__summary {
+  padding: 2px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--link, #1d4ed8);
+}

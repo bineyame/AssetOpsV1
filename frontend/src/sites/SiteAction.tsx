@@ -1280,7 +1280,7 @@ function EventDetails({
         Nothing was changed; still pending.
         {compact ? null : (
           <small>
-            <Ref value={event.failure_code ?? "UNKNOWN"} />
+            <span className="w1f4-failure-code"><Ref value={event.failure_code ?? "UNKNOWN"} /></span>
             {event.expected_foundation_revision_id ? (
               <>
                 {" "}

@@ -199,3 +199,8 @@
 .w1f4-action-apply .button {
   padding: 7px 14px;
 }
+
+/* A failure code is a meaning, not an identifier: never truncated. */
+.w1f4-action-panel td small .w1f4-failure-code code {
+  max-width: none;
+}
