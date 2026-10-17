@@ -514,7 +514,7 @@ function FindingStatusBar({ body }: { body: FindingDetailBody }) {
   const selected = body.revision;
   const currentness = findingCurrentnessWords(statusCode(body));
   return (
-    <StatusBar label="Finding status" data={{ "data-finding-statusbar": "" }}>
+    <StatusBar items label="Finding status" data={{ "data-finding-statusbar": "" }}>
       {/* W1-F3 review H2: the mock's Priority and Confidence chips; no read assesses either yet. */}
       <span className="badge badge--not-assessed" data-chip="priority" data-not-assessed>
         Priority: not assessed

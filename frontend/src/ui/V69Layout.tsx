@@ -187,6 +187,7 @@ export function Notice({
 export function StatusBar({
   children,
   label,
+  items = false,
   other,
   action,
   data,
@@ -194,15 +195,20 @@ export function StatusBar({
   children: ReactNode;
   /** Accessible name of the status line (W1-F3). */
   label?: string;
+  /**
+   * W1-F3: the children are the strip's own items (chips, a spacer, a trailing
+   * fact), laid out by the strip's gap, instead of one lead state line.
+   */
+  items?: boolean;
   other?: ReactNode;
   action?: ReactNode;
   data?: Record<string, string>;
 }) {
   return (
     <div className="status-strip status-strip--line v69-statusbar" role="status" aria-label={label} {...data}>
-      <span className="status-strip__lead">{children}</span>
+      {items ? children : <span className="status-strip__lead">{children}</span>}
       {other === undefined ? null : <span className="status-strip__item v69-statusbar__other">{other}</span>}
-      <span className="status-strip__spacer" aria-hidden="true" />
+      {items ? null : <span className="status-strip__spacer" aria-hidden="true" />}
       {action === undefined ? null : <span className="status-strip__action">{action}</span>}
     </div>
   );

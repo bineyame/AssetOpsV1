@@ -497,7 +497,7 @@ function exposureGapWord(c: FindingFinancialsBody["consequence"]): string {
 /** W1-F3: the mock's statusbar for Financials. Financials carry no status of their own; this is a count and a scope. */
 export function FinancialsStatusBar({ lines, currency }: { lines: string; currency: string | null }) {
   return (
-    <StatusBar label="Financials scope" data={{ "data-financials-statusbar": "" }}>
+    <StatusBar items label="Financials scope" data={{ "data-financials-statusbar": "" }}>
       <span className="badge badge--neutral" data-chip="lines">
         {lines}
       </span>

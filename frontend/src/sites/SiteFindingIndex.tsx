@@ -493,7 +493,7 @@ function View({
 }) {
   return (
     <div className="site-findings-view" data-finding-index-state={state} {...attributes}>
-      <StatusBar label="Findings state" data={{ "data-site-findings-status": "" }}>
+      <StatusBar items label="Findings state" data={{ "data-site-findings-status": "" }}>
         <strong data-site-findings-claim>{claim}</strong>
         {status}
       </StatusBar>
