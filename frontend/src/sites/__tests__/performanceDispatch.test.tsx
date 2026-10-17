@@ -416,7 +416,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current&block=1");
     await settledScreen();
     // W1-F2: no answer card; the v69 dispatch panels, with the state line in the statusbar above them.
-    expectV69Panels("dispatch", { interval: "04:00–04:15 UTC" }, container.querySelector("section") as HTMLElement);
+    expectV69Panels("dispatch", { interval: "04:00–04:15 UTC" }, container.querySelector("[data-dispatch-root]") as HTMLElement);
     expect(container.querySelector("[data-headline-card]")).toBeNull();
     const card = container.querySelector(".durable-dispatch__body") as HTMLElement;
     const blocks = panelTitled("Sources and 15-minute blocks", container);
@@ -550,7 +550,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
  * A page-level refusal keeps the same panel slots with the gap inside each.
  */
 describe("W1-F2: v69 dispatch and analysis panel structure", () => {
-  const root = (container: HTMLElement) => container.querySelector("section") as HTMLElement;
+  const root = (container: HTMLElement) => container.querySelector("[data-dispatch-root]") as HTMLElement;
   const stocked = () => {
     const current = revision("rev-current", "CANDIDATE_AVOIDABLE");
     return fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-current": detail(current) });

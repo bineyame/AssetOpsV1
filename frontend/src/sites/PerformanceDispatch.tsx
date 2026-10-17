@@ -154,7 +154,9 @@ export function PerformanceDispatch({
     <DispatchRefused view={view} name={name} title={title} reason={reason} extra={extra} />
   );
   return (
-    <section aria-label="Was the generator needed?" className="dispatch-view durable-dispatch">
+    // W1-F2: a plain wrapper, not a section: no section may sit outside the v69 panels.
+    <div className="dispatch-view durable-dispatch" data-dispatch-root>
+      {/* The day picker is the v69 chip row before panel 1 (chip-sized controls). */}
       <LocalViews label={DURABLE_DISPATCH_VIEWS_LABEL} current={view} params={params} />
       <DayPicker day={day} onDay={(next) => choose({ day: next, revision: null, block: null })} />
       {cutover.status !== "loaded" ? (
@@ -195,7 +197,7 @@ export function PerformanceDispatch({
           findings={findings && findingHref ? { client: findings, href: findingHref } : null}
         />
       )}
-    </section>
+    </div>
   );
 }
 
@@ -289,18 +291,24 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
     }
   };
   return (
-    <form className="dispatch-day" onSubmit={submit} aria-label="Assessed day">
-      <button type="button" className="dispatch-day__button" onClick={() => onDay(shiftDay(day, -1))}>
+    <form className="v69-chips dispatch-day" onSubmit={submit} aria-label="Assessed day">
+      <button type="button" className="button" onClick={() => onDay(shiftDay(day, -1))}>
         Previous day
       </button>
-      <label>
+      <label className="dispatch-day__label">
         Day (UTC){" "}
-        <input type="date" value={draft} onChange={(event) => setDraft(event.target.value)} data-dispatch-day={day} />
+        <input
+          className="v69-chip-control"
+          type="date"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          data-dispatch-day={day}
+        />
       </label>
-      <button type="submit" className="dispatch-day__button">
+      <button type="submit" className="button">
         Show
       </button>
-      <button type="button" className="dispatch-day__button" onClick={() => onDay(shiftDay(day, 1))}>
+      <button type="button" className="button" onClick={() => onDay(shiftDay(day, 1))}>
         Next day
       </button>
     </form>
@@ -415,7 +423,11 @@ function WindowView({
           )
         }
       >
-        <StatusLine read={read} storedNotCurrent={view === "analysis" && selected !== null && inWindow === null} />
+        <StatusLine
+          read={read}
+          storedNotCurrent={view === "analysis" && selected !== null && inWindow === null}
+          totalsStale={view !== "analysis" && read.stale && read.intervals.length > 0}
+        />
       </StatusBar>
       {view === "analysis" ? (
         <AnalysisView
@@ -439,24 +451,21 @@ function WindowView({
               description: `Selected day · ${read.window.start.slice(0, 10)} UTC`,
               body: (
                 <>
-                  <p className="v69-prose" data-dispatch-headline>
-                    {dayHeadline(read)}
-                  </p>
-                  <LimitationSummary read={read} />
+                  {/* W1-F2: the mock's one segment strip and its chart-note; the lead answer is one line. */}
+                  <ChartNote data={{ "data-dispatch-headline": "" }}>{dayHeadline(read)}</ChartNote>
                   <DayBlockStrip read={read} selected={selected} blockIndex={segment === null ? null : blockIndex} params={params} />
-                  <PeriodsAndBlocks
-                    read={read}
-                    selected={selected}
-                    blockIndex={segment === null ? null : blockIndex}
-                    onPeriod={(id) => choose({ revision: id, block: null })}
-                    onBlock={(id, index) => choose({ revision: id, block: String(index) })}
-                  />
+                  <PeriodsEmpty read={read} />
                   <ChartNote data={{ "data-dispatch-question": "" }}>
-                    Select a block to see what the readings show. Needed: a recorded reason required the generator.
-                    Possibly avoidable: the reported available solar power and battery output limit were above the
-                    demand (a bounded estimate, not proof of wasted fuel). Cannot determine: records needed are missing
-                    or conflicting. Gaps between reports are not filled in. Times are UTC.
+                    Select a block to see what the readings show. Gaps between reports are not filled in. Times are UTC.
                   </ChartNote>
+                  <LimitationSummary read={read} />
+                  <Disclosure summary="What the outcomes mean" name="dispatch-outcomes">
+                    <p data-dispatch-outcome-meanings>
+                      Needed: a recorded reason required the generator. Possibly avoidable: the reported available
+                      solar power and battery output limit were above the demand (a bounded estimate, not proof of
+                      wasted fuel). Cannot determine: records needed are missing or conflicting.
+                    </p>
+                  </Disclosure>
                   <DispatchReferences read={read} />
                 </>
               ),
@@ -464,6 +473,14 @@ function WindowView({
             second={{
               body: (
                 <>
+                  {/* W1-F2: the period chooser sits with the selection, so panel 1 keeps one strip. */}
+                  <PeriodsAndBlocks
+                    read={read}
+                    selected={selected}
+                    blockIndex={segment === null ? null : blockIndex}
+                    onPeriod={(id) => choose({ revision: id, block: null })}
+                    onBlock={(id, index) => choose({ revision: id, block: String(index) })}
+                  />
                   <SelectedPeriod
                     read={read}
                     revisionId={revisionId}
@@ -581,27 +598,46 @@ function storedVersionWords(read: DispatchWindow): ProductWords {
   };
 }
 
-function StatusLine({ read, storedNotCurrent = false }: { read: DispatchWindow; storedNotCurrent?: boolean }) {
+/**
+ * The day's state line inside the one-line status strip (W1-F2): spans only, never a block. The
+ * not-current totals sentence rides on the same line when the Overview shows the day's totals.
+ */
+function StatusLine({
+  read,
+  storedNotCurrent = false,
+  totalsStale = false,
+}: {
+  read: DispatchWindow;
+  storedNotCurrent?: boolean;
+  totalsStale?: boolean;
+}) {
   const words = storedNotCurrent ? storedVersionWords(read) : statusWords(read.status);
   return (
-    <div
+    <span
       className={`dispatch-status dispatch-status--${storedNotCurrent ? "historical" : read.status.toLowerCase()}`}
-      role="status"
       data-dispatch-status-label={read.status}
       data-dispatch-shown={storedNotCurrent ? "stored-not-current" : "day"}
     >
-      <ProductStatus words={words} scope={dayScope(read)} asOf={read.current_basis?.read_at ?? null}>
+      <ProductStatus inline words={words} scope={dayScope(read)} asOf={read.current_basis?.read_at ?? null}>
         {read.status_reasons.length > 0 ? (
-          <ul className="dispatch-status__reasons">
+          <span className="dispatch-status__reasons">
             {read.status_reasons.map((reason) => (
-              <li key={reason} data-status-reason={reason.split(":")[0]}>
+              <span key={reason} className="dispatch-status__reason" data-status-reason={reason.split(":")[0]}>
                 {reasonWords(reason)}
-              </li>
+              </span>
             ))}
-          </ul>
+          </span>
         ) : null}
       </ProductStatus>
-    </div>
+      {totalsStale ? (
+        <>
+          {" "}
+          <span className="dispatch-status__totals" data-totals-stale>
+            {statusWords(read.status).label}: these totals come from an earlier result and are not current.
+          </span>
+        </>
+      ) : null}
+    </span>
   );
 }
 
@@ -725,12 +761,11 @@ function DayBlockStrip({
 function LimitationSummary({ read }: { read: DispatchWindow }) {
   const groups = groupLimitations(read.limitations);
   if (groups.length === 0) return null;
+  // W1-F2: one chart-note line beside the strip; the full list stays in the coverage panel.
   return (
-    <ul data-dispatch-limitation-summary>
-      {groups.map((g) => (
-        <li key={g.code}>{limitationWords(g.code)}</li>
-      ))}
-    </ul>
+    <ChartNote data={{ "data-dispatch-limitation-summary": "" }}>
+      Limits: {groups.map((g) => limitationWords(g.code)).join("; ")}.
+    </ChartNote>
   );
 }
 
@@ -754,13 +789,9 @@ function DayTotals({ read }: { read: DispatchWindow }) {
     ],
     ["Cannot determine", portionText(portion(read, "indeterminate")), "Records missing or conflicting", "unknown"],
   ];
+  // The not-current totals sentence is on the status line (`StatusLine totalsStale`); each card says "Not current." too.
   return (
     <>
-      {read.stale ? (
-        <p className="v69-objective" data-totals-stale>
-          {statusWords(read.status).label}: these totals come from an earlier result and are not current.
-        </p>
-      ) : null}
       <MetricCards label="Day totals">
         {cards.map(([label, value, note, key]) => (
           <MetricCard
@@ -776,6 +807,22 @@ function DayTotals({ read }: { read: DispatchWindow }) {
   );
 }
 
+/** The empty day, stated where the block strip would be (panel 1). */
+function PeriodsEmpty({ read }: { read: DispatchWindow }) {
+  if (read.intervals.length > 0) return null;
+  return (
+    <ChartNote data={{ "data-dispatch-empty": "" }}>
+      {read.selection === null
+        ? "No result exists for this day."
+        : "No generator period was assessed for this day. The limitations below say why, where one applies."}
+    </ChartNote>
+  );
+}
+
+/**
+ * The day's periods and the selected period's 15-minute blocks, as compact choosers in the
+ * Selected block panel (W1-F2: panel 1 keeps the mock's one segment strip).
+ */
 function PeriodsAndBlocks({
   read,
   selected,
@@ -790,21 +837,12 @@ function PeriodsAndBlocks({
   onBlock: (id: string, index: number) => void;
 }) {
   if (read.intervals.length === 0) {
-    return (
-      <p data-dispatch-empty>
-        {read.selection === null
-          ? "No result exists for this day."
-          : "No generator period was assessed for this day. The limitations below say why, where one applies."}
-      </p>
-    );
+    return null;
   }
-  const dayStart = Date.parse(read.window.start);
-  const span = Date.parse(read.window.end) - dayStart;
-  const at = (instant: string) => ((Date.parse(instant) - dayStart) / span) * 100;
   const current = selected !== null && read.intervals.some((item) => item.id === selected.id) ? selected : null;
   return (
-    <>
-      <ol className="dispatch-periods">
+    <div className="dispatch-choosers">
+      <ol className="dispatch-periods" aria-label="Periods on this day">
         {read.intervals.map((item) => {
           const iv = item.result.interval;
           return (
@@ -823,26 +861,8 @@ function PeriodsAndBlocks({
           );
         })}
       </ol>
-      <div className="dispatch-track" aria-hidden="true">
-        {read.intervals.flatMap((item) =>
-          item.result.segments.map((seg, index) => (
-            <span
-              key={`${item.id}-${index}`}
-              className={`dispatch-track__block dispatch-fill--${CLASS_FILL[seg.classification] ?? "unknown"}`}
-              style={{ left: `${at(seg.start)}%`, width: `${Math.max(at(seg.end) - at(seg.start), 0.4)}%` }}
-            />
-          )),
-        )}
-      </div>
-      <p className="chart-note dispatch-track__axis" aria-hidden="true">
-        <span>00:00</span>
-        <span>06:00</span>
-        <span>12:00</span>
-        <span>18:00</span>
-        <span>24:00</span>
-      </p>
       {current === null ? (
-        <p className="chart-note">Select a period to see its 15-minute blocks.</p>
+        <ChartNote>Select a period to see its 15-minute blocks.</ChartNote>
       ) : (
         <>
           <ol className="dispatch-blocks" aria-label="15-minute blocks of the selected period">
@@ -860,34 +880,23 @@ function PeriodsAndBlocks({
               </li>
             ))}
           </ol>
-          <p className="chart-note">
+          <ChartNote>
             Select a block to see what the readings show and open its records. Blocks are coloured Needed, Possibly
-            avoidable or Cannot determine; gaps between reports are not filled in.
-          </p>
+            avoidable or Cannot determine, as on the strip; gaps between reports are not filled in.
+          </ChartNote>
         </>
       )}
-      <ul className="graphic-legend dispatch-legend" aria-label="Legend">
-        <li>
-          <span className="dispatch-swatch dispatch-fill--needed" /> Needed
-        </li>
-        <li>
-          <span className="dispatch-swatch dispatch-fill--avoidable" /> Possibly avoidable
-        </li>
-        <li>
-          <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine
-        </li>
-      </ul>
-    </>
+    </div>
   );
 }
 
 /** The not-current notice for a stored version outside the day's current set (Overview and Analysis). */
 function PinnedNotice({ read }: { read: DispatchWindow }) {
   return (
-    <p className="dispatch-pinned" data-dispatch-pinned>
+    <ChartNote data={{ "data-dispatch-pinned": "" }}>
       This is a stored result that is not the current one for {read.window.start.slice(0, 10)}. It is shown
       exactly as it was recorded, for reference.
-    </p>
+    </ChartNote>
   );
 }
 
@@ -907,7 +916,7 @@ function SelectedPeriod({
   analysisSearch: string;
 }) {
   if (revisionId === null) {
-    return <p className="chart-note">No period selected.</p>;
+    return <ChartNote>No period selected.</ChartNote>;
   }
   if (inWindow === null && detail === null) {
     return <p>Loading the assessment.</p>;
@@ -930,8 +939,8 @@ function SelectedPeriod({
     <div data-selected-revision={revision.id}>
       {pinned ? <PinnedNotice read={read} /> : null}
       {olderRule !== null ? (
-        <div className="dispatch-pinned" data-older-rule>
-          <p>This result was made with an earlier version of the assessment rules than the version now in force.</p>
+        <div className="dispatch-older-rule" data-older-rule>
+          <ChartNote>This result was made with an earlier version of the assessment rules than the version now in force.</ChartNote>
           <ExactReferences
             name="dispatch-older-rule-references"
             references={[
@@ -942,9 +951,9 @@ function SelectedPeriod({
         </div>
       ) : null}
       {read.stale && !pinned ? (
-        <p className="dispatch-pinned" data-dispatch-stale-selection>
+        <ChartNote data={{ "data-dispatch-stale-selection": "" }}>
           {statusWords(read.status).label}: this result is kept for reference and is not current.
-        </p>
+        </ChartNote>
       ) : null}
       <FactList>
         <Fact term="Outcome">
@@ -1044,13 +1053,17 @@ function CoverageBody({ read }: { read: DispatchWindow }) {
           </tbody>
         </DataTable>
       )}
-      <p className="chart-note" data-coverage-note>
+      <ChartNote data={{ "data-coverage-note": "" }}>
         {noSeries
-          ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result. `
-          : `${read.evidence_count} accepted records behind this day's result. `}
-        A reading counted here is a report the site sent and AssetOps accepted; gaps between reports are not
-        filled in.
-      </p>
+          ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result.`
+          : `${read.evidence_count} accepted records behind this day's result.`}
+      </ChartNote>
+      <Disclosure summary="What a reading is" name="dispatch-coverage-reading">
+        <p data-coverage-reading>
+          A reading counted here is a report the site sent and AssetOps accepted; gaps between reports are not
+          filled in.
+        </p>
+      </Disclosure>
     </>
   );
 }
