@@ -1,0 +1,39 @@
+﻿PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  assumptions desktop: the migrated card renders at http://localhost:5560/sites/KOBO-001/financials/assumptions
+PASS  assumptions desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Price recorded for this site","asOf":"As of 17 Oct 2026, 01:25 UTC","amountShown":true,"noTime":false}
+PASS  assumptions desktop: the closed summary is plain text  "How this was worked out"
+PASS  assumptions desktop: no sideways scroll from the card (measured 107 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  assumptions desktop: the card has a small visual  true
+PASS  assumptions desktop: keyboard Tab reaches the disclosure summary  {"tabs":18,"focusable":["BUTTON:Edit price","A:See every recorded price version","SUMMARY:How this was worked out"]}
+PASS  assumptions desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/financials/assumptions"
+PASS  loaded http://localhost:5560/mockups/v69/index.html#/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  assumptions desktop: mock #/assumptions renders
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  assumptions narrow: the migrated card renders at http://localhost:5560/sites/KOBO-001/financials/assumptions
+PASS  assumptions narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  assumptions narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Price recorded for this site","asOf":"As of 17 Oct 2026, 01:25 UTC","amountShown":true,"noTime":false}
+PASS  assumptions narrow: the closed summary is plain text  "How this was worked out"
+PASS  assumptions narrow: no sideways scroll from the card (measured 107 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  assumptions narrow: the card has a small visual  true
+PASS  assumptions narrow: keyboard Tab reaches the disclosure summary  {"tabs":18,"focusable":["BUTTON:Edit price","A:See every recorded price version","SUMMARY:How this was worked out"]}
+PASS  assumptions narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/financials/assumptions"
+PASS  loaded http://localhost:5560/mockups/v69/index.html#/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  assumptions narrow: mock #/assumptions renders
+PASS  loaded http://localhost:5561/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  assumptions-emptyprice desktop: the migrated card renders at http://localhost:5561/sites/KOBO-001/financials/assumptions
+PASS  assumptions-emptyprice desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"No price recorded","asOf":"As of 17 Oct 2026, 01:25 UTC","amountShown":false,"noTime":false}
+PASS  assumptions-emptyprice desktop: the closed summary is plain text  "How this was worked out"
+PASS  assumptions-emptyprice desktop: no sideways scroll from the card (measured 39 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+FAIL  assumptions-emptyprice desktop: the card has a small visual  false
+PASS  assumptions-emptyprice desktop: keyboard Tab reaches the disclosure summary  {"tabs":18,"focusable":["BUTTON:Edit price","A:See every recorded price version","SUMMARY:How this was worked out"]}
+PASS  assumptions-emptyprice desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/financials/assumptions"
+PASS  loaded http://localhost:5561/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  assumptions-emptyprice narrow: the migrated card renders at http://localhost:5561/sites/KOBO-001/financials/assumptions
+PASS  assumptions-emptyprice narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  assumptions-emptyprice narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"No price recorded","asOf":"As of 17 Oct 2026, 01:25 UTC","amountShown":false,"noTime":false}
+PASS  assumptions-emptyprice narrow: the closed summary is plain text  "How this was worked out"
+PASS  assumptions-emptyprice narrow: no sideways scroll from the card (measured 39 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+FAIL  assumptions-emptyprice narrow: the card has a small visual  false
+PASS  assumptions-emptyprice narrow: keyboard Tab reaches the disclosure summary  {"tabs":18,"focusable":["BUTTON:Edit price","A:See every recorded price version","SUMMARY:How this was worked out"]}
+PASS  assumptions-emptyprice narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/financials/assumptions"
+36/38 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s402a
