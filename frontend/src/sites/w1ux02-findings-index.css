@@ -72,3 +72,16 @@
 .finding-index .step-strip .value-bars__title {
   font-size: 12px;
 }
+
+/* Phone width: a long panel-head link wraps under the title instead of squeezing it. */
+@media (max-width: 760px) {
+  .site-finding .panel__header,
+  .site-findings-view .panel__header {
+    flex-wrap: wrap;
+  }
+
+  .site-finding .panel__actions,
+  .site-findings-view .panel__actions {
+    flex: 1 1 100%;
+  }
+}

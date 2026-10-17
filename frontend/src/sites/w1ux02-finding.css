@@ -105,3 +105,26 @@
 .site-finding .panel .product-status .product-status__bound {
   font-size: 12px;
 }
+
+/* finding-evidence panel notes, facts and gap lines at the mock's 12px. */
+.site-finding-evidence .panel .site-finding__note,
+.site-finding-evidence .panel .fact-list,
+.site-finding-evidence .panel [data-evidence-lineage-broken],
+.site-finding-evidence .panel [data-evidence-no-record-selected],
+.site-finding-evidence .panel [data-evidence-destinations] {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Phone width: a long panel-head link wraps under the title instead of squeezing it. */
+@media (max-width: 760px) {
+  .site-finding .panel__header,
+  .site-findings-view .panel__header {
+    flex-wrap: wrap;
+  }
+
+  .site-finding .panel__actions,
+  .site-findings-view .panel__actions {
+    flex: 1 1 100%;
+  }
+}
