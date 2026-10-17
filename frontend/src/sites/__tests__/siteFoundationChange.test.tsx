@@ -14,7 +14,6 @@ import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
-import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import { foundationViewFor } from "../FoundationSubtabs";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
@@ -113,7 +112,9 @@ describe("Foundation change (changes:1#a)", () => {
     serve(changeReads());
     mount(CHANGE_URL);
     await settledScreen();
-    expect(screen.getByRole("heading", { level: 1, name: "Battery reserve change" })).toBeInTheDocument();
+    // W1-F4: the v69 page heading is the site; the change itself leads the status strip.
+    expect(screen.getByRole("heading", { level: 1, name: HYBRID_MINI_GRID_SITE.display_name })).toBeInTheDocument();
+    expect(q("[data-change-status] .status-strip__lead")?.textContent).toBe("Battery reserve change · Applied");
     expect(q("[data-change-old]")?.textContent).toBe("20%");
     expect(q("[data-change-new]")?.textContent).toBe("15%");
     expect(q("[data-change-asset]")?.textContent).toBe(CHANGE.asset_id);
@@ -179,7 +180,8 @@ describe("Foundation change (changes:1#a)", () => {
     const requests = serve({ [changes.wrong_site_404.request.path]: served(changes.wrong_site_404) });
     mount(`/sites/OTHER-001/foundation/changes/${CHANGE_ID}`);
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Foundation change not found" })).toBeInTheDocument();
+    // W1-F4: a page-level refusal (never an h2), then the v69 slots with the gap inside.
+    expect(q("[data-page-refusal] .page-refusal__title")?.textContent).toBe("Foundation change not found");
     expect(q("[data-action-http='404']")).not.toBeNull();
     expect(screen.getByRole("link", { name: "Back to the Foundation" })).toHaveAttribute("href", "/sites/OTHER-001/foundation");
     expect(requests.some((r) => r.includes("/events"))).toBe(false);
@@ -240,8 +242,8 @@ describe("Action links to its Foundation change", () => {
   });
 });
 
-describe("W1-UX-04 phase 1: Change answer card", () => {
-  it("the change is never positive; the state line, scope and as-of stay outside the closed disclosure; the strip is chronological", async () => {
+describe("W1-F4: the former Change answer card, merged into the strip and panel 1", () => {
+  it("the change is never positive; the state, scope and as-of stay visible outside closed disclosures", async () => {
     serve(changeReads());
     mount(CHANGE_URL);
     await settledScreen();
@@ -249,32 +251,38 @@ describe("W1-UX-04 phase 1: Change answer card", () => {
     const w1 = scanProductVocabulary(main, "changes (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(10);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const card = q("[data-headline-card='change']") as HTMLElement;
-    expect(expectStateLineVisible(card)).toBe("Setting changed; effect judged separately");
-    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
-    expect(card.textContent).toMatch(/from 20% to 15%/);
-    const steps = Array.from(card.querySelectorAll("[data-step]"));
-    expect(steps).toHaveLength(4);
-    // The measured-effect step is the read's own state; a pending outcome is never "done".
-    expect(steps[3].getAttribute("data-step")).not.toBe("done");
-    const disclosure = scanDisclosureVocabulary(card, "changes disclosure");
+    expect(q("[data-headline-card]")).toBeNull();
+    const strip = q("[data-change-status]") as HTMLElement;
+    expect(strip.querySelector(".status-strip__state")?.textContent).toBe("Setting changed; being applied is not success, effect judged separately");
+    // Scope (the battery) and as-of (the recorded time) are visible in panel 1, outside any closed disclosure.
+    for (const selector of ["[data-change-asset]", "[data-change-recorded]", "[data-change-outcome-words]"]) {
+      expect(q(selector)?.closest("details:not([open])"), selector).toBeNull();
+    }
+    // The Outcome card reads the verification block and is never positive for a pending trial.
+    const outcome = q("[data-change-metric='outcome']") as HTMLElement;
+    expect(outcome.className).not.toMatch(/v69-metric--green/);
+    expect(outcome.textContent).toMatch(/No verification plan yet/);
+    expect(q("[data-change-metric='change']")?.textContent).toMatch(/20% → 15%/);
+    expect(q("[data-change-metric='target']")?.textContent).toMatch(/Not recorded yet/);
+    const disclosure = scanDisclosureVocabulary(strip, "changes disclosure");
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
-    expect(card.querySelector("[data-change-card-event-link]")).toHaveAttribute(
+    expect((strip.querySelector("details") as HTMLDetailsElement).open).toBe(false);
+    expect(q("[data-change-applied-event-link]")).toHaveAttribute(
       "href",
       `/sites/KOBO-001/actions/${ACTION}/history?event_id=${CHANGE.applied_event_id}`,
     );
-    expect(card.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator/i);
+    expect(q("[data-change-card-action-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
+    expect(main.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator/i);
   });
 
   it("failed attempts are not known, never zero, while the Action's events cannot be read", async () => {
     serve({ [changes.change.request.path]: served(changes.change) });
     mount(CHANGE_URL);
     await settledScreen();
-    const card = q("[data-headline-card='change']") as HTMLElement;
-    const first = card.querySelector("[data-step]") as HTMLElement;
-    expect(first.getAttribute("data-step")).toBe("not-known");
-    expect(first.textContent).toMatch(/Not known yet/);
-    expect(first.textContent).not.toMatch(/0 recorded/);
+    const gap = q("[data-change-attempts-refused]") as HTMLElement;
+    expect(gap.textContent).toMatch(/Failed attempts are not known/);
+    expect(q("[data-change-attempts]")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/0 recorded|No failed application attempts/);
   });
 });

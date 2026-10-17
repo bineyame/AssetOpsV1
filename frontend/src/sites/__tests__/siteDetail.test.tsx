@@ -199,15 +199,13 @@ describe("a site is rendered from its record", () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
-    // The heading is the `site_id`, not the display name. What addresses a
-    // site is what titles its page; the name is a label on the thing rather
-    // than the thing, so it renders beneath. T007 titled this with the display
-    // name because identity had nowhere else to go on that screen; canonical
-    // screen 2 gives it a header of its own.
+    // W1-F2 (v69 Site page heading, as F1 set for Foundation/Readiness/SLD): the display name is the level-1
+    // heading and the record's `site_id` sits beside it in the provenance badge, so the identity that
+    // addresses the site is still in the header, spelled the record's one way.
     expect(
-      screen.getByRole("heading", { level: 1, name: "MG-002" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Kalangala Mini-Grid", { selector: "p" })).toBeInTheDocument();
+    expect(container.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("MG-002");
     expect(factValue(container, "Site ID")).toBe("MG-002");
     expect(factValue(container, "Name")).toBe("Kalangala Mini-Grid");
     expect(factValue(container, "Type")).toBe("Mini-grid");
@@ -584,9 +582,12 @@ describe("what renders is absent or disabled, and never enabled", () => {
 
     // Every control on this screen is disabled. Not "most of them": an enabled
     // control would be a capability that exists, and none does.
+    // W1-F2: the site record now sits in one closed reading disclosure under the v69 Overview panels. Opening a
+    // disclosure reveals text; it is not a capability, so only that disclosure element itself is set aside here.
+    // Every button inside it (the quick actions) is still checked below.
     const controls = Array.from(
       container.querySelectorAll(INTERACTIVE_SELECTOR),
-    );
+    ).filter((control) => !control.matches('details[data-disclosure="site-record"], details[data-disclosure="site-record"] > summary'));
 
     expect(controls.length).toBeGreaterThan(0);
     for (const control of controls) {

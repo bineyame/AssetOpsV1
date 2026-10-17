@@ -49,7 +49,7 @@
  * prose: 12px lines, the source label as a compact line, the source record disclosure as a
  * small link-sized bar. Every statement stays; only the type size and padding change.
  */
-.site-finding .panel .product-status {
+.site-finding .panel .product-status:not(.product-status--inline) {
   padding: 8px 12px;
   font-size: 12px;
   line-height: 1.6;

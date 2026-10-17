@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 import { SiteEvidence } from "../sites/SiteEvidence";
 import { presentationProfileFor } from "../sites/presentationProfile";
@@ -6,7 +6,9 @@ import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import { useSiteRecord } from "../sites/useSiteRecord";
-import { Breadcrumbs, PageHeader, Panel } from "../ui";
+import { localView } from "../sites/findingPresentation";
+import { deriveSiteView } from "../sites/siteViewModel";
+import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { siteDetailHref, sitePerformanceHref } from "./operatorSiteRoutes";
 
@@ -41,6 +43,7 @@ export function SiteEvidenceFrame({
 }: SiteEvidenceFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
   const result = useSiteRecord(siteId, detail);
+  const [params] = useSearchParams();
 
   if (result === null) {
     return (
@@ -101,10 +104,13 @@ export function SiteEvidenceFrame({
           { label: "Evidence" },
         ]}
       />
-      <PageHeader
-        title="Evidence"
+      {/* W1-F2: the v69 Site page heading - site name, provenance badge, the screen's description. */}
+      <SitePageHeader
+        siteName={site.display_name}
+        siteId={site.site_id}
+        mode={deriveSiteView(site).sourceMode}
+        description={SITE_SCREEN_DESCRIPTIONS[localView(params) === "analysis" ? "evidence-analysis" : "evidence"]}
         headingId={SITE_EVIDENCE_HEADING_ID}
-        subtitle={`${site.display_name} · ${site.site_id}`}
       />
       <OperatorSiteTabs siteId={siteId} current="Evidence" />
       <SiteEvidence

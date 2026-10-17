@@ -20,7 +20,7 @@ import {
 import { SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionSelector, type ActionView } from "../sites/SiteAction";
-import { SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
+import { ChangesWorkPageHeader, SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
 import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
@@ -34,7 +34,9 @@ import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
 import { useSiteRecord } from "../sites/useSiteRecord";
-import { Breadcrumbs, PageHeader, Panel } from "../ui";
+import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
+import { localView } from "../sites/findingPresentation";
+import { deriveSiteView } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
   FINDING_CHILD_VIEWS,
@@ -125,6 +127,10 @@ export function SitePerformanceFrame({
   sitesPath: string;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
+  const [params] = useSearchParams();
+  // W1-F2: the Dispatch route (and its Analysis view) carries the v69 Site page heading; the other
+  // Performance subtabs keep the shared "Performance" heading until their own fidelity pass.
+  const dispatchRoute = capabilityId === undefined || capabilityId === "dispatch";
   return (
     <SiteScoped
       siteId={siteId}
@@ -141,11 +147,21 @@ export function SitePerformanceFrame({
               { label: "Performance" },
             ]}
           />
-          <PageHeader
-            title="Performance"
-            headingId={SITE_PERFORMANCE_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id}`}
-          />
+          {dispatchRoute ? (
+            <SitePageHeader
+              siteName={site.display_name}
+              siteId={site.site_id}
+              mode={deriveSiteView(site).sourceMode}
+              description={SITE_SCREEN_DESCRIPTIONS[localView(params) === "analysis" ? "analysis" : "dispatch"]}
+              headingId={SITE_PERFORMANCE_HEADING_ID}
+            />
+          ) : (
+            <PageHeader
+              title="Performance"
+              headingId={SITE_PERFORMANCE_HEADING_ID}
+              subtitle={`${site.display_name} · ${site.site_id}`}
+            />
+          )}
           <OperatorSiteTabs siteId={siteId} current="Performance" />
           <SitePerformance
             siteId={site.site_id}
@@ -444,15 +460,18 @@ export function SiteFindingFrame({
               </Panel>
             ) : (
               <>
+                {/* W1-F3: the money link sits on the section-tab line; W1-F4: on Recommendation it is a qualified line inside "Proposed intervention" instead. */}
                 <FindingSections
                   sections={sections}
                   current={view}
                   aside={
-                    <span className="finding-financials-link" data-finding-financials-link>
-                      <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
-                        What this finding means in money
-                      </Link>
-                    </span>
+                    view === "recommendation" ? undefined : (
+                      <span className="finding-financials-link" data-finding-financials-link>
+                        <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
+                          What this finding means in money
+                        </Link>
+                      </span>
+                    )
                   }
                 />
                 {view === "evidence" ? (
@@ -734,8 +753,6 @@ export function SiteFoundationChangeFrame({
   actions?: ActionClient;
 }) {
   const { siteId, changeId } = useParams<{ siteId: string; changeId: string }>();
-  const [title, setTitle] = useState("Foundation change");
-  const onTitle = useCallback((next: string) => setTitle(next), []);
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Foundation change" headingId={SITE_CHANGE_HEADING_ID}>
       {(site) => (
@@ -748,18 +765,14 @@ export function SiteFoundationChangeFrame({
               { label: "Change" },
             ]}
           />
-          <PageHeader
-            title={title}
-            headingId={SITE_CHANGE_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id} · SYSTEM demonstration`}
-          />
+          {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
+          <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
           <SiteFoundationChange
             siteId={site.site_id}
             changeId={changeId ?? ""}
             client={actions}
             links={changeLinks(site.site_id)}
-            onTitle={onTitle}
           />
         </main>
       )}
@@ -850,11 +863,7 @@ export function SiteWorkFrame({
               { label: "Work" },
             ]}
           />
-          <PageHeader
-            title="Work"
-            headingId={SITE_WORK_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id} · work raised at this site`}
-          />
+          <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Work" />
           <nav className="site-tabs site-subtabs" aria-label={SITE_WORK_SECTIONS_LABEL}>
             <ol className="site-tabs__list">

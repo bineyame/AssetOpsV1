@@ -178,7 +178,7 @@ describe("a site is opened from a Sites row", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: "MG-002",
+        name: "Kalangala Mini-Grid",
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("main")).toBeInTheDocument();
@@ -190,9 +190,11 @@ describe("a site is opened from a Sites row", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: "MG-002",
+        name: "Kalangala Mini-Grid",
       }),
     ).toBeInTheDocument();
+    // W1-F2: the heading is the site name; the record's canonical Site ID is in the provenance badge.
+    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("MG-002");
     expect(screen.getByRole("main").textContent).toMatch(/MG-002/);
     expect(screen.getByRole("main").textContent).not.toMatch(/mg-002/);
   });
@@ -210,7 +212,7 @@ describe("a site is opened from a Sites row", () => {
 
   it("offers the Site tab destinations and the Sites index, and nothing else", async () => {
     const { container } = renderAt("/sites/MG-002", ENABLED);
-    await screen.findByRole("heading", { level: 1, name: "MG-002" });
+    await screen.findByRole("heading", { level: 1, name: "Kalangala Mini-Grid" });
 
     const main = within(container).getByRole("main");
 
@@ -241,7 +243,7 @@ describe("a site is opened from a Sites row", () => {
 
   it("offers no enabled control on the site page", async () => {
     const { container } = renderAt("/sites/MG-002", ENABLED);
-    await screen.findByRole("heading", { level: 1, name: "MG-002" });
+    await screen.findByRole("heading", { level: 1, name: "Kalangala Mini-Grid" });
 
     const main = within(container).getByRole("main");
 
@@ -274,7 +276,7 @@ describe("the site route is an operator capability", () => {
     expect(
       await screen.findByRole("heading", {
         level: 1,
-        name: "MG-002",
+        name: "Kalangala Mini-Grid",
       }),
     ).toBeInTheDocument();
   });
@@ -283,7 +285,7 @@ describe("the site route is an operator capability", () => {
     const enabled = renderAt("/sites/MG-002", ENABLED);
     await within(enabled.container).findByRole("heading", {
       level: 1,
-      name: "MG-002",
+      name: "Kalangala Mini-Grid",
     });
     const enabledMarkup = within(enabled.container).getByRole("main").outerHTML;
     enabled.unmount();
@@ -291,7 +293,7 @@ describe("the site route is an operator capability", () => {
     const disabled = renderAt("/sites/MG-002", DISABLED);
     await within(disabled.container).findByRole("heading", {
       level: 1,
-      name: "MG-002",
+      name: "Kalangala Mini-Grid",
     });
 
     // Everything except the Quick Actions panel, which T012 makes differ on
@@ -308,7 +310,7 @@ describe("the site route is an operator capability", () => {
     const { container } = renderAt("/sites/MG-003", DISABLED, [
       LIVE_SITE_DETAIL,
     ]);
-    await screen.findByRole("heading", { level: 1, name: "MG-003" });
+    await screen.findByRole("heading", { level: 1, name: "Buvuma Mini-Grid" });
 
     const main = within(container).getByRole("main");
 
@@ -333,7 +335,7 @@ describe("the site route is an operator capability", () => {
     const { container } = renderAt("/sites/MG-003", flags as FeatureFlags, [
       LIVE_SITE_DETAIL,
     ]);
-    await screen.findByRole("heading", { level: 1, name: "MG-003" });
+    await screen.findByRole("heading", { level: 1, name: "Buvuma Mini-Grid" });
 
     const main = within(container).getByRole("main");
 
@@ -351,7 +353,7 @@ describe("the site route is an operator capability", () => {
     const { container } = renderAt("/sites/MG-003", ENABLED, [
       LIVE_SITE_DETAIL,
     ]);
-    await screen.findByRole("heading", { level: 1, name: "MG-003" });
+    await screen.findByRole("heading", { level: 1, name: "Buvuma Mini-Grid" });
 
     const main = within(container).getByRole("main");
 

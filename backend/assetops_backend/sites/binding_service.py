@@ -25,6 +25,8 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
+from assetops_contracts.source_envelope_v4 import V4_CHANNEL_MAPPINGS
+
 from assetops_backend.sites.binding_alignment import (
     SNAPSHOT_SCHEMA_V1,
     SERIALIZERS,
@@ -35,6 +37,7 @@ from assetops_backend.sites.binding_alignment import (
 )
 from assetops_backend.sites.binding_roles import (
     ROLE_SET_BY_SITE_TYPE,
+    ROLE_SET_COLD_1,
     VERIFICATION_MESSAGES,
     VERIFICATION_POINT_ROLES,
     VERIFICATION_POWER_ROLES,
@@ -331,6 +334,21 @@ def validate_bindings(
             why = conversion_problem(role, req.source_unit, req.conversion)
             if why is not None:
                 problem("BINDING_CONVERSION_INVALID", index, f"{name}: {why}.")
+            if role_set == ROLE_SET_COLD_1:
+                # W2-01 (W2-00 review Low 2, design section 3 channel closure): a channel of the closed v4
+                # table serves exactly the role it names, with exactly the role's event kinds.
+                entry = V4_CHANNEL_MAPPINGS.get(channel)
+                if entry is not None and entry.role != role.role:
+                    problem(
+                        "BINDING_CHANNEL_ROLE_MISMATCH", index,
+                        f"Channel {name} serves {entry.role or 'no cold role'}, not {role.role}.",
+                    )
+                elif entry is not None and set(entry.allowed_record_kinds) != set(role.event_kinds):
+                    problem(
+                        "BINDING_CHANNEL_ROLE_MISMATCH", index,
+                        f"Channel {name} carries {sorted(entry.allowed_record_kinds)}, but {role.label} "
+                        f"needs {sorted(role.event_kinds)}.",
+                    )
             if req.asset_id is None:
                 problem("BINDING_ASSET_REQUIRED", index, f"{role.label} must name the asset it describes.")
             elif asset is not None and asset.asset_type != role.asset_type:

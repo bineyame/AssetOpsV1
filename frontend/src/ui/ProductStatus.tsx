@@ -21,8 +21,9 @@ export interface ProductStatusProps {
   /** Extra material beside the state (a failed limit, known failures). */
   children?: ReactNode;
   /**
-   * W1-F3 (additive): render as one-line `status-strip__*` parts for use inside
-   * a `.status-strip--line`, with the same words, scope and bound. No blocks.
+   * W1-F2: render as spans for a one-line status strip (the strip holds no
+   * blocks). Same data attributes; `children` must then be inline too. W1-F3
+   * uses the same spans for its in-panel `.v69-state-line`.
    */
   inline?: boolean;
 }
@@ -32,13 +33,16 @@ export function ProductStatus({ words, scope, asOf, children, inline = false }: 
   if (inline) {
     const hasChild = children !== undefined && children !== null && children !== false;
     return (
-      <span className={`status-strip__state product-status--${words.tone}`} data-product-status={words.tone}>
-        <strong className="product-status__label" data-product-status-label>
+      <span
+        className={`product-status product-status--inline product-status--${words.tone}`}
+        data-product-status={words.tone}
+      >
+        <span className="product-status__label" data-product-status-label>
           {words.label}
-        </strong>{" "}
+        </span>{" "}
         <span className="product-status__sentence">{words.sentence}</span>
         {/* W1-F3 fix round 2 L4: after a child the separator is a margin, never a text space that can start a wrapped line. */}
-        {hasChild ? children : " "}
+        {hasChild ? <> {children}</> : " "}
         <span className={hasChild ? "product-status__bound product-status__bound--after" : "product-status__bound"}>
           <span data-product-status-scope>{scope}</span>
           <span aria-hidden="true"> · </span>
@@ -46,7 +50,7 @@ export function ProductStatus({ words, scope, asOf, children, inline = false }: 
         </span>
         {words.next === undefined ? null : (
           <>
-            <span aria-hidden="true"> · </span>
+            {" "}
             <span className="product-status__next" data-product-status-next>
               {words.next}
             </span>

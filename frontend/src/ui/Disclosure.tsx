@@ -15,8 +15,11 @@ export interface DisclosureProps {
   name: string;
   /** Open on first render. Closed unless a surface says otherwise. */
   defaultOpen?: boolean;
-  /** W1-F3 height phase (additive): "inline" renders the summary as one small link on a row's link line. */
-  variant?: "inline";
+  /**
+   * `tech`: the mock's small link-styled `details.tech` (W1-F2 compaction), same behaviour.
+   * `inline`: the same link-styled summary set inline on a row's link line (W1-F3 height phase).
+   */
+  variant?: "tech" | "inline";
   children: ReactNode;
 }
 
@@ -28,7 +31,11 @@ export function Disclosure({
   children,
 }: DisclosureProps) {
   return (
-    <details className={variant === "inline" ? "disclosure disclosure--inline" : "disclosure"} data-disclosure={name} open={defaultOpen}>
+    <details
+      className={variant === "inline" ? "disclosure disclosure--tech disclosure--inline" : variant === "tech" ? "disclosure disclosure--tech" : "disclosure"}
+      data-disclosure={name}
+      open={defaultOpen}
+    >
       <summary className="disclosure__summary">{summary}</summary>
       <div className="disclosure__body">{children}</div>
     </details>

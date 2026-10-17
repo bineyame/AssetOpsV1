@@ -46,7 +46,7 @@ export function TrialLimitation({ limitation }: { limitation: Limitation }) {
  */
 export function Ref({ value, attr }: { value: string; attr?: string }) {
   return (
-    <code className="action-ref" data-vocabulary-exempt="source-reference" {...(attr ? { [attr]: value } : {})}>
+    <code className="action-ref" title={value} data-vocabulary-exempt="source-reference" {...(attr ? { [attr]: value } : {})}>
       {value}
     </code>
   );

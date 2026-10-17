@@ -183,6 +183,9 @@ class BindingRow:
     source_unit: str
     canonical_unit: str
     conversion: dict[str, Any]
+    #: W2-00 ruling 4: optional v4 mapping metadata (the five snapshot keys), serialized only when supplied;
+    #: None keeps a v3 row's bytes unchanged. W2-01 publishes cold rows that carry it.
+    v4_mapping: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

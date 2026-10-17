@@ -535,12 +535,15 @@ describe("legacy surfaces of an imported Site", () => {
     } as unknown as SiteOverviewClient;
     renderAt(`/sites/${ID}`, fakeFoundation(byAt), overview);
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Awaiting evidence migration" })).toBeInTheDocument();
+    // W1-F2: stated as the page-level refusal before the five v69 Overview panels, each with the gap inside.
+    expect(refusal("awaiting-migration")).toContain("Awaiting evidence migration");
+    expect(document.querySelector('[data-evidence-state="awaiting_migration"]')).not.toBeNull();
+    expectV69Panels("mini");
   });
 });
 
 /** W1-F1: the text of the page-level refusal of `kind`, which must be present. */
-function refusal(kind: "no-version" | "unavailable" | "not-imported" | "legacy-record"): string {
+function refusal(kind: "no-version" | "unavailable" | "not-imported" | "legacy-record" | "awaiting-migration"): string {
   const node = document.querySelector(`[data-page-refusal="${kind}"]`);
   expect(node, `page refusal ${kind}`).not.toBeNull();
   return node?.textContent ?? "";

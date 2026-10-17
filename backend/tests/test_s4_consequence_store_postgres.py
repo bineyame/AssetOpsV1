@@ -442,7 +442,7 @@ class TestMigration0015Downgrade:
             count = c.execute(text("SELECT count(*) FROM finding_revision WHERE finding_id = :f"),
                               {"f": rev["finding_id"]}).scalar_one()
             version = c.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        assert count == 2 and version == "0019_verification_core"
+        assert count == 2 and version == "0021_w2_cold_config"
         assert not self._basis_constraint(engine)
 
     def test_downgrade_without_a_returning_basis_restores_the_constraint(self, site, engine) -> None:  # noqa: F811

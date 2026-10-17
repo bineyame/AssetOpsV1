@@ -1,0 +1,213 @@
+/*
+ * W1-F4 group B: the v69 `changes` and `sitework` screens
+ * (`D-2026-10-17-mockup-layout-spec`). Shared v69 patterns live in
+ * `ui/primitives.css`; this file only adjusts their use on these two screens.
+ */
+
+/* Change and effect: the changed-value table, then the record as key values. */
+.w1f4-changes-work .panel .data-table caption {
+  text-align: left;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.w1f4-changes-work .panel .data-table td {
+  white-space: nowrap;
+}
+
+.w1f4-changes-work .v69-key-values {
+  margin: 8px 0 4px;
+}
+
+.w1f4-changes-work .v69-chart-note {
+  margin: 6px 0 0;
+}
+
+.w1f4-changes-work .disclosure {
+  margin-top: 8px;
+}
+
+/* Failed attempts: one note line, the codes inline. */
+.w1f4-changes-work .w1f4-change-attempts .action-list {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.w1f4-changes-work .w1f4-change-attempts .action-list li {
+  display: inline;
+  margin: 0;
+  font-size: inherit;
+}
+
+.w1f4-changes-work .w1f4-change-attempts .action-list li + li::before {
+  content: " · ";
+}
+
+.w1f4-changes-work .w1f4-change-attempts .action-ref {
+  font-size: 10px;
+}
+
+/* Decision path: compact rows, the links inline after the one-line body. */
+.w1f4-changes-work .v69-attention__item {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.w1f4-changes-work .v69-attention__item p {
+  margin: 2px 0 0;
+}
+
+/* Decision path: the mock's attention rows; the verification chip sits inline. */
+.w1f4-changes-work .v69-attention__item p .verify-chip {
+  margin-right: 4px;
+}
+
+.w1f4-changes-work .v69-attention__item a + a {
+  margin-left: 10px;
+}
+
+@media (max-width: 760px) {
+  .w1f4-changes-work .panel .data-table td {
+    white-space: normal;
+  }
+}
+
+/* Site Work: the window as chip-sized controls in the one panel's header. */
+.w1f4-work-window {
+  margin: 0;
+  flex-wrap: nowrap;
+}
+
+.w1f4-changes-work [data-site-work-state="current-rows"] .data-table td {
+  white-space: nowrap;
+}
+
+.w1f4-work-window__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #5c6c86;
+  font-size: 11px;
+}
+
+.w1f4-work-window .button {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.w1f4-work-state {
+  padding: 18px 0 6px;
+  text-align: center;
+}
+
+.w1f4-work-state__title {
+  margin: 0;
+  font-size: 13px;
+}
+
+.w1f4-work-state .disclosure {
+  text-align: left;
+}
+
+.w1f4-work-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 760px) {
+  .w1f4-work-window {
+    flex-wrap: wrap;
+  }
+
+  .w1f4-work-window__field {
+    flex: 1 1 100%;
+  }
+
+  .w1f4-changes-work [data-site-work-state="current-rows"] .data-table td {
+    white-space: normal;
+  }
+
+  .w1f4-work-window__field .v69-chip-control {
+    flex: 1 1 auto;
+  }
+}
+
+/* 390 px: the window form wraps under the title instead of widening the page. */
+@media (max-width: 760px) {
+  .w1f4-changes-work .panel__header:has(.w1f4-work-window) {
+    flex-wrap: wrap;
+  }
+
+  .w1f4-changes-work .panel__actions:has(.w1f4-work-window) {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .w1f4-changes-work .disclosure .data-table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* Site Work at mock density: chip-height window inputs and the basis
+   disclosure as a small link-style summary (the tech disclosure look). */
+.w1f4-work-window input {
+  height: 30px;
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.w1f4-work-window .button {
+  padding: 5px 12px;
+}
+
+.w1f4-changes-work [data-disclosure="site-work-basis"] {
+  margin-top: 4px;
+  border: 0;
+  background: none;
+  padding: 0;
+}
+
+.w1f4-changes-work [data-disclosure="site-work-basis"] > .disclosure__summary {
+  padding: 2px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--link, #1d4ed8);
+}
+
+/* Site Work State cell: the badge, then the latest-step link alone on a small second line (created and recorded times in its title). */
+.w1f4-changes-work td .w1f4-action-badge {
+  white-space: normal;
+}
+
+.w1f4-changes-work .w1f4-work-subline {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Site Work foot: the count line, the basis disclosure link and (when open) its body share one compact row. */
+.w1f4-work-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 14px;
+  margin-top: 6px;
+}
+
+.w1f4-work-foot .w1f4-work-pages,
+.w1f4-work-foot .disclosure {
+  margin: 0;
+}
+
+.w1f4-work-foot .disclosure[open] {
+  flex: 1 1 100%;
+}

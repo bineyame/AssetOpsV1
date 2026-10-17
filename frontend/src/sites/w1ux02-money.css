@@ -109,7 +109,7 @@
   font-size: 11px;
 }
 
-.site-financials .panel .product-status {
+.site-financials .panel .product-status:not(.product-status--inline) {
   padding: 8px 12px;
   font-size: 12px;
   line-height: 1.6;

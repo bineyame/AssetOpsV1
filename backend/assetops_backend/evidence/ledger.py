@@ -19,7 +19,7 @@ persists what this module decides, and `ledger_service.py` orchestrates it.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any, Callable, Mapping, Protocol, Sequence
 from uuid import UUID
@@ -28,8 +28,17 @@ from assetops_contracts.ingestion_receipt_v2 import IngestionReceiptV2
 from assetops_contracts.source_envelope import EnvelopeRejected
 from assetops_contracts.source_envelope_v3 import (
     SourceEnvelopeV3,
-    parse_canonical_envelope_v3_text,
     text_sha256,
+)
+from assetops_contracts.source_envelope_v4 import (
+    EV_KINDS,
+    V4_BINDING_METADATA_KEYS,
+    V4_CHANNEL_MAPPINGS,
+    SourceEnvelopeV4,
+    canonical_binding_metadata,
+    header_message_id,
+    parse_canonical_source_envelope_text,
+    uses_v4_header_path,
 )
 
 #: S3's first analytic consumes this queue; S2-02 only enqueues (questions-1 Q4).
@@ -107,6 +116,18 @@ class BindingBasis:
     source_unit: str
     canonical_unit: str
     conversion: Mapping[str, Any]
+    # W2-00 ruling 4: the optional v4 snapshot binding-row keys; absent (a v3 row) reads as None.
+    allowed_record_kinds: Sequence[str] | None = None
+    allowed_outcomes: Mapping[str, Sequence[str]] | None = None
+    requires_correlation: bool | None = None
+    requires_session: bool | None = None
+    allowed_units: Sequence[str] | None = None
+    #: The bound asset's frozen public identifier (`asset.asset_code`, its Foundation component ID): an EV
+    #: connector's canonical public identifier. None when the binding has no asset.
+    asset_code: str | None = None
+
+    def v4_metadata(self) -> dict[str, Any] | None:
+        return canonical_binding_metadata({k: getattr(self, k) for k in V4_BINDING_METADATA_KEYS})
 
 
 @dataclass(frozen=True)
@@ -137,6 +158,8 @@ class StoredBindingSet:
     snapshot_canonical: bytes
     set_superseded: bool
     foundation_superseded: bool
+    #: `asset.asset_code` by asset UUID for the principal's Site (immutable registration facts).
+    asset_codes: Mapping[UUID, str] = field(default_factory=dict)
 
 
 class ConfigurationRefused(Exception):
@@ -199,16 +222,23 @@ def basis_from_snapshot(
         raise ConfigurationRefused("CONFIGURATION_UNREADABLE", "mapping", "the snapshot names another binding set")
     bindings: dict[tuple[str, str], BindingBasis] = {}
     for row in doc["bindings"]:
+        asset_id = None if row["asset_id"] is None else UUID(row["asset_id"])
         bindings[(row["device_id"], row["signal_id"])] = BindingBasis(
             binding_revision_id=UUID(row["binding_revision_id"]),
             device_id=row["device_id"],
             signal_id=row["signal_id"],
             source_id=row["source_id"],
-            asset_id=None if row["asset_id"] is None else UUID(row["asset_id"]),
+            asset_id=asset_id,
             role=row["role"],
             source_unit=row["source_unit"],
             canonical_unit=row["canonical_unit"],
             conversion=row["conversion"],
+            allowed_record_kinds=row.get("allowed_record_kinds"),
+            allowed_outcomes=row.get("allowed_outcomes"),
+            requires_correlation=row.get("requires_correlation"),
+            requires_session=row.get("requires_session"),
+            allowed_units=row.get("allowed_units"),
+            asset_code=None if asset_id is None else stored.asset_codes.get(asset_id),
         )
     return AcceptedAsBasis(
         foundation_revision_id=stored.foundation_revision_id,
@@ -234,18 +264,22 @@ def basis_from_snapshot(
 @dataclass(frozen=True)
 class Accepted:
     ordinal: int
-    envelope: SourceEnvelopeV3
+    envelope: SourceEnvelopeV3 | SourceEnvelopeV4
     envelope_text: str
     envelope_sha256: str
     binding: BindingBasis
     normalized_value_text: str | None
-    normalized_unit: str
-    conversion_kind: str
+    normalized_unit: str | None
+    conversion_kind: str | None
     source_time: datetime
     published_at: datetime
     interval_start: datetime | None
     interval_end: datetime | None
     configuration_outdated: bool
+
+    @property
+    def is_v4(self) -> bool:
+        return isinstance(self.envelope, SourceEnvelopeV4)
 
 
 @dataclass(frozen=True)
@@ -265,27 +299,71 @@ def _within(instant: datetime, start: datetime, end: datetime | None) -> bool:
     return start <= instant and (end is None or instant < end)
 
 
+def _normalize(binding: BindingBasis, value: str | None) -> tuple[str | None, str | None, str | None]:
+    """(normalized value, conversion kind, refusal kind) under the selected binding's conversion."""
+    kind = binding.conversion.get("kind")
+    if kind == "IDENTITY":
+        return value, kind, None
+    if kind == "ENUM":
+        mapping = binding.conversion.get("parameters", {}).get("map", {})
+        if value is None:
+            return None, kind, None
+        if value not in mapping:
+            return None, kind, "INVALID_ENUM"
+        return mapping[value], kind, None
+    return None, kind, "CONVERSION_UNSUPPORTED"
+
+
 def decide(basis: AcceptedAsBasis, ordinal: int, envelope_text: str) -> Decision:
-    """One envelope against its batch's accepted-as basis. Pure and deterministic."""
+    """One envelope against its batch's accepted-as basis. Pure and deterministic.
+
+    W2-00: dispatch by stated schema only. V3 texts keep their frozen parse and decision; a V4 text (or a V4-only
+    kind under V3) that the parser refuses is an ordinal refusal carrying its valid header's message ID.
+    """
     digest = text_sha256(envelope_text)
     try:
-        envelope = parse_canonical_envelope_v3_text(envelope_text)
+        envelope = parse_canonical_source_envelope_text(envelope_text)
     except EnvelopeRejected as error:
-        return Rejected(ordinal, "", error.kind, error.field, error.detail, digest)
+        message_id = header_message_id(envelope_text) if uses_v4_header_path(envelope_text) else ""
+        return Rejected(ordinal, message_id, error.kind, error.field, error.detail, digest)
 
     def reject(kind: str, field: str, detail: str) -> Rejected:
         return Rejected(ordinal, envelope.message_id, kind, field, detail, digest)
 
+    if isinstance(envelope, SourceEnvelopeV4):
+        return _decide_v4(basis, ordinal, envelope_text, digest, envelope, reject)
     if envelope.family != "MEASUREMENT":
         return reject("SCHEMA_UNSUPPORTED", "payload.family", f"{envelope.family} is not ingested in this release")
     binding = basis.bindings.get((envelope.device_id, envelope.signal_id))
     if binding is None or binding.source_id != envelope.source_id:
-        return reject(
-            "BINDING_NOT_REGISTERED", "source.signal_id",
-            f"binding set v{basis.binding_version} registers no channel {envelope.device_id}/{envelope.signal_id} "
-            "for this source",
-        )
+        return _unbound(basis, envelope, reject)
     source_time = parse_instant(envelope.source_time)
+    refused = _outside_periods(basis, envelope, source_time, reject)
+    if refused is not None:
+        return refused
+    if envelope.unit != binding.source_unit:
+        return reject(
+            "UNIT_INCOMPATIBLE", "payload.unit",
+            f"{envelope.unit!r} is not the registered source unit {binding.source_unit!r}",
+        )
+    normalized, kind, refusal = _normalize(binding, envelope.value)
+    if refusal == "INVALID_ENUM":
+        return reject("INVALID_ENUM", "payload.value", f"{envelope.value!r} is not in the registered ENUM map")
+    if refusal is not None:
+        return reject("CONVERSION_UNSUPPORTED", "mapping", f"conversion {kind!r} is not applied in this release")
+    return _accepted(basis, ordinal, envelope_text, digest, envelope, binding, normalized, binding.canonical_unit,
+                     kind, source_time)
+
+
+def _unbound(basis: AcceptedAsBasis, envelope, reject) -> Rejected:
+    return reject(
+        "BINDING_NOT_REGISTERED", "source.signal_id",
+        f"binding set v{basis.binding_version} registers no channel {envelope.device_id}/{envelope.signal_id} "
+        "for this source",
+    )
+
+
+def _outside_periods(basis: AcceptedAsBasis, envelope, source_time: datetime, reject) -> Rejected | None:
     if not _within(source_time, basis.foundation_valid_from, basis.foundation_valid_to):
         return reject(
             "OUTSIDE_FOUNDATION_PERIOD", "timing.source_time",
@@ -298,25 +376,11 @@ def decide(basis: AcceptedAsBasis, ordinal: int, envelope_text: str) -> Decision
             f"{envelope.source_time} is outside binding set v{basis.binding_version}'s registered period "
             f"[{_text(basis.binding_valid_from)}, {_text(basis.binding_valid_to)})",
         )
-    if envelope.unit != binding.source_unit:
-        return reject(
-            "UNIT_INCOMPATIBLE", "payload.unit",
-            f"{envelope.unit!r} is not the registered source unit {binding.source_unit!r}",
-        )
-    kind = binding.conversion.get("kind")
-    value = envelope.value
-    if kind == "IDENTITY":
-        normalized = value
-    elif kind == "ENUM":
-        mapping = binding.conversion.get("parameters", {}).get("map", {})
-        if value is None:
-            normalized = None
-        elif value not in mapping:
-            return reject("INVALID_ENUM", "payload.value", f"{value!r} is not in the registered ENUM map")
-        else:
-            normalized = mapping[value]
-    else:
-        return reject("CONVERSION_UNSUPPORTED", "mapping", f"conversion {kind!r} is not applied in this release")
+    return None
+
+
+def _accepted(basis, ordinal, envelope_text, digest, envelope, binding, normalized, normalized_unit, kind,
+              source_time) -> Accepted:
     return Accepted(
         ordinal=ordinal,
         envelope=envelope,
@@ -324,7 +388,7 @@ def decide(basis: AcceptedAsBasis, ordinal: int, envelope_text: str) -> Decision
         envelope_sha256=digest,
         binding=binding,
         normalized_value_text=normalized,
-        normalized_unit=binding.canonical_unit,
+        normalized_unit=normalized_unit,
         conversion_kind=kind,
         source_time=source_time,
         published_at=parse_instant(envelope.published_at),
@@ -332,6 +396,69 @@ def decide(basis: AcceptedAsBasis, ordinal: int, envelope_text: str) -> Decision
         interval_end=None if envelope.interval_end is None else parse_instant(envelope.interval_end),
         configuration_outdated=basis.outdated,
     )
+
+
+def _decide_v4(basis: AcceptedAsBasis, ordinal: int, envelope_text: str, digest: str, envelope: SourceEnvelopeV4,
+               reject) -> Decision:
+    """Ruling 4: the exact closed channel tuple and the pinned row's v4 metadata must agree before acceptance."""
+    binding = basis.bindings.get((envelope.device_id, envelope.signal_id))
+    if binding is None or binding.source_id != envelope.source_id:
+        return _unbound(basis, envelope, reject)
+    entry = V4_CHANNEL_MAPPINGS.get((envelope.device_id, envelope.signal_id))
+    pinned = binding.v4_metadata()
+    if entry is None or pinned is None or pinned != entry.metadata():
+        return reject(
+            "MAPPING_INCOMPATIBLE", "mapping",
+            f"channel {envelope.device_id}/{envelope.signal_id} has no V4 mapping entry that the closed "
+            "simulator-lab-gateway-cold/1 table and the pinned binding row both state identically",
+        )
+    if entry.role is not None and binding.role != entry.role:
+        # W2-01 (W2-00 review Low 2): the closed table names the role each channel serves.
+        return reject("MAPPING_INCOMPATIBLE", "mapping",
+                      f"channel {envelope.device_id}/{envelope.signal_id} serves {entry.role}, "
+                      f"not the pinned binding's {binding.role}")
+    carried = envelope.measurement or envelope.record_kind
+    if envelope.family != entry.family or envelope.measurement != entry.measurement:
+        return reject("MAPPING_INCOMPATIBLE", "mapping",
+                      f"this channel does not carry {envelope.family} {carried}")
+    if envelope.family == "EVENT":
+        if envelope.record_kind not in pinned["allowed_record_kinds"]:
+            return reject("MAPPING_INCOMPATIBLE", "mapping", f"{carried} is not a record kind of this channel")
+        if envelope.outcome not in pinned["allowed_outcomes"].get(envelope.record_kind, []):
+            return reject("MAPPING_INCOMPATIBLE", "mapping",
+                          f"{envelope.outcome} is not an allowed {carried} outcome on this channel")
+        if pinned["requires_correlation"] and envelope.correlation_id is None:
+            return reject("CORRELATION_INVALID", "payload.correlation_id", "this channel requires correlation")
+        if pinned["requires_session"] and envelope.session_id is None:
+            return reject("CORRELATION_INVALID", "payload.session_id", "this channel requires a session ID")
+    source_time = parse_instant(envelope.source_time)
+    refused = _outside_periods(basis, envelope, source_time, reject)
+    if refused is not None:
+        return refused
+    if envelope.unit is not None and (envelope.unit not in pinned["allowed_units"]
+                                      or envelope.unit != binding.source_unit):
+        return reject("UNIT_INCOMPATIBLE", "payload.unit",
+                      f"{envelope.unit!r} is not this channel's registered unit {binding.source_unit!r}")
+    ev_scoped = envelope.record_kind in EV_KINDS or envelope.measurement == "INTERVAL_DELTA"
+    if ev_scoped and envelope.connector_id is not None and envelope.connector_id != binding.asset_code:
+        return reject("EV_CONNECTOR_MISMATCH", "payload.connector_id",
+                      f"{envelope.connector_id!r} is not the bound connector's public identifier")
+    if envelope.family == "EVENT":
+        if envelope.value is None:
+            return _accepted(basis, ordinal, envelope_text, digest, envelope, binding, None, None, None, source_time)
+        normalized, kind, refusal = _normalize(binding, envelope.value)
+        if kind != "IDENTITY" or refusal is not None:
+            return reject("CONVERSION_UNSUPPORTED", "mapping",
+                          f"a quantitative event needs the IDENTITY conversion, not {kind!r}")
+        return _accepted(basis, ordinal, envelope_text, digest, envelope, binding, normalized,
+                         binding.canonical_unit, None, source_time)
+    normalized, kind, refusal = _normalize(binding, envelope.value)
+    if refusal == "INVALID_ENUM":
+        return reject("INVALID_ENUM", "payload.value", f"{envelope.value!r} is not in the registered ENUM map")
+    if refusal is not None:
+        return reject("CONVERSION_UNSUPPORTED", "mapping", f"conversion {kind!r} is not applied in this release")
+    return _accepted(basis, ordinal, envelope_text, digest, envelope, binding, normalized, binding.canonical_unit,
+                     kind, source_time)
 
 
 def _text(value: datetime | None) -> str:

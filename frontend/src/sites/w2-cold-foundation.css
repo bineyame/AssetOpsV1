@@ -1,0 +1,204 @@
+/*
+ * W2-01: the configured cold-chain drawing (mock `.sld` boxes and line styles,
+ * `frontend/mockups/v69/mockups.css`). Frame colour names an equipment family,
+ * never a state; line style names the connection medium.
+ */
+.cold-sld {
+  margin: 0;
+}
+
+.cold-sld__svg {
+  display: block;
+  width: 100%;
+  max-width: 1120px;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* The hollow dashed marker: whether a part or source is reporting is not assessed here (mock "not connected" ring). */
+.cold-sld__unassessed {
+  fill: #fff;
+  stroke: #8a9bb3;
+  stroke-width: 1.5;
+  stroke-dasharray: 2 2;
+}
+
+/* Monitoring strip (mock "Monitoring & communication"): one box per configured source. */
+.cold-sld__monitor {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 2px dotted #8a9bb3;
+}
+
+.cold-sld__monitor-label {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sld-ink);
+}
+
+.cold-sld__monitor-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cold-sld__monitor-box {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1.4px solid var(--sld-bus);
+  border-radius: 5px;
+  background: var(--sld-network-fill);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--sld-ink);
+}
+
+/* Phone width: the boxes become compact chips that wrap, the way the mock's strip shrinks with its drawing. */
+@media (max-width: 640px) {
+  .cold-sld__monitor-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .cold-sld__monitor-box {
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .cold-sld__monitor-box .gw-dot {
+    width: 7px;
+    height: 7px;
+    margin-right: 4px;
+  }
+}
+
+.cold-sld__edge {
+  fill: none;
+  stroke: var(--sld-ink);
+  stroke-width: 2;
+}
+
+.cold-sld__edge--thermal {
+  stroke: var(--sld-supply-stroke);
+  stroke-dasharray: 7 5;
+}
+
+.cold-sld__edge--signal {
+  stroke: #3d7a8c;
+  stroke-width: 1.4;
+  stroke-dasharray: 2 4;
+}
+
+.cold-sld__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted, #617087);
+}
+
+.cold-sld__key {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-top: 2px solid var(--sld-ink);
+}
+
+.cold-sld__key--thermal {
+  border-top: 2px dashed var(--sld-supply-stroke);
+}
+
+.cold-sld__key--signal {
+  border-top: 2px dotted #3d7a8c;
+}
+
+/* Readiness: the Declared detail sits under its chip as one short line. */
+.cold-readiness__detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+/* Gateway availability timeline (mock `.gw-strip`): an empty grey track, since no history is stored. */
+.cold-gw-timeline {
+  margin-top: 12px;
+}
+
+.cold-gw-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 16px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(135deg, #eef1f6 0 6px, #e3e8f0 6px 12px);
+  font-size: 11px;
+  color: var(--text-muted, #617087);
+}
+
+.cold-gw-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted, #617087);
+}
+
+.cold-gw-key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 2px;
+  vertical-align: -1px;
+  background: #e3e8f0;
+}
+
+.cold-gw-key--up {
+  background: #8cc7af;
+}
+
+.cold-gw-key--part {
+  background: #e8c27c;
+}
+
+.cold-gw-key--down {
+  background: #e49a9a;
+}
+
+/* Narrow widths: compact readiness rows (about two lines each) and source chips. */
+@media (max-width: 640px) {
+  .cold-readiness-panel .data-table th,
+  .cold-readiness-panel .data-table td {
+    padding: 7px 6px;
+    line-height: 1.35;
+  }
+  .cold-readiness-panel .data-table tbody th {
+    min-width: 9.5em;
+  }
+  .cold-readiness__detail {
+    font-size: 11px;
+  }
+  /* The short Confirmed chip and Next step link stay on one line; the table scrolls inside its own region. */
+  .cold-readiness-panel .data-table td:nth-child(3),
+  .cold-readiness-panel .data-table td:last-child {
+    white-space: nowrap;
+  }
+  .gw-panel .gw-src {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+}

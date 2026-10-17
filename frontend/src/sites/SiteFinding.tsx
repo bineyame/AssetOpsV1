@@ -361,7 +361,7 @@ function FindingStateLine({
   );
   if (compact) {
     return (
-      <span className={`status-strip__state product-status--${words.tone}`} data-product-status={words.tone} data-finding-panel-state>
+      <span className={`status-strip__state product-status--inline product-status--${words.tone}`} data-product-status={words.tone} data-finding-panel-state>
         {words.tone === "positive" ? null : <span className="product-status__sentence">{words.sentence}</span>}
         {notes}{" "}
         <span className="product-status__bound">

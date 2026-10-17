@@ -19,7 +19,14 @@ export const COMPONENT_ICON_HEIGHT = 44;
 
 export type ComponentIconFamily = "supply" | "storage" | "conversion" | "network" | "load";
 
-const FAMILY: Record<SldSymbol, ComponentIconFamily> = {
+/**
+ * W2-01: the cold-chain drawing adds three parts the mini-grid archetype has no
+ * symbol for. They are icon shapes only; the mini-grid archetype table
+ * (`sldSymbolFor`) is unchanged, so no mini-grid part is drawn with them.
+ */
+export type ComponentIconSymbol = SldSymbol | "TEMPERATURE_PROBE" | "COMPRESSOR" | "TRANSFER_SWITCH";
+
+const FAMILY: Record<ComponentIconSymbol, ComponentIconFamily> = {
   PV_ARRAY: "supply",
   GENERATOR: "supply",
   FUEL_TANK: "supply",
@@ -30,13 +37,16 @@ const FAMILY: Record<SldSymbol, ComponentIconFamily> = {
   METER: "network",
   LOAD: "load",
   COLD_ROOM: "load",
+  TEMPERATURE_PROBE: "network",
+  COMPRESSOR: "load",
+  TRANSFER_SWITCH: "network",
 };
 
 export function componentIconFamily(symbol: SldSymbol): ComponentIconFamily {
   return FAMILY[symbol];
 }
 
-function mark(symbol: SldSymbol): ReactNode {
+function mark(symbol: ComponentIconSymbol): ReactNode {
   switch (symbol) {
     case "PV_ARRAY":
       return [0, 1, 2].flatMap((c) =>
@@ -92,6 +102,30 @@ function mark(symbol: SldSymbol): ReactNode {
       return (
         <path d="M32,9 v26 M20.7,15.5 l22.6,13 M20.7,28.5 l22.6,-13 M29,11 l3,3 l3,-3 M29,33 l3,-3 l3,3" />
       );
+    case "TEMPERATURE_PROBE":
+      return (
+        <>
+          <path d="M29,29 V10 a3,3 0 0 1 6,0 V29" />
+          <circle cx={32} cy={33} r={5} />
+          <path d="M39,13 h5 M39,19 h5 M39,25 h5" />
+        </>
+      );
+    case "COMPRESSOR":
+      return (
+        <>
+          <circle cx={32} cy={22} r={14} />
+          <path d="M21,13 L44,18 M21,31 L44,26" />
+        </>
+      );
+    case "TRANSFER_SWITCH":
+      return (
+        <>
+          <circle cx={14} cy={13} r={2.5} />
+          <circle cx={14} cy={31} r={2.5} />
+          <circle cx={50} cy={22} r={2.5} />
+          <path d="M8,13 h3.5 M8,31 h3.5 M52.5,22 h4 M16,31 L47.5,22.5" />
+        </>
+      );
     case "BUSBAR":
       return <rect className="component-icon__bar" x={6} y={19} width={52} height={6} rx={2} />;
   }
@@ -106,7 +140,7 @@ export function ComponentIconShape({
   symbol,
   frameClassName,
 }: {
-  symbol: SldSymbol;
+  symbol: ComponentIconSymbol;
   frameClassName?: string;
 }) {
   const family = FAMILY[symbol];

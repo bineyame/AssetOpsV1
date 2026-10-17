@@ -309,7 +309,7 @@ describe("Quick actions obey the gate rule and the sequencing rule separately", 
     expect(detail.reads()).toBe(readsBefore);
     expect(
       within(container).getByRole("heading", { level: 1 }).textContent,
-    ).toBe("MG-002");
+    ).toBe("Kalangala Mini-Grid"); // W1-F2: the v69 Site heading is the site name (still the same site, no navigation)
   });
 });
 

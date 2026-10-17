@@ -404,3 +404,13 @@ A fresh coordinator starts from this file; do not re-derive what it states.
   reason vs remove/link to Run setup). Then merge main (4ae4d4b) into the branch,
   mark T027 done, merge.
 - Codex retrospective list gains T027 phase 1 and phase 2.
+
+## Entry 36 (2026-10-17, usage limit) - in-flight state
+
+- Main: W2-00 merged `8e0af014`; W2-02/W2-03 packets `0dda3362`; W2-01 answers `2f70af49`; F5 carries `.agent/W1-F5-carries.md` `91958d71`.
+- W1-F2 (review3): fix round 2 running (re-review `.agent/W1-F2-rereview.md` RETURN 2 Medium: limits panel merge, inline-status CSS reset). Then fresh re-review -> merge on ACCEPT.
+- W1-F3 (AssetOpsV1-review): fix round 1 running (review `.agent/W1-F3-review.md` RETURN 3H/6M). Told about inline-status CSS bug.
+- W1-F4 (review4): fix round 2 trim running (heights grew after round-1 fixes). Then re-review.
+- W2-01 (review2): build running after Architect answers (`D-2026-10-17-w2-01-answers`).
+- Next: F5 (health/asset + carries + all-26 audit) with the recurring-defect self-check (memory `mockup-is-layout-spec`); then owner repeat walkthrough. W2-02 after W2-01 merges.
+- On resume: check each worktree's git log/status; agents may have been cut off - re-dispatch from committed state.

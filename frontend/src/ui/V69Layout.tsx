@@ -74,6 +74,24 @@ export function MetricCards({
   );
 }
 
+/**
+ * The mock's `mheader`: a bordered row of labelled cells (Owner, Due / SLA, State,
+ * Source, Success criterion) between a status strip and the metric cards. A cell
+ * the read cannot support is passed as its gap word, never omitted.
+ */
+export function MetricHeader({ cells, label, data }: { cells: [ReactNode, ReactNode, string?][]; label: string; data?: Record<string, string> }) {
+  return (
+    <dl className="v69-mheader" aria-label={label} {...data}>
+      {cells.map(([term, value, key], index) => (
+        <div key={key ?? index} data-mheader-cell={key}>
+          <dt>{term}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /** The mock's `.key-values`: term left, value right. */
 export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string?][]; label?: string }) {
   return (
@@ -124,24 +142,6 @@ export function ChartNote({ children, data }: { children: ReactNode; data?: Reco
   );
 }
 
-/** The mock's `.statusbar`: one line of state badges and short facts; not a panel. */
-export function StatusBar({
-  children,
-  label,
-  data,
-}: {
-  children: ReactNode;
-  /** Accessible name of the status line. */
-  label?: string;
-  data?: Record<string, string>;
-}) {
-  return (
-    <div className="status-strip status-strip--line" role="group" aria-label={label} {...data}>
-      {children}
-    </div>
-  );
-}
-
 /**
  * The mock's `.big-claim`: the one concise answer line inside its owning
  * panel, only where the mock shows one (e.g. finding:1). A paragraph;
@@ -161,7 +161,7 @@ export function BigClaim({
   );
 }
 
-/** The mock's `.notice` (amber by default, `blue` for an informational note). */
+/** The mock's `.notice` (amber by default, `blue` for an informational note or neutral pointer). */
 export function Notice({
   children,
   tone = "amber",
@@ -179,6 +179,68 @@ export function Notice({
 }
 
 /**
+ * The mock's `.statusbar`: one state line above the panels (not a panel). It
+ * renders F1's `.status-strip--line`, so the guard's strip rules apply: every
+ * child must be inline (spans, links, a chip-sized control), never a block.
+ * Pass a `ProductStatus inline` for a state line.
+ */
+export function StatusBar({
+  children,
+  label,
+  other,
+  action,
+  data,
+}: {
+  children: ReactNode;
+  /** Accessible name of the status line (W1-F3). */
+  label?: string;
+  other?: ReactNode;
+  action?: ReactNode;
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className="status-strip status-strip--line v69-statusbar" role="status" aria-label={label} {...data}>
+      <span className="status-strip__lead">{children}</span>
+      {other === undefined ? null : <span className="status-strip__item v69-statusbar__other">{other}</span>}
+      <span className="status-strip__spacer" aria-hidden="true" />
+      {action === undefined ? null : <span className="status-strip__action">{action}</span>}
+    </div>
+  );
+}
+
+/** W1-F2's name for the same `.notice` (one implementation: `Notice`). */
+export const V69Notice = Notice;
+
+export interface TimelineEvent {
+  key: string;
+  time: ReactNode;
+  title: ReactNode;
+  detail?: ReactNode;
+  tone?: "danger" | "gap";
+}
+
+/** The mock's causal `.timeline` strip: time, event, source in sequence. */
+export function CausalTimeline({ events, label }: { events: TimelineEvent[]; label: string }) {
+  return (
+    <ol className="v69-timeline" aria-label={label}>
+      {events.map((event) => (
+        <li
+          key={event.key}
+          className={["v69-timeline__event", event.tone ? `v69-timeline__event--${event.tone}` : ""]
+            .filter(Boolean)
+            .join(" ")}
+          data-timeline-event={event.key}
+        >
+          <span>{event.time}</span>
+          <strong>{event.title}</strong>
+          {event.detail === undefined ? null : <span>{event.detail}</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/**
  * The per-screen description under a Site page's heading, from the v69 mock's
  * screen subtitles (`screens.js`). F2-F5 add their screens here; a mock subtitle
  * that states illustrative values (site ratings, a window) is not copied.
@@ -187,6 +249,22 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   foundation: "Definition, topology and controls · stored configuration for the period shown",
   readiness: "Definition, commissioning and gateway readiness",
   sld: "Foundation · single line diagram",
+  mini: "Overview · operating objectives for the selected period",
+  dispatch: "Performance · source coordination and generator support",
+  analysis: "Performance · analytical method, input comparison and uncertainty",
+  // The mock's "capability readiness and claim ceilings" is not read here (no capability assessment; "claim" is on the
+  // W1 vocabulary list, D-2026-10-16-w1-ux), so the description says what the page does show.
+  evidence: "Evidence · accepted readings and what is missing",
+  "evidence-analysis": "Evidence · accepted records and how limits are set",
+  changes: "Configuration change · the stored policy change and its decision path",
+  sitework: "Site-scoped work · the same managed records as global queues",
+  recommendation: "Proposed intervention and declared success criterion",
+  action: "Current intervention and outcome state",
+  verification: "Target and guardrails · outcome from accepted evidence",
+  // W2-01: the cold screens' mock subtitle states illustrative ratings and a policy band, so only its shape is kept.
+  "cold-foundation": "Cold room · stored configuration for the period shown",
+  "cold-readiness": "Definition, commissioning and gateway readiness",
+  "cold-sld": "Cold room · single line diagram",
 } as const;
 
 export interface SitePageHeaderProps {
