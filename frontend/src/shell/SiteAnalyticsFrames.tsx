@@ -497,6 +497,7 @@ export function SiteFindingFrame({
                       finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                       dispatch,
                       evidence: siteEvidenceHref(site.site_id),
+                      findingEvidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
                       history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                       recommendation: (rev) => siteFindingViewHref(site.site_id, id, "recommendation", rev),
                     }}

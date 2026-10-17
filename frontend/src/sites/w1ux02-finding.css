@@ -11,3 +11,22 @@
 [data-headline-card^="finding"] .product-status .source-provenance + p {
   margin-top: 0.5rem;
 }
+
+/* W1-F3: the v69 finding overview (statusbar, What happened, pair, attention list). */
+.site-finding__state,
+.site-finding__sentence {
+  margin-top: 12px;
+}
+
+.site-finding__meaning {
+  margin-top: 13px;
+}
+
+.site-finding__limits.v69-prose {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.site-finding__limits.v69-prose li + li {
+  margin-top: 6px;
+}
