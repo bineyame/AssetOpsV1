@@ -4541,9 +4541,30 @@ tr[data-selected] > * {
   border: 1px solid #dce6f4;
 }
 
-.v69-statusbar > div:first-child {
+.v69-statusbar > .status-strip__lead {
   min-width: 0;
-  flex: 1 1 360px;
+}
+
+/* W1-F2 resume: the inline state line (ProductStatus inline) as strip spans. */
+.product-status--inline {
+  display: inline;
+}
+
+.product-status--inline .product-status__label {
+  display: inline-flex;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #dce6f4;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.product-status--inline .product-status__bound,
+.product-status--inline .product-status__next {
+  color: var(--color-text-muted, #6b7a90);
+}
 
 /* W1-F1 fix round 1: mock patterns ported from `mockups.css` ---------------------- */
 

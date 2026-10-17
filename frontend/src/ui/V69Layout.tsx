@@ -124,7 +124,12 @@ export function ChartNote({ children, data }: { children: ReactNode; data?: Reco
   );
 }
 
-/** The mock's `.statusbar`: a state line above the panels (not a panel). */
+/**
+ * The mock's `.statusbar`: one state line above the panels (not a panel). It
+ * renders F1's `.status-strip--line`, so the guard's strip rules apply: every
+ * child must be inline (spans, links, a chip-sized control), never a block.
+ * Pass a `ProductStatus inline` for a state line.
+ */
 export function StatusBar({
   children,
   other,
@@ -137,11 +142,11 @@ export function StatusBar({
   data?: Record<string, string>;
 }) {
   return (
-    <div className="v69-statusbar" role="status" {...data}>
-      {children}
-      {other === undefined ? null : <span className="v69-statusbar__other">{other}</span>}
-      <span className="v69-statusbar__spacer" />
-      {action ?? null}
+    <div className="status-strip status-strip--line v69-statusbar" role="status" {...data}>
+      <span className="status-strip__lead">{children}</span>
+      {other === undefined ? null : <span className="status-strip__item v69-statusbar__other">{other}</span>}
+      <span className="status-strip__spacer" aria-hidden="true" />
+      {action === undefined ? null : <span className="status-strip__action">{action}</span>}
     </div>
   );
 }
@@ -157,7 +162,7 @@ export function V69Notice({
   data?: Record<string, string>;
 }) {
   return (
-    <div className={tone === "blue" ? "v69-notice v69-notice--blue" : "v69-notice"} {...data}>
+    <div className={tone === "blue" ? "notice v69-notice v69-notice--blue" : "notice v69-notice"} {...data}>
       {children}
     </div>
   );
