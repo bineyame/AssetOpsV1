@@ -1,0 +1,32 @@
+# W2-02 — Cold causal producer and public replay
+
+Status: implementation-ready (planned). Size M; two phases. Branch `task/W2-02-cold-producer` from merged W2-01. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. The exit is a registered cold Lab run whose public v4 records reach ordinary S2 AcceptedEvidence; it does not produce an assessment or Finding.
+
+## Binding design and dependencies
+
+- `.agent/W2-technical-design-cold.md` §1 rulings 4–6 owns v4 binding/profile admission and reads; §2 owns the `0020`/`0021` migration baseline; §3 owns effective cold roles and parameters; §4 owns model, scenarios, observation, channels, pack selection and publication; §6 owns the cold replay read; §7 owns manifest/proof and the vendor-peer deferral. `.agent/architect-W2-design.md` "Simulator-to-evidence contract" and "Ordered slices" fix the sequence. Decisions `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold`, `D-2026-10-17-w2-00-answers` apply.
+- Requires merged W2-00 and W2-01, registered Lab basis, S2 authenticated Batch V2 intake and SQLite outbox. W2-01's effective Foundation, binding and source registrations are runtime authority; test-only W2-00 `BindingBasis` injection is not. The closed cold publication profile is new and pinned to v4; existing profiles remain unchanged.
+
+## Phase 1 — causal pack, six scenarios and closed host selection
+
+Register `cold-thermal/1`, `cold-publication/1`, `cold-observation/1` and `cold-scenario/1` in the closed profile/pack registries used by host execution, Lab execution and kernel. Select by frozen identity rather than Site label. Preserve fuel/mini-grid routing; reject unknown pack/profile/parameter/observation version before Draft. Persist scenario SHA, Foundation/binding IDs, model/profile/observation versions and seed in run identity. The one-minute standalone pack uses the exact initial state, finite state machines, grid/backup/transfer/compressor timing, public power ports, thermal equation and parameter defaults in §4. It does not compose with mini-grid. Exact decimal/rational updates, end-of-step ordering, energy residual and physical bounds are executable guards, never silent clamps. `Role.value_kind=EVENT` uses IDENTITY and typed outcomes; Foundation controls stay NUMBER.
+
+Add the six `config/scenarios/cold-*.yaml` fixtures: `normal`, `excursion`, `backup-failed`, `missing-probe`, `late-reading`, `contradictory`. Freeze 2026-10-06 19:00–20:00 UTC, seed 20417 and the §4 forcing/observation table. Publish only observed probe, meter, controller, door and manual-log facts through the closed `(device_id,signal_id)` table. Add the cold role to `V4_CHANNEL_MAPPINGS` and validate the registered binding role against it at S2 admission, closing W2-00 review Low 2; exact tuple/family/kind/outcome/unit checks still apply. Private disturbance cause and oracle remain in the world only.
+
+Acceptance tests: thermal equation and unit conversion (`cold-door-heat` 0.02 kWh/min), control hysteresis, start/transfer/compressor delays, valid state transitions, one-minute step/order and physical rejection for negative capacity/power, nonzero energy residual, impossible transition and temperature outside [-40,60]°C. Host, Lab and kernel select the same frozen pack; unknown identities refuse before Draft and old mini-grid/fuel fixtures retain their bytes. Scenario-specific public assertions match §4: normal success 19:07/transfer 19:08 and in-band; excursion failed result 19:05 and qualifying high points; backup-failed door pulse remains contextual; missing-probe has 7/13 scheduled points; late-reading holds 19:20 until 20:10; contradictory adds a distinct GOOD success event alongside failure. A wrong cold binding role is refused even when tuple and unit match.
+
+## Phase 2 — sealed replay, gateway receipt and owner read
+
+Stage canonical public schema-4 envelopes from `cold-publication/1`: five-minute chamber points including 20:00, state transitions/heartbeats, aligned compressor mean-power intervals, and witnessed door/start/transfer/power events. `cold-observation/1` applies zero default bias, half-even 0.1°C rounding, three-second latency and specified hold/drop/fault variants before Draft. Seal Stage, register Commit and release through SQLite outbox, authenticated Batch V2 and S2 ledger only. Serve owner-gated `GET /api/sites/{code}/cold/replay` with §6 fields `publication_id,run_profile,scenario_digest,batch_ids,receipts[{accepted,duplicate,rejected}],accepted_record_ids,public_digest`; no world fields. No new SQL table/backfill is authorized: registration uses the existing persisted Lab/profile path on `0021` unless §4 explicitly requires a registered fixture entry.
+
+Acceptance tests: canonical `cold-replay-manifest/1` for each six cases under `contract-fixtures/w2/cold/` pins public envelope/batch digests, receipt ordinals, accepted IDs, selected `[19:00,20:05)` window and bounded later-analytic assertions. Stage→Commit→outbox→Batch V2→receipt→AcceptedEvidence is tested with real registered cold bindings and a private `*_test` database; repeat exact bytes to prove duplicate/idempotent receipt and unchanged public digest. Late release retains 19:20 source time and later receive time. Assert every case's accepted event/measurement kinds, values, gaps or contradiction from S2 reads, not from world truth. Scan Stage, batch, accepted rows and replay JSON for private keys/oracle/run truth. Assert tenant/Site owner gate and role-based access; call the actual Site-evidence and rejection-list reads to prove `EVENT_ID_CONFLICT` and `SESSION_ID_CONFLICT` count under conflicts, closing W2-00 review Low 1. Run focused host/backend/contract tests, rule-8 and architecture/workflow guards, registry checker, and **one full backend suite on the final slice revision** per `backend/TESTING.md` with JUnit zero failed/skipped. Independent review and owner walkthrough use the stored replay.
+
+The labelled vendor-format cold peer, raw format/refusal contract, physical capture and `ATTESTED_REAL_SOURCE` are deferred to the pilot gate by §7. No adapter or peer fixture is invented in W2-02.
+
+## Registry
+
+Assign existing open `A-cold-world` and `I-cold-world` to W2-02 via `task`. Leave `I-cold-device-adapter` and `D-cold-physical-peer` unassigned for the pilot, and leave all statuses and speculative UI nodes unchanged. No graph node is promoted by planning.
+
+## Architect questions
+
+None; the cited design fixes the producer and explicitly defers the physical peer.
