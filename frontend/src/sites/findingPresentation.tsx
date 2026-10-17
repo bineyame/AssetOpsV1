@@ -8,7 +8,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Badge, DataTable, Fact, FactList, HeadlineVisualCard, ProductStatus, readResultWords, type ProductWords } from "../ui";
+import { Badge, DataTable, Fact, FactList, readResultWords, type ProductWords } from "../ui";
 import { RecordDetail } from "./SiteEvidence";
 import type {
   AssessmentSummary,
@@ -437,49 +437,4 @@ export function findingRefusalWords(status: FindingRefusal): ProductWords {
         unrecognised: false,
       };
   }
-}
-
-/**
- * The W1 card for a Finding read that returned no Finding: the screen's
- * question, the plain heading, the shared state line (the read records no
- * time, so it says so) and what the reader can do. Nothing is shown in the
- * Finding's place.
- */
-export function FindingRefusalCard({
-  status,
-  dataName,
-  headingId,
-  question,
-  heading,
-  text,
-  message,
-  scope,
-  children,
-}: {
-  status: FindingRefusal;
-  dataName: string;
-  headingId: string;
-  question: string;
-  heading: string;
-  text: string;
-  message: string | null;
-  scope: string;
-  children?: ReactNode;
-}) {
-  return (
-    <HeadlineVisualCard
-      dataName={dataName}
-      headingId={headingId}
-      question={question}
-      headline={heading}
-      status={<ProductStatus words={findingRefusalWords(status)} scope={scope} asOf={null} />}
-      meaning={
-        <>
-          <p data-finding-read={status}>{text}</p>
-          {message ? <p className="site-finding__note">Reason given: {message}</p> : null}
-        </>
-      }
-      todo={children}
-    />
-  );
 }

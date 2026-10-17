@@ -17,10 +17,10 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import {
   DataTable,
+  Disclosure,
   ExactReferences,
   Fact,
   FactList,
-  HeadlineVisualCard,
   MissingClaim,
   Panel,
   ProductStatus,
@@ -36,7 +36,7 @@ import type {
   FindingReadResult,
   FindingWindowBody,
 } from "./findingClient";
-import { FindingRefusalCard } from "./findingPresentation";
+import { findingRefusalWords } from "./findingPresentation";
 import { dayOf, findingCurrentnessWords, LIFECYCLE_WORDS, sourceModeWords } from "./findingWords";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
@@ -212,26 +212,41 @@ export function SiteFindingEvidence({
     const text = next.toString();
     return text === "" ? "?" : `?${text}`;
   };
+  // W1-F3: the v69 finding-evidence form: the evidence bundle, then the source lineage.
   return (
     <section
       className="site-finding site-finding-evidence"
-      aria-labelledby="finding-evidence-selection-heading"
+      aria-labelledby="finding-evidence-bundle-heading"
       data-finding-evidence={body.finding.id}
       data-finding-revision={body.selection.revision_id}
       data-evidence-selected-by={body.selection.selected_by}
       data-evidence-lineage={body.lineage.status}
       data-evidence-total={body.counts.cited_total}
     >
-      <Selection body={body} links={links} />
-      <Lineage body={body} />
-      <Bundle body={body} />
-      <Assessments body={body} links={links} />
-      <Records body={body} selected={selectedRecord} search={search} />
-      {selectedRecord === null ? null : (
-        <RecordLineage body={body} evidenceId={selectedRecord} links={links} closeSearch={search({ record: null })} />
-      )}
+      <Panel heading={`Evidence bundle · ${bundleName(body)}`} headingId="finding-evidence-bundle-heading">
+        <Selection body={body} links={links} />
+        <Bundle body={body} />
+        <Records body={body} selected={selectedRecord} search={search} />
+        <Assessments body={body} links={links} />
+      </Panel>
+      <Panel heading="Inspect source lineage" headingId="finding-evidence-lineage-heading">
+        <Lineage body={body} />
+        {selectedRecord === null ? (
+          <p className="v69-gap-line" data-evidence-no-record-selected>
+            Choose a record&apos;s reference in the evidence bundle to follow its full trail here.
+          </p>
+        ) : (
+          <RecordLineage body={body} evidenceId={selectedRecord} links={links} closeSearch={search({ record: null })} />
+        )}
+        <Destinations body={body} links={links} />
+      </Panel>
     </section>
   );
+}
+
+/** The dynamic panel-1 name: the selected Finding's plain title, never a mock fixture. */
+function bundleName(body: FindingEvidenceBody): string {
+  return LIFECYCLE_WORDS[body.revision.lifecycle]?.title ?? "Selected Finding";
 }
 
 function Refused({
@@ -264,25 +279,40 @@ function Refused({
     },
   };
   const chosen = words[read.status];
+  const gap = (name: string) => (
+    <p className="v69-gap-line" data-evidence-panel-gap={name}>
+      {chosen.heading}: nothing is shown here, and this does not mean the Finding has no evidence.
+    </p>
+  );
+  // W1-F3: the page-level refusal, then both v69 panel slots with the gap stated in each.
   return (
-    <FindingRefusalCard
-      status={read.status}
-      dataName="finding-evidence"
-      headingId="finding-evidence-refused-heading"
-      question={FINDING_EVIDENCE_QUESTION}
-      heading={chosen.heading}
-      text={chosen.text}
-      message={read.message}
-      scope={pinned ? "This Finding's evidence, at the version in the address" : "This Finding's evidence"}
-    >
-      {read.status === "not_found" && pinned ? (
-        <p>
-          <Link to={latestHref} data-evidence-open-latest>
-            Open the evidence of the latest version instead
-          </Link>
+    <section className="site-finding site-finding-evidence" data-finding-evidence-refused={read.status}>
+      <div className="page-refusal" role="status" data-page-refusal={read.status}>
+        <p className="page-refusal__title">
+          <strong>{chosen.heading}</strong>
         </p>
-      ) : undefined}
-    </FindingRefusalCard>
+        <ProductStatus
+          words={findingRefusalWords(read.status)}
+          scope={pinned ? "This Finding's evidence, at the version in the address" : "This Finding's evidence"}
+          asOf={null}
+        />
+        <p data-finding-read={read.status}>{chosen.text}</p>
+        {read.message ? <p className="site-finding__note">Reason given: {read.message}</p> : null}
+        {read.status === "not_found" && pinned ? (
+          <p>
+            <Link to={latestHref} data-evidence-open-latest>
+              Open the evidence of the latest version instead
+            </Link>
+          </p>
+        ) : null}
+      </div>
+      <Panel heading="Evidence bundle · Selected Finding" headingId="finding-evidence-bundle-heading">
+        {gap("bundle")}
+      </Panel>
+      <Panel heading="Inspect source lineage" headingId="finding-evidence-lineage-heading">
+        {gap("lineage")}
+      </Panel>
+    </section>
   );
 }
 
@@ -365,109 +395,104 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
   const words = selectionWords(body);
   const notSupported = lifecycle !== undefined && body.revision.lifecycle !== "SUPPORTED";
   return (
-    <HeadlineVisualCard
-      dataName="finding-evidence"
-      headingId="finding-evidence-selection-heading"
-      title={`Evidence for version ${no}`}
-      question={FINDING_EVIDENCE_QUESTION}
-      headline={evidenceHeadline(body)}
-      status={
-        <ProductStatus words={words} scope={`Version ${no} of this Finding`} asOf={body.revision.recorded_at}>
-          {notSupported ? (
-            <p className="site-finding__lead" data-evidence-lifecycle={body.revision.lifecycle}>
-              State of this version: <strong>{lifecycle.label}</strong>.{" "}
-              {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
-            </p>
-          ) : null}
-          {body.audit_only ? (
-            <p className="site-finding__lead" data-evidence-audit-only>
-              Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a
-              record, not as the current Finding, and no Dispatch period is linked.
-            </p>
-          ) : null}
-          <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
-          {!selection.is_latest ? (
-            <p className="site-finding__lead" data-evidence-earlier-version>
-              Earlier version {no}. A later version replaces it; these are the records this earlier version cited.{" "}
-              <Link to={links.evidence(selection.latest_revision_id)}>Open the latest version&apos;s evidence</Link>
-            </p>
-          ) : selection.selected_by === "LATEST_RECORDED" ? (
-            <p data-evidence-latest-at-read>
-              Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
-              <Link to={links.evidence(selection.revision_id)} data-evidence-pin>
-                Keep this exact version
-              </Link>
-            </p>
-          ) : (
-            <p data-evidence-pinned-latest>Version {no}, the latest recorded version, opened by its exact reference.</p>
-          )}
-        </ProductStatus>
-      }
-      visual={<StepStrip title="How each cited record is traced" steps={trailSteps(body)} />}
-      meaning={
-        <>
-          {lifecycle === undefined || body.revision.lifecycle !== "SUPPORTED" ? null : (
-            <p data-evidence-lifecycle={body.revision.lifecycle}>
-              State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
-            </p>
-          )}
-          <p>
-            These are the accepted records this version cites as support. A record with a broken link is named, never
-            dropped or counted as zero evidence.
+    <div className="site-finding__state" data-evidence-state>
+      <p className="v69-prose" data-evidence-headline>
+        <strong>{evidenceHeadline(body)}</strong>
+      </p>
+      <ProductStatus words={words} scope={`Version ${no} of this Finding`} asOf={body.revision.recorded_at}>
+        {notSupported ? (
+          <p className="site-finding__lead" data-evidence-lifecycle={body.revision.lifecycle}>
+            State of this version: <strong>{lifecycle.label}</strong>.{" "}
+            {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
           </p>
-        </>
-      }
-      todo={<p>Choose a record&apos;s reference in the list below to follow its full trail.</p>}
-      destination={
-        <>
-          <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
-            Back to this version of the Finding
-          </Link>
-          {links.history ? (
-            <>
-              {" · "}
-              <Link to={links.history(selection.revision_id)} data-evidence-to-history>
-                See version {no} in the Finding&apos;s history
-              </Link>
-            </>
-          ) : null}
-        </>
-      }
-      references={
-        <ExactReferences
-          name="finding-evidence-references"
-          references={[
-            { label: "Finding reference", value: body.finding.id },
-            { label: "Shown version reference", value: selection.revision_id },
-            { label: "Latest version reference", value: selection.latest_revision_id },
-            { label: "How the version was chosen", value: selection.selected_by },
-            { label: "Assessment method reference", value: body.revision.model_version },
-            { label: "Cited set check code", value: body.lineage.cited_set_digest?.status ?? null },
-          ]}
-        />
-      }
-    />
+        ) : null}
+        {body.audit_only ? (
+          <p className="site-finding__lead" data-evidence-audit-only>
+            Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a
+            record, not as the current Finding, and no Dispatch period is linked.
+          </p>
+        ) : null}
+        <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
+        {!selection.is_latest ? (
+          <p className="site-finding__lead" data-evidence-earlier-version>
+            Earlier version {no}. A later version replaces it; these are the records this earlier version cited.{" "}
+            <Link to={links.evidence(selection.latest_revision_id)}>Open the latest version&apos;s evidence</Link>
+          </p>
+        ) : selection.selected_by === "LATEST_RECORDED" ? (
+          <p data-evidence-latest-at-read>
+            Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
+            <Link to={links.evidence(selection.revision_id)} data-evidence-pin>
+              Keep this exact version
+            </Link>
+          </p>
+        ) : (
+          <p data-evidence-pinned-latest>Version {no}, the latest recorded version, opened by its exact reference.</p>
+        )}
+        {lifecycle === undefined || notSupported ? null : (
+          <p data-evidence-lifecycle={body.revision.lifecycle}>
+            State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
+          </p>
+        )}
+      </ProductStatus>
+    </div>
+  );
+}
+
+/** The way back to the Finding and its history, and the exact references last. */
+function Destinations({ body, links }: { body: FindingEvidenceBody; links: SiteFindingEvidenceLinks }) {
+  const { selection } = body;
+  return (
+    <>
+      <p className="site-finding__note" data-evidence-destinations>
+        <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
+          Back to this version of the Finding
+        </Link>
+        {links.history ? (
+          <>
+            {" · "}
+            <Link to={links.history(selection.revision_id)} data-evidence-to-history>
+              See version {selection.revision_no} in the Finding&apos;s history
+            </Link>
+          </>
+        ) : null}
+      </p>
+      <ExactReferences
+        name="finding-evidence-references"
+        references={[
+          { label: "Finding reference", value: body.finding.id },
+          { label: "Shown version reference", value: selection.revision_id },
+          { label: "Latest version reference", value: selection.latest_revision_id },
+          { label: "How the version was chosen", value: selection.selected_by },
+          { label: "Assessment method reference", value: body.revision.model_version },
+          { label: "Cited set check code", value: body.lineage.cited_set_digest?.status ?? null },
+        ]}
+      />
+    </>
   );
 }
 
 /** Whole-set lineage: positive claims only when every link resolves. */
 function Lineage({ body }: { body: FindingEvidenceBody }) {
   const { lineage } = body;
+  const strip = <StepStrip title="How each cited record is traced" steps={trailSteps(body)} />;
   if (lineage.status === "COMPLETE") {
     return (
-      <Panel heading="Record trail" headingId="finding-evidence-lineage-heading">
+      <div className="finding-evidence__lineage">
+        {strip}
         <p data-evidence-lineage-complete>
           Every one of the {body.counts.cited_total} cited records traces to its accepted record, delivery batch,
           stored message, the site setup it was accepted under, and the assessment that used it. The cited set
           matches the check value saved with this version.
         </p>
-      </Panel>
+      </div>
     );
   }
   return (
-    <Panel heading="Some record links do not resolve" headingId="finding-evidence-lineage-heading">
+    <div className="finding-evidence__lineage">
+      {strip}
       <p className="site-finding__lead" data-evidence-lineage-broken>
-        Part of this version&apos;s record trail could not be followed. The broken links are named below; nothing is
+        <strong>Some record links do not resolve.</strong> Part of this version&apos;s record trail could not be
+        followed. The links that fail are named below; nothing is
         claimed for them, and no cited record is dropped or counted as zero evidence.
       </p>
       {lineage.set_breaks.length > 0 ? (
@@ -499,7 +524,7 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
           </ul>
         </>
       ) : null}
-    </Panel>
+    </div>
   );
 }
 
@@ -513,7 +538,7 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
   const { counts, provenance } = body;
   const notes = provenance.case_annotations;
   return (
-    <Panel heading="What this version cites" headingId="finding-evidence-bundle-heading">
+    <>
       <p data-evidence-cited-vs-input>
         This version cites <strong data-evidence-cited-total>{counts.cited_total}</strong> accepted records as support.
         The analysis behind it read <span data-evidence-input-total>{counts.input_distinct_total}</span> accepted records
@@ -527,9 +552,10 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
         </Fact>
       </FactList>
       <InputsByMeasurement body={body} />
-      <h3 className="site-finding__subheading" id="finding-evidence-sources">
-        Where the cited records came from
-      </h3>
+      <Disclosure name="finding-evidence-sources" summary="Where the cited records came from">
+      <p className="site-finding__note" id="finding-evidence-sources">
+        Cited records by gateway, source and sequence epoch.
+      </p>
       <DataTable labelledBy="finding-evidence-sources">
         <thead>
           <tr>
@@ -558,6 +584,7 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
           ))}
         </tbody>
       </DataTable>
+      </Disclosure>
       {notes.length > 0 ? (
         <aside className="dispatch-demo-notes" aria-label="Demonstration data notes" data-finding-case-notes={notes.length}>
           <h3>Note supplied with the demonstration data</h3>
@@ -573,7 +600,7 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
           <p>This note comes from the demonstration data&apos;s own description; it does not change the result.</p>
         </aside>
       ) : null}
-    </Panel>
+    </>
   );
 }
 
@@ -588,10 +615,7 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
   const { counts } = body;
   return (
     <>
-      <h3 className="site-finding__subheading" id="finding-evidence-inputs">
-        Cited records by measurement
-      </h3>
-      <p className="site-finding__note" data-evidence-inputs-scope>
+      <p className="site-finding__note" id="finding-evidence-inputs" data-evidence-inputs-scope>
         Counted over all {counts.cited_total} cited records of this version, not only the page shown below.
         {counts.cited_unresolved > 0
           ? ` ${counts.cited_unresolved} do not resolve to a record and are not counted by measurement.`
@@ -604,6 +628,8 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
               <th scope="col">Input</th>
               <th scope="col">Source</th>
               <th scope="col">Records</th>
+              <th scope="col">Coverage</th>
+              <th scope="col">Use</th>
             </tr>
           </thead>
           <tbody>
@@ -619,6 +645,8 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
                   ))}
                 </td>
                 <td>{g.count}</td>
+                <td data-evidence-input-coverage>Not available</td>
+                <td data-evidence-input-use>Not available</td>
               </tr>
             ))}
           </tbody>
@@ -647,7 +675,10 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
 /** The assessments this version cites, with their run, model and as-accepted basis. */
 function Assessments({ body, links }: { body: FindingEvidenceBody; links: SiteFindingEvidenceLinks }) {
   return (
-    <Panel heading="Assessments behind this version" headingId="finding-evidence-assessments-heading">
+    <Disclosure name="finding-evidence-assessments" summary={`Assessments this version cites (${body.assessments.length})`}>
+      <p className="site-finding__note" id="finding-evidence-assessments-heading">
+        Each cited assessment with its method, the site setup it used and its Dispatch period.
+      </p>
       <DataTable labelledBy="finding-evidence-assessments-heading">
         <thead>
           <tr>
@@ -669,7 +700,7 @@ function Assessments({ body, links }: { body: FindingEvidenceBody; links: SiteFi
         Control settings such as the generator&apos;s minimum operating time are recorded only inside the settings check value of each
         analysis; no separate control version exists.
       </p>
-    </Panel>
+    </Disclosure>
   );
 }
 
@@ -747,8 +778,8 @@ function Records({
   const last = page.offset + page.returned;
   const previous = page.offset > 0 ? Math.max(0, page.offset - page.limit) : null;
   return (
-    <Panel heading="Cited records" headingId="finding-evidence-records-heading">
-      <p data-evidence-page-range>
+    <div className="finding-evidence__records">
+      <p data-evidence-page-range id="finding-evidence-records-heading">
         Records {first}–{last} of {page.total}, in source time order.
       </p>
       <DataTable labelledBy="finding-evidence-records-heading">
@@ -824,9 +855,10 @@ function Records({
         )}
       </nav>
       <p className="site-finding__note">
-        Choose a record&apos;s reference to see its full trail here; its stored message opens on the site&apos;s records page.
+        Choose a record&apos;s reference to see its full trail under Inspect source lineage; its stored message opens on
+        the site&apos;s records page.
       </p>
-    </Panel>
+    </div>
   );
 }
 
@@ -845,7 +877,10 @@ function RecordLineage({
   const r = body.records.find((x) => x.evidence_id === evidenceId);
   if (r === undefined) {
     return (
-      <Panel heading="Selected record" headingId="finding-evidence-record-heading">
+      <div className="finding-evidence__record" data-evidence-record-inspector>
+        <p className="v69-prose">
+          <strong>Selected record</strong>
+        </p>
         <p data-evidence-record-absent>
           The record in the address is not on this page of this version&apos;s cited records. It is not shown, and no other
           record is shown in its place.
@@ -853,13 +888,16 @@ function RecordLineage({
         <p>
           <Link to={closeSearch}>Clear the selected record</Link>
         </p>
-      </Panel>
+      </div>
     );
   }
   const inspector = body.links.records[r.evidence_id] === undefined ? null : links.record(r.evidence_id);
   const words = (link: string) => <LinkText link={link} />;
   return (
-    <Panel heading="Selected record" headingId="finding-evidence-record-heading">
+    <div className="finding-evidence__record" data-evidence-record-inspector>
+      <p className="v69-prose">
+        <strong>Selected record</strong>
+      </p>
       <div data-evidence-record={r.evidence_id} data-evidence-record-lineage={r.lineage_status}>
         {!r.resolved ? (
           <p className="site-finding__lead" data-evidence-withheld>
@@ -947,7 +985,7 @@ function RecordLineage({
           <Link to={closeSearch}>Clear the selected record</Link>
         </p>
       </div>
-    </Panel>
+    </div>
   );
 }
 

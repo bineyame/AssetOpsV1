@@ -8,6 +8,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
@@ -257,6 +258,10 @@ async function mount(client: FindingClient, search = "") {
 }
 
 const q = (selector: string) => document.querySelector(selector);
+/** W1-F3: panel 1 of finding-evidence, titled with the selected Finding's plain title. */
+const BUNDLE = "Evidence bundle · Generator support merits review";
+/** W1-F3: the selection state block inside panel 1 (formerly the answer card). */
+const stateBlock = () => q("[data-evidence-state]") as HTMLElement;
 
 /** W1-UX-02: the notes of a state line after its state label and sentence, in order. */
 function statusNotes(note: Element): Element[] {
@@ -370,8 +375,9 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
     await mount(fake({ status: "loaded", value }), `?revision_id=${R2}`);
     const lead = q("[data-evidence-audit-only]") as HTMLElement;
     expect(lead).toHaveTextContent("Record only");
-    // W1-UX-02: the record-only note is the first note of the answer card's state line, right after the state sentence.
-    const card = lead.closest("[data-headline-card='finding-evidence']") as HTMLElement;
+    // W1-F3: the record-only note is the first note of panel 1's state line, right after the state sentence.
+    const card = lead.closest("[data-evidence-state]") as HTMLElement;
+    expect(panelTitled(BUNDLE).contains(card)).toBe(true);
     expect(expectStateLineVisible(card)).toBe("For the record only");
     expect(statusNotes(lead)[0]).toBe(lead);
     expect(q("[data-evidence-dispatch-link]")).toBeNull();
@@ -434,10 +440,10 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
       if (lifecycle === "UNCONFIRMED") {
         expect(lead).toHaveTextContent("stay available in this Finding's history");
       }
-      // W1-UX-02: the recorded state is the first note of the answer card's state line, beside the headline.
-      expect(lead.closest(".headline-card__status")).not.toBeNull();
+      // W1-F3: the recorded state is the first note of panel 1's state line, beside the headline.
+      expect(lead.closest("[data-evidence-state] [data-product-status]")).not.toBeNull();
       expect(statusNotes(lead)[0]).toBe(lead);
-      expectStateLineVisible(lead.closest("[data-headline-card='finding-evidence']") as HTMLElement);
+      expectStateLineVisible(lead.closest("[data-evidence-state]") as HTMLElement);
       unmount();
     }
   });
@@ -793,49 +799,60 @@ function defaultReading(card: HTMLElement): string {
   return copy.textContent ?? "";
 }
 
-describe("W1-UX-02: Finding Evidence answer card", () => {
+describe("W1-UX-02 / W1-F3: Finding Evidence bundle and lineage", () => {
   it("rewords only backend-held link codes on screen, keeping every code and banning the W1 word", () => {
     for (const key of Object.keys(LINK_DISPLAY_OVERRIDES)) expect(Object.keys(LINK_WORDS)).toContain(key);
     expect(Object.keys(LINK_DISPLAY_WORDS).sort()).toEqual(Object.keys(LINK_WORDS).sort());
     for (const text of Object.values(LINK_DISPLAY_WORDS)) expect(text).not.toMatch(/fingerprint/i);
   });
 
-  const card = () => document.querySelector("[data-headline-card='finding-evidence']") as HTMLElement;
   const main = () => document.querySelector("main") as HTMLElement;
-  const steps = () => Array.from(card().querySelectorAll("[data-step-strip] li")).map((li) => [li.querySelector(".step-strip__label")?.textContent, li.getAttribute("data-step")]);
+  const lineage = () => panelTitled("Inspect source lineage");
+  const steps = () => Array.from(lineage().querySelectorAll("[data-step-strip] li")).map((li) => [li.querySelector(".step-strip__label")?.textContent, li.getAttribute("data-step")]);
+  /** Visible text: without any closed disclosure. */
+  const openReading = (el: HTMLElement) => {
+    const copy = el.cloneNode(true) as HTMLElement;
+    copy.querySelectorAll("details:not([open])").forEach((d) => d.remove());
+    return copy.textContent ?? "";
+  };
 
-  it("W1-UX-02: leads with the supporting records and a record trail; exact references last; W1 vocabulary on <main>", async () => {
+  it("W1-F3: leads with the supporting records in the evidence bundle, the record trail in source lineage, exact references last; W1 vocabulary on <main>", async () => {
     await mount(fake({ status: "loaded", value: body() }));
-    const answer = card();
-    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("Which accepted records support this Finding?");
-    expect(answer.querySelector("h2")?.textContent).toBe("Evidence for version 2");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("3 cited records, each traced back to its accepted record");
+    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expect(q("[data-headline-card]")).toBeNull();
+    const bundle = panelTitled(BUNDLE);
+    const answer = stateBlock();
+    expect(bundle.contains(answer)).toBe(true);
+    expect(answer.querySelector("[data-evidence-headline]")?.textContent).toBe("3 cited records, each traced back to its accepted record");
     // The latest-at-read version is not claimed current: neutral words, plain "as of" the version's recorded time.
     expect(expectStateLineVisible(answer)).toBe("Latest recorded version when read");
     expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 9 Oct 2026, 12:00 UTC");
+    expect(answer.querySelector("[data-product-status-scope]")?.textContent).toMatch(/Version 2 of this Finding/);
     expect(steps()).toEqual([
       ["Accepted record", "done"], ["Delivery batch", "done"], ["Stored message", "done"], ["Site setup", "done"], ["Assessment", "done"],
     ]);
     // Model version and exact references are labelled detail, not the default reading.
     expect(defaultReading(answer)).not.toContain("dispatch-3.1");
-    expect(defaultReading(answer)).not.toContain(F);
-    const refs = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(openReading(bundle)).not.toContain("dispatch-3.1");
+    expect(openReading(bundle)).not.toContain(F);
+    expect(openReading(lineage())).not.toContain(F);
+    const refs = lineage().querySelector("details[data-exact-references]") as HTMLDetailsElement;
     expect(refs.open).toBe(false);
-    expect(answer.querySelector(".headline-card__body")?.lastElementChild).toBe(refs);
+    expect(lineage().lastElementChild?.contains(refs) || lineage().lastElementChild === refs).toBe(true);
     expect(Array.from(refs.querySelectorAll("dt")).map((dt) => dt.textContent)).toEqual([
       "Finding reference", "Shown version reference", "Latest version reference", "How the version was chosen", "Assessment method reference", "Cited set check code",
     ]);
-    // Exact selectors keep working from the card.
+    // Exact selectors keep working.
     expect(q("[data-evidence-back-to-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${R2}`);
     expect(q("[data-evidence-pin]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
-    // MissingClaims for coverage and use stay in place.
-    expect(q("[data-gap-id='G-finding-evidence-coverage']")).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.coverage");
-    expect(q("[data-gap-id='G-finding-evidence-use']")).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.use");
+    // MissingClaims for coverage and use stay in place, inside the evidence bundle.
+    expect(bundle.querySelector("[data-gap-id='G-finding-evidence-coverage']")).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.coverage");
+    expect(bundle.querySelector("[data-gap-id='G-finding-evidence-use']")).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.use");
     const w1 = scanProductVocabulary(main(), "finding evidence (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(40);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const disclosure = scanDisclosureVocabulary(answer, "finding evidence exact references");
+    const disclosure = scanDisclosureVocabulary(lineage(), "finding evidence exact references");
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.scanned).toBeGreaterThan(5);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
@@ -846,8 +863,9 @@ describe("W1-UX-02: Finding Evidence answer card", () => {
       selection: { revision_id: R1, revision_no: 1, selected_by: "EXACT_REVISION_ID", latest_revision_id: R2, is_latest: false, replay: "" },
     });
     const a = await mount(fake({ status: "loaded", value: earlier }), `?revision_id=${R1}`);
-    expect(expectStateLineVisible(card())).toBe("Earlier version, kept for the record");
-    expect(card().querySelector("[data-evidence-earlier-version] a")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
+    expect(expectStateLineVisible(stateBlock())).toBe("Earlier version, kept for the record");
+    expect(stateBlock().querySelector("[data-evidence-earlier-version] a")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
+    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
     let w1 = scanProductVocabulary(main(), "finding evidence earlier (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
     a.unmount();
@@ -859,7 +877,7 @@ describe("W1-UX-02: Finding Evidence answer card", () => {
       links: { ...base.links, performance: { status: "CLOSED" }, assessment_revisions: {} },
     });
     await mount(fake({ status: "loaded", value: closed }), `?revision_id=${R2}`);
-    expect(expectStateLineVisible(card())).toBe("For the record only");
+    expect(expectStateLineVisible(stateBlock())).toBe("For the record only");
     w1 = scanProductVocabulary(main(), "finding evidence record only (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });
@@ -871,11 +889,15 @@ describe("W1-UX-02: Finding Evidence answer card", () => {
       [record(1), tampered],
     );
     const a = await mount(fake({ status: "loaded", value: broken }));
-    expect(card().querySelector(".headline-card__headline")?.textContent).toBe("2 cited records; part of the record trail does not resolve");
+    expect(stateBlock().querySelector("[data-evidence-headline]")?.textContent).toBe("2 cited records; part of the record trail does not resolve");
     expect(steps()).toEqual([
       ["Accepted record", "done"], ["Delivery batch", "done"], ["Stored message", "problem"], ["Site setup", "done"], ["Assessment", "done"],
     ]);
-    expectStateLineVisible(card());
+    // W1-F3: the failing links are named inside Inspect source lineage.
+    expect(lineage().querySelector("[data-evidence-lineage-broken]")).toHaveTextContent("Some record links do not resolve.");
+    expect(lineage().querySelector(`[data-evidence-broken-record='${tampered.evidence_id}']`)).not.toBeNull();
+    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expectStateLineVisible(stateBlock());
     const w1 = scanProductVocabulary(main(), "finding evidence broken (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
     a.unmount();
@@ -883,17 +905,17 @@ describe("W1-UX-02: Finding Evidence answer card", () => {
     const odd = body({ lineage: { ...body().lineage, status: "BROKEN", set_breaks: [{ link: "ANOTHER_NEW_LINK", detail: "x" }] } });
     await mount(fake({ status: "loaded", value: odd }));
     expect(steps().every(([, state]) => state === "not-known")).toBe(true);
-    expectStateLineVisible(card());
+    expectStateLineVisible(stateBlock());
   });
 
   it("W1-UX-02: an unknown stored source is named beside the state line (S4-05), never as a positive source", async () => {
     await mount(fake({ status: "loaded", value: body() }));
-    const source = card().querySelector("[data-source-provenance-subject='evidence']") as HTMLElement;
+    const source = stateBlock().querySelector("[data-source-provenance-subject='evidence']") as HTMLElement;
     expect(source).toHaveAttribute("data-source-provenance", "UNKNOWN");
     expect(source).toHaveTextContent("Source unverified.");
-    expect(source.closest(".headline-card__status")).not.toBeNull();
+    expect(source.closest("[data-evidence-state] [data-product-status]")).not.toBeNull();
     expect(visibleOutsideClosedDisclosure(source)).toBe(true);
-    expectStateLineVisible(card());
+    expectStateLineVisible(stateBlock());
   });
 
   it.each([
@@ -901,12 +923,62 @@ describe("W1-UX-02: Finding Evidence answer card", () => {
     ["forbidden", "This cannot be shown to you"],
     ["closed", "Not released for use yet"],
     ["unavailable", "This could not be read right now"],
-  ] as const)("W1-UX-02: a %s read shows a plain state line, not an empty evidence list", async (status, label) => {
+  ] as const)("W1-F3: a %s read shows the page refusal with a plain state line and both panels with in-panel gaps, not an empty evidence list", async (status, label) => {
     const result = (status === "closed" ? { status, message: null, note: null } : { status, message: null }) as FindingReadResult<FindingEvidenceBody>;
     await mount(fake(result), "?revision_id=foreign");
-    expect(expectUntimedStateLine(card())).toBe(label);
+    expect(expectUntimedStateLine(q(`[data-page-refusal='${status}']`) as HTMLElement)).toBe(label);
     expect(q("[data-finding-evidence]")).toBeNull();
+    expect(q("[data-evidence-id]")).toBeNull();
+    expectV69Panels("finding-evidence", { finding: "Selected Finding" });
+    for (const title of ["Evidence bundle · Selected Finding", "Inspect source lineage"]) {
+      expect(panelTitled(title).querySelector("[data-evidence-panel-gap]")).toHaveTextContent(
+        "nothing is shown here, and this does not mean the Finding has no evidence",
+      );
+    }
     const w1 = scanProductVocabulary(main(), `finding evidence ${status} (W1)`, { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+});
+
+describe("W1-F3: finding-evidence renders exactly the v69 panels", () => {
+  const titles = () => Array.from(document.querySelectorAll("main h2")).map((h) => h.textContent);
+
+  it("stocked: the evidence bundle (Input / Source / Records / Coverage / Use, records, assessments) and source lineage", async () => {
+    await mount(fake({ status: "loaded", value: body() }));
+    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expect(titles()).toEqual([BUNDLE, "Inspect source lineage"]);
+    const bundle = panelTitled(BUNDLE);
+    const heads = Array.from(bundle.querySelectorAll("table[aria-labelledby='finding-evidence-inputs'] th")).map((th) => th.textContent);
+    expect(heads).toEqual(["Input", "Source", "Records", "Coverage", "Use"]);
+    expect(bundle.querySelectorAll("[data-evidence-input-coverage]")).toHaveLength(2);
+    expect(bundle.querySelectorAll("[data-evidence-id]")).toHaveLength(3);
+    expect(bundle.querySelectorAll("[data-evidence-assessment]").length).toBeGreaterThan(0);
+    expect(bundle.querySelector("[data-evidence-cited-vs-input]")).toHaveTextContent("263");
+    expect(panelTitled("Inspect source lineage").querySelector("[data-evidence-no-record-selected]")).not.toBeNull();
+  });
+
+  it("one record, selected: the inspector sits inside Inspect source lineage; still two panels", async () => {
+    const one = record(1);
+    await mount(fake({ status: "loaded", value: body({}, [one]) }), `?record=${one.evidence_id}`);
+    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expect(panelTitled("Inspect source lineage").querySelector(`[data-evidence-record='${one.evidence_id}']`)).not.toBeNull();
+    expect(panelTitled(BUNDLE).querySelectorAll("[data-evidence-id]")).toHaveLength(1);
+  });
+
+  it("no cited records and a not-confirmed version: the same two panels, titled with that Finding's title", async () => {
+    const base = body();
+    await mount(fake({ status: "loaded", value: body({ revision: { ...base.revision, lifecycle: "UNCONFIRMED" } }, []) }));
+    expectV69Panels("finding-evidence", { finding: "Generator support review: not confirmed" });
+    expect(stateBlock().querySelector("[data-evidence-headline]")).toHaveTextContent("This version cites no accepted records");
+  });
+
+  it("the demonstration-data note moved from the Finding overview stays visible in the evidence bundle", async () => {
+    const base = body();
+    const value = body({ provenance: { ...base.provenance, case_annotations: [{ kind: "DEMO_MANIFEST_GATEWAY_CASE" }] } });
+    await mount(fake({ status: "loaded", value }));
+    const note = panelTitled(BUNDLE).querySelector("[data-finding-case-notes='1']") as HTMLElement;
+    expect(note).toHaveTextContent("came through the site's registered gateway");
+    expect(note).toHaveTextContent("it does not change the result");
+    expect(visibleOutsideClosedDisclosure(note)).toBe(true);
   });
 });
