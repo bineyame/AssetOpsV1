@@ -840,12 +840,14 @@ function PriceHistory({
  */
 function ExactVersion({ body }: { body: AssumptionRevisionBody }) {
   const price = body.revision;
+  const inForce = body.assignments.filter((a) => a.recorded.to === null);
   return (
     <div role="region" aria-label={`Price version ${price.revision_no}`} data-price-exact-revision={price.revision_id}>
       <PriceFields price={price} valid={price.authored_valid} periodLabel="Entered as applying" />
-      {body.assignments.length > 0 ? (
-        <p className="v69-gap-line" data-price-exact-assignments={body.assignments.length}>
-          Applied: {body.assignments.map((a) => applies(a.valid)).join("; ")}.
+      {/* Only the periods still in force; replaced records stay in the panel's disclosure. */}
+      {inForce.length > 0 ? (
+        <p className="v69-gap-line" data-price-exact-assignments={inForce.length}>
+          Applied: {inForce.map((a) => applies(a.valid)).join("; ")}.
         </p>
       ) : null}
     </div>

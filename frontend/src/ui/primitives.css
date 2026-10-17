@@ -4867,6 +4867,6 @@ td .disclosure.disclosure--inline {
   font-size: inherit;
 }
 
-.product-status__bound--after {
-  margin-inline-start: 0.3em;
+.status-strip__state .product-status__bound--after {
+  margin-left: 0.3em;
 }
