@@ -9,7 +9,7 @@ import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
-import { PageHeader, plainTime, ProductStatus, readResultWords } from "../ui";
+import { PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import {
@@ -112,6 +112,7 @@ export function SiteFoundationFrame({
   }
 
   const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;
+  const screenDescription = SITE_SCREEN_DESCRIPTIONS[view === "model" ? "foundation" : view];
 
   const tabs = <OperatorSiteTabs siteId={siteId} current="Foundation" />;
   const parentTrail = (canonicalSiteId: string) => [
@@ -179,7 +180,12 @@ export function SiteFoundationFrame({
   if (at !== null && (state.foundation.status === "not_found" || state.foundation.status === "invalid")) {
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
-        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        <SitePageHeader
+          siteName={siteId ?? ""}
+          siteId={siteId ?? ""}
+          description={screenDescription}
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         {tabs}
         <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId ?? "", segmentFor(target), at, null)} />
         {/* W1-F1: the page-level refusal, then the view's v69 panel slots with in-panel gaps. */}
@@ -201,7 +207,7 @@ export function SiteFoundationFrame({
           />
           <p>{state.foundation.message}</p>
           <p>The configuration in effect now is not shown in its place.</p>
-          <button type="button" onClick={() => selectAt(null)}>
+          <button type="button" className="button primary" onClick={() => selectAt(null)}>
             Show the version in effect now
           </button>
         </div>
@@ -224,7 +230,12 @@ export function SiteFoundationFrame({
     // evidence that the Site has no stored records, so say only that.
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
-        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        <SitePageHeader
+          siteName={siteId ?? ""}
+          siteId={siteId ?? ""}
+          description={screenDescription}
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         {tabs}
         <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)} />
         <div className="page-refusal" role="status" data-page-refusal="unavailable">
@@ -255,7 +266,12 @@ export function SiteFoundationFrame({
     // snapshot, so these views would imply records it does not have.
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
-        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        <SitePageHeader
+          siteName={siteId ?? ""}
+          siteId={siteId ?? ""}
+          description={screenDescription}
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         {tabs}
         {/* No view row: a site that is not imported has no Readiness or SLD view to switch to. */}
         <div className="page-refusal" role="status" data-page-refusal="not-imported">

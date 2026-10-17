@@ -49,7 +49,8 @@ const PANEL_SELECTOR = "section.panel, .panel, [data-headline-card]";
 /** Page chrome above the content: breadcrumbs, page heading, tabs, subtabs. */
 const CHROME_SELECTOR = "nav, header.page-header";
 /** The only v69 patterns permitted between the chrome and panel 1. */
-const LEADING_SELECTOR = ".status-strip, [data-page-refusal], .v69-cards, .v69-chips, [data-selected-part-missing]";
+const LEADING_SELECTOR =
+  ".status-strip, [data-page-refusal], .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip]";
 /** Section-like elements that must not render outside a panel or leading pattern. */
 const STRAY_SELECTOR = "h3, h4, h5, h6, section, article, [role=region], .card, .callout";
 

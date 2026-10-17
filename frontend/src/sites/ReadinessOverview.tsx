@@ -27,7 +27,7 @@ import {
   MetricCards,
   MissingClaim,
   Panel,
-  type BadgeTone,
+  type MetricTone,
 } from "../ui";
 import type { EvidenceRead } from "./evidenceRead";
 import { formatInstant } from "./FoundationRevisionPanel";
@@ -55,10 +55,10 @@ const CARD_WORD: Record<CardState, string> = {
   UNKNOWN: "Unknown",
 };
 
-const CARD_TONE: Record<CardState, BadgeTone> = {
-  CONFIGURED: "configured",
-  NEEDS_CONFIGURATION: "config-gap",
-  UNKNOWN: "neutral",
+const CARD_METRIC_TONE: Record<CardState, MetricTone> = {
+  CONFIGURED: "green",
+  NEEDS_CONFIGURATION: "amber",
+  UNKNOWN: "muted",
 };
 
 const DEFINITION_CODES = ["SITE_CODE_INVALID", "SITE_NAME_MISSING", "SITE_TYPE_UNSUPPORTED", "SITE_TIMEZONE_INVALID"];
@@ -133,12 +133,13 @@ export function ReadinessCards({ foundation }: { foundation: FoundationReadModel
     // The v69 readiness metric row (Definition, Topology, Specifications, Controls).
     <MetricCards label="Configuration by category" data={{ "data-readiness-cards": "" }}>
       {readinessCards(foundation).map((card) => (
+        // W1-F1 fix round 1: the mock's `.metric.assessment` - a tone top border and the state word.
         <MetricCard
           key={card.key}
-          word
-          tone={card.state === "NEEDS_CONFIGURATION" ? "amber" : card.state === "UNKNOWN" ? "muted" : undefined}
+          assessment
+          tone={CARD_METRIC_TONE[card.state]}
           label={card.label}
-          value={<Badge tone={CARD_TONE[card.state]}>{CARD_WORD[card.state]}</Badge>}
+          value={CARD_WORD[card.state]}
           note={card.note}
           data={{ "data-readiness-card": card.key, "data-card-state": card.state }}
         />

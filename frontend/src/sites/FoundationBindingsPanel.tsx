@@ -10,7 +10,7 @@
  * no binding set at all is "Unknown".
  */
 
-import { useState, type FormEvent } from "react";
+import { Fragment, useState, type FormEvent } from "react";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, Panel, type BadgeTone } from "../ui";
 import type {
@@ -56,29 +56,13 @@ export function roleTone(role: ReadinessRole, state?: ConfigurationReadiness["st
   return role.required ? "config-gap" : "neutral";
 }
 
-/** The legend and scope line shown beside the verdict. */
-export function ReadinessLegend() {
-  return (
-    <>
-      <ul className="readiness-legend" aria-label="Readiness colour legend" data-readiness-legend="">
-        <li>
-          <Badge tone="configured">Configured / Set up to report</Badge> configured for this version (the verdict says Set up to report when every required role is)
-        </li>
-        <li>
-          <Badge tone="config-gap">Needs configuration</Badge> a known required role, control or declaration is missing
-        </li>
-        <li>
-          <Badge tone="neutral">Unknown</Badge> the configuration basis cannot be resolved
-        </li>
-      </ul>
-      <p className="readiness-scope" data-readiness-colour-scope="">
-        Colours describe configuration of the selected Foundation version only. Green does not mean
-        a device is connected, records have arrived, Evidence is accepted or equipment is in good
-        condition.
-      </p>
-    </>
-  );
-}
+/**
+ * The colour scope, as one `v69-chart-note` line under the Readiness table
+ * (W1-F1 fix round 1: the three-chip legend and its paragraphs are reduced to
+ * this line). The material limit stays visible beside the claim.
+ */
+export const READINESS_COLOUR_SCOPE =
+  "Colours describe configuration of the selected Foundation version only: green configured, amber a missing required role, control or declaration, grey an unresolved basis. Green does not mean a device is connected, records have arrived, Evidence is accepted or equipment is in good condition.";
 
 const ROLE_STATUS_WORD: Record<ReadinessRole["status"], string> = {
   CONFIGURED: "Configured",
@@ -139,60 +123,56 @@ function verdictSentence(readiness: ConfigurationReadiness): string {
 }
 
 /**
- * The set-up verdict and what is missing, inside the v69 "Readiness and
- * commissioning evidence" panel (W1-F1: no separate leading panel). Counts are
- * counts of configuration, never of readings.
+ * The set-up verdict as the lead of the Readiness strip, as the mock's
+ * `Needs review · Configuration readiness is distinct from claim readiness`
+ * (W1-F1 fix round 1). Configuration only; never connection or condition.
  */
-export function ReadinessVerdict({ foundation }: { foundation: FoundationReadModel }) {
+export function ReadinessVerdictLead({ foundation }: { foundation: FoundationReadModel }) {
   const { readiness } = foundation;
-  const missing = readiness.roles.filter((role) => role.required && role.status !== "CONFIGURED");
-
+  const known = knownReadiness(readiness.state);
   return (
-    <div className="subsection readiness-verdict" data-readiness-verdict="">
-      <h3 className="subsection__heading" id={FOUNDATION_READINESS_HEADING_ID}>
-        Configuration readiness
-      </h3>
-      <p className="muted">
-        Configuration readiness is distinct from what the readings can support, which is on Site Evidence, and from
-        gateway contact, which is reported separately below.
+    <span className="readiness-verdict-lead" data-readiness-verdict="" data-readiness-state={readiness.state}>
+      <span className="verdict__state">
+        {/* W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised state is neutral and says so, never blank. */}
+        <Badge tone={known ? READINESS_TONE[readiness.state] : "neutral"}>
+          {known ? READINESS_WORD[readiness.state] : "Set-up state not recognised"}
+        </Badge>
+      </span>{" "}
+      <span>Configuration readiness is distinct from what the readings can support</span>
+    </span>
+  );
+}
+
+/**
+ * The verdict's reason and the colour scope, as two `v69-chart-note` lines under
+ * the Readiness table: why the verdict is what it is, the Foundation gaps by
+ * name (configuration, not channel links), the read's own limit statement, and
+ * what the colours do and do not mean. Counts are of configuration, never readings.
+ */
+export function ReadinessVerdictNotes({ foundation }: { foundation: FoundationReadModel }) {
+  const { readiness } = foundation;
+  return (
+    <>
+      <p className="v69-chart-note" data-readiness-verdict-note="">
+        <span className="verdict__sentence">{verdictSentence(readiness)}</span>
+        {readiness.foundation_gaps.length > 0 ? (
+          <span data-readiness-gaps="">
+            {" Foundation gaps (configuration, not channel links): "}
+            {readiness.foundation_gaps.map((gap, index) => (
+              <Fragment key={`${gap.code}:${gap.subject}`}>
+                {index > 0 ? "; " : null}
+                <span data-readiness-gap={gap.code}>{gap.message}</span>
+              </Fragment>
+            ))}
+            .
+          </span>
+        ) : null}{" "}
+        <span data-readiness-statement="">{readiness.statement}</span>
       </p>
-      <div className="verdict" data-readiness-state={readiness.state}>
-        <p className="verdict__state">
-          {/* W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised state is neutral and says so, never blank. */}
-          <Badge tone={knownReadiness(readiness.state) ? READINESS_TONE[readiness.state] : "neutral"}>{knownReadiness(readiness.state) ? READINESS_WORD[readiness.state] : "Set-up state not recognised"}</Badge>
-        </p>
-        <p className="verdict__sentence">{verdictSentence(readiness)}</p>
-      </div>
-      <ReadinessLegend />
-      {missing.length > 0 ? (
-        <div data-readiness-missing="">
-          <h3 className="subsection__heading">What is missing</h3>
-          <ul>
-            {missing.map((role) => (
-              <li key={role.role} data-readiness-missing-role={role.role}>
-                <strong>{role.label}</strong>: {ROLE_STATUS_WORD[role.status].toLowerCase()}.{" "}
-                {role.covered_by === "FOUNDATION_CONTROL"
-                  ? "This is a Foundation control; set it in the Site model."
-                  : "No channel in the channel-link set shown is bound to this role."}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-      {readiness.foundation_gaps.length > 0 ? (
-        <div data-readiness-gaps="">
-          <p>Foundation gaps (configuration, not channel links):</p>
-          <ul>
-            {readiness.foundation_gaps.map((gap) => (
-              <li key={`${gap.code}:${gap.subject}`} data-readiness-gap={gap.code}>
-                {gap.message}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-      <p>{readiness.statement}</p>
-    </div>
+      <p className="v69-chart-note" data-readiness-colour-scope="">
+        {READINESS_COLOUR_SCOPE}
+      </p>
+    </>
   );
 }
 
