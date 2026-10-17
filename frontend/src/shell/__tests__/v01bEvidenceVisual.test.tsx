@@ -12,6 +12,7 @@ import {
   EVIDENCE_UUID,
   GATEWAY_HEALTH,
   LEDGER_EVIDENCE,
+  LEDGER_PAGE,
   LEDGER_RECORD,
   LEDGER_REJECTIONS,
   ledgerClient,
@@ -94,6 +95,8 @@ function renderAt(path: string, evidence: SiteEvidenceClient) {
   );
 }
 
+const V69_EVIDENCE_ANALYSIS_TITLE = "How each limit is set";
+
 function panel(heading: string): HTMLElement {
   return screen.getByRole("heading", { name: heading }).closest("section") as HTMLElement;
 }
@@ -166,7 +169,9 @@ describe("V-01b Site Evidence overview", () => {
 
     const next = panel("Most useful next evidence");
     const silentList = next.querySelector("[data-evidence-silent-sources]") as HTMLElement;
-    expect(silentList.textContent).toContain("fuel-level-sensor");
+    // Review fix M5(b): the silent source is named once, in words; its exact identifier is the item title.
+    expect(silentList.textContent).toContain("Fuel level sensor");
+    expect(silentList.querySelector("li[title='fuel-level-sensor']")).not.toBeNull();
     expect(silentList.textContent).not.toContain("kobo-inverter-1");
     expect(next.textContent).toMatch(/a fact, not a recommendation/);
   });
@@ -193,14 +198,15 @@ describe("V-01b Site Evidence overview", () => {
     const w1 = scanProductVocabulary(main, `${EVIDENCE_URL} (W1)`, { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(10);
     expect(describeViolations(w1.violations)).toBe("");
-    const card = document.querySelector("[data-headline-card='evidence-conclusion']") as HTMLElement;
+    const card = document.querySelector("[data-evidence-conclusion]") as HTMLElement;
     const disclosure = scanDisclosureVocabulary(card, "evidence conclusion disclosure");
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.scanned).toBeGreaterThan(2);
     expect(describeViolations(disclosure.violations)).toBe("");
     expect(expectStateLineVisible(card)).toBe("Readings received and accepted");
     // The destination keeps the selected period.
-    const link = card.querySelector("[data-evidence-analysis-link]") as HTMLElement;
+    // W1-F2: the destination is the v69 panel-head link of "What we can conclude now".
+    const link = panel("What we can conclude now").querySelector("[data-evidence-analysis-link]") as HTMLElement;
     expect(link.getAttribute("href")).toContain("view=analysis");
     expect(link.getAttribute("href")).toContain("from=2026-09-22");
   });
@@ -219,12 +225,36 @@ describe("V-01b Site Evidence analysis", () => {
     expect(records.querySelector(".panel__description")?.textContent).toBe("Measured time is kept even when a report arrives late");
     // Read for the whole site in the selected window when no source is chosen.
     expect(client.recordQueries.at(-1)).toMatchObject({ source: null, device: null, signal: null, cursor: null, limit: 10 });
-    const heads = Array.from(records.querySelectorAll("thead th")).map((th) => th.textContent);
+    // W1-F2: the panel also holds the readings-not-accepted part and closed record disclosures; the first table is
+    // the accepted records list.
+    const heads = Array.from(records.querySelector("table")?.querySelectorAll("thead th") ?? []).map((th) => th.textContent);
     expect(heads).toEqual(["Source · reading", "Value", "Taken", "Sent", "Received", "Record"]);
     expect(within(records).getByRole("button", { name: `Open record ${EVIDENCE_UUID}` })).toBeTruthy();
 
-    const limit = panel("How each limit is set");
+    const limit = panel(V69_EVIDENCE_ANALYSIS_TITLE);
     expect(limit.textContent).toContain("Data-source status describes reporting, not equipment condition");
+    // Review fix H2: the mock's two paragraphs; the assessment chooser is in the page chip row, not the panel; no
+    // answer-card label and no repeat of the Overview's "This page states what arrived" line.
+    expect(limit.querySelector("[data-evidence-limit-note]")?.textContent).toContain("a source can be online while the equipment it watches is faulty");
+    // Fix round 2 (M1): the physical-capacity caveat is visible; one closed top-level disclosure; no-selection is one line.
+    expect(limit.querySelector("[data-evidence-limit-note]")?.textContent).toContain("not the equipment's physical capacity");
+    expect(limit.querySelector("[data-evidence-limit-note]")?.closest("details")).toBeNull();
+    const top = limit.querySelectorAll("details:not(details details)");
+    expect(top.length).toBe(1);
+    expect((top[0] as HTMLDetailsElement).open).toBe(false);
+    expect((top[0] as HTMLElement).dataset.disclosure).toBe("evidence-limit-details");
+    expect(top[0].querySelector("[data-evidence-claim-limit-list]")).not.toBeNull();
+    expect(limit.querySelector("[data-not-available='claim-limit-rule']")?.closest("details")).toBeNull();
+    expect(limit.textContent?.match(/nothing is concluded/gi) ?? []).toHaveLength(1);
+    expect(limit.textContent).toContain("No assessment selected");
+    expect(limit.textContent).toContain("Choose a day, then one of its assessed periods.");
+    expect(limit.textContent).not.toContain("No assessment exists");
+    expect(limit.querySelector(".product-status:not(.product-status--inline)")).toBeNull();
+    expect(limit.textContent).toContain("Each conclusion lists the readings it needs.");
+    expect(limit.textContent).not.toContain("This page states what arrived");
+    expect(limit.querySelector(".headline-card__question, h3:not(details h3)")).toBeNull();
+    expect(limit.querySelector("[data-claim-limit-day-form]")).toBeNull();
+    expect(document.querySelector(".v69-chips [data-claim-limit-day-form] input.v69-chip-control[type='date']")).not.toBeNull();
     expect(limit.querySelector("[data-not-available='claim-limit-rule']")?.textContent).toBe(
       "Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).",
     );
@@ -254,6 +284,49 @@ describe("V-01b Site Evidence analysis", () => {
     const visible = document.querySelector("[data-evidence-not-accepted-line]") as HTMLElement;
     expect(visible.closest("details")).toBeNull();
     expect(visible.textContent).toMatch(/3 readings in this period were not accepted/);
+  });
+
+  it("W1-F2 compaction: records show three rows then 'Show all'; the technical rows are one closed row each", async () => {
+    const [first] = LEDGER_PAGE.records;
+    const records = [1, 2, 3, 4, 5].map((n) => ({ ...first, evidence_id: `${first.evidence_id.slice(0, -1)}${n}` }));
+    const client = ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE });
+    (client.ledger as { listRecords: unknown }).listRecords = () =>
+      Promise.resolve({ status: "loaded", value: { ...LEDGER_PAGE, records, total: 5, next_cursor: null } });
+    renderAt(ANALYSIS_URL, client);
+    await settledScreen();
+    const rows = Array.from(document.querySelectorAll<HTMLTableRowElement>("tr[data-evidence-record]"));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true, true]);
+    fireEvent.click(screen.getByRole("button", { name: "Show all 5 readings" }));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false, false]);
+    expect(document.querySelector("[data-evidence-records-count]")?.closest("details")).toBeNull();
+    // The record and analysis technical disclosures each sit in one closed outer row.
+    for (const [outer, inner] of [
+      ["evidence-records-technical", ["evidence-not-accepted", "evidence-clocks", "evidence-sources", "evidence-deliveries", "evidence-coverage"]],
+      ["evidence-limit-details", ["evidence-limit-list", "evidence-analysis-technical", "evidence-analysis-status", "evidence-comparison", "evidence-gateway"]],
+    ] as const) {
+      const details = document.querySelector(`details[data-disclosure='${outer}']`) as HTMLDetailsElement;
+      expect(details.open, outer).toBe(false);
+      for (const name of inner) expect(details.querySelector(`details[data-disclosure='${name}']`), name).not.toBeNull();
+    }
+  });
+
+  it("W1-F2 compaction: Data sources shows the three facts and three sources; strip, clocks and gateway report sit in a closed row", async () => {
+    const sources = [0, 1, 2, 3].map((n) => ({ ...SILENT_SOURCE, source_id: `${SILENT_SOURCE.source_id.slice(0, -1)}${n + 5}`, external_id: `sensor-${n}` }));
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: ledgerEvidence({ sources }) }));
+    await settledScreen();
+    const panelEl = panel("Data sources · data quality, not equipment condition");
+    const rows = Array.from(panelEl.querySelectorAll<HTMLTableRowElement>("tr[data-evidence-source]"));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true]);
+    fireEvent.click(within(panelEl).getByRole("button", { name: "Show all 4 sources" }));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false]);
+    const details = panelEl.querySelector("details[data-disclosure='evidence-sources-detail']") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    for (const inner of ["[data-period-strip='evidence-sources']", "[data-evidence-source-clocks]", "[data-gateway-contact]"]) {
+      expect(details.querySelector(inner), inner).not.toBeNull();
+    }
+    for (const visible of ["[data-evidence-reporting-facts]", "[data-evidence-reporting-note]", "[data-not-available='source-judgements']"]) {
+      expect(panelEl.querySelector(visible)?.closest("details"), visible).toBeNull();
+    }
   });
 
   it("shows a conflicting reading beside the original reading's taken time and opens it", async () => {
@@ -325,19 +398,41 @@ describe("V-01b Site Evidence analysis", () => {
     expect(contact.textContent).not.toMatch(/Every gateway is in contact/);
   });
 
+  it("W1-F2 compaction: a switched-off gateway is stated in the visible contact fact, outside the closed gateway block", async () => {
+    const [first] = GATEWAY_HEALTH.gateways;
+    const off = { ...GATEWAY_HEALTH, gateways: [{ ...first, registration: "DISABLED" }] };
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: TWO_SOURCES }, { health: { status: "loaded", value: off } }));
+    await settledScreen();
+    const contact = document.querySelector("[data-evidence-reporting-fact='contact']") as HTMLElement;
+    expect(contact.textContent).toContain("This gateway is currently switched off for this site.");
+    expect(contact.closest("details")).toBeNull();
+    // The tone is unchanged by the added statement (never made more positive).
+    expect(contact.dataset.factTone).toBe("known");
+  });
+
+  it("W1-F2 compaction: a gateway that is not switched off adds no switched-off wording to the contact fact", async () => {
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: TWO_SOURCES }));
+    await settledScreen();
+    const contact = document.querySelector("[data-evidence-reporting-fact='contact']") as HTMLElement;
+    expect(contact.textContent).not.toMatch(/switched off/);
+  });
+
   it("W1-UX-03: the Evidence Analysis view uses the W1 set", async () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }, { rejections: { status: "loaded", value: WITH_CONFLICT } }));
     await settledScreen();
     const main = document.querySelector("main") as HTMLElement;
     const w1 = scanProductVocabulary(main, `${ANALYSIS_URL} (W1)`, { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(10);
+    // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
     expect(describeViolations(w1.violations)).toBe("");
-    expect(main.querySelector("[data-evidence-analysis-question]")?.textContent).toMatch(/Which accepted readings sit behind/);
+    // W1-F2: the mock has no question line; the statusbar states what the view holds.
+    expect(main.querySelector("[data-evidence-analysis-question]")?.textContent).toMatch(/Accepted records, timing and how each limit is set/);
   });
 
   it("uses no implementation vocabulary", async () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }, { rejections: { status: "loaded", value: WITH_CONFLICT } }));
     await settledScreen();
+    // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
     expect(scanProductVocabulary(document.body, ANALYSIS_URL).violations).toEqual([]);
   });
 });

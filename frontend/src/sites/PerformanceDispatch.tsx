@@ -13,10 +13,24 @@
  * alternatives and Finding comparison are shown as not yet available.
  * Demonstration-data notes sit apart from the accepted-record provenance.
  */
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { currentnessWords, DataTable, Disclosure, ExactReferences, Fact, FactList, HeadlineVisualCard, Panel, ProductStatus, type ProductWords } from "../ui";
+import {
+  ChartNote,
+  currentnessWords,
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  Fact,
+  FactList,
+  MetricCard,
+  MetricCards,
+  Panel,
+  ProductStatus,
+  StatusBar,
+  type ProductWords,
+} from "../ui";
 import {
   clock,
   constraintWords,
@@ -136,33 +150,39 @@ export function PerformanceDispatch({
     return <p>Loading the site&apos;s assessments.</p>;
   }
 
+  const refused = (name: string, title: string, reason: ReactNode, extra?: ReactNode) => (
+    <DispatchRefused view={view} name={name} title={title} reason={reason} extra={extra} />
+  );
   return (
-    <section aria-labelledby="site-dispatch-heading" className="dispatch-view durable-dispatch">
-      <h2 id="site-dispatch-heading" className="identity-heading">
-        Was the generator needed?
-      </h2>
+    // W1-F2: a plain wrapper, not a section: no section may sit outside the v69 panels.
+    <div className="dispatch-view durable-dispatch" data-dispatch-root>
+      {/* The day picker is the v69 chip row before panel 1 (chip-sized controls). */}
       <LocalViews label={DURABLE_DISPATCH_VIEWS_LABEL} current={view} params={params} />
       <DayPicker day={day} onDay={(next) => choose({ day: next, revision: null, block: null })} />
       {cutover.status !== "loaded" ? (
-        <Panel heading="Dispatch unavailable" headingId="durable-dispatch-unavailable-heading">
-          <p data-dispatch-cutover="unreadable">
+        refused(
+          "cutover-unreadable",
+          "Dispatch unavailable",
+          <span data-dispatch-cutover="unreadable">
             {cutover.status === "unavailable" && cutover.message !== null
               ? cutover.message
               : "Whether the stored dispatch assessment may be shown could not be checked."}
-          </p>
-        </Panel>
+          </span>,
+        )
       ) : !cutover.value.permitted ? (
         <ClosedCutover state={cutover.value} view={view} />
       ) : windowRead === null ? (
         <p>Loading the site&apos;s assessments.</p>
       ) : windowRead.status !== "loaded" ? (
-        <Panel heading="Dispatch unavailable" headingId="durable-dispatch-window-unavailable-heading">
-          <p data-dispatch-window="unreadable">
+        refused(
+          "window-unreadable",
+          "Dispatch unavailable",
+          <span data-dispatch-window="unreadable">
             {windowRead.status === "not_found"
               ? "This site has no dispatch assessment record."
               : (windowRead.message ?? "The selected day could not be read.")}
-          </p>
-        </Panel>
+          </span>,
+        )
       ) : (
         <WindowView
           siteId={siteId}
@@ -177,7 +197,87 @@ export function PerformanceDispatch({
           findings={findings && findingHref ? { client: findings, href: findingHref } : null}
         />
       )}
-    </section>
+    </div>
+  );
+}
+
+/**
+ * W1-F2 (D-2026-10-17-mockup-layout-spec): the v69 `dispatch` and `analysis` panel grids. Both are a
+ * two-column pair followed by one full-width panel; `between` is the mock's notice slot.
+ */
+function DispatchSlots({
+  view,
+  interval,
+  first,
+  second,
+  third,
+  between,
+}: {
+  view: "overview" | "analysis";
+  /** The selected block or period, for the approved dynamic title `Selected block · {interval}`. */
+  interval: string;
+  first: { body: ReactNode; description?: ReactNode };
+  second: { body: ReactNode; description?: ReactNode };
+  third: { body: ReactNode; description?: ReactNode; actions?: ReactNode };
+  between?: ReactNode;
+}) {
+  const titles =
+    view === "analysis"
+      ? ["Constraint comparison", "Bounded fuel calculation", "Coverage, confidence and alternatives"]
+      : ["Sources and 15-minute blocks", `Selected block · ${interval}`, "Accepted sample coverage"];
+  const ids =
+    view === "analysis"
+      ? ["durable-dispatch-constraints-heading", "durable-dispatch-gated-heading", "durable-dispatch-confidence-heading"]
+      : ["durable-dispatch-blocks-heading", "durable-dispatch-selected-heading", "durable-dispatch-coverage-heading"];
+  return (
+    <>
+      <div className="panel-pair">
+        <Panel heading={titles[0]} headingId={ids[0]} description={first.description}>
+          {first.body}
+        </Panel>
+        <Panel heading={titles[1]} headingId={ids[1]} description={second.description}>
+          {second.body}
+        </Panel>
+      </div>
+      {between}
+      <Panel heading={titles[2]} headingId={ids[2]} description={third.description} actions={third.actions}>
+        {third.body}
+      </Panel>
+    </>
+  );
+}
+
+/** A page-level refusal before the panel slots; each slot states the same gap inside it. */
+function DispatchRefused({
+  view,
+  name,
+  title,
+  reason,
+  extra,
+}: {
+  view: "overview" | "analysis";
+  name: string;
+  title: string;
+  reason: ReactNode;
+  extra?: ReactNode;
+}) {
+  const gap = <p data-dispatch-gap={name}>Not shown: {title.toLowerCase()}. Nothing is put in its place.</p>;
+  return (
+    <div className="durable-dispatch__body" data-dispatch-refused={name}>
+      <div className="page-refusal" data-page-refusal={name}>
+        <p className="page-refusal__title">
+          <strong>{title}</strong>
+        </p>
+        <p>{reason}</p>
+      </div>
+      <DispatchSlots
+        view={view}
+        interval="No block selected"
+        first={{ body: gap }}
+        second={{ body: gap }}
+        third={{ body: <>{gap}{extra}</> }}
+      />
+    </div>
   );
 }
 
@@ -191,18 +291,24 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
     }
   };
   return (
-    <form className="dispatch-day" onSubmit={submit} aria-label="Assessed day">
-      <button type="button" className="dispatch-day__button" onClick={() => onDay(shiftDay(day, -1))}>
+    <form className="v69-chips dispatch-day" onSubmit={submit} aria-label="Assessed day">
+      <button type="button" className="button" onClick={() => onDay(shiftDay(day, -1))}>
         Previous day
       </button>
-      <label>
+      <label className="dispatch-day__label">
         Day (UTC){" "}
-        <input type="date" value={draft} onChange={(event) => setDraft(event.target.value)} data-dispatch-day={day} />
+        <input
+          className="v69-chip-control"
+          type="date"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          data-dispatch-day={day}
+        />
       </label>
-      <button type="submit" className="dispatch-day__button">
+      <button type="submit" className="button">
         Show
       </button>
-      <button type="button" className="dispatch-day__button" onClick={() => onDay(shiftDay(day, 1))}>
+      <button type="button" className="button" onClick={() => onDay(shiftDay(day, 1))}>
         Next day
       </button>
     </form>
@@ -212,32 +318,37 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
 function ClosedCutover({ state, view }: { state: CutoverState; view: "overview" | "analysis" }) {
   const technical = view === "analysis";
   return (
-    <>
-      <Panel heading="Dispatch results are not shown yet" headingId="durable-dispatch-closed-heading">
-        <div data-closed-plain>
-          <p data-dispatch-cutover="closed">
+    <DispatchRefused
+      view={view}
+      name="closed"
+      title="Dispatch results are not shown yet"
+      reason={
+        <span data-closed-plain>
+          <span data-dispatch-cutover="closed">
             The stored dispatch assessment for this site is not shown until it has been checked against the
             earlier results and its records are complete. Nothing is shown in its place.
-          </p>
+          </span>{" "}
           {technical ? (
-            <p className="chart-note" data-dispatch-cutover-reason>
+            <span className="chart-note" data-dispatch-cutover-reason>
               {state.unavailable ? "The check could not be read: " : "Why: "}
               {state.reason}
-            </p>
+            </span>
           ) : (
-            <p className="chart-note" data-dispatch-cutover-plain>
+            <span className="chart-note" data-dispatch-cutover-plain>
               {state.unavailable
                 ? "The check could not be read, so nothing can be shown yet."
                 : state.comparison
                   ? "The check against the earlier results found differences that still need to be resolved."
                   : "The check against the earlier results has not been completed."}{" "}
               The Analysis view has the full detail.
-            </p>
+            </span>
           )}
-        </div>
-      </Panel>
-      {state.comparison ? technical ? <ComparisonPanel summary={state.comparison} /> : <ComparisonLine summary={state.comparison} /> : null}
-    </>
+        </span>
+      }
+      extra={
+        state.comparison ? technical ? <ComparisonDetail summary={state.comparison} /> : <ComparisonLine summary={state.comparison} /> : null
+      }
+    />
   );
 }
 
@@ -292,10 +403,32 @@ function WindowView({
       ? (selected.result.segments[blockIndex] ?? null)
       : null;
 
+  const interval =
+    segment !== null
+      ? `${clock(segment.start)}–${clock(segment.end)} UTC`
+      : selected !== null
+        ? `${clock(selected.result.interval.first_on)}–${selected.result.interval.last_on ? clock(selected.result.interval.last_on) : "open"} UTC`
+        : "No block selected";
+  const notes = read.demo_annotations.length > 0 ? <DemoNotes notes={read.demo_annotations} /> : null;
+
   return (
     <div className="durable-dispatch__body" data-dispatch-status={read.status}>
-      {view === "analysis" ? <StatusLine read={read} storedNotCurrent={selected !== null && inWindow === null} /> : null}
-      {read.demo_annotations.length > 0 ? <DemoNotes notes={read.demo_annotations} /> : null}
+      <StatusBar
+        data={{ "data-dispatch-statusbar": view }}
+        action={
+          view === "analysis" ? undefined : (
+            <Link to={{ search: localViewSearch(params, "analysis") }} data-dispatch-analysis-link>
+              How this was worked out ›
+            </Link>
+          )
+        }
+      >
+        <StatusLine
+          read={read}
+          storedNotCurrent={view === "analysis" && selected !== null && inWindow === null}
+          totalsStale={view !== "analysis" && read.stale && read.intervals.length > 0}
+        />
+      </StatusBar>
       {view === "analysis" ? (
         <AnalysisView
           read={read}
@@ -304,72 +437,81 @@ function WindowView({
           segment={segment}
           comparison={comparison}
           detail={loaded}
+          interval={interval}
+          notes={notes}
         />
       ) : (
         <>
-          <HeadlineVisualCard
-            dataName="dispatch-story"
-            headingId="durable-dispatch-story-heading"
-            title="Why the generator operated"
-            description="Classifications describe the readings, not equipment condition"
-            question="Why did the generator operate, and what can the readings support?"
-            headline={<span data-dispatch-headline>{dayHeadline(read)}</span>}
-            status={<StatusLine read={read} />}
-            visual={
-              <>
-                <DayBlockStrip read={read} selected={selected} blockIndex={segment === null ? null : blockIndex} params={params} />
-                <DayTotals read={read} />
-              </>
-            }
-            meaning={
-              <>
-                <p data-dispatch-question>
-                  For each period the generator operated, this asks whether the available solar power and the battery
-                  could have met the site demand instead. A period, or a 15-minute block of one, is Needed (a recorded
-                  reason required the generator), Possibly avoidable (the reported available solar power and battery
-                  output limit were above the demand; a bounded estimate, not proof of wasted fuel) or Cannot
-                  determine (records needed are missing or conflicting). Times are UTC.
-                </p>
-                <LimitationSummary read={read} />
-              </>
-            }
-            destination={
-              <Link to={{ search: localViewSearch(params, "analysis") }} data-dispatch-analysis-link>
-                Open Dispatch › Analysis for how the readings lead to each outcome
-              </Link>
-            }
-            references={<DispatchReferences read={read} />}
+          <DayTotals read={read} />
+          <DispatchSlots
+            view="overview"
+            interval={interval}
+            between={notes}
+            first={{
+              description: `Selected day · ${read.window.start.slice(0, 10)} UTC`,
+              body: (
+                <>
+                  {/* W1-F2: the mock's one segment strip and its chart-note; the lead answer is one line. */}
+                  <ChartNote data={{ "data-dispatch-headline": "" }}>{dayHeadline(read)}</ChartNote>
+                  <DayBlockStrip read={read} selected={selected} blockIndex={segment === null ? null : blockIndex} params={params} />
+                  {/* W1-F2 fix round (H1): the period chips and the selectable block tiles sit under the strip,
+                      as the mock's chart above its row of 15-minute tiles. */}
+                  <PeriodsAndBlocks
+                    read={read}
+                    selected={selected}
+                    blockIndex={segment === null ? null : blockIndex}
+                    onPeriod={(id) => choose({ revision: id, block: null })}
+                    onBlock={(id, index) => choose({ revision: id, block: String(index) })}
+                  />
+                  <PeriodsEmpty read={read} />
+                  <ChartNote data={{ "data-dispatch-question": "" }}>
+                    Select a block to see what the readings show. Gaps between reports are not filled in. Times are UTC.
+                  </ChartNote>
+                  <LimitationSummary read={read} />
+                  <Disclosure summary="What the outcomes mean" name="dispatch-outcomes">
+                    <p data-dispatch-outcome-meanings>
+                      Needed: a recorded reason required the generator. Possibly avoidable: the reported available
+                      solar power and battery output limit were above the demand (a bounded estimate, not proof of
+                      wasted fuel). Cannot determine: records needed are missing or conflicting.
+                    </p>
+                  </Disclosure>
+                  <DispatchReferences read={read} />
+                </>
+              ),
+            }}
+            second={{
+              body: (
+                <>
+                  <SelectedPeriod
+                    read={read}
+                    revisionId={revisionId}
+                    inWindow={inWindow}
+                    detail={detail}
+                    segment={segment}
+                    analysisSearch={localViewSearch(params, "analysis")}
+                  />
+                  {findings ? <DayFindings siteId={siteId} day={read.window.start.slice(0, 10)} findings={findings} /> : null}
+                </>
+              ),
+            }}
+            third={{
+              body: (
+                <>
+                  {/* W1-F2 compaction: the mock's compact coverage table and note lines; the full list of limits,
+                      what a reading is and the accepted records sit in one closed disclosure. */}
+                  <CoverageBody read={read} />
+                  {comparison ? <ComparisonLine summary={comparison} note /> : null}
+                  <CoverageDetail read={read}>
+                    {loaded !== null ? (
+                      <EvidenceRecords detail={loaded} segment={segment} windowNote={read.demo_annotations} />
+                    ) : null}
+                  </CoverageDetail>
+                </>
+              ),
+            }}
           />
-          {findings ? <DayFindings siteId={siteId} day={read.window.start.slice(0, 10)} findings={findings} /> : null}
-          <div className="durable-dispatch__pair">
-            <Panel heading="Generator periods and 15-minute blocks" headingId="durable-dispatch-blocks-heading">
-              <PeriodsAndBlocks
-                read={read}
-                selected={selected}
-                blockIndex={segment === null ? null : blockIndex}
-                onPeriod={(id) => choose({ revision: id, block: null })}
-                onBlock={(id, index) => choose({ revision: id, block: String(index) })}
-              />
-            </Panel>
-            <Panel heading="Selected period" headingId="durable-dispatch-selected-heading">
-              <SelectedPeriod
-                read={read}
-                revisionId={revisionId}
-                inWindow={inWindow}
-                detail={detail}
-                segment={segment}
-                analysisSearch={localViewSearch(params, "analysis")}
-              />
-            </Panel>
-          </div>
-          <LimitationsPanel read={read} />
-          <CoveragePanel read={read} />
-          {comparison ? <ComparisonLine summary={comparison} /> : null}
         </>
       )}
-      {loaded !== null && view === "overview" ? (
-        <EvidencePanel detail={loaded} segment={segment} windowNote={read.demo_annotations} />
-      ) : null}
     </div>
   );
 }
@@ -460,27 +602,46 @@ function storedVersionWords(read: DispatchWindow): ProductWords {
   };
 }
 
-function StatusLine({ read, storedNotCurrent = false }: { read: DispatchWindow; storedNotCurrent?: boolean }) {
+/**
+ * The day's state line inside the one-line status strip (W1-F2): spans only, never a block. The
+ * not-current totals sentence rides on the same line when the Overview shows the day's totals.
+ */
+function StatusLine({
+  read,
+  storedNotCurrent = false,
+  totalsStale = false,
+}: {
+  read: DispatchWindow;
+  storedNotCurrent?: boolean;
+  totalsStale?: boolean;
+}) {
   const words = storedNotCurrent ? storedVersionWords(read) : statusWords(read.status);
   return (
-    <div
+    <span
       className={`dispatch-status dispatch-status--${storedNotCurrent ? "historical" : read.status.toLowerCase()}`}
-      role="status"
       data-dispatch-status-label={read.status}
       data-dispatch-shown={storedNotCurrent ? "stored-not-current" : "day"}
     >
-      <ProductStatus words={words} scope={dayScope(read)} asOf={read.current_basis?.read_at ?? null}>
+      <ProductStatus inline words={words} scope={dayScope(read)} asOf={read.current_basis?.read_at ?? null}>
         {read.status_reasons.length > 0 ? (
-          <ul className="dispatch-status__reasons">
+          <span className="dispatch-status__reasons">
             {read.status_reasons.map((reason) => (
-              <li key={reason} data-status-reason={reason.split(":")[0]}>
+              <span key={reason} className="dispatch-status__reason" data-status-reason={reason.split(":")[0]}>
                 {reasonWords(reason)}
-              </li>
+              </span>
             ))}
-          </ul>
+          </span>
         ) : null}
       </ProductStatus>
-    </div>
+      {totalsStale ? (
+        <>
+          {" "}
+          <span className="dispatch-status__totals" data-totals-stale>
+            {statusWords(read.status).label}: these totals come from an earlier result and are not current.
+          </span>
+        </>
+      ) : null}
+    </span>
   );
 }
 
@@ -604,12 +765,11 @@ function DayBlockStrip({
 function LimitationSummary({ read }: { read: DispatchWindow }) {
   const groups = groupLimitations(read.limitations);
   if (groups.length === 0) return null;
+  // W1-F2: one chart-note line beside the strip; the full list stays in the coverage panel.
   return (
-    <ul data-dispatch-limitation-summary>
-      {groups.map((g) => (
-        <li key={g.code}>{limitationWords(g.code)}</li>
-      ))}
-    </ul>
+    <ChartNote data={{ "data-dispatch-limitation-summary": "" }}>
+      Limits: {groups.map((g) => limitationWords(g.code)).join("; ")}.
+    </ChartNote>
   );
 }
 
@@ -633,26 +793,42 @@ function DayTotals({ read }: { read: DispatchWindow }) {
     ],
     ["Cannot determine", portionText(portion(read, "indeterminate")), "Records missing or conflicting", "unknown"],
   ];
+  // The not-current totals sentence is on the status line (`StatusLine totalsStale`); each card says "Not current." too.
   return (
     <>
-      {read.stale ? (
-        <p className="dispatch-pinned" data-totals-stale>
-          {statusWords(read.status).label}: these totals come from an earlier result and are not current.
-        </p>
-      ) : null}
-      <ul className="dispatch-cards" aria-label="Day totals">
+      <MetricCards label="Day totals">
         {cards.map(([label, value, note, key]) => (
-          <li key={key} className="dispatch-card" data-total={key} data-stale={read.stale ? "true" : undefined}>
-            <span className="dispatch-card__label">{label}</span>
-            <span className="dispatch-card__value">{value}</span>
-            <span className="dispatch-card__note">{read.stale ? "Not current. " : ""}{note}</span>
-          </li>
+          <MetricCard
+            key={key}
+            label={label}
+            value={value}
+            word={value === "not known"}
+            tone={value === "not known" ? "muted" : read.stale ? "amber" : undefined}
+            note={`${read.stale ? "Not current. " : ""}${note}`}
+            data={{ "data-total": key, ...(read.stale ? { "data-stale": "true" } : {}) }}
+          />
         ))}
-      </ul>
+      </MetricCards>
     </>
   );
 }
 
+/** The empty day, stated where the block strip would be (panel 1). */
+function PeriodsEmpty({ read }: { read: DispatchWindow }) {
+  if (read.intervals.length > 0) return null;
+  return (
+    <ChartNote data={{ "data-dispatch-empty": "" }}>
+      {read.selection === null
+        ? "No result exists for this day."
+        : "No generator period was assessed for this day. The limitations below say why, where one applies."}
+    </ChartNote>
+  );
+}
+
+/**
+ * The day's periods and the selected period's 15-minute blocks, as compact choosers in the
+ * Selected block panel (W1-F2: panel 1 keeps the mock's one segment strip).
+ */
 function PeriodsAndBlocks({
   read,
   selected,
@@ -667,21 +843,12 @@ function PeriodsAndBlocks({
   onBlock: (id: string, index: number) => void;
 }) {
   if (read.intervals.length === 0) {
-    return (
-      <p data-dispatch-empty>
-        {read.selection === null
-          ? "No result exists for this day."
-          : "No generator period was assessed for this day. The limitations below say why, where one applies."}
-      </p>
-    );
+    return null;
   }
-  const dayStart = Date.parse(read.window.start);
-  const span = Date.parse(read.window.end) - dayStart;
-  const at = (instant: string) => ((Date.parse(instant) - dayStart) / span) * 100;
   const current = selected !== null && read.intervals.some((item) => item.id === selected.id) ? selected : null;
   return (
-    <>
-      <ol className="dispatch-periods">
+    <div className="dispatch-choosers">
+      <ol className="dispatch-periods" aria-label="Periods on this day">
         {read.intervals.map((item) => {
           const iv = item.result.interval;
           return (
@@ -700,71 +867,54 @@ function PeriodsAndBlocks({
           );
         })}
       </ol>
-      <div className="dispatch-track" aria-hidden="true">
-        {read.intervals.flatMap((item) =>
-          item.result.segments.map((seg, index) => (
-            <span
-              key={`${item.id}-${index}`}
-              className={`dispatch-track__block dispatch-fill--${CLASS_FILL[seg.classification] ?? "unknown"}`}
-              style={{ left: `${at(seg.start)}%`, width: `${Math.max(at(seg.end) - at(seg.start), 0.4)}%` }}
-            />
-          )),
-        )}
-      </div>
-      <p className="chart-note dispatch-track__axis" aria-hidden="true">
-        <span>00:00</span>
-        <span>06:00</span>
-        <span>12:00</span>
-        <span>18:00</span>
-        <span>24:00</span>
-      </p>
       {current === null ? (
-        <p className="chart-note">Select a period to see its 15-minute blocks.</p>
+        <ChartNote>Select a period to see its 15-minute blocks.</ChartNote>
       ) : (
-        <>
-          <ol className="dispatch-blocks" aria-label="15-minute blocks of the selected period">
-            {current.result.segments.map((seg, index) => (
-              <li key={seg.start} style={{ flexGrow: Math.max(minutes(seg.minutes) ?? 15, 1) }}>
-                <button
-                  type="button"
-                  className={`dispatch-block dispatch-fill--${CLASS_FILL[seg.classification] ?? "unknown"}`}
-                  aria-pressed={blockIndex === index}
-                  aria-label={`${clock(seg.start)} to ${clock(seg.end)}: ${outcome(seg.classification)}`}
-                  title={`${clock(seg.start)}–${clock(seg.end)} ${outcome(seg.classification)}`}
-                  data-block={index}
-                  onClick={() => onBlock(current.id, index)}
-                />
-              </li>
-            ))}
-          </ol>
-          <p className="chart-note">
-            Select a block to see what the readings show and open its records. Blocks are coloured Needed, Possibly
-            avoidable or Cannot determine; gaps between reports are not filled in.
-          </p>
-        </>
+        <ol className="dispatch-blocks" aria-label="15-minute blocks of the selected period">
+          {current.result.segments.map((seg, index) => (
+            <li key={seg.start}>
+              {/* The mock's selectable tile: outcome word over the block's start time. */}
+              <button
+                type="button"
+                className={`dispatch-block dispatch-fill--${CLASS_FILL[seg.classification] ?? "unknown"}`}
+                aria-pressed={blockIndex === index}
+                aria-label={`${clock(seg.start)} to ${clock(seg.end)}: ${outcome(seg.classification)}`}
+                data-block={index}
+                onClick={() => onBlock(current.id, index)}
+              >
+                <span className="dispatch-block__word">{TILE_WORDS[seg.classification] ?? "Unclear"}</span>
+                <strong>{clock(seg.start)}</strong>
+              </button>
+            </li>
+          ))}
+        </ol>
       )}
-      <ul className="graphic-legend dispatch-legend" aria-label="Legend">
-        <li>
-          <span className="dispatch-swatch dispatch-fill--needed" /> Needed
-        </li>
-        <li>
-          <span className="dispatch-swatch dispatch-fill--avoidable" /> Possibly avoidable
-        </li>
-        <li>
-          <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine
-        </li>
-      </ul>
-    </>
+    </div>
   );
 }
+
+/** The short word on a block tile; the full outcome is the tile's accessible name. */
+const TILE_WORDS: Record<string, string> = {
+  NECESSARY: "Needed",
+  CANDIDATE_AVOIDABLE: "Avoidable",
+  INDETERMINATE: "Unclear",
+};
+
+/** One plain sentence for the selected block's outcome (W1-F2 fix round, H1). */
+const BLOCK_SENTENCE: Record<string, string> = {
+  NECESSARY: "A recorded reason required the generator in this block.",
+  CANDIDATE_AVOIDABLE:
+    "The reported solar and battery output were above the demand in this block. This is a bounded estimate, not proof of wasted fuel.",
+  INDETERMINATE: "The records this block needs are missing or conflicting, so its outcome cannot be determined.",
+};
 
 /** The not-current notice for a stored version outside the day's current set (Overview and Analysis). */
 function PinnedNotice({ read }: { read: DispatchWindow }) {
   return (
-    <p className="dispatch-pinned" data-dispatch-pinned>
+    <ChartNote data={{ "data-dispatch-pinned": "" }}>
       This is a stored result that is not the current one for {read.window.start.slice(0, 10)}. It is shown
       exactly as it was recorded, for reference.
-    </p>
+    </ChartNote>
   );
 }
 
@@ -784,7 +934,7 @@ function SelectedPeriod({
   analysisSearch: string;
 }) {
   if (revisionId === null) {
-    return <p className="chart-note">No period selected.</p>;
+    return <ChartNote>No period selected.</ChartNote>;
   }
   if (inWindow === null && detail === null) {
     return <p>Loading the assessment.</p>;
@@ -807,8 +957,8 @@ function SelectedPeriod({
     <div data-selected-revision={revision.id}>
       {pinned ? <PinnedNotice read={read} /> : null}
       {olderRule !== null ? (
-        <div className="dispatch-pinned" data-older-rule>
-          <p>This result was made with an earlier version of the assessment rules than the version now in force.</p>
+        <div className="dispatch-older-rule" data-older-rule>
+          <ChartNote>This result was made with an earlier version of the assessment rules than the version now in force.</ChartNote>
           <ExactReferences
             name="dispatch-older-rule-references"
             references={[
@@ -819,12 +969,36 @@ function SelectedPeriod({
         </div>
       ) : null}
       {read.stale && !pinned ? (
-        <p className="dispatch-pinned" data-dispatch-stale-selection>
+        <ChartNote data={{ "data-dispatch-stale-selection": "" }}>
           {statusWords(read.status).label}: this result is kept for reference and is not current.
+        </ChartNote>
+      ) : null}
+      {segment !== null ? (
+        <div className="dispatch-block-detail dispatch-block-detail--lead" data-selected-block={segment.start}>
+          {/* W1-F2 fix round (H1): the panel leads with the selected block's own outcome, as the mock. */}
+          <ClaimBadge level={segment.classification} label={outcome(segment.classification)} />
+          <p className="dispatch-block-detail__lead">
+            {BLOCK_SENTENCE[segment.classification] ?? "The outcome of this block is not stated."}
+          </p>
+          <ul>
+            {segment.load_kw ? <li>Site demand {segment.load_kw} kW.</li> : null}
+            {segment.binding_constraint ? <li>{constraintWords(segment.binding_constraint)}.</li> : null}
+            {(segment.missing ?? []).length > 0 ? (
+              <li data-block-limited>
+                Some readings this block needs are missing or limited; the Analysis view lists them.
+              </li>
+            ) : null}
+            {segment.observed === false ? <li>No report falls inside this block; it is bounded by its neighbours.</li> : null}
+          </ul>
+        </div>
+      ) : null}
+      {segment !== null ? (
+        <p className="dispatch-period-label" data-dispatch-period-label>
+          The period this block is in: {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"} UTC
         </p>
       ) : null}
       <FactList>
-        <Fact term="Outcome">
+        <Fact term={segment !== null ? "Period outcome" : "Outcome"}>
           <ClaimBadge level={revision.claim_level} label={outcome(revision.claim_level)} />
         </Fact>
         <Fact term="Generator ran">
@@ -851,23 +1025,6 @@ function SelectedPeriod({
           </Fact>
         ) : null}
       </FactList>
-      {segment !== null ? (
-        <div className="dispatch-block-detail" data-selected-block={segment.start}>
-          <h3>
-            Block {clock(segment.start)} to {clock(segment.end)} UTC: {outcome(segment.classification)}
-          </h3>
-          <ul>
-            {segment.load_kw ? <li>Site demand {segment.load_kw} kW.</li> : null}
-            {segment.binding_constraint ? <li>{constraintWords(segment.binding_constraint)}.</li> : null}
-            {(segment.missing ?? []).length > 0 ? (
-              <li data-block-limited>
-                Some readings this block needs are missing or limited; the Analysis view lists them.
-              </li>
-            ) : null}
-            {segment.observed === false ? <li>No report falls inside this block; it is bounded by its neighbours.</li> : null}
-          </ul>
-        </div>
-      ) : null}
       <p className="chart-note">
         <Link to={{ search: analysisSearch }}>See how the readings lead to this outcome</Link>
       </p>
@@ -875,32 +1032,63 @@ function SelectedPeriod({
   );
 }
 
-function LimitationsPanel({ read }: { read: DispatchWindow }) {
+/** W1-F2 compaction: the coverage table shows this many inputs until "Show all" (the mock's three rows). */
+const COVERAGE_PREVIEW_ROWS = 3;
+
+/**
+ * W1-F2 compaction: the closed detail row under the coverage table. "No limitation is recorded" stays a visible
+ * note; a recorded list (already summarised as one line in panel 1) opens with what a reading is and the records.
+ */
+function CoverageDetail({ read, children }: { read: DispatchWindow; children?: ReactNode }) {
   const groups = groupLimitations(read.limitations);
   return (
-    <Panel heading="What limits this day's result" headingId="durable-dispatch-limits-heading">
-      {groups.length === 0 ? (
-        <p data-dispatch-limitations="none">No limitation is recorded for this day&apos;s result.</p>
-      ) : (
-        <ul className="dispatch-limits">
-          {groups.map((group) => (
-            <li key={group.code} data-limitation={group.code}>
-              {limitationWords(group.code)}
-              {group.items.length > 1 ? ` (${group.items.length} places)` : ""}.
-            </li>
-          ))}
-        </ul>
-      )}
-    </Panel>
+    <>
+      {groups.length === 0 ? <LimitationsList read={read} /> : null}
+      <Disclosure
+        variant="tech"
+        name="dispatch-coverage-detail"
+        summary={
+          groups.length === 0
+            ? "Details — what a reading is and the accepted records"
+            : `Details — what limits this day's result (${groups.length}), what a reading is and the accepted records`
+        }
+      >
+        {groups.length === 0 ? null : <LimitationsList read={read} />}
+        <Disclosure summary="What a reading is" name="dispatch-coverage-reading">
+          <p data-coverage-reading>
+            A reading counted here is a report the site sent and AssetOps accepted; gaps between reports are not
+            filled in.
+          </p>
+        </Disclosure>
+        {children}
+      </Disclosure>
+    </>
   );
 }
 
-function CoveragePanel({ read }: { read: DispatchWindow }) {
+function LimitationsList({ read }: { read: DispatchWindow }) {
+  const groups = groupLimitations(read.limitations);
+  return groups.length === 0 ? (
+    <ChartNote data={{ "data-dispatch-limitations": "none" }}>No limitation is recorded for this day&apos;s result.</ChartNote>
+  ) : (
+    <ul className="dispatch-limits" aria-label="What limits this day's result">
+      {groups.map((group) => (
+        <li key={group.code} data-limitation={group.code}>
+          {limitationWords(group.code)}
+          {group.items.length > 1 ? ` (${group.items.length} places)` : ""}.
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function CoverageBody({ read }: { read: DispatchWindow }) {
   const rows = Object.entries(read.coverage ?? {});
+  const [showAll, setShowAll] = useState(false);
   const noSeries =
     read.selection !== null && !["SELECTED_UNIQUE", "SELECTED_EXPLICIT"].includes(read.selection.cohort_status);
   return (
-    <Panel heading="Accepted sample coverage" headingId="durable-dispatch-coverage-heading">
+    <>
       {rows.length === 0 ? (
         <p>No record coverage exists for this day.</p>
       ) : (
@@ -914,8 +1102,8 @@ function CoveragePanel({ read }: { read: DispatchWindow }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map(([role, item]) => (
-              <tr key={role} data-coverage-role={role}>
+            {rows.map(([role, item], index) => (
+              <tr key={role} data-coverage-role={role} hidden={!showAll && index >= COVERAGE_PREVIEW_ROWS}>
                 <th scope="row">{roleWords(role)}</th>
                 <td>{coverageWords(item.status)}</td>
                 <td>{item.readings}</td>
@@ -925,20 +1113,36 @@ function CoveragePanel({ read }: { read: DispatchWindow }) {
           </tbody>
         </DataTable>
       )}
-      <p className="chart-note" data-coverage-note>
-        {noSeries
-          ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result. `
-          : `${read.evidence_count} accepted records behind this day's result. `}
-        A reading counted here is a report the site sent and AssetOps accepted; gaps between reports are not
-        filled in.
+      {/* W1-F2 compaction (phase B): the record count and the "Show all" toggle share one note line. */}
+      <p className="v69-chart-note">
+        <span data-coverage-note="">
+          {noSeries
+            ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result.`
+            : `${read.evidence_count} accepted records behind this day's result.`}
+        </span>
+      {rows.length <= COVERAGE_PREVIEW_ROWS ? null : (
+        <>
+          {" "}
+          <button
+            type="button"
+            className="link-button"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((v) => !v)}
+            data-coverage-toggle={showAll ? "all" : "preview"}
+          >
+            {showAll ? `Show the first ${COVERAGE_PREVIEW_ROWS} only` : `Show all ${rows.length} inputs`}
+          </button>
+        </>
+      )}
       </p>
-    </Panel>
+    </>
   );
 }
 
-function ComparisonLine({ summary }: { summary: ComparisonSummary }) {
+function ComparisonLine({ summary, note = false }: { summary: ComparisonSummary; note?: boolean }) {
   return (
-    <p className="chart-note" data-comparison-outcome={summary.outcome} data-comparison-empty={summary.empty_set}>
+    // W1-F2 compaction (phase B): `note` sets the coverage panel's comparison at the mock's note size.
+    <p className={note ? "v69-chart-note" : "chart-note"} data-comparison-outcome={summary.outcome} data-comparison-empty={summary.empty_set}>
       {summary.empty_set
         ? "Checked against the earlier file-based results: there were none for this site, so nothing could be compared. This is not a match."
         : `Checked against the earlier file-based results: ${summary.counts.MATCH ?? 0} agree, ${
@@ -950,7 +1154,7 @@ function ComparisonLine({ summary }: { summary: ComparisonSummary }) {
   );
 }
 
-function EvidencePanel({
+function EvidenceRecords({
   detail,
   segment,
   windowNote,
@@ -965,8 +1169,8 @@ function EvidencePanel({
   const shownAbove = new Set(windowNote.map((note) => JSON.stringify(note)));
   const notes = detail.demo_annotations.filter((note) => !shownAbove.has(JSON.stringify(note)));
   return (
-    <Panel heading="Accepted records behind the selected result" headingId="durable-dispatch-evidence-heading">
-      <p className="chart-note" data-evidence-scope={segment === null ? "period" : "block"}>
+    <Disclosure name="dispatch-selected-records" summary="Accepted records behind the selected result">
+      <p className="chart-note" id="durable-dispatch-evidence-heading" data-evidence-scope={segment === null ? "period" : "block"}>
         {segment === null
           ? `All ${detail.evidence.length} accepted records of this stored result.`
           : `${rows.length} accepted records for the block ${clock(segment.start)} to ${clock(segment.end)} UTC.`}
@@ -1000,7 +1204,7 @@ function EvidencePanel({
       </DataTable>
       <ConfigurationNote detail={detail} />
       {notes.length > 0 ? <DemoNotes notes={notes} /> : null}
-    </Panel>
+    </Disclosure>
   );
 }
 
@@ -1049,9 +1253,9 @@ function ConfigurationNote({ detail }: { detail: RevisionDetail }) {
 
 function DemoNotes({ notes }: { notes: DemoAnnotation[] }) {
   return (
-    <aside className="dispatch-demo-notes" data-demo-annotations={notes.length} aria-label="Demonstration data notes">
-      <h3>Note supplied with the demonstration data</h3>
+    <aside className="notice v69-notice dispatch-demo-notes" data-demo-annotations={notes.length} aria-label="Demonstration data notes">
       <p>
+        <strong>Note supplied with the demonstration data.</strong>{" "}
         These notes come from the demonstration data&apos;s own description. They are not records AssetOps
         accepted and they do not change the result above.
       </p>
@@ -1067,9 +1271,8 @@ function DemoNotes({ notes }: { notes: DemoAnnotation[] }) {
   );
 }
 
-function ComparisonPanel({ summary }: { summary: ComparisonSummary }) {
+function ComparisonDetail({ summary }: { summary: ComparisonSummary }) {
   return (
-    <Panel heading="Comparison with earlier results" headingId="durable-dispatch-comparison-heading">
       <Disclosure name="dispatch-comparison" summary="Technical details: how this day compares with the earlier results">
       <p data-comparison-outcome={summary.outcome} data-comparison-empty={summary.empty_set}>
         <strong {...REF}>{summary.outcome}</strong> <span {...REF}>{summary.statement}</span>
@@ -1116,7 +1319,6 @@ function ComparisonPanel({ summary }: { summary: ComparisonSummary }) {
         </ul>
       ) : null}
       </Disclosure>
-    </Panel>
   );
 }
 
@@ -1125,6 +1327,14 @@ const UNAVAILABLE_TERMS: Record<string, string> = {
   fuel_and_money: "Fuel and money",
   finding: "Finding comparison",
 };
+
+/** Every not-yet-available key gets a named term: the known words, else the key in plain words. */
+function unavailableTerm(key: string): string {
+  const known = UNAVAILABLE_TERMS[key];
+  if (known) return known;
+  const words = key.replace(/[_-]+/g, " ").trim().toLowerCase();
+  return words ? words[0].toUpperCase() + words.slice(1) : "Unnamed result";
+}
 
 function confidenceWords(level: string): string {
   switch (level) {
@@ -1159,12 +1369,9 @@ function ReadingsToOutcome({
 }) {
   if (selected === null) {
     return (
-      <Panel heading="How the readings lead to the outcome" headingId="durable-dispatch-story-analysis-heading">
-        <p className="headline-card__question">How do the readings lead to the outcome?</p>
-        <p data-dispatch-story="none">
-          No period is selected, so nothing is concluded here. Select a period or a 15-minute block on the Overview.
-        </p>
-      </Panel>
+      <ChartNote data={{ "data-dispatch-story": "none" }}>
+        No period is selected, so nothing is concluded here. Select a period or a 15-minute block on the Overview.
+      </ChartNote>
     );
   }
   const result = selected.result;
@@ -1180,35 +1387,39 @@ function ReadingsToOutcome({
   const scope = segment === null ? `the period ${clock(result.interval.first_on)} to ${clock(result.interval.last_on)} UTC` : `the block ${clock(segment.start)} to ${clock(segment.end)} UTC`;
   const conclusion = segment === null ? outcome(selected.claim_level) : outcome(segment.classification);
   return (
-    <Panel heading="How the readings lead to the outcome" headingId="durable-dispatch-story-analysis-heading">
-      <p className="headline-card__question">How do the readings lead to the outcome?</p>
-      <ol className="dispatch-story" data-dispatch-story={segment === null ? "period" : "block"}>
+    <ol aria-label="How the readings lead to the outcome" className="dispatch-story" data-dispatch-story={segment === null ? "period" : "block"}>
         <li className="dispatch-story__step" data-dispatch-story-step="readings">
-          <h3>What the accepted readings show</h3>
-          <p>
+          <p className="v69-chart-note">
+            <strong>What the accepted readings show.</strong>{" "}
             {`For ${scope}: ${plural(selected.evidence_ids.length, "accepted reading", "accepted readings")} used.`}
             {demand === null ? "" : ` Demand ${demand}.`}
             {spare === null ? "" : ` Spare solar and battery capacity ${spare}.`}
           </p>
           {missing.length === 0 && unobserved === 0 ? null : (
-            <p data-dispatch-story-missing>
+            <p className="v69-chart-note" data-dispatch-story-missing>
               {missing.length === 0 ? "" : `Missing: ${Array.from(new Set(missing.map(missingWords))).join(", ")}. `}
               {unobserved === 0 ? "" : `${plural(unobserved, "block was", "blocks were")} not observed directly.`}
             </p>
           )}
         </li>
         <li className="dispatch-story__step" data-dispatch-story-step="rule">
-          <h3>The rule applied</h3>
-          <p>
-            A block is Possibly avoidable only when the reported available solar power and battery output limit were
-            above the demand; Needed when a recorded reason required the generator; Cannot determine when readings
-            it needs are missing or conflicting.
+          <p className="v69-chart-note">
+            <strong>The rule applied.</strong>
+            {constraints.length === 0 ? null : ` What held the generator on: ${constraints.map(constraintWords).join("; ")}.`}
           </p>
-          {constraints.length === 0 ? null : <p>{`What held the generator on: ${constraints.map(constraintWords).join("; ")}.`}</p>}
+          <Disclosure summary="How each outcome is decided" name="dispatch-story-rule">
+            <p data-dispatch-story-rule>
+              A block is Possibly avoidable only when the reported available solar power and battery output limit were
+              above the demand; Needed when a recorded reason required the generator; Cannot determine when readings
+              it needs are missing or conflicting.
+            </p>
+          </Disclosure>
         </li>
         <li className="dispatch-story__step" data-dispatch-story-step="conclusion">
-          <h3>What can be concluded</h3>
-          <p data-dispatch-story-conclusion>
+          <p className="v69-chart-note">
+            <strong>What can be concluded.</strong>
+          </p>
+          <p className="v69-chart-note" data-dispatch-story-conclusion>
             {!selectedIsCurrent
               ? `${conclusion}, for ${scope}, from a stored version that is not the current result.`
               : read.status === "CURRENT" && !read.stale
@@ -1216,21 +1427,77 @@ function ReadingsToOutcome({
                 : `${conclusion}, for ${scope}, from an earlier result that is not current.`}
           </p>
           {limits.length === 0 ? null : (
-            <ul data-dispatch-story-limits>
-              {limits.map((g) => (
-                <li key={g.code}>{limitationWords(g.code)}</li>
-              ))}
-            </ul>
+            <p className="v69-chart-note" data-dispatch-story-limits>
+              Limits: {limits.map((g) => limitationWords(g.code)).join("; ")}.
+            </p>
           )}
-          <p>This says nothing about fuel, savings or money.</p>
+          <p className="v69-chart-note">This says nothing about fuel, savings or money.</p>
         </li>
       </ol>
-    </Panel>
   );
 }
 
 function plural(count: number, one: string, many: string): string {
   return `${count} ${count === 1 ? one : many}`;
+}
+
+/**
+ * W1-F2: the v69 `analysis` panels. Constraint comparison holds the block table and how the readings lead to the
+ * outcome; Bounded fuel calculation states that this assessment has none; Coverage, confidence and alternatives
+ * holds confidence, the record series, versions and the technical record and comparison detail.
+ */
+/**
+ * W1-F2 compaction: the analysis constraint table shows the first three blocks, the mock's shape; the rest stay
+ * in the table (hidden, not removed) behind a plain "Show all N blocks" toggle.
+ */
+const CONSTRAINT_PREVIEW_ROWS = 3;
+
+function ConstraintTable({ segments }: { segments: DispatchSegment[] }) {
+  const [showAll, setShowAll] = useState(false);
+  return (
+    <>
+      <DataTable labelledBy="durable-dispatch-constraints-heading">
+        <thead>
+          <tr>
+            <th scope="col">Block (UTC)</th>
+            <th scope="col">Outcome</th>
+            <th scope="col">Demand</th>
+            <th scope="col">Spare capacity</th>
+            <th scope="col">Recorded reason or missing input</th>
+          </tr>
+        </thead>
+        <tbody>
+          {segments.map((seg, index) => (
+            <tr key={seg.start} data-constraint-block={seg.start} hidden={!showAll && index >= CONSTRAINT_PREVIEW_ROWS}>
+              <td>
+                {clock(seg.start)}–{clock(seg.end)}
+              </td>
+              <td>{outcome(seg.classification)}</td>
+              <td>{seg.load_kw ? `${seg.load_kw} kW` : "not reported"}</td>
+              <td>{seg.margin_kw ? `${seg.margin_kw} kW` : "not shown"}</td>
+              <td>
+                {[...(seg.reasons ?? []).map(constraintWords), ...(seg.missing ?? []).map((m) => `missing: ${missingWords(m)}`)].join("; ") ||
+                  "none recorded"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </DataTable>
+      {segments.length <= CONSTRAINT_PREVIEW_ROWS ? null : (
+        <p className="v69-chart-note">
+          <button
+            type="button"
+            className="link-button"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((v) => !v)}
+            data-constraint-toggle={showAll ? "all" : "preview"}
+          >
+            {showAll ? `Show the first ${CONSTRAINT_PREVIEW_ROWS} only` : `Show all ${segments.length} blocks`}
+          </button>
+        </p>
+      )}
+    </>
+  );
 }
 
 function AnalysisView({
@@ -1240,6 +1507,8 @@ function AnalysisView({
   segment,
   comparison,
   detail,
+  interval,
+  notes,
 }: {
   read: DispatchWindow;
   selected: AssessmentRevision | null;
@@ -1247,185 +1516,178 @@ function AnalysisView({
   segment: DispatchSegment | null;
   comparison: ComparisonSummary | null;
   detail: RevisionDetail | null;
+  interval: string;
+  notes: ReactNode;
 }) {
   const result = selected?.result ?? null;
+  const hasAlternatives = Object.keys(result?.alternatives ?? {}).length > 0;
   return (
-    <>
-      {selected !== null && !selectedIsCurrent ? <PinnedNotice read={read} /> : null}
-      <ReadingsToOutcome read={read} selected={selected} selectedIsCurrent={selectedIsCurrent} segment={segment} />
-      <div className="durable-dispatch__pair">
-        <Panel heading="Constraint comparison" headingId="durable-dispatch-constraints-heading">
-          {selected === null ? (
-            <p className="chart-note">Select a period on the Overview to compare its readings with its limits.</p>
-          ) : (
-            <DataTable labelledBy="durable-dispatch-constraints-heading">
-              <thead>
-                <tr>
-                  <th scope="col">Block (UTC)</th>
-                  <th scope="col">Outcome</th>
-                  <th scope="col">Demand</th>
-                  <th scope="col">Spare capacity</th>
-                  <th scope="col">Recorded reason or missing input</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(segment === null ? selected.result.segments : [segment]).map((seg) => (
-                  <tr key={seg.start} data-constraint-block={seg.start}>
-                    <td>
-                      {clock(seg.start)}–{clock(seg.end)}
-                    </td>
-                    <td>{outcome(seg.classification)}</td>
-                    <td>{seg.load_kw ? `${seg.load_kw} kW` : "not reported"}</td>
-                    <td>{seg.margin_kw ? `${seg.margin_kw} kW` : "not shown"}</td>
-                    <td>
-                      {[...(seg.reasons ?? []).map(constraintWords), ...(seg.missing ?? []).map((m) => `missing: ${missingWords(m)}`)].join("; ") ||
-                        "none recorded"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </DataTable>
-          )}
-        </Panel>
-        <Panel heading="Coverage, confidence and alternatives" headingId="durable-dispatch-confidence-heading">
-          <FactList>
-            <Fact term="Confidence">
-              {result?.confidence ? confidenceWords(result.confidence.level) : "no period selected"}
-            </Fact>
-            <Fact term="Record series used">
-              {read.selection
-                ? read.selection.cohort_status === "SELECTED_UNIQUE" || read.selection.cohort_status === "EXPLICIT"
-                  ? "One settled series of records for this day"
-                  : "No single settled series of records for this day; results are limited"
-                : "none"}
-            </Fact>
-            {Object.entries(read.unavailable).map(([key]) => (
-              <Fact key={key} term={UNAVAILABLE_TERMS[key] ?? "Another result"}>
-                <span data-unavailable={key}>Not yet available.</span>
+    <DispatchSlots
+      view="analysis"
+      interval={interval}
+      first={{
+        description: selected === null ? "No period selected" : `Selected ${interval}`,
+        body: (
+          <>
+            {selected !== null && !selectedIsCurrent ? <PinnedNotice read={read} /> : null}
+            {selected === null ? (
+              <ChartNote>Select a period on the Overview to compare its readings with its limits.</ChartNote>
+            ) : (
+              <ConstraintTable segments={segment === null ? selected.result.segments : [segment]} />
+            )}
+            <ReadingsToOutcome read={read} selected={selected} selectedIsCurrent={selectedIsCurrent} segment={segment} />
+          </>
+        ),
+      }}
+      second={{
+        body: (
+          <p className="v69-chart-note" data-dispatch-gated>
+            Not yet available. This assessment makes no fuel quantity, saving or money claim, and an interval result
+            is not itself a Finding; Findings recorded over this day are linked in Overview. Fuel and money need
+            later, separately reviewed work.
+          </p>
+        ),
+      }}
+      between={notes}
+      third={{
+        body: (
+          <>
+            <FactList>
+              <Fact term="Confidence">
+                {result?.confidence ? confidenceWords(result.confidence.level) : "no period selected"}
               </Fact>
-            ))}
-            {result?.alternatives && Object.keys(result.alternatives).length > 0 ? (
-              <Fact term="Other explanations">
-                {`${Object.keys(result.alternatives).length} recorded; their exact wording is in the technical details below.`}
+              <Fact term="Record series used">
+                {read.selection
+                  ? read.selection.cohort_status === "SELECTED_UNIQUE" || read.selection.cohort_status === "EXPLICIT"
+                    ? "One settled series of records for this day"
+                    : "No single settled series of records for this day; results are limited"
+                  : "none"}
               </Fact>
-            ) : null}
-            {result?.candidate_bound ? <Fact term="Possibly avoidable bound">Recorded; its exact wording is in the technical details below.</Fact> : null}
-          </FactList>
-        </Panel>
-      </div>
-      <Panel heading="Fuel, money and Finding comparison" headingId="durable-dispatch-gated-heading">
-        <p data-dispatch-gated>
-          Not yet available. This assessment makes no fuel quantity, saving or money claim, and an interval result
-          is not itself a Finding; Findings recorded over this day are linked in Overview. Fuel and money need
-          later, separately reviewed work.
-        </p>
-      </Panel>
-      {detail !== null && detail.history.length > 0 ? (
-        <Panel heading="Versions of this period" headingId="durable-dispatch-history-heading">
-          <ol className="dispatch-history">
-            {detail.history.map((item) => (
-              <li key={item.id} data-history-revision={item.id}>
-                <Link to={{ search: `?day=${item.window_start.slice(0, 10)}&revision=${item.id}&view=analysis` }}>
-                  Version {item.revision_no}: {outcome(item.claim_level)}
-                </Link>
-                {item.id === detail.id ? " (shown)" : ""}
-              </li>
-            ))}
-          </ol>
-        </Panel>
-      ) : null}
-      <Panel heading="Stored assessment record" headingId="durable-dispatch-record-heading">
-        <Disclosure name="dispatch-stored-record" summary="Technical details: stored record, versions and references">
-        <FactList>
-          {Object.entries(read.unavailable).map(([key, value]) => (
-            <Fact key={`unavailable-${key}`} term="Recorded note on a result still to come">
-              <code {...REF}>{`${key}: ${value}`}</code>
-            </Fact>
-          ))}
-          {Object.entries(result?.alternatives ?? {}).map(([key, value]) => (
-            <Fact key={`alt-${key}`} term="Other explanation, as recorded">
-              <code {...REF}>{`${key}: ${value}`}</code>
-            </Fact>
-          ))}
-          {result?.candidate_bound ? (
-            <Fact term="Possibly avoidable bound, as recorded">
-              <code {...REF}>{result.candidate_bound}</code>
-            </Fact>
-          ) : null}
-          {result?.confidence ? (
-            <Fact term="Confidence basis">
-              <code {...REF}>{result.confidence.basis.join("; ")}</code>
-            </Fact>
-          ) : null}
-          {read.selection?.cohort.reason ? (
-            <Fact term="Record series state">
-              <code {...REF}>{`${read.selection.cohort_status}: ${read.selection.cohort.reason}`}</code>
-            </Fact>
-          ) : null}
-          <Fact term="Status">
-            <code {...REF}>{read.status}</code>
-          </Fact>
-          {read.status_reasons.map((reason) => (
-            <Fact key={reason} term="Status reason">
-              <code {...REF}>{reason}</code>
-            </Fact>
-          ))}
-          <Fact term="Window">
-            {read.window.start} to {read.window.end} ({read.window.calendar})
-          </Fact>
-          {read.selection ? (
-            <>
-              <Fact term="Assessment batch and rules">
-                <code {...REF}>{read.selection.run_id}</code> · <code {...REF}>{read.selection.model_version}</code>
-              </Fact>
-              <Fact term="Input reference">
-                <code {...REF}>{read.selection.input_sha256}</code>
-              </Fact>
-              <Fact term="Configuration reference">
-                <code {...REF}>{read.selection.configuration_sha256}</code>
-              </Fact>
-              <Fact term="Foundation revisions">{read.selection.foundation_revision_ids.join(", ")}</Fact>
-              <Fact term="Knowledge cutoff">
-                {read.selection.knowledge_cutoff} ({read.selection.knowledge_cutoff_label})
-              </Fact>
-              <Fact term="Prepared at">{read.selection.built_at}</Fact>
-            </>
-          ) : null}
-          {Object.entries(read.watermarks ?? {}).map(([key, value]) => (
-            <Fact key={key} term="Latest reading time used">
-              <code {...REF}>{`${key}: ${value ?? "none"}`}</code>
-            </Fact>
-          ))}
-          {read.jobs.map((job) => (
-            <Fact key={job.id} term="Reassessment task">
-              <code {...REF}>{`${job.id} ${job.status} · attempts ${job.attempts}${job.last_error ? ` · ${job.last_error}` : ""}`}</code>
-            </Fact>
-          ))}
-          {selected ? (
-            <Fact term="Selected revision">
-              <code {...REF}>{`${selected.id} · ${selected.assessment_key} · ${selected.revision_no} · ${selected.model_version}`}</code>
-            </Fact>
-          ) : null}
-          {detail?.model_note ? (
-            <Fact term="Rule note">
-              <code {...REF}>{detail.model_note}</code>
-            </Fact>
-          ) : null}
-        </FactList>
-        </Disclosure>
-        {read.limitations.length > 0 ? (
-          <Disclosure name="window-limitations" summary={`All ${read.limitations.length} recorded limitations`}>
-            <ul className="dispatch-limits dispatch-limits--raw">
-              {read.limitations.map((item, index) => (
-                <li key={index}>
-                  <code {...REF}>{item}</code>
-                </li>
+              {/* Review fix M6: one "Other explanations" line; recorded alternatives replace the not-available row. */}
+              {Object.entries(read.unavailable)
+                .filter(([key]) => !(key === "alternatives" && hasAlternatives))
+                .map(([key]) => (
+                <Fact key={key} term={unavailableTerm(key)}>
+                  <span data-unavailable={key}>Not yet available.</span>
+                </Fact>
               ))}
-            </ul>
-          </Disclosure>
-        ) : null}
-      </Panel>
-      {comparison ? <ComparisonPanel summary={comparison} /> : null}
-    </>
+              {hasAlternatives ? (
+                <Fact term="Other explanations">
+                  {`${Object.keys(result?.alternatives ?? {}).length} recorded; their exact wording is in the technical details below.`}
+                </Fact>
+              ) : null}
+              {result?.candidate_bound ? <Fact term="Possibly avoidable bound">Recorded; its exact wording is in the technical details below.</Fact> : null}
+              {detail !== null && detail.history.length > 0 ? (
+                <Fact term="Versions of this period">
+                  <ol className="dispatch-history" aria-label="Versions of this period">
+                    {detail.history.map((item) => (
+                      <li key={item.id} data-history-revision={item.id}>
+                        <Link to={{ search: `?day=${item.window_start.slice(0, 10)}&revision=${item.id}&view=analysis` }}>
+                          Version {item.revision_no}: {outcome(item.claim_level)}
+                        </Link>
+                        {item.id === detail.id ? " (shown)" : ""}
+                      </li>
+                    ))}
+                  </ol>
+                </Fact>
+              ) : null}
+            </FactList>
+            {/* W1-F2 compaction: the three technical disclosures nest in one closed row; each keeps its own. */}
+            <Disclosure name="analysis-technical" summary="Technical details, recorded limitations and comparison" variant="tech">
+            <Disclosure name="dispatch-stored-record" summary="Technical details: stored record, versions and references">
+              <FactList>
+                {Object.entries(read.unavailable).map(([key, value]) => (
+                  <Fact key={`unavailable-${key}`} term="Recorded note on a result still to come">
+                    <code {...REF}>{`${key}: ${value}`}</code>
+                  </Fact>
+                ))}
+                {Object.entries(result?.alternatives ?? {}).map(([key, value]) => (
+                  <Fact key={`alt-${key}`} term="Other explanation, as recorded">
+                    <code {...REF}>{`${key}: ${value}`}</code>
+                  </Fact>
+                ))}
+                {result?.candidate_bound ? (
+                  <Fact term="Possibly avoidable bound, as recorded">
+                    <code {...REF}>{result.candidate_bound}</code>
+                  </Fact>
+                ) : null}
+                {result?.confidence ? (
+                  <Fact term="Confidence basis">
+                    <code {...REF}>{result.confidence.basis.join("; ")}</code>
+                  </Fact>
+                ) : null}
+                {read.selection?.cohort.reason ? (
+                  <Fact term="Record series state">
+                    <code {...REF}>{`${read.selection.cohort_status}: ${read.selection.cohort.reason}`}</code>
+                  </Fact>
+                ) : null}
+                <Fact term="Status">
+                  <code {...REF}>{read.status}</code>
+                </Fact>
+                {read.status_reasons.map((reason) => (
+                  <Fact key={reason} term="Status reason">
+                    <code {...REF}>{reason}</code>
+                  </Fact>
+                ))}
+                <Fact term="Window">
+                  {read.window.start} to {read.window.end} ({read.window.calendar})
+                </Fact>
+                {read.selection ? (
+                  <>
+                    <Fact term="Assessment batch and rules">
+                      <code {...REF}>{read.selection.run_id}</code> · <code {...REF}>{read.selection.model_version}</code>
+                    </Fact>
+                    <Fact term="Input reference">
+                      <code {...REF}>{read.selection.input_sha256}</code>
+                    </Fact>
+                    <Fact term="Configuration reference">
+                      <code {...REF}>{read.selection.configuration_sha256}</code>
+                    </Fact>
+                    <Fact term="Foundation revisions">{read.selection.foundation_revision_ids.join(", ")}</Fact>
+                    <Fact term="Knowledge cutoff">
+                      {read.selection.knowledge_cutoff} ({read.selection.knowledge_cutoff_label})
+                    </Fact>
+                    <Fact term="Prepared at">{read.selection.built_at}</Fact>
+                  </>
+                ) : null}
+                {Object.entries(read.watermarks ?? {}).map(([key, value]) => (
+                  <Fact key={key} term="Latest reading time used">
+                    <code {...REF}>{`${key}: ${value ?? "none"}`}</code>
+                  </Fact>
+                ))}
+                {read.jobs.map((job) => (
+                  <Fact key={job.id} term="Reassessment task">
+                    <code {...REF}>{`${job.id} ${job.status} · attempts ${job.attempts}${job.last_error ? ` · ${job.last_error}` : ""}`}</code>
+                  </Fact>
+                ))}
+                {selected ? (
+                  <Fact term="Selected revision">
+                    <code {...REF}>{`${selected.id} · ${selected.assessment_key} · ${selected.revision_no} · ${selected.model_version}`}</code>
+                  </Fact>
+                ) : null}
+                {detail?.model_note ? (
+                  <Fact term="Rule note">
+                    <code {...REF}>{detail.model_note}</code>
+                  </Fact>
+                ) : null}
+              </FactList>
+            </Disclosure>
+            {read.limitations.length > 0 ? (
+              <Disclosure name="window-limitations" summary={`All ${read.limitations.length} recorded limitations`}>
+                <ul className="dispatch-limits dispatch-limits--raw">
+                  {read.limitations.map((item, index) => (
+                    <li key={index}>
+                      <code {...REF}>{item}</code>
+                    </li>
+                  ))}
+                </ul>
+              </Disclosure>
+            ) : null}
+            {comparison ? <ComparisonDetail summary={comparison} /> : null}
+            </Disclosure>
+          </>
+        ),
+      }}
+    />
   );
 }

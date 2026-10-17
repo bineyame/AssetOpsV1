@@ -6,7 +6,10 @@ import {
   Fact,
   FactList,
   PageHeader,
+  Disclosure,
   Panel,
+  SITE_SCREEN_DESCRIPTIONS,
+  SitePageHeader,
   type Crumb,
 } from "../ui";
 import type { SiteDetailClient } from "./siteDirectoryClient";
@@ -240,11 +243,14 @@ export function SiteDetailFacts({
         * address in the wrong case resolves to one canonical site and this
         * header spells it the one way.
         */}
-      <PageHeader
-        title={view.siteId}
+      {/* W1-F2: the v69 Site page heading - the site name, the provenance badge carrying the record's Site ID, and
+          the screen description (the mock's mini subtitle states illustrative ratings, so it is not copied). */}
+      <SitePageHeader
+        siteName={view.displayName}
+        siteId={view.siteId}
+        mode={view.sourceMode}
+        description={SITE_SCREEN_DESCRIPTIONS.mini}
         headingId={SITE_DETAIL_HEADING_ID}
-        subtitle={view.displayName}
-        badge={<Badge tone="provenance">{view.sourceMode}</Badge>}
       />
 
       {tabs}
@@ -259,6 +265,13 @@ export function SiteDetailFacts({
         */}
       {overview === undefined ? null : overview(view.siteId)}
 
+      {/*
+        * W1-F2 (D-2026-10-17-mockup-layout-spec): the v69 `mini` screen has five panels and no
+        * site-record panels. The site's own record (identity, provenance, unavailable actions) is
+        * reference material, so it sits in one closed disclosure under the panel grid rather than as
+        * three extra panels. It holds no material limit of the Overview's claims.
+        */}
+      <Disclosure summary="Site record: identity, provenance and actions" name="site-record">
       {/*
         * Every fact the record carries about the site itself, in one panel.
         *
@@ -342,6 +355,7 @@ export function SiteDetailFacts({
       </Panel>
 
       <SiteQuickActions>{quickActions}</SiteQuickActions>
+      </Disclosure>
 
     </>
   );

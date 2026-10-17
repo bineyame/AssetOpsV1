@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { expectStateLineVisible } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
@@ -277,6 +278,56 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     expect(row).toMatch(/site settings/);
   });
 
+  it("W1-F2 compaction: coverage shows three inputs then 'Show all'; the recorded limits list sits in the closed detail row", async () => {
+    const item = { status: "BOUND", readings: 4, not_good: 0 };
+    const coverage = { generator_state: item, pcs_discharge_capability: item, pv_available_power: item, load_power: item, battery_reserve: item };
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ coverage }) });
+    const { container } = mount(client, "?day=2026-10-02");
+    await settledScreen();
+    const rows = [...container.querySelectorAll<HTMLTableRowElement>("tr[data-coverage-role]")];
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true, true]);
+    const toggle = screen.getByRole("button", { name: "Show all 5 inputs" });
+    fireEvent.click(toggle);
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false, false]);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    // The recorded limits (summarised as one line in panel 1) are in the closed detail disclosure.
+    const detail = container.querySelector("details[data-disclosure='dispatch-coverage-detail']") as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    expect(detail.querySelector("[data-limitation='MISSING_ROLE']")).not.toBeNull();
+    expect(container.querySelector("[data-dispatch-limitation-summary]")?.closest("details")).toBeNull();
+    expect(container.querySelector("[data-coverage-note]")?.closest("details")).toBeNull();
+  });
+
+  it("W1-F2 compaction: Analysis shows three constraint blocks then 'Show all'; technical disclosures nest in one closed row", async () => {
+    const current = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    const seg = current.result.segments[0];
+    current.result.segments = [0, 1, 2, 3, 4].map((n) => ({
+      ...seg,
+      start: `2026-10-02T0${n}:00:00Z`,
+      end: `2026-10-02T0${n}:15:00Z`,
+    }));
+    const client = fake(
+      { status: "loaded", value: OPEN },
+      { status: "loaded", value: window({ intervals: [current], limitations: ["MISSING_ROLE: x"] }) },
+      { "rev-current": detail(current) },
+    );
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current&view=analysis");
+    await settledScreen();
+    const rows = [...container.querySelectorAll<HTMLTableRowElement>("tr[data-constraint-block]")];
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true, true]);
+    const toggle = screen.getByRole("button", { name: "Show all 5 blocks" });
+    fireEvent.click(toggle);
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false, false]);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    const technical = container.querySelector("details[data-disclosure='analysis-technical']") as HTMLDetailsElement;
+    expect(technical.open).toBe(false);
+    for (const name of ["dispatch-stored-record", "window-limitations"]) {
+      const inner = technical.querySelector(`details[data-disclosure='${name}']`) as HTMLDetailsElement;
+      expect(inner, name).not.toBeNull();
+      expect(inner.open, name).toBe(false);
+    }
+  });
+
   it("uses plain words for the shortfall constraint and a missing series, and hides model strings", async () => {
     const base = revision("rev-current", "NECESSARY");
     base.result.binding_constraints = ["CAPABILITY_SHORTFALL"];
@@ -332,10 +383,30 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current&view=analysis");
     await settledScreen();
     expect(container.querySelectorAll("[data-constraint-block]")).toHaveLength(2);
+    // Review fix M6: the result records alternatives, so the not-available "alternatives" row is suppressed and
+    // exactly one "Other explanations" line remains, stating the recorded count.
     expect([...container.querySelectorAll("[data-unavailable]")].map((e) => e.getAttribute("data-unavailable")))
-      .toEqual(["alternatives", "fuel_and_money", "finding"]);
+      .toEqual(["fuel_and_money", "finding"]);
+    const terms = (c: HTMLElement) => [...c.querySelectorAll("dt")].map((dt) => dt.textContent);
+    expect(terms(container).filter((t) => t === "Other explanations")).toHaveLength(1);
+    expect(container.textContent).toMatch(/Other explanations\s*1 recorded/);
     expect(container.querySelector("[data-dispatch-gated]")?.textContent).toMatch(/Not yet available/);
     expect(container.querySelector("[data-history-revision='rev-current']")).not.toBeNull();
+  });
+
+  it("Analysis without recorded alternatives keeps the not-available row once, and names every unavailable key (M6)", async () => {
+    const r = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    const bare = { ...r, result: { ...r.result, alternatives: {} } };
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [bare],
+      unavailable: { alternatives: "UNAVAILABLE: none", grid_import_cost: "UNAVAILABLE: later" } }) }, { "rev-current": detail(bare) });
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current&view=analysis");
+    await settledScreen();
+    expect([...container.querySelectorAll("[data-unavailable]")].map((e) => e.getAttribute("data-unavailable")))
+      .toEqual(["alternatives", "grid_import_cost"]);
+    const terms = [...container.querySelectorAll("dt")].map((dt) => dt.textContent);
+    expect(terms.filter((t) => t === "Other explanations")).toHaveLength(1);
+    expect(terms).toContain("Grid import cost");
+    expect(container.textContent).not.toMatch(/Another result/);
   });
 });
 
@@ -414,8 +485,11 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-current": detail(current) });
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current&block=1");
     await settledScreen();
-    const card = container.querySelector("[data-headline-card='dispatch-story']") as HTMLElement;
-    expect(card.querySelector(".headline-card__question")?.textContent).toBe("Why did the generator operate, and what can the readings support?");
+    // W1-F2: no answer card; the v69 dispatch panels, with the state line in the statusbar above them.
+    expectV69Panels("dispatch", { interval: "04:00–04:15 UTC" }, container.querySelector("[data-dispatch-root]") as HTMLElement);
+    expect(container.querySelector("[data-headline-card]")).toBeNull();
+    const card = container.querySelector(".durable-dispatch__body") as HTMLElement;
+    const blocks = panelTitled("Sources and 15-minute blocks", container);
     expect(card.querySelector("[data-dispatch-headline]")?.textContent).toBe(
       "The generator operated for 30 min to 1 h: 15 min possibly avoidable, 15 min needed and 0 min that cannot be determined.",
     );
@@ -427,10 +501,21 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     expect(chosen.getAttribute("href")).toContain("revision=rev-current");
     expect(chosen.getAttribute("href")).toContain("block=1");
     expect(chosen.getAttribute("aria-label")).toBe("04:00 to 04:15 UTC: Possibly avoidable");
+    // Review fix H1: the period chips and the selectable block tiles are in panel 1 under the strip, and
+    // panel 2 leads with the selected block's own outcome; the period facts follow under a period label.
+    expect(blocks.querySelector("[data-revision-id='rev-current']")).not.toBeNull();
+    expect(blocks.querySelector("[data-block='1'][aria-pressed='true']")?.textContent).toBe("Avoidable04:00");
+    const selectedPanel = panelTitled("Selected block · 04:00–04:15 UTC", container);
+    expect(selectedPanel.querySelector("[data-block], [data-revision-id]")).toBeNull();
+    const firstBadge = selectedPanel.querySelector("[data-claim-level]") as HTMLElement;
+    expect(firstBadge.closest("[data-selected-block]")).not.toBeNull();
+    expect(firstBadge.textContent).toBe("Possibly avoidable");
+    expect(selectedPanel.querySelector(".dispatch-block-detail__lead")?.textContent).toMatch(/above the demand in this block/);
+    expect(selectedPanel.querySelector("[data-dispatch-period-label]")?.textContent).toMatch(/^The period this block is in: \d\d:\d\d to/);
     expect(card.querySelector("[data-dispatch-analysis-link]")?.getAttribute("href")).toContain("view=analysis");
     // The rule versions are labelled exact references in the closed disclosure, never default prose.
     expect(defaultText(container)).not.toMatch(/dispatch-3\.1|model version/);
-    const disclosure = scanDisclosureVocabulary(card, "dispatch disclosure");
+    const disclosure = scanDisclosureVocabulary(blocks, "dispatch disclosure");
     expect(disclosure.disclosures).toBe(1);
     expect(describeViolations(disclosure.violations)).toBe("");
     const w1 = scanProductVocabulary(reading(container), "dispatch overview (W1)", { set: "w1" });
@@ -458,7 +543,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     }, { "rev-current": detail(undetermined) });
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current");
     await settledScreen();
-    const card = container.querySelector("[data-headline-card='dispatch-story']") as HTMLElement;
+    const card = container.querySelector(".durable-dispatch__body") as HTMLElement;
     expect(card.querySelector("[data-dispatch-headline]")?.textContent).toMatch(/^From an earlier result that is not current: /);
     expectStateLineVisible(card);
     expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
@@ -538,5 +623,66 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     const { container } = mount(client, "?day=2026-10-02&view=analysis");
     await settledScreen();
     expect(container.querySelector("[data-dispatch-story='none']")?.textContent).toMatch(/nothing is concluded here/);
+  });
+});
+
+/**
+ * W1-F2 (D-2026-10-17-mockup-layout-spec): the v69 `dispatch` and `analysis` panel structure in every variant.
+ * A page-level refusal keeps the same panel slots with the gap inside each.
+ */
+describe("W1-F2: v69 dispatch and analysis panel structure", () => {
+  const root = (container: HTMLElement) => container.querySelector("[data-dispatch-root]") as HTMLElement;
+  const stocked = () => {
+    const current = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    return fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-current": detail(current) });
+  };
+
+  it.each([
+    ["stocked, block selected", "?day=2026-10-02&revision=rev-current&block=1", "04:00–04:15 UTC"],
+    ["stocked, period selected", "?day=2026-10-02&revision=rev-current", "03:45–04:15 UTC"],
+    ["stocked, nothing selected", "?day=2026-10-02", "No block selected"],
+  ])("dispatch, %s", async (_name, search, interval) => {
+    const { container } = mount(stocked(), search);
+    await settledScreen();
+    expectV69Panels("dispatch", { interval }, root(container));
+  });
+
+  it("dispatch and analysis on an empty day keep their panels with the gap inside", async () => {
+    const empty = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [] }) });
+    const { container, unmount } = mount(empty, "?day=2026-10-02");
+    await settledScreen();
+    expectV69Panels("dispatch", { interval: "No block selected" }, root(container));
+    expect(panelTitled("Selected block · No block selected", root(container)).textContent).toContain("No period selected");
+    unmount();
+    const analysis = mount(empty, "?day=2026-10-02&view=analysis");
+    await settledScreen();
+    expectV69Panels("analysis", {}, root(analysis.container));
+    expect(panelTitled("Constraint comparison", root(analysis.container)).textContent).toContain("Select a period");
+  });
+
+  it("analysis, stocked: three panels, no fuel calculation claimed", async () => {
+    const { container } = mount(stocked(), "?day=2026-10-02&revision=rev-current&block=1&view=analysis");
+    await settledScreen();
+    expectV69Panels("analysis", {}, root(container));
+    expect(panelTitled("Bounded fuel calculation", root(container)).querySelector("[data-dispatch-gated]")).not.toBeNull();
+  });
+
+  it.each([
+    ["cutover unreadable", { status: "unavailable", message: "store down" } as EvidenceRead<CutoverState>, { status: "loaded", value: window() } as EvidenceRead<DispatchWindow>, "cutover-unreadable"],
+    ["cutover closed", { status: "loaded", value: { ...OPEN, permitted: false, reason: "not compared" } } as EvidenceRead<CutoverState>, { status: "loaded", value: window() } as EvidenceRead<DispatchWindow>, "closed"],
+    ["window not found", { status: "loaded", value: OPEN } as EvidenceRead<CutoverState>, { status: "not_found" } as EvidenceRead<DispatchWindow>, "window-unreadable"],
+  ])("refused (%s): the refusal precedes the same panels, each stating the gap", async (_name, cutover, read, name) => {
+    for (const view of ["", "&view=analysis"]) {
+      const { container, unmount } = mount(fake(cutover, read), `?day=2026-10-02${view}`);
+      await settledScreen();
+      expect(container.querySelector(`[data-page-refusal="${name}"]`)).not.toBeNull();
+      if (view === "") {
+        expectV69Panels("dispatch", { interval: "No block selected" }, root(container));
+      } else {
+        expectV69Panels("analysis", {}, root(container));
+      }
+      expect(container.querySelectorAll(`[data-dispatch-gap="${name}"]`)).toHaveLength(3);
+      unmount();
+    }
   });
 });

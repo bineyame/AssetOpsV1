@@ -15,6 +15,8 @@ export interface DisclosureProps {
   name: string;
   /** Open on first render. Closed unless a surface says otherwise. */
   defaultOpen?: boolean;
+  /** `tech`: the mock's small link-styled `details.tech` (W1-F2 compaction), same behaviour. */
+  variant?: "tech";
   children: ReactNode;
 }
 
@@ -22,10 +24,15 @@ export function Disclosure({
   summary,
   name,
   defaultOpen = false,
+  variant,
   children,
 }: DisclosureProps) {
   return (
-    <details className="disclosure" data-disclosure={name} open={defaultOpen}>
+    <details
+      className={variant === "tech" ? "disclosure disclosure--tech" : "disclosure"}
+      data-disclosure={name}
+      open={defaultOpen}
+    >
       <summary className="disclosure__summary">{summary}</summary>
       <div className="disclosure__body">{children}</div>
     </details>

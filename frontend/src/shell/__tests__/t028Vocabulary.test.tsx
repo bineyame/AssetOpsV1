@@ -181,6 +181,7 @@ describe("T028 product vocabulary guard (section 4)", () => {
       const result = await scanState(page, path, clients, act);
       // A scan of an empty or loading screen would pass for the wrong reason.
       expect(result.scanned, `${page} scanned nothing`).toBeGreaterThan(5);
+      // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
       violations.push(...result.violations);
     }
     expect(describeViolations(violations)).toBe("");

@@ -25,23 +25,26 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import {
   Badge,
+  ChartNote,
   DataTable,
   Disclosure,
   currentnessWords,
   ExactReferences,
   Fact,
   FactList,
-  HeadlineVisualCard,
+  KeyValues,
   Panel,
   plainTime,
   ProductStatus,
   type ProductWords,
   ValueBars,
   asOfText,
+  V69Notice,
 } from "../ui";
 import { PeriodStrip } from "./periodStrip";
 import { CountBars } from "./assessmentGraphics";
 import type { ClaimLimitClient } from "./claimLimitClient";
+import { idWords, qualityWords, roleWords } from "./dispatchWords";
 import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
 import { LocalViews, localView, localViewSearch, readablePeriod, readableTime } from "./findingPresentation";
 import type { EvidenceRead } from "./evidenceRead";
@@ -88,8 +91,22 @@ function sourceKind(mode: string): string {
   return mode === "SIMULATED" ? "Demonstration data" : mode === "LIVE" ? "Live data" : "Data of unstated origin";
 }
 
+/** Review fix M5(b): a coded state value ("STOPPED") reads as a plain word ("Stopped"), with no "state" unit. */
 function readingValue(value: { value: string | null; unit: string | null }): string {
-  return value.value === null ? "no value" : `${value.value}${value.unit === null ? "" : ` ${value.unit}`}`;
+  if (value.value === null) return "no value";
+  if (/^[A-Z][A-Z_]*$/.test(value.value)) {
+    const word = value.value.toLowerCase().replace(/_/g, " ");
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
+  const unit = value.unit === null || value.unit === "state" ? "" : ` ${value.unit}`;
+  return `${value.value}${unit}`;
+}
+
+/** The reading's name: its configured role in words, else its channel identifier in words. */
+function readingName(item: { role: string | null; signal_id: string }): string {
+  if (!item.role) return idWords(item.signal_id);
+  const words = roleWords(item.role);
+  return words === item.role.replace(/_/g, " ") ? idWords(item.role) : words;
 }
 
 /** `datetime-local` text for an instant, or "" (minutes, UTC). */
@@ -139,6 +156,11 @@ export function LedgerSiteEvidence({
     };
   }, [gatewayHealth, siteId]);
 
+  // W1-F2 fix round (H2): the chip-row element the claim-limit chooser renders into.
+  const [chooserSlot, setChooserSlot] = useState<HTMLDivElement | null>(null);
+  // W1-F2 fix round 2 (M1): the slot inside the limits panel's single advanced row.
+  const [detailSlot, setDetailSlot] = useState<HTMLDivElement | null>(null);
+
   const inspect = (key: "signal" | "source", value: string) => {
     const next = new URLSearchParams(params);
     for (const name of ["signal", "source", "record", "cursor"]) next.delete(name);
@@ -156,52 +178,91 @@ export function LedgerSiteEvidence({
       data-evidence-view={view}
     >
       <LocalViews label={LEDGER_EVIDENCE_VIEWS_LABEL} current={view} params={params} />
-      <WindowChooser evidence={evidence} />
+      <WindowChooser
+        evidence={evidence}
+        extra={
+          view === "analysis" ? (
+            // W1-F2 fix round (H2): the assessment day and period chooser joins the page's chip row.
+            <div className="evidence-toolbar__controls evidence-toolbar__assessment" ref={setChooserSlot} />
+          ) : null
+        }
+      />
       {view === "overview" ? (
         <OverviewBody evidence={evidence} health={health} params={params} onInspect={(source) => inspect("source", source)} />
       ) : (
         <>
           <StatusBar view="analysis" badge="Evidence · Analysis">
-            <span className="evidence-statusbar__facts">Accepted records, timing and how each limit is set</span>
+            <span className="evidence-statusbar__facts" data-evidence-analysis-question>
+              Accepted records, timing and how each limit is set
+            </span>
           </StatusBar>
-          <p className="headline-card__question evidence-analysis__question" data-evidence-analysis-question>
-            Which accepted readings sit behind what the readings can support?
-          </p>
-          <ClaimLimit evidence={evidence} />
-          <EvidenceClaimLimit siteId={siteId} client={claimLimit} assessmentHref={assessmentHref} />
-          <Inspector siteId={siteId} ledger={ledger} evidence={evidence} />
-          <Rejected siteId={siteId} ledger={ledger} evidence={evidence} />
-          <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
-            <Clocks evidence={evidence} />
-          </Advanced>
-          {evidence.sources.length === 0 ? null : (
-            <Advanced name="evidence-sources" summary="Advanced details — sources in this period">
-              <Sources evidence={evidence} onInspect={(source) => inspect("source", source)} />
+          {/* W1-F2: the v69 evidence-analysis panels. Records (and readings not accepted) first, then how a limit is set. */}
+          <Inspector siteId={siteId} ledger={ledger} evidence={evidence}>
+            <Rejected
+              siteId={siteId}
+              ledger={ledger}
+              evidence={evidence}
+              technical={
+                <>
+              <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
+                <Clocks evidence={evidence} />
+              </Advanced>
+              {evidence.sources.length === 0 ? null : (
+                <Advanced name="evidence-sources" summary="Advanced details — sources in this period">
+                  <Sources evidence={evidence} onInspect={(source) => inspect("source", source)} />
+                </Advanced>
+              )}
+              {evidence.batches.length === 0 ? null : (
+                <Advanced name="evidence-deliveries" summary={`Advanced details — deliveries (${evidence.batches.length})`}>
+                  <Deliveries evidence={evidence} />
+                </Advanced>
+              )}
+              {evidence.coverage.length === 0 ? null : (
+                <Advanced name="evidence-coverage" summary="Advanced details — readings by input">
+                  <Coverage evidence={evidence} onInspect={(key) => inspect("signal", key)} />
+                </Advanced>
+              )}
+                </>
+              }
+            />
+          </Inspector>
+          <ClaimLimit
+            evidence={evidence}
+            detailSlotRef={setDetailSlot}
+            technical={
+            /* W1-F2 compaction: the technical disclosures nest inside the panel's single advanced row; each keeps its own closed disclosure. */
+            <Advanced
+              name="evidence-analysis-technical"
+              summary={
+                evidence.migration === null
+                  ? "Advanced details — analysis status and gateway contact"
+                  : "Advanced details — analysis status, earlier store and gateway contact"
+              }
+            >
+              <Advanced name="evidence-analysis-status" summary="Advanced details — analysis status">
+                <AnalysisStatus evidence={evidence} />
+              </Advanced>
+              {evidence.migration === null ? null : (
+                <Advanced name="evidence-comparison" summary="Advanced details — earlier store comparison">
+                  <Comparison evidence={evidence} />
+                </Advanced>
+              )}
+              <Advanced name="evidence-gateway" summary="Advanced details — gateway contact">
+                <Panel heading="Gateway contact" headingId="site-evidence-gateway-heading">
+                  <GatewayContact health={health} detailed />
+                </Panel>
+              </Advanced>
             </Advanced>
-          )}
-          {evidence.batches.length === 0 ? null : (
-            <Advanced name="evidence-deliveries" summary={`Advanced details — deliveries (${evidence.batches.length})`}>
-              <Deliveries evidence={evidence} />
-            </Advanced>
-          )}
-          {evidence.coverage.length === 0 ? null : (
-            <Advanced name="evidence-coverage" summary="Advanced details — readings by input">
-              <Coverage evidence={evidence} onInspect={(key) => inspect("signal", key)} />
-            </Advanced>
-          )}
-          <Advanced name="evidence-analysis-status" summary="Advanced details — analysis status">
-            <AnalysisStatus evidence={evidence} />
-          </Advanced>
-          {evidence.migration === null ? null : (
-            <Advanced name="evidence-comparison" summary="Advanced details — earlier store comparison">
-              <Comparison evidence={evidence} />
-            </Advanced>
-          )}
-          <Advanced name="evidence-gateway" summary="Advanced details — gateway contact">
-            <Panel heading="Gateway contact" headingId="site-evidence-gateway-heading">
-              <GatewayContact health={health} detailed />
-            </Panel>
-          </Advanced>
+            }
+          >
+            <EvidenceClaimLimit
+              siteId={siteId}
+              client={claimLimit}
+              assessmentHref={assessmentHref}
+              chooserTarget={chooserSlot}
+              detailTarget={detailSlot}
+            />
+          </ClaimLimit>
         </>
       )}
     </div>
@@ -210,7 +271,7 @@ export function LedgerSiteEvidence({
 
 // --- selected period -------------------------------------------------------------
 
-function WindowChooser({ evidence }: { evidence: LedgerEvidence }) {
+function WindowChooser({ evidence, extra }: { evidence: LedgerEvidence; extra?: ReactNode }) {
   const [params, setParams] = useSearchParams();
   const { start, end } = evidence.window;
   const [from, setFrom] = useState(localInput(start));
@@ -246,30 +307,32 @@ function WindowChooser({ evidence }: { evidence: LedgerEvidence }) {
   }
 
   return (
-    <form className="evidence-window evidence-toolbar" onSubmit={apply} data-evidence-window={evidence.window.basis}>
-      <div className="evidence-toolbar__controls">
+    // W1-F2: the window chooser as the v69 chip row (chip-sized controls, `.button`), the app-only control before panel 1.
+    <div className="v69-chips evidence-window evidence-toolbar" data-evidence-window={evidence.window.basis}>
+      <form className="evidence-toolbar__controls" onSubmit={apply}>
         <label className="evidence-toolbar__field">
           <span>From (UTC)</span>
-          <input type="datetime-local" name="from" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <input className="v69-chip-control" type="datetime-local" name="from" value={from} onChange={(e) => setFrom(e.target.value)} />
         </label>
         <label className="evidence-toolbar__field">
           <span>To (UTC)</span>
-          <input type="datetime-local" name="to" value={to} onChange={(e) => setTo(e.target.value)} />
+          <input className="v69-chip-control" type="datetime-local" name="to" value={to} onChange={(e) => setTo(e.target.value)} />
         </label>
-        <button type="submit" className="action action--primary">
+        <button type="submit" className="button">
           Show this period
         </button>
-        <button type="button" className="action" onClick={all}>
+        <button type="button" className="button" onClick={all}>
           Show all readings
         </button>
-      </div>
+      </form>
+      {extra}
       <p className="evidence-toolbar__period">
         <strong>Selected period:</strong> {period}. Periods are chosen by the time each reading was taken.
         {evidence.extent.first_source_time === null || evidence.extent.last_source_time === null
           ? " This site has no accepted readings yet."
           : ` Accepted readings for this site span ${readablePeriod(evidence.extent.first_source_time, evidence.extent.last_source_time)}.`}
       </p>
-    </form>
+    </div>
   );
 }
 
@@ -306,7 +369,7 @@ function notAccepted(evidence: LedgerEvidence): number {
 /** A missing fact this slice has no data contract for, stated plainly (V-01a round 3 addendum). */
 function NotAvailableYet({ name, children }: { name: string; children: string }) {
   return (
-    <p className="not-available-yet" data-not-available={name}>
+    <p className="not-available-yet v69-chart-note" data-not-available={name}>
       {children}
     </p>
   );
@@ -316,7 +379,8 @@ function NotAvailableYet({ name, children }: { name: string; children: string })
 function Advanced({ name, summary, children }: { name: string; summary: string; children: ReactNode }) {
   return (
     <div className="evidence-advanced">
-      <Disclosure name={name} summary={summary}>
+      {/* W1-F2 compaction (phase B): the mock's small link-styled `details.tech`; same content, still closed. */}
+      <Disclosure name={name} summary={summary} variant="tech">
         {children}
       </Disclosure>
     </div>
@@ -336,7 +400,8 @@ function StatusBar({
   link?: ReactNode;
 }) {
   return (
-    <div className="evidence-statusbar" data-evidence-statusbar={view}>
+    // W1-F2: F1's one-line status strip (inline children only), so the v69 guard reads it as the mock's statusbar.
+    <div className="status-strip status-strip--line evidence-statusbar" data-evidence-statusbar={view}>
       <Badge tone="neutral">{badge}</Badge>
       {children}
       {link === undefined ? null : <span className="evidence-statusbar__link">{link}</span>}
@@ -430,58 +495,50 @@ function OverviewBody({
           {`${plural(evidence.counts.accepted, "reading", "readings")} accepted · ${reportingSources(evidence).length} of ${plural(evidence.sources.length, "source", "sources")} with accepted readings · ${refused} not accepted`}
         </span>
       </StatusBar>
-      <HeadlineVisualCard
-        dataName="evidence-conclusion"
+      <Panel
+        heading="What we can conclude now"
         headingId="site-evidence-state-heading"
-        title="What we can conclude now"
         description="Evidence readiness is not equipment condition"
-        question="What can we rely on?"
-        headline={<span data-evidence-headline={evidence.state}>{headlineOf(evidence)}</span>}
-        status={<ProductStatus words={receiptWords(evidence)} scope={periodScope(evidence)} asOf={evidence.extent.last_received_at} />}
-        visual={
-          <ValueBars
-            title="Readings that arrived for this period, by what happened to them"
-            items={OUTCOMES.map((o) => ({ key: o.key, label: o.label, value: evidence.counts[o.key], valueText: String(evidence.counts[o.key]) }))}
-          />
-        }
-        meaning={
-          <>
-            {notes.length === 0 ? null : (
-              <ul data-evidence-notes>
-                {notes.map((state) => (
-                  <li key={state} data-evidence-note={state}>
-                    {STATE_NOTES[state]}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p data-evidence-rejection-count={refused}>
-              {refused === 0
-                ? "No reading in this period was refused."
-                : `${plural(refused, "reading", "readings")} in this period could not be accepted; the reasons are on the Analysis view.`}
-            </p>
-            <p className="overview-note" data-evidence-limits>
-              This page shows the readings received and what happened to each. It draws no conclusion about how the
-              site or its equipment is operating.
-            </p>
-            <NotAvailableYet name="capability-conclusions">
-              Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
-            </NotAvailableYet>
-          </>
-        }
-        todo={
-          evidence.state === "NO_DATA" ? (
-            <p>Check that the site&apos;s data source is reporting.</p>
-          ) : refused > 0 ? (
-            <p>See why readings were not accepted on Evidence › Analysis.</p>
-          ) : undefined
-        }
-        destination={
+        actions={
           <Link to={{ search: analysis }} data-evidence-analysis-link>
             Open Evidence › Analysis for this period
           </Link>
         }
-        references={
+      >
+        <div data-evidence-conclusion>
+          <p className="v69-prose">
+            <strong data-evidence-headline={evidence.state}>{headlineOf(evidence)}</strong>
+          </p>
+          {/* Review fix M3: the receipt state differs from the statusbar badge, so it is one note-size inline line. */}
+          <p className="v69-chart-note evidence-receipt-state">
+            <ProductStatus inline words={receiptWords(evidence)} scope={periodScope(evidence)} asOf={evidence.extent.last_received_at} />
+          </p>
+          <ValueBars
+            title="Readings that arrived for this period, by what happened to them"
+            items={OUTCOMES.map((o) => ({ key: o.key, label: o.label, value: evidence.counts[o.key], valueText: String(evidence.counts[o.key]) }))}
+          />
+          {notes.length === 0 ? null : (
+            <ul className="v69-chart-note evidence-notes" data-evidence-notes>
+              {notes.map((state) => (
+                <li key={state} data-evidence-note={state}>
+                  {STATE_NOTES[state]}
+                </li>
+              ))}
+            </ul>
+          )}
+          <ChartNote data={{ "data-evidence-rejection-count": String(refused) }}>
+            {refused === 0
+              ? "No reading in this period was refused."
+              : `${plural(refused, "reading", "readings")} in this period could not be accepted; the reasons are on the Analysis view.`}
+            {evidence.state === "NO_DATA" ? " Check that the site's data source is reporting." : ""}
+          </ChartNote>
+          <ChartNote data={{ "data-evidence-limits": "" }}>
+            This page shows the readings received and what happened to each. It draws no conclusion about how the
+            site or its equipment is operating.
+          </ChartNote>
+          <NotAvailableYet name="capability-conclusions">
+            Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
+          </NotAvailableYet>
           <ExactReferences
             name="evidence-conclusion-references"
             references={[
@@ -492,22 +549,16 @@ function OverviewBody({
               ...evidence.states.map((state, i) => ({ label: `Recorded condition ${i + 1}`, value: state })),
             ]}
           />
-        }
-      />
-      <ReportingFacts evidence={evidence} health={health} />
+        </div>
+      </Panel>
       <div className="panel-pair evidence-pair">
         <SourcesOverview evidence={evidence} health={health} onInspect={onInspect} />
         <NextEvidence evidence={evidence} />
       </div>
-      <p className="notice notice--info" data-evidence-closing-notice>
+      <V69Notice tone="blue" data={{ "data-evidence-closing-notice": "" }}>
         Record-level detail, timing and how each limit is set are on{" "}
         <Link to={{ search: analysis }}>Evidence › Analysis</Link>.
-      </p>
-      {evidence.migration === null ? null : (
-        <Advanced name="evidence-earlier-store" summary="Advanced details — earlier store">
-          <MigrationNote evidence={evidence} />
-        </Advanced>
-      )}
+      </V69Notice>
     </>
   );
 }
@@ -533,6 +584,17 @@ function receiptFact(evidence: LedgerEvidence): { tone: FactTone; text: string }
 }
 
 function contactFact(health: EvidenceRead<GatewayHealth> | null): { tone: FactTone; text: string } {
+  const fact = contactState(health);
+  // W1-F2 compaction (phase B): the gateway block is closed, so the visible fact states a switched-off gateway itself.
+  const off = health?.status === "loaded" ? health.value.gateways.filter((g) => g.registration === "DISABLED").length : 0;
+  if (off === 0) return fact;
+  const total = health?.status === "loaded" ? health.value.gateways.length : 0;
+  const offText =
+    total === 1 ? "This gateway is currently switched off for this site." : `${plural(off, "gateway is", "gateways are")} currently switched off for this site.`;
+  return { ...fact, text: `${fact.text} ${offText}` };
+}
+
+function contactState(health: EvidenceRead<GatewayHealth> | null): { tone: FactTone; text: string } {
   if (health === null) return { tone: "not-known", text: "Loading the gateway's contact." };
   if (health.status === "not_found") return { tone: "not-known", text: "No gateway is registered, so there is no contact to report." };
   if (health.status !== "loaded") return { tone: "not-known", text: "The contact record could not be read, so contact is not known." };
@@ -570,28 +632,32 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
     { key: "contact", title: "Gateway contact", ...contactFact(health) },
     { key: "analysis", title: "Analysis up to date", ...analysisFact(evidence) },
   ];
+  return (
+    <div data-evidence-reporting-facts>
+      <KeyValues
+        label="Which sources reported, and when: three separate facts"
+        rows={facts.map((f) => [
+          f.title,
+          <span key={f.key} data-evidence-reporting-fact={f.key} data-fact-tone={f.tone}>
+            <strong>{FACT_WORDS[f.tone]}.</strong> {f.text}
+          </span>,
+          f.key,
+        ])}
+      />
+      <ChartNote data={{ "data-evidence-reporting-note": "" }}>
+        A recent gateway report does not make the readings recent, and recent readings do not make the analysis up
+        to date. {asOfText(evidence.extent.last_received_at)}.
+      </ChartNote>
+    </div>
+  );
+}
+
+/** W1-F2: the per-source latest-reading strip, below the sources table (the table is the panel's primary content). */
+function SourceStrip({ evidence }: { evidence: LedgerEvidence }) {
   const start = evidence.window.basis === "ALL" ? null : evidence.window.start;
   const end = evidence.window.basis === "ALL" ? null : evidence.window.end;
   return (
-    <Panel
-      heading="Which sources reported, and when"
-      headingId="site-evidence-reporting-heading"
-      description="Three separate facts: one does not make another true"
-    >
-      <ul className="source-facts" data-evidence-reporting-facts>
-        {facts.map((f) => (
-          <li key={f.key} className="source-facts__item" data-evidence-reporting-fact={f.key} data-fact-tone={f.tone}>
-            <h3>{f.title}</h3>
-            <p>
-              <strong>{FACT_WORDS[f.tone]}.</strong> {f.text}
-            </p>
-          </li>
-        ))}
-      </ul>
-      <p className="panel__note" data-evidence-reporting-note>
-        A recent gateway report does not make the readings recent, and recent readings do not make the analysis up
-        to date. {asOfText(evidence.extent.last_received_at)}.
-      </p>
+    <>
       {evidence.sources.length === 0 ? null : (
         <PeriodStrip
           name="evidence-sources"
@@ -605,7 +671,7 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
             const taken = s.accepted_in_window === 0 ? null : s.last_source_time;
             return {
               key: s.source_id,
-              label: <span {...REF}>{s.external_id}</span>,
+              label: <span {...REF} title={s.external_id}>{idWords(s.external_id)}</span>,
               segments: taken === null ? [] : [{ key: "latest", start: taken, end: taken, tone: "marker" as const, label: "Latest reading taken" }],
               summary:
                 s.accepted_in_window === 0
@@ -615,7 +681,7 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
           })}
         />
       )}
-    </Panel>
+    </>
   );
 }
 
@@ -628,8 +694,15 @@ function SourcesOverview({
   health: EvidenceRead<GatewayHealth> | null;
   onInspect: (source: string) => void;
 }) {
+  // W1-F2 compaction: the mock's three source rows first, then "Show all N sources".
+  const [showAll, setShowAll] = useState(false);
   return (
-    <Panel heading="Data sources · data quality, not equipment condition" headingId="site-evidence-sources-heading">
+    <Panel
+      heading="Data sources · data quality, not equipment condition"
+      headingId="site-evidence-sources-heading"
+      description="Readings received, gateway contact and analysis status are separate facts"
+    >
+      <ReportingFacts evidence={evidence} health={health} />
       {evidence.sources.length === 0 ? (
         <p data-evidence-sources-empty>No source has reported to this site.</p>
       ) : (
@@ -644,10 +717,10 @@ function SourcesOverview({
             </tr>
           </thead>
           <tbody>
-            {evidence.sources.map((s) => (
-              <tr key={s.source_id} data-evidence-source={s.source_id}>
-                <th scope="row" {...REF}>
-                  {s.external_id}
+            {evidence.sources.map((s, index) => (
+              <tr key={s.source_id} data-evidence-source={s.source_id} hidden={!showAll && index >= SOURCE_PREVIEW_ROWS}>
+                <th scope="row" {...REF} title={s.external_id}>
+                  {idWords(s.external_id)}
                 </th>
                 {s.accepted_in_window === 0 ? (
                   <td colSpan={3}>No accepted reading in this period</td>
@@ -668,21 +741,57 @@ function SourcesOverview({
           </tbody>
         </DataTable>
       )}
-      {evidence.sources.length === 0 ? null : (
-        <p className="panel__note" data-evidence-source-clocks>
-          {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock (UTC).`}
+      {evidence.sources.length <= SOURCE_PREVIEW_ROWS ? null : (
+        <p className="v69-chart-note">
+          <button
+            type="button"
+            className="link-button"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((v) => !v)}
+            data-evidence-sources-toggle={showAll ? "all" : "preview"}
+          >
+            {showAll ? `Show the first ${SOURCE_PREVIEW_ROWS} only` : `Show all ${evidence.sources.length} sources`}
+          </button>
         </p>
       )}
-      <div className="evidence-gateway-block">
-        <h3>Gateway contact</h3>
-        <GatewayContact health={health} detailed={false} />
-      </div>
       <NotAvailableYet name="source-judgements">
         Not available yet: a status at the end of the period, a quality grade and which conclusions each source affects. No reviewed rule sets these.
       </NotAvailableYet>
+      {/* W1-F2 compaction: the clock note, the per-source strip, the gateway's own report and the earlier-store
+          comparison sit in one closed disclosure; the three reporting facts above stay visible. */}
+      <Advanced
+        name="evidence-sources-detail"
+        summary={
+          evidence.migration === null
+            ? "Advanced details — clocks, latest reading per source and gateway contact"
+            : "Advanced details — clocks, latest reading per source, gateway contact and earlier store"
+        }
+      >
+        {evidence.sources.length === 0 ? null : (
+          <p className="panel__note" data-evidence-source-clocks>
+            {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock (UTC).`}
+          </p>
+        )}
+        <SourceStrip evidence={evidence} />
+        <div className="evidence-gateway-block" aria-label="Gateway contact">
+          <p>
+            <strong>Gateway contact</strong>
+          </p>
+          <GatewayContact health={health} detailed={false} />
+        </div>
+        {/* W1-F2: the earlier-store comparison is reference material about these sources, so it closes this panel. */}
+        {evidence.migration === null ? null : (
+          <Advanced name="evidence-earlier-store" summary="Advanced details — earlier store">
+            <MigrationNote evidence={evidence} />
+          </Advanced>
+        )}
+      </Advanced>
     </Panel>
   );
 }
+
+/** W1-F2 compaction: the sources table shows this many rows until "Show all" (the mock's three). */
+const SOURCE_PREVIEW_ROWS = 3;
 
 function NextEvidence({ evidence }: { evidence: LedgerEvidence }) {
   const silent = evidence.sources.filter((s) => s.accepted_in_window === 0);
@@ -698,8 +807,8 @@ function NextEvidence({ evidence }: { evidence: LedgerEvidence }) {
           <p>Sources with no accepted reading in this period (a fact, not a recommendation):</p>
           <ul className="cell-list">
             {silent.map((s) => (
-              <li key={s.source_id} {...REF}>
-                {s.external_id}
+              <li key={s.source_id} {...REF} title={s.external_id}>
+                {idWords(s.external_id)}
               </li>
             ))}
           </ul>
@@ -1004,10 +1113,13 @@ function Rejected({
   siteId,
   ledger,
   evidence,
+  technical,
 }: {
   siteId: string;
   ledger: LedgerEvidenceClient | undefined;
   evidence: LedgerEvidence;
+  /** The record-level technical disclosures; they nest inside the panel's single advanced row. */
+  technical?: ReactNode;
 }) {
   const [loaded, setLoaded] = useState<EvidenceRead<LedgerRejections> | null>(null);
   useEffect(() => {
@@ -1028,20 +1140,25 @@ function Rejected({
   const untimed = evidence.counts.rejected_without_source_time;
   const refused = notAccepted(evidence);
   return (
-    <Panel heading="Readings not accepted" headingId="site-evidence-rejected-heading">
-      <p data-evidence-not-accepted-line={refused}>
-        {refused === 0
-          ? "No reading in this period was refused."
-          : `${plural(refused, "reading", "readings")} in this period ${refused === 1 ? "was" : "were"} not accepted (${evidence.counts.rejected} refused, ${evidence.counts.conflicts} arrived again with different contents). They are never counted as accepted.`}
+    <div className="evidence-rejected" aria-labelledby="site-evidence-rejected-heading">
+      {/* Review Low 7a: the not-accepted facts fold into one note line, before the one closed disclosure. */}
+      <p className="v69-chart-note">
+        <strong id="site-evidence-rejected-heading">Readings not accepted:</strong>{" "}
+        <span data-evidence-not-accepted-line={refused}>
+          {refused === 0
+            ? "No reading in this period was refused."
+            : `${plural(refused, "reading", "readings")} in this period ${refused === 1 ? "was" : "were"} not accepted (${evidence.counts.rejected} refused, ${evidence.counts.conflicts} arrived again with different contents). They are never counted as accepted.`}
+        </span>{" "}
+        <span data-evidence-untimed={typeof untimed === "number" ? String(untimed) : "unavailable"}>
+          {typeof untimed !== "number"
+            ? "How many refused readings had no readable time is not available."
+            : untimed === 0
+              ? "Every refused reading had a readable time."
+              : `${plural(untimed, "refused reading has", "refused readings have")} no readable time, so no period can hold ${untimed === 1 ? "it" : "them"}; ${untimed === 1 ? "it is" : "they are"} listed in the advanced details below.`}{" "}
+          A delivery that was rejected as a whole is kept for audit and not listed as a reading.
+        </span>
       </p>
-      <p data-evidence-untimed={typeof untimed === "number" ? String(untimed) : "unavailable"}>
-        {typeof untimed !== "number"
-          ? "How many refused readings had no readable time is not available."
-          : untimed === 0
-            ? "Every refused reading had a readable time."
-            : `${plural(untimed, "refused reading has", "refused readings have")} no readable time, so no period can hold ${untimed === 1 ? "it" : "them"}; ${untimed === 1 ? "it is" : "they are"} listed in the advanced details below.`}{" "}
-        A whole delivery the server refused is kept as an operational audit record and is not listed as a reading.
-      </p>
+      <Advanced name="evidence-records-technical" summary="Advanced details — readings not accepted, clocks, sources, deliveries and readings by input">
       <Advanced name="evidence-not-accepted" summary="Advanced details — readings not accepted">
         {evidence.state === "NO_DATA" ? null : <OutcomeBars evidence={evidence} />}
         <h3 id="site-evidence-rejected-table-heading">Readings not accepted (all periods)</h3>
@@ -1112,7 +1229,9 @@ function Rejected({
           </>
         )}
       </Advanced>
-    </Panel>
+      {technical}
+      </Advanced>
+    </div>
   );
 }
 
@@ -1141,14 +1260,19 @@ function RecordLink({ evidenceId }: { evidenceId: string }) {
  * whole site or for the source or input a reader chose, each opening its full
  * record (configuration, receipt and the exact message as received).
  */
+/** W1-F2 compaction: the accepted-records table shows this many rows until "Show all" (the mock's three). */
+const RECORD_PREVIEW_ROWS = 3;
+
 function Inspector({
   siteId,
   ledger,
   evidence,
+  children,
 }: {
   siteId: string;
   ledger: LedgerEvidenceClient | undefined;
   evidence: LedgerEvidence;
+  children?: ReactNode;
 }) {
   const [params, setParams] = useSearchParams();
   const signal = params.get("signal");
@@ -1214,6 +1338,11 @@ function Inspector({
       : signal;
   const page = list !== null && list.status === "loaded" ? list.value : null;
   const clocks = page === null ? [] : Array.from(new Set(page.records.map((item) => clockWords(item.clocks.source_time))));
+  // W1-F2 compaction: the mock's three rows first (the rest stay in the table, hidden), then "Show all" for this page. A chosen record
+  // past the third row always shows the full page, so the selected row is never hidden.
+  const [showAll, setShowAll] = useState(false);
+  const selectedIndex = page === null || record === null ? -1 : page.records.findIndex((item) => item.evidence_id === record);
+  const allShown = showAll || selectedIndex >= RECORD_PREVIEW_ROWS;
 
   return (
     <div id={LEDGER_INSPECTOR_ID} data-evidence-inspector={source ?? signal ?? "site"}>
@@ -1248,9 +1377,9 @@ function Inspector({
           <p data-evidence-records-empty>No accepted reading in this period.</p>
         ) : (
           <>
-            <p>
+            <ChartNote data={{ "data-evidence-records-count": String(list.value.records.length) }}>
               {`${list.value.records.length} of ${list.value.total} accepted readings in this period, earliest taken first. Taken and sent times: ${clocks.join(" or ")}; received times: server clock (UTC). The gap between them is not a delivery delay.`}
-            </p>
+            </ChartNote>
             <DataTable labelledBy="site-evidence-inspector-heading">
               <thead>
                 <tr>
@@ -1263,12 +1392,22 @@ function Inspector({
                 </tr>
               </thead>
               <tbody>
-                {list.value.records.map((item) => (
-                  <tr key={item.evidence_id} data-evidence-record={item.evidence_id} aria-selected={item.evidence_id === record}>
-                    <th scope="row" {...REF}>{`${item.source.external_id} · ${item.device_id} / ${item.signal_id}`}</th>
+                {list.value.records.map((item, index) => (
+                  <tr
+                    key={item.evidence_id}
+                    data-evidence-record={item.evidence_id}
+                    aria-selected={item.evidence_id === record}
+                    hidden={!allShown && index >= RECORD_PREVIEW_ROWS}
+                  >
+                    <th scope="row" title={`${item.source.external_id} · ${item.device_id} / ${item.signal_id}`}>
+                      {readingName(item)}
+                      <small {...REF}>{idWords(item.source.external_id)}</small>
+                    </th>
                     <td>
                       {readingValue(item.normalized)}
-                      {item.quality === "GOOD" ? null : <span className="evidence-records__quality">{` (quality ${item.quality})`}</span>}
+                      {item.quality === "GOOD" ? null : (
+                        <span className="evidence-records__quality">{` (quality: ${qualityWords(item.quality).toLowerCase()})`}</span>
+                      )}
                     </td>
                     <td>{when(item.source_time)}</td>
                     <td>{when(item.published_at)}</td>
@@ -1288,7 +1427,22 @@ function Inspector({
                 ))}
               </tbody>
             </DataTable>
-            <p className="evidence-records__paging">
+            <p className="evidence-records__paging v69-chart-note">
+              {list.value.records.length <= RECORD_PREVIEW_ROWS || selectedIndex >= RECORD_PREVIEW_ROWS ? null : (
+                <button
+                  type="button"
+                  className="link-button"
+                  aria-expanded={showAll}
+                  onClick={() => setShowAll((v) => !v)}
+                  data-evidence-records-toggle={showAll ? "all" : "preview"}
+                >
+                  {showAll
+                    ? `Show the first ${RECORD_PREVIEW_ROWS} only`
+                    : list.value.records.length === list.value.total
+                      ? `Show all ${list.value.total} readings`
+                      : `Show all ${list.value.records.length} readings on this page`}
+                </button>
+              )}{" "}
               {cursor === null ? null : (
                 <button type="button" className="action" onClick={() => change((n) => n.delete("cursor"))}>
                   First page
@@ -1306,25 +1460,61 @@ function Inspector({
             </p>
           </>
         )}
+        {record === null ? null : <RecordView detail={detail} onClose={() => change((n) => n.delete("record"))} />}
+        {children}
       </Panel>
-      {record === null ? null : <RecordView detail={detail} onClose={() => change((n) => n.delete("record"))} />}
     </div>
   );
 }
 
 /** `evidence-analysis:2`: the S2-supported way a claim is limited, in plain prose. */
-function ClaimLimit({ evidence }: { evidence: LedgerEvidence }) {
+function ClaimLimit({
+  evidence,
+  children,
+  technical,
+  detailSlotRef,
+}: {
+  evidence: LedgerEvidence;
+  children?: ReactNode;
+  /** The empty slot inside the panel's single advanced row; the selected assessment's detail renders into it. */
+  detailSlotRef?: (el: HTMLDivElement | null) => void;
+  /** The closed technical disclosures, after the not-available line and the list of limits. */
+  technical?: ReactNode;
+}) {
   const applies = (state: LedgerEvidence["states"][number]) =>
     evidence.states.includes(state) ? " This applies to the selected period." : "";
   const p = evidence.projection;
   const analysisBehind = p.status === "STALE" || p.failed_jobs > 0;
   return (
     <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-heading">
-      <div className="prose" data-evidence-claim-limit>
-        <p>
-          This page states what arrived for the selected period and draws no conclusion about how the site or its
-          equipment is operating. What can be said is narrowed in these ways:
-        </p>
+      {/* W1-F2: note-size lines in the panel; the full list of limits sits in one closed disclosure, every statement kept. */}
+      <div data-evidence-claim-limit>
+        {/* W1-F2 fix round (H2): the mock's two paragraphs; the Overview's "This page states what arrived" line is not repeated. */}
+        <div className="claim-limit__prose">
+          <p>
+            Each conclusion lists the readings it needs. When all are present for a period, the full conclusion is
+            allowed. When one is missing or unreliable, the conclusion is narrowed to the periods that are covered,
+            and the gap is shown rather than filled in.
+          </p>
+          <p data-evidence-limit-note>
+            Data-source status describes reporting, not equipment condition: a source can be online while the
+            equipment it watches is faulty. A conclusion describes what the readings show, not the equipment's physical
+            capacity; configured ratings are not treated as observed.
+          </p>
+        </div>
+      </div>
+      {children}
+      <NotAvailableYet name="claim-limit-rule">
+        Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).
+      </NotAvailableYet>
+      <Advanced
+        name="evidence-limit-details"
+        summary="Advanced details — what limits it, how what can be said is narrowed, analysis status and earlier store"
+      >
+        <div ref={detailSlotRef} data-claim-limit-detail-slot />
+      <div data-evidence-claim-limit-list>
+        <Advanced name="evidence-limit-list" summary="Advanced details — how what can be said is narrowed">
+        <p>What can be said is narrowed in these ways:</p>
         <ul>
           <li data-claim-limit="PARTIAL_BATCH">
             {`A partial period: while deliveries are still being processed, the counts may still grow.${applies("PARTIAL_BATCH")}`}
@@ -1339,19 +1529,19 @@ function ClaimLimit({ evidence }: { evidence: LedgerEvidence }) {
             {`Analysis status: derived results may not yet include the newest readings; this is shown apart from whether readings are arriving.${analysisBehind ? " Derived results are behind for this site now; the analysis status details are below." : ""}`}
           </li>
         </ul>
-        <p>Data-source status describes reporting, not equipment condition.</p>
+        </Advanced>
       </div>
-      <NotAvailableYet name="claim-limit-rule">
-        Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).
-      </NotAvailableYet>
+      {technical}
+      </Advanced>
     </Panel>
   );
 }
 
 function RecordView({ detail, onClose }: { detail: EvidenceRead<LedgerRecordDetail> | null; onClose: () => void }) {
   return (
-    <Panel heading="Reading detail" headingId="site-evidence-record-heading">
-      <p>
+    <div className="evidence-record-view" aria-labelledby="site-evidence-record-heading">
+      <p id="site-evidence-record-heading">
+        <strong>Reading detail</strong>{" "}
         <button type="button" onClick={onClose}>
           Close reading
         </button>
@@ -1365,7 +1555,7 @@ function RecordView({ detail, onClose }: { detail: EvidenceRead<LedgerRecordDeta
       ) : (
         <RecordFacts item={detail.value} />
       )}
-    </Panel>
+    </div>
   );
 }
 
