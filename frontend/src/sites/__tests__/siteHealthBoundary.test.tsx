@@ -124,7 +124,7 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     await settledScreen();
     const summary = q("[data-health-summary]") as HTMLElement;
     expect(summary.getAttribute("data-health-summary")).toBe("NOT_ALL_CURRENT");
-    expect(summary.textContent).toContain("Gateway contact: not all current");
+    expect(summary.textContent).toContain("Some gateways are not in contact.");
     expect(summary.textContent).toContain("8 enabled gateways: 6 current, 1 stale, 1 unknown");
     expect(summary.textContent).toContain("1 disabled, not counted");
     // The only "healthy" on the page is the closing notice that denies it.
@@ -142,20 +142,29 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     await settledScreen();
     const row = (key: string) => q(`[data-health-gateway="${key}"]`) as HTMLElement;
     expect(row("s7-current").getAttribute("data-health-contact")).toBe("CURRENT");
-    expect(row("s7-current").textContent).toContain("Current: received 5 s ago");
-    expect(row("s7-stale-cadence").textContent).toContain("Stale: nothing received for 10 min (limit 1 min)");
-    expect(row("s7-stale-cadence").textContent).toContain("when it stopped is not known");
-    expect(row("s7-delayed-old").textContent).toContain("Current: received 5 s ago");
-    expect(row("s7-delayed-old").textContent).toContain("Old: observed 6 h ago; it reached the server 6 h after");
-    const clock = row("s7-clock-offset").textContent ?? "";
-    expect(clock).toContain("Unknown age: the gateway's clock is off by 95 s, more than the 5 s allowed");
-    expect(row("s7-never-received").textContent).toContain("Never received");
-    expect(row("s7-never-received").textContent).toContain("Nothing received yet");
+    // F5a fix round: the table row is one line per gateway (short status word with age, quality chip);
+    // the long wording lives in the reported-detail rows (Technical details) and the selected-gateway view.
+    const status = (key: string) => (row(key).querySelector("[data-health-status]") as HTMLElement).textContent;
+    const quality = (key: string) => (row(key).querySelector("[data-health-quality] .badge") as HTMLElement).textContent;
+    const reported = (key: string) => (q(`[data-health-reported="${key}"]`) as HTMLElement).textContent ?? "";
+    expect(status("s7-current")).toBe("Current · 5 s ago");
+    expect(quality("s7-current")).toBe("Current");
+    expect(status("s7-stale-cadence")).toBe("Stale · 10 min");
+    expect(status("s7-delayed-old")).toBe("Current · 5 s ago");
+    expect(quality("s7-delayed-old")).toBe("Old");
+    expect(reported("s7-delayed-old")).toContain("Old: observed 6 h ago; it reached the server 6 h after");
+    expect(quality("s7-clock-offset")).toBe("Unknown age");
+    expect(reported("s7-clock-offset")).toContain(
+      "Unknown age: the gateway's clock is off by 95 s, more than the 5 s allowed",
+    );
+    expect(status("s7-never-received")).toBe("Never received");
+    expect(quality("s7-never-received")).toBe("Nothing received");
+    expect(reported("s7-never-received")).toContain("Nothing received yet");
     // The disabled import gateway: listed, marked and not counted.
     const disabled = row("edge-kobo-001");
     expect(disabled.getAttribute("data-health-registration")).toBe("DISABLED");
     expect(disabled.textContent).toContain("Disabled");
-    expect(disabled.textContent).toContain("Disabled, not counted.");
+    expect((q("[data-health-summary]") as HTMLElement).textContent).toContain("1 disabled, not counted");
     // No age anywhere on the page is signed.
     expect(defaultReading()).not.toMatch(/-\d+\s?(s|min|h|d)\b/);
     expect(gatewayRow("s7-clock-offset").reported_facts.fact_age_seconds).toBeNull();
@@ -167,10 +176,11 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     serve(recorded());
     mount("/sites/KOBO-001/health");
     await settledScreen();
-    const clock = (q('[data-health-gateway="s7-clock-offset"]') as HTMLElement).textContent ?? "";
+    const clock = (q('[data-health-reported="s7-clock-offset"]') as HTMLElement).textContent ?? "";
     expect(clock).not.toMatch(/reached the server/);
     expect(clock).not.toMatch(/-\d+\s?(s|min|h|d)\b/);
-    expect((q('[data-health-gateway="s7-delayed-old"]') as HTMLElement).textContent).toContain("it reached the server 6 h after");
+    expect((q('[data-health-gateway="s7-clock-offset"]') as HTMLElement).textContent).not.toMatch(/reached the server/);
+    expect((q('[data-health-reported="s7-delayed-old"]') as HTMLElement).textContent).toContain("it reached the server 6 h after");
   });
 
   it("keeps queue, storage and device contact as last reported, in separately qualified sections", async () => {
@@ -273,8 +283,8 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     await settledScreen();
     const summary = q("[data-health-summary]") as HTMLElement;
     expect(summary.getAttribute("data-health-summary-reason")).toBe("NO_ENABLED_GATEWAY");
-    expect(summary.textContent).toContain("Gateway contact: no enabled gateway");
-    expect(summary.textContent).toContain("No gateway is enabled for this site, so nothing is known about contact.");
+    expect(summary.textContent).toContain("No gateway is reporting.");
+    expect(summary.textContent).toContain("No gateway is enabled for this site, so nothing is known about source contact.");
     expect(summary.textContent).not.toMatch(/\b0 current\b|all current/);
     expect(q('[data-health-gateway="edge-kobo-002"]')?.getAttribute("data-health-registration")).toBe("DISABLED");
     expect(q('[data-health-queue="none"]')).not.toBeNull();
@@ -391,7 +401,9 @@ describe("Battery boundary (asset:3#a)", () => {
     serve(recorded());
     mount("/sites/KOBO-NB/health");
     await settledScreen();
-    expect(q('[data-health-battery="NOT_CONFIGURED"]')?.textContent).toContain("Unknown (not configured)");
+    expect(q('[data-health-battery="NOT_CONFIGURED"]')?.textContent).toBe("Battery page");
+    // The state is said once, in the lead; the repeated "Unknown (not configured)" line was removed (F5a review L3).
+    expect(q("[data-health-condition-lead]")?.textContent).toContain("No battery is part of this site's configuration");
   });
 
   it("lists the configured battery by asset ID on the entry page and follows it", async () => {
@@ -470,9 +482,11 @@ describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in 
     expect(contact().getAttribute("data-health-contact-tone")).toBe("limited");
     // Contact and fact age are separate columns: old facts with a fresh receipt read as in contact, but old.
     const delayed = q('[data-health-gateway="s7-delayed-old"]') as HTMLElement;
-    expect(delayed.children[1].textContent).toContain("Current: received 5 s ago");
-    expect(delayed.querySelector("[data-health-facts]")?.textContent).toContain("Old: observed 6 h ago");
-    expect((q('[data-health-gateway="s7-clock-offset"] [data-health-facts]') as HTMLElement).textContent).toContain("Unknown age");
+    expect(delayed.children[1].textContent).toBe("Current · 5 s ago");
+    expect(delayed.querySelector("[data-health-quality]")?.textContent).toBe("Old");
+    expect(delayed.querySelector("[data-health-facts]")).toBeNull();
+    expect((q('[data-health-reported="s7-delayed-old"] [data-health-facts]') as HTMLElement).textContent).toContain("Old: observed 6 h ago");
+    expect((q('[data-health-gateway="s7-clock-offset"] [data-health-quality]') as HTMLElement).textContent).toBe("Unknown age");
     expect(sources.textContent).not.toMatch(/healthy|good condition/i);
     w1("health KOBO-001 (W1)");
     // One disclosure per panel: the data-sources panel keeps only its closed technical details.
@@ -539,7 +553,7 @@ describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in 
       mount("/sites/KOBO-001/health");
       await settledScreen();
       expect(contactLabel()).toBe("Contact state not recognised.");
-      expect(contact().textContent).toContain("Gateway contact: not recognised");
+      expect(contact().textContent).toContain("not recognised");
       expect(main().textContent).not.toMatch(/All \d+ enabled gateways|Every enabled gateway is in contact/);
       expect(defaultReading()).not.toContain("SOMETHING_NEW");
       expect(q('[data-disclosure="site-health-technical"]')?.textContent).toContain("SOMETHING_NEW");
@@ -589,7 +603,7 @@ describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in 
     expect(q('[data-health-selected="found"] [data-health-selected-state]')?.textContent).toBe("Never heard from");
     const references = q('[data-disclosure="site-health-technical"]') as HTMLDetailsElement;
     expect(references.open).toBe(false);
-    expect(references.querySelector('[aria-current="true"]')?.textContent).toContain(target.gateway_id);
+    expect(references.querySelector('[data-health-technical][aria-current="true"]')?.textContent).toContain(target.gateway_id);
     expect(defaultReading()).not.toContain(target.gateway_id);
     w1("health selected gateway (W1)");
   });
@@ -602,7 +616,8 @@ describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in 
     serve(recorded({ "/api/sites/KOBO-001/source-health": doc }));
     mount("/sites/KOBO-001/health");
     await settledScreen();
-    const facts = (q('[data-health-gateway="s7-current"]') as HTMLElement).querySelector("[data-health-facts]") as HTMLElement;
+    expect((q('[data-health-gateway="s7-current"] [data-health-quality]') as HTMLElement).textContent).toBe("Unknown age");
+    const facts = (q('[data-health-reported="s7-current"]') as HTMLElement).querySelector("[data-health-facts]") as HTMLElement;
     expect(facts.textContent).toBe("Unknown age: its reported time is later than the server received it");
     expect(facts.textContent).not.toMatch(/observed \d/);
     expect((q('[data-health-queue-row="s7-current"]') as HTMLElement).textContent).not.toMatch(/\b7 s\b/);
@@ -706,5 +721,55 @@ describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in 
       cleanup();
       vi.unstubAllGlobals();
     }
+  });
+});
+
+describe("W1-F5a fix round: one row per gateway, attention first, state said once", () => {
+  it("lists all gateways once, attention rows first, with devices counted and no device rows in the table", async () => {
+    serve(recorded());
+    mount("/sites/KOBO-001/health");
+    await settledScreen();
+    const rows = qa("[data-health-gateway]");
+    expect(rows).toHaveLength(9);
+    expect(qa("[data-health-gateway] [data-health-quality] .badge")).toHaveLength(9);
+    expect(qa("tbody tr [data-health-source]")).toHaveLength(0);
+    expect(qa("[data-health-gateway]").some((r) => r.closest("[data-disclosure]") !== null)).toBe(false);
+    expect((q('[data-health-gateway="s7-current"] th small') as HTMLElement).textContent).toMatch(/^\d+ devices?$/);
+    // Rows that need attention come before the current ones; the disabled gateway is last.
+    const order = rows.map((r) => r.getAttribute("data-health-gateway"));
+    expect(order.indexOf("s7-stale-cadence")).toBeLessThan(order.indexOf("s7-current"));
+    expect(order.indexOf("s7-never-received")).toBeLessThan(order.indexOf("s7-current"));
+    expect(order.indexOf("s7-delayed-old")).toBeLessThan(order.indexOf("s7-current"));
+    expect(order[order.length - 1]).toBe("edge-kobo-001");
+  });
+
+  it("states the limit, when it stopped and the registration in the selected-gateway view", async () => {
+    serve(recorded());
+    const stale = gatewayRow("s7-stale-cadence");
+    mount(`/sites/KOBO-001/health?gateway=${stale.gateway_id}`);
+    await settledScreen();
+    const selected = q('[data-health-selected="found"]') as HTMLElement;
+    expect(selected.textContent).toContain("Stale: nothing received for 10 min (limit 1 min)");
+    expect(selected.textContent).toContain("when it stopped is not known");
+    expect(selected.textContent).toContain("Queue, as last reported");
+    cleanup();
+    const disabled = gatewayRow("edge-kobo-001");
+    mount(`/sites/KOBO-001/health?gateway=${disabled.gateway_id}`);
+    await settledScreen();
+    expect((q('[data-health-selected="found"]') as HTMLElement).textContent).toContain("Disabled (not counted)");
+  });
+
+  it("says the Unknown-not-normal-nor-faulty sentence once on Health and once on the battery page", async () => {
+    const said = (text: string) => (text.match(/does not mean normal/g) ?? []).length;
+    serve(recorded());
+    mount("/sites/KOBO-001/health");
+    await settledScreen();
+    expect(said(main().textContent ?? "")).toBe(1);
+    expect((q(".status-strip") as HTMLElement).textContent).toContain("Unknown does not mean normal, and it does not mean faulty.");
+    cleanup();
+    mount(`/sites/KOBO-001/assets/${KOBO_001_ASSET}`);
+    await settledScreen();
+    expect(said(main().textContent ?? "")).toBe(1);
+    expect((q(".status-strip") as HTMLElement).textContent).toContain("does not mean normal");
   });
 });

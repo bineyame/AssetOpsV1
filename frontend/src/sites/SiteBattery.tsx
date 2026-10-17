@@ -368,8 +368,7 @@ export function SiteBattery({
         </Panel>
         <Panel heading={ASSET_PANELS[1]} headingId="site-battery-interpretation-heading">
           <p className="v69-prose">
-            <strong>Battery condition cannot yet be judged.</strong> Unknown means not yet measurable: {reason}. It does
-            not mean normal, and it does not mean faulty.
+            <strong>Battery condition cannot yet be judged.</strong> Unknown means not yet measurable: {reason}.
           </p>
           <AttentionList
             label="Inputs needed to judge condition"
@@ -519,7 +518,7 @@ export function SiteBattery({
         </Disclosure>
       </Panel>
       <V69Notice tone="blue">
-        Unknown here means not yet measurable. It does not mean normal, and it does not mean faulty. No warranty
+        Unknown here means not yet measurable. No warranty
         position and no remaining-life estimate are stated. <Link to={links.health(siteId)}>Back to Health</Link>
       </V69Notice>
     </div>

@@ -173,7 +173,6 @@ export function batteryConditionWords(detail: BatteryDetail): ProductWords {
     label: "Cannot yet be judged",
     sentence:
       "The inputs needed to judge this battery's physical condition are missing. Unknown does not mean normal, and it does not mean faulty.",
-    next: "Add the missing inputs listed below.",
     tone: "limited",
     code: detail.physical_condition.reason,
     unrecognised: false,
@@ -209,8 +208,7 @@ export function siteConditionWords(entry: BatteryEntry): ProductWords {
   return {
     label: "Asset condition cannot yet be judged",
     sentence:
-      "The inputs needed to judge the configured battery's physical condition are missing. Unknown does not mean normal, and it does not mean faulty.",
-    next: "Open the battery to see what is missing.",
+      "Unknown does not mean normal, and it does not mean faulty.",
     tone: "limited",
     code: condition?.reason ?? "UNKNOWN",
     unrecognised: false,

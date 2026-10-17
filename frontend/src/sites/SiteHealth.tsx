@@ -137,12 +137,6 @@ const DISK_WORDS: Record<string, string> = {
   STOP: "Full: collection stopped",
 };
 
-const SUMMARY_WORDS: Record<string, string> = {
-  ALL_CURRENT: "all current",
-  NOT_ALL_CURRENT: "not all current",
-  NO_REGISTERED_SOURCE: "no enabled gateway",
-};
-
 /** The plain heading and sentence for a refused read (HTTP status and server code kept by the caller). */
 export function refusalText(
   refusal: HealthRefusal,
@@ -402,7 +396,7 @@ function ConditionBody({ siteId, read }: { siteId: string; read: HealthRead<Batt
       </p>
       {entry.configuration === "NOT_CONFIGURED" ? (
         <p data-health-battery="NOT_CONFIGURED">
-          Battery condition: Unknown (not configured). <Link to={links.assets(siteId)}>Battery page</Link>
+          <Link to={links.assets(siteId)}>Battery page</Link>
         </p>
       ) : (
         <DataTable labelledBy="site-health-condition-heading">
@@ -428,7 +422,7 @@ function ConditionBody({ siteId, read }: { siteId: string; read: HealthRead<Batt
                   <Badge tone="neutral">Unknown</Badge>
                 </td>
                 <td>Inputs missing</td>
-                <td>The inputs needed to judge battery condition are missing</td>
+                <td>See battery page</td>
                 <td>Not recorded</td>
                 <td>Not recorded</td>
                 <td>
@@ -449,7 +443,48 @@ function ConditionBody({ siteId, read }: { siteId: string; read: HealthRead<Batt
   );
 }
 
-/** v69 `health:2`: gateway contact, reported fact age, queue and storage, and device contact, one source per row. */
+/** Short status word with its age: "Current · 3 s ago", "Stale · 16 min", "Never received", "Disabled". */
+function statusShort(row: GatewayHealthRow): string {
+  if (row.registration === "DISABLED") return "Disabled";
+  const c = row.contact;
+  if (c.reason === "NEVER_RECEIVED") return "Never received";
+  const age =
+    c.since_last_receipt_seconds === null
+      ? ""
+      : ` · ${formatAge(c.since_last_receipt_seconds)}${c.status === "CURRENT" ? " ago" : ""}`;
+  return `${CONTACT_WORDS[c.status] ?? c.status}${age}`;
+}
+
+/** The quality chip: Current, Old, Unknown age or Nothing received. An untrusted clock is never "Old". */
+function qualityWord(row: GatewayHealthRow): string {
+  const f = row.reported_facts;
+  if (f.reason === "NEVER_RECEIVED") return "Nothing received";
+  if (f.fact_age_seconds === null || f.reason === "OBSERVED_AFTER_RECEIPT") return "Unknown age";
+  if (f.status === "OLD") return "Old";
+  if (f.status === "CURRENT") return "Current";
+  return "Unknown age";
+}
+
+function needsAttention(row: GatewayHealthRow): boolean {
+  return row.registration === "ENABLED" && (row.contact.status !== "CURRENT" || qualityWord(row) !== "Current");
+}
+
+/** Queue as last reported (not the hardware now). */
+function queueText(row: GatewayHealthRow): string {
+  const q = row.reported_facts.queue;
+  if (q === null) return "not reported";
+  return `${q.count} waiting${q.oldest_age_seconds === null ? ", none waiting" : `, oldest ${formatAge(q.oldest_age_seconds)}`}`;
+}
+
+function deviceContactText(source: GatewayHealthRow["sources"][number]): string {
+  return source.reported_contact_status === "REPORTED"
+    ? `Last heard ${formatInstant(source.reported_contact)}`
+    : source.reported_contact_status === "REPORTED_NEVER_HEARD"
+      ? "The gateway reports never hearing from it"
+      : "Not in the gateway's latest report";
+}
+
+/** v69 `health:2`: one row per gateway; queue, storage and device contact sit in Technical details. */
 function SourcesBody({
   siteId,
   doc,
@@ -466,6 +501,11 @@ function SourcesBody({
   const reported = enabled.filter((g) => g.diagnostic !== null);
   const noEnabled = s.status === "NO_REGISTERED_SOURCE";
   const selected = selectedGateway === null ? null : doc.gateways.find((g) => g.gateway_id === selectedGateway) ?? null;
+  const ordered = [
+    ...doc.gateways.filter((g) => needsAttention(g)),
+    ...doc.gateways.filter((g) => g.registration === "ENABLED" && !needsAttention(g)),
+    ...doc.gateways.filter((g) => g.registration === "DISABLED"),
+  ];
   return (
     <>
       <p
@@ -474,19 +514,17 @@ function SourcesBody({
         data-health-summary-reason={s.reason ?? ""}
         data-health-contact-tone={words.tone}
       >
-        <strong data-health-contact-label>{words.label}.</strong> {words.sentence}
-        {words.next ? ` ${words.next}` : ""}
-        <span className="health-cell-note" data-health-counts>
-          {`Gateway contact: ${SUMMARY_WORDS[s.status] ?? "not recognised"} · `}
+        <strong data-health-contact-label>{words.label}.</strong>
+        {enabled.length === 0 ? ` ${words.sentence}${words.next ? ` ${words.next}` : ""}` : null}{" "}
+        <span data-health-counts>
           {noEnabled
-            ? s.reason === "NO_REGISTERED_GATEWAY"
-              ? "No gateway is registered for this site, so nothing is known about contact."
-              : "No gateway is enabled for this site, so nothing is known about contact."
+            ? ""
             : `${s.enabled_gateway_count} enabled ${s.enabled_gateway_count === 1 ? "gateway" : "gateways"}: ${
                 s.contact_counts.CURRENT
               } current, ${s.contact_counts.STALE} stale, ${s.contact_counts.UNKNOWN} unknown`}
-          {s.disabled_gateway_count > 0 ? ` · ${s.disabled_gateway_count} disabled, not counted` : ""}
-          {` · read ${formatInstant(doc.read_at)}`}
+          {s.disabled_gateway_count > 0 ? `${noEnabled ? "" : " · "}${s.disabled_gateway_count} disabled, not counted` : ""}
+          {noEnabled && s.disabled_gateway_count === 0 ? "" : " · "}
+          {`read ${formatInstant(doc.read_at)}`}
         </span>
       </p>
       {selectedGateway !== null ? (
@@ -512,7 +550,7 @@ function SourcesBody({
             </tr>
           </thead>
           <tbody>
-            {doc.gateways.flatMap((g) => [
+            {ordered.map((g) => (
               <tr
                 key={g.gateway_id}
                 data-health-gateway={g.gateway_external_id}
@@ -527,49 +565,24 @@ function SourcesBody({
                       {" "}
                       <Badge tone="neutral">Disabled</Badge>
                     </>
-                  ) : null}
+                  ) : (
+                    <small className="health-cell-note">
+                      {g.sources.length} {g.sources.length === 1 ? "device" : "devices"}
+                    </small>
+                  )}
                 </th>
-                <td>
-                  {g.registration === "DISABLED" ? "Disabled, not counted. " : ""}
-                  {contactText(g)}
+                <td data-health-status>{statusShort(g)}</td>
+                <td data-health-quality>
+                  <Badge tone="neutral">{qualityWord(g)}</Badge>
                 </td>
-                <QualityCell row={g} />
                 <td className="health-nowrap">Not recorded</td>
                 <td>
                   <Link to={links.health(siteId, g.gateway_id)} data-health-open={g.gateway_external_id}>
                     Details
                   </Link>
                 </td>
-              </tr>,
-              ...(g.registration === "ENABLED"
-                ? g.sources.map((source) => (
-                    <tr key={source.source_id} data-health-source={source.source_external_id}>
-                      <th scope="row">
-                        Device <HealthRef value={source.source_external_id} />
-                        <small className="health-cell-note">as its gateway reports</small>
-                      </th>
-                      <td>
-                        {source.reported_contact_status === "REPORTED"
-                          ? `Last heard ${formatInstant(source.reported_contact)}`
-                          : source.reported_contact_status === "REPORTED_NEVER_HEARD"
-                            ? "The gateway reports never hearing from it"
-                            : "Not in the gateway's latest report"}
-                      </td>
-                      <td>
-                        {source.reported_contact_age_seconds !== null
-                          ? `${formatAge(source.reported_contact_age_seconds)} ago`
-                          : source.reported_contact_status === "REPORTED"
-                            ? `Unknown age: ${unknownAgeReason(g)}`
-                            : "Unknown"}
-                      </td>
-                      <td className="health-nowrap">Not recorded</td>
-                      <td>
-                        <Link to={links.health(siteId, g.gateway_id)}>Gateway</Link>
-                      </td>
-                    </tr>
-                  ))
-                : []),
-            ])}
+              </tr>
+            ))}
           </tbody>
         </DataTable>
       )}
@@ -583,27 +596,67 @@ function SourcesBody({
   );
 }
 
-/** What a gateway last reported: fact age, then queue and storage as last reported (not the hardware now). */
-function QualityCell({ row }: { row: GatewayHealthRow }) {
-  const f = row.reported_facts;
-  const facts = <span data-health-facts={f.status}>{reportedText(row)}</span>;
-  if (row.registration !== "ENABLED" || row.diagnostic === null) return <td>{facts}</td>;
+/** What each enabled gateway last reported, with its queue, storage and device contact (Technical details). */
+function HealthReportedDetail({ doc, selectedGateway }: { doc: SourceHealthDocument; selectedGateway: string | null }) {
+  const enabled = doc.gateways.filter((g) => g.registration === "ENABLED");
+  if (enabled.length === 0) return null;
   return (
-    <td data-health-queue-row={row.gateway_external_id}>
-      {facts}
-      <small className="health-cell-note">
-        Queue, as last reported: {f.queue === null ? "not reported" : `${f.queue.count} waiting`}
-        {f.queue === null
-          ? ""
-          : f.queue.oldest_age_seconds === null
-            ? ", none waiting"
-            : `, oldest ${formatAge(f.queue.oldest_age_seconds)}`}
-        {" · Storage: "}
-        <span data-health-disk={f.disk_pressure?.value ?? ""}>
-          {f.disk_pressure ? DISK_WORDS[f.disk_pressure.value] ?? "not recognised" : "not reported"}
-        </span>
-      </small>
-    </td>
+    <DataTable>
+      <thead>
+        <tr>
+          <th scope="col">Gateway or device</th>
+          <th scope="col">What it last reported</th>
+          <th scope="col">Queue and storage, as last reported</th>
+        </tr>
+      </thead>
+      <tbody>
+        {enabled.flatMap((g) => {
+          const f = g.reported_facts;
+          return [
+            <tr
+              key={g.gateway_id}
+              data-health-reported={g.gateway_external_id}
+              {...(g.diagnostic !== null ? { "data-health-queue-row": g.gateway_external_id } : {})}
+              aria-current={g.gateway_id === selectedGateway ? "true" : undefined}
+            >
+              <th scope="row">
+                Gateway <HealthRef value={g.gateway_external_id} />
+              </th>
+              <td data-health-facts={f.status}>{reportedText(g)}</td>
+              <td>
+                {g.diagnostic === null ? (
+                  "Nothing received yet"
+                ) : (
+                  <>
+                    Queue, as last reported: {queueText(g)}
+                    {" · Storage: "}
+                    <span data-health-disk={f.disk_pressure?.value ?? ""}>
+                      {f.disk_pressure ? DISK_WORDS[f.disk_pressure.value] ?? "not recognised" : "not reported"}
+                    </span>
+                  </>
+                )}
+              </td>
+            </tr>,
+            ...g.sources.map((source) => (
+              <tr key={source.source_id} data-health-source={source.source_external_id}>
+                <th scope="row">
+                  Device <HealthRef value={source.source_external_id} />
+                  <small className="health-cell-note">as its gateway reports</small>
+                </th>
+                <td>{deviceContactText(source)}</td>
+                <td>
+                  {source.reported_contact_age_seconds !== null
+                    ? `${formatAge(source.reported_contact_age_seconds)} ago`
+                    : source.reported_contact_status === "REPORTED"
+                      ? `Unknown age: ${unknownAgeReason(g)}`
+                      : "Unknown"}
+                </td>
+              </tr>
+            )),
+          ];
+        })}
+      </tbody>
+    </DataTable>
   );
 }
 
@@ -640,6 +693,7 @@ function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRo
           ["Stale after", `${formatAge(row.contact.threshold_seconds)} without a report`, "threshold"],
           ["Observed (gateway clock)", formatInstant(f.observed_at), "observed"],
           ["What it last reported", reportedText(row), "reported"],
+          ["Queue, as last reported", row.diagnostic === null ? "not reported" : queueText(row), "queue"],
           [
             "Gateway clock",
             f.clock.offset_ms === null
@@ -695,6 +749,7 @@ function HealthTechnical({ doc, selectedGateway }: { doc: SourceHealthDocument; 
           ))}
         </Fact>
       </FactList>
+      <HealthReportedDetail doc={doc} selectedGateway={selectedGateway} />
       <DataTable>
         <thead>
           <tr>
