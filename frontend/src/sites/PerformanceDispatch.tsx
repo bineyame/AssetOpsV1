@@ -16,7 +16,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import { currentnessWords, DataTable, Disclosure, ExactReferences, Fact, FactList, HeadlineVisualCard, Panel, ProductStatus, type ProductWords } from "../ui";
 import {
   clock,
   constraintWords,
@@ -26,13 +26,15 @@ import {
   isDay,
   limitationWords,
   minutes,
+  missingWords,
   qualityWords,
   reasonWords,
   roleWords,
   shiftDay,
   stamp,
-  STATUS_WORDS,
+  STATUS_SENTENCES,
 } from "./dispatchWords";
+import { PeriodStrip, type StripTone } from "./periodStrip";
 import { ClaimBadge, LocalViews, localView, localViewSearch, OUTCOME_WORDS } from "./findingPresentation";
 import type { EvidenceRead } from "./siteEvidenceClient";
 import type { FindingClient, FindingReadResult, FindingWindowBody } from "./findingClient";
@@ -50,6 +52,9 @@ import type {
 } from "./performanceDispatchClient";
 
 export const DURABLE_DISPATCH_VIEWS_LABEL = "Dispatch views";
+
+/** One labelled exact value in a technical disclosure (the single-value vocabulary exemption). */
+const REF = { "data-vocabulary-exempt": "source-reference" } as const;
 
 const CLASS_FILL: Record<string, string> = {
   NECESSARY: "needed",
@@ -289,20 +294,52 @@ function WindowView({
 
   return (
     <div className="durable-dispatch__body" data-dispatch-status={read.status}>
-      <StatusLine read={read} />
+      {view === "analysis" ? <StatusLine read={read} storedNotCurrent={selected !== null && inWindow === null} /> : null}
       {read.demo_annotations.length > 0 ? <DemoNotes notes={read.demo_annotations} /> : null}
       {view === "analysis" ? (
-        <AnalysisView read={read} selected={selected} segment={segment} comparison={comparison} detail={loaded} />
+        <AnalysisView
+          read={read}
+          selected={selected}
+          selectedIsCurrent={inWindow !== null}
+          segment={segment}
+          comparison={comparison}
+          detail={loaded}
+        />
       ) : (
         <>
-          <p className="overview-note" data-dispatch-question>
-            For each period the generator ran, this asks whether the available solar power and the battery could
-            have met the site demand instead. A period, or a 15-minute block of one, is Needed (a recorded
-            reason required the generator), Possibly avoidable (the reported available solar power and battery
-            output limit were above the demand; a bounded estimate, not proof of wasted fuel) or Cannot determine
-            (records needed are missing or conflicting). Times are UTC.
-          </p>
-          <DayTotals read={read} />
+          <HeadlineVisualCard
+            dataName="dispatch-story"
+            headingId="durable-dispatch-story-heading"
+            title="Why the generator operated"
+            description="Classifications describe the readings, not equipment condition"
+            question="Why did the generator operate, and what can the readings support?"
+            headline={<span data-dispatch-headline>{dayHeadline(read)}</span>}
+            status={<StatusLine read={read} />}
+            visual={
+              <>
+                <DayBlockStrip read={read} selected={selected} blockIndex={segment === null ? null : blockIndex} params={params} />
+                <DayTotals read={read} />
+              </>
+            }
+            meaning={
+              <>
+                <p data-dispatch-question>
+                  For each period the generator operated, this asks whether the available solar power and the battery
+                  could have met the site demand instead. A period, or a 15-minute block of one, is Needed (a recorded
+                  reason required the generator), Possibly avoidable (the reported available solar power and battery
+                  output limit were above the demand; a bounded estimate, not proof of wasted fuel) or Cannot
+                  determine (records needed are missing or conflicting). Times are UTC.
+                </p>
+                <LimitationSummary read={read} />
+              </>
+            }
+            destination={
+              <Link to={{ search: localViewSearch(params, "analysis") }} data-dispatch-analysis-link>
+                Open Dispatch › Analysis for how the readings lead to each outcome
+              </Link>
+            }
+            references={<DispatchReferences read={read} />}
+          />
           {findings ? <DayFindings siteId={siteId} day={read.window.start.slice(0, 10)} findings={findings} /> : null}
           <div className="durable-dispatch__pair">
             <Panel heading="Generator periods and 15-minute blocks" headingId="durable-dispatch-blocks-heading">
@@ -396,66 +433,211 @@ function DayFindings({
   );
 }
 
-function StatusLine({ read }: { read: DispatchWindow }) {
-  const words = STATUS_WORDS[read.status] ?? { label: read.status, sentence: "" };
+/**
+ * W1-UX-03: the day's state words. The shared map owns the label and tone
+ * (only CURRENT is positive; an unknown code is never positive and never
+ * shown); the dispatch read keeps its own sentence.
+ */
+function statusWords(status: string): ProductWords {
+  const shared = currentnessWords(status);
+  const own = (STATUS_SENTENCES as Record<string, { sentence: string } | undefined>)[status];
+  return own === undefined || shared.unrecognised ? shared : { ...shared, sentence: own.sentence };
+}
+
+function dayScope(read: DispatchWindow): string {
+  return `Generator operation on ${read.window.start.slice(0, 10)} (UTC day)`;
+}
+
+/**
+ * W1-UX-03 fix round 1 (F1): a stored version that is not in the day's
+ * current set is never framed by the day's state. Its state line is the
+ * shared non-current "earlier version" words, never the current tone.
+ */
+function storedVersionWords(read: DispatchWindow): ProductWords {
+  return {
+    ...currentnessWords("HISTORICAL"),
+    sentence: `This is a stored version for ${read.window.start.slice(0, 10)}. It is shown as it was recorded, and it is not the current result.`,
+  };
+}
+
+function StatusLine({ read, storedNotCurrent = false }: { read: DispatchWindow; storedNotCurrent?: boolean }) {
+  const words = storedNotCurrent ? storedVersionWords(read) : statusWords(read.status);
   return (
-    <div className={`dispatch-status dispatch-status--${read.status.toLowerCase()}`} role="status">
-      <p>
-        <strong data-dispatch-status-label={read.status}>{words.label}.</strong> {words.sentence}
-      </p>
-      {read.status_reasons.length > 0 ? (
-        <ul className="dispatch-status__reasons">
-          {read.status_reasons.map((reason) => (
-            <li key={reason} data-status-reason={reason.split(":")[0]}>
-              {reasonWords(reason)}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      <p className="chart-note">
-        {read.window.start.slice(0, 10)} · assessment rules {read.model_version}
-        {read.selection ? ` · result made with ${read.selection.model_version}` : ""}
-      </p>
+    <div
+      className={`dispatch-status dispatch-status--${storedNotCurrent ? "historical" : read.status.toLowerCase()}`}
+      role="status"
+      data-dispatch-status-label={read.status}
+      data-dispatch-shown={storedNotCurrent ? "stored-not-current" : "day"}
+    >
+      <ProductStatus words={words} scope={dayScope(read)} asOf={read.current_basis?.read_at ?? null}>
+        {read.status_reasons.length > 0 ? (
+          <ul className="dispatch-status__reasons">
+            {read.status_reasons.map((reason) => (
+              <li key={reason} data-status-reason={reason.split(":")[0]}>
+                {reasonWords(reason)}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </ProductStatus>
     </div>
   );
 }
 
-function portion(read: DispatchWindow, key: string): number {
-  return read.intervals.reduce((sum, item) => sum + (minutes(item.result.portions_minutes?.[key]) ?? 0), 0);
+/** The few exact references behind the day's result: rule versions only, labelled. */
+function DispatchReferences({ read }: { read: DispatchWindow }) {
+  return (
+    <ExactReferences
+      name="dispatch-references"
+      references={[
+        { label: "Assessment rules in force", value: read.model_version },
+        { label: "Rules the shown result was made with", value: read.selection?.model_version ?? null },
+        { label: "Day state", value: read.status },
+      ]}
+    />
+  );
 }
 
-function DayTotals({ read }: { read: DispatchWindow }) {
-  if (read.intervals.length === 0) {
-    return null;
+/** A day's portion total; null (not known) when any period did not state it - never counted as zero. */
+function portion(read: DispatchWindow, key: string): number | null {
+  let total = 0;
+  for (const item of read.intervals) {
+    const value = minutes(item.result.portions_minutes?.[key]);
+    if (value === null) return null;
+    total += value;
   }
+  return total;
+}
+
+function portionText(value: number | null): string {
+  return value === null ? "not known" : durationText(value);
+}
+
+function operationText(read: DispatchWindow): string {
   const low = read.intervals.reduce((sum, item) => sum + (minutes(item.result.interval.lower_minutes) ?? 0), 0);
   const open = read.intervals.some((item) => minutes(item.result.interval.upper_minutes) === null);
   const high = read.intervals.reduce(
     (sum, item) => sum + (minutes(item.result.interval.upper_minutes) ?? minutes(item.result.interval.lower_minutes) ?? 0),
     0,
   );
+  return open ? `at least ${durationText(low)}` : low === high ? durationText(low) : `${durationText(low)} to ${durationText(high)}`;
+}
+
+/** The lead answer, only as strong as the day's read. */
+function dayHeadline(read: DispatchWindow): string {
+  if (read.intervals.length === 0) {
+    return read.selection === null
+      ? "No result exists for this day, so nothing is concluded about the generator."
+      : "No generator period was assessed on this day.";
+  }
+  const sentence = `The generator operated for ${operationText(read)}: ${portionText(portion(read, "candidate"))} possibly avoidable, ${portionText(portion(read, "necessary"))} needed and ${portionText(portion(read, "indeterminate"))} that cannot be determined.`;
+  return read.status === "CURRENT" && !read.stale ? sentence : `From an earlier result that is not current: ${sentence}`;
+}
+
+const STRIP_TONE: Record<string, StripTone> = {
+  NECESSARY: "necessary",
+  CANDIDATE_AVOIDABLE: "avoidable",
+  INDETERMINATE: "undetermined",
+};
+
+/**
+ * Every assessed 15-minute block of the day on one strip, by outcome; each
+ * block is an exact selection link (revision and block in the address).
+ * Hours with no assessed block are left blank, never drawn as an outcome.
+ */
+function DayBlockStrip({
+  read,
+  selected,
+  blockIndex,
+  params,
+}: {
+  read: DispatchWindow;
+  selected: AssessmentRevision | null;
+  blockIndex: number | null;
+  params: URLSearchParams;
+}) {
+  if (read.intervals.length === 0) return null;
+  const href = (revision: string, index: number) => {
+    const next = new URLSearchParams(params);
+    next.set("revision", revision);
+    next.set("block", String(index));
+    return `?${next.toString()}`;
+  };
+  const segments = read.intervals.flatMap((item) =>
+    item.result.segments.map((seg, index) => ({
+      key: `${item.id}-${index}`,
+      start: seg.start,
+      end: seg.end,
+      tone: STRIP_TONE[seg.classification] ?? ("not-known" as const),
+      label: `${clock(seg.start)} to ${clock(seg.end)} UTC: ${outcome(seg.classification)}`,
+      href: href(item.id, index),
+      selected: selected?.id === item.id && blockIndex === index,
+    })),
+  );
+  const count = (tone: StripTone) => segments.filter((x) => x.tone === tone).length;
+  return (
+    <PeriodStrip
+      name="dispatch-day-blocks"
+      title="The day's assessed 15-minute blocks, by outcome (select one to see its readings)"
+      start={read.window.start}
+      end={read.window.end}
+      startText="00:00 UTC"
+      endText="24:00 UTC"
+      legend={[
+        { tone: "necessary", label: "Needed" },
+        { tone: "avoidable", label: "Possibly avoidable" },
+        { tone: "undetermined", label: "Cannot determine" },
+      ]}
+      rows={[
+        {
+          key: "blocks",
+          label: "Generator blocks",
+          segments,
+          summary: `${segments.length} assessed blocks: ${count("necessary")} needed, ${count("avoidable")} possibly avoidable, ${count("undetermined") + count("not-known")} cannot be determined.`,
+        },
+      ]}
+    />
+  );
+}
+
+/** The material limits beside the answer; the full list stays in its own panel below. */
+function LimitationSummary({ read }: { read: DispatchWindow }) {
+  const groups = groupLimitations(read.limitations);
+  if (groups.length === 0) return null;
+  return (
+    <ul data-dispatch-limitation-summary>
+      {groups.map((g) => (
+        <li key={g.code}>{limitationWords(g.code)}</li>
+      ))}
+    </ul>
+  );
+}
+
+function DayTotals({ read }: { read: DispatchWindow }) {
+  if (read.intervals.length === 0) {
+    return null;
+  }
   const cards: [string, string, string, string][] = [
     [
       "Generator operation",
-      open ? `at least ${durationText(low)}` : low === high ? durationText(low) : `${durationText(low)} to ${durationText(high)}`,
+      operationText(read),
       "From reported on/off states; start and stop are bounded, not exact",
       "operation",
     ],
-    ["Needed", durationText(portion(read, "necessary")), "A recorded reason required the generator", "needed"],
+    ["Needed", portionText(portion(read, "necessary")), "A recorded reason required the generator", "needed"],
     [
       "Possibly avoidable",
-      durationText(portion(read, "candidate")),
+      portionText(portion(read, "candidate")),
       "Only the blocks that qualify; never the whole period",
       "avoidable",
     ],
-    ["Cannot determine", durationText(portion(read, "indeterminate")), "Records missing or conflicting", "unknown"],
+    ["Cannot determine", portionText(portion(read, "indeterminate")), "Records missing or conflicting", "unknown"],
   ];
   return (
     <>
       {read.stale ? (
         <p className="dispatch-pinned" data-totals-stale>
-          {STATUS_WORDS[read.status]?.label ?? read.status}: these totals come from an earlier result and are not
-          current.
+          {statusWords(read.status).label}: these totals come from an earlier result and are not current.
         </p>
       ) : null}
       <ul className="dispatch-cards" aria-label="Day totals">
@@ -576,6 +758,16 @@ function PeriodsAndBlocks({
   );
 }
 
+/** The not-current notice for a stored version outside the day's current set (Overview and Analysis). */
+function PinnedNotice({ read }: { read: DispatchWindow }) {
+  return (
+    <p className="dispatch-pinned" data-dispatch-pinned>
+      This is a stored result that is not the current one for {read.window.start.slice(0, 10)}. It is shown
+      exactly as it was recorded, for reference.
+    </p>
+  );
+}
+
 function SelectedPeriod({
   read,
   revisionId,
@@ -613,20 +805,22 @@ function SelectedPeriod({
   const olderRule = full?.model_note ?? null;
   return (
     <div data-selected-revision={revision.id}>
-      {pinned ? (
-        <p className="dispatch-pinned" data-dispatch-pinned>
-          This is a stored result that is not the current one for {read.window.start.slice(0, 10)}. It is shown
-          exactly as it was recorded, for reference.
-        </p>
-      ) : null}
+      {pinned ? <PinnedNotice read={read} /> : null}
       {olderRule !== null ? (
-        <p className="dispatch-pinned" data-older-rule>
-          Older rule result: made with {revision.model_version}; the current rules are {read.model_version}.
-        </p>
+        <div className="dispatch-pinned" data-older-rule>
+          <p>This result was made with an earlier version of the assessment rules than the version now in force.</p>
+          <ExactReferences
+            name="dispatch-older-rule-references"
+            references={[
+              { label: "Rules this result was made with", value: revision.model_version },
+              { label: "Rules now in force", value: read.model_version },
+            ]}
+          />
+        </div>
       ) : null}
       {read.stale && !pinned ? (
         <p className="dispatch-pinned" data-dispatch-stale-selection>
-          {STATUS_WORDS[read.status]?.label ?? read.status}: this result is kept for reference and is not current.
+          {statusWords(read.status).label}: this result is kept for reference and is not current.
         </p>
       ) : null}
       <FactList>
@@ -875,64 +1069,181 @@ function DemoNotes({ notes }: { notes: DemoAnnotation[] }) {
 
 function ComparisonPanel({ summary }: { summary: ComparisonSummary }) {
   return (
-    <Panel heading="Comparison with earlier file-based results" headingId="durable-dispatch-comparison-heading">
+    <Panel heading="Comparison with earlier results" headingId="durable-dispatch-comparison-heading">
+      <Disclosure name="dispatch-comparison" summary="Technical details: how this day compares with the earlier results">
       <p data-comparison-outcome={summary.outcome} data-comparison-empty={summary.empty_set}>
-        <strong>{summary.outcome}.</strong> {summary.statement}
+        <strong {...REF}>{summary.outcome}</strong> <span {...REF}>{summary.statement}</span>
       </p>
       <FactList>
         {Object.entries(summary.counts).map(([key, value]) => (
-          <Fact key={key} term={key}>
-            {value}
+          <Fact key={key} term="Count">
+            <code {...REF}>{`${key}: ${value}`}</code>
           </Fact>
         ))}
-        <Fact term="Rules compared">{summary.model_version ?? "not recorded"}</Fact>
+        <Fact term="Rules compared">
+          <code {...REF}>{summary.model_version ?? "not recorded"}</code>
+        </Fact>
         <Fact term="Compared at">{summary.compared_at}</Fact>
         <Fact term="Report">
-          <code>{summary.report_id}</code>
+          <code {...REF}>{summary.report_id}</code>
         </Fact>
       </FactList>
       {Object.keys(summary.lineage_breaks ?? {}).length > 0 ? (
-        <p data-lineage-breaks>Record lineage breaks: {JSON.stringify(summary.lineage_breaks)}</p>
+        <p data-lineage-breaks>
+          Records that could not be traced: <code {...REF}>{JSON.stringify(summary.lineage_breaks)}</code>
+        </p>
       ) : null}
       {summary.claims.length > 0 ? (
         <ul className="dispatch-comparison-claims">
           {summary.claims.map((claim, index) => (
             <li key={claim.legacy_assessment_id ?? index} data-comparison-class={claim.class}>
-              <strong>{claim.class}</strong> · {claim.legacy_assessment_id} ({claim.legacy_claim ?? "?"} to{" "}
-              {claim.postgres_claim ?? "none"}). {claim.reason ?? ""}
+              <code {...REF}>{`${claim.class} · ${claim.legacy_assessment_id} (${claim.legacy_claim ?? "?"} to ${claim.postgres_claim ?? "none"}). ${claim.reason ?? ""}`}</code>
               {claim.class === "MISSING_SOURCE" ? (
                 <span data-missing-message-ids>
                   {" "}
-                  Missing records: {(claim.missing_message_ids ?? []).join(", ") || "none cited"}. This needs
+                  Missing records: <code {...REF}>{(claim.missing_message_ids ?? []).join(", ") || "none cited"}</code>. This needs
                   remediation or a separate migration decision; it is not a match.
                 </span>
               ) : null}
               {claim.class === "INTENTIONAL_DELTA" && claim.rule_change ? (
                 <span data-delta-rule={claim.rule}>
                   {" "}
-                  Rule {claim.rule} ({claim.rule_change.from} to {claim.rule_change.to}, table rows{" "}
-                  {claim.rule_change.table_rows}): {claim.rule_change.explanation}. Interval limitations:{" "}
-                  {(claim.interval_limitations ?? []).join("; ")}. Compared records:{" "}
-                  {(claim.compared_evidence_ids ?? []).join(", ")}.
+                  Rule change: <code {...REF}>{`${claim.rule} (${claim.rule_change.from} to ${claim.rule_change.to}, table rows ${claim.rule_change.table_rows}): ${claim.rule_change.explanation}`}</code>. Limits: <code {...REF}>{(claim.interval_limitations ?? []).join("; ")}</code>. Compared records: <code {...REF}>{(claim.compared_evidence_ids ?? []).join(", ")}</code>.
                 </span>
               ) : null}
             </li>
           ))}
         </ul>
       ) : null}
+      </Disclosure>
     </Panel>
   );
+}
+
+const UNAVAILABLE_TERMS: Record<string, string> = {
+  alternatives: "Other explanations",
+  fuel_and_money: "Fuel and money",
+  finding: "Finding comparison",
+};
+
+function confidenceWords(level: string): string {
+  switch (level) {
+    case "HIGH":
+      return "High: the readings needed were present and agreed";
+    case "MEDIUM":
+      return "Medium: some readings needed were limited";
+    case "LOW":
+      return "Low: readings needed were missing or limited";
+    default:
+      return "Not stated";
+  }
+}
+
+/**
+ * W1-UX-03 (`analysis`): accepted readings, then the rule, then the bounded
+ * conclusion, for the selected period or block. Every step comes from the
+ * selected revision; nothing is concluded without one, and the conclusion
+ * keeps its limits beside it.
+ */
+function ReadingsToOutcome({
+  read,
+  selected,
+  selectedIsCurrent,
+  segment,
+}: {
+  read: DispatchWindow;
+  selected: AssessmentRevision | null;
+  /** True only when `selected` is in `read.intervals`, the day's current set. */
+  selectedIsCurrent: boolean;
+  segment: DispatchSegment | null;
+}) {
+  if (selected === null) {
+    return (
+      <Panel heading="How the readings lead to the outcome" headingId="durable-dispatch-story-analysis-heading">
+        <p className="headline-card__question">How do the readings lead to the outcome?</p>
+        <p data-dispatch-story="none">
+          No period is selected, so nothing is concluded here. Select a period or a 15-minute block on the Overview.
+        </p>
+      </Panel>
+    );
+  }
+  const result = selected.result;
+  const segments = segment === null ? result.segments : [segment];
+  const missing = Array.from(new Set(segments.flatMap((s) => s.missing ?? [])));
+  const unobserved = segments.filter((s) => s.observed === false).length;
+  const demand = segment?.load_kw ? `${segment.load_kw} kW` : null;
+  const spare = segment?.margin_kw ? `${segment.margin_kw} kW` : null;
+  const constraints = Array.from(
+    new Set([...(segment?.binding_constraint ? [segment.binding_constraint] : []), ...(segment === null ? (result.binding_constraints ?? []) : [])]),
+  );
+  const limits = groupLimitations(result.limitations ?? []);
+  const scope = segment === null ? `the period ${clock(result.interval.first_on)} to ${clock(result.interval.last_on)} UTC` : `the block ${clock(segment.start)} to ${clock(segment.end)} UTC`;
+  const conclusion = segment === null ? outcome(selected.claim_level) : outcome(segment.classification);
+  return (
+    <Panel heading="How the readings lead to the outcome" headingId="durable-dispatch-story-analysis-heading">
+      <p className="headline-card__question">How do the readings lead to the outcome?</p>
+      <ol className="dispatch-story" data-dispatch-story={segment === null ? "period" : "block"}>
+        <li className="dispatch-story__step" data-dispatch-story-step="readings">
+          <h3>What the accepted readings show</h3>
+          <p>
+            {`For ${scope}: ${plural(selected.evidence_ids.length, "accepted reading", "accepted readings")} used.`}
+            {demand === null ? "" : ` Demand ${demand}.`}
+            {spare === null ? "" : ` Spare solar and battery capacity ${spare}.`}
+          </p>
+          {missing.length === 0 && unobserved === 0 ? null : (
+            <p data-dispatch-story-missing>
+              {missing.length === 0 ? "" : `Missing: ${Array.from(new Set(missing.map(missingWords))).join(", ")}. `}
+              {unobserved === 0 ? "" : `${plural(unobserved, "block was", "blocks were")} not observed directly.`}
+            </p>
+          )}
+        </li>
+        <li className="dispatch-story__step" data-dispatch-story-step="rule">
+          <h3>The rule applied</h3>
+          <p>
+            A block is Possibly avoidable only when the reported available solar power and battery output limit were
+            above the demand; Needed when a recorded reason required the generator; Cannot determine when readings
+            it needs are missing or conflicting.
+          </p>
+          {constraints.length === 0 ? null : <p>{`What held the generator on: ${constraints.map(constraintWords).join("; ")}.`}</p>}
+        </li>
+        <li className="dispatch-story__step" data-dispatch-story-step="conclusion">
+          <h3>What can be concluded</h3>
+          <p data-dispatch-story-conclusion>
+            {!selectedIsCurrent
+              ? `${conclusion}, for ${scope}, from a stored version that is not the current result.`
+              : read.status === "CURRENT" && !read.stale
+                ? `${conclusion}, for ${scope}.`
+                : `${conclusion}, for ${scope}, from an earlier result that is not current.`}
+          </p>
+          {limits.length === 0 ? null : (
+            <ul data-dispatch-story-limits>
+              {limits.map((g) => (
+                <li key={g.code}>{limitationWords(g.code)}</li>
+              ))}
+            </ul>
+          )}
+          <p>This says nothing about fuel, savings or money.</p>
+        </li>
+      </ol>
+    </Panel>
+  );
+}
+
+function plural(count: number, one: string, many: string): string {
+  return `${count} ${count === 1 ? one : many}`;
 }
 
 function AnalysisView({
   read,
   selected,
+  selectedIsCurrent,
   segment,
   comparison,
   detail,
 }: {
   read: DispatchWindow;
   selected: AssessmentRevision | null;
+  selectedIsCurrent: boolean;
   segment: DispatchSegment | null;
   comparison: ComparisonSummary | null;
   detail: RevisionDetail | null;
@@ -940,6 +1251,8 @@ function AnalysisView({
   const result = selected?.result ?? null;
   return (
     <>
+      {selected !== null && !selectedIsCurrent ? <PinnedNotice read={read} /> : null}
+      <ReadingsToOutcome read={read} selected={selected} selectedIsCurrent={selectedIsCurrent} segment={segment} />
       <div className="durable-dispatch__pair">
         <Panel heading="Constraint comparison" headingId="durable-dispatch-constraints-heading">
           {selected === null ? (
@@ -964,7 +1277,10 @@ function AnalysisView({
                     <td>{outcome(seg.classification)}</td>
                     <td>{seg.load_kw ? `${seg.load_kw} kW` : "not reported"}</td>
                     <td>{seg.margin_kw ? `${seg.margin_kw} kW` : "not shown"}</td>
-                    <td>{[...(seg.reasons ?? []), ...(seg.missing ?? []).map((m) => `missing: ${m}`)].join("; ")}</td>
+                    <td>
+                      {[...(seg.reasons ?? []).map(constraintWords), ...(seg.missing ?? []).map((m) => `missing: ${missingWords(m)}`)].join("; ") ||
+                        "none recorded"}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -974,28 +1290,26 @@ function AnalysisView({
         <Panel heading="Coverage, confidence and alternatives" headingId="durable-dispatch-confidence-heading">
           <FactList>
             <Fact term="Confidence">
-              {result?.confidence
-                ? `${result.confidence.level.toLowerCase()}: ${result.confidence.basis.join("; ")}`
-                : "no period selected"}
+              {result?.confidence ? confidenceWords(result.confidence.level) : "no period selected"}
             </Fact>
             <Fact term="Record series used">
               {read.selection
-                ? `${read.selection.cohort_status}${read.selection.cohort.reason ? `: ${read.selection.cohort.reason}` : ""}`
+                ? read.selection.cohort_status === "SELECTED_UNIQUE" || read.selection.cohort_status === "EXPLICIT"
+                  ? "One settled series of records for this day"
+                  : "No single settled series of records for this day; results are limited"
                 : "none"}
             </Fact>
-            {Object.entries(read.unavailable).map(([key, value]) => (
-              <Fact key={key} term={key.replace(/_/g, " ")}>
-                <span data-unavailable={key}>Not yet available. {value.replace(/^UNAVAILABLE:\s*/, "")}</span>
+            {Object.entries(read.unavailable).map(([key]) => (
+              <Fact key={key} term={UNAVAILABLE_TERMS[key] ?? "Another result"}>
+                <span data-unavailable={key}>Not yet available.</span>
               </Fact>
             ))}
-            {result?.alternatives
-              ? Object.entries(result.alternatives).map(([key, value]) => (
-                  <Fact key={`alt-${key}`} term={`Alternative: ${key.replace(/_/g, " ")}`}>
-                    {value}
-                  </Fact>
-                ))
-              : null}
-            {result?.candidate_bound ? <Fact term="Possibly avoidable bound">{result.candidate_bound}</Fact> : null}
+            {result?.alternatives && Object.keys(result.alternatives).length > 0 ? (
+              <Fact term="Other explanations">
+                {`${Object.keys(result.alternatives).length} recorded; their exact wording is in the technical details below.`}
+              </Fact>
+            ) : null}
+            {result?.candidate_bound ? <Fact term="Possibly avoidable bound">Recorded; its exact wording is in the technical details below.</Fact> : null}
           </FactList>
         </Panel>
       </div>
@@ -1006,14 +1320,54 @@ function AnalysisView({
           later, separately reviewed work.
         </p>
       </Panel>
+      {detail !== null && detail.history.length > 0 ? (
+        <Panel heading="Versions of this period" headingId="durable-dispatch-history-heading">
+          <ol className="dispatch-history">
+            {detail.history.map((item) => (
+              <li key={item.id} data-history-revision={item.id}>
+                <Link to={{ search: `?day=${item.window_start.slice(0, 10)}&revision=${item.id}&view=analysis` }}>
+                  Version {item.revision_no}: {outcome(item.claim_level)}
+                </Link>
+                {item.id === detail.id ? " (shown)" : ""}
+              </li>
+            ))}
+          </ol>
+        </Panel>
+      ) : null}
       <Panel heading="Stored assessment record" headingId="durable-dispatch-record-heading">
+        <Disclosure name="dispatch-stored-record" summary="Technical details: stored record, versions and references">
         <FactList>
+          {Object.entries(read.unavailable).map(([key, value]) => (
+            <Fact key={`unavailable-${key}`} term="Recorded note on a result still to come">
+              <code {...REF}>{`${key}: ${value}`}</code>
+            </Fact>
+          ))}
+          {Object.entries(result?.alternatives ?? {}).map(([key, value]) => (
+            <Fact key={`alt-${key}`} term="Other explanation, as recorded">
+              <code {...REF}>{`${key}: ${value}`}</code>
+            </Fact>
+          ))}
+          {result?.candidate_bound ? (
+            <Fact term="Possibly avoidable bound, as recorded">
+              <code {...REF}>{result.candidate_bound}</code>
+            </Fact>
+          ) : null}
+          {result?.confidence ? (
+            <Fact term="Confidence basis">
+              <code {...REF}>{result.confidence.basis.join("; ")}</code>
+            </Fact>
+          ) : null}
+          {read.selection?.cohort.reason ? (
+            <Fact term="Record series state">
+              <code {...REF}>{`${read.selection.cohort_status}: ${read.selection.cohort.reason}`}</code>
+            </Fact>
+          ) : null}
           <Fact term="Status">
-            <code>{read.status}</code>
+            <code {...REF}>{read.status}</code>
           </Fact>
           {read.status_reasons.map((reason) => (
             <Fact key={reason} term="Status reason">
-              <code>{reason}</code>
+              <code {...REF}>{reason}</code>
             </Fact>
           ))}
           <Fact term="Window">
@@ -1021,62 +1375,50 @@ function AnalysisView({
           </Fact>
           {read.selection ? (
             <>
-              <Fact term="Selected run">
-                <code>{read.selection.run_id}</code> · {read.selection.model_version}
+              <Fact term="Assessment batch and rules">
+                <code {...REF}>{read.selection.run_id}</code> · <code {...REF}>{read.selection.model_version}</code>
               </Fact>
-              <Fact term="Input digest">
-                <code>{read.selection.input_sha256}</code>
+              <Fact term="Input reference">
+                <code {...REF}>{read.selection.input_sha256}</code>
               </Fact>
-              <Fact term="Configuration digest">
-                <code>{read.selection.configuration_sha256}</code>
+              <Fact term="Configuration reference">
+                <code {...REF}>{read.selection.configuration_sha256}</code>
               </Fact>
               <Fact term="Foundation revisions">{read.selection.foundation_revision_ids.join(", ")}</Fact>
               <Fact term="Knowledge cutoff">
                 {read.selection.knowledge_cutoff} ({read.selection.knowledge_cutoff_label})
               </Fact>
-              <Fact term="Built at">{read.selection.built_at}</Fact>
+              <Fact term="Prepared at">{read.selection.built_at}</Fact>
             </>
           ) : null}
           {Object.entries(read.watermarks ?? {}).map(([key, value]) => (
-            <Fact key={key} term={`Watermark ${key.replace(/_/g, " ")}`}>
-              {value ?? "none"}
+            <Fact key={key} term="Latest reading time used">
+              <code {...REF}>{`${key}: ${value ?? "none"}`}</code>
             </Fact>
           ))}
           {read.jobs.map((job) => (
-            <Fact key={job.id} term="Recompute job">
-              <code>{job.id}</code> {job.status} · attempts {job.attempts}
-              {job.last_error ? ` · ${job.last_error}` : ""}
+            <Fact key={job.id} term="Reassessment task">
+              <code {...REF}>{`${job.id} ${job.status} · attempts ${job.attempts}${job.last_error ? ` · ${job.last_error}` : ""}`}</code>
             </Fact>
           ))}
           {selected ? (
             <Fact term="Selected revision">
-              <code>{selected.id}</code> · {selected.assessment_key} · revision {selected.revision_no} ·{" "}
-              {selected.model_version}
+              <code {...REF}>{`${selected.id} · ${selected.assessment_key} · ${selected.revision_no} · ${selected.model_version}`}</code>
             </Fact>
           ) : null}
-          {detail?.model_note ? <Fact term="Model note">{detail.model_note}</Fact> : null}
+          {detail?.model_note ? (
+            <Fact term="Rule note">
+              <code {...REF}>{detail.model_note}</code>
+            </Fact>
+          ) : null}
         </FactList>
-        {detail !== null && detail.history.length > 0 ? (
-          <>
-            <h3>Revisions of this period</h3>
-            <ol className="dispatch-history">
-              {detail.history.map((item) => (
-                <li key={item.id} data-history-revision={item.id}>
-                  <Link to={{ search: `?day=${item.window_start.slice(0, 10)}&revision=${item.id}&view=analysis` }}>
-                    Revision {item.revision_no} · {item.model_version} · {outcome(item.claim_level)}
-                  </Link>
-                  {item.id === detail.id ? " (shown)" : ""}
-                </li>
-              ))}
-            </ol>
-          </>
-        ) : null}
+        </Disclosure>
         {read.limitations.length > 0 ? (
           <Disclosure name="window-limitations" summary={`All ${read.limitations.length} recorded limitations`}>
             <ul className="dispatch-limits dispatch-limits--raw">
               {read.limitations.map((item, index) => (
                 <li key={index}>
-                  <code>{item}</code>
+                  <code {...REF}>{item}</code>
                 </li>
               ))}
             </ul>

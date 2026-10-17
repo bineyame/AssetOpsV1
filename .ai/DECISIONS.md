@@ -1,5 +1,9 @@
 # Decisions
 
+## 2026-10-17
+
+Decision: `D-2026-10-17-w1-ux-06`. Codex Architect accepts W1-UX-06 questions 1-2: the S1 `READY_TO_REPORT` badge reads `Set up to report` with its configured tone and configuration-only meaning, and the Readiness strip reads `Set-up steps` because it has no contact read. Accept question 3 for current server contact with trusted, known old reported facts: the selected gateway state line says `In contact; its latest report is old`; unknown or untrusted fact age remains explicitly unconfirmed, and neither state claims equipment health. Amend question 4: unrecognised Readiness and Health codes get non-positive headlines, and zero enabled gateways never produce `All 0 enabled gateways`; preserve the recognised no-source reason and keep readiness-dependent steps from appearing complete on an unrecognised readiness code alone. Exact words, conditions and test expectations are in `.agent/architect-W1-UX-06-answers.md`. This refines `D-2026-10-16-w1-ux`, `D-2026-10-16-a-s7-health` and `D-2026-10-16-s701-clock`; it neither promotes a panel nor records owner acceptance.
+
 ## 2026-10-16
 
 Decision: `D-2026-10-16-s408`. Codex Architect accepts S4-08 Q1-Q3 with the display rule in `.agent/architect-S4-08-answers.md`. The Site consequence history includes unpriced versions with typed missing-price/null amount. `CURRENT_AT_CUTOFF` identifies only the latest consequence within the latest FindingRevision recorded by that cutoff; if that FindingRevision has no consequence, no row for that Finding is current at cutoff. A selected past cutoff is audit history: an eligible recorded amount is labelled historical and assumption-conditioned, never a current-money claim. Exact-version source and existing money gates still govern display, and a closed source hides amounts. Only today's separate exact-head read may claim current money after all gates pass. This implements the Site-history requirement of `D-2026-10-14-s402-post-review-follow-ons` without promoting `assumptions:3#a` or recording owner acceptance.
@@ -42,6 +46,7 @@ the forecast was removed; relative version guidance is now in
 
 | ID | Date | Subject |
 | --- | --- | --- |
+| `D-2026-10-17-w1-ux-06` | 2026-10-17 | W1 Readiness and Health labels preserve configuration, contact and fact-age boundaries. |
 | `D-2026-10-16-s408` | 2026-10-16 | Site consequence history includes unpriced versions; cutoff head classification is separate from current-money authorization. |
 | `D-2026-10-16-w1-ux` | 2026-10-16 | W1 separate contextual analysis, narrow reference disclosures, approved domain labels and honest-state-first plain language. |
 | `D-2026-10-04-plain-language-analysis-views` | 2026-10-04 | Owner-directed plain-language defaults, assessment graphics and separate Analysis tabs in T028; amends practitioner-first presentation and the Finding tab inventory; product vocabulary guard. |

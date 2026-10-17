@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from "react";
+﻿import { Fragment, type ReactNode } from "react";
 
 import {
   Badge,
@@ -23,6 +23,7 @@ import type {
 } from "./siteViewModel";
 import type { SiteDetailClient } from "./siteDirectoryClient";
 import type { SiteDetailReadModel } from "./siteReadModel";
+import { ExactRef, UserName } from "./exactValues";
 import { SiteSingleLineDiagram } from "./SiteSingleLineDiagram";
 import { useSiteRecord } from "./useSiteRecord";
 import {
@@ -535,10 +536,14 @@ export function SiteConfigurationComponents({
         <tbody>
           {components.map((component) => (
             <tr key={component.componentId}>
-              <td>{component.displayName}</td>
+              <td>
+                <UserName>{component.displayName}</UserName>
+              </td>
               <td>{component.componentType}</td>
               <td>{component.rating}</td>
-              <td>{component.componentId}</td>
+              <td>
+                <ExactRef>{component.componentId}</ExactRef>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -575,7 +580,7 @@ export function SitePhysicalProperties({
       row={(property) => ({
         key: property.key,
         cells: [
-          property.componentName,
+          <UserName key="component">{property.componentName}</UserName>,
           property.propertyName,
           property.value,
           property.declaredBy,
@@ -615,7 +620,7 @@ export function SiteControlProperties({
         row={(property) => ({
           key: property.key,
           cells: [
-            property.componentName,
+            <UserName key="component">{property.componentName}</UserName>,
             property.propertyName,
             property.value,
             property.declaredBy,
@@ -672,7 +677,7 @@ export interface SiteConfigurationSubsectionProps<T> {
   headingId: string;
   section: SiteDeclaredSection<T>;
   /** What the declared content means, rendered above the table. */
-  caption: string;
+  caption: ReactNode;
   columns: string[];
   row: (entry: T) => { key: string; cells: ReactNode[] };
 }
@@ -749,7 +754,12 @@ export function SiteTopologyNodes({
       columns={["Component", "Role in topology", "Component ID", "Node ID"]}
       row={(node) => ({
         key: node.nodeId,
-        cells: [node.componentName, node.role, node.componentId, node.nodeId],
+        cells: [
+          <UserName key="component">{node.componentName}</UserName>,
+          node.role,
+          <ExactRef key="component-id">{node.componentId}</ExactRef>,
+          <ExactRef key="node-id">{node.nodeId}</ExactRef>,
+        ],
       })}
     />
   );
@@ -771,10 +781,10 @@ export function SiteTopologyConnections({
       row={(connection) => ({
         key: connection.connectionId,
         cells: [
-          connection.from,
-          connection.to,
+          <UserName key="from">{connection.from}</UserName>,
+          <UserName key="to">{connection.to}</UserName>,
           connection.medium,
-          connection.connectionId,
+          <ExactRef key="connection-id">{connection.connectionId}</ExactRef>,
         ],
       })}
     />
@@ -804,17 +814,17 @@ export function SiteFoundationDevices({
       row={(device) => ({
         key: device.deviceId,
         cells: [
-          device.displayName,
+          <UserName key="device">{device.displayName}</UserName>,
           device.deviceType,
-          device.attachedTo,
+          <UserName key="attached-to">{device.attachedTo}</UserName>,
           <ul className="cell-list" key={`${device.deviceId}-signals`}>
             {device.signals.map((signal) => (
               <li key={signal.signalId}>
-                {signal.displayName} ({signal.unit})
+                <UserName>{signal.displayName}</UserName> ({signal.unit})
               </li>
             ))}
           </ul>,
-          device.deviceId,
+          <ExactRef key="device-id">{device.deviceId}</ExactRef>,
         ],
       })}
     />
@@ -848,17 +858,17 @@ export function SiteSignalMappings({
         "Unit",
         "Reported by",
         "Describes",
-        basis === null ? "Mapping ID" : "Binding ID",
+        basis === null ? "Mapping ID" : "Link reference",
       ]}
       row={(mapping) => ({
         key: mapping.mappingId,
         cells: [
-          mapping.signalName,
-          mapping.signalId,
+          <UserName key="signal">{mapping.signalName}</UserName>,
+          <ExactRef key="signal-id">{mapping.signalId}</ExactRef>,
           mapping.unit,
-          mapping.deviceName,
-          mapping.describes,
-          mapping.mappingId,
+          <UserName key="device">{mapping.deviceName}</UserName>,
+          <UserName key="describes">{mapping.describes}</UserName>,
+          <ExactRef key="link-id">{mapping.mappingId}</ExactRef>,
         ],
       })}
     />
@@ -873,11 +883,17 @@ const LEGACY_SIGNAL_MAPPINGS_CAPTION =
  * links of the selected signal binding set, not declarations in the imported
  * document, whose mappings stay legacy comparison data and are not mixed in.
  */
-function storedSignalMappingsCaption(basis: SignalMappingBasis): string {
+function storedSignalMappingsCaption(basis: SignalMappingBasis): ReactNode {
   if (basis.bindingSetVersion === null) {
-    return `No signal binding set is in effect for the period shown (Foundation v${basis.foundationVersion}), so this table lists no device-to-asset link. The imported document's signal mappings are legacy comparison data and are not shown here.`;
+    return `No channel-link set is in effect for the period shown (Foundation v${basis.foundationVersion}), so this table lists no device-to-asset link. The imported document's signal links are legacy comparison data and are not shown here.`;
   }
-  return `The device-to-asset links of the selected signal binding set: binding v${basis.bindingSetVersion} (record ${basis.bindingSetRevisionId}), aligned to Foundation v${basis.foundationVersion}. Each row is a published binding, identified by its binding ID; the imported document's signal mappings are legacy comparison data and are not shown here.`;
+  return (
+    <>
+      {`The device-to-asset links of the selected channel-link set: channel links v${basis.bindingSetVersion} (record `}
+      <ExactRef>{basis.bindingSetRevisionId ?? ""}</ExactRef>
+      {`), aligned to Foundation v${basis.foundationVersion}. Each row is a published channel link, identified by its link reference; the imported document's signal links are legacy comparison data and are not shown here.`}
+    </>
+  );
 }
 
 /**
@@ -901,7 +917,14 @@ export function SiteControlsTable({
       columns={["Control", "Order", "Declared by"]}
       row={(control) => ({
         key: control.controlKey,
-        cells: [control.displayName, control.order, control.declaredBy],
+        cells: [control.displayName, <Fragment key="order">
+            {control.orderNames.map((name, index) => (
+              <Fragment key={`${index}-${name}`}>
+                {index > 0 ? ", then " : null}
+                <UserName>{name}</UserName>
+              </Fragment>
+            ))}
+          </Fragment>, control.declaredBy],
       })}
     />
   );
@@ -924,13 +947,13 @@ export function SiteControlAssumptions({
       name="Control assumptions"
       headingId="foundation-control-assumptions-heading"
       section={section}
-      caption="What this site's foundation assumes about how the site is intended to be operated. These are declared assumptions, not control actions, and none of them describes how the site has actually run."
+      caption="What this site's foundation assumes about how the site is intended to be operated. These are declared assumptions, not control actions, and none of them describes how the site has actually operated."
       columns={["Assumption", "Applies to", "Declared by", "What it assumes"]}
       row={(assumption) => ({
         key: assumption.assumptionId,
         cells: [
-          assumption.displayName,
-          assumption.appliesTo,
+          <UserName key="assumption">{assumption.displayName}</UserName>,
+          <UserName key="applies-to">{assumption.appliesTo}</UserName>,
           assumption.basis,
           assumption.statement,
         ],

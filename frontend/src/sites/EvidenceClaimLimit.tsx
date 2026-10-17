@@ -19,7 +19,8 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import { currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, Panel, plainTime, ProductStatus } from "../ui";
+import { PeriodStrip, type StripTone } from "./periodStrip";
 import { isDay } from "./dispatchWords";
 import type {
   AssessedDay,
@@ -33,6 +34,9 @@ import type {
 } from "./claimLimitClient";
 
 export const CLAIM_LIMIT_HEADING_ID = "site-evidence-selected-claim-limit-heading";
+/** One labelled exact value in the technical disclosure (the single-value vocabulary exemption). */
+const REF = { "data-vocabulary-exempt": "source-reference" } as const;
+
 export const CLAIM_LIMIT_LOADING = "Loading the selected assessment's limit.";
 export const ASSESSED_DAY_LOADING = "Loading the day's assessed periods.";
 
@@ -40,7 +44,7 @@ const ROLE_WORDS: Record<string, string> = {
   generator_state: "Generator on or off",
   feeder_demand: "Site demand",
   pv_available_power: "Solar power available",
-  pcs_discharge_capability: "Battery discharge capability",
+  pcs_discharge_capability: "Battery output limit",
   battery_soc: "Battery charge level",
 };
 
@@ -50,15 +54,6 @@ const SPAN_WORDS: Record<string, string> = {
   POOR_QUALITY: "unreliable readings",
   CONFLICTED: "conflicting reports",
   NOT_EVALUATED: "not checked",
-};
-
-const CURRENTNESS_WORDS: Record<string, string> = {
-  CURRENT: "Current assessment",
-  HISTORICAL: "Earlier version · audit only",
-  STALE_PROJECTION: "Out of date · being redone",
-  PENDING: "Assessment pending",
-  FAILED: "Assessment failed",
-  UNASSESSED: "No assessment selected",
 };
 
 const DAY_STATUS_WORDS: Record<string, string> = {
@@ -105,13 +100,13 @@ function ceilingSentence(body: CeilingBody | null): string | null {
     return null;
   }
   if (body.ceiling === "INDETERMINATE") {
-    return "The readings cannot support a conclusion about this generator run: a reading it needs is missing or unreliable.";
+    return "The readings cannot support a conclusion about this period of generator operation: a reading it needs is missing or unreliable.";
   }
   const word = CLASS_WORDS[body.ceiling] ?? body.ceiling;
   const minutes = body.supported_minutes === null ? "" : ` for ${mins(body.supported_minutes)}`;
   return body.support === "COMPLETE"
-    ? `The readings support calling this generator run ${word}${minutes}. Every reading it needs is present for that time.`
-    : `The readings support calling this generator run ${word} for at most${minutes.replace(" for", "")}; the rest of the period is limited by the gaps below.`;
+    ? `The readings support calling this period of generator operation ${word}${minutes}. Every reading it needs is present for that time.`
+    : `The readings support calling this period of generator operation ${word} for at most${minutes.replace(" for", "")}; the rest of the period is limited by the gaps below.`;
 }
 
 /** The selected interval's own period from its role spans (the read's `window` is the whole UTC day). */
@@ -162,7 +157,7 @@ function reasonSentence(reason: ClaimReason): string | null {
     case "GENERATOR_UNOBSERVED":
       return `The generator's on or off state was not observed${at}.`;
     case "OPEN_BOUND":
-      return "The end of the run is not yet known, so its length is a lower bound.";
+      return "The end of the generator's operation is not yet known, so its length is a lower bound.";
     case "MODEL_LIMIT":
       return `Part of the period cannot be classified from these readings${at}.`;
     case "COHORT":
@@ -252,6 +247,8 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
   const day = isDay(rawDay) ? rawDay : null;
   const revision = params.get("revision");
   const [read, setRead] = useState<ClaimLimitResult<ClaimLimitRead> | null>(null);
+  // When a refused or unread answer arrived: the only instant such an answer has (it bounds the refusal, not any data).
+  const [answeredAt, setAnsweredAt] = useState<string | null>(null);
   const [assessed, setAssessed] = useState<ClaimLimitResult<AssessedDay> | null>(null);
 
   useEffect(() => {
@@ -263,6 +260,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
     setRead(null);
     void client.getClaimLimit(siteId, day, revision, abort.signal).then((answer) => {
       if (!abort.signal.aborted && answer.status !== "aborted") {
+        setAnsweredAt(new Date().toISOString());
         setRead(answer);
       }
     });
@@ -297,7 +295,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
   };
 
   return (
-    <Panel heading="What the selected assessment can support" headingId={CLAIM_LIMIT_HEADING_ID}>
+    <Panel heading="What the readings can support" headingId={CLAIM_LIMIT_HEADING_ID}>
       <div className="claim-limit" data-claim-limit-section data-claim-limit-day={day ?? ""} data-claim-limit-revision={revision ?? ""}>
         <p className="prose">
           Each conclusion lists the readings it needs. When all are present for a period, the full conclusion is
@@ -314,6 +312,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
           day={day}
           revision={revision}
           read={read}
+          answeredAt={answeredAt}
           hrefFor={select}
           assessmentHref={assessmentHref}
           periods={assessed !== null && assessed.status === "loaded" ? assessed.value.periods : []}
@@ -378,7 +377,7 @@ function AssessedPeriods({
   }
   return (
     <nav aria-label="Assessed periods on this day" data-claim-limit-periods="loaded">
-      <p className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? assessed.value.status}):`}</p>
+      <p className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? "in a state not known"}):`}</p>
       <ul className="claim-limit__periods">
         {assessed.value.periods.map((p) => (
           <li key={p.id}>
@@ -409,11 +408,13 @@ function Body({
   day,
   revision,
   read,
+  answeredAt,
   hrefFor,
   assessmentHref,
   periods,
 }: {
   siteId: string;
+  answeredAt: string | null;
   client: ClaimLimitClient | undefined;
   day: string | null;
   revision: string | null;
@@ -425,18 +426,21 @@ function Body({
   if (day === null) {
     return (
       <div data-claim-limit-state="no-day" data-currentness="UNASSESSED">
-        <p className="claim-limit__status">
-          <Badge tone="neutral">No assessment selected</Badge>
-        </p>
+        <div className="claim-limit__status">
+          <ProductStatus words={currentnessWords("UNASSESSED")} scope="No assessment selected" asOf={null} />
+        </div>
         <p>Choose a day, then one of its assessed periods. Nothing is concluded until an assessment is chosen.</p>
       </div>
     );
   }
   if (client === undefined) {
     return (
-      <p data-claim-limit-state="unavailable">
-        The assessment store could not be read, so nothing is shown about a selected assessment.
-      </p>
+      <div data-claim-limit-state="unavailable">
+        <div className="claim-limit__status">
+          <ProductStatus words={readResultWords("unavailable")} scope={`Assessment for ${day}`} asOf={null} />
+        </div>
+        <p>The assessment store could not be read, so nothing is shown about a selected assessment.</p>
+      </div>
     );
   }
   if (read === null) {
@@ -448,9 +452,13 @@ function Body({
   if (read.status !== "loaded") {
     return (
       <div data-claim-limit-state={read.status} data-refusal-code={"code" in read ? (read.code ?? "") : ""}>
-        <p className="claim-limit__status">
-          <Badge tone="neutral">Not shown</Badge>
-        </p>
+        <div className="claim-limit__status">
+          <ProductStatus
+            words={readResultWords(read.status === "not_found" ? "not-found" : read.status === "unavailable" ? "unavailable" : "refused")}
+            scope={revision === null ? `Assessment for ${day}` : `Selected assessment for ${day}`}
+            asOf={answeredAt}
+          />
+        </div>
         <p>{refusalSentence(read)}</p>
         {"message" in read && read.message !== null ? (
           <Disclosure name="claim-limit-refusal-technical" summary="Technical details">
@@ -497,6 +505,7 @@ function Loaded({
   const roles = read.capability?.roles ?? {};
   const roleKeys = read.capability?.required_roles ?? Object.keys(roles);
   const selected = read.assessment_revision_id;
+  const whenText = selected === null ? `Day ${read.day}` : `${read.day}, ${read.scope === "WINDOW" ? "whole day" : assessedPeriod(read)}`;
 
   return (
     <div
@@ -506,19 +515,26 @@ function Loaded({
       data-support={current ? (limit?.support ?? "") : ""}
       data-scope={read.scope ?? ""}
     >
-      <p className="claim-limit__status">
-        <Badge tone={head.tone === "lifecycle" ? "lifecycle" : "neutral"}>
-          {CURRENTNESS_WORDS[read.currentness] ?? read.currentness}
-        </Badge>{" "}
-        <span className="claim-limit__when">
-          {selected === null ? `Day ${read.day}` : `${read.day}, ${read.scope === "WINDOW" ? "whole day" : assessedPeriod(read)}`}
-        </span>
-      </p>
+      <p className="headline-card__question claim-limit__question">What can these readings support?</p>
       <p className="claim-limit__headline" data-claim-limit-headline>
         {head.text}
       </p>
+      <div className="claim-limit__status">
+        <ProductStatusLine read={read} whenText={whenText} />
+      </div>
+      <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
+      {reasons.length === 0 ? null : (
+        <>
+          <h3 className="claim-limit__subheading">What limits it</h3>
+          <ul data-claim-limit-reasons>
+            {reasons.map((text) => (
+              <li key={text}>{text}</li>
+            ))}
+          </ul>
+        </>
+      )}
       {read.currentness === "UNASSESSED" ? (
-        <p>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? read.window_status}.`}</p>
+        <p>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</p>
       ) : null}
       {current && read.scope === "WINDOW" && limit !== null && limit.support !== null ? (
         <p data-claim-limit-window-level>{`Across the whole day: ${WINDOW_SUPPORT_WORDS[limit.support] ?? "no overall level stated"}.`}</p>
@@ -544,16 +560,6 @@ function Loaded({
           ))}
         </ul>
       )}
-      {reasons.length === 0 ? null : (
-        <>
-          <h3 className="claim-limit__subheading">What limits it</h3>
-          <ul data-claim-limit-reasons>
-            {reasons.map((text) => (
-              <li key={text}>{text}</li>
-            ))}
-          </ul>
-        </>
-      )}
       {roleKeys.length === 0 || read.capability === null ? null : (
         <RoleTable roleKeys={roleKeys} roles={roles} recordHref={recordHref} />
       )}
@@ -570,6 +576,102 @@ function Loaded({
       </p>
       <Technical read={read} revision={revision} recordHref={recordHref} />
     </div>
+  );
+}
+
+/**
+ * W1-UX-03: the shared state line for the selected assessment - the plain
+ * currentness words, the selected day and period, and "as of" the read.
+ * Only CURRENT is positive; any other or unknown code says so plainly.
+ */
+function ProductStatusLine({ read, whenText }: { read: ClaimLimitRead; whenText: string }) {
+  const words = currentnessWords(read.currentness);
+  const limit = read.claim_limit;
+  // Current, but with no positive conclusion (a whole day, an undetermined or unsupported period): limited, not positive.
+  const supported =
+    read.scope !== "WINDOW" && limit !== null && limit.current_positive_claim && limit.ceiling !== null && limit.ceiling !== "INDETERMINATE";
+  return (
+    <ProductStatus
+      words={words.tone === "positive" && !supported ? { ...words, tone: "limited" } : words}
+      scope={<span className="claim-limit__when">{whenText}</span>}
+      asOf={read.read_at}
+    />
+  );
+}
+
+const SPAN_TONES: Record<string, StripTone> = {
+  COVERED: "covered",
+  MISSING: "gap",
+  POOR_QUALITY: "problem",
+  CONFLICTED: "problem",
+};
+
+/** The selected period's bounds from its role spans; the whole-day read uses its day window. */
+function stripBounds(read: ClaimLimitRead): { start: string | null; end: string | null } {
+  if (read.scope === "WINDOW") return { start: read.window.start, end: read.window.end };
+  const spans = Object.values(read.capability?.roles ?? {}).flatMap((role) => role.spans);
+  if (spans.length === 0) return { start: null, end: null };
+  const starts = spans.map((s) => s.start).sort();
+  const ends = spans.map((s) => s.end).sort();
+  return { start: starts[0], end: ends[ends.length - 1] };
+}
+
+/**
+ * Covered and missing time for each reading the conclusion needs, drawn on
+ * the selected period. A needed reading with no spans is "not known", never
+ * an empty bar; a span status this screen does not know is drawn as not known.
+ */
+function RoleStrip({
+  read,
+  roleKeys,
+  roles,
+}: {
+  read: ClaimLimitRead;
+  roleKeys: string[];
+  roles: Record<string, RoleCapability>;
+}) {
+  if (roleKeys.length === 0 || read.capability === null) {
+    return null;
+  }
+  const { start, end } = stripBounds(read);
+  return (
+    <PeriodStrip
+      name="claim-limit-roles"
+      title="Where each needed reading is covered or missing in the selected period"
+      start={start}
+      end={end}
+      startText={start === null ? undefined : (plainTime(start) ?? undefined)}
+      endText={end === null ? undefined : (plainTime(end) ?? undefined)}
+      legend={[
+        { tone: "covered", label: "Covered" },
+        { tone: "gap", label: "Missing" },
+        { tone: "problem", label: "Unreliable or conflicting" },
+        { tone: "not-known", label: "Not checked or not known" },
+      ]}
+      rows={roleKeys.map((key) => {
+        const role = roles[key];
+        if (role === undefined || role.spans.length === 0) {
+          return { key, label: roleName(key), segments: [], notKnown: true, summary: "No readings recorded: not known for this period." };
+        }
+        const { covered, total } = roleCoverage(role);
+        const gaps = role.spans.filter((s) => s.status !== "COVERED");
+        return {
+          key,
+          label: roleName(key),
+          segments: role.spans.map((s, i) => ({
+            key: `${i}`,
+            start: s.start,
+            end: s.end,
+            tone: SPAN_TONES[s.status] ?? "not-known",
+            label: `${SPAN_WORDS[s.status] ?? "not known"} ${period(s.start, s.end)}`,
+          })),
+          summary:
+            total > 0
+              ? `${mins(covered)} of ${mins(total)} covered${gaps.length === 0 ? "." : `; ${gaps.map((s) => `${SPAN_WORDS[s.status] ?? "not known"} ${period(s.start, s.end)}`).join("; ")}.`}`
+              : "No readings recorded: not known for this period.",
+        };
+      })}
+    />
   );
 }
 
@@ -619,7 +721,7 @@ function RoleTable({
                 <td>
                   {gaps.length === 0
                     ? "none"
-                    : gaps.map((s) => `${SPAN_WORDS[s.status] ?? s.status} ${period(s.start, s.end)}`).join("; ")}
+                    : gaps.map((s) => `${SPAN_WORDS[s.status] ?? "not known"} ${period(s.start, s.end)}`).join("; ")}
                 </td>
                 <td>
                   {role.evidence_ids.length === 0 ? (
@@ -651,6 +753,20 @@ function list(values: readonly string[] | undefined): ReactNode {
   return values === undefined || values.length === 0 ? "none" : values.join(", ");
 }
 
+/**
+ * Fix round 1 (F4): server sentences are prose, not single exact values, so the
+ * technical disclosure no longer shows them under the single-value exemption.
+ * The rule statement and each reason's text are already said in plain words in
+ * the default reading (headline and "What limits it"); the reason codes stay as
+ * labelled exact values. The one recorded "not inferred" sentence is restated in
+ * plain, scanned words; any other wording is named as not shown, never echoed.
+ */
+const NOT_INFERRED_RECORDED =
+  "No physical capacity is inferred: configured capability (Foundation or binding values) is not observed capability, and only the selected revision's accepted public readings are used.";
+const NOT_INFERRED_WORDS =
+  "Nothing about physical capacity is inferred. Capacity from the site set-up is not treated as measured, and only the accepted readings of the selected version are used.";
+const NOT_INFERRED_UNRECOGNISED = "The record also states what is not inferred; that wording is not shown here.";
+
 function Technical({
   read,
   revision,
@@ -664,61 +780,68 @@ function Technical({
   const source = read.watermarks?.source;
   return (
     <div className="evidence-advanced">
-      <Disclosure name="claim-limit-technical" summary="Technical details — rule, versions and record IDs">
+      <Disclosure name="claim-limit-technical" summary="Technical details: rule, versions and record references">
         <FactList>
-          <Fact term="Rule">{read.rule_id}</Fact>
-          <Fact term="Status code">{read.currentness}</Fact>
-          <Fact term="Classification ceiling">{limit?.ceiling ?? "none"}</Fact>
-          <Fact term="Support">{limit?.support ?? "none"}</Fact>
-          <Fact term="Supported minutes">{limit?.supported_minutes ?? "none"}</Fact>
-          <Fact term="Rule statement">{limit?.statement ?? limit?.historical_ceiling?.statement ?? "none"}</Fact>
+          <Fact term="Rule"><code {...REF}>{read.rule_id}</code></Fact>
+          <Fact term="Assessment state code"><code {...REF}>{read.currentness}</code></Fact>
+          <Fact term="Strongest supported classification code"><code {...REF}>{limit?.ceiling ?? "none"}</code></Fact>
+          <Fact term="Coverage level code"><code {...REF}>{limit?.support ?? "none"}</code></Fact>
+          <Fact term="Supported minutes"><code {...REF}>{limit?.supported_minutes ?? "none"}</code></Fact>
           {limit?.historical_ceiling ? (
-            <Fact term="Earlier ceiling (audit only)">
-              {`${limit.historical_ceiling.ceiling ?? "none"} · ${limit.historical_ceiling.support ?? "none"}`}
+            <Fact term="Earlier classification and coverage codes (for the record)">
+              <code {...REF}>{`${limit.historical_ceiling.ceiling ?? "none"} · ${limit.historical_ceiling.support ?? "none"}`}</code>
             </Fact>
           ) : null}
-          <Fact term="Requested revision">{revision ?? "none"}</Fact>
-          <Fact term="Assessment revision">{read.assessment_revision_id ?? "none"}</Fact>
-          <Fact term="Revision number">{read.revision_no ?? "none"}</Fact>
-          <Fact term="Scope">{read.scope ?? "none"}</Fact>
-          <Fact term="Assessment key">{read.assessment_key ?? "none"}</Fact>
-          <Fact term="Claim level">{read.claim_level ?? "none"}</Fact>
-          <Fact term="Day window">{`${read.window.start} to ${read.window.end}`}</Fact>
-          <Fact term="Day status">{`${read.window_status}${read.window_status_reasons.length ? ` (${read.window_status_reasons.join("; ")})` : ""}`}</Fact>
-          <Fact term="Current selection">
-            {read.current_selection === null
-              ? "none"
-              : `run ${read.current_selection.run_id} · ${read.current_selection.model_version} · revisions ${read.current_selection.revision_ids.join(", ")}`}
+          <Fact term="Requested revision"><code {...REF}>{revision ?? "none"}</code></Fact>
+          <Fact term="Assessment revision"><code {...REF}>{read.assessment_revision_id ?? "none"}</code></Fact>
+          <Fact term="Revision number"><code {...REF}>{read.revision_no ?? "none"}</code></Fact>
+          <Fact term="Scope"><code {...REF}>{read.scope ?? "none"}</code></Fact>
+          <Fact term="Assessment key"><code {...REF}>{read.assessment_key ?? "none"}</code></Fact>
+          <Fact term="Conclusion level code"><code {...REF}>{read.claim_level ?? "none"}</code></Fact>
+          <Fact term="Day window"><code {...REF}>{`${read.window.start} to ${read.window.end}`}</code></Fact>
+          <Fact term="Day state code"><code {...REF}>{`${read.window_status}${read.window_status_reasons.length ? ` (${read.window_status_reasons.join("; ")})` : ""}`}</code></Fact>
+          <Fact term="Current assessment batch, rules and versions">
+            <code {...REF}>
+              {read.current_selection === null
+                ? "none"
+                : `${read.current_selection.run_id} · ${read.current_selection.model_version} · ${read.current_selection.revision_ids.join(", ")}`}
+            </code>
           </Fact>
-          <Fact term="Run">{read.run ? `${read.run.run_id} · ${read.run.model_version}` : "none"}</Fact>
-          <Fact term="Cohort">{read.run ? `${read.run.cohort_status} · ${read.run.cohort_sha256}` : "none"}</Fact>
-          <Fact term="Knowledge cutoff">{read.run?.knowledge_cutoff ?? "none"}</Fact>
-          <Fact term="Foundation revisions">{list(read.run?.foundation_revision_ids)}</Fact>
-          <Fact term="Binding-set revisions">{list(read.run?.binding_set_revision_ids)}</Fact>
-          <Fact term="Source watermark (reading time)">{source?.source_time ?? "none"}</Fact>
-          <Fact term="Source watermark (published)">{source?.published_at ?? "none"}</Fact>
-          <Fact term="Source watermark (received)">{source?.received_at ?? "none"}</Fact>
-          <Fact term="Source watermark (accepted)">{source?.accepted_at ?? "none"}</Fact>
-          <Fact term="Analysis built">{read.watermarks?.analytic_built_at ?? "none"}</Fact>
-          <Fact term="Assessment built">{read.built_at ?? "none"}</Fact>
-          <Fact term="Read at">{read.read_at}</Fact>
-          <Fact term="Not inferred">{read.not_inferred}</Fact>
+          <Fact term="Assessment batch and method"><code {...REF}>{read.run ? `${read.run.run_id} · ${read.run.model_version}` : "none"}</code></Fact>
+          <Fact term="Device set state and reference"><code {...REF}>{read.run ? `${read.run.cohort_status} · ${read.run.cohort_sha256}` : "none"}</code></Fact>
+          <Fact term="Knowledge cutoff"><code {...REF}>{read.run?.knowledge_cutoff ?? "none"}</code></Fact>
+          <Fact term="Foundation revisions"><code {...REF}>{list(read.run?.foundation_revision_ids)}</code></Fact>
+          <Fact term="Input set-up revisions"><code {...REF}>{list(read.run?.binding_set_revision_ids)}</code></Fact>
+          <Fact term="Latest reading used (taken)"><code {...REF}>{source?.source_time ?? "none"}</code></Fact>
+          <Fact term="Latest reading used (sent)"><code {...REF}>{source?.published_at ?? "none"}</code></Fact>
+          <Fact term="Latest reading used (received)"><code {...REF}>{source?.received_at ?? "none"}</code></Fact>
+          <Fact term="Latest reading used (accepted)"><code {...REF}>{source?.accepted_at ?? "none"}</code></Fact>
+          <Fact term="Analysis prepared"><code {...REF}>{read.watermarks?.analytic_built_at ?? "none"}</code></Fact>
+          <Fact term="Assessment prepared"><code {...REF}>{read.built_at ?? "none"}</code></Fact>
+          <Fact term="Read at"><code {...REF}>{read.read_at}</code></Fact>
+          <Fact term="What is not inferred">
+            <span data-claim-limit-not-inferred={read.not_inferred === NOT_INFERRED_RECORDED ? "known" : "unrecognised"}>
+              {read.not_inferred === NOT_INFERRED_RECORDED ? NOT_INFERRED_WORDS : NOT_INFERRED_UNRECOGNISED}
+            </span>
+          </Fact>
         </FactList>
         {limit === null || limit.reasons.length === 0 ? null : (
           <ul data-claim-limit-reason-codes>
             {limit.reasons.map((r, index) => (
-              <li key={`${r.code}-${index}`} data-reason-code={r.code}>{`${r.code}: ${r.text}`}</li>
+              <li key={`${r.code}-${index}`} data-reason-code={r.code}>
+                Reason code <code {...REF}>{r.code}</code>
+              </li>
             ))}
           </ul>
         )}
         {read.accepted_evidence_ids === undefined || read.accepted_evidence_ids.length === 0 ? null : (
           <>
-            <p>{`Accepted Evidence IDs (${read.accepted_evidence_ids.length})`}</p>
+            <p>{`Accepted reading references (${read.accepted_evidence_ids.length})`}</p>
             <ul className="claim-limit__records" data-claim-limit-accepted>
               {read.accepted_evidence_ids.map((id) => (
                 <li key={id}>
                   <Link to={recordHref(id)} data-accepted-evidence={id}>
-                    {id}
+                    <code {...REF}>{id}</code>
                   </Link>
                 </li>
               ))}

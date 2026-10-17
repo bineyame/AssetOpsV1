@@ -5759,3 +5759,38 @@ Branch `task/W1-UX-02` (base main `a8cbb3d1`, code `bc1cea1b`, unmerged); packet
 - Money: a `ValueBars` amount only for a PRICED+CURRENT bridge with both bounds; every other state draws a not-known mark and gives a "why no current amount" line. The S4-08 history is recorded-only.
 - Evidence: `tools/w1-ux-02-evidence.mjs`; all eight screens captured at 1440/390 (packet).
 - Open: untimed reads say "As of: time not recorded"; `LINK_DISPLAY_OVERRIDES` awaits a backend rewording; there is no Financials Analysis tab; `FindingDetail.tsx` (legacy route) is not migrated; `s502-overview-finding-list-evidence.mjs:148` is stale.
+## W1-UX-03 - Evidence, Dispatch and Analysis presentation (built, in_review)
+
+Branch `task/W1-UX-03` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-03-review-packet.md`; handoff `.agent/W1-UX-03-handoff.md`. Frontend only.
+
+- `frontend/src/sites/periodStrip.tsx` (+ `.css`): local `PeriodStrip` - rows of read-returned time segments on the period's own bounds, optional exact links per segment, required summary text, hatched "not known" row; used by Evidence and Dispatch.
+- Evidence Overview: `ReportingFacts` (readings / gateway contact / analysis up to date as separate facts, as-of, per-source latest-taken strip). Evidence Analysis: lead question; S2 limit panel and the S3-02b section ("What the readings can support") precede the inspector.
+- `EvidenceClaimLimit.tsx`: shared `ProductStatus` (currentnessWords; CURRENT without a positive conclusion -> limited tone; refusals via `readResultWords`, as of = answer time), `RoleStrip` covered/missing per needed reading; local `CURRENTNESS_WORDS` removed; Technical disclosure values are single labelled references.
+- `PerformanceDispatch.tsx`: `statusWords` wraps `currentnessWords` with dispatch `STATUS_SENTENCES` (`dispatchWords.ts`, replaces `STATUS_WORDS`); Overview `HeadlineVisualCard` "dispatch-story" with `DayBlockStrip` (exact revision+block links), totals (unstated portion = not known), limitations, Analysis link, `DispatchReferences`; Analysis `ReadingsToOutcome` (readings -> rule -> bounded conclusion), versions list, stored record and comparison as closed technical disclosures; `constraintWords` unknown -> plain fallback.
+- `assessmentAnalysis.tsx`: method version / assessment reference / record-set reference -> `ExactReferences`.
+- W1 set opted in: `evidence-analysis`, `dispatch`, `analysis` (`evidence` since UX-01). Capture tool `tools/w1-ux-03-evidence.mjs`.
+- Open: G-04 baselined fuel/money sentence keeps "claim" (W1 scan allows only it); no-day claim-limit state has no read instant; source strip shows latest-taken only (no per-source span in the read).
+## W1-UX-04 - Action, work, change and verification presentation (built, in_review)
+
+Branch `task/W1-UX-04` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-04-review-packet.md`. Frontend only. All nine routes opted into the W1 vocabulary set (action-overview was opted in by W1-UX-01).
+
+- Answer cards (shared `HeadlineVisualCard`, `data-headline-card`): `recommendation` (`SiteRecommendation.tsx` `RecommendationCard`), `change` (`SiteFoundationChange.tsx` `ChangeCard`), `action-work` / `action-history` (`SiteAction.tsx` `WorkCard`, `HistoryCard`), `site-work` (`SiteWorkActions.tsx` `SiteWorkCard`), `verification` / `action-plan` / `action-evidence` (`verificationCards.tsx`, mounted in `SiteActionVerification.tsx`).
+- Domain-local words in `actionPresentation.tsx`: `applicationWords`, `recommendationWords` (holds are problem/waiting, never positive), `plainEventWords`, `trialStep` (moved from `SiteAction.tsx`).
+- As-of sources (no read carries a read instant except Site Work `read_at` and Evidence `knowledge_cutoff`): recommendation = acceptance time, else latest stored input window end, else (held) the blocking Action's latest recorded step; change = `recorded_at`; verification = outcome `recorded_at`, else the Action read cutoff/last event; plan = plan `recorded_at`.
+- Site Work: proved zero only after a loaded read (`read_at` beside it); a refused/unread list shows "As of: time not recorded" and no count.
+- Verification card: failed limits in plain units (minutes, %, kWh); a selected earlier outcome reads Historical with "Current state:" beside it.
+- Jargon labels made plain: Input/Plan content/Day group/Configuration reference; stored measure values and day-group status are exact references.
+- Capture: `tools/w1-ux-01-evidence.mjs` knows all W1-UX-04 cards; `W1_NO_VISUAL_OK`, `W1_TAB_TRACE` env.
+- Open: refusal states cannot meet `expectStateLineVisible` (no instant to show); Evidence completeness counts slots with no problems (caller-side `slotProblems`); duplicate word maps in `verificationWords.ts` remain (wrapped, not replaced).
+
+## W1-UX-05 - Foundation, Readiness, SLD, Health and battery presentation (built, in_review)
+
+Branch `task/W1-UX-05` (base main `815888f0`). Packet `.agent/W1-UX-05-review-packet.md`.
+
+- Settled: the five routes `foundation`, `readiness`, `sld`, `health`, `asset` lead with the shared `HeadlineVisualCard` and are opted into the W1 vocabulary set. Cards live in `frontend/src/sites/foundationHeadlines.tsx` and `healthHeadlines.tsx`, with domain-local `ProductWords` (period, set-up readiness, contact summary, gateway contact, battery condition); none is `positive`.
+- Foundation wording: signal binding -> "channel link", digest -> "content reference", type labels "Solar array"/"Supplied users"; single values marked via `frontend/src/sites/exactValues.tsx` (`UserName`, `ExactRef`).
+- SLD reporting is drawn as a not-known mark; Health contact and reported-fact age are separate lanes; battery "cannot yet be judged" with missing inputs as a step strip.
+- S7-01b Lows: L1 (observed-after-receipt -> Unknown age), L3 (selected-gateway IDs to the disclosure), L4 (`isBatteryDetail` requires UNKNOWN; 409 test) done.
+- Refusals, the empty Foundation period and the unreadable store carry the state line.
+- Open: S7-01b L2 (backend negative `receipt_lag_seconds`); shared `expectStateLineVisible` rejects `asOfText(null)`; three backend "binding" statements replaced in the UI only when no link set is in effect; green S1 "Ready to report" verdict remains under the neutral card; `tools/w1-ux-05-evidence.mjs` 390 px overflow measurement inherits a UX-01 timing issue.
+- Proof at `af9b6406`: tsc 0; full frontend 1755 passed; check-all 9/9; served captures for all five screens (empty-period page not run by design).

@@ -75,7 +75,7 @@ const READINESS = [
   T("G-readiness-gateway-signal-strength", "readiness.gateway.signal-strength",
     "Signal strength not available yet: no reviewed source reports a gateway's signal strength."),
   T("G-readiness-gateway-firmware", "readiness.gateway.firmware",
-    "Firmware not available yet: no reviewed source reports what firmware a gateway runs."),
+    "Firmware not available yet: no reviewed source reports what firmware a gateway has installed."),
   T("G-readiness-source-contact", "readiness.sources.arrival", "whether data is arriving is not assessed here."),
 ];
 const CONTACT = T("G-readiness-source-contact", "readiness.gateway.source-connection", "Device connection not established here.");

@@ -409,7 +409,7 @@ describe("a configuration is rendered from its foundation document", () => {
     await settledScreen();
 
     expect(componentRows(container)).toEqual([
-      ["PV array", "PV array", "100 kW", "pv-array"],
+      ["PV array", "Solar array", "100 kW", "pv-array"],
       ["Battery energy storage", "Battery", "215 kWh", "battery"],
       ["Site meter", "Meter", "No rating declared", "site-meter"],
     ]);
@@ -669,7 +669,7 @@ describe("what this site's foundation does not declare is stated, not implied", 
   it.each([
     ["Topology", /declares no topology/i],
     ["Devices", /declares no device/i],
-    ["Signal mappings", /declares no device-to-signal mapping/i],
+    ["Signal mappings", /declares no device-to-signal link/i],
     ["Control assumptions", /declares no control assumption/i],
   ])("states %s as undeclared, with the reason", async (term, reason) => {
     const { container } = renderConfiguration(USER_SIMULATED_SITE);
@@ -1503,7 +1503,7 @@ describe("typed component properties read back as declared configuration", () =>
     expect(terms).toContain("PV array tank capacity");
     // The rating is still its own row: a property and a rating are two facts
     // about one component and neither stands for the other.
-    expect(terms).toContain("PV array");
+    expect(terms).toContain("Solar array");
   });
 });
 

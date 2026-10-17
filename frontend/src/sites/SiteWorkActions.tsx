@@ -20,7 +20,20 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import {
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  Panel,
+  ProductStatus,
+  readResultWords,
+  ValueBars,
+  type ProductWords,
+  type ValueBarItem,
+} from "../ui";
 import type { ActionIndexBody, ActionIndexClient, ActionIndexResult, ActionIndexRow, ActionIndexScope } from "./actionIndexClient";
 
 export interface SiteWorkLinks {
@@ -146,10 +159,14 @@ function Basis({ body }: { body: ActionIndexBody }) {
             {body.fence.zero_rows ? " (an explicit zero)" : ""}
           </span>
         </Fact>
-        <Fact term="Order">{body.order}</Fact>
-        <Fact term="Step shown">{body.selection}</Fact>
+        <Fact term="Order">
+          <code data-vocabulary-exempt="source-reference">{body.order}</code>
+        </Fact>
+        <Fact term="Step shown">
+          <code data-vocabulary-exempt="source-reference">{body.selection}</code>
+        </Fact>
         <Fact term="List fence">
-          <code data-site-work-fence>{body.fence.token}</code>
+          <code data-site-work-fence data-vocabulary-exempt="source-reference">{body.fence.token}</code>
         </Fact>
       </FactList>
       {body.rows.length > 0 && (
@@ -168,13 +185,13 @@ function Basis({ body }: { body: ActionIndexBody }) {
               <tr key={row.action_id}>
                 <td>{row.action_code}</td>
                 <td>
-                  <code>{row.action_id}</code>
+                  <code data-vocabulary-exempt="source-reference">{row.action_id}</code>
                 </td>
                 <td>
-                  <code>{row.origin.finding_revision_id}</code>
+                  <code data-vocabulary-exempt="source-reference">{row.origin.finding_revision_id}</code>
                 </td>
                 <td>
-                  <code>{row.selected_event.id}</code> ({row.selected_event.kind})
+                  <code data-vocabulary-exempt="source-reference">{row.selected_event.id}</code> (<code data-vocabulary-exempt="source-reference">{row.selected_event.kind}</code>)
                 </td>
               </tr>
             ))}
@@ -366,7 +383,9 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
         </Panel>
       ) : result === null ? (
         <p data-site-work-state="loading">Loading the site&apos;s Actions.</p>
-      ) : result.status === "loaded" ? (
+      ) : null}
+      {scope !== null && result !== null ? <SiteWorkCard result={result} siteName={siteName} links={links} /> : null}
+      {scope === null || result === null ? null : result.status === "loaded" ? (
         <Loaded body={result.value} scope={scope} links={links} siteName={siteName} />
       ) : (
         <Refused result={result} scope={scope} links={links} />
@@ -376,5 +395,170 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
       </p>
       <p className="overview-note">Opening an Action moves you to its own page; the breadcrumb keeps this site.</p>
     </section>
+  );
+}
+
+const LISTED_WORDS: ProductWords = {
+  label: "Every Action created here in this window",
+  sentence:
+    "The list was read in full for this site and window. Where each Action stands is its last recorded step, not a judgement of whether it worked.",
+  next: "Open an Action that is not applied or not yet checked to see its next step.",
+  tone: "neutral",
+  code: "CURRENT",
+  unrecognised: false,
+};
+
+const STAND_ORDER = [
+  ["Accepted, not applied", "pending"],
+  ["Applied, result not checked yet", "applied"],
+  ["Trial closed", "closed"],
+  ["Being checked again", "rechecking"],
+] as const;
+
+function standKey(row: ActionIndexRow): string {
+  if (row.state.resolution?.state === "RESOLVED") return "closed";
+  if (row.state.resolution?.state === "RESOLUTION_WITHDRAWN") return "rechecking";
+  if (row.state.application === "APPLIED") return "applied";
+  if (row.state.application === "PENDING") return "pending";
+  return "unrecognised";
+}
+
+/** The refused or unread list, as state-line words: never a zero. */
+function refusedWords(result: ActionIndexResult): ProductWords {
+  switch (result.status) {
+    case "unauthenticated":
+    case "forbidden":
+      return readResultWords("refused");
+    case "not_found":
+      return readResultWords("not-found");
+    case "basis_changed":
+      return {
+        label: "This list changed while it was open",
+        sentence: "Actions in this window changed, so the next page cannot continue from the earlier one. This is not zero.",
+        next: "Start again from the first page.",
+        tone: "waiting",
+        code: result.status,
+        unrecognised: false,
+      };
+    case "invalid":
+      return {
+        label: "This window cannot be shown",
+        sentence: "Windows are whole UTC days, at most 31 days long. Nothing was counted.",
+        next: "Choose another window.",
+        tone: "limited",
+        code: result.status,
+        unrecognised: false,
+      };
+    default:
+      return readResultWords("unavailable");
+  }
+}
+
+/**
+ * W1-UX-04: the Site Work answer card - what work is open at this site and
+ * what is next. A zero is shown only after a successful bounded read, with
+ * its read time beside it; a refused or unread list is never a zero. No
+ * verification verdict is derived here.
+ */
+function SiteWorkCard({
+  result,
+  siteName,
+  links,
+}: {
+  result: ActionIndexResult;
+  siteName: string;
+  links: SiteWorkLinks;
+}) {
+  if (result.status !== "loaded") {
+    const words = refusedWords(result);
+    return (
+      <HeadlineVisualCard
+        dataName="site-work"
+        headingId="site-work-answer-heading"
+        question="What work is open at this site, and what is next?"
+        headline={<>No Action list can be shown, and no count is given.</>}
+        status={<ProductStatus words={words} scope={`${siteName}, Actions`} asOf={null} />}
+        meaning={<p>This is not a statement that the site has no Actions.</p>}
+        todo={words.next === undefined ? undefined : <p>{words.next}</p>}
+      />
+    );
+  }
+  const body = result.value;
+  const days = `${dayText(body.window.from)} to ${dayText(lastDayOf(body.window.to))}`;
+  const scope = `${siteName}, Actions created ${days}`;
+  if (body.total_count === 0) {
+    const words = readResultWords("proved-empty");
+    return (
+      <HeadlineVisualCard
+        dataName="site-work"
+        headingId="site-work-answer-heading"
+        question="What work is open at this site, and what is next?"
+        headline={
+          <span data-site-work-proved-zero={body.read_at}>No Actions were created at this site in this window.</span>
+        }
+        status={<ProductStatus words={words} scope={scope} asOf={body.read_at} />}
+        meaning={
+          <p>
+            The full list for this site and window was read and holds no Action. It says nothing about other windows,
+            incidents or maintenance work.
+          </p>
+        }
+        todo={<p>Choose a wider window, or open the site&apos;s Findings to see what could be worked on.</p>}
+        references={<SiteWorkReferences body={body} />}
+      />
+    );
+  }
+  const counts = new Map<string, number>();
+  for (const row of body.rows) counts.set(standKey(row), (counts.get(standKey(row)) ?? 0) + 1);
+  const items: ValueBarItem[] = STAND_ORDER.map(([label, key]) => ({ label, key, value: counts.get(key) ?? 0, valueText: String(counts.get(key) ?? 0) }));
+  const unrecognised = counts.get("unrecognised") ?? 0;
+  if (unrecognised > 0) items.push({ label: "State not recognised", key: "unrecognised", value: unrecognised, valueText: String(unrecognised) });
+  const newest = body.rows[0];
+  return (
+    <HeadlineVisualCard
+      dataName="site-work"
+      headingId="site-work-answer-heading"
+      question="What work is open at this site, and what is next?"
+      headline={
+        <>
+          {body.total_count} {body.total_count === 1 ? "Action was" : "Actions were"} created at this site in this window.
+        </>
+      }
+      status={<ProductStatus words={LISTED_WORDS} scope={scope} asOf={body.read_at} />}
+      visual={
+        <ValueBars
+          title={`Where the Actions on this page stand (${body.rows.length} of ${body.total_count})`}
+          items={items}
+        />
+      }
+      meaning={
+        <p>
+          Applied or closed is a recorded step, not proof that a trial worked. Whether a trial met its goal is shown on
+          each Action&apos;s Verification.
+        </p>
+      }
+      todo={<p>{LISTED_WORDS.next}</p>}
+      destination={
+        newest ? (
+          <Link to={links.action(newest.action_id)} data-site-work-newest-link>
+            Open the newest Action
+          </Link>
+        ) : undefined
+      }
+      references={<SiteWorkReferences body={body} />}
+    />
+  );
+}
+
+function SiteWorkReferences({ body }: { body: ActionIndexBody }) {
+  return (
+    <ExactReferences
+      name="site-work-references"
+      references={[
+        { label: "Window start", value: body.window.from },
+        { label: "Window end (not included)", value: body.window.to },
+        { label: "List check token", value: body.fence.token },
+      ]}
+    />
   );
 }

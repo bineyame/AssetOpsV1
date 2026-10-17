@@ -29,7 +29,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import actionContract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
 import contract from "../../../../backend/tests/fixtures/s6_verification_api_contract.json";
 import { SiteActionFrame, SiteFindingFrame, SiteFoundationChangeFrame } from "../../shell/SiteAnalyticsFrames";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -545,5 +546,163 @@ describe("Recommendation and Change panels (recommendation:2-3, changes:1#b, cha
     expect(q("[data-change-decision-path]")?.querySelectorAll("li").length).toBe(3);
     expect(document.body.textContent).toMatch(/being applied is not success/);
     noVocabularyViolations("changes:1#b-2");
+  });
+});
+
+describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () => {
+  function w1Card(name: string, page: string): HTMLElement {
+    const main = document.body.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, page, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const card = q(`[data-headline-card='${name}']`) as HTMLElement;
+    expect(card, `${name} card`).not.toBeNull();
+    const disclosure = scanDisclosureVocabulary(card, `${page} disclosure`);
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+    return card;
+  }
+  const tone = (card: Element) => card.querySelector("[data-product-status]")?.getAttribute("data-product-status");
+
+  it("current VERIFIED: the outcome, source and as-of stay outside the closed disclosure; before/after bars come from the read", async () => {
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(outcomeCurrent()) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    const card = w1Card("verification", "verification (W1) verified");
+    const label = expectStateLineVisible(card);
+    expect(label).not.toMatch(/historical|earlier/i);
+    expect(card.querySelectorAll("[data-value-bar-key]")).toHaveLength(2);
+    expect(card.textContent).toMatch(/45 min/);
+    expect(card.textContent).not.toMatch(/saved|savings of|reduced cost/i);
+  });
+
+  it("guardrail miss and target miss stay prominent with measured value, limit and unit; INCONCLUSIVE keeps known failures", async () => {
+    const inconclusive = outcomeAs("INCONCLUSIVE", ["GUARDRAIL_UNKNOWN:terminal_soc", "INCOMPLETE_LATER_WINDOW", "KNOWN_FAILURE:below_reserve_seconds"]);
+    for (const m of inconclusive.metrics) {
+      if (m.metric_key === "below_reserve_seconds") {
+        m.state = "FAIL";
+        m.value_text = "3600";
+        m.threshold_text = "0 and <= baseline";
+      }
+    }
+    const cases: [Body, RegExp][] = [
+      [outcomeAs("INEFFECTIVE", ["GUARDRAIL_FAIL", "GUARDRAIL:below_reserve_seconds"], { below_reserve_seconds: ["600", "0 and <= baseline"] }), /safety or service limit/],
+      [outcomeAs("INEFFECTIVE", ["TARGET_MISS"], { target_reduction: [null as unknown as string, "4 * later_seconds <= 3 * baseline_seconds"] }), /Target not met/],
+      [inconclusive, /./],
+    ];
+    for (const [body, label] of cases) {
+      serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(body) });
+      const view = mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+      await settledScreen();
+      const card = w1Card("verification", `verification (W1) ${body.outcome.outcome} ${body.outcome.reasons[0]}`);
+      expect(expectStateLineVisible(card)).toMatch(label);
+      expect(tone(card)).not.toBe("positive");
+      const status = card.querySelector("[data-product-status]") as HTMLElement;
+      if (body.outcome.reasons.includes("GUARDRAIL_FAIL")) {
+        // The failed limit is in the default reading, outside the closed disclosure.
+        // 600 seconds read, shown in plain minutes against its limit.
+        expect(status.textContent).toContain("measured 10 min, limit 0 min");
+      }
+      if (body.outcome.outcome === "INCONCLUSIVE") {
+        expect(status.textContent).toMatch(/cannot tell|could not conclude/i);
+        const known = status.querySelector("[data-product-outcome-known-failures]") as HTMLElement;
+        expect(known, "known failure list").not.toBeNull();
+        expect(known.textContent).toMatch(/^Known failure: /);
+        expect(known.textContent).not.toMatch(/Known failure: Known failure/);
+        expect(known.textContent).toMatch(/reserve/i);
+        expect(status.textContent).toContain("measured 60 min, limit 0 min");
+      }
+      view.unmount();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("REASSESSMENT_PENDING: no current result is claimed; a selected withdrawn outcome is Historical beside the current state", async () => {
+    const o = prep(R.outcome_reassessment_pending, { outcome_id: OUT1 });
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(o), [`${V}/outcome?outcome_id=${OUT2}`]: ok(prep(R.outcome_historical, { outcome_id: OUT2 })) });
+    let view = mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    let card = w1Card("verification", "verification (W1) reassessment");
+    expect(expectStateLineVisible(card)).not.toMatch(/verified|met/i);
+    expect(tone(card)).not.toBe("positive");
+    expect(card.querySelector("[data-value-bar-key]")).toBeNull();
+    view.unmount();
+
+    view = mount(`/sites/KOBO-001/actions/${ACTION}/verification?outcome_id=${OUT2}`);
+    await settledScreen();
+    card = w1Card("verification", "verification (W1) historical");
+    const shown = expectStateLineVisible(card);
+    expect(shown).not.toMatch(/current/i);
+    expect(tone(card)).not.toBe("positive");
+    expect(card.querySelector("[data-verification-card-historical-outcome]")?.textContent).toMatch(/Current state:/);
+    expect(card.querySelector("[data-verification-card-historical-source]")?.textContent).toMatch(/^Source: .+/);
+    expect(card.querySelector("[data-verification-card-historical-demonstration]")?.textContent).toMatch(/policy|no saving|not a saving/i);
+    expect(where()).toContain(`outcome_id=${OUT2}`);
+    view.unmount();
+  });
+
+  it("Plan: a fixed plan and NO_PLAN each keep the state line, scope and as-of outside the closed disclosure", async () => {
+    serve({ ...actionReads(), [`${V}/plan`]: ok(prep(R.plan)) });
+    let view = mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await settledScreen();
+    let card = w1Card("action-plan", "action-plan (W1)");
+    expect(expectStateLineVisible(card)).toBe("Plan fixed before the later readings");
+    expect(card.querySelectorAll("[data-step]")).toHaveLength(3);
+    expect(card.textContent).toMatch(/25% lower/);
+    view.unmount();
+    vi.unstubAllGlobals();
+
+    const none = prep(R.plan);
+    none.plan = null;
+    none.verification_state = { state: "NO_PLAN", reasons: [], plan_id: null, outcome_id: null, statement: "" };
+    serve({ ...actionReads(), [`${V}/plan`]: ok(none) });
+    view = mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await settledScreen();
+    card = w1Card("action-plan", "action-plan (W1) no plan");
+    expect(expectStateLineVisible(card)).not.toBe("");
+    expect(tone(card)).not.toBe("positive");
+    expect(card.querySelector("[data-step]")).toBeNull();
+    view.unmount();
+  });
+
+  it("Evidence: complete windows, then a gap that reads as missing readings, never as complete", async () => {
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    let view = mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await settledScreen();
+    let card = w1Card("action-evidence", "action-evidence (W1)");
+    expect(expectStateLineVisible(card)).toBe("Both windows have their readings");
+    expect(card.textContent).toMatch(/12 of 12 readings/);
+    view.unmount();
+    vi.unstubAllGlobals();
+
+    const ev = prep(R.evidence);
+    const slot = ev.windows.later.slots[3];
+    const load = Object.keys(slot.feeder_demand)[0];
+    slot.feeder_demand[load] = { ...slot.feeder_demand[load], state: "MISSING", kwh: null, evidence_ids: [], problems: [{ code: "GAP", detail: "no interval reading covers the slot" }] };
+    slot.complete = false;
+    ev.windows.later.complete = false;
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(ev), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    view = mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await settledScreen();
+    card = w1Card("action-evidence", "action-evidence (W1) gap");
+    expect(expectStateLineVisible(card)).toBe("Some readings are missing");
+    expect(tone(card)).not.toBe("positive");
+    expect(card.textContent).toMatch(/11 of 12 readings/);
+    view.unmount();
+  });
+
+  it("Recommendation hold on a different Finding: the held state line keeps the blocking Action's latest recorded step as its as-of", async () => {
+    const body = prep(R.recommendation_overlap);
+    body.prior_action_block.blocking_actions[0].origin.finding_id = OTHER_FINDING;
+    body.prior_action_block.blocking_action_id = ACTION;
+    body.prior_action_block.blocking_actions[0].action_id = ACTION;
+    serve({ [`/api/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`]: ok(body) });
+    mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`);
+    await settledScreen();
+    const card = w1Card("recommendation", "recommendation (W1) overlap hold");
+    expect(expectStateLineVisible(card)).toBe("Held: late evidence withdrew an earlier trial's result");
+    expect(tone(card)).toBe("problem");
+    expect(card.querySelector("[data-recommendation-card-held-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
+    expect(screen.getByRole("button", { name: /Accept trial/ })).toBeDisabled();
   });
 });
