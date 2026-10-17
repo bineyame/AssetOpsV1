@@ -499,7 +499,7 @@ function WindowView({
                   {/* W1-F2 compaction: the mock's compact coverage table and note lines; the full list of limits,
                       what a reading is and the accepted records sit in one closed disclosure. */}
                   <CoverageBody read={read} />
-                  {comparison ? <ComparisonLine summary={comparison} /> : null}
+                  {comparison ? <ComparisonLine summary={comparison} note /> : null}
                   <CoverageDetail read={read}>
                     {loaded !== null ? (
                       <EvidenceRecords detail={loaded} segment={segment} windowNote={read.demo_annotations} />
@@ -1028,6 +1028,7 @@ function CoverageDetail({ read, children }: { read: DispatchWindow; children?: R
     <>
       {groups.length === 0 ? <LimitationsList read={read} /> : null}
       <Disclosure
+        variant="tech"
         name="dispatch-coverage-detail"
         summary={
           groups.length === 0
@@ -1095,8 +1096,16 @@ function CoverageBody({ read }: { read: DispatchWindow }) {
           </tbody>
         </DataTable>
       )}
+      {/* W1-F2 compaction (phase B): the record count and the "Show all" toggle share one note line. */}
+      <p className="v69-chart-note">
+        <span data-coverage-note="">
+          {noSeries
+            ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result.`
+            : `${read.evidence_count} accepted records behind this day's result.`}
+        </span>
       {rows.length <= COVERAGE_PREVIEW_ROWS ? null : (
-        <p className="v69-chart-note">
+        <>
+          {" "}
           <button
             type="button"
             className="link-button"
@@ -1106,20 +1115,17 @@ function CoverageBody({ read }: { read: DispatchWindow }) {
           >
             {showAll ? `Show the first ${COVERAGE_PREVIEW_ROWS} only` : `Show all ${rows.length} inputs`}
           </button>
-        </p>
+        </>
       )}
-      <ChartNote data={{ "data-coverage-note": "" }}>
-        {noSeries
-          ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result.`
-          : `${read.evidence_count} accepted records behind this day's result.`}
-      </ChartNote>
+      </p>
     </>
   );
 }
 
-function ComparisonLine({ summary }: { summary: ComparisonSummary }) {
+function ComparisonLine({ summary, note = false }: { summary: ComparisonSummary; note?: boolean }) {
   return (
-    <p className="chart-note" data-comparison-outcome={summary.outcome} data-comparison-empty={summary.empty_set}>
+    // W1-F2 compaction (phase B): `note` sets the coverage panel's comparison at the mock's note size.
+    <p className={note ? "v69-chart-note" : "chart-note"} data-comparison-outcome={summary.outcome} data-comparison-empty={summary.empty_set}>
       {summary.empty_set
         ? "Checked against the earlier file-based results: there were none for this site, so nothing could be compared. This is not a match."
         : `Checked against the earlier file-based results: ${summary.counts.MATCH ?? 0} agree, ${
