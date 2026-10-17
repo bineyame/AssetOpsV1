@@ -1,0 +1,684 @@
+{
+  "revision": "c3b198f7",
+  "captured_at": "2026-10-17T10:19:26.600Z",
+  "pairs": [
+    {
+      "screen": "finding",
+      "case": null,
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058",
+      "mock_hash": "#/finding",
+      "app_image": "finding-1440-app.png",
+      "mock_image": "finding-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 248,
+            "y": 407,
+            "w": 1145,
+            "h": 436
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 248,
+            "y": 1025,
+            "w": 725,
+            "h": 389
+          },
+          {
+            "title": "What to do next",
+            "x": 991,
+            "y": 1025,
+            "w": 403,
+            "h": 389
+          },
+          {
+            "title": "Where to look next",
+            "x": 248,
+            "y": 1448,
+            "w": 1145,
+            "h": 511
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 234,
+            "y": 367,
+            "w": 1161,
+            "h": 279
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 234,
+            "y": 794,
+            "w": 735,
+            "h": 233
+          },
+          {
+            "title": "What to do next",
+            "x": 987,
+            "y": 794,
+            "w": 408,
+            "h": 233
+          },
+          {
+            "title": "Where to look next",
+            "x": 234,
+            "y": 1046,
+            "w": 1161,
+            "h": 404
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding",
+      "case": null,
+      "viewport": "390x900",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058",
+      "mock_hash": "#/finding",
+      "app_image": "finding-390-app.png",
+      "mock_image": "finding-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 16,
+            "y": 1058,
+            "w": 358,
+            "h": 621
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 16,
+            "y": 2014,
+            "w": 358,
+            "h": 558
+          },
+          {
+            "title": "What to do next",
+            "x": 16,
+            "y": 2588,
+            "w": 358,
+            "h": 151
+          },
+          {
+            "title": "Where to look next",
+            "x": 16,
+            "y": 2771,
+            "w": 358,
+            "h": 579
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 379
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 15,
+            "y": 1291,
+            "w": 360,
+            "h": 244
+          },
+          {
+            "title": "What to do next",
+            "x": 15,
+            "y": 1553,
+            "w": 360,
+            "h": 255
+          },
+          {
+            "title": "Where to look next",
+            "x": 15,
+            "y": 1826,
+            "w": 360,
+            "h": 404
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding",
+      "case": "stale",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8",
+      "mock_hash": "#/finding",
+      "app_image": "finding-stale-1440-app.png",
+      "mock_image": "finding-stale-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 248,
+            "y": 407,
+            "w": 1145,
+            "h": 477
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 248,
+            "y": 1067,
+            "w": 725,
+            "h": 468
+          },
+          {
+            "title": "What to do next",
+            "x": 991,
+            "y": 1067,
+            "w": 403,
+            "h": 468
+          },
+          {
+            "title": "Where to look next",
+            "x": 248,
+            "y": 1569,
+            "w": 1145,
+            "h": 511
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 234,
+            "y": 367,
+            "w": 1161,
+            "h": 279
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 234,
+            "y": 794,
+            "w": 735,
+            "h": 233
+          },
+          {
+            "title": "What to do next",
+            "x": 987,
+            "y": 794,
+            "w": 408,
+            "h": 233
+          },
+          {
+            "title": "Where to look next",
+            "x": 234,
+            "y": 1046,
+            "w": 1161,
+            "h": 404
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding",
+      "case": "stale",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8",
+      "mock_hash": "#/finding",
+      "app_image": "finding-stale-390-app.png",
+      "mock_image": "finding-stale-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 16,
+            "y": 1080,
+            "w": 358,
+            "h": 732
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 16,
+            "y": 2148,
+            "w": 358,
+            "h": 723
+          },
+          {
+            "title": "What to do next",
+            "x": 16,
+            "y": 2887,
+            "w": 358,
+            "h": 151
+          },
+          {
+            "title": "Where to look next",
+            "x": 16,
+            "y": 3070,
+            "w": 358,
+            "h": 579
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 379
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 15,
+            "y": 1291,
+            "w": 360,
+            "h": 244
+          },
+          {
+            "title": "What to do next",
+            "x": 15,
+            "y": 1553,
+            "w": 360,
+            "h": 255
+          },
+          {
+            "title": "Where to look next",
+            "x": 15,
+            "y": 1826,
+            "w": 360,
+            "h": 404
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding",
+      "case": "notfound",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/finding",
+      "app_image": "finding-notfound-1440-app.png",
+      "mock_image": "finding-notfound-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 248,
+            "y": 497,
+            "w": 1160,
+            "h": 99
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 248,
+            "y": 630,
+            "w": 734,
+            "h": 119
+          },
+          {
+            "title": "What to do next",
+            "x": 1000,
+            "y": 630,
+            "w": 408,
+            "h": 119
+          },
+          {
+            "title": "Where to look next",
+            "x": 248,
+            "y": 783,
+            "w": 1160,
+            "h": 99
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 234,
+            "y": 367,
+            "w": 1161,
+            "h": 279
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 234,
+            "y": 794,
+            "w": 735,
+            "h": 233
+          },
+          {
+            "title": "What to do next",
+            "x": 987,
+            "y": 794,
+            "w": 408,
+            "h": 233
+          },
+          {
+            "title": "Where to look next",
+            "x": 234,
+            "y": 1046,
+            "w": 1161,
+            "h": 404
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding",
+      "case": "notfound",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/finding",
+      "app_image": "finding-notfound-390-app.png",
+      "mock_image": "finding-notfound-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 16,
+            "y": 1138,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 16,
+            "y": 1291,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "What to do next",
+            "x": 16,
+            "y": 1426,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Where to look next",
+            "x": 16,
+            "y": 1578,
+            "w": 358,
+            "h": 119
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened",
+          "What limits this conclusion",
+          "What to do next",
+          "Where to look next"
+        ],
+        "panels": [
+          {
+            "title": "What happened",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 379
+          },
+          {
+            "title": "What limits this conclusion",
+            "x": 15,
+            "y": 1291,
+            "w": 360,
+            "h": 244
+          },
+          {
+            "title": "What to do next",
+            "x": 15,
+            "y": 1553,
+            "w": 360,
+            "h": 255
+          },
+          {
+            "title": "Where to look next",
+            "x": 15,
+            "y": 1826,
+            "w": 360,
+            "h": 404
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-history",
+      "case": null,
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-1440-app.png",
+      "mock_image": "finding-history-1440-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 600
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-history",
+      "case": null,
+      "viewport": "390x900",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-390-app.png",
+      "mock_image": "finding-history-390-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 16,
+            "y": 870,
+            "w": 358,
+            "h": 1052
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 313
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-history",
+      "case": "latest",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8/history",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-latest-1440-app.png",
+      "mock_image": "finding-history-latest-1440-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 248,
+            "y": 247,
+            "w": 1145,
+            "h": 713
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-history",
+      "case": "latest",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5630/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8/history",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-latest-390-app.png",
+      "mock_image": "finding-history-latest-390-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 16,
+            "y": 870,
+            "w": 358,
+            "h": 1433
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 313
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}
