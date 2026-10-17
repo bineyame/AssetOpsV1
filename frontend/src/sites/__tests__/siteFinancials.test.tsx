@@ -456,7 +456,7 @@ describe("Site > Financials > Assumptions", () => {
     expect(applied).toHaveTextContent("Applied: from 1 Jan 2026 until 1 Jun 2026; from 1 Jul 2026, with no end date.");
     expect(visibleOutsideClosedDisclosure(applied)).toBe(true);
     expect(applied.closest("details")).toBeNull();
-    expect(panel.querySelector("[data-price-selection='PRICED']")).toHaveTextContent(/^In use today, version d. Diesel price/);
+    expect(panel.querySelector("[data-price-selection='PRICED']")).toHaveTextContent(/^In use today, version [0-9]. Diesel price/);
   });
 
   it("never substitutes the latest price for an unknown or foreign version", async () => {
