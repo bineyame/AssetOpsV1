@@ -65,11 +65,10 @@ button:focus-visible {
 /* App frame --------------------------------------------------------------- */
 
 /*
- * The workspace band above the operator frame. It is chrome for the workspace
- * utility entry point and holds nothing else, because a workspace switcher,
- * global search, time window and user menu are all furniture no current slice
- * can fill truthfully. When the gate is closed it is not rendered at all, so a
- * disabled build shows no band and no hint that one exists.
+ * The workspace shell around the operator frame. Since W1-UX-07 it draws no
+ * band of its own: its one utility entry point sits in the WORKSPACE footer
+ * under the operator rail (`.workspace-footer`), and with the gate closed
+ * nothing is rendered, so a disabled build shows no hint that one exists.
  */
 .app-shell {
   display: flex;
@@ -78,59 +77,21 @@ button:focus-visible {
 }
 
 /*
- * The frame fills what the workspace bar leaves, and stops claiming a viewport
- * of its own while it does it.
+ * The frame fills the workspace shell, and stops claiming a viewport of its
+ * own while it does it.
  *
  * `.app-frame` keeps `min-height: 100vh` because `SimulatorLabShell` renders it
  * standalone, outside this shell, and a developer workspace with a short page
  * should still be full height. Nested here that same rule was a second claim on
  * the viewport: the shell already owns 100vh, so an operator page came out at
- * 100vh plus the height of the workspace bar and scrolled vertically even when
- * it was empty. Overriding the minimum for the nested case is what separates
+ * 100vh plus the height of the (pre-W1-UX-07) workspace bar and scrolled
+ * vertically even when it was empty. Overriding the minimum for the nested case is what separates
  * the two uses; deleting it from `.app-frame` would take the Lab's full height
  * with it.
  */
 .app-shell > .app-frame {
   flex: 1;
   min-height: 0;
-}
-
-.workspace-bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-2) var(--space-4);
-  background: var(--rail-surface);
-  border-bottom: 1px solid var(--rail-border);
-}
-
-.workspace-bar__label {
-  margin: 0;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--rail-text);
-}
-
-.workspace-bar__list {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-}
-
-.workspace-bar__link {
-  color: var(--rail-text-strong);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-}
-
-.workspace-bar__link:hover {
-  color: var(--rail-text-strong);
 }
 
 .app-frame {
@@ -2197,6 +2158,44 @@ button:focus-visible {
   font-size: var(--text-rail-eyebrow);
   font-weight: var(--weight-semibold);
   letter-spacing: 1.5px;
+}
+
+/* W1-UX-07 (D-2026-10-17-w1-rail): an unavailable rail root. Text in a list
+   item, in the same icon slot and padding as a live root, muted but readable
+   (--rail-eyebrow on --rail-surface is about 6:1), with its plain status shown
+   under the label. No pointer, no hover, no focus: it is not a control. */
+.nav-rail__unavailable {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 2px 0;
+  padding: 7px 13px;
+  color: var(--rail-eyebrow);
+  font-size: var(--text-rail);
+  cursor: default;
+}
+
+.nav-rail__unavailable .nav-rail__icon {
+  margin-top: 1px;
+}
+
+.nav-rail__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nav-rail__status {
+  font-size: var(--text-rail-eyebrow);
+  letter-spacing: 0.3px;
+}
+
+/* W1-UX-07: the gated WORKSPACE footer under the operator rail (v6.9
+   placement). A workspace utility landmark, not an operator group. */
+.workspace-footer {
+  margin: 0 12px 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rail-border);
 }
 
 .site-subtabs {

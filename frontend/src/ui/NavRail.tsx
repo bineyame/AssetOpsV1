@@ -1,3 +1,4 @@
+import { Fragment, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
 import { RailIcon, type RailIconName } from "./RailIcon";
@@ -14,29 +15,86 @@ import { RailIcon, type RailIconName } from "./RailIcon";
  *
  * Nothing here is gated, because nothing here knows what a gate is. A shell
  * that must not show an item does not pass it.
+ *
+ * W1-UX-07 (`D-2026-10-17-w1-rail`): an item is either a live destination or
+ * an unavailable root. The model is a discriminated union, so an unavailable
+ * item cannot carry `to`: it renders as text in a list item, muted, with the
+ * visible status `Not available yet`, and it has no link, route, handler or
+ * tab stop. Its accessible name is its label and that status. It is not a
+ * disabled control (no `aria-disabled`, no disabled button): there is nothing
+ * to switch on, only a place the product does not have yet.
  */
-export interface NavRailItem {
-  /** The route this item opens. */
-  to: string;
+interface NavRailItemBase {
   /** The visible label. */
   label: string;
-  /** Whether the active match is exact, for a root path. */
-  end?: boolean;
   /**
-   * The rail group this item belongs to (T028: OPERATE, INTELLIGENCE). Items
-   * render in the order given; a group header renders once, before the first
-   * item of its group, so a one-item group is still headed. Ungrouped items
-   * render with no header.
+   * The rail group this item belongs to (OPERATIONS, INTELLIGENCE, ...).
+   * Items render in the order given; a group header renders once, before the
+   * first item of its group, so a group is headed even when every item in it
+   * is unavailable. Ungrouped items render with no header.
    */
   group?: string;
   /** V-01a round 2: the root's line icon, decorative beside the label. */
   icon?: RailIconName;
 }
 
+/** A destination: a registered route renders a truthful surface behind it. */
+export interface NavRailLiveItem extends NavRailItemBase {
+  kind?: "live";
+  /** The route this item opens. */
+  to: string;
+  /** Whether the active match is exact, for a root path. */
+  end?: boolean;
+}
+
+/** A root the product has no truthful cross-site destination for yet. */
+export interface NavRailUnavailableItem extends NavRailItemBase {
+  kind: "unavailable";
+  to?: never;
+  end?: never;
+}
+
+export type NavRailItem = NavRailLiveItem | NavRailUnavailableItem;
+
+/** The plain status every unavailable root shows; never colour alone. */
+export const NAV_RAIL_UNAVAILABLE_STATUS = "Not available yet";
+
 export interface NavRailProps {
   /** Names the landmark. Each shell's rail is a distinct landmark. */
   label: string;
   items: NavRailItem[];
+}
+
+function itemKey(item: NavRailItem): string {
+  return item.kind === "unavailable" ? `unavailable:${item.label}` : item.to;
+}
+
+function railItem(item: NavRailItem): ReactNode {
+  if (item.kind === "unavailable") {
+    return (
+      <li
+        className="nav-rail__unavailable"
+        aria-label={`${item.label}, ${NAV_RAIL_UNAVAILABLE_STATUS}`}
+        data-rail-unavailable={item.label}
+      >
+        {item.icon === undefined ? null : <RailIcon name={item.icon} />}
+        <span className="nav-rail__text">
+          <span className="nav-rail__label">{item.label}</span>
+          <span className="nav-rail__status" data-rail-status="unavailable">
+            {NAV_RAIL_UNAVAILABLE_STATUS}
+          </span>
+        </span>
+      </li>
+    );
+  }
+  return (
+    <li>
+      <NavLink className="nav-rail__link" to={item.to} end={item.end}>
+        {item.icon === undefined ? null : <RailIcon name={item.icon} />}
+        <span className="nav-rail__label">{item.label}</span>
+      </NavLink>
+    </li>
+  );
 }
 
 export function NavRail({ label, items }: NavRailProps) {
@@ -60,12 +118,7 @@ export function NavRail({ label, items }: NavRailProps) {
           )}
           <ul className="nav-rail__list">
             {section.items.map((item) => (
-              <li key={item.to}>
-                <NavLink className="nav-rail__link" to={item.to} end={item.end}>
-                  {item.icon === undefined ? null : <RailIcon name={item.icon} />}
-                  <span className="nav-rail__label">{item.label}</span>
-                </NavLink>
-              </li>
+              <Fragment key={itemKey(item)}>{railItem(item)}</Fragment>
             ))}
           </ul>
         </div>
