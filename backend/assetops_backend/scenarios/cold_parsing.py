@@ -101,6 +101,22 @@ def scenario_digest(document: Any) -> str:
     return hashlib.sha256(canonical_scenario_text(document).encode("utf-8")).hexdigest()
 
 
+def observation_sha256(definition: "ColdScenarioDefinition") -> str:
+    """The frozen `cold-observation/1` digest (`D-2026-10-17-w2-02-buildspec`, q3).
+
+    SHA-256 of the UTF-8 bytes of `canonical_json({"observation_profile": "cold-observation/1",
+    "observations": <the parsed document's observations array>})`: row order and the parser's closed,
+    normalized row values preserved; the empty array still has a digest. Forcings, private state, YAML
+    formatting and the rest of the document are not covered here (`scenario_sha256` covers the document).
+    """
+    rows = [
+        {"at": o.at, "kind": o.kind, "device_id": o.device_id, "action": o.action,
+         "outcome": o.outcome, "release_at": o.release_at}
+        for o in definition.observations
+    ]
+    return scenario_digest({"observation_profile": COLD_OBSERVATION_PROFILE, "observations": rows})
+
+
 def is_cold_document(document: Any) -> bool:
     return isinstance(document, dict) and document.get("schema") == COLD_SCENARIO_SCHEMA
 

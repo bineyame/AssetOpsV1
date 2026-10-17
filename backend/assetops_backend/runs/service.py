@@ -134,7 +134,13 @@ from assetops_contracts.execution_contract import (
     canonical_model_need_quantity,
 )
 
-from assetops_backend.scenarios.cold_parsing import ColdScenarioDefinition
+from assetops_backend.scenarios.cold_parsing import (
+    COLD_MODEL_PROFILE,
+    COLD_OBSERVATION_PROFILE,
+    COLD_PUBLICATION_PROFILE,
+    ColdScenarioDefinition,
+    observation_sha256,
+)
 from assetops_backend.scenarios.execution import (
     CANONICAL_UNITS,
     EXECUTION_CONTRACT_VERSION,
@@ -417,6 +423,9 @@ class RunSetupService:
 
         site, selection = self._resolve_site(request)
         scenario = self._resolve_scenario(request)
+        if isinstance(scenario, ColdScenarioDefinition):
+            # W2-02: a cold document never reaches the legacy timeline freeze.
+            return self._create_cold_draft(request, site, selection, scenario)
         model = self._resolve_model_profile(request)
         publication = self._resolve_publication_profile(request)
 
@@ -468,6 +477,142 @@ class RunSetupService:
             registered_basis=None if selection is None else selection.basis,
         )
 
+        return self._runs.create_run(record)
+
+    # --- W2-02: the cold-only freeze -----------------------------------------
+
+    def _create_cold_draft(
+        self,
+        request: RunSetupRequest,
+        site: SiteRecord,
+        selection: RegisteredSiteSelection | None,
+        scenario: ColdScenarioDefinition,
+    ) -> SimulationRun:
+        """Freeze a `cold-scenario/1` run (`D-2026-10-17-w2-02-buildspec`).
+
+        Registered Site only, and the request must equal the cold document exactly: Site, scenario
+        version, model and publication profiles, seed, interval, one-minute timestep. Anything else is
+        refused before Draft. The identity carries digests and revisions, never the thirteen Foundation
+        values or the document contents; the host re-reads and verifies both at execution.
+        """
+        name = scenario.scenario_id
+        if selection is None or site.site_id != scenario.site_code:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} is a {scenario.schema} document for the registered Site "
+                f"{scenario.site_code}; site {request.site_id} is not that registered Site.",
+            )
+        if request.scenario_version != scenario.version:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} is saved at version {scenario.version}, and this request names "
+                f"version {request.scenario_version}.",
+            )
+        requested_model = f"{request.model_profile_id}/{request.model_profile_version}"
+        requested_publication = (
+            f"{request.publication_profile_id}/{request.publication_profile_version}"
+        )
+        if (
+            requested_model != scenario.model_profile
+            or requested_publication != scenario.publication_profile
+            or scenario.model_profile != COLD_MODEL_PROFILE
+            or scenario.publication_profile != COLD_PUBLICATION_PROFILE
+        ):
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} runs only with {scenario.model_profile} and "
+                f"{scenario.publication_profile}; this request selects {requested_model} and "
+                f"{requested_publication}. Profiles are not substituted.",
+            )
+        if scenario.observation_profile != COLD_OBSERVATION_PROFILE:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} names observation profile {scenario.observation_profile}, which "
+                "this build does not have.",
+            )
+        if request.seed != scenario.seed:
+            raise refuse(
+                "REQUEST_INVALID",
+                f"Scenario {name} fixes seed {scenario.seed}; this request names {request.seed}.",
+            )
+        if (
+            request.start_time != scenario.start
+            or request.end_time != scenario.end
+            or request.timestep_minutes != 1
+        ):
+            raise refuse(
+                "INTERVAL_INVALID",
+                f"Scenario {name} runs [{scenario.start}, {scenario.end}) in one-minute steps; this "
+                f"request names [{request.start_time}, {request.end_time}) in "
+                f"{request.timestep_minutes}-minute steps.",
+            )
+
+        model = self._resolve_model_profile(request)
+        publication = self._resolve_publication_profile(request)
+        observation_id, observation_version = COLD_OBSERVATION_PROFILE.split("/")
+
+        identity = DeterministicIdentity(
+            site=FrozenSiteBinding(
+                site_id=site.site_id,
+                foundation_version=site.foundation.version,
+                foundation_valid_from=site.foundation.valid_from,
+                site_type=site.site_type,
+                timezone=site.timezone,
+                template_lineage=_freeze_template_lineage(site),
+            ),
+            scenario=FrozenScenarioBinding(
+                scenario_id=scenario.scenario_id,
+                scenario_version=scenario.version,
+                resolved_parameters=(),
+                scenario_sha256=scenario.scenario_sha256,
+            ),
+            interval=FrozenInterval(
+                start_time=request.start_time,
+                end_time=request.end_time,
+                duration_minutes=request.duration_minutes,
+                timestep_minutes=request.timestep_minutes,
+            ),
+            seed=request.seed,
+            profiles=FrozenProfileBinding(
+                model_profile_id=model.model_profile_id,
+                model_profile_version=model.model_profile_version,
+                publication_profile_id=publication.publication_profile_id,
+                publication_profile_version=publication.publication_profile_version,
+                execution_contract_version=EXECUTION_CONTRACT_VERSION,
+                observation_profile_id=observation_id,
+                observation_profile_version=int(observation_version),
+                observation_sha256=observation_sha256(scenario),
+            ),
+            initialization_inputs=(),
+            causes=(),
+            forcings=(),
+            declared_bounds=(),
+            reporting_path_conditions=(),
+            observation_bindings=(),
+            publication=resolve_publication_identity(publication),
+            # The registered binding set says which component a device signal describes.
+            signal_mappings=selection.signal_mappings,
+            intervention_history=(),
+        )
+        identity = replace(
+            identity,
+            signal_resolutions=self._freeze_signal_resolutions(
+                request, publication, selection
+            ),
+        )
+        reasons = _deduplicated(
+            [*_cadence_reasons(identity), *_publication_reasons(identity)]
+        )
+        record = SimulationRun(
+            run_id=allocate_run_id(),
+            lifecycle_status="DRAFT",
+            execution_status="BLOCKED" if reasons else "READY",
+            created_at=self._now(),
+            deterministic_identity=identity,
+            blocking_reasons=reasons,
+            unsupported_optional_inputs=(),
+            registered_basis=selection.basis,
+        )
         return self._runs.create_run(record)
 
     # --- Resolving what the request names -----------------------------------
@@ -558,7 +703,9 @@ class RunSetupService:
                 "the database rather than about the site.",
             ) from error
 
-    def _resolve_scenario(self, request: RunSetupRequest) -> ScenarioDefinition:
+    def _resolve_scenario(
+        self, request: RunSetupRequest
+    ) -> ScenarioDefinition | ColdScenarioDefinition:
         try:
             scenario = self._scenarios.get_scenario(request.scenario_id)
         except ScenarioNotFound as error:
@@ -569,13 +716,8 @@ class RunSetupService:
             ) from error
 
         if isinstance(scenario, ColdScenarioDefinition):
-            # W2-02 commit 1: the cold-only freeze path is not built yet; a cold definition never
-            # reaches the legacy timeline freeze.
-            raise refuse(
-                "VERSION_UNAVAILABLE",
-                f"Scenario {scenario.scenario_id} is a {scenario.schema} document; its cold-only run "
-                "freeze path is not available in this build.",
-            )
+            # Checked, with the rest of the cold document, by the cold-only freeze.
+            return scenario
 
         if scenario.version.scenario_version != request.scenario_version:
             raise refuse(
