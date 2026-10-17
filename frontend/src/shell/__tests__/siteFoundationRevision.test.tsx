@@ -554,6 +554,16 @@ function panel(name: string): HTMLElement {
   return screen.getByRole("heading", { name }).closest("section") as HTMLElement;
 }
 
+/** W1-F1 fix round 1: the set-up verdict leads the Readiness strip, as the mock's one-line strip. */
+function verdictLead(): HTMLElement {
+  return document.querySelector("[data-readiness-verdict]") as HTMLElement;
+}
+
+/** W1-F1 fix round 1: the verdict's reasons, the colour scope and the next step are notes in panel 1. */
+function readinessPanel(): HTMLElement {
+  return panelTitled("Readiness and commissioning evidence");
+}
+
 describe("S1-02 bindings, Readiness and the configured SLD", () => {
   const bound = (): FoundationRead<FoundationReadModel> => ({
     status: "loaded",
@@ -563,8 +573,8 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
   it("traces each bound channel to its source, equipment, role and binding ID, and offers the snapshot", async () => {
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(bound));
     await settledScreen();
-    const readiness = panel("Configuration readiness");
-    expect(within(readiness).getByText("Set up to report")).toBeInTheDocument();
+    const readiness = readinessPanel();
+    expect(within(verdictLead()).getByText("Set up to report")).toBeInTheDocument();
     expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
       "c-storage: d-storage-controller / state-of-charge",
     );
@@ -622,22 +632,21 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     it("colours a complete verdict and configured roles green, with a legend and scope line", async () => {
       renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(bound));
       await settledScreen();
-      const readiness = panel("Configuration readiness");
-      expect(toneOf(readiness.querySelector(".verdict__state .badge"))).toBe("badge--configured");
+      const readiness = readinessPanel();
+      expect(toneOf(verdictLead().querySelector(".verdict__state .badge"))).toBe("badge--configured");
       const roles = Array.from(panel("Role coverage").querySelectorAll("[data-readiness-status] .badge"));
       expect(roles.map(toneOf)).toEqual(["badge--configured", "badge--configured"]);
-      const legend = readiness.querySelector("[data-readiness-legend]") as HTMLElement;
-      expect(Array.from(legend.querySelectorAll(".badge")).map((b) => [b.textContent, toneOf(b)])).toEqual([
-        ["Configured / Set up to report", "badge--configured"],
-        ["Needs configuration", "badge--config-gap"],
-        ["Unknown", "badge--neutral"],
-      ]);
+      // W1-F1 fix round 1: the three-chip legend is one note line that still names every colour.
+      expect(readiness.querySelector("[data-readiness-legend]")).toBeNull();
       const scope = readiness.querySelector("[data-readiness-colour-scope]")?.textContent ?? "";
+      expect(scope).toMatch(/green configured, amber a missing required role, control or declaration, grey an unresolved basis/);
       expect(scope).toMatch(/configuration of the selected Foundation version only/);
       expect(scope).toMatch(/does not mean a device is connected, records have arrived, Evidence is accepted/);
-      // PRE-S3-04 separation sentence survives (round 3: gateway contact is now a separate panel).
-      expect(readiness.textContent).toContain(
-        "Configuration readiness is distinct from what the readings can support, which is on Site Evidence, and from gateway contact, which is reported separately below.",
+      // PRE-S3-04 separation survives: the strip says readiness is not what the readings
+      // support, and the page note says gateway status is central contact only.
+      expect(verdictLead().textContent).toContain("Configuration readiness is distinct from what the readings can support");
+      expect(document.querySelector("[data-readiness-scope]")?.textContent).toContain(
+        "Gateway status reports central server contact only",
       );
       // A publication/version badge is never coloured as health.
       const version = within(panel("Reading-channel links")).getByText(/^Channel links v\d+$/);
@@ -651,7 +660,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       });
       renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(incomplete));
       await settledScreen();
-      expect(toneOf(panel("Configuration readiness").querySelector(".verdict__state .badge"))).toBe("badge--config-gap");
+      expect(toneOf(verdictLead().querySelector(".verdict__state .badge"))).toBe("badge--config-gap");
       const soc = within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ });
       expect(toneOf(soc.querySelector("[data-readiness-status] .badge"))).toBe("badge--config-gap");
     });
@@ -687,7 +696,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       };
       renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(withOptional));
       await settledScreen();
-      expect(toneOf(panel("Configuration readiness").querySelector(".verdict__state .badge"))).toBe("badge--configured");
+      expect(toneOf(verdictLead().querySelector(".verdict__state .badge"))).toBe("badge--configured");
       const pv = within(panel("Role coverage")).getByRole("row", { name: /PV power/ });
       expect(toneOf(pv.querySelector("[data-readiness-status] .badge"))).toBe("badge--neutral");
     });
@@ -700,8 +709,8 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     });
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(incomplete));
     await settledScreen();
-    const readiness = panel("Configuration readiness");
-    expect(within(readiness).getByText("Incomplete")).toBeInTheDocument();
+    const readiness = readinessPanel();
+    expect(within(verdictLead()).getByText("Incomplete")).toBeInTheDocument();
     expect(readiness.textContent).toContain("Not bound: Battery state of charge.");
     expect(readiness.querySelector('[data-readiness-missing-role]')).not.toBeNull();
     expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain("Not bound");
@@ -719,14 +728,14 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     });
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(gapped));
     await settledScreen();
-    const readiness = panel("Configuration readiness");
-    expect(within(readiness).getByText("Incomplete")).toBeInTheDocument();
+    const readiness = readinessPanel();
+    expect(within(verdictLead()).getByText("Incomplete")).toBeInTheDocument();
     expect(readiness.textContent).not.toContain("Not bound:");
     expect(readiness.textContent).toContain("but this Foundation has configuration gaps");
     const listed = readiness.querySelector('[data-readiness-gap="COMPONENT_RATING_MISSING"]');
     expect(listed?.textContent).toBe("Diesel generator declares no rating.");
     // V-01a round 2: a Foundation gap alone is amber, with a configured role still green.
-    expect(readiness.querySelector(".verdict__state .badge")?.className).toContain("badge--config-gap");
+    expect(verdictLead().querySelector(".verdict__state .badge")?.className).toContain("badge--config-gap");
     const socStatus = within(panel("Role coverage"))
       .getByRole("row", { name: /Battery state of charge/ })
       .querySelector("[data-readiness-status] .badge");
@@ -1030,7 +1039,9 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     expectV69Panels("readiness", { gateway: "edge-kobo-001" });
     expect(follows(strip(), screen.getByRole("heading", { name: "Readiness and commissioning evidence" }))).toBe(true);
     const evidence = panelTitled("Readiness and commissioning evidence");
-    const verdict = within(evidence).getByRole("heading", { name: "Configuration readiness", level: 3 });
+    // W1-F1 fix round 1: the verdict leads the strip; its reasons are a note in panel 1.
+    expect(strip().contains(verdictLead())).toBe(true);
+    const verdict = evidence.querySelector("[data-readiness-verdict-note]") as HTMLElement;
     const advanced = disclosure("readiness-advanced");
     expect(evidence.contains(advanced)).toBe(true);
     expect(follows(verdict, advanced)).toBe(true);
@@ -1041,8 +1052,8 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
 
   it("Single line diagram: diagram, then its parts, then the detail disclosure", async () => {
     await orderAt("/sld");
-    expectV69Panels("sld", { site: "Kalangala Mini-Grid", topology: "Mini-grid" });
-    expect(follows(strip(), screen.getByRole("heading", { name: "Kalangala Mini-Grid · Mini-grid" }))).toBe(true);
+    expectV69Panels("sld", { site: "Kalangala Mini-Grid" });
+    expect(follows(strip(), screen.getByRole("heading", { level: 2, name: "Kalangala Mini-Grid" }))).toBe(true);
     expect(panelTitled("What each part does").contains(disclosure("sld-advanced"))).toBe(true);
   });
 
@@ -1404,8 +1415,10 @@ describe("V-01a round 3: Readiness leads with four configuration cards", () => {
       "controls",
     ]);
     for (const card of cards) {
-      expect(card.querySelector(".badge")?.textContent).toBe("Configured");
-      expect(card.querySelector(".badge")?.className).toContain("badge--configured");
+      // W1-F1 fix round 1: the mock's assessment metric - the state word and a tone border.
+      expect(card.querySelector(".v69-metric__value")?.textContent).toBe("Configured");
+      expect(card.className).toContain("v69-metric--assessment");
+      expect(card.className).toContain("v69-metric--green");
       expect(card.textContent).not.toMatch(/commissioned|healthy|online|reporting|(?<!not )field-verified/i);
     }
     expect(cards[2].textContent).toContain("declared, not field-verified");
@@ -1434,7 +1447,7 @@ describe("V-01a round 3: Readiness leads with four configuration cards", () => {
     expect(cardState("specifications")).toBe("NEEDS_CONFIGURATION");
     expect(cardState("controls")).toBe("NEEDS_CONFIGURATION");
     const specifications = document.querySelector('[data-readiness-card="specifications"]') as HTMLElement;
-    expect(specifications.querySelector(".badge")?.className).toContain("badge--config-gap");
+    expect(specifications.className).toContain("v69-metric--amber");
     expect(specifications.textContent).toContain("Required ratings missing");
     expect(document.querySelector('[data-readiness-card="controls"]')?.textContent).toContain("Controls need configuration");
   });
@@ -1448,7 +1461,7 @@ describe("V-01a round 3: Readiness leads with four configuration cards", () => {
     await settledScreen();
     for (const key of ["definition", "topology", "specifications", "controls"]) {
       expect(cardState(key)).toBe("UNKNOWN");
-      expect(document.querySelector(`[data-readiness-card="${key}"] .badge`)?.className).toContain("badge--neutral");
+      expect(document.querySelector(`[data-readiness-card="${key}"]`)?.className).toContain("v69-metric--muted");
     }
   });
 });
@@ -2111,6 +2124,15 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
     expect(panelTitled("Time-valid control configuration").textContent).toContain(
       "No Foundation revision is effective at this time.",
     );
+    // W1-F1 fix round 1 (review finding 11): fail closed - every panel keeps its slot and
+    // says there is no configuration for this period; nothing configured is drawn.
+    expectV69Panels("foundation");
+    for (const title of ["Configured topology", "Identity and operating obligations", "Time-valid control configuration"]) {
+      expect(panelTitled(title).textContent).toContain("No configuration for this period");
+      expect(panelTitled(title).textContent).toContain("No equipment or settings are recorded for the selected time.");
+    }
+    expect(document.querySelector("[data-part-choice], main table")).toBeNull();
+    expect(screen.queryByRole("form", { name: "Change battery reserve" })).toBeNull();
     expect(document.querySelector('[data-product-status="positive"]')).toBeNull();
   });
 
@@ -2164,7 +2186,7 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
     expect(document.querySelector('[data-product-status="positive"]')).toBeNull();
     // The exact code stays in the labelled disclosure; the verdict badge is neutral and named, never blank.
     expect(references().textContent).toContain(code);
-    expect(verdict().textContent).toContain("The set-up state in this read is not recognised");
+    expect(document.querySelector(".verdict__sentence")?.textContent).toContain("The set-up state in this read is not recognised");
     const badge = verdict().querySelector(".badge") as HTMLElement;
     expect(badge.textContent).toBe("Set-up state not recognised");
     expect(badge.className).toContain("badge--neutral");
@@ -2203,7 +2225,7 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
     await settledScreen();
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     const summary = document.querySelector("[data-sld-summary]") as HTMLElement;
-    expect(panelTitled("Kalangala Mini-Grid · Mini-grid").contains(summary)).toBe(true);
+    expect(panelTitled("Kalangala Mini-Grid").contains(summary)).toBe(true);
     expect(summary.textContent).toMatch(/^\d+ parts are drawn; 1 of \d+ devices have a linked reading channel\. /);
     expect(summary.textContent).toContain("Whether linked parts are reporting is not assessed here.");
     expect(summary.textContent).not.toMatch(/\b0 (parts|devices) (are )?reporting/);
@@ -2219,7 +2241,7 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
  * unsupported read stated inside its panel slot.
  */
 describe("W1-F1: Foundation, Readiness and SLD keep the v69 panel structure in every variant", () => {
-  const SLD = { site: "Kalangala Mini-Grid", topology: "Mini-grid" };
+  const SLD = { site: "Kalangala Mini-Grid" };
   const stocked = () => fakeFoundation(byAt);
   const gaps = () => Array.from(document.querySelectorAll("[data-panel-gap]"));
 

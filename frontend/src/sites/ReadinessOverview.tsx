@@ -27,7 +27,7 @@ import {
   MetricCards,
   MissingClaim,
   Panel,
-  type BadgeTone,
+  type MetricTone,
 } from "../ui";
 import type { EvidenceRead } from "./evidenceRead";
 import { formatInstant } from "./FoundationRevisionPanel";
@@ -55,10 +55,10 @@ const CARD_WORD: Record<CardState, string> = {
   UNKNOWN: "Unknown",
 };
 
-const CARD_TONE: Record<CardState, BadgeTone> = {
-  CONFIGURED: "configured",
-  NEEDS_CONFIGURATION: "config-gap",
-  UNKNOWN: "neutral",
+const CARD_METRIC_TONE: Record<CardState, MetricTone> = {
+  CONFIGURED: "green",
+  NEEDS_CONFIGURATION: "amber",
+  UNKNOWN: "muted",
 };
 
 const DEFINITION_CODES = ["SITE_CODE_INVALID", "SITE_NAME_MISSING", "SITE_TYPE_UNSUPPORTED", "SITE_TIMEZONE_INVALID"];
@@ -133,12 +133,13 @@ export function ReadinessCards({ foundation }: { foundation: FoundationReadModel
     // The v69 readiness metric row (Definition, Topology, Specifications, Controls).
     <MetricCards label="Configuration by category" data={{ "data-readiness-cards": "" }}>
       {readinessCards(foundation).map((card) => (
+        // W1-F1 fix round 1: the mock's `.metric.assessment` - a tone top border and the state word.
         <MetricCard
           key={card.key}
-          word
-          tone={card.state === "NEEDS_CONFIGURATION" ? "amber" : card.state === "UNKNOWN" ? "muted" : undefined}
+          assessment
+          tone={CARD_METRIC_TONE[card.state]}
           label={card.label}
-          value={<Badge tone={CARD_TONE[card.state]}>{CARD_WORD[card.state]}</Badge>}
+          value={CARD_WORD[card.state]}
           note={card.note}
           data={{ "data-readiness-card": card.key, "data-card-state": card.state }}
         />
@@ -392,7 +393,7 @@ function GatewayEntry({ entry, foundation }: { entry: GatewayHealthEntry; founda
           <dd>{entry.last_server_contact === null ? "None received" : formatInstant(entry.last_server_contact)}</dd>
         </div>
       </dl>
-      <p data-gateway-contact-sentence="">{contactSentence(entry)}</p>
+      <p className="v69-chart-note" data-gateway-contact-sentence="">{contactSentence(entry)}</p>
       <Disclosure
         name={`gateway-diagnostic-${entry.gateway_external_id}`}
         summary="Advanced details — gateway diagnostic records"
@@ -502,7 +503,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
   } else if (health.status !== "loaded") {
     body = (
       <div data-gateway-panel-state="unavailable">
-        <p>
+        <p className="v69-chart-note">
           <strong>{GATEWAY_CONTACT_UNAVAILABLE}.</strong>{" "}
           {health.status === "not_found"
             ? "The gateway contact read has no record for this Site."
@@ -515,13 +516,13 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
   } else if (health.value.gateways.length === 0) {
     body = (
       <div data-gateway-panel-state="none">
-        <p>No gateway is registered for this Site, so there is no central contact to report.</p>
+        <p className="v69-chart-note">No gateway is registered for this Site, so there is no central contact to report.</p>
       </div>
     );
   } else {
     body = (
       <div data-gateway-panel-state="loaded">
-        <p className="muted" data-gateway-read-at="">
+        <p className="v69-chart-note" data-gateway-read-at="">
           Read at {formatInstant(health.value.read_at)} (server clock).
         </p>
         {health.value.gateways.map((entry) => (
@@ -589,7 +590,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
                 ))}
               </ul>
             )}
-            <p data-gateway-sources="">
+            <p className="v69-chart-note" data-gateway-sources="">
               {entry.source_contacts.length === 0
                 ? "No source is registered behind this gateway."
                 : `${entry.source_contacts.length} source${entry.source_contacts.length === 1 ? "" : "s"} registered behind this gateway.`}{" "}
@@ -639,7 +640,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
         />
         <MetricCard word label="Clock and delivery" value={clockValue} note={clockNote} tone={first?.clock_offset_ms == null ? "muted" : undefined} data={{ "data-gateway-metric": "clock" }} />
       </MetricCards>
-      <p className="notice" data-gateway-period-note={period}>
+      <p className="v69-chart-note" data-gateway-period-note={period}>
         {periodNote}
       </p>
       {body}
@@ -652,7 +653,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
           {sources}
           <MissingClaim
             as="p"
-            className="not-available-yet"
+            className="not-available-yet v69-chart-note"
             gapId="G-readiness-gateway-signal-strength"
             placement="readiness.gateway.signal-strength"
           >
@@ -660,7 +661,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
           </MissingClaim>
           <MissingClaim
             as="p"
-            className="not-available-yet"
+            className="not-available-yet v69-chart-note"
             gapId="G-readiness-gateway-firmware"
             placement="readiness.gateway.firmware"
           >
@@ -700,7 +701,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
 function RegistrationOnly({ foundation }: { foundation: FoundationReadModel }) {
   if (foundation.gateways.length === 0) return <p>No gateway is registered in this Foundation period.</p>;
   return (
-    <p data-gateway-sources="">
+    <p className="v69-chart-note" data-gateway-sources="">
       Registered: {foundation.gateways.map((g) => g.gateway_external_id).join(", ")}, with {foundation.sources.length}{" "}
       source{foundation.sources.length === 1 ? "" : "s"}.{" "}
       <MissingClaim gapId="G-readiness-source-contact" placement="readiness.gateway.source-connection-registration">

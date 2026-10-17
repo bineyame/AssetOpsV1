@@ -440,8 +440,10 @@ describe("the Foundation-under-Foundation heading is gone", () => {
 
     expect(panelHeadings).not.toContain("Foundation");
     expect(panelHeadings).toContain("Definition");
+    // W1-F1 fix round 1: the mock's Site page heading - the site name - with
+    // the Foundation tab naming the screen.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Foundation" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
   });
 
@@ -449,12 +451,12 @@ describe("the Foundation-under-Foundation heading is gone", () => {
     renderFoundation();
     await settledScreen();
 
-    // The page heading stays `Foundation`, which T011A settled. What it gained
-    // is a subtitle, because a reader arriving from a bookmark had no way to
-    // tell which site's foundation they were looking at.
-    expect(
-      screen.getByText("Kalangala Mini-Grid · MG-002", { selector: "p" }),
-    ).toBeInTheDocument();
+    // W1-F1 fix round 1 (`D-2026-10-17-mockup-layout-spec`): the heading is
+    // the site name, with its provenance and Site ID beside it and the screen
+    // description below, as the mock's Site page heading.
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Kalangala Mini-Grid");
+    expect(document.querySelector("[data-site-provenance]")?.textContent).toMatch(/MG-002$/);
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
   });
 });
 

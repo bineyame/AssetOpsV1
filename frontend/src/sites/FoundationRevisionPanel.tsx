@@ -107,6 +107,8 @@ export interface FoundationPeriodStripProps {
   action?: ReactNode;
   /** W1-F1: view-specific exact references added to the strip's record references. */
   extraReferences?: { label: string; value: string | null }[];
+  /** W1-F1 fix round 1: the view's own verdict, first on the line (Readiness). */
+  lead?: ReactNode;
 }
 
 /**
@@ -122,110 +124,108 @@ export function FoundationPeriodStrip({
   onSelectAt,
   action,
   extraReferences = [],
+  lead,
 }: FoundationPeriodStripProps) {
   const { revision, bindings } = foundation;
   const { current, bindingPeriods, selectable } = selectablePeriods(versions);
   const gaps = foundation.configuration_gaps.length;
   const bindingPeriod = bindings.binding_set?.period_state ?? null;
 
+  const historicalBinding = revision.is_current && bindingPeriod !== null && bindingPeriod !== "CURRENT";
+
+  // W1-F1 fix round 1: one compact line, as the mock's `.statusbar` (about 44 px):
+  // badge, effective text, state, then a chip-sized period selector, a link-styled
+  // exact-reference disclosure and the next link. It wraps only when it must.
   return (
     <section
-      className="status-strip"
+      className="status-strip status-strip--line"
       id={FOUNDATION_REVISION_HEADING_ID}
       aria-label="Foundation version"
       data-foundation-period={revision.period_state}
     >
-      <div className="status-strip__row">
-        <p className="status-strip__summary">
-          <Badge tone="neutral">{`Foundation v${revision.version}`}</Badge>{" "}
-          <span>Effective {period(revision)} · immutable stored version</span>{" "}
-          <span className="muted" data-strip-as-of="">
-            As of {formatInstant(foundation.resolved.knowledge_at)}
-          </span>
-        </p>
-        <p className="status-strip__summary">
-          {bindings.binding_set === null ? (
-            <span data-strip-bindings="NONE">No channel-link set in effect</span>
-          ) : (
-            <>
-              <Badge tone="neutral">{`Channel links v${bindings.binding_set.version}`}</Badge>{" "}
-              <span data-strip-bindings="PUBLISHED">
-                {`${bindings.mappings.length} bound ${bindings.mappings.length === 1 ? "channel" : "channels"}`}
-              </span>
-            </>
-          )}
-          {" · "}
-          <span data-strip-gaps={gaps}>
-            {gaps === 0 ? "No configuration gap" : `${gaps} configuration ${gaps === 1 ? "gap" : "gaps"}`}
-          </span>
-        </p>
-        {action === undefined ? null : <p className="status-strip__action">{action}</p>}
-      </div>
-      <div className="status-strip__row">
-        {revision.is_current && bindingPeriod !== null && bindingPeriod !== "CURRENT" ? (
-          // The Foundation version is the current one, but the binding set
-          // shown is not in effect now (a scheduled or past binding period):
-          // never call that "the configuration in effect now".
-          <p
-            role="note"
-            className="status-strip__state status-strip__state--historical"
-            data-foundation-historical="true"
-          >
-            {bindingPeriod === "FUTURE" ? "Scheduled channel-link period" : "Historical channel-link period"}:
-            you are viewing channel links v{bindings.binding_set?.version}, effective{" "}
-            {formatInstant(bindings.binding_set?.valid_from ?? null)} to{" "}
-            {formatInstant(bindings.binding_set?.valid_to ?? null)}, with Foundation v{revision.version}.
-            These channel links are not the ones in effect now.
-          </p>
-        ) : revision.is_current ? (
-          <p className="status-strip__state">This is the configuration in effect now.</p>
+      {lead === undefined ? null : <span className="status-strip__lead">{lead}</span>}
+      <span className="status-strip__item">
+        <Badge tone="neutral">{`Foundation v${revision.version}`}</Badge> <span>Effective {period(revision)}</span>
+      </span>
+      {historicalBinding ? (
+        // The Foundation version is the current one, but the binding set
+        // shown is not in effect now (a scheduled or past binding period):
+        // never call that "the configuration in effect now".
+        <span
+          role="note"
+          className="status-strip__state status-strip__state--historical"
+          data-foundation-historical="true"
+        >
+          {bindingPeriod === "FUTURE" ? "Scheduled channel-link period" : "Historical channel-link period"}:
+          you are viewing channel links v{bindings.binding_set?.version}, effective{" "}
+          {formatInstant(bindings.binding_set?.valid_from ?? null)} to{" "}
+          {formatInstant(bindings.binding_set?.valid_to ?? null)}, with Foundation v{revision.version}.
+          These channel links are not the ones in effect now.
+        </span>
+      ) : revision.is_current ? (
+        <span className="status-strip__state">This is the configuration in effect now.</span>
+      ) : (
+        <span
+          role="note"
+          className="status-strip__state status-strip__state--historical"
+          data-foundation-historical="true"
+        >
+          {revision.period_state === "FUTURE" ? "Scheduled period" : "Historical period"}: you are viewing
+          Foundation v{revision.version}. This is not the configuration in effect now.
+        </span>
+      )}
+      <span className="status-strip__item">
+        {bindings.binding_set === null ? (
+          <span data-strip-bindings="NONE">No channel-link set in effect</span>
         ) : (
-          <p
-            role="note"
-            className="status-strip__state status-strip__state--historical"
-            data-foundation-historical="true"
-          >
-            {revision.period_state === "FUTURE" ? "Scheduled period" : "Historical period"}:
-            you are viewing Foundation v{revision.version}, effective {period(revision)}. This
-            is not the configuration in effect now.
-          </p>
+          <span data-strip-bindings="PUBLISHED">
+            {`Channel links v${bindings.binding_set.version} · ${bindings.mappings.length} bound ${bindings.mappings.length === 1 ? "channel" : "channels"}`}
+          </span>
         )}
-        <label className="status-strip__period">
-          <span>Period shown</span>
-          <select
-            aria-label="Foundation period"
-            value={selectedAt ?? ""}
-            onChange={(event) => onSelectAt(event.target.value === "" ? null : event.target.value)}
-          >
-            <option value="">In effect now</option>
-            {selectedAt !== null && !selectable.has(selectedAt) ? (
-              // An instant from a link or reload that is not a period start:
-              // name it, so the selector never falls back to "In effect now".
-              <option value={selectedAt} data-period-option="instant">
-                {`At ${formatInstant(foundation.resolved.at)} (from the address)`}
-              </option>
-            ) : null}
-            {current.map((row) => (
-              <option key={row.revision_id} value={row.valid_from}>
-                {`v${row.version} · ${period(row)} (${PERIOD_WORD[row.period_state]})`}
-              </option>
-            ))}
-            {bindingPeriods.map((row) => (
-              <option key={row.binding_set_revision_id} value={row.valid_from}>
-                {`Channel links v${row.version} · from ${formatInstant(row.valid_from)} (${PERIOD_WORD[row.period_state]})`}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+        {" · "}
+        <span data-strip-gaps={gaps}>
+          {gaps === 0 ? "No configuration gap" : `${gaps} configuration ${gaps === 1 ? "gap" : "gaps"}`}
+        </span>
+      </span>
+      <span className="muted status-strip__item" data-strip-as-of="">
+        As of {formatInstant(foundation.resolved.knowledge_at)}
+      </span>
       {selectedAt !== null && !selectable.has(selectedAt) ? (
-        <p className="status-strip__state">
+        <span className="status-strip__state">
           Showing the version in effect at {formatInstant(foundation.resolved.at)}.
-        </p>
+        </span>
       ) : null}
-      {/* W1-F1: the exact references the removed W1 answer cards carried, in a small disclosure. */}
+      <span className="status-strip__spacer" aria-hidden="true" />
+      <select
+        className="status-strip__select"
+        aria-label="Foundation period"
+        value={selectedAt ?? ""}
+        onChange={(event) => onSelectAt(event.target.value === "" ? null : event.target.value)}
+      >
+        <option value="">In effect now</option>
+        {selectedAt !== null && !selectable.has(selectedAt) ? (
+          // An instant from a link or reload that is not a period start:
+          // name it, so the selector never falls back to "In effect now".
+          <option value={selectedAt} data-period-option="instant">
+            {`At ${formatInstant(foundation.resolved.at)} (from the address)`}
+          </option>
+        ) : null}
+        {current.map((row) => (
+          <option key={row.revision_id} value={row.valid_from}>
+            {`v${row.version} · ${period(row)} (${PERIOD_WORD[row.period_state]})`}
+          </option>
+        ))}
+        {bindingPeriods.map((row) => (
+          <option key={row.binding_set_revision_id} value={row.valid_from}>
+            {`Channel links v${row.version} · from ${formatInstant(row.valid_from)} (${PERIOD_WORD[row.period_state]})`}
+          </option>
+        ))}
+      </select>
+      {action === undefined ? null : <span className="status-strip__action">{action}</span>}
+      {/* The exact references the removed W1 answer cards carried, as the mock's small `details.tech`. */}
       <ExactReferences
         name="foundation-strip-references"
+        variant="tech"
         references={[
           ...extraReferences,
           { label: "Selected time (exact)", value: foundation.resolved.at },
@@ -532,9 +532,10 @@ function ReservePublishForm({
         stored values. A change applies until the end of the period it falls in; later scheduled
         periods keep their own values.
       </p>
-      <div className="action-form__fields">
-        <label>
-          New reserve (%){" "}
+      {/* W1-F1 fix round 1: the mock's `.field` inputs and `.button.primary`. */}
+      <div className="input-row">
+        <label className="field">
+          New reserve (%)
           <input
             type="number"
             min={0}
@@ -544,15 +545,17 @@ function ReservePublishForm({
             onChange={(event) => setValue(event.target.value)}
           />
         </label>
-        <label>
-          Effective from (UTC){" "}
+        <label className="field">
+          Effective from (UTC)
           <input
             type="datetime-local"
             value={effective}
             onChange={(event) => setEffective(event.target.value)}
           />
         </label>
-        <button type="submit" disabled={pending}>
+      </div>
+      <div className="form-footer">
+        <button type="submit" className="button primary" disabled={pending}>
           Publish reserve change
         </button>
       </div>

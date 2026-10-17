@@ -1,12 +1,12 @@
 {
-  "revision": "78ec219c",
-  "captured_at": "2026-10-17T06:10:05.730Z",
+  "revision": "f95c9f41",
+  "captured_at": "2026-10-17T07:32:01.914Z",
   "pairs": [
     {
       "screen": "sites",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5470/sites",
+      "app_url": "http://localhost:5480/sites",
       "mock_hash": "#/sites",
       "app_image": "sites-stocked-1440-app.png",
       "mock_image": "sites-stocked-1440-mock.png",
@@ -19,15 +19,15 @@
           {
             "title": "Site inventory",
             "x": 248,
-            "y": 297,
-            "w": 1145,
-            "h": 536
+            "y": 291,
+            "w": 1160,
+            "h": 289
           },
           {
             "title": "In setup",
             "x": 248,
-            "y": 852,
-            "w": 1145,
+            "y": 598,
+            "w": 1160,
             "h": 234
           }
         ],
@@ -61,7 +61,7 @@
       "screen": "sites",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:5470/sites",
+      "app_url": "http://localhost:5480/sites",
       "mock_hash": "#/sites",
       "app_image": "sites-stocked-390-app.png",
       "mock_image": "sites-stocked-390-mock.png",
@@ -74,16 +74,16 @@
           {
             "title": "Site inventory",
             "x": 16,
-            "y": 1101,
+            "y": 1173,
             "w": 358,
-            "h": 1016
+            "h": 469
           },
           {
             "title": "In setup",
             "x": 16,
-            "y": 2136,
+            "y": 1660,
             "w": 358,
-            "h": 256
+            "h": 274
           }
         ],
         "overflowX": 0
@@ -116,7 +116,7 @@
       "screen": "sites",
       "case": "empty",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5471/sites",
+      "app_url": "http://localhost:5481/sites",
       "mock_hash": "#/sites",
       "app_image": "sites-empty-1440-app.png",
       "mock_image": "sites-empty-1440-mock.png",
@@ -129,14 +129,14 @@
           {
             "title": "Site inventory",
             "x": 248,
-            "y": 249,
+            "y": 243,
             "w": 1160,
             "h": 282
           },
           {
             "title": "In setup",
             "x": 248,
-            "y": 549,
+            "y": 543,
             "w": 1160,
             "h": 161
           }
@@ -171,7 +171,7 @@
       "screen": "sites",
       "case": "empty",
       "viewport": "390x900",
-      "app_url": "http://localhost:5471/sites",
+      "app_url": "http://localhost:5481/sites",
       "mock_hash": "#/sites",
       "app_image": "sites-empty-390-app.png",
       "mock_image": "sites-empty-390-mock.png",
@@ -184,16 +184,16 @@
           {
             "title": "Site inventory",
             "x": 16,
-            "y": 1053,
+            "y": 1047,
             "w": 358,
             "h": 393
           },
           {
             "title": "In setup",
             "x": 16,
-            "y": 1464,
+            "y": 1458,
             "w": 358,
-            "h": 183
+            "h": 201
           }
         ],
         "overflowX": 0
@@ -226,7 +226,7 @@
       "screen": "foundation",
       "case": "now",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation",
       "mock_hash": "#/foundation",
       "app_image": "foundation-now-1440-app.png",
       "mock_image": "foundation-now-1440-mock.png",
@@ -240,23 +240,23 @@
           {
             "title": "Configured topology",
             "x": 248,
-            "y": 430,
+            "y": 339,
             "w": 725,
             "h": 595
           },
           {
             "title": "Identity and operating obligations",
             "x": 991,
-            "y": 430,
+            "y": 339,
             "w": 403,
             "h": 595
           },
           {
             "title": "Time-valid control configuration",
             "x": 248,
-            "y": 1044,
+            "y": 952,
             "w": 1145,
-            "h": 689
+            "h": 759
           }
         ],
         "overflowX": 0
@@ -297,7 +297,7 @@
       "screen": "foundation",
       "case": "now",
       "viewport": "390x900",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation",
       "mock_hash": "#/foundation",
       "app_image": "foundation-now-390-app.png",
       "mock_image": "foundation-now-390-mock.png",
@@ -311,23 +311,23 @@
           {
             "title": "Configured topology",
             "x": 16,
-            "y": 1177,
+            "y": 1069,
             "w": 358,
             "h": 738
           },
           {
             "title": "Identity and operating obligations",
             "x": 16,
-            "y": 1931,
+            "y": 1823,
             "w": 358,
             "h": 678
           },
           {
             "title": "Time-valid control configuration",
             "x": 16,
-            "y": 2626,
+            "y": 2518,
             "w": 358,
-            "h": 1093
+            "h": 1152
           }
         ],
         "overflowX": 0
@@ -368,7 +368,7 @@
       "screen": "foundation",
       "case": "no-version",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/foundation",
       "app_image": "foundation-no-version-1440-app.png",
       "mock_image": "foundation-no-version-1440-mock.png",
@@ -382,21 +382,21 @@
           {
             "title": "Configured topology",
             "x": 248,
-            "y": 494,
+            "y": 521,
             "w": 734,
             "h": 122
           },
           {
             "title": "Identity and operating obligations",
             "x": 1000,
-            "y": 494,
+            "y": 521,
             "w": 408,
             "h": 122
           },
           {
             "title": "Time-valid control configuration",
             "x": 248,
-            "y": 634,
+            "y": 661,
             "w": 1160,
             "h": 101
           }
@@ -439,7 +439,7 @@
       "screen": "foundation",
       "case": "no-version",
       "viewport": "390x900",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/foundation",
       "app_image": "foundation-no-version-390-app.png",
       "mock_image": "foundation-no-version-390-mock.png",
@@ -453,21 +453,21 @@
           {
             "title": "Configured topology",
             "x": 16,
-            "y": 1191,
+            "y": 1218,
             "w": 358,
             "h": 122
           },
           {
             "title": "Identity and operating obligations",
             "x": 16,
-            "y": 1330,
+            "y": 1357,
             "w": 358,
             "h": 122
           },
           {
             "title": "Time-valid control configuration",
             "x": 16,
-            "y": 1468,
+            "y": 1495,
             "w": 358,
             "h": 122
           }
@@ -510,7 +510,7 @@
       "screen": "readiness",
       "case": "now",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/readiness",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/readiness",
       "mock_hash": "#/readiness",
       "app_image": "readiness-now-1440-app.png",
       "mock_image": "readiness-now-1440-mock.png",
@@ -525,16 +525,16 @@
           {
             "title": "Readiness and commissioning evidence",
             "x": 248,
-            "y": 590,
+            "y": 499,
             "w": 1145,
-            "h": 884
+            "h": 592
           },
           {
             "title": "Gateway status · edge-kobo-001",
             "x": 248,
-            "y": 1492,
+            "y": 1109,
             "w": 1145,
-            "h": 902
+            "h": 845
           }
         ],
         "overflowX": 0
@@ -569,7 +569,7 @@
       "screen": "readiness",
       "case": "now",
       "viewport": "390x900",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/readiness",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/readiness",
       "mock_hash": "#/readiness",
       "app_image": "readiness-now-390-app.png",
       "mock_image": "readiness-now-390-mock.png",
@@ -584,16 +584,16 @@
           {
             "title": "Readiness and commissioning evidence",
             "x": 16,
-            "y": 1541,
+            "y": 1480,
             "w": 358,
-            "h": 1659
+            "h": 1009
           },
           {
             "title": "Gateway status · edge-kobo-001",
             "x": 16,
-            "y": 3218,
+            "y": 2508,
             "w": 358,
-            "h": 2174
+            "h": 2080
           }
         ],
         "overflowX": 0
@@ -628,7 +628,7 @@
       "screen": "readiness",
       "case": "no-version",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/readiness",
       "app_image": "readiness-no-version-1440-app.png",
       "mock_image": "readiness-no-version-1440-mock.png",
@@ -643,14 +643,14 @@
           {
             "title": "Readiness and commissioning evidence",
             "x": 248,
-            "y": 494,
+            "y": 521,
             "w": 1160,
             "h": 101
           },
           {
             "title": "Gateway status · No gateway selected",
             "x": 248,
-            "y": 613,
+            "y": 640,
             "w": 1160,
             "h": 237
           }
@@ -687,7 +687,7 @@
       "screen": "readiness",
       "case": "no-version",
       "viewport": "390x900",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/readiness",
       "app_image": "readiness-no-version-390-app.png",
       "mock_image": "readiness-no-version-390-mock.png",
@@ -702,14 +702,14 @@
           {
             "title": "Readiness and commissioning evidence",
             "x": 16,
-            "y": 1191,
+            "y": 1200,
             "w": 358,
             "h": 122
           },
           {
             "title": "Gateway status · No gateway selected",
             "x": 16,
-            "y": 1332,
+            "y": 1341,
             "w": 358,
             "h": 440
           }
@@ -746,27 +746,27 @@
       "screen": "sld",
       "case": "now",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/sld",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/sld",
       "mock_hash": "#/sld",
       "app_image": "sld-now-1440-app.png",
       "mock_image": "sld-now-1440-mock.png",
       "app": {
         "titles": [
-          "Kobo mini-grid · Mini-grid",
+          "Kobo mini-grid",
           "What each part does"
         ],
         "panels": [
           {
-            "title": "Kobo mini-grid · Mini-grid",
+            "title": "Kobo mini-grid",
             "x": 248,
-            "y": 430,
+            "y": 339,
             "w": 1145,
-            "h": 1055
+            "h": 974
           },
           {
             "title": "What each part does",
             "x": 248,
-            "y": 1504,
+            "y": 1331,
             "w": 1145,
             "h": 640
           }
@@ -801,27 +801,27 @@
       "screen": "sld",
       "case": "now",
       "viewport": "390x900",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/sld",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/sld",
       "mock_hash": "#/sld",
       "app_image": "sld-now-390-app.png",
       "mock_image": "sld-now-390-mock.png",
       "app": {
         "titles": [
-          "Kobo mini-grid · Mini-grid",
+          "Kobo mini-grid",
           "What each part does"
         ],
         "panels": [
           {
-            "title": "Kobo mini-grid · Mini-grid",
+            "title": "Kobo mini-grid",
             "x": 16,
-            "y": 1177,
+            "y": 1051,
             "w": 358,
-            "h": 1386
+            "h": 1221
           },
           {
             "title": "What each part does",
             "x": 16,
-            "y": 2582,
+            "y": 2290,
             "w": 358,
             "h": 940
           }
@@ -856,27 +856,27 @@
       "screen": "sld",
       "case": "battery",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
       "mock_hash": "#/sld",
       "app_image": "sld-battery-1440-app.png",
       "mock_image": "sld-battery-1440-mock.png",
       "app": {
         "titles": [
-          "Kobo mini-grid · Mini-grid",
+          "Kobo mini-grid",
           "What each part does"
         ],
         "panels": [
           {
-            "title": "Kobo mini-grid · Mini-grid",
+            "title": "Kobo mini-grid",
             "x": 248,
-            "y": 516,
+            "y": 339,
             "w": 1145,
-            "h": 1178
+            "h": 1097
           },
           {
             "title": "What each part does",
             "x": 248,
-            "y": 1712,
+            "y": 1453,
             "w": 1145,
             "h": 640
           }
@@ -911,27 +911,27 @@
       "screen": "sld",
       "case": "battery",
       "viewport": "390x900",
-      "app_url": "http://localhost:5470/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
+      "app_url": "http://localhost:5480/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
       "mock_hash": "#/sld",
       "app_image": "sld-battery-390-app.png",
       "mock_image": "sld-battery-390-mock.png",
       "app": {
         "titles": [
-          "Kobo mini-grid · Mini-grid",
+          "Kobo mini-grid",
           "What each part does"
         ],
         "panels": [
           {
-            "title": "Kobo mini-grid · Mini-grid",
+            "title": "Kobo mini-grid",
             "x": 16,
-            "y": 1278,
+            "y": 1078,
             "w": 358,
-            "h": 1600
+            "h": 1435
           },
           {
             "title": "What each part does",
             "x": 16,
-            "y": 2896,
+            "y": 2531,
             "w": 358,
             "h": 940
           }

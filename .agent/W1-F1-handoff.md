@@ -12,7 +12,23 @@ Contract: `.agent/architect-W1-fidelity.md` (`D-2026-10-17-mockup-layout-spec`).
 - Rules that follow from the guard:
   - A page-level state (refusal, no version) is a `div.page-refusal[data-page-refusal=...]` with its title in `<p className="page-refusal__title"><strong>`, never an h2. The panel slots follow it with the gap stated inside each panel.
   - A nested sub-panel is legitimate only where the mock nests one (readiness 3 and 4 inside the gateway panel). Otherwise use `div.subsection` with an `h3.subsection__heading`.
-  - Former panels become h3 subsections or `Disclosure`s inside their owning panel. A closed disclosure may hold `Panel`s. They are not counted until opened, so keep substantive limits outside it.
+  - Merge a former panel's content into its owning panel: its table, its key values, or a one-line `ChartNote`.
+  - **Never rebuild a former panel as an h3 subsection**, inside or outside a panel. That is the answer-card pattern the owner rejected.
+  - Fix round 1 hardened the guard in two places:
+    - Outside panels, any `h3`-`h6`, `section`, `article`, `[role=region]`, `.card` or `.callout` fails.
+    - Before panel 1, anything fails except chrome, `.status-strip`, `[data-page-refusal]`, `.v69-cards`, `.v69-chips`, and the selected-part notice or chip.
+    - Unit tests: `src/test/__tests__/panelStructure.test.ts`.
+  - A closed disclosure may hold `Panel`s. They are not counted until opened, so keep substantive limits outside it.
+- Fix round 1 shared patterns (`ui/V69Layout.tsx`; the "W1-F1 fix round 1" section of `ui/primitives.css`):
+  - `SitePageHeader({siteName, siteId, mode, description})` renders the mock's Site page heading: the site name as h1, a `.prov-tag` badge and the screen description.
+    - Every Site screen uses it.
+    - Add each screen's description to `SITE_SCREEN_DESCRIPTIONS`, taken from the mock subtitle but without its illustrative values.
+  - `MetricCard assessment` with `tone` renders `.metric.assessment`. Use it for every state-word card.
+  - `ExactReferences variant="tech"` renders the mock's small `details.tech`. Use it for references in a strip or under a table, never as a full-width bar.
+  - `.status-strip--line` is the mock's one-line `.statusbar`. Put the screen verdict first on the line through the strip's `lead`.
+  - The mock's form controls: `.field`, `.input-row`, `.button`, `.button.primary`, `.form-footer`. No browser-default input or button inside a v69 panel.
+  - `.v69-chips` may hold chip-sized `.v69-chip-control` search and select controls. Never add a second toolbar inside a panel.
+  - A state line inside a panel is one `v69-chart-note`, never a `ProductStatus` callout.
 
 ## 2. Shared v69 patterns (`frontend/src/ui`, exported from `ui/index.ts`)
 - `V69Layout.tsx`:

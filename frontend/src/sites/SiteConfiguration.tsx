@@ -8,6 +8,8 @@ import {
   FactList,
   PageHeader,
   Panel,
+  SITE_SCREEN_DESCRIPTIONS,
+  SitePageHeader,
   type Crumb,
 } from "../ui";
 import type {
@@ -295,15 +297,17 @@ export function SiteConfigurationFacts({
       )}
 
       {/*
-        * The page is Foundation and the subtitle says whose. T011A settled
-        * that this heading reads `Foundation`, and it still does; what was
-        * missing was any statement of which site's foundation this is, which
-        * a reader arriving from a bookmark had no way to tell.
+        * W1-F1 fix round 1 (`D-2026-10-17-mockup-layout-spec`): the mock's Site
+        * page heading - the site name, its provenance badge and the screen
+        * description - replaces T011A's "Foundation" title; the tabs say which
+        * screen this is.
         */}
-      <PageHeader
-        title="Foundation"
+      <SitePageHeader
+        siteName={view.displayName}
+        siteId={view.siteId}
+        mode={view.sourceMode}
+        description={SITE_SCREEN_DESCRIPTIONS.foundation}
         headingId={SITE_CONFIGURATION_HEADING_ID}
-        subtitle={`${view.displayName} · ${view.siteId}`}
       />
 
       {tabs}

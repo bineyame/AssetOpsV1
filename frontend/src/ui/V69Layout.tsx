@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { PageHeader } from "./PageHeader";
+
 /**
  * The v69 mock's layout patterns as shared components
  * (`D-2026-10-17-mockup-layout-spec`; CSS in `primitives.css`, "v69 layout
@@ -20,13 +22,24 @@ export interface MetricCardProps {
   tone?: MetricTone;
   /** A word value (state, gap) is set smaller, as the mock's assessment metric. */
   word?: boolean;
+  /**
+   * The mock's `.metric.assessment`: a 3 px top border in the tone colour and a
+   * 17 px state word as the value (implies `word`). The value text keeps the
+   * body colour; the tone is carried by the border and by the word itself.
+   */
+  assessment?: boolean;
   /** Extra attributes for tests and evidence, e.g. `{ "data-site-metric": "count" }`. */
   data?: Record<string, string>;
 }
 
 /** The mock's `.metric`: label, one large value, one note. */
-export function MetricCard({ label, value, note, tone, word = false, data }: MetricCardProps) {
-  const className = ["v69-metric", word ? "v69-metric--word" : "", tone ? `v69-metric--${tone}` : ""]
+export function MetricCard({ label, value, note, tone, word = false, assessment = false, data }: MetricCardProps) {
+  const className = [
+    "v69-metric",
+    word || assessment ? "v69-metric--word" : "",
+    assessment ? "v69-metric--assessment" : "",
+    tone ? `v69-metric--${tone}` : "",
+  ]
     .filter(Boolean)
     .join(" ");
   return (
@@ -176,5 +189,52 @@ export function CausalTimeline({ events, label }: { events: TimelineEvent[]; lab
         </li>
       ))}
     </ol>
+  );
+}
+
+/**
+ * The per-screen description under a Site page's heading, from the v69 mock's
+ * screen subtitles (`screens.js`). F2-F5 add their screens here; a mock subtitle
+ * that states illustrative values (site ratings, a window) is not copied.
+ */
+export const SITE_SCREEN_DESCRIPTIONS = {
+  foundation: "Definition, topology and controls · stored configuration for the period shown",
+  readiness: "Definition, commissioning and gateway readiness",
+  sld: "Foundation · single line diagram",
+} as const;
+
+export interface SitePageHeaderProps {
+  /** The site's display name from the read; the route's Site ID when the name is unknown. */
+  siteName: string;
+  /** The Site ID shown in the provenance badge. */
+  siteId: string;
+  /** The read's source mode label (e.g. "Demonstration data"); omitted when not read. */
+  mode?: string | null;
+  /** The screen description, usually from `SITE_SCREEN_DESCRIPTIONS`. */
+  description: ReactNode;
+  headingId?: string;
+  /** Omit the provenance badge, e.g. on a refusal where the Site ID would only repeat the title. */
+  hideBadge?: boolean;
+}
+
+/**
+ * The mock's Site page heading (W1-F1 fix round 1): the site name as the level-1
+ * heading, a provenance badge beside it (`.prov-tag`), and the screen's
+ * description below. Provenance is never status or health.
+ */
+export function SitePageHeader({ siteName, siteId, mode, description, headingId, hideBadge = false }: SitePageHeaderProps) {
+  return (
+    <PageHeader
+      title={siteName}
+      headingId={headingId}
+      badge={
+        hideBadge ? undefined : (
+          <span className="prov-tag" data-site-provenance={mode ?? "not-read"}>
+            {mode === undefined || mode === null ? siteId : `${mode} · ${siteId}`}
+          </span>
+        )
+      }
+      subtitle={description}
+    />
   );
 }

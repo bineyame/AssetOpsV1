@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
+  asOfText,
   Badge,
   DataTable,
   ExactReferences,
@@ -252,7 +253,7 @@ function SitesMetrics({ count }: { count: number | null }) {
 function SetupPanel({ sites }: { sites: SiteSummary[] | null }) {
   const views = (sites ?? []).map(deriveSiteView).filter((view) => view.lifecycleStatus !== "Active");
   return (
-    <Panel heading="In setup" headingId="sites-setup-heading" description="Sites whose recorded lifecycle is not yet Active">
+    <Panel heading="In setup" headingId="sites-setup-heading" description="Sites whose recorded lifecycle is not yet Active; they are also listed in Site inventory">
       {sites === null ? (
         <p data-sites-setup="unavailable">The site list could not be read, so no site in setup can be listed.</p>
       ) : views.length === 0 ? (
@@ -292,44 +293,107 @@ function SetupPanel({ sites }: { sites: SiteSummary[] | null }) {
 }
 
 /**
- * A loaded directory: the type chips and metric cards, then the inventory
- * (state line, exact references, filters, table) and the setup panel. The
+ * A loaded directory: the chip row (type chips, then a compact search and the
+ * mode and lifecycle filters, W1-F1 fix round 1), the metric cards, then the
+ * inventory table with its state as one note line, and the setup panel. The
  * registered count and each site's type and data source come straight off the
  * records; nothing about operation, evidence or attention is inferred. The list
  * read carries no read instant, so the bound says the time is not recorded.
  */
 function SitesDirectory({ sites, siteHref, lineage }: SiteFiltersProps) {
   const [siteType, setSiteType] = useState(ANY);
-  const types = useMemo(() => distinct(sites.map((site) => deriveSiteView(site).siteType)), [sites]);
+  const [search, setSearch] = useState("");
+  const [mode, setMode] = useState(ANY);
+  const [lifecycle, setLifecycle] = useState(ANY);
+  const views = useMemo(() => sites.map(deriveSiteView), [sites]);
+  const types = useMemo(() => distinct(views.map((view) => view.siteType)), [views]);
+  const options = useMemo(
+    () => ({
+      mode: distinct(views.map((view) => view.sourceMode)),
+      lifecycle: distinct(views.map((view) => view.lifecycleStatus)),
+    }),
+    [views],
+  );
+  const matching = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return sites.filter((site) => {
+      const view = deriveSiteView(site);
+      if (siteType !== ANY && view.siteType !== siteType) return false;
+      if (mode !== ANY && view.sourceMode !== mode) return false;
+      if (lifecycle !== ANY && view.lifecycleStatus !== lifecycle) return false;
+      if (needle === "") return true;
+      return view.displayName.toLowerCase().includes(needle) || view.siteId.toLowerCase().includes(needle);
+    });
+  }, [sites, search, siteType, mode, lifecycle]);
   return (
     <>
-      <div className="v69-chips" role="group" aria-label="Site type" data-filter-group="sites">
-        {[ANY, ...types].map((type) => (
-          <button
-            type="button"
-            className="v69-chip"
-            key={type}
-            aria-pressed={siteType === type}
-            data-site-filter={type === ANY ? "all" : type}
-            onClick={() => setSiteType(type)}
-          >
-            {type === ANY ? "All sites" : type}
-          </button>
-        ))}
+      <div className="v69-chips" data-filter-group="sites">
+        <div className="v69-chips__group" role="group" aria-label="Site type">
+          {[ANY, ...types].map((type) => (
+            <button
+              type="button"
+              className="v69-chip"
+              key={type}
+              aria-pressed={siteType === type}
+              data-site-filter={type === ANY ? "all" : type}
+              onClick={() => setSiteType(type)}
+            >
+              {type === ANY ? "All sites" : type}
+            </button>
+          ))}
+        </div>
+        <span className="v69-chips__spacer" aria-hidden="true" />
+        <label className="visually-hidden" htmlFor="sites-search">
+          Search sites
+        </label>
+        <input
+          className="v69-chip-control"
+          id="sites-search"
+          type="search"
+          value={search}
+          placeholder="Search name or site ID"
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <SiteFilter id="sites-mode" label="Mode" anyLabel="All modes" value={mode} options={options.mode} onChange={setMode} />
+        <SiteFilter
+          id="sites-lifecycle"
+          label="Lifecycle"
+          anyLabel="All lifecycle states"
+          value={lifecycle}
+          options={options.lifecycle}
+          onChange={setLifecycle}
+        />
       </div>
       <SitesMetrics count={sites.length} />
-      <Panel heading="Site inventory" headingId="sites-list-heading" description={INVENTORY_DESCRIPTION} flush>
-        <div className="panel__body" data-sites-state="listed">
-          <ProductStatus words={SITES_LISTED_WORDS} scope={SITES_SCOPE} asOf={null} />
-          <ExactReferences
-            name="sites-directory"
-            references={sites.flatMap((site) => [
-              { label: `${site.display_name}: site reference`, value: site.site_id },
-              { label: `${site.display_name}: registration store`, value: site.configuration_store ?? null },
-            ])}
-          />
+      <Panel heading="Site inventory" headingId="sites-list-heading" description={INVENTORY_DESCRIPTION}>
+        {matching.length === 0 ? (
+          <p>
+            No configured site matches this search and these filters. This is a statement about the filters, not about
+            the store: {sites.length === 1 ? "one site is configured" : `${sites.length} sites are configured`}.
+          </p>
+        ) : (
+          <SiteTable sites={matching} siteHref={siteHref} lineage={lineage} />
+        )}
+        {/* The former answer card's state, scope and as-of, as one note line under the table. */}
+        <div data-sites-state="listed">
+        <p className="v69-chart-note" data-product-status={SITES_LISTED_WORDS.tone}>
+          <strong data-product-status-label="">{SITES_LISTED_WORDS.label}</strong>
+          {" · "}
+          <span data-product-status-scope="">{SITES_SCOPE}</span>
+          {" · "}
+          <span data-product-status-as-of="">{asOfText(null)}</span>.{" "}
+          <span className="product-status__sentence">{SITES_LISTED_WORDS.sentence}</span>{" "}
+          <span data-product-status-next="">{SITES_LISTED_WORDS.next}</span>
+        </p>
+        <ExactReferences
+          name="sites-directory"
+          variant="tech"
+          references={sites.flatMap((site) => [
+            { label: `${site.display_name}: site reference`, value: site.site_id },
+            { label: `${site.display_name}: registration store`, value: site.configuration_store ?? null },
+          ])}
+        />
         </div>
-        <SiteFilters sites={sites} siteHref={siteHref} lineage={lineage} siteType={siteType} />
       </Panel>
       <SetupPanel sites={sites} />
     </>
@@ -337,7 +401,7 @@ function SitesDirectory({ sites, siteHref, lineage }: SiteFiltersProps) {
 }
 
 /**
- * Search and the three filters, over the sites actually in the store.
+ * The directory's filters operate over the sites actually in the store.
  *
  * Every filter's options are derived from the records present rather than from
  * the M1 schema's permitted values. That is the same rule the Lab's template
@@ -353,88 +417,6 @@ interface SiteFiltersProps {
   sites: SiteSummary[];
   siteHref: (siteId: string) => string;
   lineage: LineageAnswers;
-}
-
-/** W1-F1: the site type is chosen with the v69 chip group above the cards. */
-function SiteFilters({ sites, siteHref, lineage, siteType }: SiteFiltersProps & { siteType: string }) {
-  const [search, setSearch] = useState("");
-  const [mode, setMode] = useState(ANY);
-  const [lifecycle, setLifecycle] = useState(ANY);
-
-  const views = useMemo(() => sites.map(deriveSiteView), [sites]);
-
-  const options = useMemo(
-    () => ({
-      mode: distinct(views.map((view) => view.sourceMode)),
-      lifecycle: distinct(views.map((view) => view.lifecycleStatus)),
-    }),
-    [views],
-  );
-
-  const matching = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    return sites.filter((site) => {
-      const view = deriveSiteView(site);
-      if (siteType !== ANY && view.siteType !== siteType) return false;
-      if (mode !== ANY && view.sourceMode !== mode) return false;
-      if (lifecycle !== ANY && view.lifecycleStatus !== lifecycle) return false;
-      if (needle === "") return true;
-      return (
-        view.displayName.toLowerCase().includes(needle) ||
-        view.siteId.toLowerCase().includes(needle)
-      );
-    });
-  }, [sites, search, siteType, mode, lifecycle]);
-
-  return (
-    <>
-      <div className="toolbar">
-        <p className="toolbar__field toolbar__field--grow">
-          <label className="field-label" htmlFor="sites-search">
-            Search sites
-          </label>
-          <input
-            className="control"
-            id="sites-search"
-            type="search"
-            value={search}
-            placeholder="Name or site ID"
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </p>
-
-        <SiteFilter
-          id="sites-mode"
-          label="Mode"
-          anyLabel="All modes"
-          value={mode}
-          options={options.mode}
-          onChange={setMode}
-        />
-        <SiteFilter
-          id="sites-lifecycle"
-          label="Lifecycle"
-          anyLabel="All lifecycle states"
-          value={lifecycle}
-          options={options.lifecycle}
-          onChange={setLifecycle}
-        />
-      </div>
-
-      {matching.length === 0 ? (
-        <p className="panel__body">
-          No configured site matches this search and these filters. This is a
-          statement about the filters, not about the store:{" "}
-          {sites.length === 1
-            ? "one site is configured"
-            : `${sites.length} sites are configured`}
-          .
-        </p>
-      ) : (
-        <SiteTable sites={matching} siteHref={siteHref} lineage={lineage} />
-      )}
-    </>
-  );
 }
 
 interface SiteFilterProps {
@@ -455,12 +437,12 @@ function SiteFilter({
   onChange,
 }: SiteFilterProps) {
   return (
-    <p className="toolbar__field">
-      <label className="field-label" htmlFor={id}>
+    <>
+      <label className="visually-hidden" htmlFor={id}>
         {label}
       </label>
       <select
-        className="control"
+        className="v69-chip-control"
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -472,7 +454,7 @@ function SiteFilter({
           </option>
         ))}
       </select>
-    </p>
+    </>
   );
 }
 
@@ -535,7 +517,7 @@ export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
           ))}
         </tbody>
       </DataTable>
-      <p className="panel__body panel__note" data-testid="sites-analysis-absent">
+      <p className="panel__body panel__note v69-chart-note" data-testid="sites-analysis-absent">
         <MissingClaim gapId="G-sites-operating-view" placement="sites.inventory.analysis-note">
           {DIRECTORY_ANALYSIS_ABSENT}
         </MissingClaim>

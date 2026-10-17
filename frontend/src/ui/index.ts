@@ -49,6 +49,9 @@ export {
   type TimelineEvent,
   StatusBar,
   V69Notice,
+  SITE_SCREEN_DESCRIPTIONS,
+  SitePageHeader,
+  type SitePageHeaderProps,
 } from "./V69Layout";
 export {
   ReviewProposal,
