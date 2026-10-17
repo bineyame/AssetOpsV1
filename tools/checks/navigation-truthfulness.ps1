@@ -14,7 +14,7 @@
 # W1-UX-07 (D-2026-10-17-w1-rail) shows the full v6.9 operator rail: two live
 # roots and nine unavailable ones rendered as text. Get-OperatorRailFailures
 # holds that inventory to the ruling; its fixtures are
-# tools/checks/test-navigation-rail.ps1.
+# tools/checks/navigation-rail-fixtures.ps1.
 #
 # Do not weaken the checks below to make a task pass.
 
@@ -486,7 +486,7 @@ function Get-FoundationSubtabFailures {
 #     available` frame never counts as a route);
 #   - NavRail's model still forbids `to` on an unavailable item.
 #
-# Parameters exist so tools/checks/test-navigation-rail.ps1 can feed mutated
+# Parameters exist so tools/checks/navigation-rail-fixtures.ps1 can feed mutated
 # fixtures; with none, the real files are read.
 function Get-OperatorRailFailures {
     param(

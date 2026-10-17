@@ -30,6 +30,7 @@ try {
         @{ Seam = "Shared Site substrate";           File = "site-substrate.ps1";            Function = "Invoke-SiteSubstrateCheck" },
         @{ Seam = "Shared visual vocabulary";        File = "ui-primitives.ps1";             Function = "Invoke-UiPrimitivesCheck" },
         @{ Seam = "Navigation truthfulness";         File = "navigation-truthfulness.ps1";   Function = "Invoke-NavigationTruthfulnessCheck" },
+        @{ Seam = "Operator rail guard fixtures";    File = "navigation-rail-fixtures.ps1";  Function = "Invoke-NavigationRailFixturesCheck" },
         @{ Seam = "Shell overflow containment";      File = "shell-overflow.ps1";            Function = "Invoke-ShellOverflowCheck" },
         @{ Seam = "Analytic capability declaration"; File = "analytic-declaration.ps1";      Function = "Invoke-AnalyticDeclarationCheck" }
     )
