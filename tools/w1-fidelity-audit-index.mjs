@@ -70,7 +70,12 @@ for (const file of files) {
 
 const byScreen = new Map(SCREENS.map(([id]) => [id, []]));
 for (const r of rows) (byScreen.get(r.screen) ?? byScreen.set(r.screen, []).get(r.screen)).push(r);
-for (const list of byScreen.values()) list.sort((a, b) => a.case.localeCompare(b.case) || Number(b.width) - Number(a.width));
+// W1-F5b review M3: Evidence Analysis lists its default state (no-selection) first and the opened-reading capture second.
+const CASE_ORDER = { 'evidence-analysis': ['no-selection', 'record', 'supported', 'limited'] };
+const CASE_LABELS = { 'evidence-analysis|record': 'record (a reading opened)' };
+const caseRank = (screen, c) => { const i = (CASE_ORDER[screen] ?? []).indexOf(c); return i < 0 ? 99 : i; };
+for (const r of rows) r.caseLabel = CASE_LABELS[`${r.screen}|${r.case}`] ?? r.case;
+for (const list of byScreen.values()) list.sort((a, b) => caseRank(a.screen, a.case) - caseRank(b.screen, b.case) || a.case.localeCompare(b.case) || Number(b.width) - Number(a.width));
 
 function verdict(list) {
   if (list.length === 0) return { word: 'Not captured', tone: 'red' };
@@ -120,7 +125,7 @@ for (const s of summary) {
   html += `<section class="screen" id="${s.id}"><h2>${s.n}. ${esc(s.name)} <span class="meta">${s.id}</span> · <span class="tone-${s.tone}">${esc(s.word)}</span></h2>`;
   if (list.length === 0) html += `<p class="tone-red">No capture found for this screen.</p>`;
   for (const r of list) {
-    html += `<div class="case"><strong>${esc(r.case)} · ${r.width} px</strong> · panels app ${r.appCount} / mock ${r.mockCount} <span class="tone-${r.countMatch ? 'green' : 'red'}">${r.countMatch ? 'same' : 'different'}</span> · sideways overflow <span class="tone-${r.overflow === 0 ? 'green' : 'red'}">${r.overflow ?? 'not measured'}</span>
+    html += `<div class="case"><strong>${esc(r.caseLabel)} · ${r.width} px</strong> · panels app ${r.appCount} / mock ${r.mockCount} <span class="tone-${r.countMatch ? 'green' : 'red'}">${r.countMatch ? 'same' : 'different'}</span> · sideways overflow <span class="tone-${r.overflow === 0 ? 'green' : 'red'}">${r.overflow ?? 'not measured'}</span>
 <div class="meta">${esc(r.appUrl)} · mock ${esc(r.mockHash)} · ${esc(r.part)} · rev ${esc(r.revision)}</div>
 <div class="wrap"><table><thead><tr><th>Panel</th><th>App height</th><th>Mock height</th><th>Ratio</th><th>Reason if taller</th></tr></thead><tbody>`;
     for (const x of r.panels) {
