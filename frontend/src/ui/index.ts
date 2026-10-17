@@ -25,7 +25,14 @@ export {
   type FactProps,
 } from "./DataTable";
 export { Disclosure, type DisclosureProps } from "./Disclosure";
-export { NavRail, type NavRailItem, type NavRailProps } from "./NavRail";
+export {
+  NAV_RAIL_UNAVAILABLE_STATUS,
+  NavRail,
+  type NavRailItem,
+  type NavRailLiveItem,
+  type NavRailProps,
+  type NavRailUnavailableItem,
+} from "./NavRail";
 export { RailIcon, type RailIconName } from "./RailIcon";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { Panel, type PanelProps } from "./Panel";

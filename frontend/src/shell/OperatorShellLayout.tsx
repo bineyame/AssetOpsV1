@@ -1,6 +1,7 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
+import type { WorkspaceChrome } from "./WorkspaceShellLayout";
 
 /**
  * Operator navigation layout.
@@ -31,12 +32,32 @@ import { AppHeader, NavRail, type NavRailItem } from "../ui";
  * now redirects to Sites.
  *
  * T028 adds the Findings rail root, which owns the global Findings index, and
- * the group headers (`D-2026-10-02-grammar-ownership-test`): the grouped rail
- * is the target, filtered to live items, so each group here holds one item.
+ * the group headers (`D-2026-10-02-grammar-ownership-test`).
+ *
+ * W1-UX-07 (owner decision 2026-10-17, `D-2026-10-17-w1-rail`): the rail shows
+ * the full v6.9 root inventory, in the groups, labels and order of the mock's
+ * `ROOTS` and `rail()`. Only Sites and Findings own a truthful cross-site
+ * destination today, so only they are live; every other root is an
+ * `unavailable` item, which the item model forbids from carrying a route. A
+ * site-scoped screen does not make its root live: the rail cannot choose a
+ * site. Promote a root only in the slice that supplies and reviews its
+ * cross-site route, with this list, the route table and
+ * `tools/checks/navigation-truthfulness.ps1` changed together.
+ *
+ * One item per line: the navigation-truthfulness guard parses this list.
  */
-const operatorRoutes: NavRailItem[] = [
-  { to: "/sites", label: "Sites", end: false, group: "OPERATE", icon: "site" },
-  { to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE", icon: "finding" },
+const operatorRailItems: NavRailItem[] = [
+  { kind: "unavailable", label: "Portfolio", group: "OPERATIONS", icon: "grid" },
+  { kind: "live", to: "/sites", label: "Sites", end: false, group: "OPERATIONS", icon: "site" },
+  { kind: "unavailable", label: "Assets", group: "OPERATIONS", icon: "asset" },
+  { kind: "live", to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE", icon: "finding" },
+  { kind: "unavailable", label: "Actions", group: "WORK", icon: "action" },
+  { kind: "unavailable", label: "Incidents", group: "WORK", icon: "incident" },
+  { kind: "unavailable", label: "Maintenance", group: "WORK", icon: "work" },
+  { kind: "unavailable", label: "Operational records", group: "WORK", icon: "log" },
+  { kind: "unavailable", label: "Evidence", group: "ASSURANCE", icon: "evidence" },
+  { kind: "unavailable", label: "Financials", group: "BUSINESS", icon: "money" },
+  { kind: "unavailable", label: "Settings", group: "ADMIN", icon: "gear" },
 ];
 
 /**
@@ -47,13 +68,20 @@ const operatorRoutes: NavRailItem[] = [
  *
  * The landmark keeps its accessible name, `Operator routes`, because that name
  * is what the T003 and T004 boundary tests identify it by.
+ *
+ * The workspace footer under the rail is not decided here: the workspace
+ * layout renders it (or nothing, with the Simulator Lab gate closed) and this
+ * shell only places it, so nothing in this module depends on the gate.
  */
 export function OperatorShellLayout() {
+  const chrome = useOutletContext<WorkspaceChrome | undefined>();
+
   return (
     <div className="app-frame app-frame--operator">
       <div className="app-frame__side">
         <AppHeader name="AssetOps" />
-        <NavRail label="Operator routes" items={operatorRoutes} />
+        <NavRail label="Operator routes" items={operatorRailItems} />
+        {chrome?.footer ?? null}
       </div>
 
       <div className="app-frame__body">

@@ -248,3 +248,40 @@ test('SVG variant: MissingClaimSvg text is tagged, validated and unique', () => 
   assert.ok(types(svgWorld(SVG_TAGGED.replace('as="text"', 'as="p"'))).includes('ui_usage'));
   assert.ok(types(svgWorld(TAGGED.replace('as="p"', 'as="text"'))).includes('ui_usage'));
 });
+
+// W1-UX-07 (D-2026-10-17-w1-rail): the one reviewed exemption is the rail status const in NavRail.tsx.
+const RAIL = `export const NAV_RAIL_UNAVAILABLE_STATUS = "Not available yet";
+export function Row() {
+  return <li aria-label={\`Assets, \${NAV_RAIL_UNAVAILABLE_STATUS}\`}><span>{NAV_RAIL_UNAVAILABLE_STATUS}</span></li>;
+}
+`;
+const RAIL_PATH = 'frontend/src/ui/NavRail.tsx';
+
+test('W1-UX-07: the rail status const in NavRail.tsx is the reviewed exemption', () => {
+  const r = world((w) => { w.files.push({ path: RAIL_PATH, text: RAIL }); });
+  assert.deepEqual(r.errors, []);
+});
+
+test('W1-UX-07 mutation: the exemption is narrow (other file, other const, inline copy, import leak, no list)', () => {
+  // The same const and phrase in any other file is untagged.
+  const moved = world((w) => { w.files.push({ path: 'frontend/src/sites/Panel2.tsx', text: RAIL }); });
+  assert.deepEqual(moved.errors.map((e) => [e.type, e.where]), [['untagged_copy', 'frontend/src/sites/Panel2.tsx:1']]);
+  // Another const in NavRail.tsx with the phrase is untagged.
+  const other = world((w) => { w.files.push({ path: RAIL_PATH, text: RAIL.replaceAll('NAV_RAIL_UNAVAILABLE_STATUS', 'OTHER_STATUS') }); });
+  assert.ok(other.errors.some((e) => e.type === 'untagged_copy' && e.where === `${RAIL_PATH}:1`));
+  // Inline copy in NavRail.tsx outside the const is untagged.
+  const inline = world((w) => { w.files.push({ path: RAIL_PATH, text: `${RAIL}export const P = () => <p>Not available yet</p>;\n` }); });
+  assert.deepEqual(inline.errors.map((e) => [e.type, e.where]), [['untagged_copy', `${RAIL_PATH}:5`]]);
+  // Different text in the exempt const is untagged.
+  const text = world((w) => { w.files.push({ path: RAIL_PATH, text: RAIL.replace('"Not available yet"', '"Not available yet for this site"') }); });
+  assert.ok(text.errors.some((e) => e.type === 'untagged_copy' && e.where === `${RAIL_PATH}:1`));
+  // Rendering the const from another file (an import leak onto a panel) removes the exemption.
+  const leak = world((w) => {
+    w.files.push({ path: RAIL_PATH, text: RAIL });
+    w.files.push({ path: 'frontend/src/sites/Leak.tsx', text: 'import { NAV_RAIL_UNAVAILABLE_STATUS } from "../ui";\nexport const L = () => <p>{NAV_RAIL_UNAVAILABLE_STATUS}</p>;\n' });
+  });
+  assert.ok(leak.errors.some((e) => e.type === 'untagged_copy' && e.where === `${RAIL_PATH}:1`));
+  // With no reviewed exemption list the rail const is untagged: the exemption is what passes it.
+  const none = world((w) => { w.files.push({ path: RAIL_PATH, text: RAIL }); w.exemptions = []; });
+  assert.ok(none.errors.some((e) => e.type === 'untagged_copy' && e.where === `${RAIL_PATH}:1`));
+});

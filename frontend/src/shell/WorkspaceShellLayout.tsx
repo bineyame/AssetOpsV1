@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { Link, Outlet } from "react-router-dom";
 
 import type { FeatureFlags } from "../config/featureFlags";
+import { RailIcon } from "../ui";
 import { simulatorLabWorkspaceEntryPoints } from "./simulatorLabRoutes";
 
 /**
@@ -25,10 +27,25 @@ import { simulatorLabWorkspaceEntryPoints } from "./simulatorLabRoutes";
  * landmark at all, so a disabled build shows no workspace chrome, label, or
  * hint that a developer workspace exists.
  *
+ * W1-UX-07 (`D-2026-10-17-w1-rail`): the entry point now sits where v6.9
+ * places it, in the `WORKSPACE` footer under the operator rail, rather than in
+ * a bar above the shell. This layout still owns it and still decides whether
+ * it exists; it hands the rendered footer to the operator shell through the
+ * outlet context, so `OperatorShellLayout` places chrome it is given and stays
+ * flag-free. The footer is a workspace utility landmark of its own, never a
+ * seventh operator group or root, and it renders once: there is no second copy
+ * of the link above the shell.
+ *
  * The Simulator Lab route is deliberately not nested under this layout: once a
  * developer is inside the developer workspace, that surface owns its own shell
  * and its own way back, and operator chrome must not follow them into it.
  */
+/** What the workspace layout hands the operator shell to place. */
+export interface WorkspaceChrome {
+  /** The workspace footer, or null when the gate is closed. */
+  footer: ReactNode;
+}
+
 export interface WorkspaceShellLayoutProps {
   flags: FeatureFlags;
 }
@@ -36,29 +53,32 @@ export interface WorkspaceShellLayoutProps {
 export function WorkspaceShellLayout({ flags }: WorkspaceShellLayoutProps) {
   const workspaceEntryPoints = simulatorLabWorkspaceEntryPoints(flags);
 
+  const footer =
+    workspaceEntryPoints.length > 0 ? (
+      <nav className="workspace-footer" aria-label="Workspace utilities">
+        <p className="workspace-footer__label nav-rail__group-label" aria-hidden="true">
+          WORKSPACE
+        </p>
+        <ul className="nav-rail__list">
+          {workspaceEntryPoints.map((entryPoint) => (
+            <li key={entryPoint.to}>
+              <Link className="nav-rail__link" to={entryPoint.to}>
+                <RailIcon name="lab" />
+                <span className="nav-rail__label" data-vocabulary-exempt="lab">
+                  {entryPoint.label}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ) : null;
+
+  const chrome: WorkspaceChrome = { footer };
+
   return (
     <div className="app-shell">
-      {workspaceEntryPoints.length > 0 ? (
-        <nav
-          className="workspace-bar"
-          aria-labelledby="workspace-utilities-label"
-        >
-          <p className="workspace-bar__label" id="workspace-utilities-label">
-            Workspace utilities
-          </p>
-          <ul className="workspace-bar__list">
-            {workspaceEntryPoints.map((entryPoint) => (
-              <li key={entryPoint.to}>
-                <Link className="workspace-bar__link" to={entryPoint.to} data-vocabulary-exempt="lab">
-                  {entryPoint.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ) : null}
-
-      <Outlet />
+      <Outlet context={chrome} />
     </div>
   );
 }

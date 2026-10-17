@@ -211,7 +211,7 @@ describe("operator route navigation", () => {
     ]);
   });
 
-  it("heads each rail group, OPERATE then INTELLIGENCE, over exactly one item each", async () => {
+  it("heads each of the six v6.9 rail groups over its roots, in order", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -219,20 +219,43 @@ describe("operator route navigation", () => {
       name: "Operator routes",
     });
 
-    // A one-item group is still headed (T028,
-    // `D-2026-10-02-grammar-ownership-test`).
+    // W1-UX-07 (`D-2026-10-17-w1-rail`): the full v6.9 root inventory, in the
+    // mock's groups and order. A group is headed even when every root in it is
+    // unavailable. Each root reads as its label, plus the visible status for
+    // the nine roots with no truthful cross-site destination yet.
     const groups = Array.from(
       operatorNavigation.querySelectorAll(".nav-rail__group"),
     ).map((group) => [
       Array.from(group.querySelectorAll(".nav-rail__group-label")).map(
         (header) => [header.textContent, header.getAttribute("data-rail-group")],
       ),
-      Array.from(group.querySelectorAll("li")).map((item) => item.textContent),
+      Array.from(group.querySelectorAll("li")).map((item) =>
+        [
+          item.querySelector(".nav-rail__label")?.textContent,
+          item.querySelector(".nav-rail__status")?.textContent ?? "live",
+        ].join(" | "),
+      ),
     ]);
 
+    const off = "Not available yet";
     expect(groups).toEqual([
-      [[["OPERATE", "OPERATE"]], ["Sites"]],
-      [[["INTELLIGENCE", "INTELLIGENCE"]], ["Findings"]],
+      [
+        [["OPERATIONS", "OPERATIONS"]],
+        [`Portfolio | ${off}`, "Sites | live", `Assets | ${off}`],
+      ],
+      [[["INTELLIGENCE", "INTELLIGENCE"]], ["Findings | live"]],
+      [
+        [["WORK", "WORK"]],
+        [
+          `Actions | ${off}`,
+          `Incidents | ${off}`,
+          `Maintenance | ${off}`,
+          `Operational records | ${off}`,
+        ],
+      ],
+      [[["ASSURANCE", "ASSURANCE"]], [`Evidence | ${off}`]],
+      [[["BUSINESS", "BUSINESS"]], [`Financials | ${off}`]],
+      [[["ADMIN", "ADMIN"]], [`Settings | ${off}`]],
     ]);
     // Each header precedes its group's list.
     for (const group of Array.from(

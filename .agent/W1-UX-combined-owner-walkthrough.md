@@ -1116,6 +1116,20 @@ Ctrl+C in both windows, then:
 Totals: `w1-ux-05` 56/56, 28 at 1440 and 28 at 390 (`s701-w1-ux-05.txt`). Screenshots: `%TEMP%\w1ux06-final\s701` (not in git).
 
 
+## Part 17. The left menu (W1-UX-07)
+
+No extra setup: look at the menu on any page you already have open in an earlier part (for example Sites in Part 1), and open the mock-up beside it at `#/sites`.
+
+What to look for:
+- The menu now shows the whole mock-up menu: six groups, OPERATIONS, INTELLIGENCE, WORK, ASSURANCE, BUSINESS and ADMIN, with eleven entries in the mock-up's order.
+- Only **Sites** and **Findings** open a page. The other nine (Portfolio, Assets, Actions, Incidents, Maintenance, Operational records, Evidence, Financials, Settings) are greyed out and each says "Not available yet" under its name. Clicking them does nothing, and pressing Tab skips them.
+- "Not available yet" here means the product has no all-sites page for that entry yet. It does not mean a site has no data: a site's own Assets, Work, Financials and Evidence tabs still work from the site.
+- Under the menu, a WORKSPACE section holds "Open Simulator Lab" (shown because the Simulator Lab is switched on in this build). There is no longer a separate bar above the page for it.
+- The mock-up's "Demo workspace / 3 sites" line is left out: that count is example data.
+- At phone width (about 390 px) the menu sits above the page and wraps; every entry keeps its "Not available yet" with it, and nothing scrolls sideways.
+
+Captured (code at W1-UX-07): `node tools/w1-ux-07-rail-evidence.mjs` 118/118 with the Lab on and 62/62 with the Lab off, at 1440 and 390 px, beside the mock rail.
+
 ## Owner's notes: open questions to decide during or after the walk
 
 These are not defects in W1. They are choices the reviews left for you. Mark each one accept, change, or later.
@@ -1144,6 +1158,7 @@ These are not defects in W1. They are choices the reviews left for you. Mark eac
 11. **The single-line diagram at phone width.** At 390 px the diagram is wider than the screen, so it scrolls sideways inside its own box. The page itself does not scroll sideways.
 12. **A Recommendation whose read is unavailable is labelled as held.** In the Action case it reads "Held: an earlier trial is still open". Check that this is the wording you want for that case.
 13. **Dispatch Analysis addresses.** The Dispatch tool prints only the day address, so open Analysis from the page's own link rather than typing an address.
+14. **Menu height and status text size at phone width.** At 390 px the full menu sits above the page and is about 575 px tall, and the "Not available yet" status text is small (9 px, readable contrast). Judge whether the menu should collapse on phones or the status text be larger.
 
 ## Gate
 

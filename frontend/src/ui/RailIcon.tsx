@@ -12,6 +12,15 @@ const RAIL_ICON_PATHS = {
   book: "M3 4h7l2 2 2-2h7v16h-7l-2 2-2-2H3z M12 6v16",
   log: "M6 3h12v18H6z M9 8h6 M9 12h6 M9 16h4",
   clock: "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7v6l4 2",
+  // W1-UX-07: the remaining v6.9 root icons, for the unavailable rail roots.
+  grid: "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
+  asset: "M7 4h10v16H7z M10 1h4 M10 8h4 M10 12h4 M10 16h4",
+  action: "M8 4h11v17H5V4h3 M9 2h6v4H9z M8 12l3 3 5-6",
+  incident: "M12 3v10 M12 17v1 M4 3h16v18H4z",
+  work: "M14 4a5 5 0 0 0-6 6L2 16l6 6 6-6a5 5 0 0 0 6-6l-4 4-5-5 3-5z",
+  evidence: "M5 3h10l4 4v14H5z M14 3v5h5 M8 12h8 M8 16h6",
+  money: "M12 2v20 M17 6H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H6",
+  gear: "M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M5 5l2 2 M17 17l2 2 M19 5l-2 2 M7 17l-2 2",
 } as const;
 
 export type RailIconName = keyof typeof RAIL_ICON_PATHS;
