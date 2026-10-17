@@ -247,6 +247,9 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
     ("w200 event+session order: session before event", LEDGER,
      ("replace", REREAD, "_REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_SESSION_SQL, _REREAD_EVENT_SQL)"), W200_ORDER),
     ("w200 second reread order", LEDGER, REREAD + "\n", W200_ORDER),
+    ("w200 real accepted insert loses its arbiter", LEDGER,
+     ("replace", "ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING RETURNING id", "RETURNING id"),
+     W200_MESSAGE),
 ]
 
 CONTROLS = (
