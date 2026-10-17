@@ -55,7 +55,11 @@ Notes on three of them:
   - `npx.cmd tsc --noEmit` exit 0.
   - Full `npm.cmd test`: 74 files, 1812 passed, 135 s.
   - `tools/check-all.ps1`: all 10 guards passed, including the new "Evidence width check (W1-UX-06)".
-- **Full backend suite:** see the coordinator report. It was run once at `90699341`.
+- **Full backend suite at `90699341`:**
+  - Command: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --durations=30 --junitxml=.pytest-junit.xml` on private `w1ux06_test`, with `var/sites/*.yaml` copied from main. The DB and the copies were removed afterwards.
+  - Result: 2590 passed, JUnit cases=2590 skipped=0 failed=0, wall 1494 s (24.9 min).
+  - An earlier attempt was stopped at its 20-min cap (63%, with 9 failures). The cause was the environment: PYTHONPATH named only the worktree and `backend`, so `assetops_contracts` was imported from the main checkout's editable install (`test_s405b_registered_release` failed on `SOURCE_PUBLICATION_REFUSED`).
+  - **Worktree runs need** `PYTHONPATH=<wt>;<wt>\backend;<wt>\contracts;<wt>\gateway;<wt>\simulator`.
 
 ## Phase 2 must, once W1-UX-02 merges
 
