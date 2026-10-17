@@ -478,13 +478,12 @@ describe("the index shows no capability the product lacks", () => {
         control.getAttribute("id") ?? control.getAttribute("href"),
       ]),
     ).toEqual([
-      // W1-F1: the v69 type chips (one per type present plus All sites),
-      // then the inventory's closed exact-reference disclosure (site
-      // references only), named here so any other control still fails.
+      // W1-F1: the v69 type chips (one per type present plus All sites), and
+      // (fix round 1) the compact search and two filters in the same chip row;
+      // then the rows; then the inventory's closed exact-reference disclosure
+      // (site references only) under the table. Named so any other control fails.
       ["BUTTON", null],
       ["BUTTON", null],
-      ["DETAILS", null],
-      ["SUMMARY", null],
       ["INPUT", "sites-search"],
       ["SELECT", "sites-mode"],
       ["SELECT", "sites-lifecycle"],
@@ -492,6 +491,8 @@ describe("the index shows no capability the product lacks", () => {
       ["DETAILS", null],
       ["SUMMARY", null],
       ["A", "/sites/MG-002"],
+      ["DETAILS", null],
+      ["SUMMARY", null],
     ]);
     expect(spacedText(container)).not.toMatch(FORBIDDEN_ACTION_PATTERN);
   });

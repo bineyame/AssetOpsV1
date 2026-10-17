@@ -169,9 +169,12 @@ describe("a site's Foundation is addressed under that site", () => {
     renderAt("/sites/MG-002/foundation");
     await settledScreen();
 
+    // W1-F1 fix round 1: the Site page heading is the site name; the screen
+    // description names the Foundation site model.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Foundation" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
     expect(screen.getByRole("main").textContent).toMatch(/MG-002/);
     expect(screen.getByRole("main").textContent).toMatch(/PV array/);
   });
@@ -203,9 +206,12 @@ describe("a site's Foundation is addressed under that site", () => {
     fireEvent.click(link);
     await settledScreen();
 
+    // W1-F1 fix round 1: the Site page heading is the site name; the screen
+    // description names the Foundation site model.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Foundation" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
   });
 
   it("offers a way back to the site it belongs to", async () => {
@@ -227,9 +233,12 @@ describe("a site's Foundation is addressed under that site", () => {
 
     const main = screen.getByRole("main");
 
+    // W1-F1 fix round 1: the Site page heading is the site name; the screen
+    // description names the Foundation site model.
     expect(
-      within(main).getByRole("heading", { level: 1, name: "Foundation" }),
+      within(main).getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
     expect(
       screen.getByRole("navigation", { name: "Operator routes" }),
     ).toBeInTheDocument();
@@ -261,9 +270,12 @@ describe("the Foundation surface is an operator capability and is never gated", 
     renderAt("/sites/MG-002/foundation", flags);
     await settledScreen();
 
+    // W1-F1 fix round 1: the Site page heading is the site name; the screen
+    // description names the Foundation site model.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Foundation" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
   });
 
   it.each([
@@ -315,9 +327,12 @@ describe("the address T008 served this surface at still resolves", () => {
     renderAt("/sites/MG-002/configuration");
     await settledScreen();
 
+    // W1-F1 fix round 1: the Site page heading is the site name; the screen
+    // description names the Foundation site model.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Foundation" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
     expect(screen.getByRole("main").textContent).toMatch(/MG-002/);
     expect(
       screen.getByRole("link", { name: "Foundation" }).getAttribute("href"),

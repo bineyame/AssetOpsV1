@@ -19,11 +19,12 @@
 import { Fragment, useMemo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, MissingClaim, PageHeader, Panel, type Crumb } from "../ui";
+import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
 import {
   AcquisitionDetailsPanel,
   knownReadiness,
-  ReadinessVerdict,
+  ReadinessVerdictLead,
+  ReadinessVerdictNotes,
   RoleCoveragePanel,
   SignalBindingsPanel,
 } from "./FoundationBindingsPanel";
@@ -131,10 +132,12 @@ export function StoredFoundationViews(props: StoredFoundationViewsProps) {
   return (
     <div className="foundation-views-page" data-foundation-view-page={view}>
       <Breadcrumbs trail={trail} />
-      <PageHeader
-        title="Foundation"
+      <SitePageHeader
+        siteName={configuration.displayName}
+        siteId={configuration.siteId}
+        mode={configuration.sourceMode}
+        description={SITE_SCREEN_DESCRIPTIONS[view === "model" ? "foundation" : view]}
         headingId={SITE_CONFIGURATION_HEADING_ID}
-        subtitle={`${configuration.displayName} · ${configuration.siteId}`}
       />
       {tabs}
       <FoundationSubtabs current={view} hrefFor={viewHref} />
@@ -226,9 +229,11 @@ function strip(
   props: StoredFoundationViewsProps,
   action: ReactNode,
   extraReferences?: { label: string; value: string | null }[],
+  lead?: ReactNode,
 ) {
   return (
     <FoundationPeriodStrip
+      lead={lead}
       foundation={props.foundation}
       versions={props.versions}
       selectedAt={props.selectedAt}
@@ -244,6 +249,22 @@ function strip(
 function SiteModelView(props: ViewProps) {
   const { foundation, versions, viewHref, configuration, onPublish } = props;
   const gaps = foundation.configuration_gaps;
+  const noEffective = gaps.find((gap) => gap.code === "NO_EFFECTIVE_REVISION");
+  if (noEffective !== undefined) {
+    // Fail closed (W1-F1 review finding 11): a loaded read that resolves no
+    // effective version shows nothing as configured. Each v69 panel keeps its
+    // slot and states the gap; no other period's values stand in.
+    return (
+      <>
+        {strip(props, <Link to={viewHref("readiness")}>Review configuration readiness →</Link>)}
+        <FoundationPanelSkeletons
+          view="model"
+          siteName={configuration.displayName}
+          gap={`No configuration for this period: ${noEffective.message} No equipment or settings are recorded for the selected time.`}
+        />
+      </>
+    );
+  }
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Review configuration readiness →</Link>)}
@@ -572,8 +593,11 @@ function IdentityPanel({
  * configured type. No topology type is invented when the site type is not stated.
  */
 export function sldPanelTitle(configuration: SiteConfigurationView): string {
-  const type = configuration.siteType.trim();
-  return type === "" ? configuration.displayName : `${configuration.displayName} · ${type}`;
+  // W1-F1 fix round 1 (review finding 9): the approved rule is "{site} · {configured
+  // topology type, if stated}". The Foundation read states no topology type, and the
+  // site archetype is not one, so the title is the site name and the panel
+  // description says the type is not stated.
+  return configuration.displayName;
 }
 
 /**
@@ -613,7 +637,7 @@ function SldView(props: ViewProps) {
       <Panel
         heading={sldPanelTitle(configuration)}
         headingId={SITE_SLD_HEADING_ID}
-        description="Configured equipment and declared connections for the period shown; not live power flow, and not reporting status"
+        description="Topology type not stated in this version · configured equipment and declared connections for the period shown; not live power flow, and not reporting status"
         actions={<Link to={props.evidenceHref}>Site evidence →</Link>}
       >
         <SldDeviceSummary foundation={foundation} site={site} />
@@ -628,7 +652,7 @@ function SldView(props: ViewProps) {
           }
           strip={<SelectedPartStrip {...props} scope="sld" />}
         />
-        <p className="not-available-yet" data-sld-missing="">
+        <p className="not-available-yet v69-chart-note" data-sld-missing="">
           <MissingClaim gapId="G-sld-protection-metering" placement="sld.diagram.protection-metering">
             {SLD_PROTECTION_METERING_NOT_DECLARED}
           </MissingClaim>{" "}
@@ -877,41 +901,45 @@ function PartChannelsTable({
 /* Readiness ------------------------------------------------------------------ */
 
 /**
- * What still needs doing for set-up, inside panel 1 (the former W1 answer card's
- * supported next steps). Commissioning is never shown as confirmed.
+ * What still needs doing for set-up, as one note line at the foot of panel 1
+ * (W1-F1 fix round 1: the mock has no separate "What to do next" block).
+ * Commissioning is never shown as confirmed.
  */
 function ReadinessNextSteps({ foundation }: { foundation: FoundationReadModel }) {
   const missingRoles = foundation.readiness.roles.filter((role) => role.required && role.status !== "CONFIGURED");
-  const steps: string[] = [
+  const steps: { key: string; text: string; role?: string }[] = [
     ...missingRoles
       .filter((role) => role.covered_by !== "FOUNDATION_CONTROL")
-      .map((role) => `Link a reading channel for ${role.label}.`),
+      .map((role) => ({ key: role.role, role: role.role, text: `Link a reading channel for ${role.label}.` })),
     ...missingRoles
       .filter((role) => role.covered_by === "FOUNDATION_CONTROL")
-      .map((role) => `Set ${role.label} in the Site model.`),
-    ...foundation.configuration_gaps.map((gap) => gap.message),
-    ...(foundation.gateways.length === 0 ? ["Register the site's gateway."] : []),
+      .map((role) => ({ key: role.role, role: role.role, text: `Set ${role.label} in the Site model.` })),
+    ...foundation.configuration_gaps.map((gap) => ({ key: `${gap.code}:${gap.subject}`, text: gap.message })),
+    ...(foundation.gateways.length === 0 ? [{ key: "gateway", text: "Register the site's gateway." }] : []),
   ];
   return (
-    <div className="subsection" data-readiness-next="">
-      <h3 className="subsection__heading">What to do next</h3>
+    <p className="v69-chart-note" data-readiness-next="">
+      <strong>Next step: </strong>
       {!knownReadiness(foundation.readiness.state) ? (
         // Fail closed: an unrecognised set-up state never yields "nothing is missing".
-        <p data-readiness-next-unrecognised="">
+        <span data-readiness-next-unrecognised="">
           The set-up state in this read is not recognised, so what is missing cannot be listed here.
-        </p>
+        </span>
       ) : steps.length === 0 && foundation.readiness.state === "READY_TO_REPORT" ? (
-        <p>Record a commissioning confirmation when one exists; nothing else is missing from the set-up.</p>
+        <span>Record a commissioning confirmation when one exists; nothing else is missing from the set-up.</span>
       ) : steps.length === 0 ? (
-        <p>No missing item is listed in this read; the set-up state above still applies.</p>
+        <span>No missing item is listed in this read; the set-up state above still applies.</span>
       ) : (
-        <ul data-readiness-next-steps="">
-          {steps.map((step) => (
-            <li key={step}>{step}</li>
+        <span data-readiness-next-steps="">
+          {steps.map((step, index) => (
+            <Fragment key={step.key}>
+              {index > 0 ? " " : null}
+              <span data-readiness-missing-role={step.role}>{step.text}</span>
+            </Fragment>
           ))}
-        </ul>
+        </span>
       )}
-    </div>
+    </p>
   );
 }
 
@@ -933,10 +961,15 @@ function ReadinessView(props: ViewProps) {
       : configuration.components.find((c) => c.componentId === props.selectedComponent);
   return (
     <>
-      {strip(props, <Link to={viewHref("sld")}>Single line diagram →</Link>, [
-        { label: "Set-up state (exact)", value: foundation.readiness.state },
-        { label: "Required readings list", value: foundation.readiness.role_set },
-      ])}
+      {strip(
+        props,
+        <Link to={viewHref("sld")}>Single line diagram →</Link>,
+        [
+          { label: "Set-up state (exact)", value: foundation.readiness.state },
+          { label: "Required readings list", value: foundation.readiness.role_set },
+        ],
+        <ReadinessVerdictLead foundation={foundation} />,
+      )}
       {selected === undefined ? null : (
         <p className="part-chip" data-selected-part-chip={selected.componentId}>
           Selected part: <strong>{selected.displayName}</strong> · details beside the part in{" "}
@@ -949,7 +982,7 @@ function ReadinessView(props: ViewProps) {
         links={{ model: viewHref("model"), sld: viewHref("sld"), evidence: evidenceHref }}
         onReviewBindings={reviewBindings}
       >
-        <ReadinessVerdict foundation={foundation} />
+        <ReadinessVerdictNotes foundation={foundation} />
         <ReadinessNextSteps foundation={foundation} />
         <Disclosure name={READINESS_ADVANCED} summary="Advanced details — roles, channels and records">
           <p>

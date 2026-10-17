@@ -136,6 +136,8 @@ export interface ExactReferencesProps {
   /** A stable name, on `data-disclosure`. */
   name: string;
   references: readonly ExactReference[];
+  /** `tech`: the mock's small link-styled `details.tech`, for a strip or table foot. */
+  variant?: "tech";
 }
 
 /**
@@ -145,10 +147,11 @@ export interface ExactReferencesProps {
  * code never reaches it or its accessible name. Method, coverage and
  * calculation belong in the owning destination, not here.
  */
-export function ExactReferences({ name, references }: ExactReferencesProps) {
+export function ExactReferences({ name, references, variant }: ExactReferencesProps) {
   if (references.length === 0) return null;
+  const className = variant === "tech" ? "disclosure exact-references exact-references--tech" : "disclosure exact-references";
   return (
-    <details className="disclosure exact-references" data-disclosure={name} data-exact-references>
+    <details className={className} data-disclosure={name} data-exact-references>
       <summary className="disclosure__summary">How this was worked out</summary>
       <dl className="disclosure__body exact-references__list">
         {references.map((reference) => (

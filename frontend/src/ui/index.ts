@@ -48,6 +48,9 @@ export {
   type MetricCardProps,
   MetricCards,
   type MetricTone,
+  SITE_SCREEN_DESCRIPTIONS,
+  SitePageHeader,
+  type SitePageHeaderProps,
 } from "./V69Layout";
 export {
   ReviewProposal,

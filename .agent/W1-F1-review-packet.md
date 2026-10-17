@@ -125,3 +125,89 @@ Abbreviations: `R` = `src/shell/__tests__/siteFoundationRevision.test.tsx`, `S` 
 
 ## User-review focus
 For the Reviewer: compare every capture pair at both widths, especially the strip height on Foundation and the In setup duplication on Sites. Also check the changed-assertion list above.
+
+## Fix round 1 (review `.agent/W1-F1-review.md`, RETURN)
+Commits: `9767f963` and `601acc8d` (guard), `c50dc97d` (build), `ce42ef17` (Lows 9 and 10), `d7f544d3` (CSS sizes; captures). Frontend only.
+
+| # | Finding | Fix | Anchor |
+| --- | --- | --- | --- |
+| 1 High | Guard bypass by an h3/section card | `expectV69Panels` now runs two more checks. **Leading allowlist:** before panel 1, only page chrome (`nav`, `header.page-header`) and `.status-strip`, `[data-page-refusal]`, `.v69-cards`, `.v69-chips`, `[data-selected-part-missing]`, `[data-selected-part-chip]` may render. **No stray sections:** an `h3`-`h6`, `section`, `article`, `[role=region]`, `.card` or `.callout` outside a panel or leading pattern fails. | `frontend/src/test/panelStructure.ts` (`leadingIntruders`, `strayOutsidePanels`) |
+| 1 proof | Non-vacuity | New `src/test/__tests__/panelStructure.test.ts`, 5 tests. A planted h3 `section.callout`, a headingless `div.callout`, an h4 `div.card` and a stray h3 subsection all fail; mock chrome and leading patterns pass. With the leading check neutered, 2 of these tests failed (reverted). The reviewer's product plant (an h3 `section.callout` after the strip in `SiteModelView`) failed 2 route tests with `elements before panel 1 … <section class="callout"> "What is configured for this period?…"`, reverted with `git checkout`. The tree is clean. | |
+| 2 High | Bulky Readiness verdict | The verdict now leads the strip: `[Set up to report] Configuration readiness is distinct from what the readings can support`, then the compact Foundation version. Removed from panel 1: the heading, the banner, the legend, the paragraphs and "What to do next". What remains is three `v69-chart-note` lines under the table: (a) the verdict reason with named Foundation gaps and the read's own statement; (b) the colour scope: configuration only; green does not mean a device is connected, records have arrived, Evidence is accepted or equipment is in good condition; (c) `Next step:`. | `FoundationBindingsPanel.tsx` (`ReadinessVerdictLead`, `ReadinessVerdictNotes`); `StoredFoundationViews.tsx` (`ReadinessNextSteps`, `ReadinessView`) |
+| 3 | Category cards | New `MetricCard assessment`: a 3 px tone top border (green, amber or grey) and a 17 px state word. The Readiness cards use it. | `ui/V69Layout.tsx`, `ReadinessOverview.tsx` |
+| 4 | Strip height | The strip is one flex line: badge, effective period, state, channel links and gaps, as-of. After them: a 200 px chip-sized selector (aria-label kept; the visible "Period shown" label is dropped), the next link, and a link-styled `details.tech`. The historical note is shortened. | `FoundationRevisionPanel.tsx` (`FoundationPeriodStrip`); `ExactReferences variant="tech"` |
+| 5 | Sites callout and toolbar | Both are removed. Search, Mode and Lifecycle become chip-sized controls in the chip row, with visually hidden labels. The panel now runs: head → table → one note line (`Registered sites, not ranked · All registered sites · As of: time not recorded. …`) → `details.tech`. | `SitesIndex.tsx` (`SitesDirectory`) |
+| 6 | Page heading | Shared `SitePageHeader`: the site name as h1, a `.prov-tag` badge (`Demonstration data · KOBO-001`), and the screen description from `SITE_SCREEN_DESCRIPTIONS` (foundation, readiness, sld). It is used by the stored views, by the refusal branches (Site ID as the name, no badge) and by the legacy Site model. | `ui/V69Layout.tsx`, `SiteFoundationFrame.tsx`, `SiteConfiguration.tsx` |
+| 7 | Form controls | Ported `.input-row`, `.field`, `.button`, `.button.primary` and `.form-footer`. The reserve form now uses `.field` inputs and a primary submit button. The refusal action uses `.button.primary`. | `ui/primitives.css` (fix-round section); `FoundationRevisionPanel.tsx` |
+| 9 Low | SLD title | The title is the site name alone. The panel description says "Topology type not stated in this version · …". | `sldPanelTitle` |
+| 10 Low | Site in both lists | The In setup description now adds: "they are also listed in Site inventory". | `SitesIndex.tsx` |
+| 11 Low | NO_EFFECTIVE_REVISION | The Site model now fails closed. It shows the strip, then three skeleton panels, each saying "No configuration for this period: … No equipment or settings are recorded for the selected time." The test asserts the structure, that text in every panel, no part tiles, no tables and no reserve form. | `SiteModelView`; test "a scheduled period is never called in effect now" |
+
+**Not done:** Low 8 (condensing the SLD prose) and Low 12 (Unknown cards in the refused Readiness view). These are density or optional changes, left for the F5 sweep.
+
+**Changed assertions.** None weakens an honest-state check.
+- The h1 "Foundation" checks now expect the site name, plus subtitle and provenance (`siteFoundationRoute` ×5, `foundationScreen` ×2).
+- `panel("Configuration readiness")` is split. `verdictLead()` covers the badge and its tone. `readinessPanel()` covers the reason, statement, missing roles and gaps.
+- The legend-chip test is now a scope-line test that names all three colours and asserts the legend is absent.
+- The separation sentence is asserted in the strip and in the page's gateway note.
+- Card `.badge` checks now read the value text and the `v69-metric--{green,amber,muted}` class.
+- The Sites interactive-control order follows the new DOM. The controls are the same and none was added.
+- The unrecognised-state sentence is read from `.verdict__sentence`.
+- The SLD title values drop `topology`.
+
+**Checks** (this branch):
+- `npx.cmd tsc --noEmit`: exit 0.
+- Focused, on `ce42ef17`: 6 files, 238 tests, all passing (`siteFoundationRevision`, `sitesIndex`, `sitesIndexRoute`, `foundationScreen`, `siteFoundationRoute`, guard unit tests).
+- Full `npm.cmd test` on `ce42ef17`: **76 files, 1953 passed, 0 failed**, wall 183 s. `d7f544d3` changes CSS only.
+- `npm.cmd run build`: built, with the chunk-size warning only.
+- `tools/check-all.ps1`: **all 10 guards passed**.
+
+**Captures** (`.agent/W1-F1-evidence/`, revision `d7f544d3`):
+- Same 8 cases as before. 96/96 claims passed; overflow is 0 on every app capture.
+- Servers: API 8970/8971 and web 5470/5471, because 8960 and 5460 were held by another worktree. The fixture databases `assetops_v01a*_w1f1fix` were dropped afterwards.
+- Panel 1 top position at 1440, with the mock's 108 px review/top bars subtracted:
+
+| Screen | App (px) | Mock (px) | Note |
+| --- | --- | --- | --- |
+| Foundation | 339 | 308 | the review measured about 115 px low |
+| Readiness | 499 | 434 | |
+| SLD | 339 | 308 | |
+| Sites | 291 | 374 | |
+
+- Readiness panel 1 height: 592 px vs the mock's 364 px (it was about 2× the mock before).
+- Foundation strip: about 73 px on 2 lines vs the mock's 44 px (it was about 160 px).
+
+**Known deviations (fix round)**
+1. At 1440 the strip takes 2 lines (about 73 px), not 1. It carries channel links, gaps and the as-of time, which the mock's strip does not, so the selector and links wrap to the second line.
+2. Readiness panel 1 keeps the closed, full-width "Advanced details" disclosure, which holds the role, binding and acquisition Panels. Together with the six table rows and three note lines, this keeps the panel taller than the mock.
+3. The SLD panels remain taller than the mock (Low 8 not done).
+
+## Fix round 2 (re-review finding A, Lows B and C)
+
+Commit `f95c9f41` plus captures. Frontend only.
+
+| Item | Change | Where |
+| --- | --- | --- |
+| A, SLD | The two introduction paragraphs, the bindings statement and the "not declared / not assessed" paragraph now use `v69-chart-note` (10 px). Wording is unchanged. | `SiteSingleLineDiagram.tsx` (`SiteSldIntroduction`, `data-sld-bindings`), `StoredFoundationViews.tsx` (`data-sld-missing`) |
+| A, Gateway panel | The period note (was a `notice`), the "Read at" line and the unavailable/none sentences are `v69-chart-note`. The key-value row is kept. | `ReadinessOverview.tsx` |
+| A, Sites | The "Assessment, top issue..." sentence is `v69-chart-note` (kept as the one scope note). | `SitesIndex.tsx`, `primitives.css` (`.v69-chart-note.panel__note`, `.not-available-yet.v69-chart-note`) |
+| B | `expectV69Panels` also runs `stripIntruders` (any heading, paragraph, div, list or table in `.status-strip` that is not a `status-strip__*` part) and `strayBetweenPanels` (a non-empty sibling of a panel that is not a panel, panel wrapper, chrome, leading pattern, `.notice`, `.note` or `[data-readiness-scope]`). | `test/panelStructure.ts` |
+| C | The no-version refusal has breadcrumbs (Sites / KOBO-001 / Foundation), no repeated Site ID badge, and the ISO timestamps in the server message are shown as plain times. | `SiteFoundationFrame.tsx`, `V69Layout.tsx` (`hideBadge`) |
+
+**Deviation:** the full text was not moved into the closed disclosure. It stays in place at note size, so every statement is still present exactly once and no assertion changed. The disclosure move would duplicate text and break unique-text assertions.
+
+**Planted tests (non-vacuity):** `panelStructure.test.ts` gained 4 tests. Bulk planted in a strip (28 px div with bold and a paragraph) fails with "blocks inside the status strip". A bold-label div between panels fails with "content blocks between panels". A one-line strip and a `.notice` between panels pass. Both guards ran clean on the real screens (`siteFoundationRevision.test.tsx`, 107 tests). No existing assertion changed.
+
+**Checks:** `tsc --noEmit` clean. Focused 22 files / 839 passed. Full `npm.cmd test`: 76 files, 1957 passed. `tools/check-all.ps1`: all 10 guards passed.
+
+**Captures** (revision `f95c9f41`, `.agent/W1-F1-evidence/`, ports 5480/5481 and 8980/8981, fixtures dropped): 96/96 claims, overflow 0. Panel heights at 1440 (app vs mock; round 1 in brackets):
+- Sites: inventory 289 vs 314 [300]; In setup 234 vs 253 [234].
+- Readiness: panel 1 592 vs 364 [592]; Gateway status 845 vs 561 [902].
+- SLD: drawing panel 974 vs 596 [1055]; parts panel 640 vs 287 [640].
+
+SLD and Gateway panels are still taller than the mock; the remainder is data-driven (drawing, 10-row parts table, sources and effect lists). The SLD note text is about 80 px lighter, the Gateway panel 57 px.
+
+## Coordinator after fix-2 re-review (2026-10-17)
+
+- A2 fixed: the Gateway contact sentence, both source-count sentences and the signal-strength and firmware lines are now `v69-chart-note`; wording and assertions unchanged. tsc clean; full `npm.cmd test` 1957 passed. Readiness recapture deferred to the W1-F5 all-screens capture audit.
+- Carried to F5: Low D (SLD row pitch ~143 vs ~106 px, repeated "Readings not assessed here", empty canvas), Low F (strip check skips any `status-strip__*` class), body-size closing scope note on Readiness, "Setup progress not available" on Sites, SLD description indent.
