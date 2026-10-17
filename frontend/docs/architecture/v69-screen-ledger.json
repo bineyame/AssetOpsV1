@@ -411,7 +411,8 @@
       "planned_wave": "W1",
       "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md",
       "gap_ids": [
-        "G-assumptions-human-edit"
+        "G-assumptions-human-edit",
+        "G-assumptions-impact-preview"
       ]
     },
     {
