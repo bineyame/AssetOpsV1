@@ -134,3 +134,14 @@
 .finding-index-row td:first-child small {
   white-space: nowrap;
 }
+
+/* W1-F5b re-review L2: with the Lens column the table must fit at desktop width without hiding a column. */
+@media (min-width: 900px) {
+  .finding-index-row td:not(:first-child) {
+    white-space: normal;
+  }
+
+  .finding-index-row td:first-child {
+    min-width: 12rem;
+  }
+}
