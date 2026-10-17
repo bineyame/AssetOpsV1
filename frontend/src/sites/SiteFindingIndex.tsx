@@ -313,8 +313,10 @@ function dayStep(day: FindingIndexDayWatermark): Step {
   return { label, state: "not-known", detail: words.label };
 }
 
-function DayStrip({ body }: { body: FindingIndexBody }) {
+function DayStrip({ body, rows = false }: { body: FindingIndexBody; rows?: boolean }) {
   if (body.watermarks.days.length === 0) return null;
+  // W1-F3 review M4: beside rows, a one-day window is already named by every row's Period cell.
+  if (rows && body.watermarks.days.length === 1) return null;
   // W1-F3 height phase: the days read as one compact line of marks; a day that is not done keeps its detail.
   return (
     <div className="v69-step-line">
@@ -362,7 +364,7 @@ function Relations({ row, links }: { row: FindingIndexRow; links: FindingIndexLi
     ...(row.relations.split_from ? [{ text: RELATION_TEXT.split_from, id: row.relations.split_from }] : []),
     ...row.relations.split_parts.map((id) => ({ text: RELATION_TEXT.split_parts, id })),
   ];
-  if (items.length === 0) return <>None</>;
+  if (items.length === 0) return null;
   const seen: Record<string, number> = {};
   return (
     <ul className="finding-index-relations">
@@ -395,9 +397,6 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
           <RowTable rows={rest} links={links} />
         </ShowAll>
       )}
-      <p className="v69-gap-line" data-finding-index-amount-note>
-        No amount is shown in this list. Open a Finding for its consequence and evidence.
-      </p>
     </>
   );
 }
@@ -408,10 +407,12 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
       <thead>
         <tr>
           <th scope="col">Finding</th>
-          <th scope="col">Period</th>
+          <th scope="col">Domain</th>
+          <th scope="col">Priority</th>
+          <th scope="col">Confidence</th>
           <th scope="col">State</th>
           <th scope="col">Main consequence</th>
-          <th scope="col">Related</th>
+          <th scope="col">Period</th>
         </tr>
       </thead>
       <tbody>
@@ -428,12 +429,22 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
                 <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-finding-index-link>
                   {lifecycle?.title ?? "Generator support review"}
                 </Link>{" "}
-                <small>· Version {row.revision_no}</small>
+                <small className="finding-index-version">· Version {row.revision_no}</small>
+                {/* W1-F3 review H2/M9: related Findings sit under the title instead of a wrapping column. */}
+                <Relations row={row} links={links} />
+              </td>
+              <td data-finding-index-domain>Dispatch</td>
+              <td>
+                <span className="badge badge--not-assessed" data-finding-index-priority data-not-assessed>
+                  Not assessed
+                </span>
               </td>
               <td>
-                {periodText(row.episode.start, row.episode.end)}
+                <span className="badge badge--not-assessed" data-finding-index-confidence data-not-assessed>
+                  Not assessed
+                </span>
               </td>
-              <td>
+              <td className="finding-index-state-cell">
                 <span
                   className="finding-index-state"
                   data-finding-index-lifecycle={lifecycle ? "known" : "unrecognised"}
@@ -445,9 +456,7 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
               <td data-finding-index-amount={row.amount.state}>
                 Not in this list
               </td>
-              <td>
-                <Relations row={row} links={links} />
-              </td>
+              <td className="finding-index-period">{periodText(row.episode.start, row.episode.end)}</td>
             </tr>
           );
         })}
@@ -567,9 +576,12 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
         <>
           <Rows body={body} links={links} />
           <nav aria-label="Findings pages" data-finding-index-pages>
-            <span>
-              Showing {shown} of {body.total_count}.
-            </span>{" "}
+            {/* W1-F3 review M4: the count is said only when this page does not hold every Finding. */}
+            {shown < body.total_count ? (
+              <span>
+                Showing {shown} of {body.total_count}.
+              </span>
+            ) : null}{" "}
             {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
             {body.next_cursor ? (
               <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
@@ -577,7 +589,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
               </Link>
             ) : null}
           </nav>
-          <DayStrip body={body} />
+          <DayStrip body={body} rows />
         </>
       }
       notice={

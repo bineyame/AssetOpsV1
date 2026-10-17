@@ -292,7 +292,18 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
     expect(statusBar().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
     expect(card().querySelectorAll("[data-finding-index-row]")).toHaveLength(2);
-    expect(card().querySelectorAll("[data-step-strip] [data-step]").length, "the day strip is the card's visual beside the rows").toBeGreaterThan(0);
+    // W1-F3 review M4: a one-day window is named by every row's Period cell, so no day strip repeats it beside rows.
+    expect(card().querySelectorAll("[data-step-strip]")).toHaveLength(0);
+    expect(card().querySelector("[data-finding-index-row] .finding-index-period")?.textContent).toContain("25 Oct 2026");
+    // W1-F3 review H2: the mock's Domain, Priority and Confidence columns; the unsupported two are honest unknowns.
+    expect(Array.from(card().querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
+      "Finding", "Domain", "Priority", "Confidence", "State", "Main consequence", "Period",
+    ]);
+    for (const row of Array.from(card().querySelectorAll("[data-finding-index-row]"))) {
+      expect(row.querySelector("[data-finding-index-domain]")?.textContent).toBe("Dispatch");
+      expect(row.querySelector("[data-finding-index-priority]")?.textContent).toBe("Not assessed");
+      expect(row.querySelector("[data-finding-index-confidence]")?.textContent).toBe("Not assessed");
+    }
     expect(within(card()).getByRole("link", { name: "Open the newest Finding" })).toHaveAttribute(
       "href",
       `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,
@@ -463,7 +474,7 @@ describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings
 });
 
 describe("W1-F3 height phase: Site Findings index shows the mock's three rows", () => {
-  it("shows the first 3 rows of the page; the rest stay reachable, in the read's order, behind 'Show all N'; one amount note", async () => {
+  it("shows the first 3 rows of the page; the rest stay reachable, in the read's order, behind 'Show all N'; no repeated amount note", async () => {
     const ids = [1, 2, 3, 4, 5].map((n) => `f-${n}`);
     const five = indexBody({
       rows: ids.map((id, i) => indexRow(id, `r-${i + 1}`, `2026-10-25T1${5 - i}:00:00Z`, `2026-10-25T1${5 - i}:30:00Z`)),
@@ -479,7 +490,22 @@ describe("W1-F3 height phase: Site Findings index shows the mock's three rows", 
     const showAll = document.querySelector("details[data-show-all='finding-index-rows']") as HTMLDetailsElement;
     expect(showAll.open).toBe(false);
     expect(showAll.querySelector("summary")).toHaveTextContent("Show all 5 Findings on this page");
-    expect(document.querySelectorAll("[data-finding-index-amount-note]")).toHaveLength(1);
-    expect(visibleOutsideClosedDisclosure(document.querySelector("[data-finding-index-amount-note]")!)).toBe(true);
+    // W1-F3 review M4: the in-panel amount note is gone; every visible row's cell and the notice still say no amount.
+    expect(document.querySelectorAll("[data-finding-index-amount-note]")).toHaveLength(0);
+    for (const row of rows.filter((r) => visibleOutsideClosedDisclosure(r))) {
+      expect(row.querySelector("[data-finding-index-amount]")?.textContent).toBe("Not in this list");
+    }
+    expect(document.querySelector("[data-site-findings-notice], .notice")?.textContent).toMatch(/No amount is shown in this list/);
+    // All five rows are on this page, so no "Showing 5 of 5." line repeats the count.
+    expect(document.body.textContent).not.toMatch(/Showing 5 of 5/);
+  });
+
+  it("W1-F3 review M4: a window of more than one day keeps its day strip beside the rows", async () => {
+    const twoDays = indexBody({ rows: ROWS.rows, total_count: 3 });
+    twoDays.watermarks.days = [twoDays.watermarks.days[0], { ...twoDays.watermarks.days[0], day: "2026-10-26" }];
+    const { client } = indexClient(() => ({ status: "loaded", value: twoDays }));
+    renderAt(PATH, client);
+    await settledScreen();
+    expect(document.querySelectorAll("[data-step-strip] [data-step]")).toHaveLength(2);
   });
 });

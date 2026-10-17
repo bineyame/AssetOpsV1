@@ -109,8 +109,15 @@
   min-width: 15rem;
 }
 
-.finding-index-row td:nth-child(2) {
-  min-width: 13rem;
+/* W1-F3 review M9: off-screen cells at 390 no longer wrap into tall rows; each stays one line. */
+.finding-index-row td:not(:first-child),
+.finding-index-row .finding-index-state-cell small {
+  white-space: nowrap;
+}
+
+.finding-index-relations {
+  display: block;
+  font-size: 11px;
 }
 
 .finding-index-row td:first-child small {
