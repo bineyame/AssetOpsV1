@@ -15,15 +15,15 @@
  * `source=`, then `record=`), and the Site root and tab never change.
  */
 
-import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { awaitingMigration } from "./siteEvidenceClient";
 import { LedgerSiteEvidence } from "./LedgerSiteEvidence";
 import { isLedgerEvidence, type LedgerEvidence } from "./ledgerEvidenceClient";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { DataTable, Fact, FactList, Panel } from "../ui";
-import { CapabilityReadinessAnalysis, CapabilityReadinessTable } from "./CapabilityReadiness";
+import { DataTable, Fact, FactList, Panel, StatusBar } from "../ui";
+import { Part } from "./panelPart";
+import { CapabilityReadinessAnalysis, CapabilityReadinessTable, capabilityTableShown } from "./CapabilityReadiness";
 import { INPUT_WORDS } from "./assessmentAnalysis";
 import { CoverageByInput } from "./assessmentGraphics";
 import { LocalViews, OUTCOME_WORDS, localView, readablePeriod, readableTime } from "./findingPresentation";
@@ -135,28 +135,46 @@ export function SiteEvidence({
   const view = localView(params);
   if (overview.status === "not_found") {
     return (
-      <Panel heading="Evidence not found" headingId="site-evidence-missing-heading">
-        <p data-evidence-state="not_found">
-          The evidence store does not know this site, so no accepted record can
-          be shown for it.
-        </p>
-      </Panel>
+      <EvidenceRefused
+        view={view}
+        name="not-found"
+        title="Evidence not found"
+        reason={
+          <span data-evidence-state="not_found">
+            The evidence store does not know this site, so no accepted record can be shown for it.
+          </span>
+        }
+      />
     );
   }
   if (awaitingMigration(overview)) {
-    return <AwaitingEvidenceMigration surface="evidence" />;
+    return (
+      <EvidenceRefused
+        view={view}
+        name="awaiting-migration"
+        title="Awaiting evidence migration"
+        reason={
+          <span data-evidence-state="awaiting_migration">
+            This site&apos;s configuration has moved to its stored Foundation versions. Its evidence is awaiting
+            evidence migration, so earlier results are not shown beside the updated configuration.
+          </span>
+        }
+      />
+    );
   }
   if (overview.status === "unavailable") {
     return (
-      <Panel
-        heading="Evidence unavailable"
-        headingId="site-evidence-unavailable-store-heading"
-      >
-        <p data-evidence-state="unavailable">
-          {overview.message ??
-            "The evidence store could not be read, so nothing is known about what this site has accepted."}
-        </p>
-      </Panel>
+      <EvidenceRefused
+        view={view}
+        name="unavailable"
+        title="Evidence unavailable"
+        reason={
+          <span data-evidence-state="unavailable">
+            {overview.message ??
+              "The evidence store could not be read, so nothing is known about what this site has accepted."}
+          </span>
+        }
+      />
     );
   }
 
@@ -181,6 +199,32 @@ export function SiteEvidence({
     evidence.basis.mappings.length > 0 ||
     evidence.basis.configurations.length > 0;
 
+  const windowLine = (
+    <span data-evidence-window={evidence.window.basis}>
+      {evidence.window.start === null || evidence.window.end === null ? (
+        <>
+          <strong>Selected window:</strong> all accepted records; no window
+          bounds are recorded yet.
+        </>
+      ) : (
+        <>
+          <strong>Selected window:</strong>{" "}
+          {readablePeriod(evidence.window.start, evidence.window.end)}, from{" "}
+          {windowBasis(evidence.window.basis)}. The records below are for
+          this window only.
+        </>
+      )}
+    </span>
+  );
+  const emptyPart = (
+    <p data-evidence-empty>
+      No records have been received and accepted for this site, so there
+      is no source status or recorded input to show. Records appear here
+      once a delivery from a source has been accepted.
+    </p>
+  );
+  const inspector = <RecordInspector siteId={siteId} client={client} window={evidence.window} />;
+
   return (
     <div
       className="site-evidence"
@@ -188,83 +232,122 @@ export function SiteEvidence({
       data-evidence-view={view}
     >
       <LocalViews label={EVIDENCE_VIEWS_LABEL} current={view} params={params} />
+      <StatusBar>{windowLine}</StatusBar>
       {view === "overview" ? (
-        <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
+        <>
+          <Panel heading="What we can conclude now" headingId="site-evidence-conclude-heading">
+            {capabilityTableShown(loaded.declaration, profile) ? (
+              <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
+            ) : (
+              <p data-evidence-conclusion="none">
+                No conclusion yet: this site has no declared assessment over its records.
+              </p>
+            )}
+          </Panel>
+          <div className="panel-pair">
+            <Panel heading="Data sources · data quality, not equipment condition" headingId="site-evidence-sources-panel-heading">
+              {empty ? emptyPart : <SourceSummary evidence={evidence} onInspect={(source) => inspect("source", source)} />}
+              {evidence.coverage.length === 0 ? null : <CoverageSummary evidence={evidence} />}
+              {evidence.rejection_count === 0 && empty ? null : (
+                <p data-evidence-rejection-count={evidence.rejection_count}>
+                  {evidence.rejection_count === 0
+                    ? "No record has been rejected for this site."
+                    : `${evidence.rejection_count} ${evidence.rejection_count === 1 ? "record was" : "records were"} rejected; the reasons are on the Analysis view.`}
+                </p>
+              )}
+              {inspector}
+            </Panel>
+            <Panel heading="Most useful next evidence" headingId="site-evidence-next-heading">
+              <p data-evidence-next="none">
+                Next evidence not identified: no reviewed rule ranks which missing readings matter most for this site.
+              </p>
+            </Panel>
+          </div>
+        </>
       ) : (
         <>
-          <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
-          <EvidenceClaimLimit siteId={siteId} client={client.claimLimit} assessmentHref={assessmentHref} />
-          {analytics === undefined || params.get("assessment") === null ? null : (
-            <SelectedAssessmentCoverage
-              siteId={siteId}
-              analytics={analytics}
-              assessmentId={params.get("assessment") as string}
-            />
-          )}
+          <Panel heading="Accepted records behind the conclusions" headingId="site-evidence-records-panel-heading">
+            {empty ? (
+              emptyPart
+            ) : (
+              <SourceHealth evidence={evidence} highlighted={batch} onInspect={(source) => inspect("source", source)} />
+            )}
+            {evidence.coverage.length === 0 ? null : (
+              <SignalCoverage
+                evidence={evidence}
+                onInspect={(row) => inspect("signal", `${row.device_id}/${row.signal_id}`)}
+              />
+            )}
+            {inspector}
+            {hasBasis ? <Basis evidence={evidence} /> : null}
+            {evidence.rejection_count === 0 && empty ? null : (
+              <Rejections count={evidence.rejection_count} rejections={rejections} />
+            )}
+          </Panel>
+          <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
+            <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
+            <EvidenceClaimLimit siteId={siteId} client={client.claimLimit} assessmentHref={assessmentHref} />
+            {analytics === undefined || params.get("assessment") === null ? null : (
+              <SelectedAssessmentCoverage
+                siteId={siteId}
+                analytics={analytics}
+                assessmentId={params.get("assessment") as string}
+              />
+            )}
+          </Panel>
         </>
       )}
-      <p data-evidence-window={evidence.window.basis}>
-        {evidence.window.start === null || evidence.window.end === null ? (
-          <>
-            <strong>Selected window:</strong> all accepted records; no window
-            bounds are recorded yet.
-          </>
-        ) : (
-          <>
-            <strong>Selected window:</strong>{" "}
-            {readablePeriod(evidence.window.start, evidence.window.end)}, from{" "}
-            {windowBasis(evidence.window.basis)}. The records below are for
-            this window only.
-          </>
-        )}
-      </p>
+    </div>
+  );
+}
 
-      {empty ? (
-        <Panel heading="No accepted records" headingId="site-evidence-empty-heading">
-          <p data-evidence-empty>
-            No records have been received and accepted for this site, so there
-            is no source status or recorded input to show. Records appear here
-            once a delivery from a source has been accepted.
-          </p>
-        </Panel>
-      ) : view === "overview" ? (
-        <SourceSummary
-          evidence={evidence}
-          onInspect={(source) => inspect("source", source)}
-        />
-      ) : (
-        <SourceHealth
-          evidence={evidence}
-          highlighted={batch}
-          onInspect={(source) => inspect("source", source)}
-        />
-      )}
-
-      {evidence.coverage.length === 0 ? null : view === "overview" ? (
-        <CoverageSummary evidence={evidence} />
-      ) : (
-        <SignalCoverage
-          evidence={evidence}
-          onInspect={(row) => inspect("signal", `${row.device_id}/${row.signal_id}`)}
-        />
-      )}
-
-      <RecordInspector
-        siteId={siteId}
-        client={client}
-        window={evidence.window}
-      />
-
-      {view === "analysis" && hasBasis ? <Basis evidence={evidence} /> : null}
-
-      {evidence.rejection_count === 0 && empty ? null : view === "analysis" ? (
-        <Rejections count={evidence.rejection_count} rejections={rejections} />
-      ) : (
-        <p data-evidence-rejection-count={evidence.rejection_count}>
-          {evidence.rejection_count === 0
-            ? "No record has been rejected for this site."
-            : `${evidence.rejection_count} ${evidence.rejection_count === 1 ? "record was" : "records were"} rejected; the reasons are on the Analysis view.`}
+/**
+ * W1-F2: a page-level evidence state stated before the v69 panels of the selected view; each panel says the
+ * same gap inside it.
+ */
+function EvidenceRefused({
+  view,
+  name,
+  title,
+  reason,
+}: {
+  view: "overview" | "analysis";
+  name: string;
+  title: string;
+  reason: ReactNode;
+}) {
+  const gap = <p data-evidence-gap={name}>Not shown: {title.toLowerCase()}. This is not an empty result.</p>;
+  return (
+    <div className="site-evidence" data-evidence-refused={name} data-evidence-view={view}>
+      <div className="page-refusal" data-page-refusal={name}>
+        <p className="page-refusal__title">
+          <strong>{title}</strong>
         </p>
+        <p>{reason}</p>
+      </div>
+      {view === "overview" ? (
+        <>
+          <Panel heading="What we can conclude now" headingId="site-evidence-conclude-heading">
+            {gap}
+          </Panel>
+          <div className="panel-pair">
+            <Panel heading="Data sources · data quality, not equipment condition" headingId="site-evidence-sources-panel-heading">
+              {gap}
+            </Panel>
+            <Panel heading="Most useful next evidence" headingId="site-evidence-next-heading">
+              {gap}
+            </Panel>
+          </div>
+        </>
+      ) : (
+        <>
+          <Panel heading="Accepted records behind the conclusions" headingId="site-evidence-records-panel-heading">
+            {gap}
+          </Panel>
+          <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
+            {gap}
+          </Panel>
+        </>
       )}
     </div>
   );
@@ -281,7 +364,7 @@ function SourceSummary({
   onInspect: (source: string) => void;
 }) {
   return (
-    <Panel heading="Where the records come from" headingId="site-evidence-sources-heading">
+    <Part heading="Where the records come from" headingId="site-evidence-sources-heading">
       <ul className="cell-list" data-evidence-source-summary>
         {evidence.sources.map((source) => (
           <li key={source.source_id} data-evidence-source={source.source_id} {...sourceReferences(source.source_id)}>
@@ -300,7 +383,7 @@ function SourceSummary({
           </li>
         ))}
       </ul>
-    </Panel>
+    </Part>
   );
 }
 
@@ -328,7 +411,7 @@ function SourceHealth({
   onInspect: (source: string) => void;
 }) {
   return (
-    <Panel heading="Source status" headingId="site-evidence-sources-heading" flush>
+    <Part heading="Source status" headingId="site-evidence-sources-heading" flush>
       <p className="note" data-evidence-source-statement>
         {evidence.source_health_statement}
       </p>
@@ -360,7 +443,7 @@ function SourceHealth({
           ))}
         </tbody>
       </DataTable>
-    </Panel>
+    </Part>
   );
 }
 
@@ -429,7 +512,7 @@ function SignalCoverage({
   onInspect: (row: EvidenceCoverage) => void;
 }) {
   return (
-    <Panel heading="Input coverage in this window" headingId="site-evidence-coverage-heading" flush>
+    <Part heading="Input coverage in this window" headingId="site-evidence-coverage-heading" flush>
       <p className="note">
         {evidence.coverage_statement} {evidence.overlap_statement}
       </p>
@@ -502,14 +585,14 @@ function SignalCoverage({
           })}
         </tbody>
       </DataTable>
-    </Panel>
+    </Part>
   );
 }
 
 function Basis({ evidence }: { evidence: EvidenceOverview }) {
   const current = evidence.basis.current_foundation;
   return (
-    <Panel
+    <Part
       heading="Record interpretation and equipment details"
       headingId="site-evidence-basis-heading"
     >
@@ -547,7 +630,7 @@ function Basis({ evidence }: { evidence: EvidenceOverview }) {
           </span>
         </Fact>
       </FactList>
-    </Panel>
+    </Part>
   );
 }
 
@@ -559,7 +642,7 @@ function Rejections({
   rejections: EvidenceRejections | null;
 }) {
   return (
-    <Panel heading="Rejected records" headingId="site-evidence-rejections-heading">
+    <Part heading="Rejected records" headingId="site-evidence-rejections-heading">
       <p data-evidence-rejection-count={count}>
         {count === 0
           ? "No record has been rejected for this site."
@@ -581,7 +664,7 @@ function Rejections({
           ))}
         </ul>
       )}
-    </Panel>
+    </Part>
   );
 }
 
@@ -671,7 +754,7 @@ function RecordInspector({
 
   return (
     <div id={EVIDENCE_INSPECTOR_ID} data-evidence-inspector={subject}>
-      <Panel heading={`Records: ${subject}`} headingId="site-evidence-inspector-heading">
+      <Part heading={`Records: ${subject}`} headingId="site-evidence-inspector-heading">
         <p>
           <button type="button" onClick={close}>
             Close records
@@ -737,7 +820,7 @@ function RecordInspector({
           </>
         )}
         {record === null ? null : <RecordDetail detail={detail} />}
-      </Panel>
+      </Part>
     </div>
   );
 }
@@ -862,7 +945,7 @@ function SelectedAssessmentCoverage({
       ? (result.value.assessments.find((r) => r.assessment_id === assessmentId) ?? null)
       : null;
   return (
-    <Panel heading="Record coverage for one assessed period" headingId="site-evidence-assessment-coverage-heading">
+    <Part heading="Record coverage for one assessed period" headingId="site-evidence-assessment-coverage-heading">
       <div data-evidence-assessment-coverage={assessmentId}>
         {result === null ? (
           <p>Loading the selected assessed period.</p>
@@ -884,6 +967,6 @@ function SelectedAssessmentCoverage({
           </>
         )}
       </div>
-    </Panel>
+    </Part>
   );
 }

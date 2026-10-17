@@ -23,7 +23,8 @@ import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/eviden
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { MONEY_STATE_WORDS } from "../../sites/SiteWindowOverview";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
-import { expectStateLineVisible } from "../../test/productPresentation";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
+import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
 
@@ -305,6 +306,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     // W1-UX-02: the freshness strip uses the shared currentness words (was the local "Unknown").
     expect(document.querySelector('[data-freshness-state="UNASSESSED"]')?.textContent).toContain("We have not checked this period");
     expect(expectStateLineVisible(freshnessCard())).toBe("We have not checked this period");
+    expect(freshnessCard().querySelector("[data-freshness-in-statusbar]")?.getAttribute("data-freshness-in-statusbar")).toBe("no");
     // W1-UX-01: the shared state words; the state line stays outside the closed exact-reference disclosure.
     const unknownState = document.querySelector('[data-assessment-state="UNKNOWN"]') as HTMLElement;
     expect(unknownState.textContent).toContain("We cannot judge this yet");
@@ -314,6 +316,16 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.body.textContent).not.toMatch(/no findings (for|in) this/i);
     expect(document.querySelector('[data-overview-finding-list="current-empty"]')).toBeNull();
     expect(where()).toBe(`/sites/${SITE_ID}?date=2026-11-10`);
+  });
+
+  it("states the server's gap reason in plain words, never verbatim (review fix M5a)", async () => {
+    const raw = "No reviewed gap rule exists for the Site context; coverage counts and the selected S3 coverage are shown instead.";
+    const { client } = clientOf(() => summary("2026-10-24", { context: { ...summary().context, gaps_reason: raw } }));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
+    await settledScreen();
+    const gaps = document.querySelector("[data-window-gaps]") as HTMLElement;
+    expect(gaps.textContent).toBe("No rule yet says which gaps in the readings matter here; the reading counts are shown instead.");
+    expect(document.body.textContent).not.toContain(raw);
   });
 
   it("names a Finding pin the server did not honour for this day", async () => {
@@ -346,8 +358,10 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     renderAt(`/sites/${SITE_ID}?date=2026-10-07`, client);
     await settledScreen();
     // W1-UX-02: the freshness strip uses the shared currentness words (was the local "Failed").
-    expect(document.querySelector('[data-freshness-state="FAILED"]')?.textContent).toContain("The latest check could not be completed");
-    expect(expectStateLineVisible(freshnessCard())).toBe("The latest check could not be completed");
+    // Review fix M3: the FAILED freshness state is marked on panel 1's line; its words are the statusbar's (next lines).
+    expect(document.querySelector('[data-freshness-state="FAILED"]')).not.toBeNull();
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("The latest check could not be completed");
     expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
     expect(moneyCard().getAttribute("data-money-state")).toBe("UPSTREAM_FAILED");
@@ -369,7 +383,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "selected-day overview (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(5);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const disclosure = scanDisclosureVocabulary(objectiveCard(), "overview objective disclosure");
+    const disclosure = scanDisclosureVocabulary(dayReading(), "overview objective disclosure");
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.scanned).toBeGreaterThan(2);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
@@ -378,12 +392,32 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
   });
 });
 
+/**
+ * W1-F2: the former objective answer card is gone (v69 `mini` has no leading card). Its state line is the mock's
+ * statusbar above the panels; its exact references sit with the day reading in panel 1.
+ */
 function objectiveCard(): HTMLElement {
-  return document.querySelector('[data-headline-card="overview-objective"]') as HTMLElement;
+  return document.querySelector("[data-overview-status]") as HTMLElement;
+}
+
+function dayReading(): HTMLElement {
+  return document.querySelector('[data-disclosure="window-assessment"]')?.parentElement as HTMLElement;
+}
+
+function dispatchObjective(): string {
+  return document.querySelector('[data-objective-card="dispatch"] .v69-metric__value')?.textContent ?? "";
 }
 
 function freshnessCard(): HTMLElement {
   return document.querySelector("[data-freshness-card]") as HTMLElement;
+}
+
+/** Review fix M3: panel 1 renders no second state line when the freshness words equal the statusbar's. */
+function expectFreshnessInStatusbar(): void {
+  const card = freshnessCard();
+  expect(card.querySelector("[data-freshness-in-statusbar]")?.getAttribute("data-freshness-in-statusbar")).toBe("yes");
+  expect(card.querySelector(".product-status")).toBeNull();
+  expect(card.querySelector("[data-source-open]")).not.toBeNull();
 }
 
 describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
@@ -392,10 +426,12 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
     await settledScreen();
     const main = container.querySelector("main") as HTMLElement;
-    // The day answer leads: the objective card is the first card under the day selector.
-    const firstCard = main.querySelector("[data-headline-card]");
-    expect(firstCard?.getAttribute("data-headline-card")).toBe("overview-objective");
-    expect(within(objectiveCard()).getByText("Is the mini-grid meeting its operating objective?")).toBeTruthy();
+    // W1-F2: the day state leads as the mock's statusbar; no answer card precedes the five v69 panels.
+    expect(main.querySelector("[data-headline-card]")).toBeNull();
+    // Review Low 7b: the day chooser chip row comes first (as on Dispatch and Evidence), then the statusbar leads the content.
+    expect(main.querySelector(".site-window-overview")?.firstElementChild?.classList.contains("window-day")).toBe(true);
+    expect(main.querySelector(".site-window-overview .window-day")?.nextElementSibling).toBe(objectiveCard());
+    expectV69Panels("mini");
     const w1 = scanProductVocabulary(main, "selected-day overview (W1-UX-02)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(30);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -410,7 +446,12 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
       expect(d.violations, describeViolations(d.violations)).toEqual([]);
     }
     // Current and priced claims keep a plain "as of" beside them.
-    expect(expectStateLineVisible(freshnessCard())).toBe("Using the latest checked readings");
+    // Review fix M3: said once, in the statusbar; panel 1 keeps only the source sentence.
+    expectFreshnessInStatusbar();
+    expect(expectStateLineVisible(objectiveCard())).toBe("Using the latest checked readings");
+    // Review fix M3: panel 1 has one "How this was worked out" disclosure (day reading and freshness merged).
+    const happened = freshnessCard().closest(".panel") as HTMLElement;
+    expect([...happened.querySelectorAll("summary")].filter((x) => x.textContent === "How this was worked out")).toHaveLength(1);
     expect(expectStateLineVisible(moneyCard())).toBe("Current amount");
     // The amount is drawn as two bounded bars; the raw recorded label and method reference are exact detail only.
     expect(moneyCard().querySelectorAll('[data-value-bar="known"]')).toHaveLength(2);
@@ -431,6 +472,42 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
   });
 
+  it("W1-F2 compaction: amount, state, source and qualifier stay visible; bars, gate, links and readings detail are closed", async () => {
+    const { client } = clientOf(() => summary("2026-10-23"));
+    const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    const card = moneyCard();
+    const shown = (el: Element | null) => el !== null && visibleOutsideClosedDisclosure(el);
+    // Visible, in the mock's short form: amount, inline state line, source line, qualifier, header link.
+    expect(shown(card.querySelector("[data-money-amount]"))).toBe(true);
+    expect(card.querySelector("[data-money-state-line] .product-status--inline")).not.toBeNull();
+    expect(shown(card.querySelector("[data-source-provenance] .source-provenance__line"))).toBe(true);
+    expect(shown(card.querySelector("[data-money-qualifier]"))).toBe(true);
+    expect(container.querySelector("[data-window-financials-action]")?.getAttribute("href")).toBe(
+      card.querySelector("[data-window-financials-link]")?.getAttribute("href"),
+    );
+    // One closed detail disclosure holds the bars, the gate and upstream facts, the links and the exact references.
+    const detail = card.querySelector('details[data-disclosure="window-money-detail"]') as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    for (const sel of ["[data-value-bars]", "[data-money-gate-state]", "[data-money-upstream]", "[data-window-money-links]", "[data-exact-references]"]) {
+      expect(detail.querySelector(sel), sel).not.toBeNull();
+      expect(shown(card.querySelector(sel)), sel).toBe(false);
+    }
+    // Context: the count line stays visible; the per-input table and record links are closed detail.
+    expect(shown(container.querySelector("[data-window-context]"))).toBe(true);
+    const coverage = container.querySelector('details[data-disclosure="window-coverage"]') as HTMLDetailsElement;
+    expect(coverage.open).toBe(false);
+    expect(coverage.querySelector("table")).not.toBeNull();
+    expect(coverage.querySelector("[data-window-readings]")).not.toBeNull();
+    // The day chooser is the leading chip row (before panel 1, outside every panel), with the day's bounds in it;
+    // Next step keeps its button and Dispatch link on one line.
+    expect(container.querySelector(".window-day [data-window-bounds]")?.textContent).toContain("start included, end excluded");
+    expect(container.querySelector(".window-day")?.closest(".panel")).toBeNull();
+    const actions = container.querySelector(".overview-next__actions") as HTMLElement;
+    expect(actions.querySelector("[data-overview-next-finding]")).not.toBeNull();
+    expect(actions.querySelector("[data-overview-next-dispatch]")).not.toBeNull();
+  });
+
   it("a stale day: the freshness strip, the money card and the timeline say so with the disclosure closed", async () => {
     const { client } = clientOf(() =>
       summary(
@@ -444,10 +521,12 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("This result may miss newer readings");
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(expectStateLineVisible(moneyCard())).toBe("Upstream out of date");
     expect(expectStateLineVisible(objectiveCard())).toBe("This result may miss newer readings");
-    expect(objectiveCard().querySelector(".headline-card__headline")?.textContent).toBe("No current answer for this day");
+    // W1-F2: the Dispatch objective card names the same not-current state, never a current answer.
+    expect(dispatchObjective()).toBe("This result may miss newer readings");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
     expect(moneyCard().querySelector("[data-value-bars]")).toBeNull();
     expect(container.querySelector("[data-window-timeline-figure] figcaption")?.textContent).toContain("not current");
@@ -470,7 +549,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("Not checked yet");
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(expectStateLineVisible(moneyCard())).toBe("No amount yet: checks still waiting");
     expect(expectStateLineVisible(objectiveCard())).toBe("Not checked yet");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
@@ -556,7 +636,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-07`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("The latest check could not be completed");
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
     expect(expectStateLineVisible(moneyCard())).toBe("No amount: a check did not finish");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview failed (W1)", { set: "w1" });

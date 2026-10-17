@@ -118,21 +118,35 @@ export function SourceProvenanceNotice({
   provenance,
   subject,
   name,
+  compact = false,
 }: {
   provenance: SourceProvenance | null | undefined;
   subject: string;
   name: string;
+  /**
+   * W1-F2 compaction: the same statement as a note-size line and the same disclosure in the mock's small
+   * link-styled form, for a panel the mock keeps short (the Overview money panel). Words are unchanged.
+   */
+  compact?: boolean;
 }) {
   const state = sourceState(provenance);
   const words = SOURCE_WORDS[state];
   const tone = state === "AUTHORED_DEMONSTRATION" || state === "REGISTERED_SIMULATION" ? "notice--info" : "";
   return (
-    <div className="source-provenance" data-source-provenance={state} data-source-provenance-subject={name}>
-      <p className={`notice ${tone}`.trim()}>
+    <div
+      className={compact ? "source-provenance source-provenance--compact" : "source-provenance"}
+      data-source-provenance={state}
+      data-source-provenance-subject={name}
+    >
+      <p className={compact ? "v69-chart-note source-provenance__line" : `notice ${tone}`.trim()}>
         <strong>{words.label}.</strong> {words.statement}
       </p>
       {provenance ? (
-        <Disclosure summary={`Source record for this ${subject}`} name={`source-provenance-${name}`}>
+        <Disclosure
+          summary={`Source record for this ${subject}`}
+          name={`source-provenance-${name}`}
+          variant={compact ? "tech" : undefined}
+        >
           <p data-source-method>
             Each record behind this result is checked against the source registration made before the record was
             accepted. A result is labelled as prepared or generated only when every one of its records has that same

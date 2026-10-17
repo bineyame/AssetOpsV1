@@ -183,3 +183,18 @@ export function shiftDay(day: string, by: number): string {
 export function isDay(value: string | null): value is string {
   return value !== null && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 }
+
+const ID_WORDS: Record<string, string> = { pcs: "power converter", soc: "charge", pv: "solar", gw: "gateway" };
+
+/**
+ * Review fix M5(b): a source or channel identifier shown once, in words ("generator-controller" reads
+ * "Generator controller"); the exact identifier stays in the element's title and the record detail.
+ */
+export function idWords(id: string): string {
+  const words = id
+    .split(/[-_./\s]+/)
+    .filter((w) => w !== "")
+    .map((w) => ID_WORDS[w.toLowerCase()] ?? w.toLowerCase())
+    .join(" ");
+  return words === "" ? id : words.charAt(0).toUpperCase() + words.slice(1);
+}

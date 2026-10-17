@@ -197,6 +197,34 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(container.querySelector("[data-claim-limit-reasons]")?.textContent).toContain("Solar power available missing");
   });
 
+  it("W1-F2 compaction: the headline and state line stay visible; reasons, readings and references sit in a closed disclosure", async () => {
+    const { container } = mount(fake(() => ({ status: "loaded", value: sample("missing-pv") })), SEARCH);
+    await settledScreen();
+    const detail = container.querySelector("details[data-disclosure='claim-limit-detail']") as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    for (const inner of ["[data-claim-limit-reasons]", "tr[data-claim-role]", "[data-period-strip='claim-limit-roles']", "details[data-disclosure='claim-limit-technical']"]) {
+      expect(detail.querySelector(inner), inner).not.toBeNull();
+    }
+    for (const visible of ["[data-claim-limit-headline]", ".claim-limit__when"]) {
+      const el = container.querySelector(visible) as HTMLElement;
+      expect(el, visible).not.toBeNull();
+      expect(el.closest("details"), visible).toBeNull();
+    }
+  });
+
+  it("W1-F2 compaction (phase B): the state line is inline, with its state, scope and as-of bound outside any disclosure", async () => {
+    const { container } = mount(fake(() => ({ status: "loaded", value: sample("missing-pv") })), SEARCH);
+    await settledScreen();
+    const line = container.querySelector(".claim-limit__status .product-status--inline") as HTMLElement;
+    expect(line).not.toBeNull();
+    for (const part of ["[data-product-status-label]", ".claim-limit__when", "[data-product-status-as-of]"]) {
+      const el = line.querySelector(part) as HTMLElement;
+      expect(el, part).not.toBeNull();
+      expect(el.closest("details"), part).toBeNull();
+    }
+    expect(container.querySelector("details[data-disclosure='claim-limit-detail']")?.classList.contains("disclosure--tech")).toBe(true);
+  });
+
   it("poor quality and conflicting reports: a limited ceiling over the covered minutes only", async () => {
     const { container } = mount(fake(() => ({ status: "loaded", value: sample("poor-quality-conflict") })), SEARCH);
     await settledScreen();
@@ -463,6 +491,27 @@ describe("the section on the Evidence Analysis page", () => {
     const { container } = page("", fake(() => ({ status: "loaded", value: sample("full-candidate") })));
     await settledScreen();
     expect(section(container)).toBeNull();
+  });
+
+  it("fix round 2: a loaded assessment puts its detail into the panel's single closed row and keeps the result visible", async () => {
+    const { container } = page(SEARCH, fake(() => ({ status: "loaded", value: sample("full-candidate") })));
+    await settledScreen();
+    const panelEl = container.querySelector("[data-evidence-claim-limit]")?.closest("section") as HTMLElement;
+    const top = panelEl.querySelectorAll("details:not(details details)");
+    expect(top).toHaveLength(1);
+    const outer = top[0] as HTMLDetailsElement;
+    expect(outer.open).toBe(false);
+    expect(outer.dataset.disclosure).toBe("evidence-limit-details");
+    expect(outer.querySelector("[data-period-strip='claim-limit-roles']")).not.toBeNull();
+    expect(outer.textContent).toContain("What can be said is narrowed in these ways");
+    expect(panelEl.querySelector("details[data-disclosure='claim-limit-detail']")).toBeNull();
+    for (const visible of ["[data-claim-limit-headline]", "[data-not-available='claim-limit-rule']", "[data-evidence-limit-note]"]) {
+      expect(panelEl.querySelector(visible), visible).not.toBeNull();
+      expect(panelEl.querySelector(visible)?.closest("details"), visible).toBeNull();
+    }
+    expect(panelEl.querySelector("[data-evidence-limit-note]")?.textContent).toContain("not the equipment's physical capacity");
+    // The Dispatch link ends the result line.
+    expect(panelEl.querySelector(".claim-limit__result [data-claim-limit-pinned]")).not.toBeNull();
   });
 
   it("opens an accepted reading in the page's record inspector after the link is followed", async () => {

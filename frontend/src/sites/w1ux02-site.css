@@ -49,3 +49,27 @@
   max-width: 100%;
   overflow-x: auto;
 }
+
+/* W1-F2 compaction (phase B): the Overview's small link-styled disclosures and one-line action rows. */
+.site-window-overview .exact-references--tech,
+.site-window-overview .disclosure--tech {
+  margin-top: 6px;
+}
+.site-window-overview .window-money__state {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.site-window-overview .overview-next__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.site-window-overview .window-day__bounds {
+  margin: 0;
+}
+.site-window-overview .window-day .window-day__bounds {
+  flex-basis: auto;
+}

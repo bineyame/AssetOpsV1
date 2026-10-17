@@ -17,6 +17,7 @@ import {
   ledgerEvidence,
 } from "../../sites/__tests__/ledgerEvidenceFixtures";
 import { scanProductVocabulary } from "../../test/productVocabulary";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { expectStateLineVisible } from "../../test/productPresentation";
 
@@ -76,7 +77,7 @@ describe("Site Evidence from the central ledger: overview", () => {
     await settledScreen();
     expect(body().getAttribute("data-evidence-state")).toBe("ACCEPTED");
     expect(screen.getByText(/288 readings were accepted for this period from 1 source\./)).toBeTruthy();
-    const outcomes = document.querySelectorAll("[data-headline-card='evidence-conclusion'] [data-value-bar-key]");
+    const outcomes = document.querySelectorAll("[data-evidence-conclusion] [data-value-bar-key]");
     expect(Array.from(outcomes).map((row) => row.getAttribute("data-value-bar-key"))).toEqual([
       "accepted",
       "duplicates",
@@ -110,7 +111,7 @@ describe("Site Evidence from the central ledger: overview", () => {
     expect(body().getAttribute("data-evidence-state")).toBe(state);
     expect(screen.getByText(text)).toBeTruthy();
     // W1-UX-01: the state line, scope and as-of stay outside the closed exact-reference disclosure.
-    const card = document.querySelector("[data-headline-card='evidence-conclusion']") as HTMLElement;
+    const card = document.querySelector("[data-evidence-conclusion]") as HTMLElement;
     expect(expectStateLineVisible(card)).toBe(
       state === "NO_DATA" ? "No readings received for this period" : "Readings arrived, but none were accepted",
     );
@@ -126,7 +127,7 @@ describe("Site Evidence from the central ledger: overview", () => {
       }),
     );
     await settledScreen();
-    const card = document.querySelector("[data-headline-card='evidence-conclusion']") as HTMLElement;
+    const card = document.querySelector("[data-evidence-conclusion]") as HTMLElement;
     expect(expectStateLineVisible(card)).toBe("We cannot judge this yet");
     expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
     expect(card.querySelector("[data-product-status]")?.textContent ?? "").not.toMatch(/accepted/i);
@@ -207,7 +208,16 @@ describe("Site Evidence from the central ledger: analysis", () => {
     expect(screen.getByText(/the gap between a taken and a\s+received time is not a delivery delay/)).toBeTruthy();
     const untimed = document.querySelector("[data-evidence-untimed]") as HTMLElement;
     expect(untimed.getAttribute("data-evidence-untimed")).toBe("1");
-    expect(untimed.textContent).toMatch(/operational audit record/);
+    // Review fix M5(c): the server-refusal sentence is in plain words.
+    expect(untimed.textContent).toMatch(/A delivery that was rejected as a whole is kept for audit and not listed as a reading./);
+    expect(untimed.textContent).not.toMatch(/server refused|operational audit record/);
+    // Review fix M5(b): each record row names its reading and source in words; the raw identifiers are only its title.
+    const heads = Array.from(document.querySelectorAll("[data-evidence-record] th"));
+    expect(heads.length).toBeGreaterThan(0);
+    for (const th of heads) {
+      expect(th.textContent).not.toMatch(/ \/ | · |_/);
+      expect(th.getAttribute("title")).toMatch(/ · .+ \/ /);
+    }
     expect(document.querySelector("[data-evidence-rejection]")?.textContent).toMatch(/No readable time/);
     expect(document.querySelector("[data-evidence-delivery='batch-0001']")?.getAttribute("data-delivery-partial")).toBe("false");
   });
@@ -277,6 +287,7 @@ describe("Site Evidence from the central ledger: product vocabulary", () => {
     await settledScreen();
     const result = scanProductVocabulary(document.body, path);
     expect(result.scanned).toBeGreaterThan(0);
+    // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
     expect(result.violations).toEqual([]);
   });
 });
@@ -301,5 +312,41 @@ describe("central-ledger evidence client", () => {
     expect(await client.getEvidence("KOBO-001", {})).toMatchObject({ transition: "AWAITING_EVIDENCE_MIGRATION" });
     stub(404, { detail: { code: "GATEWAY_HEALTH_UNAVAILABLE" } });
     expect((await client.gatewayHealth?.getGatewayHealth("KOBO-001"))?.status).toBe("not_found");
+  });
+});
+
+/**
+ * W1-F2 (D-2026-10-17-mockup-layout-spec): the v69 `evidence` and `evidence-analysis` panel structure in every
+ * variant. A refused or unread store states the refusal first and keeps the panels with the gap inside each.
+ */
+describe("W1-F2: v69 evidence and evidence-analysis panel structure", () => {
+  it.each([
+    ["stocked", { status: "loaded", value: LEDGER_EVIDENCE }],
+    ["no readings", { status: "loaded", value: ledgerEvidence({ state: "NO_DATA", states: ["NO_DATA"], counts: { ...LEDGER_EVIDENCE.counts, accepted: 0 } }) }],
+    ["rejected only", { status: "loaded", value: ledgerEvidence({ state: "REJECTED_ONLY", states: ["REJECTED_ONLY"], counts: { ...LEDGER_EVIDENCE.counts, accepted: 0 } }) }],
+  ] as const)("%s: overview and analysis render exactly the v69 panels", async (_name, read) => {
+    const view = renderAt(EVIDENCE_URL, ledgerClient(read as never));
+    await settledScreen();
+    expectV69Panels("evidence");
+    view.unmount();
+    renderAt(ANALYSIS_URL, ledgerClient(read as never));
+    await settledScreen();
+    expectV69Panels("evidence-analysis");
+  });
+
+  it.each([
+    ["unavailable", { status: "unavailable", message: "store down" }],
+    ["not-found", { status: "not_found" }],
+  ] as const)("refused (%s): the refusal precedes the same panels, each stating the gap", async (name, read) => {
+    const view = renderAt(EVIDENCE_URL, ledgerClient(read as never));
+    await settledScreen();
+    expect(document.querySelector(`[data-page-refusal="${name}"]`)).not.toBeNull();
+    expectV69Panels("evidence");
+    expect(panelTitled("Most useful next evidence").querySelector(`[data-evidence-gap="${name}"]`)).not.toBeNull();
+    view.unmount();
+    renderAt(ANALYSIS_URL, ledgerClient(read as never));
+    await settledScreen();
+    expectV69Panels("evidence-analysis");
+    expect(document.querySelectorAll(`[data-evidence-gap="${name}"]`)).toHaveLength(2);
   });
 });

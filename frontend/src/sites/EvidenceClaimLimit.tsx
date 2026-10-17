@@ -10,16 +10,17 @@
  * out-of-date, pending or failed assessment is shown for audit only.
  *
  * The default reading is plain language, following the v6.9 Evidence Analysis
- * panel "How a claim limit is set": which readings the conclusion needs, where
+ * panel "How each limit is set": which readings the conclusion needs, where
  * they are missing or unreliable, and the accepted readings behind each one.
  * Rule, status codes, versions, watermarks and IDs sit behind one closed
  * "Technical details" disclosure.
  */
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, Panel, plainTime, ProductStatus } from "../ui";
+import { ChartNote, currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, plainTime, ProductStatus } from "../ui";
 import { PeriodStrip, type StripTone } from "./periodStrip";
 import { isDay } from "./dispatchWords";
 import type {
@@ -239,9 +240,21 @@ export interface EvidenceClaimLimitProps {
   client: ClaimLimitClient | undefined;
   /** The Performance > Dispatch address of one pinned revision (shell-built). */
   assessmentHref?: (day: string, revisionId: string) => string;
+  /**
+   * W1-F2 fix round (H2): where the day and period chooser renders. Omitted, it renders inline in the
+   * section; an element (the page's chip row) receives it through a portal; null renders it nowhere yet
+   * (the chip row has not mounted).
+   */
+  chooserTarget?: HTMLElement | null;
+  /**
+   * W1-F2 fix round 2 (M1): where the closed detail content (inputs, reasons, earlier versions, references)
+   * renders. Omitted, it keeps its own `claim-limit-detail` disclosure; an element (the panel's single
+   * advanced row) receives the content through a portal, without a disclosure wrapper; null renders it nowhere yet.
+   */
+  detailTarget?: HTMLElement | null;
 }
 
-export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceClaimLimitProps) {
+export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarget, detailTarget }: EvidenceClaimLimitProps) {
   const [params] = useSearchParams();
   const rawDay = params.get("day");
   const day = isDay(rawDay) ? rawDay : null;
@@ -294,18 +307,24 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
     return `?${next.toString()}`;
   };
 
+  // W1-F2 fix round (H2): the day and period chooser is a chip-row control, not a second panel toolbar.
+  const chooser = (
+    <div className="claim-limit__chooser" data-claim-limit-chooser>
+      <DayChooser day={day} />
+      {day === null || client === undefined ? null : (
+        <AssessedPeriods assessed={assessed} selected={revision} hrefFor={select} />
+      )}
+    </div>
+  );
   return (
-    <Panel heading="What the readings can support" headingId={CLAIM_LIMIT_HEADING_ID}>
-      <div className="claim-limit" data-claim-limit-section data-claim-limit-day={day ?? ""} data-claim-limit-revision={revision ?? ""}>
-        <p className="prose">
-          Each conclusion lists the readings it needs. When all are present for a period, the full conclusion is
-          allowed. When one is missing or unreliable, the conclusion is narrowed to the periods that are covered, and
-          the gap is shown rather than filled in.
-        </p>
-        <DayChooser day={day} />
-        {day === null || client === undefined ? null : (
-          <AssessedPeriods assessed={assessed} selected={revision} hrefFor={select} />
-        )}
+      <div
+        className="claim-limit"
+        data-claim-limit-section
+        data-claim-limit-day={day ?? ""}
+        data-claim-limit-revision={revision ?? ""}
+        id={CLAIM_LIMIT_HEADING_ID}
+      >
+        {chooserTarget === undefined ? chooser : chooserTarget === null ? null : createPortal(chooser, chooserTarget)}
         <Body
           siteId={siteId}
           client={client}
@@ -316,9 +335,9 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
           hrefFor={select}
           assessmentHref={assessmentHref}
           periods={assessed !== null && assessed.status === "loaded" ? assessed.value.periods : []}
+          detailTarget={detailTarget}
         />
       </div>
-    </Panel>
   );
 }
 
@@ -340,11 +359,19 @@ function DayChooser({ day }: { day: string | null }) {
   };
   return (
     <form className="claim-limit__day" onSubmit={submit} data-claim-limit-day-form>
-      <label>
-        Day (UTC){" "}
-        <input type="date" value={draft} onChange={(event) => setDraft(event.target.value)} aria-label="Assessment day (UTC)" />
-      </label>{" "}
-      <button type="submit">Show this day</button>
+      <label className="evidence-toolbar__field">
+        <span>Assessment day (UTC)</span>
+        <input
+          className="v69-chip-control"
+          type="date"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          aria-label="Assessment day (UTC)"
+        />
+      </label>
+      <button type="submit" className="button">
+        Show this day
+      </button>
     </form>
   );
 }
@@ -377,7 +404,7 @@ function AssessedPeriods({
   }
   return (
     <nav aria-label="Assessed periods on this day" data-claim-limit-periods="loaded">
-      <p className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? "in a state not known"}):`}</p>
+      <span className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? "in a state not known"}):`}</span>
       <ul className="claim-limit__periods">
         {assessed.value.periods.map((p) => (
           <li key={p.id}>
@@ -412,7 +439,9 @@ function Body({
   hrefFor,
   assessmentHref,
   periods,
+  detailTarget,
 }: {
+  detailTarget?: HTMLElement | null;
   siteId: string;
   answeredAt: string | null;
   client: ClaimLimitClient | undefined;
@@ -425,22 +454,17 @@ function Body({
 }) {
   if (day === null) {
     return (
-      <div data-claim-limit-state="no-day" data-currentness="UNASSESSED">
-        <div className="claim-limit__status">
-          <ProductStatus words={currentnessWords("UNASSESSED")} scope="No assessment selected" asOf={null} />
-        </div>
-        <p>Choose a day, then one of its assessed periods. Nothing is concluded until an assessment is chosen.</p>
-      </div>
+      <p className="claim-limit__result" data-claim-limit-state="no-day" data-currentness="UNASSESSED">
+        No assessment selected: nothing is concluded. Choose a day, then one of its assessed periods.
+      </p>
     );
   }
   if (client === undefined) {
     return (
-      <div data-claim-limit-state="unavailable">
-        <div className="claim-limit__status">
-          <ProductStatus words={readResultWords("unavailable")} scope={`Assessment for ${day}`} asOf={null} />
-        </div>
-        <p>The assessment store could not be read, so nothing is shown about a selected assessment.</p>
-      </div>
+      <p className="claim-limit__result" data-claim-limit-state="unavailable">
+        <ProductStatus inline words={readResultWords("unavailable")} scope={`Assessment for ${day}`} asOf={null} /> The assessment
+        store could not be read, so nothing is shown about a selected assessment.
+      </p>
     );
   }
   if (read === null) {
@@ -452,14 +476,15 @@ function Body({
   if (read.status !== "loaded") {
     return (
       <div data-claim-limit-state={read.status} data-refusal-code={"code" in read ? (read.code ?? "") : ""}>
-        <div className="claim-limit__status">
+        <p className="claim-limit__result">
           <ProductStatus
+            inline
             words={readResultWords(read.status === "not_found" ? "not-found" : read.status === "unavailable" ? "unavailable" : "refused")}
             scope={revision === null ? `Assessment for ${day}` : `Selected assessment for ${day}`}
             asOf={answeredAt}
-          />
-        </div>
-        <p>{refusalSentence(read)}</p>
+          />{" "}
+          {refusalSentence(read)}
+        </p>
         {"message" in read && read.message !== null ? (
           <Disclosure name="claim-limit-refusal-technical" summary="Technical details">
             <p>{`${"code" in read && read.code !== null ? `${read.code}: ` : ""}${read.message}`}</p>
@@ -468,7 +493,7 @@ function Body({
       </div>
     );
   }
-  return <Loaded siteId={siteId} read={read.value} revision={revision} hrefFor={hrefFor} assessmentHref={assessmentHref} periods={periods} />;
+  return <Loaded siteId={siteId} read={read.value} revision={revision} hrefFor={hrefFor} assessmentHref={assessmentHref} periods={periods} detailTarget={detailTarget} />;
 }
 
 function Loaded({
@@ -477,7 +502,9 @@ function Loaded({
   hrefFor,
   assessmentHref,
   periods,
+  detailTarget,
 }: {
+  detailTarget?: HTMLElement | null;
   siteId: string;
   read: ClaimLimitRead;
   revision: string | null;
@@ -507,6 +534,50 @@ function Loaded({
   const selected = read.assessment_revision_id;
   const whenText = selected === null ? `Day ${read.day}` : `${read.day}, ${read.scope === "WINDOW" ? "whole day" : assessedPeriod(read)}`;
 
+  const detail = (
+    <>
+        <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
+        {reasons.length === 0 ? null : (
+          <>
+            <h3 className="claim-limit__subheading">What limits it</h3>
+            <ul data-claim-limit-reasons>
+              {reasons.map((text) => (
+                <li key={text}>{text}</li>
+              ))}
+            </ul>
+          </>
+        )}
+        {current && read.scope === "WINDOW" && limit !== null && limit.support !== null ? (
+          <p data-claim-limit-window-level>{`Across the whole day: ${WINDOW_SUPPORT_WORDS[limit.support] ?? "no overall level stated"}.`}</p>
+        ) : null}
+        {earlierSentence === null ? null : (
+          <p data-claim-limit-earlier>{`At the time, this version said: ${earlierSentence}`}</p>
+        )}
+        {intervals.length === 0 || current ? null : (
+          <p data-claim-limit-earlier-periods>
+            {read.scope === "WINDOW"
+              ? "At the time, this version listed these assessed periods:"
+              : "At the time, this version listed:"}
+          </p>
+        )}
+        {intervals.length === 0 ? null : (
+          <ul className="claim-limit__intervals" data-claim-limit-intervals={current ? "current" : "earlier"}>
+            {intervals.map((item) => (
+              <li key={item.assessment_revision_id}>
+                <Link to={hrefFor(item.assessment_revision_id)} data-interval-ceiling={item.assessment_revision_id}>
+                  {`${periodLabel(item.assessment_revision_id, periods)}: ${item.ceiling === null ? "no conclusion" : (CLASS_WORDS[item.ceiling] ?? item.ceiling)}${item.support === "COMPLETE" ? ", fully covered" : item.support === "LIMITED" ? ", partly covered" : ""}`}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+        {roleKeys.length === 0 || read.capability === null ? null : (
+          <RoleTable roleKeys={roleKeys} roles={roles} recordHref={recordHref} />
+        )}
+        <Technical read={read} revision={revision} recordHref={recordHref} />
+    </>
+  );
+
   return (
     <div
       data-claim-limit-state="loaded"
@@ -515,66 +586,39 @@ function Loaded({
       data-support={current ? (limit?.support ?? "") : ""}
       data-scope={read.scope ?? ""}
     >
-      <p className="headline-card__question claim-limit__question">What can these readings support?</p>
-      <p className="claim-limit__headline" data-claim-limit-headline>
-        {head.text}
+      {/* W1-F2 fix round (H2): one result line - the sentence, then its state inline (same words, scope and bound). */}
+      <p className="claim-limit__result">
+        <span className="claim-limit__headline" data-claim-limit-headline>
+          {head.text}
+        </span>{" "}
+        <span className="claim-limit__status">
+          <ProductStatusLine read={read} whenText={whenText} />
+        </span>
+        {selected === null || assessmentHref === undefined ? null : (
+          <>
+            {" "}
+            <Link to={assessmentHref(read.day, selected)} data-claim-limit-pinned={selected}>
+              Open this assessment in Performance › Dispatch
+            </Link>
+          </>
+        )}
       </p>
-      <div className="claim-limit__status">
-        <ProductStatusLine read={read} whenText={whenText} />
-      </div>
-      <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
-      {reasons.length === 0 ? null : (
-        <>
-          <h3 className="claim-limit__subheading">What limits it</h3>
-          <ul data-claim-limit-reasons>
-            {reasons.map((text) => (
-              <li key={text}>{text}</li>
-            ))}
-          </ul>
-        </>
-      )}
       {read.currentness === "UNASSESSED" ? (
-        <p>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</p>
+        <ChartNote>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</ChartNote>
       ) : null}
-      {current && read.scope === "WINDOW" && limit !== null && limit.support !== null ? (
-        <p data-claim-limit-window-level>{`Across the whole day: ${WINDOW_SUPPORT_WORDS[limit.support] ?? "no overall level stated"}.`}</p>
-      ) : null}
-      {earlierSentence === null ? null : (
-        <p data-claim-limit-earlier>{`At the time, this version said: ${earlierSentence}`}</p>
+      {/* W1-F2 compaction: what limits it, the readings by input, earlier-version text and the technical
+          references sit in one closed disclosure; the headline, state line and day status stay visible. */}
+      {detailTarget === undefined ? (
+        <Disclosure variant="tech" name="claim-limit-detail" summary="Details — what limits it, readings by input and earlier versions">
+          <ChartNote>
+            This describes what the readings show, not the equipment's physical capacity; configured ratings are not
+            treated as observed.
+          </ChartNote>
+          {detail}
+        </Disclosure>
+      ) : detailTarget === null ? null : (
+        createPortal(detail, detailTarget)
       )}
-      {intervals.length === 0 || current ? null : (
-        <p data-claim-limit-earlier-periods>
-          {read.scope === "WINDOW"
-            ? "At the time, this version listed these assessed periods:"
-            : "At the time, this version listed:"}
-        </p>
-      )}
-      {intervals.length === 0 ? null : (
-        <ul className="claim-limit__intervals" data-claim-limit-intervals={current ? "current" : "earlier"}>
-          {intervals.map((item) => (
-            <li key={item.assessment_revision_id}>
-              <Link to={hrefFor(item.assessment_revision_id)} data-interval-ceiling={item.assessment_revision_id}>
-                {`${periodLabel(item.assessment_revision_id, periods)}: ${item.ceiling === null ? "no conclusion" : (CLASS_WORDS[item.ceiling] ?? item.ceiling)}${item.support === "COMPLETE" ? ", fully covered" : item.support === "LIMITED" ? ", partly covered" : ""}`}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-      {roleKeys.length === 0 || read.capability === null ? null : (
-        <RoleTable roleKeys={roleKeys} roles={roles} recordHref={recordHref} />
-      )}
-      {selected === null || assessmentHref === undefined ? null : (
-        <p>
-          <Link to={assessmentHref(read.day, selected)} data-claim-limit-pinned={selected}>
-            Open this assessment in Performance › Dispatch
-          </Link>
-        </p>
-      )}
-      <p className="claim-limit__note">
-        This describes what the readings show, not the equipment's physical capacity; configured ratings are not
-        treated as observed.
-      </p>
-      <Technical read={read} revision={revision} recordHref={recordHref} />
     </div>
   );
 }
@@ -592,6 +636,7 @@ function ProductStatusLine({ read, whenText }: { read: ClaimLimitRead; whenText:
     read.scope !== "WINDOW" && limit !== null && limit.current_positive_claim && limit.ceiling !== null && limit.ceiling !== "INDETERMINATE";
   return (
     <ProductStatus
+      inline
       words={words.tone === "positive" && !supported ? { ...words, tone: "limited" } : words}
       scope={<span className="claim-limit__when">{whenText}</span>}
       asOf={read.read_at}
