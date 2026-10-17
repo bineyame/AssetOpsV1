@@ -100,7 +100,7 @@ The earlier F4 fixtures had been left in place despite the earlier note (`asseto
 | No-plan wording repeated | One no-plan sentence | Kept; Plan and Evidence shrink as a side effect of the shared note-size link (Plan 1.28/1.37, Evidence 1.32/1.52) |
 | Trial notice at body size | Note-size trial notice | One sentence |
 
-Re-pointed assertions (same guarantee asserted where the content now lives, none weakened): `siteWorkActions` (six columns; scope header scoped to the list table), `siteActionVerification` (attempts counts read inside the disclosure, trial notice one sentence), Verification/Site Work structure tests.
+Re-pointed assertions (same guarantee asserted where the content now lives, none weakened): `siteWorkActions` (six columns; scope header scoped to the list table), Verification/Site Work structure tests.
 
 ### Current heights (1440, revision `2045cfdd`, panel px; app / mock = ratio)
 | Screen:case | App | Mock | Ratio |
@@ -119,3 +119,10 @@ Re-pointed assertions (same guarantee asserted where the content now lives, none
 ### Round-2 known deviations
 - Not all panels reached 1.3x: verification pair 1.40-1.47, Evidence guardrail 1.52, Plan guardrail 1.37, Site Work active 1.36. All are at or below their pre-round-2 ratios; further trimming would drop real rows (guardrail limits, attempts summary) the mock does not draw.
 - The Evidence guardrail 1.52 was not in the round-2 growth list; it carries the failed-limit rows the mock lacks.
+
+## Fix round 3 (re-review RETURN: 1 Medium, 2 Low)
+- **M1 (Success criterion cell):** `SiteActionVerification.tsx` now shows "At least 25% lower" when an outcome target metric or a plan was read; "Not available" when a plan id is known but neither was read; "No success criteria recorded" only when the Action has no plan. New test in `w1f4VerificationStructure.test.tsx`: a page opened on `?plan_revision_id=` with no outcome yet reads "At least 25% lower" in the summary row.
+- **Low 2:** Outcome evidence with a demonstration source now states the trial limit once, as one line ("Policy trial on demonstration data: no proof of cause, no savings or realized benefit; a resolution is never permanent.") carrying both `data-product-outcome-demonstration` and `data-verification-trial-label`; otherwise the usual `TrialNotice` shows.
+- **Low 3 (correction):** `siteActionVerification.test.tsx` was NOT re-pointed in round 2; it has no diff. Its regexes still match. The round-2 table entry is corrected above. No assertion in any file was weakened in round 3.
+- **Checks:** `tsc --noEmit` exit 0; focused (w1f4VerificationStructure, siteActionVerification, productStatus) 67 passed; full `npm.cmd test` 80 files, 2020 passed, 0 failed (216 s); `tools/check-all.ps1` all 10 guards passed.
+- **Capture:** `s602b` recaptured at 1440 and 390 (96/96; the first two runs had one app-load fail each, rerun on warmed servers passed). Fixtures prepared on API 9430-9431, web 5830-5831, then dropped, servers stopped; only `var/sites` remains. Backend not run (frontend-only).
