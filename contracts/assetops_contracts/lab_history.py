@@ -157,6 +157,11 @@ LAB_HISTORY_SOURCES = {
         "The run finished but its history could not be written. The execution "
         "record stands; the history is not a durable complete record."
     ),
+    "HISTORY_UNAVAILABLE": (
+        "A cold run keeps its minute records in its private execution artifact "
+        "and its public reports in the gateway Stage. The legacy electrical "
+        "history does not apply and is not reconstructed."
+    ),
     "HISTORY_UNREADABLE": (
         "A history is on disk and this build cannot verify it. It is shown as "
         "unreadable rather than guessed at, and it was not changed."

@@ -33,7 +33,7 @@ from typing import Any
 import pytest
 
 from assetops_contracts.execution_contract import EXECUTION_CONTRACT_VERSION
-from assetops_contracts.failures import EXECUTION_FAILURE_KINDS, OBSERVED_KINDS
+from assetops_contracts.failures import EXECUTION_FAILURE_KINDS, HOST_STAGING_FAILURE_KINDS, OBSERVED_KINDS
 from assetops_contracts.world_inputs import (
     DeclaredBound,
     DeclaredCause,
@@ -259,7 +259,7 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     )
     if named_a_subset:
         return
-    unreached = sorted(EXECUTION_FAILURE_KINDS - OBSERVED_KINDS)
+    unreached = sorted(EXECUTION_FAILURE_KINDS - HOST_STAGING_FAILURE_KINDS - OBSERVED_KINDS)
     if unreached:
         session.exitstatus = 1
         raise pytest.UsageError(

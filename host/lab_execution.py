@@ -47,6 +47,7 @@ from datetime import timedelta
 from fractions import Fraction
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 import yaml
 
@@ -143,6 +144,25 @@ from execution_adapter import (
     unconfigured_signals,
 )
 from source_stages import JsonSourceStages
+from cold_publication import (
+    cold_content_digest,
+    cold_execution,
+    cold_minute_records,
+    cold_reports,
+    cold_series_digest,
+    verify_cold_inputs,
+)
+from cold_lab import (
+    COLD_ARTIFACT_SCHEMA_VERSION,
+    ColdArtifactUnreadable,
+    ColdInputs,
+    cold_draft_projection,
+    cold_terminal_projection,
+    delay_event_id,
+    is_cold_projection,
+    parse_cold_projection,
+    render_cold_projection,
+)
 from gateway_publication import (
     PublicationRefused,
     RegisteredGatewayPublisher,
@@ -1347,6 +1367,8 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
     approximations would not be the trajectory that was executed, and an artifact
     that cannot be read back exactly is not evidence of anything.
     """
+    if is_cold_projection(projection):
+        raise ValueError("a cold projection is written only as its schema-6 cold artifact")
     return {
         # First, so a person opening the file sees which rule wrote it before
         # they see anything the rule decided.
@@ -1625,6 +1647,12 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
             its rows do not agree on which build wrote them.
     """
     run_id = str(document.get("run_id", "an execution record with no run id"))
+    if isinstance(document, dict) and document.get("artifact_schema_version") == COLD_ARTIFACT_SCHEMA_VERSION:
+        # W2-02: the cold artifact is its own strict schema; damage reads ARTIFACT_UNREADABLE.
+        try:
+            return parse_cold_projection(document)
+        except ColdArtifactUnreadable as damaged:
+            raise ExecutionArtifactUnreadable(run_id, COLD_ARTIFACT_SCHEMA_VERSION, str(damaged)) from damaged
     layout, marker = _identify_layout(document, run_id)
     failure = document.get("failure")
     try:
@@ -1864,6 +1892,24 @@ class YamlExecutionArtifacts:
         temporary.write_text(text, encoding="utf-8")
         temporary.replace(path)
 
+    def write_cold(
+        self, projection: LabProjection, *, scenario_sha256: str, observation_sha256: str, private: dict
+    ) -> None:
+        """W2-02: replace a cold run's artifact whole - the schema-6 projection, then its private minute records."""
+        self._root.mkdir(parents=True, exist_ok=True)
+        path = self._path(projection.run_id)
+        temporary = path.with_suffix(".yaml.partial")
+        text = yaml.safe_dump(
+            render_cold_projection(
+                projection, scenario_sha256=scenario_sha256, observation_sha256=observation_sha256
+            ),
+            sort_keys=False,
+            allow_unicode=True,
+        )
+        text += history_text(private)
+        temporary.write_text(text, encoding="utf-8")
+        temporary.replace(path)
+
     def _texts(self, run_id: str) -> tuple[str, str | None] | None:
         path = self._path(run_id)
         if not path.exists():
@@ -1886,6 +1932,9 @@ class YamlExecutionArtifacts:
         Reads and never writes: an unreadable history is reported as
         HISTORY_UNREADABLE and left on disk exactly as it was.
         """
+        if is_cold_projection(projection):
+            # W2-02: the cold minute records are private to the artifact; no legacy history is claimed.
+            return without_history(projection, "HISTORY_UNAVAILABLE")
         texts = self._texts(run_id)
         if texts is None or texts[1] is None:
             return without_history(projection, "LEGACY_ARTIFACT")
@@ -1954,8 +2003,12 @@ class HostLabExecution:
         # release (`runs/registered_release.py`). None keeps the pre-S4-05b release (uploads stay unbound,
         # so their source reads UNKNOWN); the Lab app always composes one.
         source_publisher: Any = None,
+        # W2-02: the read-only re-read of a cold run's exact frozen Foundation revision and cold scenario
+        # document (`cold_lab.ColdInputs`). None refuses every cold start FROZEN_RUN_NOT_RECONSTRUCTIBLE.
+        cold_inputs: ColdInputs | None = None,
     ) -> None:
         self._model = model
+        self._cold_inputs = cold_inputs
         self._gateway = gateway
         self._source_publisher = source_publisher
         if schedules is None:
@@ -2068,9 +2121,20 @@ class HostLabExecution:
                 return stored
             if stored is not None:
                 return self._interrupted(run)
-            return not_started(
-                run, self._reporting_for(run), self._notes(run)
-            )
+            return self._not_started(run)
+
+    @staticmethod
+    def _is_cold(run: SimulationRun) -> bool:
+        try:
+            return execution_path(run) == "COLD"
+        except FrozenRunNotReconstructible:
+            return False
+
+    def _not_started(self, run: SimulationRun) -> LabProjection:
+        """The Draft projection; a cold run's bypasses the legacy `_reporting_for`/`_model_for`."""
+        if self._is_cold(run):
+            return cold_draft_projection(run)
+        return not_started(run, self._reporting_for(run), self._notes(run))
 
     def _artifact_unreadable(
         self, run: SimulationRun, unreadable: ExecutionArtifactUnreadable
@@ -2082,7 +2146,7 @@ class HostLabExecution:
         there. What it does carry is the reason, on the projection, because the
         alternative a reader met before this existed was an HTTP 500.
         """
-        base = not_started(run, self._reporting_for(run), self._notes(run))
+        base = self._not_started(run)
         return replace(
             base,
             status="ARTIFACT_UNREADABLE",
@@ -2112,7 +2176,7 @@ class HostLabExecution:
         has ended. A projection that showed a prefix here would be showing a run
         that can still be advanced, and it cannot.
         """
-        base = not_started(run, self._reporting_for(run), self._notes(run))
+        base = self._not_started(run)
         return replace(
             base,
             status="INTERRUPTED",
@@ -2137,6 +2201,8 @@ class HostLabExecution:
                 raise LabControlRefused("ALREADY_TERMINAL", run.run_id)
             if stored is not None:
                 raise LabControlRefused("INTERRUPTED", run.run_id)
+            if self._is_cold(run):
+                return self._start_cold(run)
 
             try:
                 model = self._model_for(run)
@@ -2195,6 +2261,103 @@ class HostLabExecution:
             else:
                 self._artifacts.note_running(projection)
             return projection
+
+    def _start_cold(self, run: SimulationRun) -> LabProjection:
+        """W2-02: verify the frozen inputs, execute the whole cold window once, stage it, persist terminal.
+
+        Any missing port, record or mismatch refuses before Stage, schedule or gateway admission. The
+        artifact is COMPLETED only when ordinary Stage admission reached the closing instant; a refusal after
+        the world executed persists FAILED/PUBLICATION_REFUSED, so Start never executes it again."""
+        basis = run.registered_basis
+        identity = run.deterministic_identity
+        try:
+            if self._cold_inputs is None:
+                raise FrozenRunNotReconstructible("no cold input reader is composed for this host")
+            if basis is None:
+                raise FrozenRunNotReconstructible("a cold run is registered")
+            try:
+                revision = self._cold_inputs.foundation_revision(
+                    UUID(str(basis.tenant_id)), UUID(str(basis.site_record_id)),
+                    UUID(str(basis.foundation_revision_id)),
+                )
+                definition = self._cold_inputs.cold_scenario(
+                    identity.scenario.scenario_id, identity.scenario.scenario_version
+                )
+            except FrozenRunNotReconstructible:
+                raise
+            except Exception as unreadable:  # an unreadable store refuses exactly as a missing record does
+                raise FrozenRunNotReconstructible(
+                    f"the frozen cold inputs could not be read: {unreadable}"
+                ) from unreadable
+            verified = verify_cold_inputs(run, revision, definition)
+        except FrozenRunNotReconstructible as broken:
+            raise LabControlRefused("FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id, str(broken)) from broken
+        execution = cold_execution(verified)
+        reports = cold_reports(verified, execution)
+        minute_records = cold_minute_records(execution)
+        content = cold_content_digest(minute_records)
+        series = cold_series_digest(reports)
+        refused = self._stage_registered_virtual_cold(run, reports)
+        failure = None
+        if refused is not None:
+            failure = ExecutionFailure(
+                kind="PUBLICATION_REFUSED", subject=run.run_id,
+                statement="Ordinary gateway Stage admission refused before the closing instant.",
+                detail=(refused,),
+            )
+        projection = cold_terminal_projection(
+            run, verified.definition, content_digest=content, series_digest=series,
+            reported_count=len(reports), failure=failure,
+        )
+        self._artifacts.write_cold(
+            projection,
+            scenario_sha256=verified.definition.scenario_sha256,
+            observation_sha256=identity.profiles.observation_sha256,
+            private={
+                "schema": "cold-private/1",
+                "run_id": run.run_id,
+                "content_digest": content,
+                "minute_records": minute_records,
+            },
+        )
+        return projection
+
+    def _stage_registered_virtual_cold(self, run: SimulationRun, reports) -> str | None:
+        """The cold branch of `_stage_registered_virtual`: v2 report texts straight to the gateway.
+
+        Ordinary reports group by ascending `published_at` (source time + 3 s), report order kept inside a
+        group; each held report is a `DelayedReport` released at its `published_at` by `advance_publication`.
+        The schedule says the world reached its last ordinary instant (20:00:03), complete, 61 boundaries."""
+        basis = run.registered_basis
+        if self._gateway is None:
+            return "registered publication refused: no gateway is configured for this host"
+        try:
+            existing = self._schedules.read(run.run_id)
+        except ScheduleUnreadable as unreadable:
+            return f"registered publication refused: {unreadable}"
+        if existing is not None:
+            return "registered publication refused: a cold publication schedule already exists for this run"
+        ordinary: dict[str, list[str]] = {}
+        delayed: list[DelayedReport] = []
+        for report in reports:
+            if report.held:
+                delayed.append(DelayedReport(
+                    report_key=report.report_key, device_id=report.device_id, signal_id=report.signal_id,
+                    source_time=report.source_time, scheduled_release_at=report.published_at,
+                    delay_event_id=delay_event_id(report.report_key), report_text=report.report_text,
+                ))
+            else:
+                ordinary.setdefault(report.published_at, []).append(report.report_text)
+        instants = sorted(ordinary)
+        reached = instants[-1] if instants else run.deterministic_identity.interval.end_time
+        schedule = replace(
+            PublicationSchedule(run_id=run.run_id, snapshot_sha256=basis.snapshot_sha256).with_delayed(delayed),
+            world_reached_instant=reached,
+            world_complete=True,
+            world_boundaries_completed=61,
+        )
+        noted: list[str] = []
+        return self._release(run.run_id, basis, schedule, reached, noted.append, instants, ordinary)
 
     def step(
         self, run: SimulationRun, *, boundaries: int, from_boundary: int
@@ -2359,7 +2522,7 @@ class HostLabExecution:
             if stored is not None:
                 return without_history(self._interrupted(run), "NOT_RECORDED")
             return without_history(
-                not_started(run, self._reporting_for(run), self._notes(run)),
+                self._not_started(run),
                 "NOT_RECORDED",
             )
 

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from dataclasses import fields as dataclass_fields
 from datetime import datetime, timezone
 from fractions import Fraction
 from typing import Any, Mapping
@@ -161,15 +162,22 @@ def report_of(observation: ColdObservation, scenario_sha256: str) -> DeviceRepor
     )
 
 
-def cold_reports(verified: VerifiedColdInputs) -> tuple[ColdReport, ...]:
-    """Execute the verified cold run and return its public v2 series in publication order."""
+def cold_execution(verified: VerifiedColdInputs) -> ColdExecution:
+    """Execute the verified cold run's whole inclusive minute-boundary window once."""
     d = verified.definition
-    execution = ColdExecution(
+    return ColdExecution(
         ColdPack(verified.parameters, backup_enabled=d.backup_enabled), runner=run_window,
         start=_at(d.start), end=_at(d.end),
         initial_temperature=Fraction(d.initial_temperature_deg_c), ambient=Fraction(d.ambient_deg_c),
         forcings=tuple(ColdForcingRow(at=_at(f.at), kind=f.kind, asset=f.asset, value=f.value) for f in d.forcings),
     )
+
+
+def cold_reports(verified: VerifiedColdInputs, execution: ColdExecution | None = None) -> tuple[ColdReport, ...]:
+    """Execute the verified cold run (or read `execution`) and return its public v2 series in publication order."""
+    d = verified.definition
+    if execution is None:
+        execution = cold_execution(verified)
     out: list[ColdReport] = []
     for observation in cold_observations(execution.records, _observation_rows(d)):
         report = report_of(observation, d.scenario_sha256)
@@ -179,3 +187,47 @@ def cold_reports(verified: VerifiedColdInputs) -> tuple[ColdReport, ...]:
             published_at=_text(observation.published_at), held=observation.held,
         ))
     return tuple(out)
+
+
+# --- The one cold adapter renderer: private minute records and the two digests ----------------------------
+
+
+def _private_value(value: Any) -> Any:
+    if isinstance(value, datetime):
+        return _text(value)
+    if isinstance(value, Fraction):
+        return f"{value.numerator}/{value.denominator}"
+    if isinstance(value, tuple):
+        return [_private_value(v) for v in value]
+    if value is None or isinstance(value, (bool, int, str)):
+        return value
+    raise TypeError(f"no private rendering for {type(value).__name__}")
+
+
+def _fields(instance: Any) -> dict[str, Any]:
+    return {f.name: _private_value(getattr(instance, f.name)) for f in dataclass_fields(instance)}
+
+
+def cold_minute_records(execution: ColdExecution) -> list[dict[str, Any]]:
+    """`{at,before,after,heat_kwh,cool_kwh,records}` per `ColdTransition`, in order, closing boundary included."""
+    return [
+        {
+            "at": _text(t.before.minute),
+            "before": _fields(t.before),
+            "after": _fields(t.after),
+            "heat_kwh": _private_value(t.heat_kwh),
+            "cool_kwh": _private_value(t.cool_kwh),
+            "records": [_fields(r) for r in t.records],
+        }
+        for t in execution.run.transitions
+    ]
+
+
+def cold_content_digest(minute_records: list[dict[str, Any]]) -> str:
+    """SHA-256 of canonical `["cold-thermal/1", <ordered minute records>]`."""
+    return hashlib.sha256(canonical_json(["cold-thermal/1", minute_records]).encode("utf-8")).hexdigest()
+
+
+def cold_series_digest(reports: tuple[ColdReport, ...]) -> str:
+    """SHA-256 of canonical ordered DeviceReport V2 texts, held reports included; `[]` for an empty series."""
+    return hashlib.sha256(canonical_json([r.report_text for r in reports]).encode("utf-8")).hexdigest()
