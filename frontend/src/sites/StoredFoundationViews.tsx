@@ -652,7 +652,7 @@ function SldView(props: ViewProps) {
           }
           strip={<SelectedPartStrip {...props} scope="sld" />}
         />
-        <p className="not-available-yet" data-sld-missing="">
+        <p className="not-available-yet v69-chart-note" data-sld-missing="">
           <MissingClaim gapId="G-sld-protection-metering" placement="sld.diagram.protection-metering">
             {SLD_PROTECTION_METERING_NOT_DECLARED}
           </MissingClaim>{" "}

@@ -4621,3 +4621,9 @@ input.v69-chip-control {
   width: 200px;
   max-width: 100%;
 }
+
+/* W1-F1 round 2: explanatory notes stay note-sized inside v69 panels. */
+.v69-chart-note.panel__note,
+.not-available-yet.v69-chart-note {
+  font-size: 10px;
+}

@@ -517,7 +517,7 @@ export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
           ))}
         </tbody>
       </DataTable>
-      <p className="panel__body panel__note" data-testid="sites-analysis-absent">
+      <p className="panel__body panel__note v69-chart-note" data-testid="sites-analysis-absent">
         <MissingClaim gapId="G-sites-operating-view" placement="sites.inventory.analysis-note">
           {DIRECTORY_ANALYSIS_ABSENT}
         </MissingClaim>

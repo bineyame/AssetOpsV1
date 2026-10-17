@@ -9,7 +9,7 @@ import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
-import { PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
+import { Breadcrumbs, PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import {
@@ -180,11 +180,13 @@ export function SiteFoundationFrame({
   if (at !== null && (state.foundation.status === "not_found" || state.foundation.status === "invalid")) {
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <Breadcrumbs trail={[...parentTrail(siteId ?? ""), { label: "Foundation" }]} />
         <SitePageHeader
           siteName={siteId ?? ""}
           siteId={siteId ?? ""}
           description={screenDescription}
           headingId={SITE_CONFIGURATION_HEADING_ID}
+          hideBadge
         />
         {tabs}
         <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId ?? "", segmentFor(target), at, null)} />
@@ -205,7 +207,7 @@ export function SiteFoundationFrame({
             scope={`${siteId} · selected time ${plainTime(at) ?? at}`}
             asOf={at}
           />
-          <p>{state.foundation.message}</p>
+          <p>{plainInstantsIn(state.foundation.message)}</p>
           <p>The configuration in effect now is not shown in its place.</p>
           <button type="button" className="button primary" onClick={() => selectAt(null)}>
             Show the version in effect now
@@ -333,4 +335,9 @@ export function SiteFoundationFrame({
       />
     </main>
   );
+}
+
+/** Machine ISO instants in a server message, shown as plain times. */
+function plainInstantsIn(message: string | null | undefined): string {
+  return (message ?? "").replace(/\d{4}-\d{2}-\d{2}T[\d:.]+(?:Z|[+-]\d{2}:\d{2})/g, (instant) => plainTime(instant) ?? instant);
 }

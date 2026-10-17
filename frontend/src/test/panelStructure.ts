@@ -104,6 +104,55 @@ export function strayOutsidePanels(scope?: HTMLElement): string[] {
     .map(describe);
 }
 
+/** Trailing or between-panel notes the v69 mock allows outside a panel. */
+const ALLOWED_BETWEEN_SELECTOR = ".notice, .note, [data-readiness-scope], [data-page-refusal]";
+
+/**
+ * Content inside a status strip that is not a one-line `status-strip__*` part:
+ * blocks, paragraphs and headings. The strip is a single line of chips and links.
+ */
+export function stripIntruders(scope?: HTMLElement): string[] {
+  const root = scope ?? document.querySelector("main") ?? document.body;
+  const found: string[] = [];
+  for (const strip of Array.from(root.querySelectorAll(".status-strip"))) {
+    if (hiddenOrCollapsed(strip, root)) continue;
+    for (const element of Array.from(strip.querySelectorAll("h1, h2, h3, h4, h5, h6, p, div, ul, ol, table, section"))) {
+      if (hiddenOrCollapsed(element, root)) continue;
+      if (text(element) === "") continue;
+      const cls = element.getAttribute("class") ?? "";
+      if (/(^|\s)status-strip__/.test(cls)) continue;
+      found.push(describe(element));
+    }
+  }
+  return found;
+}
+
+/**
+ * Non-empty content blocks that are siblings of a panel (so sit between or
+ * after panels) and are neither a panel, a wrapper of panels, chrome, a leading
+ * pattern nor an allowed note.
+ */
+export function strayBetweenPanels(scope?: HTMLElement): string[] {
+  const root = scope ?? document.querySelector("main") ?? document.body;
+  const found = new Set<Element>();
+  const panels = Array.from(root.querySelectorAll(PANEL_SELECTOR)).filter(
+    (panel) => panel.parentElement !== null && panel.parentElement.closest(PANEL_SELECTOR) === null,
+  );
+  for (const panel of panels) {
+    const parent = panel.parentElement;
+    if (parent === null) continue;
+    for (const sibling of Array.from(parent.children)) {
+      if (sibling === panel || found.has(sibling)) continue;
+      if (hiddenOrCollapsed(sibling, root)) continue;
+      if (sibling.matches(PANEL_SELECTOR) || sibling.querySelector(PANEL_SELECTOR) !== null) continue;
+      if (sibling.matches(CHROME_SELECTOR) || sibling.matches(LEADING_SELECTOR) || sibling.matches(ALLOWED_BETWEEN_SELECTOR)) continue;
+      if (sibling.closest(".status-strip") !== null) continue;
+      if (text(sibling) === "" && sibling.querySelector("img, svg, input, select, button") === null) continue;
+      found.add(sibling);
+    }
+  }
+  return Array.from(found).map(describe);
+}
 /** The panel titles a screen actually renders in its main content, in DOM order. */
 export function renderedPanelTitles(scope?: HTMLElement): string[] {
   const root = scope ?? document.querySelector("main") ?? document.body;
@@ -142,6 +191,8 @@ export function expectV69Panels(
   expect(actual, `panel structure of v69 screen "${screenId}"`).toEqual(expected);
   expect(leadingIntruders(scope), `elements before panel 1 of v69 screen "${screenId}"`).toEqual([]);
   expect(strayOutsidePanels(scope), `sections outside the panels of v69 screen "${screenId}"`).toEqual([]);
+  expect(stripIntruders(scope), `blocks inside the status strip of v69 screen "${screenId}"`).toEqual([]);
+  expect(strayBetweenPanels(scope), `content blocks between panels of v69 screen "${screenId}"`).toEqual([]);
 }
 
 /** The panel whose own heading is `title`, for in-panel gap assertions. */

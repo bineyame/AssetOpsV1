@@ -145,6 +145,8 @@ export interface SitePageHeaderProps {
   /** The screen description, usually from `SITE_SCREEN_DESCRIPTIONS`. */
   description: ReactNode;
   headingId?: string;
+  /** Omit the provenance badge, e.g. on a refusal where the Site ID would only repeat the title. */
+  hideBadge?: boolean;
 }
 
 /**
@@ -152,15 +154,17 @@ export interface SitePageHeaderProps {
  * heading, a provenance badge beside it (`.prov-tag`), and the screen's
  * description below. Provenance is never status or health.
  */
-export function SitePageHeader({ siteName, siteId, mode, description, headingId }: SitePageHeaderProps) {
+export function SitePageHeader({ siteName, siteId, mode, description, headingId, hideBadge = false }: SitePageHeaderProps) {
   return (
     <PageHeader
       title={siteName}
       headingId={headingId}
       badge={
-        <span className="prov-tag" data-site-provenance={mode ?? "not-read"}>
-          {mode === undefined || mode === null ? siteId : `${mode} · ${siteId}`}
-        </span>
+        hideBadge ? undefined : (
+          <span className="prov-tag" data-site-provenance={mode ?? "not-read"}>
+            {mode === undefined || mode === null ? siteId : `${mode} · ${siteId}`}
+          </span>
+        )
       }
       subtitle={description}
     />

@@ -4,7 +4,7 @@
  */
 import { afterEach, describe, expect, it } from "vitest";
 
-import { expectV69Panels, leadingIntruders, strayOutsidePanels } from "../panelStructure";
+import { expectV69Panels, leadingIntruders, stripIntruders, strayBetweenPanels, strayOutsidePanels } from "../panelStructure";
 
 const CHROME = `
   <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li>Sites</li></ol></nav>
@@ -52,5 +52,27 @@ describe("v69 panel guard", () => {
   it("ignores hidden content before panel 1", () => {
     mount(CHROME + `<div hidden><h3>Hidden</h3></div>` + PANELS);
     expect(() => expectV69Panels("sites")).not.toThrow();
+  });
+
+  it("passes a one-line status strip made of status-strip parts", () => {
+    mount(CHROME + `<div class="status-strip status-strip--line"><span class="status-strip__item">Foundation v10</span><a href="#">Links</a></div>` + PANELS);
+    expect(() => expectV69Panels("sites")).not.toThrow();
+  });
+
+  it("fails bulk planted inside the status strip", () => {
+    mount(CHROME + `<div class="status-strip"><span class="status-strip__lead">Set up</span><div style="padding:28px"><b>Verdict</b><p>One sentence. Another sentence.</p></div></div>` + PANELS);
+    expect(stripIntruders()).not.toEqual([]);
+    expect(() => expectV69Panels("sites")).toThrow(/blocks inside the status strip/);
+  });
+
+  it("fails a stray unpanelled content block between panels", () => {
+    mount(CHROME + `<section class="panel"><h2>Site inventory</h2></section><div><b>Configuration readiness</b> Set up to report, long text.</div><section class="panel"><h2>In setup</h2></section>`);
+    expect(strayBetweenPanels()).toEqual([expect.stringContaining("Configuration readiness")]);
+    expect(() => expectV69Panels("sites")).toThrow(/content blocks between panels/);
+  });
+
+  it("allows a trailing notice between panels", () => {
+    mount(CHROME + `<section class="panel"><h2>Site inventory</h2></section><p class="notice">Scope note.</p><section class="panel"><h2>In setup</h2></section>`);
+    expect(strayBetweenPanels()).toEqual([]);
   });
 });

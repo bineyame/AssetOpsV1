@@ -503,7 +503,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
   } else if (health.status !== "loaded") {
     body = (
       <div data-gateway-panel-state="unavailable">
-        <p>
+        <p className="v69-chart-note">
           <strong>{GATEWAY_CONTACT_UNAVAILABLE}.</strong>{" "}
           {health.status === "not_found"
             ? "The gateway contact read has no record for this Site."
@@ -516,13 +516,13 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
   } else if (health.value.gateways.length === 0) {
     body = (
       <div data-gateway-panel-state="none">
-        <p>No gateway is registered for this Site, so there is no central contact to report.</p>
+        <p className="v69-chart-note">No gateway is registered for this Site, so there is no central contact to report.</p>
       </div>
     );
   } else {
     body = (
       <div data-gateway-panel-state="loaded">
-        <p className="muted" data-gateway-read-at="">
+        <p className="v69-chart-note" data-gateway-read-at="">
           Read at {formatInstant(health.value.read_at)} (server clock).
         </p>
         {health.value.gateways.map((entry) => (
@@ -640,7 +640,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
         />
         <MetricCard word label="Clock and delivery" value={clockValue} note={clockNote} tone={first?.clock_offset_ms == null ? "muted" : undefined} data={{ "data-gateway-metric": "clock" }} />
       </MetricCards>
-      <p className="notice" data-gateway-period-note={period}>
+      <p className="v69-chart-note" data-gateway-period-note={period}>
         {periodNote}
       </p>
       {body}

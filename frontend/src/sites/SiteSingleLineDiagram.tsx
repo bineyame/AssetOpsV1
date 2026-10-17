@@ -104,7 +104,7 @@ export const SITE_SLD_INTRODUCTION_READINGS =
 
 function SiteSldIntroduction() {
   return (
-    <p>
+    <p className="v69-chart-note">
       {SITE_SLD_INTRODUCTION_SCOPE}{" "}
       <MissingClaim gapId="G-sld-reporting-status" placement="sld.intro.readings-status">
         {SITE_SLD_INTRODUCTION_READINGS}
@@ -1195,7 +1195,7 @@ export function SiteSingleLineDiagram({
         {SITE_SLD_HEADING}
       </h3>
       <SiteSldIntroduction />
-      {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
+      {boundDevices === null ? null : <p className="v69-chart-note" data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
 
       {view.status === "compatible" ? (
         <>
@@ -1255,7 +1255,7 @@ export function SiteSldPrimary({
       )}
       {strip}
       <SiteSldIntroduction />
-      {boundDevices === null ? null : <p data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
+      {boundDevices === null ? null : <p className="v69-chart-note" data-sld-bindings="">{SITE_SLD_BINDINGS_STATEMENT}</p>}
     </div>
   );
 }
