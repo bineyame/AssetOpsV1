@@ -361,17 +361,33 @@ button:focus-visible {
 
 /* Panel ------------------------------------------------------------------- */
 
+/* v69 panel (`mockups.css` .panel / .panel-head, D-2026-10-17-mockup-layout-spec):
+   one padded card, the title row and its sub-line inside the same padding, no rule
+   between header and body. */
 .panel {
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  margin-bottom: var(--space-4);
+  border-radius: var(--v69-radius-panel);
+  padding: var(--v69-panel-padding);
+  margin-bottom: var(--v69-gap);
+  min-width: 0;
 }
 
 .panel__header {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+
+.panel__header-text {
+  min-width: 0;
+}
+
+.panel__actions {
+  flex: none;
+  font-size: var(--text-panel-note);
 }
 
 .panel__heading {
@@ -382,14 +398,14 @@ button:focus-visible {
 }
 
 .panel__description {
-  margin: var(--space-1) 0 0;
+  margin: 5px 0 0;
   font-size: var(--text-panel-note);
   color: var(--text-secondary);
   line-height: var(--leading-relaxed);
 }
 
 .panel__body {
-  padding: var(--space-4);
+  padding: 0;
 }
 
 .panel__body > :first-child {
@@ -2549,9 +2565,24 @@ input:focus-visible,
   min-width: 0;
 }
 
-@media (min-width: 1100px) {
+/* v69 `.two-col`: 1.8fr / minmax(270px, 1fr) above 1100px, 1.4fr / 1fr down to 760px. */
+@media (min-width: 761px) {
   .panel-pair {
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr);
+    gap: var(--v69-gap);
+    margin-bottom: var(--v69-gap);
+  }
+  .panel-pair--equal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1101px) {
+  .panel-pair {
+    grid-template-columns: minmax(0, 1.8fr) minmax(270px, 1fr);
+  }
+  .panel-pair--equal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -3170,13 +3201,6 @@ tr[data-selected] > * {
   color: var(--text-secondary);
 }
 
-/* Site model: balanced headings and padding across the pair (mock `.two-col`). */
-@media (min-width: 1100px) {
-  .panel-pair--balanced {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    align-items: stretch;
-  }
-}
 
 /* V-01b Evidence (Site > Evidence, central-ledger path) -----------------------
  * Mock v6.9 `siteEvidenceScreen` / `siteEvidenceAnalysis`: a compact window
@@ -4065,4 +4089,541 @@ tr[data-selected] > * {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   gap: var(--space-4);
+}
+
+/* v69 layout patterns ------------------------------------------------------------
+ * Ported from `frontend/mockups/v69/mockups.css` (D-2026-10-17-mockup-layout-spec):
+ * the compact metric row (`.cards` / `.metric`), key-value lists (`.key-values`),
+ * the numbered attention list, filter chips, the gateway strip and sources, and
+ * the configured-topology map. Components: `ui/V69Layout.tsx`.
+ */
+.v69-cards {
+  display: grid;
+  gap: 13px;
+  margin: 0 0 var(--v69-gap);
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.v69-cards--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.v69-cards--five {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.v69-metric {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--v69-radius-panel);
+  padding: 17px 17px 15px;
+  min-width: 0;
+}
+
+.v69-metric__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  color: #5b6b82;
+}
+
+.v69-metric__value {
+  margin: 10px 0 7px;
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* A word value (state, assessment, gap) is set smaller, as the mock's `.assessment`. */
+.v69-metric--word .v69-metric__value {
+  font-size: 17px;
+  margin: 11px 0;
+}
+
+.v69-metric--green .v69-metric__value { color: #166b50; }
+.v69-metric--amber .v69-metric__value { color: #8e580c; }
+.v69-metric--red .v69-metric__value { color: #a13838; }
+.v69-metric--muted .v69-metric__value { color: var(--text-secondary); }
+
+.v69-metric__note {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.v69-metric__note > p {
+  margin: 0;
+}
+
+.v69-key-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin: 0;
+  font-size: 11px;
+}
+
+.v69-key-values > div {
+  display: contents;
+}
+
+.v69-key-values dt,
+.v69-key-values dd {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.v69-key-values dt {
+  color: var(--text-secondary);
+}
+
+.v69-key-values dd {
+  text-align: right;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+
+.v69-chart-note {
+  margin: 10px 0 0;
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.v69-attention {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.v69-attention__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.v69-attention__item:first-child {
+  padding-top: 0;
+}
+
+.v69-attention__item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.v69-attention__rank {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: #f0f3f9;
+  font-size: 11px;
+  color: #6c7c95;
+}
+
+.v69-attention__item h3 {
+  margin: 1px 0 4px;
+  font-size: 12px;
+}
+
+.v69-attention__item p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.v69-attention__item a {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.v69-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.v69-chip {
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  padding: 7px 12px;
+  background: var(--surface-raised);
+  color: #5c6c86;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.v69-chip[aria-pressed="true"] {
+  background: #eaf0fd;
+  border-color: #cbdafa;
+  color: #245ac0;
+}
+
+/* Gateway status (mock `gatewayPanel`): metric row, then a sources/effect pair. */
+.gw-panel .v69-cards {
+  margin-bottom: 12px;
+}
+
+.gw-panel .panel-pair {
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+.gw-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gw-src {
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 5px 8px;
+  background: #fbfcfe;
+  font-size: 11px;
+}
+
+.gw-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #2f8f6f;
+}
+
+.gw-dot--gap {
+  background: #d6a052;
+}
+
+.gw-dot--none {
+  background: #fff;
+  border: 1.5px dashed #8a9bb3;
+}
+
+@media (max-width: 1100px) {
+  .v69-cards--five {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .v69-metric__value {
+    font-size: 23px;
+  }
+}
+
+@media (max-width: 760px) {
+  .v69-cards,
+  .v69-cards--three,
+  .v69-cards--five {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .v69-metric__value {
+    font-size: 24px;
+  }
+}
+
+/* A page-level refusal stated before the panel slots (W1-F1); it is not a panel. */
+.page-refusal {
+  margin: 0 0 var(--v69-gap);
+  padding: 11px 14px;
+  border: 1px solid #f2e6d0;
+  border-radius: 5px;
+  background: #fff9ef;
+  font-size: 12px;
+}
+
+.page-refusal > * + * {
+  margin-top: 8px;
+}
+
+/* W1-F1 fix round 1: mock patterns ported from `mockups.css` ---------------------- */
+
+/* The mock's page heading: the site name, a provenance tag beside it, the
+   screen description below (`.page-heading`, `.title-row`, `.prov-tag`). */
+.page-header__subtitle {
+  margin-top: 7px;
+  font-size: 12px;
+}
+
+.page-header {
+  margin-bottom: 18px;
+}
+
+.prov-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #f0eafa;
+  color: #725094;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* The mock's one-line `.statusbar` (about 44 px): items on one row, a spacer,
+   then a chip-sized period selector, the next link and a `details.tech`. */
+.status-strip--line {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-color: #dce6f4;
+  border-radius: 5px;
+  background: #edf3fc;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.status-strip--line > * {
+  margin: 0;
+  min-width: 0;
+}
+
+.status-strip__spacer {
+  flex: 1 1 0;
+}
+
+.status-strip--line .status-strip__state--historical {
+  padding: 2px 8px;
+}
+
+.status-strip__select {
+  max-width: 260px;
+  padding: 3px 6px;
+  border: 1px solid #cfd9e8;
+  border-radius: 4px;
+  background: #fff;
+  color: #213853;
+  font: inherit;
+  font-size: 11px;
+}
+
+.status-strip--line .status-strip__action {
+  margin-left: 0 !important;
+}
+
+.status-strip--line .exact-references--tech[open] {
+  flex-basis: 100%;
+}
+
+/* The mock's `details.tech`: a small link-styled summary, no bar. */
+.exact-references--tech {
+  border: 0;
+  background: transparent;
+  margin: 0;
+}
+
+.exact-references--tech > .disclosure__summary {
+  padding: 0;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: var(--weight-regular, 400);
+}
+
+.exact-references--tech[open] > .disclosure__summary {
+  margin-bottom: 8px;
+}
+
+.exact-references--tech > .disclosure__body {
+  padding: 0;
+}
+
+.readiness-verdict-lead {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* The mock's `.metric.assessment`: a tone top border and a 17 px state word. */
+.v69-metric--assessment {
+  border-top: 3px solid #abb5c6;
+}
+
+.v69-metric--assessment.v69-metric--green { border-top-color: #35a280; }
+.v69-metric--assessment.v69-metric--amber { border-top-color: #dea443; }
+.v69-metric--assessment.v69-metric--red { border-top-color: #d26565; }
+
+.v69-metric--assessment .v69-metric__value,
+.v69-metric--assessment.v69-metric--green .v69-metric__value,
+.v69-metric--assessment.v69-metric--amber .v69-metric__value,
+.v69-metric--assessment.v69-metric--red .v69-metric__value {
+  margin: 11px 0;
+  font-size: 17px;
+  color: var(--text-primary);
+}
+
+.v69-metric--assessment.v69-metric--muted .v69-metric__value {
+  color: var(--text-secondary);
+}
+
+/* The mock's form controls: `.input-row`, `.field`, `.button`, `.form-footer`. */
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+  margin-bottom: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  font-size: 11px;
+  color: #52637e;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid #cfd9e8;
+  border-radius: 5px;
+  background: #fff;
+  color: #213853;
+  font: inherit;
+  font-size: 13px;
+}
+
+.field small {
+  font-size: 10px;
+}
+
+.form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 17px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 33px;
+  padding: 8px 13px;
+  border: 1px solid #cfd8e6;
+  border-radius: 5px;
+  background: #fff;
+  color: #405578;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #f0f4fc;
+  text-decoration: none;
+}
+
+.button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.button.primary:hover {
+  background: var(--accent-hover);
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+@media (max-width: 760px) {
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The Sites chip row also carries a compact search and two filters, chip-sized
+   (W1-F1 fix round 1: no second toolbar inside the inventory panel). */
+.v69-chips__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.v69-chips__spacer {
+  flex: 1 1 0;
+}
+
+.v69-chip-control {
+  min-width: 0;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  background: #fff;
+  color: #5c6c86;
+  font: inherit;
+  font-size: 11px;
+}
+
+input.v69-chip-control {
+  width: 190px;
+}
+
+@media (max-width: 760px) {
+  .v69-chips__spacer {
+    display: none;
+  }
+
+  input.v69-chip-control {
+    flex: 1 1 100%;
+    width: auto;
+  }
+}
+
+.v69-chips {
+  align-items: center;
+}
+
+/* Fix round 1: the verdict in the strip and its reason in the note keep the mock's small sizes. */
+.status-strip--line .badge,
+.status-strip--line .verdict__state .badge {
+  font-size: 10px;
+}
+
+.v69-chart-note .verdict__sentence {
+  font-size: inherit;
+  font-weight: var(--weight-medium);
+}
+
+.status-strip--line .status-strip__select {
+  flex: 0 1 auto;
+  width: 200px;
+  max-width: 100%;
+}
+
+/* W1-F1 round 2: explanatory notes stay note-sized inside v69 panels. */
+.v69-chart-note.panel__note,
+.not-available-yet.v69-chart-note {
+  font-size: 10px;
 }

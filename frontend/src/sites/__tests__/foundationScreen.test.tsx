@@ -25,6 +25,7 @@ import {
 } from "../sldViewModel";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { settledScreen } from "../../test/settled";
+import { expectV69Panels } from "../../test/panelStructure";
 import { spacedText, withoutRegion } from "../../test/text";
 
 /**
@@ -268,6 +269,30 @@ function clientFor(site: SiteDetailReadModel): SiteDetailClient {
   return { getSite: () => Promise.resolve({ status: "loaded", site }) };
 }
 
+/**
+ * W1-F1: the legacy Site model renders the three v69 Foundation panels and no
+ * other, and the former Definition, Topology and Controls panels are h3
+ * subsections of the panel that owns each.
+ */
+function expectLegacyFoundationPanels(container: HTMLElement) {
+  const panels = Array.from(container.querySelectorAll("section.panel"));
+  expect(
+    panels.map((panel) => panel.querySelector("h2")?.textContent ?? "(untitled)"),
+  ).toEqual([
+    "Configured topology",
+    "Identity and operating obligations",
+    "Time-valid control configuration",
+  ]);
+  const owner = (id: string) =>
+    container.querySelector(`#${id}`)?.closest("section.panel")?.querySelector("h2")?.textContent;
+  expect(container.querySelector("#foundation-topology-heading")?.tagName).toBe("H3");
+  expect(container.querySelector("#foundation-definition-heading")?.tagName).toBe("H3");
+  expect(container.querySelector("#foundation-controls-heading")?.tagName).toBe("H3");
+  expect(owner("foundation-topology-heading")).toBe("Configured topology");
+  expect(owner("foundation-definition-heading")).toBe("Identity and operating obligations");
+  expect(owner("foundation-controls-heading")).toBe("Time-valid control configuration");
+}
+
 function renderFoundation(site: SiteDetailReadModel = SITE) {
   return render(
     <SiteConfiguration siteId={site.site_id} detail={clientFor(site)} />,
@@ -369,15 +394,9 @@ describe("a legacy (unimported) Site keeps its one page, with no view row", () =
   it("keeps Definition, Topology and Controls as in-page sections, in order", async () => {
     const { container } = renderFoundation();
     await settledScreen();
-    const headings = Array.from(
-      container.querySelectorAll("section.panel h2"),
-    ).map((heading) => heading.textContent ?? "");
-    const positions = ["Definition", "Topology", "Controls"].map((label) => headings.indexOf(label));
-    for (const position of positions) {
-      expect(position).toBeGreaterThanOrEqual(0);
-    }
-    expect(positions).toEqual([...positions].sort((a, b) => a - b));
-    expect(headings.slice(positions[1] + 1, positions[2])).toEqual([]);
+    // W1-F1: the three v69 panels, in order, and no other; Definition, Topology
+    // and Controls are now h3 subsections of the panel that owns each.
+    expectLegacyFoundationPanels(container);
   });
 
   it("gives configuration Readiness no section on the legacy page", async () => {
@@ -391,6 +410,23 @@ describe("a legacy (unimported) Site keeps its one page, with no view row", () =
   });
 });
 
+describe("the legacy Site model has the v69 Foundation panel structure (W1-F1)", () => {
+  for (const [label, site] of [
+    ["a configuration-only site", SITE],
+    ["a site that declares topology, devices and mappings", DECLARED_SITE],
+  ] as const) {
+    it(`renders exactly the three v69 panels for ${label}`, async () => {
+      render(
+        <main>
+          <SiteConfiguration siteId={site.site_id} detail={clientFor(site)} />
+        </main>,
+      );
+      await settledScreen();
+      expectV69Panels("foundation");
+    });
+  }
+});
+
 describe("the Foundation-under-Foundation heading is gone", () => {
   it("names the content area Definition instead", async () => {
     const { container } = renderFoundation();
@@ -399,13 +435,15 @@ describe("the Foundation-under-Foundation heading is gone", () => {
     // T011A left this deliberately and named T013 as its owner: a panel headed
     // `Foundation` sitting directly under a page titled `Foundation`.
     const panelHeadings = Array.from(
-      container.querySelectorAll("section.panel h2"),
+      container.querySelectorAll("section.panel h2, section.panel h3"),
     ).map((heading) => heading.textContent);
 
     expect(panelHeadings).not.toContain("Foundation");
     expect(panelHeadings).toContain("Definition");
+    // W1-F1 fix round 1: the mock's Site page heading - the site name - with
+    // the Foundation tab naming the screen.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Foundation" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
   });
 
@@ -413,12 +451,12 @@ describe("the Foundation-under-Foundation heading is gone", () => {
     renderFoundation();
     await settledScreen();
 
-    // The page heading stays `Foundation`, which T011A settled. What it gained
-    // is a subtitle, because a reader arriving from a bookmark had no way to
-    // tell which site's foundation they were looking at.
-    expect(
-      screen.getByText("Kalangala Mini-Grid · MG-002", { selector: "p" }),
-    ).toBeInTheDocument();
+    // W1-F1 fix round 1 (`D-2026-10-17-mockup-layout-spec`): the heading is
+    // the site name, with its provenance and Site ID beside it and the screen
+    // description below, as the mock's Site page heading.
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Kalangala Mini-Grid");
+    expect(document.querySelector("[data-site-provenance]")?.textContent).toMatch(/MG-002$/);
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
   });
 });
 
@@ -429,7 +467,7 @@ describe("Key parameters renders only what the foundation declares", () => {
 
     const panel = container
       .querySelector("#site-configuration-key-parameters-heading")
-      ?.closest("section");
+      ?.closest(".subsection");
 
     expect(panel).not.toBeNull();
 
@@ -449,7 +487,7 @@ describe("Key parameters renders only what the foundation declares", () => {
 
     const panel = container
       .querySelector("#site-configuration-key-parameters-heading")
-      ?.closest("section") as HTMLElement;
+      ?.closest(".subsection") as HTMLElement;
 
     expect(panel.textContent).toContain("100 kW");
     expect(panel.textContent).toContain("215 kWh");
@@ -461,7 +499,7 @@ describe("Key parameters renders only what the foundation declares", () => {
 
     const panel = container
       .querySelector("#site-configuration-key-parameters-heading")
-      ?.closest("section") as HTMLElement;
+      ?.closest(".subsection") as HTMLElement;
 
     expect(spacedText(panel)).not.toMatch(/--|—|\bN\/A\b|\bnone\b|\b0\b/i);
   });
@@ -635,19 +673,9 @@ describe("a declared topology the archetype cannot arrange", () => {
     // rather than panels of their own precisely because a panel between
     // Topology and Controls would make the row misleading about where a
     // section ends.
-    const headings = Array.from(
-      container.querySelectorAll("section.panel h2"),
-    ).map((heading) => heading.textContent ?? "");
-
-    const positions = ["Definition", "Topology", "Controls"].map((label) =>
-      headings.indexOf(label),
-    );
-
-    for (const position of positions) {
-      expect(position).toBeGreaterThanOrEqual(0);
-    }
-    expect(positions).toEqual([...positions].sort((a, b) => a - b));
-    expect(headings.slice(positions[1] + 1, positions[2])).toEqual([]);
+    // W1-F1: the three v69 panels, in order, and no other; Definition, Topology
+    // and Controls are now h3 subsections of the panel that owns each.
+    expectLegacyFoundationPanels(container);
   });
 
   it("puts the topology content under the section the row names", async () => {

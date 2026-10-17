@@ -51,9 +51,10 @@ const SITES = [
   T("G-sites-operating-view", "sites.inventory.operating-view", "Not available yetAssessment · top issue · evidence limit · last analysed", "rows"),
   T("G-sites-operating-view", "sites.inventory.analysis-note",
     "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments."),
+  // W1-F1: the counts moved into the v69 metric cards, setup into the In setup panel.
   T("G-sites-attention-counts", "sites.inventory.attention-counts",
-    "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them."),
-  T("G-sites-setup-progress", "sites.inventory.setup-progress", "Setup progress not tracked yet."),
+    "Needs attention and Evidence limited counts are not available from this list: there is no common window or aggregation contract for them."),
+  T("G-sites-setup-progress", "sites.inventory.setup-progress", "Setup progress not available: no read returns who set up a site, its next step or when it was registered."),
 ];
 const FOUNDATION = [
   T("G-foundation-productive-use", "foundation.identity.productive-use", "Not declared"),

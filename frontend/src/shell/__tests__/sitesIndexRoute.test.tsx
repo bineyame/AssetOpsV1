@@ -15,6 +15,10 @@ import type {
 import { CREATE_SITE_ENTRY_POINT_LABEL } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+
+/** W1-F1: the v69 Sites screen has a second table (In setup); these tests read the inventory table. */
+const INVENTORY_TABLE = "Site inventory";
 
 /**
  * Route-level tests for the operator Sites index.
@@ -120,7 +124,7 @@ describe("the Sites index is an operator capability", () => {
   ])("lists the same site with the %s", async (_name, flags) => {
     renderSites(flags as FeatureFlags, [SITE]);
 
-    const row = within(await screen.findByRole("table")).getAllByRole("row")[1];
+    const row = within(await screen.findByRole("table", { name: INVENTORY_TABLE })).getAllByRole("row")[1];
 
     expect(within(row).getByText("MG-002")).toBeInTheDocument();
     expect(within(row).getByText("Kalangala Mini-Grid")).toBeInTheDocument();
@@ -134,12 +138,12 @@ describe("the Sites index is an operator capability", () => {
 
   it("renders the same listing markup in both gate states", async () => {
     const enabled = renderSites(ENABLED, [SITE]);
-    await within(enabled.container).findByRole("table");
+    await within(enabled.container).findByRole("table", { name: INVENTORY_TABLE });
     const enabledListing = enabled.container.querySelector("table")?.outerHTML;
     enabled.unmount();
 
     const disabled = renderSites(DISABLED, [SITE]);
-    await within(disabled.container).findByRole("table");
+    await within(disabled.container).findByRole("table", { name: INVENTORY_TABLE });
     const disabledListing = disabled.container.querySelector("table")?.outerHTML;
 
     expect(disabledListing).toBe(enabledListing);
@@ -147,13 +151,13 @@ describe("the Sites index is an operator capability", () => {
 
   it("shows every rendered value from the record and nothing else numeric", async () => {
     renderSites(ENABLED, [SITE]);
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     const fromRecord = new Set(
       (JSON.stringify([SITE]).match(/\d+(?:\.\d+)?/g) ?? []),
     );
     const onScreen =
-      screen.getByRole("table").textContent?.match(/\d+(?:\.\d+)?/g) ?? [];
+      screen.getByRole("table", { name: INVENTORY_TABLE }).textContent?.match(/\d+(?:\.\d+)?/g) ?? [];
 
     expect(onScreen.length).toBeGreaterThan(0);
     for (const value of onScreen) {
@@ -165,7 +169,7 @@ describe("the Sites index is an operator capability", () => {
 describe("the gated way into the create flow", () => {
   it("offers exactly one action on the first-run empty state when the gate is open", async () => {
     const { container } = renderSites(ENABLED);
-    await screen.findByRole("heading", { level: 2, name: "No sites configured" });
+    await screen.findByText("No sites configured");
 
     const main = screen.getByRole("main");
     const links = within(main).getAllByRole("link");
@@ -180,7 +184,7 @@ describe("the gated way into the create flow", () => {
 
   it("opens the create flow from the Sites index", async () => {
     renderSites(ENABLED);
-    await screen.findByRole("heading", { level: 2, name: "No sites configured" });
+    await screen.findByText("No sites configured");
 
     fireEvent.click(
       screen.getByRole("link", { name: CREATE_SITE_ENTRY_POINT_LABEL }),
@@ -197,7 +201,7 @@ describe("the gated way into the create flow", () => {
 
   it("offers no way to add a site, and names no Simulator Lab, when the gate is closed", async () => {
     const { container } = renderSites(DISABLED);
-    await screen.findByRole("heading", { level: 2, name: "No sites configured" });
+    await screen.findByText("No sites configured");
 
     const main = screen.getByRole("main");
 
@@ -212,7 +216,7 @@ describe("the gated way into the create flow", () => {
 
   it("still offers the create action once a site exists", async () => {
     renderSites(ENABLED, [SITE]);
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     expect(
       screen.getByRole("link", { name: CREATE_SITE_ENTRY_POINT_LABEL }),
@@ -241,7 +245,7 @@ describe("the gated way into the create flow", () => {
     expect(header?.contains(action)).toBe(true);
 
     // And not inside the listing, where it would read as a row action.
-    expect(screen.getByRole("table").contains(action)).toBe(false);
+    expect(screen.getByRole("table", { name: INVENTORY_TABLE }).contains(action)).toBe(false);
   });
 
   it("is identical in both gate states apart from that one action", async () => {
@@ -284,7 +288,7 @@ describe("the gated way into the create flow", () => {
   it("keeps the action out of operator navigation in both gate states", async () => {
     for (const flags of [DISABLED, ENABLED]) {
       const view = renderSites(flags, [SITE]);
-      await within(view.container).findByRole("table");
+      await within(view.container).findByRole("table", { name: INVENTORY_TABLE });
 
       const navigation = within(view.container).getByRole("navigation", {
         name: "Operator routes",
@@ -312,7 +316,7 @@ describe("a Sites row is the way into a site", () => {
         />
       </MemoryRouter>,
     );
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     // T011 puts the name and the identity in one cell, so the row link is
     // named for the site rather than for its ID. The address is unchanged and
@@ -349,7 +353,7 @@ describe("a Sites row is the way into a site", () => {
         />
       </MemoryRouter>,
     );
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     const main = within(view.container).getByRole("main");
 
@@ -443,7 +447,7 @@ describe("a Sites row is the way into a site", () => {
         />
       </MemoryRouter>,
     );
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     // The index offers one destination per site, and that destination is the
     // site. A Foundation link on a row would be a second way in, addressed by
@@ -456,5 +460,32 @@ describe("a Sites row is the way into a site", () => {
 
     expect(hrefs).not.toContain("/sites/MG-002/foundation");
     expect(hrefs).not.toContain("/sites/MG-002/configuration");
+  });
+});
+
+/**
+ * W1-F1 (D-2026-10-17-mockup-layout-spec): the `/sites` route renders exactly the v69
+ * `sites` panels, in order, whether the directory is stocked, empty or unreadable.
+ */
+describe("W1-F1: the Sites route keeps the v69 panel structure", () => {
+  const unavailable: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "unavailable" as const }) };
+  const variants: [string, SiteDirectoryClient][] = [
+    ["stocked", directoryWith([SITE])],
+    ["empty", directoryWith([])],
+    ["unreadable", unavailable],
+  ];
+
+  it.each(variants)("renders Site inventory then In setup, and nothing else panel-like (%s)", async (_name, directory) => {
+    render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={DISABLED} siteDirectory={directory} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    await screen.findByText(/Registered sites, not ranked|No sites configured|Sites unavailable/);
+    expectV69Panels("sites");
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    // Unsupported reads are stated inside their slots.
+    expect(panelTitled("In setup").querySelector('[data-gap-id="G-sites-setup-progress"]')).not.toBeNull();
   });
 });

@@ -393,7 +393,7 @@ describe("simulator lab gate: disabled", () => {
     renderAt("/sites", DISABLED);
 
     expect(
-      await screen.findByRole("heading", { level: 2, name: "No sites configured" }),
+      await screen.findByText("No sites configured"),
     ).toBeInTheDocument();
   });
 
@@ -487,7 +487,7 @@ describe("simulator lab gate: enabled", () => {
     renderAt("/sites", ENABLED);
 
     expect(
-      await screen.findByRole("heading", { level: 2, name: "No sites configured" }),
+      await screen.findByText("No sites configured"),
     ).toBeInTheDocument();
   });
 

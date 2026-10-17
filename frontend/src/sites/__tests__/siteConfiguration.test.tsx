@@ -484,7 +484,7 @@ describe("configuration is fixed at creation", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 3,
         name: "Configuration is fixed at creation",
       }),
     ).toBeInTheDocument();

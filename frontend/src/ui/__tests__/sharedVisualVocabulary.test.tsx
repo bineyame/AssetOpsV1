@@ -159,7 +159,7 @@ describe("a badge renders only where a record supplies its value", () => {
     const { container } = renderAt(SITES_PATH, ENABLED, [FROM_TEMPLATE]);
     await settledScreen();
 
-    const row = within(container).getByRole("row", { name: /MG-002/ });
+    const row = within(within(container).getByRole("table", { name: "Site inventory" })).getByRole("row", { name: /MG-002/ });
 
     // Lifecycle, mode and origin are three vocabularies and three tones. They
     // are never one status pill, which is the collapse this product refuses.
@@ -181,7 +181,7 @@ describe("a badge renders only where a record supplies its value", () => {
     const { container } = renderAt(SITES_PATH, ENABLED, [FROM_NO_TEMPLATE]);
     await settledScreen();
 
-    const row = within(container).getByRole("row", { name: /MG-002/ });
+    const row = within(within(container).getByRole("table", { name: "Site inventory" })).getByRole("row", { name: /MG-002/ });
 
     // The site came from no template. That is an absence, not a value, and a
     // badge around it would dress it as a state the site is in.

@@ -171,7 +171,7 @@ function stripQuickActions(markup: string): string {
 describe("a site is opened from a Sites row", () => {
   it("renders the site the row addresses", async () => {
     renderAt("/sites", ENABLED);
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: "Site inventory" });
 
     fireEvent.click(screen.getByRole("link", { name: SITE.display_name }));
 

@@ -16,7 +16,19 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel, type BadgeTone } from "../ui";
+import {
+  AttentionList,
+  Badge,
+  DataTable,
+  Disclosure,
+  Fact,
+  FactList,
+  MetricCard,
+  MetricCards,
+  MissingClaim,
+  Panel,
+  type MetricTone,
+} from "../ui";
 import type { EvidenceRead } from "./evidenceRead";
 import { formatInstant } from "./FoundationRevisionPanel";
 import type { GatewayHealth, GatewayHealthClient, GatewayHealthEntry } from "./gatewayHealthClient";
@@ -43,10 +55,10 @@ const CARD_WORD: Record<CardState, string> = {
   UNKNOWN: "Unknown",
 };
 
-const CARD_TONE: Record<CardState, BadgeTone> = {
-  CONFIGURED: "configured",
-  NEEDS_CONFIGURATION: "config-gap",
-  UNKNOWN: "neutral",
+const CARD_METRIC_TONE: Record<CardState, MetricTone> = {
+  CONFIGURED: "green",
+  NEEDS_CONFIGURATION: "amber",
+  UNKNOWN: "muted",
 };
 
 const DEFINITION_CODES = ["SITE_CODE_INVALID", "SITE_NAME_MISSING", "SITE_TYPE_UNSUPPORTED", "SITE_TIMEZONE_INVALID"];
@@ -118,22 +130,21 @@ export function readinessCards(foundation: FoundationReadModel): ReadinessCard[]
 
 export function ReadinessCards({ foundation }: { foundation: FoundationReadModel }) {
   return (
-    <ul className="readiness-cards" aria-label="Configuration by category" data-readiness-cards="">
+    // The v69 readiness metric row (Definition, Topology, Specifications, Controls).
+    <MetricCards label="Configuration by category" data={{ "data-readiness-cards": "" }}>
       {readinessCards(foundation).map((card) => (
-        <li
+        // W1-F1 fix round 1: the mock's `.metric.assessment` - a tone top border and the state word.
+        <MetricCard
           key={card.key}
-          className={`readiness-card readiness-card--${card.state.toLowerCase()}`}
-          data-readiness-card={card.key}
-          data-card-state={card.state}
-        >
-          <span className="readiness-card__label">{card.label}</span>
-          <span className="readiness-card__value">
-            <Badge tone={CARD_TONE[card.state]}>{CARD_WORD[card.state]}</Badge>
-          </span>
-          <span className="readiness-card__note">{card.note}</span>
-        </li>
+          assessment
+          tone={CARD_METRIC_TONE[card.state]}
+          label={card.label}
+          value={CARD_WORD[card.state]}
+          note={card.note}
+          data={{ "data-readiness-card": card.key, "data-card-state": card.state }}
+        />
       ))}
-    </ul>
+    </MetricCards>
   );
 }
 
@@ -257,9 +268,11 @@ export interface ReadinessEvidenceTableProps {
   foundation: FoundationReadModel;
   links: { model: string; sld: string; evidence: string };
   onReviewBindings: () => void;
+  /** Owned content after the table: the set-up verdict, what is missing, next steps, reference rows. */
+  children?: ReactNode;
 }
 
-export function ReadinessEvidenceTable({ foundation, links, onReviewBindings }: ReadinessEvidenceTableProps) {
+export function ReadinessEvidenceTable({ foundation, links, onReviewBindings, children }: ReadinessEvidenceTableProps) {
   return (
     <Panel
       heading="Readiness and commissioning evidence"
@@ -313,6 +326,7 @@ export function ReadinessEvidenceTable({ foundation, links, onReviewBindings }: 
           ))}
         </tbody>
       </DataTable>
+      {children}
     </Panel>
   );
 }
@@ -354,7 +368,6 @@ function contactSentence(entry: GatewayHealthEntry): string {
 }
 
 function GatewayEntry({ entry, foundation }: { entry: GatewayHealthEntry; foundation: FoundationReadModel }) {
-  const sources = entry.source_contacts.length;
   const disabled = entry.registration === "DISABLED";
   return (
     <div className="gateway-entry" data-gateway-status={entry.status} data-gateway-registration={entry.registration}>
@@ -380,15 +393,7 @@ function GatewayEntry({ entry, foundation }: { entry: GatewayHealthEntry; founda
           <dd>{entry.last_server_contact === null ? "None received" : formatInstant(entry.last_server_contact)}</dd>
         </div>
       </dl>
-      <p data-gateway-contact-sentence="">{contactSentence(entry)}</p>
-      <p data-gateway-sources="">
-        {sources === 0
-          ? "No source is registered behind this gateway."
-          : `${sources} source${sources === 1 ? "" : "s"} registered behind this gateway.`}{" "}
-        <MissingClaim gapId="G-readiness-source-contact" placement="readiness.gateway.source-connection">
-          {DEVICE_CONNECTION_NOT_ESTABLISHED}
-        </MissingClaim>
-      </p>
+      <p className="v69-chart-note" data-gateway-contact-sentence="">{contactSentence(entry)}</p>
       <Disclosure
         name={`gateway-diagnostic-${entry.gateway_external_id}`}
         summary="Advanced details — gateway diagnostic records"
@@ -444,13 +449,32 @@ export interface GatewayStatusPanelProps {
   siteId: string;
   gatewayHealth: GatewayHealthClient | undefined;
   evidenceHref: string;
+  /** Health › Data sources, where source contact is reported (mock panel-head link). */
+  healthHref?: string;
+}
+
+/**
+ * The v69 `readiness:2` dynamic title value: the selected Site's registered
+ * gateway(s) from the selected Foundation read, else the contact read's, else
+ * "No gateway selected". Never a mock fixture.
+ */
+export function gatewayTitleName(foundation: FoundationReadModel, health: EvidenceRead<GatewayHealth> | null): string {
+  if (foundation.gateways.length > 0) return foundation.gateways.map((g) => g.gateway_external_id).join(", ");
+  if (health !== null && health.status === "loaded" && health.value.gateways.length > 0) {
+    return health.value.gateways.map((g) => g.gateway_external_id).join(", ");
+  }
+  return "No gateway selected";
+}
+
+function lastReport(contact: GatewayHealthEntry["source_contacts"][number]): string {
+  return `${contact.last_contact === null ? "no report" : `last report ${formatInstant(contact.last_contact)}`}${contact.registration === "DISABLED" ? " (switched off)" : ""}`;
 }
 
 /**
  * Registration and central contact, kept apart. Contact is checked now on the
  * server clock; it is never back-dated into the Foundation period shown.
  */
-export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidenceHref }: GatewayStatusPanelProps) {
+export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidenceHref, healthHref }: GatewayStatusPanelProps) {
   const [health, setHealth] = useState<EvidenceRead<GatewayHealth> | null>(null);
   useEffect(() => {
     if (gatewayHealth === undefined) {
@@ -479,7 +503,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
   } else if (health.status !== "loaded") {
     body = (
       <div data-gateway-panel-state="unavailable">
-        <p>
+        <p className="v69-chart-note">
           <strong>{GATEWAY_CONTACT_UNAVAILABLE}.</strong>{" "}
           {health.status === "not_found"
             ? "The gateway contact read has no record for this Site."
@@ -492,13 +516,13 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
   } else if (health.value.gateways.length === 0) {
     body = (
       <div data-gateway-panel-state="none">
-        <p>No gateway is registered for this Site, so there is no central contact to report.</p>
+        <p className="v69-chart-note">No gateway is registered for this Site, so there is no central contact to report.</p>
       </div>
     );
   } else {
     body = (
       <div data-gateway-panel-state="loaded">
-        <p className="muted" data-gateway-read-at="">
+        <p className="v69-chart-note" data-gateway-read-at="">
           Read at {formatInstant(health.value.read_at)} (server clock).
         </p>
         {health.value.gateways.map((entry) => (
@@ -508,52 +532,167 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
     );
   }
 
+  const first = health !== null && health.status === "loaded" ? (health.value.gateways[0] ?? null) : null;
+  const statusValue =
+    health === null
+      ? "Checking"
+      : health.status !== "loaded"
+        ? "Unavailable"
+        : first === null
+          ? "No gateway"
+          : (CONTACT_WORD[first.status] ?? first.status);
+  const statusNote =
+    health === null
+      ? "Waiting for the central contact read"
+      : health.status !== "loaded"
+        ? GATEWAY_CONTACT_UNAVAILABLE
+        : first === null
+          ? "None registered for this Site"
+          : first.last_server_contact === null
+            ? "No server contact received"
+            : `Last server contact ${formatInstant(first.last_server_contact)}`;
+  const clockValue =
+    first === null || first.clock_offset_ms === null ? "Unknown" : `${first.clock_offset_ms} ms`;
+  const clockNote =
+    first === null
+      ? "No gateway report to read"
+      : first.queue_count === null
+        ? "Clock difference as reported; readings waiting not reported"
+        : `Clock difference as reported · ${first.queue_count} readings waiting at the gateway`;
+
+  let sources: ReactNode;
+  if (health === null) {
+    sources = <p>Waiting for the gateway contact read.</p>;
+  } else if (health.status !== "loaded") {
+    sources = (
+      <div data-gateway-sources-state="unavailable">
+        <p>Source contact unavailable: the gateway contact read did not succeed.</p>
+        <RegistrationOnly foundation={foundation} />
+      </div>
+    );
+  } else if (health.value.gateways.length === 0) {
+    sources = <p data-gateway-sources-state="none">No gateway is registered, so no source reports through one.</p>;
+  } else {
+    sources = (
+      <div data-gateway-sources-state="loaded">
+        {health.value.gateways.map((entry) => (
+          <div key={entry.gateway_id} data-gateway-source-list={entry.gateway_external_id}>
+            {entry.source_contacts.length === 0 ? null : (
+              <ul className="gw-sources">
+                {entry.source_contacts.map((contact) => (
+                  <li className="gw-src" key={contact.source_id} data-gateway-source-chip={contact.source_id}>
+                    <span
+                      className={contact.last_contact === null ? "gw-dot gw-dot--none" : "gw-dot"}
+                      aria-hidden="true"
+                    />
+                    <strong>{contact.source_external_id}</strong> · {lastReport(contact)}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="v69-chart-note" data-gateway-sources="">
+              {entry.source_contacts.length === 0
+                ? "No source is registered behind this gateway."
+                : `${entry.source_contacts.length} source${entry.source_contacts.length === 1 ? "" : "s"} registered behind this gateway.`}{" "}
+              <MissingClaim gapId="G-readiness-source-contact" placement="readiness.gateway.source-connection">
+                {DEVICE_CONNECTION_NOT_ESTABLISHED}
+              </MissingClaim>
+            </p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <Panel
-      heading="Gateway status"
+      className="gw-panel"
+      heading={`Gateway status · ${gatewayTitleName(foundation, health)}`}
       headingId={READINESS_GATEWAY_HEADING_ID}
-      description={
-        <>
-          Registration and central server contact only. <Link to={evidenceHref}>Site Evidence →</Link>
-        </>
-      }
+      description="How site data reaches AssetOps: registration and central server contact only"
+      actions={healthHref === undefined ? <Link to={evidenceHref}>Site Evidence →</Link> : <Link to={healthHref}>Health › Data sources →</Link>}
     >
-      <p className="notice" data-gateway-period-note={period}>
+      <MetricCards label="Gateway contact" data={{ "data-gateway-metrics": "" }}>
+        <MetricCard word label="Status" value={statusValue} note={statusNote} tone={first?.status === "CURRENT" ? undefined : "muted"} data={{ "data-gateway-metric": "status" }} />
+        <MetricCard
+          word
+          tone="muted"
+          label="Availability"
+          value="Not available"
+          note={
+            <MissingClaim gapId="G-readiness-gateway-uptime" placement="readiness.gateway.uptime">
+              {GATEWAY_UPTIME_NOT_AVAILABLE_YET}
+            </MissingClaim>
+          }
+          data={{ "data-gateway-metric": "availability" }}
+        />
+        <MetricCard
+          word
+          tone="muted"
+          label="Data completeness"
+          value="Not available"
+          note={
+            <MissingClaim gapId="G-readiness-gateway-completeness" placement="readiness.gateway.completeness">
+              {GATEWAY_COMPLETENESS_NOT_AVAILABLE_YET}
+            </MissingClaim>
+          }
+          data={{ "data-gateway-metric": "completeness" }}
+        />
+        <MetricCard word label="Clock and delivery" value={clockValue} note={clockNote} tone={first?.clock_offset_ms == null ? "muted" : undefined} data={{ "data-gateway-metric": "clock" }} />
+      </MetricCards>
+      <p className="v69-chart-note" data-gateway-period-note={period}>
         {periodNote}
       </p>
       {body}
-      <MissingClaim
-        as="p"
-        className="not-available-yet"
-        gapId="G-readiness-gateway-uptime"
-        placement="readiness.gateway.uptime"
-      >
-        {GATEWAY_UPTIME_NOT_AVAILABLE_YET}
-      </MissingClaim>
-      <MissingClaim
-        as="p"
-        className="not-available-yet"
-        gapId="G-readiness-gateway-completeness"
-        placement="readiness.gateway.completeness"
-      >
-        {GATEWAY_COMPLETENESS_NOT_AVAILABLE_YET}
-      </MissingClaim>
-      <MissingClaim
-        as="p"
-        className="not-available-yet"
-        gapId="G-readiness-gateway-signal-strength"
-        placement="readiness.gateway.signal-strength"
-      >
-        {GATEWAY_SIGNAL_NOT_AVAILABLE_YET}
-      </MissingClaim>
-      <MissingClaim
-        as="p"
-        className="not-available-yet"
-        gapId="G-readiness-gateway-firmware"
-        placement="readiness.gateway.firmware"
-      >
-        {GATEWAY_FIRMWARE_NOT_AVAILABLE_YET}
-      </MissingClaim>
+      <div className="panel-pair">
+        <Panel
+          heading="Connected sources"
+          headingId="readiness-connected-sources-heading"
+          description="Sources registered behind the gateway and their last gateway-reported contact; not proof of a connected device"
+        >
+          {sources}
+          <MissingClaim
+            as="p"
+            className="not-available-yet v69-chart-note"
+            gapId="G-readiness-gateway-signal-strength"
+            placement="readiness.gateway.signal-strength"
+          >
+            {GATEWAY_SIGNAL_NOT_AVAILABLE_YET}
+          </MissingClaim>
+          <MissingClaim
+            as="p"
+            className="not-available-yet v69-chart-note"
+            gapId="G-readiness-gateway-firmware"
+            placement="readiness.gateway.firmware"
+          >
+            {GATEWAY_FIRMWARE_NOT_AVAILABLE_YET}
+          </MissingClaim>
+        </Panel>
+        <Panel heading="Effect on readiness and confidence" headingId="readiness-effect-heading">
+          <AttentionList
+            label="Effect on readiness and confidence"
+            items={[
+              {
+                key: "setup",
+                title: "Set-up readiness comes from configuration",
+                body: "The verdict in Readiness and commissioning evidence describes configuration only. It is not a device, reading or equipment state.",
+              },
+              {
+                key: "contact",
+                title: "Contact is not readings or condition",
+                body: "Gateway contact shows only that diagnostics reach the server. It does not show that readings were accepted or that equipment is healthy.",
+                action: healthHref === undefined ? undefined : <Link to={healthHref}>Health › Data sources →</Link>,
+              },
+              {
+                key: "evidence",
+                title: "What the readings can support is assessed on Site Evidence",
+                body: "What accepted records can support is judged from evidence, never from gateway contact alone.",
+                action: <Link to={evidenceHref}>Site Evidence →</Link>,
+              },
+            ]}
+          />
+        </Panel>
+      </div>
     </Panel>
   );
 }
@@ -562,7 +701,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
 function RegistrationOnly({ foundation }: { foundation: FoundationReadModel }) {
   if (foundation.gateways.length === 0) return <p>No gateway is registered in this Foundation period.</p>;
   return (
-    <p data-gateway-sources="">
+    <p className="v69-chart-note" data-gateway-sources="">
       Registered: {foundation.gateways.map((g) => g.gateway_external_id).join(", ")}, with {foundation.sources.length}{" "}
       source{foundation.sources.length === 1 ? "" : "s"}.{" "}
       <MissingClaim gapId="G-readiness-source-contact" placement="readiness.gateway.source-connection-registration">
