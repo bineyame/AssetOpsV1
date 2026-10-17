@@ -5807,3 +5807,15 @@ Branch `task/W1-UX-06` (base main `a9b3b297`, main merged at `22df6d7d`). Packet
 - Walkthrough: `.agent/W1-UX-combined-owner-walkthrough.md` (16 parts, 26 screens + S4-08); final captures and per-tool guides in `.agent/W1-UX-06-evidence/` (1898/1908; the 10 failures are "small visual" on held/empty cards).
 - Open: owner notes 1-13 in the walkthrough (money words L4, untimed money L6, Readiness strip vs contact, card/panel duplication, no-picture held/empty cards, SLD 390 inner scroll); `widthGuard` window fallback unexercised in real Chrome; `LINK_DISPLAY_OVERRIDES` and G-04 allowance carried from UX-02/03.
 - Proof: backend full 2590 passed/0 skipped at `b7d75daf`; frontend and guards in the packet.
+
+## W1-UX-07 - full v6.9 left menu with unavailable entries (built, in_review)
+
+Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `.agent/W1-UX-07-review-packet.md`; ruling `D-2026-10-17-w1-rail`.
+
+- Settled: `NavRailItem` is a discriminated union (`NavRailUnavailableItem`: `kind: "unavailable"; to?: never`); unavailable roots render as `li.nav-rail__unavailable` text with visible `NAV_RAIL_UNAVAILABLE_STATUS` ("Not available yet") and `aria-label="<label>, Not available yet"`, no link/handler/tabindex.
+- `OperatorShellLayout.operatorRailItems`: six groups / eleven roots in v6.9 order; live only Sites `/sites` and Findings `/findings`. One item per line (the guard parses it).
+- Workspace footer: `WorkspaceShellLayout` renders the gated `Workspace utilities` nav ("WORKSPACE" + "Open Simulator Lab") and passes it via outlet context (`WorkspaceChrome`); `OperatorShellLayout` places it under the rail and stays flag-free. The old `.workspace-bar` above the shell is gone.
+- Guard: `Get-OperatorRailFailures` in `navigation-truthfulness.ps1` (fail-closed inventory, live targets registered inside the OperatorShellLayout block before the `*` catch-all, no destination on unavailable items, NavRail type check); 14 fixtures in `tools/checks/navigation-rail-fixtures.ps1` (architecture seam).
+- Orphan scan: `REVIEWED_EXEMPTIONS` in `missing-claim-scan.mjs` exempts only the NavRail status const (file + const + exact text, refs confined to that file).
+- Evidence: `tools/w1-ux-07-rail-evidence.mjs` (1440/390, gate on/off, mock rail equality).
+- Open: promoting any other root needs its cross-site route, inventory, guard expectation and tests changed together; the 390 px rail is about 575 px tall above content (owner look).
