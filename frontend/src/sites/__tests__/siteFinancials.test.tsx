@@ -1437,6 +1437,34 @@ describe("W1-UX-02: Site > Financials (financials)", () => {
     expect(within(panel).getByRole("link", { name: "Review assumptions" })).toHaveAttribute("href", "/sites/KOBO-001/financials/assumptions");
     expect(document.querySelector("[data-price-strip]")).toBeNull();
   });
+
+  it.each([
+    ["NO_PRICE", { state: "NO_PRICE", valid_at: "x", revision_id: null, assignment_id: null, note: "" }, /no price is recorded for today/],
+    ["CONFLICT", { state: "CONFLICT", valid_at: "x", revision_id: null, assignment_id: null }, /two stored prices cover today/],
+  ] as const)("W1-F3: Assumptions in use on %s shows no price and no default", async (name, selection, words) => {
+    mount(
+      fake({
+        seriesFor: () => ({
+          status: "loaded",
+          value: series({
+            selection: selection as never,
+            timeline: [],
+            revisions: [],
+            revision_page: { after_revision_no: 0, limit: 200, total: 0, next_after_revision_no: null },
+          }),
+        }),
+      }),
+      "/sites/KOBO-001/financials",
+    );
+    await settledScreen();
+    expectV69Panels("financials");
+    const panel = panelTitled("Assumptions in use");
+    expect(panel.querySelector(`[data-price-selection='${name}']`)).not.toBeNull();
+    expect(panel.querySelector("[data-price-selection='PRICED']")).toBeNull();
+    expect(panel.querySelector("[data-key-value='price']")?.textContent).toMatch(words);
+    expect(panel.querySelector("[data-key-value='default']")).toHaveTextContent("None is used in its place");
+    expect(panel.textContent).not.toMatch(/\d+\.\d\d USD/);
+  });
 });
 
 describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {

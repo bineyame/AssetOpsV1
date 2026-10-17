@@ -930,7 +930,11 @@ function AssumptionsInUse({ siteId, client, links }: { siteId: string; client: F
               ["Default price", "None is used in its place", "default"],
             ]}
           />
-          <p className="v69-gap-line">No diesel price is recorded for today at this site.</p>
+          <p className="v69-gap-line">
+            {selection?.state === "CONFLICT"
+              ? "Two stored prices cover today at this site, so neither is used."
+              : "No diesel price is recorded for today at this site."}
+          </p>
         </div>
       )}
       <p className="form-footer">
