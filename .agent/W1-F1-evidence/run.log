@@ -1,4 +1,4 @@
-﻿PASS  loaded http://localhost:5470/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+﻿PASS  loaded http://localhost:5470/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
 PASS  sites-stocked 1440: app rendered its main content
 PASS  loaded http://localhost:5470/mockups/v69/index.html#/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  sites-stocked 1440: mock rendered its panels
@@ -74,25 +74,25 @@ PASS  loaded http://localhost:5470/sites/KOBO-001/foundation/sld: laid out at th
 PASS  sld-now 1440: app rendered its main content
 PASS  loaded http://localhost:5470/mockups/v69/index.html#/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  sld-now 1440: mock rendered its panels
-PASS  sld-now 1440: app and mock render the same number of panels  {"app":["Kobo mini-grid · Mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-now 1440: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
 PASS  sld-now 1440: app has no horizontal page overflow  {"overflowX":0}
 PASS  loaded http://localhost:5470/sites/KOBO-001/foundation/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  sld-now 390: app rendered its main content
 PASS  loaded http://localhost:5470/mockups/v69/index.html#/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  sld-now 390: mock rendered its panels
-PASS  sld-now 390: app and mock render the same number of panels  {"app":["Kobo mini-grid · Mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-now 390: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
 PASS  sld-now 390: app has no horizontal page overflow  {"overflowX":0}
 PASS  loaded http://localhost:5470/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  sld-battery 1440: app rendered its main content
 PASS  loaded http://localhost:5470/mockups/v69/index.html#/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  sld-battery 1440: mock rendered its panels
-PASS  sld-battery 1440: app and mock render the same number of panels  {"app":["Kobo mini-grid · Mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-battery 1440: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
 PASS  sld-battery 1440: app has no horizontal page overflow  {"overflowX":0}
 PASS  loaded http://localhost:5470/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  sld-battery 390: app rendered its main content
 PASS  loaded http://localhost:5470/mockups/v69/index.html#/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  sld-battery 390: mock rendered its panels
-PASS  sld-battery 390: app and mock render the same number of panels  {"app":["Kobo mini-grid · Mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
+PASS  sld-battery 390: app and mock render the same number of panels  {"app":["Kobo mini-grid","What each part does"],"mock":["Kobo Mini-grid · AC-coupled mini-grid","What each part does"]}
 PASS  sld-battery 390: app has no horizontal page overflow  {"overflowX":0}
 
-96/96 claims passed; evidence in C:\Users\assef\Bineyame\AssetOpsV1-review4\.agent\W1-F1-evidence
+96/96 claims passed; evidence in .agent\W1-F1-evidence
