@@ -399,10 +399,11 @@ function DispatchView({
                 </DataTable>
               )}
               <ChartNote data={{ "data-dispatch-question": "" }}>
-                Each period, or part of one, is Needed (a recorded reason required the generator), Possibly avoidable
-                (the reported solar power and battery output were more than the demand and no reason was recorded; not
-                proof of wasted fuel) or Cannot determine (the records needed are missing or conflicting). A Needed
-                period is explained here and has no Finding. Times are UTC.
+                For each period the generator operated, this asks whether the reported solar power and battery could
+                have met the site demand instead. Each period, or part of one, is Needed (a recorded reason required the
+                generator), Possibly avoidable (the reported solar power and battery output were more than the demand
+                and no reason was recorded; not proof of wasted fuel) or Cannot determine (the records needed are
+                missing or conflicting). A Needed period is explained here and has no Finding. Times are UTC.
               </ChartNote>
             </>
           }
