@@ -14,23 +14,24 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from typing import Any, Callable
 
 from assetops_backend.sites.binding_conversion import convert, plan_requests
 from assetops_backend.sites.binding_service import BindingPublishResult, BindingService
+from assetops_backend.sites.composition import read_binding_conversion_fixture, read_site_import_source
 
 COLD_LAB_SITE_CODE = "COLD-LAB-001"
-BACKEND = Path(__file__).resolve().parents[2]
-FIXTURE_PATH = BACKEND / "tests" / "fixtures" / "w2" / "cold-lab-001.yaml"
-CONVERSION_PATH = BACKEND / "conversions" / "cold-lab-001-bindings.json"
+BACKEND = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+FIXTURE_PATH = os.path.join(BACKEND, "tests", "fixtures", "w2", "cold-lab-001.yaml")
+CONVERSION_PATH = os.path.join(BACKEND, "conversions", "cold-lab-001-bindings.json")
 V4_EFFECTIVE_FROM = datetime(2026, 10, 1, 0, 1, tzinfo=timezone.utc)
 V4_NOTE = "W2-02 v4 cold-roles-1 revision: the same eleven channels with closed v4 tuple metadata."
 
 
 def conversion_fixture() -> dict[str, Any]:
-    return json.loads(CONVERSION_PATH.read_text(encoding="utf-8"))
+    return read_binding_conversion_fixture(CONVERSION_PATH)[0]
 
 
 def publish_v4_revision(store, service: BindingService, tenant, site) -> BindingPublishResult:
@@ -50,10 +51,9 @@ def publish_v4_revision(store, service: BindingService, tenant, site) -> Binding
 
 def install_cold_lab(store, *, tenant_slug: str, clock: Callable[[], datetime], source_path: str | None = None):
     """Import COLD-LAB-001, replay its first conversion and publish the v4 revision (idempotent per step)."""
-    from assetops_backend.sites.adapters.import_files import read_import_source
     from assetops_backend.sites.foundation_service import ImportSource, import_site
 
-    source = read_import_source(str(FIXTURE_PATH))
+    source = read_site_import_source(FIXTURE_PATH)
     result = import_site(
         store, tenant_slug=tenant_slug, configured_tenant_slug=tenant_slug,
         source=ImportSource(path=source_path or "var/sites/cold-lab-001.yaml", sha256=source.sha256,
@@ -71,12 +71,12 @@ def install_cold_lab(store, *, tenant_slug: str, clock: Callable[[], datetime], 
 
 def main(argv: list[str] | None = None) -> int:  # pragma: no cover - operator entry point
     from assetops_backend.config import database_url
-    from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
+    from assetops_backend.sites.composition import build_foundation_store
 
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--tenant", required=True)
     args = parser.parse_args(argv)
-    store = PostgresFoundationStore(database_url())
+    store = build_foundation_store(database_url())
     result = install_cold_lab(store, tenant_slug=args.tenant, clock=lambda: datetime.now(timezone.utc))
     sets = store.binding_sets(result.tenant.id, result.site.id)
     print(json.dumps([{"version": s.version, "valid_from": s.valid_from.isoformat(), "origin": s.origin,
