@@ -40,7 +40,7 @@ API 9070 and 9071, web 5570 (replay) and 5571 (test case). Mock: `http://localho
 - Evidence: sampled pass, guardrail and target miss say "Both windows have their readings"; withdrawn says "Some readings are missing".
 - Verification: sampled pass "Target met within the sampled limits"; exact outcome "Earlier version, kept for the record"; guardrail "Trial missed a safety or service limit"; target miss "Target not met"; withdrawn and inconclusive "Could not conclude".
 - Withdrawn hold: the recommendation says "Held: late evidence withdrew an earlier trial's result" (no small picture).
-- **Known break:** the inconclusive case's Evidence page is blank (the page fails to draw). Report it; do not judge the page from it.
+- Inconclusive Evidence says "Some readings are missing" (the earlier blank page was fixed in `2d03f626`).
 - Keyboard: Tab reaches "How this was worked out". Exact link: paste in a new tab, same state. Reload: same state.
 
 ## 5. Data label
@@ -57,8 +57,8 @@ Ctrl+C in all three windows, then:
 | --- | --- | --- | --- | --- |
 | action-plan | pass, pass exact, guardrail, withdrawn, target_miss, inconclusive | pass | pass | test-case Plan reached by click |
 | action-evidence | pass, guardrail, withdrawn, target_miss | pass | pass | |
-| action-evidence | inconclusive | 2 FAIL: card does not render; card not measured | 2 FAIL (same) | page crashes: "Objects are not valid as a React child (found: object with keys {code, accepted_evidence_ids})" in `Ref` under `WindowPanel` > `DigDeeper` (`SiteActionVerification.tsx`); retried once, same |
-| verification | pass, pass historical, guardrail, withdrawn, target_miss, inconclusive | pass | pass | |
+| action-evidence | inconclusive | rerun at `2d03f626`: pass ("Some readings are missing") | pass (same) | superseded: the `01bdfd9c` run failed 2 + 2 (page crashed: "Objects are not valid as a React child (found: object with keys {code, accepted_evidence_ids})" in `Ref` under `WindowPanel` > `DigDeeper`, `SiteActionVerification.tsx`); fixed by `2d03f626` |
+| verification | pass, pass historical, guardrail, withdrawn, target_miss, inconclusive | pass | pass | inconclusive Plan and Verification also re-passed in the `2d03f626` rerun |
 | recommendation | withdrawn hold | 1 FAIL: no small visual | 1 FAIL (same) | held state draws no picture |
 
-`w1-ux-01` totals: replay + guardrail 140/140, withdrawn 78/80, target_miss 60/60, inconclusive 42/46 (files `s602b-w1-ux-01-*.txt`), 320/326 overall. Tool's own `capture` (`s602b-verification-evidence.mjs`, replay and every case): 120/120 (`s602b-capture.txt`). Screenshots: `%TEMP%\w1ux06-final\s602b` (not in git).
+`w1-ux-01` totals: replay + guardrail 140/140, withdrawn 78/80, target_miss 60/60, inconclusive 42/46 (files `s602b-w1-ux-01-*.txt`), 320/326 overall at `01bdfd9c`. Inconclusive rerun at `2d03f626` (fresh `prepare`, `serve --case inconclusive`, Action `50c7912f-20b2-4786-9c18-aa6b245497c7`): 60/60 (30/30 at 1440, 30/30 at 390; `s602b-w1-ux-01-inconclusive-rerun.txt`), superseding the 42/46; overall with the rerun 338/340. Tool's own `capture` (`s602b-verification-evidence.mjs`, replay and every case): 120/120 (`s602b-capture.txt`). Screenshots: `%TEMP%\w1ux06-final\s602b` (not in git).
