@@ -286,7 +286,7 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(operating.textContent).toContain("Door and loading observationsConfigured");
   });
 
-  it("Readiness names the missing probe, unconfirmed commissioning, never-contacted gateway and unknown confidence", async () => {
+  it("Readiness names the missing probe, unconfirmed commissioning, no selected gateway and unknown confidence", async () => {
     renderCold(`${BASE}/readiness`, loaded(MISSING_PROBE), healthOf([]));
     await settledScreen();
     const table = panelTitled("Readiness and commissioning evidence");
@@ -309,7 +309,10 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(table.textContent).toContain("Unconfirmed");
     expect(table.textContent).toContain("Set-up incomplete: 1 required item needs attention");
     const gateway = panelTitled("Gateway status · No gateway selected");
-    expect(gateway.querySelector('[data-cold-gateway-metric="status"]')?.textContent).toContain("Never contacted");
+    // D-2026-10-17-f5-subtabs-and-contact: with no gateway selected it never says a particular gateway was not contacted.
+    const status = gateway.querySelector('[data-cold-gateway-metric="status"]')?.textContent ?? "";
+    expect(status).toContain("No gateway selected");
+    expect(status).not.toMatch(/Never contacted|No contact received yet/);
     // Review Low 5: the mock's availability timeline is kept as an empty track that says it has no history.
     const timeline = gateway.querySelector("[data-cold-gateway-timeline]") as HTMLElement;
     expect(timeline.querySelector("[data-cold-timeline-gap]")?.textContent).toBe("No history to draw");
@@ -317,6 +320,21 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(timeline.textContent).toContain("Short outage or missing readings");
     expect(panelTitled("Connected sources").textContent).toContain("Source contact unavailable");
     expect(panelTitled("Effect on readiness and confidence").textContent).toContain("Confidence is not assessed");
+  });
+
+  it.each([
+    ["no gateway health read (missing store)", ["No gateway health read is configured"], "No contact recorded",
+      "Gateway contact is not read here, so no contact time is shown"],
+    ["no diagnostic for the selected gateway (unmatched)", ["No diagnostic is recorded for the selected gateway"],
+      "No contact received yet", "No gateway diagnostic has been received"],
+  ] as const)("contact null closure: %s reads NEVER with no time and distinct wording", async (_case, limitations, value, note) => {
+    const read = { ...STOCKED, contact: { state: "NEVER", as_of: null, limitations: [...limitations] } };
+    renderCold(`${BASE}/readiness`, loaded(read));
+    await settledScreen();
+    const status = panelTitled("Gateway status · edge-cold-001").querySelector('[data-cold-gateway-metric="status"]') as HTMLElement;
+    expect(status.textContent).toContain(value);
+    expect(status.textContent).toContain(note);
+    expect(status.textContent).not.toMatch(/Recent contact|Contact stale|Last contact|Never contacted|Contact unknown/);
   });
 
   it("the single line diagram draws only configured parts and labels the undeclared ones and the unknown function", async () => {

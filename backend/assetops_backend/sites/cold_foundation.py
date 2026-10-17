@@ -67,7 +67,12 @@ MESSAGE_START = "Bind the generator start request and result"
 MESSAGE_TRANSFER = "Transfer position is not reported; switch state is unknown"
 MESSAGE_NO_ROOM = "Declare a cold room"
 CONTACT_UNVERIFIED = "Contact time cannot be verified"
-CONTACT_UNAVAILABLE = "Gateway contact is not available"
+# D-2026-10-17-f5-subtabs-and-contact: why a successful read has no contact time. Each maps to NEVER with as_of null
+# and names the absent health read or gateway match; none is a claim about equipment or physical non-contact.
+CONTACT_HEALTH_ABSENT = "No gateway health read is configured"
+CONTACT_NO_GATEWAY_REGISTERED = "No gateway is registered for this site"
+CONTACT_NO_GATEWAY_SELECTED = "No gateway is selected for this site"
+CONTACT_NO_DIAGNOSTIC = "No diagnostic is recorded for the selected gateway"
 
 READY = "READY_TO_REPORT"
 INCOMPLETE = "CONFIGURATION_INCOMPLETE"
@@ -201,11 +206,13 @@ def _iso(value: datetime | None) -> str | None:
     return None if value is None else value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def contact_document(facts: ContactFacts | None) -> dict[str, Any]:
+def contact_document(facts: ContactFacts | None, absent: str = CONTACT_HEALTH_ABSENT) -> dict[str, Any]:
     """Design section 3 D-I: CURRENT -> RECENT, STALE -> STALE, no diagnostic -> NEVER; a diagnostic whose
-    freshness is UNKNOWN is STALE with a limitation, never a claim of recent contact."""
+    freshness is UNKNOWN is STALE with a limitation, never a claim of recent contact. With no facts (no health
+    store, or no matching selected gateway/diagnostic) the state is NEVER with as_of null and the `absent`
+    limitation naming which read or match is missing (W2-01 contact null closure)."""
     if facts is None:
-        return {"state": None, "as_of": None, "limitations": [CONTACT_UNAVAILABLE]}
+        return {"state": "NEVER", "as_of": None, "limitations": [absent]}
     if facts.received_at is None:
         return {"state": "NEVER", "as_of": None, "limitations": []}
     if facts.freshness == "CURRENT":
@@ -225,6 +232,7 @@ def cold_foundation_document(
     binding_set: Any,
     assets_by_code: Mapping[str, Any],
     contact: ContactFacts | None,
+    contact_absent: str = CONTACT_HEALTH_ABSENT,
 ) -> dict[str, Any]:
     """The `GET /api/sites/{code}/cold/foundation` body for one selected effective revision."""
     content = revision.content
@@ -347,7 +355,7 @@ def cold_foundation_document(
             "messages": messages,
         },
         "commissioning": {"state": "UNCONFIRMED", "evidence_ids": []},
-        "contact": contact_document(contact),
+        "contact": contact_document(contact, contact_absent),
     }
 
 

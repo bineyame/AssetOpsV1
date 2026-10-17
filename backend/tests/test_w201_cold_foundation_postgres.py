@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -106,6 +107,14 @@ class Health:
         regs = self.store.registrations(tenant_id, site_id)
         latest = None if self.received_at is None else Diagnostic(self.received_at)
         return [Facts(g.id, 300, latest) for g in regs.gateways]
+
+
+class OtherGatewayHealth(Health):
+    """A health store whose only diagnostic belongs to a gateway this Site does not select."""
+
+    def gateway_health(self, tenant_id, site_id):
+        self.calls.append((tenant_id, site_id))
+        return [Facts(uuid.uuid4(), 300, Diagnostic(NOW - timedelta(minutes=5)))]
 
 
 def client(store, health=None, access=None, now=NOW):
@@ -385,7 +394,15 @@ class TestReadRefusals:
         assert recent == {"state": "RECENT", "as_of": "2026-10-17T11:55:00Z", "limitations": []}
         stale = read(client(store, Health(NOW - timedelta(hours=2)))).json()["contact"]
         assert stale["state"] == "STALE" and stale["as_of"] == "2026-10-17T10:00:00Z"
-        assert read(client(store, None)).json()["contact"]["state"] is None
+        # D-2026-10-17-f5-subtabs-and-contact: the two null cases are NEVER with as_of null and a naming limitation.
+        no_store = read(client(store, None))
+        assert no_store.status_code == 200
+        assert no_store.json()["contact"] == {
+            "state": "NEVER", "as_of": None, "limitations": ["No gateway health read is configured"]}
+        unmatched = read(client(store, OtherGatewayHealth()))
+        assert unmatched.status_code == 200
+        assert unmatched.json()["contact"] == {
+            "state": "NEVER", "as_of": None, "limitations": ["No diagnostic is recorded for the selected gateway"]}
         down = read(client(store, Health(fail=True)))
         assert down.status_code == 503 and down.json()["error"]["code"] == "GATEWAY_ACCESS_UNAVAILABLE"
         health = Health()

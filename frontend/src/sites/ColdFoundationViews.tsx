@@ -15,7 +15,15 @@ import {
   SITE_SCREEN_DESCRIPTIONS,
   SitePageHeader,
 } from "../ui";
-import type { ColdBinding, ColdFoundationClient, ColdFoundationRead, ColdFoundationReadModel } from "./coldFoundationClient";
+import {
+  COLD_CONTACT_HEALTH_ABSENT,
+  COLD_CONTACT_NO_GATEWAY_REGISTERED,
+  COLD_CONTACT_NO_GATEWAY_SELECTED,
+  type ColdBinding,
+  type ColdFoundationClient,
+  type ColdFoundationRead,
+  type ColdFoundationReadModel,
+} from "./coldFoundationClient";
 import { ColdTopologyDiagram } from "./SiteSingleLineDiagram";
 import { FoundationSubtabs, foundationViewLabel, type FoundationView } from "./FoundationSubtabs";
 import { formatInstant } from "./FoundationRevisionPanel";
@@ -85,8 +93,29 @@ const MEDIUM_WORD: Record<string, string> = { AC: "power", THERMAL: "cooling", S
 const CONTACT: Record<string, { value: string; tone?: "muted" }> = {
   RECENT: { value: "Recent contact" },
   STALE: { value: "Contact stale", tone: "muted" },
-  NEVER: { value: "Never contacted", tone: "muted" },
 };
+
+export const NO_GATEWAY_REGISTERED = "No gateway registered";
+export const NO_CONTACT_RECORDED = "No contact recorded";
+export const NO_CONTACT_RECEIVED_YET = "No contact received yet";
+
+/**
+ * A `NEVER` contact has no contact time (`D-2026-10-17-f5-subtabs-and-contact`). With no gateway selected or registered
+ * it never says a particular gateway was not contacted; with no health read it says only that no contact is recorded.
+ * None of these is a claim about equipment condition or physical non-contact.
+ */
+function neverContact(limitations: string[], gateway: string): { value: string; note: string } {
+  if (limitations.includes(COLD_CONTACT_NO_GATEWAY_REGISTERED)) {
+    return { value: NO_GATEWAY_REGISTERED, note: "No contact can be recorded until a gateway is registered for this site" };
+  }
+  if (limitations.includes(COLD_CONTACT_NO_GATEWAY_SELECTED) || gateway === NO_GATEWAY_SELECTED) {
+    return { value: NO_GATEWAY_SELECTED, note: "No particular gateway is checked for contact" };
+  }
+  if (limitations.includes(COLD_CONTACT_HEALTH_ABSENT)) {
+    return { value: NO_CONTACT_RECORDED, note: "Gateway contact is not read here, so no contact time is shown" };
+  }
+  return { value: NO_CONTACT_RECEIVED_YET, note: "No gateway diagnostic has been received" };
+}
 
 /** Readiness areas: which roles each row of the readiness table answers for. */
 const AREAS: { key: string; area: string; roles: string[] }[] = [
@@ -505,13 +534,19 @@ function ReadinessView(props: ViewProps) {
   const blocking = messages.filter((m) => m.blocking);
 
   const contact = read.contact;
-  const word = contact.state === null ? { value: "Contact unknown", tone: "muted" as const } : (CONTACT[contact.state] ?? { value: contact.state, tone: "muted" as const });
   const limitations = contact.limitations ?? [];
+  const never = contact.state === "NEVER" ? neverContact(limitations, props.gateway) : null;
+  const word =
+    never !== null
+      ? { value: never.value, tone: "muted" as const }
+      : contact.state === null
+        ? { value: "Contact unknown", tone: "muted" as const }
+        : (CONTACT[contact.state] ?? { value: contact.state, tone: "muted" as const });
   const contactNote =
     contact.as_of !== null
       ? `Last contact ${formatInstant(contact.as_of)}`
-      : contact.state === "NEVER"
-        ? "No gateway diagnostic has been received"
+      : never !== null
+        ? never.note
         : (limitations[0] ?? "No contact time is recorded");
 
   return (

@@ -62,6 +62,15 @@ export interface ColdReadinessMessage {
 
 export type ColdContactState = "RECENT" | "STALE" | "NEVER";
 
+/**
+ * The server's limitation strings for a `NEVER` contact with no contact time (`D-2026-10-17-f5-subtabs-and-contact`,
+ * mirrored from `backend/assetops_backend/sites/cold_foundation.py`). Each names which read or gateway match is absent.
+ */
+export const COLD_CONTACT_HEALTH_ABSENT = "No gateway health read is configured";
+export const COLD_CONTACT_NO_GATEWAY_REGISTERED = "No gateway is registered for this site";
+export const COLD_CONTACT_NO_GATEWAY_SELECTED = "No gateway is selected for this site";
+export const COLD_CONTACT_NO_DIAGNOSTIC = "No diagnostic is recorded for the selected gateway";
+
 export interface ColdFoundationReadModel {
   foundation_revision_id: string;
   valid_from: string;

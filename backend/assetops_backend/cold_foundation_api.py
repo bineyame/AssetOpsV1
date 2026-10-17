@@ -23,6 +23,10 @@ from assetops_backend.evidence.ledger import LedgerUnavailable
 from assetops_backend.finding_api import Access, development_access
 from assetops_backend.sites.cold_foundation import (
     COLD_SITE_TYPE,
+    CONTACT_HEALTH_ABSENT,
+    CONTACT_NO_DIAGNOSTIC,
+    CONTACT_NO_GATEWAY_REGISTERED,
+    CONTACT_NO_GATEWAY_SELECTED,
     ContactFacts,
     assets_by_code,
     cold_foundation_document,
@@ -77,23 +81,32 @@ def build_cold_foundation_router(registry: ImportedSiteRegistry, health_store: A
             return _refusal(503, "COLD_FOUNDATION_UNAVAILABLE", str(error))
         except FoundationRefused as error:
             return _refusal(error.status, error.code, str(error))
+        # D-2026-10-17-f5-subtabs-and-contact: no health store or no matching gateway/diagnostic -> NEVER, as_of
+        # null, with a limitation naming the missing read or match; a health-read error stays a 503 refusal.
         contact: ContactFacts | None = None
+        contact_absent = CONTACT_HEALTH_ABSENT
         if health_store is not None:
             try:
                 facts = health_store.gateway_health(tenant.id, site.id)
             except LedgerUnavailable as error:
                 return _refusal(503, "GATEWAY_ACCESS_UNAVAILABLE", str(error))
+            gateways = view.registrations.gateways
             wanted = view.binding_set.gateway_id if view.binding_set is not None else (
-                view.registrations.gateways[0].id if len(view.registrations.gateways) == 1 else None)
-            selected = next((f for f in facts if f.gateway_id == wanted), None)
-            if selected is not None:
-                received = None if selected.latest is None else selected.latest.received_at
-                contact = ContactFacts(received, freshness(received, selected.cadence_seconds, clock()))
+                gateways[0].id if len(gateways) == 1 else None)
+            if wanted is None:
+                contact_absent = CONTACT_NO_GATEWAY_SELECTED if gateways else CONTACT_NO_GATEWAY_REGISTERED
+            else:
+                contact_absent = CONTACT_NO_DIAGNOSTIC
+                selected = next((f for f in facts if f.gateway_id == wanted), None)
+                if selected is not None:
+                    received = None if selected.latest is None else selected.latest.received_at
+                    contact = ContactFacts(received, freshness(received, selected.cadence_seconds, clock()))
         return cold_foundation_document(
             revision=view.revision,
             binding_set=view.binding_set,
             assets_by_code=assets_by_code(view.registrations.assets),
             contact=contact,
+            contact_absent=contact_absent,
         )
 
     return router

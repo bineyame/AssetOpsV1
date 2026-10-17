@@ -22,7 +22,13 @@ from assetops_backend.sites.binding_roles import (
     conversion_problem,
     roles_for,
 )
-from assetops_backend.sites.cold_foundation import CONTACT_UNVERIFIED, ContactFacts, contact_document
+from assetops_backend.sites.cold_foundation import (
+    CONTACT_HEALTH_ABSENT,
+    CONTACT_NO_DIAGNOSTIC,
+    CONTACT_UNVERIFIED,
+    ContactFacts,
+    contact_document,
+)
 from assetops_backend.sites.foundation_parsing import UNIT_RANGES
 from assetops_backend.sites.ports import SiteConfigurationInvalid
 from assetops_backend.sites.site_parsing import parse_site_document
@@ -294,4 +300,7 @@ class TestContact:
         assert contact_document(ContactFacts(self.NOW, "STALE"))["state"] == "STALE"
         unknown = contact_document(ContactFacts(self.NOW, "UNKNOWN"))
         assert unknown["state"] == "STALE" and unknown["limitations"] == [CONTACT_UNVERIFIED]
-        assert contact_document(None)["state"] is None
+        assert contact_document(None) == {
+            "state": "NEVER", "as_of": None, "limitations": [CONTACT_HEALTH_ABSENT]}
+        assert contact_document(None, CONTACT_NO_DIAGNOSTIC) == {
+            "state": "NEVER", "as_of": None, "limitations": [CONTACT_NO_DIAGNOSTIC]}
