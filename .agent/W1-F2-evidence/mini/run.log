@@ -1,4 +1,4 @@
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-23: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+﻿PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-23: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-p01-priced 1440: app rendered its main content
 PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-p01-priced 1440: mock rendered its panels

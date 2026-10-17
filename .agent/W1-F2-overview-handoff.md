@@ -1,4 +1,4 @@
-# W1-F2-overview handoff (partial: one refinement pass remains)
+# W1-F2-overview handoff (pass 2 complete; awaiting review)
 
 Branch `task/W1-F2-overview`, clean at `fde3e130`. Not merged. The packet is `.agent/W1-F2-overview-review-packet.md`; read it first for what landed, the per-screen panel map, the changed assertions and the deviations.
 
@@ -79,3 +79,10 @@ Branch `task/W1-F2-overview`, clean at `fde3e130`. Not merged. The packet is `.a
   - Mini: `v69-statusbar` with a block child sits before panel 1, plus the objective line, which is now allowed.
   - Legacy overview (`siteOverviewScreen`): `v69-statusbar` with `Badge` and `span`. It should now pass; verify it.
 - App-only controls such as the day picker and the window chooser go before panel 1 as a `.v69-chips` row. Use chip-sized controls (`.v69-chip-control`) and `.button`, as F1 did for the Sites search. Alternatively they can go inside the strip as chip-sized controls, as F1's period select is. Never put them in a free form before panel 1.
+
+## Resume state 3 (pass 2 complete, `6a6528b2`)
+
+- Every "Resume: the refinement pass" item is done; see the packet's "Fidelity pass 2" section and changed-assertion list.
+- Evidence Analysis panel 2 is "How each limit is set" via `APPROVED_TITLE_CHANGES["evidence-analysis:2"]`; the vocabulary exception list is deleted.
+- Headings: `SitePageHeader` on Overview (`SiteDetails.tsx`), Dispatch/Analysis (`SiteAnalyticsFrames.tsx`), Evidence/Evidence Analysis (`SiteEvidenceFrame.tsx`).
+- Next: independent review. Not merged.

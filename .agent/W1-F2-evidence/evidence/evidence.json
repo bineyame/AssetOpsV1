@@ -1,6 +1,6 @@
 {
-  "revision": "1554f013",
-  "captured_at": "2026-10-17T07:09:08.722Z",
+  "revision": "6a6528b2",
+  "captured_at": "2026-10-17T10:18:18.541Z",
   "pairs": [
     {
       "screen": "evidence",
@@ -20,23 +20,23 @@
           {
             "title": "What we can conclude now",
             "x": 248,
-            "y": 377,
+            "y": 387,
             "w": 1145,
-            "h": 621
+            "h": 564
           },
           {
             "title": "Data sources · data quality, not equipment condition",
             "x": 248,
-            "y": 1017,
+            "y": 968,
             "w": 725,
-            "h": 1181
+            "h": 1172
           },
           {
             "title": "Most useful next evidence",
             "x": 991,
-            "y": 1017,
+            "y": 968,
             "w": 403,
-            "h": 241
+            "h": 231
           }
         ],
         "overflowX": 0
@@ -91,23 +91,23 @@
           {
             "title": "What we can conclude now",
             "x": 16,
-            "y": 1159,
+            "y": 1181,
             "w": 358,
-            "h": 936
+            "h": 842
           },
           {
             "title": "Data sources · data quality, not equipment condition",
             "x": 16,
-            "y": 2113,
+            "y": 2041,
             "w": 358,
-            "h": 1929
+            "h": 1927
           },
           {
             "title": "Most useful next evidence",
             "x": 16,
-            "y": 4058,
+            "y": 3984,
             "w": 358,
-            "h": 241
+            "h": 231
           }
         ],
         "overflowX": 0
@@ -162,23 +162,23 @@
           {
             "title": "What we can conclude now",
             "x": 248,
-            "y": 377,
+            "y": 387,
             "w": 1145,
-            "h": 586
+            "h": 525
           },
           {
             "title": "Data sources · data quality, not equipment condition",
             "x": 248,
-            "y": 982,
+            "y": 929,
             "w": 725,
-            "h": 1308
+            "h": 1299
           },
           {
             "title": "Most useful next evidence",
             "x": 991,
-            "y": 982,
+            "y": 929,
             "w": 403,
-            "h": 379
+            "h": 369
           }
         ],
         "overflowX": 0
@@ -233,23 +233,23 @@
           {
             "title": "What we can conclude now",
             "x": 16,
-            "y": 1175,
+            "y": 1198,
             "w": 358,
-            "h": 818
+            "h": 713
           },
           {
             "title": "Data sources · data quality, not equipment condition",
             "x": 16,
-            "y": 2011,
+            "y": 1929,
             "w": 358,
-            "h": 1885
+            "h": 1883
           },
           {
             "title": "Most useful next evidence",
             "x": 16,
-            "y": 3912,
+            "y": 3828,
             "w": 358,
-            "h": 379
+            "h": 369
           }
         ],
         "overflowX": 0
@@ -290,29 +290,29 @@
       "screen": "evidence-analysis",
       "case": "supported",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=c0320447-80e1-4725-b474-4f2a8b62b33f",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=58be232c-68ee-46bd-9c91-848823780049",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-supported-1440-app.png",
       "mock_image": "evidence-analysis-supported-1440-mock.png",
       "app": {
         "titles": [
           "Accepted records behind the conclusions",
-          "How a claim limit is set"
+          "How each limit is set"
         ],
         "panels": [
           {
             "title": "Accepted records behind the conclusions",
             "x": 248,
-            "y": 377,
+            "y": 387,
             "w": 1145,
-            "h": 1079
+            "h": 1047
           },
           {
-            "title": "How a claim limit is set",
+            "title": "How each limit is set",
             "x": 248,
-            "y": 1474,
+            "y": 1452,
             "w": 1145,
-            "h": 1741
+            "h": 1595
           }
         ],
         "overflowX": 0
@@ -345,29 +345,29 @@
       "screen": "evidence-analysis",
       "case": "supported",
       "viewport": "390x900",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=c0320447-80e1-4725-b474-4f2a8b62b33f",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=58be232c-68ee-46bd-9c91-848823780049",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-supported-390-app.png",
       "mock_image": "evidence-analysis-supported-390-mock.png",
       "app": {
         "titles": [
           "Accepted records behind the conclusions",
-          "How a claim limit is set"
+          "How each limit is set"
         ],
         "panels": [
           {
             "title": "Accepted records behind the conclusions",
             "x": 16,
-            "y": 1118,
+            "y": 1142,
             "w": 358,
-            "h": 1867
+            "h": 1841
           },
           {
-            "title": "How a claim limit is set",
+            "title": "How each limit is set",
             "x": 16,
-            "y": 3003,
+            "y": 3001,
             "w": 358,
-            "h": 2546
+            "h": 2108
           }
         ],
         "overflowX": 0
@@ -400,29 +400,29 @@
       "screen": "evidence-analysis",
       "case": "limited",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=cf280a44-c530-444a-a6f5-d0be5aee567d",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a1183417-faa9-43ef-b5ac-7e5a880428a4",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-limited-1440-app.png",
       "mock_image": "evidence-analysis-limited-1440-mock.png",
       "app": {
         "titles": [
           "Accepted records behind the conclusions",
-          "How a claim limit is set"
+          "How each limit is set"
         ],
         "panels": [
           {
             "title": "Accepted records behind the conclusions",
             "x": 248,
-            "y": 377,
+            "y": 387,
             "w": 1145,
-            "h": 1079
+            "h": 1047
           },
           {
-            "title": "How a claim limit is set",
+            "title": "How each limit is set",
             "x": 248,
-            "y": 1474,
+            "y": 1452,
             "w": 1145,
-            "h": 1895
+            "h": 1749
           }
         ],
         "overflowX": 0
@@ -455,29 +455,29 @@
       "screen": "evidence-analysis",
       "case": "limited",
       "viewport": "390x900",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=cf280a44-c530-444a-a6f5-d0be5aee567d",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a1183417-faa9-43ef-b5ac-7e5a880428a4",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-limited-390-app.png",
       "mock_image": "evidence-analysis-limited-390-mock.png",
       "app": {
         "titles": [
           "Accepted records behind the conclusions",
-          "How a claim limit is set"
+          "How each limit is set"
         ],
         "panels": [
           {
             "title": "Accepted records behind the conclusions",
             "x": 16,
-            "y": 1118,
+            "y": 1142,
             "w": 358,
-            "h": 1867
+            "h": 1841
           },
           {
-            "title": "How a claim limit is set",
+            "title": "How each limit is set",
             "x": 16,
-            "y": 3003,
+            "y": 3001,
             "w": 358,
-            "h": 2886
+            "h": 2449
           }
         ],
         "overflowX": 0
@@ -517,22 +517,22 @@
       "app": {
         "titles": [
           "Accepted records behind the conclusions",
-          "How a claim limit is set"
+          "How each limit is set"
         ],
         "panels": [
           {
             "title": "Accepted records behind the conclusions",
             "x": 248,
-            "y": 377,
+            "y": 387,
             "w": 1145,
-            "h": 1079
+            "h": 1047
           },
           {
-            "title": "How a claim limit is set",
+            "title": "How each limit is set",
             "x": 248,
-            "y": 1474,
+            "y": 1452,
             "w": 1145,
-            "h": 776
+            "h": 630
           }
         ],
         "overflowX": 0
@@ -572,22 +572,22 @@
       "app": {
         "titles": [
           "Accepted records behind the conclusions",
-          "How a claim limit is set"
+          "How each limit is set"
         ],
         "panels": [
           {
             "title": "Accepted records behind the conclusions",
             "x": 16,
-            "y": 1118,
+            "y": 1142,
             "w": 358,
-            "h": 1867
+            "h": 1841
           },
           {
-            "title": "How a claim limit is set",
+            "title": "How each limit is set",
             "x": 16,
-            "y": 3003,
+            "y": 3001,
             "w": 358,
-            "h": 1281
+            "h": 844
           }
         ],
         "overflowX": 0

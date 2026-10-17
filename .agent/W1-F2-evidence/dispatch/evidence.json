@@ -1,6 +1,6 @@
 {
-  "revision": "1554f013",
-  "captured_at": "2026-10-17T07:15:30.867Z",
+  "revision": "6a6528b2",
+  "captured_at": "2026-10-17T10:16:08.248Z",
   "pairs": [
     {
       "screen": "dispatch",
@@ -20,23 +20,23 @@
           {
             "title": "Sources and 15-minute blocks",
             "x": 248,
-            "y": 618,
+            "y": 623,
             "w": 725,
-            "h": 577
+            "h": 605
           },
           {
             "title": "Selected block · 04:00–04:15 UTC",
             "x": 991,
-            "y": 618,
+            "y": 623,
             "w": 403,
-            "h": 577
+            "h": 605
           },
           {
             "title": "Accepted sample coverage",
             "x": 248,
-            "y": 1229,
+            "y": 1262,
             "w": 1145,
-            "h": 716
+            "h": 744
           }
         ],
         "overflowX": 0
@@ -91,23 +91,23 @@
           {
             "title": "Sources and 15-minute blocks",
             "x": 16,
-            "y": 1525,
+            "y": 1528,
             "w": 358,
-            "h": 821
+            "h": 472
           },
           {
             "title": "Selected block · 04:00–04:15 UTC",
             "x": 16,
-            "y": 2362,
+            "y": 2016,
             "w": 358,
-            "h": 486
+            "h": 650
           },
           {
             "title": "Accepted sample coverage",
             "x": 16,
-            "y": 2880,
+            "y": 2698,
             "w": 358,
-            "h": 1165
+            "h": 1125
           }
         ],
         "overflowX": 0
@@ -162,23 +162,23 @@
           {
             "title": "Sources and 15-minute blocks",
             "x": 248,
-            "y": 618,
+            "y": 623,
             "w": 725,
-            "h": 564
+            "h": 380
           },
           {
             "title": "Selected block · No block selected",
             "x": 991,
-            "y": 618,
+            "y": 623,
             "w": 403,
-            "h": 564
+            "h": 380
           },
           {
             "title": "Accepted sample coverage",
             "x": 248,
-            "y": 1217,
+            "y": 1037,
             "w": 1145,
-            "h": 700
+            "h": 728
           }
         ],
         "overflowX": 0
@@ -233,23 +233,23 @@
           {
             "title": "Sources and 15-minute blocks",
             "x": 16,
-            "y": 1525,
+            "y": 1528,
             "w": 358,
-            "h": 764
+            "h": 499
           },
           {
             "title": "Selected block · No block selected",
             "x": 16,
-            "y": 2305,
+            "y": 2042,
             "w": 358,
-            "h": 103
+            "h": 169
           },
           {
             "title": "Accepted sample coverage",
             "x": 16,
-            "y": 2439,
+            "y": 2243,
             "w": 358,
-            "h": 1170
+            "h": 1129
           }
         ],
         "overflowX": 0
@@ -304,23 +304,23 @@
           {
             "title": "Sources and 15-minute blocks",
             "x": 248,
-            "y": 525,
+            "y": 489,
             "w": 725,
-            "h": 318
+            "h": 289
           },
           {
             "title": "Selected block · No block selected",
             "x": 991,
-            "y": 525,
+            "y": 489,
             "w": 403,
-            "h": 318
+            "h": 289
           },
           {
             "title": "Accepted sample coverage",
             "x": 248,
-            "y": 1006,
+            "y": 940,
             "w": 1145,
-            "h": 721
+            "h": 749
           }
         ],
         "overflowX": 0
@@ -375,23 +375,23 @@
           {
             "title": "Sources and 15-minute blocks",
             "x": 16,
-            "y": 1233,
+            "y": 1236,
             "w": 358,
-            "h": 412
+            "h": 338
           },
           {
             "title": "Selected block · No block selected",
             "x": 16,
-            "y": 1661,
+            "y": 1590,
             "w": 358,
-            "h": 172
+            "h": 165
           },
           {
             "title": "Accepted sample coverage",
             "x": 16,
-            "y": 2087,
+            "y": 2009,
             "w": 358,
-            "h": 1191
+            "h": 1150
           }
         ],
         "overflowX": 0
@@ -446,21 +446,21 @@
           {
             "title": "Constraint comparison",
             "x": 248,
-            "y": 454,
+            "y": 436,
             "w": 725,
-            "h": 516
+            "h": 349
           },
           {
             "title": "Bounded fuel calculation",
             "x": 991,
-            "y": 454,
+            "y": 436,
             "w": 403,
-            "h": 516
+            "h": 349
           },
           {
             "title": "Coverage, confidence and alternatives",
             "x": 248,
-            "y": 1004,
+            "y": 819,
             "w": 1145,
             "h": 394
           }
@@ -517,21 +517,21 @@
           {
             "title": "Constraint comparison",
             "x": 16,
-            "y": 1164,
+            "y": 1166,
             "w": 358,
-            "h": 668
+            "h": 545
           },
           {
             "title": "Bounded fuel calculation",
             "x": 16,
-            "y": 1847,
+            "y": 1727,
             "w": 358,
-            "h": 195
+            "h": 146
           },
           {
             "title": "Coverage, confidence and alternatives",
             "x": 16,
-            "y": 2074,
+            "y": 1905,
             "w": 358,
             "h": 667
           }
@@ -588,23 +588,23 @@
           {
             "title": "Constraint comparison",
             "x": 248,
-            "y": 454,
+            "y": 436,
             "w": 725,
-            "h": 1832
+            "h": 1675
           },
           {
             "title": "Bounded fuel calculation",
             "x": 991,
-            "y": 454,
+            "y": 436,
             "w": 403,
-            "h": 1832
+            "h": 1675
           },
           {
             "title": "Coverage, confidence and alternatives",
             "x": 248,
-            "y": 2320,
+            "y": 2144,
             "w": 1145,
-            "h": 445
+            "h": 416
           }
         ],
         "overflowX": 0
@@ -659,21 +659,21 @@
           {
             "title": "Constraint comparison",
             "x": 16,
-            "y": 1164,
+            "y": 1166,
             "w": 358,
-            "h": 2517
+            "h": 2422
           },
           {
             "title": "Bounded fuel calculation",
             "x": 16,
-            "y": 3697,
+            "y": 3604,
             "w": 358,
-            "h": 195
+            "h": 146
           },
           {
             "title": "Coverage, confidence and alternatives",
             "x": 16,
-            "y": 3924,
+            "y": 3781,
             "w": 358,
             "h": 676
           }
