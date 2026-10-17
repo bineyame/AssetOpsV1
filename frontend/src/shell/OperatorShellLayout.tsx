@@ -1,4 +1,5 @@
-import { Outlet, useOutletContext } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation, useOutletContext } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
@@ -75,13 +76,42 @@ const operatorRailItems: NavRailItem[] = [
  */
 export function OperatorShellLayout() {
   const chrome = useOutletContext<WorkspaceChrome | undefined>();
+  // W1-F5a carry 5: at phone width the rail collapses behind a Menu button, as the v69 mock hides its rail
+  // (`mockups.css` max-width:760px `.rail{display:none}`), instead of stacking above the content. Above the
+  // narrow breakpoint the button is hidden and the rail is always shown; every destination stays in the DOM.
+  // The button exists only at that width: elsewhere the rail is always shown, so the shell adds no control.
+  const narrow = useNarrowViewport();
+  const [railOpen, setRailOpen] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => setRailOpen(false), [pathname]);
 
   return (
-    <div className="app-frame app-frame--operator">
+    <div
+      className={
+        railOpen
+          ? "app-frame app-frame--operator app-frame--rail-open"
+          : "app-frame app-frame--operator"
+      }
+    >
       <div className="app-frame__side">
-        <AppHeader name="AssetOps" />
-        <NavRail label="Operator routes" items={operatorRailItems} />
-        {chrome?.footer ?? null}
+        <div className="app-frame__brand-row">
+          <AppHeader name="AssetOps" />
+          {narrow ? (
+            <button
+              type="button"
+              className="app-frame__menu-toggle"
+              aria-expanded={railOpen}
+              aria-controls="operator-rail-body"
+              onClick={() => setRailOpen((open) => !open)}
+            >
+              Menu
+            </button>
+          ) : null}
+        </div>
+        <div className="app-frame__rail-body" id="operator-rail-body">
+          <NavRail label="Operator routes" items={operatorRailItems} />
+          {chrome?.footer ?? null}
+        </div>
       </div>
 
       <div className="app-frame__body">
@@ -91,4 +121,25 @@ export function OperatorShellLayout() {
       </div>
     </div>
   );
+}
+
+/** Phone width, where the operator rail collapses (the 640px shell breakpoint in `primitives.css`). */
+const NARROW_QUERY = "(max-width: 640px)";
+
+function useNarrowViewport(): boolean {
+  const query =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? window.matchMedia(NARROW_QUERY)
+      : null;
+  const [narrow, setNarrow] = useState(query?.matches ?? false);
+  useEffect(() => {
+    if (query === null) return undefined;
+    const update = () => setNarrow(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+    // `query` is re-created each render; the media query text is fixed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return narrow;
 }

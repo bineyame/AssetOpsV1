@@ -256,3 +256,47 @@ describe("NavRail item model (W1-UX-07)", () => {
     expect(bad.label).toBe("Assets");
   });
 });
+
+describe("W1-F5a carry 5: the operator rail collapses behind a Menu button at phone width", () => {
+  function stubWidth(narrow: boolean) {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: narrow && query === "(max-width: 640px)",
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }),
+    });
+  }
+
+  it("adds no control beside the rail at desktop width", async () => {
+    stubWidth(false);
+    const { container } = renderAt("/sites");
+    await settledScreen();
+    expect(screen.queryByRole("button", { name: "Menu" })).toBeNull();
+    expect(container.querySelector(".app-frame--rail-open")).toBeNull();
+    delete (window as { matchMedia?: unknown }).matchMedia;
+  });
+
+  it("opens the collapsed rail from Menu, keeps every destination, and closes it on navigation", async () => {
+    stubWidth(true);
+    const { container } = renderAt("/sites");
+    await settledScreen();
+    const menu = screen.getByRole("button", { name: "Menu" });
+    expect(menu).toHaveAttribute("aria-expanded", "false");
+    expect(menu).toHaveAttribute("aria-controls", "operator-rail-body");
+    expect(container.querySelector("#operator-rail-body")?.contains(rail())).toBe(true);
+    expect(container.querySelector(".app-frame--rail-open")).toBeNull();
+    fireEvent.click(menu);
+    expect(menu).toHaveAttribute("aria-expanded", "true");
+    expect(container.querySelector(".app-frame--operator.app-frame--rail-open")).not.toBeNull();
+    fireEvent.click(within(rail()).getByRole("link", { name: "Findings" }));
+    await settledScreen();
+    expect(screen.getByTestId("location")).toHaveTextContent(/^\/findings$/);
+    expect(container.querySelector(".app-frame--rail-open")).toBeNull();
+    expect(screen.getByRole("button", { name: "Menu" })).toHaveAttribute("aria-expanded", "false");
+    delete (window as { matchMedia?: unknown }).matchMedia;
+  });
+});
