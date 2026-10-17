@@ -84,6 +84,15 @@ export function label(value: string, labels: Record<string, string>): string {
   return labels[value] ?? value;
 }
 
+/**
+ * W1-F5a: the provenance badge's source-mode label alone, for page headings that
+ * need nothing else from the site summary; null when the summary carries no source.
+ */
+export function siteSourceModeLabel(site: SiteSummary): string | null {
+  const mode = (site as Partial<SiteSummary>).source?.mode;
+  return mode === undefined ? null : label(mode, SOURCE_MODE_LABELS);
+}
+
 export function deriveSiteView(site: SiteSummary): SiteView {
   return {
     siteId: site.site_id,

@@ -271,6 +271,11 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   "cold-foundation": "Cold room · stored configuration for the period shown",
   "cold-readiness": "Definition, commissioning and gateway readiness",
   "cold-sld": "Cold room · single line diagram",
+  // W1-F5a: Health and the carry-1 site-level screens (sitefindings, financials, assumptions).
+  health: "Health · site-level asset-condition summary",
+  sitefindings: "Findings · conclusions about this site and the limits of their evidence",
+  financials: "Financials · what the site's technical behaviour means in money",
+  assumptions: "Financials · assumptions and their history",
 } as const;
 
 export interface SitePageHeaderProps {
