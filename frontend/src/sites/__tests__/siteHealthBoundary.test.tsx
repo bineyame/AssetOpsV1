@@ -17,6 +17,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import contract from "../../../../backend/tests/fixtures/s7_health_api_contract.json";
 import { SiteAssetFrame, SiteAssetsFrame, SiteHealthFrame } from "../../shell/SiteHealthFrames";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
@@ -176,9 +177,16 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     serve(recorded());
     mount("/sites/KOBO-001/health");
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Queue and storage, as last reported" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Device contact reported by gateways" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Battery condition" })).toBeTruthy();
+    // W1-F5a: v69 `health` - condition and data sources are separate panels; queue, storage and device contact
+    // are qualified columns and rows of the data-sources panel, never condition.
+    expectV69Panels("health");
+    const sources = panelTitled("Data sources · data quality, not equipment condition");
+    const condition = panelTitled("Physical asset condition");
+    expect(sources.querySelector('[data-health-queue-row="s7-queue-growth"]')).not.toBeNull();
+    expect(sources.querySelector('[data-health-source="s7-clock-offset-device"]')).not.toBeNull();
+    expect(sources.textContent).toContain("Queue, as last reported");
+    expect(sources.textContent).toContain("as reported by gateway");
+    expect(condition.querySelector("[data-health-gateway], [data-health-queue-row], [data-health-source]")).toBeNull();
     const queue = q('[data-health-queue-row="s7-queue-growth"]') as HTMLElement;
     expect(queue.textContent).toContain("900");
     expect(queue.textContent).toContain("1 h 30 min");
@@ -201,9 +209,10 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     // No stale-projection state exists in the read, so none is shown.
     expect(main().textContent).not.toMatch(/projection/i);
     // The battery entry: condition Unknown with a link by asset ID.
-    const battery = q(`[data-health-battery="${KOBO_001_ASSET}"]`) as HTMLElement;
+    const battery = condition.querySelector(`[data-health-battery="${KOBO_001_ASSET}"]`) as HTMLElement;
     expect(battery.textContent).toContain("Unknown");
     expect(battery.querySelector("a")?.getAttribute("href")).toBe(`/sites/KOBO-001/assets/${KOBO_001_ASSET}`);
+    expect(condition.textContent).toContain("Condition cannot yet be judged.");
     expect(q(".notice")?.textContent).toContain("does not make equipment healthy");
   });
 
@@ -237,7 +246,10 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     expect(where()).toBe(`/sites/KOBO-001/health?gateway=${target.gateway_id}`);
     const selected = () => q("[data-health-selected-diagnostic]")?.getAttribute("data-health-selected-diagnostic");
     expect(selected()).toBe(target.diagnostic.diagnostic_id);
-    expect(screen.getByRole("heading", { name: "Gateway s7-clock-offset" })).toBeTruthy();
+    // W1-F5a: the selection sits inside the data-sources panel, never as an extra panel.
+    expect(q('[data-health-selected="found"]')?.textContent).toContain("Gateway s7-clock-offset");
+    expect(panelTitled("Data sources · data quality, not equipment condition").contains(q('[data-health-selected="found"]'))).toBe(true);
+    expectV69Panels("health");
     // Reload: the same address gives the same selection.
     cleanup();
     serve(recorded());
@@ -252,6 +264,7 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     mount("/sites/KOBO-001/health?gateway=00000000-0000-4000-8000-999999999999");
     await settledScreen();
     expect(q('[data-health-selected="not-found"]')?.textContent).toContain("no gateway with that ID");
+    expectV69Panels("health");
   });
 
   it("states no enabled gateway on the second Site instead of a healthy zero", async () => {
@@ -292,6 +305,7 @@ describe("Site Health: gateway contact (health:2#a)", () => {
       expect(refused.textContent, name).toMatch(text);
       expect(qa("[data-health-gateway]"), name).toHaveLength(0);
       expect(q("[data-health-summary]"), name).toBeNull();
+      expectV69Panels("health");
       cleanup();
       vi.unstubAllGlobals();
     }
@@ -304,7 +318,9 @@ describe("Site Health: gateway contact (health:2#a)", () => {
       mount("/sites/KOBO-001/health");
       await settledScreen();
       expect(qa("[data-health-gateway]")).toHaveLength(9);
-      expect(qa("table").length).toBeGreaterThanOrEqual(4);
+      // W1-F5a: the same v69 panels at both widths: the condition table, the data-sources table and the technical one.
+      expectV69Panels("health");
+      expect(qa("table").length).toBeGreaterThanOrEqual(3);
       cleanup();
       vi.unstubAllGlobals();
     }
@@ -325,8 +341,9 @@ describe("Battery boundary (asset:3#a)", () => {
     expect(main().textContent).toContain("Measured usable capacity");
     expect((q('[data-battery-metric="rating"]') as HTMLElement).textContent).toContain("200 kWh");
     expect((q('[data-battery-metric="rating"]') as HTMLElement).textContent).toContain("not a measurement");
-    expect((q('[data-battery-metric="charge"]') as HTMLElement).textContent).toContain("Not shown");
+    expect((q('[data-battery-metric="reserve"]') as HTMLElement).textContent).toContain("Not available");
     expect((q('[data-battery-metric="channels"]') as HTMLElement).textContent).toContain("1 connected");
+    expectV69Panels("asset");
     expect(q("[data-battery-withheld]")?.textContent).toMatch(/Degradation, remaining life.*replacement exposure and diagnosis are not stated/);
     const reading = defaultReading();
     expect(reading).not.toMatch(/healthy|good condition|replace by|warranty at risk/i);
@@ -401,23 +418,27 @@ describe("Battery boundary (asset:3#a)", () => {
       expect(refused.getAttribute("data-health-http"), name).toBe(String(http));
       expect(refused.textContent, name).toMatch(text);
       expect(q("[data-battery-condition]"), name).toBeNull();
+      expectV69Panels("asset");
       cleanup();
       vi.unstubAllGlobals();
     }
   });
 });
 
-describe("W1-UX-05: Health and battery answer cards", () => {
-  const card = (name: string) => q(`[data-headline-card="${name}"]`) as HTMLElement;
+describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in the v69 panels)", () => {
+  const SOURCES = "Data sources · data quality, not equipment condition";
+  const strip = () => q(".status-strip") as HTMLElement;
+  const contact = () => q("[data-health-summary]") as HTMLElement;
+  const contactLabel = () => contact().querySelector("[data-health-contact-label]")?.textContent;
   const w1 = (page: string) => {
     const { violations, scanned } = scanProductVocabulary(main(), page, { set: "w1" });
     expect(scanned).toBeGreaterThan(5);
     expect(violations, describeViolations(violations)).toEqual([]);
   };
   /** A refused read has no read instant, so its bound is the shared "As of: time not recorded" (never now). */
-  const expectRefusedStateLine = (panel: HTMLElement, label: string) => {
-    expect(expectStateLineVisible(panel)).toBe(label);
-    expect(panel.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+  const expectRefusedStateLine = (within: HTMLElement, label: string) => {
+    expect(expectStateLineVisible(within)).toBe(label);
+    expect(within.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
   };
   const disclosureOf = (el: HTMLElement, page: string) => {
     const result = scanDisclosureVocabulary(el, page);
@@ -425,82 +446,89 @@ describe("W1-UX-05: Health and battery answer cards", () => {
     expect(result.scanned).toBeGreaterThan(2);
     expect(result.violations, describeViolations(result.violations)).toEqual([]);
   };
+  /** The state line is said once, in the status strip (W1-F5a self-check). */
+  const expectOneStateLine = () => {
+    expect(qa("[data-product-status]")).toHaveLength(1);
+    expect(strip().querySelector("[data-product-status]")).not.toBeNull();
+  };
 
-  it("leads Health with which source needs attention, contact and fact age in separate lanes, W1 words", async () => {
+  it("leads Health with asset condition in the status strip; contact and fact age stay in the data-sources panel", async () => {
     serve(recorded());
     mount("/sites/KOBO-001/health");
     await settledScreen();
-    const answer = card("site-health");
-    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("Which source needs attention?");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toMatch(/^\d of 8 enabled gateways need attention$/);
-    expect(expectStateLineVisible(answer)).toBe("Some gateways are not in contact");
-    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2} UTC$/);
-    // Two lanes: contact by server receipt, and how old the reported facts are.
-    const lanes = answer.querySelectorAll("[data-health-lanes] [data-value-bars]");
-    expect(Array.from(lanes).map((l) => l.querySelector("figcaption")?.textContent)).toEqual([
-      "Contact: when the server last heard from each gateway",
-      "Reports: how old the latest reported facts are",
-    ]);
-    // Old facts with a fresh receipt: in contact, but its report is old, so it needs attention.
-    const delayed = answer.querySelector('[data-health-attention-gateway="s7-delayed-old"]') as HTMLElement;
-    expect(delayed.textContent).toContain("in contact; its latest report is old");
-    expect(answer.querySelector('[data-health-attention-gateway="s7-current"]')).toBeNull();
-    expect(answer.querySelector('[data-health-attention-gateway="s7-never-received"]')?.textContent).toContain("never heard from");
-    expect(answer.querySelector('[data-health-attention-gateway="s7-clock-offset"]')?.textContent).toContain(
-      "age of its latest report not known",
-    );
-    expect(answer.textContent).not.toMatch(/healthy|good condition/i);
+    expectV69Panels("health");
+    expect(q("[data-headline-card]")).toBeNull();
+    expect(expectStateLineVisible(strip())).toBe("Asset condition cannot yet be judged");
+    expect(strip().querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2} UTC$/);
+    expect(strip().querySelector("[data-product-status-scope]")?.textContent).toContain("1 configured battery");
+    // Contact never leads and never decides condition.
+    expect(strip().textContent).not.toMatch(/contact|gateway/i);
+    expectOneStateLine();
+    const sources = panelTitled(SOURCES);
+    expect(sources.contains(contact())).toBe(true);
+    expect(contactLabel()).toBe("Some gateways are not in contact.");
+    expect(contact().getAttribute("data-health-contact-tone")).toBe("limited");
+    // Contact and fact age are separate columns: old facts with a fresh receipt read as in contact, but old.
+    const delayed = q('[data-health-gateway="s7-delayed-old"]') as HTMLElement;
+    expect(delayed.children[1].textContent).toContain("Current: received 5 s ago");
+    expect(delayed.querySelector("[data-health-facts]")?.textContent).toContain("Old: observed 6 h ago");
+    expect((q('[data-health-gateway="s7-clock-offset"] [data-health-facts]') as HTMLElement).textContent).toContain("Unknown age");
+    expect(sources.textContent).not.toMatch(/healthy|good condition/i);
     w1("health KOBO-001 (W1)");
-    disclosureOf(answer, "health answer disclosure");
+    // One disclosure per panel: the data-sources panel keeps only its closed technical details.
+    expect(sources.querySelectorAll("details")).toHaveLength(1);
+    expect(panelTitled("Physical asset condition").querySelectorAll("details")).toHaveLength(0);
   });
 
-  it("states no reporting gateway on KOBO-002 with no zero bars, and keeps the state line visible", async () => {
+  it("states no reporting gateway on KOBO-002 with no zero counts, and keeps the state line visible", async () => {
     serve(recorded());
     mount("/sites/KOBO-002/health");
     await settledScreen();
-    const answer = card("site-health");
-    expect(expectStateLineVisible(answer)).toBe("No gateway is reporting");
-    expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("No gateway is enabled");
-    expect(answer.querySelectorAll("[data-value-bar]")).toHaveLength(0);
-    expect(answer.textContent).not.toMatch(/\b0 (in contact|recent)\b/);
+    expectV69Panels("health");
+    expect(expectStateLineVisible(strip())).toBe("Asset condition cannot yet be judged");
+    expect(contactLabel()).toBe("No gateway is reporting.");
+    expect(contact().textContent).toContain("No gateway is enabled");
+    expect(qa("[data-value-bar]")).toHaveLength(0);
+    expect(main().textContent).not.toMatch(/\b0 (in contact|recent)\b/);
     w1("health KOBO-002 (W1)");
   });
 
-  describe("W1-UX-06: selected-gateway old and unknown-age lines, unrecognised and zero-enabled headlines (D-2026-10-17-w1-ux-06)", () => {
+  describe("W1-UX-06: selected-gateway old and unknown-age lines, unrecognised and zero-enabled summaries (D-2026-10-17-w1-ux-06)", () => {
     const clone = (served: Served): any => JSON.parse(JSON.stringify(served));
-    const selected = () => (q("#site-health-selected-heading") as HTMLElement).closest("section") as HTMLElement;
+    const selected = () => q('[data-health-selected="found"]') as HTMLElement;
+    const state = () => selected().querySelector("[data-health-selected-state]")?.textContent;
 
-    it("in contact with an old, trusted report: the state line says so outside the disclosure; the age is shown separately", async () => {
+    it("in contact with an old, trusted report: the selected line says so outside the disclosure; the age is shown separately", async () => {
       serve(recorded());
       mount(`/sites/KOBO-001/health?gateway=${gatewayRow("s7-delayed-old").gateway_id}`);
       await settledScreen();
-      const panel = selected();
-      expect(expectStateLineVisible(panel)).toBe("In contact; its latest report is old");
-      expect(panel.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
-      const sentence = panel.querySelector(".product-status__sentence")?.textContent ?? "";
+      expectV69Panels("health");
+      expect(state()).toBe("In contact; its latest report is old");
+      expect(selected().getAttribute("data-health-selected-tone")).toBe("limited");
+      const sentence = selected().querySelector("[data-health-selected-sentence]")?.textContent ?? "";
       expect(sentence).toContain("The server received this gateway's report within its reporting interval");
       expect(sentence).toContain("This is not equipment condition.");
-      expect(panel.textContent).toContain("Old: observed 6 h ago");
+      expect(selected().textContent).toContain("Old: observed 6 h ago");
+      expect(selected().closest("details")).toBeNull();
     });
 
     it("in contact with an untrusted clock: the report's age cannot be confirmed, never old", async () => {
       serve(recorded());
       mount(`/sites/KOBO-001/health?gateway=${gatewayRow("s7-clock-offset").gateway_id}`);
       await settledScreen();
-      const panel = selected();
-      expect(expectStateLineVisible(panel)).toBe("In contact; its latest report's age cannot be confirmed");
-      expect(panel.querySelector("[data-product-status-label]")?.textContent).not.toMatch(/is old/);
-      expect(panel.querySelector(".product-status__sentence")?.textContent).toContain("cannot be confirmed");
+      expect(state()).toBe("In contact; its latest report's age cannot be confirmed");
+      expect(state()).not.toMatch(/is old/);
+      expect(selected().querySelector("[data-health-selected-sentence]")?.textContent).toContain("cannot be confirmed");
     });
 
     it("in contact with a recent report stays plain In contact", async () => {
       serve(recorded());
       mount(`/sites/KOBO-001/health?gateway=${gatewayRow("s7-current").gateway_id}`);
       await settledScreen();
-      expect(expectStateLineVisible(selected())).toBe("In contact");
+      expect(state()).toBe("In contact");
     });
 
-    it("an unrecognised Health summary code headlines that contact cannot be confirmed, whatever the enabled count", async () => {
+    it("an unrecognised Health summary code says contact cannot be explained, whatever the enabled count", async () => {
       const odd = clone(C.health_kobo001);
       odd.body.summary.status = "SOMETHING_NEW";
       for (const g of odd.body.gateways) {
@@ -510,11 +538,11 @@ describe("W1-UX-05: Health and battery answer cards", () => {
       serve(recorded({ "/api/sites/KOBO-001/source-health": odd }));
       mount("/sites/KOBO-001/health");
       await settledScreen();
-      const answer = card("site-health");
-      expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Gateway contact cannot be confirmed");
-      expect(expectStateLineVisible(answer)).toBe("Contact state not recognised");
-      expect(answer.textContent).not.toMatch(/All \d+ enabled gateways/);
-      expect(answer.querySelector("[data-exact-references]")?.textContent).toContain("SOMETHING_NEW");
+      expect(contactLabel()).toBe("Contact state not recognised.");
+      expect(contact().textContent).toContain("Gateway contact: not recognised");
+      expect(main().textContent).not.toMatch(/All \d+ enabled gateways|Every enabled gateway is in contact/);
+      expect(defaultReading()).not.toContain("SOMETHING_NEW");
+      expect(q('[data-disclosure="site-health-technical"]')?.textContent).toContain("SOMETHING_NEW");
     });
 
     it("zero enabled gateways: the recognised no-source states keep their own messages; any other state is non-positive", async () => {
@@ -522,9 +550,8 @@ describe("W1-UX-05: Health and battery answer cards", () => {
       serve(recorded());
       mount("/sites/KOBO-002/health");
       await settledScreen();
-      let answer = card("site-health");
-      expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("No gateway is reporting, so nothing is known about this site's sources");
-      expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("No gateway is enabled");
+      expect(contactLabel()).toBe("No gateway is reporting.");
+      expect(contact().textContent).toContain("No gateway is enabled");
       cleanup();
       // None registered (recognised NO_REGISTERED_SOURCE / NO_REGISTERED_GATEWAY): kept distinct from all disabled.
       const none = clone(C.health_kobo002);
@@ -534,8 +561,8 @@ describe("W1-UX-05: Health and battery answer cards", () => {
       serve(recorded({ "/api/sites/KOBO-002/source-health": none }));
       mount("/sites/KOBO-002/health");
       await settledScreen();
-      answer = card("site-health");
-      expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("No gateway is registered");
+      expect(contact().textContent).toContain("No gateway is registered");
+      expectV69Panels("health");
       cleanup();
       // Zero enabled under any other summary code: never "All 0 enabled gateways".
       const zero = clone(C.health_kobo002);
@@ -544,27 +571,25 @@ describe("W1-UX-05: Health and battery answer cards", () => {
       serve(recorded({ "/api/sites/KOBO-002/source-health": zero }));
       mount("/sites/KOBO-002/health");
       await settledScreen();
-      answer = card("site-health");
-      expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Gateway contact cannot be confirmed");
-      expect(answer.textContent).not.toMatch(/All 0 enabled/);
-      // W1-UX-06 phase-1 review L1: the state line is non-positive too, with a next step, and stays visible.
-      expect(expectStateLineVisible(answer)).toBe("Gateway contact cannot be confirmed");
-      expect(answer.textContent).not.toMatch(/Every enabled gateway is in contact/);
-      expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("no enabled gateway");
-      expect(answer.querySelector("[data-product-status]")?.textContent).toContain("Check that the site's gateway is registered and enabled.");
+      expect(contactLabel()).toBe("Gateway contact cannot be confirmed.");
+      expect(main().textContent).not.toMatch(/All 0 enabled/);
+      // W1-UX-06 phase-1 review L1: non-positive, with a next step, and visible.
+      expect(main().textContent).not.toMatch(/Every enabled gateway is in contact/);
+      expect(contact().textContent).toContain("no enabled gateway");
+      expect(contact().textContent).toContain("Check that the site's gateway is registered and enabled.");
+      expect(contact().closest("details")).toBeNull();
     });
   });
 
-  it("selected gateway: never received keeps its state line visible; IDs move to the closed disclosure (S7-01b L3)", async () => {
+  it("selected gateway: never received keeps its line visible; IDs stay in the closed technical disclosure (S7-01b L3)", async () => {
     serve(recorded());
     const target = gatewayRow("s7-never-received");
     mount(`/sites/KOBO-001/health?gateway=${target.gateway_id}`);
     await settledScreen();
-    const panel = (q("#site-health-selected-heading") as HTMLElement).closest("section") as HTMLElement;
-    expect(expectStateLineVisible(panel)).toBe("Never heard from");
-    const references = panel.querySelector('[data-disclosure="site-health-selected-references"]') as HTMLDetailsElement;
+    expect(q('[data-health-selected="found"] [data-health-selected-state]')?.textContent).toBe("Never heard from");
+    const references = q('[data-disclosure="site-health-technical"]') as HTMLDetailsElement;
     expect(references.open).toBe(false);
-    expect(references.textContent).toContain(target.gateway_id);
+    expect(references.querySelector('[aria-current="true"]')?.textContent).toContain(target.gateway_id);
     expect(defaultReading()).not.toContain(target.gateway_id);
     w1("health selected gateway (W1)");
   });
@@ -580,12 +605,10 @@ describe("W1-UX-05: Health and battery answer cards", () => {
     const facts = (q('[data-health-gateway="s7-current"]') as HTMLElement).querySelector("[data-health-facts]") as HTMLElement;
     expect(facts.textContent).toBe("Unknown age: its reported time is later than the server received it");
     expect(facts.textContent).not.toMatch(/observed \d/);
-    expect(card("site-health").querySelector('[data-health-attention-gateway="s7-current"]')?.textContent).toContain(
-      "age of its latest report not known",
-    );
+    expect((q('[data-health-queue-row="s7-current"]') as HTMLElement).textContent).not.toMatch(/\b7 s\b/);
   });
 
-  it("a refused Health read keeps a plain state line and its scope, never an empty site", async () => {
+  it("a refused Health read is stated inside the data-sources panel; the condition strip keeps its own state", async () => {
     const cases: [Served, string][] = [
       [C.health_unavailable, "This could not be read right now"],
       [{ status: 403, body: { detail: { code: "SITE_SCOPE_FORBIDDEN", message: "x" } } }, "This cannot be shown to you"],
@@ -595,40 +618,66 @@ describe("W1-UX-05: Health and battery answer cards", () => {
       serve(recorded({ "/api/sites/KOBO-001/source-health": answer }));
       mount("/sites/KOBO-001/health");
       await settledScreen();
-      const panel = (q('[data-health-read="refused"]') as HTMLElement).closest("section") as HTMLElement;
-      expectRefusedStateLine(panel, label);
-      expect(q('[data-headline-card="site-health"]'), label).toBeNull();
+      expectV69Panels("health");
+      const gap = q('[data-health-read="refused"]') as HTMLElement;
+      expect(panelTitled(SOURCES).contains(gap), label).toBe(true);
+      expect(gap.textContent, label).toContain(label);
+      expect(gap.textContent, label).toContain("this is not an empty result");
+      expect(expectStateLineVisible(strip()), label).toBe("Asset condition cannot yet be judged");
+      expect(q("[data-headline-card]"), label).toBeNull();
       cleanup();
       vi.unstubAllGlobals();
     }
+    // A refused battery read: the strip states the refusal with no read time, and the condition panel holds the gap.
+    serve(recorded({ "/api/sites/KOBO-001/battery": C.health_unavailable }));
+    mount("/sites/KOBO-001/health");
+    await settledScreen();
+    expectV69Panels("health");
+    expectRefusedStateLine(strip(), "This could not be read right now");
+    expect(panelTitled("Physical asset condition").querySelector('[data-health-read="refused"]')).not.toBeNull();
+    expect(qa("[data-health-gateway]").length).toBeGreaterThan(0);
   });
 
-  it("leads the battery page with 'cannot yet be judged', the missing inputs and separate rating and charge facts", async () => {
+  it("leads the battery page with 'cannot yet be judged' in the strip, the missing inputs and separate rating and exposure facts", async () => {
     serve(recorded());
     mount(`/sites/KOBO-001/assets/${KOBO_001_ASSET}`);
     await settledScreen();
     const body = C.battery_detail_kobo001.body;
-    const answer = card("battery-condition");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Battery condition: cannot yet be judged");
-    expect(expectStateLineVisible(answer)).toBe("Cannot yet be judged");
-    const steps = Array.from(answer.querySelectorAll("[data-step]"));
-    expect(steps).toHaveLength(body.physical_condition.missing_causal_inputs.length);
-    expect(steps.map((s) => s.getAttribute("data-step"))).toEqual(
-      body.physical_condition.missing_causal_inputs.map((i: any) => (i.status === "MISSING" ? "waiting" : "not-known")),
+    expectV69Panels("asset");
+    expect(q("[data-headline-card]")).toBeNull();
+    expect(expectStateLineVisible(strip())).toBe("Cannot yet be judged");
+    expect(strip().textContent).toContain("Capacity: unverified");
+    expectOneStateLine();
+    const interpretation = panelTitled("Interpretation and next evidence");
+    const items = Array.from(interpretation.querySelectorAll("[data-battery-missing]"));
+    expect(items).toHaveLength(body.physical_condition.missing_causal_inputs.length);
+    expect(items.map((i) => (i.textContent ?? "").endsWith(" · missing") ? "MISSING" : "OTHER")).toEqual(
+      body.physical_condition.missing_causal_inputs.map((i: any) => (i.status === "MISSING" ? "MISSING" : "OTHER")),
     );
-    expect(answer.textContent).toContain("Temperature history");
-    expect(answer.textContent).toContain("No remaining life, warranty position or replacement date is stated.");
-    // Rating and charge stay separate facts beside it.
+    expect(interpretation.textContent).toContain("Temperature history");
+    expect(interpretation.textContent).toContain("Battery condition cannot yet be judged.");
+    expect(q(".notice")?.textContent).toContain("No warranty position and no remaining-life estimate are stated.");
+    // Rating and exposure stay separate facts beside it; unsupported exposure is a stated gap, never zero.
     expect((q('[data-battery-metric="rating"]') as HTMLElement).textContent).toContain("200 kWh");
-    expect((q('[data-battery-metric="charge"]') as HTMLElement).textContent).toContain("Not shown");
-    const references = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect((q('[data-battery-metric="reserve"]') as HTMLElement).textContent).toContain("Not available");
+    expect((q('[data-battery-metric="power"]') as HTMLElement).textContent).toContain("Not available");
+    expect(panelTitled("Observed reserve and power exposure").querySelector('[data-gap-id="G-asset-battery-exposure"]')).not.toBeNull();
+    expect(panelTitled("Condition evidence and its limits").querySelector('[data-gap-id="G-asset-remaining-life"]')).not.toBeNull();
+    const boundary = panelTitled("Condition evidence and its limits");
+    expect(boundary.querySelectorAll("[data-battery-boundary]")).toHaveLength(4);
+    const references = boundary.querySelector('[data-disclosure="site-battery-asset-technical"]') as HTMLDetailsElement;
+    expect(references.open).toBe(false);
     expect(references.textContent).toContain(body.asset.asset_id);
     expect(defaultReading()).not.toContain(body.asset.asset_id);
     w1("battery KOBO-001 (W1)");
-    disclosureOf(answer, "battery answer disclosure");
+    // One disclosure per panel: only the claim-boundary panel holds the closed technical details.
+    expect(boundary.querySelectorAll("details")).toHaveLength(1);
+    expect(panelTitled("Observed reserve and power exposure").querySelectorAll("details")).toHaveLength(0);
+    expect(interpretation.querySelectorAll("details")).toHaveLength(0);
+    // The refused-read disclosure keeps plain words (scanned where one exists: the battery refusal below).
   });
 
-  it("refuses a 409 configuration basis and a condition other than Unknown, with a state line and no condition (S7-01b L4)", async () => {
+  it("refuses a 409 configuration basis and a condition other than Unknown, with a state line, panel gaps and no condition (S7-01b L4)", async () => {
     const path = `/api/sites/KOBO-001/assets/${KOBO_001_ASSET}/battery`;
     const known = structuredClone(C.battery_detail_kobo001);
     known.body.physical_condition.status = "GOOD";
@@ -647,10 +696,13 @@ describe("W1-UX-05: Health and battery answer cards", () => {
       const refused = q('[data-health-read="refused"]') as HTMLElement;
       expect(refused, name).not.toBeNull();
       expect(refused.textContent, name).toMatch(text);
-      expectRefusedStateLine(refused.closest("section") as HTMLElement, "This could not be read right now");
+      expectRefusedStateLine(strip(), "This could not be read right now");
+      expectV69Panels("asset");
+      expect(qa("[data-battery-gap]"), name).toHaveLength(3);
       expect(q("[data-battery-condition]"), name).toBeNull();
-      expect(q('[data-headline-card="battery-condition"]'), name).toBeNull();
+      expect(q("[data-headline-card]"), name).toBeNull();
       expect(defaultReading(), name).not.toMatch(/GOOD|good condition/);
+      disclosureOf(refused, `battery refusal disclosure (${name})`);
       cleanup();
       vi.unstubAllGlobals();
     }

@@ -1,14 +1,16 @@
 /**
  * S7-01b Site Health (`health:2#a`) over S7-01a's source-health and battery
- * entry reads. Layout follows v69 `#/health`; content is limited to what the
- * reads support (`D-2026-10-16-a-s7-health`, `D-2026-10-16-s701-clock`):
+ * entry reads, rebuilt by W1-F5a to the v69 `health` panels
+ * (`D-2026-10-17-mockup-layout-spec`): a status strip about physical asset
+ * condition, then "Physical asset condition" and "Data sources · data quality,
+ * not equipment condition". Content is limited to what the reads support
+ * (`D-2026-10-16-a-s7-health`, `D-2026-10-16-s701-clock`):
  *
- * - The summary is "Gateway contact" with an enabled-gateway count, never Site
- *   or equipment health. Disabled gateways are listed with "Disabled" and are
- *   not counted.
- * - Contact (server receipt), what each gateway last reported (queue, storage,
- *   its clock), device contact reported by gateways and battery condition are
- *   separate sections, each saying what it is not.
+ * - Condition comes only from the battery entry read (Unknown). Gateway
+ *   contact never decides it and sits in the data-sources panel.
+ * - Contact (server receipt), what each gateway last reported (age, queue,
+ *   storage) and device contact reported by gateways are separate columns or
+ *   rows. Disabled gateways are listed with "Disabled" and are not counted.
  * - An age is shown only when the read states one; otherwise "Unknown age"
  *   with the clock reason. Never a signed age.
  * - Exact IDs, rule and watermark sit in "Technical details", closed by default.
@@ -16,8 +18,24 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, ExactReferences, Fact, FactList, Panel, ProductStatus, readResultWords } from "../ui";
-import { gatewayContactWords, HealthHeadline } from "./healthHeadlines";
+import {
+  Badge,
+  ChartNote,
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  Fact,
+  FactList,
+  KeyValues,
+  MissingClaim,
+  Panel,
+  ProductStatus,
+  readResultWords,
+  StatusBar,
+  V69Notice,
+  type ProductWords,
+} from "../ui";
+import { contactSummaryWords, gatewayContactWords, siteConditionWords } from "./healthHeadlines";
 import type {
   BatteryEntry,
   GatewayHealthRow,
@@ -125,23 +143,12 @@ const SUMMARY_WORDS: Record<string, string> = {
   NO_REGISTERED_SOURCE: "no enabled gateway",
 };
 
-/** A typed refusal of one read: HTTP status and server code kept; never an empty result. */
-export function HealthRefusalPanel({
-  refusal,
-  subject,
-  headingId,
-  texts = {},
-  children,
-  scope,
-}: {
-  refusal: HealthRefusal;
-  subject: string;
-  /** What the refused read was about, in plain words (W1-UX-05 state line). */
-  scope?: ReactNode;
-  headingId: string;
-  texts?: Record<string, string>;
-  children?: ReactNode;
-}) {
+/** The plain heading and sentence for a refused read (HTTP status and server code kept by the caller). */
+export function refusalText(
+  refusal: HealthRefusal,
+  subject: string,
+  texts: Record<string, string> = {},
+): { heading: string; text: string } {
   const byCode = refusal.code ? texts[refusal.code] : undefined;
   const heading =
     refusal.http === 401
@@ -162,13 +169,82 @@ export function HealthRefusalPanel({
           : refusal.http === 404
             ? "This site is not configured, so it has nothing to show."
             : `The ${subject.toLowerCase()} could not be read (HTTP ${refusal.http}), so nothing is stated.`);
-  const words = readResultWords(
+  return { heading, text };
+}
+
+/** The shared read-result words for a refused read; a refused read has no read time. */
+export function refusalWords(refusal: HealthRefusal): ProductWords {
+  return readResultWords(
     refusal.http === 401 || refusal.http === 403 ? "refused" : refusal.http === 404 ? "not-found" : "unavailable",
   );
+}
+
+/**
+ * W1-F5a: a refused read stated inside the v69 panel that owns it (never a
+ * replacement panel). The HTTP status and server code stay on the element and
+ * in the small exact-reference disclosure.
+ */
+export function HealthGap({
+  refusal,
+  subject,
+  name,
+  texts = {},
+  children,
+}: {
+  refusal: HealthRefusal;
+  subject: string;
+  /** Names the exact-reference disclosure. */
+  name: string;
+  texts?: Record<string, string>;
+  children?: ReactNode;
+}) {
+  const { heading, text } = refusalText(refusal, subject, texts);
+  return (
+    <div
+      className="health-gap"
+      data-health-read="refused"
+      data-health-http={refusal.http ?? "none"}
+      data-health-code={refusal.code ?? ""}
+    >
+      <p>
+        <strong data-health-gap-label>{heading}.</strong> {text} {refusalWords(refusal).label}; this is not an empty
+        result.
+      </p>
+      {children}
+      <ExactReferences
+        name={name}
+        variant="tech"
+        references={[
+          { label: "Server answer code", value: refusal.code },
+          { label: "Web status", value: refusal.http === null ? null : String(refusal.http) },
+        ]}
+      />
+    </div>
+  );
+}
+
+/** A typed refusal of one read as its own panel (the battery entry page, which is not a v69 screen). */
+export function HealthRefusalPanel({
+  refusal,
+  subject,
+  headingId,
+  texts = {},
+  children,
+  scope,
+}: {
+  refusal: HealthRefusal;
+  subject: string;
+  /** What the refused read was about, in plain words (W1-UX-05 state line). */
+  scope?: ReactNode;
+  headingId: string;
+  texts?: Record<string, string>;
+  children?: ReactNode;
+}) {
+  const { heading, text } = refusalText(refusal, subject, texts);
   return (
     <Panel heading={heading} headingId={headingId}>
       {/* W1-UX-05: the plain state line; a refused read has no read time, so "as of" says so. */}
-      <ProductStatus words={words} scope={scope ?? subject} asOf={null} />
+      <ProductStatus words={refusalWords(refusal)} scope={scope ?? subject} asOf={null} />
       <p data-health-read="refused" data-health-http={refusal.http ?? "none"} data-health-code={refusal.code ?? ""}>
         {text}
       </p>
@@ -202,6 +278,7 @@ function useRead<T>(load: () => Promise<HealthRead<T>>, key: string): HealthRead
 
 export { useRead as useHealthRead };
 
+
 const HEALTH_TEXTS: Record<string, string> = {
   SOURCE_HEALTH_UNAVAILABLE:
     "The gateway contact store could not be read, so nothing is known about gateway contact right now.",
@@ -209,76 +286,199 @@ const HEALTH_TEXTS: Record<string, string> = {
     "Gateway registrations and their reports did not agree when they were read, so no contact is stated. Reload to read again.",
 };
 
+const BATTERY_TEXTS: Record<string, string> = {
+  ASSET_BOUNDARY_UNAVAILABLE: "The site's configuration could not be read, so nothing is stated about its battery.",
+  FOUNDATION_BASIS_UNAVAILABLE:
+    "The site's configuration could not be read consistently, so nothing is stated about its battery.",
+};
+
+export { BATTERY_TEXTS };
+
+const CONDITION_HEADING = "Physical asset condition";
+const SOURCES_HEADING = "Data sources · data quality, not equipment condition";
+
+/** `09:10 UTC` from the read's UTC instant, for the mock's "Status at" column. */
+function clockTime(value: string): string {
+  const match = /T(\d{2}:\d{2})/.exec(value);
+  return match ? `${match[1]} UTC` : formatInstant(value);
+}
+
 export function SiteHealth({
   siteId,
+  siteName,
   client,
   selectedGateway,
 }: {
   siteId: string;
+  /** The site's display name, for the status strip's scope. */
+  siteName: string;
   client: HealthClient;
   selectedGateway: string | null;
 }) {
+  const links = useHealthLinks();
   const health = useRead(() => client.getSourceHealth(siteId), `health:${siteId}`);
   const battery = useRead(() => client.getBatteryEntry(siteId), `battery:${siteId}`);
-  if (health === null) {
+  if (health === null || battery === null) {
     return <p>Loading the site's gateway contact.</p>;
   }
   return (
     <div className="site-health" data-health-site={siteId}>
-      {health.status === "refused" ? (
-        <HealthRefusalPanel
-          refusal={health}
-          subject="Gateway contact"
-          headingId="site-health-refused-heading"
-          texts={HEALTH_TEXTS}
-        />
-      ) : (
-        <HealthBody
-          siteId={siteId}
-          doc={health.value}
-          selectedGateway={selectedGateway}
-          battery={<BatterySection siteId={siteId} read={battery} />}
-        />
-      )}
-      {health.status === "refused" ? <BatterySection siteId={siteId} read={battery} /> : null}
-      <div className="notice notice--info" role="note">
+      <ConditionStrip siteName={siteName} read={battery} batteryHref={links.assets(siteId)} />
+      <Panel
+        heading={CONDITION_HEADING}
+        headingId="site-health-condition-heading"
+        description="Opening an asset moves you to the battery page; the breadcrumb keeps this site"
+      >
+        <ConditionBody siteId={siteId} read={battery} />
+      </Panel>
+      <Panel
+        heading={SOURCES_HEADING}
+        headingId="site-health-sources-heading"
+        description="Current · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment."
+      >
+        {health.status === "refused" ? (
+          <HealthGap refusal={health} subject="Gateway contact" name="site-health-refused-code" texts={HEALTH_TEXTS} />
+        ) : (
+          <SourcesBody siteId={siteId} doc={health.value} selectedGateway={selectedGateway} />
+        )}
+      </Panel>
+      <V69Notice tone="blue">
         A gateway being heard from does not make equipment healthy. Gateway contact, what gateways report about
         themselves, and battery condition are separate, and none of them is a statement about equipment condition.
-      </div>
-      {health.status === "loaded" ? <HealthTechnical doc={health.value} /> : null}
+      </V69Notice>
     </div>
   );
 }
 
-function HealthBody({
+/** The mock's status line: physical asset condition only, said once. */
+function ConditionStrip({
+  siteName,
+  read,
+  batteryHref,
+}: {
+  siteName: string;
+  read: HealthRead<BatteryEntry>;
+  batteryHref: string;
+}) {
+  if (read.status === "refused") {
+    return (
+      <StatusBar data={{ "data-health-strip": "refused" }}>
+        <ProductStatus inline words={refusalWords(read)} scope={`${siteName} · asset condition`} asOf={null} />
+      </StatusBar>
+    );
+  }
+  const entry = read.value;
+  const count = entry.configuration === "CONFIGURED" ? entry.batteries.length : 0;
+  const scope =
+    count === 0
+      ? `${siteName} · no configured battery · summary only`
+      : `${siteName} · ${count} configured ${count === 1 ? "battery" : "batteries"} · summary only; detail on the battery page`;
+  return (
+    <StatusBar
+      data={{ "data-health-strip": entry.configuration }}
+      action={count === 0 ? undefined : <Link to={batteryHref}>Battery page →</Link>}
+    >
+      <ProductStatus inline words={siteConditionWords(entry)} scope={scope} asOf={entry.read_at} />
+    </StatusBar>
+  );
+}
+
+/** v69 `health:1`: the configured battery's condition (Unknown) and the asset rows no read supplies. */
+function ConditionBody({ siteId, read }: { siteId: string; read: HealthRead<BatteryEntry> }) {
+  const links = useHealthLinks();
+  if (read.status === "refused") {
+    return (
+      <HealthGap refusal={read} subject="Battery condition" name="site-health-battery-refused-code" texts={BATTERY_TEXTS} />
+    );
+  }
+  const entry = read.value;
+  return (
+    <>
+      <p className="health-condition-lead" data-health-condition-lead>
+        <strong>Condition cannot yet be judged.</strong>{" "}
+        {entry.configuration === "NOT_CONFIGURED"
+          ? "No battery is part of this site's configuration, so there is no battery condition to judge."
+          : "The inputs needed to judge battery condition are missing. Gateway contact never decides it."}
+      </p>
+      {entry.configuration === "NOT_CONFIGURED" ? (
+        <p data-health-battery="NOT_CONFIGURED">
+          Battery condition: Unknown (not configured). <Link to={links.assets(siteId)}>Battery page</Link>
+        </p>
+      ) : (
+        <DataTable labelledBy="site-health-condition-heading">
+          <thead>
+            <tr>
+              <th scope="col">Asset</th>
+              <th scope="col">Assessment</th>
+              <th scope="col">Evidence</th>
+              <th scope="col">Main reason</th>
+              <th scope="col">Open findings</th>
+              <th scope="col">Open work</th>
+              <th scope="col">
+                <span className="visually-hidden">Open</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {entry.batteries.map((b) => (
+              <tr key={b.asset_id} data-health-battery={b.asset_id}>
+                <th scope="row">
+                  Battery · <span data-vocabulary-exempt="user-owned">{b.display_name ?? b.asset_code}</span>
+                </th>
+                <td>
+                  <Badge tone="neutral">Unknown</Badge>
+                </td>
+                <td>Inputs missing</td>
+                <td>The inputs needed to judge battery condition are missing</td>
+                <td>Not recorded</td>
+                <td>Not recorded</td>
+                <td>
+                  <Link to={links.asset(siteId, b.asset_id)}>Open battery →</Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      )}
+      <ChartNote>
+        <MissingClaim gapId="G-health-asset-inventory" placement="health.condition.other-assets">
+          Other assets, such as the generator and inverters: condition not available yet
+        </MissingClaim>
+        . No read lists them with a condition, so none is shown.
+      </ChartNote>
+    </>
+  );
+}
+
+/** v69 `health:2`: gateway contact, reported fact age, queue and storage, and device contact, one source per row. */
+function SourcesBody({
   siteId,
   doc,
   selectedGateway,
-  battery,
 }: {
   siteId: string;
   doc: SourceHealthDocument;
   selectedGateway: string | null;
-  /** v69 order: the asset condition summary sits right under the status strip. */
-  battery: ReactNode;
 }) {
   const links = useHealthLinks();
   const s = doc.summary;
+  const words = contactSummaryWords(doc);
   const enabled = doc.gateways.filter((g) => g.registration === "ENABLED");
   const reported = enabled.filter((g) => g.diagnostic !== null);
   const noEnabled = s.status === "NO_REGISTERED_SOURCE";
   const selected = selectedGateway === null ? null : doc.gateways.find((g) => g.gateway_id === selectedGateway) ?? null;
   return (
     <>
-      <HealthHeadline
-        doc={doc}
-        siteName={doc.site_code}
-        gatewayHref={(gatewayId) => links.health(siteId, gatewayId)}
-        batteryHref={links.assets(siteId)}
-      />
-      <div className="evidence-statusbar" data-health-summary={s.status} data-health-summary-reason={s.reason ?? ""}>
-        <Badge tone="neutral">{`Gateway contact: ${SUMMARY_WORDS[s.status] ?? s.status}`}</Badge>
-        <span className="evidence-statusbar__facts" data-health-counts>
+      <p
+        className="health-contact-summary"
+        data-health-summary={s.status}
+        data-health-summary-reason={s.reason ?? ""}
+        data-health-contact-tone={words.tone}
+      >
+        <strong data-health-contact-label>{words.label}.</strong> {words.sentence}
+        {words.next ? ` ${words.next}` : ""}
+        <span className="health-cell-note" data-health-counts>
+          {`Gateway contact: ${SUMMARY_WORDS[s.status] ?? "not recognised"} · `}
           {noEnabled
             ? s.reason === "NO_REGISTERED_GATEWAY"
               ? "No gateway is registered for this site, so nothing is known about contact."
@@ -289,296 +489,179 @@ function HealthBody({
           {s.disabled_gateway_count > 0 ? ` · ${s.disabled_gateway_count} disabled, not counted` : ""}
           {` · read ${formatInstant(doc.read_at)}`}
         </span>
-      </div>
+      </p>
       {selectedGateway !== null ? (
         selected === null ? (
-          <Panel heading="No such gateway" headingId="site-health-selected-heading">
-            <p data-health-selected="not-found">
-              This site has no gateway with that ID. <Link to={links.health(siteId)}>Show all gateways</Link>
-            </p>
-          </Panel>
-        ) : (
-          <SelectedGateway siteId={siteId} row={selected} readAt={doc.read_at} />
-        )
-      ) : null}
-      {battery}
-      <Panel
-        heading="Gateway contact"
-        headingId="site-health-contact-heading"
-        description="When the server last received each gateway's report, against the reporting interval the gateway declared. Contact means the gateway reached the server; it says nothing about the equipment."
-        flush
-      >
-        {doc.gateways.length === 0 ? (
-          <p className="panel__note">No gateway is registered for this site.</p>
-        ) : (
-          <DataTable labelledBy="site-health-contact-heading">
-            <thead>
-              <tr>
-                <th scope="col">Gateway</th>
-                <th scope="col">Contact</th>
-                <th scope="col">Last received (server clock)</th>
-                <th scope="col">Reporting interval</th>
-                <th scope="col">What it last reported</th>
-                <th scope="col">Open</th>
-              </tr>
-            </thead>
-            <tbody>
-              {doc.gateways.map((g) => (
-                <tr
-                  key={g.gateway_id}
-                  data-health-gateway={g.gateway_external_id}
-                  data-health-contact={g.contact.status}
-                  data-health-registration={g.registration}
-                  aria-current={g.gateway_id === selectedGateway ? "true" : undefined}
-                >
-                  <th scope="row">
-                    <HealthRef value={g.gateway_external_id} />
-                    {g.registration === "DISABLED" ? (
-                      <>
-                        {" "}
-                        <Badge tone="neutral">Disabled</Badge>
-                      </>
-                    ) : null}
-                  </th>
-                  <td>
-                    {g.registration === "DISABLED" ? "Disabled, not counted. " : ""}
-                    {contactText(g)}
-                  </td>
-                  <td>{formatInstant(g.contact.last_received_at)}</td>
-                  <td>every {formatAge(g.declared_cadence_seconds)}</td>
-                  <td data-health-facts={g.reported_facts.status}>{reportedText(g)}</td>
-                  <td>
-                    <Link to={links.health(siteId, g.gateway_id)} data-health-open={g.gateway_external_id}>
-                      Details
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </DataTable>
-        )}
-      </Panel>
-      <Panel
-        heading="Queue and storage, as last reported"
-        headingId="site-health-queue-heading"
-        description="What each enabled gateway said about its own queue and storage in its latest report. This is the last reported state, not the hardware's state now."
-        flush
-      >
-        {reported.length === 0 ? (
-          <p className="panel__note" data-health-queue="none">
-            No enabled gateway has reported yet, so nothing is known about queues or storage.
+          <p className="health-selected" data-health-selected="not-found">
+            This site has no gateway with that ID. <Link to={links.health(siteId)}>Show all gateways</Link>
           </p>
         ) : (
-          <DataTable labelledBy="site-health-queue-heading">
-            <thead>
-              <tr>
-                <th scope="col">Gateway</th>
-                <th scope="col">Readings waiting</th>
-                <th scope="col">Oldest waiting</th>
-                <th scope="col">Storage</th>
-                <th scope="col">Reported age</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reported.map((g) => {
-                const f = g.reported_facts;
-                return (
-                  <tr key={g.gateway_id} data-health-queue-row={g.gateway_external_id}>
-                    <th scope="row">
-                      <HealthRef value={g.gateway_external_id} />
-                    </th>
-                    <td>{f.queue ? f.queue.count : "not reported"}</td>
-                    <td>
-                      {f.queue === null
-                        ? "not reported"
-                        : f.queue.oldest_age_seconds === null
-                          ? "none waiting"
-                          : formatAge(f.queue.oldest_age_seconds)}
-                    </td>
-                    <td data-health-disk={f.disk_pressure?.value ?? ""}>
-                      {f.disk_pressure ? DISK_WORDS[f.disk_pressure.value] ?? f.disk_pressure.value : "not reported"}
-                    </td>
-                    <td>
-                      {f.fact_age_seconds === null
-                        ? `Unknown age: ${unknownAgeReason(g)}`
-                        : `${formatAge(f.fact_age_seconds)} ago`}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </DataTable>
-        )}
-      </Panel>
-      <Panel
-        heading="Device contact reported by gateways"
-        headingId="site-health-devices-heading"
-        description="When each enabled gateway says it last heard from a device. A gateway reaching the server does not show that its devices are connected."
-        flush
-      >
-        {enabled.length === 0 ? (
-          <p className="panel__note">No gateway is enabled, so no device contact is reported.</p>
-        ) : (
-          <DataTable labelledBy="site-health-devices-heading">
-            <thead>
-              <tr>
-                <th scope="col">Gateway</th>
-                <th scope="col">Device source</th>
-                <th scope="col">Last heard, as reported</th>
-                <th scope="col">Age</th>
-              </tr>
-            </thead>
-            <tbody>
-              {enabled.flatMap((g) =>
-                g.sources.map((source) => (
-                  <tr key={source.source_id} data-health-source={source.source_external_id}>
-                    <td>
-                      <HealthRef value={g.gateway_external_id} />
-                    </td>
-                    <th scope="row">
-                      <HealthRef value={source.source_external_id} />
-                    </th>
-                    <td>
-                      {source.reported_contact_status === "REPORTED"
-                        ? formatInstant(source.reported_contact)
-                        : source.reported_contact_status === "REPORTED_NEVER_HEARD"
-                          ? "The gateway reports never hearing from it"
-                          : "Not in the gateway's latest report"}
-                    </td>
-                    <td>
-                      {source.reported_contact_age_seconds !== null
-                        ? `${formatAge(source.reported_contact_age_seconds)} ago`
-                        : source.reported_contact_status === "REPORTED"
-                          ? `Unknown age: ${unknownAgeReason(g)}`
-                          : "Unknown"}
-                    </td>
-                  </tr>
-                )),
-              )}
-            </tbody>
-          </DataTable>
-        )}
-      </Panel>
-    </>
-  );
-}
-
-function SelectedGateway({ siteId, row, readAt }: { siteId: string; row: GatewayHealthRow; readAt: string }) {
-  const links = useHealthLinks();
-  const f = row.reported_facts;
-  const d = row.diagnostic;
-  return (
-    <Panel
-      heading={`Gateway ${row.gateway_external_id}`}
-      headingId="site-health-selected-heading"
-      description="This gateway's contact and its latest report. The exact records are under How this was worked out."
-    >
-      <ProductStatus
-        words={gatewayContactWords(row)}
-        scope={<>Gateway <HealthRef value={row.gateway_external_id} /> · contact</>}
-        asOf={readAt}
-      />
-      <FactList>
-        <Fact term="Registration">{row.registration === "DISABLED" ? "Disabled (not counted)" : "Enabled"}</Fact>
-        <Fact term="Contact">{contactText(row)}</Fact>
-        <Fact term="Last received (server clock)">{formatInstant(row.contact.last_received_at)}</Fact>
-        <Fact term="Stale after">{formatAge(row.contact.threshold_seconds)} without a report</Fact>
-        <Fact term="Observed (gateway clock)">{formatInstant(f.observed_at)}</Fact>
-        <Fact term="What it last reported">{reportedText(row)}</Fact>
-        <Fact term="Gateway clock">
-          {f.clock.offset_ms === null
-            ? "Offset not reported"
-            : `Off by ${(f.clock.offset_ms / 1000).toFixed(1)} s; ${
-                f.clock.trust === "UNTRUSTED" ? "not trusted" : "within the allowed range"
-              }`}
-        </Fact>
-      </FactList>
-      {/* S7-01b L3: gateway and report IDs move to the exact-reference disclosure. */}
-      <div data-health-selected-diagnostic={d?.diagnostic_id ?? ""}>
-        <ExactReferences
-          name="site-health-selected-references"
-          references={[
-            { label: "Gateway reference", value: row.gateway_id },
-            { label: "Latest report reference", value: d?.diagnostic_id ?? null },
-            { label: "Report sequence", value: d ? `${d.sequence_epoch} #${d.diagnostic_sequence}` : null },
-            { label: "Contact basis (exact)", value: `${row.contact.status} ${row.contact.reason}` },
-          ]}
-        />
-      </div>
-      <p>
-        <Link to={links.health(siteId)}>Show all gateways</Link>
-      </p>
-    </Panel>
-  );
-}
-
-const BATTERY_TEXTS: Record<string, string> = {
-  ASSET_BOUNDARY_UNAVAILABLE: "The site's configuration could not be read, so nothing is stated about its battery.",
-  FOUNDATION_BASIS_UNAVAILABLE:
-    "The site's configuration could not be read consistently, so nothing is stated about its battery.",
-};
-
-export { BATTERY_TEXTS };
-
-function BatterySection({ siteId, read }: { siteId: string; read: HealthRead<BatteryEntry> | null }) {
-  const links = useHealthLinks();
-  if (read === null) {
-    return <p>Loading the site's battery.</p>;
-  }
-  if (read.status === "refused") {
-    return (
-      <HealthRefusalPanel
-        refusal={read}
-        subject="Battery condition"
-        headingId="site-health-battery-refused-heading"
-        texts={BATTERY_TEXTS}
-      />
-    );
-  }
-  const entry = read.value;
-  return (
-    <Panel
-      heading="Battery condition"
-      headingId="site-health-battery-heading"
-      description="Physical condition of the configured battery. Gateway contact never decides it."
-      flush
-    >
-      {entry.configuration === "NOT_CONFIGURED" ? (
-        <p className="panel__note" data-health-battery="NOT_CONFIGURED">
-          No battery is part of this site's configuration. Battery condition: Unknown (not configured).{" "}
-          <Link to={links.assets(siteId)}>Battery page</Link>
-        </p>
+          <SelectedGateway siteId={siteId} row={selected} />
+        )
+      ) : null}
+      {doc.gateways.length === 0 ? (
+        <p data-health-sources="none">No gateway is registered for this site.</p>
       ) : (
-        <DataTable labelledBy="site-health-battery-heading">
+        <DataTable labelledBy="site-health-sources-heading">
           <thead>
             <tr>
-              <th scope="col">Asset</th>
-              <th scope="col">Condition</th>
-              <th scope="col">Why</th>
+              <th scope="col">Source</th>
+              <th scope="col">Status at {clockTime(doc.read_at)}</th>
+              <th scope="col">Quality</th>
+              <th scope="col">Affects</th>
               <th scope="col">Open</th>
             </tr>
           </thead>
           <tbody>
-            {entry.batteries.map((b) => (
-              <tr key={b.asset_id} data-health-battery={b.asset_id}>
+            {doc.gateways.flatMap((g) => [
+              <tr
+                key={g.gateway_id}
+                data-health-gateway={g.gateway_external_id}
+                data-health-contact={g.contact.status}
+                data-health-registration={g.registration}
+                aria-current={g.gateway_id === selectedGateway ? "true" : undefined}
+              >
                 <th scope="row">
-                  <span data-vocabulary-exempt="user-owned">{b.display_name ?? b.asset_code}</span>
+                  Gateway <HealthRef value={g.gateway_external_id} />
+                  {g.registration === "DISABLED" ? (
+                    <>
+                      {" "}
+                      <Badge tone="neutral">Disabled</Badge>
+                    </>
+                  ) : null}
                 </th>
-                <td>Unknown</td>
-                <td>The inputs needed to judge battery condition are missing</td>
                 <td>
-                  <Link to={links.asset(siteId, b.asset_id)}>Open battery</Link>
+                  {g.registration === "DISABLED" ? "Disabled, not counted. " : ""}
+                  {contactText(g)}
+                  <small className="health-cell-note">reports every {formatAge(g.declared_cadence_seconds)}</small>
                 </td>
-              </tr>
-            ))}
+                <QualityCell row={g} />
+                <td>Not recorded</td>
+                <td>
+                  <Link to={links.health(siteId, g.gateway_id)} data-health-open={g.gateway_external_id}>
+                    Details
+                  </Link>
+                </td>
+              </tr>,
+              ...(g.registration === "ENABLED"
+                ? g.sources.map((source) => (
+                    <tr key={source.source_id} data-health-source={source.source_external_id}>
+                      <th scope="row">
+                        Device <HealthRef value={source.source_external_id} />
+                        <small className="health-cell-note">
+                          as reported by gateway <HealthRef value={g.gateway_external_id} />
+                        </small>
+                      </th>
+                      <td>
+                        {source.reported_contact_status === "REPORTED"
+                          ? `Last heard ${formatInstant(source.reported_contact)}`
+                          : source.reported_contact_status === "REPORTED_NEVER_HEARD"
+                            ? "The gateway reports never hearing from it"
+                            : "Not in the gateway's latest report"}
+                      </td>
+                      <td>
+                        {source.reported_contact_age_seconds !== null
+                          ? `${formatAge(source.reported_contact_age_seconds)} ago`
+                          : source.reported_contact_status === "REPORTED"
+                            ? `Unknown age: ${unknownAgeReason(g)}`
+                            : "Unknown"}
+                      </td>
+                      <td>Not recorded</td>
+                      <td>
+                        <Link to={links.health(siteId, g.gateway_id)}>Gateway</Link>
+                      </td>
+                    </tr>
+                  ))
+                : []),
+            ])}
           </tbody>
         </DataTable>
       )}
-    </Panel>
+      {reported.length === 0 ? (
+        <ChartNote data={{ "data-health-queue": "none" }}>
+          No enabled gateway has reported yet, so nothing is known about queues or storage.
+        </ChartNote>
+      ) : null}
+      <HealthTechnical doc={doc} selectedGateway={selected?.gateway_id ?? null} />
+    </>
   );
 }
 
-function HealthTechnical({ doc }: { doc: SourceHealthDocument }) {
+/** What a gateway last reported: fact age, then queue and storage as last reported (not the hardware now). */
+function QualityCell({ row }: { row: GatewayHealthRow }) {
+  const f = row.reported_facts;
+  const facts = <span data-health-facts={f.status}>{reportedText(row)}</span>;
+  if (row.registration !== "ENABLED" || row.diagnostic === null) return <td>{facts}</td>;
+  return (
+    <td data-health-queue-row={row.gateway_external_id}>
+      {facts}
+      <small className="health-cell-note">
+        Queue, as last reported: {f.queue === null ? "not reported" : `${f.queue.count} waiting`}
+        {f.queue === null
+          ? ""
+          : f.queue.oldest_age_seconds === null
+            ? ", none waiting"
+            : `, oldest ${formatAge(f.queue.oldest_age_seconds)}`}
+        {" · Storage: "}
+        <span data-health-disk={f.disk_pressure?.value ?? ""}>
+          {f.disk_pressure ? DISK_WORDS[f.disk_pressure.value] ?? "not recognised" : "not reported"}
+        </span>
+      </small>
+    </td>
+  );
+}
+
+/** The gateway chosen by `?gateway=`: its contact and latest report, inside the data-sources panel. */
+function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRow }) {
+  const links = useHealthLinks();
+  const f = row.reported_facts;
+  const d = row.diagnostic;
+  const words = gatewayContactWords(row);
+  return (
+    <div
+      className="health-selected"
+      data-health-selected="found"
+      data-health-selected-diagnostic={d?.diagnostic_id ?? ""}
+      data-health-selected-tone={words.tone}
+    >
+      <p>
+        <strong>
+          Gateway <HealthRef value={row.gateway_external_id} />
+        </strong>
+        {" · "}
+        <strong data-health-selected-state>{words.label}</strong>
+        {". "}
+        <span data-health-selected-sentence>{words.sentence}</span>
+        {words.next ? ` ${words.next}` : ""}
+      </p>
+      <KeyValues
+        label={`Gateway ${row.gateway_external_id}`}
+        rows={[
+          ["Registration", row.registration === "DISABLED" ? "Disabled (not counted)" : "Enabled", "registration"],
+          ["Contact", contactText(row), "contact"],
+          ["Last received (server clock)", formatInstant(row.contact.last_received_at), "received"],
+          ["Stale after", `${formatAge(row.contact.threshold_seconds)} without a report`, "threshold"],
+          ["Observed (gateway clock)", formatInstant(f.observed_at), "observed"],
+          ["What it last reported", reportedText(row), "reported"],
+          [
+            "Gateway clock",
+            f.clock.offset_ms === null
+              ? "Offset not reported"
+              : `Off by ${(f.clock.offset_ms / 1000).toFixed(1)} s; ${
+                  f.clock.trust === "UNTRUSTED" ? "not trusted" : "within the allowed range"
+                }`,
+            "clock",
+          ],
+        ]}
+      />
+      <p>
+        <Link to={links.health(siteId)}>Show all gateways</Link>
+      </p>
+    </div>
+  );
+}
+
+function HealthTechnical({ doc, selectedGateway }: { doc: SourceHealthDocument; selectedGateway: string | null }) {
   const w = doc.summary.source_watermark;
   return (
     <Disclosure name="site-health-technical" summary="Technical details">
@@ -630,7 +713,11 @@ function HealthTechnical({ doc }: { doc: SourceHealthDocument }) {
         </thead>
         <tbody>
           {doc.gateways.map((g) => (
-            <tr key={g.gateway_id} data-health-technical={g.gateway_external_id}>
+            <tr
+              key={g.gateway_id}
+              data-health-technical={g.gateway_external_id}
+              aria-current={g.gateway_id === selectedGateway ? "true" : undefined}
+            >
               <th scope="row">
                 <HealthRef value={g.gateway_external_id} />
               </th>

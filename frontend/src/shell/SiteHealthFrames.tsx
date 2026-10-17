@@ -8,10 +8,11 @@ import { useCallback, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 import { createHealthClient, type HealthClient } from "../sites/healthClient";
-import { SiteBattery, SiteBatteryEntry } from "../sites/SiteBattery";
+import { SiteBattery, SiteBatteryEntry, type BatteryHeader } from "../sites/SiteBattery";
 import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteHealth";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
-import { Breadcrumbs, PageHeader } from "../ui";
+import { deriveSiteView } from "../sites/siteViewModel";
+import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref } from "./operatorSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
@@ -45,14 +46,17 @@ export function SiteHealthFrame({
               ...(gateway === null ? [] : [{ label: "Gateway" }]),
             ]}
           />
-          <PageHeader
-            title={site.display_name}
+          {/* W1-F5a: the mock's Site page heading (carry 1). */}
+          <SitePageHeader
+            siteName={site.display_name}
+            siteId={site.site_id}
+            mode={deriveSiteView(site).sourceMode}
+            description={SITE_SCREEN_DESCRIPTIONS.health}
             headingId={SITE_HEALTH_HEADING_ID}
-            subtitle="Health · gateway contact, what gateways report, and battery condition, kept separate"
           />
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
           <HealthLinksContext.Provider value={LINKS}>
-            <SiteHealth siteId={site.site_id} client={health} selectedGateway={gateway} />
+            <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
           </HealthLinksContext.Provider>
         </main>
       )}
@@ -103,8 +107,9 @@ export function SiteAssetFrame({
   health?: HealthClient;
 }) {
   const { siteId, assetId } = useParams<{ siteId: string; assetId: string }>();
-  const [title, setTitle] = useState("Battery");
-  const onTitle = useCallback((next: string) => setTitle(next), []);
+  const [header, setHeader] = useState<BatteryHeader | null>(null);
+  const onHeader = useCallback((next: BatteryHeader) => setHeader(next), []);
+  const title = header?.name ?? "Battery";
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Battery" headingId={SITE_BATTERY_HEADING_ID}>
       {(site) => (
@@ -118,10 +123,25 @@ export function SiteAssetFrame({
               { label: title },
             ]}
           />
-          <PageHeader title={title} headingId={SITE_BATTERY_HEADING_ID} subtitle={`Health · site: ${site.display_name}`} />
+          {/* W1-F5a: the mock's asset heading - the battery's name, its declared rating and its site. */}
+          <PageHeader
+            title={title}
+            headingId={SITE_BATTERY_HEADING_ID}
+            subtitle={
+              header?.nominal
+                ? `Battery · ${header.nominal} nominal · site: ${site.display_name}`
+                : `Battery · site: ${site.display_name}`
+            }
+          />
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
           <HealthLinksContext.Provider value={LINKS}>
-            <SiteBattery siteId={site.site_id} assetId={assetId ?? ""} client={health} onTitle={onTitle} />
+            <SiteBattery
+              siteId={site.site_id}
+              siteName={site.display_name}
+              assetId={assetId ?? ""}
+              client={health}
+              onHeader={onHeader}
+            />
           </HealthLinksContext.Provider>
         </main>
       )}

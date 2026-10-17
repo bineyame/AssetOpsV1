@@ -1,29 +1,14 @@
 /**
- * The W1 answer cards for Site Health and the battery page (W1-UX-05,
- * `D-2026-10-16-w1-ux`).
- *
- * Health answers "Which source needs attention?" with source contact and
- * reported fact age in separate lanes: a recent receipt is never fresh facts,
- * and neither is equipment condition. The battery page leads with "Battery
- * condition: cannot yet be judged" and the inputs that are missing. Both
- * render only what the S7 reads returned; exact IDs and raw status codes sit in
- * the closed exact-reference disclosure, while the state sentence, scope and
- * "as of" bound stay in the default reading.
+ * Plain words for Site Health and the battery page (W1-UX-05/06, kept by
+ * W1-F5a). W1-F5a removed the leading answer cards
+ * (`D-2026-10-17-mockup-layout-spec`): the screen's condition state leads the
+ * status strip, and gateway contact words sit inside the "Data sources" panel.
+ * Contact and reported fact age stay separate, and neither is equipment
+ * condition.
  */
 
-import { Link } from "react-router-dom";
-
-import {
-  ExactReferences,
-  HeadlineVisualCard,
-  ProductStatus,
-  StepStrip,
-  UNRECOGNISED_SENTENCE,
-  ValueBars,
-  type ProductWords,
-  type Step,
-} from "../ui";
-import type { BatteryDetail, GatewayHealthRow, SourceHealthDocument } from "./healthClient";
+import { UNRECOGNISED_SENTENCE, type ProductWords } from "../ui";
+import type { BatteryDetail, BatteryEntry, GatewayHealthRow, SourceHealthDocument } from "./healthClient";
 
 /* Words owned by the Health domain ----------------------------------------- */
 
@@ -172,111 +157,6 @@ export function factAgeUnknown(row: GatewayHealthRow): boolean {
   );
 }
 
-/* Site Health ---------------------------------------------------------------- */
-
-export function HealthHeadline({
-  doc,
-  siteName,
-  gatewayHref,
-  batteryHref,
-}: {
-  doc: SourceHealthDocument;
-  siteName: string;
-  gatewayHref: (gatewayId: string) => string;
-  batteryHref: string;
-}) {
-  const words = contactSummaryWords(doc);
-  const enabled = doc.gateways.filter((g) => g.registration === "ENABLED");
-  const noSource = doc.summary.status === "NO_REGISTERED_SOURCE";
-  const inContact = enabled.filter((g) => g.contact.status === "CURRENT").length;
-  const outOfContact = enabled.filter((g) => g.contact.status === "STALE").length;
-  const contactUnknown = enabled.length - inContact - outOfContact;
-  const unknownAge = enabled.filter(factAgeUnknown);
-  const old = enabled.filter((g) => !factAgeUnknown(g) && g.reported_facts.status === "OLD").length;
-  const recent = enabled.length - unknownAge.length - old;
-  const attention = enabled.filter(
-    (g) => g.contact.status !== "CURRENT" || factAgeUnknown(g) || g.reported_facts.status !== "CURRENT",
-  );
-  // W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised summary code, or zero enabled gateways outside the
-  // recognised no-source state, never reads positive (never "All 0 enabled gateways").
-  const headline = noSource
-    ? "No gateway is reporting, so nothing is known about this site's sources"
-    : words.unrecognised || enabled.length === 0
-      ? "Gateway contact cannot be confirmed"
-      : attention.length === 0
-        ? `All ${enabled.length} enabled gateways are in contact and their latest reports are recent`
-        : `${attention.length} of ${enabled.length} enabled ${enabled.length === 1 ? "gateway needs" : "gateways need"} attention`;
-  return (
-    <HeadlineVisualCard
-      dataName="site-health"
-      headingId="site-health-answer-heading"
-      question="Which source needs attention?"
-      headline={headline}
-      status={
-        <ProductStatus words={words} scope={`${siteName} · gateway contact and reports`} asOf={doc.read_at} />
-      }
-      visual={
-        noSource ? undefined : (
-          <div className="foundation-headline__visuals" data-health-lanes="">
-            <ValueBars
-              title="Contact: when the server last heard from each gateway"
-              items={[
-                { key: "in-contact", label: "In contact", value: inContact, valueText: String(inContact) },
-                { key: "out-of-contact", label: "Out of contact", value: outOfContact, valueText: String(outOfContact) },
-                { key: "never", label: "Never heard or not known", value: contactUnknown, valueText: String(contactUnknown) },
-              ]}
-            />
-            <ValueBars
-              title="Reports: how old the latest reported facts are"
-              items={[
-                { key: "recent", label: "Recent", value: recent, valueText: String(recent) },
-                { key: "old", label: "Old", value: old, valueText: String(old) },
-                { key: "age-unknown", label: "Age not known", value: unknownAge.length, valueText: String(unknownAge.length) },
-              ]}
-            />
-          </div>
-        )
-      }
-      meaning={
-        <p>
-          Contact means a gateway reached the server. What it reports can still be old, and neither says anything about
-          the equipment’s physical condition.
-        </p>
-      }
-      todo={
-        attention.length === 0 ? undefined : (
-          <ul data-health-attention="">
-            {attention.map((g) => (
-              <li key={g.gateway_id} data-health-attention-gateway={g.gateway_external_id}>
-                <Link to={gatewayHref(g.gateway_id)}>
-                  Open gateway <span data-vocabulary-exempt="source-reference">{g.gateway_external_id}</span>
-                </Link>
-                : {gatewayContactWords(g).label.toLowerCase()}
-                {factAgeUnknown(g)
-                  ? "; age of its latest report not known"
-                  : g.reported_facts.status === "OLD"
-                    ? "; its latest report is old"
-                    : ""}
-              </li>
-            ))}
-          </ul>
-        )
-      }
-      destination={<Link to={batteryHref}>Battery condition: battery page →</Link>}
-      references={
-        <ExactReferences
-          name="site-health-references"
-          references={[
-            { label: "Read time (exact)", value: doc.read_at },
-            { label: "Contact summary (exact)", value: doc.summary.status },
-            { label: "Summary reason (exact)", value: doc.summary.reason ?? null },
-          ]}
-        />
-      }
-    />
-  );
-}
-
 /* Battery ---------------------------------------------------------------------- */
 
 export function batteryConditionWords(detail: BatteryDetail): ProductWords {
@@ -300,62 +180,39 @@ export function batteryConditionWords(detail: BatteryDetail): ProductWords {
   };
 }
 
-export function BatteryHeadline({
-  detail,
-  name,
-  inputName,
-  healthHref,
-}: {
-  detail: BatteryDetail;
-  name: string;
-  /** Plain name of a missing input, or null when the code is not known. */
-  inputName: (code: string) => string | null;
-  healthHref: string;
-}) {
-  const words = batteryConditionWords(detail);
-  const missing = detail.physical_condition.missing_causal_inputs;
-  const steps: Step[] = missing.map((input) => ({
-    label: inputName(input.input) ?? "An input this page cannot name",
-    state: input.status === "MISSING" ? "waiting" : "not-known",
-    detail: input.status === "MISSING" ? "Missing" : "Not known",
-  }));
-  return (
-    <HeadlineVisualCard
-      dataName="battery-condition"
-      headingId="battery-condition-answer-heading"
-      question="What can we say about this battery's condition?"
-      headline="Battery condition: cannot yet be judged"
-      status={<ProductStatus words={words} scope={<span>{name} · physical condition</span>} asOf={detail.read_at} />}
-      visual={steps.length === 0 ? undefined : <StepStrip title="Inputs needed to judge condition" steps={steps} />}
-      meaning={
-        <p>
-          The declared rating is what the site’s configuration records, not a measured capacity, and the battery
-          charge reading is a separate fact that does not show condition. No remaining life, warranty position or
-          replacement date is stated.
-        </p>
-      }
-      todo={
-        steps.length === 0 ? undefined : (
-          <p>
-            {missing.length === 1 ? "One input is" : `${missing.length} inputs are`} missing. Condition stays unknown
-            until they exist and a reviewed method uses them.
-          </p>
-        )
-      }
-      destination={<Link to={healthHref}>Source contact and reports: Health →</Link>}
-      references={
-        <ExactReferences
-          name="battery-condition-references"
-          references={[
-            { label: "Asset reference", value: detail.asset.asset_id },
-            { label: "Asset code", value: detail.asset.asset_code },
-            { label: "Condition reason (exact)", value: detail.physical_condition.reason },
-            { label: "Channel status (exact)", value: detail.binding_status },
-            { label: "Foundation version record", value: detail.basis.foundation_revision_id },
-            { label: "Effective time (exact)", value: detail.basis.effective_at },
-          ]}
-        />
-      }
-    />
-  );
+/**
+ * W1-F5a: the Site Health status-strip state. It is about physical asset
+ * condition, the subject of v69 `health`, never gateway contact. The battery
+ * entry read is the only asset read; its condition is Unknown, so the site's
+ * asset condition cannot yet be judged.
+ */
+export function siteConditionWords(entry: BatteryEntry): ProductWords {
+  const condition = entry.physical_condition;
+  if (condition !== undefined && condition.status !== "UNKNOWN") {
+    return {
+      label: "Condition not recognised",
+      sentence: UNRECOGNISED_SENTENCE,
+      tone: "limited",
+      code: String(condition.status),
+      unrecognised: true,
+    };
+  }
+  if (entry.configuration === "NOT_CONFIGURED") {
+    return {
+      label: "Asset condition cannot yet be judged",
+      sentence: "No battery is part of this site's configuration, and no other asset's condition is read here.",
+      tone: "limited",
+      code: "NOT_CONFIGURED",
+      unrecognised: false,
+    };
+  }
+  return {
+    label: "Asset condition cannot yet be judged",
+    sentence:
+      "The inputs needed to judge the configured battery's physical condition are missing. Unknown does not mean normal, and it does not mean faulty.",
+    next: "Open the battery to see what is missing.",
+    tone: "limited",
+    code: condition?.reason ?? "UNKNOWN",
+    unrecognised: false,
+  };
 }

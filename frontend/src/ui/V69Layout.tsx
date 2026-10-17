@@ -213,6 +213,11 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   // W1 vocabulary list, D-2026-10-16-w1-ux), so the description says what the page does show.
   evidence: "Evidence · accepted readings and what is missing",
   "evidence-analysis": "Evidence · accepted records and how limits are set",
+  // W1-F5a: Health and the carry-1 site-level screens (sitefindings, financials, assumptions).
+  health: "Health · site-level asset-condition summary",
+  sitefindings: "Findings · conclusions about this site and the limits of their evidence",
+  financials: "Financials · what the site's technical behaviour means in money",
+  assumptions: "Financials · assumptions and their history",
 } as const;
 
 export interface SitePageHeaderProps {

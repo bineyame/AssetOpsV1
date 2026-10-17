@@ -3749,6 +3749,37 @@ ul.evidence-notes li { font-size: inherit; }
   min-width: 8ch;
 }
 
+/* W1-F5a: Health and battery rebuilt to the v69 panels. The second line inside a table cell is the mock's
+   `td small`; the condition lead and the contact summary are the panel's first line, not a callout. */
+.health-cell-note {
+  display: block;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.health-condition-lead,
+.health-contact-summary {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+.health-condition-lead strong {
+  font-size: var(--text-md, 1rem);
+}
+.health-gap p,
+.health-selected p {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+}
+.health-selected {
+  border-left: 3px solid var(--border-strong, #cfd8e6);
+  padding-left: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.site-battery .v69-key-values {
+  margin-top: var(--space-3);
+}
+
 /* S6-02b: Action Plan, Evidence and Verification views. Chips carry their word, so colour is never the only signal;
    the KPI cards wrap to two columns, then one, and dense slot tables scroll inside their own scroller. */
 .app-frame--operator .site-verification {

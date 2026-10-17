@@ -20,6 +20,9 @@ export const APPROVED_TITLE_CHANGES: Readonly<Record<string, string | DynamicTit
   "sld:1": (v) => (v.topology ? `${need(v, "site")} · ${v.topology}` : need(v, "site")),
   // W1-F2 coordinator ruling (2026-10-17, under D-2026-10-16-w1-ux): the plain variant of "How a claim limit is set".
   "evidence-analysis:2": "How each limit is set",
+  // W1-F5a, PROPOSED on the same basis as evidence-analysis:2 and pending the coordinator's ruling: "claim" is on
+  // the W1 vocabulary list (D-2026-10-16-w1-ux), so the plain variant of "Condition evidence and claim boundary".
+  "asset:3": "Condition evidence and its limits",
 };
 
 function need(values: Record<string, string>, key: string): string {
