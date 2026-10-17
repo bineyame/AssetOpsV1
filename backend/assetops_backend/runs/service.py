@@ -428,6 +428,13 @@ class RunSetupService:
             return self._create_cold_draft(request, site, selection, scenario)
         model = self._resolve_model_profile(request)
         publication = self._resolve_publication_profile(request)
+        if (model.model_profile_id == COLD_MODEL_PROFILE.split("/")[0]
+                or publication.publication_profile_id == COLD_PUBLICATION_PROFILE.split("/")[0]):
+            # W2-02 review M1: a cold profile never freezes against a legacy scenario, half-cold or whole.
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                "Cold-chain profiles run only from a cold-scenario/1 document. Profiles are not substituted.",
+            )
 
         self._refuse_site_without_topology(site)
         self._refuse_entries_outside_the_interval(request, scenario, publication)

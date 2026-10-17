@@ -202,6 +202,26 @@ def test_a_cold_document_never_freezes_against_a_legacy_or_other_site() -> None:
     assert store.written == []
 
 
+@pytest.mark.parametrize(
+    ("model_id", "publication_id"),
+    [("cold-thermal", "cold-publication"), ("cold-thermal", "example-publication"),
+     ("example-model", "cold-publication")],
+)
+def test_a_cold_profile_with_a_legacy_scenario_is_refused_before_draft(model_id, publication_id) -> None:
+    from run_fixtures import setup_request
+
+    setup, store = cold_service()
+    request = setup_request()
+    request["model_profile"] = {"profile_id": model_id, "profile_version": 1}
+    request["publication_profile"] = {**request["publication_profile"], "profile_id": publication_id,
+                                      "profile_version": 1}
+    with pytest.raises(RunSetupRefused) as raised:
+        setup.create_draft_run(request)
+    assert raised.value.kind == "VERSION_UNAVAILABLE"
+    assert "Cold-chain profiles run only from a cold-scenario/1 document" in str(raised.value)
+    assert store.written == []
+
+
 def test_legacy_run_identity_golden_vector_unchanged() -> None:
     """Pinned from `main` before W2-02: the cold keys change no older run's identity bytes."""
     from run_fixtures import setup_request
