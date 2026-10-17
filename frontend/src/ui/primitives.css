@@ -4337,3 +4337,17 @@ tr[data-selected] > * {
     font-size: 24px;
   }
 }
+
+/* A page-level refusal stated before the panel slots (W1-F1); it is not a panel. */
+.page-refusal {
+  margin: 0 0 var(--v69-gap);
+  padding: 11px 14px;
+  border: 1px solid #f2e6d0;
+  border-radius: 5px;
+  background: #fff9ef;
+  font-size: 12px;
+}
+
+.page-refusal > * + * {
+  margin-top: 8px;
+}

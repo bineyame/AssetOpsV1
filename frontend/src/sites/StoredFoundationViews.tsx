@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, MissingClaim, PageHeader, Panel, type Crumb } from "../ui";
 import {
   AcquisitionDetailsPanel,
-  ReadinessVerdictPanel,
+  ReadinessVerdict,
   RoleCoveragePanel,
   SignalBindingsPanel,
 } from "./FoundationBindingsPanel";
@@ -49,8 +49,7 @@ import {
 import { ComponentTypeIcon } from "./componentIcons";
 import { ExactRef, UserName } from "./exactValues";
 import type { GatewayHealthClient } from "./gatewayHealthClient";
-import { GatewayStatusPanel, ReadinessEvidenceTable } from "./ReadinessOverview";
-import { FoundationModelHeadline, FoundationReadinessHeadline, FoundationSldHeadline } from "./foundationHeadlines";
+import { GatewayStatusPanel, ReadinessCards, ReadinessEvidenceTable } from "./ReadinessOverview";
 import { SITE_SLD_HEADING_ID, SiteSldDetails, SiteSldPrimary } from "./SiteSingleLineDiagram";
 import type {
   BindingPublishOutcome,
@@ -158,6 +157,65 @@ export function StoredFoundationViews(props: StoredFoundationViewsProps) {
 
 const READINESS_ADVANCED = "readiness-advanced";
 
+/**
+ * The v69 panel slots of a Foundation view when the selected read cannot fill
+ * them (`D-2026-10-17-mockup-layout-spec`): each panel keeps its place and states
+ * the gap inside it. Nothing configured is shown, and no other period's values
+ * stand in. The page-level refusal is stated before these by the shell.
+ */
+export function FoundationPanelSkeletons({
+  view,
+  siteName,
+  gap,
+}: {
+  view: FoundationView;
+  /** The Site name for the SLD title; the route's Site ID when the name is unknown. */
+  siteName: string;
+  gap: string;
+}) {
+  const slot = (title: string, id: string, extra?: ReactNode) => (
+    <Panel heading={title} headingId={id}>
+      <p className="not-available-yet" data-panel-gap={id}>
+        {gap}
+      </p>
+      {extra}
+    </Panel>
+  );
+  if (view === "model") {
+    return (
+      <>
+        <div className="panel-pair">
+          {slot("Configured topology", "foundation-configured-topology-heading")}
+          {slot("Identity and operating obligations", "foundation-identity-heading")}
+        </div>
+        {slot("Time-valid control configuration", "foundation-controls-config-heading")}
+      </>
+    );
+  }
+  if (view === "sld") {
+    return (
+      <>
+        {slot(siteName, SITE_SLD_HEADING_ID, <p className="muted">Site type unknown: no stored version was read.</p>)}
+        {slot("What each part does", "foundation-sld-parts-heading")}
+      </>
+    );
+  }
+  return (
+    <>
+      {slot("Readiness and commissioning evidence", "foundation-readiness-table-heading")}
+      <Panel className="gw-panel" heading="Gateway status · No gateway selected" headingId="foundation-readiness-gateway-heading">
+        <p className="not-available-yet" data-panel-gap="foundation-readiness-gateway-heading">
+          {gap}
+        </p>
+        <div className="panel-pair">
+          {slot("Connected sources", "readiness-connected-sources-heading")}
+          {slot("Effect on readiness and confidence", "readiness-effect-heading")}
+        </div>
+      </Panel>
+    </>
+  );
+}
+
 interface ViewProps extends StoredFoundationViewsProps {
   site: SiteDetailReadModel;
   configuration: SiteConfigurationView;
@@ -183,28 +241,7 @@ function SiteModelView(props: ViewProps) {
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Review configuration readiness →</Link>)}
-      <FoundationModelHeadline
-        foundation={foundation}
-        site={props.site}
-        readinessHref={viewHref("readiness")}
-        sldHref={viewHref("sld")}
-      />
-      {gaps.length === 0 ? null : (
-        <Panel heading="Configuration gaps" headingId="foundation-gaps-heading">
-          <ul aria-labelledby="foundation-gaps-heading">
-            {gaps.map((gap) => (
-              <li key={`${gap.code}-${gap.subject}`} data-gap-code={gap.code}>
-                {gap.message}
-              </li>
-            ))}
-          </ul>
-          <p>
-            A gap keeps configuration readiness incomplete.{" "}
-            <Link to={viewHref("readiness")}>See what is missing in Readiness →</Link>
-          </p>
-        </Panel>
-      )}
-      <div className="panel-pair panel-pair--balanced">
+      <div className="panel-pair">
         <ConfiguredTopologyPanel
           site={props.site}
           sldHref={viewHref("sld")}
@@ -222,25 +259,44 @@ function SiteModelView(props: ViewProps) {
         versions={versions}
         onPublish={onPublish}
         dispatchHref={props.dispatchHref}
-      />
-      <Disclosure name="foundation-advanced" summary="Advanced details — Foundation records">
-        <p>Record IDs, the import path and its content reference, raw component and property tables, and control assumptions, kept for audit.</p>
-        <FoundationRecordDetails foundation={foundation} versions={versions} />
-        <Disclosure name="foundation-summary" summary="Configuration document summary">
-          <p>
-            <UserName>{configuration.foundationSummary}</UserName>
-          </p>
+      >
+        {gaps.length === 0 ? null : (
+          <div className="subsection" data-foundation-gaps="">
+            <h3 className="subsection__heading" id="foundation-gaps-heading">
+              Configuration gaps
+            </h3>
+            <ul aria-labelledby="foundation-gaps-heading">
+              {gaps.map((gap) => (
+                <li key={`${gap.code}-${gap.subject}`} data-gap-code={gap.code}>
+                  {gap.message}
+                </li>
+              ))}
+            </ul>
+            <p>
+              A gap keeps configuration readiness incomplete.{" "}
+              <Link to={viewHref("readiness")}>See what is missing in Readiness →</Link>
+            </p>
+          </div>
+        )}
+        <Disclosure name="foundation-advanced" summary="Advanced details — Foundation records">
+          <p>Record IDs, the import path and its content reference, raw component and property tables, and control assumptions, kept for audit.</p>
+          <FoundationRecordDetails foundation={foundation} versions={versions} />
+          <Disclosure name="foundation-summary" summary="Configuration document summary">
+            <p>
+              <UserName>{configuration.foundationSummary}</UserName>
+            </p>
+          </Disclosure>
+          <Disclosure name="foundation-components" summary={`Components and declared ratings (${configuration.components.length})`}>
+            <SiteConfigurationComponents components={configuration.components} />
+            <SitePhysicalProperties section={configuration.physicalProperties} />
+          </Disclosure>
+          <Disclosure name="foundation-declared-controls" summary="Declared control properties and operating assumptions">
+            <SiteControlProperties section={configuration.controlProperties} />
+            <SiteControlsTable section={configuration.siteControls} />
+            <SiteControlAssumptions section={configuration.controlAssumptions} />
+          </Disclosure>
         </Disclosure>
-        <Disclosure name="foundation-components" summary={`Components and declared ratings (${configuration.components.length})`}>
-          <SiteConfigurationComponents components={configuration.components} />
-          <SitePhysicalProperties section={configuration.physicalProperties} />
-        </Disclosure>
-        <Disclosure name="foundation-declared-controls" summary="Declared control properties and operating assumptions">
-          <SiteControlProperties section={configuration.controlProperties} />
-          <SiteControlsTable section={configuration.siteControls} />
-          <SiteControlAssumptions section={configuration.controlAssumptions} />
-        </Disclosure>
-      </Disclosure>
+      </FoundationControlsPanel>
     </>
   );
 }
@@ -379,12 +435,8 @@ function ConfiguredTopologyPanel({
     <Panel
       heading="Configured topology"
       headingId="foundation-configured-topology-heading"
-      description={
-        <>
-          Declared ratings and configured connections; not live energy flows.{" "}
-          <Link to={sldHref}>Single line diagram →</Link>
-        </>
-      }
+      description="Declared ratings and configured connections; not live energy flows"
+      actions={<Link to={sldHref}>Single line diagram →</Link>}
     >
       {cards === null ? (
         <p data-topology="not-declared">
@@ -445,7 +497,7 @@ function IdentityPanel({
 }) {
   const facts = loadFacts(foundation, site);
   return (
-    <Panel heading="Identity & operating obligations" headingId="foundation-identity-heading">
+    <Panel heading="Identity and operating obligations" headingId="foundation-identity-heading">
       <FactList>
         <Fact term="Site identity">
           <UserName>{configuration.displayName}</UserName> · <ExactRef>{foundation.site.site_code}</ExactRef>
@@ -509,6 +561,35 @@ function IdentityPanel({
 
 /* Single line diagram -------------------------------------------------------- */
 
+/**
+ * The v69 `sld:1` title (approved dynamic rule): the selected Site's name and its
+ * configured type. No topology type is invented when the site type is not stated.
+ */
+export function sldPanelTitle(configuration: SiteConfigurationView): string {
+  const type = configuration.siteType.trim();
+  return type === "" ? configuration.displayName : `${configuration.displayName} · ${type}`;
+}
+
+/**
+ * What the drawing can and cannot say, inside the diagram panel (the former W1
+ * answer card's supported counts): parts drawn and devices with a linked reading
+ * channel. Reporting is never inferred from a link.
+ */
+function SldDeviceSummary({ foundation, site }: { foundation: FoundationReadModel; site: SiteDetailReadModel }) {
+  const devices = site.foundation.devices ?? [];
+  const linked = new Set(foundation.bindings.mappings.map((binding) => binding.device_id));
+  const withLink = devices.filter((device) => linked.has(device.device_id)).length;
+  const parts = site.foundation.components.filter((c) => c.component_type !== "AC_BUS").length;
+  return (
+    <p className="v69-chart-note" data-sld-summary="">
+      {devices.length === 0
+        ? `${parts} parts are drawn; no device is recorded, so no part can report.`
+        : `${parts} parts are drawn; ${withLink} of ${devices.length} devices have a linked reading channel.`}{" "}
+      Whether linked parts are reporting is not assessed here.
+    </p>
+  );
+}
+
 function SldView(props: ViewProps) {
   const { foundation, site, configuration, viewHref } = props;
   const boundDevices = useMemo<ReadonlySet<string>>(
@@ -523,17 +604,13 @@ function SldView(props: ViewProps) {
   return (
     <>
       {strip(props, <Link to={viewHref("readiness")}>Configuration readiness →</Link>)}
-      <FoundationSldHeadline
-        foundation={foundation}
-        site={site}
-        readinessHref={viewHref("readiness")}
-        healthHref={props.healthHref}
-      />
       <Panel
-        heading={`${configuration.displayName} · configured single line diagram`}
+        heading={sldPanelTitle(configuration)}
         headingId={SITE_SLD_HEADING_ID}
-        description="Configured equipment and declared connections for the period shown; not live power flow, and not reporting status."
+        description="Configured equipment and declared connections for the period shown; not live power flow, and not reporting status"
+        actions={<Link to={props.evidenceHref}>Site evidence →</Link>}
       >
+        <SldDeviceSummary foundation={foundation} site={site} />
         <SiteSldPrimary
           site={site}
           boundDevices={boundDevices}
@@ -564,27 +641,28 @@ function SldView(props: ViewProps) {
           onSelect: props.onSelectComponent,
           controls: stripId("sld"),
         }}
-      />
-      <Disclosure name="sld-advanced" summary="Advanced details — diagram records">
-        <p>
-          The same configuration in rows, kept for audit: each part&apos;s channels, topology node and connection
-          IDs, devices and which device channel describes which part.
-        </p>
-        <Disclosure name="sld-part-channels" summary="Channels of each part">
-          <PartChannelsTable foundation={foundation} site={site} configuration={configuration} />
+      >
+        <Disclosure name="sld-advanced" summary="Advanced details — diagram records">
+          <p>
+            The same configuration in rows, kept for audit: each part&apos;s channels, topology node and connection
+            IDs, devices and which device channel describes which part.
+          </p>
+          <Disclosure name="sld-part-channels" summary="Channels of each part">
+            <PartChannelsTable foundation={foundation} site={site} configuration={configuration} />
+          </Disclosure>
+          <Disclosure name="sld-contents" summary="Diagram contents and open review questions">
+            <SiteSldDetails site={site} boundDevices={boundDevices} />
+          </Disclosure>
+          <Disclosure name="sld-topology" summary="Topology nodes and connections">
+            <SiteTopologyNodes section={configuration.topologyNodes} />
+            <SiteTopologyConnections section={configuration.topologyConnections} />
+          </Disclosure>
+          <Disclosure name="sld-devices" summary="Devices and the channel-link set's device-to-asset links">
+            <SiteFoundationDevices section={configuration.devices} />
+            <SiteSignalMappings section={configuration.signalMappings} basis={basis} />
+          </Disclosure>
         </Disclosure>
-        <Disclosure name="sld-contents" summary="Diagram contents and open review questions">
-          <SiteSldDetails site={site} boundDevices={boundDevices} />
-        </Disclosure>
-        <Disclosure name="sld-topology" summary="Topology nodes and connections">
-          <SiteTopologyNodes section={configuration.topologyNodes} />
-          <SiteTopologyConnections section={configuration.topologyConnections} />
-        </Disclosure>
-        <Disclosure name="sld-devices" summary="Devices and the channel-link set's device-to-asset links">
-          <SiteFoundationDevices section={configuration.devices} />
-          <SiteSignalMappings section={configuration.signalMappings} basis={basis} />
-        </Disclosure>
-      </Disclosure>
+      </ConfiguredPartsPanel>
     </>
   );
 }
@@ -705,14 +783,16 @@ function ConfiguredPartsPanel({
   site,
   configuration,
   selection,
+  children,
 }: {
   foundation: FoundationReadModel;
   site: SiteDetailReadModel;
   configuration: SiteConfigurationView;
   selection: PartSelection;
+  children?: ReactNode;
 }) {
   return (
-    <Panel heading="What each configured part is" headingId="foundation-sld-parts-heading">
+    <Panel heading="What each part does" headingId="foundation-sld-parts-heading">
       <DataTable labelledBy="foundation-sld-parts-heading">
         <caption>
           Each declared component, its declared rating and how many of its channels are bound for the period
@@ -744,6 +824,7 @@ function ConfiguredPartsPanel({
           ))}
         </tbody>
       </DataTable>
+      {children}
     </Panel>
   );
 }
@@ -789,6 +870,38 @@ function PartChannelsTable({
 
 /* Readiness ------------------------------------------------------------------ */
 
+/**
+ * What still needs doing for set-up, inside panel 1 (the former W1 answer card's
+ * supported next steps). Commissioning is never shown as confirmed.
+ */
+function ReadinessNextSteps({ foundation }: { foundation: FoundationReadModel }) {
+  const missingRoles = foundation.readiness.roles.filter((role) => role.required && role.status !== "CONFIGURED");
+  const steps: string[] = [
+    ...missingRoles
+      .filter((role) => role.covered_by !== "FOUNDATION_CONTROL")
+      .map((role) => `Link a reading channel for ${role.label}.`),
+    ...missingRoles
+      .filter((role) => role.covered_by === "FOUNDATION_CONTROL")
+      .map((role) => `Set ${role.label} in the Site model.`),
+    ...foundation.configuration_gaps.map((gap) => gap.message),
+    ...(foundation.gateways.length === 0 ? ["Register the site's gateway."] : []),
+  ];
+  return (
+    <div className="subsection" data-readiness-next="">
+      <h3 className="subsection__heading">What to do next</h3>
+      {steps.length === 0 ? (
+        <p>Record a commissioning confirmation when one exists; nothing else is missing from the set-up.</p>
+      ) : (
+        <ul data-readiness-next-steps="">
+          {steps.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function ReadinessView(props: ViewProps) {
   const { foundation, viewHref, snapshotHref, onPublishBindings, evidenceHref, configuration } = props;
   const reviewBindings = () => {
@@ -814,34 +927,32 @@ function ReadinessView(props: ViewProps) {
           <Link to={viewHref("model")}>Site model</Link> or <Link to={viewHref("sld")}>Single line diagram</Link>
         </p>
       )}
-      <FoundationReadinessHeadline
-        foundation={foundation}
-        modelHref={viewHref("model")}
-        evidenceHref={evidenceHref}
-        healthHref={props.healthHref}
-      />
-      <ReadinessVerdictPanel foundation={foundation} />
+      <ReadinessCards foundation={foundation} />
       <ReadinessEvidenceTable
         foundation={foundation}
         links={{ model: viewHref("model"), sld: viewHref("sld"), evidence: evidenceHref }}
         onReviewBindings={reviewBindings}
-      />
+      >
+        <ReadinessVerdict foundation={foundation} />
+        <ReadinessNextSteps foundation={foundation} />
+        <Disclosure name={READINESS_ADVANCED} summary="Advanced details — roles, channels and records">
+          <p>
+            The full role coverage, every channel link and its references, the channel-link change form, source
+            registrations and the pinned acquisition snapshot. Kept for configuration work and audit.
+          </p>
+          <RoleCoveragePanel foundation={foundation} />
+          <SignalBindingsPanel foundation={foundation} onPublishBindings={onPublishBindings} />
+          <RegisteredSourcesPanel foundation={foundation} evidenceHref={evidenceHref} />
+          <AcquisitionDetailsPanel foundation={foundation} snapshotHref={snapshotHref} />
+        </Disclosure>
+      </ReadinessEvidenceTable>
       <GatewayStatusPanel
         foundation={foundation}
         siteId={configuration.siteId}
         gatewayHealth={props.gatewayHealth}
         evidenceHref={evidenceHref}
+        healthHref={props.healthHref}
       />
-      <Disclosure name={READINESS_ADVANCED} summary="Advanced details — roles, channels and records">
-        <p>
-          The full role coverage, every channel link and its references, the channel-link change form, source
-          registrations and the pinned acquisition snapshot. Kept for configuration work and audit.
-        </p>
-        <RoleCoveragePanel foundation={foundation} />
-        <SignalBindingsPanel foundation={foundation} onPublishBindings={onPublishBindings} />
-        <RegisteredSourcesPanel foundation={foundation} evidenceHref={evidenceHref} />
-        <AcquisitionDetailsPanel foundation={foundation} snapshotHref={snapshotHref} />
-      </Disclosure>
       <p className="note" data-readiness-scope="">
         This view assesses configuration: roles, channel links, Foundation gaps and registrations. Gateway status
         reports central server contact only. What the readings can support, accepted evidence and source diagnostics are on{" "}

@@ -21,7 +21,6 @@ import type {
   SignalBinding,
 } from "./siteFoundationClient";
 import { formatInstant, utcInstantFromLocal } from "./FoundationRevisionPanel";
-import { ReadinessCards } from "./ReadinessOverview";
 
 export const FOUNDATION_READINESS_HEADING_ID = "foundation-readiness-heading";
 export const FOUNDATION_ROLES_HEADING_ID = "foundation-roles-heading";
@@ -140,19 +139,23 @@ function verdictSentence(readiness: ConfigurationReadiness): string {
 }
 
 /**
- * The verdict and what is missing, first on the Readiness view. Counts are
+ * The set-up verdict and what is missing, inside the v69 "Readiness and
+ * commissioning evidence" panel (W1-F1: no separate leading panel). Counts are
  * counts of configuration, never of readings.
  */
-export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationReadModel }) {
+export function ReadinessVerdict({ foundation }: { foundation: FoundationReadModel }) {
   const { readiness } = foundation;
   const missing = readiness.roles.filter((role) => role.required && role.status !== "CONFIGURED");
 
   return (
-    <Panel
-      heading="Configuration readiness"
-      headingId={FOUNDATION_READINESS_HEADING_ID}
-      description="Configuration readiness is distinct from what the readings can support, which is on Site Evidence, and from gateway contact, which is reported separately below."
-    >
+    <div className="subsection readiness-verdict" data-readiness-verdict="">
+      <h3 className="subsection__heading" id={FOUNDATION_READINESS_HEADING_ID}>
+        Configuration readiness
+      </h3>
+      <p className="muted">
+        Configuration readiness is distinct from what the readings can support, which is on Site Evidence, and from
+        gateway contact, which is reported separately below.
+      </p>
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
           {/* W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised state is neutral and says so, never blank. */}
@@ -160,7 +163,6 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
         </p>
         <p className="verdict__sentence">{verdictSentence(readiness)}</p>
       </div>
-      <ReadinessCards foundation={foundation} />
       <ReadinessLegend />
       {missing.length > 0 ? (
         <div data-readiness-missing="">
@@ -190,7 +192,7 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
         </div>
       ) : null}
       <p>{readiness.statement}</p>
-    </Panel>
+    </div>
   );
 }
 

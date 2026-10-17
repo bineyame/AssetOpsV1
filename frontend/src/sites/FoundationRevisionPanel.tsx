@@ -128,16 +128,17 @@ export function FoundationPeriodStrip({
   return (
     <section
       className="status-strip"
-      aria-labelledby={FOUNDATION_REVISION_HEADING_ID}
+      id={FOUNDATION_REVISION_HEADING_ID}
+      aria-label="Foundation version"
       data-foundation-period={revision.period_state}
     >
-      <h2 className="visually-hidden" id={FOUNDATION_REVISION_HEADING_ID}>
-        Foundation version
-      </h2>
       <div className="status-strip__row">
         <p className="status-strip__summary">
           <Badge tone="neutral">{`Foundation v${revision.version}`}</Badge>{" "}
-          <span>Effective {period(revision)} · immutable stored version</span>
+          <span>Effective {period(revision)} · immutable stored version</span>{" "}
+          <span className="muted" data-strip-as-of="">
+            As of {formatInstant(foundation.resolved.knowledge_at)}
+          </span>
         </p>
         <p className="status-strip__summary">
           {bindings.binding_set === null ? (
@@ -283,6 +284,8 @@ export interface FoundationControlsPanelProps {
   onPublish: (assetCode: string, value: number, validFrom: string) => Promise<PublishOutcome>;
   /** Performance › Dispatch, a separate selected-window assessment (V-01a round 3). */
   dispatchHref?: string;
+  /** Owned content placed inside the panel after the publish form (gaps, the reference disclosure). */
+  children?: ReactNode;
 }
 
 /**
@@ -324,7 +327,7 @@ function evidenceOrChange(key: string, version: number, dispatchHref: string | u
 }
 
 /** The time-valid controls of the version shown, with the one reserve change. */
-export function FoundationControlsPanel({ foundation, versions, onPublish, dispatchHref }: FoundationControlsPanelProps) {
+export function FoundationControlsPanel({ foundation, versions, onPublish, dispatchHref, children }: FoundationControlsPanelProps) {
   const { revision, controls } = foundation;
   const { current } = selectablePeriods(versions);
   const reserve = controls.battery_reserve;
@@ -381,6 +384,7 @@ export function FoundationControlsPanel({ foundation, versions, onPublish, dispa
           onPublish={onPublish}
         />
       )}
+      {children}
     </Panel>
   );
 }

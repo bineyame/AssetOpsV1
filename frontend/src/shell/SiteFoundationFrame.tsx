@@ -2,8 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
-import { FOUNDATION_SUBTABS, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
-import { StoredFoundationViews } from "../sites/StoredFoundationViews";
+import { FOUNDATION_SUBTABS, FoundationSubtabs, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
+import { FoundationPanelSkeletons, StoredFoundationViews } from "../sites/StoredFoundationViews";
+
+const segmentFor = (target: FoundationView) =>
+  FOUNDATION_SUBTABS.find((subtab) => subtab.view === target)?.segment ?? "";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
@@ -178,7 +181,12 @@ export function SiteFoundationFrame({
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
         <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
         {tabs}
-        <Panel heading="No stored version for this period" headingId="foundation-period-empty-heading">
+        <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId ?? "", segmentFor(target), at, null)} />
+        {/* W1-F1: the page-level refusal, then the view's v69 panel slots with in-panel gaps. */}
+        <div className="page-refusal" role="status" data-page-refusal="no-version">
+          <p className="page-refusal__title">
+            <strong>No stored version for this period</strong>
+          </p>
           {/* W1-UX-05: the plain state line; the bound is the selected time the read was asked for. */}
           <ProductStatus
             words={{
@@ -196,7 +204,12 @@ export function SiteFoundationFrame({
           <button type="button" onClick={() => selectAt(null)}>
             Show the version in effect now
           </button>
-        </Panel>
+        </div>
+        <FoundationPanelSkeletons
+          view={view}
+          siteName={siteId ?? ""}
+          gap="No Foundation version is stored for the selected time, so nothing is shown as configured in this panel."
+        />
       </main>
     );
   }
@@ -213,7 +226,11 @@ export function SiteFoundationFrame({
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
         <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
         {tabs}
-        <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+        <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)} />
+        <div className="page-refusal" role="status" data-page-refusal="unavailable">
+          <p className="page-refusal__title">
+            <strong>Stored versions unavailable</strong>
+          </p>
           <ProductStatus words={readResultWords("unavailable")} scope={`${siteId} · Foundation`} asOf={null} />
           <p>
             Stored Foundation versions could not be read
@@ -223,7 +240,12 @@ export function SiteFoundationFrame({
           <p>
             <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
           </p>
-        </Panel>
+        </div>
+        <FoundationPanelSkeletons
+          view={view}
+          siteName={siteId}
+          gap="Stored Foundation versions could not be read, so this panel shows nothing configured."
+        />
       </main>
     );
   }
@@ -235,7 +257,11 @@ export function SiteFoundationFrame({
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
         <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
         {tabs}
-        <Panel heading="This view needs an imported Site" headingId="foundation-view-unavailable-heading">
+        <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)} />
+        <div className="page-refusal" role="status" data-page-refusal="not-imported">
+          <p className="page-refusal__title">
+            <strong>This view needs an imported Site</strong>
+          </p>
           <p>
             This site has no stored Foundation version, channel-link set or snapshot, so there is no
             {view === "sld" ? " bound single line diagram" : " configuration readiness"} to show here.
@@ -243,7 +269,12 @@ export function SiteFoundationFrame({
           <p>
             <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
           </p>
-        </Panel>
+        </div>
+        <FoundationPanelSkeletons
+          view={view}
+          siteName={siteId}
+          gap="This site has no stored Foundation version, so this panel has nothing to show."
+        />
       </main>
     );
   }
