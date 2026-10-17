@@ -253,7 +253,7 @@ function SitesMetrics({ count }: { count: number | null }) {
 function SetupPanel({ sites }: { sites: SiteSummary[] | null }) {
   const views = (sites ?? []).map(deriveSiteView).filter((view) => view.lifecycleStatus !== "Active");
   return (
-    <Panel heading="In setup" headingId="sites-setup-heading" description="Sites whose recorded lifecycle is not yet Active">
+    <Panel heading="In setup" headingId="sites-setup-heading" description="Sites whose recorded lifecycle is not yet Active; they are also listed in Site inventory">
       {sites === null ? (
         <p data-sites-setup="unavailable">The site list could not be read, so no site in setup can be listed.</p>
       ) : views.length === 0 ? (

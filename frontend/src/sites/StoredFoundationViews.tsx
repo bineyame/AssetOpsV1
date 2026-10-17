@@ -593,8 +593,11 @@ function IdentityPanel({
  * configured type. No topology type is invented when the site type is not stated.
  */
 export function sldPanelTitle(configuration: SiteConfigurationView): string {
-  const type = configuration.siteType.trim();
-  return type === "" ? configuration.displayName : `${configuration.displayName} · ${type}`;
+  // W1-F1 fix round 1 (review finding 9): the approved rule is "{site} · {configured
+  // topology type, if stated}". The Foundation read states no topology type, and the
+  // site archetype is not one, so the title is the site name and the panel
+  // description says the type is not stated.
+  return configuration.displayName;
 }
 
 /**
@@ -634,7 +637,7 @@ function SldView(props: ViewProps) {
       <Panel
         heading={sldPanelTitle(configuration)}
         headingId={SITE_SLD_HEADING_ID}
-        description="Configured equipment and declared connections for the period shown; not live power flow, and not reporting status"
+        description="Topology type not stated in this version · configured equipment and declared connections for the period shown; not live power flow, and not reporting status"
         actions={<Link to={props.evidenceHref}>Site evidence →</Link>}
       >
         <SldDeviceSummary foundation={foundation} site={site} />

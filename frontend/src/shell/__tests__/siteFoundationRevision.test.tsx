@@ -1049,8 +1049,8 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
 
   it("Single line diagram: diagram, then its parts, then the detail disclosure", async () => {
     await orderAt("/sld");
-    expectV69Panels("sld", { site: "Kalangala Mini-Grid", topology: "Mini-grid" });
-    expect(follows(strip(), screen.getByRole("heading", { name: "Kalangala Mini-Grid · Mini-grid" }))).toBe(true);
+    expectV69Panels("sld", { site: "Kalangala Mini-Grid" });
+    expect(follows(strip(), screen.getByRole("heading", { level: 2, name: "Kalangala Mini-Grid" }))).toBe(true);
     expect(panelTitled("What each part does").contains(disclosure("sld-advanced"))).toBe(true);
   });
 
@@ -2222,7 +2222,7 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
     await settledScreen();
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     const summary = document.querySelector("[data-sld-summary]") as HTMLElement;
-    expect(panelTitled("Kalangala Mini-Grid · Mini-grid").contains(summary)).toBe(true);
+    expect(panelTitled("Kalangala Mini-Grid").contains(summary)).toBe(true);
     expect(summary.textContent).toMatch(/^\d+ parts are drawn; 1 of \d+ devices have a linked reading channel\. /);
     expect(summary.textContent).toContain("Whether linked parts are reporting is not assessed here.");
     expect(summary.textContent).not.toMatch(/\b0 (parts|devices) (are )?reporting/);
@@ -2238,7 +2238,7 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
  * unsupported read stated inside its panel slot.
  */
 describe("W1-F1: Foundation, Readiness and SLD keep the v69 panel structure in every variant", () => {
-  const SLD = { site: "Kalangala Mini-Grid", topology: "Mini-grid" };
+  const SLD = { site: "Kalangala Mini-Grid" };
   const stocked = () => fakeFoundation(byAt);
   const gaps = () => Array.from(document.querySelectorAll("[data-panel-gap]"));
 
