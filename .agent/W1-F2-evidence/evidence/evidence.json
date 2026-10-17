@@ -1,6 +1,6 @@
 {
-  "revision": "6a6528b2",
-  "captured_at": "2026-10-17T10:18:18.541Z",
+  "revision": "8270c9a6",
+  "captured_at": "2026-10-17T11:19:20.204Z",
   "pairs": [
     {
       "screen": "evidence",
@@ -29,7 +29,7 @@
             "x": 248,
             "y": 968,
             "w": 725,
-            "h": 1172
+            "h": 497
           },
           {
             "title": "Most useful next evidence",
@@ -100,12 +100,12 @@
             "x": 16,
             "y": 2041,
             "w": 358,
-            "h": 1927
+            "h": 774
           },
           {
             "title": "Most useful next evidence",
             "x": 16,
-            "y": 3984,
+            "y": 2831,
             "w": 358,
             "h": 231
           }
@@ -171,7 +171,7 @@
             "x": 248,
             "y": 929,
             "w": 725,
-            "h": 1299
+            "h": 480
           },
           {
             "title": "Most useful next evidence",
@@ -242,12 +242,12 @@
             "x": 16,
             "y": 1929,
             "w": 358,
-            "h": 1883
+            "h": 724
           },
           {
             "title": "Most useful next evidence",
             "x": 16,
-            "y": 3828,
+            "y": 2670,
             "w": 358,
             "h": 369
           }
@@ -290,7 +290,7 @@
       "screen": "evidence-analysis",
       "case": "supported",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=58be232c-68ee-46bd-9c91-848823780049",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=a501f8d7-7708-4fab-b96e-2ecc84ca3d82",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-supported-1440-app.png",
       "mock_image": "evidence-analysis-supported-1440-mock.png",
@@ -305,14 +305,14 @@
             "x": 248,
             "y": 387,
             "w": 1145,
-            "h": 1047
+            "h": 483
           },
           {
             "title": "How each limit is set",
             "x": 248,
-            "y": 1452,
+            "y": 887,
             "w": 1145,
-            "h": 1595
+            "h": 475
           }
         ],
         "overflowX": 0
@@ -345,7 +345,7 @@
       "screen": "evidence-analysis",
       "case": "supported",
       "viewport": "390x900",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=58be232c-68ee-46bd-9c91-848823780049",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=a501f8d7-7708-4fab-b96e-2ecc84ca3d82",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-supported-390-app.png",
       "mock_image": "evidence-analysis-supported-390-mock.png",
@@ -360,14 +360,14 @@
             "x": 16,
             "y": 1142,
             "w": 358,
-            "h": 1841
+            "h": 741
           },
           {
             "title": "How each limit is set",
             "x": 16,
-            "y": 3001,
+            "y": 1901,
             "w": 358,
-            "h": 2108
+            "h": 716
           }
         ],
         "overflowX": 0
@@ -400,7 +400,7 @@
       "screen": "evidence-analysis",
       "case": "limited",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a1183417-faa9-43ef-b5ac-7e5a880428a4",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=2d734db1-d67c-41af-a11f-ba61f794a649",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-limited-1440-app.png",
       "mock_image": "evidence-analysis-limited-1440-mock.png",
@@ -415,14 +415,14 @@
             "x": 248,
             "y": 387,
             "w": 1145,
-            "h": 1047
+            "h": 483
           },
           {
             "title": "How each limit is set",
             "x": 248,
-            "y": 1452,
+            "y": 887,
             "w": 1145,
-            "h": 1749
+            "h": 495
           }
         ],
         "overflowX": 0
@@ -455,7 +455,7 @@
       "screen": "evidence-analysis",
       "case": "limited",
       "viewport": "390x900",
-      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=a1183417-faa9-43ef-b5ac-7e5a880428a4",
+      "app_url": "http://localhost:5670/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=2d734db1-d67c-41af-a11f-ba61f794a649",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-limited-390-app.png",
       "mock_image": "evidence-analysis-limited-390-mock.png",
@@ -470,14 +470,14 @@
             "x": 16,
             "y": 1142,
             "w": 358,
-            "h": 1841
+            "h": 741
           },
           {
             "title": "How each limit is set",
             "x": 16,
-            "y": 3001,
+            "y": 1901,
             "w": 358,
-            "h": 2449
+            "h": 697
           }
         ],
         "overflowX": 0
@@ -525,14 +525,14 @@
             "x": 248,
             "y": 387,
             "w": 1145,
-            "h": 1047
+            "h": 483
           },
           {
             "title": "How each limit is set",
             "x": 248,
-            "y": 1452,
+            "y": 887,
             "w": 1145,
-            "h": 630
+            "h": 401
           }
         ],
         "overflowX": 0
@@ -580,14 +580,14 @@
             "x": 16,
             "y": 1142,
             "w": 358,
-            "h": 1841
+            "h": 741
           },
           {
             "title": "How each limit is set",
             "x": 16,
-            "y": 3001,
+            "y": 1901,
             "w": 358,
-            "h": 844
+            "h": 586
           }
         ],
         "overflowX": 0

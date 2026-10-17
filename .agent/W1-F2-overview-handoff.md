@@ -86,3 +86,9 @@ Branch `task/W1-F2-overview`, clean at `fde3e130`. Not merged. The packet is `.a
 - Evidence Analysis panel 2 is "How each limit is set" via `APPROVED_TITLE_CHANGES["evidence-analysis:2"]`; the vocabulary exception list is deleted.
 - Headings: `SitePageHeader` on Overview (`SiteDetails.tsx`), Dispatch/Analysis (`SiteAnalyticsFrames.tsx`), Evidence/Evidence Analysis (`SiteEvidenceFrame.tsx`).
 - Next: independent review. Not merged.
+
+## Resume state 4 (1.3x compaction, phases A and B complete)
+
+- Phase A `016ed942` (`W1-F2-compaction-phase-A-handoff.md`); phase B `1e66735c`, `ff1bc248`, `5232a8b1`, `8270c9a6` plus the packet commit.
+- Packet: "Compaction (phases A and B)" and "Panel heights at 1440, after compaction". All three capture folders recaptured at phase B (168/168 claims); fixtures dropped.
+- Remaining above ~1.3x are recorded as packet deviations (content shape differs from the mock). Next: independent review. Not merged.

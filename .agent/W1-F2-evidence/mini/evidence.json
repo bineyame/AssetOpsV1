@@ -1,6 +1,6 @@
 {
-  "revision": "6a6528b2",
-  "captured_at": "2026-10-17T10:21:24.040Z",
+  "revision": "8270c9a6",
+  "captured_at": "2026-10-17T11:16:44.380Z",
   "pairs": [
     {
       "screen": "mini",
@@ -22,37 +22,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 248,
-            "y": 448,
+            "y": 499,
             "w": 1145,
-            "h": 481
+            "h": 366
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 947,
+            "y": 883,
             "w": 725,
-            "h": 992
+            "h": 493
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 947,
+            "y": 883,
             "w": 403,
-            "h": 992
+            "h": 493
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1957,
+            "y": 1394,
             "w": 725,
-            "h": 679
+            "h": 272
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1957,
+            "y": 1394,
             "w": 403,
-            "h": 679
+            "h": 272
           }
         ],
         "overflowX": 0
@@ -125,37 +125,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1443,
+            "y": 1518,
             "w": 358,
-            "h": 667
+            "h": 493
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 2128,
+            "y": 2029,
             "w": 358,
-            "h": 1442
+            "h": 667
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 3587,
+            "y": 2713,
             "w": 358,
-            "h": 722
+            "h": 516
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 4325,
+            "y": 3245,
             "w": 358,
-            "h": 845
+            "h": 344
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 5186,
+            "y": 3604,
             "w": 358,
-            "h": 260
+            "h": 226
           }
         ],
         "overflowX": 0
@@ -228,37 +228,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 248,
-            "y": 448,
+            "y": 499,
             "w": 1145,
-            "h": 528
+            "h": 366
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 994,
+            "y": 883,
             "w": 725,
-            "h": 992
+            "h": 493
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 994,
+            "y": 883,
             "w": 403,
-            "h": 992
+            "h": 493
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 2005,
+            "y": 1394,
             "w": 725,
-            "h": 582
+            "h": 271
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 2005,
+            "y": 1394,
             "w": 403,
-            "h": 582
+            "h": 271
           }
         ],
         "overflowX": 0
@@ -331,37 +331,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1443,
+            "y": 1518,
             "w": 358,
-            "h": 757
+            "h": 526
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 2219,
+            "y": 2062,
             "w": 358,
-            "h": 1442
+            "h": 667
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 3677,
+            "y": 2746,
             "w": 358,
-            "h": 722
+            "h": 516
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 4415,
+            "y": 3278,
             "w": 358,
-            "h": 795
+            "h": 342
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 5226,
+            "y": 3636,
             "w": 358,
-            "h": 260
+            "h": 226
           }
         ],
         "overflowX": 0
@@ -434,37 +434,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 248,
-            "y": 448,
+            "y": 499,
             "w": 1145,
-            "h": 395
+            "h": 286
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 862,
+            "y": 803,
             "w": 725,
-            "h": 469
+            "h": 447
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 862,
+            "y": 803,
             "w": 403,
-            "h": 469
+            "h": 447
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1349,
+            "y": 1268,
             "w": 725,
-            "h": 294
+            "h": 178
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1349,
+            "y": 1268,
             "w": 403,
-            "h": 294
+            "h": 178
           }
         ],
         "overflowX": 0
@@ -537,37 +537,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1479,
-            "w": 358,
-            "h": 548
-          },
-          {
-            "title": "Operating context",
-            "x": 16,
-            "y": 2046,
-            "w": 358,
-            "h": 417
-          },
-          {
-            "title": "Needs attention",
-            "x": 16,
-            "y": 2479,
-            "w": 358,
-            "h": 469
-          },
-          {
-            "title": "Bounded money consequence",
-            "x": 16,
-            "y": 2965,
+            "y": 1554,
             "w": 358,
             "h": 380
           },
           {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1952,
+            "w": 358,
+            "h": 336
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2304,
+            "w": 358,
+            "h": 447
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2767,
+            "w": 358,
+            "h": 217
+          },
+          {
             "title": "Next step",
             "x": 16,
-            "y": 3361,
+            "y": 3000,
             "w": 358,
-            "h": 156
+            "h": 154
           }
         ],
         "overflowX": 0
@@ -640,37 +640,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 248,
-            "y": 486,
+            "y": 537,
             "w": 1145,
-            "h": 395
+            "h": 286
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 900,
+            "y": 841,
             "w": 725,
-            "h": 520
+            "h": 497
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 900,
+            "y": 841,
             "w": 403,
-            "h": 520
+            "h": 497
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1437,
+            "y": 1356,
             "w": 725,
-            "h": 294
+            "h": 178
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1437,
+            "y": 1356,
             "w": 403,
-            "h": 294
+            "h": 178
           }
         ],
         "overflowX": 0
@@ -743,37 +743,37 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1517,
+            "y": 1592,
             "w": 358,
-            "h": 570
+            "h": 401
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 2105,
+            "y": 2011,
             "w": 358,
-            "h": 417
+            "h": 336
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2539,
+            "y": 2364,
             "w": 358,
-            "h": 520
+            "h": 497
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 3074,
+            "y": 2877,
             "w": 358,
-            "h": 380
+            "h": 215
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 3470,
+            "y": 3108,
             "w": 358,
-            "h": 156
+            "h": 154
           }
         ],
         "overflowX": 0
