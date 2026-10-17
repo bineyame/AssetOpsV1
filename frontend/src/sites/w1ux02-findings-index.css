@@ -112,3 +112,7 @@
 .finding-index-row td:nth-child(2) {
   min-width: 13rem;
 }
+
+.finding-index-row td:first-child small {
+  white-space: nowrap;
+}

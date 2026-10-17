@@ -627,7 +627,7 @@ function FinancialAssumptions({
       {body.timeline.length > 0 ? (
         // W1-F3 height phase: the mock's panel ends at the form; when each price applies (the strip and the
         // full schedule with each version link) stays on the page behind one plain expander.
-        <ShowAll name="price-schedule" summary={`When each price applies (${body.timeline.length} prices)`}>
+        <ShowAll name="price-schedule" summary={`When each price applies (${body.timeline.length} ${body.timeline.length === 1 ? "price" : "prices"})`}>
           <PriceTimeStrip body={body} historical={historical} />
           <Schedule body={body} links={links} selectedRevision={selectedRevision} historical={historical} />
         </ShowAll>
