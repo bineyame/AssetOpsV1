@@ -12,7 +12,7 @@
  * was freshly discovered under an open source, and both IDs are equal. Otherwise both bases are shown with a reload,
  * and no equality is claimed. Index rows are never hidden or replaced because of a parity outcome.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -52,6 +52,19 @@ export interface OverviewFindingListProps {
   links: OverviewFindingListLinks;
   /** Read the Overview (and so this list) again. */
   onReload: () => void;
+  /**
+   * Review fix M4: the Overview's chosen-Finding line. It is shown above the list, except when the list's first
+   * item is that same Finding version on the same basis (parity "same"); then item 1 carries it and its exact
+   * references join the list's one disclosure.
+   */
+  chosen?: ChosenFinding | null;
+}
+
+export interface ChosenFinding {
+  node: ReactNode;
+  /** False when the chosen line carries more than the list item can (audit-only or several overlapping). */
+  omittable: boolean;
+  references: ExactReference[];
 }
 
 export type ParityOutcome =
@@ -140,14 +153,8 @@ function overviewBasisReferences(summary: SiteWindowSummary): ExactReference[] {
 /** S5-02 parity (`D-2026-10-16-s502-parity`): a same claim only on a shared, current, comparable basis. */
 function Parity({ summary, body, onReload }: { summary: SiteWindowSummary; body: FindingIndexBody; onReload: () => void }) {
   const outcome = compareParity(summary, body);
-  if (outcome.state === "same") {
-    return (
-      <p className="v69-chart-note" data-overview-finding-parity="same">
-        The first Finding listed is the same Finding version as the one chosen above, on the same assessment and
-        matching basis for this day.
-      </p>
-    );
-  }
+  // Review fix M4: "same" is marked on list item 1 (which then is the chosen Finding); no explanatory note.
+  if (outcome.state === "same") return null;
   return (
     <div data-overview-finding-parity={outcome.state}>
       <p>
@@ -215,7 +222,17 @@ function listWords(body: FindingIndexBody): ProductWords {
  * W1-UX-02: the list's exact references - the list selection reference, its recorded reasons, each listed row's
  * exact version, and (when parity is not claimed) the Overview's own basis. Labelled one value at a time.
  */
-function ListReferences({ summary, body, withBasis }: { summary: SiteWindowSummary; body: FindingIndexBody; withBasis: boolean }) {
+function ListReferences({
+  summary,
+  body,
+  withBasis,
+  extra = [],
+}: {
+  summary: SiteWindowSummary;
+  body: FindingIndexBody;
+  withBasis: boolean;
+  extra?: ExactReference[];
+}) {
   return (
     <div data-finding-index-reasons>
       <ExactReferences
@@ -226,38 +243,63 @@ function ListReferences({ summary, body, withBasis }: { summary: SiteWindowSumma
           ...body.status_reasons.map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
           { label: "List selection reference", value: body.selection_token },
           { label: "List built at", value: body.built_at },
+          { label: "List known as of", value: body.knowledge_at },
           ...body.rows.flatMap((row, i) => [
             { label: `Listed Finding ${i + 1} reference`, value: row.finding_id },
             { label: `Listed Finding ${i + 1} version reference`, value: row.finding_revision_id },
           ]),
           ...(withBasis ? overviewBasisReferences(summary) : []),
+          ...extra,
         ]}
       />
     </div>
   );
 }
 
-function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindowSummary; body: FindingIndexBody; scope: FindingIndexScope; links: OverviewFindingListLinks; onReload: () => void }) {
+function Loaded({
+  summary,
+  body,
+  scope,
+  links,
+  onReload,
+  chosen,
+}: {
+  summary: SiteWindowSummary;
+  body: FindingIndexBody;
+  scope: FindingIndexScope;
+  links: OverviewFindingListLinks;
+  onReload: () => void;
+  chosen: ChosenFinding | null;
+}) {
   const full = links.findingList({ ...scope, limit: null, cursor: null });
+  const chosenLine = chosen?.node ?? null;
   if (body.status !== "CURRENT" || !body.is_current || body.total_count === null) {
     return (
+      <>
+      {chosenLine}
       <div data-overview-finding-list={body.status}>
         <ProductStatus words={listWords(body)} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>No Findings are listed and no count is given. This is not a statement that the day has no Findings.</p>
         <FullList href={full} />
         <ListReferences summary={summary} body={body} withBasis={false} />
       </div>
+      </>
     );
   }
   if (body.total_count === 0) {
     if (body.rows.length > 0 || !body.selection_token || body.watermarks.days.length === 0) {
       return (
+        <>
+        {chosenLine}
         <div data-overview-finding-list="unavailable">
           <ProductStatus words={INCOMPLETE_WORDS} scope={listScope(summary)} asOf={body.knowledge_at} />
         </div>
+        </>
       );
     }
     return (
+      <>
+      {chosenLine}
       <div data-overview-finding-list="current-empty">
         <ProductStatus words={readResultWords("proved-empty")} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>
@@ -268,11 +310,14 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
         <FullList href={full} />
         <ListReferences summary={summary} body={body} withBasis={false} />
       </div>
+      </>
     );
   }
   const shown = body.rows.length;
   if (shown === 0) {
     return (
+      <>
+      {chosenLine}
       <div data-overview-finding-list="unavailable">
         <ProductStatus words={INCOMPLETE_WORDS} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>
@@ -281,37 +326,58 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
           </button>
         </p>
       </div>
+      </>
     );
   }
   const partial = body.next_cursor !== null || shown < body.total_count;
   const parity = compareParity(summary, body);
+  // Review fix M4: the chosen Finding is list item 1 when parity is "same"; the separate line is then omitted.
+  const merged = parity.state === "same" && chosen !== null && chosen.omittable;
   return (
+    <>
+    {merged ? null : chosenLine}
     <div data-overview-finding-list="current-rows">
-      {/* W1-F2 compaction: the list's state line in the strip's inline form (same words and bound). */}
-      <p className="v69-chart-note overview-finding-list__state">
-        <ProductStatus inline words={currentnessWords("CURRENT")} scope={listScope(summary)} asOf={body.knowledge_at} />
-      </p>
-      <p>
-        <strong>
-          {body.total_count} {body.total_count === 1 ? "Finding" : "Findings"} overlap this day.
-        </strong>{" "}
-        Newest period first; each opens at the exact version listed.
-      </p>
-      <ol className="overview-finding-list" data-overview-finding-rows>
-        {body.rows.map((row) => (
-          <li key={row.finding_id} data-overview-finding-row={row.finding_id} data-finding-revision={row.finding_revision_id}>
-            <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-overview-finding-link>
-              {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.title ?? "Generator support review"}
-            </Link>{" "}
-            <small>
-              {utcText(row.episode.start)} to {utcText(row.episode.end)} ·{" "}
-              {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.label ?? "Status not recognised"} · version {row.revision_no}
-            </small>
-          </li>
-        ))}
+      {/* Review fix M4: the mock's numbered list - title, one-line reason, link. The list state equals the
+          statusbar's, so no state strip; its "as of" is in the closed references. */}
+      <ol className="v69-attention overview-finding-list" data-overview-finding-rows aria-label={`Findings overlapping ${summary.window.utc_date}`}>
+        {body.rows.map((row, index) => {
+          const first = index === 0 && parity.state === "same";
+          return (
+            <li
+              key={row.finding_id}
+              className="v69-attention__item"
+              data-overview-finding-row={row.finding_id}
+              data-finding-revision={row.finding_revision_id}
+              {...(first ? { "data-overview-finding-parity": "same" } : {})}
+              {...(first && merged ? { "data-known-finding": row.finding_id, "data-known-finding-revision": row.finding_revision_id } : {})}
+            >
+              <span className="v69-attention__rank" aria-hidden="true">
+                {index + 1}
+              </span>
+              <div>
+                <h3>{LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.title ?? "Generator support review"}</h3>
+                <p>
+                  {utcText(row.episode.start)} to {utcText(row.episode.end)} ·{" "}
+                  {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.label ?? "Status not recognised"} · version {row.revision_no}
+                  {first && merged ? " · the Finding chosen for this day" : ""}
+                </p>
+                <Link
+                  to={links.finding(row.finding_id, row.finding_revision_id)}
+                  data-overview-finding-link
+                  {...(first && merged ? { "data-window-finding-link": row.finding_id } : {})}
+                >
+                  Open the Finding →
+                </Link>
+              </div>
+            </li>
+          );
+        })}
       </ol>
-      {/* W1-F2 compaction: the shown count and the full-list link share one note line. */}
+      {/* The count, the shown count and the full-list link share one note line. */}
       <p className="v69-chart-note">
+        <span data-overview-finding-count>
+          {body.total_count} {body.total_count === 1 ? "Finding" : "Findings"} overlap this day.
+        </span>{" "}
         <span data-overview-finding-shown={partial ? "first-page" : "all"}>
           {partial
             ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list.`
@@ -322,8 +388,14 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
         </Link>
       </p>
       <Parity summary={summary} body={body} onReload={onReload} />
-      <ListReferences summary={summary} body={body} withBasis={parity.state !== "same"} />
+      <ListReferences
+        summary={summary}
+        body={body}
+        withBasis={parity.state !== "same"}
+        extra={merged && chosen !== null ? chosen.references : []}
+      />
     </div>
+    </>
   );
 }
 
@@ -366,7 +438,7 @@ function Refused({ result, href, summary }: { result: Exclude<FindingIndexResult
   );
 }
 
-export function OverviewFindingList({ summary, client, links, onReload }: OverviewFindingListProps) {
+export function OverviewFindingList({ summary, client, links, onReload, chosen = null }: OverviewFindingListProps) {
   const site = summary.site_code;
   const { start: from, end: to } = summary.window;
   const [read, setRead] = useState<{ key: string; result: FindingIndexResult } | null>(null);
@@ -386,14 +458,20 @@ export function OverviewFindingList({ summary, client, links, onReload }: Overvi
     };
   }, [client, site, from, to]);
   return (
-    <section aria-labelledby="overview-finding-list-heading" data-overview-finding-list-for={summary.window.utc_date}>
-      <h3 id="overview-finding-list-heading">Findings for {summary.window.utc_date}</h3>
+    // Review fix M4: no "Findings for {date}" subheading; the panel title "Needs attention" heads the list.
+    <section aria-label={`Findings for ${summary.window.utc_date}`} data-overview-finding-list-for={summary.window.utc_date}>
       {read === null || read.key !== key ? (
-        <p data-overview-finding-list="loading">Loading the findings for this day.</p>
+        <>
+          {chosen?.node ?? null}
+          <p data-overview-finding-list="loading">Loading the findings for this day.</p>
+        </>
       ) : read.result.status === "loaded" ? (
-        <Loaded summary={summary} body={read.result.value} scope={scope} links={links} onReload={onReload} />
+        <Loaded summary={summary} body={read.result.value} scope={scope} links={links} onReload={onReload} chosen={chosen} />
       ) : (
-        <Refused result={read.result} href={links.findingList({ ...scope, limit: null })} summary={summary} />
+        <>
+          {chosen?.node ?? null}
+          <Refused result={read.result} href={links.findingList({ ...scope, limit: null })} summary={summary} />
+        </>
       )}
     </section>
   );

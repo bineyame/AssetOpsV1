@@ -485,13 +485,16 @@ function OverviewBody({
           <p className="v69-prose">
             <strong data-evidence-headline={evidence.state}>{headlineOf(evidence)}</strong>
           </p>
-          <ProductStatus words={receiptWords(evidence)} scope={periodScope(evidence)} asOf={evidence.extent.last_received_at} />
+          {/* Review fix M3: the receipt state differs from the statusbar badge, so it is one note-size inline line. */}
+          <p className="v69-chart-note evidence-receipt-state">
+            <ProductStatus inline words={receiptWords(evidence)} scope={periodScope(evidence)} asOf={evidence.extent.last_received_at} />
+          </p>
           <ValueBars
             title="Readings that arrived for this period, by what happened to them"
             items={OUTCOMES.map((o) => ({ key: o.key, label: o.label, value: evidence.counts[o.key], valueText: String(evidence.counts[o.key]) }))}
           />
           {notes.length === 0 ? null : (
-            <ul data-evidence-notes>
+            <ul className="v69-chart-note evidence-notes" data-evidence-notes>
               {notes.map((state) => (
                 <li key={state} data-evidence-note={state}>
                   {STATE_NOTES[state]}

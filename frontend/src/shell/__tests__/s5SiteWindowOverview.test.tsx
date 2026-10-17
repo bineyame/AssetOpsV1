@@ -306,6 +306,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     // W1-UX-02: the freshness strip uses the shared currentness words (was the local "Unknown").
     expect(document.querySelector('[data-freshness-state="UNASSESSED"]')?.textContent).toContain("We have not checked this period");
     expect(expectStateLineVisible(freshnessCard())).toBe("We have not checked this period");
+    expect(freshnessCard().querySelector("[data-freshness-in-statusbar]")?.getAttribute("data-freshness-in-statusbar")).toBe("no");
     // W1-UX-01: the shared state words; the state line stays outside the closed exact-reference disclosure.
     const unknownState = document.querySelector('[data-assessment-state="UNKNOWN"]') as HTMLElement;
     expect(unknownState.textContent).toContain("We cannot judge this yet");
@@ -347,8 +348,10 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     renderAt(`/sites/${SITE_ID}?date=2026-10-07`, client);
     await settledScreen();
     // W1-UX-02: the freshness strip uses the shared currentness words (was the local "Failed").
-    expect(document.querySelector('[data-freshness-state="FAILED"]')?.textContent).toContain("The latest check could not be completed");
-    expect(expectStateLineVisible(freshnessCard())).toBe("The latest check could not be completed");
+    // Review fix M3: the FAILED freshness state is marked on panel 1's line; its words are the statusbar's (next lines).
+    expect(document.querySelector('[data-freshness-state="FAILED"]')).not.toBeNull();
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(document.querySelector('[data-assessment-state="FAILED"]')?.textContent).toContain("The latest check could not be completed");
     expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
     expect(moneyCard().getAttribute("data-money-state")).toBe("UPSTREAM_FAILED");
@@ -399,6 +402,14 @@ function freshnessCard(): HTMLElement {
   return document.querySelector("[data-freshness-card]") as HTMLElement;
 }
 
+/** Review fix M3: panel 1 renders no second state line when the freshness words equal the statusbar's. */
+function expectFreshnessInStatusbar(): void {
+  const card = freshnessCard();
+  expect(card.querySelector("[data-freshness-in-statusbar]")?.getAttribute("data-freshness-in-statusbar")).toBe("yes");
+  expect(card.querySelector(".product-status")).toBeNull();
+  expect(card.querySelector("[data-source-open]")).not.toBeNull();
+}
+
 describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
   it("leads with the day answer; the whole route, every exact-reference disclosure and each state line pass", async () => {
     const { client } = clientOf(() => summary());
@@ -423,7 +434,12 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
       expect(d.violations, describeViolations(d.violations)).toEqual([]);
     }
     // Current and priced claims keep a plain "as of" beside them.
-    expect(expectStateLineVisible(freshnessCard())).toBe("Using the latest checked readings");
+    // Review fix M3: said once, in the statusbar; panel 1 keeps only the source sentence.
+    expectFreshnessInStatusbar();
+    expect(expectStateLineVisible(objectiveCard())).toBe("Using the latest checked readings");
+    // Review fix M3: panel 1 has one "How this was worked out" disclosure (day reading and freshness merged).
+    const happened = freshnessCard().closest(".panel") as HTMLElement;
+    expect([...happened.querySelectorAll("summary")].filter((x) => x.textContent === "How this was worked out")).toHaveLength(1);
     expect(expectStateLineVisible(moneyCard())).toBe("Current amount");
     // The amount is drawn as two bounded bars; the raw recorded label and method reference are exact detail only.
     expect(moneyCard().querySelectorAll('[data-value-bar="known"]')).toHaveLength(2);
@@ -493,7 +509,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("This result may miss newer readings");
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(expectStateLineVisible(moneyCard())).toBe("Upstream out of date");
     expect(expectStateLineVisible(objectiveCard())).toBe("This result may miss newer readings");
     // W1-F2: the Dispatch objective card names the same not-current state, never a current answer.
@@ -520,7 +537,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("Not checked yet");
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(expectStateLineVisible(moneyCard())).toBe("No amount yet: checks still waiting");
     expect(expectStateLineVisible(objectiveCard())).toBe("Not checked yet");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
@@ -606,7 +624,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     );
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-07`, client);
     await settledScreen();
-    expect(expectStateLineVisible(freshnessCard())).toBe("The latest check could not be completed");
+    // Review fix M3: the freshness words equal the statusbar's, so they are said once, in the statusbar (asserted below).
+    expectFreshnessInStatusbar();
     expect(expectStateLineVisible(objectiveCard())).toBe("The latest check could not be completed");
     expect(expectStateLineVisible(moneyCard())).toBe("No amount: a check did not finish");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview failed (W1)", { set: "w1" });

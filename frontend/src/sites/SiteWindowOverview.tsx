@@ -239,14 +239,20 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
  */
 function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   const f = summary.freshness;
+  const a = summary.assessment;
   const accepted = summary.watermarks.accepted_source;
+  // Review fix M3: the readings state is said once. When its words equal the statusbar's (same "as of"), the
+  // statusbar carries it and this line keeps only the source sentence.
+  const sameAsStatusbar = currentnessWords(f.state).label === objectiveWords(a.state).label;
   return (
     <div className="window-freshness" data-freshness-card>
         {/* W1-F2: one note-size line (readings state and source state), not a second state block in panel 1. */}
-        <p className="v69-chart-note">
-          <span data-freshness-state={f.state}>
-            <ProductStatus inline words={currentnessWords(f.state)} scope={dayScope(summary)} asOf={summary.db_now} />
-          </span>{" "}
+        <p className="v69-chart-note" data-freshness-state={f.state} data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}>
+          {sameAsStatusbar ? null : (
+            <>
+              <ProductStatus inline words={currentnessWords(f.state)} scope={dayScope(summary)} asOf={summary.db_now} />{" "}
+            </>
+          )}
           <span data-source-open={f.source_open ? "open" : "closed"}>
             {f.source_open
               ? "The source of these readings is open for current use."
@@ -255,9 +261,13 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
         </p>
         <div data-window-reasons="freshness">
           <ExactReferences
-            name="window-freshness"
+            name="window-assessment"
             variant="tech"
             references={[
+              { label: "Day assessment", value: a.window_assessment_revision_id },
+              { label: "Assessment pass", value: a.run_id },
+              { label: "Assessment state", value: a.state },
+              ...(a.status_reasons ?? []).map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
               { label: "Day state", value: f.state },
               ...reasonReferences("Recorded reason", f.reasons),
               { label: "Source state", value: f.source_reason },
@@ -400,16 +410,7 @@ function DayReading({ summary }: { summary: SiteWindowSummary }) {
           ))}
         </ChartNote>
       )}
-      <ExactReferences
-        name="window-assessment"
-        variant="tech"
-        references={[
-          { label: "Day assessment", value: a.window_assessment_revision_id },
-          { label: "Assessment pass", value: a.run_id },
-          { label: "Assessment state", value: a.state },
-          ...(a.status_reasons ?? []).map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
-        ]}
-      />
+      {/* Review fix M3: the day reading's references join the freshness references in panel 1's one disclosure. */}
     </div>
   );
 }
@@ -697,7 +698,8 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
           </p>
         )}
         {/* W1-F2 compaction: the state line stays visible in the strip's inline form (same words and bound). */}
-        <p className="window-money__state" data-money-state-line>
+        {/* Review fix M3: the money state differs from the statusbar's, so it stays as one note-size line. */}
+        <p className="window-money__state v69-chart-note" data-money-state-line>
           <ProductStatus inline words={w} scope={scope} asOf={summary.db_now} />
         </p>
         {m.finding_id ? (
@@ -786,52 +788,61 @@ function KnownFinding({
   const findingList = links.findingList;
   const k = summary.known_finding;
   const pin = summary.previous_pin ?? k?.previous_pin ?? null;
+  const choiceReferences = k === null
+    ? []
+    : [
+        { label: "How it was chosen", value: k.selected_by },
+        { label: "Choice rule", value: k.selection_rule },
+        { label: "Finding reference", value: k.id },
+        { label: "Finding version reference", value: k.revision_id },
+      ];
+  const chosenNode =
+    k === null ? (
+      <p data-known-finding="none">No Finding is selected for this day.</p>
+    ) : (
+      <div data-known-finding={k.id} data-known-finding-revision={k.revision_id}>
+        <p>
+          <Link to={links.finding(k.id, k.revision_id)} data-window-finding-link={k.id}>
+            Finding from {stamp(k.episode.start)} to {k.episode.end === null ? "open" : stamp(k.episode.end)} UTC
+          </Link>
+          {k.audit_only ? " (kept for audit; not current)" : ""}
+        </p>
+        {k.audit_only ? (
+          <div data-known-finding-state="audit-only">
+            <ProductStatus
+              words={currentnessWords("AUDIT_ONLY")}
+              scope={`The Finding chosen for ${summary.window.utc_date}`}
+              asOf={summary.db_now}
+            />
+          </div>
+        ) : null}
+        {k.several_intersect ? <p>{k.note}</p> : null}
+        <ExactReferences name="window-finding-choice" variant="tech" references={choiceReferences} />
+      </div>
+    );
   return (
     <>
-      {k === null ? (
-        <p data-known-finding="none">No Finding is selected for this day.</p>
-      ) : (
-        <div data-known-finding={k.id} data-known-finding-revision={k.revision_id}>
-          <p>
-            <Link to={links.finding(k.id, k.revision_id)} data-window-finding-link={k.id}>
-              Finding from {stamp(k.episode.start)} to {k.episode.end === null ? "open" : stamp(k.episode.end)} UTC
-            </Link>
-            {k.audit_only ? " (kept for audit; not current)" : ""}
-          </p>
-          {k.audit_only ? (
-            <div data-known-finding-state="audit-only">
-              <ProductStatus
-                words={currentnessWords("AUDIT_ONLY")}
-                scope={`The Finding chosen for ${summary.window.utc_date}`}
-                asOf={summary.db_now}
-              />
-            </div>
-          ) : null}
-          {k.several_intersect ? <p>{k.note}</p> : null}
-          <ExactReferences
-            name="window-finding-choice"
-            variant="tech"
-            references={[
-              { label: "How it was chosen", value: k.selected_by },
-              { label: "Choice rule", value: k.selection_rule },
-              { label: "Finding reference", value: k.id },
-              { label: "Finding version reference", value: k.revision_id },
-            ]}
-          />
-        </div>
-      )}
       {pin ? (
         <p data-previous-pin={pin.reason}>{PIN_WORDS[pin.reason] ?? "The Finding in the address is not the one shown."}</p>
       ) : null}
       {findingIndex && findingList ? (
+        // Review fix M4: the list owns the chosen line, so it can be list item 1 when they are the same version.
         <OverviewFindingList
           summary={summary}
           client={findingIndex}
           links={{ finding: links.finding, findingList }}
           onReload={onReload ?? (() => undefined)}
+          chosen={{
+            node: chosenNode,
+            omittable: k !== null && !k.audit_only && !k.several_intersect,
+            references: choiceReferences,
+          }}
         />
       ) : (
-        <p data-finding-list={summary.finding_list.state}>{summary.finding_list.reason}</p>
+        <>
+          {chosenNode}
+          <p data-finding-list={summary.finding_list.state}>{summary.finding_list.reason}</p>
+        </>
       )}
     </>
   );

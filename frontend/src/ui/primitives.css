@@ -3437,6 +3437,9 @@ tr[data-selected] > * {
 .claim-limit__prose p + p { margin-top: var(--space-2); }
 .claim-limit__result { margin: var(--space-3) 0 var(--space-1); font-size: 12px; }
 .claim-limit__result .claim-limit__status { margin: 0; font-size: 11px; }
+/* Review fix M3: the Evidence state notes at note size, like the lines around them. */
+ul.evidence-notes { padding-left: var(--space-4); }
+ul.evidence-notes li { font-size: inherit; }
 
 .claim-limit__subheading {
   margin: var(--space-4) 0 var(--space-2);

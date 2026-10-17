@@ -342,12 +342,15 @@ describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () 
     expect(document.querySelector(`[data-known-finding="${FID}"]`)).not.toBeNull();
   });
 
-  it("W1-F2 compaction: the list's state line is inline and the shown count shares a line with the full-list link", async () => {
+  it("W1-F2 review fix M3/M4: no list state strip (its as-of is in the references); the count, shown count and full-list link share one line", async () => {
     const body = positive(DAY, { rows: rowsOf(DAY, OTHER_FID, OTHER_RID).slice(0, 1), total_count: 1, next_cursor: null });
     renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client, indexOf(() => ({ status: "loaded", value: body })).client);
     await settledScreen();
     const list = document.querySelector('[data-overview-finding-list="current-rows"]') as HTMLElement;
-    expect(list.querySelector(".overview-finding-list__state .product-status--inline [data-product-status-as-of]")).not.toBeNull();
+    // The list state repeated the statusbar; it is said once there, and the list's own "as of" stays as a reference.
+    expect(list.querySelector(".product-status")).toBeNull();
+    expect(exactValue(list, "List known as of")).toBe(body.knowledge_at);
+    expect(list.querySelector("[data-overview-finding-count]")?.parentElement?.querySelector("[data-overview-finding-full-list]")).not.toBeNull();
     const shown = list.querySelector("[data-overview-finding-shown]") as HTMLElement;
     expect(shown.parentElement?.querySelector("[data-overview-finding-full-list]")).not.toBeNull();
     expect(list.querySelector('[data-exact-references].exact-references--tech')).not.toBeNull();
@@ -379,7 +382,8 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     renderAt(`/sites/${SITE_ID}?date=${DAY}`, overview.client, { getFindingIndex });
     await screen.findByText(/Loading the findings for this day/);
     fireEvent.click(document.querySelector('[data-window-day-link="next"]') as HTMLElement);
-    await screen.findByText(/Findings for 2026-10-16/);
+    // Review fix M4: no "Findings for {date}" subheading; the list section names its day.
+    await vi.waitFor(() => expect(document.querySelector('[data-overview-finding-list-for="2026-10-16"]')).not.toBeNull());
     // The old day answers last, after the new day.
     await act(async () => {
       pending.get("2026-10-16")!({ status: "loaded", value: aligned("2026-10-16") });
@@ -431,12 +435,24 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
     const { container } = renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client,
       indexOf(() => ({ status: "loaded", value: body })).client);
     await settledScreen();
-    expect(expectStateLineVisible(listCard())).toBe("Using the latest checked readings");
-    expect(listCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
-    for (const row of Array.from(document.querySelectorAll("[data-overview-finding-row]"))) {
+    // Review fix M3: the list state equals the statusbar's, so it is said once there; the list's own as-of is a
+    // labelled reference in the one closed disclosure.
+    expect(expectStateLineVisible(document.querySelector("[data-overview-status]") as HTMLElement)).toBe("Using the latest checked readings");
+    expect(listCard().querySelector(".product-status")).toBeNull();
+    expect(exactValue(listCard(), "List known as of")).toBe(body.knowledge_at);
+    // Review fix M4: the mock's numbered items - rank, title, one-line reason, link; item 1 is the chosen Finding.
+    const rows = Array.from(document.querySelectorAll("[data-overview-finding-row]"));
+    expect(rows.map((row) => row.querySelector(".v69-attention__rank")?.textContent)).toEqual(["1", "2"]);
+    for (const row of rows) {
       expect(row.querySelector("code")).toBeNull();
-      expect(row.textContent).toMatch(/version \d+$/);
+      expect(row.querySelector("h3")?.textContent).not.toBe("");
+      expect(row.querySelector("p")?.textContent).toMatch(/version \d+( · the Finding chosen for this day)?$/);
     }
+    expect(rows[0].getAttribute("data-known-finding")).toBe(FID);
+    expect(document.querySelectorAll(`[data-known-finding="${FID}"]`)).toHaveLength(1);
+    expect(screen.queryByText(/is the same Finding version/)).toBeNull();
+    expect(document.querySelector("#overview-finding-list-heading")).toBeNull();
+    expect(exactValue(listCard(), "How it was chosen")).not.toBeNull();
     expect(exactValue(listCard(), "Listed Finding 1 version reference")).toBe(RID);
     expect(exactValue(listCard(), "Listed Finding 2 version reference")).toBe(OTHER_RID);
     const main = container.querySelector("main") as HTMLElement;
