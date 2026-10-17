@@ -9,6 +9,10 @@ import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
+import { useSiteRecord } from "../sites/useSiteRecord";
+import { label, SOURCE_MODE_LABELS } from "../sites/siteViewModel";
+import type { ColdFoundationClient } from "../sites/coldFoundationClient";
+import { ColdFoundationFrame } from "../sites/ColdFoundationViews";
 import { Breadcrumbs, PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
@@ -29,6 +33,8 @@ export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
   /** S1-01: the persisted Foundation read and its one change. */
   foundation: SiteFoundationClient;
+  /** W2-01: the selected cold configuration read; a COLDCHAIN Site renders the cold views from it. */
+  coldFoundation?: ColdFoundationClient;
   sitesPath: string;
   templateLineage?: SiteTemplateLineageClient;
   /** V-01a round 3: the S2 central gateway-contact read shown on Readiness. */
@@ -51,6 +57,7 @@ export interface SiteFoundationFrameProps {
 export function SiteFoundationFrame({
   detail,
   foundation,
+  coldFoundation,
   sitesPath,
   templateLineage,
   gatewayHealth,
@@ -61,6 +68,9 @@ export function SiteFoundationFrame({
   const at = params.get("at");
   const [refresh, setRefresh] = useState(0);
   const state = useSiteFoundation(siteId, at, foundation, refresh);
+  // W2-01 (design section 3 D-I): the Site's type selects the views. The Site record answers
+  // even when no Foundation version is effective at the selected time.
+  const record = useSiteRecord(siteId, detail);
 
   const component = params.get(FOUNDATION_COMPONENT_PARAM);
   // A selected part that the newly selected period does not declare: its ID
@@ -109,6 +119,41 @@ export function SiteFoundationFrame({
   // any other segment that is not a view is not a destination.
   if (view === null || (foundationView !== undefined && view === "model")) {
     return <RouteNotAvailableFrame />;
+  }
+
+  const recordType = record?.status === "loaded" ? record.site.site_type : null;
+  const foundationType = state.foundation?.status === "loaded" ? state.foundation.value.site.site_type : null;
+  if (coldFoundation !== undefined && siteId !== undefined && (recordType === "COLDCHAIN" || foundationType === "COLDCHAIN")) {
+    return (
+      <ColdFoundationFrame
+        view={view}
+        siteId={siteId}
+        siteName={record?.status === "loaded" ? record.site.display_name : (state.foundation?.status === "loaded" ? state.foundation.value.site.display_name : siteId)}
+        mode={record?.status === "loaded" ? label(record.site.source.mode, SOURCE_MODE_LABELS) : null}
+        selectedAt={at}
+        onSelectAt={selectAt}
+        client={coldFoundation}
+        gatewayHealth={gatewayHealth}
+        versions={state.versions?.status === "loaded" ? state.versions.value : null}
+        viewHref={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)}
+        evidenceHref={siteEvidenceHref(siteId)}
+        healthHref={siteHealthHref(siteId)}
+        tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
+        parentTrail={[
+          { label: "Sites", to: sitesPath },
+          { label: siteId, to: siteDetailHref(siteId) },
+        ]}
+      />
+    );
+  }
+  // The type is not known yet: a refused Foundation read could belong to a cold Site.
+  if (state.foundation !== null && state.foundation.status !== "loaded" && record === null) {
+    return (
+      <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
+        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} />
+        <p>{SITE_FOUNDATION_LOADING}</p>
+      </main>
+    );
   }
 
   const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;

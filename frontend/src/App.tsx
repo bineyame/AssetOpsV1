@@ -66,6 +66,7 @@ import {
   createSiteFoundationClient,
   type SiteFoundationClient,
 } from "./sites/siteFoundationClient";
+import { createColdFoundationClient, type ColdFoundationClient } from "./sites/coldFoundationClient";
 import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
@@ -94,6 +95,7 @@ const defaultSiteEvidence = createSiteEvidenceClient();
 const defaultSiteOverview = createSiteOverviewClient();
 const defaultSiteAnalytics = createSiteAnalyticsClient();
 const defaultSiteFoundation = createSiteFoundationClient();
+const defaultColdFoundation = createColdFoundationClient();
 
 /**
  * Route table.
@@ -157,6 +159,8 @@ export interface AppProps {
   siteFindingIndex?: FindingIndexClient;
   /** Persisted Foundation read and reserve change (S1-01). Operator, never gated. */
   siteFoundation?: SiteFoundationClient;
+  /** W2-01: the selected cold-chain configuration read, used when the Site is COLDCHAIN. */
+  coldFoundation?: ColdFoundationClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -176,6 +180,7 @@ export function App({
   siteAnalytics = defaultSiteAnalytics,
   siteFindingIndex,
   siteFoundation = defaultSiteFoundation,
+  coldFoundation = defaultColdFoundation,
   siteTemplateLineage,
   now,
 }: AppProps) {
@@ -220,6 +225,7 @@ export function App({
               <SiteFoundationFrame
                 detail={siteDetail}
                 foundation={siteFoundation}
+                coldFoundation={coldFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
                 gatewayHealth={siteEvidence.gatewayHealth}
@@ -232,6 +238,7 @@ export function App({
               <SiteFoundationFrame
                 detail={siteDetail}
                 foundation={siteFoundation}
+                coldFoundation={coldFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
                 gatewayHealth={siteEvidence.gatewayHealth}

@@ -133,6 +133,10 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   foundation: "Definition, topology and controls · stored configuration for the period shown",
   readiness: "Definition, commissioning and gateway readiness",
   sld: "Foundation · single line diagram",
+  // W2-01: the cold screens' mock subtitle states illustrative ratings and a policy band, so only its shape is kept.
+  "cold-foundation": "Cold room · stored configuration for the period shown",
+  "cold-readiness": "Definition, commissioning and gateway readiness",
+  "cold-sld": "Cold room · single line diagram",
 } as const;
 
 export interface SitePageHeaderProps {

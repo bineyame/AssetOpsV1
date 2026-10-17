@@ -1,0 +1,90 @@
+/*
+ * W2-01: the configured cold-chain drawing (mock `.sld` boxes and line styles,
+ * `frontend/mockups/v69/mockups.css`). Frame colour names an equipment family,
+ * never a state; line style names the connection medium.
+ */
+.cold-sld {
+  margin: 0;
+}
+
+.cold-sld__svg {
+  display: block;
+  width: 100%;
+  max-width: 1060px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.cold-sld__box {
+  fill: var(--sld-load-fill);
+  stroke: var(--sld-bus);
+  stroke-width: 1.4;
+}
+
+.cold-sld__box--supply {
+  fill: var(--sld-supply-fill);
+  stroke: var(--sld-supply-stroke);
+}
+
+.cold-sld__box--sensor {
+  fill: var(--sld-network-fill);
+  stroke: #3d7a8c;
+}
+
+.cold-sld__box--network {
+  fill: var(--sld-network-fill);
+}
+
+.cold-sld__label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--sld-ink);
+}
+
+.cold-sld__small {
+  font-size: 10px;
+  fill: #617087;
+}
+
+.cold-sld__edge {
+  fill: none;
+  stroke: var(--sld-ink);
+  stroke-width: 2;
+}
+
+.cold-sld__edge--thermal {
+  stroke: var(--sld-supply-stroke);
+  stroke-dasharray: 7 5;
+}
+
+.cold-sld__edge--signal {
+  stroke: #3d7a8c;
+  stroke-width: 1.4;
+  stroke-dasharray: 2 4;
+}
+
+.cold-sld__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted, #617087);
+}
+
+.cold-sld__key {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-top: 2px solid var(--sld-ink);
+}
+
+.cold-sld__key--thermal {
+  border-top: 2px dashed var(--sld-supply-stroke);
+}
+
+.cold-sld__key--signal {
+  border-top: 2px dotted #3d7a8c;
+}
