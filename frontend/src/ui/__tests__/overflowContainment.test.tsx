@@ -233,7 +233,7 @@ describe.each(SURFACES_WITH_A_TABLE)(
 describe("the correction buys no space from the inventories", () => {
   it("leaves the Sites index with all its columns", async () => {
     renderAt("/sites");
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: "Site inventory" });
 
     // The M1 viewport policy is explicit that a column is never dropped
     // because the viewport is narrow: that would be a further state beside not
@@ -241,7 +241,7 @@ describe("the correction buys no space from the inventories", () => {
     // by the V-01a round 2 owner ruling. Containing the overflow is the layout
     // change; losing a column would have been a product change.
     expect(
-      within(screen.getByRole("table"))
+      within(screen.getByRole("table", { name: "Site inventory" }))
         .getAllByRole("columnheader")
         .map((header) => header.textContent),
     ).toEqual(SITES_INDEX_COLUMNS);
