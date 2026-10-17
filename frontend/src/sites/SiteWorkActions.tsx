@@ -15,7 +15,9 @@
  * W1-F4 (`D-2026-10-17-mockup-layout-spec`): the v69 `sitework` layout. A
  * one-line status strip ("Scoped to <site> · N Actions", the read state and
  * read time), then the single "Actions at this site" panel holding the window
- * chips, the table or the in-panel state, and a panel-foot note. The former
+ * chips (in the panel header), the table or the in-panel state, and one
+ * panel-foot note. Past four rows the rest stay in the page, hidden behind a
+ * "Show all N Actions" toggle. The former
  * W1-UX-04 answer card is merged into the strip and the panel; there is no
  * separate top card. There is no global Actions list in this build, so the
  * strip has no "Manage in Actions" link.
@@ -203,7 +205,10 @@ function Basis({ body }: { body: ActionIndexBody }) {
   );
 }
 
-function Rows({ body, links }: { body: ActionIndexBody; links: SiteWorkLinks }) {
+/** Rows shown before "Show all": the mock's short table. The rest stay in the page, hidden until asked for. */
+export const SITE_WORK_VISIBLE_ROWS = 4;
+
+function Rows({ body, links, all }: { body: ActionIndexBody; links: SiteWorkLinks; all: boolean }) {
   return (
     <DataTable labelledBy={HEADING_ID}>
       <thead>
@@ -216,9 +221,10 @@ function Rows({ body, links }: { body: ActionIndexBody; links: SiteWorkLinks }) 
         </tr>
       </thead>
       <tbody>
-        {body.rows.map((row) => (
+        {body.rows.map((row, index) => (
           <tr
             key={row.action_id}
+            hidden={!all && index >= SITE_WORK_VISIBLE_ROWS}
             data-site-work-row={row.action_id}
             data-site-work-event={row.selected_event.id}
             data-site-work-revision={row.origin.finding_revision_id}
@@ -239,8 +245,7 @@ function Rows({ body, links }: { body: ActionIndexBody; links: SiteWorkLinks }) 
               <Link to={links.history(row.action_id, row.selected_event.id)} data-site-work-event-link>
                 {STEP_WORDS[row.selected_event.kind] ?? row.selected_event.kind}
               </Link>
-              <br />
-              <small>recorded {utcText(row.selected_event.recorded_at)}</small>
+              <small className="muted"> · recorded {utcText(row.selected_event.recorded_at)}</small>
             </td>
           </tr>
         ))}
@@ -380,13 +385,24 @@ function Loaded({ body, scope, links }: { body: ActionIndexBody; scope: ActionIn
       </div>
     );
   }
+  return <LoadedRows body={body} scope={scope} links={links} />;
+}
+
+function LoadedRows({ body, scope, links }: { body: ActionIndexBody; scope: ActionIndexScope; links: SiteWorkLinks }) {
+  const [all, setAll] = useState(false);
+  const folded = body.rows.length > SITE_WORK_VISIBLE_ROWS;
   return (
     <div data-site-work-state="current-rows">
-      <Rows body={body} links={links} />
+      <Rows body={body} links={links} all={all} />
       <nav aria-label="Actions pages" data-site-work-pages className="w1f4-work-pages">
         <span>
           Showing {body.rows.length} of {body.total_count}. Newest first.
         </span>{" "}
+        {folded ? (
+          <button type="button" className="link-button" aria-expanded={all} onClick={() => setAll((open) => !open)} data-site-work-show-all>
+            {all ? `Show the first ${SITE_WORK_VISIBLE_ROWS}` : `Show all ${body.rows.length} Actions`}
+          </button>
+        ) : null}{" "}
         {scope.cursor ? (
           <Link to={links.scope({ ...scope, cursor: null })} data-site-work-first>
             First page
@@ -398,10 +414,6 @@ function Loaded({ body, scope, links }: { body: ActionIndexBody; scope: ActionIn
           </Link>
         ) : null}
       </nav>
-      <ChartNote>
-        Applied or closed is a recorded step, not proof that a trial worked; each Action&apos;s Verification shows whether
-        its trial met its goal.
-      </ChartNote>
       <Basis body={body} />
     </div>
   );
@@ -480,9 +492,8 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
       <Panel
         heading={SITE_WORK_PANEL_TITLE}
         headingId={HEADING_ID}
-        description={rows ? "Owners, due dates and success criteria are not recorded for these Actions." : undefined}
+        actions={<WindowForm scope={scope} onScope={onScope} />}
       >
-        <WindowForm scope={scope} onScope={onScope} />
         {scope === null ? (
           <PanelState state="choose-window" title="Choose a window">
             <ChartNote>
@@ -498,6 +509,9 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
           <Refused result={result} scope={scope} links={links} />
         )}
         <ChartNote data={{ "data-site-work-not-included": "" }}>
+          {rows
+            ? "Owners, due dates and success criteria are not recorded. Applied or closed is a recorded step, not proof that a trial worked; each Action's Verification shows whether it met its goal. "
+            : null}
           This list holds Actions only. Incidents and maintenance work are not part of it.
         </ChartNote>
       </Panel>

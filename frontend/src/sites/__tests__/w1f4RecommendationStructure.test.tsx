@@ -109,7 +109,9 @@ describe("W1-F4: Recommendation keeps the v69 panel structure in every variant",
     expect(proposed.querySelector("[data-recommendation-live]")).not.toBeNull();
     expect(proposed.querySelector("[data-recommendation-prior-action]")).not.toBeNull();
     expect(within(panelTitled(SUCCESS)).getByRole("columnheader", { name: "Criterion" })).toBeInTheDocument();
-    expect(panelTitled(EVIDENCE).querySelectorAll("[data-attention-item]")).toHaveLength(3);
+    // The mock's two attention rows; the verification link sits on the state line below them.
+    expect(panelTitled(EVIDENCE).querySelectorAll("[data-attention-item]")).toHaveLength(2);
+    expect(panelTitled(EVIDENCE).querySelector("[data-recommendation-verification-link]")).not.toBeNull();
     expect(gaps().filter((g) => g.closest(".panel") !== proposed)).toEqual([]);
   });
 

@@ -6,6 +6,7 @@
  * The accepted recommendation snapshot stays pinned; this only links to the
  * frozen plan once one exists.
  */
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { AttentionList, ChartNote, DataTable, Panel } from "../ui";
@@ -23,17 +24,20 @@ export function VerificationStateLine({
   summary,
   name,
   note = false,
+  action,
 }: {
   summary: VerificationSummary | null | undefined;
   name: string;
   /** W1-F4: render as one v69 chart-note line inside a v69 panel. */
   note?: boolean;
+  /** W1-F4: a trailing link on the same line (the mock's attention-row link). */
+  action?: ReactNode;
 }) {
   const extra = note ? " v69-chart-note" : "";
   if (!summary) {
     return (
       <p className={`action-note${extra}`} data-trial-verification-state="UNAVAILABLE" data-trial-verification-name={name}>
-        The verification state is not available from this server yet.
+        The verification state is not available from this server yet.{action ? <> {action}</> : null}
       </p>
     );
   }
@@ -41,6 +45,7 @@ export function VerificationStateLine({
     <p className={`action-status${extra}`} data-trial-verification-state={summary.state} data-trial-verification-name={name}>
       <span className={`verify-chip verify-chip--${stateTone(summary.state)}`}>{stateLabel(summary.state, summary.reasons)}</span>
       <span className="action-note">{stateSentence(summary.state, summary.reasons)}</span>
+      {action ? <> {action}</> : null}
     </p>
   );
 }
@@ -131,26 +136,25 @@ export function EvidenceNeededPanel({
           {
             key: "later",
             title: "Later operating readings",
-            body: "Readings in a later window, accepted under the frozen plan.",
+            body: "Readings in a later window, accepted under the frozen plan; the outcome weighs the target and limits together.",
             action: (
               <Link to={links.child(actionId, "evidence")} data-recommendation-evidence-link>
                 Inspect the evidence →
               </Link>
             ),
           },
-          {
-            key: "outcome",
-            title: "Outcome",
-            body: "Decided from the target and the limits together.",
-            action: (
-              <Link to={links.child(actionId, "verification")} data-recommendation-verification-link>
-                Open verification →
-              </Link>
-            ),
-          },
         ]}
       />
-      <VerificationStateLine summary={summary} name="recommendation" note />
+      <VerificationStateLine
+        summary={summary}
+        name="recommendation"
+        note
+        action={
+          <Link to={links.child(actionId, "verification")} data-recommendation-verification-link>
+            Open verification →
+          </Link>
+        }
+      />
     </Panel>
   );
 }

@@ -647,6 +647,13 @@ function windowBounds(start: string, end: string): string {
   return `${when(start)} to ${when(end)} (end not included)`;
 }
 
+/** A window on one line: "2026-10-06 08:00-09:00 UTC" when it starts and ends on the same day. */
+function windowShort(start: string, end: string): string {
+  const s = when(start).replace(/ UTC$/, "");
+  const e = when(end).replace(/ UTC$/, "");
+  return s.slice(0, 10) === e.slice(0, 10) ? `${s}\u2013${e.slice(11)} UTC` : `${s} \u2013 ${e} UTC`;
+}
+
 function text(value: unknown): string | null {
   return typeof value === "string" ? value : null;
 }
@@ -727,6 +734,7 @@ function TargetPanel({
   const label = stateLabel(record.outcome, reasons);
   const windows = (record.details?.windows ?? {}) as Record<string, Record<string, unknown>>;
   const baseline = windows.baseline ?? {};
+  const laterWindow = windows.later ?? {};
   const laterIds = record.basis?.evidence_ids?.later ?? [];
   const failed = GUARDRAIL_KEYS.map((k) => metric(metrics, k)).filter((m): m is Metric => m !== null && m.state === "FAIL");
   const unknown = reasons.filter((r) => !r.startsWith("KNOWN_FAILURE"));
@@ -758,7 +766,9 @@ function TargetPanel({
         ) : null}
       </p>
       <DataTable labelledBy="site-verification-metrics-caption">
-        <caption id="site-verification-metrics-caption">Target and limits, both windows</caption>
+        <caption id="site-verification-metrics-caption" className="visually-hidden">
+          Target and limits, both windows
+        </caption>
         <thead>
           <tr>
             <th scope="col">Metric</th>
@@ -777,55 +787,75 @@ function TargetPanel({
         </tbody>
       </DataTable>
       {failed.length > 0 ? (
-        <ul className="v69-chart-note w1f4-verification-list w1f4-verification-list--problem" data-verification-guardrail-fail data-product-outcome-failed-limits>
-          {failed.map((m) => {
+        <p className="v69-chart-note w1f4-verification-problem" data-verification-guardrail-fail data-product-outcome-failed-limits>
+          {failed.map((m, index) => {
             const plain = plainLimit(m);
+            const ids = m.evidence_ids.length > 0 ? m.evidence_ids : laterIds;
             return (
-              <li key={m.metric_key} data-verification-failed-metric={m.metric_key}>
-                <strong>{plain.name}</strong>: measured {plain.value} {plain.unit}, limit {plain.threshold} {plain.unit} (as read:{" "}
-                <span data-verification-failed-value>{m.value_text ?? "unknown"}</span> {m.unit ?? ""}, limit{" "}
-                <span data-verification-failed-threshold>{m.threshold_text ?? "unknown"}</span> {m.unit ?? ""}). Evidence:{" "}
-                <EvidenceIds ids={m.evidence_ids.length > 0 ? m.evidence_ids : laterIds} links={links} name={m.metric_key} />
-              </li>
+              <span key={m.metric_key} data-verification-failed-limit={m.metric_key}>
+                {index > 0 ? "; " : "Failed: "}
+                <strong>{plain.name}</strong> measured {plain.value} {plain.unit}, limit {plain.threshold} {plain.unit} (
+                <span data-verification-evidence-count={ids.length}>
+                  {ids.length} reading{ids.length === 1 ? "" : "s"}
+                </span>
+                )
+              </span>
             );
           })}
-        </ul>
+          {guardrailFail ? (
+            <>
+              . {LABEL_GUARDRAIL_FAIL}: the outcome stays ineffective and new reserve trials on this battery are held.
+              {reasons.includes("TARGET_MISS") ? " The target was also not met." : ""}
+            </>
+          ) : (
+            "."
+          )}
+        </p>
       ) : guardrailFail ? (
         <p className="v69-chart-note w1f4-verification-gap" data-panel-gap="not-recorded" data-product-outcome-failed-limits>
-          The failed limit's measured value is not in this record.
+          The failed limit's measured value is not in this record. {LABEL_GUARDRAIL_FAIL}: the outcome stays ineffective and
+          new reserve trials on this battery are held.{reasons.includes("TARGET_MISS") ? " The target was also not met." : ""}
         </p>
       ) : null}
-      {guardrailFail ? (
-        <ChartNote>
-          {LABEL_GUARDRAIL_FAIL}: the outcome stays recorded as ineffective. A failed safety or service limit closes this
-          trial and holds new reserve trials on this battery.{reasons.includes("TARGET_MISS") ? " The target was also not met." : ""}
-        </ChartNote>
-      ) : null}
-      {record.outcome === "INCONCLUSIVE" ? (
-        <ul className="v69-chart-note w1f4-verification-list" data-verification-unknown-reasons>
-          {unknown.map((reason) => (
-            <li key={reason}>{reasonWords(reason)}</li>
+      {record.outcome === "INCONCLUSIVE" && unknown.length > 0 ? (
+        <p className="v69-chart-note" data-verification-unknown-reasons>
+          {unknown.map((reason, index) => (
+            <span key={reason}>
+              {index > 0 ? " " : ""}
+              {reasonWords(reason)}
+            </span>
           ))}
-        </ul>
+        </p>
       ) : null}
       {known.length > 0 ? (
-        <ul className="v69-chart-note w1f4-verification-list" data-verification-known-failures data-product-outcome-known-failures>
-          {known.map((reason) => (
-            <li key={reason}>{reasonWords(reason)}</li>
+        <p className="v69-chart-note w1f4-verification-problem" data-verification-known-failures data-product-outcome-known-failures>
+          {known.map((reason, index) => (
+            <span key={reason}>
+              {index > 0 ? " · " : ""}
+              {reasonWords(reason)}
+            </span>
           ))}
-        </ul>
-      ) : null}
-      {record.outcome === "INCONCLUSIVE" ? (
-        <ChartNote>A later trial may continue under a new plan that replaces this one; this outcome stays readable.</ChartNote>
+        </p>
       ) : null}
       <ChartNote>
-        Rule fixed in the plan before the later window was read · time below the reserve is checked at each five-minute
-        sample, not continuously ·{" "}
+        Rule fixed in the plan before the later window was read · reserve checked at five-minute samples, not continuously
+        {record.outcome === "INCONCLUSIVE" ? " · a later trial may continue under a new plan; this outcome stays readable" : ""} ·{" "}
         <Link to={links.view("plan", { planRevisionId: record.plan_id })} data-verification-criteria-link>
           Open the success criteria
         </Link>
       </ChartNote>
       <DigDeeper name="outcome">
+        {failed.length > 0 ? (
+          <ul className="action-list" data-verification-failed-readings>
+            {failed.map((m) => (
+              <li key={m.metric_key} data-verification-failed-metric={m.metric_key}>
+                {plainLimit(m).name}, as read: <span data-verification-failed-value>{m.value_text ?? "unknown"}</span> {m.unit ?? ""}, limit{" "}
+                <span data-verification-failed-threshold>{m.threshold_text ?? "unknown"}</span> {m.unit ?? ""}. Readings:{" "}
+                <EvidenceIds ids={m.evidence_ids.length > 0 ? m.evidence_ids : laterIds} links={links} name={m.metric_key} />
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <FactList>
           <Fact term="Outcome ID">
             <Ref value={record.outcome_id} />
@@ -856,6 +886,21 @@ function TargetPanel({
             <Ref value={record.actor_id} />
           </Fact>
         </FactList>
+        <dl className="v69-key-values" aria-label="Comparability checks">
+          <div>
+            <dt>Earlier window</dt>
+            <dd>{text(baseline.window_start) && text(baseline.window_end) ? windowBounds(text(baseline.window_start)!, text(baseline.window_end)!) : "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt>Later window</dt>
+            <dd>{text(laterWindow.window_start) && text(laterWindow.window_end) ? windowBounds(text(laterWindow.window_start)!, text(laterWindow.window_end)!) : "Not recorded"}</dd>
+          </div>
+          <CheckRow name="feeder_demand_energy_band" before={kwh(baseline.feeder_demand_kwh)} after={kwh(laterWindow.feeder_demand_kwh)} limit="within 10%" m={metric(metrics, "feeder_demand_energy_band")} />
+          <CheckRow name="pv_available_energy_band" before={kwh(baseline.pv_available_kwh)} after={kwh(laterWindow.pv_available_kwh)} limit="within 10%" m={metric(metrics, "pv_available_energy_band")} />
+          <CheckRow name="initial_soc_band" before={pct(baseline.initial_soc)} after={pct(laterWindow.initial_soc)} limit="within 2 points" m={metric(metrics, "initial_soc_band")} />
+          <CheckRow name="window_coverage" before={metric(metrics, "window_coverage", "BASELINE")?.value_text ?? null} after={metric(metrics, "window_coverage", "LATER")?.value_text ?? null} limit="all 12 slots" m={coverage(metrics)} />
+          <CheckRow name="source_provenance" before={null} after={sourceWords(metric(metrics, "source_provenance")?.value_text)} both limit="one coherent source per window" m={metric(metrics, "source_provenance")} />
+        </dl>
         <DataTable labelledBy="site-verification-metric-keys-caption">
           <caption id="site-verification-metric-keys-caption">Stored measures</caption>
           <thead>
@@ -1029,17 +1074,17 @@ function ActivityPanel({
           </dd>
         </div>
       </dl>
-      <ChartNote>Completed work is evidence of activity, not resolution.</ChartNote>
-      <p className="v69-chart-note" data-verification-resolved-withdrawable>
-        A resolution records the current outcome; later evidence can withdraw it. It is not permanent.
+      <p className="v69-chart-note">
+        Completed work is evidence of activity, not resolution.{" "}
+        <span data-verification-resolved-withdrawable>A resolution can be withdrawn by later evidence; it is not permanent.</span>
+        {latestFinding && !latestFinding.is_origin ? (
+          <span data-verification-later-finding={latestFinding.id}>
+            {" "}
+            <Link to={links.finding(body.origin.finding_id, latestFinding.id)}>Finding version {latestFinding.revision_no}</Link> is a
+            new episode; it does not rewrite this trial.
+          </span>
+        ) : null}
       </p>
-      {latestFinding && !latestFinding.is_origin ? (
-        <p className="v69-chart-note" data-verification-later-finding={latestFinding.id}>
-          The Finding has a later version ({latestFinding.revision_no}):{" "}
-          <Link to={links.finding(body.origin.finding_id, latestFinding.id)}>open it</Link>. It is a new episode; it does
-          not rewrite this trial or its outcome.
-        </p>
-      ) : null}
     </Panel>
   );
 }
@@ -1089,7 +1134,12 @@ function OutcomeEvidencePanel({
       ]
     : [];
   const comparable = checks.length > 0 && checks.every((m) => m !== null && m.state === "PASS");
+  const conditionKeys = ["feeder_demand_energy_band", "pv_available_energy_band", "initial_soc_band", "window_coverage"];
+  const notPassing = conditionKeys.map((key, index) => ({ key, m: checks[index] ?? null })).filter(({ m }) => m === null || m.state !== "PASS");
+  const sourceCheck = checks[4] ?? null;
   const demonstration = record ? outcomeWords(record.outcome, record.reasons, record.details?.source?.source_class ?? null).demonstrationNote : null;
+  const shownOutcomes = outcomes.slice(-3);
+  const latestOutcomeId = outcomes.length > 0 ? outcomes[outcomes.length - 1].outcome_id : null;
   return (
     <Panel heading="Outcome evidence" headingId="site-verification-outcomes-heading">
       {gap !== null && outcome === null ? (
@@ -1099,70 +1149,79 @@ function OutcomeEvidencePanel({
           No comparison of an earlier and a later window is recorded as the current result, so the outcome is pending.
         </p>
       ) : (
-        <>
-          <dl className="v69-key-values" aria-label="Compared windows">
-            <div data-key-value="baseline-window">
-              <dt>Earlier window</dt>
-              <dd>{text(baseline.window_start) && text(baseline.window_end) ? windowBounds(text(baseline.window_start)!, text(baseline.window_end)!) : "Not recorded"}</dd>
-            </div>
-            <div data-key-value="later-window">
-              <dt>Later window</dt>
-              <dd>{text(later.window_start) && text(later.window_end) ? windowBounds(text(later.window_start)!, text(later.window_end)!) : "Not recorded"}</dd>
-            </div>
-            <CheckRow name="feeder_demand_energy_band" before={kwh(baseline.feeder_demand_kwh)} after={kwh(later.feeder_demand_kwh)} limit="within 10%" m={checks[0]} />
-            <CheckRow name="pv_available_energy_band" before={kwh(baseline.pv_available_kwh)} after={kwh(later.pv_available_kwh)} limit="within 10%" m={checks[1]} />
-            <CheckRow name="initial_soc_band" before={pct(baseline.initial_soc)} after={pct(later.initial_soc)} limit="within 2 points" m={checks[2]} />
-            <CheckRow name="window_coverage" before={metric(metrics, "window_coverage", "BASELINE")?.value_text ?? null} after={metric(metrics, "window_coverage", "LATER")?.value_text ?? null} limit="all 12 slots" m={checks[3]} />
-            <CheckRow name="source_provenance" before={null} after={sourceWords(metric(metrics, "source_provenance")?.value_text)} both limit="one coherent source per window" m={checks[4]} />
-          </dl>
-          <p className="v69-chart-note" data-verification-comparison={comparable ? "comparable" : "not-established"}>
-            {comparable
-              ? "Both windows met the plan's comparability, coverage and source rules."
-              : "Comparability, coverage or source is not established for these windows, so they cannot verify a result: inconclusive."}
-          </p>
-        </>
+        <dl className="v69-key-values" aria-label="Compared windows">
+          <div data-key-value="baseline-window">
+            <dt>Earlier window</dt>
+            <dd>{text(baseline.window_start) && text(baseline.window_end) ? windowShort(text(baseline.window_start)!, text(baseline.window_end)!) : "Not recorded"}</dd>
+          </div>
+          <div data-key-value="later-window">
+            <dt>Later window</dt>
+            <dd>{text(later.window_start) && text(later.window_end) ? windowShort(text(later.window_start)!, text(later.window_end)!) : "Not recorded"}</dd>
+          </div>
+          <div data-key-value="comparability">
+            <dt>Comparable conditions</dt>
+            <dd data-verification-comparison={comparable ? "comparable" : "not-established"}>
+              {notPassing.length === 0 ? (
+                <>
+                  All {conditionKeys.length} checks <Chip tone="pass">Pass</Chip>
+                </>
+              ) : (
+                <span className="w1f4-verification-problem">
+                  {notPassing.map(({ key, m }) => `${metricName(key)}: ${m ? checkWord(m.state) : "Not evaluated"}`).join("; ")}; so the result is inconclusive
+                </span>
+              )}
+            </dd>
+          </div>
+          <div data-key-value="source">
+            <dt>Source</dt>
+            <dd>
+              {sourceWords(metric(metrics, "source_provenance")?.value_text)}{" "}
+              <Chip tone={sourceCheck ? checkTone(sourceCheck.state) : "unknown"}>{sourceCheck ? checkWord(sourceCheck.state) : "Not evaluated"}</Chip>
+            </dd>
+          </div>
+        </dl>
       )}
-      {demonstration ? (
-        <p className="v69-chart-note" data-product-outcome-demonstration>
-          {demonstration}
-        </p>
-      ) : null}
-      {history === null ? (
-        historyGap ? <Gap gap={historyGap} /> : null
-      ) : outcomes.length === 0 ? (
-        <p className="v69-chart-note" data-verification-outcomes="none">
-          No outcome recorded yet.
-        </p>
-      ) : (
-        <ul className="v69-chart-note w1f4-verification-list" data-verification-outcomes>
-          {outcomes.map((o, index) => (
-            <li key={o.outcome_id} data-verification-outcome-item={o.outcome_id}>
-              <Link to={links.view("verification", { outcomeId: o.outcome_id })}>{stateLabel(o.outcome, o.reasons)}</Link> ({outcomeName(o.outcome)}),
-              recorded {when(o.recorded_at)}
-              {index === outcomes.length - 1 ? " - most recent" : " - replaced later"}
-              {o.outcome_id === record?.outcome_id ? " - shown here" : ""}.
-            </li>
-          ))}
-        </ul>
-      )}
-      <ChartNote>
-        Each attempt keeps its own plan and evidence and stays readable.
-        {plans.length > 0 ? (
-          <>
-            {" "}
-            Plans:{" "}
-            {plans.map((p, index) => (
-              <span key={p.plan_id}>
-                {index > 0 ? ", " : ""}
-                <Link to={links.view("plan", { planRevisionId: p.plan_id })} data-verification-plan-link={p.plan_id}>
-                  plan {index + 1}
-                </Link>
+      <p className="v69-chart-note">
+        {demonstration ? <span data-product-outcome-demonstration>{demonstration} </span> : null}
+        {history === null ? (
+          historyGap ? (
+            <span className="w1f4-verification-gap" data-panel-gap={historyGap.kind}>
+              {historyGap.text}
+            </span>
+          ) : null
+        ) : outcomes.length === 0 ? (
+          <span data-verification-outcomes="none">No outcome recorded yet.</span>
+        ) : (
+          <span data-verification-outcomes>
+            Attempts:{" "}
+            {shownOutcomes.map((o, index) => (
+              <span key={o.outcome_id} data-verification-outcome-item={o.outcome_id}>
+                {index > 0 ? " · " : ""}
+                <Link to={links.view("verification", { outcomeId: o.outcome_id })} title={stateLabel(o.outcome, o.reasons)}>
+                  {outcomeName(o.outcome)}
+                </Link>{" "}
+                {when(o.recorded_at).slice(0, 10)} ({o.outcome_id === latestOutcomeId ? "most recent" : "replaced later"}
+                {o.outcome_id === record?.outcome_id ? ", shown" : ""})
               </span>
             ))}
-            .
-          </>
-        ) : null}
-      </ChartNote>
+            {outcomes.length > shownOutcomes.length ? ` and ${outcomes.length - shownOutcomes.length} earlier` : ""}
+            {plans.length > 0 ? (
+              <>
+                {" "}
+                · each keeps its own plan:{" "}
+                {plans.map((p, index) => (
+                  <span key={p.plan_id}>
+                    {index > 0 ? ", " : ""}
+                    <Link to={links.view("plan", { planRevisionId: p.plan_id })} data-verification-plan-link={p.plan_id}>
+                      plan {index + 1}
+                    </Link>
+                  </span>
+                ))}
+              </>
+            ) : null}
+          </span>
+        )}
+      </p>
       <p className="w1f4-verification-action">
         <Link className="button" to={links.view("evidence", { outcomeId: record?.outcome_id ?? null })} data-verification-evidence-link>
           {record ? "Inspect the evidence for this outcome" : "Inspect the evidence"}
@@ -1202,32 +1261,37 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
   const [num, den] = plan.target.ratio;
   return (
     <Panel heading={heading} headingId={headingId}>
-      <p className="v69-chart-note" data-verification-plan-id={plan.plan_id} data-verification-plan-current={body.is_current_plan ? "yes" : "no"}>
-        Fixed {when(plan.recorded_at)}, before the later window was read.{" "}
-        {body.is_current_plan ? "This is the current plan." : "A later plan replaced this one."}
+      <p className="v69-chart-note w1f4-verification-lede" data-verification-plan-id={plan.plan_id} data-verification-plan-current={body.is_current_plan ? "yes" : "no"}>
+        Fixed {when(plan.recorded_at)}, before the later window was read ·{" "}
+        {body.is_current_plan ? "the current plan" : "a later plan replaced this one"}
         {plan.supersedes_plan_id ? (
           <>
             {" "}
-            It continues an earlier plan:{" "}
+            ·{" "}
             <Link to={links.view("plan", { planRevisionId: plan.supersedes_plan_id })} data-verification-supersedes-link>
               open the earlier plan
             </Link>
-            .
           </>
         ) : null}
         {body.superseded_by_plan_id ? (
           <>
             {" "}
+            ·{" "}
             <Link to={links.view("plan", { planRevisionId: body.superseded_by_plan_id })} data-verification-superseded-plan-link>
               Open the plan that replaced it
             </Link>
-            .
           </>
-        ) : null}
+        ) : null}{" "}
+        ·{" "}
+        <Link to={links.change(plan.change_id)} data-verification-plan-change-link>
+          Open the applied change
+        </Link>
       </p>
       <CurrentReasons current={body.verification_state} />
       <DataTable labelledBy="site-verification-criteria-caption">
-        <caption id="site-verification-criteria-caption">Criteria and windows fixed before evaluation (UTC)</caption>
+        <caption id="site-verification-criteria-caption" className="visually-hidden">
+          Criteria and windows fixed before evaluation (UTC)
+        </caption>
         <thead>
           <tr>
             <th scope="col">Criterion</th>
@@ -1235,75 +1299,111 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
           </tr>
         </thead>
         <tbody>
-          <tr data-verification-criterion="target">
+          <tr data-verification-rule="target">
             <th scope="row">Avoidable generator time</th>
-            <td>
-              At least 25% lower: later seconds times {den} at most earlier seconds times {num}, in whole seconds. Earlier
-              window: {minutes(plan.baseline_candidate_seconds) ?? "unknown"}.
-            </td>
+            <td>At least 25% lower than the earlier window&apos;s {minutes(plan.baseline_candidate_seconds) ?? "unknown"}</td>
           </tr>
-          <tr data-verification-criterion="service">
+          <tr data-verification-rule="service">
             <th scope="row">Service limit</th>
-            <td>Critical demand not served (requested minus delivered) is no higher than in the earlier window.</td>
+            <td>No more critical demand unserved than in the earlier window</td>
           </tr>
-          <tr data-verification-criterion="reserve">
-            <th scope="row">Reserve limit</th>
-            <td>No time below the reserve in the later window, checked at each five-minute sample (not continuous).</td>
+          <tr data-verification-rule="reserve">
+            <th scope="row">Reserve and stored-energy limits</th>
+            <td>No time below the reserve (five-minute samples); end charge at least the earlier window&apos;s</td>
           </tr>
-          <tr data-verification-criterion="terminal">
-            <th scope="row">Stored-energy limit</th>
-            <td>Battery charge at the end of the later window is at least the earlier window's.</td>
-          </tr>
-          <tr data-verification-criterion="comparability">
-            <th scope="row">Comparable windows</th>
+          <tr data-verification-rule="validity">
+            <th scope="row">Window validity</th>
             <td>
-              Total site demand energy and available solar energy each within{" "}
-              {Number(plan.bands.feeder_demand_energy_relative) * 100}% of the earlier window; starting battery charge
-              within {plan.bands.initial_soc_points} points. Limits are inclusive.
+              Demand and solar within {Number(plan.bands.feeder_demand_energy_relative) * 100}%, starting charge within{" "}
+              {plan.bands.initial_soc_points} points, all {plan.coverage.slots_per_window} slots read
             </td>
           </tr>
-          <tr data-verification-criterion="coverage">
-            <th scope="row">Evidence coverage</th>
+          <tr data-verification-rule="windows">
+            <th scope="row">Windows (UTC)</th>
             <td>
-              Every required reading in all {plan.coverage.slots_per_window} five-minute slots of each window, plus a
-              battery charge sample at each slot start and at the window end. Anything missing makes the result
-              inconclusive.
-            </td>
-          </tr>
-          <tr data-verification-window="baseline">
-            <th scope="row">Earlier window (before the change)</th>
-            <td>
-              {windowBounds(plan.baseline_start, plan.baseline_end)}; daily assessment used:{" "}
-              {plan.baseline_selection.days.map((d) => d.day).join(", ") || "none"}
-            </td>
-          </tr>
-          <tr data-verification-window="later" data-verification-later-bound={binding ? "yes" : "no"}>
-            <th scope="row">Later window (after the change)</th>
-            <td>
-              {windowBounds(plan.later_start, plan.later_end)}; daily assessment used:{" "}
-              {binding ? (
-                binding.selection.days.map((d) => d.day).join(", ")
-              ) : (
-                <span data-verification-later-pending>
-                  Pending: needs the daily assessment for {plan.later_selection_rule.required_days.join(", ")}
-                </span>
-              )}
+              <span data-verification-window="baseline">Earlier {windowShort(plan.baseline_start, plan.baseline_end).replace(/ UTC$/, "")}</span>
+              {" · "}
+              <span data-verification-window="later" data-verification-later-bound={binding ? "yes" : "no"}>
+                later {windowShort(plan.later_start, plan.later_end).replace(/ UTC$/, "")}
+                {binding ? null : (
+                  <span className="w1f4-verification-problem" data-verification-later-pending>
+                    {" "}
+                    · Pending: needs the daily assessment for {plan.later_selection_rule.required_days.join(", ")}
+                  </span>
+                )}
+              </span>
             </td>
           </tr>
         </tbody>
       </DataTable>
-      <ChartNote>
-        If the earlier window's energy total is zero, the later total must also be zero. Every assigned demand point
-        counts toward the site total; a missing assignment fails comparability. The later window judges avoidable
-        generator time against the new, lower reserve. This is an observed policy trial, not proof of cause.
-      </ChartNote>
-      <p className="v69-chart-note">
-        <Link to={links.change(plan.change_id)} data-verification-plan-change-link>
-          Open the applied change
-        </Link>{" "}
-        · <Link to={links.event(plan.applied_event_id)}>Applied event</Link> · Effective from {when(plan.effective_from)}
-      </p>
       <DigDeeper name="plan">
+        <DataTable labelledBy="site-verification-exact-criteria-caption">
+          <caption id="site-verification-exact-criteria-caption">Exact rules and windows</caption>
+          <thead>
+            <tr>
+              <th scope="col">Criterion</th>
+              <th scope="col">Rule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-verification-criterion="target">
+              <th scope="row">Avoidable generator time</th>
+              <td>
+                At least 25% lower: later seconds times {den} at most earlier seconds times {num}, in whole seconds. Earlier
+                window: {minutes(plan.baseline_candidate_seconds) ?? "unknown"}.
+              </td>
+            </tr>
+            <tr data-verification-criterion="service">
+              <th scope="row">Service limit</th>
+              <td>Critical demand not served (requested minus delivered) is no higher than in the earlier window.</td>
+            </tr>
+            <tr data-verification-criterion="reserve">
+              <th scope="row">Reserve limit</th>
+              <td>No time below the reserve in the later window, checked at each five-minute sample (not continuous).</td>
+            </tr>
+            <tr data-verification-criterion="terminal">
+              <th scope="row">Stored-energy limit</th>
+              <td>Battery charge at the end of the later window is at least the earlier window&apos;s.</td>
+            </tr>
+            <tr data-verification-criterion="comparability">
+              <th scope="row">Comparable windows</th>
+              <td>
+                Total site demand energy and available solar energy each within{" "}
+                {Number(plan.bands.feeder_demand_energy_relative) * 100}% of the earlier window; starting battery charge
+                within {plan.bands.initial_soc_points} points. Limits are inclusive.
+              </td>
+            </tr>
+            <tr data-verification-criterion="coverage">
+              <th scope="row">Evidence coverage</th>
+              <td>
+                Every required reading in all {plan.coverage.slots_per_window} five-minute slots of each window, plus a
+                battery charge sample at each slot start and at the window end. Anything missing makes the result
+                inconclusive.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Earlier window (before the change)</th>
+              <td>
+                {windowBounds(plan.baseline_start, plan.baseline_end)}; daily assessment used:{" "}
+                {plan.baseline_selection.days.map((d) => d.day).join(", ") || "none"}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Later window (after the change)</th>
+              <td>
+                {windowBounds(plan.later_start, plan.later_end)}; daily assessment used:{" "}
+                {binding ? binding.selection.days.map((d) => d.day).join(", ") : "pending"}
+              </td>
+            </tr>
+          </tbody>
+        </DataTable>
+        <p className="action-note">
+          If the earlier window&apos;s energy total is zero, the later total must also be zero. Every assigned demand point
+          counts toward the site total; a missing assignment fails comparability. The later window judges avoidable
+          generator time against the new, lower reserve. This is an observed policy trial, not proof of cause.{" "}
+          <Link to={links.event(plan.applied_event_id)}>Applied event</Link> ·
+          Effective from {when(plan.effective_from)}.
+        </p>
         <FactList>
           <Fact term="Plan ID">
             <Ref value={plan.plan_id} />
@@ -1424,13 +1524,18 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
   const lineage = { baseline: lineageFor("baseline", body, plan), later: lineageFor("later", body, plan) };
   return (
     <Panel heading={heading} headingId={headingId}>
-      <p className="v69-chart-note" data-verification-knowledge-cutoff={body.knowledge_cutoff}>
-        Readings as accepted by {when(body.knowledge_cutoff)}
-        {pinnedOutcome ? ", when the selected outcome was recorded" : ""}.
+      <p className="v69-chart-note w1f4-verification-lede">
+        <span data-verification-knowledge-cutoff={body.knowledge_cutoff}>
+          Readings as accepted by {when(body.knowledge_cutoff)}
+          {pinnedOutcome ? ", when the selected outcome was recorded" : ""}
+        </span>{" "}
+        · below reserve is read from the battery charge at each slot start: a five-minute sample, not continuous proof
       </p>
       <CurrentReasons current={body.verification_state} />
       <DataTable labelledBy="site-verification-requirements-caption">
-        <caption id="site-verification-requirements-caption">Evidence set and status</caption>
+        <caption id="site-verification-requirements-caption" className="visually-hidden">
+          Evidence set and status
+        </caption>
         <thead>
           <tr>
             <th scope="col">Evidence set</th>
@@ -1438,10 +1543,12 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
           </tr>
         </thead>
         <tbody>
-          <RequirementRow name="baseline" label="Earlier window readings" ok={body.windows.baseline.complete} detail={`${body.windows.baseline.slots.filter((s) => s.complete).length}/${body.windows.baseline.slots.length} slots complete · ${sourceWords(body.source_resolution.baseline.state)}`} />
-          <RequirementRow name="later" label="Later window readings" ok={body.windows.later.complete} detail={`${body.windows.later.slots.filter((s) => s.complete).length}/${body.windows.later.slots.length} slots complete · ${sourceWords(body.source_resolution.later.state)}`} />
-          <RequirementRow name="comparability" label="Comparable windows" ok={body.comparability.state === "PASS" ? true : body.comparability.state === "FAIL" ? false : null} detail={checkWord(body.comparability.state)} />
-          <RequirementRow name="source" label="Coherent source per window" ok={pair.state === "PASS" ? true : pair.state === "FAIL" ? false : null} detail={`${sourceWords(body.source_resolution.baseline.state)} / ${sourceWords(body.source_resolution.later.state)}`} />
+          <RequirementRow name="baseline" label="Earlier window readings" ok={body.windows.baseline.complete} detail={`${body.windows.baseline.slots.filter((s) => s.complete).length}/${body.windows.baseline.slots.length} slots complete · ${sourceWords(body.source_resolution.baseline.state)}`}>
+            <WindowGaps name="baseline" window={body.windows.baseline} />
+          </RequirementRow>
+          <RequirementRow name="later" label="Later window readings" ok={body.windows.later.complete} detail={`${body.windows.later.slots.filter((s) => s.complete).length}/${body.windows.later.slots.length} slots complete · ${sourceWords(body.source_resolution.later.state)}`}>
+            <WindowGaps name="later" window={body.windows.later} />
+          </RequirementRow>
           <RequirementRow
             name="target"
             label="Avoidable generator time, both windows"
@@ -1449,30 +1556,51 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
             detail={`${minutes(body.target.baseline.candidate_seconds) ?? "unknown"} to ${
               targetLater.state === "NOT_BOUND" ? "pending (later selection not appended yet)" : minutes(targetLater.candidate_seconds) ?? "unknown"
             }`}
-          />
+          >
+            {targetReasons.length > 0 ? (
+              <>
+                {" · "}
+                <span className="w1f4-verification-problem" data-verification-target-reasons>
+                  {targetReasons.map((reason, index) => (
+                    <span key={reason} data-verification-problem={problemCode(reason)}>
+                      {index > 0 ? "; " : ""}
+                      {problemWords(reason)}
+                    </span>
+                  ))}
+                </span>
+              </>
+            ) : null}
+          </RequirementRow>
+          <tr data-verification-requirement-pair="conditions">
+            <th scope="row">Comparable conditions and source</th>
+            <td>
+              <RequirementCell name="comparability" ok={body.comparability.state === "PASS" ? true : body.comparability.state === "FAIL" ? false : null} detail={`comparable: ${checkWord(body.comparability.state)}`} />
+              {" · "}
+              <RequirementCell
+                name="source"
+                ok={pair.state === "PASS" ? true : pair.state === "FAIL" ? false : null}
+                detail={`source: ${sourceWords(body.source_resolution.baseline.state)} / ${sourceWords(body.source_resolution.later.state)}`}
+                chip={false}
+              />
+            </td>
+          </tr>
         </tbody>
       </DataTable>
-      {targetReasons.length > 0 ? (
-        <ul className="v69-chart-note w1f4-verification-list" data-verification-target-reasons>
-          {targetReasons.map((reason) => (
-            <li key={reason} data-verification-problem={problemCode(reason)}>
-              Avoidable generator time: {problemWords(reason)}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      <WindowGaps name="baseline" window={body.windows.baseline} />
-      <WindowGaps name="later" window={body.windows.later} />
-      {(["baseline", "later"] as const).map((name) => (
-        <p key={name} className="v69-chart-note" data-verification-lineage-summary={name}>
-          {lineageSummary(name, lineage[name], body.source_resolution[name])}
-        </p>
-      ))}
-      <ChartNote>
-        Below reserve is read from the battery charge sample at each slot start: a five-minute sample, not continuous
-        proof. Generator state is the sample at the slot start. Open a single reading in Evidence from the list below.
-      </ChartNote>
+      {(["baseline", "later"] as const)
+        .filter((name) => !lineage[name].planRead || !lineage[name].bound)
+        .map((name) => (
+          <p key={name} className="v69-chart-note w1f4-verification-gap" data-verification-lineage-summary={name}>
+            {lineageSummary(name, lineage[name], body.source_resolution[name])}
+          </p>
+        ))}
       <DigDeeper name="evidence-detail" summary="Five-minute readings, comparability and identifiers per window">
+        {(["baseline", "later"] as const)
+          .filter((name) => lineage[name].planRead && lineage[name].bound)
+          .map((name) => (
+            <p key={name} className="action-note" data-verification-lineage-summary={name}>
+              {lineageSummary(name, lineage[name], body.source_resolution[name])}
+            </p>
+          ))}
         <ComparabilityTable body={body} />
         <WindowDetail name="baseline" window={body.windows.baseline} source={body.source_resolution.baseline} links={links} lineage={lineage.baseline} />
         <WindowDetail name="later" window={body.windows.later} source={body.source_resolution.later} links={links} lineage={lineage.later} />
@@ -1481,39 +1609,68 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
   );
 }
 
-function RequirementRow({ name, label, ok, detail }: { name: string; label: string; ok: boolean | null; detail: string }) {
-  const tone: Tone = ok === true ? "pass" : ok === false ? "fail" : "unknown";
+function requirementTone(ok: boolean | null): Tone {
+  return ok === true ? "pass" : ok === false ? "fail" : "unknown";
+}
+
+function requirementWord(ok: boolean | null): string {
+  return ok === true ? "Available" : ok === false ? "Incomplete" : "Not established";
+}
+
+function RequirementRow({ name, label, ok, detail, children }: { name: string; label: string; ok: boolean | null; detail: string; children?: ReactNode }) {
   return (
     <tr data-verification-requirement={name} data-verification-requirement-ok={ok === null ? "unknown" : ok ? "yes" : "no"}>
       <th scope="row">{label}</th>
       <td>
-        <Chip tone={tone}>{ok === true ? "Available" : ok === false ? "Incomplete" : "Not established"}</Chip> {detail}
+        <Chip tone={requirementTone(ok)}>{requirementWord(ok)}</Chip> {detail}
+        {children}
       </td>
     </tr>
   );
 }
 
-/** A window's gaps, conflicts and missing samples: a material limit, always in the default reading. */
+/** Two requirements sharing one table row (the mock's "comparable conditions" set). */
+function RequirementCell({ name, ok, detail, chip = true }: { name: string; ok: boolean | null; detail: string; chip?: boolean }) {
+  return (
+    <span data-verification-requirement={name} data-verification-requirement-ok={ok === null ? "unknown" : ok ? "yes" : "no"}>
+      {chip ? (
+        <>
+          <Chip tone={requirementTone(ok)}>{requirementWord(ok)}</Chip>{" "}
+        </>
+      ) : null}
+      <span className={ok === true ? undefined : "w1f4-verification-problem"}>
+        {detail}
+        {chip || ok === true ? "" : ` (${requirementWord(ok).toLowerCase()})`}
+      </span>
+    </span>
+  );
+}
+
+/** A window's gaps, conflicts and missing samples: a material limit, always in the default reading (its row's cell). */
 function WindowGaps({ name, window }: { name: "baseline" | "later"; window: EvidenceWindow }) {
   const problems = [...window.problems, ...window.slots.flatMap(slotProblems)];
-  const label = name === "baseline" ? "Earlier window" : "Later window";
   if (problems.length === 0) {
     return (
-      <p className="v69-chart-note" data-verification-window-problems="none" data-verification-window-gaps={name}>
-        {label}: no gaps, conflicts or missing samples.
-      </p>
+      <span data-verification-window-problems="none" data-verification-window-gaps={name}>
+        {" "}
+        · no gaps
+      </span>
     );
   }
+  const shown = problems.slice(0, 2);
   return (
-    <ul className="v69-chart-note w1f4-verification-list w1f4-verification-list--problem" data-verification-window-problems={name}>
-      {problems.slice(0, 12).map((p, index) => (
-        <li key={index} data-verification-problem={problemCode(p)}>
-          {problemWords(p)}
-          <span className="w1f4-verification-muted"> ({label.toLowerCase()})</span>
-        </li>
-      ))}
-      {problems.length > 12 ? <li>and {problems.length - 12} more</li> : null}
-    </ul>
+    <>
+      {" · "}
+      <span className="w1f4-verification-problem" data-verification-window-problems={name}>
+        {shown.map((p, index) => (
+          <span key={index} data-verification-problem={problemCode(p)}>
+            {index > 0 ? "; " : ""}
+            {problemWords(p)}
+          </span>
+        ))}
+        {problems.length > shown.length ? `; and ${problems.length - shown.length} more (listed in the readings below)` : ""}
+      </span>
+    </>
   );
 }
 

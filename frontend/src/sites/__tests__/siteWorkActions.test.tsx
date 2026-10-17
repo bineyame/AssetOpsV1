@@ -294,6 +294,24 @@ describe("Site Work Actions list", () => {
     expect(screen.getByRole("navigation", { name: "Actions pages" })).toBeTruthy();
   });
 
+  it("folds a long page to four rows with a Show all toggle; every row stays in the page", async () => {
+    // Derived: the positive page's rows repeated to six, each with its own Action ID.
+    const six = structuredClone(POSITIVE);
+    six.rows = Array.from({ length: 6 }, (_, i) => ({ ...structuredClone(POSITIVE.rows[i % POSITIVE.rows.length]), action_id: `A-${i}` }));
+    six.total_count = 6;
+    serve({ [apiKey(WINDOW)]: ok(six) });
+    mount(workUrl(WINDOW));
+    await settledScreen();
+    const rows = qa("[data-site-work-row]") as HTMLElement[];
+    expect(rows).toHaveLength(6);
+    expect(rows.filter((r) => r.hidden)).toHaveLength(2);
+    const toggle = screen.getByRole("button", { name: "Show all 6 Actions" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(toggle);
+    expect(rows.filter((r) => r.hidden)).toHaveLength(0);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  });
+
   it.each([1440, 390])("renders the same rows and links at %ipx", async (width) => {
     Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
     window.dispatchEvent(new Event("resize"));

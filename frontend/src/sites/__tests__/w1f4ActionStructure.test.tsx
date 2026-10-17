@@ -13,7 +13,7 @@
  * outcome; a 503 store-unavailable events or verification read (no recorded
  * case exists); the recorded verification history with distinct placeholder IDs.
  */
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -156,6 +156,9 @@ describe("W1-F4 C1: the Action views keep their single v69 panel in every varian
     await settledScreen();
     const panel = panelTitled("Action history");
     expect(Array.from(panel.querySelectorAll("thead th")).map((th) => th.textContent).slice(0, 2)).toEqual(["Event", "Meaning"]);
+    // W1-F4 trim: the latest three rows show by default; the earlier rows are behind the in-place toggle.
+    expect(panel.querySelectorAll("tbody tr").length).toBe(3);
+    fireEvent.click(panel.querySelector("[data-action-history-show-all]") as HTMLElement);
     expect(panel.querySelectorAll("[data-action-select-event]").length).toBe((hi.events_latest.body.events as unknown[]).length);
     const labels = Array.from(panel.querySelectorAll("[data-action-history-outcome-label]")).map((b) => b.getAttribute("data-action-history-outcome-label"));
     expect(labels).toEqual(["earlier", "current"]);

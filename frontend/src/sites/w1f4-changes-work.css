@@ -11,16 +11,52 @@
   color: var(--text-secondary);
 }
 
+.w1f4-changes-work .panel .data-table td {
+  white-space: nowrap;
+}
+
 .w1f4-changes-work .v69-key-values {
-  margin: 12px 0 8px;
+  margin: 8px 0 4px;
 }
 
 .w1f4-changes-work .v69-chart-note {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
 }
 
 .w1f4-changes-work .disclosure {
-  margin-top: 10px;
+  margin-top: 8px;
+}
+
+/* Failed attempts: one note line, the codes inline. */
+.w1f4-changes-work .w1f4-change-attempts .action-list {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.w1f4-changes-work .w1f4-change-attempts .action-list li {
+  display: inline;
+  margin: 0;
+  font-size: inherit;
+}
+
+.w1f4-changes-work .w1f4-change-attempts .action-list li + li::before {
+  content: " · ";
+}
+
+.w1f4-changes-work .w1f4-change-attempts .action-ref {
+  font-size: 10px;
+}
+
+/* Decision path: compact rows, the links inline after the one-line body. */
+.w1f4-changes-work .v69-attention__item {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.w1f4-changes-work .v69-attention__item p {
+  margin: 2px 0 0;
 }
 
 /* Decision path: the mock's attention rows; the verification chip sits inline. */
@@ -32,9 +68,20 @@
   margin-left: 10px;
 }
 
-/* Site Work: the window as chip-sized controls at the top of the one panel. */
+@media (max-width: 760px) {
+  .w1f4-changes-work .panel .data-table td {
+    white-space: normal;
+  }
+}
+
+/* Site Work: the window as chip-sized controls in the one panel's header. */
 .w1f4-work-window {
-  margin: 0 0 12px;
+  margin: 0;
+  flex-wrap: nowrap;
+}
+
+.w1f4-changes-work [data-site-work-state="current-rows"] .data-table td {
+  white-space: nowrap;
 }
 
 .w1f4-work-window__field {
@@ -68,14 +115,22 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 6px;
   font-size: 11px;
   color: var(--text-secondary);
 }
 
 @media (max-width: 760px) {
+  .w1f4-work-window {
+    flex-wrap: wrap;
+  }
+
   .w1f4-work-window__field {
     flex: 1 1 100%;
+  }
+
+  .w1f4-changes-work [data-site-work-state="current-rows"] .data-table td {
+    white-space: normal;
   }
 
   .w1f4-work-window__field .v69-chip-control {

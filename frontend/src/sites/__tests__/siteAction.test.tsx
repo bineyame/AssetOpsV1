@@ -407,6 +407,18 @@ function verificationHistory(): Served {
   return { status: 200, body: h };
 }
 
+/** W1-F4 trim: opens the in-place "Show all" toggle of the Action history. */
+function showAllHistory() {
+  fireEvent.click(q("[data-action-history-show-all]") as HTMLElement);
+}
+
+/** W1-F4 trim: an exact reference's value in a closed disclosure, by its label. */
+function exactReference(name: string, label: string): string | null {
+  const rows = qa(`[data-disclosure='${name}'] .exact-references__row`);
+  const row = rows.find((r) => r.querySelector("dt")?.textContent === label);
+  return row?.querySelector("dd")?.textContent ?? null;
+}
+
 function actionReads(action: Case | Served, events: Case | Served, query = "") {
   return {
     [`${ACTION_API}${query}`]: "request" in action ? served(action) : action,
@@ -430,11 +442,12 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     );
     expect(q("[data-action-newer-revision]")?.getAttribute("data-action-newer-revision")).toBe(body.newer_revision_notice.latest_revision_id);
     expect(body.newer_revision_notice.latest_revision_id).not.toBe(body.origin.finding_revision_id);
-    expect(q("[data-action-basis-foundation]")?.textContent).toBe(body.basis.foundation_revision_id);
+    // W1-F4 trim: the exact configuration versions moved from key-value rows into the closed disclosure.
+    expect(exactReference("action-state-references", "Configuration basis")).toBe(body.basis.foundation_revision_id);
     // S6-02b (F5): the Overview reads the verification block, not `state.outcome`.
     expect(q("[data-action-verification-state]")).toHaveAttribute("data-action-verification-state", body.verification.state);
     expect(q("[data-action-outcome-words]")?.textContent).toMatch(/^No verification plan yet\./);
-    expect(q("[data-action-change-new-foundation]")?.textContent).toBe(body.change.new_foundation_revision_id);
+    expect(exactReference("action-state-references", "New configuration version")).toBe(body.change.new_foundation_revision_id);
     expect(q("[data-action-applied-event-link]")?.getAttribute("href")).toBe(
       `/sites/KOBO-001/actions/${ACTION}/history?event_id=${body.change.applied_event_id}`,
     );
@@ -500,23 +513,39 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
     await settledScreen();
     const events = hi.events_latest.body.events as { id: string; kind: string }[];
-    expect(qa("[data-action-event-kind]").map((r) => r.getAttribute("data-action-event-kind"))).toEqual(events.map((e) => e.kind));
+    // W1-F4 trim: the Activity log shows the latest three steps, as the mock does, and links the full list on History.
+    expect(qa("[data-action-event-kind]").map((r) => r.getAttribute("data-action-event-kind"))).toEqual(events.slice(-3).map((e) => e.kind));
     expect(qa("[data-action-event-failure]").map((e) => e.getAttribute("data-action-event-failure"))).toEqual([
-      "ACTION_FOUNDATION_STALE",
       "ACTION_VALUE_INVALID",
       "ACTION_EFFECTIVE_TIME_INVALID",
     ]);
+    const all = q("[data-action-work-history-link]");
+    expect(all?.textContent).toBe(`Show all ${events.length} steps`);
+    expect(all?.getAttribute("href")).toBe(`/sites/KOBO-001/actions/${ACTION}/history`);
     const change = ov.applied_pending_newer_revision.body.change;
-    expect(q("[data-action-event-change]")?.textContent).toBe(change.change_id);
-    expect(q("[data-action-event-effective-revision]")?.textContent).toBe(change.new_foundation_revision_id);
+    expect(q("[data-action-event-change-link]")?.getAttribute("href")).toContain(change.change_id);
+    // The recording service is an exact reference, kept in the closed disclosure.
     expect(document.body.textContent).toMatch(/assetops-backend\/action-api/);
     // W1-F4: the actor is its own named cell in the Activity log (Record | State | Evidence | Recorded | Acted by).
-    expect(qa("[data-action-event-kind] [data-action-event-actor]")).toHaveLength(events.length);
+    expect(qa("[data-action-event-kind] [data-action-event-actor]")).toHaveLength(3);
     expect(qa("[data-action-event-kind] [data-action-event-actor]").every((td) => /SYSTEM demonstration/.test(td.textContent ?? ""))).toBe(true);
     expect(q("[data-action-already-applied]")).not.toBeNull();
     expect(screen.queryByRole("button")).toBeNull();
     expect(q("[data-action-section='execution']")).toHaveAttribute("aria-current", "page");
     noVocabularyViolations("action-execution:1#a");
+    // The full list, with every failure code, the exact versions and the change record, is reachable on History.
+    cleanup();
+    vi.unstubAllGlobals();
+    serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}/history`);
+    await settledScreen();
+    showAllHistory();
+    expect(qa("[data-action-event-kind]").map((r) => r.getAttribute("data-action-event-kind"))).toEqual(events.map((e) => e.kind));
+    for (const code of ["ACTION_FOUNDATION_STALE", "ACTION_VALUE_INVALID", "ACTION_EFFECTIVE_TIME_INVALID"]) {
+      expect(q(`[data-action-event-failure='${code}']`)?.textContent).toContain(code);
+    }
+    expect(q("[data-action-event-change]")?.textContent).toBe(change.change_id);
+    expect(q("[data-action-event-effective-revision]")?.textContent).toBe(change.new_foundation_revision_id);
   });
 
   it("applies with a fresh key per attempt: a stale FAILED keeps it pending, a replay says so, then APPLIED", async () => {
@@ -706,6 +735,10 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     mount(`/sites/KOBO-001/actions/${ACTION}/history`);
     await settledScreen();
     const events = hi.events_latest.body.events as { id: string; recorded_at: string; occurred_at: string; kind: string }[];
+    // W1-F4 trim: the latest three rows (here the verification rows, recorded last) show by default; the toggle shows all.
+    expect(qa("[data-action-event], [data-action-history-outcome], [data-action-history-resolution]")).toHaveLength(3);
+    expect(q("[data-action-history-show-all]")?.textContent).toBe(`Show all ${events.length + 4} events`);
+    showAllHistory();
     expect(qa("[data-action-event]").map((r) => r.getAttribute("data-action-event"))).toEqual(events.map((e) => e.id));
     const observed = events.find((e) => e.kind === "OBSERVED")!;
     const row = q(`[data-action-event='${observed.id}']`)!;
@@ -777,6 +810,8 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
     mount(`/sites/KOBO-001/actions/${ACTION}/history`);
     await settledScreen();
+    // W1-F4 trim: the earlier rows are behind the in-place "Show all" toggle.
+    showAllHistory();
     const observed = (hi.events_latest.body.events as { id: string; kind: string; recorded_at: string }[]).find((e) => e.kind === "OBSERVED")!;
     expect(q(`[data-action-select-event='${observed.id}']`)?.getAttribute("href")).toBe(
       `/sites/KOBO-001/actions/${ACTION}/history?event_id=${observed.id}`,
@@ -885,6 +920,8 @@ describe("W1-UX-04 phase 1 (W1-F4: merged into the v69 panels): Application and 
     // W1-F4: the former History card is merged into the single "Action history" panel; its step strip is the table.
     let card = panelTitled("Action history");
     expect(expectStateLineVisible(card)).toBe("Every recorded event");
+    // W1-F4 trim: every event is one click away, on the in-place toggle.
+    showAllHistory();
     expect(card.querySelectorAll("[data-action-event]").length).toBe((hi.events_latest.body.events as unknown[]).length);
     view.unmount();
 

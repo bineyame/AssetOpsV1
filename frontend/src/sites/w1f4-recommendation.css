@@ -18,24 +18,50 @@
   margin-top: 13px;
 }
 
-/* Trial limitation and source qualification stay visible beside the claim, at note size. */
-.w1f4-recommendation .action-limitation,
-.w1f4-recommendation .action-command-unavailable,
-.w1f4-recommendation .source-provenance .notice {
-  margin: 10px 0 0;
-  padding: 6px 10px;
+/* The mock's one prose paragraph under the claim: the trial-only limitation,
+   always visible, at prose size without a callout box. */
+.w1f4-recommendation .w1f4-recommendation__proposed .action-limitation {
+  margin: 13px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.w1f4-recommendation .action-command-unavailable {
+  margin: 8px 0 0;
+  padding: 0;
   font-size: 10px;
   line-height: 1.6;
 }
 
-.w1f4-recommendation .source-provenance .disclosure,
+/* "How this was worked out": closed by default, one summary line. */
 .w1f4-recommendation .panel .disclosure {
   margin-top: 10px;
   font-size: 11px;
 }
 
+.w1f4-recommendation .panel .disclosure .source-provenance .notice {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+/* Panel 3's verification state: one note-sized line with its link. */
+.w1f4-recommendation [data-trial-verification-name="recommendation"] {
+  margin-top: 8px;
+}
+
+.w1f4-recommendation [data-trial-verification-name="recommendation"] .verify-chip {
+  padding: 1px 7px;
+  font-size: 10px;
+}
+
 .w1f4-recommendation .form-footer {
-  margin-top: 17px;
+  margin-top: 14px;
 }
 
 .w1f4-recommendation__prior-list {

@@ -109,3 +109,39 @@
 .w1f4-action-gap-note {
   color: #8e580c;
 }
+
+/* W1-F4 trim: the panels at the mock's density (owner rejection of W1 height drift). */
+.w1f4-action-panel .v69-chart-note {
+  margin-top: 6px;
+}
+
+.w1f4-action-status {
+  margin-top: 10px;
+}
+
+.w1f4-action-panel td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  vertical-align: top;
+}
+
+.w1f4-action-panel .data-table__scroll {
+  margin-top: 10px;
+}
+
+.w1f4-action-apply:has(> .v69-chart-note:only-child) {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 6px;
+}
+
+/* The in-place "Show all" toggle reads as the mock's plain link. */
+.w1f4-action-more {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: var(--link, #275ba8);
+  text-decoration: underline;
+  cursor: pointer;
+}

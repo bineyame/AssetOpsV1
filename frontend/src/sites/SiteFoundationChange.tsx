@@ -6,11 +6,12 @@
  * one-line status strip, four metric cards from the real read, then the two
  * v69 panels side by side:
  *
- *   1. Change and effect: the old and new reserve with its unit and asset,
- *      the effective and recorded times, the Foundation versions before and
- *      after, the Action and its exact application event, failed attempts and
- *      the pending outcome. The exact version and signal-assignment IDs sit in
- *      one closed disclosure.
+ *   1. Change and effect: the mock's compact Field/Before/After/Purpose table
+ *      (the reserve and the Foundation version), the outcome and the Action as
+ *      two key values, one note with the battery, effective and recorded
+ *      times, and the failed attempts in one line. The exact version,
+ *      application-event and signal-assignment IDs sit in one closed
+ *      disclosure.
  *   2. Decision path: declare success (the frozen plan, or "Not recorded
  *      yet."), apply and observe, then the outcome from the verification block.
  *
@@ -214,7 +215,7 @@ export function SiteFoundationChange({
         <span className="status-strip__lead">
           <Badge tone="lifecycle">Battery reserve change · Applied</Badge>
         </span>
-        <span className="status-strip__state">Setting changed; effect judged separately</span>
+        <span className="status-strip__state">Setting changed; being applied is not success, effect judged separately</span>
         <span className="muted status-strip__item">
           {SYSTEM_DEMONSTRATION} command · effective {plainTime(c.effective_from) ?? when(c.effective_from)} ·{" "}
           <Link to={actionHref} data-change-card-action-link>
@@ -280,12 +281,15 @@ export function SiteFoundationChange({
       <div className="panel-pair">
         <Panel heading={CHANGE_PANEL_TITLE} headingId="site-change-summary-heading">
           <DataTable labelledBy="site-change-values-caption">
-            <caption id="site-change-values-caption">Changed value</caption>
+            <caption id="site-change-values-caption" className="visually-hidden">
+              Changed value
+            </caption>
             <thead>
               <tr>
-                <th scope="col">Setting</th>
+                <th scope="col">Field</th>
                 <th scope="col">Before</th>
                 <th scope="col">After</th>
+                <th scope="col">Purpose</th>
               </tr>
             </thead>
             <tbody>
@@ -299,40 +303,20 @@ export function SiteFoundationChange({
                   {c.new_value}
                   {c.unit}
                 </td>
+                <td className="muted">{NOT_RECORDED_YET}</td>
+              </tr>
+              <tr>
+                <td>Foundation version</td>
+                <VersionCells change={c} />
+                <td>
+                  {c.split_foundation_revision_id ? "Holds the new value; earlier period kept" : "Holds the new value"}
+                </td>
               </tr>
             </tbody>
           </DataTable>
           <KeyValues
             label="Change record"
             rows={[
-              ["Battery", <Ref key="asset" value={c.asset_id} attr="data-change-asset" />, "asset"],
-              [
-                "Effective from",
-                <span key="effective">
-                  <span data-change-effective={c.effective_from}>{when(c.effective_from)}</span>
-                  {c.validity === "EFFECTIVE_FROM_OPEN_ENDED" ? " onward, with no end date" : null}
-                </span>,
-                "effective",
-              ],
-              ["Recorded", <span key="recorded" data-change-recorded={c.recorded_at}>{when(c.recorded_at)}</span>, "recorded"],
-              ["Foundation version", <VersionStep key="versions" change={c} />, "versions"],
-              [
-                "Applied by",
-                <span key="action">
-                  <Link to={actionHref} data-change-action-link>
-                    <Ref value={c.action_id} />
-                  </Link>{" "}
-                  ({SYSTEM_DEMONSTRATION})
-                </span>,
-                "action",
-              ],
-              [
-                "Application event",
-                <Link key="event" to={appliedEvent} data-change-applied-event-link>
-                  <Ref value={c.applied_event_id} />
-                </Link>,
-                "event",
-              ],
               [
                 "Outcome",
                 <span key="outcome" data-change-outcome-words data-change-verification={verification?.state ?? "UNAVAILABLE"}>
@@ -340,15 +324,24 @@ export function SiteFoundationChange({
                 </span>,
                 "outcome",
               ],
+              [
+                "Applied by",
+                <Link key="action" to={actionHref} data-change-action-link>
+                  The Action ({SYSTEM_DEMONSTRATION}) →
+                </Link>,
+                "action",
+              ],
             ]}
           />
-          <Attempts attempts={attempts} change={c} links={links} />
           <ChartNote>
-            The setting changed when it was applied; being applied is not success. Whether it had any effect is judged
-            later, from the trial&apos;s windows.
+            Battery <Ref value={c.asset_id} attr="data-change-asset" /> · effective{" "}
+            <span data-change-effective={c.effective_from}>{plainTime(c.effective_from) ?? when(c.effective_from)}</span>
+            {c.validity === "EFFECTIVE_FROM_OPEN_ENDED" ? " onward" : null} · recorded{" "}
+            <span data-change-recorded={c.recorded_at}>{plainTime(c.recorded_at) ?? when(c.recorded_at)}</span>
           </ChartNote>
+          <Attempts attempts={attempts} change={c} links={links} />
           <Disclosure name="site-change-versions" summary="Versions and records this change names">
-            <ChangeReferences change={c} />
+            <ChangeReferences change={c} appliedEventHref={appliedEvent} />
           </Disclosure>
         </Panel>
         <Panel heading={DECISION_PATH_PANEL_TITLE} headingId="site-change-path-heading">
@@ -370,25 +363,33 @@ export function SiteFoundationChange({
   );
 }
 
-/** The Foundation version before and after the change, by version number. */
-function VersionStep({ change }: { change: PolicyChange }) {
+/** The Foundation version before and after the change, by version number, as two table cells. */
+function VersionCells({ change }: { change: PolicyChange }) {
   const byId = new Map(change.foundation_revisions.map((revision) => [revision.id, revision]));
   const before = change.superseded_foundation_revision_id ? byId.get(change.superseded_foundation_revision_id) : undefined;
   const after = byId.get(change.new_foundation_revision_id);
-  const name = (revision: FoundationRevisionRef | undefined) => (revision ? `v${revision.version}` : "version not named");
+  const name = (revision: FoundationRevisionRef | undefined) => (revision ? `v${revision.version}` : "Not named");
   return (
-    <span data-change-version-step>
-      {name(before)} → {name(after)}
-      {change.split_foundation_revision_id ? " (earlier period kept as its own version)" : null}
-    </span>
+    <>
+      <td data-change-version-before>{name(before)}</td>
+      <td data-change-version-after>{name(after)}</td>
+    </>
   );
 }
 
 /** The exact versions and signal assignments this change names (closed disclosure). */
-function ChangeReferences({ change: c }: { change: PolicyChange }) {
+function ChangeReferences({ change: c, appliedEventHref }: { change: PolicyChange; appliedEventHref: string }) {
   const revisions = [...c.foundation_revisions].sort((a, b) => a.version - b.version);
   const rows: [ReactNode, ReactNode, string][] = [
     ["Change record", <Ref key="id" value={c.change_id} />, "id"],
+    ["Action", <Ref key="action" value={c.action_id} />, "action"],
+    [
+      "Application event",
+      <Link key="event" to={appliedEventHref}>
+        <Ref value={c.applied_event_id} />
+      </Link>,
+      "event",
+    ],
     ["Expected by the command", <Ref key="expected" value={c.expected_foundation_revision_id} attr="data-change-expected" />, "expected"],
     ["New version", <Ref key="new" value={c.new_foundation_revision_id} attr="data-change-new-foundation" />, "new"],
   ];
@@ -510,7 +511,9 @@ function DecisionPath({
       body: "The applied setting is recorded, then later readings are accepted.",
       action: (
         <span>
-          <Link to={appliedEventHref}>Application record →</Link>
+          <Link to={appliedEventHref} data-change-applied-event-link>
+            Application record →
+          </Link>
           {child ? (
             <>
               {" "}
@@ -555,8 +558,10 @@ function DecisionPath({
           </span>
           <div>
             <h3>{item.title}</h3>
-            <p>{item.body}</p>
-            {item.action}
+            <p>
+              {item.body}
+              {item.action ? <> {item.action}</> : null}
+            </p>
           </div>
         </li>
       ))}
@@ -586,20 +591,20 @@ function Attempts({
   }
   const failed = attempts.value.events.filter((event) => event.kind === "FAILED");
   return (
-    <div data-change-attempts={failed.length}>
+    <div className="v69-chart-note w1f4-change-attempts" data-change-attempts={failed.length}>
       {failed.length === 0 ? (
-        <ChartNote>No failed application attempts are recorded for this Action.</ChartNote>
+        "No failed application attempts are recorded for this Action."
       ) : (
         <>
-          <ChartNote>
-            {failed.length === 1 ? "One earlier attempt" : `${failed.length} earlier attempts`} failed and changed
-            nothing:
-          </ChartNote>
+          {failed.length === 1 ? "One earlier attempt" : `${failed.length} earlier attempts`} failed and changed nothing:{" "}
           <ul className="action-list action-list--codes">
             {failed.map((event) => (
               <li key={event.id} data-change-failed-attempt={event.id}>
-                <Link to={links.action(change.action_id, "history", { eventId: event.id, recordedAt: null })}>
-                  {eventWords(event.kind)} {when(event.recorded_at)}
+                <Link
+                  to={links.action(change.action_id, "history", { eventId: event.id, recordedAt: null })}
+                  title={`${eventWords(event.kind)} ${when(event.recorded_at)}`}
+                >
+                  {plainTime(event.recorded_at) ?? when(event.recorded_at)}
                 </Link>{" "}
                 <Ref value={event.failure_code ?? "UNKNOWN"} />
               </li>

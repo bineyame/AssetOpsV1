@@ -253,7 +253,7 @@ describe("W1-F4: the former Change answer card, merged into the strip and panel 
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
     expect(q("[data-headline-card]")).toBeNull();
     const strip = q("[data-change-status]") as HTMLElement;
-    expect(strip.querySelector(".status-strip__state")?.textContent).toBe("Setting changed; effect judged separately");
+    expect(strip.querySelector(".status-strip__state")?.textContent).toBe("Setting changed; being applied is not success, effect judged separately");
     // Scope (the battery) and as-of (the recorded time) are visible in panel 1, outside any closed disclosure.
     for (const selector of ["[data-change-asset]", "[data-change-recorded]", "[data-change-outcome-words]"]) {
       expect(q(selector)?.closest("details:not([open])"), selector).toBeNull();

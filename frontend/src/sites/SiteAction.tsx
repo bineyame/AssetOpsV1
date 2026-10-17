@@ -409,8 +409,26 @@ function SelectorConflict({ view, selector, links }: { view: ActionView; selecto
  * "Earlier record selected" panel above the view). An earlier selection says
  * so and links the latest.
  */
-function SelectionNote({ selection, view, links }: { selection: Selection; view: ActionView; links: SiteActionLinks }) {
+function SelectionNote({
+  selection,
+  view,
+  links,
+  inline = false,
+}: {
+  selection: Selection;
+  view: ActionView;
+  links: SiteActionLinks;
+  /** W1-F4 trim: the latest-record count as a part of an existing note line. */
+  inline?: boolean;
+}) {
   if (selection.kind === "LATEST") {
+    if (inline) {
+      return (
+        <span data-action-selection-notice="LATEST">
+          Latest at read time: {selection.event_count} of {selection.total_event_count} events.
+        </span>
+      );
+    }
     return (
       <ChartNote data={{ "data-action-selection-notice": "LATEST" }}>
         Latest at read time: {selection.event_count} of {selection.total_event_count} events.
@@ -489,6 +507,7 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
   const application = APPLICATION_WORDS[body.state.application] ?? "Application state not recognised";
   const source = sourceState(body.source_provenance);
   const sourceWords = SOURCE_WORDS[source];
+  const latest = body.selection.kind === "LATEST";
   return (
     <Panel heading="Action scope" headingId="site-action-scope-heading" className="w1f4-action-panel">
       <div data-product-status={words.tone} data-action-scope>
@@ -506,12 +525,22 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
               "Source",
               <span data-action-origin-revision={body.origin.finding_revision_id}>
                 <Link to={links.finding(body.origin.finding_id, body.origin.finding_revision_id)} data-action-origin-link>
-                  Finding version <Ref value={body.origin.finding_revision_id} />
+                  Finding version
                 </Link>{" "}
                 ·{" "}
                 <Link to={links.recommendation(body.origin.finding_id, body.origin.finding_revision_id)} data-action-recommendation-link>
                   Recommendation
                 </Link>
+                {notice ? (
+                  <span data-action-newer-revision={notice.latest_revision_id}>
+                    {" "}
+                    · a{" "}
+                    <Link to={links.finding(body.origin.finding_id, notice.latest_revision_id)}>newer version (number {notice.revision_no})</Link>{" "}
+                    exists; this Action stays with the version it was accepted for
+                  </span>
+                ) : (
+                  <span data-action-newer-revision="none" />
+                )}
               </span>,
               "source",
             ],
@@ -527,7 +556,7 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
               <span data-action-accepted-value={accepted.proposed_value}>
                 Battery reserve {accepted.old_value}
                 {accepted.unit} to {accepted.proposed_value}
-                {accepted.unit}, rule <Ref value={`${accepted.rule_id} v${accepted.rule_version}`} />
+                {accepted.unit}
               </span>,
               "intervention",
             ],
@@ -536,43 +565,38 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
               <>
                 <span data-action-application-words>{application}</span>
                 {body.state.failed_attempts > 0 ? ` (${body.state.failed_attempts} failed attempts)` : ""}
+                {change ? (
+                  <span data-action-change={change.change_id}>
+                    {" "}
+                    ·{" "}
+                    <Link to={links.change(change.change_id)} data-action-change-link>
+                      {change.old_value}
+                      {change.unit} to {change.new_value}
+                      {change.unit}
+                    </Link>{" "}
+                    from {when(change.effective_from)} ·{" "}
+                    <Link to={links.view("history", { eventId: change.applied_event_id, recordedAt: null })} data-action-applied-event-link>
+                      event
+                    </Link>
+                  </span>
+                ) : null}
               </>,
               "application",
             ],
-            ...(change
-              ? ([
-                  [
-                    "Configuration change",
-                    <span data-action-change={change.change_id}>
-                      <Link to={links.change(change.change_id)} data-action-change-link>
-                        Battery reserve {change.old_value}
-                        {change.unit} to {change.new_value}
-                        {change.unit}
-                      </Link>{" "}
-                      from {when(change.effective_from)} ·{" "}
-                      <Link to={links.view("history", { eventId: change.applied_event_id, recordedAt: null })} data-action-applied-event-link>
-                        application event
-                      </Link>
-                    </span>,
-                    "change",
-                  ],
-                  [
-                    "New configuration version",
-                    <Ref value={change.new_foundation_revision_id} attr="data-action-change-new-foundation" />,
-                    "new-foundation",
-                  ],
-                ] as [ReactNode, ReactNode, string][])
-              : []),
-            [
-              "Configuration basis",
-              <Ref value={body.basis.foundation_revision_id} attr="data-action-basis-foundation" />,
-              "basis",
-            ],
             [
               "Outcome",
-              <StateBadge tone={TONE_BADGE[words.tone]} data={{ "data-product-status-label": "" }}>
-                {words.label}
-              </StateBadge>,
+              <>
+                <StateBadge tone={TONE_BADGE[words.tone]} data={{ "data-product-status-label": "" }}>
+                  {words.label}
+                </StateBadge>{" "}
+                {v ? (
+                  <Link to={links.view("verification", LATEST)} data-action-verification-link>
+                    Verification
+                  </Link>
+                ) : (
+                  <Link to={links.view("verification", LATEST)}>Verification</Link>
+                )}
+              </>,
               "outcome",
             ],
           ]}
@@ -591,48 +615,30 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
           ) : (
             <span data-action-outcome-words>{outcomeWords(body.state.outcome.state)}</span>
           )}{" "}
+          {OUTCOME_STATES.has(verificationState) ? (
+            <span data-action-outcome-source-note>
+              In this summary no savings or realized benefit is claimed; the source and measured limits are on Verification.{" "}
+            </span>
+          ) : null}
           <Bound asOf={body.selection.cutoff_recorded_at ?? body.last_event?.recorded_at ?? null} />
+          {latest ? (
+            <>
+              <span aria-hidden="true"> · </span>
+              <SelectionNote selection={body.selection} view="overview" links={links} inline />
+            </>
+          ) : null}
         </p>
       </div>
-      {OUTCOME_STATES.has(verificationState) ? (
-        <ChartNote data={{ "data-action-outcome-source-note": "" }}>
-          This summary does not say where the trial&apos;s readings came from, and no savings or realized benefit is claimed
-          here. The source and the measured limits are on Verification.
-        </ChartNote>
-      ) : null}
-      <p className="v69-chart-note" data-action-limitation={accepted.limitation.code}>
-        <strong>Trial only. </strong>
-        {limitationText(accepted.limitation)}
+      <p className="v69-chart-note">
+        <span data-action-limitation={accepted.limitation.code}>
+          <strong>Trial only.</strong> It tests whether the reserve setting matters; it predicts no less generator time, saving or
+          safety effect.
+        </span>{" "}
+        <span data-source-provenance={source} data-source-provenance-subject="action-origin">
+          <strong>{sourceWords.label}.</strong> {sourceWords.statement}
+        </span>
       </p>
-      <p className="v69-chart-note" data-source-provenance={source} data-source-provenance-subject="action-origin">
-        <strong>{sourceWords.label}.</strong> {sourceWords.statement}
-      </p>
-      {notice ? (
-        <p className="v69-chart-note" data-action-newer-revision={notice.latest_revision_id}>
-          A newer Finding version (number {notice.revision_no}) exists:{" "}
-          <Link to={links.finding(body.origin.finding_id, notice.latest_revision_id)}>
-            <Ref value={notice.latest_revision_id} />
-          </Link>
-          . This Action stays with the version it was accepted for.
-        </p>
-      ) : (
-        <ChartNote data={{ "data-action-newer-revision": "none" }}>The origin Finding version is still the latest.</ChartNote>
-      )}
-      <SelectionNote selection={body.selection} view="overview" links={links} />
-      <p className="v69-chart-note" data-action-later-sections>
-        The Site&apos;s operation is not shown as changed by this Action, and no effect is measured here.{" "}
-        {words.next === undefined ? null : <>{words.next} </>}
-        Detailed activity: <Link to={links.view("execution", LATEST)}>Application</Link>. Whether it worked:{" "}
-        <Link to={links.view("plan", LATEST)}>Plan</Link>, <Link to={links.view("evidence", LATEST)}>Evidence</Link> and{" "}
-        {v ? (
-          <Link to={links.view("verification", LATEST)} data-action-verification-link>
-            Verification
-          </Link>
-        ) : (
-          <Link to={links.view("verification", LATEST)}>Verification</Link>
-        )}
-        , from a plan fixed before the later window.
-      </p>
+      {latest ? null : <SelectionNote selection={body.selection} view="overview" links={links} />}
       <ExactReferences
         name="action-state-references"
         variant="tech"
@@ -640,12 +646,22 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
           { label: "Action code", value: body.action.action_code },
           { label: "Action reference", value: body.action.id },
           { label: "Accepted at", value: body.state.accepted_at },
+          { label: "Origin Finding version", value: body.origin.finding_revision_id },
+          ...(notice ? [{ label: "Newer Finding version", value: notice.latest_revision_id }] : []),
+          { label: "Rule", value: `${accepted.rule_id} v${accepted.rule_version}` },
+          { label: "Trial limitation, in full", value: limitationText(accepted.limitation) },
           { label: "Application state", value: body.state.application },
           { label: "Trial state", value: verificationState },
+          { label: "Configuration basis", value: body.basis.foundation_revision_id },
+          ...(change
+            ? [
+                { label: "Change record", value: change.change_id },
+                { label: "New configuration version", value: change.new_foundation_revision_id },
+              ]
+            : []),
           { label: "Assessment periods", value: String(body.basis.assessments.length) },
           { label: "Battery charge readings", value: String(body.basis.evidence.length) },
           { label: "Input reference", value: body.basis.input_sha256 },
-          ...(change ? [{ label: "Change record", value: change.change_id }] : []),
           ...(body.source_provenance?.reasons ?? []).map((r, i) => ({ label: `Source note ${i + 1}`, value: r.code })),
           ...(v === null
             ? []
@@ -685,12 +701,23 @@ const EVENT_BADGE: Record<string, [string, BadgeTone]> = {
   OBSERVED: ["Note", "muted"],
 };
 
+/** W1-F4 trim: the Activity log and Action history show this many latest rows by default (as the mock does). */
+const SHOWN_ROWS = 3;
+
+/** The exact selector an events read was cut to, so a "show all" link keeps the selected record. */
+function selectorOf(selection: Selection): EventSelector {
+  if (selection.kind === "EVENT_ID") return { eventId: selection.event_id ?? null, recordedAt: null };
+  if (selection.kind === "RECORDED_AT") return { eventId: null, recordedAt: selection.recorded_at ?? null };
+  return LATEST;
+}
+
 /**
  * v69 `action-execution` panel 1, "Activity log" (W1-F4): the application
- * state, the recorded events (Record | State | Evidence, with time and actor)
- * and the apply control, in one panel. The former "Work done" answer card,
- * Application, Apply, Foundation change and Recorded activity panels are merged
- * here. Applied is a recorded setting, never a measured effect.
+ * state as one status line, the latest recorded events (Record | State |
+ * Evidence, with time and actor) and the apply control, in one panel. The full
+ * list, the failure codes and the "happened at" times are on History; the
+ * exact references are in the closed disclosure. Applied is a recorded
+ * setting, never a measured effect.
  */
 function Application({
   body,
@@ -728,6 +755,8 @@ function Application({
   const words = applicationWords(body.state.application, body.state.failed_attempts);
   const failed = body.state.failed_attempts;
   const attempts = body.state.application_attempts;
+  const all = events?.events ?? [];
+  const services = Array.from(new Set(all.map((e) => [e.triggering_service ?? "none", e.triggering_job].filter(Boolean).join(" / "))));
 
   const apply = async () => {
     if (busy || noTime || basis?.current_foundation_revision_id == null) return;
@@ -744,51 +773,52 @@ function Application({
     onOutcome(result);
   };
 
+  const historyLink = (
+    <Link to={links.view("history", events ? selectorOf(events.selection) : LATEST)} data-action-work-history-link>
+      {all.length > SHOWN_ROWS ? `Show all ${all.length} steps` : "Open History"}
+    </Link>
+  );
+
   return (
     <Panel heading="Activity log" headingId="site-action-activity-heading" className="w1f4-action-panel">
       <div data-product-status={words.tone} data-action-work>
-        <KeyValues
-          label="Application state"
-          rows={[
-            [
-              "Application",
-              <StateBadge tone={TONE_BADGE[words.tone]} data={{ "data-product-status-label": "", "data-action-work-headline": "" }}>
-                {words.label}
-              </StateBadge>,
-              "application",
-            ],
-            ["Attempts to apply", `${attempts} recorded, ${failed} failed`, "attempts"],
-            ...(body.state.last_failure
-              ? ([
-                  [
-                    "Last failed attempt",
-                    <>
-                      <Ref value={body.state.last_failure.failure_code} /> at {when(body.state.last_failure.recorded_at)}
-                    </>,
-                    "last-failure",
-                  ],
-                ] as [ReactNode, ReactNode, string][])
-              : []),
-            ["Trial outcome", trial.label, "trial"],
-          ]}
-        />
+        <p className="v69-chart-note w1f4-action-status">
+          <StateBadge tone={TONE_BADGE[words.tone]} data={{ "data-product-status-label": "", "data-action-work-headline": "" }}>
+            {words.label}
+          </StateBadge>{" "}
+          <span data-key-value="attempts">
+            Attempts: {attempts} recorded, {failed} failed
+          </span>
+          <span aria-hidden="true"> · </span>
+          <span data-key-value="trial">Trial outcome: {trial.label}</span>
+          <span aria-hidden="true"> · </span>
+          <Bound asOf={actionAsOf(body)} />
+        </p>
         <p className="v69-chart-note">
-          <span className="product-status__sentence">{words.sentence}</span> Work done is not the same as a result:
-          whether the change helped, within its safety and service limits, is judged only on{" "}
+          <span className="product-status__sentence">{words.sentence}</span> Whether it helped, within its safety and service
+          limits, is judged only on{" "}
           <Link to={links.view("verification", LATEST)} data-action-work-verification-link>
             Verification
           </Link>
-          . <Bound asOf={actionAsOf(body)} />
+          .
+          {latest ? (
+            <>
+              {" "}
+              <SelectionNote selection={body.selection} view="execution" links={links} inline />
+            </>
+          ) : null}
         </p>
       </div>
-      {pending && failed > 0 ? (
-        <ChartNote data={{ "data-action-failed-still-pending": "" }}>
-          A failed attempt changes nothing: the application is still pending and can be attempted again.
-        </ChartNote>
-      ) : null}
-      <SelectionNote selection={body.selection} view="execution" links={links} />
+      {latest ? null : <SelectionNote selection={body.selection} view="execution" links={links} />}
       {events ? (
-        <EventTable events={events.events} change={body.change} selection={events.selection} links={links} view="execution" mode="log" />
+        <EventTable
+          events={all.slice(-SHOWN_ROWS)}
+          change={body.change}
+          selection={events.selection}
+          links={links}
+          view="execution"
+          mode="log"
+        />
       ) : eventsRead ? (
         <p className="v69-chart-note w1f4-action-gap-note" data-panel-gap="action-events">
           The recorded activity could not be read, so no activity is listed.
@@ -798,7 +828,9 @@ function Application({
         {!latest ? (
           <ChartNote>Commands are offered on the latest record only.</ChartNote>
         ) : !pending ? (
-          <ChartNote data={{ "data-action-already-applied": "" }}>Applied; there is nothing more to apply.</ChartNote>
+          <p className="v69-chart-note">
+            {historyLink} · <span data-action-already-applied>Applied; there is nothing more to apply.</span>
+          </p>
         ) : granted(capability, "APPLY") && !basis?.current_foundation_revision_id ? (
           <ChartNote data={{ "data-action-apply-no-basis": "" }}>
             Applying is not offered: the read did not state the current Foundation version, so the command could not
@@ -813,10 +845,8 @@ function Application({
               {basis ? (
                 <span data-action-expected-foundation={basis.current_foundation_revision_id ?? ""}>
                   {" "}
-                  Expected current Foundation version{" "}
-                  {basis.current_foundation_revision_id ? <Ref value={basis.current_foundation_revision_id} /> : "none"} (as
-                  read at {when(basis.covers_instant)}). The server checks the version covering the effective time; a
-                  change between the two makes the attempt fail as stale.
+                  The server checks the Foundation version covering the effective time; a change since the read (at{" "}
+                  {when(basis.covers_instant)}) makes the attempt fail as stale.
                 </span>
               ) : null}
             </p>
@@ -856,12 +886,7 @@ function Application({
         )}
         <ApplyOutcome outcome={outcome} links={links} />
       </div>
-      <p className="v69-chart-note">
-        {words.next === undefined ? null : <>{words.next} </>}
-        <Link to={links.view("history", LATEST)} data-action-work-history-link>
-          Open History
-        </Link>
-      </p>
+      {latest && !pending ? null : <p className="v69-chart-note">{historyLink}</p>}
       <ExactReferences
         name="action-work-references"
         variant="tech"
@@ -869,8 +894,11 @@ function Application({
           { label: "Action reference", value: body.action.id },
           { label: "Application state", value: body.state.application },
           { label: "Last failed attempt reason", value: body.state.last_failure?.failure_code ?? null },
+          { label: "Last failed attempt at", value: body.state.last_failure?.recorded_at ?? null },
+          { label: "Expected current Foundation version", value: basis?.current_foundation_revision_id ?? null },
           { label: "Change record", value: body.change?.change_id ?? null },
           { label: "New site configuration version", value: body.change?.new_foundation_revision_id ?? null },
+          ...services.map((service, i) => ({ label: `Recording service ${i + 1}`, value: service })),
         ]}
       />
     </Panel>
@@ -913,11 +941,13 @@ function ApplyOutcome({ outcome, links }: { outcome: CommandResult | null; links
 
 /**
  * v69 `action-history` panel 1, "Action history" (W1-F4): the recorded events
- * (Event | Meaning) with the exact event and recorded-time selection kept in
- * each row, and the verification outcome history with earlier and current
- * labels. The former History answer card and Recorded events panel are merged
- * here. An earlier selection is historical and says so; the verification rows
- * are read as recorded now and are never cut to the selected event.
+ * and the verification outcome history (earlier and current labels, the
+ * withdrawable resolution) as one Event | Meaning table in recorded order, with
+ * the exact event and recorded-time selection kept in each event row. The
+ * latest rows show by default with an in-place "Show all" toggle; an earlier
+ * selection's events (already cut to it) always stay shown. An earlier selection is historical and says so;
+ * the verification rows are read as recorded now and are never cut to the
+ * selected event.
  */
 function History({
   body,
@@ -939,6 +969,7 @@ function History({
   verification: VerificationClient;
 }) {
   const [outcomes, setOutcomes] = useState<ActionReadResult<HistoryBody> | null>(null);
+  const [showAll, setShowAll] = useState(false);
   useEffect(() => {
     let active = true;
     setOutcomes(null);
@@ -961,13 +992,19 @@ function History({
   const history = outcomes?.status === "loaded" ? outcomes.value : null;
   return (
     <Panel heading="Action history" headingId="site-action-history-heading" className="w1f4-action-panel">
-      <p className="v69-chart-note" data-product-status={words.tone}>
+      <p className="v69-chart-note w1f4-action-status" data-product-status={words.tone}>
         <StateBadge tone={TONE_BADGE[words.tone]} data={{ "data-product-status-label": "" }}>
           {words.label}
         </StateBadge>{" "}
         <span className="product-status__sentence">{words.sentence}</span> <Bound asOf={actionAsOf(body)} />
+        {latest ? (
+          <>
+            <span aria-hidden="true"> · </span>
+            <SelectionNote selection={body.selection} view={view} links={links} inline />
+          </>
+        ) : null}
       </p>
-      <SelectionNote selection={body.selection} view={view} links={links} />
+      {latest ? null : <SelectionNote selection={body.selection} view={view} links={links} />}
       {events ? (
         <EventTable
           events={events.events}
@@ -977,10 +1014,26 @@ function History({
           view={view}
           mode="history"
           verification={history}
+          showAll={showAll}
         />
       ) : eventsRead ? (
         <p className="v69-chart-note w1f4-action-gap-note" data-panel-gap="action-events">
           The recorded events could not be read, so no event is listed.
+        </p>
+      ) : null}
+      {events !== null && events.events.length + (history?.outcomes.length ?? 0) + (history?.resolution_events.length ?? 0) > SHOWN_ROWS ? (
+        <p className="v69-chart-note">
+          <button
+            type="button"
+            className="w1f4-action-more"
+            aria-expanded={showAll}
+            data-action-history-show-all
+            onClick={() => setShowAll((open) => !open)}
+          >
+            {showAll
+              ? `Show the latest ${SHOWN_ROWS}`
+              : `Show all ${events.events.length + (history?.outcomes.length ?? 0) + (history?.resolution_events.length ?? 0)} events`}
+          </button>
         </p>
       ) : null}
       {outcomes === null ? (
@@ -998,14 +1051,11 @@ function History({
         <ChartNote data={{ "data-action-history-outcomes": "none" }}>No trial outcome recorded yet.</ChartNote>
       ) : (
         <ChartNote data={{ "data-action-history-outcomes": "listed" }}>
-          Trial outcome rows come from the verification history as recorded now{latest ? "" : "; they are not cut to the selected record"}.
-          A resolution records the current outcome; later evidence can withdraw it.
+          Trial outcomes are the verification history as recorded now{latest ? "" : ", not cut to the selected record"}; a
+          resolution records the current outcome, and later evidence can withdraw it. No event measures an effect; a trial
+          result appears only on <Link to={links.view("verification", LATEST)}>Verification</Link>.
         </ChartNote>
       )}
-      <p className="v69-chart-note">
-        Events record what was decided and done. None of them measures an effect; a trial result appears only on{" "}
-        <Link to={links.view("verification", LATEST)}>Verification</Link>.
-      </p>
       <ExactReferences
         name="action-history-references"
         variant="tech"
@@ -1024,10 +1074,17 @@ function resolutionWords(kind: string): string {
   return kind === "RESOLVED" ? "Resolved" : kind === "RESOLUTION_WITHDRAWN" ? "Resolution withdrawn" : "Resolution activity";
 }
 
+type HistoryRow =
+  | { kind: "event"; at: number; event: ActionEvent }
+  | { kind: "outcome"; at: number; outcome: HistoryBody["outcomes"][number]; current: boolean }
+  | { kind: "resolution"; at: number; resolution: HistoryBody["resolution_events"][number] };
+
 /**
  * The recorded events as the mock's table: on Execution `Record | State |
- * Evidence` with time and actor, on History `Event | Meaning` with time and the
- * exact selection links, followed by the verification outcome rows.
+ * Evidence` with time and actor (the caller passes the latest rows), on
+ * History `Event | Meaning` with time and the exact selection links, merged
+ * in recorded order with the verification outcome rows. History shows the
+ * latest rows unless `showAll`; a selected event is always kept.
  */
 function EventTable({
   events,
@@ -1037,6 +1094,7 @@ function EventTable({
   view,
   mode,
   verification = null,
+  showAll = true,
 }: {
   events: ActionEvent[];
   change: PolicyChange | null;
@@ -1045,6 +1103,7 @@ function EventTable({
   view: ActionView;
   mode: "log" | "history";
   verification?: HistoryBody | null;
+  showAll?: boolean;
 }) {
   const outcomes = verification?.outcomes ?? [];
   const resolutions = verification?.resolution_events ?? [];
@@ -1056,6 +1115,22 @@ function EventTable({
     );
   }
   const log = mode === "log";
+  const isSelected = (event: ActionEvent) => selection.kind === "EVENT_ID" && selection.event_id === event.id;
+  const time = (instant: string) => {
+    const at = Date.parse(instant);
+    return Number.isNaN(at) ? Number.POSITIVE_INFINITY : at;
+  };
+  // Events keep server order; verification rows join them in recorded order (a stable sort).
+  const merged: HistoryRow[] = [
+    ...events.map((event): HistoryRow => ({ kind: "event", at: time(event.recorded_at), event })),
+    ...outcomes.map((outcome, i): HistoryRow => ({ kind: "outcome", at: time(outcome.recorded_at), outcome, current: i === outcomes.length - 1 })),
+    ...resolutions.map((resolution): HistoryRow => ({ kind: "resolution", at: time(resolution.recorded_at), resolution })),
+  ];
+  const rows = log ? merged : [...merged].sort((a, b) => a.at - b.at);
+  const firstShown = showAll || log ? 0 : Math.max(0, rows.length - SHOWN_ROWS);
+  // An earlier selection's events read is already cut to that selection, so its events always stay shown.
+  const keepEvents = selection.kind !== "LATEST";
+  const shown = rows.filter((row, index) => index >= firstShown || (row.kind === "event" && (keepEvents || isSelected(row.event))));
   return (
     <DataTable labelledBy={`site-action-events-caption-${mode}`}>
       <caption id={`site-action-events-caption-${mode}`} className="w1f4-action-caption">
@@ -1087,20 +1162,62 @@ function EventTable({
             <td colSpan={log ? 5 : 4}>No activity recorded.</td>
           </tr>
         ) : null}
-        {events.map((event) => {
-          const selected = selection.kind === "EVENT_ID" && selection.event_id === event.id;
+        {shown.map((row) => {
+          if (row.kind === "outcome") {
+            const o = row.outcome;
+            return (
+              <tr key={o.outcome_id} data-action-history-outcome={o.outcome_id}>
+                <td>Trial outcome recorded</td>
+                <td>
+                  <Link to={links.view("verification", { eventId: null, recordedAt: null, outcomeId: o.outcome_id })}>
+                    {stateLabel(o.outcome, o.reasons)}
+                  </Link>{" "}
+                  <StateBadge tone={row.current ? "blue" : "muted"} data={{ "data-action-history-outcome-label": row.current ? "current" : "earlier" }}>
+                    {row.current ? "Most recent" : "Earlier, replaced later"}
+                  </StateBadge>
+                </td>
+                <td>{when(o.recorded_at)}</td>
+                <td />
+              </tr>
+            );
+          }
+          if (row.kind === "resolution") {
+            const r = row.resolution;
+            return (
+              <tr key={r.id} data-action-history-resolution={r.kind}>
+                <td>{resolutionWords(r.kind)}</td>
+                <td>
+                  {r.kind === "RESOLUTION_WITHDRAWN"
+                    ? "Later evidence withdrew the resolution; it is not permanent."
+                    : "Records the current outcome; later evidence can withdraw it."}
+                  {r.verification_outcome_id ? (
+                    <>
+                      {" "}
+                      <Link to={links.view("verification", { eventId: null, recordedAt: null, outcomeId: r.verification_outcome_id })}>
+                        {r.kind === "RESOLUTION_WITHDRAWN" ? "Withdrawn outcome" : "Outcome"}
+                      </Link>
+                    </>
+                  ) : null}
+                </td>
+                <td>{when(r.recorded_at)}</td>
+                <td />
+              </tr>
+            );
+          }
+          const event = row.event;
           const [badgeWord, badgeTone] = EVENT_BADGE[event.kind] ?? ["Not recognised", "muted"];
           const times = (
-            <td data-action-recorded-at={event.recorded_at}>
+            <td data-action-recorded-at={event.recorded_at} data-action-occurred-at={event.occurred_at}>
               {when(event.recorded_at)}
-              <small data-action-occurred-at={event.occurred_at}>
-                Happened {when(event.occurred_at)}
-                {event.occurred_before_recorded ? " (recorded later than it happened)" : null}
-              </small>
+              {event.occurred_before_recorded ? (
+                <small>
+                  {log ? "(recorded later than it happened)" : <>Happened {when(event.occurred_at)}; recorded later than it happened</>}
+                </small>
+              ) : null}
             </td>
           );
           return (
-            <tr key={event.id} data-action-event={event.id} data-action-event-kind={event.kind} aria-current={selected ? "true" : undefined}>
+            <tr key={event.id} data-action-event={event.id} data-action-event-kind={event.kind} aria-current={isSelected(event) ? "true" : undefined}>
               <td>{eventWords(event.kind)}</td>
               {log ? (
                 <>
@@ -1108,16 +1225,10 @@ function EventTable({
                     <StateBadge tone={badgeTone}>{badgeWord}</StateBadge>
                   </td>
                   <td>
-                    <EventDetails event={event} change={change} links={links} />
+                    <EventDetails event={event} change={change} links={links} compact />
                   </td>
                   {times}
-                  <td data-action-event-actor>
-                    {event.actor?.label ?? event.actor_kind} <Ref value={event.actor_kind} />
-                    <small>
-                      <Ref value={event.triggering_service ?? "none"} />
-                      {event.triggering_job ? <Ref value={event.triggering_job} /> : null}
-                    </small>
-                  </td>
+                  <td data-action-event-actor>{event.actor?.label ?? event.actor_kind}</td>
                 </>
               ) : (
                 <>
@@ -1138,85 +1249,79 @@ function EventTable({
             </tr>
           );
         })}
-        {outcomes.map((o, index) => (
-          <tr key={o.outcome_id} data-action-history-outcome={o.outcome_id}>
-            <td>Trial outcome recorded</td>
-            <td>
-              <Link to={links.view("verification", { eventId: null, recordedAt: null, outcomeId: o.outcome_id })}>
-                {stateLabel(o.outcome, o.reasons)}
-              </Link>{" "}
-              <StateBadge tone={index === outcomes.length - 1 ? "blue" : "muted"} data={{ "data-action-history-outcome-label": index === outcomes.length - 1 ? "current" : "earlier" }}>
-                {index === outcomes.length - 1 ? "Most recent" : "Earlier, replaced later"}
-              </StateBadge>
-            </td>
-            <td>{when(o.recorded_at)}</td>
-            <td />
-          </tr>
-        ))}
-        {resolutions.map((r) => (
-          <tr key={r.id} data-action-history-resolution={r.kind}>
-            <td>{resolutionWords(r.kind)}</td>
-            <td>
-              {r.kind === "RESOLUTION_WITHDRAWN"
-                ? "Later evidence withdrew the resolution; it is not permanent."
-                : "Records the current outcome; later evidence can withdraw it."}
-              {r.verification_outcome_id ? (
-                <>
-                  {" "}
-                  <Link to={links.view("verification", { eventId: null, recordedAt: null, outcomeId: r.verification_outcome_id })}>
-                    {r.kind === "RESOLUTION_WITHDRAWN" ? "Withdrawn outcome" : "Outcome"}
-                  </Link>
-                </>
-              ) : null}
-            </td>
-            <td>{when(r.recorded_at)}</td>
-            <td />
-          </tr>
-        ))}
       </tbody>
     </DataTable>
   );
 }
 
-function EventDetails({ event, change, links }: { event: ActionEvent; change: PolicyChange | null; links: SiteActionLinks }) {
+/**
+ * One event's evidence words. `compact` (the Activity log) is one short line
+ * with no codes or IDs; History adds the exact failure code, Foundation
+ * versions and change record on a small second line.
+ */
+function EventDetails({
+  event,
+  change,
+  links,
+  compact = false,
+}: {
+  event: ActionEvent;
+  change: PolicyChange | null;
+  links: SiteActionLinks;
+  compact?: boolean;
+}) {
+  const changeLink =
+    change && change.applied_event_id === event.id ? (
+      <Link to={links.change(change.change_id)} data-action-event-change-link>
+        {compact ? "Change record" : <Ref value={change.change_id} attr="data-action-event-change" />}
+      </Link>
+    ) : null;
   if (event.kind === "FAILED") {
     return (
       <span data-action-event-failure={event.failure_code ?? ""}>
-        <Ref value={event.failure_code ?? "UNKNOWN"} /> Nothing was changed; the application stays pending.
-        {event.expected_foundation_revision_id ? (
-          <>
-            {" "}
-            Expected <Ref value={event.expected_foundation_revision_id} />
-          </>
-        ) : null}
-        {event.current_foundation_revision_id ? (
-          <>
-            , current <Ref value={event.current_foundation_revision_id} />
-          </>
-        ) : null}
+        Nothing was changed; still pending.
+        {compact ? null : (
+          <small>
+            <Ref value={event.failure_code ?? "UNKNOWN"} />
+            {event.expected_foundation_revision_id ? (
+              <>
+                {" "}
+                expected <Ref value={event.expected_foundation_revision_id} />
+              </>
+            ) : null}
+            {event.current_foundation_revision_id ? (
+              <>
+                , current <Ref value={event.current_foundation_revision_id} />
+              </>
+            ) : null}
+          </small>
+        )}
       </span>
     );
   }
   if (event.kind === "APPLIED") {
+    if (compact) {
+      return <span>New Foundation version recorded{changeLink ? <> · {changeLink}</> : null}</span>;
+    }
     return (
       <span>
-        New Foundation version{" "}
-        {event.current_foundation_revision_id ? <Ref value={event.current_foundation_revision_id} attr="data-action-event-effective-revision" /> : "not stated"}
-        {change && change.applied_event_id === event.id ? (
-          <>
-            ; change record{" "}
-            <Link to={links.change(change.change_id)} data-action-event-change-link>
-              <Ref value={change.change_id} attr="data-action-event-change" />
-            </Link>
-          </>
-        ) : null}
+        New Foundation version recorded
+        <small>
+          {event.current_foundation_revision_id ? <Ref value={event.current_foundation_revision_id} attr="data-action-event-effective-revision" /> : "version not stated"}
+          {changeLink ? <>; change record {changeLink}</> : null}
+        </small>
       </span>
     );
   }
   if (event.kind === "OBSERVED") {
     return (
       <span>
-        <Ref value={event.observation_code ?? "UNKNOWN"} /> A note only; it changes no application or outcome state.
+        A note only; it changes no application or outcome state.
+        {compact ? null : (
+          <small>
+            <Ref value={event.observation_code ?? "UNKNOWN"} />
+          </small>
+        )}
       </span>
     );
   }
