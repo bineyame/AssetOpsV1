@@ -5,8 +5,17 @@
  * 390 px (the table scrolls inside its own wrapper; nothing is hidden).
  */
 
-.finding-index .headline-card__visual {
-  min-width: 0;
+/* W1-F3: the in-panel gap is the mock's muted table row: short, quiet lines. */
+.site-findings-gap p {
+  margin: 0 0 6px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.site-findings-gap + [data-step-strip],
+.finding-index [data-finding-index-pages] + [data-step-strip] {
+  margin-top: var(--space-3);
 }
 
 .finding-index-row td {
@@ -30,9 +39,6 @@
   margin-top: var(--space-2);
 }
 
-.finding-index [data-finding-index-window] {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
+.site-findings-window {
+  align-items: center;
 }

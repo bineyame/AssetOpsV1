@@ -65,6 +65,9 @@ const state = () => document.querySelector("[data-finding-index-state]")?.getAtt
 const query = () => new URLSearchParams(where().split("?")[1] ?? "");
 /** The single v69 panel "Findings at this site" (W1-F3; formerly the answer card). */
 const card = () => panelTitled("Findings at this site");
+/** The v69 statusbar before the panel: the claim and the shared state line (W1-F3). */
+const statusBar = () => document.querySelector("[data-site-findings-status]") as HTMLElement;
+const claim = () => statusBar()?.querySelector("[data-site-findings-claim]")?.textContent ?? null;
 
 /** The exact value under a labelled row of the closed exact-reference disclosure. */
 function exactValue(label: string): string | null {
@@ -114,7 +117,7 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
       { domain: "mini-grid-dispatch", from: "2026-10-25T00:00:00Z", to: "2026-10-26T00:00:00Z", limit: null, cursor: null },
     ]);
     expect(state()).toBe("current-empty");
-    expect(screen.getByRole("heading", { name: "No Findings in this window" })).toBeInTheDocument();
+    expect(claim()).toBe("No Findings in this window");
     // W1-UX-02: the list reference moved into the labelled exact-reference disclosure, and the
     // per-day basis into the day strip (checked and matched).
     expect(exactValue("List reference")).toBe(TOKEN);
@@ -159,7 +162,7 @@ describe("S4-04 Site Findings index: positive rows (sitefindings:1#b)", () => {
     renderAt(PATH, client);
     await settledScreen();
     expect(state()).toBe("current-rows");
-    expect(screen.getByRole("heading", { name: "3 Findings in this window" })).toBeInTheDocument();
+    expect(claim()).toBe("3 Findings in this window");
     const rows = Array.from(document.querySelectorAll("[data-finding-index-row]"));
     expect(rows.map((r) => r.getAttribute("data-finding-index-row"))).toEqual([FID_B, FID_A]);
     const links = Array.from(document.querySelectorAll("[data-finding-index-link]"));
@@ -285,9 +288,9 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     renderAt(PATH, client);
     await settledScreen();
     expect(card().textContent).toContain("Which Findings belong to this site?");
-    expect(expectStateLineVisible(card())).toBe("Using the latest checked readings");
-    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
-    expect(card().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
+    expect(expectStateLineVisible(statusBar())).toBe("Using the latest checked readings");
+    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    expect(statusBar().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
     expect(card().querySelectorAll("[data-finding-index-row]")).toHaveLength(2);
     expect(card().querySelectorAll("[data-step-strip] [data-step]").length, "the day strip is the card's visual beside the rows").toBeGreaterThan(0);
     expect(within(card()).getByRole("link", { name: "Open the newest Finding" })).toHaveAttribute(
@@ -305,9 +308,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
       expect(outside).not.toContain(raw);
     }
     // The exact references come last in the panel.
-    const answer = card().querySelector("[data-site-findings-answer]") as HTMLElement;
-    expect(answer.lastElementChild).toBe(details);
-    expect((card().querySelector(".panel__body") as HTMLElement).lastElementChild).toBe(answer);
+    expect((card().querySelector(".panel__body") as HTMLElement).lastElementChild).toBe(details);
     w1Scans("site findings rows");
     disclosureScan("site findings rows");
   });
@@ -317,10 +318,10 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     renderAt(PATH, client);
     await settledScreen();
     expect(state()).toBe("current-empty");
-    expect(screen.getByRole("heading", { name: "No Findings in this window" })).toBeInTheDocument();
-    expect(expectStateLineVisible(card())).toBe("Checked: nothing to report");
-    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
-    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    expect(claim()).toBe("No Findings in this window");
+    expect(expectStateLineVisible(statusBar())).toBe("Checked: nothing to report");
+    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
+    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
     w1Scans("site findings empty");
     disclosureScan("site findings empty");
   });
@@ -338,10 +339,10 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     renderAt(PATH, client);
     await settledScreen();
     noClaim();
-    expect(expectStateLineVisible(card())).toBe(label);
-    expect(card().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
-    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
-    expect(screen.getByRole("heading", { name: "The Findings for this window are not known" })).toBeInTheDocument();
+    expect(expectStateLineVisible(statusBar())).toBe(label);
+    expect(statusBar().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
+    expect(claim()).toBe("The Findings for this window are not known");
     expect(screen.getByText(/This is not a statement that the window has no Findings/)).toBeInTheDocument();
     expect(dayStep("25 Oct 2026")?.getAttribute("data-step")).toBe(step);
     expect(exactValue("Recorded list state")).toBe(status);
@@ -360,13 +361,13 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     renderAt(PATH, client);
     await settledScreen();
     noClaim();
-    expect(expectStateLineVisible(card())).toBe("We cannot judge this yet");
-    expect(card().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(expectStateLineVisible(statusBar())).toBe("We cannot judge this yet");
+    expect(statusBar().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
   });
 
   /** A refused or unavailable read records no time: explicit checks instead of the timed helper. */
   function expectUntimedStateLine(label: string) {
-    const status = card().querySelector("[data-product-status]") as HTMLElement;
+    const status = statusBar().querySelector("[data-product-status]") as HTMLElement;
     expect(status).not.toBeNull();
     expect(status.getAttribute("data-product-status")).not.toBe("positive");
     expect(status.closest("details")).toBeNull();
@@ -438,12 +439,23 @@ describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings
     await settledScreen();
     expectV69Panels("sitefindings");
     const panel = card();
-    expect(panel.querySelector("[data-finding-index-window]"), "the window controls sit inside the panel").not.toBeNull();
-    const answer = panel.querySelector("[data-finding-index-state]") as HTMLElement;
-    expect(answer.getAttribute("data-finding-index-state")).toBe(expected);
-    expect(answer.querySelector("[data-product-status]"), "the state line (or in-panel gap) is inside the panel").not.toBeNull();
+    expect(state()).toBe(expected);
+    // Mock order: the compact window row (chips row), the one-line statusbar, then the panel.
+    const windowRow = document.querySelector("[data-finding-index-window]") as HTMLElement;
+    expect(windowRow.classList.contains("v69-chips"), "the window form is the mock's chips row").toBe(true);
+    expect(panel.contains(windowRow)).toBe(false);
+    expect(windowRow.compareDocumentPosition(statusBar()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(statusBar().compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(statusBar().querySelector("[data-product-status]"), "the shared state line is in the statusbar").not.toBeNull();
     expect(document.querySelector("[data-headline-card]"), "no lead card").toBeNull();
-    if (expected !== "current-rows") {
+    expect(panel.querySelector("h3"), "no answer-card blocks or headline inside the panel").toBeNull();
+    if (expected === "current-rows") {
+      expect(panel.querySelectorAll("[data-finding-index-row]").length).toBeGreaterThan(0);
+    } else {
+      // The precise gap is stated inside the panel; no rows and no count.
+      const gap = panel.querySelector("[data-site-findings-gap]") as HTMLElement;
+      expect(gap, "an in-panel gap").not.toBeNull();
+      expect((gap.textContent ?? "").length).toBeGreaterThan(20);
       expect(panel.querySelector("[data-finding-index-row]")).toBeNull();
       expect(panel.textContent).not.toMatch(/\d+ Findings? in this window/);
     }

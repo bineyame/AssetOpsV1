@@ -4462,3 +4462,84 @@ tr[data-selected] > * {
     grid-template-columns: 1fr;
   }
 }
+
+/* A shared state line set on one row inside the statusbar (W1-F3). */
+.v69-statusbar .product-status {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.v69-statusbar .product-status p {
+  margin: 0;
+}
+
+.v69-statusbar .product-status__label {
+  font-weight: 600;
+  color: #22344f;
+}
+
+/* The mock's `.button` (and `.button.primary`), compact as in the mock. */
+.v69-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 33px;
+  padding: 5px 10px;
+  border: 1px solid #cfd8e6;
+  border-radius: 5px;
+  background: #fff;
+  color: #405578;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.v69-button:hover {
+  background: #f0f4fc;
+  text-decoration: none;
+}
+
+.v69-button--primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* A compact control set in the chips row (e.g. a UTC day input), sized as a chip. */
+.v69-chip-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #5c6c86;
+  font-size: 11px;
+}
+
+.v69-chip-field input {
+  padding: 5px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  background: var(--surface-raised);
+  color: #213853;
+  font: inherit;
+  font-size: 11px;
+}
+
+/* One muted line stating an in-panel gap where the mock shows its muted table row. */
+.v69-gap-line {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.v69-gap-line + .v69-gap-line {
+  margin-top: 6px;
+}

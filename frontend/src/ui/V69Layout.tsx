@@ -130,13 +130,13 @@ export function StatusBar({
 }
 
 /**
- * The mock's `.big-claim`: the one answer sentence inside its owning panel.
- * Rendered as an h3 by default so it stays a findable heading without adding
- * an h2 panel slot.
+ * The mock's `.big-claim`: the one concise answer line inside its owning
+ * panel, only where the mock shows one (e.g. finding:1). A paragraph by
+ * default; it never stands in for a former panel or answer card.
  */
 export function BigClaim({
   children,
-  as = "h3",
+  as = "p",
   data,
 }: {
   children: ReactNode;
