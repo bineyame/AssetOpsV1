@@ -1,6 +1,6 @@
 # W1-UX-02 — Site, Finding and money presentation
 
-Status: in_review (built 2026-10-17 on `task/W1-UX-02` from main `a8cbb3d1`; packet `.agent/W1-UX-02-review-packet.md`). Branch `task/W1-UX-02`, after reviewed/merged W1-UX-01 and relevant W1 UI. Frontend only; owner walkthrough deferred to combined W1. Scope: registry IDs `sites`, `mini`, `sitefindings`, `finding`, `finding-evidence`, `finding-history`, `financials`, `assumptions`. Read the [umbrella inventory](W1-UX-mockup-fidelity.md), shared presentation packet, `frontend/mockups/v69/index.html#/<id>` and manifest entries, plus S5-01/S5-02/S4-01–05 packets for exact read boundaries.
+Status: done (merged to main 2026-10-17; review ACCEPT after fix round 1; owner visual acceptance in the combined W1 walkthrough); was in_review (built 2026-10-17 on `task/W1-UX-02` from main `a8cbb3d1`; packet `.agent/W1-UX-02-review-packet.md`). Branch `task/W1-UX-02`, after reviewed/merged W1-UX-01 and relevant W1 UI. Frontend only; owner walkthrough deferred to combined W1. Scope: registry IDs `sites`, `mini`, `sitefindings`, `finding`, `finding-evidence`, `finding-history`, `financials`, `assumptions`. Read the [umbrella inventory](W1-UX-mockup-fidelity.md), shared presentation packet, `frontend/mockups/v69/index.html#/<id>` and manifest entries, plus S5-01/S5-02/S4-01–05 packets for exact read boundaries.
 
 ## Visible result
 
