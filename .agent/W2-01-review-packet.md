@@ -49,17 +49,60 @@ Task: `tasks/W2-01-cold-foundation.md` (two phases). Branch `task/W2-01-cold-fou
 2. Gateway title identity: the store has no gateway display name, so `cold-readiness:2` uses `gateway_external_id` from `/gateway-health` (fallback "No gateway selected"); this is a current read, not as of `at`.
 3. `cold-sld:1` is the Site name alone: the Foundation declares no topology type.
 4. Site name comes from the current Site record, not the selected revision (no name field in the cold read).
-5. Readiness table areas (Site definition, chamber probe, compressor, grid, backup generator and bus, transfer switch, door/loading log, ambient) group `cold-roles-1` roles; grouping and the "(optional)" marking are presentation choices, not specified. Mock has 4 illustrative rows; the app shows 8, so the table is taller than the mock.
+5. Readiness table areas (Site definition, chamber probe, compressor, grid, backup generator and bus, transfer switch, door/loading log, manual temperature log (own row since the fix round), ambient) group `cold-roles-1` roles; grouping and the "(optional)" marking are presentation choices, not specified. Mock has 4 illustrative rows; the app shows 9, so the table is taller than the mock.
 6. Foundation panel 2 row "Door and loading observations" replaces the mock's "Loading observations": the capture tool's readiness check treats any "Loading" text as a page still loading.
-7. The configured drawing is a layered box diagram of declared nodes/edges, not the mock's bus-bar SLD; it is shorter than the mock's drawing because only declared parts are drawn. Below 760 px it keeps a readable scale and scrolls inside its own keyboard-focusable region.
+7. (Superseded by the fix round, H1.) The drawing is now the bus-bar SLD, scaled to fit at every width. Placement is by declared node role: supplies left, switch, vertical bar, cooling chain right. A part with no declared connection (the ambient probe) sits below the chain with no line. The mock's circuit breakers are not drawn: no protection is declared (G-sld-protection-metering).
 8. Gateway metric cards Availability/Data completeness/Clock show "Not available"/"Unknown" with a plain note; no MissingClaim placement was added for these cold cards (no catalogued gap ID exists for cold; the missing-claim scan passes).
 
 ## Residual risk
 
-- Prominence: SLD drawing (about 320 px at 1440 vs the mock's ~600 px) and the denser readiness table are the panels to judge from the captures.
+- Prominence: the readiness table has 9 rows against the mock's 4. That makes panel 1 about 2.1x the mock at 1440 and 1.5x at 390, although the page as a whole is within budget.
 - The generic Foundation read still answers for cold Sites (with `SITE_TYPE_UNSUPPORTED` in its gaps); only its versions list is used by the cold views.
 - Contact and gateway identity are current facts on historical periods; the panel says so.
 
 ## User-review focus
 
 Walk the three routes for COLD-001 and COLD-002 side by side with `#/cold-foundation`, `#/cold-readiness`, `#/cold-sld` (`.agent/W2-01-evidence/index.html`): top fold, panel widths/heights, the missing-probe and never-contacted wording, and that nothing reads as a temperature, cooling or backup condition.
+
+## Fix round 1 (review `.agent/W2-01-review.md` RETURN)
+
+Commits `79b07ec6`, `b3885275`, `e52d035e`. Frontend only. No backend, registry or guard file is changed: the net diff of `frontend/docs` and `frontend/src/ui/gapCatalogue.ts` against `a4e4cb10` is empty.
+
+| Finding | Fix |
+| --- | --- |
+| H1 `cold-sld` drawing | `ColdTopologyDiagram` (`SiteSingleLineDiagram.tsx`) is redrawn in the mini-grid bus-bar idiom. It uses the existing `ComponentIconShape` icons, plus three new cold shapes (`TEMPERATURE_PROBE`, `COMPRESSOR`, `TRANSFER_SWITCH`) in `componentIcons.tsx`; the mini-grid archetype table is unchanged. It reuses `wrapName`/`NAME_LINE_BUDGET`/`NAME_LINES`, so names wrap and there is no ellipsis, and the `.sld-node__bar` vertical bus. Grid meter and generator feed the transfer switch, the switch feeds the bar, and the compressor leaves the bar on the right with a dashed cooling link to the room and a dotted link to the probe. A "Monitoring" strip has one box per configured source (`bindings`). Each box carries a hollow dashed marker, titled "Reporting not assessed here", and the legend says so; no reporting dot appears anywhere. The SVG scales to fit at every width (no inner scroller). Tests: bar, icons, wrapped names, no "…", strip count and markers, and a lane/row layout unit test. |
+| M2 parts table and 390 density | The per-row "(configured) · Function description not recorded" is removed. `FUNCTION_UNKNOWN` is said once, in the footnote, and the test asserts exactly once. Readiness: the Declared detail sits under the chip as one short line, and a required gap already explained under "What is needed" is not repeated. At 640 px or narrower, cells are compact, the Area column gets a minimum width, the Confirmed and Next step cells do not wrap, and source chips are smaller. Repeated "not a live view" / "reporting unknown" sentences were dropped from the SLD panel; the page footnote keeps them. |
+| Low 3 contradiction | "Manual temperature log" has its own row ("Needs a source" / "Optional"). A Configured row with an unconfigured optional reading says "X (optional) not configured", never "No source". The test asserts no Configured row contains "No source". |
+| Low 5 availability timeline | An empty grey track sits under the gateway cards, labelled "No history to draw", with the mock's legend (Online / Short outage or missing readings / Offline 1 h or more) plus "No history". See deviation 9. |
+| Low 4 contact `state:null` | Not changed; it goes to the Architect (W2-02 batch). |
+
+Deviation 9: the brief asked for "not available yet" on the timeline. That phrase must render through a catalogued `MissingClaim` placement, and `test_mock_gaps.cjs` (Architect C5) fixes `G-readiness-gateway-uptime` at exactly one placement. Adding a cold placement is a registry change for the Architect, so the track states the plain fact "No history to draw". My first attempt added the placement; the mock-gap fixture failed it, and I withdrew it rather than edit the test.
+
+Heights (`node tools/w1-fidelity-evidence.mjs .agent/W2-01-evidence ...`, revision `e52d035e`, API 5911 and web 5912 on the private DB `assetops_w201fixcap`, seeded with the phase-1 CLI and dropped afterwards; CDP 9512; **108/108 claims passed**):
+
+| Route / case | Panel 1 at 1440 (app/mock) | Page at 390 (app/mock) |
+| --- | --- | --- |
+| cold-sld stocked | 709/702 (1.01x; was 479) | 2459/1905 (1.29x) |
+| cold-sld missing-probe | 709/702 | 2424/1905 (1.27x) |
+| cold-readiness stocked | 672/313 (9 rows vs 4) | 3144/2476 (1.27x; was 1.39x) |
+| cold-readiness missing-probe | 690/313 | 3351/2476 (1.35x, about 1.24x net of the about 275 px shell rail; was 1.46x) |
+
+At 390, the SLD drawing fits with no sideways scroll; the cold room and probes are inside the fitted drawing. Panel overflowX is 0 on all 18 captures.
+
+Checks (fix round):
+
+- `npx.cmd tsc --noEmit`: clean.
+- `coldFoundation.test.tsx`: 21 passed, including `expectV69Panels` for all 12 cases.
+- Planted failure, committed first: truncated drawing names, the per-row function text restored, and the manual log merged back into the door row. 3 tests failed; restored with `git checkout --`.
+- Full `npm.cmd test`: at `79b07ec6`, 77 files, 1978 passed. At `e52d035e`, 1977 passed and 1 failed: the known flake `siteFoundationChange` ("Unable to find ... heading Battery reserve"). Rerun alone, it gave 10/10 passed.
+- `tools/check-all.ps1 -Python <plan2 venv>`: 10/10 guards passed at `e52d035e`.
+
+Pre-review self-check:
+- The state line is said once.
+- One disclosure per panel.
+- No leftover labels or h3s.
+- No raw IDs or enums in default copy.
+- No Configured/No source contradiction.
+- The mock's table columns, monitoring strip, legend and timeline are all present.
+- The undeclared-parts and function limits stay visible.
+- Readiness rows at 390 are about 2 lines.

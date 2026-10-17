@@ -1,12 +1,12 @@
 {
-  "revision": "e5162465",
-  "captured_at": "2026-10-17T11:49:58.773Z",
+  "revision": "e52d035e",
+  "captured_at": "2026-10-17T15:34:30.152Z",
   "pairs": [
     {
       "screen": "cold-foundation",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation",
       "mock_hash": "#/cold-foundation",
       "app_image": "cold-foundation-stocked-1440-app.png",
       "mock_image": "cold-foundation-stocked-1440-mock.png",
@@ -61,7 +61,7 @@
       "screen": "cold-foundation",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation",
       "mock_hash": "#/cold-foundation",
       "app_image": "cold-foundation-stocked-390-app.png",
       "mock_image": "cold-foundation-stocked-390-mock.png",
@@ -116,7 +116,7 @@
       "screen": "cold-foundation",
       "case": "missing-probe",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-002/foundation",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation",
       "mock_hash": "#/cold-foundation",
       "app_image": "cold-foundation-missing-probe-1440-app.png",
       "mock_image": "cold-foundation-missing-probe-1440-mock.png",
@@ -171,7 +171,7 @@
       "screen": "cold-foundation",
       "case": "missing-probe",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-002/foundation",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation",
       "mock_hash": "#/cold-foundation",
       "app_image": "cold-foundation-missing-probe-390-app.png",
       "mock_image": "cold-foundation-missing-probe-390-mock.png",
@@ -226,7 +226,7 @@
       "screen": "cold-foundation",
       "case": "no-version",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/cold-foundation",
       "app_image": "cold-foundation-no-version-1440-app.png",
       "mock_image": "cold-foundation-no-version-1440-mock.png",
@@ -281,7 +281,7 @@
       "screen": "cold-foundation",
       "case": "no-version",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/cold-foundation",
       "app_image": "cold-foundation-no-version-390-app.png",
       "mock_image": "cold-foundation-no-version-390-mock.png",
@@ -336,7 +336,7 @@
       "screen": "cold-readiness",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/readiness",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness",
       "mock_hash": "#/cold-readiness",
       "app_image": "cold-readiness-stocked-1440-app.png",
       "mock_image": "cold-readiness-stocked-1440-mock.png",
@@ -353,14 +353,14 @@
             "x": 248,
             "y": 334,
             "w": 1145,
-            "h": 585
+            "h": 672
           },
           {
             "title": "Gateway status · edge-cold-001",
             "x": 248,
-            "y": 937,
+            "y": 1024,
             "w": 1145,
-            "h": 616
+            "h": 669
           }
         ],
         "overflowX": 0
@@ -395,7 +395,7 @@
       "screen": "cold-readiness",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/readiness",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness",
       "mock_hash": "#/cold-readiness",
       "app_image": "cold-readiness-stocked-390-app.png",
       "mock_image": "cold-readiness-stocked-390-mock.png",
@@ -412,14 +412,14 @@
             "x": 16,
             "y": 1052,
             "w": 358,
-            "h": 883
+            "h": 628
           },
           {
             "title": "Gateway status · edge-cold-001",
             "x": 16,
-            "y": 1952,
+            "y": 1698,
             "w": 358,
-            "h": 1374
+            "h": 1321
           }
         ],
         "overflowX": 0
@@ -454,7 +454,7 @@
       "screen": "cold-readiness",
       "case": "missing-probe",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-002/foundation/readiness",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/readiness",
       "mock_hash": "#/cold-readiness",
       "app_image": "cold-readiness-missing-probe-1440-app.png",
       "mock_image": "cold-readiness-missing-probe-1440-mock.png",
@@ -471,14 +471,14 @@
             "x": 248,
             "y": 334,
             "w": 1145,
-            "h": 585
+            "h": 690
           },
           {
             "title": "Gateway status · edge-cold-002",
             "x": 248,
-            "y": 937,
+            "y": 1042,
             "w": 1145,
-            "h": 677
+            "h": 730
           }
         ],
         "overflowX": 0
@@ -513,7 +513,7 @@
       "screen": "cold-readiness",
       "case": "missing-probe",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-002/foundation/readiness",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/readiness",
       "mock_hash": "#/cold-readiness",
       "app_image": "cold-readiness-missing-probe-390-app.png",
       "mock_image": "cold-readiness-missing-probe-390-mock.png",
@@ -530,14 +530,14 @@
             "x": 16,
             "y": 1081,
             "w": 358,
-            "h": 918
+            "h": 681
           },
           {
             "title": "Gateway status · edge-cold-002",
             "x": 16,
-            "y": 2016,
+            "y": 1780,
             "w": 358,
-            "h": 1472
+            "h": 1446
           }
         ],
         "overflowX": 0
@@ -572,7 +572,7 @@
       "screen": "cold-readiness",
       "case": "no-version",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/cold-readiness",
       "app_image": "cold-readiness-no-version-1440-app.png",
       "mock_image": "cold-readiness-no-version-1440-mock.png",
@@ -631,7 +631,7 @@
       "screen": "cold-readiness",
       "case": "no-version",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/cold-readiness",
       "app_image": "cold-readiness-no-version-390-app.png",
       "mock_image": "cold-readiness-no-version-390-mock.png",
@@ -690,7 +690,7 @@
       "screen": "cold-sld",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/sld",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld",
       "mock_hash": "#/cold-sld",
       "app_image": "cold-sld-stocked-1440-app.png",
       "mock_image": "cold-sld-stocked-1440-mock.png",
@@ -705,12 +705,12 @@
             "x": 248,
             "y": 312,
             "w": 1145,
-            "h": 481
+            "h": 709
           },
           {
             "title": "What each part does",
             "x": 248,
-            "y": 811,
+            "y": 1038,
             "w": 1145,
             "h": 514
           }
@@ -745,7 +745,7 @@
       "screen": "cold-sld",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/sld",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld",
       "mock_hash": "#/cold-sld",
       "app_image": "cold-sld-stocked-390-app.png",
       "mock_image": "cold-sld-stocked-390-mock.png",
@@ -760,14 +760,14 @@
             "x": 16,
             "y": 1052,
             "w": 358,
-            "h": 463
+            "h": 528
           },
           {
             "title": "What each part does",
             "x": 16,
-            "y": 1532,
+            "y": 1598,
             "w": 358,
-            "h": 1093
+            "h": 759
           }
         ],
         "overflowX": 0
@@ -800,7 +800,7 @@
       "screen": "cold-sld",
       "case": "missing-probe",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-002/foundation/sld",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/sld",
       "mock_hash": "#/cold-sld",
       "app_image": "cold-sld-missing-probe-1440-app.png",
       "mock_image": "cold-sld-missing-probe-1440-mock.png",
@@ -815,12 +815,12 @@
             "x": 248,
             "y": 312,
             "w": 1145,
-            "h": 545
+            "h": 709
           },
           {
             "title": "What each part does",
             "x": 248,
-            "y": 874,
+            "y": 1038,
             "w": 1145,
             "h": 469
           }
@@ -855,7 +855,7 @@
       "screen": "cold-sld",
       "case": "missing-probe",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-002/foundation/sld",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/sld",
       "mock_hash": "#/cold-sld",
       "app_image": "cold-sld-missing-probe-390-app.png",
       "mock_image": "cold-sld-missing-probe-390-mock.png",
@@ -870,14 +870,14 @@
             "x": 16,
             "y": 1081,
             "w": 358,
-            "h": 530
+            "h": 544
           },
           {
             "title": "What each part does",
             "x": 16,
-            "y": 1629,
+            "y": 1643,
             "w": 358,
-            "h": 978
+            "h": 679
           }
         ],
         "overflowX": 0
@@ -910,7 +910,7 @@
       "screen": "cold-sld",
       "case": "no-version",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/sld?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/cold-sld",
       "app_image": "cold-sld-no-version-1440-app.png",
       "mock_image": "cold-sld-no-version-1440-mock.png",
@@ -965,7 +965,7 @@
       "screen": "cold-sld",
       "case": "no-version",
       "viewport": "390x900",
-      "app_url": "http://localhost:5475/sites/COLD-001/foundation/sld?at=2026-09-01T00:00:00Z",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld?at=2026-09-01T00:00:00Z",
       "mock_hash": "#/cold-sld",
       "app_image": "cold-sld-no-version-390-app.png",
       "mock_image": "cold-sld-no-version-390-mock.png",
