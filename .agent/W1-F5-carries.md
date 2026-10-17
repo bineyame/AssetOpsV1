@@ -11,3 +11,4 @@ Fold into F5 (or a shell slice) so the owner's repeat walkthrough sees none of t
 8. F2 re-review-2 Lows: recapture Dispatch after the shared inline-status CSS change; reword "the gaps below" (EvidenceClaimLimit.tsx:110) which points into a closed row; fold the Overview money panel's two closed rows into one (1.40x).
 9. F3 merge-review Low: stray leading " ·" before "Source unverified." in the Finding "What happened" state line.
 10. F5a: Finding child-view headings ("Finding evidence", "Finding history") per-screen titles; 390 tabs wrapping to two rows (tab treatment).
+11. F5a review Low: breadcrumb shows raw Site code (e.g. KOBO-001) instead of the site name.
