@@ -571,9 +571,16 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
     expect(bridge).toHaveTextContent("0.00 to 16.20 USD");
     // W1-UX-02: the model version moved to the closed exact-reference disclosure (was "... under the reviewed
     // fuel-cost-1 assumptions. ..."); the version must not be in the default reading.
-    expect(bridge).toHaveTextContent(
-      "Modelled potential fuel-cost exposure: 0.00 to 16.20 USD, under the reviewed fuel cost assumptions. This is not measured fuel saved or a physical maximum.",
+    // W1-F3 review M4: the "Modelled potential fuel-cost exposure" line repeated the state line; the caveat is said
+    // once in the panel (the state sentence) and once in Trade-offs.
+    expect(bridge).not.toHaveTextContent("Modelled potential fuel-cost exposure");
+    expect(bridge.querySelector("[data-financials-state-line] .product-status__sentence")).toHaveTextContent(
+      "It is not measured fuel saved, money spent or a physical maximum.",
     );
+    expect(panelTitled("Trade-offs and exclusions")).toHaveTextContent("not fuel saved, not money spent, not a physical maximum");
+    // W1-F3 review H2: the mock's Confidence column and Data confidence chip, as honest unknowns.
+    expect(bridge.querySelector("[data-bridge-confidence]")).toHaveTextContent("Not assessed");
+    expect(document.querySelector("[data-financials-statusbar] [data-chip='data-confidence']")).toHaveTextContent("Data confidence: not assessed");
     expect(bridge.querySelector("[data-source-provenance='AUTHORED_DEMONSTRATION']")).toHaveTextContent("Prepared example data");
     expect(container.textContent ?? "").not.toMatch(/simulat/i);
     expect(bridge.querySelector("[data-bridge-amount]")).toHaveAttribute("data-bridge-amount", "current");
@@ -591,10 +598,14 @@ describe("Site > Financials > Overview: the S4-02b fuel cost", () => {
     expect(details).toHaveTextContent("MODELLED_CONDITIONAL");
     expect(details).toHaveTextContent("sfc_upper_multiplier = 1.10");
     expect(details).toHaveTextContent("fuel-cost-1");
-    // W1-F3: the method and its counted readings moved to "Trade-offs and exclusions" (was inside the bridge).
+    // W1-F3 review M5: the method and its counted readings are folded into the bridge's one closed disclosure
+    // (they were two more disclosures in "Trade-offs and exclusions"); each panel has one disclosure.
     expectV69Panels("financials");
-    const readings = panelTitled("Trade-offs and exclusions").querySelector("[data-consequence-reading='ev-1']") as HTMLElement;
-    expect(readings.closest("details")).not.toHaveAttribute("open");
+    const readings = details.querySelector("[data-consequence-reading='ev-1']") as HTMLElement;
+    expect(readings).not.toBeNull();
+    expect(details.querySelector("[data-consequence-method-detail]")).toHaveTextContent("The lower limit is zero.");
+    expect(panelTitled("Trade-offs and exclusions").querySelectorAll("details")).toHaveLength(0);
+    expect(bridge.querySelectorAll("details[data-exact-references]")).toHaveLength(1);
     const outside = bridge.cloneNode(true) as HTMLElement;
     outside.querySelectorAll("details").forEach((d) => d.remove());
     expect(outside.textContent ?? "").not.toMatch(/MODELLED_CONDITIONAL|POTENTIAL_FUEL_COST|c2000000|fuel-cost-1|ev-1/);
@@ -1393,7 +1404,17 @@ describe("W1-UX-02: Site > Financials (financials)", () => {
       expect(c.querySelector("[data-product-status]")).not.toHaveAttribute("data-product-status", "positive");
       expect(c.querySelector("[data-financials-headline='amount']")).toBeNull();
       expect(c.querySelector("[data-financials-headline='none']")).toHaveTextContent("No current amount is shown for this finding version");
-      expect((c.querySelector("[data-financials-why]")?.textContent ?? "").trim().length).toBeGreaterThan(0);
+      // W1-F3 review M4: the reason is said once, by the visible state sentence; a separate "Why no current amount"
+      // line appears only when it adds a stored fuel-amount or price reason.
+      const why = c.querySelector("[data-financials-why]");
+      if (value.consequence.state === "QUANTITY_UNAVAILABLE" || value.consequence.state === "UNPRICED") {
+        expect((why?.textContent ?? "").trim().length).toBeGreaterThan(0);
+      } else {
+        expect(why).toBeNull();
+      }
+      const sentence = c.querySelector("[data-financials-state-line] .product-status__sentence") as HTMLElement;
+      expect((sentence.textContent ?? "").trim().length).toBeGreaterThan(20);
+      expect(visibleOutsideClosedDisclosure(sentence)).toBe(true);
       // W1-F3 (was: never a zero bar, one not-known mark): the exposure card states a gap word, never a number.
       expectV69Panels("financials");
       const exposure = c.querySelector("[data-financials-metric='operating-cost'] .v69-metric__value") as HTMLElement;

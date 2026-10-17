@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 
 import {
   DataTable,
-  Disclosure,
   ExactReferences,
   MetricCard,
   MetricCards,
@@ -259,7 +258,11 @@ function BridgeTable({
           </td>
           <td>
             <span className="badge badge--neutral">Modelled</span>{" "}
-            {priced ? (current ? "Modelled range; not a measured saving" : "Recorded for this version; not the current cost") : revisionWhy(rev)}
+            {/* W1-F3 review M4: the "not a measured saving" caveat is said by the state line above and in Trade-offs. */}
+            {priced ? (current ? "Modelled range" : "Recorded for this version; not the current cost") : revisionWhy(rev)}
+          </td>
+          <td>
+            <ConfidenceNotAssessed />
           </td>
           <td>
             <Link to={links.finding(findingId, findingRevisionId)}>Finding version {findingRevisionNo}</Link>
@@ -278,9 +281,19 @@ function BridgeHead() {
         <th scope="col">How it becomes money</th>
         <th scope="col">Consequence</th>
         <th scope="col">Basis</th>
+        <th scope="col">Confidence</th>
         <th scope="col">Source</th>
       </tr>
     </thead>
+  );
+}
+
+/** W1-F3 review H2: the mock's Confidence column; no read assesses the confidence of a money line yet. */
+function ConfidenceNotAssessed() {
+  return (
+    <span className="badge badge--not-assessed" data-bridge-confidence data-not-assessed>
+      Not assessed
+    </span>
   );
 }
 
@@ -311,7 +324,10 @@ function BridgeOnlyTable({ bridge, links, labelledBy }: { bridge: FindingFinanci
           <td data-bridge-step="price">{bridgePriceWords(c)}</td>
           <td data-bridge-consequence="none">No current amount</td>
           <td>
-            <span className="badge badge--neutral">Modelled</span> No amount is shown; this is not zero
+            <span className="badge badge--neutral">Modelled</span> No amount shown
+          </td>
+          <td>
+            <ConfidenceNotAssessed />
           </td>
           <td>
             <Link to={links.finding(bridge.finding.id, bridge.selection.revision_id)}>Finding version {bridge.revision.revision_no}</Link>
@@ -372,8 +388,7 @@ export function consequenceReferences(
  * The method and limits of one drawn fuel cost version, in the mock's prose form for "Trade-offs and exclusions",
  * and its counted readings in their own closed table. Exact values are in `consequenceReferences`.
  */
-function HowWorkedOut({ rev, body }: { rev: ConsequenceRevision; body: FindingConsequencesBody }) {
-  const evidence = body.links.evidence_records ?? {};
+function HowWorkedOut({ rev }: { rev: ConsequenceRevision }) {
   return (
     <div className="v69-prose w1-money-method" data-consequence-method={rev.revision_no}>
       <p>
@@ -385,7 +400,19 @@ function HowWorkedOut({ rev, body }: { rev: ConsequenceRevision; body: FindingCo
           ? "The fuel use allowance is the reviewed one."
           : "The fuel use allowance is not the reviewed one, so treat this range with care."}
       </p>
-      <Disclosure summary="How the range is worked out" name={`consequence-method-${rev.revision_no}`}>
+    </div>
+  );
+}
+
+/**
+ * W1-F3 review M5: how the range is worked out and the counted readings, folded into the bridge's single
+ * "How this was worked out" disclosure (they were two more closed disclosures in Trade-offs).
+ */
+function MethodDetail({ rev, body }: { rev: ConsequenceRevision; body: FindingConsequencesBody }) {
+  const evidence = body.links.evidence_records ?? {};
+  return (
+    <>
+      <div data-consequence-method-detail={rev.revision_no}>
         <p>
           The fuel amount is a modelled upper limit: each accepted generator power reading inside the observed avoidable
           time is multiplied by its length, by the site model's fuel use per kWh, and by an allowance of{" "}
@@ -396,12 +423,12 @@ function HowWorkedOut({ rev, body }: { rev: ConsequenceRevision; body: FindingCo
           The price is the one site diesel price that covers this finding's whole time, as it was recorded. A later price
           correction adds a new fuel cost version; it never rewrites this one.
         </p>
-      </Disclosure>
+      </div>
       {rev.lineage.power_intervals.length > 0 ? (
-        <Disclosure
-          summary={`Generator power readings counted (${rev.lineage.power_intervals.length})`}
-          name={`consequence-readings-${rev.revision_no}`}
-        >
+        <div data-consequence-readings={rev.lineage.power_intervals.length}>
+          <p>
+            <strong>Generator power readings counted ({rev.lineage.power_intervals.length})</strong>
+          </p>
           <DataTable>
             <thead>
               <tr>
@@ -432,9 +459,9 @@ function HowWorkedOut({ rev, body }: { rev: ConsequenceRevision; body: FindingCo
               ))}
             </tbody>
           </DataTable>
-        </Disclosure>
+        </div>
       ) : null}
-    </div>
+    </>
   );
 }
 
@@ -473,6 +500,10 @@ export function FinancialsStatusBar({ lines, currency }: { lines: string; curren
     <StatusBar label="Financials scope" data={{ "data-financials-statusbar": "" }}>
       <span className="badge badge--neutral" data-chip="lines">
         {lines}
+      </span>
+      {/* W1-F3 review H2: the mock's "Data confidence" chip, as an honest unknown. */}
+      <span className="badge badge--not-assessed" data-chip="data-confidence" data-not-assessed>
+        Data confidence: not assessed
       </span>
       <span className="status-strip__spacer" />
       <span>
@@ -558,7 +589,7 @@ export function TradeoffsPanel({
         {gap ? <p className="v69-gap-line">{gap}</p> : null}
         {rev === null && !gap ? <p>Generator time that was needed, or that could not be judged, is never priced.</p> : null}
       </div>
-      {rev !== null && body !== null ? <HowWorkedOut rev={rev} body={body} /> : null}
+      {rev !== null && body !== null ? <HowWorkedOut rev={rev} /> : null}
     </Panel>
   );
 }
@@ -784,17 +815,14 @@ export function FindingBridge({
           <p className="v69-chart-note">
             For the finding <strong>{bridge.revision.title}</strong>.
           </p>
-          {shown && c.amount !== null && c.currency !== null ? (
-            <p className="v69-chart-note">
-              Modelled potential fuel-cost exposure: {c.amount.low} to {c.amount.high} {c.currency}, under the reviewed
-              fuel cost assumptions. This is not measured fuel saved or a physical maximum.
-            </p>
-          ) : (
+          {/* W1-F3 review M4: the state line already says why for every other state; only a missing fuel amount
+              or price adds its specific stored reason here. */}
+          {!shown && (c.state === "QUANTITY_UNAVAILABLE" || c.state === "UNPRICED") ? (
             <p className="v69-chart-note w1-money-why">
               <strong>Why no current amount: </strong>
               <span data-financials-why={c.quantity_reason ?? c.price_reason ?? c.state}>{whyNoAmount(c)}</span>
             </p>
-          )}
+          ) : null}
           {gated ? <MoneyLimit c={c} links={links} findingId={findingId} rev={rev} /> : null}
           {!shown && head && body && !gated ? (
             <p className="v69-chart-note" data-financials-recorded-pointer="true">
@@ -831,7 +859,6 @@ export function FindingBridge({
               )}
               <SourceProvenanceNotice provenance={pinned.source_provenance} subject="cost version" name="pinned" />
               <BridgeTable rev={pinned} current={false} {...tableProps} />
-              <ExactReferences name={`consequence-pinned-${pinned.revision_no}`} references={consequenceReferences(pinned, body, findingId, rev)} />
             </div>
           ) : stepHead !== null ? (
             <BridgeTable rev={stepHead} current {...tableProps} />
@@ -854,9 +881,11 @@ export function FindingBridge({
           </p>
           <ExactReferences
             name="financials-consequence"
+            // W1-F3 review M5: the panel's one disclosure, for the drawn (current or pinned) version with its method.
+            extra={drawn !== null && body !== null ? <MethodDetail rev={drawn} body={body} /> : undefined}
             references={
-              stepHead !== null && body !== null
-                ? consequenceReferences(stepHead, body, findingId, rev)
+              drawn !== null && body !== null
+                ? consequenceReferences(drawn, body, findingId, rev)
                 : [
                     { label: "Finding reference", value: findingId },
                     { label: "Finding version reference", value: rev },

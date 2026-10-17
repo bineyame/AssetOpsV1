@@ -168,6 +168,11 @@ export interface ExactReferencesProps {
   references: readonly ExactReference[];
   /** `tech`: the mock's small link-styled `details.tech`, for a strip or table foot. */
   variant?: "tech";
+  /**
+   * W1-F3 review M5 (additive): the panel's other closed detail (a method note or a counted-readings table),
+   * folded into this one disclosure so a panel carries a single "How this was worked out".
+   */
+  extra?: ReactNode;
 }
 
 /**
@@ -177,7 +182,7 @@ export interface ExactReferencesProps {
  * code never reaches it or its accessible name. Method, coverage and
  * calculation belong in the owning destination, not here.
  */
-export function ExactReferences({ name, references, variant }: ExactReferencesProps) {
+export function ExactReferences({ name, references, variant, extra }: ExactReferencesProps) {
   if (references.length === 0) return null;
   const className = variant === "tech" ? "disclosure exact-references exact-references--tech" : "disclosure exact-references";
   return (
@@ -197,6 +202,7 @@ export function ExactReferences({ name, references, variant }: ExactReferencesPr
           </div>
         ))}
       </dl>
+      {extra === undefined || extra === null ? null : <div className="disclosure__body exact-references__extra">{extra}</div>}
     </details>
   );
 }
