@@ -756,9 +756,9 @@ function PriceHistory({
             <td>Version {r.revision_no}</td>
             <td>{priceText(r)}</td>
             <td>{applies(r.authored_valid)}</td>
-            <td>
+            <td className="price-history__set-by">
               {setBy(r)}, {day(r.recorded_at)}
-              {r.correction_reason ? <small className="muted"> · Why: {r.correction_reason}</small> : null}
+              {r.correction_reason ? <small className="muted price-history__why">Why: {r.correction_reason}</small> : null}
             </td>
             <td>
               <span className="badge badge--neutral">{CHANGE_WORDS[r.change_kind] ?? "Change"}</span>{" "}

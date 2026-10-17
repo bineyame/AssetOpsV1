@@ -262,6 +262,18 @@
   vertical-align: top;
 }
 
+/* Height3 capture: the row's exact reference sits on its own line under the badge and link, so the Status
+   column never pushes past the card at 1440; the correction reason wraps under "Set by". */
 .price-history__row .exact-references--tech {
-  display: inline-block;
+  display: block;
+  margin: 2px 0 0;
+}
+
+.price-history__row td.price-history__set-by {
+  white-space: normal;
+  min-width: 12rem;
+}
+
+.price-history__why {
+  display: block;
 }
