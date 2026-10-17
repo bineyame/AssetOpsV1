@@ -1,12 +1,12 @@
 {
-  "revision": "73cb5a54",
-  "captured_at": "2026-10-17T12:38:19.022Z",
+  "revision": "0560ba33",
+  "captured_at": "2026-10-17T15:01:02.414Z",
   "pairs": [
     {
       "screen": "mini",
       "case": "p01-priced",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-23",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-10-23",
       "mock_hash": "#/mini",
       "app_image": "mini-p01-priced-1440-app.png",
       "mock_image": "mini-p01-priced-1440-mock.png",
@@ -45,14 +45,14 @@
             "x": 248,
             "y": 1386,
             "w": 725,
-            "h": 272
+            "h": 270
           },
           {
             "title": "Next step",
             "x": 991,
             "y": 1386,
             "w": 403,
-            "h": 272
+            "h": 270
           }
         ],
         "overflowX": 0
@@ -109,7 +109,7 @@
       "screen": "mini",
       "case": "p01-priced",
       "viewport": "390x900",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-23",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-10-23",
       "mock_hash": "#/mini",
       "app_image": "mini-p01-priced-390-app.png",
       "mock_image": "mini-p01-priced-390-mock.png",
@@ -125,35 +125,35 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1518,
+            "y": 1495,
             "w": 358,
             "h": 400
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 1936,
+            "y": 1914,
             "w": 358,
             "h": 667
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2619,
+            "y": 2597,
             "w": 358,
             "h": 248
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2884,
+            "y": 2861,
             "w": 358,
-            "h": 344
+            "h": 321
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 3243,
+            "y": 3198,
             "w": 358,
             "h": 226
           }
@@ -212,7 +212,7 @@
       "screen": "mini",
       "case": "p02-held",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-24",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-10-24",
       "mock_hash": "#/mini",
       "app_image": "mini-p02-held-1440-app.png",
       "mock_image": "mini-p02-held-1440-mock.png",
@@ -251,14 +251,14 @@
             "x": 248,
             "y": 1386,
             "w": 725,
-            "h": 271
+            "h": 252
           },
           {
             "title": "Next step",
             "x": 991,
             "y": 1386,
             "w": 403,
-            "h": 271
+            "h": 252
           }
         ],
         "overflowX": 0
@@ -315,7 +315,7 @@
       "screen": "mini",
       "case": "p02-held",
       "viewport": "390x900",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-24",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-10-24",
       "mock_hash": "#/mini",
       "app_image": "mini-p02-held-390-app.png",
       "mock_image": "mini-p02-held-390-mock.png",
@@ -331,35 +331,35 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1518,
+            "y": 1495,
             "w": 358,
             "h": 433
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 1969,
+            "y": 1947,
             "w": 358,
             "h": 667
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2652,
+            "y": 2630,
             "w": 358,
             "h": 248
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2917,
+            "y": 2894,
             "w": 358,
-            "h": 342
+            "h": 339
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 3275,
+            "y": 3249,
             "w": 358,
             "h": 226
           }
@@ -418,7 +418,7 @@
       "screen": "mini",
       "case": "unassessed",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-11-10",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-11-10",
       "mock_hash": "#/mini",
       "app_image": "mini-unassessed-1440-app.png",
       "mock_image": "mini-unassessed-1440-mock.png",
@@ -436,35 +436,35 @@
             "x": 248,
             "y": 499,
             "w": 1145,
-            "h": 260
+            "h": 244
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 777,
+            "y": 761,
             "w": 725,
             "h": 404
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 777,
+            "y": 761,
             "w": 403,
             "h": 404
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1199,
+            "y": 1182,
             "w": 725,
-            "h": 178
+            "h": 176
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1199,
+            "y": 1182,
             "w": 403,
-            "h": 178
+            "h": 176
           }
         ],
         "overflowX": 0
@@ -521,7 +521,7 @@
       "screen": "mini",
       "case": "unassessed",
       "viewport": "390x900",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-11-10",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-11-10",
       "mock_hash": "#/mini",
       "app_image": "mini-unassessed-390-app.png",
       "mock_image": "mini-unassessed-390-mock.png",
@@ -537,35 +537,35 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1554,
+            "y": 1531,
             "w": 358,
-            "h": 354
+            "h": 344
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 1926,
+            "y": 1894,
             "w": 358,
             "h": 336
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2278,
+            "y": 2246,
             "w": 358,
             "h": 404
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2698,
+            "y": 2666,
             "w": 358,
-            "h": 217
+            "h": 194
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 2931,
+            "y": 2876,
             "w": 358,
             "h": 154
           }
@@ -624,7 +624,7 @@
       "screen": "mini",
       "case": "failed",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-07",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-10-07",
       "mock_hash": "#/mini",
       "app_image": "mini-failed-1440-app.png",
       "mock_image": "mini-failed-1440-mock.png",
@@ -663,14 +663,14 @@
             "x": 248,
             "y": 1262,
             "w": 725,
-            "h": 178
+            "h": 176
           },
           {
             "title": "Next step",
             "x": 991,
             "y": 1262,
             "w": 403,
-            "h": 178
+            "h": 176
           }
         ],
         "overflowX": 0
@@ -727,7 +727,7 @@
       "screen": "mini",
       "case": "failed",
       "viewport": "390x900",
-      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-07",
+      "app_url": "http://localhost:5800/sites/KOBO-001?date=2026-10-07",
       "mock_hash": "#/mini",
       "app_image": "mini-failed-390-app.png",
       "mock_image": "mini-failed-390-mock.png",
@@ -743,35 +743,35 @@
           {
             "title": "What happened in the selected hour",
             "x": 16,
-            "y": 1592,
+            "y": 1569,
             "w": 358,
             "h": 287
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 1897,
+            "y": 1874,
             "w": 358,
             "h": 336
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2249,
+            "y": 2227,
             "w": 358,
             "h": 454
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2719,
+            "y": 2697,
             "w": 358,
-            "h": 215
+            "h": 212
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 2950,
+            "y": 2925,
             "w": 358,
             "h": 154
           }

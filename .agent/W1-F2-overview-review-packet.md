@@ -246,3 +246,42 @@ Low 7e: the 390 dispatch coverage table scrolls inside `DataTable`'s `.data-tabl
    - money: the note-size state line and the source line remain.
 3. **Evidence Analysis records is 1.70x** (Low 7a: the not-accepted facts are now one note line). The two closed "Advanced details" rows were not merged.
 4. **The list as-of moved into a reference (M3).** The Needs attention list's own "as of" (`knowledge_at`) is now the exact reference "List known as of" inside the list's closed disclosure. The visible state is the statusbar's.
+
+## Fix round 2 (`.agent/W1-F2-rereview.md`, RETURN at `f2163bef`)
+Code commits: `d30c585a` (findings 1, 2 and Low 3), then one follow-up for the no-day state. The follow-up was found by the full run: the no-day line still said "No assessment exists" through the inline `ProductStatus` sentence.
+
+| Finding | Fix | Where |
+| --- | --- | --- |
+| M1 limits panel | One closed top-level `evidence-limit-details` row is the panel's last child. It holds a slot that receives the loaded assessment's detail (portalled through `detailTarget`), the list of limits and the technical rows. Standalone use (`detailTarget` undefined) keeps the `claim-limit-detail` disclosure. The physical-capacity sentence is appended to `[data-evidence-limit-note]` and is visible. The Dispatch link ends the result line. No-day, unavailable and refused states are one inline line. No-day now reads "No assessment selected: nothing is concluded. Choose a day, then one of its assessed periods." and has no block card, no "As of" line and no "No assessment exists". | `EvidenceClaimLimit.tsx`, `LedgerSiteEvidence.tsx` `ClaimLimit` |
+| M2 inline status | `.product-status--inline` resets padding, border, radius and background and inherits font size, children included. | `primitives.css` |
+| Low 3 records | `evidence-not-accepted` nests inside `evidence-records-technical`. | `LedgerSiteEvidence.tsx` |
+
+### Moved assertions (none weakened)
+- `v01bEvidenceVisual` nested-disclosure pairs: `evidence-records-technical` now also holds `evidence-not-accepted`. The analysis pair's outer is now `evidence-limit-details`, with inner `evidence-limit-list`, `evidence-analysis-technical`, `evidence-analysis-status`, `evidence-comparison` and `evidence-gateway`. The named-disclosure loop is unchanged.
+- `evidenceClaimLimit` standalone tests are unchanged.
+
+### New assertions
+- `v01bEvidenceVisual` limits: exactly one top-level `details` in the panel, closed, named `evidence-limit-details`, containing the list of limits. The not-available line and the capacity note are outside any `details`; the note contains "not the equipment's physical capacity".
+- No-day state: "nothing is concluded" occurs once, "No assessment selected" and "Choose a day, then one of its assessed periods." are present, "No assessment exists" is absent, and there is no `.product-status:not(.product-status--inline)`. This assertion failed on the first full run and drove the follow-up commit.
+- `evidenceClaimLimit` (loaded, with the slot): one closed top-level row holding the RoleStrip and the limit list; no `claim-limit-detail`; headline, not-available line and note are outside any `details`; the Dispatch link is inside `.claim-limit__result`.
+
+### Checks (final code revision: see git log; captures at that revision)
+- `npx.cmd tsc --noEmit`: clean.
+- Full `npm.cmd test` before the follow-up: 76 files, 1986 passed, 1 failed (the no-day assertion above). After the fix, `v01bEvidenceVisual` and `evidenceClaimLimit`: 69 passed. No other file changed after the full run.
+- `tools/check-all.ps1`: all 10 guards passed.
+- Captures with `tools/w1-fidelity-evidence.mjs` at 1440 and 390: mini 48/48 (API 9400, web 5800, CDP 9410), evidence 60/60 (API 9420, web 5820, CDP 9411). Fixtures dropped (`assetops_s501_owner_w1f2b`, `assetops_s302_w1f2b` and their `var` folders) and servers stopped. The s501 and s302 tools were run with the venv interpreter and `PYTHONPATH`; the s501 `prepare` used a scratchpad wrapper that renames the F01-gateway pipe to `assetops-s4-cases-gateway-w1f2b`, because another session's gateway holds the default pipe name (the repo is unchanged).
+
+### Panel heights at 1440 (app h / mock h)
+| Screen / case | Panels |
+| --- | --- |
+| mini p01 priced | happened 333/238=1.40, context+attention 518/373=1.39, money+next 270/193=1.40 |
+| mini p02 held | 333/238=1.40, 518/373=1.39, 252/193=1.31 |
+| mini unassessed | 244/238=1.03, 404/373=1.08, 176/193=0.91 |
+| mini failed | 236/238=0.99, 454/373=1.22, 176/193=0.91 |
+| evidence stocked | conclude 483/387=1.25, sources 497/387=1.28 |
+| evidence no readings | 457/387=1.18, 480/387=1.24 |
+| evidence-analysis supported | records 436/266=1.64, limits 266/148=1.80 |
+| evidence-analysis limited | 436/266=1.64, 266/148=1.80 |
+| evidence-analysis no selection | 436/266=1.64, 241/148=1.63 |
+
+The limits panel went from 2.16-2.45x to 1.63-1.80x (the re-review expected 1.5-1.7x); what remains is the honest result line, the not-available line and the one closed row, none of which the mock has. Dispatch and analysis captures are unchanged (no source change since their last capture).
