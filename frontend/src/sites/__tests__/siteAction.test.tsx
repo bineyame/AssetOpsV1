@@ -19,6 +19,9 @@
  * 7. (reopen round) the recorded accepted read with the recorded
  *    `prior_action_block` of `latest_revision_after_apply` added: the server may
  *    send a block while `state=ACCEPTED`, and the notice follows `state` only.
+ * 8. (W1-F4) the verification history read beside History: the recorded
+ *    `s6_verification_api_contract.json` history with its placeholder outcome
+ *    and resolution IDs made distinct and its Action ID set to this Action.
  * Every other body is served exactly as recorded, including the reopen cases
  * `latest_revision_after_apply`, `latest_revision_after_apply_served_clock_stale`
  * and `accept_newer_revision_prior_action_unresolved` (D-2026-10-15-s601-reopen).
@@ -32,9 +35,11 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
+import verificationContract from "../../../../backend/tests/fixtures/s6_verification_api_contract.json";
 import { SiteActionFrame, SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible } from "../../test/productPresentation";
+import { panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -387,10 +392,27 @@ describe("Recommendation (recommendation:1#a)", () => {
 });
 
 /** Overview/Application/History read both the Action and its events with the same selector. */
+/** Derived (8): the recorded verification history, with distinct placeholder IDs, for this Action. */
+function verificationHistory(): Served {
+  const h = structuredClone((verificationContract as any).responses.history);
+  h.action_id = ACTION;
+  h.outcomes.forEach((o: any, i: number) => {
+    o.outcome_id = `outcome-${i + 1}`;
+    o.action_id = ACTION;
+  });
+  h.resolution_events.forEach((r: any, i: number) => {
+    r.id = `resolution-${i + 1}`;
+    r.verification_outcome_id = "outcome-1";
+  });
+  return { status: 200, body: h };
+}
+
 function actionReads(action: Case | Served, events: Case | Served, query = "") {
   return {
     [`${ACTION_API}${query}`]: "request" in action ? served(action) : action,
     [`${ACTION_API}/events${query}`]: "request" in events ? served(events) : events,
+    // W1-F4: History also reads the verification outcome history; it takes no event selector.
+    [`${ACTION_API}/verification/history`]: verificationHistory(),
   };
 }
 
@@ -441,7 +463,8 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
       const w1 = scanProductVocabulary(main, "action-overview (W1)", { set: "w1" });
       expect(w1.scanned).toBeGreaterThan(10);
       expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-      const card = q("[data-headline-card='action-state']") as HTMLElement;
+      // W1-F4: the former answer card is merged into the single "Action scope" panel.
+      const card = panelTitled("Action scope");
       const disclosure = scanDisclosureVocabulary(card, "action-overview disclosure");
       expect(disclosure.disclosures).toBe(1);
       expect(disclosure.scanned).toBeGreaterThan(4);
@@ -449,7 +472,10 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
       const shown = expectStateLineVisible(card);
       if (label !== null) expect(shown).toBe(label);
       expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
-      expect(card.querySelectorAll("[data-step]")).toHaveLength(3);
+      // W1-F4: the three-step strip became the Action (accepted time), Application and Outcome key values.
+      expect(card.querySelector("[data-key-value='action']")?.textContent).toMatch(/accepted \d/);
+      expect(card.querySelector("[data-key-value='application'] [data-action-application-words]")).not.toBeNull();
+      expect(card.querySelector("[data-key-value='outcome'] [data-product-status-label]")?.textContent).toBe(shown);
       view.unmount();
     }
   });
@@ -460,12 +486,13 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     serve(actionReads(verified as typeof base, hi.events_latest));
     mount(`/sites/KOBO-001/actions/${ACTION}`);
     await settledScreen();
-    const card = q("[data-headline-card='action-state']") as HTMLElement;
+    const card = panelTitled("Action scope");
     expect(expectStateLineVisible(card)).toBe("Target met within the sampled limits");
     expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
     expect(card.querySelector("[data-action-outcome-source-note]")?.textContent).toMatch(/no savings or realized benefit is\s+claimed/);
     expect(card.querySelector("[data-action-verification-link]")?.getAttribute("href")).toContain("/verification");
-    expect(card.querySelector("[data-step='done']")).not.toBeNull();
+    // W1-F4: the step strip's done step is now the outcome badge, in the limited (amber) tone, never green.
+    expect(card.querySelector("[data-key-value='outcome'] .w1f4-action-badge--amber")).not.toBeNull();
   });
 
   it("Application lists ACCEPTED, OBSERVED, FAILED and APPLIED with actor, provenance, effective revision and change record", async () => {
@@ -483,7 +510,9 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     expect(q("[data-action-event-change]")?.textContent).toBe(change.change_id);
     expect(q("[data-action-event-effective-revision]")?.textContent).toBe(change.new_foundation_revision_id);
     expect(document.body.textContent).toMatch(/assetops-backend\/action-api/);
-    expect(qa("[data-action-event-kind] td:nth-child(4)").every((td) => /SYSTEM demonstration/.test(td.textContent ?? ""))).toBe(true);
+    // W1-F4: the actor is its own named cell in the Activity log (Record | State | Evidence | Recorded | Acted by).
+    expect(qa("[data-action-event-kind] [data-action-event-actor]")).toHaveLength(events.length);
+    expect(qa("[data-action-event-kind] [data-action-event-actor]").every((td) => /SYSTEM demonstration/.test(td.textContent ?? ""))).toBe(true);
     expect(q("[data-action-already-applied]")).not.toBeNull();
     expect(screen.queryByRole("button")).toBeNull();
     expect(q("[data-action-section='execution']")).toHaveAttribute("aria-current", "page");
@@ -500,7 +529,8 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     });
     mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
     await settledScreen();
-    expect(q("[data-action-application-words]")?.textContent).toBe("Not applied yet");
+    // W1-F4: the Activity log states the application on its state word (the Overview keeps data-action-application-words).
+    expect(q("[data-action-work-headline]")?.textContent).toBe("Not applied yet");
     const apply = () => fireEvent.click(screen.getByRole("button", { name: "Apply trial (SYSTEM demonstration)" }));
 
     apply();
@@ -520,7 +550,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     apply();
     await waitFor(() => expect(q("[data-action-command-done='applied']")).not.toBeNull());
     await settledScreen();
-    expect(q("[data-action-application-words]")?.textContent).toBe("Applied to the Site Foundation");
+    expect(q("[data-action-work-headline]")?.textContent).toBe("Applied; effect not yet measured");
 
     const posts = s.requests.filter((r) => r.method === "POST");
     expect(posts).toHaveLength(3);
@@ -711,7 +741,9 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     mount(path);
     await settledScreen();
     expect(q("[data-action-selection-notice='EVENT_ID']")).not.toBeNull();
-    const gets = s.requests.filter((r) => r.method === "GET").map((r) => r.url);
+    // W1-F4: the verification history read is unselected (never cut to the event); every Action read keeps the selector.
+    const gets = s.requests.filter((r) => r.method === "GET" && !r.url.includes("/verification/")).map((r) => r.url);
+    expect(gets.length).toBeGreaterThan(0);
     expect(gets.every((url) => url.includes(`event_id=${ACCEPTED_EVENT}`) && !url.includes("recorded_at"))).toBe(true);
     expect(s.unmatched).toEqual([]);
   });
@@ -734,7 +766,9 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     mount(path);
     await settledScreen();
     expect(q("[data-action-selection-notice='RECORDED_AT']")).not.toBeNull();
-    const gets = s.requests.filter((r) => r.method === "GET").map((r) => decodeURIComponent(r.url));
+    // W1-F4: as above, the unselected verification history read is excluded; every Action read keeps the cutoff.
+    const gets = s.requests.filter((r) => r.method === "GET" && !r.url.includes("/verification/")).map((r) => decodeURIComponent(r.url));
+    expect(gets.length).toBeGreaterThan(0);
     expect(gets.every((url) => url.includes(`recorded_at=${OBSERVED_CUTOFF}`) && !url.includes("event_id"))).toBe(true);
     expect(s.unmatched).toEqual([]);
   });
@@ -774,8 +808,10 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     });
     mount(`/sites/OTHER-001/actions/${ACTION}`);
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Action not found" })).toBeInTheDocument();
+    // W1-F4: a page-level refusal (not a heading or panel) before the view's panel slot, which keeps its gap.
+    expect(q("[data-page-refusal='action'] .page-refusal__title")?.textContent).toBe("Action not found");
     expect(q("[data-action-read='refused']")?.getAttribute("data-action-http")).toBe("404");
+    expect(q("[data-panel-gap='action-unread']")?.closest("section.panel")?.querySelector("h2")?.textContent).toBe("Action scope");
     expect(qa("[data-action-event]")).toHaveLength(0);
   });
 
@@ -786,8 +822,10 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     serve({ [unknown.request.path]: served(unknown), [`${ACTION_API}/events${query}`]: served(unknown), ...actionReads(ov.accepted_pending, hi.events_latest) });
     mount(`/sites/KOBO-001/actions/${ACTION}/history${query}`);
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Selected event not found" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Action not found" })).toBeNull();
+    // W1-F4: a page-level refusal title, not a heading; the Action-not-found refusal is absent.
+    expect(q("[data-page-refusal='selection-not-found'] .page-refusal__title")?.textContent).toBe("Selected event not found");
+    expect(q("[data-page-refusal='action']")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/Action not found/);
     expect(document.body.textContent).not.toMatch(/no such action/i);
     expect(q("[data-action-read='selection-not-found']")?.getAttribute("data-action-code")).toBe("ACTION_EVENT_NOT_FOUND");
     const latest = q("[data-action-open-latest]") as HTMLAnchorElement;
@@ -806,7 +844,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
   });
 });
 
-describe("W1-UX-04 phase 1: Application and History answer cards", () => {
+describe("W1-UX-04 phase 1 (W1-F4: merged into the v69 panels): Application and History state", () => {
   function w1Scan(page: string) {
     const main = document.body.querySelector("main") as HTMLElement;
     const w1 = scanProductVocabulary(main, page, { set: "w1" });
@@ -823,13 +861,16 @@ describe("W1-UX-04 phase 1: Application and History answer cards", () => {
       const view = mount(`/sites/KOBO-001/actions/${ACTION}/execution`);
       await settledScreen();
       w1Scan(`action-execution (W1) ${label}`);
-      const card = q("[data-headline-card='action-work']") as HTMLElement;
+      // W1-F4: the former "Work done" card is merged into the single "Activity log" panel.
+      const card = panelTitled("Activity log");
       expect(expectStateLineVisible(card)).toBe(label);
       expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe(tone);
       const disclosure = scanDisclosureVocabulary(card, "action-execution disclosure");
       expect(disclosure.disclosures).toBe(1);
       expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
-      expect(card.querySelectorAll("[data-step]")).toHaveLength(4);
+      // W1-F4: the four-step strip became the Application, Attempts and Trial outcome key values.
+      expect(card.querySelector("[data-key-value='attempts']")?.textContent).toMatch(/\d+ recorded, \d+ failed/);
+      expect(card.querySelector("[data-key-value='trial']")).not.toBeNull();
       expect(card.querySelector("[data-action-work-verification-link]")?.getAttribute("href")).toContain("/verification");
       expect(card.textContent).not.toMatch(/saving (?:of|was|is achieved)|reduced generator|verified/i);
       view.unmount();
@@ -841,9 +882,10 @@ describe("W1-UX-04 phase 1: Application and History answer cards", () => {
     let view = mount(`/sites/KOBO-001/actions/${ACTION}/history`);
     await settledScreen();
     w1Scan("action-history (W1) latest");
-    let card = q("[data-headline-card='action-history']") as HTMLElement;
+    // W1-F4: the former History card is merged into the single "Action history" panel; its step strip is the table.
+    let card = panelTitled("Action history");
     expect(expectStateLineVisible(card)).toBe("Every recorded event");
-    expect(card.querySelectorAll("[data-step]").length).toBe((hi.events_latest.body.events as unknown[]).length);
+    expect(card.querySelectorAll("[data-action-event]").length).toBe((hi.events_latest.body.events as unknown[]).length);
     view.unmount();
 
     // Derived events read, as in the exact event_id test above: the latest events through the ACCEPTED event.
@@ -852,7 +894,7 @@ describe("W1-UX-04 phase 1: Application and History answer cards", () => {
     serve(actionReads(hi.action_event_id_accepted, events, `?event_id=${ACCEPTED_EVENT}`));
     view = mount(`/sites/KOBO-001/actions/${ACTION}/history?event_id=${ACCEPTED_EVENT}`);
     await settledScreen();
-    card = q("[data-headline-card='action-history']") as HTMLElement;
+    card = panelTitled("Action history");
     const shown = expectStateLineVisible(card);
     expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
     expect(shown).not.toMatch(/current/i);
