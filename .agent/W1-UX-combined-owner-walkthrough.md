@@ -1158,9 +1158,8 @@ These are not defects in W1. They are choices the reviews left for you. Mark eac
 11. **The single-line diagram at phone width.** At 390 px the diagram is wider than the screen, so it scrolls sideways inside its own box. The page itself does not scroll sideways.
 12. **A Recommendation whose read is unavailable is labelled as held.** In the Action case it reads "Held: an earlier trial is still open". Check that this is the wording you want for that case.
 13. **Dispatch Analysis addresses.** The Dispatch tool prints only the day address, so open Analysis from the page's own link rather than typing an address.
+14. **Menu height and status text size at phone width.** At 390 px the full menu sits above the page and is about 575 px tall, and the "Not available yet" status text is small (9 px, readable contrast). Judge whether the menu should collapse on phones or the status text be larger.
 
 ## Gate
-
-14. **Menu height and status text size at phone width.** At 390 px the full menu sits above the page and is about 575 px tall, and the "Not available yet" status text is small (9 px, readable contrast). Judge whether the menu should collapse on phones or the status text be larger.
 
 W1 closes only after you have walked this script and recorded your acceptance. Screenshots and passing checks do not count as acceptance, and nothing in this script promotes a screen or panel.
