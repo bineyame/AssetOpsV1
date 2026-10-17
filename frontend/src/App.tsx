@@ -49,6 +49,7 @@ import {
   SITE_FOUNDATION_VIEW_ROUTE_PATH,
 } from "./shell/operatorSiteRoutes";
 import type { RunSetupClient } from "./shell/runSetupClient";
+import type { ColdScenarioChoiceClient } from "./shell/coldScenarioChoiceClient";
 import type { ScenarioCatalogClient } from "./shell/scenarioCatalogClient";
 import {
   simulatorLabRoutes,
@@ -165,6 +166,8 @@ export interface AppProps {
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
   now?: () => Date;
+  /** W2-02: the gated cold-chain choice read; still gated by `flags`. */
+  coldScenarios?: ColdScenarioChoiceClient;
 }
 
 export function App({
@@ -183,6 +186,7 @@ export function App({
   coldFoundation = defaultColdFoundation,
   siteTemplateLineage,
   now,
+  coldScenarios,
 }: AppProps) {
   // Resolved once from the gate: closed, the site surfaces get no lineage read
   // and show the recorded template alone.
@@ -349,6 +353,7 @@ export function App({
         siteDirectory,
         templateLineage,
         siteFoundation,
+        coldScenarios,
       ).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}

@@ -5,6 +5,11 @@ import type { FeatureFlags } from "../config/featureFlags";
 import type { NavRailItem } from "../ui";
 import { CreateSiteFrame } from "./CreateSiteFrame";
 import { RunFrame } from "./RunFrame";
+import { ColdRunSetupFrame } from "./ColdRunSetupFrame";
+import {
+  createColdScenarioChoiceClient,
+  type ColdScenarioChoiceClient,
+} from "./coldScenarioChoiceClient";
 import { RunSetupFrame } from "./RunSetupFrame";
 import { RunsFrame } from "./RunsFrame";
 import { ScenarioFrame } from "./ScenarioFrame";
@@ -102,6 +107,10 @@ export const RUN_SETUP_PATH = `${SCENARIO_DETAIL_PATH}/run-setup`;
  *  reached from a row. */
 export const RUNS_PATH = `${SIMULATOR_LAB_PATH}/runs`;
 export const RUN_DETAIL_PATH = `${RUNS_PATH}/:runId`;
+
+/** W2-02: the cold-chain run setup. Site first, then the registered cold
+ *  choices for that Site; it never enters the legacy scenario run setup. */
+export const COLD_RUN_SETUP_PATH = `${SIMULATOR_LAB_PATH}/cold-run-setup`;
 
 /** The gated template and create APIs, spelled here for the same chokepoint
  *  reason. The operator Sites API is not a simulator path and is not spelled
@@ -258,6 +267,7 @@ export function simulatorLabRoutes(
   siteDirectory: SiteDirectoryClient = defaultSiteDetail,
   templateLineage?: SiteTemplateLineageClient,
   siteFoundation?: Pick<SiteFoundationClient, "getFoundation">,
+  coldScenarios?: ColdScenarioChoiceClient,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -281,6 +291,7 @@ export function simulatorLabRoutes(
         <SimulatorLabFrame
           siteTemplatesPath={SITE_TEMPLATES_PATH}
           addSiteEntryPoints={simulatorLabAddSiteEntryPoints(flags)}
+          coldRunSetupPath={COLD_RUN_SETUP_PATH}
         />,
       ),
     },
@@ -373,6 +384,24 @@ export function simulatorLabRoutes(
           simulatorLabPath={SIMULATOR_LAB_PATH}
           scenarioHref={scenarioHref}
           {...(now === undefined ? {} : { now })}
+          {...(siteFoundation === undefined ? {} : { siteFoundation })}
+        />,
+      ),
+    },
+    {
+      path: COLD_RUN_SETUP_PATH,
+      element: inLabShell(
+        <ColdRunSetupFrame
+          siteDirectory={siteDirectory}
+          siteDetail={siteDetail}
+          {...(templateLineage === undefined ? {} : { templateLineage })}
+          // Built here rather than at module load: the client module imports
+          // its API path from this one.
+          coldScenarios={
+            coldScenarios ?? createColdScenarioChoiceClient(COLD_SCENARIOS_API_PATH)
+          }
+          runSetup={runSetup}
+          simulatorLabPath={SIMULATOR_LAB_PATH}
           {...(siteFoundation === undefined ? {} : { siteFoundation })}
         />,
       ),

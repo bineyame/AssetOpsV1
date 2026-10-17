@@ -480,6 +480,8 @@ describe("simulator lab gate: enabled", () => {
       "/simulator-lab/runs",
       "/simulator-lab/runs/:runId",
       "/simulator-lab/scenarios/:scenarioId/run-setup",
+      // W2-02: the cold-chain run setup, beside the legacy one.
+      "/simulator-lab/cold-run-setup",
     ]);
   });
 
@@ -815,6 +817,8 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       // its label, so this is still one flow behind one chokepoint and still
       // not a run, an inspection, a rerun, or a comparison.
       ["/simulator-lab/create-site", "+ Add site"],
+      // W2-02: the Lab's way into the cold-chain run setup.
+      ["/simulator-lab/cold-run-setup", "Set up a cold-chain run"],
       ["/", "Back to the operator shell"],
     ]);
   });

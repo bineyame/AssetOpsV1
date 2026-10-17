@@ -1030,7 +1030,7 @@ export function RunSetupFrame({
  * record. A site whose Foundation version could not be read can be picked, and
  * Create then stays disabled with that reason.
  */
-function SitePicker({
+export function SitePicker({
   sites,
   siteDetails,
   lineage,
@@ -1089,7 +1089,7 @@ function SitePicker({
 /**
  * Why a registered Site's basis is not available for this start, or null.
  */
-function registeredBasisProblem(
+export function registeredBasisProblem(
   startTime: string,
   read: FoundationRead<FoundationReadModel> | null,
 ): string | null {
@@ -1125,7 +1125,7 @@ function registeredBasisProblem(
  * Setup selects it again and checks it covers the whole interval; this read is
  * what the Draft will freeze when it does.
  */
-function RegisteredBasisFacts({ model }: { model: FoundationReadModel }) {
+export function RegisteredBasisFacts({ model }: { model: FoundationReadModel }) {
   const snapshot = model.acquisition_snapshot;
   const bindings = model.bindings.binding_set;
   return (
@@ -1227,7 +1227,7 @@ function SitePickerRow({
  * summary for the draft that was just created and it is addressed by nothing:
  * there is no link to it, because a surface to link to does not exist yet.
  */
-function CreatedDraft({ run }: { run: RunSummary }) {
+export function CreatedDraft({ run }: { run: RunSummary }) {
   const blocked = run.execution_status === "BLOCKED";
 
   return (
@@ -1377,7 +1377,7 @@ function CreatedDraft({ run }: { run: RunSummary }) {
  * S2-01b: a plain lead-in for the two publication-profile refusals a
  * registered Draft can meet; every other refusal's message stands alone.
  */
-function refusalLabel(kind: string | null): string | null {
+export function refusalLabel(kind: string | null): string | null {
   if (kind === "PUBLICATION_PROFILE_REQUIRES_REGISTERED_SITE") {
     return "This publication profile needs a registered Site. ";
   }
