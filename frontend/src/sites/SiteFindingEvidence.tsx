@@ -18,7 +18,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import {
   DataTable,
   Disclosure,
-  ExactReferences,
   Fact,
   FactList,
   MissingClaim,
@@ -253,6 +252,8 @@ export function SiteFindingEvidence({
             <Records body={body} selected={selectedRecord} search={search} />
           </Disclosure>
           <Assessments body={body} links={links} />
+          {/* W1-F3 review M5: the exact references join the bundle's one disclosure; the lineage panel has none. */}
+          <Destinations body={body} />
         </Disclosure>
       </Panel>
       <Panel
@@ -263,12 +264,11 @@ export function SiteFindingEvidence({
         <Lineage body={body} />
         {selectedRecord === null ? (
           <p className="v69-gap-line" data-evidence-no-record-selected>
-            Choose a record&apos;s reference in the evidence bundle to follow its full trail here.
+            Open &lsquo;How this was worked out&rsquo; above and choose a record to follow its trail.
           </p>
         ) : (
           <RecordLineage body={body} evidenceId={selectedRecord} links={links} closeSearch={search({ record: null })} />
         )}
-        <Destinations body={body} />
       </Panel>
     </div>
   );
@@ -422,7 +422,12 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
   const { selection } = body;
   const no = selection.revision_no;
   const lifecycle = LIFECYCLE_WORDS[body.revision.lifecycle];
-  const words = selectionWords(body);
+  // W1-F3 review M4: the label says "latest", the scope says the version once; the sentence only says where currentness lives.
+  const base = selectionWords(body);
+  const words =
+    body.audit_only || !selection.is_latest
+      ? base
+      : { ...base, sentence: "Whether it is up to date is shown on the Finding's own page." };
   const notSupported = lifecycle !== undefined && body.revision.lifecycle !== "SUPPORTED";
   return (
     <div className="site-finding__state v69-state-line" data-evidence-state>
@@ -430,7 +435,20 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
         {evidenceHeadline(body)}
       </strong>
       <span aria-hidden="true"> · </span>
-      <ProductStatus inline words={words} scope={`Version ${no} of this Finding`} asOf={body.revision.recorded_at}>
+      <ProductStatus
+        inline
+        words={words}
+        scope={
+          !selection.is_latest ? (
+            `Version ${no} of this Finding`
+          ) : selection.selected_by === "LATEST_RECORDED" ? (
+            <span data-evidence-latest-at-read>Version {no} of this Finding</span>
+          ) : (
+            <span data-evidence-pinned-latest>Version {no} of this Finding</span>
+          )
+        }
+        asOf={body.revision.recorded_at}
+      >
         {notSupported ? (
           <span className="site-finding__lead" data-evidence-lifecycle={body.revision.lifecycle}>
             {" "}
@@ -453,17 +471,13 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
             <Link to={links.evidence(selection.latest_revision_id)}>Open the latest version&apos;s evidence</Link>
           </span>
         ) : selection.selected_by === "LATEST_RECORDED" ? (
-          <span data-evidence-latest-at-read>
+          <span>
             {" "}
-            Latest version at the time of reading (version {no}). A version recorded later would replace it on
-            reload.{" "}
             <Link to={links.evidence(selection.revision_id)} data-evidence-pin>
               Keep this exact version
             </Link>
           </span>
-        ) : (
-          <span data-evidence-pinned-latest> Version {no}, the latest recorded version, opened by its exact reference.</span>
-        )}
+        ) : null}
         {lifecycle === undefined || notSupported ? null : (
           <span data-evidence-lifecycle={body.revision.lifecycle}>
             {" "}
@@ -483,14 +497,6 @@ function DestinationLinks({ body, links }: { body: FindingEvidenceBody; links: S
         <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
           Back to this version of the Finding
         </Link>
-        {links.history ? (
-          <>
-            {" · "}
-            <Link to={links.history(selection.revision_id)} data-evidence-to-history>
-              See version {selection.revision_no} in the Finding&apos;s history
-            </Link>
-          </>
-        ) : null}
       </span>
   );
 }
@@ -499,8 +505,7 @@ function DestinationLinks({ body, links }: { body: FindingEvidenceBody; links: S
 function Destinations({ body }: { body: FindingEvidenceBody }) {
   const { selection } = body;
   return (
-      <ExactReferences
-        name="finding-evidence-references"
+      <ReferenceList
         references={[
           { label: "Finding reference", value: body.finding.id },
           { label: "Shown version reference", value: selection.revision_id },
@@ -508,8 +513,32 @@ function Destinations({ body }: { body: FindingEvidenceBody }) {
           { label: "How the version was chosen", value: selection.selected_by },
           { label: "Assessment method reference", value: body.revision.model_version },
           { label: "Cited set check code", value: body.lineage.cited_set_digest?.status ?? null },
+          ...body.provenance.cited_evidence_by_role.map((g) => ({
+            label: `${roleWords(g.role)}: source references`,
+            value: g.source_ids.length === 0 ? null : g.source_ids.join(", "),
+          })),
         ]}
       />
+  );
+}
+
+/** The exact references as a labelled list inside the bundle's one disclosure (each value exempt, labels scanned). */
+function ReferenceList({ references }: { references: { label: string; value: string | null }[] }) {
+  return (
+    <dl className="exact-references__list" data-evidence-references data-exact-references>
+      {references.map((reference) => (
+        <div className="exact-references__row" key={reference.label}>
+          <dt>{reference.label}</dt>
+          <dd>
+            {reference.value === null ? (
+              "not recorded"
+            ) : (
+              <code data-vocabulary-exempt="source-reference">{reference.value}</code>
+            )}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -524,12 +553,9 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
   );
   if (lineage.status === "COMPLETE") {
     return (
-      <div className="finding-evidence__lineage">
+      // W1-F3 review M8: a complete trail is the step line alone; the bundle headline already says every record is traced.
+      <div className="finding-evidence__lineage" data-evidence-lineage-complete>
         {strip}
-        <p className="v69-gap-line" data-evidence-lineage-complete>
-          Every one of the {body.counts.cited_total} cited records traces to its accepted record, delivery batch,
-          stored message, site setup and assessment; the cited set matches the check value saved with this version.
-        </p>
       </div>
     );
   }
@@ -697,13 +723,13 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
             {groups.map((g) => (
               <tr key={g.role} data-evidence-input-role={g.role} data-evidence-input-count={g.count}>
                 <td>{roleWords(g.role)}</td>
-                <td>
-                  {g.source_ids.map((id, index) => (
-                    <span key={id}>
-                      {index > 0 ? ", " : ""}
-                      <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code>
-                    </span>
-                  ))}
+                {/* W1-F3 review M6: the read names no source, so the cell says so; the references sit in the disclosure. */}
+                <td data-evidence-input-source={g.source_ids.length}>
+                  {g.source_ids.length === 0
+                    ? "No source recorded"
+                    : g.source_ids.length === 1
+                      ? "Source not named"
+                      : `${g.source_ids.length} sources, not named`}
                 </td>
                 <td>{g.count}</td>
                 <td data-evidence-input-coverage>Not available</td>

@@ -206,6 +206,13 @@ function selectionWords(body: FindingHistoryBody) {
   return findingCurrentnessWords(body.selection.selected_by === "LATEST_RECORDED" ? "LATEST_AT_READ" : "LATEST_PINNED");
 }
 
+/** W1-F3 review M4: the latest-version label once; the scope carries "Version N of M", so the sentence only says where currentness lives. */
+function lineWords(body: FindingHistoryBody) {
+  const words = selectionWords(body);
+  if (body.audit_only || !body.selection.is_latest) return words;
+  return { ...words, sentence: "Whether it is up to date is shown on the Finding's own page." };
+}
+
 function historyHeadline(body: FindingHistoryBody, rows: HistoryRevision[], read: Extract<HistoryRead, { status: "loaded" }>): string {
   const total = body.page.total;
   if (!(read.complete && rows.length === total)) {
@@ -284,7 +291,6 @@ function RevisionHistory({
     <VersionRow
       key={r.id}
       r={r}
-      findingId={body.finding.id}
       group={groupOf.get(r.id)}
       previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
       links={links}
@@ -297,12 +303,9 @@ function RevisionHistory({
       description={FINDING_HISTORY_QUESTION}
       actions={
         <>
+          {/* W1-F3 review (height table): one head link; the selected row carries "Its evidence". */}
           <Link to={links.finding(body.finding.id, selection.revision_id)} data-history-open-finding>
             Open version {no} of the Finding
-          </Link>
-          {" · "}
-          <Link to={links.evidence(selection.revision_id)} data-history-open-evidence>
-            Open version {no}&apos;s evidence
           </Link>
         </>
       }
@@ -310,8 +313,20 @@ function RevisionHistory({
       <p className="v69-state-line" data-history-state-line>
         <ProductStatus
           inline
-          words={selectionWords(body)}
-          scope={`Version ${no} of ${total} selected`}
+          words={lineWords(body)}
+          scope={
+            !selection.is_latest ? (
+              `Version ${no} of ${total} selected`
+            ) : selection.selected_by === "LATEST_RECORDED" ? (
+              <span data-history-latest-at-read>
+                Version {no} of {total}
+              </span>
+            ) : (
+              <span data-history-pinned-latest>
+                Version {no} of {total}
+              </span>
+            )
+          }
           asOf={selectedRow?.times.recorded_at ?? null}
         >
           {body.audit_only ? (
@@ -336,28 +351,22 @@ function RevisionHistory({
               </Link>
             </span>
           ) : selection.selected_by === "LATEST_RECORDED" ? (
-            <span data-history-latest-at-read>
+            <span>
               {" "}
-              Latest version at the time of reading (version {no}). A version recorded later would replace it on
-              reload.{" "}
               <Link to={links.history(selection.revision_id)} data-history-pin>
                 Keep this exact version
               </Link>
             </span>
-          ) : (
-            <span data-history-pinned-latest>
-              {" "}
-              Version {no}, the latest recorded version, selected by its exact reference.
-            </span>
-          )}
+          ) : null}
         </ProductStatus>
       </p>
       <p className="site-finding-history__summary">
-        <strong data-history-summary>{historyHeadline(body, rows, read)}</strong>{" "}
+        {/* W1-F3 review M4: a complete list says its count once, in the headline; only an incomplete list adds a line. */}
+        <strong data-history-summary data-history-complete={complete ? "" : undefined}>
+          {historyHeadline(body, rows, read)}
+        </strong>{" "}
         {body.earlier_versions === "NONE" ? (
           <span data-history-no-earlier>No earlier versions. This Finding has one recorded version.</span>
-        ) : complete ? (
-          <span data-history-complete>All {total} recorded versions are listed, oldest first.</span>
         ) : null}
         {complete ? null : (
           <span className="site-finding__lead" data-history-incomplete>
@@ -423,13 +432,11 @@ function RevisionHistory({
 /** One recorded version as a Time / Event / Basis row (mock `finding-history:1`). */
 function VersionRow({
   r,
-  findingId,
   group,
   previousRecordedAt,
   links,
 }: {
   r: HistoryRevision;
-  findingId: string;
   group: { count: number; first: number; last: number } | undefined;
   previousRecordedAt: string | null;
   links: SiteFindingHistoryLinks;
@@ -463,10 +470,6 @@ function VersionRow({
             Select version {r.revision_no}
           </Link>
           {" · "}
-          <Link to={links.finding(findingId, r.id)} data-history-finding-link={r.id}>
-            Open this version
-          </Link>
-          {" · "}
           <Link to={links.evidence(r.id)} data-history-evidence-link={r.id}>
             Its evidence
           </Link>
@@ -496,10 +499,7 @@ function VersionRow({
             {cited.accepted_rows === "UNRESOLVED_PRESENT" ? (
               <span data-history-unresolved> ({cited.count - cited.resolved} could not be found)</span>
             ) : null}
-            .{" "}
-            <Link to={links.evidence(r.id)} data-history-check-evidence={r.id}>
-              Check their record trail
-            </Link>
+            .
           </span>
           {" · "}
         <Disclosure variant="inline" name={`finding-history-basis-${r.revision_no}`} summary="Times and references">

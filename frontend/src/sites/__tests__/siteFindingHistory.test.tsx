@@ -239,8 +239,9 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     ]);
     const rows = all("[data-history-revision-no]").map((r) => Number(r.getAttribute("data-history-revision-no")));
     expect(rows).toEqual(Array.from({ length: 205 }, (_, i) => i + 1));
-    expect(q("[data-history-complete]")).toHaveTextContent("All 205 recorded versions are listed, oldest first.");
-    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Latest version at the time of reading (version 205)");
+    // W1-F3 review M4: completeness is marked on the one headline; the label says "latest when read", the scope "Version N of M".
+    expect(q("[data-history-complete]")).toHaveTextContent("205 recorded versions");
+    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Version 205 of 205");
     expect(q("[data-history-pin]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(205)}`);
     expect(q("[data-finding-section='history']")).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Finding history");
@@ -258,9 +259,11 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(all("[data-history-selected]").map((r) => r.getAttribute("data-history-revision"))).toEqual([rid(1)]);
     expect(all("[data-history-latest]").map((r) => r.getAttribute("data-history-revision"))).toEqual([rid(3)]);
     expect(q(`[data-history-revision='${rid(1)}']`)).toHaveAttribute("aria-current", "true");
-    // Exact version links on every row: History selection, the Finding at that version, its Evidence.
+    // Exact version links on every row: History selection and its Evidence. W1-F3 review (height table): the row's
+    // "Open this version" is gone; the Finding at the selected version is the one panel-head link.
     expect(q(`[data-history-select='${rid(2)}']`)).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(2)}`);
-    expect(q(`[data-history-finding-link='${rid(2)}']`)).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(2)}`);
+    expect(q("[data-history-finding-link]")).toBeNull();
+    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
     expect(q(`[data-history-evidence-link='${rid(2)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(2)}`);
     // Section links keep the exact version.
     expect(q("[data-finding-section='evidence']")).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(1)}`);
@@ -309,7 +312,9 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(ok).toHaveTextContent("42 cited; 42 of 42 found as accepted records");
     const gap = q(`[data-history-revision='${rid(2)}'] [data-history-cited]`)?.parentElement as HTMLElement;
     expect(gap).toHaveTextContent("41 of 42 found as accepted records (1 could not be found)");
-    expect(q(`[data-history-check-evidence='${rid(2)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(2)}`);
+    // W1-F3 review (height table): the row's one Evidence link ("Its evidence") replaces "Check their record trail".
+    expect(q(`[data-history-evidence-link='${rid(2)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(2)}`);
+    expect(q("[data-history-check-evidence]")).toBeNull();
     const text = document.body.textContent ?? "";
     expect(text).not.toMatch(/lineage|complete record trail|trail complete|fully traced|verified/i);
   });
@@ -424,11 +429,12 @@ describe("Q3: exact versions survive old -> new -> Evidence -> old, reload and b
   it("labels an omitted version as latest at read time, and a reload after an append moves it", async () => {
     const before = client({ total: 2 });
     const { unmount } = await frame(HISTORY, before);
-    expect(q("[data-history-latest-at-read]")).toHaveTextContent("version 2");
+    // W1-F3 review M4: the version is said once, in the scope.
+    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Version 2 of 2");
     unmount();
     const after = client({ total: 3 });
     await frame(HISTORY, after);
-    expect(q("[data-history-latest-at-read]")).toHaveTextContent("version 3");
+    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Version 3 of 3");
     expect(after.asked[0]?.revisionId).toBeNull();
   });
 });
@@ -491,7 +497,9 @@ describe("W1-UX-02: Finding History answer card", () => {
     ]);
     // Exact selectors from the card.
     expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(205)}`);
-    expect(q("[data-history-open-evidence]")).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(205)}`);
+    // W1-F3 review (height table): one head link; the selected row's "Its evidence" carries the same exact ID.
+    expect(q("[data-history-open-evidence]")).toBeNull();
+    expect(q(`[data-history-evidence-link='${rid(205)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(205)}`);
     const w1 = scanProductVocabulary(main(), "finding history (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(100);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);

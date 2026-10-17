@@ -288,7 +288,9 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
     const client = fake({ status: "loaded", value: body() });
     const { container } = await mount(client);
     expect(client.asked).toEqual([{ revisionId: null, offset: 0, limit: 50 }]);
-    expect(q("[data-evidence-latest-at-read]")).toHaveTextContent("Latest version at the time of reading (version 2)");
+    // W1-F3 review M4: the label says "latest when read"; the version is said once, in the scope.
+    expect(q("[data-evidence-latest-at-read]")).toHaveTextContent("Version 2 of this Finding");
+    expect(q("[data-evidence-state] [data-product-status-label]")).toHaveTextContent("Latest recorded version when read");
     expect(q("[data-evidence-pin]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
     expect(q("[data-evidence-cited-total]")).toHaveTextContent("3");
     expect(q("[data-evidence-input-total]")).toHaveTextContent("263");
@@ -841,12 +843,24 @@ describe("W1-UX-02 / W1-F3: Finding Evidence bundle and lineage", () => {
     expect(openReading(bundle)).not.toContain("dispatch-3.1");
     expect(openReading(bundle)).not.toContain(F);
     expect(openReading(lineage())).not.toContain(F);
-    const refs = lineage().querySelector("details[data-exact-references]") as HTMLDetailsElement;
-    expect(refs.open).toBe(false);
-    expect(lineage().lastElementChild?.contains(refs) || lineage().lastElementChild === refs).toBe(true);
-    expect(Array.from(refs.querySelectorAll("dt")).map((dt) => dt.textContent)).toEqual([
+    // W1-F3 review M5: the exact references are the last part of the bundle's one closed disclosure; the lineage
+    // panel carries no disclosure of its own. The source references (M6) join them.
+    expect(lineage().querySelector("details")).toBeNull();
+    const detail = bundle.querySelector("details[data-disclosure='finding-evidence-detail']") as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    const refs = detail.querySelector("[data-evidence-references]") as HTMLElement;
+    expect(detail.querySelector(".disclosure__body")?.lastElementChild).toBe(refs);
+    expect(Array.from(refs.querySelectorAll("dt")).map((dt) => dt.textContent).slice(0, 6)).toEqual([
       "Finding reference", "Shown version reference", "Latest version reference", "How the version was chosen", "Assessment method reference", "Cited set check code",
     ]);
+    expect(Array.from(refs.querySelectorAll("dt")).slice(6).every((dt) => /: source references$/.test(dt.textContent ?? ""))).toBe(true);
+    expect(refs.querySelectorAll("dt").length).toBeGreaterThan(6);
+    // M6: no raw source ID in the default reading of the input table.
+    for (const cell of Array.from(bundle.querySelectorAll("[data-evidence-input-source]"))) {
+      expect(cell.querySelector("code")).toBeNull();
+      expect(cell.textContent).toMatch(/^(Source not named|\d+ sources, not named|No source recorded)$/);
+    }
+    expect(bundle.querySelectorAll("[data-evidence-input-source]").length).toBeGreaterThan(0);
     // Exact selectors keep working.
     expect(q("[data-evidence-back-to-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${R2}`);
     expect(q("[data-evidence-pin]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
@@ -856,7 +870,8 @@ describe("W1-UX-02 / W1-F3: Finding Evidence bundle and lineage", () => {
     const w1 = scanProductVocabulary(main(), "finding evidence (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(40);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const disclosure = scanDisclosureVocabulary(lineage(), "finding evidence exact references");
+    // W1-F3 review M5: the exact references now sit in the bundle's one disclosure, still scanned as disclosure text.
+    const disclosure = scanDisclosureVocabulary(bundle, "finding evidence exact references");
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.scanned).toBeGreaterThan(5);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
