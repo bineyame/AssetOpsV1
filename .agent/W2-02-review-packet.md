@@ -97,7 +97,7 @@ gateway release, the gateway's own TLS upload of Batch V2, and the S2 ledger. Fi
   dropped at the end.
 
 ## Known deviations
-1. **Production registered basis refuses a COLDCHAIN snapshot (open Architect question, High).**
+1. **[Closed in the fix round by the q6 ruling - see Fix round.] Production registered basis refuses a COLDCHAIN snapshot (open Architect question, High).**
    `binding_service.acquisition_snapshot` applies the MINIGRID `configuration_gaps` (SITE_TYPE_UNSUPPORTED and the
    electrical component gaps) to COLD-LAB-001. As a result `RegisteredLabBasis` refuses every cold Draft in
    production composition. The Postgres proofs lift only that gap check, test-only and only for a COLDCHAIN Site
@@ -155,3 +155,44 @@ gateway release, the gateway's own TLS upload of Batch V2, and the S2 ledger. Fi
 - Rule on deviation 1: how COLDCHAIN readiness gates the acquisition snapshot.
 - Accept or redirect deviation 2 (session vector path) and deviation 3 (header path in run publication).
 - The pinned manifest `assertions` against the §4 scenario expectations.
+
+## Fix round (review `.agent/W2-02-review.md` RETURN; q6 ruling `D-2026-10-17-w2-02-buildspec`)
+Commits: `ada7ec68` (q6 gate), `5e2cae92` (M1), `afb76402` (M2, L3), `273ac204` (L4-L6).
+
+| Item | Change | Proof |
+|---|---|---|
+| Deviation 1 (q6) | `binding_service.acquisition_snapshot` dispatches by `site.site_type`: COLDCHAIN derives gaps from `cold_snapshot_gaps` (W2-01 `cold_foundation_document` on the *selected* revision and binding set, `assets_by_code`, no contact); every `blocking` message refuses, current or historical; MINIGRID `configuration_gaps` is never called for it. Role set other than `cold-roles-1` refuses (`BINDING_ROLE_SET_UNKNOWN`); a revision the cold rule cannot evaluate refuses (`COLD_FOUNDATION_UNEVALUABLE`). Absent set / mismatched revision keep their existing refusals. `open_cold_snapshot_gate` removed. | Six Postgres proofs pass without the lift: `test_w202_cold_replay_postgres.py` 12 passed (189 s). New `test_w202_cold_snapshot_gate_postgres.py` 14 passed: pass case with `configuration_gaps` patched to raise; ROOM_MISSING, PROBE_MISSING, POLICY_MISSING, START_EVENT_MISSING, ROLE_UNBOUND x3 (grid_power_event, generator_state, backup_bus_state), unknown role set, unevaluable revision, mismatched revision; TRANSFER_UNREPORTED / ambient / compressor_power nonblocking. Non-vacuity: with the pre-fix `binding_service.py` 13 of 14 fail (the mismatched-revision case is pre-existing behaviour). |
+| M1 | Legacy branch of `create_draft_run` refuses `VERSION_UNAVAILABLE` ("Cold-chain profiles run only from a cold-scenario/1 document. Profiles are not substituted.") when the model profile ID is `cold-thermal` or the publication profile ID is `cold-publication`. | `test_a_cold_profile_with_a_legacy_scenario_is_refused_before_draft` x3 (cold/cold, cold/legacy, legacy/cold), each `store.written == []`. Non-vacuity: pre-fix `service.py` -> 3 failed. |
+| M2 | `ColdRunSetupFrame`: the button-side reason is suppressed for the choose-site, unavailable and empty states (button stays disabled); the Foundation version fact shows the version or "Not available" (see Fix-round deviation F1), never `blockedReason`. | `states each setup message exactly once` (`getAllByText(...).length === 1` for the three copies and the basis-loading reason; fact text "Not available"). Non-vacuity: pre-fix frame -> fails with 2 matches (`<p>`, `<span>`). |
+| L3 | Choice label is `display_name` only (scenario ID stays a read-only fact). Reason-code line kept (optional in the review). | coldRunSetup tests select the radio by "Normal". |
+| L4 | `("STARTING","STOPPED")` added to `_GENERATOR_MOVES`; restore calls `check_move("generator", ..., "STOPPED")`. | simulator cold tests 6 passed; six manifests unchanged byte for byte. |
+| L5 | `build_cold_replay_reader` returns a two-method facade (`cold_replay_rows`, `cold_replay_run_referenced`) over the ledger. | `test_composed_reader_exposes_only_the_two_select_reads`; non-vacuity: pre-fix composition -> fails. |
+| L6 | `_start_cold` maps a `PhysicallyUnacceptable` from `cold_execution` to `LabControlRefused("FROZEN_RUN_NOT_RECONSTRUCTIBLE")` before any Stage output. | `test_valid_values_driving_the_world_out_of_bounds_refuse_before_any_stage` (capacity 0.0001 kWh/degC, backup-failed case): refused, no groups staged, no schedule, NOT_STARTED. Non-vacuity: pre-fix host -> fails. |
+
+Reading (not a design choice beyond precedent): L6 reuses `FROZEN_RUN_NOT_RECONSTRUCTIBLE`, the kind
+`verify_cold_inputs` already uses for physically invalid cold parameters; the spec names no kind and no new
+contract kind was added. If the Architect wants a distinct kind, it is a one-line change plus a contract entry.
+
+Fix-round deviation F1 (Low): the review asked for "Not available yet" in the Foundation version fact. That
+phrase is reserved missing-capability copy; `check-all` failed the missing-claim scan on it (`untagged_copy
+ColdRunSetupFrame.tsx:350`, register a mock_gaps gap). A pending or refused basis is not a missing capability,
+and adding a gap or a scan exemption is a guard/design change, so `5e294b3f` uses the frame's existing fallback
+"Not available". The say-it-once intent (never `blockedReason` in the fact) is met.
+
+### Fix-round checks (final code revision `5e294b3f`; nothing but this packet changed after it)
+- Full backend suite, real Postgres (private base `assetops_w202fix_test`, keep-awake running, no other pytest):
+  `python -m pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q -rfE --junitxml=.pytest-junit.xml`
+  at `273ac204` (backend unchanged since): wall 1552 s (25.9 min); JUnit 2723 cases, 0 skipped, 0 failed,
+  0 errors.
+- Simulator `tests`: JUnit 271, 0 skipped, 0 failed (4 s). Host `tests`: JUnit 707, 0 skipped, 0 failed (757 s).
+  Both at `273ac204` (unchanged since). Gateway and contracts untouched in this round; not re-run.
+- Frontend `npm.cmd test` at `5e294b3f`: 84 files, 2156 tests passed, exit 0 (140 s). (Also 2156 passed at
+  `273ac204` before F1.)
+- `tools/check-all.ps1 -Python <plan2 venv>` at `5e294b3f`: All 10 guards passed (at `273ac204` it failed the
+  missing-claim scan and its fixture check on the F1 copy, fixed by `5e294b3f`).
+- Rule-8 probes `tools/writer_guard_probes.py --seam` at `5e294b3f`: exit 0, 83 CAUGHT, 6 ALLOWED controls,
+  tree restored.
+- Focused: `test_w202_cold_replay_postgres` 12 passed (no lift); `test_w202_cold_snapshot_gate_postgres` 14;
+  `test_w202_cold_run_identity` + `test_run_setup` 107; `test_w202_cold_replay_api` 14; host
+  `test_cold_lab_execution` new case; simulator cold 6; `coldRunSetup.test.tsx` 10.
+- `var/sites` copied for the suites and removed; `assetops_w202fix_test` dropped.
