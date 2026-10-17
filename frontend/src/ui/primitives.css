@@ -4543,3 +4543,22 @@ tr[data-selected] > * {
 .v69-gap-line + .v69-gap-line {
   margin-top: 6px;
 }
+
+/* W1-F3 phase C (additive): the mock's `.eyebrow` label and `.metric-value` inside a panel. */
+.v69-eyebrow {
+  margin: 0 0 8px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.v69-panel-value {
+  margin: 10px 0 7px;
+  color: var(--text-primary, #213853);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
