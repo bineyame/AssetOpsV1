@@ -1,0 +1,37 @@
+﻿PASS  loaded http://localhost:5460/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sites desktop: the migrated card renders at http://localhost:5460/sites
+PASS  sites desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Registered sites, not ranked","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sites desktop: the closed summary is plain text  "How this was worked out"
+PASS  sites desktop: no sideways scroll from the card (measured 42 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sites desktop: the card has a small visual  "none by design"
+PASS  sites desktop: keyboard Tab reaches the disclosure summary  {"tabs":5,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sites desktop: the address keeps its path and selectors after load  "/sites"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sites desktop: mock #/sites renders
+PASS  loaded http://localhost:5460/sites: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sites narrow: the migrated card renders at http://localhost:5460/sites
+PASS  sites narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sites narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Registered sites, not ranked","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sites narrow: the closed summary is plain text  "How this was worked out"
+PASS  sites narrow: no sideways scroll from the card (measured 42 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sites narrow: the card has a small visual  "none by design"
+PASS  sites narrow: keyboard Tab reaches the disclosure summary  {"tabs":5,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sites narrow: the address keeps its path and selectors after load  "/sites"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/sites: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sites narrow: mock #/sites renders
+PASS  loaded http://localhost:5461/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sites-empty desktop: the migrated card renders at http://localhost:5461/sites
+PASS  sites-empty desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"No sites registered","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sites-empty desktop: no exact-reference disclosure in this state (nothing to reference)  "no disclosure"
+PASS  sites-empty desktop: no sideways scroll from the card (measured 17 elements)  {"scrollWidth":1440,"clientWidth":1440,"wide":[]}
+PASS  sites-empty desktop: the card has a small visual  "none by design"
+PASS  sites-empty desktop: the address keeps its path and selectors after load  "/sites"
+PASS  loaded http://localhost:5461/sites: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sites-empty narrow: the migrated card renders at http://localhost:5461/sites
+PASS  sites-empty narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sites-empty narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"No sites registered","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sites-empty narrow: no exact-reference disclosure in this state (nothing to reference)  "no disclosure"
+PASS  sites-empty narrow: no sideways scroll from the card (measured 17 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sites-empty narrow: the card has a small visual  "none by design"
+PASS  sites-empty narrow: the address keeps its path and selectors after load  "/sites"
+36/36 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\v01a

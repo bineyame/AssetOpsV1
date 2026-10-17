@@ -1,0 +1,109 @@
+﻿PASS  loaded http://localhost:5460/sites/KOBO-001/foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation desktop: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation
+PASS  foundation desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Configuration in effect now","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  foundation desktop: the closed summary is plain text  "How this was worked out"
+PASS  foundation desktop: no sideways scroll from the card (measured 108 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  foundation desktop: the card has a small visual  true
+PASS  foundation desktop: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:See what still needs connecting or confi","A:How the equipment is connected: Single l","SUMMARY:How this was worked out"]}
+PASS  foundation desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/foundation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation desktop: mock #/foundation renders
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation narrow: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation
+PASS  foundation narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Configuration in effect now","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  foundation narrow: the closed summary is plain text  "How this was worked out"
+PASS  foundation narrow: no sideways scroll from the card (measured 108 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  foundation narrow: the card has a small visual  true
+PASS  foundation narrow: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:See what still needs connecting or confi","A:How the equipment is connected: Single l","SUMMARY:How this was worked out"]}
+PASS  foundation narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/foundation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation narrow: mock #/foundation renders
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation?at=2026-10-22T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  foundation-scheduled desktop: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation?at=2026-10-22T00:00:00Z
+PASS  foundation-scheduled desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Scheduled configuration","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  foundation-scheduled desktop: the closed summary is plain text  "How this was worked out"
+PASS  foundation-scheduled desktop: no sideways scroll from the card (measured 108 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  foundation-scheduled desktop: the card has a small visual  true
+PASS  foundation-scheduled desktop: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:See what still needs connecting or confi","A:How the equipment is connected: Single l","SUMMARY:How this was worked out"]}
+PASS  foundation-scheduled desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation?at=2026-10-22T00:00:00Z"
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation?at=2026-10-22T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  foundation-scheduled narrow: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation?at=2026-10-22T00:00:00Z
+PASS  foundation-scheduled narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Scheduled configuration","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  foundation-scheduled narrow: the closed summary is plain text  "How this was worked out"
+PASS  foundation-scheduled narrow: no sideways scroll from the card (measured 108 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  foundation-scheduled narrow: the card has a small visual  true
+PASS  foundation-scheduled narrow: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:See what still needs connecting or confi","A:How the equipment is connected: Single l","SUMMARY:How this was worked out"]}
+PASS  foundation-scheduled narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation?at=2026-10-22T00:00:00Z"
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/readiness: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  readiness desktop: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/readiness
+PASS  readiness desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Set up to report","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  readiness desktop: the closed summary is plain text  "How this was worked out"
+PASS  readiness desktop: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  readiness desktop: the card has a small visual  true
+PASS  readiness desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Health","A:What the readings can support: Site Evid","A:Recorded equipment and settings: Site mo","SUMMARY:How this was worked out"]}
+PASS  readiness desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/readiness"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/readiness: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  readiness desktop: mock #/readiness renders
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/readiness: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  readiness narrow: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/readiness
+PASS  readiness narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Set up to report","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  readiness narrow: the closed summary is plain text  "How this was worked out"
+PASS  readiness narrow: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  readiness narrow: the card has a small visual  true
+PASS  readiness narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Health","A:What the readings can support: Site Evid","A:Recorded equipment and settings: Site mo","SUMMARY:How this was worked out"]}
+PASS  readiness narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/readiness"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/readiness: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  readiness narrow: mock #/readiness renders
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/readiness?at=2026-09-30T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  readiness-imported desktop: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/readiness?at=2026-09-30T00:00:00Z
+PASS  readiness-imported desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Set up to report","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  readiness-imported desktop: the closed summary is plain text  "How this was worked out"
+PASS  readiness-imported desktop: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  readiness-imported desktop: the card has a small visual  true
+PASS  readiness-imported desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Health","A:What the readings can support: Site Evid","A:Recorded equipment and settings: Site mo","SUMMARY:How this was worked out"]}
+PASS  readiness-imported desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/readiness?at=2026-09-30T00:00:00Z"
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/readiness?at=2026-09-30T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  readiness-imported narrow: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/readiness?at=2026-09-30T00:00:00Z
+PASS  readiness-imported narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Set up to report","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  readiness-imported narrow: the closed summary is plain text  "How this was worked out"
+PASS  readiness-imported narrow: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  readiness-imported narrow: the card has a small visual  true
+PASS  readiness-imported narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Health","A:What the readings can support: Site Evid","A:Recorded equipment and settings: Site mo","SUMMARY:How this was worked out"]}
+PASS  readiness-imported narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/readiness?at=2026-09-30T00:00:00Z"
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld desktop: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/sld
+PASS  sld desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Configuration in effect now","asOf":"As of 17 Oct 2026, 00:23 UTC"}
+PASS  sld desktop: the closed summary is plain text  "How this was worked out"
+PASS  sld desktop: no sideways scroll from the card (measured 54 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sld desktop: the card has a small visual  true
+PASS  sld desktop: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:Health","SUMMARY:How this was worked out"]}
+PASS  sld desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/sld"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/sld: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld desktop: mock #/sld renders
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld narrow: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/sld
+PASS  sld narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Configuration in effect now","asOf":"As of 17 Oct 2026, 00:24 UTC"}
+PASS  sld narrow: the closed summary is plain text  "How this was worked out"
+PASS  sld narrow: no sideways scroll from the card (measured 54 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sld narrow: the card has a small visual  true
+PASS  sld narrow: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:Health","SUMMARY:How this was worked out"]}
+PASS  sld narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/sld"
+PASS  loaded http://localhost:5460/mockups/v69/index.html#/sld: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld narrow: mock #/sld renders
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sld-part desktop: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery
+PASS  sld-part desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Scheduled configuration","asOf":"As of 17 Oct 2026, 00:24 UTC"}
+PASS  sld-part desktop: the closed summary is plain text  "How this was worked out"
+PASS  sld-part desktop: no sideways scroll from the card (measured 54 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sld-part desktop: the card has a small visual  true
+PASS  sld-part desktop: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:Health","SUMMARY:How this was worked out"]}
+PASS  sld-part desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery"
+PASS  loaded http://localhost:5460/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sld-part narrow: the migrated card renders at http://localhost:5460/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery
+PASS  sld-part narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Scheduled configuration","asOf":"As of 17 Oct 2026, 00:24 UTC"}
+PASS  sld-part narrow: the closed summary is plain text  "How this was worked out"
+PASS  sld-part narrow: no sideways scroll from the card (measured 54 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sld-part narrow: the card has a small visual  true
+PASS  sld-part narrow: keyboard Tab reaches the disclosure summary  {"tabs":21,"focusable":["A:Health","SUMMARY:How this was worked out"]}
+PASS  sld-part narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery"
+108/108 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\v01a
