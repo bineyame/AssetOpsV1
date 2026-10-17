@@ -241,3 +241,25 @@
 .site-finding [data-finding-recommendation-link] .form-footer {
   margin-top: 12px;
 }
+
+/* W1-F3 height phase: a closed disclosure inside these panels reads as one small link line, not a boxed bar. */
+.site-finding .panel details.disclosure:not(.disclosure--inline),
+.site-findings-view .panel details.disclosure {
+  margin: 8px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.site-finding .panel details.disclosure:not(.disclosure--inline) > .disclosure__summary,
+.site-findings-view .panel details.disclosure > .disclosure__summary {
+  padding: 2px 0;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.site-finding .panel details.disclosure:not(.disclosure--inline) > .disclosure__body,
+.site-findings-view .panel details.disclosure > .disclosure__body {
+  padding: 4px 0 8px;
+}
