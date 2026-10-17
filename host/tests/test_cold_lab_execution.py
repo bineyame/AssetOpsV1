@@ -243,3 +243,24 @@ def test_damaged_or_future_cold_artifact_reads_unreadable(tmp_path, kobo_draft, 
     with pytest.raises(LabControlRefused) as refused:
         restarted.start(run)
     assert refused.value.kind == "ARTIFACT_UNREADABLE"
+
+
+def test_valid_values_driving_the_world_out_of_bounds_refuse_before_any_stage(tmp_path, kobo_draft) -> None:
+    # W2-02 review L6: values the cold parameter check accepts, but a tiny thermal capacity, push the chamber
+    # past cold-thermal/1's admitted temperature range mid-window. That is a refusal, not an HTTP 500.
+    content = json.loads(json.dumps(_revision().content))
+    for component in content["components"]:
+        for prop in component.get("properties") or ():
+            if prop["property_key"] == "cold-thermal-capacity":
+                prop["value"] = 0.0001
+    revision = _revision(content)
+    run, definition = _cold_run(kobo_draft, "backup-failed", revision)
+    gateway = _Gateway()
+    host = _host(tmp_path, _Inputs(revision, definition), gateway)
+    with pytest.raises(LabControlRefused) as refused:
+        host.start(run)
+    assert refused.value.kind == "FROZEN_RUN_NOT_RECONSTRUCTIBLE"
+    assert "outside cold-thermal/1" in str(refused.value.detail or refused.value)
+    assert gateway.groups == []
+    assert not (tmp_path / "schedules").exists() or not any((tmp_path / "schedules").iterdir())
+    assert host.projection(run).status == "NOT_STARTED"

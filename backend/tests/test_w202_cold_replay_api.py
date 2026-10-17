@@ -202,3 +202,12 @@ def test_a_non_cold_run_is_not_found() -> None:
 
 def test_route_constant() -> None:
     assert COLD_REPLAY_ROUTE == "/api/sites/{site_code}/cold/replay"
+
+
+def test_composed_reader_exposes_only_the_two_select_reads() -> None:
+    # W2-02 review L5: the composed reader is narrowed; no ledger writer is reachable through it.
+    from assetops_backend.evidence.composition import build_cold_replay_reader
+
+    reader = build_cold_replay_reader("postgresql+psycopg://unused@127.0.0.1:1/never_test")
+    public = {name for name in dir(reader) if not name.startswith("_")}
+    assert public == {"cold_replay_rows", "cold_replay_run_referenced"}

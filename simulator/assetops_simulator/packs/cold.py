@@ -226,7 +226,7 @@ class ColdTransition:
 #: Allowed lifecycle moves; anything else is an impossible transition.
 _COMPRESSOR_MOVES = {("OFF", "STARTING"), ("STARTING", "RUNNING"), ("STARTING", "OFF"), ("RUNNING", "OFF")}
 _GENERATOR_MOVES = {("STOPPED", "STARTING"), ("STARTING", "RUNNING"), ("STARTING", "FAILED"),
-                    ("RUNNING", "STOPPED")}
+                    ("RUNNING", "STOPPED"), ("STARTING", "STOPPED")}
 _TRANSFER_MOVES = {("GRID", "OPEN"), ("OPEN", "BACKUP"), ("OPEN", "GRID"), ("BACKUP", "GRID"),
                    ("BACKUP", "OPEN")}
 
@@ -306,6 +306,7 @@ class ColdPack:
                           "CONTROLLER", ("outage", s.outage))
                 if s.generator in ("RUNNING", "STARTING"):
                     # a start in progress is abandoned; a running generator stops (both are STOPPED)
+                    check_move("generator", s.generator, "STOPPED")
                     s = replace(s, generator="STOPPED", generator_running_due=None, generator_timeout_due=None)
             elif f.kind == "GENERATOR_FAILURE":
                 s = replace(s, generator_fault=True)

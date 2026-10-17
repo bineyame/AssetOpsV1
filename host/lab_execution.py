@@ -144,6 +144,7 @@ from execution_adapter import (
     unconfigured_signals,
 )
 from source_stages import JsonSourceStages
+from assetops_simulator.packs.errors import PhysicallyUnacceptable
 from cold_publication import (
     cold_content_digest,
     cold_execution,
@@ -2292,7 +2293,16 @@ class HostLabExecution:
             verified = verify_cold_inputs(run, revision, definition)
         except FrozenRunNotReconstructible as broken:
             raise LabControlRefused("FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id, str(broken)) from broken
-        execution = cold_execution(verified)
+        try:
+            execution = cold_execution(verified)
+        except PhysicallyUnacceptable as unacceptable:
+            # W2-02 review L6: valid frozen values that drive the world outside cold-thermal/1 are refused
+            # before any Stage output, under the same kind `verify_cold_inputs` uses for physically invalid
+            # cold parameters; nothing was staged or scheduled.
+            raise LabControlRefused(
+                "FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id,
+                f"the frozen cold inputs drive the world outside cold-thermal/1: {unacceptable}",
+            ) from unacceptable
         reports = cold_reports(verified, execution)
         minute_records = cold_minute_records(execution)
         content = cold_content_digest(minute_records)
