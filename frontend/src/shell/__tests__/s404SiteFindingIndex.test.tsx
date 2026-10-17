@@ -26,6 +26,7 @@ import {
   notCurrent,
 } from "../../sites/__tests__/findingIndexFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
@@ -62,7 +63,8 @@ function renderAt(path: string, index: FindingIndexClient) {
 const where = () => document.querySelector("[data-location]")?.textContent ?? "";
 const state = () => document.querySelector("[data-finding-index-state]")?.getAttribute("data-finding-index-state");
 const query = () => new URLSearchParams(where().split("?")[1] ?? "");
-const card = () => document.querySelector('[data-headline-card="site-findings"]') as HTMLElement;
+/** The single v69 panel "Findings at this site" (W1-F3; formerly the answer card). */
+const card = () => panelTitled("Findings at this site");
 
 /** The exact value under a labelled row of the closed exact-reference disclosure. */
 function exactValue(label: string): string | null {
@@ -302,9 +304,10 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     for (const raw of ["cursor-page-2", TOKEN, FID_A, FID_B, RID_A, RID_B, FID_A.slice(0, 8), "CURRENT", "SUPPORTED"]) {
       expect(outside).not.toContain(raw);
     }
-    // The exact references come last in the card.
-    const body = card().querySelector(".headline-card__body") as HTMLElement;
-    expect(body.lastElementChild).toBe(details);
+    // The exact references come last in the panel.
+    const answer = card().querySelector("[data-site-findings-answer]") as HTMLElement;
+    expect(answer.lastElementChild).toBe(details);
+    expect((card().querySelector(".panel__body") as HTMLElement).lastElementChild).toBe(answer);
     w1Scans("site findings rows");
     disclosureScan("site findings rows");
   });
@@ -417,5 +420,32 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     expect(outsideDisclosure()).not.toContain("SELECTION_CHANGED");
     w1Scans("site findings basis changed");
     disclosureScan("site findings basis changed");
+  });
+});
+
+describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings)", () => {
+  const variants: [string, FindingIndexResult, string][] = [
+    ["stocked", { status: "loaded", value: ROWS }, "current-rows"],
+    ["empty (assessed)", { status: "loaded", value: indexBody() }, "current-empty"],
+    ["pending (not current)", { status: "loaded", value: notCurrent("PENDING", "MATCH_PENDING") }, "PENDING"],
+    ["refused (no access)", { status: "forbidden", message: null }, "forbidden"],
+    ["refused (closed)", { status: "closed", message: "Performance comparison has not passed", note: "n" }, "closed"],
+    ["refused (basis changed)", { status: "basis_changed", message: "changed", reason: "SELECTION_CHANGED" }, "basis-changed"],
+  ];
+  it.each(variants)("%s: one panel 'Findings at this site' holding the window, the state and its gap", async (_n, result, expected) => {
+    const { client } = indexClient(() => result);
+    renderAt(PATH, client);
+    await settledScreen();
+    expectV69Panels("sitefindings");
+    const panel = card();
+    expect(panel.querySelector("[data-finding-index-window]"), "the window controls sit inside the panel").not.toBeNull();
+    const answer = panel.querySelector("[data-finding-index-state]") as HTMLElement;
+    expect(answer.getAttribute("data-finding-index-state")).toBe(expected);
+    expect(answer.querySelector("[data-product-status]"), "the state line (or in-panel gap) is inside the panel").not.toBeNull();
+    expect(document.querySelector("[data-headline-card]"), "no lead card").toBeNull();
+    if (expected !== "current-rows") {
+      expect(panel.querySelector("[data-finding-index-row]")).toBeNull();
+      expect(panel.textContent).not.toMatch(/\d+ Findings? in this window/);
+    }
   });
 });

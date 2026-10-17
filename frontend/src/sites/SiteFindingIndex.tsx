@@ -14,8 +14,9 @@
  *   a continuity limit, a changed basis under an old cursor, and an invalid
  *   scope show no rows and no count, and never say "no Findings".
  *
- * W1-UX-02 (`D-2026-10-16-w1-ux`): every state leads with the v69 question
- * "Which Findings belong to this site?" as a `HeadlineVisualCard`, a shared
+ * W1-F3 (`D-2026-10-17-mockup-layout-spec`): every state renders inside the
+ * one v69 panel "Findings at this site": window controls, then the v69 question
+ * "Which Findings belong to this site?" with the answer as a big claim, a shared
  * state line with its scope and plain "As of" bound beside the answer, the
  * Findings as rows (or a day strip when no rows can be listed), and a closed
  * exact-reference disclosure last holding the list, page and matching
@@ -33,7 +34,8 @@ import {
   ExactReferences,
   Fact,
   FactList,
-  HeadlineVisualCard,
+  BigClaim,
+  Panel,
   plainTime,
   ProductStatus,
   StepStrip,
@@ -415,6 +417,57 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
   );
 }
 
+/**
+ * The answer inside the single v69 panel "Findings at this site" (W1-F3): the
+ * question as an eyebrow, the headline as an h3 big claim (not a panel slot),
+ * the state line, the visual (day strip, rows, pages), the meaning and next
+ * lines, the destination, and the closed exact-reference disclosure last.
+ */
+function Answer({
+  state,
+  headline,
+  status,
+  visual,
+  meaning,
+  todo,
+  destination,
+  references,
+  attributes = {},
+}: {
+  state: string;
+  headline: string;
+  status: ReactNode;
+  visual?: ReactNode;
+  meaning: ReactNode;
+  todo?: ReactNode;
+  destination?: ReactNode;
+  references?: ReactNode;
+  attributes?: Record<string, string>;
+}) {
+  return (
+    <div className="site-findings-answer" data-finding-index-state={state} data-site-findings-answer {...attributes}>
+      <p className="headline-card__question">{QUESTION}</p>
+      <BigClaim>{headline}</BigClaim>
+      <div className="headline-card__status">{status}</div>
+      {visual === undefined ? null : <div className="headline-card__visual">{visual}</div>}
+      <div className="headline-card__pair">
+        <div className="headline-card__block" data-site-findings-meaning>
+          <h3 className="headline-card__block-title">What this means</h3>
+          {meaning}
+        </div>
+        {todo === undefined ? null : (
+          <div className="headline-card__block" data-site-findings-todo>
+            <h3 className="headline-card__block-title">What to do</h3>
+            {todo}
+          </div>
+        )}
+      </div>
+      {destination === undefined ? null : <p className="headline-card__destination">{destination}</p>}
+      {references ?? null}
+    </div>
+  );
+}
+
 function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: FindingIndexScope; links: FindingIndexLinks }) {
   const firstPage = links.scope({ ...scope, cursor: null });
   const scopeText = windowScope(scope);
@@ -422,88 +475,76 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
   if (body.status !== "CURRENT" || body.total_count === null) {
     const words = body.status === "CURRENT" ? NO_COUNT_WORDS : currentnessWords(body.status);
     return (
-      <div data-finding-index-state={body.status}>
-        <HeadlineVisualCard
-          dataName="site-findings"
-          headingId={HEADING_ID}
-          question={QUESTION}
-          headline="The Findings for this window are not known"
-          status={<ProductStatus words={words} scope={scopeText} asOf={body.knowledge_at} />}
-          visual={<DayStrip body={body} />}
-          meaning={<p>{NOT_A_ZERO}</p>}
-          todo={<p>{words.next ?? "Look again after every day in this window has been checked."}</p>}
-          references={references}
-        />
-      </div>
+      <Answer
+        state={body.status}
+        headline="The Findings for this window are not known"
+        status={<ProductStatus words={words} scope={scopeText} asOf={body.knowledge_at} />}
+        visual={<DayStrip body={body} />}
+        meaning={<p>{NOT_A_ZERO}</p>}
+        todo={<p>{words.next ?? "Look again after every day in this window has been checked."}</p>}
+        references={references}
+      />
     );
   }
   if (body.total_count === 0) {
     return (
-      <div data-finding-index-state="current-empty">
-        <HeadlineVisualCard
-          dataName="site-findings"
-          headingId={HEADING_ID}
-          question={QUESTION}
-          headline="No Findings in this window"
-          status={<ProductStatus words={readResultWords("proved-empty")} scope={scopeText} asOf={body.knowledge_at} />}
-          visual={<DayStrip body={body} />}
-          meaning={
-            <p>
-              Every day in this window was assessed and matched for Findings through its latest check, and no
-              Finding overlaps the window. This holds for the time shown; later readings can change it.
-            </p>
-          }
-          todo={<p>Choose another window to look at other days.</p>}
-          references={references}
-        />
-      </div>
+      <Answer
+        state="current-empty"
+        headline="No Findings in this window"
+        status={<ProductStatus words={readResultWords("proved-empty")} scope={scopeText} asOf={body.knowledge_at} />}
+        visual={<DayStrip body={body} />}
+        meaning={
+          <p>
+            Every day in this window was assessed and matched for Findings through its latest check, and no
+            Finding overlaps the window. This holds for the time shown; later readings can change it.
+          </p>
+        }
+        todo={<p>Choose another window to look at other days.</p>}
+        references={references}
+      />
     );
   }
   const shown = body.rows.length;
   const newest = body.rows[0];
   return (
-    <div data-finding-index-state="current-rows">
-      <HeadlineVisualCard
-        dataName="site-findings"
-        headingId={HEADING_ID}
-        question={QUESTION}
-        headline={`${body.total_count} ${body.total_count === 1 ? "Finding" : "Findings"} in this window`}
-        status={<ProductStatus words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
-        visual={
-          <>
-            <DayStrip body={body} />
-            <Rows body={body} links={links} />
-            <nav aria-label="Findings pages" data-finding-index-pages>
-              <span>
-                Showing {shown} of {body.total_count}.
-              </span>{" "}
-              {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
-              {body.next_cursor ? (
-                <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
-                  Next page
-                </Link>
-              ) : null}
-            </nav>
-          </>
-        }
-        meaning={
-          <p>
-            Each row is a bounded conclusion about part of this window, newest period first. Each Finding opens at the
-            exact version listed here, which stays the same after reload even when a newer version is recorded. No
-            amount is shown in this list.
-          </p>
-        }
-        todo={<p>Open a Finding to see what supports it, its consequence and what could change it.</p>}
-        destination={
-          newest === undefined ? undefined : (
-            <Link to={links.finding(newest.finding_id, newest.finding_revision_id)} data-finding-index-destination>
-              Open the newest Finding
-            </Link>
-          )
-        }
-        references={references}
-      />
-    </div>
+    <Answer
+      state="current-rows"
+      headline={`${body.total_count} ${body.total_count === 1 ? "Finding" : "Findings"} in this window`}
+      status={<ProductStatus words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
+      visual={
+        <>
+          <DayStrip body={body} />
+          <Rows body={body} links={links} />
+          <nav aria-label="Findings pages" data-finding-index-pages>
+            <span>
+              Showing {shown} of {body.total_count}.
+            </span>{" "}
+            {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
+            {body.next_cursor ? (
+              <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
+                Next page
+              </Link>
+            ) : null}
+          </nav>
+        </>
+      }
+      meaning={
+        <p>
+          Each row is a bounded conclusion about part of this window, newest period first. Each Finding opens at the
+          exact version listed here, which stays the same after reload even when a newer version is recorded. No
+          amount is shown in this list.
+        </p>
+      }
+      todo={<p>Open a Finding to see what supports it, its consequence and what could change it.</p>}
+      destination={
+        newest === undefined ? undefined : (
+          <Link to={links.finding(newest.finding_id, newest.finding_revision_id)} data-finding-index-destination>
+            Open the newest Finding
+          </Link>
+        )
+      }
+      references={references}
+    />
   );
 }
 
@@ -527,22 +568,19 @@ function RefusedCard({
   attributes?: Record<string, string>;
 }) {
   return (
-    <div data-finding-index-state={state} {...attributes}>
-      <HeadlineVisualCard
-        dataName="site-findings"
-        headingId={HEADING_ID}
-        question={QUESTION}
-        headline={headline}
-        status={<ProductStatus words={words} scope={scope} asOf={null} />}
-        meaning={meaning}
-        todo={todo}
-        references={
-          references.length === 0 ? undefined : (
-            <ExactReferences name="finding-index-references" references={references} />
-          )
-        }
-      />
-    </div>
+    <Answer
+      state={state}
+      attributes={attributes}
+      headline={headline}
+      status={<ProductStatus words={words} scope={scope} asOf={null} />}
+      meaning={meaning}
+      todo={todo}
+      references={
+        references.length === 0 ? undefined : (
+          <ExactReferences name="finding-index-references" references={references} />
+        )
+      }
+    />
   );
 }
 
@@ -692,17 +730,23 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
     return <>{fallback}</>;
   }
   return (
-    <section className="finding-index" aria-labelledby={HEADING_ID} data-findings-index="site-window">
-      <p className="overview-note">
-        Mini-grid dispatch Findings at this site that overlap {plainInstant(from)} to {plainInstant(to)} (the end is
-        not included). A Finding is a bounded conclusion about part of an assessed period.
-      </p>
-      <WindowForm scope={scope} onScope={onScope} />
-      {result.status === "loaded" ? (
-        <Loaded body={result.value} scope={scope} links={links} />
-      ) : (
-        <Refused result={result} scope={scope} links={links} />
-      )}
-    </section>
+    <div className="finding-index" data-findings-index="site-window">
+      <Panel
+        heading="Findings at this site"
+        headingId={HEADING_ID}
+        className="site-findings-panel"
+      >
+        <p className="overview-note">
+          Mini-grid dispatch Findings at this site that overlap {plainInstant(from)} to {plainInstant(to)} (the end is
+          not included). A Finding is a bounded conclusion about part of an assessed period.
+        </p>
+        <WindowForm scope={scope} onScope={onScope} />
+        {result.status === "loaded" ? (
+          <Loaded body={result.value} scope={scope} links={links} />
+        ) : (
+          <Refused result={result} scope={scope} links={links} />
+        )}
+      </Panel>
+    </div>
   );
 }
