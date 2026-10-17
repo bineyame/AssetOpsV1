@@ -697,8 +697,18 @@ function Invoke-ConfigurationPersistenceCheck {
     # the batch INSERT distinct from an upsert on a binding. No other module writes either table, and no HTTP
     # module (main.py, *_api.py) reaches the designation command.
     $provenanceTables = @('evidence_publication', 'batch_publication_link')
-    $ledgerConflictAllowed = '(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b'
+    $ledgerConflictAllowed = "(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b"
     $provenanceInsertsSeen = @{ 'evidence_publication' = 0; 'batch_publication_link' = 0 }
+    # W2-00 (D-2026-10-17-w2-00-answers; design section 7): the ledger alone inserts event evidence, rejections and
+    # dispositions (recompute_job stays shared with the assessment store). Every INSERT INTO accepted_evidence keeps
+    # only the message DO NOTHING arbiter: an event or EV START unique violation is handled by a per-ordinal
+    # savepoint and the fixed reread order message, event, session, pinned as one exact `_REREAD_ORDER` line.
+    $ledgerOwnedTables = @('ingestion_batch', 'accepted_evidence', 'evidence_rejection', 'ingestion_disposition',
+        'batch_refusal')
+    $acceptedMessageTarget = '(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+accepted_evidence_message_unique\s+DO\s+NOTHING\b'
+    $acceptedInsertsSeen = 0
+    $rereadOrderExpected = '_REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_EVENT_SQL, _REREAD_SESSION_SQL)'
+    $rereadOrderLines = New-Object System.Collections.Generic.List[string]
     # S6-01a adds the ninth writer, the Action store (D-2026-10-15-s601-action-store-and-ui M1): the sole runtime
     # writer of the migration-0016 Action tables and S6-02a's migration-0019 verification tables, INSERT-only (append-only rows; no UPDATE, DELETE, upsert,
     # TRUNCATE or DDL), and it writes no other table. No other module - explicitly not the Foundation adapter,
@@ -787,6 +797,9 @@ function Invoke-ConfigurationPersistenceCheck {
             if ($module.Path -eq $actionWriter -and $line -match $actionForbidden) {
                 $failures.Add("The Action store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $ledgerWriter -and $line -match '^\s*_REREAD_ORDER\s*=') {
+                $rereadOrderLines.Add($line.Trim()) | Out-Null
             }
         }
         $moduleStatements = if ($sqlStatements.ContainsKey($module.Path)) { $sqlStatements[$module.Path] } else { @() }
@@ -915,6 +928,19 @@ function Invoke-ConfigurationPersistenceCheck {
                     $failures.Add(("Only $accessWriter writes gateway access table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
+                if ($module.Path -ne $ledgerWriter -and $null -ne $target -and $ledgerOwnedTables -contains $target) {
+                    $failures.Add(("Only $ledgerWriter writes ledger table '$target' (event evidence, rejections and " +
+                        "dispositions included); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $ledgerWriter -and $target -eq 'accepted_evidence' -and $line -match '(?i)^INSERT\b') {
+                    if ($line -notmatch $acceptedMessageTarget) {
+                        $failures.Add(("Every INSERT INTO accepted_evidence keeps the accepted_evidence_message_unique " +
+                            "DO NOTHING arbiter; event and session collisions use a savepoint and the ordered reread; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $acceptedInsertsSeen++
+                    }
+                }
                 if ($module.Path -eq $pgWriter -and $null -ne $target -and $ledgerTables -contains $target) {
                     $failures.Add(("The Foundation store must not write ledger table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
@@ -1016,6 +1042,15 @@ function Invoke-ConfigurationPersistenceCheck {
         }
     }
 
+    if ($extractorRan -and $acceptedInsertsSeen -lt 1) {
+        $failures.Add(("Rule 8 found no INSERT INTO accepted_evidence with the message DO NOTHING arbiter in " +
+            "$ledgerWriter, so the accepted-evidence conflict-target check is vacuous. Update the check.")) | Out-Null
+    }
+    if ($rereadOrderLines.Count -ne 1 -or $rereadOrderLines[0] -cne $rereadOrderExpected) {
+        $failures.Add(("The evidence ledger rereads collisions in the fixed order message, event, session: exactly one " +
+            "line '$rereadOrderExpected' in $ledgerWriter (found $($rereadOrderLines.Count): " +
+            "$($rereadOrderLines -join ' | ')).")) | Out-Null
+    }
     foreach ($table in $provenanceTables) {
         if ($provenanceInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no ledger INSERT statement into $table in $ledgerWriter, so the " +
