@@ -4826,3 +4826,8 @@ td .disclosure.disclosure--inline {
   margin-top: 4px;
   padding: 0;
 }
+
+.v69-state-line .product-status__bound,
+.v69-state-line .product-status__sentence {
+  font-size: inherit;
+}

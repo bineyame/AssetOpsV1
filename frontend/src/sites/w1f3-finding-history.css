@@ -102,3 +102,11 @@
 .site-finding-history .v69-show-all {
   margin-bottom: 6px;
 }
+
+.site-finding-history .v69-state-line {
+  margin-bottom: 4px;
+}
+
+.site-finding-history__summary {
+  margin-bottom: 8px;
+}

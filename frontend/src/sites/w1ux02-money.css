@@ -238,3 +238,20 @@
 .w1-money-state-line .product-status--waiting .product-status__label {
   color: #8a5300;
 }
+
+/* Trade-offs and the method notes read at the mock's 12px panel text size. */
+.site-financials [data-financials-tradeoffs],
+.site-financials .w1-money-method {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.site-financials [data-financials-tradeoffs] p,
+.site-financials .w1-money-method p {
+  margin: 0 0 6px;
+}
+
+.site-financials .price-history__foot {
+  margin-top: 4px;
+  font-size: 12px;
+}

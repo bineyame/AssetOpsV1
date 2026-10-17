@@ -1193,15 +1193,16 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     expect(Array.from(document.querySelectorAll("[data-price-history-revision]")).filter((li) => visibleOutsideClosedDisclosure(li)).map((li) => li.getAttribute("data-price-history-revision"))).toEqual(["p-3", "p-4", "p-5"]);
   });
 
-  it("height phase: the price strip and state line are visible; the full schedule table is reachable behind 'Show the full price schedule'", async () => {
+  it("height phase: the state line, price and disabled edit are visible; the strip and full schedule are reachable behind 'When each price applies'", async () => {
     mount(fake(), "/sites/KOBO-001/financials/assumptions");
     await settledScreen();
     const c = card("assumptions-price");
     const showAll = c.querySelector("details[data-show-all='price-schedule']") as HTMLDetailsElement;
     expect(showAll.open).toBe(false);
-    expect(showAll.querySelector("summary")).toHaveTextContent("Show the full price schedule (3 prices)");
+    expect(showAll.querySelector("summary")).toHaveTextContent("When each price applies (3 prices)");
     expect(showAll.querySelectorAll("tr[data-price-assignment]")).toHaveLength(3);
-    for (const sel of ["[data-price-state]", "[data-price-strip]", "[data-price-selection]", "[data-gap-id='G-assumptions-human-edit']"]) {
+    expect(showAll.querySelector("[data-price-strip]")).not.toBeNull();
+    for (const sel of ["[data-price-state]", "[data-price-selection]", "[data-gap-id='G-assumptions-human-edit']"]) {
       expect(visibleOutsideClosedDisclosure(c.querySelector(sel)!), sel).toBe(true);
     }
   });

@@ -182,15 +182,18 @@ export function ConsequenceHistoryPanel({
           </p>
         ) : null}
         {body.rows.length === 0 ? (
-          <p data-consequence-history-empty>
-            {body.page.is_first
-              ? "No fuel cost version had been recorded for this site at this moment."
-              : "No further versions."}
-          </p>
-        ) : null}
-        {body.rows.length === 0 && body.page.is_first && children ? (
-          <p className="v69-gap-line" data-consequence-history-prices-only>
-            The price versions below are prices only; no fuel cost was worked out from them by this moment.
+          <p className="v69-gap-line" data-consequence-history-empty>
+            <span>
+              {body.page.is_first
+                ? "No fuel cost version had been recorded for this site at this moment."
+                : "No further versions."}
+            </span>
+            {body.page.is_first && children ? (
+              <span data-consequence-history-prices-only>
+                {" "}
+                The price versions below are prices only; no fuel cost was worked out from them by this moment.
+              </span>
+            ) : null}
           </p>
         ) : null}
         {body.rows.length === 0 ? (

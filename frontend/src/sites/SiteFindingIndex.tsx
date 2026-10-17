@@ -174,6 +174,16 @@ function plainInstant(instant: string | null | undefined): string {
   return plainTime(instant) ?? "time not recorded";
 }
 
+/** W1-F3 height phase: a period inside one UTC day names the day once ("15 Oct 2026, 12:00 UTC to 13:30 UTC"). */
+function periodText(start: string, end: string): string {
+  const a = plainInstant(start);
+  const b = plainInstant(end);
+  const day = /^(.*), (\d{2}:\d{2} UTC)$/;
+  const ma = day.exec(a);
+  const mb = day.exec(b);
+  return ma && mb && ma[1] === mb[1] ? `${a} to ${mb[2]}` : `${a} to ${b}`;
+}
+
 function validWindow(scope: FindingIndexScope): boolean {
   return !Number.isNaN(new Date(scope.from).getTime()) && !Number.isNaN(new Date(scope.to).getTime());
 }
@@ -417,12 +427,11 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
               <td>
                 <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-finding-index-link>
                   {lifecycle?.title ?? "Generator support review"}
-                </Link>
-                <br />
-                <small>Version {row.revision_no}</small>
+                </Link>{" "}
+                <small>· Version {row.revision_no}</small>
               </td>
               <td>
-                {plainInstant(row.episode.start)} to {plainInstant(row.episode.end)}
+                {periodText(row.episode.start, row.episode.end)}
               </td>
               <td>
                 <span
@@ -431,12 +440,7 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
                 >
                   {lifecycle?.label ?? "State not recognised"}
                 </span>
-                {row.transition ? (
-                  <>
-                    <br />
-                    <small>{transitionWords(row.transition)}</small>
-                  </>
-                ) : null}
+                {row.transition ? <small> {transitionWords(row.transition)}</small> : null}
               </td>
               <td data-finding-index-amount={row.amount.state}>
                 Not in this list

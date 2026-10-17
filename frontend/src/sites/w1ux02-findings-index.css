@@ -104,3 +104,11 @@
 .finding-index .v69-gap-line {
   margin-top: 6px;
 }
+
+.finding-index-row td:first-child {
+  min-width: 15rem;
+}
+
+.finding-index-row td:nth-child(2) {
+  min-width: 13rem;
+}

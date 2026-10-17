@@ -218,8 +218,8 @@ function DisabledEdit() {
       </button>
       <p id="price-edit-reason">
         <MissingClaim gapId="G-assumptions-human-edit" placement="assumptions.price.human-edit">
-          Editing the price here is not available yet: a price change must be made by a signed-in operator, and
-          operator sign-in is not built yet. Prices are published by the system.
+          Editing here is not available yet: a price change needs a signed-in operator, and sign-in is not built
+          yet.
         </MissingClaim>
       </p>
     </div>
@@ -624,8 +624,14 @@ function FinancialAssumptions({
       <div className="form-footer">
         <DisabledEdit />
       </div>
-      {body.timeline.length > 0 ? <PriceTimeStrip body={body} historical={historical} /> : null}
-      <Schedule body={body} links={links} selectedRevision={selectedRevision} historical={historical} />
+      {body.timeline.length > 0 ? (
+        // W1-F3 height phase: the mock's panel ends at the form; when each price applies (the strip and the
+        // full schedule with each version link) stays on the page behind one plain expander.
+        <ShowAll name="price-schedule" summary={`When each price applies (${body.timeline.length} prices)`}>
+          <PriceTimeStrip body={body} historical={historical} />
+          <Schedule body={body} links={links} selectedRevision={selectedRevision} historical={historical} />
+        </ShowAll>
+      ) : null}
       <ExactReferences
         name="assumptions-price"
         references={[
@@ -650,10 +656,7 @@ function Schedule({
 }) {
   if (body.timeline.length === 0) return null;
   const today = body.selection?.state === "PRICED" ? body.selection.assignment_id : null;
-  // W1-F3 height phase: the effective-time strip above shows every price at a glance; the full schedule
-  // table (with each version link) stays on the page behind one "Show all" expander.
   return (
-    <ShowAll name="price-schedule" summary={`Show the full price schedule (${body.timeline.length} prices)`}>
     <div data-price-schedule="">
       <p className="v69-eyebrow" id="site-price-schedule-heading">
         Price schedule
@@ -690,7 +693,6 @@ function Schedule({
         </tbody>
       </DataTable>
     </div>
-    </ShowAll>
   );
 }
 
@@ -744,15 +746,15 @@ function PriceHistory({
           </ol>
         </>
       )}
-      <p className="muted">
+      <div className="muted price-history__foot">
         Showing {shown.length} of {page.total} version{page.total === 1 ? "" : "s"}.{" "}
         {page.next_after_revision_no !== null ? (
           <button type="button" className="link-button" onClick={() => onMore(page.next_after_revision_no ?? 0)}>
             Show later versions
           </button>
         ) : null}
-      </p>
-      <Disclosure summary="How these times are read" name="price-cutoff-basis">
+        {" · "}
+        <Disclosure variant="inline" summary="How these times are read" name="price-cutoff-basis">
         <p>
           Prices as recorded on a date show what this site's price list said at that moment. Nothing else from that
           moment is reconstructed.
@@ -762,6 +764,7 @@ function PriceHistory({
           the next starting on 1 June never overlap.
         </p>
       </Disclosure>
+      </div>
     </div>
   );
 }
