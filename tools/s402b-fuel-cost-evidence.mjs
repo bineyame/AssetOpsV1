@@ -22,6 +22,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5406";
 const EMPTY = process.argv[3] ?? "http://localhost:5407";
@@ -107,14 +108,17 @@ async function waitFor(expression, ms = 30000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(300);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function shot(name) {
@@ -124,6 +128,7 @@ async function shot(name) {
   const [w, h] = viewport;
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(Math.ceil(tall), 7000), deviceScaleFactor: 1, mobile: w < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   const file = join(OUT, `${name}.png`);
   writeFileSync(file, Buffer.from(r.data, "base64"));
@@ -218,11 +223,13 @@ async function main() {
     await shot(`s402b-priced-${W}`);
     await send("Page.reload");
     claim(`${W} priced: reload keeps the exact version and amount`, await waitFor(`${bridgeReady} && document.querySelector('[data-financials-range]')?.innerText === '0.00 to 15.82 USD'`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     // round trip: Evidence and back
     await js(`[...document.querySelectorAll('[data-financials-bridge] a')].find(a => a.textContent.startsWith('See the evidence')).click()`);
     claim(`${W} priced: Evidence opens at the same finding version`, await waitFor(`location.pathname.endsWith('/evidence') && location.search.includes(${JSON.stringify(P01REV)})`));
     await js("history.back()");
     claim(`${W} priced: back returns to the same money view`, await waitFor(`${bridgeReady} && document.querySelector('[data-financials-bridge]').getAttribute('data-finding-revision') === ${JSON.stringify(P01REV)}`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
 
     claim(`${W}: F01-gateway money view loads`, await go(BASE + money(F01, F01REV), bridgeReady));
     s = await js(STATE);
@@ -277,10 +284,13 @@ async function main() {
     await shot(`s402b-old-version-${W}`);
     await send("Page.reload");
     claim(`${W} old: reload keeps version 1`, await waitFor(`document.querySelector('[data-consequence-pinned]')?.getAttribute('data-consequence-pinned') === ${JSON.stringify(c1.id)} && ${settled}`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await js("history.back()");
     claim(`${W} old: back returns to the current fuel cost`, await waitFor(`!document.querySelector('[data-consequence-pinned]') && ${bridgeReady} && !location.search.includes('consequence_revision_id')`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await js("history.forward()");
     claim(`${W} old: forward reopens version 1`, await waitFor(`document.querySelector('[data-consequence-pinned]')?.getAttribute('data-consequence-pinned') === ${JSON.stringify(c1.id)}`));
+    await requireWidth(viewport[0], viewport[1], "after forward");
     // Assumptions reachable from the version: the exact price version used
     await js(`[...document.querySelectorAll('[data-consequence-pinned] a')].find(a => a.textContent === 'The site price version used').click()`);
     claim(`${W} old: its price link opens Assumptions at price version 1`, await waitFor(`document.querySelector('[data-price-exact-revision]')?.getAttribute('data-price-exact-revision') === ${JSON.stringify(c1.price.revision_id)}`));

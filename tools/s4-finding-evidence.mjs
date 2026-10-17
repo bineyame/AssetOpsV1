@@ -25,6 +25,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5340";
 const OUT = process.argv[3] ?? join(tmpdir(), "s4-finding-evidence");
@@ -97,14 +98,17 @@ async function waitFor(expression, ms = 45000) {
   }
   return false;
 }
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(300);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 let viewport = [1440, 1000];
@@ -116,6 +120,7 @@ async function shot(name) {
   const h = Math.min(Math.ceil(tall), 7000);
   await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: h, deviceScaleFactor: 1, mobile: viewport[0] < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(OUT, `${name}.png`), Buffer.from(r.data, "base64"));
   await size(viewport[0], viewport[1]);
@@ -272,6 +277,7 @@ async function evidenceSuite(label) {
     { presses, focused, url: keyed.url, record: keyed.record });
   await send("Page.reload");
   await waitFor(`document.querySelector('[data-evidence-record]')`);
+  await requireWidth(viewport[0], viewport[1], "after reload or back");
   await sleep(300);
   const reloaded = await js(EV_STATE);
   claim(`${label} evidence keyboard: reload keeps site, Finding, version, offset and record`,
@@ -522,21 +528,26 @@ async function historySuite(label) {
     ev.url.endsWith(`/evidence?revision_id=${r2}`) && ev.evidenceRevision === r2, { url: ev.url, evidenceRevision: ev.evidenceRevision });
   await js(`(history.back(), true)`);
   await waitFor(`location.pathname.endsWith('/history') && document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r2)}`, 15000);
+  await requireWidth(viewport[0], viewport[1], "after reload or back");
   await js(`(history.back(), true)`);
   await waitFor(`document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r1)}`, 15000);
+  await requireWidth(viewport[0], viewport[1], "after reload or back");
   const back = await js(HI_STATE);
   claim(`${label} Q3 Evidence -> old (back x2): exact old ID restored`, back.url.endsWith(`/history?revision_id=${r1}`) && back.revision === r1, { url: back.url });
   await send("Page.reload");
   await waitFor(`document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r1)}`, 30000);
+  await requireWidth(viewport[0], viewport[1], "after reload or back");
   await sleep(300);
   const reload = await js(HI_STATE);
   claim(`${label} Q3 reload: old exact ID kept`, reload.url.endsWith(`/history?revision_id=${r1}`) && reload.revision === r1 && reload.earlier, { url: reload.url });
   await js(`(history.forward(), true)`);
   await waitFor(`document.querySelector('[data-finding-history]')?.dataset.findingRevision === ${JSON.stringify(r2)}`, 15000);
+  await requireWidth(viewport[0], viewport[1], "after forward");
   const fwd = await js(HI_STATE);
   claim(`${label} Q3 forward: new exact ID restored`, fwd.revision === r2 && fwd.url.endsWith(`/history?revision_id=${r2}`), { url: fwd.url });
   await js(`(history.forward(), true)`);
   await waitFor(`document.querySelector('[data-finding-evidence]')?.dataset.findingRevision === ${JSON.stringify(r2)}`, 15000);
+  await requireWidth(viewport[0], viewport[1], "after forward");
   const fwd2 = await js(HI_STATE);
   claim(`${label} Q3 forward to Evidence: exact ID restored`, fwd2.evidenceRevision === r2 && fwd2.url.endsWith(`/evidence?revision_id=${r2}`), { url: fwd2.url });
   // Evidence -> History link keeps the version.
@@ -631,6 +642,7 @@ async function main() {
       keyed && before.blocks > 1 && before.pressed !== null && /portion=/.test(before.url), before);
     await send("Page.reload");
     await waitFor(`document.querySelector('[data-finding-portion-detail]')`);
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await sleep(300);
     const after = await js(STATE);
     claim(`${label} F01: reload keeps the Finding, version and selected block`,
@@ -643,6 +655,7 @@ async function main() {
       pinned.revision === r1 && /^Earlier version 1 of /.test(pinned.lead ?? "") && pinned.currentness === "Earlier version", pinned);
     await send("Page.reload");
     await waitFor(READY);
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await sleep(300);
     const pinnedAgain = await js(STATE);
     claim(`${label} F04: reload keeps the exact earlier version`, pinnedAgain.revision === r1 && pinnedAgain.url === pinned.url, pinnedAgain);

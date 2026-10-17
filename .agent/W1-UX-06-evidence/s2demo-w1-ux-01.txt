@@ -1,0 +1,37 @@
+﻿PASS  loaded http://localhost:5530/sites/KOBO-001/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-all desktop: the migrated card renders at http://localhost:5530/sites/KOBO-001/evidence
+PASS  evidence-all desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Readings received and accepted","asOf":"As of 17 Oct 2026, 01:09 UTC"}
+PASS  evidence-all desktop: the closed summary is plain text  "How this was worked out"
+PASS  evidence-all desktop: no sideways scroll from the card (measured 75 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  evidence-all desktop: the card has a small visual  true
+PASS  evidence-all desktop: keyboard Tab reaches the disclosure summary  {"tabs":34,"focusable":["A:Open Evidence › Analysis for this period","SUMMARY:How this was worked out"]}
+PASS  evidence-all desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/evidence"
+PASS  loaded http://localhost:5530/mockups/v69/index.html#/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence desktop: mock #/evidence renders
+PASS  loaded http://localhost:5530/sites/KOBO-001/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-all narrow: the migrated card renders at http://localhost:5530/sites/KOBO-001/evidence
+PASS  evidence-all narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Readings received and accepted","asOf":"As of 17 Oct 2026, 01:09 UTC"}
+PASS  evidence-all narrow: the closed summary is plain text  "How this was worked out"
+PASS  evidence-all narrow: no sideways scroll from the card (measured 75 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  evidence-all narrow: the card has a small visual  true
+PASS  evidence-all narrow: keyboard Tab reaches the disclosure summary  {"tabs":34,"focusable":["A:Open Evidence › Analysis for this period","SUMMARY:How this was worked out"]}
+PASS  evidence-all narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/evidence"
+PASS  loaded http://localhost:5530/mockups/v69/index.html#/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence narrow: mock #/evidence renders
+PASS  loaded http://localhost:5530/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  evidence-window desktop: the migrated card renders at http://localhost:5530/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z
+PASS  evidence-window desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Readings received and accepted","asOf":"As of 17 Oct 2026, 01:09 UTC"}
+PASS  evidence-window desktop: the closed summary is plain text  "How this was worked out"
+PASS  evidence-window desktop: no sideways scroll from the card (measured 77 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  evidence-window desktop: the card has a small visual  true
+PASS  evidence-window desktop: keyboard Tab reaches the disclosure summary  {"tabs":34,"focusable":["A:Open Evidence › Analysis for this period","SUMMARY:How this was worked out"]}
+PASS  evidence-window desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z"
+PASS  loaded http://localhost:5530/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  evidence-window narrow: the migrated card renders at http://localhost:5530/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z
+PASS  evidence-window narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Readings received and accepted","asOf":"As of 17 Oct 2026, 01:09 UTC"}
+PASS  evidence-window narrow: the closed summary is plain text  "How this was worked out"
+PASS  evidence-window narrow: no sideways scroll from the card (measured 77 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  evidence-window narrow: the card has a small visual  true
+PASS  evidence-window narrow: keyboard Tab reaches the disclosure summary  {"tabs":34,"focusable":["A:Open Evidence › Analysis for this period","SUMMARY:How this was worked out"]}
+PASS  evidence-window narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z"
+36/36 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s2demo\ux01

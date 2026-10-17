@@ -1,0 +1,197 @@
+﻿PASS  loaded http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation?revision_id=507d5dd0-1bb1-4e19-acd2-afd05dd58b1b: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-accepted desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation?revision_id=507d5dd0-1bb1-4e19-acd2-afd05dd58b1b
+PASS  recommendation-accepted desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Accepted; result not yet known","asOf":"As of 1 Nov 2026, 00:00 UTC"}
+PASS  recommendation-accepted desktop: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-accepted desktop: no sideways scroll from the card (measured 65 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  recommendation-accepted desktop: the card has a small visual  true
+PASS  recommendation-accepted desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Open the Action","A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  recommendation-accepted desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation?revision_id=507d5dd0-1bb1-4e19-acd2-afd05dd58b1b"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation desktop: mock #/recommendation renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation?revision_id=507d5dd0-1bb1-4e19-acd2-afd05dd58b1b: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-accepted narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation?revision_id=507d5dd0-1bb1-4e19-acd2-afd05dd58b1b
+PASS  recommendation-accepted narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Accepted; result not yet known","asOf":"As of 1 Nov 2026, 00:00 UTC"}
+PASS  recommendation-accepted narrow: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-accepted narrow: no sideways scroll from the card (measured 65 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  recommendation-accepted narrow: the card has a small visual  true
+PASS  recommendation-accepted narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Open the Action","A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  recommendation-accepted narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation?revision_id=507d5dd0-1bb1-4e19-acd2-afd05dd58b1b"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation narrow: mock #/recommendation renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-latest desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation
+PASS  recommendation-latest desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Held: an earlier trial is still open","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  recommendation-latest desktop: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-latest desktop: no sideways scroll from the card (measured 49 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+FAIL  recommendation-latest desktop: the card has a small visual  false
+PASS  recommendation-latest desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open the earlier Action","SUMMARY:How this was worked out"]}
+PASS  recommendation-latest desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation"
+PASS  loaded http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-latest narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation
+PASS  recommendation-latest narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Held: an earlier trial is still open","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  recommendation-latest narrow: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-latest narrow: no sideways scroll from the card (measured 49 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+FAIL  recommendation-latest narrow: the card has a small visual  false
+PASS  recommendation-latest narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open the earlier Action","SUMMARY:How this was worked out"]}
+PASS  recommendation-latest narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/0c8dff18-e4e3-4856-99ce-d8ef125fa27f/recommendation"
+PASS  loaded http://localhost:5461/sites/KOBO-001/findings/4546dd78-4a7b-4599-8c19-a2378fae1616/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-unavailable desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/findings/4546dd78-4a7b-4599-8c19-a2378fae1616/recommendation
+PASS  recommendation-unavailable desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Held: an earlier trial is still open","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  recommendation-unavailable desktop: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-unavailable desktop: no sideways scroll from the card (measured 49 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+FAIL  recommendation-unavailable desktop: the card has a small visual  false
+PASS  recommendation-unavailable desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open the earlier Action","SUMMARY:How this was worked out"]}
+PASS  recommendation-unavailable desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/4546dd78-4a7b-4599-8c19-a2378fae1616/recommendation"
+PASS  loaded http://localhost:5461/sites/KOBO-001/findings/4546dd78-4a7b-4599-8c19-a2378fae1616/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-unavailable narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/findings/4546dd78-4a7b-4599-8c19-a2378fae1616/recommendation
+PASS  recommendation-unavailable narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Held: an earlier trial is still open","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  recommendation-unavailable narrow: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-unavailable narrow: no sideways scroll from the card (measured 49 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+FAIL  recommendation-unavailable narrow: the card has a small visual  false
+PASS  recommendation-unavailable narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open the earlier Action","SUMMARY:How this was worked out"]}
+PASS  recommendation-unavailable narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/4546dd78-4a7b-4599-8c19-a2378fae1616/recommendation"
+PASS  loaded http://localhost:5461/sites/KOBO-001/foundation/changes/09f35a1c-4ff2-4b2b-b1f0-de2255f918cf: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  changes-applied desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/foundation/changes/09f35a1c-4ff2-4b2b-b1f0-de2255f918cf
+PASS  changes-applied desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Setting changed; effect judged separately","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  changes-applied desktop: the closed summary is plain text  "How this was worked out"
+PASS  changes-applied desktop: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  changes-applied desktop: the card has a small visual  true
+PASS  changes-applied desktop: keyboard Tab reaches the disclosure summary  {"tabs":18,"focusable":["A:Open the Action","A:Open Verification","A:Open the application event","SUMMARY:How this was worked out"]}
+PASS  changes-applied desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/changes/09f35a1c-4ff2-4b2b-b1f0-de2255f918cf"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/changes: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  changes desktop: mock #/changes renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/foundation/changes/09f35a1c-4ff2-4b2b-b1f0-de2255f918cf: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-applied narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/foundation/changes/09f35a1c-4ff2-4b2b-b1f0-de2255f918cf
+PASS  changes-applied narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Setting changed; effect judged separately","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  changes-applied narrow: the closed summary is plain text  "How this was worked out"
+PASS  changes-applied narrow: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  changes-applied narrow: the card has a small visual  true
+PASS  changes-applied narrow: keyboard Tab reaches the disclosure summary  {"tabs":18,"focusable":["A:Open the Action","A:Open Verification","A:Open the application event","SUMMARY:How this was worked out"]}
+PASS  changes-applied narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/foundation/changes/09f35a1c-4ff2-4b2b-b1f0-de2255f918cf"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/changes: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes narrow: mock #/changes renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-overview-recorded desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a
+PASS  action-overview-recorded desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"No trial plan yet","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-overview-recorded desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-overview-recorded desktop: no sideways scroll from the card (measured 70 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-overview-recorded desktop: the card has a small visual  true
+PASS  action-overview-recorded desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-overview-recorded desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/action-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-overview desktop: mock #/action-overview renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-recorded narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a
+PASS  action-overview-recorded narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"No trial plan yet","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-overview-recorded narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-overview-recorded narrow: no sideways scroll from the card (measured 70 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-overview-recorded narrow: the card has a small visual  true
+PASS  action-overview-recorded narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-overview-recorded narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/action-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview narrow: mock #/action-overview renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-overview-pending desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e
+PASS  action-overview-pending desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"No trial plan yet","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  action-overview-pending desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-overview-pending desktop: no sideways scroll from the card (measured 70 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-overview-pending desktop: the card has a small visual  true
+PASS  action-overview-pending desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-overview-pending desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e"
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-pending narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e
+PASS  action-overview-pending narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"No trial plan yet","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  action-overview-pending narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-overview-pending narrow: no sideways scroll from the card (measured 70 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-overview-pending narrow: the card has a small visual  true
+PASS  action-overview-pending narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-overview-pending narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e"
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-execution-applied desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/execution
+PASS  action-execution-applied desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Applied; effect not yet measured","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-execution-applied desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-execution-applied desktop: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-execution-applied desktop: the card has a small visual  true
+PASS  action-execution-applied desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open History","A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-execution-applied desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/execution"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/action-execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-execution desktop: mock #/action-execution renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-execution-applied narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/execution
+PASS  action-execution-applied narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Applied; effect not yet measured","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-execution-applied narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-execution-applied narrow: no sideways scroll from the card (measured 73 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-execution-applied narrow: the card has a small visual  true
+PASS  action-execution-applied narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open History","A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-execution-applied narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/execution"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/action-execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-execution narrow: mock #/action-execution renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e/execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-execution-failed desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e/execution
+PASS  action-execution-failed desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Not applied yet; an attempt failed","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  action-execution-failed desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-execution-failed desktop: no sideways scroll from the card (measured 71 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-execution-failed desktop: the card has a small visual  true
+PASS  action-execution-failed desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open History","A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-execution-failed desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e/execution"
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e/execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-execution-failed narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e/execution
+PASS  action-execution-failed narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Not applied yet; an attempt failed","asOf":"As of 1 Nov 2026, 01:06 UTC"}
+PASS  action-execution-failed narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-execution-failed narrow: no sideways scroll from the card (measured 71 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-execution-failed narrow: the card has a small visual  true
+PASS  action-execution-failed narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open History","A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-execution-failed narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/5f8bf165-7da6-412b-a0bc-42d6c0a1934e/execution"
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-latest desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history
+PASS  action-history-latest desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Every recorded event","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-history-latest desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-history-latest desktop: no sideways scroll from the card (measured 69 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-history-latest desktop: the card has a small visual  true
+PASS  action-history-latest desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["SUMMARY:How this was worked out"]}
+PASS  action-history-latest desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/action-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history desktop: mock #/action-history renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-latest narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history
+PASS  action-history-latest narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Every recorded event","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-history-latest narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-history-latest narrow: no sideways scroll from the card (measured 69 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-history-latest narrow: the card has a small visual  true
+PASS  action-history-latest narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["SUMMARY:How this was worked out"]}
+PASS  action-history-latest narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history"
+PASS  loaded http://localhost:5461/mockups/v69/index.html#/action-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history narrow: mock #/action-history renders
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=d95e4f80-6d14-4a32-9992-1662eb4dc9d9: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-applied-event desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=d95e4f80-6d14-4a32-9992-1662eb4dc9d9
+PASS  action-history-applied-event desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Earlier version, kept for the record","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-history-applied-event desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-history-applied-event desktop: no sideways scroll from the card (measured 72 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-history-applied-event desktop: the card has a small visual  true
+PASS  action-history-applied-event desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Show the latest record","SUMMARY:How this was worked out"]}
+PASS  action-history-applied-event desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=d95e4f80-6d14-4a32-9992-1662eb4dc9d9"
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=d95e4f80-6d14-4a32-9992-1662eb4dc9d9: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-applied-event narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=d95e4f80-6d14-4a32-9992-1662eb4dc9d9
+PASS  action-history-applied-event narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Earlier version, kept for the record","asOf":"As of 1 Nov 2026, 01:04 UTC"}
+PASS  action-history-applied-event narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-history-applied-event narrow: no sideways scroll from the card (measured 72 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-history-applied-event narrow: the card has a small visual  true
+PASS  action-history-applied-event narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Show the latest record","SUMMARY:How this was worked out"]}
+PASS  action-history-applied-event narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=d95e4f80-6d14-4a32-9992-1662eb4dc9d9"
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=484f9ef8-c65b-44a5-a893-5c9ac7d12778: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-observed-event desktop: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=484f9ef8-c65b-44a5-a893-5c9ac7d12778
+PASS  action-history-observed-event desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Earlier version, kept for the record","asOf":"As of 1 Nov 2026, 00:30 UTC"}
+PASS  action-history-observed-event desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-history-observed-event desktop: no sideways scroll from the card (measured 52 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-history-observed-event desktop: the card has a small visual  true
+PASS  action-history-observed-event desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Show the latest record","SUMMARY:How this was worked out"]}
+PASS  action-history-observed-event desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=484f9ef8-c65b-44a5-a893-5c9ac7d12778"
+PASS  loaded http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=484f9ef8-c65b-44a5-a893-5c9ac7d12778: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-observed-event narrow: the migrated card renders at http://localhost:5461/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=484f9ef8-c65b-44a5-a893-5c9ac7d12778
+PASS  action-history-observed-event narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Earlier version, kept for the record","asOf":"As of 1 Nov 2026, 00:30 UTC"}
+PASS  action-history-observed-event narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-history-observed-event narrow: no sideways scroll from the card (measured 52 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-history-observed-event narrow: the card has a small visual  true
+PASS  action-history-observed-event narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Show the latest record","SUMMARY:How this was worked out"]}
+PASS  action-history-observed-event narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/8b26e88e-a066-485c-b6a6-3c9542596c3a/history?event_id=484f9ef8-c65b-44a5-a893-5c9ac7d12778"
+192/196 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s601b

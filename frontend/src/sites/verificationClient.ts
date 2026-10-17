@@ -237,7 +237,11 @@ export interface EvidenceWindow {
 
 export interface SourceSide {
   state: string;
-  reasons: string[];
+  /**
+   * The source resolution's reasons. The backend sends each as an object `{ code, accepted_evidence_ids, ... }`
+   * (`source_provenance.py` `_reason`); a plain code string is still accepted.
+   */
+  reasons: (string | { code: string; accepted_evidence_ids?: string[] })[];
   publication_ids: string[];
   source_classes: string[];
   fixtures: { fixture_id: string; fixture_version: number }[];

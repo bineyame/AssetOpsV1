@@ -30,6 +30,19 @@ import type { BatteryDetail, GatewayHealthRow, SourceHealthDocument } from "./he
 /** The Site's gateway-contact summary in plain words. Contact is never equipment condition, so nothing is `positive`. */
 export function contactSummaryWords(doc: SourceHealthDocument): ProductWords {
   const s = doc.summary;
+  // W1-UX-06 phase-1 review L1: a contact summary about enabled gateways, sent with none enabled, is not confirmed
+  // contact. Fall back non-positively with a next step (the recognised no-source state keeps its own words).
+  const enabledCount = doc.gateways.filter((g) => g.registration === "ENABLED").length;
+  if ((s.status === "ALL_CURRENT" || s.status === "NOT_ALL_CURRENT") && enabledCount === 0) {
+    return {
+      label: "Gateway contact cannot be confirmed",
+      sentence: "This record lists no enabled gateway, so there is no gateway contact to confirm for this site.",
+      next: "Check that the site's gateway is registered and enabled.",
+      tone: "limited",
+      code: s.status,
+      unrecognised: false,
+    };
+  }
   switch (s.status) {
     case "ALL_CURRENT":
       return {
@@ -96,6 +109,28 @@ export function gatewayContactWords(row: GatewayHealthRow): ProductWords {
   }
   switch (c.status) {
     case "CURRENT":
+      // W1-UX-06 (`D-2026-10-17-w1-ux-06` Q3): contact and fact age stay distinct. An old report with a trusted,
+      // known age says so; an unknown, untrusted or observed-after-receipt age is never called old.
+      if (factAgeUnknown(row)) {
+        return {
+          label: "In contact; its latest report's age cannot be confirmed",
+          sentence:
+            "The server received this gateway's report within its reporting interval, but the age of what it last reported cannot be confirmed. This is not equipment condition.",
+          tone: "limited",
+          code: `${c.status} / ${row.reported_facts.reason}`,
+          unrecognised: false,
+        };
+      }
+      if (row.reported_facts.status === "OLD") {
+        return {
+          label: "In contact; its latest report is old",
+          sentence:
+            "The server received this gateway's report within its reporting interval, but the facts it last reported are old; their age is shown below. This is not equipment condition.",
+          tone: "limited",
+          code: `${c.status} / ${row.reported_facts.status}`,
+          unrecognised: false,
+        };
+      }
       return {
         label: "In contact",
         sentence: "The server received this gateway's report within its reporting interval. This is not equipment condition.",
@@ -162,11 +197,15 @@ export function HealthHeadline({
   const attention = enabled.filter(
     (g) => g.contact.status !== "CURRENT" || factAgeUnknown(g) || g.reported_facts.status !== "CURRENT",
   );
+  // W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised summary code, or zero enabled gateways outside the
+  // recognised no-source state, never reads positive (never "All 0 enabled gateways").
   const headline = noSource
     ? "No gateway is reporting, so nothing is known about this site's sources"
-    : attention.length === 0
-      ? `All ${enabled.length} enabled gateways are in contact and their latest reports are recent`
-      : `${attention.length} of ${enabled.length} enabled ${enabled.length === 1 ? "gateway needs" : "gateways need"} attention`;
+    : words.unrecognised || enabled.length === 0
+      ? "Gateway contact cannot be confirmed"
+      : attention.length === 0
+        ? `All ${enabled.length} enabled gateways are in contact and their latest reports are recent`
+        : `${attention.length} of ${enabled.length} enabled ${enabled.length === 1 ? "gateway needs" : "gateways need"} attention`;
   return (
     <HeadlineVisualCard
       dataName="site-health"

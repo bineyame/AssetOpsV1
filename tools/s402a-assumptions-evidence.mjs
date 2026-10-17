@@ -22,6 +22,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5400";
 const EMPTY = process.argv[3] ?? "http://localhost:5401";
@@ -100,14 +101,17 @@ async function waitFor(expression, ms = 30000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(300);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function shot(name) {
@@ -117,6 +121,7 @@ async function shot(name) {
   const [w, h] = viewport;
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(Math.ceil(tall), 7000), deviceScaleFactor: 1, mobile: w < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   const file = join(OUT, `${name}.png`);
   writeFileSync(file, Buffer.from(r.data, "base64"));
@@ -205,10 +210,13 @@ async function main() {
     claim(`${W}: version 3 shows its corrected price`, /1\.19 USD per litre/.test(await js(`document.querySelector('[data-price-exact-revision]')?.innerText ?? ''`)));
     await js("history.back()");
     claim(`${W}: back returns to the current list`, await waitFor(`location.search === '' && !document.querySelector('[data-price-exact-revision]') && ${pricePage}`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await js("history.forward()");
     claim(`${W}: forward reopens version 3`, await waitFor(`document.querySelector('[data-price-exact-revision]')?.getAttribute('data-price-exact-revision') === ${JSON.stringify(v3)}`));
+    await requireWidth(viewport[0], viewport[1], "after forward");
     await send("Page.reload");
     claim(`${W}: reload keeps version 3`, await waitFor(`document.querySelector('[data-price-exact-revision]')?.getAttribute('data-price-exact-revision') === ${JSON.stringify(v3)} && ${settled}`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await shot(`s402a-assumptions-version3-${W}`);
 
     // --- historical cutoffs ---
@@ -216,6 +224,7 @@ async function main() {
       await go(`${assumptions}?recorded_at=${encodeURIComponent(at)}`, `${pricePage} && document.querySelector('[data-price-recorded-at]')`);
       await send("Page.reload");
       await waitFor(`${pricePage} && document.querySelector('[data-price-recorded-at]')`);
+      await requireWidth(viewport[0], viewport[1], "after reload or back");
       const got = await js(schedule);
       claim(`${W}: recorded cutoff ${label} selects ${want.length} stored slice(s) after reload`, JSON.stringify(got) === JSON.stringify(want), { size: got.length });
       if (label === "after v1") await shot(`s402a-assumptions-recorded-v1-${W}`);
@@ -245,10 +254,12 @@ async function main() {
     await shot(`s402a-financials-bridge-${W}`);
     await send("Page.reload");
     claim(`${W}: reload keeps the bridged version`, await waitFor(`document.querySelector('[data-financials-bridge]')?.getAttribute('data-finding-revision') === ${JSON.stringify(bridge.rev)} && ${settled}`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
     await js(`[...document.querySelectorAll('[data-financials-bridge] a')].find(a => a.textContent.startsWith('See the evidence')).click()`);
     claim(`${W}: Evidence opens at the same version`, await waitFor(`location.pathname.endsWith('/evidence') && location.search.includes(${JSON.stringify(bridge.rev)})`));
     await js("history.back()");
     claim(`${W}: back returns to the same money view`, await waitFor(`document.querySelector('[data-financials-bridge]')?.getAttribute('data-finding-revision') === ${JSON.stringify(bridge.rev)}`));
+    await requireWidth(viewport[0], viewport[1], "after reload or back");
 
     // --- Overview without a Finding, Foundation link ---
     await go(`${BASE}/sites/${SITE}/financials`, `document.querySelector('[data-financials-bridge="none"]') && document.querySelector('#site-financials-price-heading') && ${settled}`);

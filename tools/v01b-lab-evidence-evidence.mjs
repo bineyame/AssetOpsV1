@@ -25,6 +25,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5362";
 const OUT = process.argv[3] ?? join(tmpdir(), "v01b-lab-evidence-evidence");
@@ -107,14 +108,17 @@ async function waitFor(expression, ms = 45000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(400);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function shot(name) {
@@ -125,6 +129,7 @@ async function shot(name) {
   const h = Math.min(Math.ceil(tall), 9000);
   await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: h, deviceScaleFactor: 1, mobile: viewport[0] < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(join(OUT, `${name}.png`), Buffer.from(r.data, "base64"));
   await size(viewport[0], viewport[1]);

@@ -44,6 +44,7 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5173";
 
@@ -628,6 +629,15 @@ async function visit(cdp, path, width, height, waitFor, act) {
     }
     await sleep(250);
   }
+
+  // W1-UX-06: the shared width check. Nothing below is measured unless the page
+  // was laid out at the requested width (innerWidth === width, clientWidth in
+  // [width - 20, width]); a failure throws, naming both widths. A pass is printed
+  // with both widths too (W1-UX-06 phase-1 review L3), so the log shows what was held.
+  await widthGuard({
+    send: (method, params) => cdp.send(method, params),
+    claim: (name, ok) => console.log(`  ${ok ? "PASS" : "FAIL"}  width: ${name}`),
+  })(width, height, `${path} @${width}`);
 
   const result = await cdp.send("Runtime.evaluate", {
     expression: MEASURE,

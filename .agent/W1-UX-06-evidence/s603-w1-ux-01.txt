@@ -1,0 +1,53 @@
+﻿PASS  loaded http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-active desktop: the migrated card renders at http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z
+PASS  sitework-active desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Every Action created here in this window","asOf":"As of 17 Oct 2026, 02:02 UTC"}
+PASS  sitework-active desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitework-active desktop: no sideways scroll from the card (measured 60 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sitework-active desktop: the card has a small visual  true
+PASS  sitework-active desktop: keyboard Tab reaches the disclosure summary  {"tabs":25,"focusable":["A:Open the newest Action","SUMMARY:How this was worked out"]}
+PASS  sitework-active desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+PASS  loaded http://localhost:5570/mockups/v69/index.html#/sitework: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework desktop: mock #/sitework renders
+PASS  loaded http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-active narrow: the migrated card renders at http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z
+PASS  sitework-active narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Every Action created here in this window","asOf":"As of 17 Oct 2026, 02:02 UTC"}
+PASS  sitework-active narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitework-active narrow: no sideways scroll from the card (measured 60 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitework-active narrow: the card has a small visual  true
+PASS  sitework-active narrow: keyboard Tab reaches the disclosure summary  {"tabs":25,"focusable":["A:Open the newest Action","SUMMARY:How this was worked out"]}
+PASS  sitework-active narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+PASS  loaded http://localhost:5570/mockups/v69/index.html#/sitework: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework narrow: mock #/sitework renders
+PASS  loaded http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-paged desktop: the migrated card renders at http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1
+PASS  sitework-paged desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Every Action created here in this window","asOf":"As of 17 Oct 2026, 02:02 UTC"}
+PASS  sitework-paged desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitework-paged desktop: no sideways scroll from the card (measured 60 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sitework-paged desktop: the card has a small visual  true
+PASS  sitework-paged desktop: keyboard Tab reaches the disclosure summary  {"tabs":25,"focusable":["A:Open the newest Action","SUMMARY:How this was worked out"]}
+PASS  sitework-paged desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1"
+PASS  loaded http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-paged narrow: the migrated card renders at http://localhost:5570/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1
+PASS  sitework-paged narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Every Action created here in this window","asOf":"As of 17 Oct 2026, 02:02 UTC"}
+PASS  sitework-paged narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitework-paged narrow: no sideways scroll from the card (measured 60 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitework-paged narrow: the card has a small visual  true
+PASS  sitework-paged narrow: keyboard Tab reaches the disclosure summary  {"tabs":25,"focusable":["A:Open the newest Action","SUMMARY:How this was worked out"]}
+PASS  sitework-paged narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1"
+PASS  loaded http://localhost:5570/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-zero desktop: the migrated card renders at http://localhost:5570/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z
+PASS  sitework-zero desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Checked: nothing to report","asOf":"As of 17 Oct 2026, 02:02 UTC"}
+PASS  sitework-zero desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitework-zero desktop: no sideways scroll from the card (measured 34 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+FAIL  sitework-zero desktop: the card has a small visual  false
+PASS  sitework-zero desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitework-zero desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
+PASS  loaded http://localhost:5570/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-zero narrow: the migrated card renders at http://localhost:5570/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z
+PASS  sitework-zero narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Checked: nothing to report","asOf":"As of 17 Oct 2026, 02:02 UTC"}
+PASS  sitework-zero narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitework-zero narrow: no sideways scroll from the card (measured 34 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+FAIL  sitework-zero narrow: the card has a small visual  false
+PASS  sitework-zero narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitework-zero narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
+50/52 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s603

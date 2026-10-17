@@ -1,0 +1,103 @@
+﻿PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-25: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop empty: settled  "current-empty"
+PASS  desktop empty: no page-level horizontal overflow  -15
+PASS  desktop empty: imported Overview sections stay visible  ["CURRENT","ABSENT"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-empty.png
+PASS  desktop empty (#a): assessed zero with a token, no rows  "current-empty"
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-30: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop unassessed: settled  "UNASSESSED"
+PASS  desktop unassessed: no page-level horizontal overflow  -15
+PASS  desktop unassessed: imported Overview sections stay visible  ["UNASSESSED","UPSTREAM_UNASSESSED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-unassessed.png
+PASS  desktop unassessed: list state UNASSESSED, no rows, no count, no empty claim  {"state":"UNASSESSED","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-27: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop dirty: settled  "current-empty"
+PASS  desktop dirty: no page-level horizontal overflow  -15
+PASS  desktop dirty: imported Overview sections stay visible  ["CURRENT","ABSENT"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-dirty.png
+FAIL  desktop dirty: list state STALE_PROJECTION, no rows, no count, no empty claim  {"state":"current-empty","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-11-05: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop failed: settled  "FAILED"
+PASS  desktop failed: no page-level horizontal overflow  -15
+PASS  desktop failed: imported Overview sections stay visible  ["FAILED","UPSTREAM_FAILED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-failed.png
+PASS  desktop failed: list state FAILED, no rows, no count, no empty claim  {"state":"FAILED","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop positive: settled  "current-rows"
+PASS  desktop positive: no page-level horizontal overflow  -15
+PASS  desktop positive: imported Overview sections stay visible  ["CURRENT","QUANTITY_UNAVAILABLE"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-positive.png
+PASS  desktop positive (#b): rows with exact revision links  {"rows":[["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","2f621bff-18c3-4278-bba3-e42dc20c3cfd"],["fd092181-4d6a-442c-8910-4156bf582960","6ce41a7a-278d-4e1e-9846-18b88e49f4c0"]],"links":["/sites/KOBO-001/findings/8e612c8e-42fb-42e2-a0c4-8f48b5c59270?revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd","/sites/KOBO-001/findings/fd092181-4d6a-442c-8910-4156bf582960?revision_id=6ce41a7a-278d-4e1e-9846-18b88e49f4c0"]}
+PASS  desktop positive: order equals the API index read  {"ui":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","fd092181-4d6a-442c-8910-4156bf582960"],"api":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","fd092181-4d6a-442c-8910-4156bf582960"]}
+PASS  desktop positive: first-page preview says it is not the whole list  "Showing the first 2 of 3. This is not the whole list."
+PASS  desktop positive: full-list link has the identical window and domain  "/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z"
+PASS  desktop positive: parity outcome shown  {"ui":"same","apiFirstEqualsKnown":true,"known":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","2f621bff-18c3-4278-bba3-e42dc20c3cfd"],"first":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","2f621bff-18c3-4278-bba3-e42dc20c3cfd"],"text":"The first Finding listed is the same Finding version as the one chosen above, on the same assessment and matching basis for this day."}
+PASS  desktop positive: parity follows the Overview's own freshness (same only when CURRENT)  {"freshness":"CURRENT","ui":"same"}
+PASS  desktop Enter on a row link opens the exact revision  {"opened":"/sites/KOBO-001/findings/8e612c8e-42fb-42e2-a0c4-8f48b5c59270?revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd","want":"/sites/KOBO-001/findings/8e612c8e-42fb-42e2-a0c4-8f48b5c59270?revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd"}
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-row-detail.png
+PASS  after reload or back: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop Back returns to the selected Overview day  {"back":"/sites/KOBO-001?date=2026-10-15&finding_id=8e612c8e-42fb-42e2-a0c4-8f48b5c59270&finding_revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd","before":"/sites/KOBO-001?date=2026-10-15&finding_id=8e612c8e-42fb-42e2-a0c4-8f48b5c59270&finding_revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd"}
+PASS  after reload or back: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop reload keeps the day, the Finding pin and the rows  "/sites/KOBO-001?date=2026-10-15&finding_id=8e612c8e-42fb-42e2-a0c4-8f48b5c59270&finding_revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd"
+PASS  loaded http://localhost:5490/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop full Site Findings page opens on the identical window  "current-rows"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-full-list.png
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop date change: the next day's list, none of the old day's rows  {"listFor":"2026-10-16","state":"UNASSESSED","rows":[],"href":"/sites/KOBO-001?date=2026-10-16"}
+PASS  after reload or back: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop reload after date change keeps the new day and no old rows  "2026-10-16"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-desktop-date-change.png
+PASS  loaded file:///C:/Users/assef/Bineyame/AssetOpsV1-review3/frontend/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-mock-desktop-mini.png
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-25: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow empty: settled  "current-empty"
+PASS  narrow empty: no page-level horizontal overflow  0
+PASS  narrow empty: imported Overview sections stay visible  ["CURRENT","ABSENT"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-empty.png
+PASS  narrow empty (#a): assessed zero with a token, no rows  "current-empty"
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-30: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow unassessed: settled  "UNASSESSED"
+PASS  narrow unassessed: no page-level horizontal overflow  0
+PASS  narrow unassessed: imported Overview sections stay visible  ["UNASSESSED","UPSTREAM_UNASSESSED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-unassessed.png
+PASS  narrow unassessed: list state UNASSESSED, no rows, no count, no empty claim  {"state":"UNASSESSED","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-27: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow dirty: settled  "current-empty"
+PASS  narrow dirty: no page-level horizontal overflow  0
+PASS  narrow dirty: imported Overview sections stay visible  ["CURRENT","ABSENT"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-dirty.png
+FAIL  narrow dirty: list state STALE_PROJECTION, no rows, no count, no empty claim  {"state":"current-empty","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-11-05: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow failed: settled  "FAILED"
+PASS  narrow failed: no page-level horizontal overflow  0
+PASS  narrow failed: imported Overview sections stay visible  ["FAILED","UPSTREAM_FAILED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-failed.png
+PASS  narrow failed: list state FAILED, no rows, no count, no empty claim  {"state":"FAILED","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow positive: settled  "current-rows"
+PASS  narrow positive: no page-level horizontal overflow  0
+PASS  narrow positive: imported Overview sections stay visible  ["CURRENT","QUANTITY_UNAVAILABLE"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-positive.png
+PASS  narrow positive (#b): rows with exact revision links  {"rows":[["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","2f621bff-18c3-4278-bba3-e42dc20c3cfd"],["fd092181-4d6a-442c-8910-4156bf582960","6ce41a7a-278d-4e1e-9846-18b88e49f4c0"]],"links":["/sites/KOBO-001/findings/8e612c8e-42fb-42e2-a0c4-8f48b5c59270?revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd","/sites/KOBO-001/findings/fd092181-4d6a-442c-8910-4156bf582960?revision_id=6ce41a7a-278d-4e1e-9846-18b88e49f4c0"]}
+PASS  narrow positive: order equals the API index read  {"ui":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","fd092181-4d6a-442c-8910-4156bf582960"],"api":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","fd092181-4d6a-442c-8910-4156bf582960"]}
+PASS  narrow positive: first-page preview says it is not the whole list  "Showing the first 2 of 3. This is not the whole list."
+PASS  narrow positive: full-list link has the identical window and domain  "/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z"
+PASS  narrow positive: parity outcome shown  {"ui":"same","apiFirstEqualsKnown":true,"known":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","2f621bff-18c3-4278-bba3-e42dc20c3cfd"],"first":["8e612c8e-42fb-42e2-a0c4-8f48b5c59270","2f621bff-18c3-4278-bba3-e42dc20c3cfd"],"text":"The first Finding listed is the same Finding version as the one chosen above, on the same assessment and matching basis for this day."}
+PASS  narrow positive: parity follows the Overview's own freshness (same only when CURRENT)  {"freshness":"CURRENT","ui":"same"}
+PASS  narrow Enter on a row link opens the exact revision  {"opened":"/sites/KOBO-001/findings/8e612c8e-42fb-42e2-a0c4-8f48b5c59270?revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd","want":"/sites/KOBO-001/findings/8e612c8e-42fb-42e2-a0c4-8f48b5c59270?revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd"}
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-row-detail.png
+PASS  after reload or back: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow Back returns to the selected Overview day  {"back":"/sites/KOBO-001?date=2026-10-15&finding_id=8e612c8e-42fb-42e2-a0c4-8f48b5c59270&finding_revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd","before":"/sites/KOBO-001?date=2026-10-15&finding_id=8e612c8e-42fb-42e2-a0c4-8f48b5c59270&finding_revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd"}
+PASS  after reload or back: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow reload keeps the day, the Finding pin and the rows  "/sites/KOBO-001?date=2026-10-15&finding_id=8e612c8e-42fb-42e2-a0c4-8f48b5c59270&finding_revision_id=2f621bff-18c3-4278-bba3-e42dc20c3cfd"
+PASS  loaded http://localhost:5490/sites/KOBO-001/findings?domain=mini-grid-dispatch&from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow full Site Findings page opens on the identical window  "current-rows"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-full-list.png
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow date change: the next day's list, none of the old day's rows  {"listFor":"2026-10-16","state":"UNASSESSED","rows":[],"href":"/sites/KOBO-001?date=2026-10-16"}
+PASS  after reload or back: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow reload after date change keeps the new day and no old rows  "2026-10-16"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-initial-narrow-date-change.png
+PASS  loaded file:///C:/Users/assef/Bineyame/AssetOpsV1-review3/frontend/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-mock-narrow-mini.png
+82/84 claims passed

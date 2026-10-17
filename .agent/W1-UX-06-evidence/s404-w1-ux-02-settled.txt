@@ -1,0 +1,22 @@
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-settled desktop: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-settled desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:59 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-settled desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-settled desktop: no sideways scroll from the card (measured 138 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sitefindings-settled desktop: the card has a small visual  true
+PASS  sitefindings-settled desktop: keyboard Tab reaches the disclosure summary  {"tabs":36,"focusable":["DIV:FindingPeriodStateMain consequenceRelate","A:Generator support merits review","A:Recurs after an earlier Finding","A:Generator support merits review","A:Merged from another Finding","A:Recurs after an earlier Finding","A:Recurred as a later Finding","A:Generator support merits review","A:Split from another Finding","A:Generator support merits review","A:Recurred as a later Finding","A:Split into another Finding","A:Open the newest Finding","SUMMARY:How this was worked out"]}
+PASS  sitefindings-settled desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings desktop: mock #/sitefindings renders
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-settled narrow: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-settled narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sitefindings-settled narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:59 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-settled narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-settled narrow: no sideways scroll from the card (measured 138 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitefindings-settled narrow: the card has a small visual  true
+PASS  sitefindings-settled narrow: keyboard Tab reaches the disclosure summary  {"tabs":36,"focusable":["DIV:FindingPeriodStateMain consequenceRelate","A:Generator support merits review","A:Recurs after an earlier Finding","A:Generator support merits review","A:Merged from another Finding","A:Recurs after an earlier Finding","A:Recurred as a later Finding","A:Generator support merits review","A:Split from another Finding","A:Generator support merits review","A:Recurred as a later Finding","A:Split into another Finding","A:Open the newest Finding","SUMMARY:How this was worked out"]}
+PASS  sitefindings-settled narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings narrow: mock #/sitefindings renders
+21/21 claims passed; screenshots in C:/Users/assef/AppData/Local/Temp/w1ux06-final/s404/ux02-settled

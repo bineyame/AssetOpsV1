@@ -1,0 +1,22 @@
+﻿PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: Assumptions with Interpretation history loads
+PASS  desktop: default address is not rewritten  "/sites/KOBO-001/financials/assumptions"
+PASS  desktop: prices and history at one identical cutoff string  ["2026-10-17T01:32:01.592915+00:00","2026-10-17T01:32:01.592915+00:00"]
+PASS  desktop: no identifier in visible text outside closed disclosures  []
+PASS  desktop: no current amount wording
+PASS  desktop: no horizontal overflow (page and shell)  {"page":0,"shell":0}
+PASS  desktop: closed source lists every version without an amount  ["SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED"]
+PASS  desktop: closed source is said
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\closed\s408-closed-desktop.png
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: Assumptions with Interpretation history loads
+PASS  narrow: default address is not rewritten  "/sites/KOBO-001/financials/assumptions"
+PASS  narrow: prices and history at one identical cutoff string  ["2026-10-17T01:32:04.646393+00:00","2026-10-17T01:32:04.646393+00:00"]
+PASS  narrow: no identifier in visible text outside closed disclosures  []
+PASS  narrow: no current amount wording
+PASS  narrow: no horizontal overflow (page and shell)  {"page":0,"shell":0}
+PASS  narrow: closed source lists every version without an amount  ["SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED","SOURCE_CLOSED"]
+PASS  narrow: closed source is said
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\closed\s408-closed-narrow.png
+
+18/18 claims passed (closed)

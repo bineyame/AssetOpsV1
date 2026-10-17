@@ -267,6 +267,9 @@ export function FoundationReadinessHeadline({
   const missingSettings = missingRoles.filter((role) => role.covered_by === "FOUNDATION_CONTROL");
   const cards = readinessCards(foundation);
   const unknown = readiness.state === "UNKNOWN";
+  // W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised Readiness code shows no readiness-dependent step as
+  // complete and no positive headline; directly known configuration facts (cards, gateways) still show.
+  const unrecognised = words.unrecognised;
   const gatewayCount = foundation.gateways.length;
   const steps: Step[] = [
     {
@@ -283,8 +286,14 @@ export function FoundationReadinessHeadline({
     },
     {
       label: "Readings linked to equipment",
-      state: unknown ? "not-known" : missingRoles.length === 0 ? "done" : "problem",
-      detail: unknown ? "No linked set for this period" : missingRoles.length === 0 ? "All required" : `${missingRoles.length} missing`,
+      state: unknown || unrecognised ? "not-known" : missingRoles.length === 0 ? "done" : "problem",
+      detail: unrecognised
+        ? "Set-up state not recognised"
+        : unknown
+          ? "No linked set for this period"
+          : missingRoles.length === 0
+            ? "All required"
+            : `${missingRoles.length} missing`,
     },
     {
       label: "Gateway registered",
@@ -310,14 +319,16 @@ export function FoundationReadinessHeadline({
       headingId="foundation-readiness-answer-heading"
       question="What needs connecting or confirming?"
       headline={
-        unknown
-          ? "Readiness cannot be judged: no reading channels are linked for this period"
-          : outstanding === 0
-            ? "Nothing is missing from the set-up; commissioning is not yet confirmed"
-            : `${outstanding} ${outstanding === 1 ? "item needs" : "items need"} setting up; commissioning is not yet confirmed`
+        unrecognised
+          ? "Set-up state not recognised"
+          : unknown
+            ? "Readiness cannot be judged: no reading channels are linked for this period"
+            : outstanding === 0
+              ? "Nothing is missing from the set-up; commissioning is not yet confirmed"
+              : `${outstanding} ${outstanding === 1 ? "item needs" : "items need"} setting up; commissioning is not yet confirmed`
       }
       status={<ProductStatus words={words} scope={scopeOf(foundation)} asOf={foundation.resolved.knowledge_at} />}
-      visual={<StepStrip title="From configuration to confirmed reporting" steps={steps} />}
+      visual={<StepStrip title="Set-up steps" steps={steps} />}
       meaning={
         <p>
           This view is about set-up only. Being set up to report does not mean any device is connected or reporting;
@@ -325,7 +336,9 @@ export function FoundationReadinessHeadline({
         </p>
       }
       todo={
-        nextSteps.length === 0 ? (
+        nextSteps.length === 0 && unrecognised ? (
+          <p>The set-up state in this read is not recognised; check the exact references below before relying on it.</p>
+        ) : nextSteps.length === 0 ? (
           <p>Record a commissioning confirmation when one exists; nothing else is missing from the set-up.</p>
         ) : (
           <ul data-readiness-next-steps="">

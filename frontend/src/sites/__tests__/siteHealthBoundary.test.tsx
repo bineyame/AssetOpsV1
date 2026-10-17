@@ -160,6 +160,18 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     expect(gatewayRow("s7-clock-offset").reported_facts.fact_age_seconds).toBeNull();
   });
 
+  it("W1-UX-06: an observation after receipt carries a null receipt lag in the contract, and the page states no lag for it", async () => {
+    expect(gatewayRow("s7-clock-offset").reported_facts.receipt_lag_seconds).toBeNull();
+    expect(gatewayRow("s7-delayed-old").reported_facts.receipt_lag_seconds).toBe(21600);
+    serve(recorded());
+    mount("/sites/KOBO-001/health");
+    await settledScreen();
+    const clock = (q('[data-health-gateway="s7-clock-offset"]') as HTMLElement).textContent ?? "";
+    expect(clock).not.toMatch(/reached the server/);
+    expect(clock).not.toMatch(/-\d+\s?(s|min|h|d)\b/);
+    expect((q('[data-health-gateway="s7-delayed-old"]') as HTMLElement).textContent).toContain("it reached the server 6 h after");
+  });
+
   it("keeps queue, storage and device contact as last reported, in separately qualified sections", async () => {
     serve(recorded());
     mount("/sites/KOBO-001/health");
@@ -402,21 +414,10 @@ describe("W1-UX-05: Health and battery answer cards", () => {
     expect(scanned).toBeGreaterThan(5);
     expect(violations, describeViolations(violations)).toEqual([]);
   };
-  /**
-   * A refused read has no read instant, so its bound is the shared "As of: time not recorded" (never now). The shared
-   * `expectStateLineVisible` requires "As of <time>", so the same visibility checks are made here directly.
-   */
+  /** A refused read has no read instant, so its bound is the shared "As of: time not recorded" (never now). */
   const expectRefusedStateLine = (panel: HTMLElement, label: string) => {
-    const status = panel.querySelector("[data-product-status]") as HTMLElement;
-    expect(status, label).not.toBeNull();
-    expect(status.querySelector("[data-product-status-label]")?.textContent).toBe(label);
-    expect((status.querySelector(".product-status__sentence")?.textContent ?? "").length).toBeGreaterThan(0);
-    expect((status.querySelector("[data-product-status-scope]")?.textContent ?? "").length).toBeGreaterThan(0);
-    expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
-    expect(status.closest("details")).toBeNull();
-    for (const d of Array.from(panel.querySelectorAll<HTMLDetailsElement>("details[data-exact-references]"))) {
-      expect(d.open).toBe(false);
-    }
+    expect(expectStateLineVisible(panel)).toBe(label);
+    expect(panel.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
   };
   const disclosureOf = (el: HTMLElement, page: string) => {
     const result = scanDisclosureVocabulary(el, page);
@@ -463,6 +464,95 @@ describe("W1-UX-05: Health and battery answer cards", () => {
     expect(answer.querySelectorAll("[data-value-bar]")).toHaveLength(0);
     expect(answer.textContent).not.toMatch(/\b0 (in contact|recent)\b/);
     w1("health KOBO-002 (W1)");
+  });
+
+  describe("W1-UX-06: selected-gateway old and unknown-age lines, unrecognised and zero-enabled headlines (D-2026-10-17-w1-ux-06)", () => {
+    const clone = (served: Served): any => JSON.parse(JSON.stringify(served));
+    const selected = () => (q("#site-health-selected-heading") as HTMLElement).closest("section") as HTMLElement;
+
+    it("in contact with an old, trusted report: the state line says so outside the disclosure; the age is shown separately", async () => {
+      serve(recorded());
+      mount(`/sites/KOBO-001/health?gateway=${gatewayRow("s7-delayed-old").gateway_id}`);
+      await settledScreen();
+      const panel = selected();
+      expect(expectStateLineVisible(panel)).toBe("In contact; its latest report is old");
+      expect(panel.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
+      const sentence = panel.querySelector(".product-status__sentence")?.textContent ?? "";
+      expect(sentence).toContain("The server received this gateway's report within its reporting interval");
+      expect(sentence).toContain("This is not equipment condition.");
+      expect(panel.textContent).toContain("Old: observed 6 h ago");
+    });
+
+    it("in contact with an untrusted clock: the report's age cannot be confirmed, never old", async () => {
+      serve(recorded());
+      mount(`/sites/KOBO-001/health?gateway=${gatewayRow("s7-clock-offset").gateway_id}`);
+      await settledScreen();
+      const panel = selected();
+      expect(expectStateLineVisible(panel)).toBe("In contact; its latest report's age cannot be confirmed");
+      expect(panel.querySelector("[data-product-status-label]")?.textContent).not.toMatch(/is old/);
+      expect(panel.querySelector(".product-status__sentence")?.textContent).toContain("cannot be confirmed");
+    });
+
+    it("in contact with a recent report stays plain In contact", async () => {
+      serve(recorded());
+      mount(`/sites/KOBO-001/health?gateway=${gatewayRow("s7-current").gateway_id}`);
+      await settledScreen();
+      expect(expectStateLineVisible(selected())).toBe("In contact");
+    });
+
+    it("an unrecognised Health summary code headlines that contact cannot be confirmed, whatever the enabled count", async () => {
+      const odd = clone(C.health_kobo001);
+      odd.body.summary.status = "SOMETHING_NEW";
+      for (const g of odd.body.gateways) {
+        g.contact.status = "CURRENT";
+        g.reported_facts = { ...gatewayRow("s7-current").reported_facts };
+      }
+      serve(recorded({ "/api/sites/KOBO-001/source-health": odd }));
+      mount("/sites/KOBO-001/health");
+      await settledScreen();
+      const answer = card("site-health");
+      expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Gateway contact cannot be confirmed");
+      expect(expectStateLineVisible(answer)).toBe("Contact state not recognised");
+      expect(answer.textContent).not.toMatch(/All \d+ enabled gateways/);
+      expect(answer.querySelector("[data-exact-references]")?.textContent).toContain("SOMETHING_NEW");
+    });
+
+    it("zero enabled gateways: the recognised no-source states keep their own messages; any other state is non-positive", async () => {
+      // All gateways disabled (recognised NO_REGISTERED_SOURCE / NO_ENABLED_GATEWAY).
+      serve(recorded());
+      mount("/sites/KOBO-002/health");
+      await settledScreen();
+      let answer = card("site-health");
+      expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("No gateway is reporting, so nothing is known about this site's sources");
+      expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("No gateway is enabled");
+      cleanup();
+      // None registered (recognised NO_REGISTERED_SOURCE / NO_REGISTERED_GATEWAY): kept distinct from all disabled.
+      const none = clone(C.health_kobo002);
+      none.body.summary.reason = "NO_REGISTERED_GATEWAY";
+      none.body.summary.disabled_gateway_count = 0;
+      none.body.gateways = [];
+      serve(recorded({ "/api/sites/KOBO-002/source-health": none }));
+      mount("/sites/KOBO-002/health");
+      await settledScreen();
+      answer = card("site-health");
+      expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("No gateway is registered");
+      cleanup();
+      // Zero enabled under any other summary code: never "All 0 enabled gateways".
+      const zero = clone(C.health_kobo002);
+      zero.body.summary.status = "ALL_CURRENT";
+      zero.body.summary.reason = null;
+      serve(recorded({ "/api/sites/KOBO-002/source-health": zero }));
+      mount("/sites/KOBO-002/health");
+      await settledScreen();
+      answer = card("site-health");
+      expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Gateway contact cannot be confirmed");
+      expect(answer.textContent).not.toMatch(/All 0 enabled/);
+      // W1-UX-06 phase-1 review L1: the state line is non-positive too, with a next step, and stays visible.
+      expect(expectStateLineVisible(answer)).toBe("Gateway contact cannot be confirmed");
+      expect(answer.textContent).not.toMatch(/Every enabled gateway is in contact/);
+      expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("no enabled gateway");
+      expect(answer.querySelector("[data-product-status]")?.textContent).toContain("Check that the site's gateway is registered and enabled.");
+    });
   });
 
   it("selected gateway: never received keeps its state line visible; IDs move to the closed disclosure (S7-01b L3)", async () => {

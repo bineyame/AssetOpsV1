@@ -1,0 +1,61 @@
+﻿PASS  loaded http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-plan-target_miss desktop: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/plan
+PASS  action-plan-target_miss desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Plan fixed before the later readings","asOf":"As of 1 Nov 2026, 02:00 UTC"}
+PASS  action-plan-target_miss desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-plan-target_miss desktop: no sideways scroll from the card (measured 63 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-plan-target_miss desktop: the card has a small visual  true
+PASS  action-plan-target_miss desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Verification","A:Open Evidence","SUMMARY:How this was worked out"]}
+PASS  action-plan-target_miss desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/plan"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-plan desktop: mock #/action-plan renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan-target_miss narrow: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/plan
+PASS  action-plan-target_miss narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Plan fixed before the later readings","asOf":"As of 1 Nov 2026, 02:00 UTC"}
+PASS  action-plan-target_miss narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-plan-target_miss narrow: no sideways scroll from the card (measured 63 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-plan-target_miss narrow: the card has a small visual  true
+PASS  action-plan-target_miss narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Verification","A:Open Evidence","SUMMARY:How this was worked out"]}
+PASS  action-plan-target_miss narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/plan"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan narrow: mock #/action-plan renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-evidence-target_miss desktop: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/evidence
+PASS  action-evidence-target_miss desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Both windows have their readings","asOf":"As of 2 Nov 2026, 11:04 UTC"}
+PASS  action-evidence-target_miss desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-evidence-target_miss desktop: no sideways scroll from the card (measured 53 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-evidence-target_miss desktop: the card has a small visual  true
+PASS  action-evidence-target_miss desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-evidence-target_miss desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/evidence"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-evidence desktop: mock #/action-evidence renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence-target_miss narrow: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/evidence
+PASS  action-evidence-target_miss narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Both windows have their readings","asOf":"As of 2 Nov 2026, 11:04 UTC"}
+PASS  action-evidence-target_miss narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-evidence-target_miss narrow: no sideways scroll from the card (measured 53 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-evidence-target_miss narrow: the card has a small visual  true
+PASS  action-evidence-target_miss narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-evidence-target_miss narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/evidence"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence narrow: mock #/action-evidence renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-target_miss desktop: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/verification
+PASS  verification-target_miss desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Target not met","asOf":"As of 2 Nov 2026, 11:03 UTC"}
+PASS  verification-target_miss desktop: the closed summary is plain text  "How this was worked out"
+PASS  verification-target_miss desktop: no sideways scroll from the card (measured 64 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  verification-target_miss desktop: the card has a small visual  true
+PASS  verification-target_miss desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Evidence","A:Open the Plan","SUMMARY:How this was worked out"]}
+PASS  verification-target_miss desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/verification"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification desktop: mock #/verification renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-target_miss narrow: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/verification
+PASS  verification-target_miss narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Target not met","asOf":"As of 2 Nov 2026, 11:03 UTC"}
+PASS  verification-target_miss narrow: the closed summary is plain text  "How this was worked out"
+PASS  verification-target_miss narrow: no sideways scroll from the card (measured 64 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  verification-target_miss narrow: the card has a small visual  true
+PASS  verification-target_miss narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Evidence","A:Open the Plan","SUMMARY:How this was worked out"]}
+PASS  verification-target_miss narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/3095d875-6c62-4283-80f6-f3c16a655cfd/verification"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification narrow: mock #/verification renders
+60/60 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s602b\target_miss

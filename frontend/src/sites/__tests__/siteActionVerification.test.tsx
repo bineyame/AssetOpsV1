@@ -1,3 +1,4 @@
+import { reasonWords as sourceReasonWords } from "../sourceProvenance";
 /**
  * S6-02b: the Action Plan / Evidence / Verification child views, the
  * Recommendation success panels and the Foundation change later-effect panels,
@@ -490,6 +491,23 @@ describe("Historical views beside the actual current state, and window lineage (
     const win = q("[data-verification-evidence-window='baseline']");
     expect(win?.querySelector("[data-verification-lineage-day]")?.textContent).toMatch(/SELECTED_UNIQUE/);
     noVocabularyViolations("action-evidence:lineage");
+  });
+
+  it("W1-UX-06: source reasons sent as objects ({code, accepted_evidence_ids}) render their exact code, not a crash", async () => {
+    // Found by the final served capture (s602b inconclusive case): the Evidence page went blank on these objects.
+    const ev = prep(R.evidence);
+    ev.source_resolution.later = {
+      ...ev.source_resolution.later,
+      state: "UNKNOWN",
+      reasons: [{ code: "SOURCE_NOT_ESTABLISHED", accepted_evidence_ids: ["ev-1"] }, "PLAIN_CODE"],
+    };
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(ev), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await settledScreen();
+    await vi.waitFor(() => expect(q("[data-verification-evidence-window='later']")).not.toBeNull());
+    expect(qa("[data-verification-source-reason]").map((e) => e.textContent)).toEqual(["SOURCE_NOT_ESTABLISHED", "PLAIN_CODE"]);
+    // Review L4: each reason also reads in plain words beside its code.
+    expect(qa("[data-verification-source-reason-words]").map((e) => e.textContent)).toEqual([sourceReasonWords("SOURCE_NOT_ESTABLISHED"), sourceReasonWords("PLAIN_CODE")]);
   });
 });
 

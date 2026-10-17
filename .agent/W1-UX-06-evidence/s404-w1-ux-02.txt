@@ -1,0 +1,107 @@
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-positive desktop: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-positive desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:54 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-positive desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-positive desktop: no sideways scroll from the card (measured 121 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sitefindings-positive desktop: the card has a small visual  true
+PASS  sitefindings-positive desktop: keyboard Tab reaches the disclosure summary  {"tabs":33,"focusable":["DIV:FindingPeriodStateMain consequenceRelate","A:Generator support merits review","A:Merged from another Finding","A:Recurs after an earlier Finding","A:Generator support merits review","A:Split from another Finding","A:Generator support merits review","A:Recurred as a later Finding","A:Split into another Finding","A:Open the newest Finding","SUMMARY:How this was worked out"]}
+PASS  sitefindings-positive desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/mockups/v69/index.html#/sitefindings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings desktop: mock #/sitefindings renders
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-positive narrow: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-positive narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sitefindings-positive narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:54 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-positive narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-positive narrow: no sideways scroll from the card (measured 121 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitefindings-positive narrow: the card has a small visual  true
+PASS  sitefindings-positive narrow: keyboard Tab reaches the disclosure summary  {"tabs":33,"focusable":["DIV:FindingPeriodStateMain consequenceRelate","A:Generator support merits review","A:Merged from another Finding","A:Recurs after an earlier Finding","A:Generator support merits review","A:Split from another Finding","A:Generator support merits review","A:Recurred as a later Finding","A:Split into another Finding","A:Open the newest Finding","SUMMARY:How this was worked out"]}
+PASS  sitefindings-positive narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/mockups/v69/index.html#/sitefindings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings narrow: mock #/sitefindings renders
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-empty desktop: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-empty desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Checked: nothing to report","asOf":"As of 17 Oct 2026, 00:55 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-empty desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-empty desktop: no sideways scroll from the card (measured 58 elements)  {"scrollWidth":1440,"clientWidth":1440,"wide":[]}
+PASS  sitefindings-empty desktop: the card has a small visual  true
+PASS  sitefindings-empty desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-empty desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-empty narrow: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-empty narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sitefindings-empty narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Checked: nothing to report","asOf":"As of 17 Oct 2026, 00:55 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-empty narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-empty narrow: no sideways scroll from the card (measured 58 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitefindings-empty narrow: the card has a small visual  true
+PASS  sitefindings-empty narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-empty narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-dirty desktop: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-dirty desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"This result may miss newer readings","asOf":"As of 17 Oct 2026, 00:55 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-dirty desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-dirty desktop: no sideways scroll from the card (measured 67 elements)  {"scrollWidth":1440,"clientWidth":1440,"wide":[]}
+PASS  sitefindings-dirty desktop: the card has a small visual  true
+PASS  sitefindings-dirty desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-dirty desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-dirty narrow: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-dirty narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sitefindings-dirty narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"This result may miss newer readings","asOf":"As of 17 Oct 2026, 00:55 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-dirty narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-dirty narrow: no sideways scroll from the card (measured 67 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitefindings-dirty narrow: the card has a small visual  true
+PASS  sitefindings-dirty narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-dirty narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-failed desktop: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-failed desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"The latest check could not be completed","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sitefindings-failed desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-failed desktop: no sideways scroll from the card (measured 61 elements)  {"scrollWidth":1440,"clientWidth":1440,"wide":[]}
+PASS  sitefindings-failed desktop: the card has a small visual  true
+PASS  sitefindings-failed desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-failed desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-failed narrow: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-failed narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sitefindings-failed narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"The latest check could not be completed","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sitefindings-failed narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-failed narrow: no sideways scroll from the card (measured 61 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitefindings-failed narrow: the card has a small visual  true
+PASS  sitefindings-failed narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-failed narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitefindings-unassessed desktop: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-unassessed desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"We have not checked this period","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sitefindings-unassessed desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-unassessed desktop: no sideways scroll from the card (measured 56 elements)  {"scrollWidth":1440,"clientWidth":1440,"wide":[]}
+PASS  sitefindings-unassessed desktop: the card has a small visual  true
+PASS  sitefindings-unassessed desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-unassessed desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-unassessed narrow: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch
+PASS  sitefindings-unassessed narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sitefindings-unassessed narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"We have not checked this period","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  sitefindings-unassessed narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-unassessed narrow: no sideways scroll from the card (measured 56 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitefindings-unassessed narrow: the card has a small visual  true
+PASS  sitefindings-unassessed narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["SUMMARY:How this was worked out"]}
+PASS  sitefindings-unassessed narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitefindings-page2 desktop: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2
+PASS  sitefindings-page2 desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:54 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-page2 desktop: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-page2 desktop: no sideways scroll from the card (measured 109 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  sitefindings-page2 desktop: the card has a small visual  true
+PASS  sitefindings-page2 desktop: keyboard Tab reaches the disclosure summary  {"tabs":31,"focusable":["DIV:FindingPeriodStateMain consequenceRelate","A:Generator support merits review","A:Merged from another Finding","A:Recurs after an earlier Finding","A:Generator support merits review","A:Split from another Finding","A:Next page","A:Open the newest Finding","SUMMARY:How this was worked out"]}
+PASS  sitefindings-page2 desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2"
+PASS  loaded http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitefindings-page2 narrow: the migrated card renders at http://localhost:5493/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2
+PASS  sitefindings-page2 narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  sitefindings-page2 narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:54 UTC","amountShown":false,"noTime":false}
+PASS  sitefindings-page2 narrow: the closed summary is plain text  "How this was worked out"
+PASS  sitefindings-page2 narrow: no sideways scroll from the card (measured 109 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  sitefindings-page2 narrow: the card has a small visual  true
+PASS  sitefindings-page2 narrow: keyboard Tab reaches the disclosure summary  {"tabs":31,"focusable":["DIV:FindingPeriodStateMain consequenceRelate","A:Generator support merits review","A:Merged from another Finding","A:Recurs after an earlier Finding","A:Generator support merits review","A:Split from another Finding","A:Next page","A:Open the newest Finding","SUMMARY:How this was worked out"]}
+PASS  sitefindings-page2 narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2"
+106/106 claims passed; screenshots in C:/Users/assef/AppData/Local/Temp/w1ux06-final/s404/ux02

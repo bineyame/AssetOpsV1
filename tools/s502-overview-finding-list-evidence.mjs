@@ -21,6 +21,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2];
 const STAGE = process.argv[3];
@@ -103,14 +104,17 @@ async function waitFor(expression, ms = 30000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(400);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function shot(name) {
@@ -118,6 +122,7 @@ async function shot(name) {
   const [w, h] = viewport;
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(Math.ceil(tall), 7000), deviceScaleFactor: 1, mobile: w < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   const file = join(OUT, `${name}.png`);
   writeFileSync(file, Buffer.from(r.data, "base64"));
@@ -145,7 +150,9 @@ const READ = `(() => {
     knownRevision: document.querySelector('[data-known-finding-revision]')?.getAttribute('data-known-finding-revision') ?? null,
     freshness: document.querySelector('[data-freshness-state]')?.getAttribute('data-freshness-state') ?? null,
     money: document.querySelector('[data-money-state]')?.getAttribute('data-money-state') ?? null,
-    token: list?.querySelector('[data-finding-index-token]')?.textContent ?? null,
+    // W1-UX-02 moved the list selection token into the shared exact references (label "List selection reference").
+    token: [...(list?.querySelectorAll('.exact-references__row') ?? [])]
+      .find((r) => r.querySelector('dt')?.textContent === 'List selection reference')?.querySelector('code')?.textContent ?? null,
     emptyClaim: /No Findings for this day/.test(text),
     countClaim: /\\d+ Findings? overlap this day/.test(text),
     overflow: document.documentElement.scrollWidth - window.innerWidth,
@@ -223,9 +230,11 @@ async function main() {
       await shot(`s502-${STAGE}-${W}-row-detail`);
       await js("history.back()");
       const back = await settle();
+      await requireWidth(viewport[0], viewport[1], "after reload or back");
       claim(`${W} Back returns to the selected Overview day`, back.href === before && back.state === "current-rows", { back: back.href, before });
       await send("Page.reload");
       const reloaded = await settle();
+      await requireWidth(viewport[0], viewport[1], "after reload or back");
       claim(`${W} reload keeps the day, the Finding pin and the rows`,
         reloaded.href === before && JSON.stringify(reloaded.rows) === JSON.stringify(p.rows), reloaded.href);
       const fullOk = await go(`${BASE}${p.full}`,
@@ -243,6 +252,7 @@ async function main() {
         nd.listFor !== DAYS.positive && !nd.rows.some(oldRow), { listFor: nd.listFor, state: nd.state, rows: nd.rows, href: nd.href });
       await send("Page.reload");
       const nr = await settle();
+      await requireWidth(viewport[0], viewport[1], "after reload or back");
       claim(`${W} reload after date change keeps the new day and no old rows`, nr.listFor === nd.listFor && !nr.rows.some(oldRow), nr.listFor);
       await shot(`s502-${STAGE}-${W}-date-change`);
       await go(MOCK, `document.body && document.body.innerText.length > 100`);

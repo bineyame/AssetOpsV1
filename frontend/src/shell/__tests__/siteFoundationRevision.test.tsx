@@ -69,7 +69,7 @@ const UNKNOWN_READINESS: ConfigurationReadiness = {
   missing_roles: ["Generator power"],
   foundation_gaps: [],
   channels: [],
-  statement: "No signal binding set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.",
+  statement: "No channel-link set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.",
 };
 
 function foundation(
@@ -116,13 +116,13 @@ function foundation(
       binding_set: null,
       mappings: [],
       legacy_signal_mapping_count: 9,
-      statement: "No signal binding set is in effect for the period shown.",
+      statement: "No channel-link set is in effect for the period shown. Every channel is unbound; the imported signal links are kept for comparison only.",
     },
     readiness: UNKNOWN_READINESS,
     acquisition_snapshot: {
       available: false,
       code: "ACQUISITION_SNAPSHOT_UNAVAILABLE",
-      reason: "No signal binding set is in effect for the period shown.",
+      reason: "No channel-link set is in effect for the period shown, so no gateway snapshot exists.",
     },
     evidence: { statement: "Operational status (contact, credentials, data received, accepted evidence) is not assessed here." },
     configuration_gaps: [],
@@ -225,7 +225,7 @@ function published(
         { device_id: "d-genset-controller", signal_id: "ac-power", display_name: "Generator output power", unit: "kW", source_id: "s1", status: "BOUND", binding_revision_id: "b-genset-power", role: "generator_power" },
         { device_id: "d-genset-controller", signal_id: "output-voltage", display_name: "Generator output voltage", unit: "V", source_id: "s1", status: "UNBOUND", binding_revision_id: null, role: null },
       ],
-      statement: "Ready to report means this configuration names a bound channel for every required role. It does not mean any device is connected, reporting or healthy; operational status is not assessed here.",
+      statement: "Set up to report means this configuration links a reading channel for every required role. It does not mean any device is connected, reporting or healthy; operational status is not assessed here.",
     },
     acquisition_snapshot: {
       available: true,
@@ -326,6 +326,12 @@ describe("the persisted Foundation version", () => {
     expect(
       screen.getByText("No channel-link set is in effect for the period shown. Every channel is unbound; the imported signal links are kept for comparison only."),
     ).toBeInTheDocument();
+    // W1-UX-06: the server's own no-set sentences are shown as sent (no screen-side override).
+    expect(screen.getByText("No channel-link set is in effect for the period shown, so every role is unbound and readiness is Unknown. Operational status is not assessed here.")).toBeInTheDocument();
+    expect(document.querySelector("[data-snapshot-available='false']")?.textContent).toBe(
+      "Gateway snapshot: not available. No channel-link set is in effect for the period shown, so no gateway snapshot exists.",
+    );
+    expect(document.body.textContent).not.toMatch(/signal binding set/i);
     expect(document.querySelector("[data-readiness-state]")?.getAttribute("data-readiness-state")).toBe("UNKNOWN");
     expect(screen.getByText(/registered\. Registration is configuration; central contact is under Gateway status/)).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/awaiting credentials|not sending data|no accepted evidence|no evidence has been accepted|nothing is reporting|accepted against/i);
@@ -543,7 +549,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(bound));
     await settledScreen();
     const readiness = panel("Configuration readiness");
-    expect(within(readiness).getByText("Ready to report")).toBeInTheDocument();
+    expect(within(readiness).getByText("Set up to report")).toBeInTheDocument();
     expect(within(panel("Role coverage")).getByRole("row", { name: /Battery state of charge/ }).textContent).toContain(
       "c-storage: d-storage-controller / state-of-charge",
     );
@@ -607,7 +613,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       expect(roles.map(toneOf)).toEqual(["badge--configured", "badge--configured"]);
       const legend = readiness.querySelector("[data-readiness-legend]") as HTMLElement;
       expect(Array.from(legend.querySelectorAll(".badge")).map((b) => [b.textContent, toneOf(b)])).toEqual([
-        ["Configured / Ready to report", "badge--configured"],
+        ["Configured / Set up to report", "badge--configured"],
         ["Needs configuration", "badge--config-gap"],
         ["Unknown", "badge--neutral"],
       ]);
@@ -853,7 +859,7 @@ describe("S1-03: three Foundation views at one selected period", () => {
       await settledScreen();
       expect(screen.getByRole("heading", { name: "This view needs an imported Site" })).toBeInTheDocument();
       expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
-      expect(screen.queryByText(/Ready to report/)).toBeNull();
+      expect(screen.queryByText(/Ready to report|Set up to report/)).toBeNull();
       view.unmount();
     }
     renderAt(`/sites/${ID}/foundation`, legacy);
@@ -2106,6 +2112,48 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
     );
   });
 
+  it("W1-UX-06: the Readiness badge says Set up to report (configured tone) and the strip is titled Set-up steps", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []))));
+    await settledScreen();
+    const verdict = document.querySelector("[data-readiness-state]") as HTMLElement;
+    expect(verdict.getAttribute("data-readiness-state")).toBe("READY_TO_REPORT");
+    const badge = verdict.querySelector(".badge") as HTMLElement;
+    expect(badge.textContent).toBe("Set up to report");
+    expect(badge.className).toContain("badge--configured");
+    expect(document.body.textContent).not.toMatch(/Ready to report(?! means)/);
+    const strip = card("foundation-readiness").querySelector("[data-step-strip]") as HTMLElement;
+    expect(strip.textContent).toContain("Set-up steps");
+    expect(document.body.textContent).not.toContain("From configuration to confirmed reporting");
+    // Registration only; contact is directed to Health, and no step claims confirmed reporting.
+    expect(steps(card("foundation-readiness"))["Gateway registered"]).toBe("done");
+    expect(steps(card("foundation-readiness"))["Commissioning confirmed"]).toBe("not-known");
+  });
+
+  // W1-UX-06 phase-1 review L4: inherited object names (`constructor`, `toString`) are not recognised codes either.
+  it.each(["SOMETHING_NEW", "constructor", "toString"])("W1-UX-06: an unrecognised Readiness code (%s) is limited: no positive headline, no readiness-dependent step done", async (code) => {
+    const base = foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []));
+    const model = { ...base, readiness: { ...base.readiness, state: code } } as unknown as FoundationReadModel;
+    renderAt(`/sites/${ID}/foundation/readiness`, loaded(model));
+    await settledScreen();
+    const answer = card("foundation-readiness");
+    expect(expectStateLineVisible(answer)).toBe("Set-up state not recognised");
+    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Set-up state not recognised");
+    expect(document.body.textContent).not.toContain("Nothing is missing from the set-up");
+    const s = steps(answer);
+    // Every required role is configured in this read, yet the readiness-dependent step is not shown complete.
+    expect(s["Readings linked to equipment"]).toBe("not-known");
+    expect(Object.values(s).filter((state) => state === "done")).toEqual(["done", "done"]); // set-up facts + gateway registered
+    expect(s["Equipment and settings recorded"]).toBe("done");
+    expect(s["Gateway registered"]).toBe("done");
+    // The exact code stays in the labelled disclosure; the verdict badge is neutral and named, never blank.
+    expect(answer.querySelector("[data-exact-references]")?.textContent).toContain(code);
+    expect(document.querySelector("[data-readiness-state]")?.textContent).toContain("The set-up state in this read is not recognised");
+    const badge = document.querySelector("[data-readiness-state] .badge") as HTMLElement;
+    expect(badge.textContent).toBe("Set-up state not recognised");
+    expect(badge.className).toContain("badge--neutral");
+  });
+
   it("Readiness: Unknown with no linked set, and absent gateway facts as a next step", async () => {
     renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, { gateways: [] })));
     await settledScreen();
@@ -2132,11 +2180,10 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(() => down, down));
     await settledScreen();
     const unavailable = (document.getElementById("foundation-store-unavailable-heading") as HTMLElement).closest("section") as HTMLElement;
-    const status = unavailable.querySelector("[data-product-status]") as HTMLElement;
-    expect(status.querySelector("[data-product-status-label]")?.textContent).toBe("This could not be read right now");
-    expect(status.querySelector("[data-product-status-scope]")?.textContent).toBe(`${ID} · Foundation`);
+    expect(expectStateLineVisible(unavailable)).toBe("This could not be read right now");
+    expect(unavailable.querySelector("[data-product-status-scope]")?.textContent).toBe(`${ID} · Foundation`);
     // No read instant exists for an unreadable store: the bound says so, never now.
-    expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+    expect(unavailable.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
     expect(card("foundation-readiness")).toBeNull();
   });
 

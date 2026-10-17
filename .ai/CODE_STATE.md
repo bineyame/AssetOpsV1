@@ -5794,3 +5794,16 @@ Branch `task/W1-UX-05` (base main `815888f0`). Packet `.agent/W1-UX-05-review-pa
 - Refusals, the empty Foundation period and the unreadable store carry the state line.
 - Open: S7-01b L2 (backend negative `receipt_lag_seconds`); shared `expectStateLineVisible` rejects `asOfText(null)`; three backend "binding" statements replaced in the UI only when no link set is in effect; green S1 "Ready to report" verdict remains under the neutral card; `tools/w1-ux-05-evidence.mjs` 390 px overflow measurement inherits a UX-01 timing issue.
 - Proof at `af9b6406`: tsc 0; full frontend 1755 passed; check-all 9/9; served captures for all five screens (empty-period page not run by design).
+
+## W1-UX-06 - W1 presentation closeout and combined owner walkthrough (built, in_review)
+
+Branch `task/W1-UX-06` (base main `a9b3b297`, main merged at `22df6d7d`). Packet `.agent/W1-UX-06-review-packet.md`; phase-1 handoff `.agent/W1-UX-06-phase-1-handoff.md`; ruling `D-2026-10-17-w1-ux-06`.
+
+- Settled: one shared evidence width check `tools/evidence-checks.mjs` (`widthGuard`, `AS_OF_PATTERN`) in all 24 browser evidence scripts, enforced by `tools/checks/test_evidence_checks.mjs` (inventory + proximity rule ignoring commented guards) in `check-all.ps1`; shared `expectStateLineVisible` accepts only a formatted UTC instant or "As of: time not recorded".
+- Backend: negative `receipt_lag_seconds` -> null; no-set sentences say "channel-link set"; `READINESS_STATEMENT` says "Set up to report means ..." (configuration only); `BINDINGS_NOT_REGISTERED` refusal reworded (code unchanged).
+- Labels per the ruling: "Set up to report" badge, "Set-up steps" strip, old/unknown-age selected-gateway lines, non-positive unrecognised/zero-enabled headlines and state line (Health `contactSummaryWords`), own-key Readiness codes (`Object.hasOwn`).
+- Financials `useRead` is keyed on its request (no stale-answer commit); `w1-ux-02-evidence` amount check scoped to the card.
+- Fixed: Action Evidence crashed on object `SourceSide.reasons` (`SiteActionVerification.tsx`, type in `verificationClient.ts`).
+- Walkthrough: `.agent/W1-UX-combined-owner-walkthrough.md` (16 parts, 26 screens + S4-08); final captures and per-tool guides in `.agent/W1-UX-06-evidence/` (1898/1908; the 10 failures are "small visual" on held/empty cards).
+- Open: owner notes 1-13 in the walkthrough (money words L4, untimed money L6, Readiness strip vs contact, card/panel duplication, no-picture held/empty cards, SLD 390 inner scroll); `widthGuard` window fallback unexercised in real Chrome; `LINK_DISPLAY_OVERRIDES` and G-04 allowance carried from UX-02/03.
+- Proof: backend full 2590 passed/0 skipped at `b7d75daf`; frontend and guards in the packet.

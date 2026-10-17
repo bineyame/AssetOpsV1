@@ -1,0 +1,24 @@
+﻿PASS  loaded http://localhost:5561/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  financials-emptyprice desktop: the migrated card renders at http://localhost:5561/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b
+PASS  financials-emptyprice desktop: the second (consequences) read has landed
+PASS  financials-emptyprice desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"No price recorded","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  financials-emptyprice desktop: the closed summary is plain text  "How this was worked out"
+PASS  financials-emptyprice desktop: no sideways scroll from the card (measured 110 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  financials-emptyprice desktop: the card has a small visual  true
+PASS  financials-emptyprice desktop: keyboard Tab reaches the disclosure summary  {"tabs":16,"focusable":["SUMMARY:Source record for this cost","A:See the evidence for this finding versio","A:Back to the finding","SUMMARY:How this was worked out"]}
+PASS  financials-emptyprice desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b"
+PASS  loaded http://localhost:5561/mockups/v69/index.html#/financials: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  financials desktop: mock #/financials renders
+PASS  loaded http://localhost:5561/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  financials-emptyprice narrow: the migrated card renders at http://localhost:5561/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b
+PASS  financials-emptyprice narrow: the second (consequences) read has landed
+PASS  financials-emptyprice narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  financials-emptyprice narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"No price recorded","asOf":"As of: time not recorded","amountShown":false,"noTime":true}
+PASS  financials-emptyprice narrow: the closed summary is plain text  "How this was worked out"
+PASS  financials-emptyprice narrow: no sideways scroll from the card (measured 110 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  financials-emptyprice narrow: the card has a small visual  true
+PASS  financials-emptyprice narrow: keyboard Tab reaches the disclosure summary  {"tabs":16,"focusable":["SUMMARY:Source record for this cost","A:See the evidence for this finding versio","A:Back to the finding","SUMMARY:How this was worked out"]}
+PASS  financials-emptyprice narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b"
+PASS  loaded http://localhost:5561/mockups/v69/index.html#/financials: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  financials narrow: mock #/financials renders
+23/23 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s402b

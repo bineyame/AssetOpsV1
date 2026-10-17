@@ -189,6 +189,15 @@ def reported_age(at: datetime | None, trust: str, read_at: datetime) -> int | No
     return _seconds(read_at - at)
 
 
+def receipt_lag(received_at: datetime, observed_at: datetime) -> int | None:
+    """Seconds from a gateway-reported observation to its server receipt, or None when the report says it was
+    observed after it was received (an untrusted gateway clock): a negative lag is never published (W1-UX-06;
+    `D-2026-10-16-s701-clock`). A legitimate nonnegative lag, including zero, is kept."""
+    if observed_at > received_at:
+        return None
+    return _seconds(received_at - observed_at)
+
+
 def _watermark(diagnostics) -> dict:
     ids = sorted(str(d.diagnostic_id) for d in diagnostics)
     latest = max((d.received_at for d in diagnostics), default=None)
@@ -255,7 +264,7 @@ def source_health_document(snapshot: SourceHealthSnapshot, site_code: str, read_
                 "reason": age_reason,
                 "observed_at": None if d is None else _z(d.observed_at),
                 "fact_age_seconds": reported_age(None if d is None else d.observed_at, trust, read_at),
-                "receipt_lag_seconds": None if d is None else _seconds(d.received_at - d.observed_at),
+                "receipt_lag_seconds": None if d is None else receipt_lag(d.received_at, d.observed_at),
                 "clock": {"offset_ms": None if facts is None else facts["clock_offset_ms"],
                           "trust": trust if facts is not None else "UNKNOWN",
                           "reason": trust_reason if facts is not None else "NEVER_RECEIVED",

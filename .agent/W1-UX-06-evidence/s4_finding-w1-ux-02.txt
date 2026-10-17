@@ -1,0 +1,60 @@
+PASS  loaded http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding desktop: the migrated card renders at http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058
+PASS  finding desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 16 Oct 2026, 22:54 UTC","amountShown":false,"noTime":false}
+PASS  finding desktop: the closed summary is plain text  "How this was worked out"
+PASS  finding desktop: no sideways scroll from the card (measured 88 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  finding desktop: the card has a small visual  true
+PASS  finding desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["SUMMARY:Source record for this finding version","A:Open the recommendation","A:See how this conclusion was reached (Ana","SUMMARY:How this was worked out"]}
+PASS  finding desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058"
+PASS  loaded http://localhost:5496/mockups/v69/index.html#/finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding desktop: mock #/finding renders
+PASS  loaded http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding narrow: the migrated card renders at http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058
+PASS  finding narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  finding narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 16 Oct 2026, 22:54 UTC","amountShown":false,"noTime":false}
+PASS  finding narrow: the closed summary is plain text  "How this was worked out"
+PASS  finding narrow: no sideways scroll from the card (measured 88 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  finding narrow: the card has a small visual  true
+PASS  finding narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["SUMMARY:Source record for this finding version","A:Open the recommendation","A:See how this conclusion was reached (Ana","SUMMARY:How this was worked out"]}
+PASS  finding narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058"
+PASS  loaded http://localhost:5496/mockups/v69/index.html#/finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding narrow: mock #/finding renders
+PASS  loaded http://localhost:5496/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-stale desktop: the migrated card renders at http://localhost:5496/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8
+PASS  finding-stale desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"This result may miss newer readings","asOf":"As of 16 Oct 2026, 22:54 UTC","amountShown":false,"noTime":false}
+PASS  finding-stale desktop: the closed summary is plain text  "How this was worked out"
+PASS  finding-stale desktop: no sideways scroll from the card (measured 89 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  finding-stale desktop: the card has a small visual  true
+PASS  finding-stale desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["SUMMARY:Source record for this finding version","A:Open the recommendation","A:See how this conclusion was reached (Ana","SUMMARY:How this was worked out"]}
+PASS  finding-stale desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8"
+PASS  loaded http://localhost:5496/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-stale narrow: the migrated card renders at http://localhost:5496/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8
+PASS  finding-stale narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  finding-stale narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"This result may miss newer readings","asOf":"As of 16 Oct 2026, 22:54 UTC","amountShown":false,"noTime":false}
+PASS  finding-stale narrow: the closed summary is plain text  "How this was worked out"
+PASS  finding-stale narrow: no sideways scroll from the card (measured 89 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  finding-stale narrow: the card has a small visual  true
+PASS  finding-stale narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["SUMMARY:Source record for this finding version","A:Open the recommendation","A:See how this conclusion was reached (Ana","SUMMARY:How this was worked out"]}
+PASS  finding-stale narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8"
+PASS  loaded http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-history desktop: the migrated card renders at http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92
+PASS  finding-history desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Earlier version, kept for the record","asOf":"As of 16 Oct 2026, 22:53 UTC","amountShown":false,"noTime":false}
+PASS  finding-history desktop: the closed summary is plain text  "How this was worked out"
+PASS  finding-history desktop: no sideways scroll from the card (measured 58 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  finding-history desktop: the card has a small visual  true
+PASS  finding-history desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Select the latest version","A:Open version 1 of the Finding","A:Open version 1's evidence","SUMMARY:How this was worked out"]}
+PASS  finding-history desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92"
+PASS  loaded http://localhost:5496/mockups/v69/index.html#/finding-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-history desktop: mock #/finding-history renders
+PASS  loaded http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history narrow: the migrated card renders at http://localhost:5496/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92
+PASS  finding-history narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  finding-history narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Earlier version, kept for the record","asOf":"As of 16 Oct 2026, 22:53 UTC","amountShown":false,"noTime":false}
+PASS  finding-history narrow: the closed summary is plain text  "How this was worked out"
+PASS  finding-history narrow: no sideways scroll from the card (measured 58 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  finding-history narrow: the card has a small visual  true
+PASS  finding-history narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Select the latest version","A:Open version 1 of the Finding","A:Open version 1's evidence","SUMMARY:How this was worked out"]}
+PASS  finding-history narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92"
+PASS  loaded http://localhost:5496/mockups/v69/index.html#/finding-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-history narrow: mock #/finding-history renders
+59/59 claims passed; screenshots in C:/Users/assef/AppData/Local/Temp/w1ux06-final/s4_finding/ux02

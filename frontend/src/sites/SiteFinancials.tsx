@@ -124,20 +124,31 @@ const READ_KIND: Record<Exclude<FinancialReadResult<unknown>, { status: "loaded"
   unavailable: "unavailable",
 };
 
+/**
+ * One read, keyed on its request. The stored result carries the deps it answered, and a result whose deps differ
+ * from this render's is treated as still loading (W1-UX-06, W1-UX-02 re-review N1): the effect that clears the old
+ * result runs after render, so without the key one commit could pair a new request with the previous answer (for
+ * example, an amount drawn with "time not recorded" before its consequences read starts).
+ */
 function useRead<T, R = FinancialReadResult<T>>(load: () => Promise<R>, deps: unknown[]): R | null {
-  const [read, setRead] = useState<R | null>(null);
+  const [read, setRead] = useState<{ deps: unknown[]; value: R } | null>(null);
   useEffect(() => {
     let active = true;
     setRead(null);
     void load().then((next) => {
-      if (active) setRead(next);
+      if (active) setRead({ deps, value: next });
     });
     return () => {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
-  return read;
+  if (read === null || !sameDeps(read.deps, deps)) return null;
+  return read.value;
+}
+
+function sameDeps(a: unknown[], b: unknown[]): boolean {
+  return a.length === b.length && a.every((v, i) => Object.is(v, b[i]));
 }
 
 /** W1-UX-02: the labelled exact values of one price version, for the closed "How this was worked out" disclosure. */

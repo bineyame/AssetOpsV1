@@ -91,6 +91,19 @@ class TestBeforeConversion:
         refused = client.get("/api/sites/KOBO-001/foundation/snapshot")
         assert refused.status_code == 409
         assert refused.json()["detail"]["code"] == "ACQUISITION_SNAPSHOT_UNAVAILABLE"
+        # W1-UX-06: the three no-set sentences in plain words, exactly; the screen shows them as sent.
+        assert body["bindings"]["statement"] == (
+            "No channel-link set is in effect for the period shown. Every channel is unbound; "
+            "the imported signal links are kept for comparison only."
+        )
+        assert body["readiness"]["statement"] == (
+            "No channel-link set is in effect for the period shown, so every role is unbound "
+            "and readiness is Unknown. Operational status is not assessed here."
+        )
+        assert body["acquisition_snapshot"]["reason"] == (
+            "No channel-link set is in effect for the period shown, so no gateway snapshot exists."
+        )
+        assert "signal binding set" not in json.dumps(body)
         text = json.dumps(body["readiness"]).lower()
         assert "healthy" not in text.replace("not mean any device is connected, reporting or healthy", "")
 
@@ -593,6 +606,14 @@ class TestReviewM3ReadinessWithFoundationGaps:
         store, _, _ = converted()
         ready = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation").json()["readiness"]
         assert (ready["state"], ready["foundation_gaps"], ready["missing_roles"]) == ("READY_TO_REPORT", [], [])
+        # W1-UX-06: the statement matches the "Set up to report" badge and stays configuration only.
+        assert ready["statement"] == (
+            "Set up to report means this configuration links a reading channel or names a configured "
+            "control for every required role, and the Foundation shown has no configuration gap. "
+            "It does not mean any device is connected, reporting or healthy; "
+            "operational status is not assessed here."
+        )
+        assert "Ready to report" not in ready["statement"]
 
 
 class TestBindingEditThroughFoundationSplits:

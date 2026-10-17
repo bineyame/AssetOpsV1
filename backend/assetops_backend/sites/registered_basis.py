@@ -113,8 +113,8 @@ def select_registered_basis(
     if binding_set is None:
         raise BasisRefused(
             "BINDINGS_NOT_REGISTERED",
-            f"No signal binding set of {site.site_code} was registered as effective {where}, "
-            "so there is no acquisition snapshot to run from.",
+            f"No channel-link set of {site.site_code} was registered as effective {where}, "
+            "so there is no configuration snapshot to run from.",
         )
     if binding_set.foundation_revision_id != foundation.id:
         raise BasisRefused(

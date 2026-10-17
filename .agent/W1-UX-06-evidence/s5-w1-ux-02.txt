@@ -1,0 +1,39 @@
+﻿PASS  loaded http://localhost:5480/sites/KOBO-001?date=2026-10-23: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  mini-p01 desktop: the migrated card renders at http://localhost:5480/sites/KOBO-001?date=2026-10-23
+PASS  mini-p01 desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:34 UTC","amountShown":false,"noTime":false}
+PASS  mini-p01 desktop: the closed summary is plain text  "How this was worked out"
+PASS  mini-p01 desktop: no sideways scroll from the card (measured 36 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  mini-p01 desktop: the card has a small visual  "none by design"
+PASS  mini-p01 desktop: keyboard Tab reaches the disclosure summary  {"tabs":20,"focusable":["A:Open this day in Performance > Dispatch","SUMMARY:How this was worked out"]}
+PASS  mini-p01 desktop: the address keeps its path and selectors after load  "/sites/KOBO-001?date=2026-10-23&finding_id=9ad99819-d7d0-4c9a-8752-9b6c1d903260&finding_revision_id=80d644c2-169f-43c6-821d-13814c28d3e6"
+PASS  loaded http://localhost:5480/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  mini desktop: mock #/mini renders
+PASS  loaded http://localhost:5480/sites/KOBO-001?date=2026-10-23: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  mini-p01 narrow: the migrated card renders at http://localhost:5480/sites/KOBO-001?date=2026-10-23
+PASS  mini-p01 narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  mini-p01 narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Using the latest checked readings","asOf":"As of 17 Oct 2026, 00:34 UTC","amountShown":false,"noTime":false}
+PASS  mini-p01 narrow: the closed summary is plain text  "How this was worked out"
+PASS  mini-p01 narrow: no sideways scroll from the card (measured 36 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  mini-p01 narrow: the card has a small visual  "none by design"
+PASS  mini-p01 narrow: keyboard Tab reaches the disclosure summary  {"tabs":20,"focusable":["A:Open this day in Performance > Dispatch","SUMMARY:How this was worked out"]}
+PASS  mini-p01 narrow: the address keeps its path and selectors after load  "/sites/KOBO-001?date=2026-10-23&finding_id=9ad99819-d7d0-4c9a-8752-9b6c1d903260&finding_revision_id=80d644c2-169f-43c6-821d-13814c28d3e6"
+PASS  loaded http://localhost:5480/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  mini narrow: mock #/mini renders
+PASS  loaded http://localhost:5480/sites/KOBO-001?date=2026-11-10: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  mini-unassessed desktop: the migrated card renders at http://localhost:5480/sites/KOBO-001?date=2026-11-10
+PASS  mini-unassessed desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"We cannot judge this yet","asOf":"As of 17 Oct 2026, 00:35 UTC","amountShown":false,"noTime":false}
+PASS  mini-unassessed desktop: the closed summary is plain text  "How this was worked out"
+PASS  mini-unassessed desktop: no sideways scroll from the card (measured 31 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  mini-unassessed desktop: the card has a small visual  "none by design"
+PASS  mini-unassessed desktop: keyboard Tab reaches the disclosure summary  {"tabs":20,"focusable":["A:Open this day in Performance > Dispatch","SUMMARY:How this was worked out"]}
+PASS  mini-unassessed desktop: the address keeps its path and selectors after load  "/sites/KOBO-001?date=2026-11-10"
+PASS  loaded http://localhost:5480/sites/KOBO-001?date=2026-11-10: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  mini-unassessed narrow: the migrated card renders at http://localhost:5480/sites/KOBO-001?date=2026-11-10
+PASS  mini-unassessed narrow: the page is laid out at 390 px (documentElement.clientWidth within 370..390)  {"clientWidth":390}
+PASS  mini-unassessed narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"We cannot judge this yet","asOf":"As of 17 Oct 2026, 00:35 UTC","amountShown":false,"noTime":false}
+PASS  mini-unassessed narrow: the closed summary is plain text  "How this was worked out"
+PASS  mini-unassessed narrow: no sideways scroll from the card (measured 31 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  mini-unassessed narrow: the card has a small visual  "none by design"
+PASS  mini-unassessed narrow: keyboard Tab reaches the disclosure summary  {"tabs":20,"focusable":["A:Open this day in Performance > Dispatch","SUMMARY:How this was worked out"]}
+PASS  mini-unassessed narrow: the address keeps its path and selectors after load  "/sites/KOBO-001?date=2026-11-10"
+38/38 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s5\ux02

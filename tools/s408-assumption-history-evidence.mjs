@@ -15,6 +15,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5468";
 const STATE_FILE = process.argv[3];
@@ -93,14 +94,17 @@ async function waitFor(expression, ms = 30000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(300);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 async function shot(name) {
@@ -110,6 +114,7 @@ async function shot(name) {
   const [w, h] = viewport;
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(Math.ceil(tall), 7000), deviceScaleFactor: 1, mobile: w < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   const file = join(OUT, `${name}.png`);
   writeFileSync(file, Buffer.from(r.data, "base64"));
@@ -184,6 +189,7 @@ async function main() {
         await send("Page.reload");
         await sleep(300);
         await waitFor(historyPage);
+        await requireWidth(viewport[0], viewport[1], "after reload or back");
         const kept = await js(`document.querySelector('[data-history-cutoff]')?.getAttribute('data-history-cutoff')`);
         claim(`${W}: ${name} cutoff kept after reload`, new Date(kept).getTime() === new Date(at).getTime() && (await where()).includes("recorded_at="), kept);
         const price = await js(`document.querySelector('[data-price-recorded-cutoff]')?.getAttribute('data-price-recorded-cutoff')`);

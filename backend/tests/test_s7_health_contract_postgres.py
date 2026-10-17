@@ -93,6 +93,12 @@ def test_s7_health_api_contract(store, rig, published, tmp_path) -> None:  # noq
     assert c["battery_entry_kobonb"]["body"]["configuration"] == "NOT_CONFIGURED"
     assert c["battery_detail_foreign"]["status"] == 404
     assert c["battery_detail_invalid"]["status"] == 422
+    # W1-UX-06: observed after receipt (the untrusted 95 s clock case) publishes a null lag, never -90; real lag stays.
+    lags = {g["reported_facts"]["reason"]: g["reported_facts"]["receipt_lag_seconds"]
+            for g in c["health_kobo001"]["body"]["gateways"]}
+    assert lags["GATEWAY_CLOCK_UNTRUSTED"] is None
+    every = [g["reported_facts"]["receipt_lag_seconds"] for g in c["health_kobo001"]["body"]["gateways"]]
+    assert all(lag is None or lag >= 0 for lag in every) and 21600 in every
     if os.environ.get("ASSETOPS_WRITE_S7_CONTRACT"):
         FIXTURE.write_text(json.dumps(normalise(contract), indent=1, sort_keys=True) + "\n", encoding="utf-8")
     committed = json.loads(FIXTURE.read_text(encoding="utf-8"))

@@ -26,6 +26,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5398";
 const EMPTY = process.argv[3] ?? "http://localhost:5399";
@@ -160,14 +161,17 @@ async function waitFor(expression, ms = 45000) {
   return false;
 }
 let viewport = [1440, 1000];
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   viewport = [width, height];
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 async function go(url, ready) {
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(400);
+  await requireWidth(viewport[0], viewport[1], `loaded ${url}`);
   return ok;
 }
 const shotNames = new Set();
@@ -182,6 +186,7 @@ async function shot(name) {
   const [w, h] = viewport;
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(Math.ceil(tall), 7000), deviceScaleFactor: 1, mobile: w < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   const file = join(OUT, `${name}.png`);
   writeFileSync(file, Buffer.from(r.data, "base64"));
@@ -431,6 +436,7 @@ async function main() {
           await go(route(path), ready);
           await send("Page.reload", { ignoreCache: true });
           await waitFor(ready);
+          await requireWidth(viewport[0], viewport[1], "after reload or back");
           await sleep(400);
         } else {
           claim(`${label}: loaded`, await go(route(path, query), ready));

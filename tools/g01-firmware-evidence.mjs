@@ -25,6 +25,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const BASE = process.argv[2] ?? "http://localhost:5398";
 const OUT = process.argv[3] ?? join(tmpdir(), "g01-firmware-evidence");
@@ -105,8 +106,10 @@ async function waitFor(expression, ms = 45000) {
   }
   return false;
 }
+const requireWidth = widthGuard({ send, claim });
 async function size(width, height) {
   await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await requireWidth(width, height, `resize to ${width}x${height}`, { record: false });
 }
 const PANEL = `[...document.querySelectorAll('h2')].find(h => h.textContent.trim() === 'Gateway status')?.closest('section')`;
 const READY = `!document.querySelector('[aria-busy="true"]') && (${PANEL})?.querySelector('[data-gateway-panel-state]')`;
@@ -114,6 +117,7 @@ async function load() {
   await send("Page.navigate", { url: ROUTE });
   const ok = await waitFor(READY);
   await sleep(400);
+  await requireWidth(viewport[0], viewport[1], `loaded ${ROUTE}`);
   return ok;
 }
 
@@ -142,6 +146,7 @@ async function shot(name) {
       .map(e => e.scrollHeight + e.getBoundingClientRect().top))`);
   await send("Emulation.setDeviceMetricsOverride", { width: viewport[0], height: Math.min(Math.ceil(tall), 7000), deviceScaleFactor: 1, mobile: viewport[0] < 600 });
   await sleep(300);
+  await requireWidth(viewport[0], null, `capture ${name}`, { record: false });
   const b = await js(`(() => { const r = (${PANEL})?.getBoundingClientRect(); return r ? { x: r.left, y: r.top + window.scrollY, width: r.width, height: r.height } : null; })()`);
   const params = { format: "png", captureBeyondViewport: true };
   if (b && b.width > 0 && b.height > 0) {
@@ -233,6 +238,7 @@ async function main() {
           await send("Page.reload", { ignoreCache: true });
           await waitFor(READY);
           await sleep(400);
+          await requireWidth(viewport[0], viewport[1], "after reload");
           const again = await js(MEASURE);
           claim(`${label}: firmware element outerHTML identical after reload`, m.outer !== null && again.outer === m.outer, { outer: again.outer });
         }
