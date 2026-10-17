@@ -1,48 +1,48 @@
-﻿PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-23: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+﻿PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-10-23: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-p01-priced 1440: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-p01-priced 1440: mock rendered its panels
 PASS  mini-p01-priced 1440: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-p01-priced 1440: app has no horizontal page overflow  {"overflowX":0}
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-23: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-10-23: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-p01-priced 390: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-p01-priced 390: mock rendered its panels
 PASS  mini-p01-priced 390: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-p01-priced 390: app has no horizontal page overflow  {"overflowX":0}
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-24: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-10-24: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-p02-held 1440: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-p02-held 1440: mock rendered its panels
 PASS  mini-p02-held 1440: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-p02-held 1440: app has no horizontal page overflow  {"overflowX":0}
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-24: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-10-24: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-p02-held 390: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-p02-held 390: mock rendered its panels
 PASS  mini-p02-held 390: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-p02-held 390: app has no horizontal page overflow  {"overflowX":0}
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-11-10: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-11-10: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-unassessed 1440: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-unassessed 1440: mock rendered its panels
 PASS  mini-unassessed 1440: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-unassessed 1440: app has no horizontal page overflow  {"overflowX":0}
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-11-10: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-11-10: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-unassessed 390: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-unassessed 390: mock rendered its panels
 PASS  mini-unassessed 390: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-unassessed 390: app has no horizontal page overflow  {"overflowX":0}
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-07: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-10-07: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-failed 1440: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
 PASS  mini-failed 1440: mock rendered its panels
 PASS  mini-failed 1440: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-failed 1440: app has no horizontal page overflow  {"overflowX":0}
-PASS  loaded http://localhost:5660/sites/KOBO-001?date=2026-10-07: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/sites/KOBO-001?date=2026-10-07: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-failed 390: app rendered its main content
-PASS  loaded http://localhost:5660/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  loaded http://localhost:5680/mockups/v69/index.html#/mini: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
 PASS  mini-failed 390: mock rendered its panels
 PASS  mini-failed 390: app and mock render the same number of panels  {"app":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"],"mock":["What happened in the selected hour","Operating context","Needs attention","Bounded money consequence","Next step"]}
 PASS  mini-failed 390: app has no horizontal page overflow  {"overflowX":0}

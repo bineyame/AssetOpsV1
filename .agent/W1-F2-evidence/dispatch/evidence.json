@@ -1,12 +1,12 @@
 {
-  "revision": "ff1bc248",
-  "captured_at": "2026-10-17T11:05:30.870Z",
+  "revision": "73cb5a54",
+  "captured_at": "2026-10-17T12:36:09.217Z",
   "pairs": [
     {
       "screen": "dispatch",
       "case": "supported",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
       "mock_hash": "#/dispatch",
       "app_image": "dispatch-supported-1440-app.png",
       "mock_image": "dispatch-supported-1440-mock.png",
@@ -22,19 +22,19 @@
             "x": 248,
             "y": 623,
             "w": 725,
-            "h": 605
+            "h": 507
           },
           {
             "title": "Selected block · 04:00–04:15 UTC",
             "x": 991,
             "y": 623,
             "w": 403,
-            "h": 605
+            "h": 507
           },
           {
             "title": "Accepted sample coverage",
             "x": 248,
-            "y": 1262,
+            "y": 1163,
             "w": 1145,
             "h": 345
           }
@@ -77,7 +77,7 @@
       "screen": "dispatch",
       "case": "supported",
       "viewport": "390x900",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
       "mock_hash": "#/dispatch",
       "app_image": "dispatch-supported-390-app.png",
       "mock_image": "dispatch-supported-390-mock.png",
@@ -93,19 +93,19 @@
             "x": 16,
             "y": 1528,
             "w": 358,
-            "h": 472
+            "h": 789
           },
           {
             "title": "Selected block · 04:00–04:15 UTC",
             "x": 16,
-            "y": 2016,
+            "y": 2332,
             "w": 358,
-            "h": 650
+            "h": 563
           },
           {
             "title": "Accepted sample coverage",
             "x": 16,
-            "y": 2698,
+            "y": 2927,
             "w": 358,
             "h": 414
           }
@@ -148,7 +148,7 @@
       "screen": "dispatch",
       "case": "limited",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-09",
       "mock_hash": "#/dispatch",
       "app_image": "dispatch-limited-1440-app.png",
       "mock_image": "dispatch-limited-1440-mock.png",
@@ -164,19 +164,19 @@
             "x": 248,
             "y": 623,
             "w": 725,
-            "h": 380
+            "h": 443
           },
           {
             "title": "Selected block · No block selected",
             "x": 991,
             "y": 623,
             "w": 403,
-            "h": 380
+            "h": 443
           },
           {
             "title": "Accepted sample coverage",
             "x": 248,
-            "y": 1037,
+            "y": 1100,
             "w": 1145,
             "h": 318
           }
@@ -219,7 +219,7 @@
       "screen": "dispatch",
       "case": "limited",
       "viewport": "390x900",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-09",
       "mock_hash": "#/dispatch",
       "app_image": "dispatch-limited-390-app.png",
       "mock_image": "dispatch-limited-390-mock.png",
@@ -235,19 +235,19 @@
             "x": 16,
             "y": 1528,
             "w": 358,
-            "h": 499
+            "h": 562
           },
           {
             "title": "Selected block · No block selected",
             "x": 16,
-            "y": 2042,
+            "y": 2105,
             "w": 358,
-            "h": 169
+            "h": 96
           },
           {
             "title": "Accepted sample coverage",
             "x": 16,
-            "y": 2243,
+            "y": 2233,
             "w": 358,
             "h": 404
           }
@@ -290,7 +290,7 @@
       "screen": "dispatch",
       "case": "refused-failed",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-07",
       "mock_hash": "#/dispatch",
       "app_image": "dispatch-refused-failed-1440-app.png",
       "mock_image": "dispatch-refused-failed-1440-mock.png",
@@ -361,7 +361,7 @@
       "screen": "dispatch",
       "case": "refused-failed",
       "viewport": "390x900",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-07",
       "mock_hash": "#/dispatch",
       "app_image": "dispatch-refused-failed-390-app.png",
       "mock_image": "dispatch-refused-failed-390-mock.png",
@@ -432,7 +432,7 @@
       "screen": "analysis",
       "case": "supported",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
       "mock_hash": "#/analysis",
       "app_image": "analysis-supported-1440-app.png",
       "mock_image": "analysis-supported-1440-mock.png",
@@ -461,148 +461,6 @@
             "title": "Coverage, confidence and alternatives",
             "x": 248,
             "y": 819,
-            "w": 1145,
-            "h": 349
-          }
-        ],
-        "overflowX": 0
-      },
-      "mock": {
-        "titles": [
-          "Constraint comparison",
-          "Bounded fuel calculation",
-          "Coverage, confidence and alternatives"
-        ],
-        "panels": [
-          {
-            "title": "Constraint comparison",
-            "x": 234,
-            "y": 367,
-            "w": 735,
-            "h": 432
-          },
-          {
-            "title": "Bounded fuel calculation",
-            "x": 987,
-            "y": 367,
-            "w": 408,
-            "h": 432
-          },
-          {
-            "title": "Coverage, confidence and alternatives",
-            "x": 234,
-            "y": 816,
-            "w": 1161,
-            "h": 287
-          }
-        ],
-        "overflowX": 0
-      }
-    },
-    {
-      "screen": "analysis",
-      "case": "supported",
-      "viewport": "390x900",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
-      "mock_hash": "#/analysis",
-      "app_image": "analysis-supported-390-app.png",
-      "mock_image": "analysis-supported-390-mock.png",
-      "app": {
-        "titles": [
-          "Constraint comparison",
-          "Bounded fuel calculation",
-          "Coverage, confidence and alternatives"
-        ],
-        "panels": [
-          {
-            "title": "Constraint comparison",
-            "x": 16,
-            "y": 1166,
-            "w": 358,
-            "h": 545
-          },
-          {
-            "title": "Bounded fuel calculation",
-            "x": 16,
-            "y": 1727,
-            "w": 358,
-            "h": 146
-          },
-          {
-            "title": "Coverage, confidence and alternatives",
-            "x": 16,
-            "y": 1905,
-            "w": 358,
-            "h": 551
-          }
-        ],
-        "overflowX": 0
-      },
-      "mock": {
-        "titles": [
-          "Constraint comparison",
-          "Bounded fuel calculation",
-          "Coverage, confidence and alternatives"
-        ],
-        "panels": [
-          {
-            "title": "Constraint comparison",
-            "x": 15,
-            "y": 578,
-            "w": 360,
-            "h": 716
-          },
-          {
-            "title": "Bounded fuel calculation",
-            "x": 15,
-            "y": 1312,
-            "w": 360,
-            "h": 286
-          },
-          {
-            "title": "Coverage, confidence and alternatives",
-            "x": 15,
-            "y": 1616,
-            "w": 360,
-            "h": 446
-          }
-        ],
-        "overflowX": 0
-      }
-    },
-    {
-      "screen": "analysis",
-      "case": "limited",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
-      "mock_hash": "#/analysis",
-      "app_image": "analysis-limited-1440-app.png",
-      "mock_image": "analysis-limited-1440-mock.png",
-      "app": {
-        "titles": [
-          "Constraint comparison",
-          "Bounded fuel calculation",
-          "Coverage, confidence and alternatives"
-        ],
-        "panels": [
-          {
-            "title": "Constraint comparison",
-            "x": 248,
-            "y": 436,
-            "w": 725,
-            "h": 498
-          },
-          {
-            "title": "Bounded fuel calculation",
-            "x": 991,
-            "y": 436,
-            "w": 403,
-            "h": 498
-          },
-          {
-            "title": "Coverage, confidence and alternatives",
-            "x": 248,
-            "y": 968,
             "w": 1145,
             "h": 291
           }
@@ -643,9 +501,151 @@
     },
     {
       "screen": "analysis",
+      "case": "supported",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+      "mock_hash": "#/analysis",
+      "app_image": "analysis-supported-390-app.png",
+      "mock_image": "analysis-supported-390-mock.png",
+      "app": {
+        "titles": [
+          "Constraint comparison",
+          "Bounded fuel calculation",
+          "Coverage, confidence and alternatives"
+        ],
+        "panels": [
+          {
+            "title": "Constraint comparison",
+            "x": 16,
+            "y": 1166,
+            "w": 358,
+            "h": 545
+          },
+          {
+            "title": "Bounded fuel calculation",
+            "x": 16,
+            "y": 1727,
+            "w": 358,
+            "h": 146
+          },
+          {
+            "title": "Coverage, confidence and alternatives",
+            "x": 16,
+            "y": 1905,
+            "w": 358,
+            "h": 614
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Constraint comparison",
+          "Bounded fuel calculation",
+          "Coverage, confidence and alternatives"
+        ],
+        "panels": [
+          {
+            "title": "Constraint comparison",
+            "x": 15,
+            "y": 578,
+            "w": 360,
+            "h": 716
+          },
+          {
+            "title": "Bounded fuel calculation",
+            "x": 15,
+            "y": 1312,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Coverage, confidence and alternatives",
+            "x": 15,
+            "y": 1616,
+            "w": 360,
+            "h": 446
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "analysis",
+      "case": "limited",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+      "mock_hash": "#/analysis",
+      "app_image": "analysis-limited-1440-app.png",
+      "mock_image": "analysis-limited-1440-mock.png",
+      "app": {
+        "titles": [
+          "Constraint comparison",
+          "Bounded fuel calculation",
+          "Coverage, confidence and alternatives"
+        ],
+        "panels": [
+          {
+            "title": "Constraint comparison",
+            "x": 248,
+            "y": 436,
+            "w": 725,
+            "h": 498
+          },
+          {
+            "title": "Bounded fuel calculation",
+            "x": 991,
+            "y": 436,
+            "w": 403,
+            "h": 498
+          },
+          {
+            "title": "Coverage, confidence and alternatives",
+            "x": 248,
+            "y": 968,
+            "w": 1145,
+            "h": 262
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Constraint comparison",
+          "Bounded fuel calculation",
+          "Coverage, confidence and alternatives"
+        ],
+        "panels": [
+          {
+            "title": "Constraint comparison",
+            "x": 234,
+            "y": 367,
+            "w": 735,
+            "h": 432
+          },
+          {
+            "title": "Bounded fuel calculation",
+            "x": 987,
+            "y": 367,
+            "w": 408,
+            "h": 432
+          },
+          {
+            "title": "Coverage, confidence and alternatives",
+            "x": 234,
+            "y": 816,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "analysis",
       "case": "limited",
       "viewport": "390x900",
-      "app_url": "http://localhost:5650/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+      "app_url": "http://localhost:5690/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
       "mock_hash": "#/analysis",
       "app_image": "analysis-limited-390-app.png",
       "mock_image": "analysis-limited-390-mock.png",
@@ -675,7 +675,7 @@
             "x": 16,
             "y": 2130,
             "w": 358,
-            "h": 438
+            "h": 409
           }
         ],
         "overflowX": 0

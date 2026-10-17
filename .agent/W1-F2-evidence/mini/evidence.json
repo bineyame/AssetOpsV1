@@ -1,12 +1,12 @@
 {
-  "revision": "8270c9a6",
-  "captured_at": "2026-10-17T11:16:44.380Z",
+  "revision": "73cb5a54",
+  "captured_at": "2026-10-17T12:38:19.022Z",
   "pairs": [
     {
       "screen": "mini",
       "case": "p01-priced",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-10-23",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-23",
       "mock_hash": "#/mini",
       "app_image": "mini-p01-priced-1440-app.png",
       "mock_image": "mini-p01-priced-1440-mock.png",
@@ -24,33 +24,33 @@
             "x": 248,
             "y": 499,
             "w": 1145,
-            "h": 366
+            "h": 333
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 883,
+            "y": 849,
             "w": 725,
-            "h": 493
+            "h": 518
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 883,
+            "y": 849,
             "w": 403,
-            "h": 493
+            "h": 518
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1394,
+            "y": 1386,
             "w": 725,
             "h": 272
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1394,
+            "y": 1386,
             "w": 403,
             "h": 272
           }
@@ -109,7 +109,7 @@
       "screen": "mini",
       "case": "p01-priced",
       "viewport": "390x900",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-10-23",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-23",
       "mock_hash": "#/mini",
       "app_image": "mini-p01-priced-390-app.png",
       "mock_image": "mini-p01-priced-390-mock.png",
@@ -127,33 +127,33 @@
             "x": 16,
             "y": 1518,
             "w": 358,
-            "h": 493
+            "h": 400
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 2029,
+            "y": 1936,
             "w": 358,
             "h": 667
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2713,
+            "y": 2619,
             "w": 358,
-            "h": 516
+            "h": 248
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 3245,
+            "y": 2884,
             "w": 358,
             "h": 344
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 3604,
+            "y": 3243,
             "w": 358,
             "h": 226
           }
@@ -212,7 +212,7 @@
       "screen": "mini",
       "case": "p02-held",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-10-24",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-24",
       "mock_hash": "#/mini",
       "app_image": "mini-p02-held-1440-app.png",
       "mock_image": "mini-p02-held-1440-mock.png",
@@ -230,33 +230,33 @@
             "x": 248,
             "y": 499,
             "w": 1145,
-            "h": 366
+            "h": 333
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 883,
+            "y": 849,
             "w": 725,
-            "h": 493
+            "h": 518
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 883,
+            "y": 849,
             "w": 403,
-            "h": 493
+            "h": 518
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1394,
+            "y": 1386,
             "w": 725,
             "h": 271
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1394,
+            "y": 1386,
             "w": 403,
             "h": 271
           }
@@ -315,7 +315,7 @@
       "screen": "mini",
       "case": "p02-held",
       "viewport": "390x900",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-10-24",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-24",
       "mock_hash": "#/mini",
       "app_image": "mini-p02-held-390-app.png",
       "mock_image": "mini-p02-held-390-mock.png",
@@ -333,33 +333,33 @@
             "x": 16,
             "y": 1518,
             "w": 358,
-            "h": 526
+            "h": 433
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 2062,
+            "y": 1969,
             "w": 358,
             "h": 667
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2746,
+            "y": 2652,
             "w": 358,
-            "h": 516
+            "h": 248
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 3278,
+            "y": 2917,
             "w": 358,
             "h": 342
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 3636,
+            "y": 3275,
             "w": 358,
             "h": 226
           }
@@ -418,7 +418,7 @@
       "screen": "mini",
       "case": "unassessed",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-11-10",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-11-10",
       "mock_hash": "#/mini",
       "app_image": "mini-unassessed-1440-app.png",
       "mock_image": "mini-unassessed-1440-mock.png",
@@ -436,33 +436,33 @@
             "x": 248,
             "y": 499,
             "w": 1145,
-            "h": 286
+            "h": 260
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 803,
+            "y": 777,
             "w": 725,
-            "h": 447
+            "h": 404
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 803,
+            "y": 777,
             "w": 403,
-            "h": 447
+            "h": 404
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1268,
+            "y": 1199,
             "w": 725,
             "h": 178
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1268,
+            "y": 1199,
             "w": 403,
             "h": 178
           }
@@ -521,7 +521,7 @@
       "screen": "mini",
       "case": "unassessed",
       "viewport": "390x900",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-11-10",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-11-10",
       "mock_hash": "#/mini",
       "app_image": "mini-unassessed-390-app.png",
       "mock_image": "mini-unassessed-390-mock.png",
@@ -539,33 +539,33 @@
             "x": 16,
             "y": 1554,
             "w": 358,
-            "h": 380
+            "h": 354
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 1952,
+            "y": 1926,
             "w": 358,
             "h": 336
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2304,
+            "y": 2278,
             "w": 358,
-            "h": 447
+            "h": 404
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2767,
+            "y": 2698,
             "w": 358,
             "h": 217
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 3000,
+            "y": 2931,
             "w": 358,
             "h": 154
           }
@@ -624,7 +624,7 @@
       "screen": "mini",
       "case": "failed",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-10-07",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-07",
       "mock_hash": "#/mini",
       "app_image": "mini-failed-1440-app.png",
       "mock_image": "mini-failed-1440-mock.png",
@@ -642,33 +642,33 @@
             "x": 248,
             "y": 537,
             "w": 1145,
-            "h": 286
+            "h": 236
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 841,
+            "y": 791,
             "w": 725,
-            "h": 497
+            "h": 454
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 841,
+            "y": 791,
             "w": 403,
-            "h": 497
+            "h": 454
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1356,
+            "y": 1262,
             "w": 725,
             "h": 178
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1356,
+            "y": 1262,
             "w": 403,
             "h": 178
           }
@@ -727,7 +727,7 @@
       "screen": "mini",
       "case": "failed",
       "viewport": "390x900",
-      "app_url": "http://localhost:5660/sites/KOBO-001?date=2026-10-07",
+      "app_url": "http://localhost:5680/sites/KOBO-001?date=2026-10-07",
       "mock_hash": "#/mini",
       "app_image": "mini-failed-390-app.png",
       "mock_image": "mini-failed-390-mock.png",
@@ -745,33 +745,33 @@
             "x": 16,
             "y": 1592,
             "w": 358,
-            "h": 401
+            "h": 287
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 2011,
+            "y": 1897,
             "w": 358,
             "h": 336
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2364,
+            "y": 2249,
             "w": 358,
-            "h": 497
+            "h": 454
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2877,
+            "y": 2719,
             "w": 358,
             "h": 215
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 3108,
+            "y": 2950,
             "w": 358,
             "h": 154
           }
