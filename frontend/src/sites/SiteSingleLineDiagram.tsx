@@ -1,8 +1,9 @@
-import { useId, type KeyboardEvent, type ReactNode } from "react";
+import { useId, useMemo, type KeyboardEvent, type ReactNode } from "react";
 
 import { Badge, DataTable, MissingClaim, MissingClaimSvg } from "../ui";
 import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape } from "./componentIcons";
 import type { SiteDetailReadModel } from "./siteReadModel";
+import type { ColdBinding, ColdFoundationReadModel, ColdTopologyNode } from "./coldFoundationClient";
 import {
   COMPONENT_TYPE_LABELS,
   CONNECTION_MEDIUM_LABELS,
@@ -1275,4 +1276,127 @@ export function SiteSldDetails({
       <SldOpenQuestions diagram={view.status === "compatible" ? view.diagram : null} />
     </>
   );
+}
+
+/*
+ * W2-01: the configured cold-chain drawing (kept in this diagram module, which owns its overflow
+ * region). The configured drawing: columns by connection depth, boxes per part, one line per declared connection. */
+
+const BOX_W = 170;
+const BOX_H = 74;
+const COL_W = 204;
+const ROW_H = 132;
+
+export function ColdTopologyDiagram({
+  read,
+  byAsset,
+  roleWord,
+  mediumWord,
+}: {
+  read: ColdFoundationReadModel;
+  byAsset: Map<string, ColdBinding[]>;
+  roleWord: Record<string, string>;
+  mediumWord: Record<string, string>;
+}) {
+  const layout = useMemo(() => diagramLayout(read.topology?.nodes ?? [], read.topology?.edges ?? []), [read]);
+  const width = layout.columns * COL_W - (COL_W - BOX_W) + 16;
+  const height = layout.rows * ROW_H - (ROW_H - BOX_H) + 16;
+  const at = (id: string) => layout.position.get(id);
+  return (
+    <figure className="cold-sld" data-cold-diagram="">
+      <div className="cold-sld__scroll" role="region" aria-label="Configured single line diagram" tabIndex={0}>
+      <svg
+        className="cold-sld__svg"
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={`Configured single line diagram: ${layout.nodes.length} parts and ${layout.edges.length} declared connections`}
+      >
+        {layout.edges.map((edge) => {
+          const from = at(edge.from_node);
+          const to = at(edge.to_node);
+          if (from === undefined || to === undefined) return null;
+          const x1 = from.x + BOX_W;
+          const y1 = from.y + BOX_H / 2;
+          const x2 = to.x;
+          const y2 = to.y + BOX_H / 2;
+          const mid = (x1 + x2) / 2;
+          return (
+            <path
+              key={edge.connection_id}
+              className={`cold-sld__edge cold-sld__edge--${edge.medium.toLowerCase()}`}
+              d={`M ${x1} ${y1} H ${mid} V ${y2} H ${x2}`}
+              data-cold-edge={edge.connection_id}
+            >
+              <title>{`${edge.from_node} to ${edge.to_node} (${mediumWord[edge.medium] ?? edge.medium})`}</title>
+            </path>
+          );
+        })}
+        {layout.nodes.map((node) => {
+          const p = at(node.node_id);
+          if (p === undefined) return null;
+          const readings = node.asset_id === null ? 0 : (byAsset.get(node.asset_id)?.length ?? 0);
+          const name = node.display_name ?? node.component_id;
+          return (
+            <g key={node.node_id} transform={`translate(${p.x} ${p.y})`} data-cold-node={node.component_id}>
+              <rect className={`cold-sld__box cold-sld__box--${family(node.node_role)}`} width={BOX_W} height={BOX_H} rx={6} />
+              <text className="cold-sld__label" x={10} y={26}>
+                {name.length > 24 ? `${name.slice(0, 23)}…` : name}
+              </text>
+              <text className="cold-sld__small" x={10} y={46}>
+                {roleWord[node.node_role] ?? node.node_role}
+              </text>
+              <text className="cold-sld__small" x={10} y={63}>
+                {readings === 0 ? "No reading configured" : `${readings} reading${readings === 1 ? "" : "s"} configured`}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      </div>
+      <figcaption className="cold-sld__legend">
+        <span><span className="cold-sld__key cold-sld__key--ac" aria-hidden="true" />Power</span>
+        <span><span className="cold-sld__key cold-sld__key--thermal" aria-hidden="true" />Cooling</span>
+        <span><span className="cold-sld__key cold-sld__key--signal" aria-hidden="true" />Sensing</span>
+      </figcaption>
+    </figure>
+  );
+}
+
+function family(role: string): string {
+  if (role === "GENERATION" || role === "METERING") return "supply";
+  if (role === "COLD_ROOM" || role === "COOLING") return "load";
+  if (role === "SENSOR") return "sensor";
+  return "network";
+}
+
+export function diagramLayout(nodes: ColdTopologyNode[], edges: { connection_id: string; from_node: string; to_node: string; medium: string }[]) {
+  const depth = new Map(nodes.map((n) => [n.node_id, 0]));
+  // Longest path from any source; the configuration is a directed acyclic graph, so this settles in |nodes| passes.
+  for (let pass = 0; pass < nodes.length; pass += 1) {
+    for (const edge of edges) {
+      const from = depth.get(edge.from_node);
+      const to = depth.get(edge.to_node);
+      if (from !== undefined && to !== undefined && to < from + 1) depth.set(edge.to_node, from + 1);
+    }
+  }
+  const columns = new Map<number, ColdTopologyNode[]>();
+  for (const node of nodes) {
+    const d = depth.get(node.node_id) ?? 0;
+    columns.set(d, [...(columns.get(d) ?? []), node]);
+  }
+  const position = new Map<string, { x: number; y: number }>();
+  let rows = 1;
+  for (const [d, list] of columns) {
+    rows = Math.max(rows, list.length);
+    list.forEach((node, i) => position.set(node.node_id, { x: 8 + d * COL_W, y: 8 + i * ROW_H }));
+  }
+  // Centre each column on the tallest one, so a chain reads as one line across the drawing.
+  for (const list of columns.values()) {
+    const offset = ((rows - list.length) * ROW_H) / 2;
+    for (const node of list) {
+      const p = position.get(node.node_id);
+      if (p !== undefined) p.y += offset;
+    }
+  }
+  return { nodes, edges, position, columns: Math.max(1, columns.size === 0 ? 1 : Math.max(...columns.keys()) + 1), rows };
 }
