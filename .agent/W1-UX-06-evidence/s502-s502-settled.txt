@@ -1,0 +1,15 @@
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop positive-settled: settled  "current-rows"
+PASS  desktop positive-settled: no page-level horizontal overflow  -15
+PASS  desktop positive-settled: imported Overview sections stay visible  ["STALE_PROJECTION","UPSTREAM_STALE"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-settled-desktop-positive-settled.png
+PASS  desktop positive after settle: CURRENT rows again  {"rows":[["fde55430-149a-48db-adc4-106859ee67ba","84065ea7-676a-4efa-835f-5f509f538242"],["56c36dcf-b737-4784-b662-07d468a46718","c58a7b86-8724-4939-a7a5-238e68815f64"]],"parity":"not-compared","known":["fde55430-149a-48db-adc4-106859ee67ba","84065ea7-676a-4efa-835f-5f509f538242"],"text":"This list and the Finding chosen above come from separate reads that cannot be compared right now. They are not said to be the same. Reload both\n\nWhy they are not compared"}
+PASS  desktop positive after settle: parity follows the Overview's own freshness  {"freshness":"STALE_PROJECTION","ui":"not-compared"}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow positive-settled: settled  "current-rows"
+PASS  narrow positive-settled: no page-level horizontal overflow  0
+PASS  narrow positive-settled: imported Overview sections stay visible  ["STALE_PROJECTION","UPSTREAM_STALE"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-settled-narrow-positive-settled.png
+PASS  narrow positive after settle: CURRENT rows again  {"rows":[["fde55430-149a-48db-adc4-106859ee67ba","84065ea7-676a-4efa-835f-5f509f538242"],["56c36dcf-b737-4784-b662-07d468a46718","c58a7b86-8724-4939-a7a5-238e68815f64"]],"parity":"not-compared","known":["fde55430-149a-48db-adc4-106859ee67ba","84065ea7-676a-4efa-835f-5f509f538242"],"text":"This list and the Finding chosen above come from separate reads that cannot be compared right now. They are not said to be the same. Reload both\n\nWhy they are not compared"}
+PASS  narrow positive after settle: parity follows the Overview's own freshness  {"freshness":"STALE_PROJECTION","ui":"not-compared"}
+12/12 claims passed

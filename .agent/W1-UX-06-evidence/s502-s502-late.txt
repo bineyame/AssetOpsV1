@@ -1,0 +1,13 @@
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop positive-late: settled  "STALE_PROJECTION"
+PASS  desktop positive-late: no page-level horizontal overflow  -15
+PASS  desktop positive-late: imported Overview sections stay visible  ["STALE_PROJECTION","UPSTREAM_STALE"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-late-desktop-positive-late.png
+PASS  desktop positive after late evidence: list state STALE_PROJECTION, no rows, no count, no empty claim  {"state":"STALE_PROJECTION","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow positive-late: settled  "STALE_PROJECTION"
+PASS  narrow positive-late: no page-level horizontal overflow  0
+PASS  narrow positive-late: imported Overview sections stay visible  ["STALE_PROJECTION","UPSTREAM_STALE"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-late-narrow-positive-late.png
+PASS  narrow positive after late evidence: list state STALE_PROJECTION, no rows, no count, no empty claim  {"state":"STALE_PROJECTION","rows":0}
+10/10 claims passed

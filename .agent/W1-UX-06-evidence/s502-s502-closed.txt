@@ -1,0 +1,25 @@
+﻿PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop positive-closed: settled  "closed"
+PASS  desktop positive-closed: no page-level horizontal overflow  -15
+PASS  desktop positive-closed: imported Overview sections stay visible  ["STALE_PROJECTION","SOURCE_CLOSED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-closed-desktop-positive-closed.png
+PASS  desktop positive with the gate closed: list state closed, no rows, no count, no empty claim  {"state":"closed","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-25: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop empty-closed: settled  "closed"
+PASS  desktop empty-closed: no page-level horizontal overflow  -15
+PASS  desktop empty-closed: imported Overview sections stay visible  ["STALE_PROJECTION","SOURCE_CLOSED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-closed-desktop-empty-closed.png
+PASS  desktop empty with the gate closed: list state closed, no rows, no count, no empty claim  {"state":"closed","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-15: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow positive-closed: settled  "closed"
+PASS  narrow positive-closed: no page-level horizontal overflow  0
+PASS  narrow positive-closed: imported Overview sections stay visible  ["STALE_PROJECTION","SOURCE_CLOSED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-closed-narrow-positive-closed.png
+PASS  narrow positive with the gate closed: list state closed, no rows, no count, no empty claim  {"state":"closed","rows":0}
+PASS  loaded http://localhost:5490/sites/KOBO-001?date=2026-10-25: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow empty-closed: settled  "closed"
+PASS  narrow empty-closed: no page-level horizontal overflow  0
+PASS  narrow empty-closed: imported Overview sections stay visible  ["STALE_PROJECTION","SOURCE_CLOSED"]
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s502\s502ev\s502-closed-narrow-empty-closed.png
+PASS  narrow empty with the gate closed: list state closed, no rows, no count, no empty claim  {"state":"closed","rows":0}
+20/20 claims passed
