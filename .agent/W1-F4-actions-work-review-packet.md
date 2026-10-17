@@ -2,7 +2,7 @@
 
 - **Task:** W1-F4 (`.agent/W1-F4-actions-work-build-brief.md`), contract `D-2026-10-17-mockup-layout-spec` (`.agent/architect-W1-fidelity.md`).
 - **Branch / worktree:** `task/W1-F4-actions-work` in `AssetOpsV1-review4`, base `af1aa23e` (main with W1-F1). Not merged.
-- **Commits:** `cf2eec5b` page descriptions, `3560b3aa` recommendation, `410ff7d1` changes + sitework (group B), `5b663628` Action overview/execution/history (C1), `076064dc` Plan/Evidence/Verification (C2), `4016b4fc` planted-panel proofs, plus this packet/evidence commit.
+- **Commits:** trim pass (see below), and earlier `cf2eec5b` page descriptions, `3560b3aa` recommendation, `410ff7d1` changes + sitework (group B), `5b663628` Action overview/execution/history (C1), `076064dc` Plan/Evidence/Verification (C2), `4016b4fc` planted-panel proofs, plus this packet/evidence commit.
 - **USER_REVIEW_REQUIRED:** yes (owner walkthrough of W1 fidelity; hold merge for it).
 
 ## Outcome
@@ -33,41 +33,60 @@ Merged-away app panels: recommendation (battery trial, accepted proposal, live r
 ## Structure tests (new)
 `frontend/src/sites/__tests__/w1f4RecommendationStructure.test.tsx` (stocked, accepted, held, empty, refused 404/503), `w1f4ChangesWorkStructure.test.tsx` (changes stocked/empty/attempts-refused/404; sitework stocked/proved-zero/no-window), `w1f4ActionStructure.test.tsx` (3 views x stocked, empty, historical, events-refused, not-found, selection-not-found; verification-history refused), `w1f4VerificationStructure.test.tsx` (plan/evidence/verification stocked, empty, refused, selector conflict, historical). Non-vacuity: `expectPlantedPanelRejected` (`frontend/src/test/panelStructure.ts`, additive) plants a titled `section.panel` before panel 1 on the rendered route, asserts the guard throws, removes it and re-passes: one test per route (9 routes, 12 tests). F1's generic plant tests (h3 card, untitled card, strip bulk, stray block) still pass.
 
-## Checks (revision `4016b4fc`, frontend code unchanged after)
+## Trim pass (2026-10-17, after the height finding): `e922b323`, `1b9d9ae4`, `a0a060af`, `7fe28d97`, `6989f074`
+Goal: each panel within about 1.3x the mock's height at 1440 for the same content shape. Method: show what the mock shows; full IDs, digests and merged card prose into the existing closed disclosures; mock notes only, at note size; honest-state content kept visible in compact form.
+- **Recommendation:** panel 1 = claim line, the visible "Trial only" paragraph, 5 kv rows (Suggested owner gap, Action type, Origin with newer-version notice, Configuration change, Source state word), the accept control or accepted/held line, one next-step + money-qualifier note. Rule/version, full Finding version IDs, hold code, full source notice, live recomputation, Actions list and pinned inputs -> closed "How this was worked out". Panel 3 = the mock's 2 rows; the verification link ends its state line. Hold reason, earlier Action link, "not on the version shown on this page" and applied/outcome words stay visible.
+- **Changes:** Change and effect = Field/Before/After/Purpose table (Purpose "Not recorded yet.": no source), Outcome and Applied-by rows, one scope/as-of note, failed attempts inline with exact event links; attempts-refused gap unchanged. Action/event IDs -> disclosure. Strip state reads "Setting changed; being applied is not success, effect judged separately" (restores an honest sentence the first trim cut).
+- **Site Work:** one-line rows; more than 4 rows fold behind "Show all N Actions" (rows stay in the DOM); window form in the panel header, wrapping at 390; basis disclosure as a small summary; notes merged.
+- **Action scope:** 6 kv rows, 2 note lines (state sentence + as-of; Trial only + source provenance). Basis, new-version and change IDs -> disclosure.
+- **Activity log:** one status line, one sentence line, the latest 3 events with one-line cells, "Show all N steps" -> History (keeps the selector); codes, IDs and "happened at" -> disclosure or History; "(recorded later than it happened)" kept as a marker. Apply control on one row with a one-line explanation.
+- **Action history:** latest 3 rows and an in-place "Show all N events" toggle on the same note line as the outcomes note; an `event_id` selection is always shown and selected; IDs show as short one-line references (full value in the DOM, a `title` tooltip and the disclosure); failure codes are never truncated.
+- **Plan / Evidence / Verification:** one-line Criterion/Rule and Evidence set/Status tables; reasons on one note line; per-window readings, typed values and IDs -> "Dig deeper" (small summary). Failed limits ("measured 10 min, limit 0 min"), known failures, GAP problems, inconclusive reasons and historical labels stay visible outside closed disclosures. An unread plan is stated once (it was repeated per window).
+- Shared, additive only: `Ref` (`frontend/src/sites/actionPresentation.tsx`) gains `title={value}`.
+
+### Changed assertions (each re-asserts the guarantee where the content now lives; none weakened)
+- `siteAction` Overview: basis and new-foundation UUIDs are read from the disclosure rows (moved there; still rendered).
+- `siteAction` "Application lists...": the default view shows the last 3 kinds, 2 failure codes, 3 actor cells (each SYSTEM demonstration) and "Show all 6 steps" with its History href. The test then opens History, shows all, and asserts all 6 kinds, the 3 failure codes, the change ID and the effective revision. The full list is reachable and still asserted in full.
+- `siteAction` History tests ("lists events", "row links", "latest record"): assert 3 default rows and the toggle label, then show all before the original full assertions.
+- `w1f4ActionStructure` stocked history: asserts 3 default rows, then toggles before the original selection-link and earlier/current label checks.
+- `w1f4RecommendationStructure` accepted: panel 3 has 2 rows (the mock's) and still contains `[data-recommendation-verification-link]`.
+- `siteFoundationChange` strip text: the exact string now includes "being applied is not success" (stronger).
+- `siteWorkActions`: one test added (a 6-row page folds to 4 plus a toggle; every row stays in the DOM). Proved non-vacuous: raising the limit to 10 made it fail; reverted.
+- `siteActionVerification`, every S6-02b fail-closed check and every body-wide no-false-claim check: unchanged.
+
+## Checks (revision `6989f074`)
 - `npx.cmd tsc --noEmit`: clean.
-- F4 structure + guard tests: 5 files, 70 passed.
-- Full `npm.cmd test`: 80 files, **2017 passed, 1 failed** in 214 s. Failure: `siteFinancials.test.tsx > Interpretation history (S4-08) > reloads page one at the same moment when the basis changed (typed 409)` (URL still had `&history_after=stale` at assertion time). File untouched by F4; reran alone twice: 75/75 both times. Recorded as a load-timing flake, not fixed (out of scope).
-- `tools/check-all.ps1`: All 10 guards passed (232 s).
-- `npm.cmd run build`: built (chunk-size warning only).
-- Backend: not run (frontend-only slice).
+- F4 targeted files (siteAction, siteActionVerification, siteFoundationChange, siteWorkActions, the 4 w1f4*Structure files, siteFinding, t028Screens, siteFoundationRevision): 343 passed at `e922b323`; affected files re-run after each later change (163 and 96 passed).
+- Full `npm.cmd test`: 80 files, **2018 passed, 1 failed** in 206 s. Failure: `s404SiteFindingIndex.test.tsx > S4-04 Site Findings index: assessed empty > changing the dates writes a new window to the address and reads again` (file untouched by F4). Rerun alone twice: 29/29 both times. Recorded as a load flake.
+- `tools/check-all.ps1`: All 10 guards passed (341 s).
+- Backend: not run (frontend-only).
 
-## Captures (`node tools/w1-fidelity-evidence.mjs`, 1440 and 390, app vs mock)
-Fixtures: `s601b_action_walkthrough` (API 8981 / web 5481), `s602b_verification_walkthrough` (9082+9083 / 5582+5583, `--case guardrail`), `s603_site_work_walkthrough` (9090 / 5590). All three fixtures dropped afterwards (databases and `var/` folders removed).
-- `.agent/W1-F4-evidence/s601b/` - recommendation accepted/held/unavailable, changes applied, action-overview, action-execution applied/failed, action-history all/event: **108/108**. (A first run had 2 fails on the very first page: blank app before Vite's cold compile; rerun warm, all pass.)
-- `.agent/W1-F4-evidence/s602b/` - action-plan, action-evidence, verification (pass, historical, guardrail) and the guardrail recommendation hold: **96/96**.
-- `.agent/W1-F4-evidence/s603/` - sitework active/zero/no-window: **36/36** (same cold-start note).
-Each folder has `index.html` (side-by-side pairs) and `evidence.json`. App and mock panel counts match on every pair; no horizontal overflow at 390.
+## Captures (`tools/w1-fidelity-evidence.mjs`, 1440 and 390, revision `6989f074`)
+The earlier F4 fixtures had been left in place despite the earlier note (`assetops_s601b_w1f4`, `assetops_s602b_w1f4` and its cases, `assetops_s603_owner_w1f4`); they were reused, served on API 8991 / 9092+9093 / 9095 and web 5491 / 5592+5593 / 5595, then all three dropped with each tool's `drop` (databases and `var/` folders removed; only `var/sites` remains). Results: `.agent/W1-F4-evidence/s601b` 108/108, `s602b` 96/96 (a first run alongside two other captures had 3 loading-state fails; rerun alone, all pass), `s603` 36/36. 40 pairs, horizontal overflow 0 (a sitework 390 overflow found mid-pass is fixed).
 
-## Heights against the mock (1440, panel top y / height in px, app vs mock)
-| Screen:case | App | Mock |
-| --- | --- | --- |
-| recommendation accepted | 346/785, 1245/348 | 366/370, 814/234 |
-| recommendation held / unavailable | 346/871 or 811, panel 3 123 | same mock |
-| changes applied | 386/679 | 547/319 |
-| action-overview | 247/611 | 304/268 |
-| action-execution applied / failed | 247/929 / 759 | 304/211 |
-| action-history all / event | 247/657 / 370 | 304/243 |
-| action-plan pass / guardrail | 374/672 / 734 | 304/287 |
-| action-evidence pass / guardrail | 352/616 / 678 | 304/262 |
-| verification pass / guardrail | 523/456 + 1013/678 ; 500/578 + 1112/695 | 586/336 + 940/252 |
-| sitework active / zero / none | 303/439 / 284 / 223 | 409/234 |
-Panel tops sit at or above the mock's (no layer above panel 1). Panels are 2-4x the mock's height: the reads carry more rows than the mock (e.g. execution has 6 real events with full identifiers vs the mock's 3 short rows) plus the merged key values and one-line notes. See deviations.
+## Heights against the mock (1440, panel height px; ratio app/mock)
+| Screen:case | Before trim | After trim | Mock | Ratio |
+| --- | --- | --- | --- | --- |
+| recommendation accepted (p1 / p3) | 785 / 348 | 475 / 260 | 370 / 234 | 1.28 / 1.11 |
+| recommendation held / unavailable | 871 / 811 | 481 / 496 | 370 | 1.30 / 1.34 |
+| recommendation guardrail hold | not measured | 513 | 370 | 1.39 |
+| changes applied | 679 | 401 | 319 | 1.26 |
+| action-overview | 611 | 368 | 268 | 1.37 |
+| action-execution applied / failed | 929 / 759 | 322 / 364 | 211 | 1.53 / 1.73 |
+| action-history all / event | 657 / 370 | 355 / 362 | 243 | 1.46 / 1.49 |
+| action-plan pass / guardrail | 672 / 734 | 340 / 366 | 287 | 1.18 / 1.28 |
+| action-evidence pass / guardrail | 616 / 678 | 347 / 346 | 262 | 1.32 / 1.32 |
+| verification p1 pass / historical / guardrail | 456 / - / 578 | 347 / 366 / 390 | 336 | 1.03 / 1.09 / 1.16 |
+| verification pair pass / guardrail | 678 / 695 | 347 / 364 | 252 | 1.38 / 1.44 |
+| sitework active / zero / none | 439 / 284 / 223 | 322 / 233 / 196 | 234 | 1.38 / 1.00 / 0.84 |
 
 ## Known deviations
-1. **Panel height (Medium risk for review).** Merged content (key-value rows, recorded identifiers, real event counts) makes panels 2-4x the mock's height, worst on action-execution (929 vs 211) and recommendation panel 1 (785-912 vs 370). No body-size explanatory panel prose was found in the capture checked (execution notes are chart-note size), but the reviewer should judge prominence per the F1 rereview "bulk" standard; candidates to trim are the Activity log key-value block and the recommendation panel-1 merged hold/live-recomputation block.
-2. Recommendation held/unavailable states draw no small visual (unchanged since W1-UX-06; no read supports it).
-3. Rail visible at 390 (shell scope, W1-UX-07/F5), as noted in F1.
+1. **Panels still above 1.3x (Medium for review).** By content shape: execution applied shows 3 rows against the mock's 2 (a same-shape mock is about 261, so 1.23); execution failed adds the real apply control (date, button, one-line explanation) the mock does not draw; History shows 3 rows like the mock, but each row keeps a short second reference line (failure code, short IDs), giving 1.46-1.49; action-overview has 6 rows against 5 plus two honest note lines (trial only, source unverified), giving 1.37; the verification pair carries the withdrawable-resolution note and the attempts line (1.38-1.44); sitework adds the scope/basis line and the window form (1.38); recommendation held and guardrail hold keep the hold sentence (1.30-1.39). Each overage is honest-state content the contract keeps visible; trimming further would hide a material limit or a working control.
+2. Recommendation held/unavailable states draw no small visual (no read supports it).
+3. Rail visible at 390 (shell scope, W1-UX-07/F5).
+4. The Changes Purpose column has no data source and says "Not recorded yet.".
 
 ## Residual risk / user-review focus
-- Owner: compare `index.html` pairs for recommendation and action-execution first (largest height gaps).
-- The `siteFinancials` S4-08 timing flake can recur under full-suite load.
+- Owner: compare the `index.html` pairs for action-execution, action-history and recommendation held first (highest remaining ratios).
+- History IDs are visually shortened (CSS ellipsis); full values remain in the DOM, the tooltip and the disclosure.
+- Full-suite load flakes recur in timing-sensitive files (`siteFinancials` S4-08, `siteFoundationChange`, `s404SiteFindingIndex`); each passes alone.
