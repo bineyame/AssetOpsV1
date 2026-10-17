@@ -181,3 +181,28 @@ Commits: `9767f963` and `601acc8d` (guard), `c50dc97d` (build), `ce42ef17` (Lows
 1. At 1440 the strip takes 2 lines (about 73 px), not 1. It carries channel links, gaps and the as-of time, which the mock's strip does not, so the selector and links wrap to the second line.
 2. Readiness panel 1 keeps the closed, full-width "Advanced details" disclosure, which holds the role, binding and acquisition Panels. Together with the six table rows and three note lines, this keeps the panel taller than the mock.
 3. The SLD panels remain taller than the mock (Low 8 not done).
+
+## Fix round 2 (re-review finding A, Lows B and C)
+
+Commit `f95c9f41` plus captures. Frontend only.
+
+| Item | Change | Where |
+| --- | --- | --- |
+| A, SLD | The two introduction paragraphs, the bindings statement and the "not declared / not assessed" paragraph now use `v69-chart-note` (10 px). Wording is unchanged. | `SiteSingleLineDiagram.tsx` (`SiteSldIntroduction`, `data-sld-bindings`), `StoredFoundationViews.tsx` (`data-sld-missing`) |
+| A, Gateway panel | The period note (was a `notice`), the "Read at" line and the unavailable/none sentences are `v69-chart-note`. The key-value row is kept. | `ReadinessOverview.tsx` |
+| A, Sites | The "Assessment, top issue..." sentence is `v69-chart-note` (kept as the one scope note). | `SitesIndex.tsx`, `primitives.css` (`.v69-chart-note.panel__note`, `.not-available-yet.v69-chart-note`) |
+| B | `expectV69Panels` also runs `stripIntruders` (any heading, paragraph, div, list or table in `.status-strip` that is not a `status-strip__*` part) and `strayBetweenPanels` (a non-empty sibling of a panel that is not a panel, panel wrapper, chrome, leading pattern, `.notice`, `.note` or `[data-readiness-scope]`). | `test/panelStructure.ts` |
+| C | The no-version refusal has breadcrumbs (Sites / KOBO-001 / Foundation), no repeated Site ID badge, and the ISO timestamps in the server message are shown as plain times. | `SiteFoundationFrame.tsx`, `V69Layout.tsx` (`hideBadge`) |
+
+**Deviation:** the full text was not moved into the closed disclosure. It stays in place at note size, so every statement is still present exactly once and no assertion changed. The disclosure move would duplicate text and break unique-text assertions.
+
+**Planted tests (non-vacuity):** `panelStructure.test.ts` gained 4 tests. Bulk planted in a strip (28 px div with bold and a paragraph) fails with "blocks inside the status strip". A bold-label div between panels fails with "content blocks between panels". A one-line strip and a `.notice` between panels pass. Both guards ran clean on the real screens (`siteFoundationRevision.test.tsx`, 107 tests). No existing assertion changed.
+
+**Checks:** `tsc --noEmit` clean. Focused 22 files / 839 passed. Full `npm.cmd test`: 76 files, 1957 passed. `tools/check-all.ps1`: all 10 guards passed.
+
+**Captures** (revision `f95c9f41`, `.agent/W1-F1-evidence/`, ports 5480/5481 and 8980/8981, fixtures dropped): 96/96 claims, overflow 0. Panel heights at 1440 (app vs mock; round 1 in brackets):
+- Sites: inventory 289 vs 314 [300]; In setup 234 vs 253 [234].
+- Readiness: panel 1 592 vs 364 [592]; Gateway status 845 vs 561 [902].
+- SLD: drawing panel 974 vs 596 [1055]; parts panel 640 vs 287 [640].
+
+SLD and Gateway panels are still taller than the mock; the remainder is data-driven (drawing, 10-row parts table, sources and effect lists). The SLD note text is about 80 px lighter, the Gateway panel 57 px.
