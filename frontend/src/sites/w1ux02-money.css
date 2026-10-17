@@ -143,3 +143,12 @@
   font-size: 12px;
   line-height: 1.8;
 }
+
+.site-financials .panel .product-status .product-status__bound,
+.site-financials [data-price-history-part] {
+  font-size: 12px;
+}
+
+.site-financials .w1-money-strip__list {
+  font-size: 12px;
+}
