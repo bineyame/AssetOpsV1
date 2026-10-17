@@ -334,7 +334,8 @@ function NotAvailableYet({ name, children }: { name: string; children: string })
 function Advanced({ name, summary, children }: { name: string; summary: string; children: ReactNode }) {
   return (
     <div className="evidence-advanced">
-      <Disclosure name={name} summary={summary}>
+      {/* W1-F2 compaction (phase B): the mock's small link-styled `details.tech`; same content, still closed. */}
+      <Disclosure name={name} summary={summary} variant="tech">
         {children}
       </Disclosure>
     </div>

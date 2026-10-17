@@ -212,6 +212,19 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     }
   });
 
+  it("W1-F2 compaction (phase B): the state line is inline, with its state, scope and as-of bound outside any disclosure", async () => {
+    const { container } = mount(fake(() => ({ status: "loaded", value: sample("missing-pv") })), SEARCH);
+    await settledScreen();
+    const line = container.querySelector(".claim-limit__status .product-status--inline") as HTMLElement;
+    expect(line).not.toBeNull();
+    for (const part of ["[data-product-status-label]", ".claim-limit__when", "[data-product-status-as-of]"]) {
+      const el = line.querySelector(part) as HTMLElement;
+      expect(el, part).not.toBeNull();
+      expect(el.closest("details"), part).toBeNull();
+    }
+    expect(container.querySelector("details[data-disclosure='claim-limit-detail']")?.classList.contains("disclosure--tech")).toBe(true);
+  });
+
   it("poor quality and conflicting reports: a limited ceiling over the covered minutes only", async () => {
     const { container } = mount(fake(() => ({ status: "loaded", value: sample("poor-quality-conflict") })), SEARCH);
     await settledScreen();

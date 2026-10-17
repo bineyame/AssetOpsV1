@@ -522,9 +522,10 @@ function Loaded({
       <p className="claim-limit__headline" data-claim-limit-headline>
         {head.text}
       </p>
-      <div className="claim-limit__status">
+      {/* W1-F2 compaction (phase B): the state line in the strip's inline form (same words, scope and bound). */}
+      <p className="claim-limit__status v69-chart-note">
         <ProductStatusLine read={read} whenText={whenText} />
-      </div>
+      </p>
       {read.currentness === "UNASSESSED" ? (
         <ChartNote>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</ChartNote>
       ) : null}
@@ -541,7 +542,7 @@ function Loaded({
       </ChartNote>
       {/* W1-F2 compaction: what limits it, the readings by input, earlier-version text and the technical
           references sit in one closed disclosure; the headline, state line and day status stay visible. */}
-      <Disclosure name="claim-limit-detail" summary="Details — what limits it, readings by input and earlier versions">
+      <Disclosure variant="tech" name="claim-limit-detail" summary="Details — what limits it, readings by input and earlier versions">
         <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
         {reasons.length === 0 ? null : (
           <>
@@ -599,6 +600,7 @@ function ProductStatusLine({ read, whenText }: { read: ClaimLimitRead; whenText:
     read.scope !== "WINDOW" && limit !== null && limit.current_positive_claim && limit.ceiling !== null && limit.ceiling !== "INDETERMINATE";
   return (
     <ProductStatus
+      inline
       words={words.tone === "positive" && !supported ? { ...words, tone: "limited" } : words}
       scope={<span className="claim-limit__when">{whenText}</span>}
       asOf={read.read_at}
