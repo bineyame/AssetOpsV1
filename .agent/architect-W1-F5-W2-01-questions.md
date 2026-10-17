@@ -1,0 +1,7 @@
+# Architect request - batched (2026-10-17): F5 subtabs + W2-01 contact null
+
+You are the AssetOps Architect (Codex). Token-efficient: answer briefly, edit in place, record one decision `D-2026-10-17-f5-subtabs-and-contact`. No code.
+
+1. Subtab rows (F4 re-review + F3 capture findings; `.agent/W1-F5-carries.md` items 2, 3, 6): the mock shows subtab rows the app omits - Changes has no Foundation subtab row with "Change & effect"; Site Work shows only Actions (mock: Incidents, Maintenance); Finding lacks the Alternatives tab; Financials lacks Scenarios. The owner ruled for the left rail (D-2026-10-17-w1-rail): "Show the full mockup menu, with unbuilt items greyed out as 'not available yet'". Does the same rule apply to in-page tab/subtab rows (greyed, non-navigable, "not available yet"), and what is the exact presentation (reuse the rail's unavailable entry pattern)? Also: Site Findings uses a date form + columns where the mock has lens chips - should F5 switch to the mock's lens chips (with unsupported lenses greyed)?
+2. W2-01 review Low 4: the cold contact read returns `state: null` when there is no health store or no matching gateway; the design names only RECENT|STALE|NEVER. Rule: map to NEVER, or keep null with a stated UI wording? (`.agent/W2-01-review.md`.)
+Append answers to `.agent/architect-W1-fidelity.md` (F5 section) and `.agent/W2-technical-design-cold.md` (W2-01 contact). Print a 5-line summary.

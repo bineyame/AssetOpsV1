@@ -1104,6 +1104,16 @@ button:focus-visible {
   border-radius: var(--radius-sm);
 }
 
+/* W1-F3 review H2: a mock chip or column the reads do not support yet ("Not assessed"), muted and dashed. */
+.badge--not-assessed {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px dashed var(--badge-neutral-border);
+  border-radius: var(--radius-sm);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
 /* Configuration Readiness (V-01a round 2). A leading mark (tick / bang) keeps
    the two distinguishable from provenance and lifecycle in greyscale. */
 .badge--configured {
@@ -4237,6 +4247,50 @@ ul.evidence-notes li { font-size: inherit; }
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.v69-mheader {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0 0 var(--v69-gap);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--v69-radius-panel);
+  background: var(--surface-raised);
+}
+
+.v69-mheader > div {
+  padding: 10px 13px;
+  border-left: 1px solid var(--border-subtle);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.v69-mheader > div:first-child {
+  border-left: 0;
+}
+
+.v69-mheader dt {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.v69-mheader dd {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .v69-mheader {
+    grid-template-columns: 1fr 1fr;
+  }
+  .v69-mheader > div {
+    border-left: 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
 .v69-cards--three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -5025,6 +5079,188 @@ input.v69-chip-control {
   font-size: 10px;
 }
 
+
+/* v69 statusbar, big claim, prose, notice and form patterns (W1-F3) ------------
+   Ported from frontend/mockups/v69/mockups.css. None of these is a panel. */
+.v69-big-claim {
+  max-width: 790px;
+  margin: 0;
+  color: #273e5d;
+  font-size: 19px;
+  font-weight: 550;
+  line-height: 1.5;
+}
+
+/* `.v69-prose` and `.v69-notice` themselves are the W1-F2 rules above (one implementation); W1-F3 adds only these. */
+.v69-prose strong {
+  color: #22344f;
+}
+
+.v69-notice {
+  break-inside: avoid;
+}
+
+.v69-notice p {
+  margin: 0;
+  line-height: 1.65;
+}
+
+
+/* W1-F3 (additive): stacked mock `.input-row`s keep the mock's 18 px gap. */
+.input-row + .input-row {
+  margin-top: 18px;
+}
+
+/* A compact control set in the chips row (e.g. a UTC day input), sized as a chip. */
+.v69-chip-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #5c6c86;
+  font-size: 11px;
+}
+
+.v69-chip-field input {
+  padding: 5px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  background: var(--surface-raised);
+  color: #213853;
+  font: inherit;
+  font-size: 11px;
+}
+
+/* One muted line stating an in-panel gap where the mock shows its muted table row. */
+.v69-gap-line {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.v69-gap-line + .v69-gap-line {
+  margin-top: 6px;
+}
+
+/* W1-F3 phase C (additive): the mock's `.eyebrow` label and `.metric-value` inside a panel. */
+.v69-eyebrow {
+  margin: 0 0 8px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.v69-panel-value {
+  margin: 10px 0 7px;
+  color: var(--text-primary, #213853);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+/* W1-F3: the Finding section row carries the money-view link at its right end, as tab-row chrome. */
+.finding-sections {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.finding-sections > .site-tabs__list {
+  flex: 1 1 auto;
+}
+
+.finding-sections__aside {
+  display: flex;
+  align-items: center;
+  padding: 0 0 0 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11px;
+}
+
+/* W1-F3 height phase (additive) --------------------------------------------
+ * `.v69-state-line`: the state sentence, scope and "as of" as one compact muted
+ * line inside a panel (ProductStatus `inline`), where the mock has no box.
+ * `.v69-show-all`: the plain "Show all N" expander under the mock's latest rows.
+ */
+.v69-state-line {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Inside a panel the state line has no chip: main's inline label chip is reset to plain bold text. */
+.v69-state-line .product-status__label,
+.v69-state-line .product-status--inline .product-status__label {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--text-primary);
+  font-size: inherit;
+  font-weight: 600;
+  white-space: normal;
+}
+
+.v69-state-line .product-status__next {
+  color: var(--text-secondary);
+}
+
+.v69-show-all {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
+.v69-show-all__summary {
+  display: inline-block;
+  color: var(--accent);
+  cursor: pointer;
+  list-style: none;
+}
+
+.v69-show-all__summary::-webkit-details-marker {
+  display: none;
+}
+
+.v69-show-all[open] > .v69-show-all__summary {
+  margin-bottom: 6px;
+}
+
+/* A compact per-row disclosure: `.disclosure--tech` (both classes are emitted) set inline on the row's link line. */
+.disclosure--inline,
+td .disclosure.disclosure--inline {
+  display: inline;
+  padding: 0;
+}
+
+.disclosure--inline > .disclosure__summary {
+  display: inline;
+}
+
+.disclosure--inline[open] > .disclosure__body {
+  display: block;
+  margin-top: 4px;
+  padding: 0;
+}
+
+.v69-state-line .product-status__bound,
+.v69-state-line .product-status__sentence {
+  font-size: inherit;
+}
+
+/* W1-F3 review L10: the inline bound has no leading separator; it wraps as one unit. After a child the
+   separator is this margin, never a text space (fix round 2 L4). The box reset is main's `.product-status--inline`. */
+.product-status--inline .product-status__bound {
+  display: inline-block;
+}
+
+.product-status--inline .product-status__bound--after {
+  margin-left: 0.3em;
+}
 /* W1-F2 evidence: the window chooser as a chip row; its period line wraps under the controls. */
 .v69-chips.evidence-window {
   flex-direction: column;

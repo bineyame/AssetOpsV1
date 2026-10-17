@@ -9,3 +9,6 @@ Fold into F5 (or a shell slice) so the owner's repeat walkthrough sees none of t
 6. Subtab rows missing: Changes has no Foundation subtab row with "Change & effect"; Site Work shows only Actions (mock has Incidents, Maintenance) (F4 review). Apply the owner's rail rule ("full mockup menu, unbuilt greyed out as 'not available yet'", D-2026-10-17-w1-rail) to subtabs too - Architect to confirm.
 7. Legacy-Site paths have no fidelity captures (F2 review) - include in the all-26 audit.
 8. F2 re-review-2 Lows: recapture Dispatch after the shared inline-status CSS change; reword "the gaps below" (EvidenceClaimLimit.tsx:110) which points into a closed row; fold the Overview money panel's two closed rows into one (1.40x).
+9. F3 merge-review Low: stray leading " ·" before "Source unverified." in the Finding "What happened" state line.
+10. F5a: Finding child-view headings ("Finding evidence", "Finding history") per-screen titles; 390 tabs wrapping to two rows (tab treatment).
+11. F5a review Low: breadcrumb shows raw Site code (e.g. KOBO-001) instead of the site name.

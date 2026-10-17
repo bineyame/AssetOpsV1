@@ -88,14 +88,7 @@
       "count": 1,
       "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
       "backfill_packet": "G-04"
-    },
-    {
-      "file": "frontend/src/sites/SiteFinding.tsx",
-      "text": "Not yet available",
-      "count": 1,
-      "reason": "Legacy honest missing-capability copy that predates the G-01 catalogue; untagged until G-04 registers its gap and renders it through MissingClaim.",
-      "backfill_packet": "G-04"
     }
   ],
-  "total": 11
+  "total": 10
 }

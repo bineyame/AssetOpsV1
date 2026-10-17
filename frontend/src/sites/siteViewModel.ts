@@ -59,7 +59,7 @@ const LIFECYCLE_STATUS_LABELS: Record<string, string> = {
   ARCHIVED: "Archived",
 };
 
-const SOURCE_MODE_LABELS: Record<string, string> = {
+export const SOURCE_MODE_LABELS: Record<string, string> = {
   // Section 4 of the T028 presentation decision: a quiet, accurate origin.
   SIMULATED: "Demonstration data",
   LIVE: "Live",

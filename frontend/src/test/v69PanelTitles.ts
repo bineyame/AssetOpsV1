@@ -2,7 +2,8 @@
  * The approved v69 panel title map (`D-2026-10-17-mockup-layout-spec`,
  * `.agent/architect-W1-fidelity.md`). It is exhaustive: every screen's expected
  * panel titles are exactly `frontend/docs/architecture/v69-rendered-panels.json`,
- * except the six substitutions below, which the Architect approved. Do not add
+ * except the substitutions below, which the Architect approved: the six W1 rules and the two
+ * W2-01 cold rules (`D-2026-10-17-w2-techdesign-cold`, `.agent/W2-technical-design-cold.md` D-I). Do not add
  * an entry to keep an extra app panel; move its content into its owning panel.
  *
  * A dynamic title is a function of the selected read, never of a mock fixture.
@@ -18,6 +19,9 @@ export const APPROVED_TITLE_CHANGES: Readonly<Record<string, string | DynamicTit
   "readiness:2": (v) => `Gateway status · ${need(v, "gateway")}`,
   "finding-evidence:1": (v) => `Evidence bundle · ${need(v, "finding")}`,
   "sld:1": (v) => (v.topology ? `${need(v, "site")} · ${v.topology}` : need(v, "site")),
+  // W2-01: selected gateway or "No gateway selected"; Site name, plus the topology type only when declared.
+  "cold-readiness:2": (v) => `Gateway status · ${need(v, "gateway")}`,
+  "cold-sld:1": (v) => (v.topology ? `${need(v, "site")} · ${v.topology}` : need(v, "site")),
   // W1-F2 coordinator ruling (2026-10-17, under D-2026-10-16-w1-ux): the plain variant of "How a claim limit is set".
   "evidence-analysis:2": "How each limit is set",
   // W1-F5a, PROPOSED on the same basis as evidence-analysis:2 and pending the coordinator's ruling: "claim" is on

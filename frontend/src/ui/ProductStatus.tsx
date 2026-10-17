@@ -22,7 +22,8 @@ export interface ProductStatusProps {
   children?: ReactNode;
   /**
    * W1-F2: render as spans for a one-line status strip (the strip holds no
-   * blocks). Same data attributes; `children` must then be inline too.
+   * blocks). Same data attributes; `children` must then be inline too. W1-F3
+   * uses the same spans for its in-panel `.v69-state-line`.
    */
   inline?: boolean;
 }
@@ -30,6 +31,7 @@ export interface ProductStatusProps {
 /** The plain state line: state sentence, scope and "as of" bound together. */
 export function ProductStatus({ words, scope, asOf, children, inline = false }: ProductStatusProps) {
   if (inline) {
+    const hasChild = children !== undefined && children !== null && children !== false;
     return (
       <span
         className={`product-status product-status--inline product-status--${words.tone}`}
@@ -39,8 +41,9 @@ export function ProductStatus({ words, scope, asOf, children, inline = false }: 
           {words.label}
         </span>{" "}
         <span className="product-status__sentence">{words.sentence}</span>
-        {children === undefined ? null : <> {children}</>}{" "}
-        <span className="product-status__bound">
+        {/* W1-F3 fix round 2 L4: after a child the separator is a margin, never a text space that can start a wrapped line. */}
+        {hasChild ? <> {children}</> : " "}
+        <span className={hasChild ? "product-status__bound product-status__bound--after" : "product-status__bound"}>
           <span data-product-status-scope>{scope}</span>
           <span aria-hidden="true"> · </span>
           <span data-product-status-as-of>{asOfText(asOf)}</span>
@@ -170,6 +173,11 @@ export interface ExactReferencesProps {
   references: readonly ExactReference[];
   /** `tech`: the mock's small link-styled `details.tech`, for a strip or table foot. */
   variant?: "tech";
+  /**
+   * W1-F3 review M5 (additive): the panel's other closed detail (a method note or a counted-readings table),
+   * folded into this one disclosure so a panel carries a single "How this was worked out".
+   */
+  extra?: ReactNode;
 }
 
 /**
@@ -179,7 +187,7 @@ export interface ExactReferencesProps {
  * code never reaches it or its accessible name. Method, coverage and
  * calculation belong in the owning destination, not here.
  */
-export function ExactReferences({ name, references, variant }: ExactReferencesProps) {
+export function ExactReferences({ name, references, variant, extra }: ExactReferencesProps) {
   if (references.length === 0) return null;
   const className = variant === "tech" ? "disclosure exact-references exact-references--tech" : "disclosure exact-references";
   return (
@@ -199,6 +207,7 @@ export function ExactReferences({ name, references, variant }: ExactReferencesPr
           </div>
         ))}
       </dl>
+      {extra === undefined || extra === null ? null : <div className="disclosure__body exact-references__extra">{extra}</div>}
     </details>
   );
 }

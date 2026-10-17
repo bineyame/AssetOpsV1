@@ -79,9 +79,15 @@ def test_decide_accepts_a_closed_tuple_only_when_the_pinned_row_matches() -> Non
                         "value": None, "quality": "GOOD", "session_id": None, "connector_id": None},
         })
 
-    stored, kw = _stored([_row("door-sensor", "event", **META)])
+    stored, kw = _stored([_row("door-sensor", "event", **{**META, "role": "door_event"})])
     accepted = decide(basis_from_snapshot(stored, **kw), 0, envelope())
     assert type(accepted).__name__ == "Accepted" and accepted.is_v4 and accepted.conversion_kind is None
-    stored, kw = _stored([_row("door-sensor", "event")])  # the same channel pinned without v4 metadata
+    stored, kw = _stored([_row("door-sensor", "event", role="door_event")])  # pinned without v4 metadata
     refused = decide(basis_from_snapshot(stored, **kw), 0, envelope())
     assert (refused.kind, refused.field) == ("MAPPING_INCOMPATIBLE", "mapping")
+    # W2-01 (W2-00 review Low 2): the closed table names the channel's role; a pinned row naming
+    # another role is refused even when its five v4 keys match.
+    stored, kw = _stored([_row("door-sensor", "event", **{**META, "role": "manual_temperature"})])
+    refused = decide(basis_from_snapshot(stored, **kw), 0, envelope())
+    assert (refused.kind, refused.field) == ("MAPPING_INCOMPATIBLE", "mapping")
+    assert "serves door_event" in refused.detail

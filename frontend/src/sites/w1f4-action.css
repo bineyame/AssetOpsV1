@@ -1,0 +1,206 @@
+/* W1-F4 (group C1): the Action page views as their single v69 panel
+   (`action-overview`, `action-execution`, `action-history`). Ported from the
+   v69 mock's `.badge`, table and `.key-values` patterns (`mockups.css`). */
+
+/* The mock's `.badge` and its tones; the word is always the visible text. */
+.w1f4-action-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: #eef1f6;
+  color: #607087;
+}
+
+.w1f4-action-badge--green {
+  background: #e3f4ed;
+  color: #166b50;
+}
+
+.w1f4-action-badge--amber {
+  background: #fff1d9;
+  color: #8e580c;
+}
+
+.w1f4-action-badge--red {
+  background: #fcebea;
+  color: #a13838;
+}
+
+.w1f4-action-badge--blue {
+  background: #e9f0fd;
+  color: #275ba8;
+}
+
+.w1f4-action-panel .v69-key-values dd .w1f4-action-badge {
+  margin-top: -3px;
+  white-space: normal;
+  text-align: left;
+}
+
+/* An honest gap value in a key-value row (the read has no such field). */
+.w1f4-action-gap {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* The table caption repeats the panel title for assistive technology only. */
+.w1f4-action-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.w1f4-action-panel .data-table__scroll {
+  margin-top: 14px;
+}
+
+.w1f4-action-panel td small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.w1f4-action-panel .action-ref {
+  overflow-wrap: anywhere;
+}
+
+/* The apply control under the log: the mock's `.form-footer` with one `.field`. */
+.w1f4-action-apply {
+  margin-top: 14px;
+  padding-top: 4px;
+  border-top: 1px solid #edf1f6;
+}
+
+.w1f4-action-apply .form-footer {
+  align-items: flex-end;
+  margin-top: 12px;
+}
+
+.w1f4-action-field {
+  flex: 0 1 260px;
+}
+
+.w1f4-action-earlier strong {
+  color: #8e580c;
+}
+
+@media (max-width: 760px) {
+  .w1f4-action-apply .form-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .w1f4-action-field {
+    flex-basis: auto;
+  }
+}
+
+/* A read gap stated inside its panel slot (unread Action, events or history). */
+.w1f4-action-gap-note {
+  color: #8e580c;
+}
+
+/* W1-F4 trim: the panels at the mock's density (owner rejection of W1 height drift). */
+.w1f4-action-panel .v69-chart-note {
+  margin-top: 6px;
+}
+
+.w1f4-action-status {
+  margin-top: 10px;
+}
+
+.w1f4-action-panel td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  vertical-align: top;
+}
+
+.w1f4-action-panel .data-table__scroll {
+  margin-top: 10px;
+}
+
+.w1f4-action-apply:has(> .v69-chart-note:only-child) {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 6px;
+}
+
+/* The in-place "Show all" toggle reads as the mock's plain link. */
+.w1f4-action-more {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: var(--link, #275ba8);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* History rows at mock density: exact IDs stay in the row (and in full in the
+   title tooltip and the disclosure) but show as short, one-line references. */
+.w1f4-action-panel td small code,
+.w1f4-action-panel .v69-chart-note code.action-ref {
+  display: inline-block;
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.w1f4-action-panel td small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.w1f4-action-panel td:last-child:has([data-action-select-event]) {
+  white-space: nowrap;
+}
+
+.w1f4-action-panel .data-table td {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* Apply control on one row: label, time and button inline. */
+.w1f4-action-apply .form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.w1f4-action-apply .w1f4-action-field {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.w1f4-action-apply .w1f4-action-field input {
+  height: 32px;
+  padding: 4px 8px;
+}
+
+.w1f4-action-apply .button {
+  padding: 7px 14px;
+}
+
+/* A failure code is a meaning, not an identifier: never truncated. */
+.w1f4-action-panel td small .w1f4-failure-code code {
+  max-width: none;
+}

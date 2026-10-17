@@ -14,8 +14,9 @@
  *   a continuity limit, a changed basis under an old cursor, and an invalid
  *   scope show no rows and no count, and never say "no Findings".
  *
- * W1-UX-02 (`D-2026-10-16-w1-ux`): every state leads with the v69 question
- * "Which Findings belong to this site?" as a `HeadlineVisualCard`, a shared
+ * W1-F3 (`D-2026-10-17-mockup-layout-spec`): every state renders inside the
+ * one v69 panel "Findings at this site": window controls, then the v69 question
+ * "Which Findings belong to this site?" with the answer as a big claim, a shared
  * state line with its scope and plain "As of" bound beside the answer, the
  * Findings as rows (or a day strip when no rows can be listed), and a closed
  * exact-reference disclosure last holding the list, page and matching
@@ -33,9 +34,12 @@ import {
   ExactReferences,
   Fact,
   FactList,
-  HeadlineVisualCard,
+  Notice,
+  Panel,
+  StatusBar,
   plainTime,
   ProductStatus,
+  ShowAll,
   StepStrip,
   currentnessWords,
   readResultWords,
@@ -170,6 +174,16 @@ function plainInstant(instant: string | null | undefined): string {
   return plainTime(instant) ?? "time not recorded";
 }
 
+/** W1-F3 height phase: a period inside one UTC day names the day once ("15 Oct 2026, 12:00 UTC to 13:30 UTC"). */
+function periodText(start: string, end: string): string {
+  const a = plainInstant(start);
+  const b = plainInstant(end);
+  const day = /^(.*), (\d{2}:\d{2} UTC)$/;
+  const ma = day.exec(a);
+  const mb = day.exec(b);
+  return ma && mb && ma[1] === mb[1] ? `${a} to ${mb[2]}` : `${a} to ${b}`;
+}
+
 function validWindow(scope: FindingIndexScope): boolean {
   return !Number.isNaN(new Date(scope.from).getTime()) && !Number.isNaN(new Date(scope.to).getTime());
 }
@@ -207,16 +221,23 @@ function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (sc
     });
   };
   return (
-    <form onSubmit={submit} data-finding-index-window aria-label="Findings window">
-      <label>
-        {"From (UTC day) "}
+    <form
+      className="v69-chips site-findings-window"
+      onSubmit={submit}
+      data-finding-index-window
+      aria-label="Findings window"
+    >
+      <label className="v69-chip-field">
+        {"From (UTC day)"}
         <input type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
-      </label>{" "}
-      <label>
-        {"To (UTC day, included) "}
+      </label>
+      <label className="v69-chip-field">
+        {"To (UTC day, included)"}
         <input type="date" value={last} onChange={(event) => setLast(event.target.value)} />
-      </label>{" "}
-      <button type="submit">Show Findings</button>
+      </label>
+      <button className="button" type="submit">
+        Show Findings
+      </button>
     </form>
   );
 }
@@ -292,9 +313,16 @@ function dayStep(day: FindingIndexDayWatermark): Step {
   return { label, state: "not-known", detail: words.label };
 }
 
-function DayStrip({ body }: { body: FindingIndexBody }) {
+function DayStrip({ body, rows = false }: { body: FindingIndexBody; rows?: boolean }) {
   if (body.watermarks.days.length === 0) return null;
-  return <StepStrip title="Days in this window" steps={body.watermarks.days.map(dayStep)} />;
+  // W1-F3 review M4: beside rows, a one-day window is already named by every row's Period cell.
+  if (rows && body.watermarks.days.length === 1) return null;
+  // W1-F3 height phase: the days read as one compact line of marks; a day that is not done keeps its detail.
+  return (
+    <div className="v69-step-line">
+      <StepStrip title="Days in this window" steps={body.watermarks.days.map(dayStep)} />
+    </div>
+  );
 }
 
 /** The labelled exact values behind a loaded list: references, raw state and reasons. */
@@ -336,7 +364,7 @@ function Relations({ row, links }: { row: FindingIndexRow; links: FindingIndexLi
     ...(row.relations.split_from ? [{ text: RELATION_TEXT.split_from, id: row.relations.split_from }] : []),
     ...row.relations.split_parts.map((id) => ({ text: RELATION_TEXT.split_parts, id })),
   ];
-  if (items.length === 0) return <>None</>;
+  if (items.length === 0) return null;
   const seen: Record<string, number> = {};
   return (
     <ul className="finding-index-relations">
@@ -355,20 +383,40 @@ function Relations({ row, links }: { row: FindingIndexRow; links: FindingIndexLi
   );
 }
 
+/** W1-F3 height phase: the mock shows three rows; the rest of the page stays behind "Show all N". */
+const ROWS_SHOWN = 3;
+
 function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLinks }) {
+  const first = body.rows.slice(0, ROWS_SHOWN);
+  const rest = body.rows.slice(ROWS_SHOWN);
+  return (
+    <>
+      <RowTable rows={first} links={links} />
+      {rest.length === 0 ? null : (
+        <ShowAll name="finding-index-rows" summary={`Show all ${body.rows.length} Findings on this page`}>
+          <RowTable rows={rest} links={links} />
+        </ShowAll>
+      )}
+    </>
+  );
+}
+
+function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: FindingIndexLinks }) {
   return (
     <DataTable labelledBy={HEADING_ID}>
       <thead>
         <tr>
           <th scope="col">Finding</th>
-          <th scope="col">Period</th>
+          <th scope="col">Domain</th>
+          <th scope="col">Priority</th>
+          <th scope="col">Confidence</th>
           <th scope="col">State</th>
           <th scope="col">Main consequence</th>
-          <th scope="col">Related</th>
+          <th scope="col">Period</th>
         </tr>
       </thead>
       <tbody>
-        {body.rows.map((row) => {
+        {rows.map((row) => {
           const lifecycle = LIFECYCLE_WORDS[row.lifecycle as Lifecycle];
           return (
             <tr
@@ -380,38 +428,94 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
               <td>
                 <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-finding-index-link>
                   {lifecycle?.title ?? "Generator support review"}
-                </Link>
-                <br />
-                <small>Version {row.revision_no}</small>
+                </Link>{" "}
+                <small className="finding-index-version">· Version {row.revision_no}</small>
+                {/* W1-F3 review H2/M9: related Findings sit under the title instead of a wrapping column. */}
+                <Relations row={row} links={links} />
+              </td>
+              <td data-finding-index-domain>Dispatch</td>
+              <td>
+                <span className="badge badge--not-assessed" data-finding-index-priority data-not-assessed>
+                  Not assessed
+                </span>
               </td>
               <td>
-                {plainInstant(row.episode.start)} to {plainInstant(row.episode.end)}
+                <span className="badge badge--not-assessed" data-finding-index-confidence data-not-assessed>
+                  Not assessed
+                </span>
               </td>
-              <td>
+              <td className="finding-index-state-cell">
                 <span
                   className="finding-index-state"
                   data-finding-index-lifecycle={lifecycle ? "known" : "unrecognised"}
                 >
                   {lifecycle?.label ?? "State not recognised"}
                 </span>
-                {row.transition ? (
-                  <>
-                    <br />
-                    <small>{transitionWords(row.transition)}</small>
-                  </>
-                ) : null}
+                {row.transition ? <small> {transitionWords(row.transition)}</small> : null}
               </td>
               <td data-finding-index-amount={row.amount.state}>
-                No amount shown in this list. Open the Finding for its consequence and evidence.
+                Not in this list
               </td>
-              <td>
-                <Relations row={row} links={links} />
-              </td>
+              <td className="finding-index-period">{periodText(row.episode.start, row.episode.end)}</td>
             </tr>
           );
         })}
       </tbody>
     </DataTable>
+  );
+}
+
+/**
+ * One state of the screen in the v69 form (W1-F3, mock `siteFindingsScreen`):
+ * a one-line statusbar (the claim and the shared state line), then the single
+ * panel "Findings at this site" holding the table, pages and day strip, or
+ * the in-panel gap where no rows can be listed, with the closed exact
+ * references last; then the mock's blue notice when there is one.
+ */
+function View({
+  state,
+  claim,
+  status,
+  body,
+  action,
+  notice,
+  references,
+  attributes = {},
+}: {
+  state: string;
+  claim: string;
+  status: ReactNode;
+  body: ReactNode;
+  action?: ReactNode;
+  notice?: ReactNode;
+  references?: ReactNode;
+  attributes?: Record<string, string>;
+}) {
+  return (
+    <div className="site-findings-view" data-finding-index-state={state} {...attributes}>
+      <StatusBar items label="Findings state" data={{ "data-site-findings-status": "" }}>
+        <strong data-site-findings-claim>{claim}</strong>
+        {status}
+      </StatusBar>
+      <Panel heading="Findings at this site" headingId={HEADING_ID} description={QUESTION} actions={action}>
+        {body}
+        {references ?? null}
+      </Panel>
+      {notice === undefined ? null : (
+        <Notice tone="blue" data={{ "data-site-findings-notice": "" }}>
+          {notice}
+        </Notice>
+      )}
+    </div>
+  );
+}
+
+/** The in-panel gap where no rows can be listed: short muted lines, as the mock's muted table row. */
+function Gap({ children }: { children: ReactNode }) {
+  return (
+    <div className="site-findings-gap" data-site-findings-gap>
+      {children}
+    </div>
   );
 }
 
@@ -422,88 +526,88 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
   if (body.status !== "CURRENT" || body.total_count === null) {
     const words = body.status === "CURRENT" ? NO_COUNT_WORDS : currentnessWords(body.status);
     return (
-      <div data-finding-index-state={body.status}>
-        <HeadlineVisualCard
-          dataName="site-findings"
-          headingId={HEADING_ID}
-          question={QUESTION}
-          headline="The Findings for this window are not known"
-          status={<ProductStatus words={words} scope={scopeText} asOf={body.knowledge_at} />}
-          visual={<DayStrip body={body} />}
-          meaning={<p>{NOT_A_ZERO}</p>}
-          todo={<p>{words.next ?? "Look again after every day in this window has been checked."}</p>}
-          references={references}
-        />
-      </div>
+      <View
+        state={body.status}
+        claim="The Findings for this window are not known"
+        status={<ProductStatus inline words={words} scope={scopeText} asOf={body.knowledge_at} />}
+        body={
+          <>
+            <Gap>
+              <p>{NOT_A_ZERO}</p>
+              {words.next === undefined ? <p>Look again after every day in this window has been checked.</p> : null}
+            </Gap>
+            <DayStrip body={body} />
+          </>
+        }
+        references={references}
+      />
     );
   }
   if (body.total_count === 0) {
     return (
-      <div data-finding-index-state="current-empty">
-        <HeadlineVisualCard
-          dataName="site-findings"
-          headingId={HEADING_ID}
-          question={QUESTION}
-          headline="No Findings in this window"
-          status={<ProductStatus words={readResultWords("proved-empty")} scope={scopeText} asOf={body.knowledge_at} />}
-          visual={<DayStrip body={body} />}
-          meaning={
-            <p>
-              Every day in this window was assessed and matched for Findings through its latest check, and no
-              Finding overlaps the window. This holds for the time shown; later readings can change it.
-            </p>
-          }
-          todo={<p>Choose another window to look at other days.</p>}
-          references={references}
-        />
-      </div>
+      <View
+        state="current-empty"
+        claim="No Findings in this window"
+        status={<ProductStatus inline words={readResultWords("proved-empty")} scope={scopeText} asOf={body.knowledge_at} />}
+        body={
+          <>
+            <Gap>
+              <p>
+                Every day in this window was assessed and matched for Findings through its latest check, and no
+                Finding overlaps the window. This holds for the time shown; later readings can change it. Choose
+                another window to look at other days.
+              </p>
+            </Gap>
+            <DayStrip body={body} />
+          </>
+        }
+        references={references}
+      />
     );
   }
   const shown = body.rows.length;
   const newest = body.rows[0];
   return (
-    <div data-finding-index-state="current-rows">
-      <HeadlineVisualCard
-        dataName="site-findings"
-        headingId={HEADING_ID}
-        question={QUESTION}
-        headline={`${body.total_count} ${body.total_count === 1 ? "Finding" : "Findings"} in this window`}
-        status={<ProductStatus words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
-        visual={
-          <>
-            <DayStrip body={body} />
-            <Rows body={body} links={links} />
-            <nav aria-label="Findings pages" data-finding-index-pages>
+    <View
+      state="current-rows"
+      claim={`${body.total_count} ${body.total_count === 1 ? "Finding" : "Findings"} in this window`}
+      status={<ProductStatus inline words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
+      body={
+        <>
+          <Rows body={body} links={links} />
+          <nav aria-label="Findings pages" data-finding-index-pages>
+            {/* W1-F3 review M4: the count is said only when this page does not hold every Finding. */}
+            {shown < body.total_count ? (
               <span>
                 Showing {shown} of {body.total_count}.
-              </span>{" "}
-              {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
-              {body.next_cursor ? (
-                <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
-                  Next page
-                </Link>
-              ) : null}
-            </nav>
-          </>
-        }
-        meaning={
-          <p>
-            Each row is a bounded conclusion about part of this window, newest period first. Each Finding opens at the
-            exact version listed here, which stays the same after reload even when a newer version is recorded. No
-            amount is shown in this list.
-          </p>
-        }
-        todo={<p>Open a Finding to see what supports it, its consequence and what could change it.</p>}
-        destination={
-          newest === undefined ? undefined : (
-            <Link to={links.finding(newest.finding_id, newest.finding_revision_id)} data-finding-index-destination>
-              Open the newest Finding
-            </Link>
-          )
-        }
-        references={references}
-      />
-    </div>
+              </span>
+            ) : null}{" "}
+            {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
+            {body.next_cursor ? (
+              <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
+                Next page
+              </Link>
+            ) : null}
+          </nav>
+          <DayStrip body={body} rows />
+        </>
+      }
+      notice={
+        <p>
+          Each row is a bounded conclusion about part of this window, newest period first. Each Finding opens at the
+          exact version listed here, which stays the same after reload even when a newer version is recorded. No
+          amount is shown in this list.
+        </p>
+      }
+      action={
+        newest === undefined ? undefined : (
+          <Link to={links.finding(newest.finding_id, newest.finding_revision_id)} data-finding-index-destination>
+            Open the newest Finding
+          </Link>
+        )
+      }
+      references={references}
+    />
   );
 }
 
@@ -527,22 +631,23 @@ function RefusedCard({
   attributes?: Record<string, string>;
 }) {
   return (
-    <div data-finding-index-state={state} {...attributes}>
-      <HeadlineVisualCard
-        dataName="site-findings"
-        headingId={HEADING_ID}
-        question={QUESTION}
-        headline={headline}
-        status={<ProductStatus words={words} scope={scope} asOf={null} />}
-        meaning={meaning}
-        todo={todo}
-        references={
-          references.length === 0 ? undefined : (
-            <ExactReferences name="finding-index-references" references={references} />
-          )
-        }
-      />
-    </div>
+    <View
+      state={state}
+      attributes={attributes}
+      claim={headline}
+      status={<ProductStatus inline words={words} scope={scope} asOf={null} />}
+      body={
+        <Gap>
+          {meaning}
+          {todo ?? null}
+        </Gap>
+      }
+      references={
+        references.length === 0 ? undefined : (
+          <ExactReferences name="finding-index-references" references={references} />
+        )
+      }
+    />
   );
 }
 
@@ -692,17 +797,13 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
     return <>{fallback}</>;
   }
   return (
-    <section className="finding-index" aria-labelledby={HEADING_ID} data-findings-index="site-window">
-      <p className="overview-note">
-        Mini-grid dispatch Findings at this site that overlap {plainInstant(from)} to {plainInstant(to)} (the end is
-        not included). A Finding is a bounded conclusion about part of an assessed period.
-      </p>
+    <div className="finding-index" data-findings-index="site-window">
       <WindowForm scope={scope} onScope={onScope} />
       {result.status === "loaded" ? (
         <Loaded body={result.value} scope={scope} links={links} />
       ) : (
         <Refused result={result} scope={scope} links={links} />
       )}
-    </section>
+    </div>
   );
 }

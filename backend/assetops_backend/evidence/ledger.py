@@ -412,6 +412,11 @@ def _decide_v4(basis: AcceptedAsBasis, ordinal: int, envelope_text: str, digest:
             f"channel {envelope.device_id}/{envelope.signal_id} has no V4 mapping entry that the closed "
             "simulator-lab-gateway-cold/1 table and the pinned binding row both state identically",
         )
+    if entry.role is not None and binding.role != entry.role:
+        # W2-01 (W2-00 review Low 2): the closed table names the role each channel serves.
+        return reject("MAPPING_INCOMPATIBLE", "mapping",
+                      f"channel {envelope.device_id}/{envelope.signal_id} serves {entry.role}, "
+                      f"not the pinned binding's {binding.role}")
     carried = envelope.measurement or envelope.record_kind
     if envelope.family != entry.family or envelope.measurement != entry.measurement:
         return reject("MAPPING_INCOMPATIBLE", "mapping",

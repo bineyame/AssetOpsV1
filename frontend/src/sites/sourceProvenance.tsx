@@ -140,7 +140,7 @@ export function SourceProvenanceNotice({
     >
       <p className={compact ? "v69-chart-note source-provenance__line" : `notice ${tone}`.trim()}>
         <strong>{words.label}.</strong> {words.statement}
-      </p>
+      </p>{" "}
       {provenance ? (
         <Disclosure
           summary={`Source record for this ${subject}`}

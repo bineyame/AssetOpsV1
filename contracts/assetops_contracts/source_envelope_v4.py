@@ -27,7 +27,7 @@ identity and the source/mapping fields that batch homogeneity and identity need.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Mapping
 
 from assetops_contracts.control import DISCRETE_UNIT
@@ -606,6 +606,9 @@ class ChannelMapping:
     requires_correlation: bool
     requires_session: bool
     allowed_units: tuple[str, ...]
+    #: W2-01 (W2-00 review Low 2, design section 3 W2-02 channel closure): the exact `cold-roles-1` role the
+    #: channel serves. None only for the reserved EV tuples, whose roles W2-05a defines.
+    role: str | None = None
 
     @property
     def allowed_outcomes(self) -> dict[str, list[str]]:
@@ -633,18 +636,21 @@ def _events(*kinds: str, session: bool = False, units: tuple[str, ...] = ()) -> 
 #: Design section 4: the closed cold mapping plus the two reserved EV tuples. Same signal ID on a different
 #: device is not an alias. `simulator-lab-gateway-cold/1`, schema 4.
 V4_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
-    ("chamber-probe", "temperature"): _point("degC"),
-    ("ambient-probe", "temperature"): _point("degC"),
-    ("grid-meter", "state"): _point(DISCRETE_UNIT),
-    ("generator-controller", "state"): _point(DISCRETE_UNIT),
-    ("compressor-controller", "state"): _point(DISCRETE_UNIT),
-    ("backup-bus-meter", "state"): _point(DISCRETE_UNIT),
-    ("compressor-meter", "power"): ChannelMapping("MEASUREMENT", "INTERVAL_MEAN", (), False, False, ("kW",)),
-    ("door-sensor", "event"): _events("DOOR_OPEN", "DOOR_CLOSE"),
-    ("generator-controller", "start-event"): _events("START_REQUEST", "START_RESULT"),
-    ("transfer-controller", "event"): _events("TRANSFER_RESULT"),
-    ("grid-meter", "event"): _events("POWER_LOSS", "POWER_RESTORED"),
-    ("operator-log", "temperature-event"): _events("MANUAL_LOG", units=(MANUAL_LOG_UNIT,)),
+    ("chamber-probe", "temperature"): replace(_point("degC"), role="chamber_temperature"),
+    ("ambient-probe", "temperature"): replace(_point("degC"), role="ambient_temperature"),
+    ("grid-meter", "state"): replace(_point(DISCRETE_UNIT), role="grid_state"),
+    ("generator-controller", "state"): replace(_point(DISCRETE_UNIT), role="generator_state"),
+    ("compressor-controller", "state"): replace(_point(DISCRETE_UNIT), role="compressor_state"),
+    ("backup-bus-meter", "state"): replace(_point(DISCRETE_UNIT), role="backup_bus_state"),
+    ("compressor-meter", "power"): ChannelMapping("MEASUREMENT", "INTERVAL_MEAN", (), False, False, ("kW",),
+                                                  role="compressor_power"),
+    ("door-sensor", "event"): replace(_events("DOOR_OPEN", "DOOR_CLOSE"), role="door_event"),
+    ("generator-controller", "start-event"): replace(_events("START_REQUEST", "START_RESULT"),
+                                                     role="backup_start_event"),
+    ("transfer-controller", "event"): replace(_events("TRANSFER_RESULT"), role="transfer_result"),
+    ("grid-meter", "event"): replace(_events("POWER_LOSS", "POWER_RESTORED"), role="grid_power_event"),
+    ("operator-log", "temperature-event"): replace(_events("MANUAL_LOG", units=(MANUAL_LOG_UNIT,)),
+                                                   role="manual_temperature"),
     ("charger-controller", "session-event"): _events("EV_SESSION_START", "EV_SESSION_END", "EV_SESSION_ABORT",
                                                      session=True),
     ("connector-controller", "fault-event"): _events("EV_CONNECTOR_FAULT", "EV_CONNECTOR_CLEAR"),
