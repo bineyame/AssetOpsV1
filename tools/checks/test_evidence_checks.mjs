@@ -160,3 +160,11 @@ test("the proximity rule fails on an unguarded navigation (non-vacuous)", () => 
   assert.equal(unguardedTriggers(trailing).length, 1);
   assert.equal(unguardedTriggers(block).length, 1);
 });
+
+// W1-UX-06 review M1: the owner walkthrough must not pin a worktree folder (it is run from the main folder after the merge).
+test("the combined owner walkthrough names no review worktree path", () => {
+  const text = readFileSync(join(REPO, ".agent", "W1-UX-combined-owner-walkthrough.md"), "utf8");
+  assert.ok(text.length > 1000, "walkthrough must be readable (non-vacuous)");
+  assert.ok(text.includes("$wt = (Get-Location).Path"), "walkthrough sets $wt from the current folder");
+  assert.equal(text.includes("AssetOpsV1-review"), false, "walkthrough must not contain AssetOpsV1-review*");
+});

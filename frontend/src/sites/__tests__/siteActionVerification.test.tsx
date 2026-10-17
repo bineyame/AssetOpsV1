@@ -1,3 +1,4 @@
+import { reasonWords as sourceReasonWords } from "../sourceProvenance";
 /**
  * S6-02b: the Action Plan / Evidence / Verification child views, the
  * Recommendation success panels and the Foundation change later-effect panels,
@@ -505,6 +506,8 @@ describe("Historical views beside the actual current state, and window lineage (
     await settledScreen();
     await vi.waitFor(() => expect(q("[data-verification-evidence-window='later']")).not.toBeNull());
     expect(qa("[data-verification-source-reason]").map((e) => e.textContent)).toEqual(["SOURCE_NOT_ESTABLISHED", "PLAIN_CODE"]);
+    // Review L4: each reason also reads in plain words beside its code.
+    expect(qa("[data-verification-source-reason-words]").map((e) => e.textContent)).toEqual([sourceReasonWords("SOURCE_NOT_ESTABLISHED"), sourceReasonWords("PLAIN_CODE")]);
   });
 });
 

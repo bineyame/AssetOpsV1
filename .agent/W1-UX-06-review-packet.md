@@ -135,3 +135,11 @@ Walk `.agent/W1-UX-combined-owner-walkthrough.md` in order, and decide owner not
 ## Final run (closeout revision)
 
 At `9f0afe1a`: `npx.cmd tsc --noEmit` exit 0; full `npm.cmd test` 74 files, **1912 passed**, 131 s; `tools/check-all.ps1` all 10 guards passed; `check_v69_dependency_registry.cjs` exit 0; `tools/check-agent-workflow.ps1` passed (after the ACTIVE_CONTEXT update).
+
+## Fix round 1 (review `678901f0`)
+
+- M1 fixed: the walkthrough runs from `C:\Users\assef\Bineyame\AssetOpsV1` at the commit the coordinator gives (step 1, `git log --oneline -1`); `$wt = (Get-Location).Path` is set once per window; all 63 `AssetOpsV1-review3` paths became `$wt`; `npm.cmd ci` added; `var\sites` is checked, never copied onto itself; every PYTHONPATH line uses all five `$wt` entries. New guard in `tools/checks/test_evidence_checks.mjs` fails on any `AssetOpsV1-review` text (proved: appended a path, 1 failed; reverted, 10/10 pass).
+- L2 fixed: Part 5 section 4 now opens `/sites/KOBO-001/evidence`; Part 16 section 4 says to click a gateway through "What to do" and look for "In contact; its latest report is old". Both table rows reworded from "not run" to "owner look".
+- L3 fixed: "Most screens" with a pointer to note 10; money line says a current amount only when the current read proves it, history amounts labelled as history.
+- L4 done: Action Evidence source reasons show `sourceProvenance` `reasonWords` beside the code (code-less reason reads "Reason not recognised."); test extended. `tsc --noEmit` clean; `siteActionVerification.test.tsx` 25/25.
+- L5 not changed (preference).

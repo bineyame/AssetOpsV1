@@ -25,6 +25,7 @@ import { Link } from "react-router-dom";
 import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
 import type { ActionBody, ActionReadResult, Refusal } from "./actionClient";
 import { Ref, RefusalPanel, when } from "./actionPresentation";
+import { reasonWords as sourceReasonWords } from "./sourceProvenance";
 import { EvidenceCard, PlanCard, VerificationCard } from "./verificationCards";
 import type {
   DaySelection,
@@ -1401,9 +1402,17 @@ function WindowPanel({ name, window, source, links, lineage }: { name: "baseline
             {source.reasons.length > 0 ? (
               <Fact term="Source reasons">
                 {/* W1-UX-06: each reason is an object from the backend; show its exact code (an object is not renderable). */}
-                {source.reasons.map((reason, index) => (
-                  <Ref key={index} value={typeof reason === "string" ? reason : String(reason.code)} attr="data-verification-source-reason" />
-                ))}
+                {source.reasons.map((reason, index) => {
+                  // Review L4: the plain words (reasonWords) sit beside the exact code; a code-less reason reads as not recognised.
+                  const code = typeof reason === "string" ? reason : reason.code;
+                  const known = typeof code === "string" && code !== "";
+                  return (
+                    <span key={index}>
+                      {known ? <Ref value={code} attr="data-verification-source-reason" /> : null}{" "}
+                      <span data-verification-source-reason-words>{known ? sourceReasonWords(code) : "Reason not recognised."}</span>
+                    </span>
+                  );
+                })}
               </Fact>
             ) : null}
             <Fact term="Power values">

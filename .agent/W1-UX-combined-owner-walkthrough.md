@@ -6,34 +6,40 @@ Final version, written at W1-UX-06 phase 2 (2026-10-17). It covers all 26 W1 Sit
 
 W1 did not add new features or new data. It changed how the existing Site screens explain themselves, so that each one reads like the v69 mock-up while saying no more than the stored records support.
 
-- **Every screen now opens with an answer card.** At the top is the question the screen answers, for example "Which site should I open?" or "What can we rely on?". Below it come a short plain answer, a state line, a small picture (bars, a step strip or a time strip), "What this means" and "What to do", and a link to the place that holds the detail.
+- **Most screens now open with an answer card.** (Owner note 10 lists the exceptions: Sites has no picture, the held and empty states draw no picture, and a few refusal or not-yet-stored states show no card at all.) At the top is the question the screen answers, for example "Which site should I open?" or "What can we rely on?". Below it come a short plain answer, a state line, a small picture (bars, a step strip or a time strip), "What this means" and "What to do", and a link to the place that holds the detail.
 - **The state line is always visible.** It gives the state, what the answer covers, and "As of <time>". When the record has no time, it says "As of: time not recorded", and never pretends the time is now.
 - **Codes and IDs are tucked away.** References, versions and codes sit in one closed "How this was worked out" section at the bottom of each card. The main reading uses plain words.
 - **Unknown is shown as unknown.** A missing value is drawn as a hatched "not known" mark, never as a zero bar. Refused, unavailable, stale or withdrawn reads say so in words.
-- **Money is only shown when it is current and priced.** Otherwise the screen says "No current amount can be shown" or "No price recorded", and never shows zero.
+- **A current amount is shown only when the current read proves it is current and priced.** Otherwise the screen says "No current amount can be shown" or "No price recorded", and never shows zero. Earlier recorded amounts appear only on history pages, each labelled as history.
 - **Set-up and health stay separate.** The Readiness badge now says "Set up to report", which means configuration only. Gateway contact is shown on Health, and contact never stands in for equipment condition.
 - **Test data is labelled.** All data in this walkthrough is authored, generated or simulated test data, not field readings. Do not compare numbers between different cases; each case is its own story.
 
 ## Before you start (once)
 
-1. Docker Desktop is running, with the AssetOps Postgres container on port 55432.
-2. Open PowerShell and go to the working copy:
+1. Open PowerShell and go to the folder you will run everything from, then confirm it is on the merged revision:
    ```powershell
-   cd C:\Users\assef\Bineyame\AssetOpsV1-review3
+   cd C:\Users\assef\Bineyame\AssetOpsV1
+   git log --oneline -1
    ```
-3. In **every** PowerShell window you open for this walkthrough, paste these two lines first:
+   The line shown must be the commit the coordinator gives you (the W1 closeout merge). If it is not, stop and ask. Use only this folder for the whole walkthrough.
+2. Docker Desktop is running, with the AssetOps Postgres container on port 55432.
+3. In **every** PowerShell window you open for this walkthrough, paste these lines first (the first line is run from inside the folder from step 1; in a new window `cd` there first):
    ```powershell
-   $wt = "C:\Users\assef\Bineyame\AssetOpsV1-review3"
+   cd C:\Users\assef\Bineyame\AssetOpsV1
+   $wt = (Get-Location).Path
    $env:PYTHONPATH = "$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
    ```
-4. Copy the site files into the working copy (once):
+   The Python used is `$wt\.venv\Scripts\python.exe` (the `.venv\Scripts\python.exe` lines below, run from `$wt`).
+4. Site files and dependencies (once). Dependencies changed during W1, so install them; the site files are copied only if missing:
    ```powershell
-   New-Item -ItemType Directory -Force var\sites | Out-Null
-   Copy-Item C:\Users\assef\Bineyame\AssetOpsV1\var\sites\*.yaml var\sites\
-   ```
-5. Each part uses **two windows**. Window 1 runs the test-case tool (its API server). Window 2 runs the screens:
+   New-Item -ItemType Directory -Force "$wt\var\sites" | Out-Null
+   if (-not (Test-Path "$wt\var\sites\kobo-001.yaml")) { Write-Host "kobo-001.yaml is missing in var\sites; ask the coordinator for the site files" }
+   cd $wt\frontend
+   npm.cmd ci
+   cd $wt
+   ```5. Each part uses **two windows**. Window 1 runs the test-case tool (its API server). Window 2 runs the screens:
    ```powershell
-   cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend
+   cd $wt\frontend
    $env:ASSETOPS_API_PORT = "<API port named in the part>"
    npm.cmd run dev -- --port <web port named in the part> --strictPort
    ```
@@ -76,7 +82,7 @@ Screens: sites, foundation, readiness, sld. Run log: `.agent/W1-UX-06-evidence/v
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 - The shared test database `assetops_s4cases` must exist. If `docker exec assetopsv1-postgres-1 psql -U assetops -lqt` does not list it, run once:
 ```
 .venv\Scripts\python.exe tools\s4_finding_cases.py run
@@ -84,8 +90,8 @@ Screens: sites, foundation, readiness, sld. Run log: `.agent/W1-UX-06-evidence/v
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_v01awalk_w1ux06","--empty-db","assetops_v01aempty_w1ux06","--work-name","v01a-w1ux06"
 .venv\Scripts\python.exe tools\v01a_foundation_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\v01a_foundation_walkthrough.py @T links --web-port 5460 --empty-web-port 5461
@@ -93,11 +99,11 @@ $T="--db","assetops_v01awalk_w1ux06","--empty-db","assetops_v01aempty_w1ux06","-
 ```
 Second window (stocked site):
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8960"; npm.cmd run dev -- --port 5460 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8960"; npm.cmd run dev -- --port 5460 --strictPort
 ```
 Third window (no site stored):
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8961"; npm.cmd run dev -- --port 5461 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8961"; npm.cmd run dev -- --port 5461 --strictPort
 ```
 
 ### 3. Ports and addresses
@@ -154,12 +160,12 @@ Screens: mini. Run log: `.agent/W1-UX-06-evidence/s5-*.txt`.
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s501_owner_w1ux06","--work","var/s501_owner_w1ux06","--api-port","8980","--web-port","5480"
 .venv\Scripts\python.exe tools\s5_overview_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\s5_overview_walkthrough.py @T serve
@@ -167,12 +173,12 @@ $T="--db","assetops_s501_owner_w1ux06","--work","var/s501_owner_w1ux06","--api-p
 `prepare` takes about 4 minutes and must end with "0 failed checks". `serve` prints the day addresses.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8980"; npm.cmd run dev -- --port 5480 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8980"; npm.cmd run dev -- --port 5480 --strictPort
 ```
 Third window, within 5 minutes before looking (repeat if more than 5 minutes pass):
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s501_owner_w1ux06","--work","var/s501_owner_w1ux06","--api-port","8980","--web-port","5480"
 .venv\Scripts\python.exe tools\s5_overview_walkthrough.py @T tick
 ```
@@ -220,12 +226,12 @@ Screens: mini (Finding row), sitefindings (bridge). Run log: `.agent/W1-UX-06-ev
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s404_owner_s502_w1ux06","--work","var/s404_owner_s502_w1ux06","--api-port","8990","--web-port","5490","--tls-port","8991","--http-port","8992"
 .venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py prepare @T
 .venv\Scripts\python.exe tools\s502_overview_finding_list_walkthrough.py serve @T
@@ -233,7 +239,7 @@ $T="--db","assetops_s404_owner_s502_w1ux06","--work","var/s404_owner_s502_w1ux06
 `prepare` takes about 4 minutes and must end with "0 failed check(s)" and "0 Overview check(s) failed". `serve` prints the addresses.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8990"; npm.cmd run dev -- --port 5490 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8990"; npm.cmd run dev -- --port 5490 --strictPort
 ```
 Look at the first set of days BEFORE running `tick`: `tick` assesses the waiting evidence, so the "out of date" day becomes current. Then, in a third window (same first two lines as above, then `$T=...`), one at a time:
 ```
@@ -296,8 +302,8 @@ Screens: evidence. Run log: `.agent/W1-UX-06-evidence/s2demo-*.txt`.
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--work","$env:TEMP\s2demo_w1ux06","--tls-port","9031","--http-port","9030"
 .venv\Scripts\python.exe tools\s2_demo_walkthrough.py run @T
 .venv\Scripts\python.exe tools\s2_demo_walkthrough.py serve @T
@@ -305,7 +311,7 @@ $T="--work","$env:TEMP\s2demo_w1ux06","--tls-port","9031","--http-port","9030"
 `run` takes about 4 minutes (it waits two minutes on purpose to show the gateway going quiet) and ends with "Stopping every process this script started". `serve` keeps running. It prints web port 5310; this walkthrough uses 5530 instead.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9030"; npm.cmd run dev -- --port 5530 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9030"; npm.cmd run dev -- --port 5530 --strictPort
 ```
 
 ### 3. Ports and addresses
@@ -352,12 +358,12 @@ Screens: finding-evidence, financials (source label), evidence (Finding-level). 
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--suffix","_w1ux06","--api-port","9020","--web-port","5520","--tls-port","9021","--http-port","9022"
 .venv\Scripts\python.exe tools\s405_provenance_walkthrough.py prepare --only owner @T
 .venv\Scripts\python.exe tools\s405_provenance_walkthrough.py links @T
@@ -366,7 +372,7 @@ $T="--suffix","_w1ux06","--api-port","9020","--web-port","5520","--tls-port","90
 `prepare` takes about 2 minutes and must end with "failed checks: {'owner': 0}". `links` prints the addresses (the ids are new on every prepare, so always copy them from `links`). `serve` keeps running and re-checks the schedule every two minutes.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9020"; npm.cmd run dev -- --port 5520 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9020"; npm.cmd run dev -- --port 5520 --strictPort
 ```
 
 ### 3. Ports and addresses
@@ -384,6 +390,7 @@ API 9020, web 5520. Addresses from the final run (`<F1>` = `cff9cbd1-3ae4-449e-b
 - Finding Evidence: the bold answer says where this Finding's readings came from; the line "Latest recorded version, opened by its exact reference" with "As of" shows while "How this was worked out" is closed; a "Source record for this finding version" panel says "Prepared example data"; links back to the Finding.
 - Financials 23 Oct: a money range (0.00 to 15.82 USD) with "Modelled range, using the latest checked readings", the same source label as the Finding, and a link to the Evidence.
 - Financials 24 Oct: "No current amount can be shown" - no number, because the generator readings needed for it are missing. Its "As of" reads "time not recorded" (no read time for this state).
+- Site Evidence with a source label: open `http://localhost:<web port>/sites/KOBO-001/evidence` (the web port this part prints). It should show the source label for the site's latest evidence, or say plainly that the source is unknown.
 - Keyboard: Tab reaches "How this was worked out". Exact link: paste in a new tab, same page. Reload: same page.
 
 ### 5. Data label
@@ -398,7 +405,7 @@ Ctrl+C in both windows, then `.venv\Scripts\python.exe tools\s405_provenance_wal
 | finding-evidence (`w1-ux-02`) | labelled source | Finding Evidence 23 Oct | 10/10 | 11/11 | |
 | financials (`w1-ux-02`) | `provenance` (priced, source shown) | Financials 23 Oct | 11/11 | 12/12 | revenue/asset/realised-savings tiles, trade-offs and Scenarios not built |
 | financials (`w1-ux-02`) | `withheld` | Financials 24 Oct | 9/9 | 10/10 | as-of reads "time not recorded" |
-| evidence (`w1-ux-03`) | labelled source/unknown | - | **not run** | **not run** | `links` prints only Finding-level Evidence addresses, no Site Evidence (`/sites/KOBO-001/evidence`) address |
+| evidence (`w1-ux-03`) | labelled source/unknown | `/sites/KOBO-001/evidence` | **not captured by script; now an owner look (section 4)** | **same** | the address is the printed site's route; no invented ID needed |
 
 Totals: `w1-ux-02` 63/63 (30 at 1440, 33 at 390) (`s405-w1-ux-02.txt`). Screenshots: `%TEMP%\w1ux06-final\s405\` (not in git).
 
@@ -411,8 +418,8 @@ Screens: evidence-analysis. Run log: `.agent/W1-UX-06-evidence/s302-*.txt`.
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s302_w1ux06","--work","var/s302_w1ux06","--port","9040","--web-port","5540"
 .venv\Scripts\python.exe tools\s302_claim_limit_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\s302_claim_limit_walkthrough.py @T serve
@@ -420,7 +427,7 @@ $T="--db","assetops_s302_w1ux06","--work","var/s302_w1ux06","--port","9040","--w
 `prepare` takes about 2 minutes and ends with "Prepared. Next: serve." (every line "ok"). `serve` keeps running and prints the addresses (also `links`). The revision ids are new on every prepare: always copy them from the printed list.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9040"; npm.cmd run dev -- --port 5540 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9040"; npm.cmd run dev -- --port 5540 --strictPort
 ```
 After looking at the current days, in a third window (same first three lines, then):
 ```
@@ -471,15 +478,15 @@ Screens: dispatch, analysis. Run log: `.agent/W1-UX-06-evidence/s3dispatch-*.txt
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 .venv\Scripts\python.exe tools\s3_dispatch_walkthrough.py prepare
 .venv\Scripts\python.exe tools\s3_dispatch_walkthrough.py serve --port 9050
 ```
 `prepare` takes under a minute and ends with "Prepared. Next: serve." `serve` keeps running. It prints web port 5320; this walkthrough uses 5550 instead.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9050"; npm.cmd run dev -- --port 5550 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9050"; npm.cmd run dev -- --port 5550 --strictPort
 ```
 
 ### 3. Ports and addresses
@@ -527,13 +534,13 @@ Screens: finding, finding-history. Run log: `.agent/W1-UX-06-evidence/s4_finding
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 - The shared case database `assetops_s4cases` must exist. If it does not, build it once (about 10 minutes): `.venv\Scripts\python.exe tools\s4_finding_cases.py run` (same env lines as below). The final run used the existing copy.
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s4walk_w1ux06","--work","var/s4walk_w1ux06"
 .venv\Scripts\python.exe tools\s4_finding_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\s4_finding_walkthrough.py @T links --web-port 5496
@@ -542,7 +549,7 @@ $T="--db","assetops_s4walk_w1ux06","--work","var/s4walk_w1ux06"
 `prepare` takes about a minute and ends with "Prepared. Next: links, then serve." `links` prints every Finding address (they change only when `assetops_s4cases` is rebuilt).
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8996"; npm.cmd run dev -- --port 5496 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8996"; npm.cmd run dev -- --port 5496 --strictPort
 ```
 Optional, after looking: `.venv\Scripts\python.exe tools\s4_finding_walkthrough.py @T recover` makes the out-of-date Finding current again.
 
@@ -582,12 +589,12 @@ Screens: sitefindings. Run log: `.agent/W1-UX-06-evidence/s404-*.txt`.
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s404_owner_w1ux06","--work","var/s404_owner_w1ux06","--api-port","8993","--web-port","5493","--tls-port","8994","--http-port","8995"
 .venv\Scripts\python.exe tools\s404_finding_index_walkthrough.py prepare @T
 .venv\Scripts\python.exe tools\s404_finding_index_walkthrough.py serve @T
@@ -595,7 +602,7 @@ $T="--db","assetops_s404_owner_w1ux06","--work","var/s404_owner_w1ux06","--api-p
 `prepare` takes about 2 minutes and must end with "0 failed check(s)". `serve` prints the addresses.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8993"; npm.cmd run dev -- --port 5493 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8993"; npm.cmd run dev -- --port 5493 --strictPort
 ```
 After looking at every day, in a third window (same first two lines as above, then `$T=...`):
 ```
@@ -652,15 +659,15 @@ Screens: financials. Run log: `.agent/W1-UX-06-evidence/s402b-*.txt`.
 - Docker Postgres running on 127.0.0.1:55432.
 - A fresh `assetops_s402bcases` template (about 2.5 minutes; it must end with "VERIFY PASSED"). The old template was stale, so rebuild it before the first walkthrough:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 .venv\Scripts\python.exe tools\s402b_power_cases.py --tls-port 9062 --http-port 9063 run
 ```
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $A="--db","assetops_s402bwalk_w1ux06","--empty-db","assetops_s402bempty_w1ux06","--work-name","s402b-w1ux06"
 .venv\Scripts\python.exe tools\s402b_fuel_cost_walkthrough.py @A prepare
 .venv\Scripts\python.exe tools\s402b_fuel_cost_walkthrough.py @A links --web-port 5560 --empty-web-port 5561
@@ -669,10 +676,10 @@ $A="--db","assetops_s402bwalk_w1ux06","--empty-db","assetops_s402bempty_w1ux06",
 `prepare` takes about 1 minute and ends with "Prepared. Next: links, then serve." The ids are new on every prepare, so always copy addresses from `links`. `serve` runs two APIs (priced store 9060, empty-price store 9061) until Ctrl+C.
 Second and third windows:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9060"; npm.cmd run dev -- --port 5560 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9060"; npm.cmd run dev -- --port 5560 --strictPort
 ```
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9061"; npm.cmd run dev -- --port 5561 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9061"; npm.cmd run dev -- --port 5561 --strictPort
 ```
 For the "no price recorded" state, after looking at the empty-price store once, run (first window, `serve` may keep running):
 ```
@@ -719,12 +726,12 @@ Screens: assumptions. Run log: `.agent/W1-UX-06-evidence/s402a-*.txt`.
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- The shared `assetops_s4cases` Finding template (`tools/s4_finding_cases.py run`, which needs `var/sites/kobo-001.yaml` copied from the main checkout). It was already present for this run.
+- The shared `assetops_s4cases` Finding template (`tools/s4_finding_cases.py run`, which needs `var/sites/kobo-001.yaml` present). It was already present for this run.
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $A="--db","assetops_s402awalk_w1ux06","--empty-db","assetops_s402aempty_w1ux06","--work-name","s402a-w1ux06"
 .venv\Scripts\python.exe tools\s402a_assumptions_walkthrough.py @A prepare
 .venv\Scripts\python.exe tools\s402a_assumptions_walkthrough.py @A links --web-port 5560 --empty-web-port 5561
@@ -733,10 +740,10 @@ $A="--db","assetops_s402awalk_w1ux06","--empty-db","assetops_s402aempty_w1ux06",
 `prepare` takes about 2 minutes and ends with "Prepared. Next: links, then serve." (it prints that twice). Always copy addresses from `links`. `serve` runs two APIs (priced 9060, empty-price 9061) until Ctrl+C.
 Second and third windows:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9060"; npm.cmd run dev -- --port 5560 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9060"; npm.cmd run dev -- --port 5560 --strictPort
 ```
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9061"; npm.cmd run dev -- --port 5561 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9061"; npm.cmd run dev -- --port 5561 --strictPort
 ```
 
 ### 3. Ports and addresses
@@ -774,12 +781,12 @@ Screens: assumptions: S4-08 fuel-price history. Run log: `.agent/W1-UX-06-eviden
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--suffix","_w1ux06","--api-port","9060","--web-port","5560","--tls-port","9061","--http-port","9062"
 .venv\Scripts\python.exe tools\s408_assumption_history_walkthrough.py prepare @T
 .venv\Scripts\python.exe tools\s408_assumption_history_walkthrough.py links @T
@@ -788,7 +795,7 @@ $T="--suffix","_w1ux06","--api-port","9060","--web-port","5560","--tls-port","90
 `prepare` takes about 3.5 minutes and must end with "0 failed checks". The recorded moments T1/T2/T3 are new on every prepare, so always copy addresses from `links`. `serve` keeps running until Ctrl+C.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9060"; npm.cmd run dev -- --port 5560 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9060"; npm.cmd run dev -- --port 5560 --strictPort
 ```
 Closed source: Ctrl+C `serve`, then `... close-gate @T`, `... serve --case owner @T`, reload; afterwards Ctrl+C and `... open-gate @T`.
 Mixed source: Ctrl+C `serve`, then `... serve --case mixed @T` and reload the default address.
@@ -844,8 +851,8 @@ Screens: recommendation, changes, action-overview, action-execution, action-hist
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s601b_w1ux06","--work","var/s601b_w1ux06"
 .venv\Scripts\python.exe tools\s601b_action_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\s601b_action_walkthrough.py @T links
@@ -854,7 +861,7 @@ $T="--db","assetops_s601b_w1ux06","--work","var/s601b_w1ux06"
 `prepare` takes about a minute and ends with "Prepared. Next: links, then serve." `links` prints every address below. The ports are fixed by the tool.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8961"; npm.cmd run dev -- --port 5461 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8961"; npm.cmd run dev -- --port 5461 --strictPort
 ```
 
 ### 3. Ports and addresses
@@ -914,8 +921,8 @@ Screens: action-plan, action-evidence, verification. Run log: `.agent/W1-UX-06-e
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s602b_w1ux06","--work","var/s602b_w1ux06"
 .venv\Scripts\python.exe tools\s602b_verification_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\s602b_verification_walkthrough.py @T links --web-port 5570
@@ -924,11 +931,11 @@ $T="--db","assetops_s602b_w1ux06","--work","var/s602b_w1ux06"
 `prepare` takes about 5 minutes and ends with "Prepared. Next: serve, then capture." It makes five databases (the replay plus one per test case). To see another test case, Ctrl+C `serve` and start it again with `--case target_miss`, `--case inconclusive` or `--case withdrawn`; the two web windows keep running.
 Second window (the replay, a real Lab run):
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9070"; npm.cmd run dev -- --port 5570 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9070"; npm.cmd run dev -- --port 5570 --strictPort
 ```
 Third window (the test cases):
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9071"; npm.cmd run dev -- --port 5571 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9071"; npm.cmd run dev -- --port 5571 --strictPort
 ```
 
 ### 3. Ports and addresses
@@ -981,8 +988,8 @@ Screens: sitework. Run log: `.agent/W1-UX-06-evidence/s603-*.txt`.
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s603_owner_w1ux06","--work","var/s603_owner_w1ux06"
 .venv\Scripts\python.exe tools\s603_site_work_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\s603_site_work_walkthrough.py @T serve --port 9070 --web-port 5570
@@ -990,12 +997,12 @@ $T="--db","assetops_s603_owner_w1ux06","--work","var/s603_owner_w1ux06"
 `prepare` takes about a minute and ends with "Prepared. Next: serve ...". `serve` prints the addresses below.
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="9070"; npm.cmd run dev -- --port 5570 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="9070"; npm.cmd run dev -- --port 5570 --strictPort
 ```
 Optional third window, to confirm the counts against the database (must end "ATTEST OK"):
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s603_owner_w1ux06","--work","var/s603_owner_w1ux06"
 .venv\Scripts\python.exe tools\s603_site_work_walkthrough.py @T attest
 ```
@@ -1042,24 +1049,24 @@ Screens: health, asset. Run log: `.agent/W1-UX-06-evidence/s701-*.txt`.
 
 ### 1. Prerequisites (one time)
 - Docker Postgres running on 127.0.0.1:55432.
-- `var/sites/kobo-001.yaml` copied from the main checkout into this folder (`var/` is ignored by git).
+- `var/sites/kobo-001.yaml` present in this folder (see "Before you start", step 4) (`var/` is ignored by git).
 
 ### 2. Commands (PowerShell, in order)
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s701_owner_w1ux06","--work","var/s701_owner_w1ux06"
 .venv\Scripts\python.exe tools\s701_health_walkthrough.py @T prepare
 .venv\Scripts\python.exe tools\s701_health_walkthrough.py @T serve --port 8970 --web-port 5470
 ```
 Second window:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3\frontend; $env:ASSETOPS_API_PORT="8970"; npm.cmd run dev -- --port 5470 --strictPort
+cd $wt\frontend; $env:ASSETOPS_API_PORT="8970"; npm.cmd run dev -- --port 5470 --strictPort
 ```
 Third window, once the API is up (prints the battery address), then right before looking (fresh contacts last about 2 minutes), then the self-check:
 ```
-cd C:\Users\assef\Bineyame\AssetOpsV1-review3
-$wt="C:\Users\assef\Bineyame\AssetOpsV1-review3"; $env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
+cd $wt
+$env:PYTHONPATH="$wt;$wt\backend;$wt\contracts;$wt\gateway;$wt\simulator"
 $T="--db","assetops_s701_owner_w1ux06","--work","var/s701_owner_w1ux06"
 .venv\Scripts\python.exe tools\s701_health_walkthrough.py @T links --port 8970 --web-port 5470
 .venv\Scripts\python.exe tools\s701_health_walkthrough.py @T deliver
@@ -1079,7 +1086,7 @@ API 8970, web 5470. The tool prints `127.0.0.1`; open the same port and path on 
 
 ### 4. What to look for
 - Health KOBO-001: the bold answer reads "4 of 8 enabled gateways need attention"; the yellow box says some gateways are not in contact, with site and "As of" time, while "How this was worked out" is closed.
-- Two bar groups: contact (in contact / out of contact / never heard) and how old the reports are. "What to do" links open each gateway.
+- Two bar groups: contact (in contact / out of contact / never heard) and how old the reports are. "What to do" links open each gateway. Click one of those links: on the selected-gateway view, look for "In contact; its latest report is old" where the data shows it (and "...age cannot be confirmed" where a report time is missing).
 - The battery link goes to the battery page.
 - KOBO-002: says there is no gateway to read from, with no empty bars pretending to be zero.
 - Battery: says its condition cannot be judged yet and lists the missing inputs.
@@ -1100,7 +1107,7 @@ Ctrl+C in both windows, then:
 | --- | --- | --- | --- | --- | --- |
 | health | KOBO-001 | /sites/KOBO-001/health | pass | pass | both bar groups use the same colour; meaning is in words |
 | health | KOBO-002 no source | /sites/KOBO-002/health | pass | pass | |
-| health | selected gateway | `?gateway=<id>` | **not run** | **not run** | neither `links`, `serve` nor `deliver` prints a gateway ID |
+| health | selected gateway | `?gateway=<id>` | **not captured by script; now an owner look (section 4, via "What to do")** | **same** | reached by the card's own link |
 | asset | KOBO-001 battery | /sites/KOBO-001/assets/61e5e895-... | pass | pass | |
 | asset | refusal | /sites/KOBO-002/assets/0000... | **not run** | **not run** | refusal panel has no card |
 
