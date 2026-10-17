@@ -139,6 +139,8 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     expect(q("[data-headline-card]")).toBeNull();
     const panel = panelTitled("Actions at this site");
     expect(panel.querySelectorAll("[data-site-work-row]").length).toBe(D.positive.rows.length);
+    expect(Array.from(panel.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Action", "Source", "Owner", "Due", "State", "Success criterion"]);
+    for (const row of Array.from(panel.querySelectorAll("[data-site-work-row]"))) expect(row.querySelector(".w1f4-action-badge")).not.toBeNull();
     // The window controls are chip-sized controls inside the one panel.
     expect(panel.querySelector("form.v69-chips[data-site-work-window]")).not.toBeNull();
     expect(panel.querySelector("[data-site-work-not-included]")).not.toBeNull();

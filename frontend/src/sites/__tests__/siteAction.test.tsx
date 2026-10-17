@@ -446,7 +446,9 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     expect(exactReference("action-state-references", "Configuration basis")).toBe(body.basis.foundation_revision_id);
     // S6-02b (F5): the Overview reads the verification block, not `state.outcome`.
     expect(q("[data-action-verification-state]")).toHaveAttribute("data-action-verification-state", body.verification.state);
-    expect(q("[data-action-outcome-words]")?.textContent).toMatch(/^No verification plan yet\./);
+    // W1-F4 fix: the no-plan sentence appears once (re-pointed from the duplicate label span to the line's sentence).
+    expect(q("[data-action-outcome-line]")?.textContent).toMatch(/^No verification plan exists for this work/);
+    expect(q("[data-action-outcome-line]")?.textContent).not.toMatch(/No verification plan yet/);
     expect(exactReference("action-state-references", "New configuration version")).toBe(body.change.new_foundation_revision_id);
     expect(q("[data-action-applied-event-link]")?.getAttribute("href")).toBe(
       `/sites/KOBO-001/actions/${ACTION}/history?event_id=${body.change.applied_event_id}`,

@@ -115,7 +115,7 @@ describe("Site Work Actions list", () => {
       expect(tr.querySelector("[data-site-work-event-link]")?.getAttribute("href")).toBe(row.links.history_at_event);
       expect(tr.textContent).toContain(row.action_code);
     });
-    // Same lifecycle words as recorded state, never a verdict, owner or due date.
+    // Same lifecycle words as recorded state, never a verdict; owner, due and criterion are stated gaps (W1-F4 fix: mock's six columns).
     expect(rows[0].textContent).toContain("Accepted · not applied (1 failed attempt)");
     expect(rows[1].textContent).toContain("Applied · result not checked yet");
     const headers = qa("main table thead th").map((th) => th.textContent);

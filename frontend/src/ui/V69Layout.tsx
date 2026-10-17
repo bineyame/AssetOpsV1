@@ -74,6 +74,24 @@ export function MetricCards({
   );
 }
 
+/**
+ * The mock's `mheader`: a bordered row of labelled cells (Owner, Due / SLA, State,
+ * Source, Success criterion) between a status strip and the metric cards. A cell
+ * the read cannot support is passed as its gap word, never omitted.
+ */
+export function MetricHeader({ cells, label, data }: { cells: [ReactNode, ReactNode, string?][]; label: string; data?: Record<string, string> }) {
+  return (
+    <dl className="v69-mheader" aria-label={label} {...data}>
+      {cells.map(([term, value, key], index) => (
+        <div key={key ?? index} data-mheader-cell={key}>
+          <dt>{term}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /** The mock's `.key-values`: term left, value right. */
 export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string?][]; label?: string }) {
   return (

@@ -44,6 +44,7 @@ export {
   MetricCard,
   type MetricCardProps,
   MetricCards,
+  MetricHeader,
   type MetricTone,
   SITE_SCREEN_DESCRIPTIONS,
   SitePageHeader,

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * S6-02b: the Action's Plan, Evidence and Verification child views
  * (`action-plan:1`, `action-evidence:1`, `verification:1-3`), under the S6-01b
  * Action root at `/sites/{site}/actions/{action}/{plan|evidence|verification}`.
@@ -31,7 +31,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { asOfText, ChartNote, outcomeWords, DataTable, Disclosure, ExactReferences, Fact, FactList, Panel, type ExactReference, type ProductTone } from "../ui";
+import { asOfText, ChartNote, MetricHeader, outcomeWords, DataTable, Disclosure, ExactReferences, Fact, FactList, Panel, type ExactReference, type ProductTone } from "../ui";
 import type { ActionBody, ActionReadResult, Refusal } from "./actionClient";
 import { Ref, when } from "./actionPresentation";
 import { reasonWords as sourceReasonWords } from "./sourceProvenance";
@@ -381,6 +381,12 @@ export function ActionVerification({
       ) : null}
       {view === "verification" ? (
         <>
+          <VerificationSummaryRow
+            gapped={blocked || refusals.length > 0}
+            stateWord={verdict?.words.label ?? null}
+            source={<Link to={links.finding(body.origin.finding_id, body.origin.finding_revision_id)}>Source Finding version</Link>}
+            criterion={metric(outcome?.metrics ?? [], "target_reduction") ? "At least 25% lower" : null}
+          />
           <VerificationMetricCards outcome={outcome} record={shown} gap={blocked || refusals.length > 0 ? "Not available" : "Pending"} />
           <TargetPanel
             outcome={outcome}
@@ -423,7 +429,6 @@ export function ActionVerification({
           gap={evidence === null ? gapOf(outcomeId !== null && reads.outcome?.status !== "loaded" ? reads.outcome : reads.evidence, outcomeId !== null && reads.outcome === null ? VERIFICATION_LOADING.outcome : VERIFICATION_LOADING.evidence, "verification evidence") : null}
         />
       ) : null}
-      <TrialNotice />
     </div>
   );
 }
@@ -494,10 +499,31 @@ function productChip(tone: ProductTone): Tone {
   return tone === "positive" ? "pass" : tone === "problem" ? "fail" : tone === "limited" ? "unknown" : "waiting";
 }
 
-/** The fixed policy-trial limitation, on every verification view: the mock's closing notice line. */
+/** The mock's `mheader` on Verification: Owner, Due / SLA, State, Source, Success criterion; gaps are words. */
+function VerificationSummaryRow({ gapped, stateWord, source, criterion }: { gapped: boolean; stateWord: string | null; source: ReactNode; criterion: string | null }) {
+  const gap = "Not available";
+  return (
+    <MetricHeader
+      label="Verification summary"
+      data={{ "data-verification-summary": gapped ? "gap" : "read" }}
+      cells={[
+        ["Owner", "Not recorded", "owner"],
+        ["Due / SLA", "Not set", "due"],
+        ["State", gapped ? gap : (stateWord ?? "Pending"), "state"],
+        ["Source", gapped ? gap : source, "source"],
+        ["Success criterion", gapped ? gap : (criterion ?? "No success criteria recorded"), "criterion"],
+      ]}
+    />
+  );
+}
+
+/**
+ * The fixed policy-trial limitation, on Plan, Evidence and Verification. The mock has no closing
+ * callout, but this is a material limit, so it stays visible as a small note line.
+ */
 export function TrialNotice() {
   return (
-    <p className="notice notice--info w1f4-verification-notice" data-verification-trial-label="POLICY_TRIAL_NO_SAVINGS">
+    <p className="v69-chart-note w1f4-verification-notice" data-verification-trial-label="POLICY_TRIAL_NO_SAVINGS">
       Policy trial on Lab or authored test data. It compares two observed windows under a plan fixed in advance. It
       does not prove the change caused the difference, and it shows no savings or realized benefit. A resolution can
       be withdrawn later; it is never permanent.
@@ -1227,6 +1253,7 @@ function OutcomeEvidencePanel({
           {record ? "Inspect the evidence for this outcome" : "Inspect the evidence"}
         </Link>
       </p>
+      <TrialNotice />
     </Panel>
   );
 }
@@ -1240,6 +1267,7 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
     return (
       <Panel heading={heading} headingId={headingId}>
         {gap ? <Gap gap={gap} /> : null}
+        <TrialNotice />
       </Panel>
     );
   }
@@ -1254,6 +1282,7 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
             : "The change is applied; the plan has not been frozen yet."}
         </p>
         <CurrentReasons current={body.verification_state} />
+        <TrialNotice />
       </Panel>
     );
   }
@@ -1443,6 +1472,7 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
           ))}
         </p>
       </DigDeeper>
+      <TrialNotice />
     </Panel>
   );
 }
@@ -1515,6 +1545,7 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
     return (
       <Panel heading={heading} headingId={headingId}>
         {gap ? <Gap gap={gap} /> : null}
+        <TrialNotice />
       </Panel>
     );
   }
@@ -1607,6 +1638,7 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
         <WindowDetail name="baseline" window={body.windows.baseline} source={body.source_resolution.baseline} links={links} lineage={lineage.baseline} />
         <WindowDetail name="later" window={body.windows.later} source={body.source_resolution.later} links={links} lineage={lineage.later} />
       </DigDeeper>
+      <TrialNotice />
     </Panel>
   );
 }

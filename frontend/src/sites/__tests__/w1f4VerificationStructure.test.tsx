@@ -181,12 +181,22 @@ describe("W1-F4 C2: Action Evidence keeps the v69 panel structure (action-eviden
   });
 });
 
+const SUMMARY_LABELS = ["Owner", "Due / SLA", "State", "Source", "Success criterion"];
+const summaryCells = () => Array.from(document.querySelectorAll(".v69-mheader > div")).map((d) => [d.querySelector("dt")?.textContent, d.querySelector("dd")?.textContent ?? ""]);
+
 describe("W1-F4 C2: Verification keeps the v69 panel structure (verification)", () => {
   it("stocked: strip, four cards from the read, panel 1 full width, then Activity and Outcome evidence side by side", async () => {
     serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(outcomeCurrent()) });
     mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
     await structure("verification");
     expect(q(".status-strip--line[data-verification-current-state='VERIFIED']")).not.toBeNull();
+    // The mock's summary row sits between the strip and the cards.
+    expect(summaryCells().map(([l]) => l)).toEqual(SUMMARY_LABELS);
+    expect(summaryCells()[0][1]).toBe("Not recorded");
+    expect(summaryCells()[1][1]).toBe("Not set");
+    expect(q(".v69-mheader [data-mheader-cell='source'] a")).not.toBeNull();
+    expect(q(".status-strip")!.compareDocumentPosition(q(".v69-mheader")!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(q(".v69-mheader")!.compareDocumentPosition(q(".v69-cards")!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(document.querySelectorAll(".v69-cards [data-verification-card]").length).toBe(4);
     const pair = q(".panel-pair");
     expect(pair?.querySelectorAll(":scope > .panel").length).toBe(2);
@@ -202,6 +212,8 @@ describe("W1-F4 C2: Verification keeps the v69 panel structure (verification)", 
     expect(panelTitled("Target and guardrails evaluated together").querySelector("[data-panel-gap='pending']")).not.toBeNull();
     expect(panelTitled("Outcome evidence").querySelector("[data-panel-gap='pending']")?.textContent).toContain("pending");
     expect(q("[data-verification-outcome]")).toBeNull();
+    expect(summaryCells().map(([l]) => l)).toEqual(SUMMARY_LABELS);
+    expect(q("[data-verification-summary]")?.getAttribute("data-verification-summary")).toBe("read");
     for (const card of Array.from(document.querySelectorAll("[data-verification-card]"))) expect(card.textContent).toContain("Pending");
   });
 
@@ -210,6 +222,8 @@ describe("W1-F4 C2: Verification keeps the v69 panel structure (verification)", 
     mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
     await structure("verification");
     expect(q("[data-page-refusal='refused']")).not.toBeNull();
+    expect(summaryCells().map(([l]) => l)).toEqual(SUMMARY_LABELS);
+    expect(summaryCells().map(([, v]) => v)).toEqual(["Not recorded", "Not set", "Not available", "Not available", "Not available"]);
     expect(panelTitled("Target and guardrails evaluated together").querySelector("[data-panel-gap='refused']")).not.toBeNull();
     expect(panelTitled("Outcome evidence").querySelector("[data-panel-gap='refused']")).not.toBeNull();
     for (const card of Array.from(document.querySelectorAll("[data-verification-card]"))) expect(card.textContent).toContain("Not available");

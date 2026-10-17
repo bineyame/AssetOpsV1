@@ -604,8 +604,8 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
         <p className="v69-chart-note" data-action-outcome-line>
           <span className="product-status__sentence">{words.sentence}</span>{" "}
           {v ? (
-            // The qualified state sentence is on the line above; a repeat would drop its qualifier.
-            v.state === "VERIFIED" ? (
+            // The qualified state sentence is on the line above; a repeat would drop its qualifier (VERIFIED) or say it twice (NO_PLAN).
+            v.state === "VERIFIED" || v.state === "NO_PLAN" ? (
               <span data-action-verification-state={v.state} />
             ) : (
               <span data-action-outcome-words data-action-verification-state={v.state}>
@@ -1292,18 +1292,17 @@ function EventDetails({
       <span data-action-event-failure={event.failure_code ?? ""}>
         Nothing was changed; still pending.
         {compact ? null : (
-          <small>
+          <small
+            title={[
+              event.expected_foundation_revision_id ? `expected ${event.expected_foundation_revision_id}` : "",
+              event.current_foundation_revision_id ? `current ${event.current_foundation_revision_id}` : "",
+            ]
+              .filter(Boolean)
+              .join(", ") || undefined}
+          >
             <span className="w1f4-failure-code"><Ref value={event.failure_code ?? "UNKNOWN"} /></span>
-            {event.expected_foundation_revision_id ? (
-              <>
-                {" "}
-                expected <Ref value={event.expected_foundation_revision_id} />
-              </>
-            ) : null}
-            {event.current_foundation_revision_id ? (
-              <>
-                , current <Ref value={event.current_foundation_revision_id} />
-              </>
+            {event.expected_foundation_revision_id && event.current_foundation_revision_id ? (
+              <> The Site configuration had changed since this was accepted.</>
             ) : null}
           </small>
         )}
@@ -1330,7 +1329,7 @@ function EventDetails({
         A note only; it changes no application or outcome state.
         {compact ? null : (
           <small>
-            <Ref value={event.observation_code ?? "UNKNOWN"} />
+            <span className="w1f4-failure-code"><Ref value={event.observation_code ?? "UNKNOWN"} /></span>
           </small>
         )}
       </span>

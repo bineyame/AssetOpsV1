@@ -32,6 +32,7 @@ import { Link } from "react-router-dom";
 
 import { ChartNote, DataTable, Disclosure, Fact, FactList, Panel, readResultWords, type ProductWords } from "../ui";
 import type { ActionIndexBody, ActionIndexClient, ActionIndexResult, ActionIndexRow, ActionIndexScope } from "./actionIndexClient";
+import "./w1f4-action.css";
 import "./w1f4-changes-work.css";
 
 export interface SiteWorkLinks {
@@ -100,6 +101,13 @@ export function stateWords(row: ActionIndexRow): string {
       : "Accepted · not applied";
   }
   return state.application;
+}
+
+/** The State badge tone: closed is green, waiting on a step is amber, applied is blue. */
+function stateTone(row: ActionIndexRow): "green" | "amber" | "blue" {
+  if (row.state.resolution?.state === "RESOLVED") return "green";
+  if (row.state.resolution?.state === "RESOLUTION_WITHDRAWN") return "amber";
+  return row.state.application === "APPLIED" ? "blue" : "amber";
 }
 
 /** A default window for the chooser: the 30 UTC days ending today. */
@@ -215,9 +223,10 @@ function Rows({ body, links, all }: { body: ActionIndexBody; links: SiteWorkLink
         <tr>
           <th scope="col">Action</th>
           <th scope="col">Source</th>
-          <th scope="col">Created</th>
+          <th scope="col">Owner</th>
+          <th scope="col">Due</th>
           <th scope="col">State</th>
-          <th scope="col">Latest step</th>
+          <th scope="col">Success criterion</th>
         </tr>
       </thead>
       <tbody>
@@ -239,14 +248,21 @@ function Rows({ body, links, all }: { body: ActionIndexBody; links: SiteWorkLink
                 Finding, version {row.origin.revision_no}
               </Link>
             </td>
-            <td>{utcText(row.created_at)}</td>
-            <td data-site-work-state={row.state.application}>{stateWords(row)}</td>
+            <td>Not recorded</td>
+            <td>Not set</td>
             <td>
-              <Link to={links.history(row.action_id, row.selected_event.id)} data-site-work-event-link>
-                {STEP_WORDS[row.selected_event.kind] ?? row.selected_event.kind}
-              </Link>
-              <small className="muted"> · recorded {utcText(row.selected_event.recorded_at)}</small>
+              <span className={`w1f4-action-badge w1f4-action-badge--${stateTone(row)}`} data-site-work-row-state={row.state.application}>
+                {stateWords(row)}
+              </span>
+              <small className="w1f4-work-subline muted">
+                Created {utcText(row.created_at)} ·{" "}
+                <Link to={links.history(row.action_id, row.selected_event.id)} data-site-work-event-link>
+                  {STEP_WORDS[row.selected_event.kind] ?? row.selected_event.kind}
+                </Link>{" "}
+                · recorded {utcText(row.selected_event.recorded_at)}
+              </small>
             </td>
+            <td>Not recorded</td>
           </tr>
         ))}
       </tbody>
@@ -510,7 +526,7 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
         )}
         <ChartNote data={{ "data-site-work-not-included": "" }}>
           {rows
-            ? "Owners, due dates and success criteria are not recorded. Applied or closed is a recorded step, not proof that a trial worked; each Action's Verification shows whether it met its goal. "
+            ? "Applied or closed is a recorded step, not proof that a trial worked; each Action's Verification shows whether it met its goal. "
             : null}
           This list holds Actions only. Incidents and maintenance work are not part of it.
         </ChartNote>

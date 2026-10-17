@@ -59,8 +59,7 @@
 }
 
 .w1f4-verification-notice {
-  margin-top: var(--v69-gap, 16px);
-  font-size: 11px;
+  margin-top: 10px;
 }
 
 /* Inside the Evidence panel's closed disclosure: one block per window. */
