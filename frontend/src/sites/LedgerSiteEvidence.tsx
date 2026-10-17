@@ -535,6 +535,17 @@ function receiptFact(evidence: LedgerEvidence): { tone: FactTone; text: string }
 }
 
 function contactFact(health: EvidenceRead<GatewayHealth> | null): { tone: FactTone; text: string } {
+  const fact = contactState(health);
+  // W1-F2 compaction (phase B): the gateway block is closed, so the visible fact states a switched-off gateway itself.
+  const off = health?.status === "loaded" ? health.value.gateways.filter((g) => g.registration === "DISABLED").length : 0;
+  if (off === 0) return fact;
+  const total = health?.status === "loaded" ? health.value.gateways.length : 0;
+  const offText =
+    total === 1 ? "This gateway is currently switched off for this site." : `${plural(off, "gateway is", "gateways are")} currently switched off for this site.`;
+  return { ...fact, text: `${fact.text} ${offText}` };
+}
+
+function contactState(health: EvidenceRead<GatewayHealth> | null): { tone: FactTone; text: string } {
   if (health === null) return { tone: "not-known", text: "Loading the gateway's contact." };
   if (health.status === "not_found") return { tone: "not-known", text: "No gateway is registered, so there is no contact to report." };
   if (health.status !== "loaded") return { tone: "not-known", text: "The contact record could not be read, so contact is not known." };
@@ -1405,11 +1416,11 @@ function ClaimLimit({ evidence, children }: { evidence: LedgerEvidence; children
     <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-heading">
       {/* W1-F2: note-size lines in the panel; the full list of limits sits in one closed disclosure, every statement kept. */}
       <div data-evidence-claim-limit>
-        <ChartNote>
+        {/* W1-F2 compaction (phase B): the panel's two note lines are one line; both statements kept word for word. */}
+        <ChartNote data={{ "data-evidence-limit-note": "" }}>
           This page states what arrived for the selected period and draws no conclusion about how the site or its
-          equipment is operating.
+          equipment is operating. Data-source status describes reporting, not equipment condition.
         </ChartNote>
-        <ChartNote>Data-source status describes reporting, not equipment condition.</ChartNote>
         <Advanced name="evidence-limit-list" summary="Advanced details — how what can be said is narrowed">
         <p>What can be said is narrowed in these ways:</p>
         <ul>

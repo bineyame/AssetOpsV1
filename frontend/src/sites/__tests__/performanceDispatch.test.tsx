@@ -298,6 +298,36 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     expect(container.querySelector("[data-coverage-note]")?.closest("details")).toBeNull();
   });
 
+  it("W1-F2 compaction: Analysis shows three constraint blocks then 'Show all'; technical disclosures nest in one closed row", async () => {
+    const current = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    const seg = current.result.segments[0];
+    current.result.segments = [0, 1, 2, 3, 4].map((n) => ({
+      ...seg,
+      start: `2026-10-02T0${n}:00:00Z`,
+      end: `2026-10-02T0${n}:15:00Z`,
+    }));
+    const client = fake(
+      { status: "loaded", value: OPEN },
+      { status: "loaded", value: window({ intervals: [current], limitations: ["MISSING_ROLE: x"] }) },
+      { "rev-current": detail(current) },
+    );
+    const { container } = mount(client, "?day=2026-10-02&revision=rev-current&view=analysis");
+    await settledScreen();
+    const rows = [...container.querySelectorAll<HTMLTableRowElement>("tr[data-constraint-block]")];
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true, true]);
+    const toggle = screen.getByRole("button", { name: "Show all 5 blocks" });
+    fireEvent.click(toggle);
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false, false]);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    const technical = container.querySelector("details[data-disclosure='analysis-technical']") as HTMLDetailsElement;
+    expect(technical.open).toBe(false);
+    for (const name of ["dispatch-stored-record", "window-limitations"]) {
+      const inner = technical.querySelector(`details[data-disclosure='${name}']`) as HTMLDetailsElement;
+      expect(inner, name).not.toBeNull();
+      expect(inner.open, name).toBe(false);
+    }
+  });
+
   it("uses plain words for the shortfall constraint and a missing series, and hides model strings", async () => {
     const base = revision("rev-current", "NECESSARY");
     base.result.binding_constraints = ["CAPABILITY_SHORTFALL"];

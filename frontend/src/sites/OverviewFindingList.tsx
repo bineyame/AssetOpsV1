@@ -142,7 +142,7 @@ function Parity({ summary, body, onReload }: { summary: SiteWindowSummary; body:
   const outcome = compareParity(summary, body);
   if (outcome.state === "same") {
     return (
-      <p data-overview-finding-parity="same">
+      <p className="v69-chart-note" data-overview-finding-parity="same">
         The first Finding listed is the same Finding version as the one chosen above, on the same assessment and
         matching basis for this day.
       </p>
@@ -220,6 +220,7 @@ function ListReferences({ summary, body, withBasis }: { summary: SiteWindowSumma
     <div data-finding-index-reasons>
       <ExactReferences
         name="overview-finding-list"
+        variant="tech"
         references={[
           { label: "List state", value: body.status },
           ...body.status_reasons.map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
@@ -286,7 +287,10 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
   const parity = compareParity(summary, body);
   return (
     <div data-overview-finding-list="current-rows">
-      <ProductStatus words={currentnessWords("CURRENT")} scope={listScope(summary)} asOf={body.knowledge_at} />
+      {/* W1-F2 compaction: the list's state line in the strip's inline form (same words and bound). */}
+      <p className="v69-chart-note overview-finding-list__state">
+        <ProductStatus inline words={currentnessWords("CURRENT")} scope={listScope(summary)} asOf={body.knowledge_at} />
+      </p>
       <p>
         <strong>
           {body.total_count} {body.total_count === 1 ? "Finding" : "Findings"} overlap this day.
@@ -306,12 +310,17 @@ function Loaded({ summary, body, scope, links, onReload }: { summary: SiteWindow
           </li>
         ))}
       </ol>
-      <p data-overview-finding-shown={partial ? "first-page" : "all"}>
-        {partial
-          ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list.`
-          : `Showing all ${shown}.`}
+      {/* W1-F2 compaction: the shown count and the full-list link share one note line. */}
+      <p className="v69-chart-note">
+        <span data-overview-finding-shown={partial ? "first-page" : "all"}>
+          {partial
+            ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list.`
+            : `Showing all ${shown}.`}
+        </span>{" "}
+        <Link to={full} data-overview-finding-full-list>
+          Open the full Findings list for this day
+        </Link>
       </p>
-      <FullList href={full} />
       <Parity summary={summary} body={body} onReload={onReload} />
       <ListReferences summary={summary} body={body} withBasis={parity.state !== "same"} />
     </div>

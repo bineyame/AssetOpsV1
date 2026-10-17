@@ -342,6 +342,17 @@ describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () 
     expect(document.querySelector(`[data-known-finding="${FID}"]`)).not.toBeNull();
   });
 
+  it("W1-F2 compaction: the list's state line is inline and the shown count shares a line with the full-list link", async () => {
+    const body = positive(DAY, { rows: rowsOf(DAY, OTHER_FID, OTHER_RID).slice(0, 1), total_count: 1, next_cursor: null });
+    renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client, indexOf(() => ({ status: "loaded", value: body })).client);
+    await settledScreen();
+    const list = document.querySelector('[data-overview-finding-list="current-rows"]') as HTMLElement;
+    expect(list.querySelector(".overview-finding-list__state .product-status--inline [data-product-status-as-of]")).not.toBeNull();
+    const shown = list.querySelector("[data-overview-finding-shown]") as HTMLElement;
+    expect(shown.parentElement?.querySelector("[data-overview-finding-full-list]")).not.toBeNull();
+    expect(list.querySelector('[data-exact-references].exact-references--tech')).not.toBeNull();
+  });
+
   it("the reload reads the Overview and the list again", async () => {
     const overview = overviewOf(() =>
       day(DAY, { known_finding: { ...day(DAY).known_finding!, selected_by: "PINNED_RETAINED_WHILE_BASIS_INCOMPLETE" } }),

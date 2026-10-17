@@ -4680,24 +4680,28 @@ input.v69-chip-control[type="date"] {
 }
 
 /* The mock's `details.tech`: a small link-styled summary, no bar. */
-.exact-references--tech {
+.exact-references--tech,
+.disclosure--tech {
   border: 0;
   background: transparent;
   margin: 0;
 }
 
-.exact-references--tech > .disclosure__summary {
+.exact-references--tech > .disclosure__summary,
+.disclosure--tech > .disclosure__summary {
   padding: 0;
   color: var(--accent);
   font-size: 11px;
   font-weight: var(--weight-regular, 400);
 }
 
-.exact-references--tech[open] > .disclosure__summary {
+.exact-references--tech[open] > .disclosure__summary,
+.disclosure--tech[open] > .disclosure__summary {
   margin-bottom: 8px;
 }
 
-.exact-references--tech > .disclosure__body {
+.exact-references--tech > .disclosure__body,
+.disclosure--tech > .disclosure__body {
   padding: 0;
 }
 

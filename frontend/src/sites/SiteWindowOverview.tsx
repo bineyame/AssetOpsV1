@@ -224,10 +224,11 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
       <Link className="button" to={`?date=${shiftDay(day, 1)}`} data-window-day-link="next">
         Next day
       </Link>
+      {/* W1-F2 compaction: the day's bounds sit in the chip row (one line), not a separate note. */}
+      <span className="v69-chart-note window-day__bounds" data-window-bounds>
+        {stamp(summary.window.start)} to {stamp(summary.window.end)} UTC, start included, end excluded.
+      </span>
     </div>
-    <ChartNote>
-      {stamp(summary.window.start)} to {stamp(summary.window.end)} UTC, start included, end excluded.
-    </ChartNote>
     </>
   );
 }
@@ -255,6 +256,7 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
         <div data-window-reasons="freshness">
           <ExactReferences
             name="window-freshness"
+            variant="tech"
             references={[
               { label: "Day state", value: f.state },
               ...reasonReferences("Recorded reason", f.reasons),
@@ -387,15 +389,20 @@ function DayReading({ summary }: { summary: SiteWindowSummary }) {
           {coverageRoles(a.coverage)}
         </ChartNote>
       )}
+      {/* W1-F2 compaction: each recorded limitation, in its words, on one note line (none dropped). */}
       {a.limitations.length === 0 ? null : (
-        <ul className="cell-list" data-assessment-limitations={a.limitations.length}>
-          {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code) => (
-            <li key={code}>{limitationWords(code)}</li>
+        <ChartNote data={{ "data-assessment-limitations": String(a.limitations.length) }}>
+          {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code, n) => (
+            <span key={code} data-assessment-limitation={code}>
+              {n === 0 ? "" : " · "}
+              {limitationWords(code)}
+            </span>
           ))}
-        </ul>
+        </ChartNote>
       )}
       <ExactReferences
         name="window-assessment"
+        variant="tech"
         references={[
           { label: "Day assessment", value: a.window_assessment_revision_id },
           { label: "Assessment pass", value: a.run_id },
@@ -553,13 +560,16 @@ function Context({ summary, links }: { summary: SiteWindowSummary; links: Window
   }
   return (
     <>
-      <p data-window-context={c.series.length}>
+      <ChartNote data={{ "data-window-context": String(c.series.length) }}>
         {c.total ?? c.series.length} accepted readings on this day
         {c.truncated ? `; the first ${c.series.length} are listed` : ""}.
-      </p>
-      {c.coverage.length === 0 ? (
-        <p>No accepted reading covers this day.</p>
-      ) : (
+        {c.coverage.length === 0 ? " No accepted reading covers this day." : ""}
+      </ChartNote>
+      {c.gaps_reason ? <ChartNote data={{ "data-window-gaps": "" }}>{c.gaps_reason}</ChartNote> : null}
+      {/* W1-F2 compaction: the per-input table and the record links are reference detail, in one closed disclosure. */}
+      {c.coverage.length === 0 && c.series.length === 0 ? null : (
+        <Disclosure summary="Readings per input, with links to each record" name="window-coverage" variant="tech">
+      {c.coverage.length === 0 ? null : (
         <DataTable labelledBy="site-window-context-heading">
           <thead>
             <tr>
@@ -588,9 +598,8 @@ function Context({ summary, links }: { summary: SiteWindowSummary; links: Window
           </tbody>
         </DataTable>
       )}
-      {c.gaps_reason ? <p className="overview-note">{c.gaps_reason}</p> : null}
       {c.series.length === 0 ? null : (
-        <Disclosure summary="Accepted readings, with links to each record" name="window-readings">
+        <div data-disclosure-part="window-readings">
           <ul className="cell-list" data-window-readings={c.series.length}>
             {c.series.map((r) => (
               <li key={r.evidence_id}>
@@ -600,6 +609,8 @@ function Context({ summary, links }: { summary: SiteWindowSummary; links: Window
               </li>
             ))}
           </ul>
+        </div>
+      )}
         </Disclosure>
       )}
     </>
@@ -685,10 +696,20 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
             No current amount.
           </p>
         )}
-        <ProductStatus words={w} scope={scope} asOf={summary.db_now} />
+        {/* W1-F2 compaction: the state line stays visible in the strip's inline form (same words and bound). */}
+        <p className="window-money__state" data-money-state-line>
+          <ProductStatus inline words={w} scope={scope} asOf={summary.db_now} />
+        </p>
         {m.finding_id ? (
-          <SourceProvenanceNotice provenance={m.source_provenance} subject="cost" name="overview-money" />
+          <SourceProvenanceNotice provenance={m.source_provenance} subject="cost" name="overview-money" compact />
         ) : null}
+        {m.finding_id ? (
+          <ChartNote data={{ "data-money-qualifier": "" }}>
+            A modelled range of possible extra fuel cost for one Finding, not money lost or saved.
+          </ChartNote>
+        ) : null}
+        {/* W1-F2 compaction: the bars, gate and upstream facts, links and exact references, in one closed disclosure. */}
+        <Disclosure summary="Cost range, money gate and links" name="window-money-detail" variant="tech">
         {priced && Number.isFinite(low) && Number.isFinite(high) ? (
           <ValueBars
             title="Possible extra fuel cost for this Finding"
@@ -697,11 +718,6 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
               { label: "Upper bound", key: "high", value: high, valueText: `${m.amount_high} ${m.currency ?? ""}`.trim() },
             ]}
           />
-        ) : null}
-        {m.finding_id ? (
-          <ChartNote data={{ "data-money-qualifier": "" }}>
-            A modelled range of possible extra fuel cost for one Finding, not money lost or saved.
-          </ChartNote>
         ) : null}
         <FactList>
           <Fact term="Money gate">
@@ -730,7 +746,19 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
             { label: "Recorded cost label", value: m.label },
           ]}
         />
+        </Disclosure>
       </div>
+  );
+}
+
+/** W1-F2 compaction: the mock's "Open financial bridge" link, in the money panel's header, for the Finding's fuel cost. */
+function MoneyAction({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
+  const m = summary.money;
+  if (m.finding_id === null || m.finding_revision_id === null) return null;
+  return (
+    <Link to={links.financials(m.finding_id, m.finding_revision_id, m.consequence_revision_id)} data-window-financials-action>
+      Open fuel cost →
+    </Link>
   );
 }
 
@@ -782,6 +810,7 @@ function KnownFinding({
           {k.several_intersect ? <p>{k.note}</p> : null}
           <ExactReferences
             name="window-finding-choice"
+            variant="tech"
             references={[
               { label: "How it was chosen", value: k.selected_by },
               { label: "Choice rule", value: k.selection_rule },
@@ -827,20 +856,21 @@ function NextStep({ summary, links }: { summary: SiteWindowSummary; links: Windo
             The Finding records what the assessment concluded about generator operation. No recommendation is
             recorded on this Overview; any next action starts from the Finding.
           </ChartNote>
-          <p>
-            <Link className="button" to={links.finding(k.id, k.revision_id)} data-overview-next-finding={k.id}>
-              Open the Finding
-            </Link>
-          </p>
         </>
       )}
-      {closed ? null : (
-        <p>
+      {/* W1-F2 compaction: the Finding button and the Dispatch link share one line. */}
+      <p className="overview-next__actions">
+        {k === null ? null : (
+          <Link className="button" to={links.finding(k.id, k.revision_id)} data-overview-next-finding={k.id}>
+            Open the Finding
+          </Link>
+        )}
+        {closed ? null : (
           <Link to={links.dispatchDay(day, summary.assessment.window_assessment_revision_id)} data-overview-next-dispatch={day}>
             Open this day in Dispatch →
           </Link>
-        </p>
-      )}
+        )}
+      </p>
     </div>
   );
 }
@@ -882,7 +912,7 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
           description: "The Finding chosen for this day and the day's Finding list",
           body: <KnownFinding summary={summary} links={links} findingIndex={findingIndex} onReload={onReload} />,
         }}
-        money={{ body: <Money summary={summary} links={links} /> }}
+        money={{ body: <Money summary={summary} links={links} />, actions: <MoneyAction summary={summary} links={links} /> }}
         next={{ body: <NextStep summary={summary} links={links} /> }}
       />
     </div>

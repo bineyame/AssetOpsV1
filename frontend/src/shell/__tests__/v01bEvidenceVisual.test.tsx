@@ -374,6 +374,25 @@ describe("V-01b Site Evidence analysis", () => {
     expect(contact.textContent).not.toMatch(/Every gateway is in contact/);
   });
 
+  it("W1-F2 compaction: a switched-off gateway is stated in the visible contact fact, outside the closed gateway block", async () => {
+    const [first] = GATEWAY_HEALTH.gateways;
+    const off = { ...GATEWAY_HEALTH, gateways: [{ ...first, registration: "DISABLED" }] };
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: TWO_SOURCES }, { health: { status: "loaded", value: off } }));
+    await settledScreen();
+    const contact = document.querySelector("[data-evidence-reporting-fact='contact']") as HTMLElement;
+    expect(contact.textContent).toContain("This gateway is currently switched off for this site.");
+    expect(contact.closest("details")).toBeNull();
+    // The tone is unchanged by the added statement (never made more positive).
+    expect(contact.dataset.factTone).toBe("known");
+  });
+
+  it("W1-F2 compaction: a gateway that is not switched off adds no switched-off wording to the contact fact", async () => {
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: TWO_SOURCES }));
+    await settledScreen();
+    const contact = document.querySelector("[data-evidence-reporting-fact='contact']") as HTMLElement;
+    expect(contact.textContent).not.toMatch(/switched off/);
+  });
+
   it("W1-UX-03: the Evidence Analysis view uses the W1 set", async () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }, { rejections: { status: "loaded", value: WITH_CONFLICT } }));
     await settledScreen();

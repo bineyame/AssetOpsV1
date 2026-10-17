@@ -1415,6 +1415,60 @@ function plural(count: number, one: string, many: string): string {
  * outcome; Bounded fuel calculation states that this assessment has none; Coverage, confidence and alternatives
  * holds confidence, the record series, versions and the technical record and comparison detail.
  */
+/**
+ * W1-F2 compaction: the analysis constraint table shows the first three blocks, the mock's shape; the rest stay
+ * in the table (hidden, not removed) behind a plain "Show all N blocks" toggle.
+ */
+const CONSTRAINT_PREVIEW_ROWS = 3;
+
+function ConstraintTable({ segments }: { segments: DispatchSegment[] }) {
+  const [showAll, setShowAll] = useState(false);
+  return (
+    <>
+      <DataTable labelledBy="durable-dispatch-constraints-heading">
+        <thead>
+          <tr>
+            <th scope="col">Block (UTC)</th>
+            <th scope="col">Outcome</th>
+            <th scope="col">Demand</th>
+            <th scope="col">Spare capacity</th>
+            <th scope="col">Recorded reason or missing input</th>
+          </tr>
+        </thead>
+        <tbody>
+          {segments.map((seg, index) => (
+            <tr key={seg.start} data-constraint-block={seg.start} hidden={!showAll && index >= CONSTRAINT_PREVIEW_ROWS}>
+              <td>
+                {clock(seg.start)}–{clock(seg.end)}
+              </td>
+              <td>{outcome(seg.classification)}</td>
+              <td>{seg.load_kw ? `${seg.load_kw} kW` : "not reported"}</td>
+              <td>{seg.margin_kw ? `${seg.margin_kw} kW` : "not shown"}</td>
+              <td>
+                {[...(seg.reasons ?? []).map(constraintWords), ...(seg.missing ?? []).map((m) => `missing: ${missingWords(m)}`)].join("; ") ||
+                  "none recorded"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </DataTable>
+      {segments.length <= CONSTRAINT_PREVIEW_ROWS ? null : (
+        <p className="v69-chart-note">
+          <button
+            type="button"
+            className="link-button"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((v) => !v)}
+            data-constraint-toggle={showAll ? "all" : "preview"}
+          >
+            {showAll ? `Show the first ${CONSTRAINT_PREVIEW_ROWS} only` : `Show all ${segments.length} blocks`}
+          </button>
+        </p>
+      )}
+    </>
+  );
+}
+
 function AnalysisView({
   read,
   selected,
@@ -1447,33 +1501,7 @@ function AnalysisView({
             {selected === null ? (
               <ChartNote>Select a period on the Overview to compare its readings with its limits.</ChartNote>
             ) : (
-              <DataTable labelledBy="durable-dispatch-constraints-heading">
-                <thead>
-                  <tr>
-                    <th scope="col">Block (UTC)</th>
-                    <th scope="col">Outcome</th>
-                    <th scope="col">Demand</th>
-                    <th scope="col">Spare capacity</th>
-                    <th scope="col">Recorded reason or missing input</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(segment === null ? selected.result.segments : [segment]).map((seg) => (
-                    <tr key={seg.start} data-constraint-block={seg.start}>
-                      <td>
-                        {clock(seg.start)}–{clock(seg.end)}
-                      </td>
-                      <td>{outcome(seg.classification)}</td>
-                      <td>{seg.load_kw ? `${seg.load_kw} kW` : "not reported"}</td>
-                      <td>{seg.margin_kw ? `${seg.margin_kw} kW` : "not shown"}</td>
-                      <td>
-                        {[...(seg.reasons ?? []).map(constraintWords), ...(seg.missing ?? []).map((m) => `missing: ${missingWords(m)}`)].join("; ") ||
-                          "none recorded"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </DataTable>
+              <ConstraintTable segments={segment === null ? selected.result.segments : [segment]} />
             )}
             <ReadingsToOutcome read={read} selected={selected} selectedIsCurrent={selectedIsCurrent} segment={segment} />
           </>
@@ -1529,6 +1557,8 @@ function AnalysisView({
                 </Fact>
               ) : null}
             </FactList>
+            {/* W1-F2 compaction: the three technical disclosures nest in one closed row; each keeps its own. */}
+            <Disclosure name="analysis-technical" summary="Technical details, recorded limitations and comparison" variant="tech">
             <Disclosure name="dispatch-stored-record" summary="Technical details: stored record, versions and references">
               <FactList>
                 {Object.entries(read.unavailable).map(([key, value]) => (
@@ -1619,6 +1649,7 @@ function AnalysisView({
               </Disclosure>
             ) : null}
             {comparison ? <ComparisonDetail summary={comparison} /> : null}
+            </Disclosure>
           </>
         ),
       }}

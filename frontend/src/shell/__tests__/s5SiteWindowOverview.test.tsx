@@ -23,7 +23,7 @@ import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/eviden
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { MONEY_STATE_WORDS } from "../../sites/SiteWindowOverview";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
-import { expectStateLineVisible } from "../../test/productPresentation";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
@@ -442,6 +442,40 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     expect(document.querySelector(`[data-window-finding-link="${FID}"]`)?.getAttribute("href")).toBe(
       `/sites/${SITE_ID}/findings/${FID}?revision_id=${RID}`,
     );
+  });
+
+  it("W1-F2 compaction: amount, state, source and qualifier stay visible; bars, gate, links and readings detail are closed", async () => {
+    const { client } = clientOf(() => summary("2026-10-23"));
+    const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    const card = moneyCard();
+    const shown = (el: Element | null) => el !== null && visibleOutsideClosedDisclosure(el);
+    // Visible, in the mock's short form: amount, inline state line, source line, qualifier, header link.
+    expect(shown(card.querySelector("[data-money-amount]"))).toBe(true);
+    expect(card.querySelector("[data-money-state-line] .product-status--inline")).not.toBeNull();
+    expect(shown(card.querySelector("[data-source-provenance] .source-provenance__line"))).toBe(true);
+    expect(shown(card.querySelector("[data-money-qualifier]"))).toBe(true);
+    expect(container.querySelector("[data-window-financials-action]")?.getAttribute("href")).toBe(
+      card.querySelector("[data-window-financials-link]")?.getAttribute("href"),
+    );
+    // One closed detail disclosure holds the bars, the gate and upstream facts, the links and the exact references.
+    const detail = card.querySelector('details[data-disclosure="window-money-detail"]') as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    for (const sel of ["[data-value-bars]", "[data-money-gate-state]", "[data-money-upstream]", "[data-window-money-links]", "[data-exact-references]"]) {
+      expect(detail.querySelector(sel), sel).not.toBeNull();
+      expect(shown(card.querySelector(sel)), sel).toBe(false);
+    }
+    // Context: the count line stays visible; the per-input table and record links are closed detail.
+    expect(shown(container.querySelector("[data-window-context]"))).toBe(true);
+    const coverage = container.querySelector('details[data-disclosure="window-coverage"]') as HTMLDetailsElement;
+    expect(coverage.open).toBe(false);
+    expect(coverage.querySelector("table")).not.toBeNull();
+    expect(coverage.querySelector("[data-window-readings]")).not.toBeNull();
+    // Panel 1: the day's bounds sit in the chip row; Next step keeps its button and Dispatch link on one line.
+    expect(container.querySelector(".window-day [data-window-bounds]")?.textContent).toContain("start included, end excluded");
+    const actions = container.querySelector(".overview-next__actions") as HTMLElement;
+    expect(actions.querySelector("[data-overview-next-finding]")).not.toBeNull();
+    expect(actions.querySelector("[data-overview-next-dispatch]")).not.toBeNull();
   });
 
   it("a stale day: the freshness strip, the money card and the timeline say so with the disclosure closed", async () => {
