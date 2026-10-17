@@ -19,7 +19,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, Panel, plainTime, ProductStatus } from "../ui";
+import { currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, plainTime, ProductStatus } from "../ui";
 import { PeriodStrip, type StripTone } from "./periodStrip";
 import { isDay } from "./dispatchWords";
 import type {
@@ -295,8 +295,11 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
   };
 
   return (
-    <Panel heading="What the readings can support" headingId={CLAIM_LIMIT_HEADING_ID}>
       <div className="claim-limit" data-claim-limit-section data-claim-limit-day={day ?? ""} data-claim-limit-revision={revision ?? ""}>
+        {/* W1-F2: this read sits inside the v69 "How a claim limit is set" panel; its label is a line, not a panel. */}
+        <p className="claim-limit__label" id={CLAIM_LIMIT_HEADING_ID}>
+          <strong>What the readings can support</strong>
+        </p>
         <p className="prose">
           Each conclusion lists the readings it needs. When all are present for a period, the full conclusion is
           allowed. When one is missing or unreliable, the conclusion is narrowed to the periods that are covered, and
@@ -318,7 +321,6 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
           periods={assessed !== null && assessed.status === "loaded" ? assessed.value.periods : []}
         />
       </div>
-    </Panel>
   );
 }
 

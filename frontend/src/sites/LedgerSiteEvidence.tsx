@@ -31,7 +31,7 @@ import {
   ExactReferences,
   Fact,
   FactList,
-  HeadlineVisualCard,
+  KeyValues,
   Panel,
   plainTime,
   ProductStatus,
@@ -162,46 +162,48 @@ export function LedgerSiteEvidence({
       ) : (
         <>
           <StatusBar view="analysis" badge="Evidence · Analysis">
-            <span className="evidence-statusbar__facts">Accepted records, timing and how each limit is set</span>
+            <span className="evidence-statusbar__facts" data-evidence-analysis-question>
+              Accepted records, timing and how each limit is set
+            </span>
           </StatusBar>
-          <p className="headline-card__question evidence-analysis__question" data-evidence-analysis-question>
-            Which accepted readings sit behind what the readings can support?
-          </p>
-          <ClaimLimit evidence={evidence} />
-          <EvidenceClaimLimit siteId={siteId} client={claimLimit} assessmentHref={assessmentHref} />
-          <Inspector siteId={siteId} ledger={ledger} evidence={evidence} />
-          <Rejected siteId={siteId} ledger={ledger} evidence={evidence} />
-          <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
-            <Clocks evidence={evidence} />
-          </Advanced>
-          {evidence.sources.length === 0 ? null : (
-            <Advanced name="evidence-sources" summary="Advanced details — sources in this period">
-              <Sources evidence={evidence} onInspect={(source) => inspect("source", source)} />
+          {/* W1-F2: the v69 evidence-analysis panels. Records (and readings not accepted) first, then how a limit is set. */}
+          <Inspector siteId={siteId} ledger={ledger} evidence={evidence}>
+            <Rejected siteId={siteId} ledger={ledger} evidence={evidence} />
+            <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
+              <Clocks evidence={evidence} />
             </Advanced>
-          )}
-          {evidence.batches.length === 0 ? null : (
-            <Advanced name="evidence-deliveries" summary={`Advanced details — deliveries (${evidence.batches.length})`}>
-              <Deliveries evidence={evidence} />
+            {evidence.sources.length === 0 ? null : (
+              <Advanced name="evidence-sources" summary="Advanced details — sources in this period">
+                <Sources evidence={evidence} onInspect={(source) => inspect("source", source)} />
+              </Advanced>
+            )}
+            {evidence.batches.length === 0 ? null : (
+              <Advanced name="evidence-deliveries" summary={`Advanced details — deliveries (${evidence.batches.length})`}>
+                <Deliveries evidence={evidence} />
+              </Advanced>
+            )}
+            {evidence.coverage.length === 0 ? null : (
+              <Advanced name="evidence-coverage" summary="Advanced details — readings by input">
+                <Coverage evidence={evidence} onInspect={(key) => inspect("signal", key)} />
+              </Advanced>
+            )}
+          </Inspector>
+          <ClaimLimit evidence={evidence}>
+            <EvidenceClaimLimit siteId={siteId} client={claimLimit} assessmentHref={assessmentHref} />
+            <Advanced name="evidence-analysis-status" summary="Advanced details — analysis status">
+              <AnalysisStatus evidence={evidence} />
             </Advanced>
-          )}
-          {evidence.coverage.length === 0 ? null : (
-            <Advanced name="evidence-coverage" summary="Advanced details — readings by input">
-              <Coverage evidence={evidence} onInspect={(key) => inspect("signal", key)} />
+            {evidence.migration === null ? null : (
+              <Advanced name="evidence-comparison" summary="Advanced details — earlier store comparison">
+                <Comparison evidence={evidence} />
+              </Advanced>
+            )}
+            <Advanced name="evidence-gateway" summary="Advanced details — gateway contact">
+              <Panel heading="Gateway contact" headingId="site-evidence-gateway-heading">
+                <GatewayContact health={health} detailed />
+              </Panel>
             </Advanced>
-          )}
-          <Advanced name="evidence-analysis-status" summary="Advanced details — analysis status">
-            <AnalysisStatus evidence={evidence} />
-          </Advanced>
-          {evidence.migration === null ? null : (
-            <Advanced name="evidence-comparison" summary="Advanced details — earlier store comparison">
-              <Comparison evidence={evidence} />
-            </Advanced>
-          )}
-          <Advanced name="evidence-gateway" summary="Advanced details — gateway contact">
-            <Panel heading="Gateway contact" headingId="site-evidence-gateway-heading">
-              <GatewayContact health={health} detailed />
-            </Panel>
-          </Advanced>
+          </ClaimLimit>
         </>
       )}
     </div>
@@ -430,58 +432,47 @@ function OverviewBody({
           {`${plural(evidence.counts.accepted, "reading", "readings")} accepted · ${reportingSources(evidence).length} of ${plural(evidence.sources.length, "source", "sources")} with accepted readings · ${refused} not accepted`}
         </span>
       </StatusBar>
-      <HeadlineVisualCard
-        dataName="evidence-conclusion"
+      <Panel
+        heading="What we can conclude now"
         headingId="site-evidence-state-heading"
-        title="What we can conclude now"
         description="Evidence readiness is not equipment condition"
-        question="What can we rely on?"
-        headline={<span data-evidence-headline={evidence.state}>{headlineOf(evidence)}</span>}
-        status={<ProductStatus words={receiptWords(evidence)} scope={periodScope(evidence)} asOf={evidence.extent.last_received_at} />}
-        visual={
-          <ValueBars
-            title="Readings that arrived for this period, by what happened to them"
-            items={OUTCOMES.map((o) => ({ key: o.key, label: o.label, value: evidence.counts[o.key], valueText: String(evidence.counts[o.key]) }))}
-          />
-        }
-        meaning={
-          <>
-            {notes.length === 0 ? null : (
-              <ul data-evidence-notes>
-                {notes.map((state) => (
-                  <li key={state} data-evidence-note={state}>
-                    {STATE_NOTES[state]}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p data-evidence-rejection-count={refused}>
-              {refused === 0
-                ? "No reading in this period was refused."
-                : `${plural(refused, "reading", "readings")} in this period could not be accepted; the reasons are on the Analysis view.`}
-            </p>
-            <p className="overview-note" data-evidence-limits>
-              This page shows the readings received and what happened to each. It draws no conclusion about how the
-              site or its equipment is operating.
-            </p>
-            <NotAvailableYet name="capability-conclusions">
-              Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
-            </NotAvailableYet>
-          </>
-        }
-        todo={
-          evidence.state === "NO_DATA" ? (
-            <p>Check that the site&apos;s data source is reporting.</p>
-          ) : refused > 0 ? (
-            <p>See why readings were not accepted on Evidence › Analysis.</p>
-          ) : undefined
-        }
-        destination={
+        actions={
           <Link to={{ search: analysis }} data-evidence-analysis-link>
             Open Evidence › Analysis for this period
           </Link>
         }
-        references={
+      >
+        <div data-evidence-conclusion>
+          <p className="v69-prose">
+            <strong data-evidence-headline={evidence.state}>{headlineOf(evidence)}</strong>
+          </p>
+          <ProductStatus words={receiptWords(evidence)} scope={periodScope(evidence)} asOf={evidence.extent.last_received_at} />
+          <ValueBars
+            title="Readings that arrived for this period, by what happened to them"
+            items={OUTCOMES.map((o) => ({ key: o.key, label: o.label, value: evidence.counts[o.key], valueText: String(evidence.counts[o.key]) }))}
+          />
+          {notes.length === 0 ? null : (
+            <ul data-evidence-notes>
+              {notes.map((state) => (
+                <li key={state} data-evidence-note={state}>
+                  {STATE_NOTES[state]}
+                </li>
+              ))}
+            </ul>
+          )}
+          <p data-evidence-rejection-count={refused}>
+            {refused === 0
+              ? "No reading in this period was refused."
+              : `${plural(refused, "reading", "readings")} in this period could not be accepted; the reasons are on the Analysis view.`}
+            {evidence.state === "NO_DATA" ? " Check that the site's data source is reporting." : ""}
+          </p>
+          <p className="overview-note" data-evidence-limits>
+            This page shows the readings received and what happened to each. It draws no conclusion about how the
+            site or its equipment is operating.
+          </p>
+          <NotAvailableYet name="capability-conclusions">
+            Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
+          </NotAvailableYet>
           <ExactReferences
             name="evidence-conclusion-references"
             references={[
@@ -492,14 +483,13 @@ function OverviewBody({
               ...evidence.states.map((state, i) => ({ label: `Recorded condition ${i + 1}`, value: state })),
             ]}
           />
-        }
-      />
-      <ReportingFacts evidence={evidence} health={health} />
+        </div>
+      </Panel>
       <div className="panel-pair evidence-pair">
         <SourcesOverview evidence={evidence} health={health} onInspect={onInspect} />
         <NextEvidence evidence={evidence} />
       </div>
-      <p className="notice notice--info" data-evidence-closing-notice>
+      <p className="v69-notice v69-notice--blue" data-evidence-closing-notice>
         Record-level detail, timing and how each limit is set are on{" "}
         <Link to={{ search: analysis }}>Evidence › Analysis</Link>.
       </p>
@@ -573,21 +563,17 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
   const start = evidence.window.basis === "ALL" ? null : evidence.window.start;
   const end = evidence.window.basis === "ALL" ? null : evidence.window.end;
   return (
-    <Panel
-      heading="Which sources reported, and when"
-      headingId="site-evidence-reporting-heading"
-      description="Three separate facts: one does not make another true"
-    >
-      <ul className="source-facts" data-evidence-reporting-facts>
-        {facts.map((f) => (
-          <li key={f.key} className="source-facts__item" data-evidence-reporting-fact={f.key} data-fact-tone={f.tone}>
-            <h3>{f.title}</h3>
-            <p>
-              <strong>{FACT_WORDS[f.tone]}.</strong> {f.text}
-            </p>
-          </li>
-        ))}
-      </ul>
+    <div data-evidence-reporting>
+      <KeyValues
+        label="Which sources reported, and when: three separate facts"
+        rows={facts.map((f) => [
+          f.title,
+          <span key={f.key} data-evidence-reporting-fact={f.key} data-fact-tone={f.tone}>
+            <strong>{FACT_WORDS[f.tone]}.</strong> {f.text}
+          </span>,
+          f.key,
+        ])}
+      />
       <p className="panel__note" data-evidence-reporting-note>
         A recent gateway report does not make the readings recent, and recent readings do not make the analysis up
         to date. {asOfText(evidence.extent.last_received_at)}.
@@ -615,7 +601,7 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
           })}
         />
       )}
-    </Panel>
+    </div>
   );
 }
 
@@ -629,7 +615,12 @@ function SourcesOverview({
   onInspect: (source: string) => void;
 }) {
   return (
-    <Panel heading="Data sources · data quality, not equipment condition" headingId="site-evidence-sources-heading">
+    <Panel
+      heading="Data sources · data quality, not equipment condition"
+      headingId="site-evidence-sources-heading"
+      description="Readings received, gateway contact and analysis status are separate facts"
+    >
+      <ReportingFacts evidence={evidence} health={health} />
       {evidence.sources.length === 0 ? (
         <p data-evidence-sources-empty>No source has reported to this site.</p>
       ) : (
@@ -673,8 +664,10 @@ function SourcesOverview({
           {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock (UTC).`}
         </p>
       )}
-      <div className="evidence-gateway-block">
-        <h3>Gateway contact</h3>
+      <div className="evidence-gateway-block" aria-label="Gateway contact">
+        <p>
+          <strong>Gateway contact</strong>
+        </p>
         <GatewayContact health={health} detailed={false} />
       </div>
       <NotAvailableYet name="source-judgements">
@@ -1028,7 +1021,10 @@ function Rejected({
   const untimed = evidence.counts.rejected_without_source_time;
   const refused = notAccepted(evidence);
   return (
-    <Panel heading="Readings not accepted" headingId="site-evidence-rejected-heading">
+    <div className="evidence-rejected" aria-labelledby="site-evidence-rejected-heading">
+      <p id="site-evidence-rejected-heading">
+        <strong>Readings not accepted</strong>
+      </p>
       <p data-evidence-not-accepted-line={refused}>
         {refused === 0
           ? "No reading in this period was refused."
@@ -1112,7 +1108,7 @@ function Rejected({
           </>
         )}
       </Advanced>
-    </Panel>
+    </div>
   );
 }
 
@@ -1145,10 +1141,12 @@ function Inspector({
   siteId,
   ledger,
   evidence,
+  children,
 }: {
   siteId: string;
   ledger: LedgerEvidenceClient | undefined;
   evidence: LedgerEvidence;
+  children?: ReactNode;
 }) {
   const [params, setParams] = useSearchParams();
   const signal = params.get("signal");
@@ -1306,20 +1304,21 @@ function Inspector({
             </p>
           </>
         )}
+        {record === null ? null : <RecordView detail={detail} onClose={() => change((n) => n.delete("record"))} />}
+        {children}
       </Panel>
-      {record === null ? null : <RecordView detail={detail} onClose={() => change((n) => n.delete("record"))} />}
     </div>
   );
 }
 
 /** `evidence-analysis:2`: the S2-supported way a claim is limited, in plain prose. */
-function ClaimLimit({ evidence }: { evidence: LedgerEvidence }) {
+function ClaimLimit({ evidence, children }: { evidence: LedgerEvidence; children?: ReactNode }) {
   const applies = (state: LedgerEvidence["states"][number]) =>
     evidence.states.includes(state) ? " This applies to the selected period." : "";
   const p = evidence.projection;
   const analysisBehind = p.status === "STALE" || p.failed_jobs > 0;
   return (
-    <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-heading">
+    <Panel heading="How a claim limit is set" headingId="site-evidence-claim-limit-heading">
       <div className="prose" data-evidence-claim-limit>
         <p>
           This page states what arrived for the selected period and draws no conclusion about how the site or its
@@ -1344,14 +1343,16 @@ function ClaimLimit({ evidence }: { evidence: LedgerEvidence }) {
       <NotAvailableYet name="claim-limit-rule">
         Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).
       </NotAvailableYet>
+      {children}
     </Panel>
   );
 }
 
 function RecordView({ detail, onClose }: { detail: EvidenceRead<LedgerRecordDetail> | null; onClose: () => void }) {
   return (
-    <Panel heading="Reading detail" headingId="site-evidence-record-heading">
-      <p>
+    <div className="evidence-record-view" aria-labelledby="site-evidence-record-heading">
+      <p id="site-evidence-record-heading">
+        <strong>Reading detail</strong>{" "}
         <button type="button" onClick={onClose}>
           Close reading
         </button>
@@ -1365,7 +1366,7 @@ function RecordView({ detail, onClose }: { detail: EvidenceRead<LedgerRecordDeta
       ) : (
         <RecordFacts item={detail.value} />
       )}
-    </Panel>
+    </div>
   );
 }
 
