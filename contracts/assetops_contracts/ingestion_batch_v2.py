@@ -22,6 +22,9 @@ restart carries the same id and the same bytes.
 
 ## Homogeneity and bounds
 
+W2-00 (ruling 3): a schema-4 text, or a schema-3 text carrying a V4-only kind, is read by its header
+only (message identity and order, source/mapping scope); S2 decides the rest per ordinal.
+
 Every envelope's site/gateway/source and binding set/version equal the batch's,
 and it shares one sequence epoch; ordinals follow ascending sequence. A batch
 holds 1..`MAX_BATCH_ENVELOPES` envelopes and at most `MAX_BATCH_BYTES` of
@@ -46,6 +49,11 @@ from assetops_contracts.source_envelope_v3 import (
     parse_canonical_envelope_v3_text,
     sha256_hex,
     text_sha256,
+)
+from assetops_contracts.source_envelope_v4 import (
+    EnvelopeHeader,
+    read_envelope_header,
+    uses_v4_header_path,
 )
 
 INGESTION_BATCH_V2_SCHEMA_ID = "assetops.ingestion-batch"
@@ -146,7 +154,7 @@ def _body(
 
 
 def _check_homogeneous(
-    parsed: list[SourceEnvelopeV3],
+    parsed: list[SourceEnvelopeV3 | EnvelopeHeader],
     *,
     site_id: str,
     gateway_id: str,
@@ -200,7 +208,10 @@ def seal_batch_v2(
     if not _DIGEST.fullmatch(snapshot_sha256):
         raise BatchRejected("INVALID_FIELD", "mapping.snapshot_sha256", "not a SHA-256 hex digest")
     try:
-        parsed = [parse_canonical_envelope_v3_text(t) for t in texts]
+        # W2-00 ruling 3: ordinary schema-3 texts stay strict; a schema-4 text (or schema 3 carrying a V4-only
+        # kind) is admitted by its header only, so S2 decides its payload, timing and bytes per ordinal.
+        parsed = [read_envelope_header(t) if uses_v4_header_path(t) else parse_canonical_envelope_v3_text(t)
+                  for t in texts]
     except EnvelopeRejected as error:
         raise BatchRejected("INVALID_ENVELOPE", f"envelopes.{error.field}", error.detail) from error
     _check_homogeneous(

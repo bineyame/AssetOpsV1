@@ -1,0 +1,465 @@
+{
+  "description": "W2-00 SourceEnvelope V4 canonical vectors. V3 message identity, canonical JSON and exact key sets; payload key set by family. envelope_sha256 = SHA-256 of canonical_text; event_identity_sha256 = SHA-256 of canonical {source, timing:{source_time,interval_start,interval_end}, payload} (transport message, mapping and published_at excluded).",
+  "vectors": [
+    {
+      "name": "numeric point",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "0e08e0eac4ab002a0a3c2fdaadbf31e83e22e53b9054adc916bc623782be3b5a",
+          "sequence_epoch": "epoch-1",
+          "sequence": 1
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "chamber-probe",
+          "signal_id": "temperature"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "MEASUREMENT",
+          "measurement": "STATE_AT_INSTANT",
+          "value": "3.8",
+          "unit": "degC",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "session_id": null,
+          "connector_id": null
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"0e08e0eac4ab002a0a3c2fdaadbf31e83e22e53b9054adc916bc623782be3b5a\",\"sequence\":1,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"connector_id\":null,\"family\":\"MEASUREMENT\",\"measurement\":\"STATE_AT_INSTANT\",\"quality\":\"GOOD\",\"session_id\":null,\"unavailable_reason\":null,\"unit\":\"degC\",\"value\":\"3.8\"},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"chamber-probe\",\"gateway_id\":\"gw-1\",\"signal_id\":\"temperature\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "25086c7887e748bb3e8dffad2f1729429496f31cb6246b63c2876cdd5b52be8a",
+      "event_identity_sha256": "de333d4ab9fa2ecda0b3379eed636b1ac6ab322927576d1a6b906381292ecf5d"
+    },
+    {
+      "name": "state point",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "35cdb26512e24d6322abc5c268ff0bd0963f83bf590e2d1d4224e14d4061367d",
+          "sequence_epoch": "epoch-1",
+          "sequence": 2
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "grid-meter",
+          "signal_id": "state"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "MEASUREMENT",
+          "measurement": "STATE_AT_INSTANT",
+          "value": "LOST",
+          "unit": "state",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "session_id": null,
+          "connector_id": null
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"35cdb26512e24d6322abc5c268ff0bd0963f83bf590e2d1d4224e14d4061367d\",\"sequence\":2,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"connector_id\":null,\"family\":\"MEASUREMENT\",\"measurement\":\"STATE_AT_INSTANT\",\"quality\":\"GOOD\",\"session_id\":null,\"unavailable_reason\":null,\"unit\":\"state\",\"value\":\"LOST\"},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"grid-meter\",\"gateway_id\":\"gw-1\",\"signal_id\":\"state\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "b1a65cfbacb950602bbfd3935c7387255e32e7605206bc9957ef0450dfecb575",
+      "event_identity_sha256": "9930ff74f819bf5f25c2fe87767643595d92aa55b49cc5f9ab7bec01c08aaf6e"
+    },
+    {
+      "name": "unavailable point",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "e428ea2d06b0ada3cfbaf655e6a20f0162b1a0cd8c2908407418319cc813d6fe",
+          "sequence_epoch": "epoch-1",
+          "sequence": 3
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "chamber-probe",
+          "signal_id": "temperature"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "MEASUREMENT",
+          "measurement": "STATE_AT_INSTANT",
+          "value": null,
+          "unit": "degC",
+          "quality": "UNAVAILABLE",
+          "unavailable_reason": "NO_MEASUREMENT",
+          "session_id": null,
+          "connector_id": null
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"e428ea2d06b0ada3cfbaf655e6a20f0162b1a0cd8c2908407418319cc813d6fe\",\"sequence\":3,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"connector_id\":null,\"family\":\"MEASUREMENT\",\"measurement\":\"STATE_AT_INSTANT\",\"quality\":\"UNAVAILABLE\",\"session_id\":null,\"unavailable_reason\":\"NO_MEASUREMENT\",\"unit\":\"degC\",\"value\":null},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"chamber-probe\",\"gateway_id\":\"gw-1\",\"signal_id\":\"temperature\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "8ec73d29050c837bfab51dabff43e486caa5308401d394d6af6d0e3e1cdb6130",
+      "event_identity_sha256": "8a446193dfb98240314c4eaa04e10c4ced21da3c0c0ed77f1e21c18898aca8ec"
+    },
+    {
+      "name": "interval mean",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "284fba49e9b0a16ccd5965d0c6f4f82246c6cb96ced994f0c5e3cc467a6b83e9",
+          "sequence_epoch": "epoch-1",
+          "sequence": 4
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "compressor-meter",
+          "signal_id": "power"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": "2026-10-06T19:00:00Z",
+          "interval_end": "2026-10-06T19:05:00Z"
+        },
+        "payload": {
+          "family": "MEASUREMENT",
+          "measurement": "INTERVAL_MEAN",
+          "value": "2.5",
+          "unit": "kW",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "session_id": null,
+          "connector_id": null
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"284fba49e9b0a16ccd5965d0c6f4f82246c6cb96ced994f0c5e3cc467a6b83e9\",\"sequence\":4,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"connector_id\":null,\"family\":\"MEASUREMENT\",\"measurement\":\"INTERVAL_MEAN\",\"quality\":\"GOOD\",\"session_id\":null,\"unavailable_reason\":null,\"unit\":\"kW\",\"value\":\"2.5\"},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"compressor-meter\",\"gateway_id\":\"gw-1\",\"signal_id\":\"power\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":\"2026-10-06T19:05:00Z\",\"interval_start\":\"2026-10-06T19:00:00Z\",\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "f16264820a41600dd9593dda79f23ec3eba0b163b618fa1fb64391e050e231e3",
+      "event_identity_sha256": "8221d6a78d8f0555c55cfadfa5d91737c4109f29fe00f543dbc2c969a8c205b0"
+    },
+    {
+      "name": "ev interval delta",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "a9e8706d7402fc27a11b23228b452f77f1347d4ffba01d2acb8903301036edbb",
+          "sequence_epoch": "epoch-1",
+          "sequence": 5
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "charger-meter",
+          "signal_id": "energy"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": "2026-10-06T19:00:00Z",
+          "interval_end": "2026-10-06T19:05:00Z"
+        },
+        "payload": {
+          "family": "MEASUREMENT",
+          "measurement": "INTERVAL_DELTA",
+          "value": "1.25",
+          "unit": "kWh",
+          "quality": "GOOD",
+          "unavailable_reason": null,
+          "session_id": "sess-1",
+          "connector_id": "connector-1"
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"a9e8706d7402fc27a11b23228b452f77f1347d4ffba01d2acb8903301036edbb\",\"sequence\":5,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"connector_id\":\"connector-1\",\"family\":\"MEASUREMENT\",\"measurement\":\"INTERVAL_DELTA\",\"quality\":\"GOOD\",\"session_id\":\"sess-1\",\"unavailable_reason\":null,\"unit\":\"kWh\",\"value\":\"1.25\"},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"charger-meter\",\"gateway_id\":\"gw-1\",\"signal_id\":\"energy\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":\"2026-10-06T19:05:00Z\",\"interval_start\":\"2026-10-06T19:00:00Z\",\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "773e9b4d1966b946cc65d1b75d53111b29d923485ea3057075397f9efbe6899c",
+      "event_identity_sha256": "589c7d51e2e070d819cc4c6032aaa838f5d8446c3105194ae6c93296177774b1"
+    },
+    {
+      "name": "cold event",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "92653da1c5243c8f0a70f1eebae71b1666978fa45c8f575fdea379b0f1d74f41",
+          "sequence_epoch": "epoch-1",
+          "sequence": 6
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "generator-controller",
+          "signal_id": "start-event"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "EVENT",
+          "record_kind": "START_RESULT",
+          "event_id": "evt-6",
+          "correlation_id": "attempt-1",
+          "component_id": "generator-1",
+          "actor": "CONTROLLER",
+          "outcome": "FAILED",
+          "unit": null,
+          "value": null,
+          "quality": "GOOD",
+          "session_id": null,
+          "connector_id": null
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"92653da1c5243c8f0a70f1eebae71b1666978fa45c8f575fdea379b0f1d74f41\",\"sequence\":6,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"actor\":\"CONTROLLER\",\"component_id\":\"generator-1\",\"connector_id\":null,\"correlation_id\":\"attempt-1\",\"event_id\":\"evt-6\",\"family\":\"EVENT\",\"outcome\":\"FAILED\",\"quality\":\"GOOD\",\"record_kind\":\"START_RESULT\",\"session_id\":null,\"unit\":null,\"value\":null},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"generator-controller\",\"gateway_id\":\"gw-1\",\"signal_id\":\"start-event\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "ad345aba9e315c7105f09ea478f0641e0b3c15cdf8bde2ddcdef372c7987dd20",
+      "event_identity_sha256": "c59161977bce445151e19b3b3be44aea310330eac717a6a75efa93b372d1afa5"
+    },
+    {
+      "name": "site power event",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "cdccbcfb7c877f18449e6cf37523b45f92eab76fbfa67bb62dc3edce51f229e9",
+          "sequence_epoch": "epoch-1",
+          "sequence": 7
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "grid-meter",
+          "signal_id": "event"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "EVENT",
+          "record_kind": "POWER_LOSS",
+          "event_id": "evt-7",
+          "correlation_id": "outage-1",
+          "component_id": null,
+          "actor": "SENSOR",
+          "outcome": "LOST",
+          "unit": null,
+          "value": null,
+          "quality": "GOOD",
+          "session_id": null,
+          "connector_id": null
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"cdccbcfb7c877f18449e6cf37523b45f92eab76fbfa67bb62dc3edce51f229e9\",\"sequence\":7,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"actor\":\"SENSOR\",\"component_id\":null,\"connector_id\":null,\"correlation_id\":\"outage-1\",\"event_id\":\"evt-7\",\"family\":\"EVENT\",\"outcome\":\"LOST\",\"quality\":\"GOOD\",\"record_kind\":\"POWER_LOSS\",\"session_id\":null,\"unit\":null,\"value\":null},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"grid-meter\",\"gateway_id\":\"gw-1\",\"signal_id\":\"event\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "9b227012c6185a4176e878aadeb9151272df9d1b92e1f431624386250b762730",
+      "event_identity_sha256": "b2c84ae3bc56199476134a13e47741320ded3a01408a99744f9abf8aa4ba2962"
+    },
+    {
+      "name": "manual log",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "c498f91e5c8bc3b243b55df7b4716d42a39222af1f92fdffcd6aaae656637cb5",
+          "sequence_epoch": "epoch-1",
+          "sequence": 8
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "operator-log",
+          "signal_id": "temperature-event"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "EVENT",
+          "record_kind": "MANUAL_LOG",
+          "event_id": "evt-8",
+          "correlation_id": "round-1",
+          "component_id": "room-1",
+          "actor": "OPERATOR",
+          "outcome": "OBSERVED",
+          "unit": "degC",
+          "value": "4.1",
+          "quality": "GOOD",
+          "session_id": null,
+          "connector_id": null
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"c498f91e5c8bc3b243b55df7b4716d42a39222af1f92fdffcd6aaae656637cb5\",\"sequence\":8,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"actor\":\"OPERATOR\",\"component_id\":\"room-1\",\"connector_id\":null,\"correlation_id\":\"round-1\",\"event_id\":\"evt-8\",\"family\":\"EVENT\",\"outcome\":\"OBSERVED\",\"quality\":\"GOOD\",\"record_kind\":\"MANUAL_LOG\",\"session_id\":null,\"unit\":\"degC\",\"value\":\"4.1\"},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"operator-log\",\"gateway_id\":\"gw-1\",\"signal_id\":\"temperature-event\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "cae5d2b24a807e0808caaadcb0bc79c2a2b8182987213277e22aed88abe57bd6",
+      "event_identity_sha256": "c7f335845da7bee7952496fe037cc4711e6ef821fa48ff55ab413dbbc070a46c"
+    },
+    {
+      "name": "ev session start",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "f686d03d2d1b4685a0d50450f14a32fdffd11cbdd345323c463d539b5b25321b",
+          "sequence_epoch": "epoch-1",
+          "sequence": 9
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "charger-controller",
+          "signal_id": "session-event"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "EVENT",
+          "record_kind": "EV_SESSION_START",
+          "event_id": "evt-9",
+          "correlation_id": "sess-1",
+          "component_id": "charger-1",
+          "actor": "CONTROLLER",
+          "outcome": "STARTED",
+          "unit": null,
+          "value": null,
+          "quality": "GOOD",
+          "session_id": "sess-1",
+          "connector_id": "connector-1"
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"f686d03d2d1b4685a0d50450f14a32fdffd11cbdd345323c463d539b5b25321b\",\"sequence\":9,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"actor\":\"CONTROLLER\",\"component_id\":\"charger-1\",\"connector_id\":\"connector-1\",\"correlation_id\":\"sess-1\",\"event_id\":\"evt-9\",\"family\":\"EVENT\",\"outcome\":\"STARTED\",\"quality\":\"GOOD\",\"record_kind\":\"EV_SESSION_START\",\"session_id\":\"sess-1\",\"unit\":null,\"value\":null},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"charger-controller\",\"gateway_id\":\"gw-1\",\"signal_id\":\"session-event\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "6512a6019c828a7f087dfe62a44a9e35496e5008ca263ffedb86d504400e90b5",
+      "event_identity_sha256": "1e91bcedee274bb690aa93cec3cb81f32d8a702529220a4d3aaaf919f965dfdb"
+    },
+    {
+      "name": "ev connector fault",
+      "document": {
+        "schema": {
+          "id": "assetops.source-envelope",
+          "version": 4
+        },
+        "message": {
+          "message_id": "58f4fd3c2712a26af3583de4d458cff77048293ce38519fc7d320823a30f72d5",
+          "sequence_epoch": "epoch-1",
+          "sequence": 10
+        },
+        "source": {
+          "site_id": "site-a",
+          "gateway_id": "gw-1",
+          "source_id": "src-1",
+          "device_id": "connector-controller",
+          "signal_id": "fault-event"
+        },
+        "mapping": {
+          "binding_set_id": "set-1",
+          "version": 1
+        },
+        "timing": {
+          "source_time": "2026-10-06T19:05:00Z",
+          "published_at": "2026-10-06T19:05:03Z",
+          "interval_start": null,
+          "interval_end": null
+        },
+        "payload": {
+          "family": "EVENT",
+          "record_kind": "EV_CONNECTOR_FAULT",
+          "event_id": "evt-10",
+          "correlation_id": "fault-1",
+          "component_id": "connector-1",
+          "actor": "CONTROLLER",
+          "outcome": "FAULTED",
+          "unit": null,
+          "value": null,
+          "quality": "GOOD",
+          "session_id": null,
+          "connector_id": "connector-1"
+        }
+      },
+      "canonical_text": "{\"mapping\":{\"binding_set_id\":\"set-1\",\"version\":1},\"message\":{\"message_id\":\"58f4fd3c2712a26af3583de4d458cff77048293ce38519fc7d320823a30f72d5\",\"sequence\":10,\"sequence_epoch\":\"epoch-1\"},\"payload\":{\"actor\":\"CONTROLLER\",\"component_id\":\"connector-1\",\"connector_id\":\"connector-1\",\"correlation_id\":\"fault-1\",\"event_id\":\"evt-10\",\"family\":\"EVENT\",\"outcome\":\"FAULTED\",\"quality\":\"GOOD\",\"record_kind\":\"EV_CONNECTOR_FAULT\",\"session_id\":null,\"unit\":null,\"value\":null},\"schema\":{\"id\":\"assetops.source-envelope\",\"version\":4},\"source\":{\"device_id\":\"connector-controller\",\"gateway_id\":\"gw-1\",\"signal_id\":\"fault-event\",\"site_id\":\"site-a\",\"source_id\":\"src-1\"},\"timing\":{\"interval_end\":null,\"interval_start\":null,\"published_at\":\"2026-10-06T19:05:03Z\",\"source_time\":\"2026-10-06T19:05:00Z\"}}",
+      "envelope_sha256": "096ecd7e145e23fdc6ad6db14c77ba1ea62e1dd083476d4ef2c6933f5378c44e",
+      "event_identity_sha256": "89220298383ab689f2a1d90fa028e246d626d26dd8a0aeef277c8538df47c2a4"
+    }
+  ]
+}
