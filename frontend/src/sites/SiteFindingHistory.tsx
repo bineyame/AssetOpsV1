@@ -301,14 +301,6 @@ function RevisionHistory({
       heading="Revision history"
       headingId={HEADING_ID}
       description={FINDING_HISTORY_QUESTION}
-      actions={
-        <>
-          {/* W1-F3 review (height table): one head link; the selected row carries "Its evidence". */}
-          <Link to={links.finding(body.finding.id, selection.revision_id)} data-history-open-finding>
-            Open version {no} of the Finding
-          </Link>
-        </>
-      }
     >
       <p className="v69-state-line" data-history-state-line>
         <ProductStatus

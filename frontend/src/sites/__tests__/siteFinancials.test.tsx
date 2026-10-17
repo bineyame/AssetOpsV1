@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -400,6 +400,15 @@ describe("Site > Financials > Assumptions", () => {
       "href",
       `/sites/KOBO-001/financials/assumptions?revision_id=${V3}`,
     );
+    // W1-F3 fix round 2 M1: one disclosure for the whole price table holds every version's reference and link.
+    expect(history.querySelectorAll("details[data-exact-references]")).toHaveLength(1);
+    expect(history.querySelectorAll("tbody details")).toHaveLength(0);
+    const refs = history.querySelector("details[data-disclosure='price-history']") as HTMLDetailsElement;
+    expect(refs.open).toBe(false);
+    expect(refs).toHaveTextContent(V1);
+    expect(refs).toHaveTextContent(V3);
+    expect(refs).toHaveTextContent("How these times are read");
+    expect(within(refs).getAllByRole("link", { name: "Prices as recorded then" })).toHaveLength(2);
     expect(within(history).getAllByRole("link", { name: "Prices as recorded then" })[0]).toHaveAttribute(
       "href",
       `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(P1.recorded_at)}`,
@@ -417,6 +426,37 @@ describe("Site > Financials > Assumptions", () => {
     expect(version).toHaveTextContent("Diesel price · USD per litre");
     expect(version).toHaveTextContent("Version 1");
     expect(panelTitled("Financial assumptions").querySelector("[data-price-back-link]")).toHaveTextContent("Back to the current prices");
+  });
+
+  it("W1-F3 fix round 2 M2: a pinned version keeps the entered dates and the applied periods apart, in view", async () => {
+    const seg = (id: string, from: string, to: string | null) => ({
+      assignment_id: id,
+      revision_id: V1,
+      publication_revision_id: V1,
+      valid: { from, to, bounds: "[)" as const },
+      recorded: { from: "2026-10-13T09:00:00+00:00", to: null, bounds: "[)" as const },
+    });
+    const exact: FinancialReadResult<AssumptionRevisionBody> = {
+      status: "loaded",
+      value: {
+        site_code: "KOBO-001",
+        selection: { revision_id: V1, selected_by: "EXACT_REVISION_ID" },
+        revision: P1,
+        assignments: [seg("a0", "2026-01-01T00:00:00+00:00", "2026-06-01T00:00:00+00:00"), seg("a1", "2026-07-01T00:00:00+00:00", null)],
+        recorded_by_this_publication: [],
+      },
+    };
+    mount(fake({ exact }), `/sites/KOBO-001/financials/assumptions?revision_id=${V1}`);
+    await settledScreen();
+    const panel = panelTitled("Financial assumptions");
+    const version = screen.getByRole("region", { name: "Price version 1" });
+    expect(version).not.toHaveTextContent("Effective period");
+    expect(version).toHaveTextContent("Entered as applying");
+    const applied = panel.querySelector("[data-price-exact-assignments]") as HTMLElement;
+    expect(applied).toHaveTextContent("Applied: from 1 Jan 2026 until 1 Jun 2026; from 1 Jul 2026, with no end date.");
+    expect(visibleOutsideClosedDisclosure(applied)).toBe(true);
+    expect(applied.closest("details")).toBeNull();
+    expect(panel.querySelector("[data-price-selection='PRICED']")).toHaveTextContent(/^In use today, version d. Diesel price/);
   });
 
   it("never substitutes the latest price for an unknown or foreign version", async () => {
@@ -487,7 +527,7 @@ describe("Site > Financials > Overview: the Finding bridge", () => {
   it("pins the selected version into the address when the link named none", async () => {
     mount(fake(), `/sites/KOBO-001/financials?finding_id=${FINDING}`);
     await settledScreen();
-    expect(screen.getByTestId("where")).toHaveTextContent(`finding_id=${FINDING}&revision_id=${FREV}`);
+    await waitFor(() => expect(screen.getByTestId("where")).toHaveTextContent(`finding_id=${FINDING}&revision_id=${FREV}`));
   });
 
   it("states UNPRICED as its own typed state", async () => {
@@ -1609,7 +1649,7 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     expect(document.querySelector(`tr[data-price-revision='${V3}']`)).toHaveClass("is-selected");
     // The current price line still names the current price; the selected version never replaces it (W1-F3: the
     // line in "Financial assumptions", was the answer card headline).
-    expect(card("assumptions-price").querySelector("[data-price-selection='PRICED']")).toHaveTextContent("In use today. Diesel price");
+    expect(card("assumptions-price").querySelector("[data-price-selection='PRICED']")).toHaveTextContent(/^In use today, version 1. Diesel price/);
     expect(card("assumptions-price").querySelector("[data-price-selection='PRICED']")).toHaveTextContent("1.25 USD per litre");
     expect(version.closest(".panel")).toBe(card("assumptions-price"));
     expectV69Panels("assumptions");
@@ -1687,9 +1727,8 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     const w1 = scanProductVocabulary(mainOf(container), "assumptions history (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
     const disclosure = scanDisclosureVocabulary(panel, "assumptions history disclosure");
-    // W1-F3 review H3: the price versions are table rows too, each with its own closed exact reference (as the
-    // two fuel cost rows); 2 fuel cost rows + 2 price version rows.
-    expect(disclosure.disclosures).toBe(4);
+    // W1-F3 fix round 2 M1: 2 fuel cost rows keep their own closed reference; the price versions share one.
+    expect(disclosure.disclosures).toBe(3);
     // W1-F3: the price versions recorded at the same moment are inside this panel.
     expect(panel.querySelector("[data-price-history-part] [data-price-history='loaded']")).not.toBeNull();
     expect(disclosure.scanned).toBeGreaterThan(0);

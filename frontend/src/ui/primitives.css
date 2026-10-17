@@ -4866,3 +4866,7 @@ td .disclosure.disclosure--inline {
 .status-strip__state [data-product-status-as-of] {
   font-size: inherit;
 }
+
+.product-status__bound--after {
+  margin-inline-start: 0.3em;
+}

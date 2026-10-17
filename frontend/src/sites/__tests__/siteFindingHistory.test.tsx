@@ -263,7 +263,8 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     // "Open this version" is gone; the Finding at the selected version is the one panel-head link.
     expect(q(`[data-history-select='${rid(2)}']`)).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(2)}`);
     expect(q("[data-history-finding-link]")).toBeNull();
-    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
+    expect(q("[data-history-open-finding]")).toBeNull();
+    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
     expect(q(`[data-history-evidence-link='${rid(2)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(2)}`);
     // Section links keep the exact version.
     expect(q("[data-finding-section='evidence']")).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(1)}`);
@@ -496,7 +497,8 @@ describe("W1-UX-02: Finding History answer card", () => {
       ["First page ends after version", "100"],
     ]);
     // Exact selectors from the card.
-    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(205)}`);
+    expect(q("[data-history-open-finding]")).toBeNull();
+    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}`);
     // W1-F3 review (height table): one head link; the selected row's "Its evidence" carries the same exact ID.
     expect(q("[data-history-open-evidence]")).toBeNull();
     expect(q(`[data-history-evidence-link='${rid(205)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(205)}`);
@@ -514,7 +516,8 @@ describe("W1-UX-02: Finding History answer card", () => {
     expect(expectStateLineVisible(card())).toBe("Earlier version, kept for the record");
     expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 6 Oct 2026, 14:10 UTC");
     expect(q("[data-history-select-latest]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(3)}`);
-    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
+    expect(q("[data-history-open-finding]")).toBeNull();
+    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
     const w1 = scanProductVocabulary(main(), "finding history earlier (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });

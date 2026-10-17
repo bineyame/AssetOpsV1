@@ -227,7 +227,15 @@ function DisabledEdit() {
 }
 
 /** W1-F3: the mock's read-only `.field` inputs for one price version (exact values, as recorded). */
-function PriceFields({ price, valid }: { price: PriceRevision; valid: { from: string; to: string | null } }) {
+function PriceFields({
+  price,
+  valid,
+  periodLabel = "Effective period",
+}: {
+  price: PriceRevision;
+  valid: { from: string; to: string | null };
+  periodLabel?: string;
+}) {
   return (
     <div data-price-fields={price.revision_id}>
       <div className="input-row">
@@ -244,7 +252,7 @@ function PriceFields({ price, valid }: { price: PriceRevision; valid: { from: st
       </div>
       <div className="input-row">
         <label className="field">
-          Effective period
+          {periodLabel}
           <input value={applies(valid)} readOnly />
         </label>
         <label className="field">
@@ -607,7 +615,7 @@ function FinancialAssumptions({
       {priced !== null ? (
         <div data-price-selection="PRICED" data-price-selected-revision={priced.revision_id}>
           <p className="financials-lead">
-            {historical ? "Covering today, as recorded then. " : "In use today. "}Diesel price, set by {setBy(priced.price)} on{" "}
+            {historical ? "Covering today, as recorded then. " : pinned !== null ? `In use today, version ${priced.price.revision_no}. ` : "In use today. "}Diesel price, set by {setBy(priced.price)} on{" "}
             {day(priced.price.recorded_at)}: <strong>{priceText(priced.price)}</strong>, {applies(priced.valid)}.
           </p>
           {pinned === null ? <PriceFields price={priced.price} valid={priced.valid} /> : null}
@@ -654,7 +662,7 @@ function FinancialAssumptions({
         ]}
         extra={
           pinned !== null ? (
-            <ul className="v69-compact-list" data-price-exact-assignments={pinned.assignments.length}>
+            <ul className="v69-compact-list" data-price-exact-known-from={pinned.assignments.length}>
               {pinned.assignments.map((a) => (
                 <li key={a.assignment_id}>
                   Applied {applies(a.valid)}; known from {formatInstant(a.recorded.from)}
@@ -760,15 +768,9 @@ function PriceHistory({
               {setBy(r)}, {day(r.recorded_at)}
               {r.correction_reason ? <small className="muted price-history__why">Why: {r.correction_reason}</small> : null}
             </td>
-            <td>
+            <td className="price-history__status">
               <span className="badge badge--neutral">{CHANGE_WORDS[r.change_kind] ?? "Change"}</span>{" "}
-              <Link to={links.assumptions({ revisionId: r.revision_id })}>Open version {r.revision_no}</Link>{" "}
-              <ExactReferences
-                name={`price-history-${r.revision_no}`}
-                variant="tech"
-                references={[{ label: "Price version reference", value: r.revision_id }]}
-                extra={<Link to={links.assumptions({ recordedAt: r.recorded_at })}>Prices as recorded then</Link>}
-              />
+              <Link to={links.assumptions({ revisionId: r.revision_id })}>Open version {r.revision_no}</Link>
             </td>
           </tr>
         ))}
@@ -793,6 +795,31 @@ function PriceHistory({
           {table(latest, "loaded")}
         </>
       )}
+      {shown.length === 0 ? null : (
+        <ExactReferences
+          name="price-history"
+          references={shown.map((r) => ({ label: `Version ${r.revision_no} reference`, value: r.revision_id }))}
+          extra={
+            <>
+              <ul className="v69-compact-list">
+                {shown.map((r) => (
+                  <li key={r.revision_id}>
+                    Version {r.revision_no}: <Link to={links.assumptions({ recordedAt: r.recorded_at })}>Prices as recorded then</Link>
+                  </li>
+                ))}
+              </ul>
+              <p>
+                How these times are read: prices as recorded on a date show what this site's price list said at that moment.
+                Nothing else from that moment is reconstructed.
+              </p>
+              <p>
+                Each date range starts on its first day and ends just before its end date, so a price ending on 1 June and
+                the next starting on 1 June never overlap.
+              </p>
+            </>
+          }
+        />
+      )}
       <div className="muted price-history__foot">
         {/* W1-F3 review: the count is said only when some versions are not listed yet. */}
         {shown.length < page.total ? `Showing ${shown.length} of ${page.total} version${page.total === 1 ? "" : "s"}. ` : null}
@@ -801,17 +828,6 @@ function PriceHistory({
             Show later versions
           </button>
         ) : null}
-        {shown.length < page.total || page.next_after_revision_no !== null ? " · " : null}
-        <Disclosure variant="inline" summary="How these times are read" name="price-cutoff-basis">
-        <p>
-          Prices as recorded on a date show what this site's price list said at that moment. Nothing else from that
-          moment is reconstructed.
-        </p>
-        <p>
-          Each date range starts on its first day and ends just before its end date, so a price ending on 1 June and
-          the next starting on 1 June never overlap.
-        </p>
-      </Disclosure>
       </div>
     </div>
   );
@@ -826,7 +842,12 @@ function ExactVersion({ body }: { body: AssumptionRevisionBody }) {
   const price = body.revision;
   return (
     <div role="region" aria-label={`Price version ${price.revision_no}`} data-price-exact-revision={price.revision_id}>
-      <PriceFields price={price} valid={price.authored_valid} />
+      <PriceFields price={price} valid={price.authored_valid} periodLabel="Entered as applying" />
+      {body.assignments.length > 0 ? (
+        <p className="v69-gap-line" data-price-exact-assignments={body.assignments.length}>
+          Applied: {body.assignments.map((a) => applies(a.valid)).join("; ")}.
+        </p>
+      ) : null}
     </div>
   );
 }

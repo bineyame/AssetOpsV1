@@ -277,3 +277,8 @@
 .price-history__why {
   display: block;
 }
+
+/* W1-F3 fix round 2 M1: the Status cell is the badge and the version link on one line. */
+.price-history__row td.price-history__status {
+  white-space: nowrap;
+}

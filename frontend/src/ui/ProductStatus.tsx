@@ -30,15 +30,16 @@ export interface ProductStatusProps {
 /** The plain state line: state sentence, scope and "as of" bound together. */
 export function ProductStatus({ words, scope, asOf, children, inline = false }: ProductStatusProps) {
   if (inline) {
+    const hasChild = children !== undefined && children !== null && children !== false;
     return (
       <span className={`status-strip__state product-status--${words.tone}`} data-product-status={words.tone}>
         <strong className="product-status__label" data-product-status-label>
           {words.label}
         </strong>{" "}
         <span className="product-status__sentence">{words.sentence}</span>
-        {children}{" "}
-        {/* W1-F3 review L10: no leading separator, so a wrapped bound never starts its line with "·". */}
-        <span className="product-status__bound">
+        {/* W1-F3 fix round 2 L4: after a child the separator is a margin, never a text space that can start a wrapped line. */}
+        {hasChild ? children : " "}
+        <span className={hasChild ? "product-status__bound product-status__bound--after" : "product-status__bound"}>
           <span data-product-status-scope>{scope}</span>
           <span aria-hidden="true"> · </span>
           <span data-product-status-as-of>{asOfText(asOf)}</span>
