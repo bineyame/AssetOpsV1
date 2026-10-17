@@ -411,7 +411,12 @@ describe("Site > Financials > Assumptions", () => {
     mount(client, `/sites/KOBO-001/financials/assumptions?revision_id=${V1}`);
     await settledScreen();
     expect(client.asked.exact).toEqual([V1]);
-    expect(screen.getByRole("region", { name: "Price version 1" })).toHaveTextContent("1.25 USD per litre");
+    // W1-F3 review M5: the "Selected: ... 1.25 USD per litre" eyebrow is gone; the version's own fields carry the price.
+    const version = screen.getByRole("region", { name: "Price version 1" });
+    expect(within(version).getByDisplayValue("1.25")).toBeInTheDocument();
+    expect(version).toHaveTextContent("Diesel price · USD per litre");
+    expect(version).toHaveTextContent("Version 1");
+    expect(panelTitled("Financial assumptions").querySelector("[data-price-back-link]")).toHaveTextContent("Back to the current prices");
   });
 
   it("never substitutes the latest price for an unknown or foreign version", async () => {
@@ -768,7 +773,9 @@ describe("Site > Financials > Assumptions: later versions (S4-02a review L5)", (
     await settledScreen();
     const items = document.querySelectorAll("[data-price-history-revision]");
     expect([...items].map((i) => i.getAttribute("data-price-history-revision"))).toEqual([V1, V3]);
-    expect(screen.getByText(/Showing 2 of 2 versions/)).toBeInTheDocument();
+    // W1-F3 review: with every version listed, no "Showing 2 of 2 versions." line repeats the count.
+    expect(screen.queryByText(/Showing 2 of 2 versions/)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Show later versions" })).toBeNull();
   });
 });
 
@@ -1179,16 +1186,20 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
   it("states an empty history plainly", async () => {
     mount(fake({ seriesFor: echoSeries }), "/sites/KOBO-001/financials/assumptions");
     await settledScreen();
-    expect(screen.getByText("No fuel cost version had been recorded for this site at this moment.")).toBeInTheDocument();
+    // W1-F3 review M7: the empty fact is the panel's one state line (beside price versions, it says they are prices only).
+    const empty = document.querySelector("[data-consequence-history-empty]") as HTMLElement;
+    expect(empty.querySelector(".product-status__sentence")?.textContent).toMatch(/^No fuel cost version (recorded by this moment|had been recorded for this site at this moment)/);
+    expect(empty).not.toHaveTextContent("Every amount here is shown as it was recorded");
   });
 
   it("height phase: an empty fuel cost history beside listed price versions says the prices are prices only", async () => {
     mount(fake({ seriesFor: echoSeries }), "/sites/KOBO-001/financials/assumptions");
     await settledScreen();
     expect(document.querySelectorAll("[data-price-history-revision]").length).toBeGreaterThan(0);
-    expect(document.querySelector("[data-consequence-history-prices-only]")).toHaveTextContent(
-      "The price versions below are prices only; no fuel cost was worked out from them by this moment.",
+    expect(document.querySelector("[data-consequence-history-prices-only] .product-status__sentence")).toHaveTextContent(
+      "No fuel cost version recorded by this moment; the price versions below are prices only.",
     );
+    expect(document.body).not.toHaveTextContent("Every amount here is shown as it was recorded");
   });
 
   it("height phase: price history shows the latest 3 versions; earlier ones stay reachable, oldest first, behind 'Show all N'", async () => {
@@ -1590,8 +1601,11 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     await settledScreen();
     expect(screen.getByTestId("where")).toHaveTextContent(`${ASSUMPTIONS}?revision_id=${V3}`);
     const version = screen.getByRole("region", { name: "Price version 3" });
-    expect(version).toHaveTextContent("1.19 USD per litre");
-    expect(within(version).getByText(V3).closest("details")).not.toHaveAttribute("open");
+    // W1-F3 review M5: the eyebrow that repeated "1.19 USD per litre" is gone; the version's field holds the price.
+    expect(within(version).getByDisplayValue("1.19")).toBeInTheDocument();
+    // W1-F3 review M5: the selected version's references are in the panel's one closed disclosure.
+    expect(within(panelTitled("Financial assumptions")).getByText(V3).closest("details")).not.toHaveAttribute("open");
+    expect(panelTitled("Financial assumptions").querySelectorAll("details[data-exact-references]")).toHaveLength(1);
     expect(document.querySelector(`tr[data-price-revision='${V3}']`)).toHaveClass("is-selected");
     // The current price line still names the current price; the selected version never replaces it (W1-F3: the
     // line in "Financial assumptions", was the answer card headline).
@@ -1673,7 +1687,9 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     const w1 = scanProductVocabulary(mainOf(container), "assumptions history (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
     const disclosure = scanDisclosureVocabulary(panel, "assumptions history disclosure");
-    expect(disclosure.disclosures).toBe(2);
+    // W1-F3 review H3: the price versions are table rows too, each with its own closed exact reference (as the
+    // two fuel cost rows); 2 fuel cost rows + 2 price version rows.
+    expect(disclosure.disclosures).toBe(4);
     // W1-F3: the price versions recorded at the same moment are inside this panel.
     expect(panel.querySelector("[data-price-history-part] [data-price-history='loaded']")).not.toBeNull();
     expect(disclosure.scanned).toBeGreaterThan(0);

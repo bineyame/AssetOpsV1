@@ -255,3 +255,13 @@
   margin-top: 4px;
   font-size: 12px;
 }
+
+/* W1-F3 review H3: price versions are table rows, one line each; the row's exact reference stays inline. */
+.price-history__row td {
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.price-history__row .exact-references--tech {
+  display: inline-block;
+}

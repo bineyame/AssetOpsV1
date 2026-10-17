@@ -4847,3 +4847,20 @@ td .disclosure.disclosure--inline {
   display: inline-block;
   margin-left: 4px;
 }
+
+/* Coordinator note (F2 re-review): an inline state line is never a grey/attention box with mixed sizes. */
+.status-strip__state.product-status--positive,
+.status-strip__state.product-status--waiting,
+.status-strip__state.product-status--limited,
+.status-strip__state.product-status--problem {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.status-strip__state .product-status__bound,
+.status-strip__state .product-status__sentence,
+.status-strip__state .product-status__label,
+.status-strip__state [data-product-status-as-of] {
+  font-size: inherit;
+}

@@ -593,7 +593,16 @@ function FinancialAssumptions({
       description="Site-scoped business context · a change keeps the earlier version"
     >
       <div className="v69-state-line" data-price-state={historical ? "RECORDED_CUTOFF" : state}>
-        <ProductStatus inline words={words} scope={`Diesel price for site ${siteId}`} asOf={body.cutoff.recorded_at} />
+        <ProductStatus inline words={words} scope={`Diesel price for site ${siteId}`} asOf={body.cutoff.recorded_at}>
+          {pinned !== null ? (
+            <>
+              {" "}
+              <Link to={links.assumptions()} data-price-back-link>
+                Back to the current prices
+              </Link>
+            </>
+          ) : null}
+        </ProductStatus>
       </div>
       {priced !== null ? (
         <div data-price-selection="PRICED" data-price-selected-revision={priced.revision_id}>
@@ -619,7 +628,7 @@ function FinancialAssumptions({
           <strong>{refusalWords(exact.status, "price version").heading}.</strong> {refusalWords(exact.status, "price version").text}
         </p>
       ) : pinned !== null ? (
-        <ExactVersion body={pinned} links={links} />
+        <ExactVersion body={pinned} />
       ) : null}
       <div className="form-footer">
         <DisabledEdit />
@@ -632,12 +641,29 @@ function FinancialAssumptions({
           <Schedule body={body} links={links} selectedRevision={selectedRevision} historical={historical} />
         </ShowAll>
       ) : null}
+      {/* W1-F3 review M5: the panel's one disclosure; a selected version's references and where it applied fold in. */}
       <ExactReferences
         name="assumptions-price"
         references={[
-          ...(priced !== null ? priceReferences(priced.price, priced) : [{ label: "Price state", value: state }]),
+          ...(pinned !== null
+            ? priceReferences(pinned.revision)
+            : priced !== null
+              ? priceReferences(priced.price, priced)
+              : [{ label: "Price state", value: state }]),
           { label: "Prices read at", value: body.cutoff.recorded_at },
         ]}
+        extra={
+          pinned !== null ? (
+            <ul className="v69-compact-list" data-price-exact-assignments={pinned.assignments.length}>
+              {pinned.assignments.map((a) => (
+                <li key={a.assignment_id}>
+                  Applied {applies(a.valid)}; known from {formatInstant(a.recorded.from)}
+                  {a.recorded.to === null ? ", still current" : `, replaced on ${formatInstant(a.recorded.to)}`}.
+                </li>
+              ))}
+            </ul>
+          ) : undefined
+        }
       />
     </Panel>
   );
@@ -712,17 +738,42 @@ function PriceHistory({
   // W1-F3 height phase: the latest three versions show, oldest first; earlier ones stay behind "Show all".
   const latest = shown.slice(-3);
   const hidden = shown.slice(0, shown.length - latest.length);
-  const item = (r: PriceRevision) => (
-    <li key={r.revision_id} data-price-history-revision={r.revision_id}>
-      <p>
-        <strong>Version {r.revision_no}</strong> · {CHANGE_WORDS[r.change_kind] ?? "Change"} · {priceText(r)},{" "}
-        {applies(r.authored_valid)}. Set by {setBy(r)} on {day(r.recorded_at)}.{" "}
-        {r.correction_reason ? <span className="muted">Why: {r.correction_reason} </span> : null}
-        <Link to={links.assumptions({ revisionId: r.revision_id })}>Open version {r.revision_no}</Link>
-        {" · "}
-        <Link to={links.assumptions({ recordedAt: r.recorded_at })}>Prices as recorded then</Link>
-      </p>
-    </li>
+  // W1-F3 review H3: the mock's Interpretation history is a table, one line per version.
+  const table = (rows: PriceRevision[], name: string) => (
+    <DataTable>
+      <thead>
+        <tr>
+          <th scope="col">Version</th>
+          <th scope="col">Diesel price</th>
+          <th scope="col">Effective</th>
+          <th scope="col">Set by / why</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody data-price-history={name}>
+        {rows.map((r) => (
+          <tr key={r.revision_id} className="price-history__row" data-price-history-revision={r.revision_id}>
+            <td>Version {r.revision_no}</td>
+            <td>{priceText(r)}</td>
+            <td>{applies(r.authored_valid)}</td>
+            <td>
+              {setBy(r)}, {day(r.recorded_at)}
+              {r.correction_reason ? <small className="muted"> · Why: {r.correction_reason}</small> : null}
+            </td>
+            <td>
+              <span className="badge badge--neutral">{CHANGE_WORDS[r.change_kind] ?? "Change"}</span>{" "}
+              <Link to={links.assumptions({ revisionId: r.revision_id })}>Open version {r.revision_no}</Link>{" "}
+              <ExactReferences
+                name={`price-history-${r.revision_no}`}
+                variant="tech"
+                references={[{ label: "Price version reference", value: r.revision_id }]}
+                extra={<Link to={links.assumptions({ recordedAt: r.recorded_at })}>Prices as recorded then</Link>}
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </DataTable>
   );
   return (
     <div role="region" aria-label="Price history" data-price-history-part="">
@@ -736,24 +787,21 @@ function PriceHistory({
         <>
           {hidden.length === 0 ? null : (
             <ShowAll name="price-history-earlier" summary={`Show all ${shown.length} versions (${hidden.length} earlier)`}>
-              <ol className="price-history" data-price-history="earlier">
-                {hidden.map(item)}
-              </ol>
+              {table(hidden, "earlier")}
             </ShowAll>
           )}
-          <ol className="price-history" data-price-history="loaded" start={hidden.length + 1}>
-            {latest.map(item)}
-          </ol>
+          {table(latest, "loaded")}
         </>
       )}
       <div className="muted price-history__foot">
-        Showing {shown.length} of {page.total} version{page.total === 1 ? "" : "s"}.{" "}
+        {/* W1-F3 review: the count is said only when some versions are not listed yet. */}
+        {shown.length < page.total ? `Showing ${shown.length} of ${page.total} version${page.total === 1 ? "" : "s"}. ` : null}
         {page.next_after_revision_no !== null ? (
           <button type="button" className="link-button" onClick={() => onMore(page.next_after_revision_no ?? 0)}>
             Show later versions
           </button>
         ) : null}
-        {" · "}
+        {shown.length < page.total || page.next_after_revision_no !== null ? " · " : null}
         <Disclosure variant="inline" summary="How these times are read" name="price-cutoff-basis">
         <p>
           Prices as recorded on a date show what this site's price list said at that moment. Nothing else from that
@@ -769,27 +817,16 @@ function PriceHistory({
   );
 }
 
-/** The exact version the address names, inside "Financial assumptions": its fields, where it applied, references. */
-function ExactVersion({ body, links }: { body: AssumptionRevisionBody; links: FinancialsLinks }) {
+/**
+ * The exact version the address names, inside "Financial assumptions": its fields. W1-F3 review M5: the
+ * "Selected: ..." eyebrow is gone (the field note names the version, the state line carries the way back), and
+ * its references and where it applied are in the panel's one disclosure.
+ */
+function ExactVersion({ body }: { body: AssumptionRevisionBody }) {
   const price = body.revision;
   return (
     <div role="region" aria-label={`Price version ${price.revision_no}`} data-price-exact-revision={price.revision_id}>
-      <p className="v69-eyebrow">
-        Selected: price version {price.revision_no}, exactly as recorded: {priceText(price)} ·{" "}
-        <Link to={links.assumptions()}>Back to the current prices</Link>
-      </p>
       <PriceFields price={price} valid={price.authored_valid} />
-      <ShowAll name="price-exact-assignments" summary={`Where this version applied (${body.assignments.length})`}>
-        <ul className="v69-compact-list" data-price-exact-assignments={body.assignments.length}>
-          {body.assignments.map((a) => (
-            <li key={a.assignment_id}>
-              {applies(a.valid)}; known from {formatInstant(a.recorded.from)}
-              {a.recorded.to === null ? ", still current" : `, replaced on ${formatInstant(a.recorded.to)}`}.
-            </li>
-          ))}
-        </ul>
-      </ShowAll>
-      <ExactReferences name={`price-record-${price.revision_no}`} references={priceReferences(price)} />
     </div>
   );
 }

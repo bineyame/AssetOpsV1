@@ -65,6 +65,19 @@ const RECORDED_WORDS: ProductWords = {
   unrecognised: false,
 };
 
+/** W1-F3 review M7: an empty first page says so in its one state line, never "every amount here". */
+function emptyWords(pricesOnly: boolean): ProductWords {
+  return {
+    label: "No fuel cost version recorded",
+    sentence: pricesOnly
+      ? "No fuel cost version recorded by this moment; the price versions below are prices only."
+      : "No fuel cost version had been recorded for this site at this moment.",
+    tone: "neutral",
+    code: "HISTORICAL",
+    unrecognised: false,
+  };
+}
+
 function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: FinancialsLinks; pinnedCutoff?: string }) {
   const current = row.at_cutoff === "CURRENT_AT_CUTOFF";
   const source = SOURCE_WORDS[sourceState(row.source_provenance)];
@@ -161,6 +174,8 @@ export function ConsequenceHistoryPanel({
   children?: ReactNode;
 }) {
   const cutoff = body.cutoff.recorded_at;
+  const empty = body.rows.length === 0 && body.page.is_first;
+  const pricesOnly = empty && Boolean(children);
   return (
     <Panel
       heading="Interpretation history"
@@ -168,10 +183,15 @@ export function ConsequenceHistoryPanel({
       description="Every fuel cost version this site had recorded at the moment below, newest first, with the price each one used. Earlier versions are kept for the record."
     >
       <div data-consequence-history="loaded" data-history-cutoff={cutoff} data-history-selected-by={body.cutoff.selected_by}>
-        <div className="v69-state-line" data-history-state="recorded">
+        <div
+          className="v69-state-line"
+          data-history-state={empty ? "empty" : "recorded"}
+          data-consequence-history-empty={empty ? "" : undefined}
+          data-consequence-history-prices-only={pricesOnly ? "" : undefined}
+        >
           <ProductStatus
             inline
-            words={RECORDED_WORDS}
+            words={empty ? emptyWords(pricesOnly) : RECORDED_WORDS}
             scope={`${siteName}, every fuel cost version recorded by this moment`}
             asOf={cutoff}
           />
@@ -181,19 +201,9 @@ export function ConsequenceHistoryPanel({
             This site's source is closed, so every version is listed without an amount.
           </p>
         ) : null}
-        {body.rows.length === 0 ? (
+        {body.rows.length === 0 && !body.page.is_first ? (
           <p className="v69-gap-line" data-consequence-history-empty>
-            <span>
-              {body.page.is_first
-                ? "No fuel cost version had been recorded for this site at this moment."
-                : "No further versions."}
-            </span>
-            {body.page.is_first && children ? (
-              <span data-consequence-history-prices-only>
-                {" "}
-                The price versions below are prices only; no fuel cost was worked out from them by this moment.
-              </span>
-            ) : null}
+            No further versions.
           </p>
         ) : null}
         {body.rows.length === 0 ? (
