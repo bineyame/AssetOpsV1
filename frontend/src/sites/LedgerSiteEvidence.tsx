@@ -171,39 +171,52 @@ export function LedgerSiteEvidence({
           {/* W1-F2: the v69 evidence-analysis panels. Records (and readings not accepted) first, then how a limit is set. */}
           <Inspector siteId={siteId} ledger={ledger} evidence={evidence}>
             <Rejected siteId={siteId} ledger={ledger} evidence={evidence} />
-            <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
-              <Clocks evidence={evidence} />
+            {/* W1-F2 compaction: the record-level technical tables sit in one closed row; each keeps its own closed disclosure. */}
+            <Advanced name="evidence-records-technical" summary="Advanced details — clocks, sources, deliveries and readings by input">
+              <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
+                <Clocks evidence={evidence} />
+              </Advanced>
+              {evidence.sources.length === 0 ? null : (
+                <Advanced name="evidence-sources" summary="Advanced details — sources in this period">
+                  <Sources evidence={evidence} onInspect={(source) => inspect("source", source)} />
+                </Advanced>
+              )}
+              {evidence.batches.length === 0 ? null : (
+                <Advanced name="evidence-deliveries" summary={`Advanced details — deliveries (${evidence.batches.length})`}>
+                  <Deliveries evidence={evidence} />
+                </Advanced>
+              )}
+              {evidence.coverage.length === 0 ? null : (
+                <Advanced name="evidence-coverage" summary="Advanced details — readings by input">
+                  <Coverage evidence={evidence} onInspect={(key) => inspect("signal", key)} />
+                </Advanced>
+              )}
             </Advanced>
-            {evidence.sources.length === 0 ? null : (
-              <Advanced name="evidence-sources" summary="Advanced details — sources in this period">
-                <Sources evidence={evidence} onInspect={(source) => inspect("source", source)} />
-              </Advanced>
-            )}
-            {evidence.batches.length === 0 ? null : (
-              <Advanced name="evidence-deliveries" summary={`Advanced details — deliveries (${evidence.batches.length})`}>
-                <Deliveries evidence={evidence} />
-              </Advanced>
-            )}
-            {evidence.coverage.length === 0 ? null : (
-              <Advanced name="evidence-coverage" summary="Advanced details — readings by input">
-                <Coverage evidence={evidence} onInspect={(key) => inspect("signal", key)} />
-              </Advanced>
-            )}
           </Inspector>
           <ClaimLimit evidence={evidence}>
             <EvidenceClaimLimit siteId={siteId} client={claimLimit} assessmentHref={assessmentHref} />
-            <Advanced name="evidence-analysis-status" summary="Advanced details — analysis status">
-              <AnalysisStatus evidence={evidence} />
-            </Advanced>
-            {evidence.migration === null ? null : (
-              <Advanced name="evidence-comparison" summary="Advanced details — earlier store comparison">
-                <Comparison evidence={evidence} />
+            {/* W1-F2 compaction: the three technical disclosures sit in one closed row; each keeps its own closed disclosure. */}
+            <Advanced
+              name="evidence-analysis-technical"
+              summary={
+                evidence.migration === null
+                  ? "Advanced details — analysis status and gateway contact"
+                  : "Advanced details — analysis status, earlier store and gateway contact"
+              }
+            >
+              <Advanced name="evidence-analysis-status" summary="Advanced details — analysis status">
+                <AnalysisStatus evidence={evidence} />
               </Advanced>
-            )}
-            <Advanced name="evidence-gateway" summary="Advanced details — gateway contact">
-              <Panel heading="Gateway contact" headingId="site-evidence-gateway-heading">
-                <GatewayContact health={health} detailed />
-              </Panel>
+              {evidence.migration === null ? null : (
+                <Advanced name="evidence-comparison" summary="Advanced details — earlier store comparison">
+                  <Comparison evidence={evidence} />
+                </Advanced>
+              )}
+              <Advanced name="evidence-gateway" summary="Advanced details — gateway contact">
+                <Panel heading="Gateway contact" headingId="site-evidence-gateway-heading">
+                  <GatewayContact health={health} detailed />
+                </Panel>
+              </Advanced>
             </Advanced>
           </ClaimLimit>
         </>
@@ -621,6 +634,8 @@ function SourcesOverview({
   health: EvidenceRead<GatewayHealth> | null;
   onInspect: (source: string) => void;
 }) {
+  // W1-F2 compaction: the mock's three source rows first, then "Show all N sources".
+  const [showAll, setShowAll] = useState(false);
   return (
     <Panel
       heading="Data sources · data quality, not equipment condition"
@@ -642,8 +657,8 @@ function SourcesOverview({
             </tr>
           </thead>
           <tbody>
-            {evidence.sources.map((s) => (
-              <tr key={s.source_id} data-evidence-source={s.source_id}>
+            {evidence.sources.map((s, index) => (
+              <tr key={s.source_id} data-evidence-source={s.source_id} hidden={!showAll && index >= SOURCE_PREVIEW_ROWS}>
                 <th scope="row" {...REF}>
                   {s.external_id}
                 </th>
@@ -666,30 +681,57 @@ function SourcesOverview({
           </tbody>
         </DataTable>
       )}
-      {evidence.sources.length === 0 ? null : (
-        <p className="panel__note" data-evidence-source-clocks>
-          {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock (UTC).`}
+      {evidence.sources.length <= SOURCE_PREVIEW_ROWS ? null : (
+        <p className="v69-chart-note">
+          <button
+            type="button"
+            className="link-button"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((v) => !v)}
+            data-evidence-sources-toggle={showAll ? "all" : "preview"}
+          >
+            {showAll ? `Show the first ${SOURCE_PREVIEW_ROWS} only` : `Show all ${evidence.sources.length} sources`}
+          </button>
         </p>
       )}
-      <SourceStrip evidence={evidence} />
-      <div className="evidence-gateway-block" aria-label="Gateway contact">
-        <p>
-          <strong>Gateway contact</strong>
-        </p>
-        <GatewayContact health={health} detailed={false} />
-      </div>
       <NotAvailableYet name="source-judgements">
         Not available yet: a status at the end of the period, a quality grade and which conclusions each source affects. No reviewed rule sets these.
       </NotAvailableYet>
-      {/* W1-F2: the earlier-store comparison is reference material about these sources, so it closes this panel. */}
-      {evidence.migration === null ? null : (
-        <Advanced name="evidence-earlier-store" summary="Advanced details — earlier store">
-          <MigrationNote evidence={evidence} />
-        </Advanced>
-      )}
+      {/* W1-F2 compaction: the clock note, the per-source strip, the gateway's own report and the earlier-store
+          comparison sit in one closed disclosure; the three reporting facts above stay visible. */}
+      <Advanced
+        name="evidence-sources-detail"
+        summary={
+          evidence.migration === null
+            ? "Advanced details — clocks, latest reading per source and gateway contact"
+            : "Advanced details — clocks, latest reading per source, gateway contact and earlier store"
+        }
+      >
+        {evidence.sources.length === 0 ? null : (
+          <p className="panel__note" data-evidence-source-clocks>
+            {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock (UTC).`}
+          </p>
+        )}
+        <SourceStrip evidence={evidence} />
+        <div className="evidence-gateway-block" aria-label="Gateway contact">
+          <p>
+            <strong>Gateway contact</strong>
+          </p>
+          <GatewayContact health={health} detailed={false} />
+        </div>
+        {/* W1-F2: the earlier-store comparison is reference material about these sources, so it closes this panel. */}
+        {evidence.migration === null ? null : (
+          <Advanced name="evidence-earlier-store" summary="Advanced details — earlier store">
+            <MigrationNote evidence={evidence} />
+          </Advanced>
+        )}
+      </Advanced>
     </Panel>
   );
 }
+
+/** W1-F2 compaction: the sources table shows this many rows until "Show all" (the mock's three). */
+const SOURCE_PREVIEW_ROWS = 3;
 
 function NextEvidence({ evidence }: { evidence: LedgerEvidence }) {
   const silent = evidence.sources.filter((s) => s.accepted_in_window === 0);
@@ -1151,6 +1193,9 @@ function RecordLink({ evidenceId }: { evidenceId: string }) {
  * whole site or for the source or input a reader chose, each opening its full
  * record (configuration, receipt and the exact message as received).
  */
+/** W1-F2 compaction: the accepted-records table shows this many rows until "Show all" (the mock's three). */
+const RECORD_PREVIEW_ROWS = 3;
+
 function Inspector({
   siteId,
   ledger,
@@ -1226,6 +1271,11 @@ function Inspector({
       : signal;
   const page = list !== null && list.status === "loaded" ? list.value : null;
   const clocks = page === null ? [] : Array.from(new Set(page.records.map((item) => clockWords(item.clocks.source_time))));
+  // W1-F2 compaction: the mock's three rows first (the rest stay in the table, hidden), then "Show all" for this page. A chosen record
+  // past the third row always shows the full page, so the selected row is never hidden.
+  const [showAll, setShowAll] = useState(false);
+  const selectedIndex = page === null || record === null ? -1 : page.records.findIndex((item) => item.evidence_id === record);
+  const allShown = showAll || selectedIndex >= RECORD_PREVIEW_ROWS;
 
   return (
     <div id={LEDGER_INSPECTOR_ID} data-evidence-inspector={source ?? signal ?? "site"}>
@@ -1260,9 +1310,9 @@ function Inspector({
           <p data-evidence-records-empty>No accepted reading in this period.</p>
         ) : (
           <>
-            <p>
+            <ChartNote data={{ "data-evidence-records-count": String(list.value.records.length) }}>
               {`${list.value.records.length} of ${list.value.total} accepted readings in this period, earliest taken first. Taken and sent times: ${clocks.join(" or ")}; received times: server clock (UTC). The gap between them is not a delivery delay.`}
-            </p>
+            </ChartNote>
             <DataTable labelledBy="site-evidence-inspector-heading">
               <thead>
                 <tr>
@@ -1275,8 +1325,13 @@ function Inspector({
                 </tr>
               </thead>
               <tbody>
-                {list.value.records.map((item) => (
-                  <tr key={item.evidence_id} data-evidence-record={item.evidence_id} aria-selected={item.evidence_id === record}>
+                {list.value.records.map((item, index) => (
+                  <tr
+                    key={item.evidence_id}
+                    data-evidence-record={item.evidence_id}
+                    aria-selected={item.evidence_id === record}
+                    hidden={!allShown && index >= RECORD_PREVIEW_ROWS}
+                  >
                     <th scope="row" {...REF}>{`${item.source.external_id} · ${item.device_id} / ${item.signal_id}`}</th>
                     <td>
                       {readingValue(item.normalized)}
@@ -1301,6 +1356,21 @@ function Inspector({
               </tbody>
             </DataTable>
             <p className="evidence-records__paging">
+              {list.value.records.length <= RECORD_PREVIEW_ROWS || selectedIndex >= RECORD_PREVIEW_ROWS ? null : (
+                <button
+                  type="button"
+                  className="link-button"
+                  aria-expanded={showAll}
+                  onClick={() => setShowAll((v) => !v)}
+                  data-evidence-records-toggle={showAll ? "all" : "preview"}
+                >
+                  {showAll
+                    ? `Show the first ${RECORD_PREVIEW_ROWS} only`
+                    : list.value.records.length === list.value.total
+                      ? `Show all ${list.value.total} readings`
+                      : `Show all ${list.value.records.length} readings on this page`}
+                </button>
+              )}{" "}
               {cursor === null ? null : (
                 <button type="button" className="action" onClick={() => change((n) => n.delete("cursor"))}>
                   First page

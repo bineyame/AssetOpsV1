@@ -19,7 +19,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, plainTime, ProductStatus } from "../ui";
+import { ChartNote, currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, plainTime, ProductStatus } from "../ui";
 import { PeriodStrip, type StripTone } from "./periodStrip";
 import { isDay } from "./dispatchWords";
 import type {
@@ -300,11 +300,12 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
         <p className="claim-limit__label" id={CLAIM_LIMIT_HEADING_ID}>
           <strong>What the readings can support</strong>
         </p>
-        <p className="prose">
+        {/* W1-F2 compaction: the mock's short paragraph, at note size. */}
+        <ChartNote>
           Each conclusion lists the readings it needs. When all are present for a period, the full conclusion is
           allowed. When one is missing or unreliable, the conclusion is narrowed to the periods that are covered, and
           the gap is shown rather than filled in.
-        </p>
+        </ChartNote>
         <DayChooser day={day} />
         {day === null || client === undefined ? null : (
           <AssessedPeriods assessed={assessed} selected={revision} hrefFor={select} />
@@ -524,47 +525,9 @@ function Loaded({
       <div className="claim-limit__status">
         <ProductStatusLine read={read} whenText={whenText} />
       </div>
-      <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
-      {reasons.length === 0 ? null : (
-        <>
-          <h3 className="claim-limit__subheading">What limits it</h3>
-          <ul data-claim-limit-reasons>
-            {reasons.map((text) => (
-              <li key={text}>{text}</li>
-            ))}
-          </ul>
-        </>
-      )}
       {read.currentness === "UNASSESSED" ? (
-        <p>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</p>
+        <ChartNote>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</ChartNote>
       ) : null}
-      {current && read.scope === "WINDOW" && limit !== null && limit.support !== null ? (
-        <p data-claim-limit-window-level>{`Across the whole day: ${WINDOW_SUPPORT_WORDS[limit.support] ?? "no overall level stated"}.`}</p>
-      ) : null}
-      {earlierSentence === null ? null : (
-        <p data-claim-limit-earlier>{`At the time, this version said: ${earlierSentence}`}</p>
-      )}
-      {intervals.length === 0 || current ? null : (
-        <p data-claim-limit-earlier-periods>
-          {read.scope === "WINDOW"
-            ? "At the time, this version listed these assessed periods:"
-            : "At the time, this version listed:"}
-        </p>
-      )}
-      {intervals.length === 0 ? null : (
-        <ul className="claim-limit__intervals" data-claim-limit-intervals={current ? "current" : "earlier"}>
-          {intervals.map((item) => (
-            <li key={item.assessment_revision_id}>
-              <Link to={hrefFor(item.assessment_revision_id)} data-interval-ceiling={item.assessment_revision_id}>
-                {`${periodLabel(item.assessment_revision_id, periods)}: ${item.ceiling === null ? "no conclusion" : (CLASS_WORDS[item.ceiling] ?? item.ceiling)}${item.support === "COMPLETE" ? ", fully covered" : item.support === "LIMITED" ? ", partly covered" : ""}`}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-      {roleKeys.length === 0 || read.capability === null ? null : (
-        <RoleTable roleKeys={roleKeys} roles={roles} recordHref={recordHref} />
-      )}
       {selected === null || assessmentHref === undefined ? null : (
         <p>
           <Link to={assessmentHref(read.day, selected)} data-claim-limit-pinned={selected}>
@@ -572,11 +535,53 @@ function Loaded({
           </Link>
         </p>
       )}
-      <p className="claim-limit__note">
+      <ChartNote>
         This describes what the readings show, not the equipment's physical capacity; configured ratings are not
         treated as observed.
-      </p>
-      <Technical read={read} revision={revision} recordHref={recordHref} />
+      </ChartNote>
+      {/* W1-F2 compaction: what limits it, the readings by input, earlier-version text and the technical
+          references sit in one closed disclosure; the headline, state line and day status stay visible. */}
+      <Disclosure name="claim-limit-detail" summary="Details — what limits it, readings by input and earlier versions">
+        <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
+        {reasons.length === 0 ? null : (
+          <>
+            <h3 className="claim-limit__subheading">What limits it</h3>
+            <ul data-claim-limit-reasons>
+              {reasons.map((text) => (
+                <li key={text}>{text}</li>
+              ))}
+            </ul>
+          </>
+        )}
+        {current && read.scope === "WINDOW" && limit !== null && limit.support !== null ? (
+          <p data-claim-limit-window-level>{`Across the whole day: ${WINDOW_SUPPORT_WORDS[limit.support] ?? "no overall level stated"}.`}</p>
+        ) : null}
+        {earlierSentence === null ? null : (
+          <p data-claim-limit-earlier>{`At the time, this version said: ${earlierSentence}`}</p>
+        )}
+        {intervals.length === 0 || current ? null : (
+          <p data-claim-limit-earlier-periods>
+            {read.scope === "WINDOW"
+              ? "At the time, this version listed these assessed periods:"
+              : "At the time, this version listed:"}
+          </p>
+        )}
+        {intervals.length === 0 ? null : (
+          <ul className="claim-limit__intervals" data-claim-limit-intervals={current ? "current" : "earlier"}>
+            {intervals.map((item) => (
+              <li key={item.assessment_revision_id}>
+                <Link to={hrefFor(item.assessment_revision_id)} data-interval-ceiling={item.assessment_revision_id}>
+                  {`${periodLabel(item.assessment_revision_id, periods)}: ${item.ceiling === null ? "no conclusion" : (CLASS_WORDS[item.ceiling] ?? item.ceiling)}${item.support === "COMPLETE" ? ", fully covered" : item.support === "LIMITED" ? ", partly covered" : ""}`}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+        {roleKeys.length === 0 || read.capability === null ? null : (
+          <RoleTable roleKeys={roleKeys} roles={roles} recordHref={recordHref} />
+        )}
+        <Technical read={read} revision={revision} recordHref={recordHref} />
+      </Disclosure>
     </div>
   );
 }

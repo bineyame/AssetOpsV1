@@ -12,6 +12,7 @@ import {
   EVIDENCE_UUID,
   GATEWAY_HEALTH,
   LEDGER_EVIDENCE,
+  LEDGER_PAGE,
   LEDGER_RECORD,
   LEDGER_REJECTIONS,
   ledgerClient,
@@ -259,6 +260,49 @@ describe("V-01b Site Evidence analysis", () => {
     const visible = document.querySelector("[data-evidence-not-accepted-line]") as HTMLElement;
     expect(visible.closest("details")).toBeNull();
     expect(visible.textContent).toMatch(/3 readings in this period were not accepted/);
+  });
+
+  it("W1-F2 compaction: records show three rows then 'Show all'; the technical rows are one closed row each", async () => {
+    const [first] = LEDGER_PAGE.records;
+    const records = [1, 2, 3, 4, 5].map((n) => ({ ...first, evidence_id: `${first.evidence_id.slice(0, -1)}${n}` }));
+    const client = ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE });
+    (client.ledger as { listRecords: unknown }).listRecords = () =>
+      Promise.resolve({ status: "loaded", value: { ...LEDGER_PAGE, records, total: 5, next_cursor: null } });
+    renderAt(ANALYSIS_URL, client);
+    await settledScreen();
+    const rows = Array.from(document.querySelectorAll<HTMLTableRowElement>("tr[data-evidence-record]"));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true, true]);
+    fireEvent.click(screen.getByRole("button", { name: "Show all 5 readings" }));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false, false]);
+    expect(document.querySelector("[data-evidence-records-count]")?.closest("details")).toBeNull();
+    // The record and analysis technical disclosures each sit in one closed outer row.
+    for (const [outer, inner] of [
+      ["evidence-records-technical", ["evidence-clocks", "evidence-sources", "evidence-deliveries", "evidence-coverage"]],
+      ["evidence-analysis-technical", ["evidence-analysis-status", "evidence-comparison", "evidence-gateway"]],
+    ] as const) {
+      const details = document.querySelector(`details[data-disclosure='${outer}']`) as HTMLDetailsElement;
+      expect(details.open, outer).toBe(false);
+      for (const name of inner) expect(details.querySelector(`details[data-disclosure='${name}']`), name).not.toBeNull();
+    }
+  });
+
+  it("W1-F2 compaction: Data sources shows the three facts and three sources; strip, clocks and gateway report sit in a closed row", async () => {
+    const sources = [0, 1, 2, 3].map((n) => ({ ...SILENT_SOURCE, source_id: `${SILENT_SOURCE.source_id.slice(0, -1)}${n + 5}`, external_id: `sensor-${n}` }));
+    renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: ledgerEvidence({ sources }) }));
+    await settledScreen();
+    const panelEl = panel("Data sources · data quality, not equipment condition");
+    const rows = Array.from(panelEl.querySelectorAll<HTMLTableRowElement>("tr[data-evidence-source]"));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true]);
+    fireEvent.click(within(panelEl).getByRole("button", { name: "Show all 4 sources" }));
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false]);
+    const details = panelEl.querySelector("details[data-disclosure='evidence-sources-detail']") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    for (const inner of ["[data-period-strip='evidence-sources']", "[data-evidence-source-clocks]", "[data-gateway-contact]"]) {
+      expect(details.querySelector(inner), inner).not.toBeNull();
+    }
+    for (const visible of ["[data-evidence-reporting-facts]", "[data-evidence-reporting-note]", "[data-not-available='source-judgements']"]) {
+      expect(panelEl.querySelector(visible)?.closest("details"), visible).toBeNull();
+    }
   });
 
   it("shows a conflicting reading beside the original reading's taken time and opens it", async () => {

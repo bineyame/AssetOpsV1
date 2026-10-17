@@ -278,6 +278,26 @@ describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
     expect(row).toMatch(/site settings/);
   });
 
+  it("W1-F2 compaction: coverage shows three inputs then 'Show all'; the recorded limits list sits in the closed detail row", async () => {
+    const item = { status: "BOUND", readings: 4, not_good: 0 };
+    const coverage = { generator_state: item, pcs_discharge_capability: item, pv_available_power: item, load_power: item, battery_reserve: item };
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ coverage }) });
+    const { container } = mount(client, "?day=2026-10-02");
+    await settledScreen();
+    const rows = [...container.querySelectorAll<HTMLTableRowElement>("tr[data-coverage-role]")];
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, true, true]);
+    const toggle = screen.getByRole("button", { name: "Show all 5 inputs" });
+    fireEvent.click(toggle);
+    expect(rows.map((r) => r.hidden)).toEqual([false, false, false, false, false]);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    // The recorded limits (summarised as one line in panel 1) are in the closed detail disclosure.
+    const detail = container.querySelector("details[data-disclosure='dispatch-coverage-detail']") as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    expect(detail.querySelector("[data-limitation='MISSING_ROLE']")).not.toBeNull();
+    expect(container.querySelector("[data-dispatch-limitation-summary]")?.closest("details")).toBeNull();
+    expect(container.querySelector("[data-coverage-note]")?.closest("details")).toBeNull();
+  });
+
   it("uses plain words for the shortfall constraint and a missing series, and hides model strings", async () => {
     const base = revision("rev-current", "NECESSARY");
     base.result.binding_constraints = ["CAPABILITY_SHORTFALL"];

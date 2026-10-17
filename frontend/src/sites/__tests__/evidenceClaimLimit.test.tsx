@@ -197,6 +197,21 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(container.querySelector("[data-claim-limit-reasons]")?.textContent).toContain("Solar power available missing");
   });
 
+  it("W1-F2 compaction: the headline and state line stay visible; reasons, readings and references sit in a closed disclosure", async () => {
+    const { container } = mount(fake(() => ({ status: "loaded", value: sample("missing-pv") })), SEARCH);
+    await settledScreen();
+    const detail = container.querySelector("details[data-disclosure='claim-limit-detail']") as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    for (const inner of ["[data-claim-limit-reasons]", "tr[data-claim-role]", "[data-period-strip='claim-limit-roles']", "details[data-disclosure='claim-limit-technical']"]) {
+      expect(detail.querySelector(inner), inner).not.toBeNull();
+    }
+    for (const visible of ["[data-claim-limit-headline]", ".claim-limit__when"]) {
+      const el = container.querySelector(visible) as HTMLElement;
+      expect(el, visible).not.toBeNull();
+      expect(el.closest("details"), visible).toBeNull();
+    }
+  });
+
   it("poor quality and conflicting reports: a limited ceiling over the covered minutes only", async () => {
     const { container } = mount(fake(() => ({ status: "loaded", value: sample("poor-quality-conflict") })), SEARCH);
     await settledScreen();

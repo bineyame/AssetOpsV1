@@ -496,12 +496,15 @@ function WindowView({
             third={{
               body: (
                 <>
-                  <LimitationsList read={read} />
+                  {/* W1-F2 compaction: the mock's compact coverage table and note lines; the full list of limits,
+                      what a reading is and the accepted records sit in one closed disclosure. */}
                   <CoverageBody read={read} />
                   {comparison ? <ComparisonLine summary={comparison} /> : null}
-                  {loaded !== null ? (
-                    <EvidenceRecords detail={loaded} segment={segment} windowNote={read.demo_annotations} />
-                  ) : null}
+                  <CoverageDetail read={read}>
+                    {loaded !== null ? (
+                      <EvidenceRecords detail={loaded} segment={segment} windowNote={read.demo_annotations} />
+                    ) : null}
+                  </CoverageDetail>
                 </>
               ),
             }}
@@ -1012,10 +1015,43 @@ function SelectedPeriod({
   );
 }
 
+/** W1-F2 compaction: the coverage table shows this many inputs until "Show all" (the mock's three rows). */
+const COVERAGE_PREVIEW_ROWS = 3;
+
+/**
+ * W1-F2 compaction: the closed detail row under the coverage table. "No limitation is recorded" stays a visible
+ * note; a recorded list (already summarised as one line in panel 1) opens with what a reading is and the records.
+ */
+function CoverageDetail({ read, children }: { read: DispatchWindow; children?: ReactNode }) {
+  const groups = groupLimitations(read.limitations);
+  return (
+    <>
+      {groups.length === 0 ? <LimitationsList read={read} /> : null}
+      <Disclosure
+        name="dispatch-coverage-detail"
+        summary={
+          groups.length === 0
+            ? "Details — what a reading is and the accepted records"
+            : `Details — what limits this day's result (${groups.length}), what a reading is and the accepted records`
+        }
+      >
+        {groups.length === 0 ? null : <LimitationsList read={read} />}
+        <Disclosure summary="What a reading is" name="dispatch-coverage-reading">
+          <p data-coverage-reading>
+            A reading counted here is a report the site sent and AssetOps accepted; gaps between reports are not
+            filled in.
+          </p>
+        </Disclosure>
+        {children}
+      </Disclosure>
+    </>
+  );
+}
+
 function LimitationsList({ read }: { read: DispatchWindow }) {
   const groups = groupLimitations(read.limitations);
   return groups.length === 0 ? (
-    <p data-dispatch-limitations="none">No limitation is recorded for this day&apos;s result.</p>
+    <ChartNote data={{ "data-dispatch-limitations": "none" }}>No limitation is recorded for this day&apos;s result.</ChartNote>
   ) : (
     <ul className="dispatch-limits" aria-label="What limits this day's result">
       {groups.map((group) => (
@@ -1030,6 +1066,7 @@ function LimitationsList({ read }: { read: DispatchWindow }) {
 
 function CoverageBody({ read }: { read: DispatchWindow }) {
   const rows = Object.entries(read.coverage ?? {});
+  const [showAll, setShowAll] = useState(false);
   const noSeries =
     read.selection !== null && !["SELECTED_UNIQUE", "SELECTED_EXPLICIT"].includes(read.selection.cohort_status);
   return (
@@ -1047,8 +1084,8 @@ function CoverageBody({ read }: { read: DispatchWindow }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map(([role, item]) => (
-              <tr key={role} data-coverage-role={role}>
+            {rows.map(([role, item], index) => (
+              <tr key={role} data-coverage-role={role} hidden={!showAll && index >= COVERAGE_PREVIEW_ROWS}>
                 <th scope="row">{roleWords(role)}</th>
                 <td>{coverageWords(item.status)}</td>
                 <td>{item.readings}</td>
@@ -1058,17 +1095,24 @@ function CoverageBody({ read }: { read: DispatchWindow }) {
           </tbody>
         </DataTable>
       )}
+      {rows.length <= COVERAGE_PREVIEW_ROWS ? null : (
+        <p className="v69-chart-note">
+          <button
+            type="button"
+            className="link-button"
+            aria-expanded={showAll}
+            onClick={() => setShowAll((v) => !v)}
+            data-coverage-toggle={showAll ? "all" : "preview"}
+          >
+            {showAll ? `Show the first ${COVERAGE_PREVIEW_ROWS} only` : `Show all ${rows.length} inputs`}
+          </button>
+        </p>
+      )}
       <ChartNote data={{ "data-coverage-note": "" }}>
         {noSeries
           ? `${read.current_basis?.accepted_reading_count ?? "Some"} accepted records exist for this day, but no single series of them was chosen, so none is used for a result.`
           : `${read.evidence_count} accepted records behind this day's result.`}
       </ChartNote>
-      <Disclosure summary="What a reading is" name="dispatch-coverage-reading">
-        <p data-coverage-reading>
-          A reading counted here is a report the site sent and AssetOps accepted; gaps between reports are not
-          filled in.
-        </p>
-      </Disclosure>
     </>
   );
 }
