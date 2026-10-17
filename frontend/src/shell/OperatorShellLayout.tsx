@@ -48,50 +48,16 @@ import type { WorkspaceChrome } from "./WorkspaceShellLayout";
  * One item per line: the navigation-truthfulness guard parses this list.
  */
 const operatorRailItems: NavRailItem[] = [
-  {
-    kind: "unavailable",
-    label: "Portfolio",
-    group: "OPERATIONS",
-    icon: "grid",
-  },
-  {
-    kind: "live",
-    to: "/sites",
-    label: "Sites",
-    end: false,
-    group: "OPERATIONS",
-    icon: "site",
-  },
+  { kind: "unavailable", label: "Portfolio", group: "OPERATIONS", icon: "grid" },
+  { kind: "live", to: "/sites", label: "Sites", end: false, group: "OPERATIONS", icon: "site" },
   { kind: "unavailable", label: "Assets", group: "OPERATIONS", icon: "asset" },
-  {
-    kind: "live",
-    to: "/findings",
-    label: "Findings",
-    end: false,
-    group: "INTELLIGENCE",
-    icon: "finding",
-  },
+  { kind: "live", to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE", icon: "finding" },
   { kind: "unavailable", label: "Actions", group: "WORK", icon: "action" },
   { kind: "unavailable", label: "Incidents", group: "WORK", icon: "incident" },
   { kind: "unavailable", label: "Maintenance", group: "WORK", icon: "work" },
-  {
-    kind: "unavailable",
-    label: "Operational records",
-    group: "WORK",
-    icon: "log",
-  },
-  {
-    kind: "unavailable",
-    label: "Evidence",
-    group: "ASSURANCE",
-    icon: "evidence",
-  },
-  {
-    kind: "unavailable",
-    label: "Financials",
-    group: "BUSINESS",
-    icon: "money",
-  },
+  { kind: "unavailable", label: "Operational records", group: "WORK", icon: "log" },
+  { kind: "unavailable", label: "Evidence", group: "ASSURANCE", icon: "evidence" },
+  { kind: "unavailable", label: "Financials", group: "BUSINESS", icon: "money" },
   { kind: "unavailable", label: "Settings", group: "ADMIN", icon: "gear" },
 ];
 
