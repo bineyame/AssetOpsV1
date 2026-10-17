@@ -532,10 +532,9 @@ function SourcesBody({
                 <td>
                   {g.registration === "DISABLED" ? "Disabled, not counted. " : ""}
                   {contactText(g)}
-                  <small className="health-cell-note">reports every {formatAge(g.declared_cadence_seconds)}</small>
                 </td>
                 <QualityCell row={g} />
-                <td>Not recorded</td>
+                <td className="health-nowrap">Not recorded</td>
                 <td>
                   <Link to={links.health(siteId, g.gateway_id)} data-health-open={g.gateway_external_id}>
                     Details
@@ -547,9 +546,7 @@ function SourcesBody({
                     <tr key={source.source_id} data-health-source={source.source_external_id}>
                       <th scope="row">
                         Device <HealthRef value={source.source_external_id} />
-                        <small className="health-cell-note">
-                          as reported by gateway <HealthRef value={g.gateway_external_id} />
-                        </small>
+                        <small className="health-cell-note">as its gateway reports</small>
                       </th>
                       <td>
                         {source.reported_contact_status === "REPORTED"
@@ -565,7 +562,7 @@ function SourcesBody({
                             ? `Unknown age: ${unknownAgeReason(g)}`
                             : "Unknown"}
                       </td>
-                      <td>Not recorded</td>
+                      <td className="health-nowrap">Not recorded</td>
                       <td>
                         <Link to={links.health(siteId, g.gateway_id)}>Gateway</Link>
                       </td>
@@ -639,6 +636,7 @@ function SelectedGateway({ siteId, row }: { siteId: string; row: GatewayHealthRo
           ["Registration", row.registration === "DISABLED" ? "Disabled (not counted)" : "Enabled", "registration"],
           ["Contact", contactText(row), "contact"],
           ["Last received (server clock)", formatInstant(row.contact.last_received_at), "received"],
+          ["Reports every", formatAge(row.declared_cadence_seconds), "cadence"],
           ["Stale after", `${formatAge(row.contact.threshold_seconds)} without a report`, "threshold"],
           ["Observed (gateway clock)", formatInstant(f.observed_at), "observed"],
           ["What it last reported", reportedText(row), "reported"],

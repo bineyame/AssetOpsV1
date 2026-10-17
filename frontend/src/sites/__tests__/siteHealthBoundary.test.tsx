@@ -185,7 +185,7 @@ describe("Site Health: gateway contact (health:2#a)", () => {
     expect(sources.querySelector('[data-health-queue-row="s7-queue-growth"]')).not.toBeNull();
     expect(sources.querySelector('[data-health-source="s7-clock-offset-device"]')).not.toBeNull();
     expect(sources.textContent).toContain("Queue, as last reported");
-    expect(sources.textContent).toContain("as reported by gateway");
+    expect(sources.textContent).toContain("as its gateway reports");
     expect(condition.querySelector("[data-health-gateway], [data-health-queue-row], [data-health-source]")).toBeNull();
     const queue = q('[data-health-queue-row="s7-queue-growth"]') as HTMLElement;
     expect(queue.textContent).toContain("900");

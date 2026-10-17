@@ -3793,6 +3793,15 @@ ul.evidence-notes li { font-size: inherit; }
   line-height: 1.6;
   color: var(--text-secondary);
 }
+.health-nowrap {
+  white-space: nowrap;
+}
+/* At phone width the mock's tables keep readable columns and scroll inside their own scroller
+   (`.table-wrap`), rather than squeezing every cell into a tall wrapped column. */
+.site-health .data-table,
+.site-battery .data-table {
+  min-width: 640px;
+}
 .health-condition-lead,
 .health-contact-summary {
   margin: 0 0 var(--space-3);
