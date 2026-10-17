@@ -244,7 +244,9 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(q("[data-history-latest-at-read]")).toHaveTextContent("Version 205 of 205");
     expect(q("[data-history-pin]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(205)}`);
     expect(q("[data-finding-section='history']")).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Finding history");
+    // W1-F5b carry 10: the heading is the selected version's Finding name, not a generic "Finding history".
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/);
+    expect(screen.getByRole("heading", { level: 1 })).not.toHaveTextContent(/history/i);
     const { violations } = scanProductVocabulary(container, "finding history");
     expect(violations, describeViolations(violations)).toEqual([]);
   });

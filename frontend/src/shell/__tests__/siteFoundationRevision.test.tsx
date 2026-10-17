@@ -809,12 +809,14 @@ describe("S1-03: three Foundation views at one selected period", () => {
     await settledScreen();
     const row = screen.getByRole("navigation", { name: "Foundation views" });
     const links = within(row).getAllByRole("link");
-    expect(links.map((link) => link.textContent)).toEqual(["Site model", "Single line diagram", "Readiness"]);
-    expect(links.map((link) => link.getAttribute("aria-current"))).toEqual([null, "page", null]);
+    // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): v69's fourth entry links to the existing Changes route.
+    expect(links.map((link) => link.textContent)).toEqual(["Site model", "Single line diagram", "Readiness", "Change & effect"]);
+    expect(links.map((link) => link.getAttribute("aria-current"))).toEqual([null, "page", null, null]);
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       `/sites/${ID}/foundation?at=${futureAt}`,
       `/sites/${ID}/foundation/sld?at=${futureAt}`,
       `/sites/${ID}/foundation/readiness?at=${futureAt}`,
+      `/sites/${ID}/foundation/changes`,
     ]);
     expect(screen.queryByRole("navigation", { name: "Foundation sections" })).toBeNull();
   });
@@ -866,10 +868,12 @@ describe("S1-03: three Foundation views at one selected period", () => {
     }
   });
 
-  it("refuses a Foundation view that does not exist, such as Changes", async () => {
+  it("serves the bare Changes address as the Changes route, not as a Foundation view (W1-F5b)", async () => {
     renderAt(`/sites/${ID}/foundation/changes`, fakeFoundation(byAt));
     await settledScreen();
-    expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
+    const row = screen.getByRole("navigation", { name: "Foundation views" });
+    expect(within(row).getByRole("link", { name: "Change & effect" })).toHaveAttribute("aria-current", "page");
+    expect(within(row).getAllByRole("link").filter((l) => l.getAttribute("aria-current") === "page")).toHaveLength(1);
     expect(screen.queryByRole("heading", { name: "Configuration readiness" })).toBeNull();
   });
 
@@ -989,7 +993,7 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     return Array.from(main.querySelectorAll("h2, summary")).map((node) => (node.textContent ?? "").trim());
   }
 
-  it.each(VIEWS)("never offers a Change & effect or Changes destination, enabled or not, on %s", async (segment) => {
+  it.each(VIEWS)("offers Change & effect only as the live row link to the Changes route, never Changes or disabled, on %s", async (segment) => {
     renderAt(`/sites/${ID}/foundation${segment}`, fakeFoundation(loadedFoundation));
     await settledScreen();
     const main = screen.getByRole("main");
@@ -1001,7 +1005,12 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
           forbidden.test(name ?? ""),
         ),
     );
-    expect(named).toHaveLength(0);
+    // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): exactly the one row entry, a real link, never a disabled one.
+    expect(named).toHaveLength(1);
+    expect(named[0].tagName).toBe("A");
+    expect(named[0].textContent).toBe("Change & effect");
+    expect(named[0].getAttribute("href")).toBe(`/sites/${ID}/foundation/changes`);
+    expect(named[0].closest("nav")?.getAttribute("aria-label")).toBe("Foundation views");
     expect(main.querySelectorAll("[aria-disabled]")).toHaveLength(0);
   });
 

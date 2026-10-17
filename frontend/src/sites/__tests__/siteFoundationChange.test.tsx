@@ -98,7 +98,18 @@ function noVocabularyViolations(page: string) {
 function foundationTabCurrent() {
   const current = qa('[aria-current="page"]').map((el) => el.textContent);
   expect(current).toContain("Foundation");
-  expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
+  // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the Foundation row shows here with Change & effect current,
+  // linking to this Changes route; the three period views link to their own addresses.
+  const row = screen.getByRole("navigation", { name: "Foundation views" });
+  const links = within(row).getAllByRole("link");
+  expect(links.map((l) => l.textContent)).toEqual(["Site model", "Single line diagram", "Readiness", "Change & effect"]);
+  expect(links.map((l) => l.getAttribute("aria-current"))).toEqual([null, null, null, "page"]);
+  expect(links.map((l) => l.getAttribute("href"))).toEqual([
+    "/sites/KOBO-001/foundation",
+    "/sites/KOBO-001/foundation/sld",
+    "/sites/KOBO-001/foundation/readiness",
+    "/sites/KOBO-001/foundation/changes",
+  ]);
 }
 
 afterEach(() => {

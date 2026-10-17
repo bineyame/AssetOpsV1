@@ -3,6 +3,7 @@
  * Finding frame, and the old assessment-keyed page's Evidence tab resolving to
  * the same read.
  */
+import { expectUnavailableEntry, rowLabels, UNAVAILABLE_STATUS } from "../../test/unavailableEntry";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -577,7 +578,19 @@ describe("Finding frame sections (S4-03 phase 2)", () => {
     expect(q("[data-finding-section='evidence']")).toHaveAttribute("aria-current", "page");
     expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${R1}`);
     expect(q("[data-finding-section='evidence']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R1}`);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Finding evidence");
+    // W1-F5b carry 10: the heading is the Finding's own name, as on the Finding and in the mock.
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support merits review$/);
+    // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's order, with Alternatives unbuilt in its place.
+    const sections = screen.getByRole("navigation", { name: "Finding sections" });
+    expect(rowLabels(sections)).toEqual([
+      "Finding",
+      "Evidence",
+      `Alternatives (${UNAVAILABLE_STATUS})`,
+      "Recommendation",
+      "History",
+    ]);
+    expectUnavailableEntry(sections, "Alternatives");
+    expect(document.querySelectorAll('a[href*="alternatives" i]')).toHaveLength(0);
   });
 
   it("refuses an unknown section name instead of showing another view", async () => {

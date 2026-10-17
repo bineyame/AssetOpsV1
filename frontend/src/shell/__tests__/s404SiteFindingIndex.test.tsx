@@ -4,6 +4,7 @@
  * the scope in the address and every non-current or refused read showing no
  * rows, no count and no "no Findings" claim.
  */
+import { expectUnavailableEntry, rowLabels, UNAVAILABLE_STATUS } from "../../test/unavailableEntry";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -451,12 +452,26 @@ describe("W1-F3: Site Findings index renders exactly the v69 panel (sitefindings
     expectV69Panels("sitefindings");
     const panel = card();
     expect(state()).toBe(expected);
-    // Mock order: the compact window row (chips row), the one-line statusbar, then the panel.
+    // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the one-line statusbar, then the panel; inside it, under the
+    // heading, the mock's lens chips (All live and selected, the rest unbuilt) beside the compact window control.
+    expect(statusBar().compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const controls = panel.querySelector("[data-site-findings-controls]") as HTMLElement;
+    expect(controls, "lens chips and window share one controls row in the panel").not.toBeNull();
+    const lenses = within(controls).getByRole("list", { name: "Finding lenses" });
+    expect(rowLabels(lenses)).toEqual([
+      "All",
+      `Cost (${UNAVAILABLE_STATUS})`,
+      `Risks (${UNAVAILABLE_STATUS})`,
+      `Opportunities (${UNAVAILABLE_STATUS})`,
+    ]);
+    expect(lenses.querySelector("[data-lens='all']")).toHaveAttribute("aria-current", "true");
+    for (const lens of ["Cost", "Risks", "Opportunities"]) expectUnavailableEntry(lenses, lens);
     const windowRow = document.querySelector("[data-finding-index-window]") as HTMLElement;
     expect(windowRow.classList.contains("v69-chips"), "the window form is the mock's chips row").toBe(true);
-    expect(panel.contains(windowRow)).toBe(false);
-    expect(windowRow.compareDocumentPosition(statusBar()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(statusBar().compareDocumentPosition(panel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(controls.contains(windowRow)).toBe(true);
+    expect(lenses.compareDocumentPosition(windowRow) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const heading = within(panel).getByRole("heading", { name: "Findings at this site" });
+    expect(heading.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(statusBar().querySelector("[data-product-status]"), "the shared state line is in the statusbar").not.toBeNull();
     expect(document.querySelector("[data-headline-card]"), "no lead card").toBeNull();
     expect(panel.querySelector("h3"), "no answer-card blocks or headline inside the panel").toBeNull();

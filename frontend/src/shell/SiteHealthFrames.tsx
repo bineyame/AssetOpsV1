@@ -41,7 +41,7 @@ export function SiteHealthFrame({
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               gateway === null ? { label: "Health" } : { label: "Health", to: siteHealthHref(site.site_id) },
               ...(gateway === null ? [] : [{ label: "Gateway" }]),
             ]}
@@ -81,7 +81,7 @@ export function SiteAssetsFrame({
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Health", to: siteHealthHref(site.site_id) },
               { label: "Battery" },
             ]}
@@ -117,7 +117,7 @@ export function SiteAssetFrame({
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Health", to: siteHealthHref(site.site_id) },
               { label: "Battery", to: siteAssetsHref(site.site_id) },
               { label: title },

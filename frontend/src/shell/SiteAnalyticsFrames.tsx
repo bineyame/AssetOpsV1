@@ -1,3 +1,5 @@
+import { UnavailableTab } from "../ui/UnavailableEntry";
+import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -25,7 +27,7 @@ import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
 import { SiteFinding } from "../sites/SiteFinding";
-import { FindingSections, SiteFindingEvidence } from "../sites/SiteFindingEvidence";
+import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
 import { presentationProfileFor } from "../sites/presentationProfile";
@@ -55,6 +57,7 @@ import {
   siteFinancialsHref,
   siteFoundationChangeHref,
   siteFoundationHref,
+  siteFoundationViewHref,
   sitePerformanceHref,
   siteWorkHref,
   type FindingChildView,
@@ -143,7 +146,7 @@ export function SitePerformanceFrame({
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Performance" },
             ]}
           />
@@ -250,7 +253,7 @@ export function SiteFindingsFrame({
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Findings" },
             ]}
           />
@@ -340,7 +343,7 @@ export function FindingDetailFrame({
           <Breadcrumbs
             trail={[
               { label: "Findings", to: FINDINGS_PATH },
-              { label: site.site_id, to: siteFindingsHref(site.site_id) },
+              { label: site.display_name, to: siteFindingsHref(site.site_id) },
               { label: title },
             ]}
           />
@@ -393,9 +396,8 @@ const FINDING_SECTION_LABELS: Record<FindingChildView, string> = {
   history: "History",
   recommendation: "Recommendation",
 };
-const FINDING_VIEW_TITLES: Record<FindingChildView, string> = {
-  evidence: "Finding evidence",
-  history: "Finding history",
+/** W1-F5b (carry 10): Evidence and History head with the Finding's own name (`onTitle`), as the mock does. */
+const FINDING_VIEW_TITLES: Record<"recommendation", string> = {
   recommendation: "Recommendation",
 };
 
@@ -428,20 +430,25 @@ export function SiteFindingFrame({
         const dispatch = (day: string, intervalRevisionId?: string | null) =>
           `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
           (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : "");
-        const sections = [
+        const child = (c: FindingChildView) => ({
+          id: c,
+          label: FINDING_SECTION_LABELS[c],
+          href: siteFindingViewHref(site.site_id, id, c, revisionId),
+        });
+        // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's order, with Alternatives unbuilt in its place.
+        const sections: FindingSectionLink[] = [
           { id: "finding", label: "Finding", href: siteFindingHref(site.site_id, id, revisionId) },
-          ...FINDING_CHILD_VIEWS.map((child) => ({
-            id: child,
-            label: FINDING_SECTION_LABELS[child],
-            href: siteFindingViewHref(site.site_id, id, child, revisionId),
-          })),
+          child("evidence"),
+          { id: "alternatives", label: "Alternatives", unavailable: true },
+          child("recommendation"),
+          child("history"),
         ];
         return (
           <main aria-labelledby={SITE_FINDING_HEADING_ID}>
             <Breadcrumbs
               trail={[
                 { label: "Sites", to: sitesPath },
-                { label: site.site_id, to: siteDetailHref(site.site_id) },
+                { label: site.display_name, to: siteDetailHref(site.site_id) },
                 { label: "Findings", to: siteFindingsHref(site.site_id) },
                 view === "finding" || view === null
                   ? { label: "Finding" }
@@ -450,7 +457,7 @@ export function SiteFindingFrame({
               ]}
             />
             <PageHeader
-              title={view === "finding" || view === null ? title : FINDING_VIEW_TITLES[view]}
+              title={view === "recommendation" ? FINDING_VIEW_TITLES[view] : title}
               headingId={SITE_FINDING_HEADING_ID}
               subtitle={`${site.display_name} · generator support finding`}
             />
@@ -482,6 +489,7 @@ export function SiteFindingFrame({
                     siteId={site.site_id}
                     findingId={id}
                     client={findings}
+                    onTitle={onTitle}
                     links={{
                       evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
                       finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
@@ -507,6 +515,7 @@ export function SiteFindingFrame({
                     siteId={site.site_id}
                     findingId={id}
                     client={findings}
+                    onTitle={onTitle}
                     links={{
                       history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                       evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
@@ -544,8 +553,9 @@ const DEFAULT_FINANCIALS = createFinancialsClient();
 const FINANCIALS_SECTIONS_LABEL = "Financials sections";
 
 /**
- * S4-02a: Site > Financials (Overview with the Finding bridge) and Financials > Assumptions. The mock's
- * Scenarios subtab is omitted for G-05, not rendered as an empty tab.
+ * S4-02a: Site > Financials (Overview with the Finding bridge) and Financials > Assumptions. W1-F5b
+ * (D-2026-10-17-f5-subtabs-and-contact): the mock's Scenarios subtab is shown in its place as "Not available yet"
+ * text, never a link or a route (G-05 is still unbuilt).
  */
 export function SiteFinancialsFrame({
   detail,
@@ -576,7 +586,7 @@ export function SiteFinancialsFrame({
             <Breadcrumbs
               trail={[
                 { label: "Sites", to: sitesPath },
-                { label: site.site_id, to: siteDetailHref(site.site_id) },
+                { label: site.display_name, to: siteDetailHref(site.site_id) },
                 view === "overview"
                   ? { label: "Financials" }
                   : { label: "Financials", to: siteFinancialsHref(site.site_id) },
@@ -611,6 +621,7 @@ export function SiteFinancialsFrame({
                     </Link>
                   </li>
                 ))}
+                <UnavailableTab label="Scenarios" />
               </ol>
             </nav>
             {view === "assumptions" ? (
@@ -671,7 +682,7 @@ export function SiteActionFrame({
             <Breadcrumbs
               trail={[
                 { label: "Sites", to: sitesPath },
-                { label: site.site_id, to: siteDetailHref(site.site_id) },
+                { label: site.display_name, to: siteDetailHref(site.site_id) },
                 { label: "Findings", to: siteFindingsHref(site.site_id) },
                 view === "overview" || view === null
                   ? { label: "Action" }
@@ -766,7 +777,7 @@ export function SiteFoundationChangeFrame({
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
               { label: "Change" },
             ]}
@@ -774,6 +785,7 @@ export function SiteFoundationChangeFrame({
           {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           <SiteFoundationChange
             siteId={site.site_id}
             changeId={changeId ?? ""}
@@ -795,7 +807,7 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
               { label: "Changes" },
             ]}
@@ -806,6 +818,7 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
             subtitle={`${site.display_name} · ${site.site_id}`}
           />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           <Panel heading="No list of changes yet" headingId="site-changes-unavailable-heading">
             <p data-change-index="unavailable">
               This site has no list of Foundation changes yet. A change opens by its own address from the Action
@@ -825,8 +838,8 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
  * S6-03 (`sitework:1#a`): Site > Work > Actions. The window lives in the URL
  * (`?from=&to=&limit=&cursor=`), so reload, back and a shared link reopen the
  * same window and page. Without `from` and `to` the page asks for a window and
- * reads nothing. Actions is Work's only list in this build; Incidents and
- * Maintenance have no surface and are not rendered as tabs.
+ * reads nothing. Actions is Work's only list in this build; W1-F5b shows the mock's
+ * Incidents and Maintenance as "Not available yet" text in the row, never links or routes.
  */
 export const SITE_WORK_HEADING_ID = "site-work-heading";
 export const SITE_WORK_SECTIONS_LABEL = "Work lists";
@@ -865,7 +878,7 @@ export function SiteWorkFrame({
           <Breadcrumbs
             trail={[
               { label: "Sites", to: sitesPath },
-              { label: site.site_id, to: siteDetailHref(site.site_id) },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Work" },
             ]}
           />
@@ -878,6 +891,8 @@ export function SiteWorkFrame({
                   Actions
                 </Link>
               </li>
+              <UnavailableTab label="Incidents" />
+              <UnavailableTab label="Maintenance" />
             </ol>
           </nav>
           <SiteWorkActions

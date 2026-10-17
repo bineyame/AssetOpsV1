@@ -100,7 +100,7 @@ export function SiteEvidenceFrame({
       <Breadcrumbs
         trail={[
           { label: "Sites", to: sitesPath },
-          { label: site.site_id, to: siteDetailHref(site.site_id) },
+          { label: site.display_name, to: siteDetailHref(site.site_id) },
           { label: "Evidence" },
         ]}
       />
