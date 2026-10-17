@@ -4604,3 +4604,20 @@ input.v69-chip-control {
 .v69-chips {
   align-items: center;
 }
+
+/* Fix round 1: the verdict in the strip and its reason in the note keep the mock's small sizes. */
+.status-strip--line .badge,
+.status-strip--line .verdict__state .badge {
+  font-size: 10px;
+}
+
+.v69-chart-note .verdict__sentence {
+  font-size: inherit;
+  font-weight: var(--weight-medium);
+}
+
+.status-strip--line .status-strip__select {
+  flex: 0 1 auto;
+  width: 200px;
+  max-width: 100%;
+}
