@@ -65,7 +65,7 @@ Ctrl+C in all three windows, then:
 ## 7. Captured in final run (code `b7d75daf`)
 | Screen | Case | Address (localhost) | 1440 | 390 | App vs mock |
 | --- | --- | --- | --- | --- | --- |
-| sites | stocked | 5460/sites | 17/17 | 19/19 | mock counts (needs attention, evidence limited), assessment/top-issue columns and "In setup" table not built; shown as "Not available yet" |
+| sites | stocked | 5460/sites | 17/17 (both cases) | 19/19 (both cases) | mock counts (needs attention, evidence limited), assessment/top-issue columns and "In setup" table not built; shown as "Not available yet" |
 | sites | empty | 5461/sites | pass | pass | no "How this was worked out" in this state (nothing to reference) |
 | foundation | now, scheduled | 5460/.../foundation[?at=2026-10-22...] | pass | pass | |
 | foundation | before any version | ?at=2026-09-01... | **not run** | **not run** | no card by design; manual look only |
