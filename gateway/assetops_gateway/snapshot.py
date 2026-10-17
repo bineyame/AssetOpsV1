@@ -171,6 +171,36 @@ _BINDING_KEYS = {
     "canonical_unit",
     "conversion",
 }
+#: W2-00 ruling 4: optional v4 mapping metadata on a binding row. A v3 row carries none of them; a v4 row
+#: carries all five. S2 checks their values against the closed channel table.
+_V4_BINDING_KEYS = {
+    "allowed_record_kinds",
+    "allowed_outcomes",
+    "requires_correlation",
+    "requires_session",
+    "allowed_units",
+}
+
+
+def _v4_metadata(raw: dict[str, Any], where: str) -> None:
+    present = _V4_BINDING_KEYS & set(raw)
+    if not present:
+        return
+    if present != _V4_BINDING_KEYS:
+        missing = sorted(_V4_BINDING_KEYS - present)[0]
+        raise SnapshotRefused("MALFORMED_SNAPSHOT", f"{where}.{missing}", "v4 mapping metadata states all five keys")
+    for key in ("allowed_record_kinds", "allowed_units"):
+        value = raw[key]
+        if type(value) is not list or not all(type(v) is str and v for v in value):
+            raise SnapshotRefused("MALFORMED_SNAPSHOT", f"{where}.{key}", "a list of non-empty text is wanted")
+    outcomes = raw["allowed_outcomes"]
+    if not isinstance(outcomes, dict) or not all(
+            type(v) is list and all(type(o) is str and o for o in v) for v in outcomes.values()):
+        raise SnapshotRefused("MALFORMED_SNAPSHOT", f"{where}.allowed_outcomes",
+                              "a record kind to outcome-list object is wanted")
+    for key in ("requires_correlation", "requires_session"):
+        if type(raw[key]) is not bool:
+            raise SnapshotRefused("MALFORMED_SNAPSHOT", f"{where}.{key}", "a boolean is wanted")
 
 
 def verify_snapshot(
@@ -244,7 +274,8 @@ def verify_snapshot(
     seen: set[tuple[str, str]] = set()
     for index, raw in enumerate(top["bindings"]):
         where = f"bindings[{index}]"
-        row = _exact(raw, _BINDING_KEYS, where)
+        row = _exact(raw, _BINDING_KEYS | (_V4_BINDING_KEYS & set(raw) if isinstance(raw, dict) else set()), where)
+        _v4_metadata(row, where)
         if row["gateway_id"] != gateway_id:
             raise SnapshotRefused("INCONSISTENT_SNAPSHOT", f"{where}.gateway_id", "not the snapshot's gateway")
         if row["source_id"] not in source_ids:

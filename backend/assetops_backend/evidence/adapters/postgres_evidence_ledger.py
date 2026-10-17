@@ -31,7 +31,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
-from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
+from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
 
 from assetops_backend.evidence.ledger import (
     RECOMPUTE_DOMAIN,
@@ -59,6 +59,28 @@ from assetops_contracts.ingestion_receipt_v2 import (
     ReceiptDisposition,
     ReceiptRejection,
 )
+from assetops_contracts.source_envelope_v4 import event_identity_sha256
+
+#: W2-00: the only unique violations a savepoint turns into a reread; any other integrity error propagates.
+_COLLISION_INDEXES = frozenset({"accepted_event_identity_unique", "accepted_ev_start_unique"})
+_REREAD_MESSAGE_SQL = (
+    "SELECT id, envelope_sha256 FROM accepted_evidence WHERE site_id = :site AND gateway_id = :g "
+    "AND source_id = :src AND message_id = :m"
+)
+_REREAD_EVENT_SQL = (
+    "SELECT id, envelope_text FROM accepted_evidence WHERE tenant_id = :t AND site_id = :site AND source_id = :src "
+    "AND family = 'EVENT' AND record_kind = :rk AND event_id = :eid"
+)
+_REREAD_SESSION_SQL = (
+    "SELECT id FROM accepted_evidence WHERE tenant_id = :t AND site_id = :site AND asset_id = :asset "
+    "AND session_id = :sess AND family = 'EVENT' AND record_kind = 'EV_SESSION_START'"
+)
+#: Collision precedence (design section 2; rule 8 pins this exact line): message, then event, then session.
+_REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_EVENT_SQL, _REREAD_SESSION_SQL)
+
+
+def _constraint(error: IntegrityError) -> str | None:
+    return getattr(getattr(error.orig, "diag", None), "constraint_name", None)
 
 
 def _instant(value: datetime | None) -> str | None:
@@ -177,6 +199,11 @@ class PostgresEvidenceLedger:
             ).first()
             if row is None:
                 return None
+            # W2-00: the frozen asset codes (immutable since 0005) resolve an EV connector's public identifier.
+            codes = c.execute(
+                text("SELECT id, asset_code FROM asset WHERE tenant_id = :t AND site_id = :site"),
+                {"t": principal.tenant_id, "site": principal.site_id},
+            ).all()
             return StoredBindingSet(
                 binding_set_revision_id=row.id,
                 foundation_revision_id=row.foundation_revision_id,
@@ -184,6 +211,7 @@ class PostgresEvidenceLedger:
                 snapshot_canonical=bytes(row.snapshot_canonical),
                 set_superseded=row.set_superseded,
                 foundation_superseded=row.foundation_superseded,
+                asset_codes={r.id: r.asset_code for r in codes},
             )
 
         return self._run(work)
@@ -420,7 +448,8 @@ class PostgresEvidenceLedger:
                 decision = decide_one(ordinal, envelopes[ordinal])
                 outcome, evidence_id, rejection_id = self._persist(c, row, decision, decided_at)
                 tally[outcome] += 1
-                if outcome == "ACCEPTED":
+                # W2-00 ruling 5: only accepted v3 measurements enqueue the dispatch job; no worker reads v4 yet.
+                if outcome == "ACCEPTED" and not decision.is_v4:  # type: ignore[union-attr]
                     accepted.append(decision)  # type: ignore[arg-type]
                     first_new = first_new or evidence_id
                 c.execute(
@@ -469,48 +498,96 @@ class PostgresEvidenceLedger:
             )
         e = decision.envelope
         new_id = uuid4()
-        inserted = c.execute(
-            text(
-                "INSERT INTO accepted_evidence (id, tenant_id, site_id, batch_id, ordinal, gateway_id, source_id, "
-                "message_id, sequence_epoch, sequence, device_id, signal_id, asset_id, role, family, measurement, "
-                "source_time, published_at, received_at, interval_start, interval_end, quality, unavailable_reason, "
-                "original_value_text, original_unit, normalized_value_text, normalized_unit, conversion_kind, "
-                "envelope_sha256, envelope_text, foundation_revision_id, binding_set_revision_id, "
-                "binding_revision_id, configuration_outdated, source_mode) VALUES (:id, :t, :site, :b, :o, :g, :src, "
-                ":m, :epoch, :seq, :dev, :sig, :asset, :role, :family, :measurement, :st, :pub, :recv, :is, :ie, "
-                ":q, :ur, :ov, :ou, :nv, :nu, :ck, :sha, :body, :f, :bs, :br, :outdated, :mode) "
-                "ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING RETURNING id"
-            ),
-            {
-                "id": new_id, "t": batch.tenant_id, "site": batch.site_id, "b": batch.id, "o": decision.ordinal,
-                "g": batch.gateway_id, "src": batch.source_id, "m": e.message_id, "epoch": e.sequence_epoch,
-                "seq": e.sequence, "dev": e.device_id, "sig": e.signal_id, "asset": decision.binding.asset_id,
-                "role": decision.binding.role, "family": e.family, "measurement": e.measurement,
-                "st": decision.source_time, "pub": decision.published_at, "recv": batch.received_at,
-                "is": decision.interval_start, "ie": decision.interval_end, "q": e.quality,
-                "ur": e.unavailable_reason, "ov": e.value, "ou": e.unit, "nv": decision.normalized_value_text,
-                "nu": decision.normalized_unit, "ck": decision.conversion_kind, "sha": decision.envelope_sha256,
-                "body": decision.envelope_text, "f": batch.foundation_revision_id,
-                "bs": batch.binding_set_revision_id, "br": decision.binding.binding_revision_id,
-                "outdated": decision.configuration_outdated, "mode": batch.source_mode,
-            },
-        ).first()
+        # W2-00 (design section 2): every INSERT keeps the message DO NOTHING target; an event or EV START unique
+        # violation rolls back to this per-ordinal savepoint and is decided by the ordered reread below.
+        savepoint = c.begin_nested()
+        try:
+            inserted = c.execute(
+                text(
+                    "INSERT INTO accepted_evidence (id, tenant_id, site_id, batch_id, ordinal, gateway_id, source_id, "
+                    "message_id, sequence_epoch, sequence, device_id, signal_id, asset_id, role, family, measurement, "
+                    "source_time, published_at, received_at, interval_start, interval_end, quality, unavailable_reason, "
+                    "original_value_text, original_unit, normalized_value_text, normalized_unit, conversion_kind, "
+                    "envelope_sha256, envelope_text, foundation_revision_id, binding_set_revision_id, "
+                    "binding_revision_id, configuration_outdated, source_mode, record_kind, event_id, correlation_id, "
+                    "session_id, connector_id, actor, outcome) VALUES (:id, :t, :site, :b, :o, :g, :src, "
+                    ":m, :epoch, :seq, :dev, :sig, :asset, :role, :family, :measurement, :st, :pub, :recv, :is, :ie, "
+                    ":q, :ur, :ov, :ou, :nv, :nu, :ck, :sha, :body, :f, :bs, :br, :outdated, :mode, :rk, :eid, :cid, "
+                    ":sess, :conn, :actor, :outcome) "
+                    "ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING RETURNING id"
+                ),
+                {
+                    "id": new_id, "t": batch.tenant_id, "site": batch.site_id, "b": batch.id, "o": decision.ordinal,
+                    "g": batch.gateway_id, "src": batch.source_id, "m": e.message_id, "epoch": e.sequence_epoch,
+                    "seq": e.sequence, "dev": e.device_id, "sig": e.signal_id, "asset": decision.binding.asset_id,
+                    "role": decision.binding.role, "family": e.family, "measurement": e.measurement,
+                    "st": decision.source_time, "pub": decision.published_at, "recv": batch.received_at,
+                    "is": decision.interval_start, "ie": decision.interval_end, "q": e.quality,
+                    "ur": e.unavailable_reason, "ov": e.value, "ou": e.unit, "nv": decision.normalized_value_text,
+                    "nu": decision.normalized_unit, "ck": decision.conversion_kind, "sha": decision.envelope_sha256,
+                    "body": decision.envelope_text, "f": batch.foundation_revision_id,
+                    "bs": batch.binding_set_revision_id, "br": decision.binding.binding_revision_id,
+                    "outdated": decision.configuration_outdated, "mode": batch.source_mode,
+                    "rk": getattr(e, "record_kind", None), "eid": getattr(e, "event_id", None),
+                    "cid": getattr(e, "correlation_id", None), "sess": getattr(e, "session_id", None),
+                    "conn": getattr(e, "connector_id", None), "actor": getattr(e, "actor", None),
+                    "outcome": getattr(e, "outcome", None),
+                },
+            ).first()
+            savepoint.commit()
+        except IntegrityError as error:
+            savepoint.rollback()
+            if _constraint(error) not in _COLLISION_INDEXES:
+                raise  # a non-unique or unlisted unique violation is never a typed conflict
+            inserted, violation = None, error
+        else:
+            violation = None
         if inserted is not None:
             return "ACCEPTED", new_id, None
-        first = c.execute(
-            text(
-                "SELECT id, envelope_sha256 FROM accepted_evidence WHERE site_id = :site AND gateway_id = :g "
-                "AND source_id = :src AND message_id = :m"
-            ),
-            {"site": batch.site_id, "g": batch.gateway_id, "src": batch.source_id, "m": e.message_id},
-        ).one()
-        if first.envelope_sha256 == decision.envelope_sha256:
-            return "DUPLICATE", first.id, None
-        return "CONFLICT", None, self._reject(
-            c, batch, decision.ordinal, e.message_id, "MESSAGE_CONFLICT", "message.message_id",
-            "this message ID was first accepted with different envelope bytes; the original is kept",
-            decision.envelope_sha256, first.id,
-        )
+        return self._collision(c, batch, decision, violation)
+
+    def _collision(self, c: Connection, batch, decision: Accepted, violation: IntegrityError | None):
+        """Fixed reread order (design section 2): message key, then event identity, then EV START identity.
+
+        Message wins a double collision; with a free message key, event wins over session. Each conflict
+        references the first accepted row for its winning key. Unique indexes arbitrate; this is no precheck.
+        """
+        e = decision.envelope
+        keys = {"t": batch.tenant_id, "site": batch.site_id, "g": batch.gateway_id, "src": batch.source_id,
+                "m": e.message_id, "rk": getattr(e, "record_kind", None), "eid": getattr(e, "event_id", None),
+                "asset": decision.binding.asset_id, "sess": getattr(e, "session_id", None)}
+        for reread in _REREAD_ORDER:
+            if reread is _REREAD_EVENT_SQL and keys["eid"] is None:
+                continue
+            if reread is _REREAD_SESSION_SQL and (keys["rk"] != "EV_SESSION_START" or keys["sess"] is None):
+                continue
+            first = c.execute(text(reread), keys).first()
+            if first is None:
+                continue
+            if reread is _REREAD_MESSAGE_SQL:
+                if first.envelope_sha256 == decision.envelope_sha256:
+                    return "DUPLICATE", first.id, None
+                return "CONFLICT", None, self._reject(
+                    c, batch, decision.ordinal, e.message_id, "MESSAGE_CONFLICT", "message.message_id",
+                    "this message ID was first accepted with different envelope bytes; the original is kept",
+                    decision.envelope_sha256, first.id,
+                )
+            if reread is _REREAD_EVENT_SQL:
+                if event_identity_sha256(first.envelope_text) == event_identity_sha256(decision.envelope_text):
+                    return "DUPLICATE", first.id, None
+                return "CONFLICT", None, self._reject(
+                    c, batch, decision.ordinal, e.message_id, "EVENT_ID_CONFLICT", "payload.event_id",
+                    "this event ID was first accepted with a different event identity; the original is kept",
+                    decision.envelope_sha256, first.id,
+                )
+            return "CONFLICT", None, self._reject(
+                c, batch, decision.ordinal, e.message_id, "SESSION_ID_CONFLICT", "payload.session_id",
+                "a distinct session start was first accepted for this connector and session; the original is kept",
+                decision.envelope_sha256, first.id,
+            )
+        if violation is not None:
+            raise violation
+        raise LedgerUnavailable("the message key collided and no first accepted row was found")
 
     def _reject(self, c, batch, ordinal, message_id, kind, field, detail, sha, conflicts_with) -> UUID:
         rejection_id = uuid4()
@@ -733,15 +810,18 @@ class PostgresEvidenceLedger:
         }
 
     def records_page(self, tenant_id: UUID, site_id: UUID, *, start, end, device, signal, source,
-                     after: tuple[datetime, UUID] | None, limit: int) -> dict:
+                     after: tuple[datetime, UUID] | None, limit: int, family: str | None = None,
+                     kind: str | None = None) -> dict:
         params = {"t": tenant_id, "site": site_id, "start": start, "end": end, "device": device,
-                  "signal": signal, "source": source, "limit": limit + 1,
+                  "signal": signal, "source": source, "limit": limit + 1, "family": family, "kind": kind,
                   "after_time": None if after is None else after[0], "after_id": None if after is None else after[1]}
         where = (
             "WHERE e.tenant_id = :t AND e.site_id = :site AND " + self._WINDOW + " "
             "AND (CAST(:device AS text) IS NULL OR e.device_id = :device) "
             "AND (CAST(:signal AS text) IS NULL OR e.signal_id = :signal) "
             "AND (CAST(:source AS text) IS NULL OR src.id::text = :source OR src.source_external_id = :source) "
+            "AND (CAST(:family AS text) IS NULL OR e.family = :family) "
+            "AND (CAST(:kind AS text) IS NULL OR e.record_kind = :kind) "
         )
         joins = ("FROM accepted_evidence e JOIN source src ON src.id = e.source_id "
                  "JOIN gateway g ON g.id = e.gateway_id JOIN ingestion_batch b ON b.id = e.batch_id ")
@@ -754,7 +834,8 @@ class PostgresEvidenceLedger:
                     "g.gateway_external_id, e.device_id, e.signal_id, e.role, e.family, e.measurement, e.quality, "
                     "e.unavailable_reason, e.original_value_text, e.original_unit, e.normalized_value_text, "
                     "e.normalized_unit, e.source_time, e.published_at, b.received_at, e.interval_start, "
-                    "e.interval_end, e.configuration_outdated, e.source_mode, b.external_batch_id, e.ordinal "
+                    "e.interval_end, e.configuration_outdated, e.source_mode, b.external_batch_id, e.ordinal, "
+                    "e.record_kind, e.event_id, e.correlation_id, e.session_id, e.connector_id, e.outcome "
                     + joins + where
                     + "AND (CAST(:after_time AS timestamptz) IS NULL OR (e.source_time, e.id) > "
                     "(CAST(:after_time AS timestamptz), CAST(:after_id AS uuid))) "

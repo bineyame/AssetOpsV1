@@ -44,6 +44,9 @@ from uuid import UUID
 from assetops_backend.evidence.legacy_comparison import permits_cutover
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 
+#: W2-00: the three conflict kinds (design section 7). Every other rejection kind counts as rejected.
+CONFLICT_KINDS = frozenset({"MESSAGE_CONFLICT", "EVENT_ID_CONFLICT", "SESSION_ID_CONFLICT"})
+
 CLOCK_STATEMENT = (
     "Source and publication times on simulated reports are run-virtual instants; "
     "received time is the server's real UTC first receipt of the batch. The two "
@@ -159,6 +162,10 @@ def record_payload(row: dict) -> dict:
         "configuration_outdated": row["configuration_outdated"], "source_mode": row["source_mode"],
         "clocks": clocks(row["source_mode"]),
         "receipt": {"batch_id": row["external_batch_id"], "ordinal": row["ordinal"]},
+        # W2-00: the typed event fields; a pre-0020 or measurement row serializes them as null.
+        "record_kind": row.get("record_kind"), "event_id": row.get("event_id"),
+        "correlation_id": row.get("correlation_id"), "session_id": row.get("session_id"),
+        "connector_id": row.get("connector_id"), "outcome": row.get("outcome"),
     }
 
 
@@ -229,8 +236,8 @@ class ImportedEvidenceReads:
         rejections = [_rejection(r) for r in rows["rejections"]]
         everything = start is None and end is None
         placed = [r for r in rejections if everything or _in(_parse(r["source_time"]), start, end)]
-        conflicts = [r for r in placed if r["kind"] == "MESSAGE_CONFLICT"]
-        rejected = [r for r in placed if r["kind"] != "MESSAGE_CONFLICT"]
+        conflicts = [r for r in placed if r["kind"] in CONFLICT_KINDS]
+        rejected = [r for r in placed if r["kind"] not in CONFLICT_KINDS]
         rejected_batches = {r["batch_id"] for r in placed}
         batches = [
             {"batch_id": b["external_batch_id"], "batch_uuid": str(b["id"]), "source_id": str(b["source_id"]),
@@ -307,10 +314,12 @@ class ImportedEvidenceReads:
                        "capability or service-health conclusion."],
         }
 
-    def records(self, scope: ImportedScope, *, start, end, device, signal, source, cursor, limit) -> dict:
+    def records(self, scope: ImportedScope, *, start, end, device, signal, source, cursor, limit,
+                family: str | None = None, kind: str | None = None) -> dict:
         after = None if cursor is None else decode_cursor(cursor)
         page = self._ledger.records_page(scope.tenant_id, scope.site_id, start=start, end=end, device=device,
-                                         signal=signal, source=source, after=after, limit=limit)
+                                         signal=signal, source=source, after=after, limit=limit,
+                                         family=family, kind=kind)
         rows = page["rows"]
         more = len(rows) > limit
         rows = rows[:limit]
@@ -373,7 +382,7 @@ class ImportedEvidenceReads:
             "store": "POSTGRES", "site_id": scope.site_code, "total": len(rejections),
             "rejections": rejections,
             "rejected_without_source_time": sum(1 for r in rejections if r["source_time"] is None),
-            "conflicts": [r for r in rejections if r["kind"] == "MESSAGE_CONFLICT"],
+            "conflicts": [r for r in rejections if r["kind"] in CONFLICT_KINDS],
             "duplicates": [
                 {"batch_id": d["external_batch_id"], "ordinal": d["ordinal"], "message_id": d["message_id"],
                  "first_accepted_evidence_id": str(d["accepted_evidence_id"]),
