@@ -45,7 +45,7 @@ Task: `tasks/W2-01-cold-foundation.md` (two phases). Branch `task/W2-01-cold-fou
 
 ## Known deviations
 
-1. Phase 1 (from the handoff): extra response fields `bindings[].cadence_seconds` + `publication_mode`, `contact.limitations`; `contact.state=null` (limitation "Gateway contact is not available") when no health store is configured; topology node/edge and message object shapes chosen (design unspecified); invented copy `ROLE_UNBOUND` "Bind the <role label>" and `ROOM_MISSING` "Declare a cold room"; event outcome allowlists taken from the shared v4 kind-to-outcome table; no v4 metadata persisted on cold binding rows (W2-02 must derive/persist); COLDCHAIN edge media/endpoint pairs restricted to the design's pairs; `configuration_gaps` still `SITE_TYPE_UNSUPPORTED` for COLDCHAIN, so the gateway acquisition snapshot download refuses cold Sites (W2-02); contact uses current gateway facts, not as of `at`; added `FoundationService.publish_topology` (tests/fixtures only).
+1. Phase 1 (from the handoff): extra response fields `bindings[].cadence_seconds` + `publication_mode`, `contact.limitations`; `contact.state=null` when no health store is configured (superseded in round 2: now `NEVER`, see below); topology node/edge and message object shapes chosen (design unspecified); invented copy `ROLE_UNBOUND` "Bind the <role label>" and `ROOM_MISSING` "Declare a cold room"; event outcome allowlists taken from the shared v4 kind-to-outcome table; no v4 metadata persisted on cold binding rows (W2-02 must derive/persist); COLDCHAIN edge media/endpoint pairs restricted to the design's pairs; `configuration_gaps` still `SITE_TYPE_UNSUPPORTED` for COLDCHAIN, so the gateway acquisition snapshot download refuses cold Sites (W2-02); contact uses current gateway facts, not as of `at`; added `FoundationService.publish_topology` (tests/fixtures only).
 2. Gateway title identity: the store has no gateway display name, so `cold-readiness:2` uses `gateway_external_id` from `/gateway-health` (fallback "No gateway selected"); this is a current read, not as of `at`.
 3. `cold-sld:1` is the Site name alone: the Foundation declares no topology type.
 4. Site name comes from the current Site record, not the selected revision (no name field in the cold read).
@@ -74,7 +74,7 @@ Commits `79b07ec6`, `b3885275`, `e52d035e`. Frontend only. No backend, registry 
 | M2 parts table and 390 density | The per-row "(configured) · Function description not recorded" is removed. `FUNCTION_UNKNOWN` is said once, in the footnote, and the test asserts exactly once. Readiness: the Declared detail sits under the chip as one short line, and a required gap already explained under "What is needed" is not repeated. At 640 px or narrower, cells are compact, the Area column gets a minimum width, the Confirmed and Next step cells do not wrap, and source chips are smaller. Repeated "not a live view" / "reporting unknown" sentences were dropped from the SLD panel; the page footnote keeps them. |
 | Low 3 contradiction | "Manual temperature log" has its own row ("Needs a source" / "Optional"). A Configured row with an unconfigured optional reading says "X (optional) not configured", never "No source". The test asserts no Configured row contains "No source". |
 | Low 5 availability timeline | An empty grey track sits under the gateway cards, labelled "No history to draw", with the mock's legend (Online / Short outage or missing readings / Offline 1 h or more) plus "No history". See deviation 9. |
-| Low 4 contact `state:null` | Not changed; it goes to the Architect (W2-02 batch). |
+| Low 4 contact `state:null` | Fixed in round 2 under `D-2026-10-17-f5-subtabs-and-contact` (see Round 2). |
 
 Deviation 9: the brief asked for "not available yet" on the timeline. That phrase must render through a catalogued `MissingClaim` placement, and `test_mock_gaps.cjs` (Architect C5) fixes `G-readiness-gateway-uptime` at exactly one placement. Adding a cold placement is a registry change for the Architect, so the track states the plain fact "No history to draw". My first attempt added the placement; the mock-gap fixture failed it, and I withdrew it rather than edit the test.
 
@@ -106,3 +106,23 @@ Pre-review self-check:
 - The mock's table columns, monitoring strip, legend and timeline are all present.
 - The undeclared-parts and function limits stay visible.
 - Readiness rows at 390 are about 2 lines.
+
+## Full backend suite (coordinator)
+
+At `a4e4cb10`: 2651 tests, 2649 passed, 2 failed, 0 skipped; 62 min wall under heavy machine load. Failures: `test_s6_action_apply_postgres::TestClockBehindIsStale` and `test_t027_ingestion::TestRebuildIsolated`; both passed rerun alone (2 passed, 41 s) and are logged as load flakes in `.ai/MILESTONE_REVIEW_BACKLOG.md`. Round 2 changes one backend read path (contact null closure) after that run; it is covered by the focused run below, not by a new full suite.
+
+## Round 2 (merge of main, contact ruling)
+
+Commits: `81f62703` (merge), `9e892d7a` (contact).
+
+- Merge of `main` (W1-F2 shared UI, W1-UX-07 rail). Two conflicts, both resolved keeping both sides: `frontend/src/test/v69PanelTitles.ts` (F2's `evidence-analysis:2` title rule plus the two W2-01 cold rules; header now "the six W1 rules and the two W2-01 cold rules") and `frontend/src/ui/V69Layout.tsx` `SITE_SCREEN_DESCRIPTIONS` (F2's mini/dispatch/analysis/evidence/evidence-analysis entries first, then the three cold entries). `tsc --noEmit` clean.
+- Contact null closure (`D-2026-10-17-f5-subtabs-and-contact`, `.agent/W2-technical-design-cold.md` W2-01 contact null closure; review Low 4). `contact.state` is never null in a successful read. `cold_foundation_api.py` maps: no health store -> `NEVER`, `as_of:null`, limitation "No gateway health read is configured"; selected gateway with no matching diagnostic -> `NEVER`, `as_of:null`, "No diagnostic is recorded for the selected gateway"; no selected gateway -> "No gateway is selected for this site" / none registered -> "No gateway is registered for this site". A health-read error stays the 503 `GATEWAY_ACCESS_UNAVAILABLE` refusal. UI (`ColdFoundationViews.tsx` `neverContact`): "No contact recorded" (no health read), "No contact received yet" (selected gateway, no diagnostic), "No gateway selected" / "No gateway registered" (never names a gateway as uncontacted). "Never contacted" is no longer shown; COLD-002 with no gateway now reads "No gateway selected", matching its panel title.
+- Tests: backend `test_contact_states_and_unavailable_store` asserts both null cases (enum, null `as_of`, limitation; unmatched via a health store whose only diagnostic belongs to another gateway); `test_w201_cold_vocabulary` asserts `contact_document(None[, absent])`. Frontend `coldFoundation.test.tsx`: two new cases (missing store, unmatched) assert wording and absence of recent/stale/last-contact/never-contacted; the COLD-002 readiness case asserts "No gateway selected" and no "Never contacted".
+- Deviation: the no-gateway-selected/registered limitations are exercised only through the existing COLD-002 UI case (empty health list), not by a backend API case; no cold fixture lacks a gateway registration.
+
+Checks (round 2, at `9e892d7a`):
+- Focused backend, serial, `.venv`, private DB `w201r2_test` on 127.0.0.1:55432 (created, then dropped): `pytest backend/tests/test_w201*.py` 44 passed, 29 s.
+- `vitest run src/sites/__tests__/coldFoundation.test.tsx` 23 passed. Full `npm.cmd test`: 77 files, 2010 passed (no flakes needed rerun; includes `panelStructure.test.ts`).
+- `tools/check-all.ps1 -Python <plan2 .venv>`: all 10 guards passed.
+- No full backend suite in round 2.
+
