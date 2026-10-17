@@ -563,7 +563,7 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
   const start = evidence.window.basis === "ALL" ? null : evidence.window.start;
   const end = evidence.window.basis === "ALL" ? null : evidence.window.end;
   return (
-    <div data-evidence-reporting>
+    <div data-evidence-reporting-facts>
       <KeyValues
         label="Which sources reported, and when: three separate facts"
         rows={facts.map((f) => [

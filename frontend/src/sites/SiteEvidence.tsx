@@ -23,7 +23,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { DataTable, Fact, FactList, Panel, StatusBar } from "../ui";
 import { Part } from "./panelPart";
-import { CapabilityReadinessAnalysis, CapabilityReadinessTable } from "./CapabilityReadiness";
+import { CapabilityReadinessAnalysis, CapabilityReadinessTable, capabilityTableShown } from "./CapabilityReadiness";
 import { INPUT_WORDS } from "./assessmentAnalysis";
 import { CoverageByInput } from "./assessmentGraphics";
 import { LocalViews, OUTCOME_WORDS, localView, readablePeriod, readableTime } from "./findingPresentation";
@@ -235,8 +235,14 @@ export function SiteEvidence({
       <StatusBar>{windowLine}</StatusBar>
       {view === "overview" ? (
         <>
-          <Panel heading="What we can conclude now" headingId="site-evidence-conclude-heading" description="Evidence readiness is not equipment condition">
-            <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
+          <Panel heading="What we can conclude now" headingId="site-evidence-conclude-heading">
+            {capabilityTableShown(loaded.declaration, profile) ? (
+              <CapabilityReadinessTable declaration={loaded.declaration} profile={profile} />
+            ) : (
+              <p data-evidence-conclusion="none">
+                No conclusion yet: this site has no declared assessment over its records.
+              </p>
+            )}
           </Panel>
           <div className="panel-pair">
             <Panel heading="Data sources · data quality, not equipment condition" headingId="site-evidence-sources-panel-heading">

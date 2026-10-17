@@ -80,6 +80,14 @@ function assessedText(readiness: CapabilityReadiness): string {
   return `${readiness.assessed_intervals} assessed period${readiness.assessed_intervals === 1 ? "" : "s"}.`;
 }
 
+/** W1-F2: whether the capability table has anything to show (otherwise its owning panel states the gap). */
+export function capabilityTableShown(
+  declaration: EvidenceRead<SiteAnalytics> | null,
+  profile: DomainPresentationProfile | null,
+): boolean {
+  return served(declaration, profile) !== null;
+}
+
 export function CapabilityReadinessTable({
   declaration,
   profile,
