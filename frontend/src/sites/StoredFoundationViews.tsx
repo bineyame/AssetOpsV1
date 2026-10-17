@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, MissingClaim, PageHeader, Panel, type Crumb } from "../ui";
 import {
   AcquisitionDetailsPanel,
+  knownReadiness,
   ReadinessVerdict,
   RoleCoveragePanel,
   SignalBindingsPanel,
@@ -221,7 +222,11 @@ interface ViewProps extends StoredFoundationViewsProps {
   configuration: SiteConfigurationView;
 }
 
-function strip(props: StoredFoundationViewsProps, action: ReactNode) {
+function strip(
+  props: StoredFoundationViewsProps,
+  action: ReactNode,
+  extraReferences?: { label: string; value: string | null }[],
+) {
   return (
     <FoundationPeriodStrip
       foundation={props.foundation}
@@ -229,6 +234,7 @@ function strip(props: StoredFoundationViewsProps, action: ReactNode) {
       selectedAt={props.selectedAt}
       onSelectAt={props.onSelectAt}
       action={action}
+      extraReferences={extraReferences}
     />
   );
 }
@@ -889,8 +895,15 @@ function ReadinessNextSteps({ foundation }: { foundation: FoundationReadModel })
   return (
     <div className="subsection" data-readiness-next="">
       <h3 className="subsection__heading">What to do next</h3>
-      {steps.length === 0 ? (
+      {!knownReadiness(foundation.readiness.state) ? (
+        // Fail closed: an unrecognised set-up state never yields "nothing is missing".
+        <p data-readiness-next-unrecognised="">
+          The set-up state in this read is not recognised, so what is missing cannot be listed here.
+        </p>
+      ) : steps.length === 0 && foundation.readiness.state === "READY_TO_REPORT" ? (
         <p>Record a commissioning confirmation when one exists; nothing else is missing from the set-up.</p>
+      ) : steps.length === 0 ? (
+        <p>No missing item is listed in this read; the set-up state above still applies.</p>
       ) : (
         <ul data-readiness-next-steps="">
           {steps.map((step) => (
@@ -920,7 +933,10 @@ function ReadinessView(props: ViewProps) {
       : configuration.components.find((c) => c.componentId === props.selectedComponent);
   return (
     <>
-      {strip(props, <Link to={viewHref("sld")}>Single line diagram →</Link>)}
+      {strip(props, <Link to={viewHref("sld")}>Single line diagram →</Link>, [
+        { label: "Set-up state (exact)", value: foundation.readiness.state },
+        { label: "Required readings list", value: foundation.readiness.role_set },
+      ])}
       {selected === undefined ? null : (
         <p className="part-chip" data-selected-part-chip={selected.componentId}>
           Selected part: <strong>{selected.displayName}</strong> · details beside the part in{" "}

@@ -4,9 +4,6 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
 import { FOUNDATION_SUBTABS, FoundationSubtabs, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
 import { FoundationPanelSkeletons, StoredFoundationViews } from "../sites/StoredFoundationViews";
-
-const segmentFor = (target: FoundationView) =>
-  FOUNDATION_SUBTABS.find((subtab) => subtab.view === target)?.segment ?? "";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
@@ -24,6 +21,9 @@ import {
   siteFoundationViewHref,
   sitePerformanceHref,
 } from "./operatorSiteRoutes";
+
+const segmentFor = (target: FoundationView) =>
+  FOUNDATION_SUBTABS.find((subtab) => subtab.view === target)?.segment ?? "";
 
 export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
@@ -257,7 +257,7 @@ export function SiteFoundationFrame({
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
         <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
         {tabs}
-        <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)} />
+        {/* No view row: a site that is not imported has no Readiness or SLD view to switch to. */}
         <div className="page-refusal" role="status" data-page-refusal="not-imported">
           <p className="page-refusal__title">
             <strong>This view needs an imported Site</strong>

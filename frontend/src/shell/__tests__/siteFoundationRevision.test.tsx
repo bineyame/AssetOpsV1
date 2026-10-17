@@ -25,6 +25,7 @@ import { createSiteEvidenceClient } from "../../sites/siteEvidenceClient";
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { UI_GAP_CATALOGUE } from "../../ui";
 
@@ -501,7 +502,8 @@ describe("the persisted Foundation version", () => {
   it("states an empty period instead of showing current data", async () => {
     renderAt(`/sites/${ID}/foundation?at=2020-01-01T00:00:00Z`, fakeFoundation(byAt));
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "No stored version for this period" })).toBeInTheDocument();
+    // W1-F1: the page-level refusal is a status line before the v69 panel slots, not an h2 panel.
+    expect(refusal("no-version")).toContain("No stored version for this period");
     expect(screen.queryByRole("region", { name: "Definition" })).toBeNull();
   });
 
@@ -533,6 +535,13 @@ describe("legacy surfaces of an imported Site", () => {
     expect(screen.getByRole("heading", { name: "Awaiting evidence migration" })).toBeInTheDocument();
   });
 });
+
+/** W1-F1: the text of the page-level refusal of `kind`, which must be present. */
+function refusal(kind: "no-version" | "unavailable" | "not-imported"): string {
+  const node = document.querySelector(`[data-page-refusal="${kind}"]`);
+  expect(node, `page refusal ${kind}`).not.toBeNull();
+  return node?.textContent ?? "";
+}
 
 /** The Panel section under a heading (its table is a region of the same name). */
 function panel(name: string): HTMLElement {
@@ -857,7 +866,7 @@ describe("S1-03: three Foundation views at one selected period", () => {
     for (const path of [`/sites/${ID}/foundation/readiness`, `/sites/${ID}/foundation/sld`]) {
       const view = renderAt(path, legacy);
       await settledScreen();
-      expect(screen.getByRole("heading", { name: "This view needs an imported Site" })).toBeInTheDocument();
+      expect(refusal("not-imported")).toContain("This view needs an imported Site");
       expect(screen.queryByRole("navigation", { name: "Foundation views" })).toBeNull();
       expect(screen.queryByText(/Ready to report|Set up to report/)).toBeNull();
       view.unmount();
@@ -880,8 +889,9 @@ describe("S1-03: an unreadable store is not reported as a Site without records",
       for (const path of [`/sites/${ID}/foundation/readiness`, `/sites/${ID}/foundation/sld`]) {
         const view = renderAt(path, client);
         await settledScreen();
-        expect(screen.getByRole("heading", { name: "Stored versions unavailable" })).toBeInTheDocument();
-        expect(screen.queryByRole("heading", { name: "This view needs an imported Site" })).toBeNull();
+        expect(refusal("unavailable")).toContain("Stored versions unavailable");
+        expect(document.querySelector('[data-page-refusal="not-imported"]')).toBeNull();
+        expect(screen.queryByText("This view needs an imported Site")).toBeNull();
         expect(screen.queryByText(/has no stored Foundation version/)).toBeNull();
         view.unmount();
       }
@@ -992,40 +1002,42 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     expect(positions, `order in ${JSON.stringify(actual)}`).toEqual([...positions].sort((a, b) => a - b));
   }
 
+  // W1-F1 (D-2026-10-17-mockup-layout-spec): each view renders exactly its v69 panels in order;
+  // the version strip leads without a panel heading, and the former extra panels live inside
+  // their owning v69 panel (Advanced disclosures included).
+  const strip = () => screen.getByRole("region", { name: "Foundation version" });
+  const follows = (a: Element, b: Element) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+  const disclosure = (name: string) => document.querySelector(`details[data-disclosure="${name}"]`) as HTMLElement;
+
   it("Site model: strip, then topology beside identity, then the controls holding the reserve edit", async () => {
-    const order = await orderAt("");
-    expectInOrder(order, [
-      "Foundation version",
-      "Configured topology",
-      "Identity & operating obligations",
-      "Time-valid control configuration",
-      "Advanced details — Foundation records",
-    ]);
-    expect(order[0]).toBe("Foundation version");
-    const controls = screen.getByRole("heading", { name: "Time-valid control configuration" }).closest("section");
-    expect(controls?.querySelector("form")).not.toBeNull();
+    await orderAt("");
+    expectV69Panels("foundation");
+    expect(follows(strip(), screen.getByRole("heading", { name: "Configured topology" }))).toBe(true);
+    const controls = panelTitled("Time-valid control configuration");
+    expect(controls.querySelector("form")).not.toBeNull();
+    expect(controls.contains(disclosure("foundation-advanced"))).toBe(true);
+    expect(sectionOrder()).toContain("Advanced details — Foundation records");
   });
 
   it("Readiness: verdict, then coverage, then bindings, with acquisition details last", async () => {
-    const order = await orderAt("/readiness");
-    expectInOrder(order, [
-      "Foundation version",
-      "Configuration readiness",
-      "Role coverage",
-      "Reading-channel links",
-      "Acquisition details",
-    ]);
-    expect(order[order.length - 1]).toBe("Acquisition details");
+    await orderAt("/readiness");
+    expectV69Panels("readiness", { gateway: "edge-kobo-001" });
+    expect(follows(strip(), screen.getByRole("heading", { name: "Readiness and commissioning evidence" }))).toBe(true);
+    const evidence = panelTitled("Readiness and commissioning evidence");
+    const verdict = within(evidence).getByRole("heading", { name: "Configuration readiness", level: 3 });
+    const advanced = disclosure("readiness-advanced");
+    expect(evidence.contains(advanced)).toBe(true);
+    expect(follows(verdict, advanced)).toBe(true);
+    const inside = Array.from(advanced.querySelectorAll("h2")).map((h) => (h.textContent ?? "").trim());
+    expectInOrder(inside, ["Role coverage", "Reading-channel links", "Acquisition details"]);
+    expect(inside[inside.length - 1]).toBe("Acquisition details");
   });
 
   it("Single line diagram: diagram, then its parts, then the detail disclosure", async () => {
-    const order = await orderAt("/sld");
-    expectInOrder(order, [
-      "Foundation version",
-      "Kalangala Mini-Grid · configured single line diagram",
-      "What each configured part is",
-      "Advanced details — diagram records",
-    ]);
+    await orderAt("/sld");
+    expectV69Panels("sld", { site: "Kalangala Mini-Grid", topology: "Mini-grid" });
+    expect(follows(strip(), screen.getByRole("heading", { name: "Kalangala Mini-Grid · Mini-grid" }))).toBe(true);
+    expect(panelTitled("What each part does").contains(disclosure("sld-advanced"))).toBe(true);
   });
 
   it("Single line diagram: separates bound channels describing a part from unbound channels on its devices", async () => {
@@ -1035,7 +1047,8 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     };
     renderAt(`/sites/${ID}/foundation/sld`, fakeFoundation(mixed));
     await settledScreen();
-    const parts = panel("What each configured part is");
+    // W1-F1: the parts panel also holds the Advanced disclosure; these are its own table's columns.
+    const parts = panel("What each part does").querySelector("table") as HTMLElement;
     expect(within(parts).getByRole("columnheader", { name: "Channels" })).toBeInTheDocument();
     expect(within(parts).queryByRole("columnheader", { name: "Bound channels" })).toBeNull();
     // V-01a round 3: the plain table counts channels; the full split is under Advanced details.
@@ -1366,7 +1379,9 @@ function withGaps(...gaps: FoundationGap[]) {
   });
 }
 
-const regionNamed = (name: string) => screen.getByRole("heading", { name }).closest("section") as HTMLElement;
+/** W1-F1: the readiness gateway panel is titled "Gateway status · {gateway}" (approved title map, readiness:2). */
+const GATEWAY_HEADING = /^Gateway status · /;
+const regionNamed = (name: string | RegExp) => screen.getByRole("heading", { name }).closest("section") as HTMLElement;
 
 describe("V-01a round 3: Readiness leads with four configuration cards", () => {
   const cardState = (key: string) =>
@@ -1388,10 +1403,12 @@ describe("V-01a round 3: Readiness leads with four configuration cards", () => {
       expect(card.textContent).not.toMatch(/commissioned|healthy|online|reporting|(?<!not )field-verified/i);
     }
     expect(cards[2].textContent).toContain("declared, not field-verified");
-    // The cards come before the commissioning table and gateway panel.
-    const order = Array.from(screen.getByRole("main").querySelectorAll("h2")).map((h) => h.textContent);
-    expect(order.indexOf("Configuration readiness")).toBeLessThan(order.indexOf("Readiness and commissioning evidence"));
-    expect(order.indexOf("Readiness and commissioning evidence")).toBeLessThan(order.indexOf("Gateway status"));
+    // W1-F1: the cards are the v69 metric row, ahead of panel 1 (evidence) and panel 2 (gateway).
+    const follows = (a: Element, b: Element) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    const evidence = screen.getByRole("heading", { name: "Readiness and commissioning evidence" });
+    const gatewayHeading = screen.getByRole("heading", { name: GATEWAY_HEADING });
+    expect(follows(document.querySelector("[data-readiness-cards]") as Element, evidence)).toBe(true);
+    expect(follows(evidence, gatewayHeading)).toBe(true);
   });
 
   it("turns only the category with a typed gap amber, by gap code", async () => {
@@ -1434,7 +1451,8 @@ describe("V-01a round 3: the Readiness and commissioning evidence table", () => 
   it("has the mock's columns with Next step, one row per area, and Not recorded confirmation throughout", async () => {
     renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), healthOf(gatewayEntry()));
     await settledScreen();
-    const table = regionNamed("Readiness and commissioning evidence");
+    // W1-F1: panel 1 also holds the verdict and the Advanced disclosure; the columns are its own table's.
+    const table = regionNamed("Readiness and commissioning evidence").querySelector("table") as HTMLElement;
     expect(within(table).getAllByRole("columnheader").map((h) => h.textContent)).toEqual([
       "Area",
       "Declared",
@@ -1496,7 +1514,10 @@ describe("V-01a round 3: the Readiness and commissioning evidence table", () => 
     expect(advanced.textContent).toContain("b-battery-soc");
     expect(advanced.querySelector('form[aria-label="Remove a channel link"]')).not.toBeNull();
     // The plain layer names no binding ID.
-    const plain = regionNamed("Readiness and commissioning evidence");
+    // W1-F1: the disclosure now sits inside panel 1, so the plain layer is that panel without it.
+    const plain = regionNamed("Readiness and commissioning evidence").cloneNode(true) as HTMLElement;
+    plain.querySelector('details[data-disclosure="readiness-advanced"]')?.remove();
+    expect(plain.textContent).toContain("Area");
     expect(plain.textContent).not.toContain("b-battery-soc");
     fireEvent.click(screen.getByRole("button", { name: "Review or change channel links" }));
     expect(advanced.open).toBe(true);
@@ -1505,7 +1526,7 @@ describe("V-01a round 3: the Readiness and commissioning evidence table", () => 
 });
 
 describe("V-01a round 3: the bounded gateway status panel", () => {
-  const gateway = () => regionNamed("Gateway status");
+  const gateway = () => regionNamed(GATEWAY_HEADING);
   // G-02 (Architect C5): the former combined line is three catalogued claims, one element each.
   const NOT_YET = [
     "Uptime trend not available yet: no reviewed source reports a gateway's uptime over time.",
@@ -1539,7 +1560,7 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
 
   it("says Loading while the read is in flight", async () => {
     renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), "pending");
-    await screen.findByRole("heading", { name: "Gateway status" });
+    await screen.findByRole("heading", { name: GATEWAY_HEADING });
     expect(gateway().textContent).toContain("Loading the site's gateway contact.");
   });
 
@@ -1553,7 +1574,11 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
     expect(panel.textContent).toContain("Device connection not established here.");
     for (const line of NOT_YET) expect(panel.textContent).toContain(line);
     expect(panel.querySelector(".badge")).toBeNull();
-    expect(panel.textContent).not.toMatch(/\bCurrent\b|Online|Connected/);
+    // W1-F1: "Connected sources" is the mandated v69 title of the nested panel (readiness:3), not a
+    // contact claim; every other word of the panel is still scanned for one.
+    const words = panel.cloneNode(true) as HTMLElement;
+    words.querySelector("#readiness-connected-sources-heading")?.remove();
+    expect(words.textContent).not.toMatch(/\bCurrent\b|Online|Connected/);
   });
 
   it("says no gateway is registered when the read lists none", async () => {
@@ -1620,7 +1645,7 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
 });
 
 describe("G-01: the catalogued gateway firmware missing state", () => {
-  const gateway = () => regionNamed("Gateway status");
+  const gateway = () => regionNamed(GATEWAY_HEADING);
   const FIRMWARE = "Firmware not available yet: no reviewed source reports what firmware a gateway has installed.";
   const READINESS = `/sites/${ID}/foundation/readiness`;
   // Distinct gap IDs on the page: a per-row placement (commissioning) renders once per row.
@@ -1657,7 +1682,7 @@ describe("G-01: the catalogued gateway firmware missing state", () => {
 
   it("keeps firmware explicitly missing while the contact read is loading (C6)", async () => {
     renderWithGateway(READINESS, fakeFoundation(READY), "pending");
-    await screen.findByRole("heading", { name: "Gateway status" });
+    await screen.findByRole("heading", { name: GATEWAY_HEADING });
     const panel = gateway();
     expect(panel.textContent).toContain("Loading the site's gateway contact.");
     expectFirmwareMissing(panel);
@@ -1701,7 +1726,7 @@ describe("V-01a round 3: Site model obligations, policy positions and Advanced r
   it("names the first critical load, the configured loads and the missing productive-use designation", async () => {
     renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(READY), healthOf(gatewayEntry()));
     await settledScreen();
-    const identity = regionNamed("Identity & operating obligations");
+    const identity = regionNamed("Identity and operating obligations");
     expect(identity.querySelector("[data-critical-load]")?.textContent).toContain("First in critical service order: load-clinic");
     expect(identity.querySelector("[data-configured-loads]")?.textContent).toBe("Distribution load");
     expect(identity.querySelector("[data-productive-use]")?.textContent).toBe("Not declared");
@@ -1724,7 +1749,7 @@ describe("V-01a round 3: Site model obligations, policy positions and Advanced r
     };
     renderWithGateway(`/sites/${ID}/foundation`, fakeFoundation(none), healthOf(gatewayEntry()));
     await settledScreen();
-    expect(regionNamed("Identity & operating obligations").querySelector("[data-critical-load]")?.textContent).toBe(
+    expect(regionNamed("Identity and operating obligations").querySelector("[data-critical-load]")?.textContent).toBe(
       "Critical service order not configured",
     );
   });
@@ -1878,8 +1903,8 @@ describe("G-02: V-01a pilot missing-state placements", () => {
       const view = renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), health);
       // A held contact read keeps its loading line, so only the Foundation read is awaited there.
       if (health !== "pending") await settledScreen();
-      await screen.findByRole("heading", { name: "Gateway status" });
-      if (health === "pending") expect(regionNamed("Gateway status").textContent).toContain("Loading the site's gateway contact.");
+      await screen.findByRole("heading", { name: GATEWAY_HEADING });
+      if (health === "pending") expect(regionNamed(GATEWAY_HEADING).textContent).toContain("Loading the site's gateway contact.");
       expect(pairsOnPage()).toEqual(sorted(COMMISSIONING, GATEWAY_FIELDS, [ARRIVAL], branchPairs));
       expectExactClaims();
       // One rendered element per gateway field; per-row commissioning repeats once per table row.
@@ -1903,7 +1928,7 @@ describe("G-02: V-01a pilot missing-state placements", () => {
     ]) {
       const view = renderWithGateway(path, fakeFoundation(byAt), healthOf(gatewayEntry()));
       await settledScreen();
-      await screen.findByRole("heading", { name: "Gateway status" });
+      await screen.findByRole("heading", { name: GATEWAY_HEADING });
       expectExactClaims();
       pairs.push(pairsOnPage());
       view.unmount();
@@ -1929,7 +1954,7 @@ describe("G-02: V-01a pilot missing-state placements", () => {
     ]) {
       const view = renderWithGateway(path, fakeFoundation(byAt), healthOf(gatewayEntry()));
       await settledScreen();
-      await screen.findByRole("heading", { name: "Identity & operating obligations" });
+      await screen.findByRole("heading", { name: "Identity and operating obligations" });
       expect(pairsOnPage()).toEqual(expected);
       expectExactClaims();
       view.unmount();
@@ -2012,14 +2037,15 @@ describe("W1-UX-05: the Foundation views use the W1 vocabulary set", () => {
         const rendered = renderAt(path, fakeFoundation(read));
         await settledScreen();
         const main = expectW1(page);
-        const card = main.querySelector("[data-headline-card]") as HTMLElement;
-        expect(card).not.toBeNull();
-        const disclosure = scanDisclosureVocabulary(card, page);
+        // W1-F1: the answer card is gone; its exact references are the strip's disclosure.
+        expect(main.querySelector("[data-headline-card]")).toBeNull();
+        const strip = screen.getByRole("region", { name: "Foundation version" });
+        const disclosure = scanDisclosureVocabulary(strip, page);
         expect(disclosure.disclosures).toBe(1);
         expect(disclosure.scanned).toBeGreaterThan(2);
         expect(describeViolations(disclosure.violations)).toBe("");
         const details = [...main.querySelectorAll("details")];
-        expect(details.length).toBeGreaterThan(0);
+        expect(details.length).toBeGreaterThan(1);
         for (const d of details) d.open = true;
         expectW1(`${page}, every disclosure open`);
         rendered.unmount();
@@ -2028,128 +2054,112 @@ describe("W1-UX-05: the Foundation views use the W1 vocabulary set", () => {
   }
 });
 
-describe("W1-UX-05: the Foundation answer cards answer only to the strength of the selected read", () => {
-  const card = (name: string) => document.querySelector(`[data-headline-card="${name}"]`) as HTMLElement;
+/**
+ * W1-F1 (D-2026-10-17-mockup-layout-spec) removed the W1-UX-05 answer cards. Their
+ * supported answer, state, scope, as-of and next steps now live in the v69 panels:
+ * the version strip (state, period, as-of, gaps, exact references), the Readiness
+ * panel's verdict and "What to do next", and the SLD panel's device summary. These
+ * tests keep every honesty guarantee the card tests made, in those new homes.
+ */
+describe("W1-UX-05: the former Foundation answer-card facts answer only to the strength of the selected read", () => {
   const loaded = (value: FoundationReadModel) => fakeFoundation(() => ({ status: "loaded", value }));
-  const steps = (el: HTMLElement) =>
-    Object.fromEntries(
-      Array.from(el.querySelectorAll("[data-step]")).map((s) => [
-        s.querySelector(".step-strip__label")?.textContent,
-        s.getAttribute("data-step"),
-      ]),
-    );
+  const strip = () => screen.getByRole("region", { name: "Foundation version" });
+  const references = () => strip().querySelector("details[data-exact-references]") as HTMLDetailsElement;
+  const verdict = () => document.querySelector("[data-readiness-state]") as HTMLElement;
+  const next = () => document.querySelector("[data-readiness-next]") as HTMLElement;
+  const row = (key: string) => document.querySelector(`[data-readiness-row="${key}"]`) as HTMLElement;
 
-  it("Site model: the selected effective version, equipment by kind and settings, with the selected time in scope", async () => {
+  it("Site model: the selected effective version and settings, with the selected time in scope", async () => {
     renderAt(`/sites/${ID}/foundation`, loaded(foundation(PAST)));
     await settledScreen();
-    const answer = card("foundation-model");
-    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("What is configured for this period?");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toMatch(
-      /^\d+ pieces of equipment and 4 of 5 operating settings are recorded$/,
-    );
-    expect(expectStateLineVisible(answer)).toBe("Configuration in effect now");
-    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
-    expect(answer.querySelector("[data-product-status-scope]")?.textContent).toContain(
-      "Foundation version 2, selected time 29 Sep 2026, 11:57 UTC",
-    );
-    expect(steps(answer)["Generator start and stop"]).toBe("waiting");
-    expect(answer.querySelectorAll('[data-value-bar="not-known"]')).toHaveLength(0);
-    const references = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
-    expect(references.textContent).toContain("rev-2");
-    expect(references.textContent).toContain("2026-09-29T11:57:49Z");
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    expect(strip().textContent).toContain("This is the configuration in effect now.");
+    expect(strip().textContent).toContain("Foundation v2");
+    expect(strip().querySelector("[data-strip-as-of]")?.textContent).toMatch(/^As of \d{4}-\d\d-\d\d \d\d:\d\d UTC$/);
+    expect(strip().querySelector("[data-strip-gaps]")?.textContent).toBe("No configuration gap");
+    expect(document.querySelector('[data-product-status="positive"]')).toBeNull();
+    // The unrecorded setting is named inside the controls panel, never shown as recorded.
+    const generator = within(panelTitled("Time-valid control configuration")).getByRole("row", { name: /Generator start/ });
+    expect(generator.textContent).toContain("declares no generator start or stop threshold");
+    expect(references().textContent).toContain("rev-2");
+    expect(references().textContent).toContain("2026-09-29T11:57:49Z");
   });
 
   it("Site model: a scheduled period is never called in effect now; a gap makes it incomplete", async () => {
     renderAt(`/sites/${ID}/foundation?at=${FUTURE.valid_from}`, loaded(foundation(FUTURE)));
     await settledScreen();
-    expect(expectStateLineVisible(card("foundation-model"))).toBe("Scheduled configuration");
+    expect(strip().textContent).toContain("Scheduled period");
+    expect(strip().textContent).toContain("This is not the configuration in effect now.");
+    expect(strip().textContent).not.toContain("This is the configuration in effect now.");
     cleanup();
     const gap = { code: "COMPONENT_RATING_MISSING", subject: "battery", message: "The battery has no declared rating." };
     renderAt(`/sites/${ID}/foundation`, loaded(foundation(PAST, { configuration_gaps: [gap] })));
     await settledScreen();
-    expect(expectStateLineVisible(card("foundation-model"))).toBe("Configuration in effect now, incomplete");
+    expect(strip().querySelector("[data-strip-gaps]")?.textContent).toBe("1 configuration gap");
+    expect(panelTitled("Time-valid control configuration").textContent).toContain("The battery has no declared rating.");
     cleanup();
     const none = { code: "NO_EFFECTIVE_REVISION", subject: "foundation", message: "No Foundation revision is effective at this time." };
     renderAt(`/sites/${ID}/foundation`, loaded(foundation(PAST, { configuration_gaps: [none] })));
     await settledScreen();
-    const answer = card("foundation-model");
-    expect(expectStateLineVisible(answer)).toBe("No configuration for this period");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe(
-      "No equipment or settings are recorded for the selected time",
+    expect(strip().querySelector("[data-strip-gaps]")?.textContent).toBe("1 configuration gap");
+    expect(panelTitled("Time-valid control configuration").textContent).toContain(
+      "No Foundation revision is effective at this time.",
     );
-    expect(answer.querySelectorAll("[data-value-bar], [data-step]")).toHaveLength(0);
+    expect(document.querySelector('[data-product-status="positive"]')).toBeNull();
   });
 
   it("Readiness: missing channel links are next steps, commissioning stays unconfirmed, never a positive state", async () => {
     renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, published([GENSET_POWER], ["Battery state of charge"]))));
     await settledScreen();
-    const answer = card("foundation-readiness");
-    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("What needs connecting or confirming?");
-    expect(expectStateLineVisible(answer)).toBe("Set-up incomplete");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe(
-      "1 item needs setting up; commissioning is not yet confirmed",
-    );
-    expect(answer.querySelector("[data-readiness-next-steps]")?.textContent).toContain(
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    expect(verdict().getAttribute("data-readiness-state")).toBe("INCOMPLETE");
+    expect(verdict().querySelector(".badge")?.className).not.toContain("badge--configured");
+    expect(next().querySelector("[data-readiness-next-steps]")?.textContent).toContain(
       "Link a reading channel for Battery state of charge.",
     );
-    const s = steps(answer);
-    expect(s["Readings linked to equipment"]).toBe("problem");
-    expect(s["Commissioning confirmed"]).toBe("not-known");
-    expect(s["Gateway registered"]).toBe("done");
-    // The catalogued commissioning missing claim stays in the table below.
+    expect(row("roles").textContent).toContain("1 of 2 required roles configured");
+    expect(row("commissioning").querySelector("[data-confirmed]")?.textContent).toBe("Not recorded");
+    expect(row("gateway").textContent).toContain("Gateway registered (edge-kobo-001)");
     expect(document.body.textContent).toContain("Commissioning confirmation not recorded");
     cleanup();
     renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []))));
     await settledScreen();
-    const ready = card("foundation-readiness");
-    expect(expectStateLineVisible(ready)).toBe("Set up to report");
-    expect(ready.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("neutral");
-    expect(ready.querySelector(".product-status__sentence")?.textContent).toContain(
+    expect(verdict().getAttribute("data-readiness-state")).toBe("READY_TO_REPORT");
+    expect(panelTitled("Readiness and commissioning evidence").textContent).toContain(
       "does not mean any device is connected, reporting or healthy",
     );
-    expect(ready.querySelector(".headline-card__headline")?.textContent).toBe(
-      "Nothing is missing from the set-up; commissioning is not yet confirmed",
-    );
+    expect(next().textContent).toContain("Record a commissioning confirmation when one exists");
+    expect(row("commissioning").querySelector("[data-confirmed]")?.textContent).toBe("Not recorded");
   });
 
-  it("W1-UX-06: the Readiness badge says Set up to report (configured tone) and the strip is titled Set-up steps", async () => {
+  it("W1-UX-06: the Readiness badge says Set up to report (configured tone), with no answer-card strip", async () => {
     renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []))));
     await settledScreen();
-    const verdict = document.querySelector("[data-readiness-state]") as HTMLElement;
-    expect(verdict.getAttribute("data-readiness-state")).toBe("READY_TO_REPORT");
-    const badge = verdict.querySelector(".badge") as HTMLElement;
+    expect(verdict().getAttribute("data-readiness-state")).toBe("READY_TO_REPORT");
+    const badge = verdict().querySelector(".badge") as HTMLElement;
     expect(badge.textContent).toBe("Set up to report");
     expect(badge.className).toContain("badge--configured");
     expect(document.body.textContent).not.toMatch(/Ready to report(?! means)/);
-    const strip = card("foundation-readiness").querySelector("[data-step-strip]") as HTMLElement;
-    expect(strip.textContent).toContain("Set-up steps");
     expect(document.body.textContent).not.toContain("From configuration to confirmed reporting");
-    // Registration only; contact is directed to Health, and no step claims confirmed reporting.
-    expect(steps(card("foundation-readiness"))["Gateway registered"]).toBe("done");
-    expect(steps(card("foundation-readiness"))["Commissioning confirmed"]).toBe("not-known");
+    // Registration only; contact is reported in the gateway panel, and nothing claims confirmed reporting.
+    expect(row("gateway").textContent).toContain("Gateway registered (edge-kobo-001)");
+    expect(row("commissioning").querySelector("[data-confirmed]")?.textContent).toBe("Not recorded");
   });
 
   // W1-UX-06 phase-1 review L4: inherited object names (`constructor`, `toString`) are not recognised codes either.
-  it.each(["SOMETHING_NEW", "constructor", "toString"])("W1-UX-06: an unrecognised Readiness code (%s) is limited: no positive headline, no readiness-dependent step done", async (code) => {
+  it.each(["SOMETHING_NEW", "constructor", "toString"])("W1-UX-06: an unrecognised Readiness code (%s) is limited: no positive verdict, no nothing-missing line", async (code) => {
     const base = foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []));
     const model = { ...base, readiness: { ...base.readiness, state: code } } as unknown as FoundationReadModel;
     renderAt(`/sites/${ID}/foundation/readiness`, loaded(model));
     await settledScreen();
-    const answer = card("foundation-readiness");
-    expect(expectStateLineVisible(answer)).toBe("Set-up state not recognised");
-    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("limited");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Set-up state not recognised");
     expect(document.body.textContent).not.toContain("Nothing is missing from the set-up");
-    const s = steps(answer);
-    // Every required role is configured in this read, yet the readiness-dependent step is not shown complete.
-    expect(s["Readings linked to equipment"]).toBe("not-known");
-    expect(Object.values(s).filter((state) => state === "done")).toEqual(["done", "done"]); // set-up facts + gateway registered
-    expect(s["Equipment and settings recorded"]).toBe("done");
-    expect(s["Gateway registered"]).toBe("done");
+    expect(document.body.textContent).not.toContain("nothing else is missing from the set-up");
+    expect(next().querySelector("[data-readiness-next-unrecognised]")?.textContent).toContain("not recognised");
+    expect(document.querySelector('[data-product-status="positive"]')).toBeNull();
     // The exact code stays in the labelled disclosure; the verdict badge is neutral and named, never blank.
-    expect(answer.querySelector("[data-exact-references]")?.textContent).toContain(code);
-    expect(document.querySelector("[data-readiness-state]")?.textContent).toContain("The set-up state in this read is not recognised");
-    const badge = document.querySelector("[data-readiness-state] .badge") as HTMLElement;
+    expect(references().textContent).toContain(code);
+    expect(verdict().textContent).toContain("The set-up state in this read is not recognised");
+    const badge = verdict().querySelector(".badge") as HTMLElement;
     expect(badge.textContent).toBe("Set-up state not recognised");
     expect(badge.className).toContain("badge--neutral");
   });
@@ -2157,51 +2167,41 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
   it("Readiness: Unknown with no linked set, and absent gateway facts as a next step", async () => {
     renderAt(`/sites/${ID}/foundation/readiness`, loaded(foundation(PAST, { gateways: [] })));
     await settledScreen();
-    const answer = card("foundation-readiness");
-    expect(expectStateLineVisible(answer)).toBe("Set-up cannot be judged");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe(
-      "Readiness cannot be judged: no reading channels are linked for this period",
-    );
-    const s = steps(answer);
-    expect(s["Readings linked to equipment"]).toBe("not-known");
-    expect(s["Gateway registered"]).toBe("waiting");
-    expect(answer.querySelector("[data-readiness-next-steps]")?.textContent).toContain("Register the site's gateway.");
+    expect(verdict().getAttribute("data-readiness-state")).toBe("UNKNOWN");
+    expect(verdict().querySelector(".badge")?.className).not.toContain("badge--configured");
+    expect(next().querySelector("[data-readiness-next-steps]")?.textContent).toContain("Register the site's gateway.");
+    expect(row("gateway").textContent).not.toContain("Gateway registered");
   });
 
   it("an empty selected period and an unreadable store keep a plain state line, scope and bound, with no card", async () => {
     renderAt(`/sites/${ID}/foundation?at=2020-01-01T00:00:00Z`, fakeFoundation(byAt));
     await settledScreen();
-    const empty = (document.getElementById("foundation-period-empty-heading") as HTMLElement).closest("section") as HTMLElement;
+    const empty = document.querySelector('[data-page-refusal="no-version"]') as HTMLElement;
     expect(expectStateLineVisible(empty)).toBe("No configuration for this period");
     expect(empty.querySelector("[data-product-status-scope]")?.textContent).toContain("selected time 1 Jan 2020, 00:00 UTC");
-    expect(card("foundation-model")).toBeNull();
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
     cleanup();
     const down = { status: "unavailable" as const, message: "The store is down." };
     renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(() => down, down));
     await settledScreen();
-    const unavailable = (document.getElementById("foundation-store-unavailable-heading") as HTMLElement).closest("section") as HTMLElement;
+    const unavailable = document.querySelector('[data-page-refusal="unavailable"]') as HTMLElement;
     expect(expectStateLineVisible(unavailable)).toBe("This could not be read right now");
     expect(unavailable.querySelector("[data-product-status-scope]")?.textContent).toBe(`${ID} · Foundation`);
     // No read instant exists for an unreadable store: the bound says so, never now.
     expect(unavailable.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
-    expect(card("foundation-readiness")).toBeNull();
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
   });
 
-  it("SLD: linked and unlinked devices, reporting drawn as not known (never zero), gap tags kept", async () => {
+  it("SLD: linked and unlinked devices, reporting not assessed (never zero), gap tags kept", async () => {
     renderAt(`/sites/${ID}/foundation/sld`, loaded(foundation(PAST, published([GENSET_POWER], ["Battery state of charge"]))));
     await settledScreen();
-    const answer = card("foundation-sld");
-    expect(answer.querySelector(".headline-card__question")?.textContent).toBe(
-      "How is the site connected, and which parts can report?",
-    );
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toMatch(
-      /^\d+ parts are drawn; 1 of \d+ devices have a linked reading channel$/,
-    );
-    expect(expectStateLineVisible(answer)).toBe("Configuration in effect now");
-    const reporting = answer.querySelector('[data-value-bar-key="reporting"]') as HTMLElement;
-    expect(reporting.getAttribute("data-value-bar")).toBe("not-known");
-    expect(reporting.querySelector('[data-value-bar-mark="known"]')).toBeNull();
-    expect(reporting.textContent).toContain("not known");
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    const summary = document.querySelector("[data-sld-summary]") as HTMLElement;
+    expect(panelTitled("Kalangala Mini-Grid · Mini-grid").contains(summary)).toBe(true);
+    expect(summary.textContent).toMatch(/^\d+ parts are drawn; 1 of \d+ devices have a linked reading channel\. /);
+    expect(summary.textContent).toContain("Whether linked parts are reporting is not assessed here.");
+    expect(summary.textContent).not.toMatch(/\b0 (parts|devices) (are )?reporting/);
+    expect(strip().textContent).toContain("This is the configuration in effect now.");
     // The two catalogued SLD missing claims stay beside the drawing.
     expect(document.querySelectorAll("[data-sld-missing] [data-gap-id]")).toHaveLength(2);
   });

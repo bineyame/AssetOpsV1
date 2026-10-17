@@ -12,7 +12,7 @@
 import { Fragment, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, Disclosure, Fact, FactList, MissingClaim, Panel } from "../ui";
+import { Badge, DataTable, Disclosure, ExactReferences, Fact, FactList, MissingClaim, Panel } from "../ui";
 import type {
   FoundationControl,
   FoundationReadModel,
@@ -105,6 +105,8 @@ export interface FoundationPeriodStripProps {
   onSelectAt: (at: string | null) => void;
   /** A link placed at the end of the strip (the next useful view). */
   action?: ReactNode;
+  /** W1-F1: view-specific exact references added to the strip's record references. */
+  extraReferences?: { label: string; value: string | null }[];
 }
 
 /**
@@ -119,6 +121,7 @@ export function FoundationPeriodStrip({
   selectedAt,
   onSelectAt,
   action,
+  extraReferences = [],
 }: FoundationPeriodStripProps) {
   const { revision, bindings } = foundation;
   const { current, bindingPeriods, selectable } = selectablePeriods(versions);
@@ -220,6 +223,16 @@ export function FoundationPeriodStrip({
           Showing the version in effect at {formatInstant(foundation.resolved.at)}.
         </p>
       ) : null}
+      {/* W1-F1: the exact references the removed W1 answer cards carried, in a small disclosure. */}
+      <ExactReferences
+        name="foundation-strip-references"
+        references={[
+          ...extraReferences,
+          { label: "Selected time (exact)", value: foundation.resolved.at },
+          { label: "Foundation version record", value: revision.revision_id },
+          { label: "Reading-channel set record", value: bindings.binding_set?.binding_set_revision_id ?? null },
+        ]}
+      />
     </section>
   );
 }

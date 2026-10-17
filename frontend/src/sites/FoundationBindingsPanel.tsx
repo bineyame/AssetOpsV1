@@ -109,7 +109,7 @@ function roleCoverage(role: ReadinessRole, mappings: SignalBinding[]): string {
 }
 
 /** Own keys only (W1-UX-06 phase-1 review L4): `in` would treat inherited names such as `constructor` as known. */
-function knownReadiness(state: string): state is ConfigurationReadiness["state"] {
+export function knownReadiness(state: string): state is ConfigurationReadiness["state"] {
   return Object.hasOwn(READINESS_WORD, state);
 }
 

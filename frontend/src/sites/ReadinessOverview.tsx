@@ -674,7 +674,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
               {
                 key: "setup",
                 title: "Set-up readiness comes from configuration",
-                body: foundation.readiness.statement,
+                body: "The verdict in Readiness and commissioning evidence describes configuration only. It is not a device, reading or equipment state.",
               },
               {
                 key: "contact",
@@ -685,7 +685,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
               {
                 key: "evidence",
                 title: "What the readings can support is assessed on Site Evidence",
-                body: "Claim limits and accepted records are judged from evidence, never from gateway contact alone.",
+                body: "What accepted records can support is judged from evidence, never from gateway contact alone.",
                 action: <Link to={evidenceHref}>Site Evidence →</Link>,
               },
             ]}
