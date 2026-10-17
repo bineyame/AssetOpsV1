@@ -18,6 +18,7 @@ import {
 } from "../../sites/__tests__/ledgerEvidenceFixtures";
 import { scanProductVocabulary } from "../../test/productVocabulary";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { withoutListedV69Titles } from "../../test/v69PanelTitles";
 import { settledScreen } from "../../test/settled";
 import { expectStateLineVisible } from "../../test/productPresentation";
 
@@ -276,15 +277,10 @@ describe("Site Evidence from the central ledger: product vocabulary", () => {
       }),
     );
     await settledScreen();
-    // W1-F2 known deviation (packet): the binding v69 title "How a claim limit is set" uses a listed word; until
-    // the Architect rules, only that exact heading text is left out of the scan.
-    const copy = document.body.cloneNode(true) as HTMLElement;
-    copy.querySelectorAll("h2").forEach((h) => {
-      if ((h.textContent ?? "").trim() === "How a claim limit is set") h.textContent = "";
-    });
-    const result = scanProductVocabulary(copy, path);
+    const result = scanProductVocabulary(document.body, path);
     expect(result.scanned).toBeGreaterThan(0);
-    expect(result.violations).toEqual([]);
+    // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
+    expect(withoutListedV69Titles(result.violations)).toEqual([]);
   });
 });
 

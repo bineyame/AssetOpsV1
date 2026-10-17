@@ -42,3 +42,15 @@ export function expectedPanelTitles(screenId: string, values: Record<string, str
       return typeof change === "string" ? change : change(values);
     });
 }
+
+/**
+ * W1-F2 known deviation, awaiting an Architect ruling: binding v69 panel titles that contain a word on the product
+ * vocabulary lists (`productVocabulary.json`). Only a violation whose whole text node is exactly one of these titles
+ * is set aside; the same words anywhere else, including in the same panel, still fail. Delete an entry the moment
+ * the Architect approves a plain-language title for it.
+ */
+export const V69_TITLES_ON_VOCABULARY_LIST: readonly string[] = ["How a claim limit is set"];
+
+export function withoutListedV69Titles<V extends { where: string; text: string }>(violations: readonly V[]): V[] {
+  return violations.filter((v) => !(v.where === "text" && V69_TITLES_ON_VOCABULARY_LIST.includes(v.text.trim())));
+}

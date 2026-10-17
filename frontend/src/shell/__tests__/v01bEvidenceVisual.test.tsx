@@ -19,6 +19,7 @@ import {
 } from "../../sites/__tests__/ledgerEvidenceFixtures";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible } from "../../test/productPresentation";
+import { withoutListedV69Titles } from "../../test/v69PanelTitles";
 import { settledScreen } from "../../test/settled";
 
 /**
@@ -94,20 +95,7 @@ function renderAt(path: string, evidence: SiteEvidenceClient) {
   );
 }
 
-/**
- * W1-F2 known deviation (packet, Architect question): the binding v69 title of evidence-analysis panel 2 is
- * "How a claim limit is set", and "claim" / "claim limit" are on the product vocabulary lists. Until the Architect
- * rules, the vocabulary scans read the page without that one exact heading text; every other word, including the
- * same panel's body, is still scanned.
- */
 const V69_EVIDENCE_ANALYSIS_TITLE = "How a claim limit is set";
-function withoutV69Title(root: HTMLElement): HTMLElement {
-  const copy = root.cloneNode(true) as HTMLElement;
-  for (const h of Array.from(copy.querySelectorAll("h2"))) {
-    if ((h.textContent ?? "").trim() === V69_EVIDENCE_ANALYSIS_TITLE) h.textContent = "";
-  }
-  return copy;
-}
 
 function panel(heading: string): HTMLElement {
   return screen.getByRole("heading", { name: heading }).closest("section") as HTMLElement;
@@ -347,9 +335,10 @@ describe("V-01b Site Evidence analysis", () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }, { rejections: { status: "loaded", value: WITH_CONFLICT } }));
     await settledScreen();
     const main = document.querySelector("main") as HTMLElement;
-    const w1 = scanProductVocabulary(withoutV69Title(main), `${ANALYSIS_URL} (W1)`, { set: "w1" });
+    const w1 = scanProductVocabulary(main, `${ANALYSIS_URL} (W1)`, { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(10);
-    expect(describeViolations(w1.violations)).toBe("");
+    // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
+    expect(describeViolations(withoutListedV69Titles(w1.violations))).toBe("");
     // W1-F2: the mock has no question line; the statusbar states what the view holds.
     expect(main.querySelector("[data-evidence-analysis-question]")?.textContent).toMatch(/Accepted records, timing and how each limit is set/);
   });
@@ -357,6 +346,7 @@ describe("V-01b Site Evidence analysis", () => {
   it("uses no implementation vocabulary", async () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }, { rejections: { status: "loaded", value: WITH_CONFLICT } }));
     await settledScreen();
-    expect(scanProductVocabulary(withoutV69Title(document.body), ANALYSIS_URL).violations).toEqual([]);
+    // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
+    expect(withoutListedV69Titles(scanProductVocabulary(document.body, ANALYSIS_URL).violations)).toEqual([]);
   });
 });
