@@ -1,6 +1,6 @@
 # W2 cold-chain technical design — 2026-10-17
 
-**Decision:** `D-2026-10-17-w2-techdesign-cold`. Architect contract for W2-00 and W2-01..04; Planner sequences and tests these choices. Proposed screen scope still needs owner confirmation. Existing W1 selected-window, source-label, money, Analysis and honest-gap contracts apply by reference (`.ai/DECISIONS.md:5-15`; `.agent/architect-W2-design.md:1-32`). No mock number is a stored fact.
+**Decision:** `D-2026-10-17-w2-techdesign-cold` (amended by `D-2026-10-17-mockup-layout-spec`). Architect contract for W2-00 and W2-01..04; Planner sequences and tests these choices. Proposed screen scope still needs owner confirmation. Existing W1 selected-window, source-label, money, Analysis and honest-gap contracts apply by reference (`.ai/DECISIONS.md:5-15`; `.agent/architect-W2-design.md:1-32`). No mock number is a stored fact.
 
 ## 1. W2-00: ordinary source-to-evidence format
 
@@ -117,15 +117,47 @@ All routes below use Site code, authenticated tenant scope, UTC `from,to` (end e
 | `GET /api/sites/{code}/cold/evidence` and `GET .../evidence/analysis` W2-04 | Summary `capabilities[{claim,state,required_roles,missing_roles,coverage}],sources[{id,role,contact,fact_age}],links`; analysis paged `accepted_records[{evidence_id,kind,source_time,received_at,quality,role,exclusion}],claim_rules,source_provenance`. |
 | `GET /api/sites/{code}/cold/financials` and `GET .../financial-assumptions` W2-04 | `consequences[{id,kind,state,quantity_bounds,quantity_unit,amount_bounds,currency,reason,overlap_group,exact_basis}],not_included`; assumptions `items[{key,revision_id,value,unit,currency,valid_from,valid_to,recorded_at,source}],missing_keys`. Existing assumption publication endpoint handles writes. |
 
-| v6.9 screen and core panels (`frontend/docs/architecture/v69-panel-contracts.json:912-1000`) | Read fields and W1 presentation | Honest gap |
+The binding `D-2026-10-17-mockup-layout-spec` applies to every row. The component for each slot is the shared W1-F1 panel/layout guard and mock-matched CSS (`frontend/src/ui/tokens.css`, `primitives.css`, and shared panel components), containing the named selected read. Use the mock page heading, compact metrics, panel grid, relative size, typography, badges, table/timeline and gap pattern from `frontend/mockups/v69/index.html`, `screens.js`, and `mockups.css`. No leading answer card or extra main-content panel. A missing/refused/stale read keeps its numbered slot with the stated gap; mock values are never data. The W1-F1 guard is a required shared dependency, not a new domain component.
+
+| Manifest ID / slice | Exact v69 panel → selected read fields inside shared W1-F1 slot | In-panel honest gap / missing read |
 | --- | --- | --- |
-| `cold-foundation` 1 Physical site, 2 Operating interpretation; `cold-readiness` 1 Readiness, 3 Connected sources; `cold-sld` 1 Diagram, 2 Part roles | Foundation `rooms,topology,bindings,readiness,contact`; W1 Site Foundation cards, Readiness strip, SLD node/edge renderer. | No commissioning/contact if no accepted record; undrawn parts “undeclared”. |
-| `temperature` 1 Temperature, 3 Claim boundary | `points,policy,coverage,excursions,excluded`; W1 chart, claim-limit card, Analysis link. | Missing probe/gap shows no curve bridge or precise duration. |
-| `coldbackup` 1 Chain, 4 Causal-step evidence | `chains.steps,missing_steps,claim_level`; W1 causal strip and evidence links. | Missing transfer is an explicit unknown switch step; no Incident. |
-| `cold-finding`,`cold-finding-excursion` 1 Conclusion, 2 Context | Finding detail `kind,lifecycle,claim_level,episode_bounds,limitations,evidence_ids`; W1 Finding hero, timeline, contextual Analysis. | Unknown part cause, no Action or verified outcome. |
-| `cold` 1 What happened, 2 Chamber chart | Overview `status,temperature_summary,backup_summary,causal_strip,consequence_summary`; W1 Site hero and cards. | No stock spoilage or site-wide health from contact. |
-| `cold-evidence` 1 Capability, 2 Sources; `cold-evidence-analysis` 1 Records, 2 Claim limit | Evidence `capabilities,sources`; Analysis `accepted_records,claim_rules`; W1 Evidence capability table and separate Analysis destination. | Missing/stale sources shown by claim; no Lab truth. |
-| `cold-financials` 1 Money bridge, 3 Not included; `cold-assumptions` 1 Assumptions | `consequences,not_included,missing_keys,items`; W1 Financial bridge and assumption history. | Exposure unpriced; no stock value or repair cost without record. |
+| `cold-foundation` | **1 Physical site** → `foundation.rooms,topology.nodes/edges,bindings,foundation_revision_id` | Undeclared equipment or edge stays absent and labelled; no inferred live state. |
+| `cold-foundation` | **2 Operating interpretation** → `foundation.rooms[].policy,bindings,valid_from/valid_to,readiness.messages` | No stored operating duty or policy means “Not configured”; no performance claim. |
+| `cold-readiness` | **1 Readiness and commissioning evidence** → `foundation.readiness,bindings,commissioning.evidence_ids` | Unbound role or no commissioning record stays incomplete/unconfirmed. |
+| `cold-readiness` | **2 Gateway status · GW-CR-01** → `foundation.contact.state/as_of and selected gateway identity` | No contact is “Never contacted”; actual gateway name comes from selection, never GW-CR-01. |
+| `cold-readiness` | **3 Connected sources** → `foundation.bindings[].role/source_id,contact` | No per-source contact read is specified: show binding and “Source contact unavailable”. |
+| `cold-readiness` | **4 Effect on readiness and confidence** → `foundation.readiness.messages; evidence.capabilities when W2-04 exists` | Before capability read or with missing source, confidence is “Not assessed”; contact alone proves no condition. |
+| `cold-sld` | **1 GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup** → `foundation.topology.nodes/edges,rooms,bindings` | Mock hybrid solar/battery/grid layout exceeds declared topology: show only configured nodes, with missing parts “Undeclared”; dynamic title names actual Site/type. |
+| `cold-sld` | **2 What each part does** → `foundation.topology,bindings,rooms[].policy` | No component function/part-role description read is specified: labelled configuration only, function unknown. |
+| `temperature` | **1 Temperature with operating context** → `temperature.points,policy,coverage,gaps` | Missing probe/period makes a visible gap; do not connect samples. |
+| `temperature` | **2 Excursion context** → `temperature.excursions[].start_bounds/end_bounds/duration_bounds/peak_observed` | No exact excursion duration or cause when bounds are incomplete. |
+| `temperature` | **3 Claim boundary** → `temperature.excursions[].claim_level,excluded,coverage,gaps` | No spoilage or precise interpolation claim; limitation remains beside the chart. |
+| `coldbackup` | **1 What the chain shows** → `backup-chain.chains[].claim_level,missing_steps,contradictions` | Unknown transfer or contradiction prevents a successful full-chain claim. |
+| `coldbackup` | **2 Reconstructed event chain** → `backup-chain.chains[].steps[kind,at,outcome,state]` | Unobserved transition remains an explicit unknown step. |
+| `coldbackup` | **3 Backup event chains** → `backup-chain.chains[correlation_id,episode_id,revision_id]` | No Incident record or cross-chain cause read: event-chain list only. |
+| `coldbackup` | **4 Evidence by causal step** → `backup-chain.chains[].steps[].evidence_id,missing_steps` | Missing causal step has no evidence link; never substitute model truth. |
+| `cold-finding` | **1 Bounded conclusion** → `findings/{id}.title,kind,claim_level,lifecycle,episode_bounds,limitations` | No part diagnosis when chain only shows start failure. |
+| `cold-finding` | **2 Operational context** → `findings/{id}.evidence_ids,assessment_revision_id,revision_history` | Missing links/periods shown with exact limit; no private cause. |
+| `cold-finding` | **3 Recommended next step** → `findings/{id}.links` | No Recommendation/Action read in W2: “No recorded next step”; evidence link remains. |
+| `cold-finding-excursion` | **1 Bounded conclusion** → `findings/{id}.title,claim_level,episode_bounds,limitations` | Bounded observed excursion only; product loss unproved. |
+| `cold-finding-excursion` | **2 Temperature** → `temperature.points,policy,excursions,coverage,gaps` | No continuous curve or precise duration across missing readings. |
+| `cold-finding-excursion` | **3 Recommended next step** → `findings/{id}.links` | No Recommendation/Action read in W2: “No recorded next step”. |
+| `cold` | **1 What happened · power → cooling → product conditions** → `overview.status,objective,backup_summary,causal_strip` | Unknown link prevents power-to-product causal certainty; no site-wide health claim. |
+| `cold` | **2 Chamber temperature** → `overview.temperature_summary; temperature.points,policy,gaps` | No point/coverage means empty chart with named gap, not a flat line. |
+| `cold` | **3 Needs attention** → `overview.needs_attention,findings.items` | No Action/Incident/Maintenance read: show supported Finding or evidence request only. |
+| `cold` | **4 Bounded money consequence** → `overview.consequence_summary` | Product exposure remains unpriced; null money is not zero. |
+| `cold` | **5 Next step** → `overview.links,needs_attention[].link` | No supported next action: link to Finding/Evidence or say none recorded. |
+| `cold-evidence` | **1 What we can conclude now** → `evidence.capabilities[claim,state,coverage,missing_roles]` | Unsupported claim shows its missing role and limitation. |
+| `cold-evidence` | **2 Data sources · data quality, not equipment condition** → `evidence.sources[id,role,contact,fact_age],source_provenance` | Contact/quality are source facts, not equipment condition. |
+| `cold-evidence` | **3 Most useful next evidence** → `evidence.capabilities[].missing_roles,links` | No ranked next-evidence read: name missing role or say “Next evidence not identified”. |
+| `cold-evidence-analysis` | **1 Accepted records behind the conclusions** → `evidence/analysis.accepted_records[evidence_id,kind,source_time,received_at,quality,role,exclusion]` | No accepted records: empty exact-record list; no Lab truth. |
+| `cold-evidence-analysis` | **2 How a claim limit is set** → `evidence/analysis.claim_rules,source_provenance,limitations` | No selected assessment/claim rule: “Claim limit not assessed”. |
+| `cold-financials` | **1 What happened → what it means in money** → `financials.consequences[kind,state,quantity_bounds,amount_bounds,currency,exact_basis]` | Exposure is unpriced; missing approved valuation/work cost keeps amount null. |
+| `cold-financials` | **2 Assumptions in use** → `financial-assumptions.items,missing_keys` | No published relevant assumption means “No assumption in use”. |
+| `cold-financials` | **3 Not included** → `financials.not_included,consequences[].reason` | No stock value, spoilage or repair invoice read: each exclusion stays explicit. |
+| `cold-assumptions` | **1 Financial assumptions** → `financial-assumptions.items[key,revision_id,value,unit,currency,valid_from,valid_to,recorded_at,source],missing_keys` | Undeclared stock/exposure inputs have no default; show missing keys, not illustrative values. |
+
+**Reads still needed for mock slots:** `cold-readiness` panel 3 needs per-source contact, and panel 4 needs the W2-04 capability read before it can state confidence. `cold-sld` panel 2 needs a stored part-function/role description for the mock's full explanation; topology and bindings alone support only a labelled diagram. `cold-evidence` panel 3 needs a ranked next-evidence recommendation to do more than name missing roles. `cold-finding` and `cold-finding-excursion` panel 3 need a Recommendation/Action read for a proposed intervention. `cold-financials` panel 1 needs approved stock/exposure valuation and recorded repair cost to show money. Keep each slot and its stated in-panel gap until those reads exist.
 
 ## 7. Slice proof fixtures and acceptance
 
@@ -159,9 +191,9 @@ All manifests live under `contract-fixtures/w2/cold/` as canonical JSON with `sc
 | Slice | Required exact cases |
 | --- | --- |
 | W2-00 | v3 golden vector unchanged; v4 numeric/state/event roundtrip; missing correlation/session, unknown kind, invalid outcome/unit/time, private field, conflicting event ID, same-message same/different SHA, cross-tenant binding, message+event and event+session double collisions, race loser, and unlisted unique violation; old Receipt V2 bytes stable. |
-| W2-01 | complete and missing-probe Foundations; low>=high, wrong unit, duplicate probe-room link, stale/overlapping binding, undeclared transfer, selected old/current revisions; 1440/390 three screens show no evidence claim. |
+| W2-01 | complete and missing-probe Foundations; low>=high, wrong unit, duplicate probe-room link, stale/overlapping binding, undeclared transfer, selected old/current revisions; per-route exact panel-structure test for `cold-foundation`, `cold-readiness`, `cold-sld` in stocked and meaningful empty/refused states; mock/app side-by-side 1440/390 captures for each route and state; no evidence claim. |
 | W2-02 | `normal`, `excursion`, `backup-failed`, `missing-probe`, `late-reading`, `contradictory` manifests; twice replay yields same public bytes and idempotent receipt; late release preserves source time; no private key in Stage, Batch, accepted row or UI. |
-| W2-03 | in-band negative; bounded upper excursion positive; start success/failure; missing probe/transfer; contradictory probe/state; late reading creates new revision and old read stale; equal event ID conflict; clock skew; source-gated Finding links; no gap bridging or invented part diagnosis. |
-| W2-04 | same accepted cases drive overview/evidence/money; undeclared stock and cost null, overlapping Findings counted once, mixed/unknown source withholds amount, historical cutoff labelled historical; every core panel at 1440/390 with W1 plain copy and Analysis links. |
+| W2-03 | in-band negative; bounded upper excursion positive; start success/failure; missing probe/transfer; contradictory probe/state; late reading creates new revision and old read stale; equal event ID conflict; clock skew; source-gated Finding links; no gap bridging or invented part diagnosis; per-route exact panel-structure test for `temperature`, `coldbackup`, `cold-finding`, `cold-finding-excursion` in stocked and meaningful empty/refused states, plus mock/app side-by-side 1440/390 captures. |
+| W2-04 | same accepted cases drive overview/evidence/money; undeclared stock and cost null, overlapping Findings counted once, mixed/unknown source withholds amount, historical cutoff labelled historical; per-route exact panel-structure test for `cold`, `cold-evidence`, `cold-evidence-analysis`, `cold-financials`, `cold-assumptions` in stocked and meaningful empty/refused states, mock/app side-by-side 1440/390 captures, W1 plain copy and Analysis links. |
 
 Do not promote registry nodes until independent slice review and the owner's scope decision. The existing registry stays unchanged.

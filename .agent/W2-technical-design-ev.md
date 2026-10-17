@@ -1,6 +1,6 @@
 # W2 EV charging technical design — 2026-10-17
 
-**Decision:** `D-2026-10-17-w2-techdesign-ev` (amended). Contract for W2-05a, 05b, 06, 07. Planner sequences and tests it. The W2-00 v4 event/delta format, deduplication, accepted-event columns, 0020 migration and closed host pack registry are fixed by `.agent/W2-technical-design-cold.md` §§1–2,4; this document adds no new envelope family. Existing W1 selected-window, exact-source, money and plain-language rules apply (`.ai/DECISIONS.md`). The screen scope and EV visual hierarchy remain owner proposals (`.agent/architect-W2-design.md`); no registry promotion follows from this design.
+**Decision:** `D-2026-10-17-w2-techdesign-ev` (amended by `D-2026-10-17-mockup-layout-spec`). Contract for W2-05a, 05b, 06, 07. Planner sequences and tests it. The W2-00 v4 event/delta format, deduplication, accepted-event columns, 0020 migration and closed host pack registry are fixed by `.agent/W2-technical-design-cold.md` §§1–2,4; this document adds no new envelope family. Existing W1 selected-window, exact-source, money and plain-language rules apply (`.ai/DECISIONS.md`). The screen scope and EV visual hierarchy remain owner proposals (`.agent/architect-W2-design.md`); no registry promotion follows from this design.
 
 ## 1. Migration ledger after 0023
 
@@ -77,24 +77,44 @@ All routes are tenant-authenticated Site-code reads. Except Foundation/replay, r
 | `GET /api/sites/{code}/ev/evidence` and `.../evidence/analysis` / 07 | Summary `capabilities[{claim,state,required_roles,missing_roles,coverage}],sources[{id,role,contact,fact_age}],links`; Analysis paged `accepted_records[{evidence_id,family,kind,source_time,received_at,quality,role,session_id,exclusion}],claim_rules,source_provenance`. W2-00 `/evidence/records` remains exact source link. |
 | `GET /api/sites/{code}/ev/financials` and `.../financial-assumptions` / 07 | `consequences[{revision_id,state,quantity_kwh,tariff_revision_id,tariff_value,currency,amount,reason,source_gate,overlap_group,exact_basis}],not_included:[lost_sales,collections,margin,repair]`; assumptions `items[{key,revision_id,value,unit,currency,valid_from,valid_to,recorded_at,basis,source}],missing_keys`. Existing assumption publication route accepts new key with same authorization/idempotency rules. |
 
-## 7. EV screen mapping and owner flag
+## 7. EV panel-for-panel layout and owner flag
 
-**Owner flag:** v6.9 EV extrapolations `ev-foundation`, `ev-readiness`, `ev-sld`, `ev-finding`, `ev-findings`, `ev-evidence`, `ev-evidence-analysis`, and `ev-financials` are content references (`frontend/mockups/v69/screen-manifest.json:1095-1645`), not pixel authority. Use W1 Site shell, cards/charts, Finding timeline, Readiness strip, SLD, Financial bridge and contextual Analysis at 1440/390; exact IDs live in labelled detail. Owner confirmation of EV visual authority remains pending. The mock `energy` and `availability` screens are not built in W2; Overview's bounded energy field is not a standalone Energy screen.
+The binding `D-2026-10-17-mockup-layout-spec` applies to every row. The component for each slot is the shared W1-F1 panel/layout guard and mock-matched CSS (`frontend/src/ui/tokens.css`, `primitives.css`, and shared panel components), containing the named selected read. Use the mock page heading, compact metrics, panel grid, relative size, typography, badges, table/timeline and gap pattern from `frontend/mockups/v69/index.html`, `screens.js`, and `mockups.css`. No leading answer card or extra main-content panel. A missing/refused/stale read keeps its numbered slot with the stated gap; mock values are never data. The W1-F1 guard is a required shared dependency, not a new domain component.
 
-| EV screen / slice | Existing v6.9 pattern → read fields | Honest visible gap |
+| Manifest ID / slice | Exact v69 panel → selected read fields inside shared W1-F1 slot | In-panel honest gap / missing read |
 | --- | --- | --- |
-| `ev-foundation` / 05a | `foundation` physical Site + interpretation → `feed,chargers,connectors,bindings`; W1 Foundation cards. | Undeclared hardware/limit is unknown. |
-| `ev-readiness` / 05a | `readiness` setup and connected sources → `readiness,contact,commissioning`; W1 Readiness strip. | Configured is not commissioned; no contact is not fault. |
-| `ev-sld` / 05a | `sld` diagram and part roles → `topology,bindings`; W1 SLD renderer. | No inferred live power flow or battery. |
-| `sessions` / 06 | `service` delivered service + `dispatch` selected records → `session_counts,state,supported_kwh,unknown_meter_seconds,events`; W1 Performance chart/list and Analysis link. | Missing end remains incomplete; partial kWh is labelled; no availability percentage. |
-| `ev-finding` / 06 | `finding` bounded conclusion + operational context → fault-abort Finding detail and exact evidence. | Fault cause, unmet demand and Action unknown. |
-| `ev` / 07 | `site` status/objective/cards/causal strip → Overview counts, energy, site-power context and links. | Below-limit import does not prove cause or charger health. |
-| `ev-evidence` / 07 | `evidence` capability and sources → `capabilities,sources`. | Missing-hour and source age limit shown per claim. |
-| `ev-evidence-analysis` / 07 | `evidence-analysis` accepted records + claim limit → `accepted_records,claim_rules`; separate Analysis destination. | No Lab truth or unaccepted record as fact. |
-| `ev-financials` / 07 | `financials` consequence bridge and not included → `quantity_kwh,tariff_value,amount,reason`. | Gross **scenario** only; collections/lost sales absent. |
-| `ev-assumptions` / 07 | `assumptions` versioned financial inputs → tariff history and missing key. | No undeclared price or billing rate. |
+| `ev-foundation` | **1 Physical site** → `foundation.feed,chargers[].connectors,topology.nodes/edges,bindings,foundation_revision_id` | Undeclared feed/connector or limit stays unknown; no inferred live flow. |
+| `ev-foundation` | **2 Operating interpretation** → `foundation.feed.limit_kw,chargers[].max_kw/connectors,bindings,valid_from/valid_to` | No operating policy/function description read: show declared limits only and label missing duty. |
+| `ev-readiness` | **1 Readiness and commissioning evidence** → `foundation.readiness,bindings,commissioning.evidence_ids` | Configured is not commissioned; missing event/meter/status role named. |
+| `ev-readiness` | **2 Gateway status · GW-EV-01** → `foundation.contact.state/as_of and selected gateway identity` | No contact is “Never contacted”; title uses actual selected gateway, not GW-EV-01. |
+| `ev-readiness` | **3 Connected sources** → `foundation.bindings[].role/source_id,contact` | No per-source contact read is specified: binding visible, “Source contact unavailable”. |
+| `ev-readiness` | **4 Effect on readiness and confidence** → `foundation.readiness.messages; evidence.capabilities when W2-07 exists` | No capability read yet means “Not assessed”; source contact does not establish charger condition. |
+| `ev-sld` | **1 Depot Charging Hub · Depot charging hub** → `foundation.topology.nodes/edges,feed,chargers,bindings` | No inferred battery/live power path; dynamic title uses actual Site/type. |
+| `ev-sld` | **2 What each part does** → `foundation.feed,chargers[].connectors,bindings` | No part-function description read: show declared limits/roles and “Function not recorded”. |
+| `sessions` | **1 Session service records** → `sessions.items[session_id,state,start_bounds,end_bounds,supported_kwh,energy_complete,unknown_meter_seconds,links]` | Missing END remains incomplete; partial kWh never labelled complete. |
+| `sessions` | **2 How to read the denominator** → `sessions.items[].state/reason_codes; overview.session_counts when W2-07 exists` | No complete denominator summary in W2-06 list read: derive visible counts from selected page only, or “Full-window denominator unavailable”. |
+| `sessions` | **3 Cause remains bounded** → `sessions.items[].reason_codes; findings.links` | No proof of charger fault cause or unmet demand from status alone. |
+| `ev-finding` | **1 Bounded conclusion** → `findings/{id}.title,claim_level,lifecycle,limitations,session_id` | Only observed fault-associated abort is claimed; fault cause unknown. |
+| `ev-finding` | **2 Operational context** → `findings/{id}.evidence_ids,assessment_revision_id,revision_history; sessions/{id}.events` | Unobserved demand or incompatible session evidence remains unknown. |
+| `ev-finding` | **3 Recommended next step** → `findings/{id}.links` | No Recommendation/Action read in W2: “No recorded next step”. |
+| `ev` | **1 What happened on the service day** → `overview.status,objective,session_counts` | Incomplete/contradictory session counts remain distinct; no charger-health inference. |
+| `ev` | **2 Charging activity and site power** → `overview.energy,site_power; sessions.items` | Only supported meter intervals; missing slots and limit coverage stay visible. |
+| `ev` | **3 Needs attention** → `overview.needs_attention,findings.items` | No Action/Incident/Maintenance read: only supported Finding or evidence request. |
+| `ev` | **4 Bounded money consequence** → `overview.consequence_summary` | Gross scenario estimate only when tariff/quantity/source gates pass; no collections/lost sales. |
+| `ev` | **5 Next step** → `overview.links,needs_attention[].link` | No supported next action: Finding/Evidence link or “None recorded”. |
+| `ev-evidence` | **1 What we can conclude now** → `evidence.capabilities[claim,state,coverage,missing_roles]` | Missing session/status/meter hour named per claim. |
+| `ev-evidence` | **2 Data sources · data quality, not equipment condition** → `evidence.sources[id,role,contact,fact_age],source_provenance` | Source age is not equipment condition. |
+| `ev-evidence` | **3 Most useful next evidence** → `evidence.capabilities[].missing_roles,links` | No ranked next-evidence read: name missing role or “Next evidence not identified”. |
+| `ev-evidence-analysis` | **1 Accepted records behind the conclusions** → `evidence/analysis.accepted_records[evidence_id,family,kind,source_time,received_at,quality,role,session_id,exclusion]` | No accepted record means empty record list; no Lab truth. |
+| `ev-evidence-analysis` | **2 How a claim limit is set** → `evidence/analysis.claim_rules,source_provenance,limitations` | No selected assessment means “Claim limit not assessed”. |
+| `ev-financials` | **1 What happened → what it means in money** → `financials.consequences[quantity_kwh,tariff_value,currency,amount,state,reason,exact_basis]` | No complete supported quantity or valid tariff keeps amount null; gross scenario label stays visible. |
+| `ev-financials` | **2 Assumptions in use** → `financial-assumptions.items,missing_keys` | No tariff revision means “No scenario tariff in use”. |
+| `ev-financials` | **3 Not included** → `financials.not_included` | Lost sales, collections, margin and repair remain outside this read. |
+| `ev-assumptions` | **1 Financial assumptions** → `financial-assumptions.items[key,revision_id,value,unit,currency,valid_from,valid_to,recorded_at,source],missing_keys` | No published scenario tariff; do not import billing price or mock $0.30. |
 
-The `sessions` mock example combines 10 complete/1 aborted/1 incomplete with 120 kWh and $36; show only replay-derived counts, intervals and tariff amounts. EV health, Incident, Maintenance, Action, Scenario and estate root stay out of W2 (`frontend/mockups/v69/screens.js:433-450`; `.agent/architect-W2-design.md:1-32`).
+**Reads still needed for mock slots:** `ev-readiness` panel 3 needs per-source contact, and panel 4 needs the W2-07 capability read before it can state confidence. `ev-sld` panel 2 needs a stored part-function description. `sessions` panel 2 needs a full-window denominator summary in W2-06; paged rows alone cannot supply it. `ev-evidence` panel 3 needs a ranked next-evidence recommendation. `ev-finding` panel 3 needs a Recommendation/Action read. `ev-financials` panel 1 needs an eligible complete quantity plus a published tariff revision before it can show a gross scenario amount. Keep each panel and its stated in-panel gap until those reads exist.
+
+The v69 EV extrapolations remain content/structure references pending owner visual-authority confirmation; this decision applies the binding mock layout now. `availability`, `energy`, health, work, Action, Scenario and estate routes are outside W2. The illustrative sessions 10/1/1, 120 kWh and $36 are never seeded values.
 
 ## 8. Slice fixtures, replay and vendor peer
 
@@ -123,9 +143,9 @@ Canonical manifests in `contract-fixtures/w2/ev/` use `ev-replay-manifest/1`: fi
 
 | Slice | Required proof |
 | --- | --- |
-| 05a | Complete and missing-meter/event/status/limit Foundation; duplicate connector parent, wrong unit/cadence, overlapping schedule/binding, historical/current revision; three screens at 1440/390 with honest contact and commissioning. |
+| 05a | Complete and missing-meter/event/status/limit Foundation; duplicate connector parent, wrong unit/cadence, overlapping schedule/binding, historical/current revision; per-route exact panel-structure test for `ev-foundation`, `ev-readiness`, `ev-sld` in stocked and meaningful empty/refused states; mock/app side-by-side 1440/390 captures for each route and state; honest contact and commissioning. |
 | 05b | Six manifests above: complete, interrupted, fault-before-start, missing-meter, late-record, contradictory; ordinary Stage/Commit/outbox/Batch V2/S2 path, same-byte replay/idempotent receipt, source-time preservation, no private keys. |
-| 06 | Cross-connector/session/tenant collision; start/end/abort permutations; fault-only negative; contained/nonoverlapping exact meter sum, boundary split, missing/overlap/reset/SUSPECT refusal; partial-vs-complete denominators; late END/meter revises and marks old projection pending/historical; stable Finding identity/lineage, no incomplete Finding. |
-| 07 | Same accepted cases drive Overview/Evidence/Analysis/money; no tariff, tariff gap/change, mixed/unknown source, late/pending, historical, duplicate-interval and wrong currency withhold; exact unrounded amount only for eligible complete intervals; never lost sales, collections or mock $36 by fiat; ten screens/core panels at 1440/390 with contextual Analysis and plain copy. |
+| 06 | Cross-connector/session/tenant collision; start/end/abort permutations; fault-only negative; contained/nonoverlapping exact meter sum, boundary split, missing/overlap/reset/SUSPECT refusal; partial-vs-complete denominators; late END/meter revises and marks old projection pending/historical; stable Finding identity/lineage, no incomplete Finding; per-route exact panel-structure test for `sessions`, `ev-finding` in stocked and meaningful empty/refused states, plus mock/app side-by-side 1440/390 captures. |
+| 07 | Same accepted cases drive Overview/Evidence/Analysis/money; no tariff, tariff gap/change, mixed/unknown source, late/pending, historical, duplicate-interval and wrong currency withhold; exact unrounded amount only for eligible complete intervals; never lost sales, collections or mock $36 by fiat; per-route exact panel-structure test for `ev`, `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions` in stocked and meaningful empty/refused states, mock/app side-by-side 1440/390 captures, contextual Analysis and plain copy. |
 
 No registry node changes until independent slice review and the owner's screen-scope/EV-visual decision. The existing checker therefore remains unchanged.
