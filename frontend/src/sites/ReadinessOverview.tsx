@@ -393,7 +393,7 @@ function GatewayEntry({ entry, foundation }: { entry: GatewayHealthEntry; founda
           <dd>{entry.last_server_contact === null ? "None received" : formatInstant(entry.last_server_contact)}</dd>
         </div>
       </dl>
-      <p data-gateway-contact-sentence="">{contactSentence(entry)}</p>
+      <p className="v69-chart-note" data-gateway-contact-sentence="">{contactSentence(entry)}</p>
       <Disclosure
         name={`gateway-diagnostic-${entry.gateway_external_id}`}
         summary="Advanced details — gateway diagnostic records"
@@ -590,7 +590,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
                 ))}
               </ul>
             )}
-            <p data-gateway-sources="">
+            <p className="v69-chart-note" data-gateway-sources="">
               {entry.source_contacts.length === 0
                 ? "No source is registered behind this gateway."
                 : `${entry.source_contacts.length} source${entry.source_contacts.length === 1 ? "" : "s"} registered behind this gateway.`}{" "}
@@ -653,7 +653,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
           {sources}
           <MissingClaim
             as="p"
-            className="not-available-yet"
+            className="not-available-yet v69-chart-note"
             gapId="G-readiness-gateway-signal-strength"
             placement="readiness.gateway.signal-strength"
           >
@@ -661,7 +661,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
           </MissingClaim>
           <MissingClaim
             as="p"
-            className="not-available-yet"
+            className="not-available-yet v69-chart-note"
             gapId="G-readiness-gateway-firmware"
             placement="readiness.gateway.firmware"
           >
@@ -701,7 +701,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
 function RegistrationOnly({ foundation }: { foundation: FoundationReadModel }) {
   if (foundation.gateways.length === 0) return <p>No gateway is registered in this Foundation period.</p>;
   return (
-    <p data-gateway-sources="">
+    <p className="v69-chart-note" data-gateway-sources="">
       Registered: {foundation.gateways.map((g) => g.gateway_external_id).join(", ")}, with {foundation.sources.length}{" "}
       source{foundation.sources.length === 1 ? "" : "s"}.{" "}
       <MissingClaim gapId="G-readiness-source-contact" placement="readiness.gateway.source-connection-registration">

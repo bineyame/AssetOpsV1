@@ -206,3 +206,8 @@ Commit `f95c9f41` plus captures. Frontend only.
 - SLD: drawing panel 974 vs 596 [1055]; parts panel 640 vs 287 [640].
 
 SLD and Gateway panels are still taller than the mock; the remainder is data-driven (drawing, 10-row parts table, sources and effect lists). The SLD note text is about 80 px lighter, the Gateway panel 57 px.
+
+## Coordinator after fix-2 re-review (2026-10-17)
+
+- A2 fixed: the Gateway contact sentence, both source-count sentences and the signal-strength and firmware lines are now `v69-chart-note`; wording and assertions unchanged. tsc clean; full `npm.cmd test` 1957 passed. Readiness recapture deferred to the W1-F5 all-screens capture audit.
+- Carried to F5: Low D (SLD row pitch ~143 vs ~106 px, repeated "Readings not assessed here", empty canvas), Low F (strip check skips any `status-strip__*` class), body-size closing scope note on Readiness, "Setup progress not available" on Sites, SLD description indent.
