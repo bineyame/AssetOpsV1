@@ -1019,41 +1019,54 @@ function History({
           The recorded events could not be read, so no event is listed.
         </p>
       ) : null}
-      {events !== null && events.events.length + (history?.outcomes.length ?? 0) + (history?.resolution_events.length ?? 0) > SHOWN_ROWS ? (
-        <p className="v69-chart-note">
-          <button
-            type="button"
-            className="w1f4-action-more"
-            aria-expanded={showAll}
-            data-action-history-show-all
-            onClick={() => setShowAll((open) => !open)}
-          >
-            {showAll
-              ? `Show the latest ${SHOWN_ROWS}`
-              : `Show all ${events.events.length + (history?.outcomes.length ?? 0) + (history?.resolution_events.length ?? 0)} events`}
-          </button>
-        </p>
-      ) : null}
-      {outcomes === null ? (
-        <p className="v69-chart-note">Loading the verification history.</p>
-      ) : outcomes.status !== "loaded" ? (
-        <p
-          className="v69-chart-note w1f4-action-gap-note"
-          data-panel-gap="verification-history"
-          data-action-history-outcomes="unread"
-          data-action-http={outcomes.status === "refused" ? (outcomes.http ?? "none") : "none"}
-        >
-          The verification history could not be read, so no trial outcome is listed here.
-        </p>
-      ) : history !== null && history.outcomes.length === 0 && history.resolution_events.length === 0 ? (
-        <ChartNote data={{ "data-action-history-outcomes": "none" }}>No trial outcome recorded yet.</ChartNote>
-      ) : (
-        <ChartNote data={{ "data-action-history-outcomes": "listed" }}>
-          Trial outcomes are the verification history as recorded now{latest ? "" : ", not cut to the selected record"}; a
-          resolution records the current outcome, and later evidence can withdraw it. No event measures an effect; a trial
-          result appears only on <Link to={links.view("verification", LATEST)}>Verification</Link>.
-        </ChartNote>
-      )}
+      {(() => {
+        const total = events === null ? 0 : events.events.length + (history?.outcomes.length ?? 0) + (history?.resolution_events.length ?? 0);
+        const more =
+          events !== null && total > SHOWN_ROWS ? (
+            <button
+              type="button"
+              className="w1f4-action-more"
+              aria-expanded={showAll}
+              data-action-history-show-all
+              onClick={() => setShowAll((open) => !open)}
+            >
+              {showAll ? `Show the latest ${SHOWN_ROWS}` : `Show all ${total} events`}
+            </button>
+          ) : null;
+        if (outcomes !== null && outcomes.status !== "loaded") {
+          return (
+            <>
+              {more ? <p className="v69-chart-note">{more}</p> : null}
+              <p
+                className="v69-chart-note w1f4-action-gap-note"
+                data-panel-gap="verification-history"
+                data-action-history-outcomes="unread"
+                data-action-http={outcomes.status === "refused" ? (outcomes.http ?? "none") : "none"}
+              >
+                The verification history could not be read, so no trial outcome is listed here.
+              </p>
+            </>
+          );
+        }
+        // One note line under the table: the show-all toggle and the outcomes note.
+        return (
+          <p className="v69-chart-note">
+            {more}
+            {more ? <span aria-hidden="true"> · </span> : null}
+            {outcomes === null ? (
+              <span>Loading the verification history.</span>
+            ) : history !== null && history.outcomes.length === 0 && history.resolution_events.length === 0 ? (
+              <span data-action-history-outcomes="none">No trial outcome recorded yet.</span>
+            ) : (
+              <span data-action-history-outcomes="listed">
+                Trial outcomes are the verification history as recorded now{latest ? "" : ", not cut to the selected record"}; a
+                resolution records the current outcome, and later evidence can withdraw it. No event measures an effect; a trial
+                result appears only on <Link to={links.view("verification", LATEST)}>Verification</Link>.
+              </span>
+            )}
+          </p>
+        );
+      })()}
       <ExactReferences
         name="action-history-references"
         variant="tech"
