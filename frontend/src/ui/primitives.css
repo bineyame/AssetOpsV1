@@ -104,6 +104,21 @@ button:focus-visible {
   background: var(--rail-surface);
 }
 
+/* W1-F5a carry 5: the phone-width Menu button; hidden wherever the rail sits beside the content. */
+.app-frame__menu-toggle {
+  display: none;
+  align-items: center;
+  margin-right: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--rail-border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--rail-text-strong);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
 .app-frame__body {
   display: flex;
   flex-direction: column;
@@ -2759,7 +2774,9 @@ input:focus-visible,
  * content - at 390px it left the page about 95px of width - but above it, as
  * a compact wrapping row, and the content keeps a 16px gutter. Every rail
  * destination and group caption stays visible and reachable. Above 640px the
- * shell is unchanged.
+ * shell is unchanged. W1-F5a (carry 5) changed the operator half: its rail now
+ * collapses behind a Menu button (every destination stays reachable by opening
+ * it), as the v69 mock hides its rail at phone width; the Lab keeps the row.
  *
  * Scoped to the two named shells: the operator shell (`.app-frame--operator`,
  * set by OperatorShellLayout) and, since V-01b, the Simulator Lab shell
@@ -2773,7 +2790,6 @@ input:focus-visible,
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-frame--operator .app-frame__side,
   .app-frame--lab .app-frame__side {
     display: flex;
     flex-wrap: wrap;
@@ -2781,7 +2797,6 @@ input:focus-visible,
     gap: 0 var(--space-3);
   }
 
-  .app-frame--operator .app-frame__side .nav-rail,
   .app-frame--lab .app-frame__side .nav-rail {
     display: flex;
     flex-wrap: wrap;
@@ -2789,12 +2804,10 @@ input:focus-visible,
     padding: var(--space-1) var(--space-2);
   }
 
-  .app-frame--operator .app-frame__side .nav-rail__group + .nav-rail__group,
   .app-frame--lab .app-frame__side .nav-rail__group + .nav-rail__group {
     margin-top: 0;
   }
 
-  .app-frame--operator .app-frame__side .nav-rail__group,
   .app-frame--lab .app-frame__side .nav-rail__group {
     display: flex;
     flex-wrap: wrap;
@@ -2802,10 +2815,33 @@ input:focus-visible,
     gap: 0 var(--space-2);
   }
 
-  .app-frame--operator .app-frame__side .nav-rail__list,
   .app-frame--lab .app-frame__side .nav-rail__list {
     flex-direction: row;
     flex-wrap: wrap;
+  }
+
+  /* W1-F5a carry 5: the operator rail collapses behind the Menu button, as the mock hides its rail. */
+  .app-frame--operator .app-frame__brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .app-frame--operator .app-frame__brand-row .app-header {
+    border-bottom: 0;
+  }
+
+  .app-frame--operator .app-frame__menu-toggle {
+    display: inline-flex;
+  }
+
+  .app-frame--operator .app-frame__rail-body {
+    display: none;
+  }
+
+  .app-frame--operator.app-frame--rail-open .app-frame__rail-body {
+    display: block;
+    border-top: 1px solid var(--rail-border);
   }
 
   .app-frame--operator .app-frame__content,
