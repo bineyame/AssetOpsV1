@@ -414,9 +414,8 @@ function ConditionBody({ siteId, read }: { siteId: string; read: HealthRead<Batt
               <th scope="col">Main reason</th>
               <th scope="col">Open findings</th>
               <th scope="col">Open work</th>
-              <th scope="col">
-                <span className="visually-hidden">Open</span>
-              </th>
+              {/* A visible header: a visually hidden one is absolutely positioned and escapes the table's scroller. */}
+              <th scope="col">Open</th>
             </tr>
           </thead>
           <tbody>
