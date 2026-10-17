@@ -493,6 +493,27 @@ describe("the section on the Evidence Analysis page", () => {
     expect(section(container)).toBeNull();
   });
 
+  it("fix round 2: a loaded assessment puts its detail into the panel's single closed row and keeps the result visible", async () => {
+    const { container } = page(SEARCH, fake(() => ({ status: "loaded", value: sample("full-candidate") })));
+    await settledScreen();
+    const panelEl = container.querySelector("[data-evidence-claim-limit]")?.closest("section") as HTMLElement;
+    const top = panelEl.querySelectorAll("details:not(details details)");
+    expect(top).toHaveLength(1);
+    const outer = top[0] as HTMLDetailsElement;
+    expect(outer.open).toBe(false);
+    expect(outer.dataset.disclosure).toBe("evidence-limit-details");
+    expect(outer.querySelector("[data-period-strip='claim-limit-roles']")).not.toBeNull();
+    expect(outer.textContent).toContain("What can be said is narrowed in these ways");
+    expect(panelEl.querySelector("details[data-disclosure='claim-limit-detail']")).toBeNull();
+    for (const visible of ["[data-claim-limit-headline]", "[data-not-available='claim-limit-rule']", "[data-evidence-limit-note]"]) {
+      expect(panelEl.querySelector(visible), visible).not.toBeNull();
+      expect(panelEl.querySelector(visible)?.closest("details"), visible).toBeNull();
+    }
+    expect(panelEl.querySelector("[data-evidence-limit-note]")?.textContent).toContain("not the equipment's physical capacity");
+    // The Dispatch link ends the result line.
+    expect(panelEl.querySelector(".claim-limit__result [data-claim-limit-pinned]")).not.toBeNull();
+  });
+
   it("opens an accepted reading in the page's record inspector after the link is followed", async () => {
     const read = sample("full-candidate");
     const ledger = ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE });

@@ -246,9 +246,15 @@ export interface EvidenceClaimLimitProps {
    * (the chip row has not mounted).
    */
   chooserTarget?: HTMLElement | null;
+  /**
+   * W1-F2 fix round 2 (M1): where the closed detail content (inputs, reasons, earlier versions, references)
+   * renders. Omitted, it keeps its own `claim-limit-detail` disclosure; an element (the panel's single
+   * advanced row) receives the content through a portal, without a disclosure wrapper; null renders it nowhere yet.
+   */
+  detailTarget?: HTMLElement | null;
 }
 
-export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarget }: EvidenceClaimLimitProps) {
+export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarget, detailTarget }: EvidenceClaimLimitProps) {
   const [params] = useSearchParams();
   const rawDay = params.get("day");
   const day = isDay(rawDay) ? rawDay : null;
@@ -329,6 +335,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarg
           hrefFor={select}
           assessmentHref={assessmentHref}
           periods={assessed !== null && assessed.status === "loaded" ? assessed.value.periods : []}
+          detailTarget={detailTarget}
         />
       </div>
   );
@@ -432,7 +439,9 @@ function Body({
   hrefFor,
   assessmentHref,
   periods,
+  detailTarget,
 }: {
+  detailTarget?: HTMLElement | null;
   siteId: string;
   answeredAt: string | null;
   client: ClaimLimitClient | undefined;
@@ -445,22 +454,18 @@ function Body({
 }) {
   if (day === null) {
     return (
-      <div data-claim-limit-state="no-day" data-currentness="UNASSESSED">
-        <div className="claim-limit__status">
-          <ProductStatus words={currentnessWords("UNASSESSED")} scope="No assessment selected" asOf={null} />
-        </div>
-        <p>Choose a day, then one of its assessed periods. Nothing is concluded until an assessment is chosen.</p>
-      </div>
+      <p className="claim-limit__result" data-claim-limit-state="no-day" data-currentness="UNASSESSED">
+        <ProductStatus inline words={currentnessWords("UNASSESSED")} scope="No assessment selected" asOf={null} /> Choose a day,
+        then one of its assessed periods.
+      </p>
     );
   }
   if (client === undefined) {
     return (
-      <div data-claim-limit-state="unavailable">
-        <div className="claim-limit__status">
-          <ProductStatus words={readResultWords("unavailable")} scope={`Assessment for ${day}`} asOf={null} />
-        </div>
-        <p>The assessment store could not be read, so nothing is shown about a selected assessment.</p>
-      </div>
+      <p className="claim-limit__result" data-claim-limit-state="unavailable">
+        <ProductStatus inline words={readResultWords("unavailable")} scope={`Assessment for ${day}`} asOf={null} /> The assessment
+        store could not be read, so nothing is shown about a selected assessment.
+      </p>
     );
   }
   if (read === null) {
@@ -472,14 +477,15 @@ function Body({
   if (read.status !== "loaded") {
     return (
       <div data-claim-limit-state={read.status} data-refusal-code={"code" in read ? (read.code ?? "") : ""}>
-        <div className="claim-limit__status">
+        <p className="claim-limit__result">
           <ProductStatus
+            inline
             words={readResultWords(read.status === "not_found" ? "not-found" : read.status === "unavailable" ? "unavailable" : "refused")}
             scope={revision === null ? `Assessment for ${day}` : `Selected assessment for ${day}`}
             asOf={answeredAt}
-          />
-        </div>
-        <p>{refusalSentence(read)}</p>
+          />{" "}
+          {refusalSentence(read)}
+        </p>
         {"message" in read && read.message !== null ? (
           <Disclosure name="claim-limit-refusal-technical" summary="Technical details">
             <p>{`${"code" in read && read.code !== null ? `${read.code}: ` : ""}${read.message}`}</p>
@@ -488,7 +494,7 @@ function Body({
       </div>
     );
   }
-  return <Loaded siteId={siteId} read={read.value} revision={revision} hrefFor={hrefFor} assessmentHref={assessmentHref} periods={periods} />;
+  return <Loaded siteId={siteId} read={read.value} revision={revision} hrefFor={hrefFor} assessmentHref={assessmentHref} periods={periods} detailTarget={detailTarget} />;
 }
 
 function Loaded({
@@ -497,7 +503,9 @@ function Loaded({
   hrefFor,
   assessmentHref,
   periods,
+  detailTarget,
 }: {
+  detailTarget?: HTMLElement | null;
   siteId: string;
   read: ClaimLimitRead;
   revision: string | null;
@@ -527,40 +535,8 @@ function Loaded({
   const selected = read.assessment_revision_id;
   const whenText = selected === null ? `Day ${read.day}` : `${read.day}, ${read.scope === "WINDOW" ? "whole day" : assessedPeriod(read)}`;
 
-  return (
-    <div
-      data-claim-limit-state="loaded"
-      data-currentness={read.currentness}
-      data-ceiling={current ? (limit?.ceiling ?? "") : ""}
-      data-support={current ? (limit?.support ?? "") : ""}
-      data-scope={read.scope ?? ""}
-    >
-      {/* W1-F2 fix round (H2): one result line - the sentence, then its state inline (same words, scope and bound). */}
-      <p className="claim-limit__result">
-        <span className="claim-limit__headline" data-claim-limit-headline>
-          {head.text}
-        </span>{" "}
-        <span className="claim-limit__status">
-          <ProductStatusLine read={read} whenText={whenText} />
-        </span>
-      </p>
-      {read.currentness === "UNASSESSED" ? (
-        <ChartNote>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</ChartNote>
-      ) : null}
-      {selected === null || assessmentHref === undefined ? null : (
-        <ChartNote>
-          <Link to={assessmentHref(read.day, selected)} data-claim-limit-pinned={selected}>
-            Open this assessment in Performance › Dispatch
-          </Link>
-        </ChartNote>
-      )}
-      {/* W1-F2 compaction: what limits it, the readings by input, earlier-version text and the technical
-          references sit in one closed disclosure; the headline, state line and day status stay visible. */}
-      <Disclosure variant="tech" name="claim-limit-detail" summary="Details — what limits it, readings by input and earlier versions">
-        <ChartNote>
-          This describes what the readings show, not the equipment's physical capacity; configured ratings are not
-          treated as observed.
-        </ChartNote>
+  const detail = (
+    <>
         <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
         {reasons.length === 0 ? null : (
           <>
@@ -600,7 +576,50 @@ function Loaded({
           <RoleTable roleKeys={roleKeys} roles={roles} recordHref={recordHref} />
         )}
         <Technical read={read} revision={revision} recordHref={recordHref} />
-      </Disclosure>
+    </>
+  );
+
+  return (
+    <div
+      data-claim-limit-state="loaded"
+      data-currentness={read.currentness}
+      data-ceiling={current ? (limit?.ceiling ?? "") : ""}
+      data-support={current ? (limit?.support ?? "") : ""}
+      data-scope={read.scope ?? ""}
+    >
+      {/* W1-F2 fix round (H2): one result line - the sentence, then its state inline (same words, scope and bound). */}
+      <p className="claim-limit__result">
+        <span className="claim-limit__headline" data-claim-limit-headline>
+          {head.text}
+        </span>{" "}
+        <span className="claim-limit__status">
+          <ProductStatusLine read={read} whenText={whenText} />
+        </span>
+        {selected === null || assessmentHref === undefined ? null : (
+          <>
+            {" "}
+            <Link to={assessmentHref(read.day, selected)} data-claim-limit-pinned={selected}>
+              Open this assessment in Performance › Dispatch
+            </Link>
+          </>
+        )}
+      </p>
+      {read.currentness === "UNASSESSED" ? (
+        <ChartNote>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</ChartNote>
+      ) : null}
+      {/* W1-F2 compaction: what limits it, the readings by input, earlier-version text and the technical
+          references sit in one closed disclosure; the headline, state line and day status stay visible. */}
+      {detailTarget === undefined ? (
+        <Disclosure variant="tech" name="claim-limit-detail" summary="Details — what limits it, readings by input and earlier versions">
+          <ChartNote>
+            This describes what the readings show, not the equipment's physical capacity; configured ratings are not
+            treated as observed.
+          </ChartNote>
+          {detail}
+        </Disclosure>
+      ) : detailTarget === null ? null : (
+        createPortal(detail, detailTarget)
+      )}
     </div>
   );
 }

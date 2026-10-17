@@ -236,6 +236,20 @@ describe("V-01b Site Evidence analysis", () => {
     // Review fix H2: the mock's two paragraphs; the assessment chooser is in the page chip row, not the panel; no
     // answer-card label and no repeat of the Overview's "This page states what arrived" line.
     expect(limit.querySelector("[data-evidence-limit-note]")?.textContent).toContain("a source can be online while the equipment it watches is faulty");
+    // Fix round 2 (M1): the physical-capacity caveat is visible; one closed top-level disclosure; no-selection is one line.
+    expect(limit.querySelector("[data-evidence-limit-note]")?.textContent).toContain("not the equipment's physical capacity");
+    expect(limit.querySelector("[data-evidence-limit-note]")?.closest("details")).toBeNull();
+    const top = limit.querySelectorAll("details:not(details details)");
+    expect(top.length).toBe(1);
+    expect((top[0] as HTMLDetailsElement).open).toBe(false);
+    expect((top[0] as HTMLElement).dataset.disclosure).toBe("evidence-limit-details");
+    expect(top[0].querySelector("[data-evidence-claim-limit-list]")).not.toBeNull();
+    expect(limit.querySelector("[data-not-available='claim-limit-rule']")?.closest("details")).toBeNull();
+    expect(limit.textContent?.match(/nothing is concluded/gi) ?? []).toHaveLength(1);
+    expect(limit.textContent).toContain("No assessment selected");
+    expect(limit.textContent).toContain("Choose a day, then one of its assessed periods.");
+    expect(limit.textContent).not.toContain("No assessment exists");
+    expect(limit.querySelector(".product-status:not(.product-status--inline)")).toBeNull();
     expect(limit.textContent).toContain("Each conclusion lists the readings it needs.");
     expect(limit.textContent).not.toContain("This page states what arrived");
     expect(limit.querySelector(".headline-card__question, h3:not(details h3)")).toBeNull();
@@ -287,8 +301,8 @@ describe("V-01b Site Evidence analysis", () => {
     expect(document.querySelector("[data-evidence-records-count]")?.closest("details")).toBeNull();
     // The record and analysis technical disclosures each sit in one closed outer row.
     for (const [outer, inner] of [
-      ["evidence-records-technical", ["evidence-clocks", "evidence-sources", "evidence-deliveries", "evidence-coverage"]],
-      ["evidence-analysis-technical", ["evidence-analysis-status", "evidence-comparison", "evidence-gateway"]],
+      ["evidence-records-technical", ["evidence-not-accepted", "evidence-clocks", "evidence-sources", "evidence-deliveries", "evidence-coverage"]],
+      ["evidence-limit-details", ["evidence-limit-list", "evidence-analysis-technical", "evidence-analysis-status", "evidence-comparison", "evidence-gateway"]],
     ] as const) {
       const details = document.querySelector(`details[data-disclosure='${outer}']`) as HTMLDetailsElement;
       expect(details.open, outer).toBe(false);

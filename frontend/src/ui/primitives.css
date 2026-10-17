@@ -4599,6 +4599,15 @@ ul.evidence-notes li { font-size: inherit; }
 /* W1-F2 resume: the inline state line (ProductStatus inline) as strip spans. */
 .product-status--inline {
   display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: inherit;
+}
+
+.product-status--inline * {
+  font-size: inherit;
 }
 
 .product-status--inline .product-status__label {

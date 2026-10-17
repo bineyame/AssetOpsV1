@@ -158,6 +158,8 @@ export function LedgerSiteEvidence({
 
   // W1-F2 fix round (H2): the chip-row element the claim-limit chooser renders into.
   const [chooserSlot, setChooserSlot] = useState<HTMLDivElement | null>(null);
+  // W1-F2 fix round 2 (M1): the slot inside the limits panel's single advanced row.
+  const [detailSlot, setDetailSlot] = useState<HTMLDivElement | null>(null);
 
   const inspect = (key: "signal" | "source", value: string) => {
     const next = new URLSearchParams(params);
@@ -196,9 +198,12 @@ export function LedgerSiteEvidence({
           </StatusBar>
           {/* W1-F2: the v69 evidence-analysis panels. Records (and readings not accepted) first, then how a limit is set. */}
           <Inspector siteId={siteId} ledger={ledger} evidence={evidence}>
-            <Rejected siteId={siteId} ledger={ledger} evidence={evidence} />
-            {/* W1-F2 compaction: the record-level technical tables sit in one closed row; each keeps its own closed disclosure. */}
-            <Advanced name="evidence-records-technical" summary="Advanced details — clocks, sources, deliveries and readings by input">
+            <Rejected
+              siteId={siteId}
+              ledger={ledger}
+              evidence={evidence}
+              technical={
+                <>
               <Advanced name="evidence-clocks" summary="Advanced details — which clock each time uses">
                 <Clocks evidence={evidence} />
               </Advanced>
@@ -217,12 +222,15 @@ export function LedgerSiteEvidence({
                   <Coverage evidence={evidence} onInspect={(key) => inspect("signal", key)} />
                 </Advanced>
               )}
-            </Advanced>
+                </>
+              }
+            />
           </Inspector>
           <ClaimLimit
             evidence={evidence}
+            detailSlotRef={setDetailSlot}
             technical={
-            /* W1-F2 compaction: the three technical disclosures sit in one closed row; each keeps its own closed disclosure. */
+            /* W1-F2 compaction: the technical disclosures nest inside the panel's single advanced row; each keeps its own closed disclosure. */
             <Advanced
               name="evidence-analysis-technical"
               summary={
@@ -252,6 +260,7 @@ export function LedgerSiteEvidence({
               client={claimLimit}
               assessmentHref={assessmentHref}
               chooserTarget={chooserSlot}
+              detailTarget={detailSlot}
             />
           </ClaimLimit>
         </>
@@ -1104,10 +1113,13 @@ function Rejected({
   siteId,
   ledger,
   evidence,
+  technical,
 }: {
   siteId: string;
   ledger: LedgerEvidenceClient | undefined;
   evidence: LedgerEvidence;
+  /** The record-level technical disclosures; they nest inside the panel's single advanced row. */
+  technical?: ReactNode;
 }) {
   const [loaded, setLoaded] = useState<EvidenceRead<LedgerRejections> | null>(null);
   useEffect(() => {
@@ -1146,6 +1158,7 @@ function Rejected({
           A delivery that was rejected as a whole is kept for audit and not listed as a reading.
         </span>
       </p>
+      <Advanced name="evidence-records-technical" summary="Advanced details — readings not accepted, clocks, sources, deliveries and readings by input">
       <Advanced name="evidence-not-accepted" summary="Advanced details — readings not accepted">
         {evidence.state === "NO_DATA" ? null : <OutcomeBars evidence={evidence} />}
         <h3 id="site-evidence-rejected-table-heading">Readings not accepted (all periods)</h3>
@@ -1215,6 +1228,8 @@ function Rejected({
             )}
           </>
         )}
+      </Advanced>
+      {technical}
       </Advanced>
     </div>
   );
@@ -1457,9 +1472,12 @@ function ClaimLimit({
   evidence,
   children,
   technical,
+  detailSlotRef,
 }: {
   evidence: LedgerEvidence;
   children?: ReactNode;
+  /** The empty slot inside the panel's single advanced row; the selected assessment's detail renders into it. */
+  detailSlotRef?: (el: HTMLDivElement | null) => void;
   /** The closed technical disclosures, after the not-available line and the list of limits. */
   technical?: ReactNode;
 }) {
@@ -1480,7 +1498,8 @@ function ClaimLimit({
           </p>
           <p data-evidence-limit-note>
             Data-source status describes reporting, not equipment condition: a source can be online while the
-            equipment it watches is faulty.
+            equipment it watches is faulty. A conclusion describes what the readings show, not the equipment's physical
+            capacity; configured ratings are not treated as observed.
           </p>
         </div>
       </div>
@@ -1488,6 +1507,11 @@ function ClaimLimit({
       <NotAvailableYet name="claim-limit-rule">
         Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).
       </NotAvailableYet>
+      <Advanced
+        name="evidence-limit-details"
+        summary="Advanced details — what limits it, how what can be said is narrowed, analysis status and earlier store"
+      >
+        <div ref={detailSlotRef} data-claim-limit-detail-slot />
       <div data-evidence-claim-limit-list>
         <Advanced name="evidence-limit-list" summary="Advanced details — how what can be said is narrowed">
         <p>What can be said is narrowed in these ways:</p>
@@ -1508,6 +1532,7 @@ function ClaimLimit({
         </Advanced>
       </div>
       {technical}
+      </Advanced>
     </Panel>
   );
 }
