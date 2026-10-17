@@ -5,6 +5,7 @@ import { SiteConfiguration } from "../SiteConfiguration";
 import { MemoryRouter } from "react-router-dom";
 
 import {
+  FOUNDATION_CHANGE_SUBTAB,
   FOUNDATION_SUBTABS,
   FOUNDATION_SUBTABS_LABEL,
   FoundationSubtabs,
@@ -315,20 +316,27 @@ function viewRow(): HTMLElement {
 }
 
 describe("the Foundation view row is v6.9's, filtered (S1-03)", () => {
-  it("is Site model, Single line diagram, Readiness and nothing else, in that order", () => {
+  it("is Site model, Single line diagram, Readiness, then Change & effect, and nothing else, in that order", () => {
     renderViewRow();
+    // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's fourth entry, a link to the Changes route.
     expect(
       within(viewRow()).getAllByRole("link").map((link) => link.textContent),
-    ).toEqual(V69_FOUNDATION_VIEWS);
+    ).toEqual([...V69_FOUNDATION_VIEWS, FOUNDATION_CHANGE_SUBTAB.label]);
     expect(FOUNDATION_SUBTABS.map((subtab) => subtab.label)).toEqual(
       V69_FOUNDATION_VIEWS,
     );
+    expect(FOUNDATION_CHANGE_SUBTAB.label).toBe("Change & effect");
   });
 
-  it("never offers Change & effect, enabled, disabled or labelled", () => {
+  it("offers Change & effect only as a live link to the Changes route, never as Changes, disabled or labelled", () => {
     renderViewRow();
-    expect(spacedText(viewRow())).not.toMatch(/change/i);
+    expect(within(viewRow()).getByRole("link", { name: "Change & effect" })).toHaveAttribute(
+      "href",
+      "/sites/KOBO-001/foundation/changes",
+    );
+    expect(spacedText(viewRow()).match(/change/gi)).toHaveLength(1);
     expect(FOUNDATION_SUBTABS.map((subtab) => subtab.label)).not.toContain("Changes");
+    expect(within(viewRow()).queryByRole("link", { name: "Changes" })).toBeNull();
     expect(within(viewRow()).queryAllByRole("button")).toHaveLength(0);
     expect(
       viewRow().querySelectorAll("[disabled], [aria-disabled], [title]"),
@@ -342,6 +350,15 @@ describe("the Foundation view row is v6.9's, filtered (S1-03)", () => {
     ).not.toContain(label);
   });
 
+  it("gives a cold-room row the three views only, as the mock does (W1-F5b)", () => {
+    render(
+      <MemoryRouter>
+        <FoundationSubtabs current="model" hrefFor={(view) => `/sites/COLD-1/foundation/${view}`} withChanges={false} />
+      </MemoryRouter>,
+    );
+    expect(within(viewRow()).getAllByRole("link").map((link) => link.textContent)).toEqual(V69_FOUNDATION_VIEWS);
+  });
+
   it("links each view to its own address, carrying the selected period", () => {
     renderViewRow("sld");
     const hrefs = within(viewRow()).getAllByRole("link").map((link) => link.getAttribute("href"));
@@ -349,6 +366,7 @@ describe("the Foundation view row is v6.9's, filtered (S1-03)", () => {
       "/sites/KOBO-001/foundation?at=X",
       "/sites/KOBO-001/foundation/sld?at=X",
       "/sites/KOBO-001/foundation/readiness?at=X",
+      "/sites/KOBO-001/foundation/changes",
     ]);
   });
 

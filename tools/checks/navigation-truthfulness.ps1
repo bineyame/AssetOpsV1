@@ -16,6 +16,11 @@
 # holds that inventory to the ruling; its fixtures are
 # tools/checks/navigation-rail-fixtures.ps1.
 #
+# W1-F5b (D-2026-10-17-f5-subtabs-and-contact) extends the owner's rule to the
+# named in-page tab rows and the Site Findings lens chips, as a narrow declared
+# inventory: Get-InPageUnavailableEntryFailures. Its fixtures are in the same
+# fixtures file.
+#
 # Do not weaken the checks below to make a task pass.
 
 function Invoke-NavigationTruthfulnessCheck {
@@ -124,6 +129,10 @@ function Invoke-NavigationTruthfulnessCheck {
     }
 
     foreach ($failure in (Get-FoundationSubtabFailures)) {
+        $failures.Add($failure) | Out-Null
+    }
+
+    foreach ($failure in (Get-InPageUnavailableEntryFailures)) {
         $failures.Add($failure) | Out-Null
     }
 
@@ -301,15 +310,22 @@ function Get-FoundationSubtabFailures {
     # S1-02 D2 ruling that kept Readiness off this row). `Readiness` is S1-02
     # configuration readiness; claim/capability readiness stays on Site >
     # Evidence. Every view is navigable: none is disabled or labelled in place.
-    $requiredViews = @("Site model", "Single line diagram", "Readiness")
+    #
+    # W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the owner's full mock-menu
+    # rule restores the mock's fourth entry, `Change & effect`, declared once
+    # after the three views as a live link to the existing Foundation Changes
+    # route. It is the only addition: the row is still exactly these labels.
+    $requiredViews = @("Site model", "Single line diagram", "Readiness", "Change & effect")
 
     # `Changes` is filtered out by the accepted T008
     # checkpoint: lines 2149 and 2225-2228 make it a real intervention and
     # change-effect capability rather than the mockup's `Version History`, no
     # configuration-change model exists, and naming it would promise a meaning
     # a reader would guess wrongly. Absent in every state, not labelled.
+    # W1-F5b: `Change & effect` is now the declared fourth entry (above); the
+    # other spellings stay forbidden so the row has one name for it.
     $forbiddenSubtab = "Changes"
-    $forbiddenChangeLabels = @("Change & effect", "Change and effect")
+    $forbiddenChangeLabels = @("Change and effect")
 
     # What T013 replaced. These were the old mockup-derived subtab names and
     # they must not come back as a Foundation subtab row.
@@ -386,8 +402,9 @@ function Get-FoundationSubtabFailures {
             $failures.Add(("$inventoryName in $($module.Path) declares " +
                 "'$($declaredLabels -join ", ")'. The Foundation view row is " +
                 "exactly '$($requiredViews -join ", ")', in v6.9's order " +
-                "(D-2026-10-08-s1-foundation-organization): three supported, " +
-                "navigable views and no other.")) | Out-Null
+                "(D-2026-10-08-s1-foundation-organization, " +
+                "D-2026-10-17-f5-subtabs-and-contact): three supported, " +
+                "navigable views, then Change & effect, and no other.")) | Out-Null
         }
 
         $lineNumber = 0
@@ -693,6 +710,109 @@ function Get-OperatorRailFailures {
         $failures.Add(("$navRailPath no longer declares NavRailUnavailableItem with " +
             "kind: ""unavailable"" and to?: never, so the type no longer forbids a " +
             "destination on an unavailable root.")) | Out-Null
+    }
+
+    return $failures
+}
+
+
+# W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the unbuilt entries of the named
+# v69 in-page rows - Finding > Alternatives, Financials > Scenarios, Work >
+# Incidents and Maintenance - and the Site Findings lens chips Cost, Risks and
+# Opportunities render as "Not available yet" text through one component,
+# frontend/src/ui/UnavailableEntry.tsx. This is a narrow exception to the
+# absent-tab rule above, never a general one:
+#   - the component is not a control (no to, href, handler, tab stop, button,
+#     link, role or disabled state);
+#   - the entries rendered through it are exactly the declared inventory, each
+#     once, with literal labels (the one dynamic use is FindingSections, whose
+#     entries are declared as `label: "...", unavailable: true`);
+#   - nothing else may render it.
+# Parameters exist so the fixtures can feed mutated modules; with none, the
+# real tree is read.
+function Get-InPageUnavailableEntryFailures {
+    param(
+        [object[]] $Modules
+    )
+    $failures = New-Object System.Collections.Generic.List[string]
+    $componentPath = "frontend/src/ui/UnavailableEntry.tsx"
+    $dynamicOwner = "frontend/src/sites/SiteFindingEvidence.tsx"
+    $expectedTabs = @("Alternatives", "Scenarios", "Incidents", "Maintenance")
+    $expectedChips = @("Cost", "Risks", "Opportunities")
+
+    if ($null -eq $Modules) {
+        $Modules = @(Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))
+    }
+
+    $component = @($Modules | Where-Object { $_.Path -eq $componentPath })
+    if ($component.Count -eq 0) {
+        $failures.Add(("$componentPath was not found, so the in-page unavailable " +
+            "entry check is vacuous. Update the check, do not delete it.")) | Out-Null
+        return $failures
+    }
+
+    $forbidden = @(
+        @{ Pattern = '\bto\s*=';            Name = "to" },
+        @{ Pattern = '\bhref\b';            Name = "href" },
+        @{ Pattern = '\bon[A-Z]\w*\s*=';   Name = "an event handler" },
+        @{ Pattern = 'tabIndex';             Name = "tabIndex" },
+        @{ Pattern = '\bdisabled\b';        Name = "disabled" },
+        @{ Pattern = '<button\b';            Name = "a button" },
+        @{ Pattern = '<(Link|NavLink|a)\b';  Name = "a link" },
+        @{ Pattern = '\brole\s*=';          Name = "a role" },
+        @{ Pattern = 'cursor:\s*pointer';    Name = "a pointer affordance" }
+    )
+    $lineNumber = 0
+    foreach ($line in $component[0].Lines) {
+        $lineNumber++
+        if ($line -match '^\s*(\*|//|/\*)') { continue }
+        foreach ($rule in $forbidden) {
+            if ($line -match $rule.Pattern) {
+                $failures.Add(("The in-page unavailable entry at ${componentPath}:${lineNumber} " +
+                    "carries $($rule.Name): $($line.Trim()). An unbuilt tab or chip is " +
+                    "readable text, not a control: no destination, handler, tab stop or " +
+                    "disabled state (D-2026-10-17-f5-subtabs-and-contact).")) | Out-Null
+            }
+        }
+    }
+
+    $tabs = New-Object System.Collections.Generic.List[string]
+    $chips = New-Object System.Collections.Generic.List[string]
+    foreach ($module in $Modules) {
+        if ($module.Path -eq $componentPath) { continue }
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($m in [regex]::Matches($line, '<Unavailable(Tab|Chip)\b([^>]*)')) {
+                $kind = $m.Groups[1].Value
+                $literal = [regex]::Match($m.Groups[2].Value, 'label="([^"]+)"')
+                if ($literal.Success) {
+                    if ($kind -eq "Tab") { $tabs.Add($literal.Groups[1].Value) | Out-Null }
+                    else { $chips.Add($literal.Groups[1].Value) | Out-Null }
+                }
+                elseif (-not ($kind -eq "Tab" -and $module.Path -eq $dynamicOwner)) {
+                    $failures.Add(("Unavailable$kind with a non-literal label at " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()). The unbuilt in-page " +
+                        "entries are a declared inventory; a computed label could name any " +
+                        "tab.")) | Out-Null
+                }
+            }
+            foreach ($m in [regex]::Matches($line, 'label:\s*"([^"]+)",\s*unavailable:\s*true')) {
+                $tabs.Add($m.Groups[1].Value) | Out-Null
+            }
+        }
+    }
+
+    foreach ($pair in @(@("tab", $expectedTabs, $tabs), @("lens chip", $expectedChips, $chips))) {
+        $got = @($pair[2] | Sort-Object)
+        $want = @($pair[1] | Sort-Object)
+        if (($got -join "|") -ne ($want -join "|")) {
+            $failures.Add(("The unbuilt in-page $($pair[0]) entries are '$($pair[2] -join ", ")'; " +
+                "the W1 inventory is exactly '$($pair[1] -join ", ")', each once " +
+                "(D-2026-10-17-f5-subtabs-and-contact). An entry becomes live only with " +
+                "a reviewed, truthful destination; a new unbuilt entry is a ruling, not a " +
+                "cleanup.")) | Out-Null
+        }
     }
 
     return $failures

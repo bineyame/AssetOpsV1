@@ -145,7 +145,7 @@
   font-size: inherit;
 }
 
-.v69-state-line .source-provenance .notice::before {
+.v69-state-line .source-provenance:not(:first-child) .notice::before {
   content: " · ";
 }
 

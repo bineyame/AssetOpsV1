@@ -8,7 +8,7 @@
  * contracts (`s6_action_api_contract.json`, `s6_site_action_index_contract.json`);
  * derived bodies say so where they are built.
  */
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -18,6 +18,7 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { expectUnavailableEntry, rowLabels, UNAVAILABLE_STATUS } from "../../test/unavailableEntry";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -149,6 +150,23 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     );
     // No global Actions list exists in this build, so no "Manage in Actions" link.
     expect(document.body.textContent).not.toMatch(/Manage in Actions/);
+  });
+
+  it("W1-F5b: the Work row is the mock's Actions | Incidents | Maintenance, with only Actions live and current", async () => {
+    serve({ [indexApi(WINDOW)]: { status: 200, body: D.positive } });
+    mount(workUrl(WINDOW));
+    await settledScreen();
+    const row = screen.getByRole("navigation", { name: "Work lists" });
+    expect(rowLabels(row)).toEqual(["Actions", `Incidents (${UNAVAILABLE_STATUS})`, `Maintenance (${UNAVAILABLE_STATUS})`]);
+    const links = within(row).getAllByRole("link");
+    expect(links.map((l) => [l.textContent, l.getAttribute("aria-current")])).toEqual([["Actions", "page"]]);
+    expectUnavailableEntry(row, "Incidents");
+    expectUnavailableEntry(row, "Maintenance");
+    expect(document.querySelectorAll('a[href*="incident" i], a[href*="maintenance" i]')).toHaveLength(0);
+    // W1-F5b carry 11: the breadcrumb names the site, not its raw code.
+    const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(within(trail).getByRole("link", { name: HYBRID_MINI_GRID_SITE.display_name })).toHaveAttribute("href", "/sites/KOBO-001");
+    expect(trail.textContent).not.toContain("KOBO-001");
   });
 
   it("empty (proved zero): the same slot states the checked zero with its read time", async () => {

@@ -228,7 +228,7 @@ export function SiteDetailFacts({
   return (
     <>
       {parentTrail === undefined ? null : (
-        <Breadcrumbs trail={[...parentTrail(view.siteId), { label: view.siteId }]} />
+        <Breadcrumbs trail={[...parentTrail(view.siteId), { label: view.displayName }]} />
       )}
 
       {/*

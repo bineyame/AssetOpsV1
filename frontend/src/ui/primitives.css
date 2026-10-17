@@ -310,10 +310,15 @@ button:focus-visible {
  * leaving the active tab's underline floating against nothing.
  */
 .site-tabs__list {
-  border-bottom: 1px solid var(--border-subtle);
+  /* W1-F5b (carry 10): the mock's `.tabs` row never wraps; it scrolls inside itself (overflow:auto, nowrap).
+     The rule is an inset shadow so the scroll box does not clip the current tab's underline. */
+  box-shadow: inset 0 -1px 0 var(--border-subtle);
   list-style: none;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
   column-gap: var(--tab-gap);
   margin: 0;
   padding: 0;
@@ -336,7 +341,6 @@ button:focus-visible {
 .site-tabs__link {
   display: block;
   padding: 11px 0 12px;
-  margin-bottom: -1px;
   border-bottom: 2px solid transparent;
   line-height: var(--leading-normal);
   white-space: nowrap;
@@ -2224,6 +2228,48 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+/* W1-F5b (D-2026-10-17-f5-subtabs-and-contact): an unbuilt in-page tab or lens chip. Muted, readable text in
+   the row's own position, with its status beside it; no pointer, hover or focus, because it is not a control. */
+.site-tabs__item--unavailable {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 11px 0 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  cursor: default;
+}
+
+.site-subtabs .site-tabs__item--unavailable {
+  padding: 7px 0 10px;
+}
+
+.v69-chip__status {
+  font-size: 10px;
+  font-style: italic;
+  letter-spacing: 0.2px;
+}
+
+.v69-chips--lenses {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.v69-chip--unavailable {
+  color: var(--text-secondary);
+  background: transparent;
+  border-style: dashed;
+  cursor: default;
+}
+
+.v69-chip[aria-current="true"] {
+  background: #eaf0fd;
+  border-color: #cbdafa;
+  color: #245ac0;
+  cursor: default;
 }
 
 .nav-rail__status {

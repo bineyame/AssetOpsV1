@@ -414,3 +414,10 @@ A fresh coordinator starts from this file; do not re-derive what it states.
 - W2-01 (review2): build running after Architect answers (`D-2026-10-17-w2-01-answers`).
 - Next: F5 (health/asset + carries + all-26 audit) with the recurring-defect self-check (memory `mockup-is-layout-spec`); then owner repeat walkthrough. W2-02 after W2-01 merges.
 - On resume: check each worktree's git log/status; agents may have been cut off - re-dispatch from committed state.
+
+## Entry 37 (2026-10-17 late) - W1 rework complete; awaiting owner repeat walkthrough
+
+- W1 fidelity rework F1-F5b all merged on main (`056a34b8`): F2 `2275348f`, F4 `aceb759e`, F3 `92a91dc2`, F5a `e7a1f6a1`, F5b `056a34b8`. Frontend 2140 passed, guards 10/10.
+- Owner walkthrough index: `.agent/W1-F5b-evidence/index.html` (168 app-vs-mock pairs at 1440/390, 0 failing; overages with reasons in `overages.json`). Owner folder `AssetOpsV1` moved to `056a34b8`. W1 closes only on owner acceptance.
+- W2: W2-00, W2-01 merged. W2-02 (review2, `task/W2-02-cold-producer`) commit (4) + full suites running (agent). Then Opus review, W2-03 (build spec ready: `.agent/W2-03-build-spec.md`).
+- Efficiency rules in memory `token-efficiency`.

@@ -1,0 +1,478 @@
+{
+  "revision": "6978d924",
+  "captured_at": "2026-10-17T19:04:41.547Z",
+  "pairs": [
+    {
+      "screen": "changes",
+      "case": "list",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-001/foundation/changes",
+      "mock_hash": "#/changes",
+      "app_image": "changes-list-1440-app.png",
+      "mock_image": "changes-list-1440-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 248,
+            "y": 391,
+            "w": 734,
+            "h": 96
+          },
+          {
+            "title": "Decision path",
+            "x": 1000,
+            "y": 391,
+            "w": 408,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 234,
+            "y": 547,
+            "w": 735,
+            "h": 319
+          },
+          {
+            "title": "Decision path",
+            "x": 987,
+            "y": 547,
+            "w": 408,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "changes",
+      "case": "list",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-001/foundation/changes",
+      "mock_hash": "#/changes",
+      "app_image": "changes-list-390-app.png",
+      "mock_image": "changes-list-390-mock.png",
+      "app": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 16,
+            "y": 579,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Decision path",
+            "x": 16,
+            "y": 691,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Change and effect",
+          "Decision path"
+        ],
+        "panels": [
+          {
+            "title": "Change and effect",
+            "x": 15,
+            "y": 932,
+            "w": 360,
+            "h": 411
+          },
+          {
+            "title": "Decision path",
+            "x": 15,
+            "y": 1361,
+            "w": 360,
+            "h": 353
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitework",
+      "case": "tabrow",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-001/work",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-tabrow-1440-app.png",
+      "mock_image": "sitework-tabrow-1440-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 196
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitework",
+      "case": "tabrow",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-001/work",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-tabrow-390-app.png",
+      "mock_image": "sitework-tabrow-390-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 16,
+            "y": 422,
+            "w": 358,
+            "h": 340
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 362
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "evidence",
+      "case": "tabrow",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-001/evidence",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-tabrow-1440-app.png",
+      "mock_image": "evidence-tabrow-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 301,
+            "w": 1160,
+            "h": 103
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 422,
+            "w": 734,
+            "h": 126
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 1000,
+            "y": 422,
+            "w": 408,
+            "h": 126
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 387
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 821,
+            "w": 735,
+            "h": 387
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 821,
+            "w": 408,
+            "h": 387
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "evidence",
+      "case": "tabrow",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-001/evidence",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-tabrow-390-app.png",
+      "mock_image": "evidence-tabrow-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 434,
+            "w": 358,
+            "h": 126
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 577,
+            "w": 358,
+            "h": 148
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 742,
+            "w": 358,
+            "h": 126
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 639,
+            "w": 360,
+            "h": 549
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1205,
+            "w": 360,
+            "h": 533
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1757,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "tabrow",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-001/financials",
+      "mock_hash": "#/financials",
+      "app_image": "financials-tabrow-1440-app.png",
+      "mock_image": "financials-tabrow-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1160,
+            "h": 103
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 586,
+            "w": 734,
+            "h": 227
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 1000,
+            "y": 586,
+            "w": 408,
+            "h": 295
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "tabrow",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-001/financials",
+      "mock_hash": "#/financials",
+      "app_image": "financials-tabrow-390-app.png",
+      "mock_image": "financials-tabrow-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 788,
+            "w": 358,
+            "h": 149
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 955,
+            "w": 358,
+            "h": 244
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 1215,
+            "w": 358,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

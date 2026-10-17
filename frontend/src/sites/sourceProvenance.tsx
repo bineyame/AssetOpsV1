@@ -119,6 +119,7 @@ export function SourceProvenanceNotice({
   subject,
   name,
   compact = false,
+  record = "inline",
 }: {
   provenance: SourceProvenance | null | undefined;
   subject: string;
@@ -128,6 +129,11 @@ export function SourceProvenanceNotice({
    * link-styled form, for a panel the mock keeps short (the Overview money panel). Words are unchanged.
    */
   compact?: boolean;
+  /**
+   * W1-F5b (carry 8): "inline" keeps the record in this notice's own disclosure; "elsewhere" renders only the
+   * statement, for a panel that folds the record into its one closed detail row via `SourceProvenanceRecord`.
+   */
+  record?: "inline" | "elsewhere";
 }) {
   const state = sourceState(provenance);
   const words = SOURCE_WORDS[state];
@@ -141,46 +147,55 @@ export function SourceProvenanceNotice({
       <p className={compact ? "v69-chart-note source-provenance__line" : `notice ${tone}`.trim()}>
         <strong>{words.label}.</strong> {words.statement}
       </p>{" "}
-      {provenance ? (
+      {provenance && record === "inline" ? (
         <Disclosure
           summary={`Source record for this ${subject}`}
           name={`source-provenance-${name}`}
           variant={compact ? "tech" : undefined}
         >
-          <p data-source-method>
-            Each record behind this result is checked against the source registration made before the record was
-            accepted. A result is labelled as prepared or generated only when every one of its records has that same
-            registered source.
-          </p>
-          {provenance.reasons.length > 0 ? (
-            <ul>
-              {provenance.reasons.map((r) => (
-                <li key={r.code} data-source-reason={r.code}>
-                  {reasonWords(r.code)}
-                  {r.accepted_evidence_ids.length > 0 ? ` (${r.accepted_evidence_ids.length} records)` : null}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          {provenance.finding_revision_id ? (
-            <IdList title="Finding version" ids={[provenance.finding_revision_id]} />
-          ) : null}
-          {provenance.consequence_revision_id ? (
-            <IdList title="Fuel cost version" ids={[provenance.consequence_revision_id]} />
-          ) : null}
-          <IdList title="Source registrations" ids={provenance.publication_ids} />
-          <IdList title="Prepared examples" ids={provenance.fixtures.map((f) => `${f.fixture_id} v${f.fixture_version}`)} />
-          <IdList title="Generated test sets" ids={provenance.runs.map((r) => r.run_id)} />
-          <IdList title="Records whose source is not established" ids={provenance.problematic_accepted_evidence_ids} />
-          <p>
-            {provenance.accepted_evidence_ids.length} accepted records checked
-            {provenance.power_accepted_evidence_ids
-              ? ` (${provenance.cited_accepted_evidence_ids.length} cited by the finding, ${provenance.power_accepted_evidence_ids.length} generator readings used for the cost)`
-              : ""}
-            .
-          </p>
+          <SourceProvenanceRecord provenance={provenance} />
         </Disclosure>
       ) : null}
     </div>
+  );
+}
+
+/** The source record behind a result: the method, reasons and the exact registrations, fixtures and runs. */
+export function SourceProvenanceRecord({ provenance }: { provenance: SourceProvenance }) {
+  return (
+    <>
+      <p data-source-method>
+        Each record behind this result is checked against the source registration made before the record was
+        accepted. A result is labelled as prepared or generated only when every one of its records has that same
+        registered source.
+      </p>
+      {provenance.reasons.length > 0 ? (
+        <ul>
+          {provenance.reasons.map((r) => (
+            <li key={r.code} data-source-reason={r.code}>
+              {reasonWords(r.code)}
+              {r.accepted_evidence_ids.length > 0 ? ` (${r.accepted_evidence_ids.length} records)` : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {provenance.finding_revision_id ? (
+        <IdList title="Finding version" ids={[provenance.finding_revision_id]} />
+      ) : null}
+      {provenance.consequence_revision_id ? (
+        <IdList title="Fuel cost version" ids={[provenance.consequence_revision_id]} />
+      ) : null}
+      <IdList title="Source registrations" ids={provenance.publication_ids} />
+      <IdList title="Prepared examples" ids={provenance.fixtures.map((f) => `${f.fixture_id} v${f.fixture_version}`)} />
+      <IdList title="Generated test sets" ids={provenance.runs.map((r) => r.run_id)} />
+      <IdList title="Records whose source is not established" ids={provenance.problematic_accepted_evidence_ids} />
+      <p>
+        {provenance.accepted_evidence_ids.length} accepted records checked
+        {provenance.power_accepted_evidence_ids
+          ? ` (${provenance.cited_accepted_evidence_ids.length} cited by the finding, ${provenance.power_accepted_evidence_ids.length} generator readings used for the cost)`
+          : ""}
+        .
+      </p>
+    </>
   );
 }

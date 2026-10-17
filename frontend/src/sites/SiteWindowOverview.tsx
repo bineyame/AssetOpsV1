@@ -37,7 +37,7 @@ import {
   type ExactReference,
   type ProductWords,
 } from "../ui";
-import { SourceProvenanceNotice } from "./sourceProvenance";
+import { SourceProvenanceNotice, SourceProvenanceRecord } from "./sourceProvenance";
 import { clock, idWords, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
 import { portionWords } from "./findingWords";
 import { OUTCOME_WORDS } from "./findingPresentation";
@@ -711,7 +711,7 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
           <ProductStatus inline words={w} scope={scope} asOf={summary.db_now} />
         </p>
         {m.finding_id ? (
-          <SourceProvenanceNotice provenance={m.source_provenance} subject="cost" name="overview-money" compact />
+          <SourceProvenanceNotice provenance={m.source_provenance} subject="cost" name="overview-money" compact record="elsewhere" />
         ) : null}
         {m.finding_id ? (
           <ChartNote data={{ "data-money-qualifier": "" }}>
@@ -719,7 +719,7 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
           </ChartNote>
         ) : null}
         {/* W1-F2 compaction: the bars, gate and upstream facts, links and exact references, in one closed disclosure. */}
-        <Disclosure summary="Cost range, money gate and links" name="window-money-detail" variant="tech">
+        <Disclosure summary={m.finding_id && m.source_provenance ? "Cost range, money gate, source record and links" : "Cost range, money gate and links"} name="window-money-detail" variant="tech">
         {priced && Number.isFinite(low) && Number.isFinite(high) ? (
           <ValueBars
             title="Possible extra fuel cost for this Finding"
@@ -756,6 +756,15 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
             { label: "Recorded cost label", value: m.label },
           ]}
         />
+        {/* W1-F5b (carry 8): the source record folds into this one closed row, not a second one. */}
+        {m.finding_id && m.source_provenance ? (
+          <div className="window-money__source-record" data-source-record="overview-money">
+            <p>
+              <strong>Source record for this cost</strong>
+            </p>
+            <SourceProvenanceRecord provenance={m.source_provenance} />
+          </div>
+        ) : null}
         </Disclosure>
       </div>
   );

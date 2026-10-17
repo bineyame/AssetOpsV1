@@ -9,11 +9,13 @@ import { Link } from "react-router-dom";
  * ruling: an imported Site renders the first three as real, direct-linkable
  * views in the mock's order, all reading the same selected `at` period.
  *
- * ## What is not here, in any state
+ * ## Change & effect (W1-F5b)
  *
- * `Change & effect` (the mock's `Changes`) is an intervention-and-change-effect
- * capability with no supported model behind it; it is absent, never disabled
- * and never labelled in place (D-2026-10-02-rendered-tabs-per-capability).
+ * `D-2026-10-17-f5-subtabs-and-contact` puts the mock's fourth entry back: a
+ * live link to the existing Foundation Changes route (S6-01b), shown on the
+ * Changes screens and their sibling views. It is not a Foundation view of the
+ * selected period, so it is not in `FOUNDATION_SUBTABS` and never reaches the
+ * view frame; `Changes` as a label stays absent.
  *
  * `Readiness` here is configuration readiness (S1-02): bindings, roles and
  * Foundation gaps. Claim and capability readiness stays on Site > Evidence.
@@ -39,7 +41,7 @@ export interface FoundationSubtab {
 }
 
 /**
- * The row, in v6.9's order with `Change & effect` filtered out.
+ * The period views, in v6.9's order; `FOUNDATION_CHANGE_SUBTAB` follows them in the row.
  *
  * One definition, consumed by the rendering, the route table and the tests, so
  * a view cannot be added to the screen without appearing here first.
@@ -49,6 +51,12 @@ export const FOUNDATION_SUBTABS: FoundationSubtab[] = [
   { label: "Single line diagram", view: "sld", segment: "sld" },
   { label: "Readiness", view: "readiness", segment: "readiness" },
 ];
+
+/** The row's fourth entry: the existing Foundation Changes route, not a period view. */
+export const FOUNDATION_CHANGE_SUBTAB = { label: "Change & effect", segment: "changes" } as const;
+
+/** The current entry of the row: a view, or the Change & effect entry on a Changes screen. */
+export type FoundationRowEntry = FoundationView | "changes";
 
 /** The accessible name of the row. */
 export const FOUNDATION_SUBTABS_LABEL = "Foundation views";
@@ -64,12 +72,19 @@ export function foundationViewLabel(view: FoundationView): string {
 }
 
 export interface FoundationSubtabsProps {
-  current: FoundationView;
+  current: FoundationRowEntry;
   /** The address of a view, carrying the selected period. Built by the shell. */
   hrefFor: (view: FoundationView) => string;
+  /** The mock gives Change & effect to the mini-grid row only; a cold-room Site's row has the three views. */
+  withChanges?: boolean;
 }
 
-export function FoundationSubtabs({ current, hrefFor }: FoundationSubtabsProps) {
+/** The Changes route, beside the Site model address (`/sites/{code}/foundation/changes`); it takes no period. */
+function changesHref(hrefFor: (view: FoundationView) => string): string {
+  return `${hrefFor("model").split("?")[0].replace(/\/$/, "")}/${FOUNDATION_CHANGE_SUBTAB.segment}`;
+}
+
+export function FoundationSubtabs({ current, hrefFor, withChanges = true }: FoundationSubtabsProps) {
   return (
     <nav className="site-tabs site-subtabs foundation-views" aria-label={FOUNDATION_SUBTABS_LABEL}>
       <ol className="site-tabs__list">
@@ -85,7 +100,24 @@ export function FoundationSubtabs({ current, hrefFor }: FoundationSubtabsProps) 
             </Link>
           </li>
         ))}
+        {withChanges ? (
+        <li className="site-tabs__item">
+          <Link
+            className="site-tabs__link"
+            to={changesHref(hrefFor)}
+            data-foundation-view="changes"
+            aria-current={current === "changes" ? "page" : undefined}
+          >
+            {FOUNDATION_CHANGE_SUBTAB.label}
+          </Link>
+        </li>
+        ) : null}
       </ol>
     </nav>
   );
+}
+
+/** The path segment of a view under `/sites/{code}/foundation` (empty for Site model). */
+export function foundationViewSegment(view: FoundationView): string {
+  return FOUNDATION_SUBTABS.find((subtab) => subtab.view === view)?.segment ?? "";
 }
