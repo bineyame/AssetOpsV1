@@ -119,8 +119,16 @@ describe("Site Work Actions list", () => {
     expect(rows[0].textContent).toContain("Accepted · not applied (1 failed attempt)");
     expect(rows[1].textContent).toContain("Applied · result not checked yet");
     const headers = qa("main table thead th").map((th) => th.textContent);
-    expect(headers.slice(0, 5)).toEqual(["Action", "Source", "Created", "State", "Latest step"]);
-    expect(document.body.textContent).not.toMatch(/\bVerified\b|\bOwner\b|\bDue\b|Priority/);
+    expect(headers.slice(0, 6)).toEqual(["Action", "Source", "Owner", "Due", "State", "Success criterion"]);
+    expect(document.body.textContent).not.toMatch(/Verified|Priority/);
+    rows.forEach((tr) => {
+      const cells = Array.from(tr.querySelectorAll("td")).map((td) => td.textContent ?? "");
+      expect(cells[2]).toBe("Not recorded");
+      expect(cells[3]).toBe("Not set");
+      expect(cells[5]).toBe("Not recorded");
+      expect(tr.querySelector("td .w1f4-action-badge")).not.toBeNull();
+      expect(tr.querySelector(".w1f4-work-subline")?.textContent).toMatch(/^Created /);
+    });
     // IDs and the fence sit in the disclosure, not the default reading.
     // Select the list's own basis disclosure by name.
     const basis = q("[data-disclosure='site-work-basis']");
