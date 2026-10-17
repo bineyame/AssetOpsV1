@@ -10,7 +10,8 @@ import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-rou
 import { afterEach, describe, expect, it } from "vitest";
 
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type {
   FindingClient,
@@ -189,6 +190,13 @@ const where = () => screen.getByTestId("where").textContent ?? "";
 const q = (selector: string) => document.querySelector(selector);
 const all = (selector: string) => Array.from(document.querySelectorAll(selector));
 
+/** W1-UX-02: the notes of a state line after its state label and sentence, in order. */
+function statusNotes(note: Element): Element[] {
+  return Array.from(note.parentElement?.children ?? []).filter(
+    (el) => !el.matches(".product-status__label, .product-status__sentence"),
+  );
+}
+
 const detail: SiteDetailClient = { getSite: async () => ({ status: "loaded", site: HYBRID_MINI_GRID_SITE }) };
 
 async function frame(path: string, findings: FindingClient) {
@@ -243,7 +251,9 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     await frame(`${HISTORY}?revision_id=${rid(1)}`, client({ total: 3 }));
     const lead = q("[data-history-earlier-version]") as HTMLElement;
     expect(lead).toHaveTextContent("Version 1 is selected. It is an earlier version: version 3 replaces it.");
-    expect(lead.parentElement?.firstElementChild).toBe(lead);
+    // W1-UX-02: the earlier-version note is the first note of the answer card's state line, right after the state sentence.
+    expect(statusNotes(lead)[0]).toBe(lead);
+    expect(expectStateLineVisible(lead.closest("[data-headline-card='finding-history']") as HTMLElement)).toBe("Earlier version, kept for the record");
     expect(all("[data-history-selected]").map((r) => r.getAttribute("data-history-revision"))).toEqual([rid(1)]);
     expect(all("[data-history-latest]").map((r) => r.getAttribute("data-history-revision"))).toEqual([rid(3)]);
     expect(q(`[data-history-revision='${rid(1)}']`)).toHaveAttribute("aria-current", "true");
@@ -325,7 +335,9 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     }));
     const lead = q("[data-history-audit-only]") as HTMLElement;
     expect(lead).toHaveTextContent("Record only.");
-    expect(lead.parentElement?.firstElementChild).toBe(lead);
+    // W1-UX-02: the record-only note is the first note of the answer card's state line, right after the state sentence.
+    expect(statusNotes(lead)[0]).toBe(lead);
+    expect(expectStateLineVisible(lead.closest("[data-headline-card='finding-history']") as HTMLElement)).toBe("For the record only");
   });
 
   it("leads with a non-supported latest state in plain words", async () => {
@@ -421,5 +433,122 @@ describe("Finding to Financials bridge link (S4-02a)", () => {
       "href",
       `/sites/${SITE}/financials?finding_id=${F}&revision_id=${rid(2)}`,
     );
+  });
+});
+
+/** W1-UX-02: a state whose read records no time: explicit checks instead of `expectStateLineVisible`. */
+function expectUntimedStateLine(card: Element): string {
+  const status = card.querySelector("[data-product-status]");
+  expect(status, "a shared state line is rendered").not.toBeNull();
+  for (const selector of ["[data-product-status-label]", ".product-status__sentence", "[data-product-status-scope]", "[data-product-status-as-of]"]) {
+    const el = status!.querySelector(selector);
+    expect(el, selector).not.toBeNull();
+    expect((el!.textContent ?? "").trim().length, `${selector} has text`).toBeGreaterThan(0);
+    expect(visibleOutsideClosedDisclosure(el!), `${selector} is outside any closed disclosure`).toBe(true);
+  }
+  expect(status!.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+  return status!.querySelector("[data-product-status-label]")?.textContent ?? "";
+}
+
+describe("W1-UX-02: Finding History answer card", () => {
+  const card = () => document.querySelector("[data-headline-card='finding-history']") as HTMLElement;
+  const main = () => document.querySelector("main") as HTMLElement;
+  const steps = () => Array.from(card().querySelectorAll("[data-step-strip] li")).map((li) => [li.querySelector(".step-strip__label")?.textContent, li.getAttribute("data-step")]);
+
+  it("W1-UX-02: leads with how the conclusion changed as a timeline; revision and page cutoff references are labelled detail; W1 vocabulary on <main>", async () => {
+    await frame(HISTORY, client({ total: 205 }));
+    const answer = card();
+    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("How did the conclusion and workflow change?");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("205 recorded versions; the latest records: Open");
+    expect(expectStateLineVisible(answer)).toBe("Latest recorded version when read");
+    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    // The plain "as of" is the selected version's recorded time (version 205: 6 Oct 14:00 + 2050 min).
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 8 Oct 2026, 00:10 UTC");
+    expect(steps()).toEqual([
+      ["Version 1: Opened", "done"],
+      ["200 versions in between", "done"],
+      ["Version 202: Assessment updated; amount unchanged", "done"],
+      ["Version 203: Assessment updated; amount unchanged", "done"],
+      ["Version 204: Assessment updated; amount unchanged", "done"],
+      ["Version 205: Assessment updated; amount unchanged", "done"],
+    ]);
+    const refs = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(refs.open).toBe(false);
+    expect(answer.querySelector(".headline-card__body")?.lastElementChild).toBe(refs);
+    const rows = Array.from(refs.querySelectorAll(".exact-references__row")).map((r) => [r.querySelector("dt")?.textContent, r.querySelector("code")?.textContent]);
+    expect(rows).toEqual([
+      ["Finding reference", F],
+      ["Selected version reference", rid(205)],
+      ["Latest version reference", rid(205)],
+      ["How the version was chosen", "LATEST_RECORDED"],
+      ["First page ends after version", "100"],
+    ]);
+    // Exact selectors from the card.
+    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(205)}`);
+    expect(q("[data-history-open-evidence]")).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(205)}`);
+    const w1 = scanProductVocabulary(main(), "finding history (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(100);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const disclosure = scanDisclosureVocabulary(answer, "finding history exact references");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.scanned).toBeGreaterThan(5);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: a historical selection keeps its plain as-of visible and its exact version selector", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(1)}`, client({ total: 3 }));
+    expect(expectStateLineVisible(card())).toBe("Earlier version, kept for the record");
+    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 6 Oct 2026, 14:10 UTC");
+    expect(q("[data-history-select-latest]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(3)}`);
+    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
+    const w1 = scanProductVocabulary(main(), "finding history earlier (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: a limited (incomplete) list says so in the headline and ends the timeline in a not-known step", async () => {
+    await frame(HISTORY, client({ total: 205, failAfter: 100 }));
+    expect(card().querySelector(".headline-card__headline")?.textContent).toBe("Only 100 of 205 recorded versions could be read");
+    expect(steps().at(-1)).toEqual(["Versions not read", "not-known"]);
+    // The selected (latest) version was not among the pages read: its time is not recorded here, never "now".
+    expect(expectUntimedStateLine(card())).toBe("Latest recorded version when read");
+    const w1 = scanProductVocabulary(main(), "finding history incomplete (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: a record-only and a no-longer-supported history keep the state line visible", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(2)}`, client({
+      total: 2,
+      body: {
+        audit_only: { non_current: true, reason: "CLOSED", statement: "Audit material only" },
+        state: { lifecycle: "NO_LONGER_SUPPORTED", latest_transition: "NO_LONGER_SUPPORTED", note: "" },
+      },
+    }));
+    expect(expectStateLineVisible(card())).toBe("For the record only");
+    expect(card().querySelector(".headline-card__headline")?.textContent).toBe("2 recorded versions; the latest records: No longer supported");
+    expect(card().querySelector("[data-history-lifecycle='NO_LONGER_SUPPORTED']")?.closest(".headline-card__status")).not.toBeNull();
+    const w1 = scanProductVocabulary(main(), "finding history record only (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it.each([
+    ["forbidden", "This cannot be shown to you"],
+    ["closed", "Not released for use yet"],
+    ["unavailable", "This could not be read right now"],
+  ] as const)("W1-UX-02: a %s read shows a plain state line and lists no versions", async (status, label) => {
+    const c: FindingClient = {
+      ...client({ total: 1 }),
+      getFindingHistory: async () => (status === "closed" ? { status, message: null, note: null } : { status, message: null }),
+    };
+    await frame(HISTORY, c);
+    expect(expectUntimedStateLine(card())).toBe(label);
+    expect(all("[data-history-revision]")).toHaveLength(0);
+    const w1 = scanProductVocabulary(main(), `finding history ${status} (W1)`, { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: an unknown pinned version is refused with a plain state line, keeping the address", async () => {
+    await frame(`${HISTORY}?revision_id=rev-9999`, client({ total: 3 }));
+    expect(expectUntimedStateLine(card())).toBe("This record was not found");
+    expect(where()).toBe(`${HISTORY}?revision_id=rev-9999`);
   });
 });

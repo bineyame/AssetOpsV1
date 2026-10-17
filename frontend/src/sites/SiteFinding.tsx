@@ -14,7 +14,19 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import {
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  Panel,
+  ProductStatus,
+  StepStrip,
+  type ProductWords,
+  type Step,
+} from "../ui";
 import { clock, durationText, groupLimitations, limitationWords, minutes, qualityWords, roleWords, stamp } from "./dispatchWords";
 import type {
   CitedEvidence,
@@ -24,9 +36,9 @@ import type {
   RevisionGroup,
   RevisionSummary,
 } from "./findingClient";
-import { LocalViews, localView } from "./findingPresentation";
+import { FindingRefusalCard, LocalViews, localView, localViewSearch, type LocalView } from "./findingPresentation";
 import {
-  currentnessWords,
+  findingCurrentnessWords,
   unconfirmedCause,
   dayOf,
   daysBetween,
@@ -39,8 +51,11 @@ import {
   versionWords,
 } from "./findingWords";
 import { SourceProvenanceNotice } from "./sourceProvenance";
+import "./w1ux02-finding.css";
 
 export const FINDING_VIEWS_LABEL = "Finding views";
+/** The v69 `finding` screen question (W1-UX-02). */
+export const FINDING_QUESTION = "What is the defensible conclusion and its consequence?";
 const EVIDENCE_PREVIEW = 8;
 
 export interface SiteFindingLinks {
@@ -109,29 +124,14 @@ export function SiteFinding({
       data-finding-currentness={body.revision.currentness.state}
     >
       <LocalViews label={FINDING_VIEWS_LABEL} current={view} params={params} />
-      <LeadState body={body} links={links} />
+      <FindingAnswer body={body} links={links} view={view} params={params} />
       <StatusChips body={body} />
       {view === "analysis" ? (
         <TechnicalDetail body={body} />
       ) : (
         <div className="site-finding__body">
           <WhatHappened body={body} links={links} />
-          <div className="site-finding__pair">
-            <WhatLimits body={body} links={links} />
-            <Panel heading="What to do next" headingId="site-finding-next-heading">
-              {links.recommendation ? (
-                <p data-finding-recommendation-link>
-                  A fixed rule may propose a battery reserve trial for this version.{" "}
-                  <Link to={links.recommendation(body.selection.revision_id)}>Open the recommendation</Link>. Nothing
-                  here asks you to change how the generator is operated.
-                </p>
-              ) : (
-                <p data-finding-recommendation-link="none">
-                  No recommendation link is offered here; nothing here asks you to change how the generator is operated.
-                </p>
-              )}
-            </Panel>
-          </div>
+          <WhatLimits body={body} links={links} />
           <WhereToLook body={body} links={links} />
           <Versions body={body} />
           <RecordsSummary body={body} links={links} />
@@ -165,76 +165,229 @@ function Refused({ read, pinned }: { read: Exclude<FindingReadResult<FindingDeta
   };
   const chosen = words[read.status];
   return (
-    <Panel heading={chosen.heading} headingId="site-finding-refused-heading">
-      <p data-finding-read={read.status}>{chosen.text}</p>
-      {read.message ? <p className="site-finding__note">Reason given: {read.message}</p> : null}
-    </Panel>
+    <FindingRefusalCard
+      status={read.status}
+      dataName="finding"
+      headingId="site-finding-refused-heading"
+      question={FINDING_QUESTION}
+      heading={chosen.heading}
+      text={chosen.text}
+      message={read.message}
+      scope={pinned ? "This Finding, at the version in the address" : "This Finding"}
+    />
   );
 }
 
-/** The state that limits what the page shows, first; then the recorded state. */
-function LeadState({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
+/** The code whose words lead: a closed source, a merge, an earlier version, then the recorded currentness. */
+function statusCode(body: FindingDetailBody): string {
+  if (body.audit_only) return "SOURCE_CLOSED";
+  if (body.state.merged_into_finding_id) return "MERGED_INTO_CANONICAL";
+  if (!body.selection.is_latest) return "SUPERSEDED_BY_LATER_REVISION";
+  return body.revision.currentness.state;
+}
+
+/** The conclusion this version records, no stronger than its lifecycle and counted minutes. */
+function conclusionText(body: FindingDetailBody): string {
+  const selected = body.revision;
+  switch (selected.lifecycle) {
+    case "SUPPORTED":
+      return `${durationText(minutes(selected.minutes.candidate) ?? 0)} of generator time possibly avoidable`;
+    case "UNCONFIRMED":
+      return "cannot decide whether any time was possibly avoidable";
+    case "NO_LONGER_SUPPORTED":
+      return "no possibly avoidable time is counted";
+    default:
+      return "carried by an earlier Finding";
+  }
+}
+
+function headlineText(body: FindingDetailBody, words: ProductWords & { attention: boolean }): string {
+  const lifecycle = LIFECYCLE_WORDS[body.revision.lifecycle];
+  if (body.audit_only) return "Record only: this site's assessments are not released";
+  if (body.state.merged_into_finding_id) return "Joined into an earlier Finding";
+  if (!body.selection.is_latest) return `Earlier version ${body.selection.revision_no} of ${body.revision_page.total}`;
+  return words.attention
+    ? `${lifecycle.label} in the last recorded version: ${conclusionText(body)}`
+    : `${lifecycle.label}: ${conclusionText(body)}`;
+}
+
+/** Conclusion, cause, consequence and next useful step; each step's state comes from the read. */
+function causalSteps(body: FindingDetailBody, links: SiteFindingLinks): Step[] {
   const selected = body.revision;
   const lifecycle = LIFECYCLE_WORDS[selected.lifecycle];
-  const currentness = currentnessWords(body.audit_only ? "SOURCE_CLOSED" : selected.currentness.state);
+  const recordGap = selected.indeterminate_cause?.kind === "RECORD_GAP";
+  const conclusion: Step = {
+    label: "Conclusion",
+    state: selected.lifecycle === "UNCONFIRMED" || selected.lifecycle === "MERGED" ? "not-known" : "done",
+    detail: lifecycle.label,
+  };
+  const cause: Step =
+    selected.lifecycle === "SUPPORTED"
+      ? { label: "Cause", state: "done", detail: "The generator stayed on while solar and the battery reported enough capacity" }
+      : selected.lifecycle === "NO_LONGER_SUPPORTED"
+        ? { label: "Cause", state: "done", detail: "A complete later assessment finds no possibly avoidable time" }
+        : selected.lifecycle === "UNCONFIRMED"
+          ? {
+              label: "Cause",
+              state: recordGap ? "problem" : "not-known",
+              detail: recordGap ? "Some records are missing or conflict" : "The assessment could not decide",
+            }
+          : { label: "Cause", state: "not-known", detail: "Carried by the earlier Finding" };
+  const consequence: Step = {
+    label: "Consequence",
+    state: "not-known",
+    detail: "No fuel or money figure is worked out on this page",
+  };
   const merged = body.state.merged_into_finding_id;
-  const afterClosure =
-    selected.lifecycle !== "NO_LONGER_SUPPORTED" && followsClosure(body.revisions, selected);
-  const tone = body.audit_only || merged || !body.selection.is_latest || currentness.attention ? "attention" : "plain";
+  const next: Step =
+    body.audit_only || merged || !body.selection.is_latest
+      ? {
+          label: "Next useful step",
+          state: "waiting",
+          detail: merged ? "Open the Finding that carries the review" : body.audit_only ? "Wait for the assessments to be released" : "Open the latest version",
+        }
+      : selected.lifecycle === "SUPPORTED" && links.recommendation
+        ? { label: "Next useful step", state: "waiting", detail: "Review the proposed trial" }
+        : { label: "Next useful step", state: "waiting", detail: "Check the Dispatch day and the records behind it" };
+  return [conclusion, cause, consequence, next];
+}
+
+function couldChangeText(body: FindingDetailBody): string {
+  if (body.audit_only) {
+    return "Nothing changes this record while the site's assessments are not released; a later released assessment would record a new version.";
+  }
+  if (body.state.merged_into_finding_id) {
+    return "The earlier Finding now carries the review; later changes are recorded there.";
+  }
+  if (!body.selection.is_latest) {
+    return "A later version already replaces this one; the latest version holds the current conclusion.";
+  }
+  const recordGap = body.revision.indeterminate_cause?.kind === "RECORD_GAP";
   return (
-    <div className={`dispatch-status site-finding__lead site-finding__lead--${tone}`} role="status">
-      <h2 id="site-finding-state-heading" className="site-finding__lead-heading">
-        {body.audit_only
-          ? "Record only: this site's assessments are not released"
-          : merged
-            ? "Joined into an earlier Finding"
-            : !body.selection.is_latest
-              ? `Earlier version ${body.selection.revision_no} of ${body.revision_page.total}`
-              : currentness.attention && selected.currentness.state !== "CURRENT"
-                ? `${lifecycle.label} · ${currentness.label.toLowerCase()}`
-                : lifecycle.label}
-      </h2>
-      <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="finding" />
-      {body.audit_only ? (
-        <p data-finding-audit-only>
-          This exact version is kept as a record. It is not a current result, and whether it is still up to date is
-          not checked while the site&apos;s assessments are not released.
-        </p>
-      ) : null}
-      {merged ? (
-        <p data-finding-merged={merged}>
-          Later records showed one longer period. The earlier Finding now carries the review.{" "}
-          <Link to={links.finding(merged)}>Open the Finding that carries the review</Link>
-        </p>
-      ) : null}
-      {!body.selection.is_latest ? (
-        <p data-finding-earlier-version>
-          A later version replaces this one. <Link to={links.finding(body.finding.id)}>Open the latest version</Link>
-        </p>
-      ) : null}
-      <p data-finding-lifecycle-sentence>
-        {lifecycle.sentence}
-        {selected.lifecycle === "UNCONFIRMED"
-          ? ` ${unconfirmedCause(selected.indeterminate_cause)}`
-          : ""}
-      </p>
-      {afterClosure ? (
-        <p data-finding-after-closure>
-          {selected.lifecycle === "UNCONFIRMED"
-            ? "This review had already been closed as no longer supported. The newer assessment cannot confirm either way; this is not a new issue."
-            : "This review had been closed as no longer supported; a later assessment supports it again for the same period."}
-        </p>
-      ) : null}
-      {body.audit_only || merged || !body.selection.is_latest ? null : (
-        <p data-finding-currentness={selected.currentness.state}>{currentness.sentence}</p>
-      )}
-    </div>
+    "A newer assessment of these days, for example after late or corrected readings arrive, would record a new " +
+    "version of this Finding." +
+    (recordGap ? " Records that fill the missing part could let the undecided time be decided." : "")
+  );
+}
+
+/**
+ * W1-UX-02: the v69 answer card. The defensible conclusion leads, with the
+ * plain state line (currentness, scope, "as of" the shown version's recorded
+ * time) and the material notes beside it, then the causal strip, what could
+ * change it, what to do, the Analysis destination and the exact references
+ * last.
+ */
+function FindingAnswer({
+  body,
+  links,
+  view,
+  params,
+}: {
+  body: FindingDetailBody;
+  links: SiteFindingLinks;
+  view: LocalView;
+  params: URLSearchParams;
+}) {
+  const selected = body.revision;
+  const lifecycle = LIFECYCLE_WORDS[selected.lifecycle];
+  const words = findingCurrentnessWords(statusCode(body));
+  const merged = body.state.merged_into_finding_id;
+  const afterClosure = selected.lifecycle !== "NO_LONGER_SUPPORTED" && followsClosure(body.revisions, selected);
+  return (
+    <HeadlineVisualCard
+      dataName="finding"
+      headingId="site-finding-state-heading"
+      question={FINDING_QUESTION}
+      headline={headlineText(body, words)}
+      status={
+        <ProductStatus
+          words={words}
+          scope={`Version ${body.selection.revision_no} of ${body.revision_page.total} · ${periodWords(selected.episode.start, selected.episode.end)}`}
+          asOf={body.watermarks.finding_recorded_at}
+        >
+          <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="finding" />
+          {body.audit_only ? (
+            <p data-finding-audit-only>
+              This exact version is kept as a record. It is not a current result, and whether it is still up to date is
+              not checked while the site&apos;s assessments are not released.
+            </p>
+          ) : null}
+          {merged ? (
+            <p data-finding-merged={merged}>
+              Later records showed one longer period. The earlier Finding now carries the review.{" "}
+              <Link to={links.finding(merged)}>Open the Finding that carries the review</Link>
+            </p>
+          ) : null}
+          {!body.selection.is_latest ? (
+            <p data-finding-earlier-version>
+              A later version replaces this one. <Link to={links.finding(body.finding.id)}>Open the latest version</Link>
+            </p>
+          ) : null}
+          {afterClosure ? (
+            <p data-finding-after-closure>
+              {selected.lifecycle === "UNCONFIRMED"
+                ? "This review had already been closed as no longer supported. The newer assessment cannot confirm either way; this is not a new issue."
+                : "This review had been closed as no longer supported; a later assessment supports it again for the same period."}
+            </p>
+          ) : null}
+        </ProductStatus>
+      }
+      visual={<StepStrip title="From conclusion to next step" steps={causalSteps(body, links)} />}
+      meaning={
+        <>
+          <p data-finding-lifecycle-sentence>
+            {lifecycle.sentence}
+            {selected.lifecycle === "UNCONFIRMED" ? ` ${unconfirmedCause(selected.indeterminate_cause)}` : ""}
+          </p>
+          <p data-finding-could-change>
+            <strong>What could change it:</strong> {couldChangeText(body)}
+          </p>
+        </>
+      }
+      todo={
+        links.recommendation ? (
+          <p data-finding-recommendation-link>
+            A fixed rule may propose a battery reserve trial for this version.{" "}
+            <Link to={links.recommendation(body.selection.revision_id)}>Open the recommendation</Link>. Nothing here asks
+            you to change how the generator is operated.
+          </p>
+        ) : (
+          <p data-finding-recommendation-link="none">
+            No recommendation link is offered here; nothing here asks you to change how the generator is operated.
+          </p>
+        )
+      }
+      destination={
+        view === "analysis" ? (
+          <Link to={{ search: localViewSearch(params, "overview") }} data-finding-destination="overview">
+            Back to the plain reading (Overview)
+          </Link>
+        ) : (
+          <Link to={{ search: localViewSearch(params, "analysis") }} data-finding-destination="analysis">
+            See how this conclusion was reached (Analysis)
+          </Link>
+        )
+      }
+      references={
+        <ExactReferences
+          name="finding-references"
+          references={[
+            { label: "Finding reference", value: body.finding.id },
+            { label: "Shown version reference", value: body.selection.revision_id },
+            { label: "Latest version reference", value: body.selection.latest_revision_id },
+            { label: "Recorded state code", value: selected.lifecycle },
+            { label: "Up-to-date check code", value: words.code },
+            { label: "Change code", value: selected.transition },
+          ]}
+        />
+      }
+    />
   );
 }
 
 function StatusChips({ body }: { body: FindingDetailBody }) {
   const selected = body.revision;
-  const currentness = currentnessWords(body.audit_only ? "SOURCE_CLOSED" : selected.currentness.state);
+  const currentness = findingCurrentnessWords(statusCode(body));
   return (
     <ul className="site-finding__chips" aria-label="Finding status">
       <li className="site-finding__chip" data-chip="state">
@@ -746,8 +899,8 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
           <Fact term="Recorded state"><Code value={r.lifecycle} /> / <Code value={r.claim_level} /></Fact>
           <Fact term="Up-to-date check"><Code value={body.audit_only ? "SOURCE_CLOSED" : r.currentness.state} /></Fact>
           <Fact term="Latest version state"><Code value={body.state.lifecycle} /> / <Code value={body.state.projection} /></Fact>
-          <Fact term="Assessment rule version"><Code value={r.model_version} /></Fact>
-          <Fact term="Matching rule version"><Code value={r.matcher_version} /></Fact>
+          <Fact term="Assessment rules reference"><Code value={r.model_version} /></Fact>
+          <Fact term="Matching rules reference"><Code value={r.matcher_version} /></Fact>
           <Fact term="Minutes (avoidable / needed / undetermined)">
             <Code value={r.minutes.candidate} /> / <Code value={r.minutes.necessary} /> / <Code value={r.minutes.indeterminate} />
           </Fact>
@@ -756,8 +909,8 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
           <Fact term="Assessment pass"><Code value={r.analytic_run_id} /></Fact>
           <Fact term="Site settings revisions"><Code value={r.foundation_revision_ids.join(", ")} /></Fact>
           <Fact term="Signal setup revisions"><Code value={r.binding_set_revision_ids.join(", ")} /></Fact>
-          <Fact term="Cited records digest"><Code value={r.cited_evidence_sha256} /></Fact>
-          <Fact term="All inputs digest"><Code value={r.input_evidence_sha256} /></Fact>
+          <Fact term="Cited records check value"><Code value={r.cited_evidence_sha256} /></Fact>
+          <Fact term="All inputs check value"><Code value={r.input_evidence_sha256} /></Fact>
           <Fact term="Recorded at"><Code value={body.watermarks.finding_recorded_at} /></Fact>
           <Fact term="Assessment built at"><Code value={body.watermarks.analytic_built_at} /></Fact>
           <Fact term="Access"><Code value={body.access_basis.split(":")[0]} /></Fact>
@@ -848,7 +1001,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
           <thead>
             <tr>
               <th scope="col">Pass</th>
-              <th scope="col">Rule version</th>
+              <th scope="col">Rules reference</th>
               <th scope="col">Day</th>
               <th scope="col">Record series</th>
               <th scope="col">Inputs</th>

@@ -4,6 +4,7 @@
  * (D-2026-10-04-plain-language-analysis-views); stored codes stay on `data-`
  * attributes and appear verbatim only in the Technical detail view.
  */
+import { currentnessWords, type ProductWords } from "../ui";
 import { OUTCOME_WORDS } from "./findingPresentation";
 import type { FindingDetailBody, Lifecycle, RevisionSummary, UndecidedCause } from "./findingClient";
 
@@ -55,70 +56,75 @@ export function transitionWords(code: string): string {
   return TRANSITION_WORDS[code] ?? "Another change is recorded; see Technical detail";
 }
 
-/** Whether the selected Finding's displayed state is a live, current open review. */
-export const CURRENTNESS_WORDS: Record<string, { label: string; sentence: string; attention: boolean }> = {
-  CURRENT: {
-    label: "Up to date",
-    sentence: "This uses the assessments currently in force for every day it covers.",
-    attention: false,
-  },
+/**
+ * W1-UX-02: the Finding's currentness in the shared product words
+ * (`currentnessWords` in `../ui`, D-2026-10-16-w1-ux). Cross-screen states
+ * (CURRENT, STALE, PENDING, FAILED, NOT_ASSESSED, ...) come from the shared
+ * map; a non-current one adds that what is shown is the last recorded version.
+ * Finding-only states keep local `ProductWords` here. An unknown code gets the
+ * shared non-positive fallback. Only CURRENT is positive.
+ */
+const LAST_RECORDED = " What is shown is the last recorded version.";
+
+const FINDING_ONLY: Readonly<Record<string, Omit<ProductWords, "code" | "unrecognised">>> = {
   FINDING_MATCH_PENDING: {
-    label: "Being updated",
+    label: "Being compared with a newer assessment",
     sentence:
       "A newer assessment of these days is waiting to be compared with this Finding. What is shown is the last " +
-      "recorded version.",
-    attention: true,
-  },
-  STALE: {
-    label: "Out of date",
-    sentence:
-      "Newer records, settings or rules affect these days and they are being reassessed. What is shown is the last " +
-      "recorded version.",
-    attention: true,
-  },
-  PENDING: {
-    label: "Being assessed",
-    sentence: "These days are waiting to be assessed. What is shown is the last recorded version.",
-    attention: true,
-  },
-  FAILED: {
-    label: "Reassessment failed",
-    sentence:
-      "The latest reassessment of these days failed. What is shown is the last recorded version; it is not current.",
-    attention: true,
-  },
-  NOT_ASSESSED: {
-    label: "Not assessed",
-    sentence: "No current assessment exists for these days. What is shown is the last recorded version.",
-    attention: true,
+      "recorded version; it is not current.",
+    next: "Look again after the comparison is recorded.",
+    tone: "waiting",
   },
   SUPERSEDED_BY_LATER_REVISION: {
-    label: "Earlier version",
-    sentence: "You are viewing an earlier version of this Finding. A later version replaces it.",
-    attention: true,
+    ...sharedCurrentness("HISTORICAL"),
   },
   SOURCE_CLOSED: {
-    label: "Not released",
+    label: "For the record only",
     sentence:
-      "This site's assessments are not released for use yet, so this is shown as a record only and is not a " +
-      "current result.",
-    attention: true,
+      "This site's assessments are not released for use yet, so this is kept for the record and is not a current " +
+      "result.",
+    tone: "neutral",
   },
   MERGED_INTO_CANONICAL: {
-    label: "Merged",
-    sentence: "This Finding was joined into an earlier one, which carries the current review.",
-    attention: true,
+    label: "Joined into an earlier Finding",
+    sentence: "The earlier Finding carries the current review; this Finding's own versions are kept for the record.",
+    tone: "neutral",
+  },
+  /** The Evidence and History reads carry no currentness; they only know the version is the latest when read. */
+  LATEST_AT_READ: {
+    label: "Latest recorded version when read",
+    sentence:
+      "This is the latest version recorded when the page was read. Whether it is up to date is shown on the " +
+      "Finding's own page.",
+    tone: "neutral",
+  },
+  LATEST_PINNED: {
+    label: "Latest recorded version, opened by its exact reference",
+    sentence: "This exact version is the latest one recorded. Whether it is up to date is shown on the Finding's own page.",
+    tone: "neutral",
   },
 };
 
-export function currentnessWords(state: string): { label: string; sentence: string; attention: boolean } {
-  return (
-    CURRENTNESS_WORDS[state] ?? {
-      label: "Unknown state",
-      sentence: "The state of this Finding is recorded under a code this screen does not know; see Technical detail.",
-      attention: true,
-    }
-  );
+function sharedCurrentness(code: string): Omit<ProductWords, "code" | "unrecognised"> {
+  const words = currentnessWords(code);
+  return { label: words.label, sentence: words.sentence, next: words.next, tone: words.tone };
+}
+
+/** Plain product words for a Finding currentness code; `attention` is true for anything but CURRENT. */
+export function findingCurrentnessWords(state: string | null | undefined): ProductWords & { attention: boolean } {
+  const code = state ?? null;
+  if (code !== null && Object.prototype.hasOwnProperty.call(FINDING_ONLY, code)) {
+    return { ...FINDING_ONLY[code], code, unrecognised: false, attention: true };
+  }
+  const shared = currentnessWords(code);
+  if (shared.tone === "positive") {
+    return { ...shared, attention: false };
+  }
+  return {
+    ...shared,
+    sentence: shared.unrecognised ? shared.sentence : `${shared.sentence}${LAST_RECORDED}`,
+    attention: true,
+  };
 }
 
 export function portionWords(code: string): string {

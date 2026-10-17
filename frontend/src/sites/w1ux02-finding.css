@@ -1,0 +1,13 @@
+/* W1-UX-02 group B: Finding, Finding Evidence and Finding History answer cards. */
+
+/* Long exact references (full record references) wrap inside the card at 390 px instead of widening the page. */
+[data-headline-card^="finding"] .exact-references__list code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* The source notice and material notes sit beside the state sentence, with a little air. */
+[data-headline-card^="finding"] .product-status > p + .source-provenance,
+[data-headline-card^="finding"] .product-status .source-provenance + p {
+  margin-top: 0.5rem;
+}

@@ -20,7 +20,8 @@ import { indexBody, indexRow, notCurrent } from "../../sites/__tests__/findingIn
 import { overviewClient, populatedOverview } from "../../sites/__tests__/overviewFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { OVERVIEW_FINDING_PREVIEW_LIMIT } from "../../sites/OverviewFindingList";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import { FID, RID, WA, summary } from "./s5WindowFixtures";
 
@@ -198,7 +199,8 @@ describe("S5-02 Overview Finding list: assessed zero and Unknown (mini:3#a)", ()
     const list = document.querySelector('[data-overview-finding-list="current-empty"]') as HTMLElement;
     expect(list.textContent).toContain("No Findings for this day.");
     expect(list.textContent).toContain("2026-10-24, 2026-10-25");
-    expect(list.querySelector("[data-finding-index-token]")?.textContent).toBe(body.selection_token);
+    // W1-UX-02: the opaque list selection reference moved to the labelled exact-reference disclosure.
+    expect(exactValue(list, "List selection reference")).toBe(body.selection_token);
     const q = fullListQuery();
     expect([q.get("domain"), q.get("from"), q.get("to"), q.get("limit")]).toEqual([
       "mini-grid-dispatch",
@@ -274,7 +276,8 @@ describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () 
     expect(fullListQuery().get("from")).toBe(`${DAY}T00:00:00Z`);
     expect(parity()).toBe("same");
     expect(document.querySelector("[data-overview-finding-reload]")).toBeNull();
-    expect(document.querySelector("[data-finding-index-token]")?.textContent).toBe(body.selection_token);
+    // W1-UX-02: the opaque list selection reference moved to the labelled exact-reference disclosure.
+    expect(exactValue(document.body, "List selection reference")).toBe(body.selection_token);
     // No amount, priority or action is invented on the list.
     const list = document.querySelector('[data-overview-finding-list="current-rows"]') as HTMLElement;
     expect(list.textContent).not.toMatch(/\$|USD|priority|action/i);
@@ -396,5 +399,114 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     await settledScreen();
     expect(where()).toBe(before);
     expect(where()).toContain(`date=${DAY}`);
+  });
+});
+
+/** The exact value labelled `label` in a closed exact-reference disclosure inside `root`. */
+function exactValue(root: Element, label: string): string | null {
+  const row = Array.from(root.querySelectorAll("[data-exact-references] .exact-references__row")).find(
+    (r) => r.querySelector("dt")?.textContent === label,
+  );
+  return row?.querySelector("dd code")?.textContent ?? null;
+}
+
+function listCard(): HTMLElement {
+  return document.querySelector("[data-overview-finding-list]") as HTMLElement;
+}
+
+describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
+  it("current rows: plain state line with as-of, no raw version code in the row, exact versions in the disclosure", async () => {
+    const body = positive(DAY);
+    const { container } = renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client,
+      indexOf(() => ({ status: "loaded", value: body })).client);
+    await settledScreen();
+    expect(expectStateLineVisible(listCard())).toBe("Using the latest checked readings");
+    expect(listCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    for (const row of Array.from(document.querySelectorAll("[data-overview-finding-row]"))) {
+      expect(row.querySelector("code")).toBeNull();
+      expect(row.textContent).toMatch(/version \d+$/);
+    }
+    expect(exactValue(listCard(), "Listed Finding 1 version reference")).toBe(RID);
+    expect(exactValue(listCard(), "Listed Finding 2 version reference")).toBe(OTHER_RID);
+    const main = container.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, "overview finding list (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(30);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const d = scanDisclosureVocabulary(listCard(), "overview finding list disclosure");
+    expect(d.disclosures).toBe(1);
+    expect(d.scanned).toBeGreaterThan(2);
+    expect(d.violations, describeViolations(d.violations)).toEqual([]);
+  });
+
+  it("proved zero: the assessed zero keeps a plain as-of beside it, outside the closed disclosure", async () => {
+    const body = aligned("2026-10-25");
+    const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-25`, overviewOf(() => day("2026-10-25", { known_finding: null })).client,
+      indexOf(() => ({ status: "loaded", value: body })).client);
+    await settledScreen();
+    expect(listState()).toBe("current-empty");
+    expect(expectStateLineVisible(listCard())).toBe("Checked: nothing to report");
+    expect(listCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview list zero (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it.each([
+    ["STALE_PROJECTION", "S3_DIRTY", "This result may miss newer readings"],
+    ["PENDING", "S4_MATCH_DEFERRED_WINDOW", "Not checked yet"],
+    ["UNASSESSED", "S3_UNASSESSED", "We have not checked this period"],
+    ["FAILED", "S3_FAILED", "The latest check could not be completed"],
+  ] as const)("a %s (late or not current) list names its state with as-of and the raw reason only in detail", async (status, reason, label) => {
+    const body = { ...notCurrent(status, reason), window: aligned(DAY).window };
+    const { container } = renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client,
+      indexOf(() => ({ status: "loaded", value: body })).client);
+    await settledScreen();
+    expect(expectStateLineVisible(listCard())).toBe(label);
+    expect(listCard().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(exactValue(listCard(), "Recorded reason 1")).toContain(reason);
+    noClaim();
+    const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, `overview list ${status} (W1)`, { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it("a CURRENT status that is not confirmed current is never shown as current", async () => {
+    const body = aligned(DAY, { is_current: false, total_count: null });
+    renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client, indexOf(() => ({ status: "loaded", value: body })).client);
+    await settledScreen();
+    expect(expectStateLineVisible(listCard())).toBe("Not confirmed as current yet");
+    expect(listCard().querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("waiting");
+    noClaim();
+  });
+
+  it("noncomparable parity: no same claim, both bases as labelled exact values, plain reasons only", async () => {
+    const overview = overviewOf(() =>
+      day(DAY, { known_finding: { ...day(DAY).known_finding!, selected_by: "PINNED_RETAINED_WHILE_BASIS_INCOMPLETE" } }),
+    );
+    const { container } = renderAt(`/sites/${SITE_ID}?date=${DAY}`, overview.client,
+      indexOf(() => ({ status: "loaded", value: positive(DAY) })).client);
+    await settledScreen();
+    expect(parity()).toBe("not-compared");
+    expect(screen.queryByText(/is the same Finding version/)).toBeNull();
+    expect(exactValue(listCard(), "How the Overview chose its Finding")).toBe("PINNED_RETAINED_WHILE_BASIS_INCOMPLETE");
+    const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview list parity (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it.each([
+    [{ status: "forbidden", message: null }, "This cannot be shown to you"],
+    [{ status: "unavailable", message: null }, "This could not be read right now"],
+    [{ status: "closed", message: "Performance source closed.", note: null }, "Not known"],
+  ] as [FindingIndexResult, string][])("a refused read (%#) states it with scope and an unrecorded time, never empty", async (result, label) => {
+    const { container } = renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client, indexOf(() => result).client);
+    await settledScreen();
+    // The refusal carries no read time, so the explicit checks replace expectStateLineVisible's "As of <time>".
+    const status = listCard().querySelector("[data-product-status]") as HTMLElement;
+    expect(status.querySelector("[data-product-status-label]")?.textContent).toBe(label);
+    expect((status.querySelector(".product-status__sentence")?.textContent ?? "").length).toBeGreaterThan(0);
+    expect(status.querySelector("[data-product-status-scope]")?.textContent).toBe(`Findings overlapping ${DAY}`);
+    expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+    expect(status.closest("details")).toBeNull();
+    noClaim();
+    const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview list refused (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });
 });

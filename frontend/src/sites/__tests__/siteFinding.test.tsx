@@ -2,7 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { SourceProvenance } from "../sourceProvenance";
 import {
@@ -155,6 +156,7 @@ function mount(client: FindingClient, search = "", id = F, withRecommendation = 
           path="/sites/:siteId/findings/:findingId"
           element={
             <>
+              <main>
               <SiteFinding
                 siteId="KOBO-001"
                 findingId={id}
@@ -168,6 +170,7 @@ function mount(client: FindingClient, search = "", id = F, withRecommendation = 
                     : {}),
                 }}
               />
+              </main>
               <Where />
             </>
           }
@@ -211,7 +214,8 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(container.querySelector("[data-finding-card='CANDIDATE_AVOIDABLE']")?.textContent).toMatch(/45 min/);
     expect(container.querySelector("[data-finding-card='NECESSARY']")?.textContent).toMatch(/15 min/);
     expect(container.querySelector("[data-finding-card='MONEY']")?.textContent).toMatch(/Not yet available/);
-    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Up to date");
+    // W1-UX-02: the shared currentness words replace "Up to date".
+    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Using the latest checked readings");
     // S6-01b: "What to do next" links to the Recommendation view at the exact version read.
     const next = container.querySelector("[data-finding-recommendation-link] a");
     expect(next?.getAttribute("href")).toContain(`/sites/KOBO-001/findings/${F}/recommendation?revision_id=`);
@@ -244,7 +248,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     await settledScreen();
     expect(client.asked).toEqual(["rev-1"]);
     expect(screen.getByRole("heading", { name: "Earlier version 1 of 2" })).toBeTruthy();
-    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Earlier version");
+    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Earlier version, kept for the record");
     expect(container.querySelector("[data-finding-version='rev-1']")?.getAttribute("aria-current")).toBe("true");
     fireEvent.click(screen.getByRole("link", { name: "Open the latest version" }));
     await settledScreen();
@@ -268,7 +272,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     const revs = [summary(1, "OPENED"), summary(2, "NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED"), summary(3, "UNCONFIRMED", "UNCONFIRMED")];
     const { container } = mount(fake({ status: "loaded", value: body(revs) }));
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Not confirmed" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Not confirmed: cannot decide whether any time was possibly avoidable" })).toBeTruthy();
     expect(container.querySelector("[data-finding-after-closure]")?.textContent).toMatch(/already been closed.*not a new issue/);
     expect(container.querySelector("[data-finding-card='CANDIDATE_AVOIDABLE']")?.textContent).toMatch(/0 min/);
     expect(container.querySelector("[data-limitation='EVIDENCE_GAP']")).not.toBeNull();
@@ -291,11 +295,14 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     value.links.performance = { status: "CLOSED", reason: "closed" };
     const { container } = mount(fake({ status: "loaded", value }), "?revision_id=rev-1");
     await settledScreen();
-    const lead = container.querySelector(".site-finding__lead");
+    // W1-UX-02: the lead is the answer card; its state line carries the record-only state.
+    const lead = container.querySelector("[data-headline-card='finding']") as HTMLElement;
     expect(lead?.querySelector("h2")?.textContent).toBe("Record only: this site's assessments are not released");
     expect(lead?.querySelector("[data-finding-audit-only]")).not.toBeNull();
-    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Not released");
+    expect(expectStateLineVisible(lead)).toBe("For the record only");
+    expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("For the record only");
     expect(container.textContent).not.toMatch(/Up to date/);
+    expect(container.textContent).not.toMatch(/Using the latest checked readings/);
     expect(container.querySelector("[data-finding-dispatch-closed]")).not.toBeNull();
     expect(container.querySelector("[data-finding-dispatch-day]")).toBeNull();
   });
@@ -335,10 +342,10 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
   });
 
   it.each([
-    ["STALE", "Out of date"],
-    ["FINDING_MATCH_PENDING", "Being updated"],
-    ["FAILED", "Reassessment failed"],
-    ["PENDING", "Being assessed"],
+    ["STALE", "This result may miss newer readings"],
+    ["FINDING_MATCH_PENDING", "Being compared with a newer assessment"],
+    ["FAILED", "The latest check could not be completed"],
+    ["PENDING", "Not checked yet"],
   ])("shows a %s latest version as %s, keeping the recorded version visible", async (state, label) => {
     const value = body([summary(1, "OPENED")]);
     value.revision.currentness = { state, windows: [] };
@@ -347,6 +354,11 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe(label);
     expect(container.querySelector(`[data-finding-currentness='${state}']`)?.textContent).toMatch(/last recorded version|not current/);
     expect(container.querySelector("[data-finding-card='CANDIDATE_AVOIDABLE']")).not.toBeNull();
+    // W1-UX-02: the state line beside the answer says the shown version is not current, outside the closed disclosure.
+    const card = container.querySelector("[data-headline-card='finding']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe(label);
+    expect(card.querySelector(".product-status__sentence")?.textContent).toMatch(/last recorded version|not current/);
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
   });
 
   it.each([
@@ -454,7 +466,7 @@ describe("Site Finding detail (S4-01 phase 3 fix round 3)", () => {
     stale.revision.currentness = { ...stale.revision.currentness, state: "STALE" };
     const a = mount(fake({ status: "loaded", value: stale }));
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Open · out of date" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Open in the last recorded version: 45 min of generator time possibly avoidable" })).toBeTruthy();
     a.unmount();
 
     const none = unconfirmed(() => {});
@@ -526,5 +538,145 @@ describe("Site Finding detail: LR-01 series limit end", () => {
     const plain = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
     await settledScreen();
     expect(plain.container.querySelector("[data-source-provenance]")).toHaveTextContent("Source unverified.");
+  });
+});
+
+/** W1-UX-02: a state whose read records no time: explicit checks instead of `expectStateLineVisible`. */
+function expectUntimedStateLine(card: Element): string {
+  const status = card.querySelector("[data-product-status]");
+  expect(status, "a shared state line is rendered").not.toBeNull();
+  for (const selector of ["[data-product-status-label]", ".product-status__sentence", "[data-product-status-scope]", "[data-product-status-as-of]"]) {
+    const el = status!.querySelector(selector);
+    expect(el, selector).not.toBeNull();
+    expect((el!.textContent ?? "").trim().length, `${selector} has text`).toBeGreaterThan(0);
+    expect(visibleOutsideClosedDisclosure(el!), `${selector} is outside any closed disclosure`).toBe(true);
+  }
+  expect(status!.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+  return status!.querySelector("[data-product-status-label]")?.textContent ?? "";
+}
+
+describe("W1-UX-02: Site Finding answer card", () => {
+  const card = () => document.querySelector("[data-headline-card='finding']") as HTMLElement;
+  const main = () => document.querySelector("main") as HTMLElement;
+
+  it("W1-UX-02: the Overview leads with the defensible conclusion, a causal strip and labelled exact references; W1 vocabulary on <main>", async () => {
+    mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
+    await settledScreen();
+    const answer = card();
+    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("What is the defensible conclusion and its consequence?");
+    expect(answer.querySelector("h2")?.textContent).toBe("Open: 45 min of generator time possibly avoidable");
+    expect(expectStateLineVisible(answer)).toBe("Using the latest checked readings");
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
+    const steps = Array.from(answer.querySelectorAll("[data-step-strip] li")).map((li) => li.querySelector(".step-strip__label")?.textContent);
+    expect(steps).toEqual(["Conclusion", "Cause", "Consequence", "Next useful step"]);
+    // The consequence is not worked out on this page: never a positive mark, never an amount.
+    const consequence = answer.querySelectorAll("[data-step-strip] li")[2];
+    expect(consequence.getAttribute("data-step")).toBe("not-known");
+    expect(answer.textContent).not.toMatch(/\$|USD|saved|savings/);
+    expect(answer.querySelector("[data-finding-could-change]")?.textContent).toMatch(/What could change it/);
+    expect(answer.querySelector("[data-finding-destination='analysis']")?.getAttribute("href")).toBe("/sites/KOBO-001/findings/" + F + "?view=analysis");
+    // Exact references are last, closed, individually labelled; the finding reference is not in the default reading.
+    const refs = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(refs.open).toBe(false);
+    expect(answer.querySelector(".headline-card__body")?.lastElementChild).toBe(refs);
+    expect(Array.from(refs.querySelectorAll("dt")).map((dt) => dt.textContent)).toEqual([
+      "Finding reference", "Shown version reference", "Latest version reference", "Recorded state code", "Up-to-date check code", "Change code",
+    ]);
+    expect(refs.querySelector("code")?.textContent).toBe(F);
+    const w1 = scanProductVocabulary(main(), "finding overview (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(40);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const disclosure = scanDisclosureVocabulary(answer, "finding exact references");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.scanned).toBeGreaterThan(5);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: the Analysis view keeps the card and the W1 vocabulary; an earlier version keeps its exact selector", async () => {
+    const revs = [summary(1, "OPENED"), summary(2, "SUPPORT_CHANGED")];
+    mount(fake((rid) => ({ status: "loaded", value: body(revs, rid === "rev-1" ? 1 : 2) })), "?revision_id=rev-1&view=analysis");
+    await settledScreen();
+    expect(document.querySelector("[data-finding-technical]")).not.toBeNull();
+    const answer = card();
+    // Historical: the plain "as of" of the shown version stays visible beside the answer.
+    expect(expectStateLineVisible(answer)).toBe("Earlier version, kept for the record");
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
+    expect(answer.querySelector("[data-finding-destination='overview']")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}?revision_id=rev-1`);
+    const w1 = scanProductVocabulary(main(), "finding analysis (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(40);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it.each([
+    ["STALE", "This result may miss newer readings"],
+    ["PENDING", "Not checked yet"],
+    ["PENDING_REASSESSMENT", "New readings call for another assessment"],
+    ["FINDING_MATCH_PENDING", "Being compared with a newer assessment"],
+    ["FAILED", "The latest check could not be completed"],
+    ["NOT_ASSESSED", "We have not checked this period"],
+    ["SOMETHING_NEW", "We cannot judge this yet"],
+  ])("W1-UX-02: a %s latest version keeps a non-positive state line visible with the disclosure closed", async (state, label) => {
+    const value = body([summary(1, "OPENED")]);
+    value.revision.currentness = { state, windows: [] };
+    mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    const answer = card();
+    expect(expectStateLineVisible(answer)).toBe(label);
+    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(answer.querySelector("h2")?.textContent).toMatch(/^Open in the last recorded version: /);
+    // The raw code stays in the labelled exact detail only.
+    expect(answer.querySelector(".headline-card__status")?.textContent).not.toContain(state);
+    const w1 = scanProductVocabulary(main(), `finding ${state} (W1)`, { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: limited (not confirmed with a record gap), merged, record-only and unknown-source versions keep their state line visible", async () => {
+    const limited = body([summary(1, "OPENED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")]);
+    limited.revision.indeterminate_cause = { kind: "RECORD_GAP", sentence: "Some records it needs are missing or conflict over part of the period." };
+    const a = mount(fake({ status: "loaded", value: limited }));
+    await settledScreen();
+    expectStateLineVisible(card());
+    expect(card().querySelectorAll("[data-step-strip] li")[1].getAttribute("data-step")).toBe("problem");
+    expect(card().querySelector("[data-finding-could-change]")?.textContent).toMatch(/fill the missing part/);
+    a.unmount();
+
+    const merged = body([summary(1, "OPENED"), summary(2, "MERGED_INTO", "MERGED")]);
+    merged.state.merged_into_finding_id = CANON;
+    const b = mount(fake({ status: "loaded", value: merged }));
+    await settledScreen();
+    expect(expectStateLineVisible(card())).toBe("Joined into an earlier Finding");
+    b.unmount();
+
+    const closed = body([summary(1, "OPENED")], 1, { audit_only: { non_current: true, reason: "closed", statement: "Audit material only" } });
+    closed.revision.currentness = { state: "SOURCE_CLOSED", windows: [] };
+    const c = mount(fake({ status: "loaded", value: closed }), "?revision_id=rev-1");
+    await settledScreen();
+    expect(expectStateLineVisible(card())).toBe("For the record only");
+    c.unmount();
+
+    // S4-05: an unrecorded source is named beside the state line, never as a positive source.
+    mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
+    await settledScreen();
+    expectStateLineVisible(card());
+    const source = card().querySelector("[data-source-provenance]") as HTMLElement;
+    expect(source).toHaveTextContent("Source unverified.");
+    expect(visibleOutsideClosedDisclosure(source)).toBe(true);
+  });
+
+  it.each([
+    ["not_found", "This record was not found"],
+    ["forbidden", "This cannot be shown to you"],
+    ["unauthenticated", "This cannot be shown to you"],
+    ["closed", "Not released for use yet"],
+    ["unavailable", "This could not be read right now"],
+  ] as const)("W1-UX-02: a %s read shows the refusal card with a plain state line and no Finding", async (status, label) => {
+    const result = (status === "closed" ? { status, message: null, note: null } : { status, message: null }) as FindingReadResult<FindingDetailBody>;
+    mount(fake(result));
+    await settledScreen();
+    expect(expectUntimedStateLine(card())).toBe(label);
+    expect(card().querySelector(`[data-finding-read='${status}']`)).not.toBeNull();
+    expect(document.querySelector("[data-finding-card]")).toBeNull();
+    const w1 = scanProductVocabulary(main(), `finding ${status} (W1)`, { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });
 });
