@@ -36,8 +36,8 @@ export function ProductStatus({ words, scope, asOf, children, inline = false }: 
           {words.label}
         </strong>{" "}
         <span className="product-status__sentence">{words.sentence}</span>
-        {children}
-        <span aria-hidden="true"> · </span>
+        {children}{" "}
+        {/* W1-F3 review L10: no leading separator, so a wrapped bound never starts its line with "·". */}
         <span className="product-status__bound">
           <span data-product-status-scope>{scope}</span>
           <span aria-hidden="true"> · </span>

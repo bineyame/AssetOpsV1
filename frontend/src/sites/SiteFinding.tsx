@@ -11,7 +11,7 @@
  * needed and undetermined time stay separate; nothing here is a fuel or money
  * figure, a recommendation or an Action.
  */
-import { Children, isValidElement, useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import {
@@ -29,6 +29,7 @@ import {
   ShowAll,
   StatusBar,
   StepStrip,
+  asOfText,
   type AttentionItem,
   type ProductWords,
   type Step,
@@ -312,18 +313,25 @@ function couldChangeText(body: FindingDetailBody): string {
  * after-closure notes. Used by the Overview's What happened panel and the
  * Analysis view's answer card.
  */
-function FindingStateLine({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
+function FindingStateLine({
+  body,
+  links,
+  compact = false,
+}: {
+  body: FindingDetailBody;
+  links: SiteFindingLinks;
+  /**
+   * W1-F3 review M4: inside What happened the strip owns the state label, version and period, and the panel
+   * description owns the period again; the panel keeps the non-positive sentence, the material notes and the as-of.
+   */
+  compact?: boolean;
+}) {
   const selected = body.revision;
   const words = findingCurrentnessWords(statusCode(body));
   const merged = body.state.merged_into_finding_id;
   const afterClosure = selected.lifecycle !== "NO_LONGER_SUPPORTED" && followsClosure(body.revisions, selected);
-  return (
-    <ProductStatus
-      inline
-      words={words}
-      scope={`Version ${body.selection.revision_no} of ${body.revision_page.total} · ${periodWords(selected.episode.start, selected.episode.end)}`}
-      asOf={body.watermarks.finding_recorded_at}
-    >
+  const notes = (
+    <>
       <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="finding" />
       {body.audit_only ? (
         <span data-finding-audit-only>{" "}
@@ -349,6 +357,27 @@ function FindingStateLine({ body, links }: { body: FindingDetailBody; links: Sit
             : "This review had been closed as no longer supported; a later assessment supports it again for the same period."}
         </span>
       ) : null}
+    </>
+  );
+  if (compact) {
+    return (
+      <span className={`status-strip__state product-status--${words.tone}`} data-product-status={words.tone} data-finding-panel-state>
+        {words.tone === "positive" ? null : <span className="product-status__sentence">{words.sentence}</span>}
+        {notes}{" "}
+        <span className="product-status__bound">
+          <span data-product-status-as-of>{asOfText(body.watermarks.finding_recorded_at)}</span>
+        </span>
+      </span>
+    );
+  }
+  return (
+    <ProductStatus
+      inline
+      words={words}
+      scope={`Version ${body.selection.revision_no} of ${body.revision_page.total} · ${periodWords(selected.episode.start, selected.episode.end)}`}
+      asOf={body.watermarks.finding_recorded_at}
+    >
+      {notes}
     </ProductStatus>
   );
 }
@@ -486,6 +515,13 @@ function FindingStatusBar({ body }: { body: FindingDetailBody }) {
   const currentness = findingCurrentnessWords(statusCode(body));
   return (
     <StatusBar label="Finding status" data={{ "data-finding-statusbar": "" }}>
+      {/* W1-F3 review H2: the mock's Priority and Confidence chips; no read assesses either yet. */}
+      <span className="badge badge--not-assessed" data-chip="priority" data-not-assessed>
+        Priority: not assessed
+      </span>
+      <span className="badge badge--not-assessed" data-chip="confidence" data-not-assessed>
+        Confidence: not assessed
+      </span>
       <span className="badge badge--lifecycle" data-chip="state">
         State: {LIFECYCLE_WORDS[selected.lifecycle].label}
       </span>
@@ -573,7 +609,7 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
     >
       <BigClaim data={{ "data-finding-claim": "" }}>{headlineText(body, words)}</BigClaim>
       <div className="site-finding__state v69-state-line" data-finding-state>
-        <FindingStateLine body={body} links={links} />
+        <FindingStateLine body={body} links={links} compact />
       </div>
       <p className="v69-prose site-finding__sentence" data-finding-sentence>
         {supported
@@ -693,22 +729,22 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
   const prior = body.relations.recurs_after_finding_id;
   return (
     <Panel heading="What limits this conclusion" headingId="site-finding-limits-heading">
-      <LimitList>
+      {/* W1-F3 review H1: every material limit stays visible, one sentence each. Only the access note and
+          the SUPPORTED lifecycle sentence sit behind the expander. */}
+      <ul className="site-finding__limits v69-prose" data-finding-limits>
         <li data-finding-bounded>
-          Only the possibly avoidable blocks are counted; needed and undetermined time stay separate. A bounded
-          estimate from the records sent from site, not proof of wasted fuel.
+          Only the possibly avoidable blocks are counted, as a bounded estimate from the site records, not proof of
+          wasted fuel.
         </li>
         {recordGap ? (
           <li data-finding-record-gap>
-            Some records this version needs are missing or conflict over part of the period, so that part could not
-            be decided.
+            Some records this version needs are missing or conflict over part of the period, so that part is undecided.
           </li>
         ) : null}
         {selected.claim.end_reason === "SERIES_LIMIT" ? (
           <li data-finding-end-reason="SERIES_LIMIT">
-            This finding ends at {stamp(selected.episode.end)} UTC because the generator records after that could not be
-            put in a proven time order (some arrived late and the clock behind them is not proven). Only the time
-            before that is counted; the time after it is not judged, so no current cost is shown for this version.
+            This finding ends at {stamp(selected.episode.end)} UTC because later generator records could not be put in a
+            proven time order, so later time is not judged and no current cost is shown.
           </li>
         ) : null}
         {groups.length === 0 ? (
@@ -723,39 +759,38 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
         )}
         {joined.length > 0 ? (
           <li data-finding-joined-gaps={joined.length}>
-            {joined.length === 1 ? "One short gap" : `${joined.length} short gaps`} of 20 minutes or less inside this
-            period had records for every minute; they are part of the same period but add no possibly avoidable time.
+            {joined.length === 1 ? "One short gap" : `${joined.length} short gaps`} of 20 minutes or less had records for
+            every minute and add no possibly avoidable time.
           </li>
         ) : null}
         {stops.length > 0 ? (
           <li data-finding-stop-bridges={stops.length}>
-            The generator stopped {stops.length === 1 ? "once" : `${stops.length} times`} for 20 minutes or less
-            (first at {stamp(stops[0].start)} UTC). It reported off at both ends with nothing contrary in between, so
-            this is still one period; the stop adds no possibly avoidable time. If few reports arrive during a stop,
-            this joining rests on those two off reports.
+            The generator stopped {stops.length === 1 ? "once" : `${stops.length} times`} for 20 minutes or less (first
+            at {stamp(stops[0].start)} UTC); off reports at both ends keep it one period, and this joining rests on those
+            two off reports.
           </li>
         ) : null}
         {prior ? (
           <li data-finding-recurrence={recurrence.status}>
-            This happened before: an earlier Finding covered the same generator, separated from this one by a
-            recorded stop. That link says the pattern recurred; it does not say the earlier Finding is still open.{" "}
-            <Link to={links.finding(prior)}>Open the earlier Finding to see its own state</Link>
+            This recurred after a recorded stop since an earlier Finding on the same generator, which does not say the
+            earlier Finding is still open. <Link to={links.finding(prior)}>Open the earlier Finding to see its own state</Link>
           </li>
         ) : recurrence.status === "NOT_ESTABLISHED" && recurrence.reason !== "NO_EARLIER_FINDING" ? (
           <li data-finding-recurrence={recurrence.status}>
-            An earlier Finding exists for this generator, but whether this repeats it is not established: the time
-            between them is not fully assessed or no recorded generator stop separates them.
+            An earlier Finding exists for this generator, but whether this repeats it is not established.
           </li>
         ) : null}
-        <li>
-          Shown under the pilot&apos;s development access. Sign-in and per-person access are not installed yet.
-        </li>
-        {selected.lifecycle === "SUPPORTED" ? (
-          <li className="site-finding__meaning-item">
-            <LifecycleSentence body={body} />
-          </li>
-        ) : null}
-      </LimitList>
+      </ul>
+      <ShowAll name="finding-limits-context" summary="Access and review context">
+        <ul className="site-finding__limits v69-prose" data-finding-limits-context>
+          <li>Shown under the pilot&apos;s development access; sign-in and per-person access are not installed yet.</li>
+          {selected.lifecycle === "SUPPORTED" ? (
+            <li className="site-finding__meaning-item">
+              <LifecycleSentence body={body} />
+            </li>
+          ) : null}
+        </ul>
+      </ShowAll>
       <div className="v69-prose site-finding__meaning">
         {selected.lifecycle === "SUPPORTED" ? null : <LifecycleSentence body={body} />}
         <CouldChange body={body} />
@@ -763,30 +798,6 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
     </Panel>
   );
 }
-
-/**
- * W1-F3 height phase: the mock's limits list has two or three bullets. The first three limits show (the bounded
- * estimate, then any record gap and series limit, which come first); the rest stay behind "Show all N limits".
- */
-function LimitList({ children }: { children: ReactNode }) {
-  const items = Children.toArray(children).filter((child) => isValidElement(child));
-  const shown = items.slice(0, LIMITS_SHOWN);
-  const rest = items.slice(LIMITS_SHOWN);
-  return (
-    <>
-      <ul className="site-finding__limits v69-prose">{shown}</ul>
-      {rest.length === 0 ? null : (
-        <ShowAll name="finding-limits" summary={`Show all ${items.length} limits`}>
-          <ul className="site-finding__limits v69-prose" data-finding-limits-more>
-            {rest}
-          </ul>
-        </ShowAll>
-      )}
-    </>
-  );
-}
-
-const LIMITS_SHOWN = 3;
 
 /** finding:3 "What to do next". */
 function WhatNext({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {

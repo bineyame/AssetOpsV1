@@ -130,7 +130,7 @@ export function SourceProvenanceNotice({
     <div className="source-provenance" data-source-provenance={state} data-source-provenance-subject={name}>
       <p className={`notice ${tone}`.trim()}>
         <strong>{words.label}.</strong> {words.statement}
-      </p>
+      </p>{" "}
       {provenance ? (
         <Disclosure summary={`Source record for this ${subject}`} name={`source-provenance-${name}`}>
           <p data-source-method>

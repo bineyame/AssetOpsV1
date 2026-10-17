@@ -1089,6 +1089,16 @@ button:focus-visible {
   border-radius: var(--radius-sm);
 }
 
+/* W1-F3 review H2: a mock chip or column the reads do not support yet ("Not assessed"), muted and dashed. */
+.badge--not-assessed {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px dashed var(--badge-neutral-border);
+  border-radius: var(--radius-sm);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
 /* Configuration Readiness (V-01a round 2). A leading mark (tick / bang) keeps
    the two distinguishable from provenance and lifecycle in greyscale. */
 .badge--configured {
@@ -4830,4 +4840,10 @@ td .disclosure.disclosure--inline {
 .v69-state-line .product-status__bound,
 .v69-state-line .product-status__sentence {
   font-size: inherit;
+}
+
+/* W1-F3 review L10: the inline bound has no leading separator; it keeps a small gap and wraps as one unit. */
+.status-strip__state .product-status__bound {
+  display: inline-block;
+  margin-left: 4px;
 }
