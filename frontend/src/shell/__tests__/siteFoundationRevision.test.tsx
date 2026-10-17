@@ -2209,3 +2209,76 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
     expect(document.querySelectorAll("[data-sld-missing] [data-gap-id]")).toHaveLength(2);
   });
 });
+
+/**
+ * W1-F1 (D-2026-10-17-mockup-layout-spec): each Foundation route renders exactly its v69
+ * panels, in order, in its stocked, empty-period, refused and gateway variants, with any
+ * unsupported read stated inside its panel slot.
+ */
+describe("W1-F1: Foundation, Readiness and SLD keep the v69 panel structure in every variant", () => {
+  const SLD = { site: "Kalangala Mini-Grid", topology: "Mini-grid" };
+  const stocked = () => fakeFoundation(byAt);
+  const gaps = () => Array.from(document.querySelectorAll("[data-panel-gap]"));
+
+  it.each([
+    ["foundation", "", {}],
+    ["readiness", "/readiness", { gateway: "edge-kobo-001" }],
+    ["sld", "/sld", SLD],
+  ] as const)("stocked: %s", async (screenId, segment, values) => {
+    renderAt(`/sites/${ID}/foundation${segment}`, stocked());
+    await settledScreen();
+    expectV69Panels(screenId, values);
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    expect(document.querySelector("[data-page-refusal]")).toBeNull();
+  });
+
+  it.each([
+    ["foundation", "", {}, 3],
+    ["readiness", "/readiness", { gateway: "No gateway selected" }, 4],
+    ["sld", "/sld", { site: ID }, 2],
+  ] as const)("no stored version for the selected time: %s keeps its slots with in-panel gaps", async (screenId, segment, values, slots) => {
+    renderAt(`/sites/${ID}/foundation${segment}?at=2020-01-01T00:00:00Z`, stocked());
+    await settledScreen();
+    expect(document.querySelector('[data-page-refusal="no-version"]')).not.toBeNull();
+    expectV69Panels(screenId, values);
+    expect(gaps()).toHaveLength(slots);
+    for (const gap of gaps()) expect(gap.textContent).toContain("No Foundation version is stored for the selected time");
+  });
+
+  it.each([
+    ["readiness", "/readiness", { gateway: "No gateway selected" }, 4],
+    ["sld", "/sld", { site: ID }, 2],
+  ] as const)("unreadable store and not-imported site: %s keeps its slots with in-panel gaps", async (screenId, segment, values, slots) => {
+    const down = { status: "unavailable" as const, message: "The store is down." };
+    const view = renderAt(`/sites/${ID}/foundation${segment}`, fakeFoundation(() => down, down));
+    await settledScreen();
+    expect(document.querySelector('[data-page-refusal="unavailable"]')).not.toBeNull();
+    expectV69Panels(screenId, values);
+    expect(gaps()).toHaveLength(slots);
+    for (const gap of gaps()) expect(gap.textContent).toContain("could not be read");
+    view.unmount();
+    const legacy = { status: "migration_required" as const, message: "legacy" };
+    renderAt(`/sites/${ID}/foundation${segment}`, fakeFoundation(() => legacy, legacy));
+    await settledScreen();
+    expect(document.querySelector('[data-page-refusal="not-imported"]')).not.toBeNull();
+    expectV69Panels(screenId, values);
+    expect(gaps()).toHaveLength(slots);
+    for (const gap of gaps()) expect(gap.textContent).toContain("no stored Foundation version");
+  });
+
+  it.each([
+    ["contact read unavailable", { status: "unavailable" as const, message: null }],
+    ["no gateway in the contact read", healthOf()],
+    ["contact read in flight", "pending" as const],
+  ])("readiness with the %s keeps the gateway slot titled from the selected read", async (_name, health) => {
+    renderWithGateway(`/sites/${ID}/foundation/readiness`, fakeFoundation(READY), health);
+    await screen.findByRole("heading", { name: GATEWAY_HEADING });
+    expectV69Panels("readiness", { gateway: "edge-kobo-001" });
+  });
+
+  it("readiness with no registered gateway and no contact says No gateway selected in the title", async () => {
+    renderAt(`/sites/${ID}/foundation/readiness`, fakeFoundation(() => ({ status: "loaded", value: foundation(PAST, { gateways: [] }) })));
+    await settledScreen();
+    expectV69Panels("readiness", { gateway: "No gateway selected" });
+  });
+});
