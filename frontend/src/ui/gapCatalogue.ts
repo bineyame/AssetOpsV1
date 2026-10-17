@@ -24,9 +24,9 @@ export const UI_GAP_CATALOGUE = {
   "G-readiness-gateway-signal-strength": { status: "open", placements: ["readiness.gateway.signal-strength"] },
   "G-readiness-gateway-uptime": { status: "open", placements: ["readiness.gateway.uptime"] },
   "G-readiness-source-contact": { status: "open", placements: ["readiness.gateway.source-connection", "readiness.gateway.source-connection-registration", "readiness.sources.arrival"] },
-  "G-sites-attention-counts": { status: "open", placements: ["sites.inventory.attention-counts"] },
+  "G-sites-attention-counts": { status: "open", placements: ["sites.metrics.needs-attention", "sites.metrics.evidence-limited"] },
   "G-sites-operating-view": { status: "open", placements: ["sites.inventory.operating-view", "sites.inventory.analysis-note"] },
-  "G-sites-setup-progress": { status: "open", placements: ["sites.inventory.setup-progress"] },
+  "G-sites-setup-progress": { status: "open", placements: ["sites.setup.progress"] },
   "G-sld-protection-metering": { status: "open", placements: ["sld.diagram.protection-metering"] },
   "G-sld-reporting-status": { status: "open", placements: ["sld.diagram.reporting-status", "sld.diagram.readings-status", "sld.diagram.bus-slot", "sld.diagram.node-slot", "sld.contents.readings-slot", "sld.contents.caption", "sld.intro.readings-status"] },
 } as const satisfies Record<

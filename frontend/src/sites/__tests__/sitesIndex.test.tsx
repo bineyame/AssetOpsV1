@@ -8,7 +8,11 @@ import type { SiteListResult, SiteSummary } from "../siteReadModel";
 import { deriveSiteView } from "../siteViewModel";
 import { spacedText } from "../../test/text";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+
+/** W1-F1: the v69 Sites screen has a second table (In setup); these tests read the inventory table. */
+const INVENTORY_TABLE = "Site inventory";
 
 /**
  * Tests for the shared Site presentation substrate.
@@ -112,7 +116,7 @@ describe("sites index states", () => {
     const { container } = renderIndex({ status: "loaded", sites: [] });
 
     expect(
-      await screen.findByRole("heading", { level: 2, name: "No sites configured" }),
+      await screen.findByText("No sites configured"),
     ).toBeInTheDocument();
     expect(container.querySelectorAll("table")).toHaveLength(0);
     expect(spacedText(container)).not.toMatch(/\d/);
@@ -122,7 +126,7 @@ describe("sites index states", () => {
     const { container } = renderIndex({ status: "unavailable" });
 
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sites unavailable" }),
+      await screen.findByText("Sites unavailable"),
     ).toBeInTheDocument();
     expect(spacedText(container)).not.toMatch(/No sites configured/i);
   });
@@ -132,7 +136,7 @@ describe("sites index rows", () => {
   it("keys a row by site ID and shows its configuration", async () => {
     renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
 
-    const row = within(await screen.findByRole("table")).getAllByRole("row")[1];
+    const row = within(await screen.findByRole("table", { name: INVENTORY_TABLE })).getAllByRole("row")[1];
 
     expect(within(row).getByText("MG-002")).toBeInTheDocument();
     expect(within(row).getByText("Kalangala Mini-Grid")).toBeInTheDocument();
@@ -149,11 +153,11 @@ describe("sites index rows", () => {
   it("renders no value the record does not supply", async () => {
     const sites = [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE];
     renderIndex({ status: "loaded", sites });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     const fromRecords = new Set(digitRuns(JSON.stringify(sites)));
     const onScreen = digitRuns(
-      screen.getByRole("table").textContent ?? "",
+      screen.getByRole("table", { name: INVENTORY_TABLE }).textContent ?? "",
     );
 
     expect(onScreen.length).toBeGreaterThan(0);
@@ -181,7 +185,7 @@ describe("sites index rows", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
     });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     const links = Array.from(container.querySelectorAll("a")).map((link) => [
       link.getAttribute("href"),
@@ -209,7 +213,7 @@ describe("sites index rows", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE],
     });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     const href = container.querySelector("a")?.getAttribute("href") ?? "";
 
@@ -223,7 +227,7 @@ describe("the index filters over the sites it actually has", () => {
   const THREE = [USER_SIMULATED_SITE, USER_LIVE_SITE, SHIPPED_SIMULATED_SITE];
 
   function rowNames(): string[] {
-    return within(screen.getByRole("table"))
+    return within(screen.getByRole("table", { name: INVENTORY_TABLE }))
       .getAllByRole("row")
       .slice(1)
       .map((row) => {
@@ -243,17 +247,16 @@ describe("the index filters over the sites it actually has", () => {
 
   it("offers only the values the configured sites carry", async () => {
     renderIndex({ status: "loaded", sites: THREE });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     // No DECOMMISSIONED, no ARCHIVED, no site type nothing is. The M1 schema
     // permits more than these; a filter offering one teaches a fleet this
     // build does not have, and an empty result for it would be
     // indistinguishable from a state the product never reaches.
-    expect(optionsOf("sites-type")).toEqual([
-      "All types",
-      "Cold chain",
-      "Mini-grid",
-    ]);
+    // W1-F1: the type filter is the v69 chip group; its chips are the types present.
+    expect(
+      Array.from(document.querySelectorAll("[data-site-filter]")).map((chip) => chip.textContent),
+    ).toEqual(["All sites", "Cold chain", "Mini-grid"]);
     expect(optionsOf("sites-mode")).toEqual(["All modes", "Demonstration data", "Live"]);
     expect(optionsOf("sites-lifecycle")).toEqual([
       "All lifecycle states",
@@ -265,7 +268,7 @@ describe("the index filters over the sites it actually has", () => {
 
   it("narrows by mode and by lifecycle independently", async () => {
     renderIndex({ status: "loaded", sites: THREE });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     fireEvent.change(screen.getByLabelText("Mode"), {
       target: { value: "Live" },
@@ -288,7 +291,7 @@ describe("the index filters over the sites it actually has", () => {
 
   it("searches over the name and the identity", async () => {
     renderIndex({ status: "loaded", sites: THREE });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     const search = screen.getByLabelText("Search sites");
 
@@ -303,13 +306,13 @@ describe("the index filters over the sites it actually has", () => {
 
   it("says an empty result is about the filters, never about the store", async () => {
     renderIndex({ status: "loaded", sites: THREE });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     fireEvent.change(screen.getByLabelText("Search sites"), {
       target: { value: "no-such-site" },
     });
 
-    expect(screen.queryByRole("table")).toBeNull();
+    expect(screen.queryByRole("table", { name: INVENTORY_TABLE })).toBeNull();
 
     // The distinction T006 settled: an empty store and a filter that matched
     // nothing are different facts, and the first-run copy must not be reused
@@ -324,9 +327,9 @@ describe("the index filters over the sites it actually has", () => {
 describe("the Actions column offers only what exists", () => {
   it("contains View and nothing else, with no overflow menu", async () => {
     renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
-    const table = screen.getByRole("table");
+    const table = screen.getByRole("table", { name: INVENTORY_TABLE });
     const headers = within(table)
       .getAllByRole("columnheader")
       .map((header) => (header.textContent ?? "").trim());
@@ -354,7 +357,7 @@ describe("the Actions column offers only what exists", () => {
         status: "loaded",
         sites: [USER_SIMULATED_SITE],
       });
-      await screen.findByRole("table");
+      await screen.findByRole("table", { name: INVENTORY_TABLE });
 
       // Absence from the DOM, not disabled state: disabled reads as soon, and
       // none of these is coming.
@@ -372,7 +375,7 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
     const sites = [USER_LIVE_SITE, SHIPPED_SIMULATED_SITE];
     renderIndex({ status: "loaded", sites });
 
-    const rows = within(await screen.findByRole("table")).getAllByRole("row");
+    const rows = within(await screen.findByRole("table", { name: INVENTORY_TABLE })).getAllByRole("row");
     const userLive = rows.find((row) =>
       row.textContent?.includes("MG-003"),
     ) as HTMLElement;
@@ -394,7 +397,7 @@ describe("configuration origin, source mode, and lifecycle stay separate", () =>
   it("keeps mode primary and lifecycle, origin and template as separate labelled setup facts", async () => {
     renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
 
-    const headers = within(await screen.findByRole("table"))
+    const headers = within(await screen.findByRole("table", { name: INVENTORY_TABLE }))
       .getAllByRole("columnheader")
       .map((header) => header.textContent);
 
@@ -453,7 +456,7 @@ describe("the index shows no capability the product lacks", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE],
     });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     // Not merely "no enabled control": deferred-by-decision capabilities are
     // absent from the DOM rather than rendered disabled. Rows are links now,
@@ -475,12 +478,14 @@ describe("the index shows no capability the product lacks", () => {
         control.getAttribute("id") ?? control.getAttribute("href"),
       ]),
     ).toEqual([
-      // W1-UX-02: the answer card's closed exact-reference disclosure (site
+      // W1-F1: the v69 type chips (one per type present plus All sites),
+      // then the inventory's closed exact-reference disclosure (site
       // references only), named here so any other control still fails.
+      ["BUTTON", null],
+      ["BUTTON", null],
       ["DETAILS", null],
       ["SUMMARY", null],
       ["INPUT", "sites-search"],
-      ["SELECT", "sites-type"],
       ["SELECT", "sites-mode"],
       ["SELECT", "sites-lifecycle"],
       ["A", "/sites/MG-002"],
@@ -496,12 +501,12 @@ describe("the index shows no capability the product lacks", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE],
     });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     expect(container.querySelectorAll("svg, canvas, img")).toHaveLength(0);
     expect(screen.queryAllByRole("figure")).toHaveLength(0);
 
-    const headers = within(screen.getByRole("table"))
+    const headers = within(screen.getByRole("table", { name: INVENTORY_TABLE }))
       .getAllByRole("columnheader")
       .map((header) => (header.textContent ?? "").trim());
 
@@ -523,7 +528,7 @@ describe("the index shows no capability the product lacks", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE],
     });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
     expect(container.querySelectorAll("svg, canvas")).toHaveLength(0);
 
@@ -535,7 +540,7 @@ describe("the index shows no capability the product lacks", () => {
     // be a fourth, or one of these renamed, and either fails.
     expect(
       screen.queryAllByRole("combobox").map((el) => el.getAttribute("id")),
-    ).toEqual(["sites-type", "sites-mode", "sites-lifecycle"]);
+    ).toEqual(["sites-mode", "sites-lifecycle"]);
 
     // The vocabulary rule is untouched and is what actually names the
     // deferred capability.
@@ -549,9 +554,9 @@ describe("the index shows no capability the product lacks", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
     });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
 
-    const table = screen.getByRole("table");
+    const table = screen.getByRole("table", { name: INVENTORY_TABLE });
     const headers = within(table)
       .getAllByRole("columnheader")
       .map((header) => (header.textContent ?? "").trim());
@@ -577,7 +582,7 @@ describe("the index shows no capability the product lacks", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE],
     });
-    const table = await screen.findByRole("table");
+    const table = await screen.findByRole("table", { name: INVENTORY_TABLE });
     const headers = within(table).getAllByRole("columnheader").map((h) => (h.textContent ?? "").trim());
     expect(headers).toEqual(["Site", "Type", "Mode", "Operating view", "Setup details", "Actions"]);
     const cells = Array.from(table.querySelectorAll("[data-operating-view]"));
@@ -587,10 +592,17 @@ describe("the index shows no capability the product lacks", () => {
       expect(cell.querySelector(".cell-secondary")?.textContent).toBe("Assessment · top issue · evidence limit · last analysed");
       expect(cell.textContent).not.toMatch(/\d|healthy|needs attention|limited/i);
     }
-    const aggregate = screen.getByTestId("sites-aggregate-absent");
-    expect(aggregate.textContent).toBe(
-      "2 registered Sites listed. Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them. Setup progress not tracked yet.",
-    );
+    // W1-F1: the aggregate note became the v69 metric cards (count supported, the other two a gap)
+    // and the setup gap moved into the In setup panel.
+    const metric = (key: string) => document.querySelector(`[data-site-metric="${key}"]`) as HTMLElement;
+    expect(metric("count").textContent).toBe("Sites2Registered site identities");
+    for (const key of ["needs-attention", "evidence-limited"]) {
+      expect(metric(key).querySelector(".v69-metric__value")?.textContent).toBe("Not available");
+      expect(metric(key).querySelector("[data-gap-id]")?.textContent).toBe(
+        "Not available from this list: there is no common window or aggregation contract for this count.",
+      );
+    }
+    expect(panelTitled("In setup").textContent).toContain("Setup progress not available: no read returns who set up a site, its next step or when it was registered.");
   });
 
   it("tags each Sites missing claim with its own catalogued gap, and none in the empty or unreadable states (G-02)", async () => {
@@ -600,17 +612,20 @@ describe("the index shows no capability the product lacks", () => {
       "sites.inventory.operating-view": "Not available yetAssessment · top issue · evidence limit · last analysed",
       "sites.inventory.analysis-note":
         "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments.",
-      "sites.inventory.attention-counts":
-        "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them.",
-      "sites.inventory.setup-progress": "Setup progress not tracked yet.",
+      "sites.metrics.needs-attention":
+        "Not available from this list: there is no common window or aggregation contract for this count.",
+      "sites.metrics.evidence-limited":
+        "Not available from this list: there is no common window or aggregation contract for this count.",
+      "sites.setup.progress": "Setup progress not available: no read returns who set up a site, its next step or when it was registered.",
     };
     const view = renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE] });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
     expect(pairs(document)).toEqual([
-      "G-sites-attention-counts@sites.inventory.attention-counts",
+      "G-sites-attention-counts@sites.metrics.evidence-limited",
+      "G-sites-attention-counts@sites.metrics.needs-attention",
       "G-sites-operating-view@sites.inventory.analysis-note",
       "G-sites-operating-view@sites.inventory.operating-view",
-      "G-sites-setup-progress@sites.inventory.setup-progress",
+      "G-sites-setup-progress@sites.setup.progress",
     ]);
     const tagged = [...document.querySelectorAll("[data-gap-id]")];
     expect(document.querySelectorAll('[data-gap-placement="sites.inventory.operating-view"]')).toHaveLength(2);
@@ -619,23 +634,30 @@ describe("the index shows no capability the product lacks", () => {
       expect(el.getAttribute("data-gap-status")).toBe("open");
       expect(el.querySelector("[data-gap-id]")).toBeNull();
     }
-    // The aggregate note's two claims are separate elements; the registered count stays outside both.
-    const aggregate = screen.getByTestId("sites-aggregate-absent");
-    expect(aggregate.querySelectorAll("[data-gap-id]")).toHaveLength(2);
+    // W1-F1: the two count claims are separate elements in their own cards; the registered count carries none.
+    expect(document.querySelectorAll('[data-gap-id="G-sites-attention-counts"]')).toHaveLength(2);
+    expect(document.querySelector('[data-site-metric="count"] [data-gap-id]')).toBeNull();
     expect(document.body.textContent).not.toMatch(/G-sites-/);
     view.unmount();
 
     for (const result of [{ status: "loaded" as const, sites: [] }, { status: "unavailable" as const }]) {
       const other = renderIndex(result);
-      await screen.findByRole("heading", { level: 2, name: result.status === "loaded" ? "No sites configured" : "Sites unavailable" });
-      expect(document.querySelector("[data-gap-id]")).toBeNull();
+      await screen.findByText(result.status === "loaded" ? "No sites configured" : "Sites unavailable");
+      // W1-F1: the v69 panel slots keep their gaps in every state (D-2026-10-17-mockup-layout-spec);
+      // with no row there is no per-row operating-view gap, and nothing else is tagged.
+      expect(pairs(document)).toEqual([
+        "G-sites-attention-counts@sites.metrics.evidence-limited",
+        "G-sites-attention-counts@sites.metrics.needs-attention",
+        "G-sites-setup-progress@sites.setup.progress",
+      ]);
+      expectV69Panels("sites");
       other.unmount();
     }
   });
 
   it("puts identity and location in the Site cell's secondary line", async () => {
     renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
-    const row = within(await screen.findByRole("table")).getAllByRole("row")[1];
+    const row = within(await screen.findByRole("table", { name: INVENTORY_TABLE })).getAllByRole("row")[1];
     const siteCell = within(row).getAllByRole("cell")[0];
     expect(siteCell.querySelector(".cell-secondary")?.textContent).toBe(
       "MG-002 · Kalangala, Uganda",
@@ -653,7 +675,7 @@ describe("the substrate is a leaf with no shell discriminant", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE],
     });
-    await within(first.container).findByRole("table");
+    await within(first.container).findByRole("table", { name: INVENTORY_TABLE });
     const firstMarkup = first.container.innerHTML;
     first.unmount();
 
@@ -661,7 +683,7 @@ describe("the substrate is a leaf with no shell discriminant", () => {
       status: "loaded",
       sites: [USER_SIMULATED_SITE],
     });
-    await within(second.container).findByRole("table");
+    await within(second.container).findByRole("table", { name: INVENTORY_TABLE });
 
     // There is no shell, mode, or variant prop to vary, which is why this can
     // only be a same-input assertion today. The real render-equivalence guard
@@ -684,28 +706,41 @@ function expectUntimedStateLine(card: Element, label: string) {
   expect(status.closest("details")).toBeNull();
 }
 
+/**
+ * W1-F1 removed the W1-UX-02 answer card. Its state line, material limit, registered
+ * scope and exact references now sit inside the v69 "Site inventory" panel, and the
+ * registered count is the first v69 metric card.
+ */
 describe("W1-UX-02: the Sites directory (sites) on the W1 set", () => {
+  const metric = (key: string) => document.querySelector(`[data-site-metric="${key}"]`) as HTMLElement;
+
   it("answers which site to open by identity only, with registered scope, a closed exact-reference disclosure and no attention claim", async () => {
     const { container } = renderIndex({
       status: "loaded",
       sites: [USER_SIMULATED_SITE, { ...SHIPPED_SIMULATED_SITE, configuration_store: "POSTGRES" }],
     });
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
     await settledScreen();
-    const card = container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
-    expect(card).not.toBeNull();
-    expect(card.querySelector(".headline-card__question")?.textContent).toBe("Which site should I open?");
-    expect(card.querySelector(".headline-card__headline")?.textContent).toBe("2 registered sites: open one by name below.");
-    expectUntimedStateLine(card, "Registered sites, not ranked");
-    // The material limit sits beside the answer, outside any disclosure.
-    expect(card.querySelector(".product-status__sentence")?.textContent).toContain("does not judge how any site is operating");
-    expect(card.querySelector("[data-sites-scope]")?.textContent).toContain("Mini-grid: 1");
-    expect(card.querySelector("[data-sites-scope]")?.textContent).toContain("Demonstration data: 2");
-    expect(card.querySelector("[data-sites-scope-limit]")?.textContent).toContain("Not judged in this list");
-    // No condition, ranking or attention is claimed anywhere on the card.
-    expect(card.textContent).not.toMatch(/needs attention|healthy|top issue|degraded/i);
+    expect(container.querySelector("[data-headline-card]")).toBeNull();
+    expectV69Panels("sites");
+    const inventory = panelTitled("Site inventory");
+    const state = inventory.querySelector('[data-sites-state="listed"]') as HTMLElement;
+    expectUntimedStateLine(state, "Registered sites, not ranked");
+    // The material limit sits beside the list, outside any disclosure.
+    expect(state.querySelector(".product-status__sentence")?.textContent).toContain("does not judge how any site is operating");
+    expect(metric("count").querySelector(".v69-metric__value")?.textContent).toBe("2");
+    // The type chips name only the types present; nothing is ranked or judged.
+    expect(Array.from(container.querySelectorAll("[data-site-filter]")).map((c) => c.textContent)).toEqual([
+      "All sites",
+      "Cold chain",
+      "Mini-grid",
+    ]);
+    expect(state.textContent).not.toMatch(/needs attention|healthy|top issue|degraded/i);
+    for (const key of ["needs-attention", "evidence-limited"]) {
+      expect(metric(key).querySelector(".v69-metric__value")?.textContent).toBe("Not available");
+    }
     // Exact references: each site's reference and registration store, labelled, in the closed disclosure.
-    const details = card.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    const details = state.querySelector("details[data-exact-references]") as HTMLDetailsElement;
     expect(details.open).toBe(false);
     const codes = Array.from(details.querySelectorAll("code")).map((c) => c.textContent);
     expect(codes).toEqual(["MG-002", "CC-001", "POSTGRES"]);
@@ -713,39 +748,47 @@ describe("W1-UX-02: the Sites directory (sites) on the W1 set", () => {
     const w1 = scanProductVocabulary(container, "sites directory (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(20);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const d = scanDisclosureVocabulary(card, "sites directory disclosure");
+    const d = scanDisclosureVocabulary(state, "sites directory disclosure");
     expect(d.disclosures).toBe(1);
     expect(d.scanned).toBeGreaterThan(2);
     expect(d.violations, describeViolations(d.violations)).toEqual([]);
-    // The three missing claims stay unchanged beside the inventory.
-    expect(container.querySelectorAll("[data-gap-id]")).toHaveLength(5);
+    // Two operating-view rows, the analysis note, two count cards and the setup gap.
+    expect(container.querySelectorAll("[data-gap-id]")).toHaveLength(6);
   });
 
-  it("the empty and unreadable directories state themselves on the same card, distinctly, with no count", async () => {
+  it("the empty and unreadable directories state themselves in the inventory panel, distinctly, with no count", async () => {
     const empty = renderIndex({ status: "loaded", sites: [] });
-    await screen.findByRole("heading", { level: 2, name: "No sites configured" });
-    const emptyCard = empty.container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
-    expectUntimedStateLine(emptyCard, "No sites registered");
-    expect(emptyCard.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("neutral");
+    await screen.findByText("No sites configured");
+    expectV69Panels("sites");
+    const emptyState = empty.container.querySelector('[data-sites-state="empty"]') as HTMLElement;
+    expect(panelTitled("Site inventory").contains(emptyState)).toBe(true);
+    expectUntimedStateLine(emptyState, "No sites registered");
+    expect(emptyState.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("neutral");
+    expect(metric("count").querySelector(".v69-metric__value")?.textContent).toBe("None");
+    expect(empty.container.querySelectorAll("table")).toHaveLength(0);
     const emptyScan = scanProductVocabulary(empty.container, "sites empty (W1)", { set: "w1" });
     expect(emptyScan.violations, describeViolations(emptyScan.violations)).toEqual([]);
     empty.unmount();
 
     const unreadable = renderIndex({ status: "unavailable" });
-    await screen.findByRole("heading", { level: 2, name: "Sites unavailable" });
-    const card = unreadable.container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
-    expectUntimedStateLine(card, "This could not be read right now");
-    expect(card.querySelector(".product-status__sentence")?.textContent).toContain("It is not empty");
-    expect(card.textContent).not.toMatch(/No sites registered/);
+    await screen.findByText("Sites unavailable");
+    expectV69Panels("sites");
+    const state = unreadable.container.querySelector('[data-sites-state="unavailable"]') as HTMLElement;
+    expect(panelTitled("Site inventory").contains(state)).toBe(true);
+    expectUntimedStateLine(state, "This could not be read right now");
+    expect(state.querySelector(".product-status__sentence")?.textContent).toContain("It is not empty");
+    expect(unreadable.container.textContent).not.toMatch(/No sites registered|No site is registered/);
+    expect(metric("count").querySelector(".v69-metric__value")?.textContent).toBe("Unavailable");
+    expect(unreadable.container.textContent).not.toMatch(/\d/);
+    expect(panelTitled("In setup").textContent).toContain("could not be read");
     const scan = scanProductVocabulary(unreadable.container, "sites unreadable (W1)", { set: "w1" });
     expect(scan.violations, describeViolations(scan.violations)).toEqual([]);
   });
 
-  it("a loaded directory with one site uses the singular and stays unranked", async () => {
+  it("a loaded directory with one site counts one and stays unranked", async () => {
     const { container } = renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
-    await screen.findByRole("table");
-    const card = container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
-    expect(card.querySelector(".headline-card__headline")?.textContent).toBe("1 registered site: open one by name below.");
-    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    await screen.findByRole("table", { name: INVENTORY_TABLE });
+    expect(metric("count").querySelector(".v69-metric__value")?.textContent).toBe("1");
+    expect(container.querySelector('[data-product-status="positive"]')).toBeNull();
   });
 });

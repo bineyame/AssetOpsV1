@@ -5,7 +5,8 @@ import {
   Badge,
   DataTable,
   ExactReferences,
-  HeadlineVisualCard,
+  MetricCard,
+  MetricCards,
   MissingClaim,
   Panel,
   ProductStatus,
@@ -114,64 +115,59 @@ export function SitesIndex({
     return <p>Loading configured sites.</p>;
   }
 
+  // W1-F1 (D-2026-10-17-mockup-layout-spec): the v69 `sites` layout in every
+  // state: type chips, three metric cards, then "Site inventory" and "In setup".
+  // An unreadable or empty directory keeps both panels, with the state inside.
   if (result.status === "unavailable") {
     return (
-      <HeadlineVisualCard
-        dataName="sites-directory"
-        headingId="sites-unavailable-heading"
-        title="Sites unavailable"
-        question={SITES_QUESTION}
-        headline="No site can be listed right now."
-        status={<ProductStatus words={readResultWords("unavailable")} scope={SITES_SCOPE} asOf={null} />}
-        meaning={
-          <p>
-            The site store could not be read, so no site can be listed. This is a
-            statement about the store, not a statement that no site is
-            configured.
-          </p>
-        }
-      />
+      <>
+        <SitesMetrics count={null} />
+        <Panel heading="Site inventory" headingId="sites-list-heading" description={INVENTORY_DESCRIPTION}>
+          <div data-sites-state="unavailable">
+            <p>
+              <strong>Sites unavailable</strong>
+            </p>
+            <ProductStatus words={readResultWords("unavailable")} scope={SITES_SCOPE} asOf={null} />
+            <p>
+              The site store could not be read, so no site can be listed. This is a statement about the store, not a
+              statement that no site is configured.
+            </p>
+          </div>
+        </Panel>
+        <SetupPanel sites={null} />
+      </>
     );
   }
 
   if (result.sites.length === 0) {
     return (
-      <HeadlineVisualCard
-        dataName="sites-directory"
-        headingId="sites-empty-heading"
-        title="No sites configured"
-        question={SITES_QUESTION}
-        headline="There is no site to open yet."
-        status={<ProductStatus words={NO_SITES_WORDS} scope={SITES_SCOPE} asOf={null} />}
-        meaning={
-          <p>
-            No site has been configured, so there is nothing to list. This is the
-            real state of this build rather than a placeholder: no row, no count,
-            and no example site stands in for one.
-          </p>
-        }
-      />
+      <>
+        <SitesMetrics count={0} />
+        <Panel heading="Site inventory" headingId="sites-list-heading" description={INVENTORY_DESCRIPTION}>
+          <div data-sites-state="empty">
+            <p>
+              <strong>No sites configured</strong>
+            </p>
+            <ProductStatus words={NO_SITES_WORDS} scope={SITES_SCOPE} asOf={null} />
+            <p>
+              No site has been configured, so there is nothing to list. This is the real state of this build rather
+              than a placeholder: no row and no example site stands in for one.
+            </p>
+          </div>
+        </Panel>
+        <SetupPanel sites={[]} />
+      </>
     );
   }
 
-  return (
-    <>
-      <SitesAnswer sites={result.sites} />
-      <Panel
-        heading="Site inventory"
-        headingId="sites-list-heading"
-        description="Mode says where a site's readings come from. It is not a measure of how the site is operating."
-        flush
-      >
-        <SiteFilters sites={result.sites} siteHref={siteHref} lineage={lineage} />
-      </Panel>
-    </>
-  );
+  return <SitesDirectory sites={result.sites} siteHref={siteHref} lineage={lineage} />;
 }
 
 /** The v69 `sites` question. The directory answers it by identity only. */
 export const SITES_QUESTION = "Which site should I open?";
 const SITES_SCOPE = "All registered sites";
+const INVENTORY_DESCRIPTION =
+  "Mode says where a site's readings come from. It is not a measure of how the site is operating.";
 
 /** A loaded directory with no site: a domain state the shared map does not own. */
 const NO_SITES_WORDS: ProductWords = {
@@ -196,73 +192,151 @@ export const SITES_LISTED_WORDS: ProductWords = {
   unrecognised: false,
 };
 
-/** Count each distinct value, in first-seen order. */
-function tally(values: string[]): [string, number][] {
-  const counts = new Map<string, number>();
-  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
-  return Array.from(counts.entries());
+/** Why the mock's attention and evidence-limit counts are absent from this list. */
+export const SITES_COUNT_NOT_AVAILABLE =
+  "Not available from this list: there is no common window or aggregation contract for this count.";
+/** Why the mock setup columns are absent (worded without "history": the index offers no history control). */
+export const SITES_SETUP_PROGRESS_NOT_AVAILABLE = "Setup progress not available: no read returns who set up a site, its next step or when it was registered.";
+
+/**
+ * The mock's three metric cards. Only the registered count is supported, and
+ * only from a read that succeeded (`count` null = the store was not read).
+ */
+function SitesMetrics({ count }: { count: number | null }) {
+  return (
+    <MetricCards columns={3} label="Site counts" data={{ "data-sites-metrics": "" }}>
+      <MetricCard
+        label="Sites"
+        value={count === null ? "Unavailable" : count === 0 ? "None" : String(count)}
+        word={count === null || count === 0}
+        tone={count === null ? "muted" : undefined}
+        note={
+          count === null
+            ? "The site list could not be read."
+            : count === 0
+              ? "The site list was read and holds no site."
+              : "Registered site identities"
+        }
+        data={{ "data-site-metric": "count" }}
+      />
+      <MetricCard
+        word
+        tone="muted"
+        label="Needs attention"
+        value="Not available"
+        note={
+          <MissingClaim gapId="G-sites-attention-counts" placement="sites.metrics.needs-attention">
+            {SITES_COUNT_NOT_AVAILABLE}
+          </MissingClaim>
+        }
+        data={{ "data-site-metric": "needs-attention" }}
+      />
+      <MetricCard
+        word
+        tone="muted"
+        label="Evidence limited"
+        value="Not available"
+        note={
+          <MissingClaim gapId="G-sites-attention-counts" placement="sites.metrics.evidence-limited">
+            {SITES_COUNT_NOT_AVAILABLE}
+          </MissingClaim>
+        }
+        data={{ "data-site-metric": "evidence-limited" }}
+      />
+    </MetricCards>
+  );
 }
 
 /**
- * The directory's answer card. The registered count and the type and data
- * source of each site come straight off the records; nothing about operation,
- * evidence or attention is inferred. The list read carries no read instant, so
- * the bound says the time is not recorded rather than inventing one.
+ * The mock's "In setup" panel. The directory returns each site's recorded
+ * lifecycle, so a site whose lifecycle is not Active is listed with that state;
+ * who set it up, its next step and when are setup progress, which no read
+ * returns. `sites` null = the store was not read, so nothing is listed.
  */
-function SitesAnswer({ sites }: { sites: SiteSummary[] }) {
-  const views = sites.map(deriveSiteView);
-  const n = sites.length;
+function SetupPanel({ sites }: { sites: SiteSummary[] | null }) {
+  const views = (sites ?? []).map(deriveSiteView).filter((view) => view.lifecycleStatus !== "Active");
   return (
-    <HeadlineVisualCard
-      dataName="sites-directory"
-      headingId="sites-answer-heading"
-      question={SITES_QUESTION}
-      headline={`${n} registered ${n === 1 ? "site" : "sites"}: open one by name below.`}
-      status={<ProductStatus words={SITES_LISTED_WORDS} scope={SITES_SCOPE} asOf={null} />}
-      visual={
-        <div className="sites-scope" data-sites-scope>
-          <div className="sites-scope__card">
-            <p className="sites-scope__term">Registered</p>
-            <p className="sites-scope__value">
-              {n} {n === 1 ? "site" : "sites"}
-            </p>
-            <p className="sites-scope__detail">
-              {tally(views.map((v) => v.siteType))
-                .map(([type, count]) => `${type}: ${count}`)
-                .join(" · ")}
-            </p>
-          </div>
-          <div className="sites-scope__card">
-            <p className="sites-scope__term">Where readings come from</p>
-            <p className="sites-scope__detail">
-              {tally(views.map((v) => v.sourceMode))
-                .map(([mode, count]) => `${mode}: ${count}`)
-                .join(" · ")}
-            </p>
-          </div>
-          <div className="sites-scope__card" data-sites-scope-limit>
-            <p className="sites-scope__term">Operating condition</p>
-            <p className="sites-scope__detail">Not judged in this list. Each site shows it for a selected day.</p>
-          </div>
-        </div>
-      }
-      meaning={
-        <p>
-          A site&apos;s assessment, Findings and what its readings can support belong to one
-          selected day at that site, so they appear when the site is opened, not here.
+    <Panel heading="In setup" headingId="sites-setup-heading" description="Sites whose recorded lifecycle is not yet Active">
+      {sites === null ? (
+        <p data-sites-setup="unavailable">The site list could not be read, so no site in setup can be listed.</p>
+      ) : views.length === 0 ? (
+        <p data-sites-setup="none">
+          {sites.length === 0 ? "No site is registered." : "Every listed site's recorded lifecycle is Active."}
         </p>
-      }
-      todo={<p>Choose a site by name or search for its name or site reference.</p>}
-      references={
-        <ExactReferences
-          name="sites-directory"
-          references={sites.flatMap((site) => [
-            { label: `${site.display_name}: site reference`, value: site.site_id },
-            { label: `${site.display_name}: registration store`, value: site.configuration_store ?? null },
-          ])}
-        />
-      }
-    />
+      ) : (
+        <DataTable labelledBy="sites-setup-heading">
+          <thead>
+            <tr>
+              <th scope="col">Site</th>
+              <th scope="col">Type</th>
+              <th scope="col">Lifecycle</th>
+            </tr>
+          </thead>
+          <tbody>
+            {views.map((view) => (
+              <tr key={view.siteId} data-sites-setup-row={view.siteId}>
+                <td>
+                  <strong>{view.displayName}</strong>
+                  <span className="cell-secondary">{view.siteId}</span>
+                </td>
+                <td>{view.siteType}</td>
+                <td>
+                  <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      )}
+      <MissingClaim as="p" className="not-available-yet" gapId="G-sites-setup-progress" placement="sites.setup.progress">
+        {SITES_SETUP_PROGRESS_NOT_AVAILABLE}
+      </MissingClaim>
+    </Panel>
+  );
+}
+
+/**
+ * A loaded directory: the type chips and metric cards, then the inventory
+ * (state line, exact references, filters, table) and the setup panel. The
+ * registered count and each site's type and data source come straight off the
+ * records; nothing about operation, evidence or attention is inferred. The list
+ * read carries no read instant, so the bound says the time is not recorded.
+ */
+function SitesDirectory({ sites, siteHref, lineage }: SiteFiltersProps) {
+  const [siteType, setSiteType] = useState(ANY);
+  const types = useMemo(() => distinct(sites.map((site) => deriveSiteView(site).siteType)), [sites]);
+  return (
+    <>
+      <div className="v69-chips" role="group" aria-label="Site type" data-filter-group="sites">
+        {[ANY, ...types].map((type) => (
+          <button
+            type="button"
+            className="v69-chip"
+            key={type}
+            aria-pressed={siteType === type}
+            data-site-filter={type === ANY ? "all" : type}
+            onClick={() => setSiteType(type)}
+          >
+            {type === ANY ? "All sites" : type}
+          </button>
+        ))}
+      </div>
+      <SitesMetrics count={sites.length} />
+      <Panel heading="Site inventory" headingId="sites-list-heading" description={INVENTORY_DESCRIPTION} flush>
+        <div className="panel__body" data-sites-state="listed">
+          <ProductStatus words={SITES_LISTED_WORDS} scope={SITES_SCOPE} asOf={null} />
+          <ExactReferences
+            name="sites-directory"
+            references={sites.flatMap((site) => [
+              { label: `${site.display_name}: site reference`, value: site.site_id },
+              { label: `${site.display_name}: registration store`, value: site.configuration_store ?? null },
+            ])}
+          />
+        </div>
+        <SiteFilters sites={sites} siteHref={siteHref} lineage={lineage} siteType={siteType} />
+      </Panel>
+      <SetupPanel sites={sites} />
+    </>
   );
 }
 
@@ -285,9 +359,9 @@ interface SiteFiltersProps {
   lineage: LineageAnswers;
 }
 
-function SiteFilters({ sites, siteHref, lineage }: SiteFiltersProps) {
+/** W1-F1: the site type is chosen with the v69 chip group above the cards. */
+function SiteFilters({ sites, siteHref, lineage, siteType }: SiteFiltersProps & { siteType: string }) {
   const [search, setSearch] = useState("");
-  const [siteType, setSiteType] = useState(ANY);
   const [mode, setMode] = useState(ANY);
   const [lifecycle, setLifecycle] = useState(ANY);
 
@@ -295,7 +369,6 @@ function SiteFilters({ sites, siteHref, lineage }: SiteFiltersProps) {
 
   const options = useMemo(
     () => ({
-      siteType: distinct(views.map((view) => view.siteType)),
       mode: distinct(views.map((view) => view.sourceMode)),
       lifecycle: distinct(views.map((view) => view.lifecycleStatus)),
     }),
@@ -334,14 +407,6 @@ function SiteFilters({ sites, siteHref, lineage }: SiteFiltersProps) {
           />
         </p>
 
-        <SiteFilter
-          id="sites-type"
-          label="Type"
-          anyLabel="All types"
-          value={siteType}
-          options={options.siteType}
-          onChange={setSiteType}
-        />
         <SiteFilter
           id="sites-mode"
           label="Mode"
@@ -450,15 +515,6 @@ export const DIRECTORY_ANALYSIS_ABSENT =
 export const OPERATING_VIEW_NOT_AVAILABLE = "Not available yet";
 export const OPERATING_VIEW_PARTS = "Assessment · top issue · evidence limit · last analysed";
 
-/**
- * The mock's aggregate tiles and setup area, named once beside the inventory.
- * Two claims, two catalogued elements (G-02): the counts and setup progress
- * have different sources and closure conditions.
- */
-export const SITES_ATTENTION_COUNTS_ABSENT =
-  "Needs attention and Evidence limited counts across Sites are not available yet: there is no common window or aggregation contract for them.";
-export const SITES_SETUP_PROGRESS_NOT_TRACKED = "Setup progress not tracked yet.";
-
 export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
   return (
     <>
@@ -486,15 +542,6 @@ export function SiteTable({ sites, siteHref, lineage = null }: SiteTableProps) {
       <p className="panel__body panel__note" data-testid="sites-analysis-absent">
         <MissingClaim gapId="G-sites-operating-view" placement="sites.inventory.analysis-note">
           {DIRECTORY_ANALYSIS_ABSENT}
-        </MissingClaim>
-      </p>
-      <p className="panel__body panel__note" data-testid="sites-aggregate-absent">
-        {`${sites.length} registered Site${sites.length === 1 ? "" : "s"} listed. `}
-        <MissingClaim gapId="G-sites-attention-counts" placement="sites.inventory.attention-counts">
-          {SITES_ATTENTION_COUNTS_ABSENT}
-        </MissingClaim>{" "}
-        <MissingClaim gapId="G-sites-setup-progress" placement="sites.inventory.setup-progress">
-          {SITES_SETUP_PROGRESS_NOT_TRACKED}
         </MissingClaim>
       </p>
     </>
