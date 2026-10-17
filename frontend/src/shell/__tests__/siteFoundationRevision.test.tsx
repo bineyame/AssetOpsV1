@@ -2129,9 +2129,10 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
     expect(steps(card("foundation-readiness"))["Commissioning confirmed"]).toBe("not-known");
   });
 
-  it("W1-UX-06: an unrecognised Readiness code is limited: no positive headline, no readiness-dependent step done", async () => {
+  // W1-UX-06 phase-1 review L4: inherited object names (`constructor`, `toString`) are not recognised codes either.
+  it.each(["SOMETHING_NEW", "constructor", "toString"])("W1-UX-06: an unrecognised Readiness code (%s) is limited: no positive headline, no readiness-dependent step done", async (code) => {
     const base = foundation(PAST, published([GENSET_POWER, BATTERY_SOC], []));
-    const model = { ...base, readiness: { ...base.readiness, state: "SOMETHING_NEW" } } as unknown as FoundationReadModel;
+    const model = { ...base, readiness: { ...base.readiness, state: code } } as unknown as FoundationReadModel;
     renderAt(`/sites/${ID}/foundation/readiness`, loaded(model));
     await settledScreen();
     const answer = card("foundation-readiness");
@@ -2146,7 +2147,8 @@ describe("W1-UX-05: the Foundation answer cards answer only to the strength of t
     expect(s["Equipment and settings recorded"]).toBe("done");
     expect(s["Gateway registered"]).toBe("done");
     // The exact code stays in the labelled disclosure; the verdict badge is neutral and named, never blank.
-    expect(answer.querySelector("[data-exact-references]")?.textContent).toContain("SOMETHING_NEW");
+    expect(answer.querySelector("[data-exact-references]")?.textContent).toContain(code);
+    expect(document.querySelector("[data-readiness-state]")?.textContent).toContain("The set-up state in this read is not recognised");
     const badge = document.querySelector("[data-readiness-state] .badge") as HTMLElement;
     expect(badge.textContent).toBe("Set-up state not recognised");
     expect(badge.className).toContain("badge--neutral");

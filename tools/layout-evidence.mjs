@@ -632,8 +632,12 @@ async function visit(cdp, path, width, height, waitFor, act) {
 
   // W1-UX-06: the shared width check. Nothing below is measured unless the page
   // was laid out at the requested width (innerWidth === width, clientWidth in
-  // [width - 20, width]); a failure throws, naming both widths.
-  await widthGuard({ send: (method, params) => cdp.send(method, params) })(width, height, `${path} @${width}`);
+  // [width - 20, width]); a failure throws, naming both widths. A pass is printed
+  // with both widths too (W1-UX-06 phase-1 review L3), so the log shows what was held.
+  await widthGuard({
+    send: (method, params) => cdp.send(method, params),
+    claim: (name, ok) => console.log(`  ${ok ? "PASS" : "FAIL"}  width: ${name}`),
+  })(width, height, `${path} @${width}`);
 
   const result = await cdp.send("Runtime.evaluate", {
     expression: MEASURE,

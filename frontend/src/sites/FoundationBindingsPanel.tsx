@@ -109,8 +109,13 @@ function roleCoverage(role: ReadinessRole, mappings: SignalBinding[]): string {
     .join("; ");
 }
 
+/** Own keys only (W1-UX-06 phase-1 review L4): `in` would treat inherited names such as `constructor` as known. */
+function knownReadiness(state: string): state is ConfigurationReadiness["state"] {
+  return Object.hasOwn(READINESS_WORD, state);
+}
+
 function verdictSentence(readiness: ConfigurationReadiness): string {
-  if (!(readiness.state in READINESS_WORD)) {
+  if (!knownReadiness(readiness.state)) {
     return "The set-up state in this read is not recognised, so no overall set-up judgment is made here.";
   }
   if (readiness.state === "READY_TO_REPORT") {
@@ -151,7 +156,7 @@ export function ReadinessVerdictPanel({ foundation }: { foundation: FoundationRe
       <div className="verdict" data-readiness-state={readiness.state}>
         <p className="verdict__state">
           {/* W1-UX-06 (`D-2026-10-17-w1-ux-06` Q4): an unrecognised state is neutral and says so, never blank. */}
-          <Badge tone={READINESS_TONE[readiness.state] ?? "neutral"}>{READINESS_WORD[readiness.state] ?? "Set-up state not recognised"}</Badge>
+          <Badge tone={knownReadiness(readiness.state) ? READINESS_TONE[readiness.state] : "neutral"}>{knownReadiness(readiness.state) ? READINESS_WORD[readiness.state] : "Set-up state not recognised"}</Badge>
         </p>
         <p className="verdict__sentence">{verdictSentence(readiness)}</p>
       </div>

@@ -30,6 +30,19 @@ import type { BatteryDetail, GatewayHealthRow, SourceHealthDocument } from "./he
 /** The Site's gateway-contact summary in plain words. Contact is never equipment condition, so nothing is `positive`. */
 export function contactSummaryWords(doc: SourceHealthDocument): ProductWords {
   const s = doc.summary;
+  // W1-UX-06 phase-1 review L1: a contact summary about enabled gateways, sent with none enabled, is not confirmed
+  // contact. Fall back non-positively with a next step (the recognised no-source state keeps its own words).
+  const enabledCount = doc.gateways.filter((g) => g.registration === "ENABLED").length;
+  if ((s.status === "ALL_CURRENT" || s.status === "NOT_ALL_CURRENT") && enabledCount === 0) {
+    return {
+      label: "Gateway contact cannot be confirmed",
+      sentence: "This record lists no enabled gateway, so there is no gateway contact to confirm for this site.",
+      next: "Check that the site's gateway is registered and enabled.",
+      tone: "limited",
+      code: s.status,
+      unrecognised: false,
+    };
+  }
   switch (s.status) {
     case "ALL_CURRENT":
       return {

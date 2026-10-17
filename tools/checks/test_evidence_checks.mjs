@@ -110,7 +110,9 @@ export function unguardedTriggers(source, window = 6) {
   lines.forEach((line, i) => {
     if (!TRIGGER.test(line) || line.trim().startsWith("//") || line.trim().startsWith("*")) return;
     for (let k = i + 1; k <= Math.min(i + window, lines.length - 1); k += 1) {
-      if (GUARD_CALL.test(lines[k])) return;
+      // A commented-out guard is no guard (W1-UX-06 phase-1 review L3): drop line comments and comment lines first.
+      const code = lines[k].trim().startsWith("*") || lines[k].trim().startsWith("/*") ? "" : lines[k].replace(/\/\/.*$/, "");
+      if (GUARD_CALL.test(code)) return;
       if (TRIGGER.test(lines[k]) && !/Emulation\.setDeviceMetricsOverride/.test(line)) break;
     }
     misses.push(`${i + 1}: ${line.trim().slice(0, 100)}`);
@@ -148,4 +150,13 @@ test("the proximity rule fails on an unguarded navigation (non-vacuous)", () => 
   assert.deepEqual(unguardedTriggers(guarded), []);
   assert.equal(unguardedTriggers(bare).length, 1);
   assert.deepEqual(unguardedTriggers(resize), []);
+  // A commented-out guard does not count (W1-UX-06 phase-1 review L3).
+  const nav = 'await send("Page.navigate", { url });';
+  const NL = String.fromCharCode(10);
+  const commented = [nav, "await waitFor(x);", '// await requireWidth(390, 900, "w");'].join(NL);
+  const trailing = [nav, 'await waitFor(x); // requireWidth(390, 900, "w")'].join(NL);
+  const block = [nav, "/*", ' * await requireWidth(390, 900, "w");', " */"].join(NL);
+  assert.equal(unguardedTriggers(commented).length, 1);
+  assert.equal(unguardedTriggers(trailing).length, 1);
+  assert.equal(unguardedTriggers(block).length, 1);
 });

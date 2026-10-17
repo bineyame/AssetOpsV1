@@ -547,6 +547,11 @@ describe("W1-UX-05: Health and battery answer cards", () => {
       answer = card("site-health");
       expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("Gateway contact cannot be confirmed");
       expect(answer.textContent).not.toMatch(/All 0 enabled/);
+      // W1-UX-06 phase-1 review L1: the state line is non-positive too, with a next step, and stays visible.
+      expect(expectStateLineVisible(answer)).toBe("Gateway contact cannot be confirmed");
+      expect(answer.textContent).not.toMatch(/Every enabled gateway is in contact/);
+      expect(answer.querySelector(".product-status__sentence")?.textContent).toContain("no enabled gateway");
+      expect(answer.querySelector("[data-product-status]")?.textContent).toContain("Check that the site's gateway is registered and enabled.");
     });
   });
 
