@@ -21,6 +21,8 @@ SITE_TEMPLATE_DETAIL_PATH = "/api/simulator-lab/site-templates/{template_id}"
 CREATE_SITE_PATH = "/api/simulator-lab/sites"
 SCENARIOS_PATH = "/api/simulator-lab/scenarios"
 SCENARIO_DETAIL_PATH = "/api/simulator-lab/scenarios/{scenario_id}"
+# W2-02: the registered cold-chain Lab choices for one selected Site.
+COLD_SCENARIOS_PATH = "/api/simulator-lab/cold-scenarios"
 RUN_PROFILES_PATH = "/api/simulator-lab/run-profiles"
 CREATE_RUN_PATH = "/api/simulator-lab/runs"
 RUN_DETAIL_PATH = "/api/simulator-lab/runs/{run_id}"
@@ -75,6 +77,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     CREATE_SITE_PATH,
     SCENARIOS_PATH,
     SCENARIO_DETAIL_PATH,
+    COLD_SCENARIOS_PATH,
     RUN_PROFILES_PATH,
     CREATE_RUN_PATH,
     RUN_DETAIL_PATH,
