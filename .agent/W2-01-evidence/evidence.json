@@ -1,0 +1,1020 @@
+{
+  "revision": "e52d035e",
+  "captured_at": "2026-10-17T15:34:30.152Z",
+  "pairs": [
+    {
+      "screen": "cold-foundation",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation",
+      "mock_hash": "#/cold-foundation",
+      "app_image": "cold-foundation-stocked-1440-app.png",
+      "mock_image": "cold-foundation-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 248,
+            "y": 334,
+            "w": 571,
+            "h": 439
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 837,
+            "y": 334,
+            "w": 571,
+            "h": 439
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 234,
+            "y": 416,
+            "w": 572,
+            "h": 349
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 824,
+            "y": 416,
+            "w": 572,
+            "h": 349
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-foundation",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation",
+      "mock_hash": "#/cold-foundation",
+      "app_image": "cold-foundation-stocked-390-app.png",
+      "mock_image": "cold-foundation-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 16,
+            "y": 1052,
+            "w": 358,
+            "h": 472
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 16,
+            "y": 1540,
+            "w": 358,
+            "h": 399
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 15,
+            "y": 661,
+            "w": 360,
+            "h": 379
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 15,
+            "y": 1058,
+            "w": 360,
+            "h": 232
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-foundation",
+      "case": "missing-probe",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation",
+      "mock_hash": "#/cold-foundation",
+      "app_image": "cold-foundation-missing-probe-1440-app.png",
+      "mock_image": "cold-foundation-missing-probe-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 248,
+            "y": 334,
+            "w": 571,
+            "h": 439
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 837,
+            "y": 334,
+            "w": 571,
+            "h": 439
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 234,
+            "y": 416,
+            "w": 572,
+            "h": 349
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 824,
+            "y": 416,
+            "w": 572,
+            "h": 349
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-foundation",
+      "case": "missing-probe",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation",
+      "mock_hash": "#/cold-foundation",
+      "app_image": "cold-foundation-missing-probe-390-app.png",
+      "mock_image": "cold-foundation-missing-probe-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 16,
+            "y": 1081,
+            "w": 358,
+            "h": 472
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 16,
+            "y": 1569,
+            "w": 358,
+            "h": 399
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 15,
+            "y": 661,
+            "w": 360,
+            "h": 379
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 15,
+            "y": 1058,
+            "w": 360,
+            "h": 232
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-foundation",
+      "case": "no-version",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/cold-foundation",
+      "app_image": "cold-foundation-no-version-1440-app.png",
+      "mock_image": "cold-foundation-no-version-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 248,
+            "y": 420,
+            "w": 571,
+            "h": 96
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 837,
+            "y": 420,
+            "w": 571,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 234,
+            "y": 416,
+            "w": 572,
+            "h": 349
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 824,
+            "y": 416,
+            "w": 572,
+            "h": 349
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-foundation",
+      "case": "no-version",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/cold-foundation",
+      "app_image": "cold-foundation-no-version-390-app.png",
+      "mock_image": "cold-foundation-no-version-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 16,
+            "y": 1079,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 16,
+            "y": 1207,
+            "w": 358,
+            "h": 113
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 15,
+            "y": 661,
+            "w": 360,
+            "h": 379
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 15,
+            "y": 1058,
+            "w": 360,
+            "h": 232
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-readiness",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness",
+      "mock_hash": "#/cold-readiness",
+      "app_image": "cold-readiness-stocked-1440-app.png",
+      "mock_image": "cold-readiness-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-cold-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 334,
+            "w": 1145,
+            "h": 672
+          },
+          {
+            "title": "Gateway status · edge-cold-001",
+            "x": 248,
+            "y": 1024,
+            "w": 1145,
+            "h": 669
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-CR-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 313
+          },
+          {
+            "title": "Gateway status · GW-CR-01",
+            "x": 234,
+            "y": 747,
+            "w": 1161,
+            "h": 558
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-readiness",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness",
+      "mock_hash": "#/cold-readiness",
+      "app_image": "cold-readiness-stocked-390-app.png",
+      "mock_image": "cold-readiness-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-cold-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 1052,
+            "w": 358,
+            "h": 628
+          },
+          {
+            "title": "Gateway status · edge-cold-001",
+            "x": 16,
+            "y": 1698,
+            "w": 358,
+            "h": 1321
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-CR-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 669,
+            "w": 360,
+            "h": 411
+          },
+          {
+            "title": "Gateway status · GW-CR-01",
+            "x": 15,
+            "y": 1097,
+            "w": 360,
+            "h": 1206
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-readiness",
+      "case": "missing-probe",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/readiness",
+      "mock_hash": "#/cold-readiness",
+      "app_image": "cold-readiness-missing-probe-1440-app.png",
+      "mock_image": "cold-readiness-missing-probe-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-cold-002",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 334,
+            "w": 1145,
+            "h": 690
+          },
+          {
+            "title": "Gateway status · edge-cold-002",
+            "x": 248,
+            "y": 1042,
+            "w": 1145,
+            "h": 730
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-CR-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 313
+          },
+          {
+            "title": "Gateway status · GW-CR-01",
+            "x": 234,
+            "y": 747,
+            "w": 1161,
+            "h": 558
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-readiness",
+      "case": "missing-probe",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/readiness",
+      "mock_hash": "#/cold-readiness",
+      "app_image": "cold-readiness-missing-probe-390-app.png",
+      "mock_image": "cold-readiness-missing-probe-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-cold-002",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 1081,
+            "w": 358,
+            "h": 681
+          },
+          {
+            "title": "Gateway status · edge-cold-002",
+            "x": 16,
+            "y": 1780,
+            "w": 358,
+            "h": 1446
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-CR-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 669,
+            "w": 360,
+            "h": 411
+          },
+          {
+            "title": "Gateway status · GW-CR-01",
+            "x": 15,
+            "y": 1097,
+            "w": 360,
+            "h": 1206
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-readiness",
+      "case": "no-version",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/cold-readiness",
+      "app_image": "cold-readiness-no-version-1440-app.png",
+      "mock_image": "cold-readiness-no-version-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-cold-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 420,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "Gateway status · edge-cold-001",
+            "x": 248,
+            "y": 534,
+            "w": 1160,
+            "h": 223
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-CR-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 313
+          },
+          {
+            "title": "Gateway status · GW-CR-01",
+            "x": 234,
+            "y": 747,
+            "w": 1161,
+            "h": 558
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-readiness",
+      "case": "no-version",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/cold-readiness",
+      "app_image": "cold-readiness-no-version-390-app.png",
+      "mock_image": "cold-readiness-no-version-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-cold-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 1079,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "Gateway status · edge-cold-001",
+            "x": 16,
+            "y": 1209,
+            "w": 358,
+            "h": 368
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-CR-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 669,
+            "w": 360,
+            "h": 411
+          },
+          {
+            "title": "Gateway status · GW-CR-01",
+            "x": 15,
+            "y": 1097,
+            "w": 360,
+            "h": 1206
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-sld",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld",
+      "mock_hash": "#/cold-sld",
+      "app_image": "cold-sld-stocked-1440-app.png",
+      "mock_image": "cold-sld-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo vaccine cold store",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo vaccine cold store",
+            "x": 248,
+            "y": 312,
+            "w": 1145,
+            "h": 709
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1038,
+            "w": 1145,
+            "h": 514
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 702
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1136,
+            "w": 1161,
+            "h": 332
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-sld",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld",
+      "mock_hash": "#/cold-sld",
+      "app_image": "cold-sld-stocked-390-app.png",
+      "mock_image": "cold-sld-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo vaccine cold store",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo vaccine cold store",
+            "x": 16,
+            "y": 1052,
+            "w": 358,
+            "h": 528
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1598,
+            "w": 358,
+            "h": 759
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+            "x": 15,
+            "y": 730,
+            "w": 360,
+            "h": 370
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 1119,
+            "w": 360,
+            "h": 596
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-sld",
+      "case": "missing-probe",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/sld",
+      "mock_hash": "#/cold-sld",
+      "app_image": "cold-sld-missing-probe-1440-app.png",
+      "mock_image": "cold-sld-missing-probe-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo cold store without a chamber probe",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo cold store without a chamber probe",
+            "x": 248,
+            "y": 312,
+            "w": 1145,
+            "h": 709
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 1038,
+            "w": 1145,
+            "h": 469
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 702
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1136,
+            "w": 1161,
+            "h": 332
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-sld",
+      "case": "missing-probe",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-002/foundation/sld",
+      "mock_hash": "#/cold-sld",
+      "app_image": "cold-sld-missing-probe-390-app.png",
+      "mock_image": "cold-sld-missing-probe-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo cold store without a chamber probe",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo cold store without a chamber probe",
+            "x": 16,
+            "y": 1081,
+            "w": 358,
+            "h": 544
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1643,
+            "w": 358,
+            "h": 679
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+            "x": 15,
+            "y": 730,
+            "w": 360,
+            "h": 370
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 1119,
+            "w": 360,
+            "h": 596
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-sld",
+      "case": "no-version",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/cold-sld",
+      "app_image": "cold-sld-no-version-1440-app.png",
+      "mock_image": "cold-sld-no-version-1440-mock.png",
+      "app": {
+        "titles": [
+          "Kobo vaccine cold store",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo vaccine cold store",
+            "x": 248,
+            "y": 420,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 534,
+            "w": 1160,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 702
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 1136,
+            "w": 1161,
+            "h": 332
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-sld",
+      "case": "no-version",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5912/sites/COLD-001/foundation/sld?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/cold-sld",
+      "app_image": "cold-sld-no-version-390-app.png",
+      "mock_image": "cold-sld-no-version-390-mock.png",
+      "app": {
+        "titles": [
+          "Kobo vaccine cold store",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Kobo vaccine cold store",
+            "x": 16,
+            "y": 1079,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 1209,
+            "w": 358,
+            "h": 113
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+            "x": 15,
+            "y": 730,
+            "w": 360,
+            "h": 370
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 1119,
+            "w": 360,
+            "h": 596
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

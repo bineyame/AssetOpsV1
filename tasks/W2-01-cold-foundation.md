@@ -1,6 +1,6 @@
 # W2-01 — Cold Foundation, readiness and configured topology
 
-Status: implementation-ready (planned). Size S; two phases. Branch `task/W2-01-cold-foundation` from merged main. USER_REVIEW_REQUIRED: true through the owner's later W2 walkthrough, after independent slice review. W1-F1 must merge before phase 2 UI work/review. This slice makes a selected `COLDCHAIN` configuration visible; it makes no temperature, commissioning or equipment-health claim from configuration alone.
+Status: done (merged to main 2026-10-17; re-review ACCEPT, 3 Lows carried to W2-02; backend 2649/2651 with 2 load flakes passing alone, frontend 2073 passed); was in_review (built 2026-10-17, phases 1-2; activated from main `8e0af014`; W2-00 and W1-F1 merged). Size S; two phases. Branch `task/W2-01-cold-foundation` from merged main. USER_REVIEW_REQUIRED: true through the owner's later W2 walkthrough, after independent slice review. W1-F1 must merge before phase 2 UI work/review. This slice makes a selected `COLDCHAIN` configuration visible; it makes no temperature, commissioning or equipment-health claim from configuration alone.
 
 ## Architect answers and dependent-packet impacts
 

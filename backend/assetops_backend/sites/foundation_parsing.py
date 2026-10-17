@@ -49,6 +49,7 @@ from assetops_backend.sites.models import (
     SITE_CONTROL_DEFINITIONS,
     SITE_CONTROL_SOURCES,
     SIGNAL_UNITS,
+    SIGNED_PROPERTY_UNITS,
     TOPOLOGY_NODE_ROLES,
     ComponentProperty,
     ControlAssumption,
@@ -167,7 +168,20 @@ MAX_PROPERTY_SOURCE_VERSION = 10_000
 #: revisiting this. That is the right place to meet the question, because the
 #: decision belongs with the property that needs it - and the failure is
 #: visible rather than a silent clamp.
-UNIT_RANGES: dict[str, tuple[float, float]] = {"%": (0.0, 100.0)}
+#:
+#: W2-01 (`D-2026-10-17-w2-01-answers` C) adds inclusive parser-wide finite
+#: safety bounds for the cold property units and the shared `kW`/`min`. These
+#: are not the cold-specific rules (strictly positive capacity, ordered band,
+#: hysteresis inside the band): the cold Foundation validator owns those.
+UNIT_RANGES: dict[str, tuple[float, float]] = {
+    "%": (0.0, 100.0),
+    "kWh/degC": (0.0, 10000.0),
+    "kW/degC": (0.0, 1000.0),
+    "kWh/min": (0.0, 1000.0),
+    "degC": (-40.0, 60.0),
+    "kW": (0.0, 100000.0),
+    "min": (0.0, 100000.0),
+}
 
 MAX_IDENTIFIER_LENGTH = 64
 MAX_DISPLAY_NAME_LENGTH = 120
@@ -1139,7 +1153,7 @@ def _parse_component_property(
             "show it."
         )
 
-    if value < 0:
+    if value < 0 and definition.unit not in SIGNED_PROPERTY_UNITS:
         invalid(
             f"'{where}.value' is {value} in {source}. A declared property is "
             "a magnitude; a direction is stated by whatever uses it, never by "
@@ -1165,9 +1179,13 @@ def _parse_component_property(
             f"'{where}.value' is {value} {definition.unit} in {source}, and "
             f"this vocabulary declares every {definition.unit} property "
             f"between {bounds[0]:g} and {bounds[1]:g}. That is a rule about "
-            "the properties declared here rather than about the unit: the "
-            f"only {definition.unit} property in it is a fraction of what a "
-            "component holds, which cannot be more than all of it."
+            "the properties declared here rather than about the unit"
+            + (
+                ": the only % property in it is a fraction of what a "
+                "component holds, which cannot be more than all of it."
+                if definition.unit == "%"
+                else "."
+            )
         )
 
     declared_source = _require_choice(

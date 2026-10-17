@@ -65,7 +65,7 @@ def v4(kit, monkeypatch):
         for (device, signal), entry in V4_CHANNEL_MAPPINGS.items():
             unit = entry.allowed_units[0] if entry.allowed_units else "none"
             extra[(device, signal)] = replace(
-                template, device_id=device, signal_id=signal, role=f"test-{device}-{signal}",
+                template, device_id=device, signal_id=signal, role=entry.role or f"test-{device}-{signal}",  # W2-01: the table names the role
                 source_unit=unit, canonical_unit=unit, conversion={"kind": "IDENTITY", "parameters": {}},
                 **entry.metadata(),
             )
@@ -551,7 +551,7 @@ class TestMigration0020:
             evidence_count = len(rows(engine, "SELECT 1 FROM accepted_evidence"))
             with pytest.raises(DBAPIError, match=refused):
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0020_w2_source_event"
+            assert head(engine) == "0021_w2_cold_config"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
@@ -599,7 +599,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0020_w2_source_event" and v3_reads() == before_reads
+        assert head(engine) == "0021_w2_cold_config" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])

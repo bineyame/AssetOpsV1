@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping, NoReturn
 
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
+from assetops_backend.sites.cold_foundation import validate_cold_foundation
 from assetops_backend.sites.foundation_parsing import (
     FOUNDATION_CONTENT_KEYS,
     parse_component_properties,
@@ -192,6 +193,10 @@ def parse_site_document(document: Mapping[str, Any], *, source: str) -> SiteReco
     site_source = _parse_source(document.get("source"), source=source)
     template = _parse_template_provenance(document.get("template"), source=source)
     foundation = _parse_foundation(document.get("foundation"), source=source)
+    if site_type == "COLDCHAIN":
+        # W2-01: the cold section 3 rules run after the shared strict parser, on every import and on
+        # every later revision (`record_at` re-parses through here), so a bad cold Foundation is never stored.
+        validate_cold_foundation(foundation, source=source, invalid=_invalid)
 
     return SiteRecord(
         site_id=site_id,

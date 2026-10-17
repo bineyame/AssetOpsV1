@@ -28,9 +28,19 @@ ROLE_SET_MINIGRID_2 = "minigrid-roles-2"
 ROLE_SET_MINIGRID_3 = "minigrid-roles-3"
 #: The set a new MINIGRID binding publication is recorded under.
 ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
+#: W2-01 (`.agent/W2-technical-design-cold.md` section 3, `D-2026-10-17-w2-01-answers`
+#: and its W2-02 channel closure): the immutable COLDCHAIN vocabulary.
+ROLE_SET_COLD_1 = "cold-roles-1"
 
 #: The canonical generator states an ENUM conversion may map to.
 GENERATOR_STATES: tuple[str, ...] = ("STOPPED", "STARTING", "RUNNING", "FAILED")
+#: W2-01 role-specific ENUM member sets (`D-2026-10-17-w2-01-answers` B).
+COMPRESSOR_STATES: tuple[str, ...] = ("OFF", "STARTING", "RUNNING", "FAILED")
+GRID_STATES: tuple[str, ...] = ("AVAILABLE", "LOST")
+BUS_STATES: tuple[str, ...] = ("POWERED", "UNPOWERED")
+
+#: The nonquantitative declared unit of an event channel (`SIGNAL_UNITS`).
+EVENT_UNIT = "event"
 
 #: One binding per Site, or one per asset of the role's asset type.
 ONE = "ONE"
@@ -43,7 +53,7 @@ class Role:
     label: str
     asset_type: str
     canonical_unit: str
-    value_kind: str  # NUMBER | STATE
+    value_kind: str  # NUMBER | STATE | EVENT
     cardinality: str  # ONE | PER_ASSET
     required: bool
     #: "CHANNEL" roles are bound to a device signal; "FOUNDATION_CONTROL"
@@ -54,6 +64,16 @@ class Role:
     #: control identifies the one asset, so several LOAD components are not
     #: an ambiguity; a binding naming any other load is refused.
     critical_load: bool = False
+    #: W2-01: a STATE role's own ENUM member set. Empty means the generator
+    #: states every MINIGRID state role has always mapped to.
+    states: tuple[str, ...] = ()
+    #: W2-01: an EVENT role's exact v4 record kinds; the outcomes allowed for
+    #: each are the closed v4 kind-to-outcome table's.
+    event_kinds: tuple[str, ...] = ()
+
+    @property
+    def enum_states(self) -> tuple[str, ...]:
+        return self.states or GENERATOR_STATES
 
 
 MINIGRID_ROLES: tuple[Role, ...] = (
@@ -90,18 +110,79 @@ MINIGRID_ROLES_3: tuple[Role, ...] = MINIGRID_ROLES_2 + (
     ),
 )
 
+#: `cold-roles-1`, canonical per the design's role table and the W2-02 channel
+#: closure: one `backup_start_event` channel carries both start kinds, and
+#: `grid_power_event` is separate from `grid_state`. The two room policy roles
+#: are Foundation controls (typed `cold-policy-low/high` properties), never
+#: channel bindings. Immutable: a change is a new named version.
+COLD_ROLES_1: tuple[Role, ...] = (
+    Role("chamber_temperature", "Chamber temperature", "TEMPERATURE_PROBE", "degC", "NUMBER", PER_ASSET, True),
+    Role(
+        "cold_policy_low", "Temperature policy low", "COLD_ROOM", "degC", "NUMBER", PER_ASSET, True,
+        covered_by="FOUNDATION_CONTROL",
+    ),
+    Role(
+        "cold_policy_high", "Temperature policy high", "COLD_ROOM", "degC", "NUMBER", PER_ASSET, True,
+        covered_by="FOUNDATION_CONTROL",
+    ),
+    Role(
+        "compressor_state", "Compressor state", "COMPRESSOR", "state", "STATE", PER_ASSET, True,
+        states=COMPRESSOR_STATES,
+    ),
+    Role("compressor_power", "Compressor power", "COMPRESSOR", "kW", "NUMBER", PER_ASSET, False),
+    Role("grid_state", "Grid state", "METER", "state", "STATE", ONE, True, states=GRID_STATES),
+    Role(
+        "backup_start_event", "Generator start request and result", "GENERATOR", EVENT_UNIT, "EVENT", ONE, True,
+        event_kinds=("START_REQUEST", "START_RESULT"),
+    ),
+    Role(
+        "generator_state", "Generator state", "GENERATOR", "state", "STATE", ONE, True,
+        states=GENERATOR_STATES,
+    ),
+    Role("backup_bus_state", "Backup bus state", "AC_BUS", "state", "STATE", ONE, True, states=BUS_STATES),
+    Role(
+        "grid_power_event", "Grid power loss and restoration", "METER", EVENT_UNIT, "EVENT", ONE, True,
+        event_kinds=("POWER_LOSS", "POWER_RESTORED"),
+    ),
+    Role(
+        "transfer_result", "Transfer result", "TRANSFER_SWITCH", EVENT_UNIT, "EVENT", ONE, False,
+        event_kinds=("TRANSFER_RESULT",),
+    ),
+    Role(
+        "door_event", "Door open and close", "COLD_ROOM", EVENT_UNIT, "EVENT", PER_ASSET, False,
+        event_kinds=("DOOR_OPEN", "DOOR_CLOSE"),
+    ),
+    Role("ambient_temperature", "Ambient temperature", "TEMPERATURE_PROBE", "degC", "NUMBER", PER_ASSET, False),
+    Role(
+        "manual_temperature", "Manual temperature log", "COLD_ROOM", "degC", "EVENT", PER_ASSET, False,
+        event_kinds=("MANUAL_LOG",),
+    ),
+)
+
+#: The Foundation property each cold policy role is selected from.
+COLD_POLICY_PROPERTIES: dict[str, str] = {
+    "cold_policy_low": "cold-policy-low",
+    "cold_policy_high": "cold-policy-high",
+}
+#: W2-01 publishes this fixed `cold-roles-1` channel contract, never a stored
+#: or observed cadence (`D-2026-10-17-w2-01-answers` D-I): periodic channels
+#: sample every 300 s; EVENT channels are transition-driven (no cadence).
+COLD_PERIODIC_CADENCE_SECONDS = 300
+
 ROLES_BY_SET: dict[str, tuple[Role, ...]] = {
     ROLE_SET_MINIGRID_1: MINIGRID_ROLES,
     ROLE_SET_MINIGRID_2: MINIGRID_ROLES_2,
     ROLE_SET_MINIGRID_3: MINIGRID_ROLES_3,
+    ROLE_SET_COLD_1: COLD_ROLES_1,
 }
 #: The role set a new publication for a Site type is recorded under.
-ROLE_SET_BY_SITE_TYPE: dict[str, str] = {"MINIGRID": ROLE_SET_MINIGRID}
+ROLE_SET_BY_SITE_TYPE: dict[str, str] = {"MINIGRID": ROLE_SET_MINIGRID, "COLDCHAIN": ROLE_SET_COLD_1}
 #: Every role set a Site type still serves: a binding set recorded under an
 #: older version stays interpretable (and selectable as a historical basis)
 #: under the role definitions it was published with, never today's.
 SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
     "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2, ROLE_SET_MINIGRID_3}),
+    "COLDCHAIN": frozenset({ROLE_SET_COLD_1}),
 }
 
 #: S6-02a verification inputs (Architect S6-02a Q2). Interval-power roles
@@ -185,8 +266,12 @@ def conversion_problem(role: Role, source_unit: str, conversion: object) -> str 
     if kind == "IDENTITY":
         if parameters:
             return "an IDENTITY conversion takes no parameters"
-        if role.value_kind != "NUMBER":
+        if role.value_kind == "STATE":
             return f"{role.label} is a state; use an ENUM conversion"
+        # W2-01: the `event` unit is valid only on an EVENT role, whose
+        # IDENTITY passes its declared unit through and converts nothing.
+        if source_unit == EVENT_UNIT and role.value_kind != "EVENT":
+            return f"{role.label} is not an event channel; the 'event' unit applies only to events"
         if source_unit != role.canonical_unit:
             return (
                 f"an IDENTITY conversion needs the source unit to be {role.canonical_unit!r}, "
@@ -195,12 +280,14 @@ def conversion_problem(role: Role, source_unit: str, conversion: object) -> str 
         return None
     # ENUM
     if role.value_kind != "STATE":
-        return f"{role.label} is a number; an ENUM conversion applies only to states"
+        noun = "a number" if role.value_kind == "NUMBER" else "an event"
+        return f"{role.label} is {noun}; an ENUM conversion applies only to states"
     if set(parameters) != {"map"} or not isinstance(parameters["map"], dict) or not parameters["map"]:
         return "an ENUM conversion takes exactly a non-empty 'map'"
+    members = role.enum_states
     for label, state in parameters["map"].items():
-        if not isinstance(label, str) or state not in GENERATOR_STATES:
-            return f"ENUM map entry {label!r} must map to one of {', '.join(GENERATOR_STATES)}"
+        if not isinstance(label, str) or state not in members:
+            return f"ENUM map entry {label!r} must map to one of {', '.join(members)}"
     if source_unit != role.canonical_unit:
         return f"a state is reported in {role.canonical_unit!r}, not {source_unit!r}"
     return None

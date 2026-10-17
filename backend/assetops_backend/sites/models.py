@@ -41,13 +41,20 @@ COMPONENT_TYPES = frozenset(
         "LOAD",
         "COLD_ROOM",
         "METER",
+        # W2-01 (`D-2026-10-17-w2-01-answers` A): the cold-chain equipment.
+        "TEMPERATURE_PROBE",
+        "COMPRESSOR",
+        "TRANSFER_SWITCH",
     }
 )
 
 # Units a declared design rating may use. Also closed, for the same reason:
 # a canonical unit vocabulary is what later telemetry mapping is checked
 # against.
-RATING_UNITS = frozenset({"kW", "kWh", "kVA", "V", "A", "Hz", "L"})
+#
+# W2-01 adds `degC` for an actual declared temperature rating only; the cold
+# thermal facts are typed properties, never a rating (`D-2026-10-17-w2-01-answers` C).
+RATING_UNITS = frozenset({"kW", "kWh", "kVA", "V", "A", "Hz", "L", "degC"})
 
 # --- Typed component properties ---------------------------------------------
 #
@@ -163,7 +170,73 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "generator-rated-power": PropertyDefinition(
         unit="kW", kind="PHYSICAL", display_name="Generator rated power"
     ),
+    # W2-01 (`D-2026-10-17-w2-01-answers` C): the thirteen cold-chain
+    # properties. The carrier component type of each is in
+    # `COLD_PROPERTY_CARRIERS` and is enforced by the cold Foundation
+    # validator after parsing, never by weakening the shared parser.
+    "cold-thermal-capacity": PropertyDefinition(
+        unit="kWh/degC", kind="PHYSICAL", display_name="Room thermal capacity"
+    ),
+    "cold-heat-leak": PropertyDefinition(
+        unit="kW/degC", kind="PHYSICAL", display_name="Room heat leak"
+    ),
+    "cold-cooling-capacity": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="Compressor cooling capacity"
+    ),
+    "cold-door-heat": PropertyDefinition(
+        unit="kWh/min", kind="PHYSICAL", display_name="Door-open heat gain"
+    ),
+    "cold-control-low": PropertyDefinition(
+        unit="degC", kind="CONTROL", display_name="Control band low"
+    ),
+    "cold-control-high": PropertyDefinition(
+        unit="degC", kind="CONTROL", display_name="Control band high"
+    ),
+    "cold-policy-low": PropertyDefinition(
+        unit="degC", kind="CONTROL", display_name="Temperature policy low"
+    ),
+    "cold-policy-high": PropertyDefinition(
+        unit="degC", kind="CONTROL", display_name="Temperature policy high"
+    ),
+    "cold-min-excursion": PropertyDefinition(
+        unit="min", kind="CONTROL", display_name="Minimum excursion duration"
+    ),
+    "cold-return-hysteresis": PropertyDefinition(
+        unit="degC", kind="CONTROL", display_name="Return hysteresis"
+    ),
+    "cold-start-timeout": PropertyDefinition(
+        unit="min", kind="CONTROL", display_name="Backup start timeout"
+    ),
+    "cold-probe-error": PropertyDefinition(
+        unit="degC", kind="PHYSICAL", display_name="Probe error"
+    ),
+    "cold-compressor-start-delay": PropertyDefinition(
+        unit="min", kind="PHYSICAL", display_name="Compressor start delay"
+    ),
 }
+
+#: W2-01: the component type that must carry each cold property
+#: (`D-2026-10-17-w2-01-answers` C).
+COLD_PROPERTY_CARRIERS: dict[str, str] = {
+    "cold-thermal-capacity": "COLD_ROOM",
+    "cold-heat-leak": "COLD_ROOM",
+    "cold-cooling-capacity": "COMPRESSOR",
+    "cold-door-heat": "COLD_ROOM",
+    "cold-control-low": "COLD_ROOM",
+    "cold-control-high": "COLD_ROOM",
+    "cold-policy-low": "COLD_ROOM",
+    "cold-policy-high": "COLD_ROOM",
+    "cold-min-excursion": "COLD_ROOM",
+    "cold-return-hysteresis": "COLD_ROOM",
+    "cold-start-timeout": "GENERATOR",
+    "cold-probe-error": "TEMPERATURE_PROBE",
+    "cold-compressor-start-delay": "COMPRESSOR",
+}
+
+#: Property units whose values are signed: a temperature below zero is a
+#: temperature, not a direction (`D-2026-10-17-w2-01-answers` C). Every other
+#: property unit stays a nonnegative magnitude.
+SIGNED_PROPERTY_UNITS = frozenset({"degC"})
 
 #: Every unit a declared property may carry, derived from the vocabulary so a
 #: property added above cannot introduce a unit nothing knows about and a unit
@@ -238,13 +311,22 @@ TOPOLOGY_NODE_ROLES = frozenset(
         "METERING",
         "LOAD",
         "FUEL_STORAGE",
+        # W2-01 (`D-2026-10-17-w2-01-answers` A): cold room, temperature
+        # probe, compressor and transfer switch positions.
+        "COLD_ROOM",
+        "SENSOR",
+        "COOLING",
+        "SWITCH",
     }
 )
 
 # What flows along a connection. Closed for the same reason: a connection whose
 # medium is not understood cannot be drawn or simulated, so it is a
 # configuration error rather than a passthrough string.
-CONNECTION_MEDIA = frozenset({"AC", "DC", "FUEL"})
+#
+# W2-01 adds `SIGNAL` (room -> primary chamber probe) and `THERMAL`
+# (compressor -> room); the cold validator checks each medium's endpoints.
+CONNECTION_MEDIA = frozenset({"AC", "DC", "FUEL", "SIGNAL", "THERMAL"})
 
 # What kind of thing a declared device is. Deliberately small: only what the
 # shipped hybrid mini-grid template needs. A device here is a configured asset,
@@ -259,8 +341,11 @@ DEVICE_TYPES = frozenset({"METER", "SENSOR", "CONTROLLER"})
 # T025b adds `state`: a signal whose reading is a typed discrete member (a
 # generator's `RUNNING`), never a number. It is the unit the execution contract
 # already types discrete values by (`assetops_contracts.control.DISCRETE_UNIT`).
+#
+# W2-01 adds `event`: the nonquantitative declared unit of an event channel,
+# never a numeric evidence unit (`D-2026-10-17-w2-01-answers` B).
 SIGNAL_UNITS = frozenset(
-    {"kW", "kWh", "V", "Hz", "L", "degC", "W/m2", "%", "state"}
+    {"kW", "kWh", "V", "Hz", "L", "degC", "W/m2", "%", "state", "event"}
 )
 
 # --- Typed Site Controls (T024) ----------------------------------------------
