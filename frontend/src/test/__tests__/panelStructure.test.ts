@@ -1,0 +1,56 @@
+/**
+ * Non-vacuity of the v69 panel guard (W1-F1 review finding 1): a leading
+ * answer card fails even when it has no h2 and no `.panel` class.
+ */
+import { afterEach, describe, expect, it } from "vitest";
+
+import { expectV69Panels, leadingIntruders, strayOutsidePanels } from "../panelStructure";
+
+const CHROME = `
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li>Sites</li></ol></nav>
+  <header class="page-header"><h1>Sites</h1><p>Find and compare sites</p></header>`;
+const LEADING = `
+  <div class="v69-chips"><button class="v69-chip" aria-pressed="true">All sites</button></div>
+  <div class="v69-cards"><div class="v69-metric"><h3>Sites</h3><p>3</p></div></div>`;
+const PANELS = `
+  <section class="panel"><h2>Site inventory</h2><table><tr><td>Kobo</td></tr></table></section>
+  <section class="panel"><h2>In setup</h2><p>Setup history not available.</p></section>`;
+
+function mount(body: string): void {
+  document.body.innerHTML = `<main>${body}</main>`;
+}
+
+describe("v69 panel guard", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  it("passes the mock's chrome, leading patterns and panels", () => {
+    mount(CHROME + LEADING + PANELS);
+    expect(() => expectV69Panels("sites")).not.toThrow();
+  });
+
+  it("fails a planted h3 answer card before panel 1", () => {
+    mount(CHROME + `<section class="callout"><h3>What is configured?</h3><p>Big verdict.</p></section>` + PANELS);
+    expect(leadingIntruders()).toEqual([expect.stringContaining("What is configured?")]);
+    expect(() => expectV69Panels("sites")).toThrow(/elements before panel 1/);
+  });
+
+  it("fails a planted callout or card with no heading before panel 1", () => {
+    mount(CHROME + LEADING + `<div class="callout"><p>Registered sites, not ranked</p></div>` + PANELS);
+    expect(() => expectV69Panels("sites")).toThrow(/elements before panel 1/);
+    mount(CHROME + `<div class="card"><h4>Second planted card</h4></div>` + PANELS);
+    expect(() => expectV69Panels("sites")).toThrow(/elements before panel 1/);
+  });
+
+  it("fails a stray h3 subsection outside every panel", () => {
+    mount(CHROME + PANELS + `<div class="subsection"><h3>Former panel</h3></div>`);
+    expect(strayOutsidePanels()).toEqual([expect.stringContaining("Former panel")]);
+    expect(() => expectV69Panels("sites")).toThrow(/sections outside the panels/);
+  });
+
+  it("ignores hidden content before panel 1", () => {
+    mount(CHROME + `<div hidden><h3>Hidden</h3></div>` + PANELS);
+    expect(() => expectV69Panels("sites")).not.toThrow();
+  });
+});
