@@ -4513,3 +4513,35 @@ tr[data-selected] > * {
   color: var(--text-secondary);
   font-weight: 400;
 }
+
+/* W1-F2: a state line inside the mock's statusbar is one compact strip, not a nested card. */
+.v69-statusbar .dispatch-status,
+.v69-statusbar .product-status {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.v69-statusbar .product-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+
+.v69-statusbar .product-status p {
+  margin: 0;
+}
+
+.v69-statusbar .product-status__label {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid #dce6f4;
+}
+
+.v69-statusbar > div:first-child {
+  min-width: 0;
+  flex: 1 1 360px;
+}
