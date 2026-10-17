@@ -133,6 +133,11 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   foundation: "Definition, topology and controls · stored configuration for the period shown",
   readiness: "Definition, commissioning and gateway readiness",
   sld: "Foundation · single line diagram",
+  changes: "Configuration change · the stored policy change and its decision path",
+  sitework: "Site-scoped work · the same managed records as global queues",
+  recommendation: "Proposed intervention and declared success criterion",
+  action: "Current intervention and outcome state",
+  verification: "Target and guardrails · outcome from accepted evidence",
 } as const;
 
 export interface SitePageHeaderProps {
