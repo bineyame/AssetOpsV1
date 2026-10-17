@@ -169,7 +169,9 @@ describe("V-01b Site Evidence overview", () => {
 
     const next = panel("Most useful next evidence");
     const silentList = next.querySelector("[data-evidence-silent-sources]") as HTMLElement;
-    expect(silentList.textContent).toContain("fuel-level-sensor");
+    // Review fix M5(b): the silent source is named once, in words; its exact identifier is the item title.
+    expect(silentList.textContent).toContain("Fuel level sensor");
+    expect(silentList.querySelector("li[title='fuel-level-sensor']")).not.toBeNull();
     expect(silentList.textContent).not.toContain("kobo-inverter-1");
     expect(next.textContent).toMatch(/a fact, not a recommendation/);
   });

@@ -44,6 +44,7 @@ import {
 import { PeriodStrip } from "./periodStrip";
 import { CountBars } from "./assessmentGraphics";
 import type { ClaimLimitClient } from "./claimLimitClient";
+import { qualityWords, roleWords } from "./dispatchWords";
 import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
 import { LocalViews, localView, localViewSearch, readablePeriod, readableTime } from "./findingPresentation";
 import type { EvidenceRead } from "./evidenceRead";
@@ -90,8 +91,37 @@ function sourceKind(mode: string): string {
   return mode === "SIMULATED" ? "Demonstration data" : mode === "LIVE" ? "Live data" : "Data of unstated origin";
 }
 
+/** Review fix M5(b): a coded state value ("STOPPED") reads as a plain word ("Stopped"), with no "state" unit. */
 function readingValue(value: { value: string | null; unit: string | null }): string {
-  return value.value === null ? "no value" : `${value.value}${value.unit === null ? "" : ` ${value.unit}`}`;
+  if (value.value === null) return "no value";
+  if (/^[A-Z][A-Z_]*$/.test(value.value)) {
+    const word = value.value.toLowerCase().replace(/_/g, " ");
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }
+  const unit = value.unit === null || value.unit === "state" ? "" : ` ${value.unit}`;
+  return `${value.value}${unit}`;
+}
+
+const ID_WORDS: Record<string, string> = { pcs: "power converter", soc: "charge", pv: "solar", gw: "gateway" };
+
+/**
+ * Review fix M5(b): a source or channel identifier shown once, in words ("generator-controller" reads
+ * "Generator controller"); the exact identifier stays in the element's title and the record detail.
+ */
+export function idWords(id: string): string {
+  const words = id
+    .split(/[-_./\s]+/)
+    .filter((w) => w !== "")
+    .map((w) => ID_WORDS[w.toLowerCase()] ?? w.toLowerCase())
+    .join(" ");
+  return words === "" ? id : words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** The reading's name: its configured role in words, else its channel identifier in words. */
+function readingName(item: { role: string | null; signal_id: string }): string {
+  if (!item.role) return idWords(item.signal_id);
+  const words = roleWords(item.role);
+  return words === item.role.replace(/_/g, " ") ? idWords(item.role) : words;
 }
 
 /** `datetime-local` text for an instant, or "" (minutes, UTC). */
@@ -647,7 +677,7 @@ function SourceStrip({ evidence }: { evidence: LedgerEvidence }) {
             const taken = s.accepted_in_window === 0 ? null : s.last_source_time;
             return {
               key: s.source_id,
-              label: <span {...REF}>{s.external_id}</span>,
+              label: <span {...REF} title={s.external_id}>{idWords(s.external_id)}</span>,
               segments: taken === null ? [] : [{ key: "latest", start: taken, end: taken, tone: "marker" as const, label: "Latest reading taken" }],
               summary:
                 s.accepted_in_window === 0
@@ -695,8 +725,8 @@ function SourcesOverview({
           <tbody>
             {evidence.sources.map((s, index) => (
               <tr key={s.source_id} data-evidence-source={s.source_id} hidden={!showAll && index >= SOURCE_PREVIEW_ROWS}>
-                <th scope="row" {...REF}>
-                  {s.external_id}
+                <th scope="row" {...REF} title={s.external_id}>
+                  {idWords(s.external_id)}
                 </th>
                 {s.accepted_in_window === 0 ? (
                   <td colSpan={3}>No accepted reading in this period</td>
@@ -783,8 +813,8 @@ function NextEvidence({ evidence }: { evidence: LedgerEvidence }) {
           <p>Sources with no accepted reading in this period (a fact, not a recommendation):</p>
           <ul className="cell-list">
             {silent.map((s) => (
-              <li key={s.source_id} {...REF}>
-                {s.external_id}
+              <li key={s.source_id} {...REF} title={s.external_id}>
+                {idWords(s.external_id)}
               </li>
             ))}
           </ul>
@@ -1128,7 +1158,7 @@ function Rejected({
           : untimed === 0
             ? "Every refused reading had a readable time."
             : `${plural(untimed, "refused reading has", "refused readings have")} no readable time, so no period can hold ${untimed === 1 ? "it" : "them"}; ${untimed === 1 ? "it is" : "they are"} listed in the advanced details below.`}{" "}
-        A whole delivery the server refused is kept as an operational audit record and is not listed as a reading.
+        A delivery that was rejected as a whole is kept for audit and not listed as a reading.
       </p>
       <Advanced name="evidence-not-accepted" summary="Advanced details — readings not accepted">
         {evidence.state === "NO_DATA" ? null : <OutcomeBars evidence={evidence} />}
@@ -1368,10 +1398,15 @@ function Inspector({
                     aria-selected={item.evidence_id === record}
                     hidden={!allShown && index >= RECORD_PREVIEW_ROWS}
                   >
-                    <th scope="row" {...REF}>{`${item.source.external_id} · ${item.device_id} / ${item.signal_id}`}</th>
+                    <th scope="row" title={`${item.source.external_id} · ${item.device_id} / ${item.signal_id}`}>
+                      {readingName(item)}
+                      <small {...REF}>{idWords(item.source.external_id)}</small>
+                    </th>
                     <td>
                       {readingValue(item.normalized)}
-                      {item.quality === "GOOD" ? null : <span className="evidence-records__quality">{` (quality ${item.quality})`}</span>}
+                      {item.quality === "GOOD" ? null : (
+                        <span className="evidence-records__quality">{` (quality: ${qualityWords(item.quality).toLowerCase()})`}</span>
+                      )}
                     </td>
                     <td>{when(item.source_time)}</td>
                     <td>{when(item.published_at)}</td>

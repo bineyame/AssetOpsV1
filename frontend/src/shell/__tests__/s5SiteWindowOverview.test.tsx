@@ -318,6 +318,16 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(where()).toBe(`/sites/${SITE_ID}?date=2026-11-10`);
   });
 
+  it("states the server's gap reason in plain words, never verbatim (review fix M5a)", async () => {
+    const raw = "No reviewed gap rule exists for the Site context; coverage counts and the selected S3 coverage are shown instead.";
+    const { client } = clientOf(() => summary("2026-10-24", { context: { ...summary().context, gaps_reason: raw } }));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
+    await settledScreen();
+    const gaps = document.querySelector("[data-window-gaps]") as HTMLElement;
+    expect(gaps.textContent).toBe("No rule yet says which gaps in the readings matter here; the reading counts are shown instead.");
+    expect(document.body.textContent).not.toContain(raw);
+  });
+
   it("names a Finding pin the server did not honour for this day", async () => {
     const { client } = clientOf(() =>
       summary("2026-10-24", {

@@ -4950,3 +4950,11 @@ input.v69-chip-control[type="datetime-local"] {
 .status-strip.evidence-statusbar {
   margin: 0 0 var(--space-4);
 }
+
+/* W1-F2 review fix M5(b): the record's source, in words, under the reading name (the mock's td small). */
+[data-evidence-record] th small {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-muted);
+}

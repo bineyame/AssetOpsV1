@@ -208,7 +208,16 @@ describe("Site Evidence from the central ledger: analysis", () => {
     expect(screen.getByText(/the gap between a taken and a\s+received time is not a delivery delay/)).toBeTruthy();
     const untimed = document.querySelector("[data-evidence-untimed]") as HTMLElement;
     expect(untimed.getAttribute("data-evidence-untimed")).toBe("1");
-    expect(untimed.textContent).toMatch(/operational audit record/);
+    // Review fix M5(c): the server-refusal sentence is in plain words.
+    expect(untimed.textContent).toMatch(/A delivery that was rejected as a whole is kept for audit and not listed as a reading./);
+    expect(untimed.textContent).not.toMatch(/server refused|operational audit record/);
+    // Review fix M5(b): each record row names its reading and source in words; the raw identifiers are only its title.
+    const heads = Array.from(document.querySelectorAll("[data-evidence-record] th"));
+    expect(heads.length).toBeGreaterThan(0);
+    for (const th of heads) {
+      expect(th.textContent).not.toMatch(/ \/ | · |_/);
+      expect(th.getAttribute("title")).toMatch(/ · .+ \/ /);
+    }
     expect(document.querySelector("[data-evidence-rejection]")?.textContent).toMatch(/No readable time/);
     expect(document.querySelector("[data-evidence-delivery='batch-0001']")?.getAttribute("data-delivery-partial")).toBe("false");
   });

@@ -566,7 +566,12 @@ function Context({ summary, links }: { summary: SiteWindowSummary; links: Window
         {c.truncated ? `; the first ${c.series.length} are listed` : ""}.
         {c.coverage.length === 0 ? " No accepted reading covers this day." : ""}
       </ChartNote>
-      {c.gaps_reason ? <ChartNote data={{ "data-window-gaps": "" }}>{c.gaps_reason}</ChartNote> : null}
+      {/* Review fix M5(a): the server's gap reason is never shown verbatim; its meaning is stated in plain words. */}
+      {c.gaps_reason ? (
+        <ChartNote data={{ "data-window-gaps": "" }}>
+          No rule yet says which gaps in the readings matter here; the reading counts are shown instead.
+        </ChartNote>
+      ) : null}
       {/* W1-F2 compaction: the per-input table and the record links are reference detail, in one closed disclosure. */}
       {c.coverage.length === 0 && c.series.length === 0 ? null : (
         <Disclosure summary="Readings per input, with links to each record" name="window-coverage" variant="tech">
