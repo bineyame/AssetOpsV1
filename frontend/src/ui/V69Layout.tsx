@@ -143,6 +143,79 @@ export function ChartNote({ children, data }: { children: ReactNode; data?: Reco
 }
 
 /**
+ * The mock's `.statusbar`: one state line above the panels (not a panel). It
+ * renders F1's `.status-strip--line`, so the guard's strip rules apply: every
+ * child must be inline (spans, links, a chip-sized control), never a block.
+ * Pass a `ProductStatus inline` for a state line.
+ */
+export function StatusBar({
+  children,
+  other,
+  action,
+  data,
+}: {
+  children: ReactNode;
+  other?: ReactNode;
+  action?: ReactNode;
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className="status-strip status-strip--line v69-statusbar" role="status" {...data}>
+      <span className="status-strip__lead">{children}</span>
+      {other === undefined ? null : <span className="status-strip__item v69-statusbar__other">{other}</span>}
+      <span className="status-strip__spacer" aria-hidden="true" />
+      {action === undefined ? null : <span className="status-strip__action">{action}</span>}
+    </div>
+  );
+}
+
+/** The mock's `.notice` (amber by default, `blue` for a neutral pointer). */
+export function V69Notice({
+  children,
+  tone,
+  data,
+}: {
+  children: ReactNode;
+  tone?: "blue";
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className={tone === "blue" ? "notice v69-notice v69-notice--blue" : "notice v69-notice"} {...data}>
+      {children}
+    </div>
+  );
+}
+
+export interface TimelineEvent {
+  key: string;
+  time: ReactNode;
+  title: ReactNode;
+  detail?: ReactNode;
+  tone?: "danger" | "gap";
+}
+
+/** The mock's causal `.timeline` strip: time, event, source in sequence. */
+export function CausalTimeline({ events, label }: { events: TimelineEvent[]; label: string }) {
+  return (
+    <ol className="v69-timeline" aria-label={label}>
+      {events.map((event) => (
+        <li
+          key={event.key}
+          className={["v69-timeline__event", event.tone ? `v69-timeline__event--${event.tone}` : ""]
+            .filter(Boolean)
+            .join(" ")}
+          data-timeline-event={event.key}
+        >
+          <span>{event.time}</span>
+          <strong>{event.title}</strong>
+          {event.detail === undefined ? null : <span>{event.detail}</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/**
  * The per-screen description under a Site page's heading, from the v69 mock's
  * screen subtitles (`screens.js`). F2-F5 add their screens here; a mock subtitle
  * that states illustrative values (site ratings, a window) is not copied.
@@ -151,6 +224,13 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   foundation: "Definition, topology and controls · stored configuration for the period shown",
   readiness: "Definition, commissioning and gateway readiness",
   sld: "Foundation · single line diagram",
+  mini: "Overview · operating objectives for the selected period",
+  dispatch: "Performance · source coordination and generator support",
+  analysis: "Performance · analytical method, input comparison and uncertainty",
+  // The mock's "capability readiness and claim ceilings" is not read here (no capability assessment; "claim" is on the
+  // W1 vocabulary list, D-2026-10-16-w1-ux), so the description says what the page does show.
+  evidence: "Evidence · accepted readings and what is missing",
+  "evidence-analysis": "Evidence · accepted records and how limits are set",
   changes: "Configuration change · the stored policy change and its decision path",
   sitework: "Site-scoped work · the same managed records as global queues",
   recommendation: "Proposed intervention and declared success criterion",

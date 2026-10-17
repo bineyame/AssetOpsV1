@@ -16,6 +16,11 @@ Sets:
 - `attestation ...` / `action ...` / `provenance ...` / `reverse attestation|action|provenance ...`: the writer
   policy merged from main 0d3114a3 (LR-01, S6-01a, S4-05a): UPDATE/DELETE/TRUNCATE/upsert, split, schema-qualified
   and quoted forms, and reverse ownership from another module.
+- `w200 ...`: W2-00 event evidence (design section 7): an event partial-index or event-constraint conflict target,
+  DO UPDATE on accepted evidence, an accepted-evidence INSERT without the message arbiter, foreign writers of the
+  ledger-owned tables, and the two double-collision orders (message+event must resolve to message: event before
+  message is refused; event+session with a free message must resolve to event: session before event is refused).
+  The order probes REPLACE the pinned `_REREAD_ORDER` line rather than append a second one.
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -49,6 +54,10 @@ ACTION_NEVER = "The Action store never updates, deletes, truncates, upserts or r
 ACTION_ONLY = "The Action store only inserts"
 PROV = "Source provenance is insert-only"
 UPSERT = "is never upserted (no ON CONFLICT DO UPDATE)"
+W200_ARBITER = "ON CONFLICT is allowed only as its three"
+W200_MESSAGE = "keeps the accepted_evidence_message_unique DO NOTHING arbiter"
+W200_ORDER = "rereads collisions in the fixed order message, event, session"
+REREAD = "_REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_EVENT_SQL, _REREAD_SESSION_SQL)"
 
 
 def split(table: str, rest: str) -> str:
@@ -211,6 +220,36 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      '_OPS02 = (\n    "INSERT INTO batch_publication_link "\n    "(id) VALUES (:i)"\n)\n',
      "writes source provenance table 'batch_publication_link'"),
     ("reverse provenance update", FINDING, split("evidence_publication", "source_kind = :k WHERE id = :i"), PROV),
+    ("w200 event partial-index target", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO accepted_evidence (id) VALUES (:i) ON CONFLICT "\n'
+     '    "(tenant_id, site_id, source_id, record_kind, event_id) WHERE family = \'EVENT\' DO NOTHING"\n)\n',
+     W200_ARBITER),
+    ("w200 event constraint target", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO accepted_evidence (id) VALUES (:i) ON CONFLICT ON CONSTRAINT "\n'
+     '    "accepted_event_identity_unique DO NOTHING"\n)\n', W200_ARBITER),
+    ("w200 accepted evidence do update", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO accepted_evidence (id) VALUES (:i) ON CONFLICT ON CONSTRAINT "\n'
+     '    "accepted_evidence_message_unique DO UPDATE SET outcome = :o"\n)\n', "The evidence ledger never upserts"),
+    ("w200 accepted evidence without message arbiter", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO accepted_evidence (id, record_kind, event_id) "\n    "VALUES (:i, :k, :e)"\n)\n',
+     W200_MESSAGE),
+    ("w200 foreign event evidence writer", FINDING,
+     '_OPS02 = (\n    "INSERT INTO accepted_evidence "\n    "(id, record_kind) VALUES (:i, :k)"\n)\n',
+     "writes ledger table 'accepted_evidence'"),
+    ("w200 foreign rejection writer", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO evidence_rejection "\n    "(id, kind) VALUES (:i, :k)"\n)\n',
+     "writes ledger table 'evidence_rejection'"),
+    ("w200 foreign disposition writer", ACTION,
+     '_OPS02 = (\n    "INSERT INTO ingestion_disposition "\n    "(batch_id, ordinal) VALUES (:b, :o)"\n)\n',
+     "writes ledger table 'ingestion_disposition'"),
+    ("w200 message+event order: event before message", LEDGER,
+     ("replace", REREAD, "_REREAD_ORDER = (_REREAD_EVENT_SQL, _REREAD_MESSAGE_SQL, _REREAD_SESSION_SQL)"), W200_ORDER),
+    ("w200 event+session order: session before event", LEDGER,
+     ("replace", REREAD, "_REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_SESSION_SQL, _REREAD_EVENT_SQL)"), W200_ORDER),
+    ("w200 second reread order", LEDGER, REREAD + "\n", W200_ORDER),
+    ("w200 real accepted insert loses its arbiter", LEDGER,
+     ("replace", "ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING RETURNING id", "RETURNING id"),
+     W200_MESSAGE),
 ]
 
 CONTROLS = (
@@ -242,6 +281,9 @@ WRITER_CONTROLS: list[tuple[str, str, str]] = [
      '_OPS02_A = (\n    "INSERT INTO evidence_publication (id) "\n    "VALUES (:i)"\n)\n'
      '_OPS02_B = (\n    "INSERT INTO ingestion_batch (id) VALUES (:i) ON CONFLICT ON CONSTRAINT "\n'
      '    "ingestion_batch_external_unique DO NOTHING"\n)\n'),
+    ("controls w200 event insert with message arbiter", LEDGER,
+     '_OPS02 = (\n    "INSERT INTO accepted_evidence (id, record_kind, event_id, session_id) "\n'
+     '    "VALUES (:i, :k, :e, :s) ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING"\n)\n'),
 ]
 
 
@@ -262,11 +304,18 @@ def run_guard(seam: bool) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, env=env)
 
 
-def probe(path: str, appended: str, seam: bool) -> subprocess.CompletedProcess[str]:
+def probe(path: str, appended, seam: bool) -> subprocess.CompletedProcess[str]:
+    """Append module-level code, or (W2-00) apply `("replace", old, new)` to one exact existing line."""
     file = ROOT / path
     original = file.read_text(encoding="utf-8")
     try:
-        file.write_text(original.rstrip("\n") + "\n\n\n" + appended, encoding="utf-8")
+        if isinstance(appended, tuple):
+            _, old, new = appended
+            if original.count(old) != 1:
+                raise SystemExit(f"replace probe: {old!r} is not exactly once in {path}")
+            file.write_text(original.replace(old, new), encoding="utf-8")
+        else:
+            file.write_text(original.rstrip("\n") + "\n\n\n" + appended, encoding="utf-8")
         return run_guard(seam)
     finally:
         restore(path)

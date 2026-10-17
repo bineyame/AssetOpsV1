@@ -62,8 +62,12 @@ def canonical_bytes(document: Any) -> bytes:
     return json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
 
+V4_BINDING_KEYS = ("allowed_record_kinds", "allowed_outcomes", "requires_correlation", "requires_session",
+                   "allowed_units")
+
+
 def binding_content(row: BindingRow) -> dict[str, Any]:
-    return {
+    content = {
         "device_id": row.device_id,
         "signal_id": row.signal_id,
         "source_id": str(row.source_id),
@@ -74,6 +78,14 @@ def binding_content(row: BindingRow) -> dict[str, Any]:
         "canonical_unit": row.canonical_unit,
         "conversion": row.conversion,
     }
+    # W2-00 ruling 4: a v4 row states all five keys explicitly; a v3 row (or a stored row read without the
+    # attribute, as the 0004 backfill does) states none, so its bytes are unchanged.
+    v4_mapping = getattr(row, "v4_mapping", None)
+    if v4_mapping is not None:
+        if set(v4_mapping) != set(V4_BINDING_KEYS):
+            raise ValueError("v4 mapping metadata states exactly the five v4 binding keys")
+        content.update({key: v4_mapping[key] for key in V4_BINDING_KEYS})
+    return content
 
 
 def snapshot_document_v1(

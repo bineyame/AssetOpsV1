@@ -72,8 +72,10 @@ These implementation-ready packets sequence the binding `D-2026-10-17-w2-design`
 
 | Slice | Packet | Exit and predecessor | Review |
 | --- | --- | --- | --- |
-| W2-00 source events | [W2-00](W2-00-source-events.md) | SourceEnvelope v4 event/EV delta through ordinary S2 accepted evidence; `0020` after `0019`; unlocks W2-02/W2-05b | S; implementation-ready; USER_REVIEW_REQUIRED false; one phase, independent review |
+| W2-00 source events | [W2-00](W2-00-source-events.md) | SourceEnvelope v4 event/EV delta through ordinary S2 accepted evidence; `0020` after `0019`; unlocks W2-02/W2-05b | Done 2026-10-17 (merged; review ACCEPT) |
 | W2-01 cold Foundation | [W2-01](W2-01-cold-foundation.md) | Effective cold roles, topology, selected read and three exact v69 Site routes; `0021` after `0020`; UI phase waits for W1-F1 merge | S; implementation-ready; USER_REVIEW_REQUIRED true via later owner W2 walkthrough; two phases |
+| W2-02 cold producer | [W2-02](W2-02-cold-producer.md) | Frozen cold pack and six scenarios through Lab Stage/Commit, authenticated gateway v4 and S2 receipts; after merged W2-01 | M; implementation-ready; USER_REVIEW_REQUIRED true via later owner W2 walkthrough; two phases |
+| W2-03 cold assessment | [W2-03](W2-03-cold-assessment.md) | `0022` cold episodes, bounded assessment and Findings, late recompute and four exact v69 routes; after merged W2-02 | M; implementation-ready; USER_REVIEW_REQUIRED true via later owner W2 walkthrough; two phases |
 
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 

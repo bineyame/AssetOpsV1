@@ -151,6 +151,7 @@ from assetops_contracts.ingestion_batch import (
 )
 from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_BYTES
 from assetops_contracts.ingestion_receipt_v2 import canonical_receipt_v2_text
+from assetops_contracts.source_envelope_v4 import V4_EVENT_KINDS, V4_FAMILIES_WRITTEN as RECORD_FAMILIES
 
 INGESTION_BATCHES_ROUTE = "/api/ingestion/batches"
 INGESTION_BATCH_ROUTE = "/api/ingestion/batches/{batch_id}"
@@ -418,12 +419,27 @@ def build_evidence_router(
                 status_code=422,
                 detail={"code": "INVALID_LIMIT", "message": "limit is a whole number from 1 to 1000"},
             )
+        family, kind = params.get("family"), params.get("kind")
+        if scope is None and (family is not None or kind is not None):
+            # W2-00 ruling 6: the legacy file-backed read keeps its contract and never silently ignores a filter.
+            raise HTTPException(
+                status_code=422,
+                detail={"code": "FILTER_UNSUPPORTED",
+                        "message": "family and kind filters are read from the central evidence ledger only"},
+            )
+        if family is not None and family not in RECORD_FAMILIES:
+            raise HTTPException(status_code=422, detail={
+                "code": "INVALID_FAMILY", "message": f"family is one of {', '.join(sorted(RECORD_FAMILIES))}"})
+        if kind is not None and kind not in V4_EVENT_KINDS:
+            raise HTTPException(status_code=422, detail={
+                "code": "INVALID_KIND", "message": "kind is a source event record kind"})
         if scope is not None:
             start, end = _window_params(request)
             try:
                 return from_ledger(lambda: imported_reads.records(
                     scope, start=start, end=end, device=params.get("device"), signal=params.get("signal"),
-                    source=params.get("source"), cursor=params.get("cursor"), limit=int(limit_text)))
+                    source=params.get("source"), cursor=params.get("cursor"), limit=int(limit_text),
+                    family=family, kind=kind))
             except InvalidCursor as error:
                 raise HTTPException(
                     status_code=422, detail={"code": "INVALID_CURSOR", "message": str(error)},

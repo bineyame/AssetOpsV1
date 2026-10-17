@@ -1,6 +1,6 @@
 # W2-00 — Ordinary source events and interval evidence
 
-Status: implementation-ready (planned). Size S; one phase. Branch `task/W2-00-source-events` from merged main; independent review before merge. USER_REVIEW_REQUIRED: false. This shared non-UI source contract unlocks W2-02 and W2-05b; it creates no cold/EV assessment or claim.
+Status: done (merged to main 2026-10-17; review ACCEPT, 3 Lows carried to W2-01/W2-02; full suite 2607 passed, host 687 passed); was in_review (built 2026-10-17 on `task/W2-00-source-events`; packet `.agent/W2-00-review-packet.md`). Size S; one phase. Independent review before merge. USER_REVIEW_REQUIRED: false. This shared non-UI source contract unlocks W2-02 and W2-05b; it creates no cold/EV assessment or claim.
 
 ## Binding design
 

@@ -444,7 +444,7 @@ class TestIdentityHardening:
         finally:
             command.upgrade(config, "head")
         with engine.connect() as connection:
-            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0019_verification_core"
+            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0020_w2_source_event"
 
     def test_registration_affiliation_and_mode_are_immutable(self, kit, engine) -> None:
         source_id = kit.binding("pv-inverter-controller")["source_id"]

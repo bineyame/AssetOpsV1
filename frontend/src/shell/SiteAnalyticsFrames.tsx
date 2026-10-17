@@ -34,7 +34,9 @@ import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
 import { useSiteRecord } from "../sites/useSiteRecord";
-import { Breadcrumbs, PageHeader, Panel } from "../ui";
+import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
+import { localView } from "../sites/findingPresentation";
+import { deriveSiteView } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
   FINDING_CHILD_VIEWS,
@@ -125,6 +127,10 @@ export function SitePerformanceFrame({
   sitesPath: string;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
+  const [params] = useSearchParams();
+  // W1-F2: the Dispatch route (and its Analysis view) carries the v69 Site page heading; the other
+  // Performance subtabs keep the shared "Performance" heading until their own fidelity pass.
+  const dispatchRoute = capabilityId === undefined || capabilityId === "dispatch";
   return (
     <SiteScoped
       siteId={siteId}
@@ -141,11 +147,21 @@ export function SitePerformanceFrame({
               { label: "Performance" },
             ]}
           />
-          <PageHeader
-            title="Performance"
-            headingId={SITE_PERFORMANCE_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id}`}
-          />
+          {dispatchRoute ? (
+            <SitePageHeader
+              siteName={site.display_name}
+              siteId={site.site_id}
+              mode={deriveSiteView(site).sourceMode}
+              description={SITE_SCREEN_DESCRIPTIONS[localView(params) === "analysis" ? "analysis" : "dispatch"]}
+              headingId={SITE_PERFORMANCE_HEADING_ID}
+            />
+          ) : (
+            <PageHeader
+              title="Performance"
+              headingId={SITE_PERFORMANCE_HEADING_ID}
+              subtitle={`${site.display_name} · ${site.site_id}`}
+            />
+          )}
           <OperatorSiteTabs siteId={siteId} current="Performance" />
           <SitePerformance
             siteId={site.site_id}

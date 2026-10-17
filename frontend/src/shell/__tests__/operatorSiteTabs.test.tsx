@@ -353,9 +353,13 @@ describe("the Site Evidence route", () => {
     renderAt("/sites/MG-002/evidence", DISABLED);
     await settledScreen();
 
+    // W1-F2: the v69 Site page heading names the site; the screen is named by its description and the current tab.
     expect(
-      screen.getByRole("heading", { level: 1, name: "Evidence" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
+    expect(document.querySelector("header.page-header")?.textContent).toContain(
+      "Evidence · accepted readings and what is missing",
+    );
     expect(
       within(tabRow()).getByRole("link", { current: "page" }),
     ).toHaveTextContent("Evidence");

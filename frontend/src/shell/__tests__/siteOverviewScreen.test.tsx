@@ -24,6 +24,7 @@ import {
   presentationProfileFor,
 } from "../../sites/presentationProfile";
 import { createSiteOverviewClient } from "../../sites/siteOverviewClient";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 import { OPERATOR_SITE_TABS_LABEL } from "../operatorSiteTabs";
@@ -74,16 +75,42 @@ function renderAt(path: string, overview: SiteOverviewClient, enabled = false) {
 const populated = () =>
   overviewClient({ status: "loaded", value: populatedOverview(SITE_ID) });
 
+/**
+ * W1-F2: each domain is now the mock's objective card (label, state word, note) in the card row above the
+ * panels; its readings and coverage moved into Operating context. `cardHeadings` reads the card labels in DOM
+ * order; `cardFor` returns the card and its context block together, so every fact the old card held is still
+ * asserted for the same domain.
+ */
+function cards(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>("main [data-overview-card]"));
+}
+
 function cardHeadings(): string[] {
-  return screen
-    .getAllByRole("heading", { level: 3 })
-    .map((heading) => heading.textContent ?? "");
+  return cards().map((card) => card.querySelector(".v69-metric__label")?.textContent ?? "");
 }
 
 function cardFor(name: string): HTMLElement {
-  return screen
-    .getByRole("heading", { level: 3, name })
-    .closest("section") as HTMLElement;
+  const card = cards().find((c) => c.querySelector(".v69-metric__label")?.textContent === name);
+  if (card === undefined) throw new Error(`No domain card "${name}".`);
+  const domain = card.getAttribute("data-overview-card") ?? "";
+  const context = document.querySelector<HTMLElement>(`[data-overview-domain-context="${domain}"]`);
+  const both = document.createElement("div");
+  both.append(card.cloneNode(true));
+  if (context !== null) both.append(context.cloneNode(true));
+  return both;
+}
+
+/** The live context block (links must be clicked on the rendered node, not a clone). */
+function contextFor(domain: string): HTMLElement {
+  return document.querySelector(`[data-overview-domain-context="${domain}"]`) as HTMLElement;
+}
+
+/** The objective facts (Operating context) with the site assessment (statusbar) in front. */
+function objectiveStrip(): HTMLElement {
+  const both = document.createElement("div");
+  both.append(document.querySelector(".v69-statusbar")!.cloneNode(true));
+  both.append(document.querySelector("[data-overview-objective]")!.cloneNode(true));
+  return both;
 }
 
 function currentTab(): string {
@@ -106,6 +133,7 @@ describe("Site Overview, populated", () => {
       "Renewable",
     ]);
     expect(currentTab()).toBe("Overview");
+    expectV69Panels("mini");
   });
 
   it("shows No assessment yet on every card and never Unknown", async () => {
@@ -130,9 +158,7 @@ describe("Site Overview, populated", () => {
     renderAt(OVERVIEW_URL, populated());
     await settledScreen();
 
-    const strip = screen
-      .getByRole("heading", { name: "Operating objective" })
-      .closest("section") as HTMLElement;
+    const strip = objectiveStrip();
     const text = spacedText(strip);
     expect(text).toContain("No assessment yet");
     expect(text).toContain("67.3 kWh");
@@ -146,7 +172,9 @@ describe("Site Overview, populated", () => {
       "329 accepted records from 1 source and gateway pair",
     );
     expect(
-      within(strip).getByRole("link", { name: "Open Site evidence" }),
+      within(document.querySelector("[data-overview-objective]") as HTMLElement).getByRole("link", {
+        name: "Open Site evidence",
+      }),
     ).toHaveAttribute("href", `/sites/${SITE_ID}/evidence`);
   });
 
@@ -169,7 +197,7 @@ describe("Site Overview, populated", () => {
     renderAt(OVERVIEW_URL, populated());
     await settledScreen();
 
-    const link = within(cardFor("Dispatch")).getByRole("link", {
+    const link = within(contextFor("Dispatch")).getByRole("link", {
       name: /GEN-1\/active_power/,
     });
     expect(link).toHaveAttribute(
@@ -296,6 +324,7 @@ describe("Site Overview, empty, unavailable and gate", () => {
     );
     await settledScreen();
 
+    expectV69Panels("mini");
     expect(cardHeadings()).toHaveLength(5);
     for (const name of cardHeadings()) {
       const text = spacedText(cardFor(name));
@@ -318,33 +347,28 @@ describe("Site Overview, empty, unavailable and gate", () => {
     );
     await settledScreen();
 
-    expect(
-      screen.getByRole("heading", { name: "Overview unavailable" }),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { level: 3 })).toBeNull();
+    // W1-F2: the refusal is stated before the five panel slots (never a different error-card layout), and each
+    // panel says the read gap inside it; no domain card is drawn.
+    expect(document.querySelector('[data-page-refusal="unavailable"]')?.textContent).toContain(
+      "Overview unavailable",
+    );
+    expectV69Panels("mini");
+    expect(spacedText(panelTitled("What happened in the selected hour"))).toContain("could not be read");
+    expect(panelTitled("Bounded money consequence").textContent).toContain("No current amount");
+    expect(cards()).toHaveLength(0);
   });
 
   it("renders the same Overview with the Lab gate closed and open", async () => {
     const closed = renderAt(OVERVIEW_URL, populated(), false);
     await settledScreen();
     const closedCards = cardHeadings();
-    const closedStrip = spacedText(
-      screen
-        .getByRole("heading", { name: "Operating objective" })
-        .closest("section") as HTMLElement,
-    );
+    const closedStrip = spacedText(objectiveStrip());
     closed.unmount();
 
     renderAt(OVERVIEW_URL, populated(), true);
     await settledScreen();
     expect(cardHeadings()).toEqual(closedCards);
-    expect(
-      spacedText(
-        screen
-          .getByRole("heading", { name: "Operating objective" })
-          .closest("section") as HTMLElement,
-      ),
-    ).toBe(closedStrip);
+    expect(spacedText(objectiveStrip())).toBe(closedStrip);
   });
 });
 
