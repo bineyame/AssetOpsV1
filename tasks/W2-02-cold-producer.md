@@ -4,6 +4,8 @@ Status: implementation-ready (planned). Size M; two phases. Branch `task/W2-02-c
 
 ## Binding design and dependencies
 
+**Architect build closure:** `D-2026-10-17-w2-02-buildspec` and `.agent/W2-02-build-spec.md` fix the registered COLD-LAB-001 fixture, new v4 binding revision, DeviceReport v2/gateway allocation, strict scenario format and explicit-run replay read. These supersede the packet's unspecified fixture/default/replay shorthand. No W2-02 SQL migration is added.
+
 - `.agent/W2-technical-design-cold.md` §1 rulings 4–6 owns v4 binding/profile admission and reads; §2 owns the `0020`/`0021` migration baseline; §3 owns effective cold roles and parameters; §4 owns model, scenarios, observation, channels, pack selection and publication; §6 owns the cold replay read; §7 owns manifest/proof and the vendor-peer deferral. `.agent/architect-W2-design.md` "Simulator-to-evidence contract" and "Ordered slices" fix the sequence. Decisions `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold`, `D-2026-10-17-w2-00-answers` apply.
 - Requires merged W2-00 and W2-01, registered Lab basis, S2 authenticated Batch V2 intake and SQLite outbox. W2-01's effective Foundation, binding and source registrations are runtime authority; test-only W2-00 `BindingBasis` injection is not. The closed cold publication profile is new and pinned to v4; existing profiles remain unchanged.
 
@@ -29,7 +31,7 @@ Assign existing open `A-cold-world` and `I-cold-world` to W2-02 via `task`. Leav
 
 ## Architect questions
 
-None; the cited design fixes the producer and explicitly defers the physical peer.
+Resolved 1–9 in `.agent/W2-02-architect-questions.md` under `D-2026-10-17-w2-02-buildspec`.
 
 ## Plan review notes (coordinator, 2026-10-17)
 
