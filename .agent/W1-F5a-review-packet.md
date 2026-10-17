@@ -85,7 +85,43 @@ Brief: `.agent/W1-F5a-build-brief.md`. Contract: `.agent/architect-W1-fidelity.m
 
 ## Residual risk
 - `SiteAnalyticsFrames.tsx` and the registry `mock_gaps` list will conflict textually with F3/F4 at merge (different hunks; append-position conflict in the registry).
-- The Menu control depends on `matchMedia`. If it is absent, the rail stays visible but the button is not rendered.
+- The Menu control depends on `matchMedia`. If it is absent, the button is not rendered, but the 640px CSS (`primitives.css:2838`) still hides `.app-frame__rail-body`, so the rail is unreachable (corrected in the fix round; the review's L4). Every target browser has `matchMedia`, so this does not block.
 
 ## User review
 No owner review per slice (W1 walkthroughs deferred to the combined owner walkthrough after F5). Coordinator ruling needed on deviation 1. Independent fresh-Claude review next.
+
+## Fix round (review RETURN: 1 High, 1 Medium, 3 Low)
+Code `6cf0692c`; base review revision `e84a3294`.
+
+| Finding | Fix |
+| --- | --- |
+| H1 Health data-sources panel | One row per gateway (9 rows, no cap). Source cell gives the device count ("2 devices"). Status is a short word with age ("Current · 5 s ago", "Stale · 10 min", "Never received", "Disabled"). Quality is a `Badge` ("Current", "Old", "Unknown age", "Nothing received"; an untrusted clock stays "Unknown age"). Rows needing attention come first, then current, then disabled. The device rows, queue and storage moved to a "what each gateway last reported" table in Technical details (`HealthReportedDetail`; keeps `data-health-queue-row` and `data-health-source`). The selected-gateway view gains a Queue row. The summary is one line: label plus counts (the sentence is kept only when no gateway is enabled, so that its next step stays) |
+| M2 state said once | Health strip is now "Unknown does not mean normal, and it does not mean faulty." with no `next`. The Main reason cell says "See battery page". Asset: the clause is removed from the panel 2 lead and the notice, and stays in the strip; the strip `next` is removed. New test counts "does not mean normal" once per screen |
+| L3 KOBO-002 repeats | Counts line no longer repeats the no-gateway sentence. The panel 1 not-configured line is just the "Battery page" link |
+| L4 matchMedia note | Packet residual-risk text corrected (above). The CSS was not changed |
+| L5 breadcrumb | Out of scope, carried to F5b |
+
+### Re-pointed assertions (none weakened or deleted)
+- Row wording ("Current: received 5 s ago", "Stale: ... (limit 1 min)", "Old: observed 6 h ago; it reached the server 6 h after", "Unknown age: the gateway's clock is off by 95 s ...", "Nothing received yet"): the short forms are asserted on the row (status and quality cells). The long wording is asserted on `[data-health-reported]` rows. The stale limit, "when it stopped is not known" and "Disabled (not counted)" are asserted in a new selected-gateway test.
+- "Disabled, not counted." on the row: the summary's "1 disabled, not counted" is asserted, and "Disabled (not counted)" in the selected view.
+- "Gateway contact: not all current / no enabled gateway / not recognised": the label ("Some gateways are not in contact.", "No gateway is reporting.", "not recognised") is asserted. Those prefixes were the second statement of the label.
+- "No gateway is enabled ... about contact": now "... about source contact." (the headline sentence; the duplicate counts-line copy is gone).
+- "Unknown (not configured)" under panel 1: replaced with the lead text "No battery is part of this site's configuration" plus the link. The review asked to remove the duplicate line.
+- Technical-details `aria-current` lookup now targets `[data-health-technical]`, because the reported table also marks the selected row.
+- New tests: 9 rows, no device rows in the table, attention first, disabled last, device count, Quality chip per row.
+
+### Checks (final fix revision)
+- `npx.cmd tsc --noEmit`: clean. `siteHealthBoundary` 29/29. `src/sites/__tests__` 20 files, 740/740.
+- Full `npm.cmd test`: 76 files, **1992 passed, 0 failed**, 133 s. No known flake appeared.
+- `tools/check-all.ps1`: 10/10 PASS.
+- Evidence: `tools/w1-fidelity-evidence.mjs` on API 9606, web 6006, CDP 9607 with a fresh S7-01 fixture (`assetops_s701_owner_f5afix`): **60/60 claims pass**, no horizontal overflow. The fixture DB, work dir and servers were dropped and stopped afterwards.
+
+### New heights (app / mock)
+| Screen / case | Panel | 1440 | 390 |
+| --- | --- | --- | --- |
+| health KOBO-001 | Data sources | 766 / 285 (**2.69**, was 4.95) | 867 / 391 (**2.22**, was 4.52) |
+| health KOBO-001 | Physical asset condition | 253 / 285 (0.89) | 342 / 442 (0.77) |
+| health KOBO-002 | Data sources | 308 / 285 (1.08) | 426 / 391 (1.09) |
+| asset KOBO-001 | the three panels | 379 / 316, 379 / 316, 358 / 287 | 330 / 274, 415 / 316, 478 / 428 |
+
+The remaining height above ~2x at 1440 is nine honest rows; none is hidden.
