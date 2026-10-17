@@ -51,7 +51,7 @@ for (const file of files) {
       const ratio = m && m.h > 0 ? a.h / m.h : null;
       const key = `${p.screen}|${p.case ?? ''}|${width}|${a.title}`;
       const wild = `${p.screen}|*|*|${a.title}`;
-      return { title: a.title, app: a.h, mock: m?.h ?? null, ratio, reason: overages[key] ?? overages[wild] ?? null };
+      return { title: a.title, app: a.h, mock: m?.h ?? null, ratio, reason: overages[key] ?? overages[`${p.screen}|${p.case ?? ''}|*|${a.title}`] ?? overages[wild] ?? null };
     });
     rows.push({
       screen: p.screen, case: p.case || 'default', width, part: rel(dir), revision: ev.revision,

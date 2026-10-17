@@ -70,13 +70,13 @@ Commits: `9ce710af` (carries 8-9), `f0b8878f` (rows, chips, headings, breadcrumb
 ## Known deviations
 1. **Carry 7, legacy-Site captures:** not possible. No walkthrough tool prepares a file-backed (LEGACY_FILE) Site; every part serves KOBO-001/002 from Postgres. Legacy paths stay covered by the structure tests only (t028, siteEvidenceScreen, S5 legacy). Capturing them would need a tool that serves `var/sites` YAML against a migrated database with no tenant.
 2. **Finding row label:** the first entry stays "Finding", not the mock's "Overview". The Finding page keeps its own Overview | Analysis view row below, and two "Overview" entries would be ambiguous. The mock's separate Analysis tab is not added, because the ruling names only Alternatives.
-3. **Recommendation heading:** the h1 stays "Recommendation". The brief named only Evidence and History; the mock uses the Finding's name there too.
+3. **Recommendation heading:** superseded by the fix round (M2): the h1 is now the Finding's name.
 4. **"Scenarios" vocabulary:** "scenarios" is on the product word list in its development-workflow sense. The ruling requires the mock label, so two exact-text glosses allow it only together with its status. The unbuilt tab's label and status are therefore one text node, "Scenarios · Not available yet".
 5. **390 behaviour that matches the mock but is worth seeing:**
    - Tab rows scroll inside themselves, so the trailing unbuilt entries in the Work row are reached by scrolling, as in the mock.
    - The Site Findings chips wrap onto a second line (the mock's `.chips` also wrap).
    - The Finding row's money link sits on a short line under the row.
-6. **Heights:** 139 capture rows are above 1.3x. They come down to 43 distinct panels, each with a reason in `overages.json`. Most come from real data or from material limits that must stay visible, and earlier reviews accepted them. Two are marked "Not yet verified at 390": `analysis` Coverage (1.38) and `asset` Interpretation (1.31). The worst case is `evidence-analysis` "Accepted records" at 5.75x/7.86x, because the captured case has a record inspector open; with no record open it is about 1.6x.
+6. **Heights:** 139 capture rows are above 1.3x. They come down to 43 distinct panels, each with a reason in `overages.json`. Most come from real data or from material limits that must stay visible, and earlier reviews accepted them. Superseded by the fix round: the two placeholder reasons are replaced and the worst case is now the opened-reading capture at 3.59x/3.71x.
 
 ## Residual risk
 - The Changes route has no change list, so Change & effect opened from Site model always lands on "No change selected". This is honest, but owners may expect a list.
@@ -87,5 +87,16 @@ Commits: `9ce710af` (carries 8-9), `f0b8878f` (rows, chips, headings, breadcrumb
 - The unbuilt tabs and chips: muted, with their status, not clickable.
 - Change & effect in the Foundation row.
 - The heading change on the Finding child views.
+
+## Fix round (review RETURN: 1 High, 2 Medium, 3 Low)
+Code at the fix-round commits after `13cf2477`; frontend only.
+- **H1 Lens column:** `SiteFindingIndex.tsx` adds `Lens` after Main consequence (Period kept), each cell the muted "Not assessed" badge (`data-finding-index-lens`). The s404 W1-F3 test now asserts the header row `Finding, Domain, Priority, Confidence, State, Main consequence, Lens, Period` and each row's Lens badge. part09 recaptured.
+- **M2 Recommendation heading:** `SiteRecommendation` takes `onTitle` and reports `FINDING_NAME` ("Generator support review": the recommendation read carries no lifecycle, so the lifecycle-specific title Finding/Evidence/History derive is not available there). `FINDING_VIEW_TITLES` removed; the frame always uses `title`. `w1f4RecommendationStructure` asserts the h1. part13 and part14 (recommendation guardrail-hold) recaptured. Residual: a current Finding titled "Generator support merits review" shows "Generator support review" on its Recommendation view.
+- **M3 reading detail:** `RecordFacts` now shows plain words (reading by its configured name, Quality "Good", Decision "Accepted", times, delivery progress) and one closed "Exact references" disclosure with every ID, fingerprint, source/device code, the exact message and the repeat/conflict records. `v01bEvidenceVisual` asserts one closed disclosure, the message and IDs inside it, none outside, no GOOD/ACCEPTED. Audit: the opened-reading case is listed second and labelled "record (a reading opened)"; the overage reason is split per case (default 1.64x named by its real content). part04 recaptured; the opened state is 3.59x/3.71x (was 5.75x/7.86x).
+- **Low 4:** `FactList` takes an optional `className`; the Analysis Coverage list stacks label over value below 480px (`periodStrip.css`), so 390 is 0.87x (was 1.38x). Asset ratio corrected to 1.20x at 1440 / 1.31x at 390 with its real cause.
+- **Low 6:** every walkthrough part was retaken on the fix-round code (parts 01, 02, 04, 05, 06, 07, 08, 09, 10, 10b, 11, 13, 14, 15, 16; part17 already current). All 168 pairs and `audit.json` regenerated by `tools/w1-fidelity-audit-index.mjs` (`audit: 168 pairs, 2 match, 24 taller, 0 failing`; no panel above 1.3x lacks a reason).
+- **Low 5 (carry 7):** accepted and backlogged by the coordinator; no action.
+- Capture claims: all parts passed (part02, part14 had one first-load fail each under parallel load; rerun alone: 48/48 and 108/108). Servers on 9900-9950/6300-6350 stopped; fixture databases and work folders dropped (s3 shared template and `assetops_s4cases` untouched).
+- Proof: `npx.cmd tsc --noEmit` clean; focused files (s404, s2LedgerEvidence, v01bEvidenceVisual, siteFindingEvidence, siteAction, t028, w1f4RecommendationStructure) pass; full `npm.cmd test` 82 files, 2140 passed, 0 failed (156 s); `tools/check-all.ps1`: All 10 guards passed.
 
 USER_REVIEW_REQUIRED: yes. This index is the owner's repeat W1 walkthrough. Owner acceptance closes W1.

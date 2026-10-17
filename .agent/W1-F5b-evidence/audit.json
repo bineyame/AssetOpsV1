@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-17T19:05:31.030Z",
+ "generated": "2026-10-17T20:17:00.666Z",
  "limit": 1.3,
  "summary": [
   {
@@ -70,8 +70,8 @@
    "n": 9,
    "id": "analysis",
    "name": "Performance · Analysis",
-   "word": "Matches; some panels taller, reasons stated",
-   "tone": "amber",
+   "word": "Matches",
+   "tone": "green",
    "pairs": 6
   },
   {
@@ -217,7 +217,7 @@
    "case": "stocked",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites",
    "mockHash": "#/sites",
    "appImage": "part01-foundation/sites-stocked-1440-app.png",
@@ -250,14 +250,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.924901185770751
+   "maxRatio": 0.924901185770751,
+   "caseLabel": "stocked"
   },
   {
    "screen": "sites",
    "case": "stocked",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites",
    "mockHash": "#/sites",
    "appImage": "part01-foundation/sites-stocked-390-app.png",
@@ -290,14 +291,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2213541666666667
+   "maxRatio": 1.2213541666666667,
+   "caseLabel": "stocked"
   },
   {
    "screen": "sites",
    "case": "empty",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6301/sites",
    "mockHash": "#/sites",
    "appImage": "part01-foundation/sites-empty-1440-app.png",
@@ -330,14 +332,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.8980891719745223
+   "maxRatio": 0.8980891719745223,
+   "caseLabel": "empty"
   },
   {
    "screen": "sites",
    "case": "empty",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6301/sites",
    "mockHash": "#/sites",
    "appImage": "part01-foundation/sites-empty-390-app.png",
@@ -370,14 +373,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.0234375
+   "maxRatio": 1.0234375,
+   "caseLabel": "empty"
   },
   {
    "screen": "foundation",
    "case": "now",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation",
    "mockHash": "#/foundation",
    "appImage": "part01-foundation/foundation-now-1440-app.png",
@@ -419,14 +423,15 @@
      "reason": "It shows 5 control rows where the mock has 4, and several of them run onto two lines; it also carries a one-line introduction, the working 'Change the battery reserve' form (two fields and a publish button) and a closed 'Advanced details' row, none of which the mock draws."
     }
    ],
-   "maxRatio": 2.6445993031358883
+   "maxRatio": 2.6445993031358883,
+   "caseLabel": "now"
   },
   {
    "screen": "foundation",
    "case": "now",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation",
    "mockHash": "#/foundation",
    "appImage": "part01-foundation/foundation-now-390-app.png",
@@ -468,14 +473,15 @@
      "reason": "It shows 5 control rows where the mock has 4, and several of them run onto two lines; it also carries a one-line introduction, the working 'Change the battery reserve' form (two fields and a publish button) and a closed 'Advanced details' row, none of which the mock draws."
     }
    ],
-   "maxRatio": 2.931297709923664
+   "maxRatio": 2.931297709923664,
+   "caseLabel": "now"
   },
   {
    "screen": "foundation",
    "case": "no-version",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
    "mockHash": "#/foundation",
    "appImage": "part01-foundation/foundation-no-version-1440-app.png",
@@ -517,14 +523,15 @@
      "reason": "It shows 5 control rows where the mock has 4, and several of them run onto two lines; it also carries a one-line introduction, the working 'Change the battery reserve' form (two fields and a publish button) and a closed 'Advanced details' row, none of which the mock draws."
     }
    ],
-   "maxRatio": 0.3519163763066202
+   "maxRatio": 0.3519163763066202,
+   "caseLabel": "no-version"
   },
   {
    "screen": "foundation",
    "case": "no-version",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation?at=2026-09-01T00:00:00Z",
    "mockHash": "#/foundation",
    "appImage": "part01-foundation/foundation-no-version-390-app.png",
@@ -566,14 +573,15 @@
      "reason": "It shows 5 control rows where the mock has 4, and several of them run onto two lines; it also carries a one-line introduction, the working 'Change the battery reserve' form (two fields and a publish button) and a closed 'Advanced details' row, none of which the mock draws."
     }
    ],
-   "maxRatio": 0.3588235294117647
+   "maxRatio": 0.3588235294117647,
+   "caseLabel": "no-version"
   },
   {
    "screen": "readiness",
    "case": "now",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/readiness",
    "mockHash": "#/readiness",
    "appImage": "part01-foundation/readiness-now-1440-app.png",
@@ -610,14 +618,15 @@
      "reason": "The real gateway reports 8 sources where the mock shows 6 and a 3-item effect list where the mock has 2, plus a key-value row and one closed details row; the review accepted the extra height as coming from the data."
     }
    ],
-   "maxRatio": 1.6263736263736264
+   "maxRatio": 1.6263736263736264,
+   "caseLabel": "now"
   },
   {
    "screen": "readiness",
    "case": "now",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/readiness",
    "mockHash": "#/readiness",
    "appImage": "part01-foundation/readiness-now-390-app.png",
@@ -654,14 +663,15 @@
      "reason": "The real gateway reports 8 sources where the mock shows 6 and a 3-item effect list where the mock has 2, plus a key-value row and one closed details row; the review accepted the extra height as coming from the data."
     }
    ],
-   "maxRatio": 1.986220472440945
+   "maxRatio": 1.986220472440945,
+   "caseLabel": "now"
   },
   {
    "screen": "readiness",
    "case": "no-version",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
    "mockHash": "#/readiness",
    "appImage": "part01-foundation/readiness-no-version-1440-app.png",
@@ -698,14 +708,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.42245989304812837
+   "maxRatio": 0.42245989304812837,
+   "caseLabel": "no-version"
   },
   {
    "screen": "readiness",
    "case": "no-version",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/readiness?at=2026-09-01T00:00:00Z",
    "mockHash": "#/readiness",
    "appImage": "part01-foundation/readiness-no-version-390-app.png",
@@ -742,14 +753,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.3559870550161812
+   "maxRatio": 0.3559870550161812,
+   "caseLabel": "no-version"
   },
   {
    "screen": "sld",
    "case": "now",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/sld",
    "mockHash": "#/sld",
    "appImage": "part01-foundation/sld-now-1440-app.png",
@@ -782,14 +794,15 @@
      "reason": "One table row for each of the 10 real parts, where the mock groups them into 4 rows, plus a one-line description and a closed details row; the review accepted this as coming from the data."
     }
    ],
-   "maxRatio": 2.229965156794425
+   "maxRatio": 2.229965156794425,
+   "caseLabel": "now"
   },
   {
    "screen": "sld",
    "case": "now",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/sld",
    "mockHash": "#/sld",
    "appImage": "part01-foundation/sld-now-390-app.png",
@@ -822,14 +835,15 @@
      "reason": "One table row for each of the 10 real parts, where the mock groups them into 4 rows, plus a one-line description and a closed details row; the review accepted this as coming from the data."
     }
    ],
-   "maxRatio": 3.839622641509434
+   "maxRatio": 3.839622641509434,
+   "caseLabel": "now"
   },
   {
    "screen": "sld",
    "case": "battery",
    "width": "1440",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
    "mockHash": "#/sld",
    "appImage": "part01-foundation/sld-battery-1440-app.png",
@@ -862,14 +876,15 @@
      "reason": "One table row for each of the 10 real parts, where the mock groups them into 4 rows, plus a one-line description and a closed details row; the review accepted this as coming from the data."
     }
    ],
-   "maxRatio": 2.229965156794425
+   "maxRatio": 2.229965156794425,
+   "caseLabel": "battery"
   },
   {
    "screen": "sld",
    "case": "battery",
    "width": "390",
    "part": "part01-foundation",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6300/sites/KOBO-001/foundation/sld?at=2026-10-22T00:00:00Z&component=battery",
    "mockHash": "#/sld",
    "appImage": "part01-foundation/sld-battery-390-app.png",
@@ -902,14 +917,15 @@
      "reason": "One table row for each of the 10 real parts, where the mock groups them into 4 rows, plus a one-line description and a closed details row; the review accepted this as coming from the data."
     }
    ],
-   "maxRatio": 4.512578616352202
+   "maxRatio": 4.512578616352202,
+   "caseLabel": "battery"
   },
   {
    "screen": "mini",
    "case": "priced",
    "width": "1440",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-10-23",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-priced-1440-app.png",
@@ -935,48 +951,49 @@
    "panels": [
     {
      "title": "What happened in the selected hour",
-     "app": 333,
+     "app": 357,
      "mock": 238,
-     "ratio": 1.3991596638655461,
+     "ratio": 1.5,
      "reason": "Instead of the mock's short hour story, the app has to explain that it reads a whole day: a gap line, a timeline of assessed periods, the day's reading, the known limitations, a line on whether the data is current, and one closed details row. The review accepted all of this as honest content."
     },
     {
      "title": "Operating context",
-     "app": 518,
+     "app": 538,
      "mock": 373,
-     "ratio": 1.388739946380697,
+     "ratio": 1.4423592493297588,
      "reason": "The app draws one timeline lane for each real input (8 lanes plus the assessed periods), a legend, a reading count and a gaps-rule line, where the mock has a small three-line chart; at 1440 it also shares a row height with Needs attention."
     },
     {
      "title": "Needs attention",
-     "app": 518,
+     "app": 538,
      "mock": 373,
-     "ratio": 1.388739946380697,
+     "ratio": 1.4423592493297588,
      "reason": "This panel shares a row with Operating context and is stretched to that panel's height; its own list is the mock's numbered list."
     },
     {
      "title": "Bounded money consequence",
-     "app": 248,
+     "app": 247,
      "mock": 193,
-     "ratio": 1.2849740932642486,
+     "ratio": 1.2797927461139897,
      "reason": "When no current amount can be shown, the panel explains why in several lines, then adds the 'prepared example data' note, a sentence saying the figure is a modelled range, and one closed details row; the mock shows just the amount and one line."
     },
     {
      "title": "Next step",
-     "app": 248,
+     "app": 247,
      "mock": 193,
-     "ratio": 1.2849740932642486,
+     "ratio": 1.2797927461139897,
      "reason": null
     }
    ],
-   "maxRatio": 1.3991596638655461
+   "maxRatio": 1.5,
+   "caseLabel": "priced"
   },
   {
    "screen": "mini",
    "case": "priced",
    "width": "390",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-10-23",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-priced-390-app.png",
@@ -1002,30 +1019,30 @@
    "panels": [
     {
      "title": "What happened in the selected hour",
-     "app": 400,
+     "app": 474,
      "mock": 523,
-     "ratio": 0.7648183556405354,
+     "ratio": 0.9063097514340345,
      "reason": "Instead of the mock's short hour story, the app has to explain that it reads a whole day: a gap line, a timeline of assessed periods, the day's reading, the known limitations, a line on whether the data is current, and one closed details row. The review accepted all of this as honest content."
     },
     {
      "title": "Operating context",
-     "app": 667,
+     "app": 706,
      "mock": 286,
-     "ratio": 2.332167832167832,
+     "ratio": 2.4685314685314683,
      "reason": "The app draws one timeline lane for each real input (8 lanes plus the assessed periods), a legend, a reading count and a gaps-rule line, where the mock has a small three-line chart; at 1440 it also shares a row height with Needs attention."
     },
     {
      "title": "Needs attention",
-     "app": 248,
+     "app": 467,
      "mock": 370,
-     "ratio": 0.6702702702702703,
+     "ratio": 1.2621621621621621,
      "reason": "This panel shares a row with Operating context and is stretched to that panel's height; its own list is the mock's numbered list."
     },
     {
      "title": "Bounded money consequence",
-     "app": 317,
+     "app": 334,
      "mock": 190,
-     "ratio": 1.668421052631579,
+     "ratio": 1.7578947368421052,
      "reason": "When no current amount can be shown, the panel explains why in several lines, then adds the 'prepared example data' note, a sentence saying the figure is a modelled range, and one closed details row; the mock shows just the amount and one line."
     },
     {
@@ -1036,14 +1053,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 2.332167832167832
+   "maxRatio": 2.4685314685314683,
+   "caseLabel": "priced"
   },
   {
    "screen": "mini",
    "case": "held",
    "width": "1440",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-10-24",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-held-1440-app.png",
@@ -1069,48 +1087,49 @@
    "panels": [
     {
      "title": "What happened in the selected hour",
-     "app": 333,
+     "app": 357,
      "mock": 238,
-     "ratio": 1.3991596638655461,
+     "ratio": 1.5,
      "reason": "Instead of the mock's short hour story, the app has to explain that it reads a whole day: a gap line, a timeline of assessed periods, the day's reading, the known limitations, a line on whether the data is current, and one closed details row. The review accepted all of this as honest content."
     },
     {
      "title": "Operating context",
-     "app": 518,
+     "app": 538,
      "mock": 373,
-     "ratio": 1.388739946380697,
+     "ratio": 1.4423592493297588,
      "reason": "The app draws one timeline lane for each real input (8 lanes plus the assessed periods), a legend, a reading count and a gaps-rule line, where the mock has a small three-line chart; at 1440 it also shares a row height with Needs attention."
     },
     {
      "title": "Needs attention",
-     "app": 518,
+     "app": 538,
      "mock": 373,
-     "ratio": 1.388739946380697,
+     "ratio": 1.4423592493297588,
      "reason": "This panel shares a row with Operating context and is stretched to that panel's height; its own list is the mock's numbered list."
     },
     {
      "title": "Bounded money consequence",
-     "app": 229,
+     "app": 247,
      "mock": 193,
-     "ratio": 1.1865284974093264,
+     "ratio": 1.2797927461139897,
      "reason": "When no current amount can be shown, the panel explains why in several lines, then adds the 'prepared example data' note, a sentence saying the figure is a modelled range, and one closed details row; the mock shows just the amount and one line."
     },
     {
      "title": "Next step",
-     "app": 229,
+     "app": 247,
      "mock": 193,
-     "ratio": 1.1865284974093264,
+     "ratio": 1.2797927461139897,
      "reason": null
     }
    ],
-   "maxRatio": 1.3991596638655461
+   "maxRatio": 1.5,
+   "caseLabel": "held"
   },
   {
    "screen": "mini",
    "case": "held",
    "width": "390",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-10-24",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-held-390-app.png",
@@ -1136,23 +1155,23 @@
    "panels": [
     {
      "title": "What happened in the selected hour",
-     "app": 433,
+     "app": 507,
      "mock": 523,
-     "ratio": 0.8279158699808795,
+     "ratio": 0.9694072657743786,
      "reason": "Instead of the mock's short hour story, the app has to explain that it reads a whole day: a gap line, a timeline of assessed periods, the day's reading, the known limitations, a line on whether the data is current, and one closed details row. The review accepted all of this as honest content."
     },
     {
      "title": "Operating context",
-     "app": 667,
+     "app": 706,
      "mock": 286,
-     "ratio": 2.332167832167832,
+     "ratio": 2.4685314685314683,
      "reason": "The app draws one timeline lane for each real input (8 lanes plus the assessed periods), a legend, a reading count and a gaps-rule line, where the mock has a small three-line chart; at 1440 it also shares a row height with Needs attention."
     },
     {
      "title": "Needs attention",
-     "app": 248,
+     "app": 467,
      "mock": 370,
-     "ratio": 0.6702702702702703,
+     "ratio": 1.2621621621621621,
      "reason": "This panel shares a row with Operating context and is stretched to that panel's height; its own list is the mock's numbered list."
     },
     {
@@ -1170,14 +1189,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 2.332167832167832
+   "maxRatio": 2.4685314685314683,
+   "caseLabel": "held"
   },
   {
    "screen": "mini",
    "case": "unassessed",
    "width": "1440",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-11-10",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-unassessed-1440-app.png",
@@ -1237,14 +1257,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.0831099195710456
+   "maxRatio": 1.0831099195710456,
+   "caseLabel": "unassessed"
   },
   {
    "screen": "mini",
    "case": "unassessed",
    "width": "390",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-11-10",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-unassessed-390-app.png",
@@ -1304,14 +1325,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.1748251748251748
+   "maxRatio": 1.1748251748251748,
+   "caseLabel": "unassessed"
   },
   {
    "screen": "mini",
    "case": "failed",
    "width": "1440",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-10-07",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-failed-1440-app.png",
@@ -1371,14 +1393,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2171581769436997
+   "maxRatio": 1.2171581769436997,
+   "caseLabel": "failed"
   },
   {
    "screen": "mini",
    "case": "failed",
    "width": "390",
    "part": "part02-overview",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6302/sites/KOBO-001?date=2026-10-07",
    "mockHash": "#/mini",
    "appImage": "part02-overview/mini-failed-390-app.png",
@@ -1438,15 +1461,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.227027027027027
+   "maxRatio": 1.227027027027027,
+   "caseLabel": "failed"
   },
   {
    "screen": "evidence",
    "case": "stocked",
    "width": "1440",
    "part": "part04-evidence",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6303/sites/KOBO-001/evidence",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6310/sites/KOBO-001/evidence",
    "mockHash": "#/evidence",
    "appImage": "part04-evidence/evidence-stocked-1440-app.png",
    "mockImage": "part04-evidence/evidence-stocked-1440-mock.png",
@@ -1487,15 +1511,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2842377260981912
+   "maxRatio": 1.2842377260981912,
+   "caseLabel": "stocked"
   },
   {
    "screen": "evidence",
    "case": "stocked",
    "width": "390",
    "part": "part04-evidence",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6303/sites/KOBO-001/evidence",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6310/sites/KOBO-001/evidence",
    "mockHash": "#/evidence",
    "appImage": "part04-evidence/evidence-stocked-390-app.png",
    "mockImage": "part04-evidence/evidence-stocked-390-mock.png",
@@ -1536,15 +1561,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.4202626641651033
+   "maxRatio": 1.4202626641651033,
+   "caseLabel": "stocked"
   },
   {
    "screen": "evidence",
    "case": "window",
    "width": "1440",
    "part": "part04-evidence",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6310/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z",
    "mockHash": "#/evidence",
    "appImage": "part04-evidence/evidence-window-1440-app.png",
    "mockImage": "part04-evidence/evidence-window-1440-mock.png",
@@ -1585,15 +1611,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2842377260981912
+   "maxRatio": 1.2842377260981912,
+   "caseLabel": "window"
   },
   {
    "screen": "evidence",
    "case": "window",
    "width": "390",
    "part": "part04-evidence",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6310/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z",
    "mockHash": "#/evidence",
    "appImage": "part04-evidence/evidence-window-390-app.png",
    "mockImage": "part04-evidence/evidence-window-390-mock.png",
@@ -1634,15 +1661,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.4202626641651033
+   "maxRatio": 1.4202626641651033,
+   "caseLabel": "window"
   },
   {
    "screen": "evidence-analysis",
    "case": "record",
    "width": "1440",
    "part": "part04-evidence",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=4da66e5a-23d6-40f5-8542-f52f682974ac",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6310/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=1bc09caa-a54b-4ffd-875b-2e391d883d40",
    "mockHash": "#/evidence-analysis",
    "appImage": "part04-evidence/evidence-analysis-record-1440-app.png",
    "mockImage": "part04-evidence/evidence-analysis-record-1440-mock.png",
@@ -1661,10 +1689,10 @@
    "panels": [
     {
      "title": "Accepted records behind the conclusions",
-     "app": 1530,
+     "app": 956,
      "mock": 266,
-     "ratio": 5.7518796992481205,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "ratio": 3.593984962406015,
+     "reason": "A reading is opened, so the panel also holds that reading's plain-word detail (reading, both values, quality, three times, origin, decision, delivery progress), with every identifier, fingerprint and the exact message folded into one closed 'Exact references' row. This is the opened state only; the default is the no-selection capture above (1.64x for the content named there)."
     },
     {
      "title": "How each limit is set",
@@ -1674,15 +1702,16 @@
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 5.7518796992481205
+   "maxRatio": 3.593984962406015,
+   "caseLabel": "record (a reading opened)"
   },
   {
    "screen": "evidence-analysis",
    "case": "record",
    "width": "390",
    "part": "part04-evidence",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=4da66e5a-23d6-40f5-8542-f52f682974ac",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6310/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=1bc09caa-a54b-4ffd-875b-2e391d883d40",
    "mockHash": "#/evidence-analysis",
    "appImage": "part04-evidence/evidence-analysis-record-390-app.png",
    "mockImage": "part04-evidence/evidence-analysis-record-390-mock.png",
@@ -1701,10 +1730,10 @@
    "panels": [
     {
      "title": "Accepted records behind the conclusions",
-     "app": 2916,
+     "app": 1376,
      "mock": 371,
-     "ratio": 7.859838274932614,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "ratio": 3.7088948787061993,
+     "reason": "A reading is opened, so the panel also holds that reading's plain-word detail (reading, both values, quality, three times, origin, decision, delivery progress), with every identifier, fingerprint and the exact message folded into one closed 'Exact references' row. This is the opened state only; the default is the no-selection capture above (1.64x for the content named there)."
     },
     {
      "title": "How each limit is set",
@@ -1714,15 +1743,16 @@
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 7.859838274932614
+   "maxRatio": 3.7088948787061993,
+   "caseLabel": "record (a reading opened)"
   },
   {
    "screen": "finding-evidence",
    "case": "labelled",
    "width": "1440",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6304/sites/KOBO-001/findings/f9114e9c-791a-411f-85ba-9ea6bd3d98c2/evidence?revision_id=735e6883-a9ed-4fec-b0e8-2c15d81b2918",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6304/sites/KOBO-001/findings/9d4902be-c7d7-4e28-98a0-371f49207d17/evidence?revision_id=1103c44a-638a-4121-96f9-06b3013bd433",
    "mockHash": "#/finding-evidence",
    "appImage": "part05-provenance/finding-evidence-labelled-1440-app.png",
    "mockImage": "part05-provenance/finding-evidence-labelled-1440-mock.png",
@@ -1754,15 +1784,16 @@
      "reason": "The mock has a single link. The app shows the chain each cited record is traced through (five steps) and a line telling you to choose a record; at 390 both lines wrap onto several lines."
     }
    ],
-   "maxRatio": 1.4320557491289199
+   "maxRatio": 1.4320557491289199,
+   "caseLabel": "labelled"
   },
   {
    "screen": "finding-evidence",
    "case": "labelled",
    "width": "390",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6304/sites/KOBO-001/findings/f9114e9c-791a-411f-85ba-9ea6bd3d98c2/evidence?revision_id=735e6883-a9ed-4fec-b0e8-2c15d81b2918",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6304/sites/KOBO-001/findings/9d4902be-c7d7-4e28-98a0-371f49207d17/evidence?revision_id=1103c44a-638a-4121-96f9-06b3013bd433",
    "mockHash": "#/finding-evidence",
    "appImage": "part05-provenance/finding-evidence-labelled-390-app.png",
    "mockImage": "part05-provenance/finding-evidence-labelled-390-mock.png",
@@ -1794,14 +1825,15 @@
      "reason": "The mock has a single link. The app shows the chain each cited record is traced through (five steps) and a line telling you to choose a record; at 390 both lines wrap onto several lines."
     }
    ],
-   "maxRatio": 2.18
+   "maxRatio": 2.18,
+   "caseLabel": "labelled"
   },
   {
    "screen": "finding-evidence",
    "case": "notfound",
    "width": "1440",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6304/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence",
    "mockHash": "#/finding-evidence",
    "appImage": "part05-provenance/finding-evidence-notfound-1440-app.png",
@@ -1834,14 +1866,15 @@
      "reason": "The mock has a single link. The app shows the chain each cited record is traced through (five steps) and a line telling you to choose a record; at 390 both lines wrap onto several lines."
     }
    ],
-   "maxRatio": 0.99
+   "maxRatio": 0.99,
+   "caseLabel": "notfound"
   },
   {
    "screen": "finding-evidence",
    "case": "notfound",
    "width": "390",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6304/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence",
    "mockHash": "#/finding-evidence",
    "appImage": "part05-provenance/finding-evidence-notfound-390-app.png",
@@ -1874,15 +1907,16 @@
      "reason": "The mock has a single link. The app shows the chain each cited record is traced through (five steps) and a line telling you to choose a record; at 390 both lines wrap onto several lines."
     }
    ],
-   "maxRatio": 1.19
+   "maxRatio": 1.19,
+   "caseLabel": "notfound"
   },
   {
    "screen": "financials",
    "case": "priced",
    "width": "1440",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=f9114e9c-791a-411f-85ba-9ea6bd3d98c2&revision_id=735e6883-a9ed-4fec-b0e8-2c15d81b2918",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=9d4902be-c7d7-4e28-98a0-371f49207d17&revision_id=1103c44a-638a-4121-96f9-06b3013bd433",
    "mockHash": "#/financials",
    "appImage": "part05-provenance/financials-priced-1440-app.png",
    "mockImage": "part05-provenance/financials-priced-1440-mock.png",
@@ -1923,15 +1957,16 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.2048611111111112
+   "maxRatio": 1.2048611111111112,
+   "caseLabel": "priced"
   },
   {
    "screen": "financials",
    "case": "priced",
    "width": "390",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=f9114e9c-791a-411f-85ba-9ea6bd3d98c2&revision_id=735e6883-a9ed-4fec-b0e8-2c15d81b2918",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=9d4902be-c7d7-4e28-98a0-371f49207d17&revision_id=1103c44a-638a-4121-96f9-06b3013bd433",
    "mockHash": "#/financials",
    "appImage": "part05-provenance/financials-priced-390-app.png",
    "mockImage": "part05-provenance/financials-priced-390-mock.png",
@@ -1972,15 +2007,16 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.696236559139785
+   "maxRatio": 1.696236559139785,
+   "caseLabel": "priced"
   },
   {
    "screen": "financials",
    "case": "withheld",
    "width": "1440",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=2597a4f0-2d1c-4bab-b098-09ed6f664346&revision_id=8f538f92-fa86-455d-ad2f-bb06332527e0",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=f871ad2a-90b0-432a-ac8c-20cea01429bd&revision_id=4c57e351-9921-43eb-9676-d576093143c6",
    "mockHash": "#/financials",
    "appImage": "part05-provenance/financials-withheld-1440-app.png",
    "mockImage": "part05-provenance/financials-withheld-1440-mock.png",
@@ -2021,15 +2057,16 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.4479166666666667
+   "maxRatio": 1.4479166666666667,
+   "caseLabel": "withheld"
   },
   {
    "screen": "financials",
    "case": "withheld",
    "width": "390",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=2597a4f0-2d1c-4bab-b098-09ed6f664346&revision_id=8f538f92-fa86-455d-ad2f-bb06332527e0",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6304/sites/KOBO-001/financials?finding_id=f871ad2a-90b0-432a-ac8c-20cea01429bd&revision_id=4c57e351-9921-43eb-9676-d576093143c6",
    "mockHash": "#/financials",
    "appImage": "part05-provenance/financials-withheld-390-app.png",
    "mockImage": "part05-provenance/financials-withheld-390-mock.png",
@@ -2070,14 +2107,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 2.043010752688172
+   "maxRatio": 2.043010752688172,
+   "caseLabel": "withheld"
   },
   {
    "screen": "financials",
    "case": "nofinding",
    "width": "1440",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6304/sites/KOBO-001/financials",
    "mockHash": "#/financials",
    "appImage": "part05-provenance/financials-nofinding-1440-app.png",
@@ -2119,14 +2157,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 0.9640522875816994
+   "maxRatio": 0.9640522875816994,
+   "caseLabel": "nofinding"
   },
   {
    "screen": "financials",
    "case": "nofinding",
    "width": "390",
    "part": "part05-provenance",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6304/sites/KOBO-001/financials",
    "mockHash": "#/financials",
    "appImage": "part05-provenance/financials-nofinding-390-app.png",
@@ -2168,15 +2207,16 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.290983606557377
+   "maxRatio": 1.290983606557377,
+   "caseLabel": "nofinding"
   },
   {
    "screen": "evidence",
    "case": "stocked",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence",
    "mockHash": "#/evidence",
    "appImage": "part06-evidence-analysis/evidence-stocked-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-stocked-1440-mock.png",
@@ -2217,15 +2257,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2842377260981912
+   "maxRatio": 1.2842377260981912,
+   "caseLabel": "stocked"
   },
   {
    "screen": "evidence",
    "case": "stocked",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence",
    "mockHash": "#/evidence",
    "appImage": "part06-evidence-analysis/evidence-stocked-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-stocked-390-mock.png",
@@ -2266,15 +2307,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.452157598499062
+   "maxRatio": 1.452157598499062,
+   "caseLabel": "stocked"
   },
   {
    "screen": "evidence",
    "case": "no-readings",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
    "mockHash": "#/evidence",
    "appImage": "part06-evidence-analysis/evidence-no-readings-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-no-readings-1440-mock.png",
@@ -2315,15 +2357,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2403100775193798
+   "maxRatio": 1.2403100775193798,
+   "caseLabel": "no-readings"
   },
   {
    "screen": "evidence",
    "case": "no-readings",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
    "mockHash": "#/evidence",
    "appImage": "part06-evidence-analysis/evidence-no-readings-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-no-readings-390-mock.png",
@@ -2364,15 +2407,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.3583489681050656
+   "maxRatio": 1.3583489681050656,
+   "caseLabel": "no-readings"
   },
   {
    "screen": "evidence-analysis",
    "case": "no-selection",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-no-selection-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-no-selection-1440-mock.png",
@@ -2394,7 +2438,7 @@
      "app": 436,
      "mock": 266,
      "ratio": 1.6390977443609023,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "reason": "The panel is the mock's records table plus four things the mock does not draw: a one-line note on what the 10 readings are and which clock each time uses, two-line rows (reading name over its source), a 'Show all 10 readings / Next page' control line, and the 'readings not accepted' paragraph with its closed details row. The 3 listed rows are real readings; the extra height is that added content, not the rows."
     },
     {
      "title": "How each limit is set",
@@ -2404,15 +2448,16 @@
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 1.6390977443609023
+   "maxRatio": 1.6390977443609023,
+   "caseLabel": "no-selection"
   },
   {
    "screen": "evidence-analysis",
    "case": "no-selection",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-no-selection-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-no-selection-390-mock.png",
@@ -2434,7 +2479,7 @@
      "app": 629,
      "mock": 371,
      "ratio": 1.6954177897574123,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "reason": "The panel is the mock's records table plus four things the mock does not draw: a one-line note on what the 10 readings are and which clock each time uses, two-line rows (reading name over its source), a 'Show all 10 readings / Next page' control line, and the 'readings not accepted' paragraph with its closed details row. The 3 listed rows are real readings; the extra height is that added content, not the rows."
     },
     {
      "title": "How each limit is set",
@@ -2444,15 +2489,16 @@
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 1.8114035087719298
+   "maxRatio": 1.8114035087719298,
+   "caseLabel": "no-selection"
   },
   {
    "screen": "evidence-analysis",
    "case": "supported",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=ab6777b1-3f29-4b74-be7f-2804e4179590",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-06",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-supported-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-supported-1440-mock.png",
@@ -2474,25 +2520,26 @@
      "app": 436,
      "mock": 266,
      "ratio": 1.6390977443609023,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "reason": "The panel is the mock's records table plus four things the mock does not draw: a one-line note on what the 10 readings are and which clock each time uses, two-line rows (reading name over its source), a 'Show all 10 readings / Next page' control line, and the 'readings not accepted' paragraph with its closed details row. The 3 listed rows are real readings; the extra height is that added content, not the rows."
     },
     {
      "title": "How each limit is set",
-     "app": 266,
+     "app": 292,
      "mock": 148,
-     "ratio": 1.7972972972972974,
+     "ratio": 1.972972972972973,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 1.7972972972972974
+   "maxRatio": 1.972972972972973,
+   "caseLabel": "supported"
   },
   {
    "screen": "evidence-analysis",
    "case": "supported",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=ab6777b1-3f29-4b74-be7f-2804e4179590",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-06",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-supported-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-supported-390-mock.png",
@@ -2514,25 +2561,26 @@
      "app": 629,
      "mock": 371,
      "ratio": 1.6954177897574123,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "reason": "The panel is the mock's records table plus four things the mock does not draw: a one-line note on what the 10 readings are and which clock each time uses, two-line rows (reading name over its source), a 'Show all 10 readings / Next page' control line, and the 'readings not accepted' paragraph with its closed details row. The 3 listed rows are real readings; the extra height is that added content, not the rows."
     },
     {
      "title": "How each limit is set",
-     "app": 497,
+     "app": 504,
      "mock": 228,
-     "ratio": 2.1798245614035086,
+     "ratio": 2.210526315789474,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 2.1798245614035086
+   "maxRatio": 2.210526315789474,
+   "caseLabel": "supported"
   },
   {
    "screen": "evidence-analysis",
    "case": "limited",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=f400d420-2ea3-4114-9669-ded32e35beba",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-11",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-limited-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-limited-1440-mock.png",
@@ -2554,25 +2602,26 @@
      "app": 436,
      "mock": 266,
      "ratio": 1.6390977443609023,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "reason": "The panel is the mock's records table plus four things the mock does not draw: a one-line note on what the 10 readings are and which clock each time uses, two-line rows (reading name over its source), a 'Show all 10 readings / Next page' control line, and the 'readings not accepted' paragraph with its closed details row. The 3 listed rows are real readings; the extra height is that added content, not the rows."
     },
     {
      "title": "How each limit is set",
-     "app": 266,
+     "app": 292,
      "mock": 148,
-     "ratio": 1.7972972972972974,
+     "ratio": 1.972972972972973,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 1.7972972972972974
+   "maxRatio": 1.972972972972973,
+   "caseLabel": "limited"
   },
   {
    "screen": "evidence-analysis",
    "case": "limited",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=f400d420-2ea3-4114-9669-ded32e35beba",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-11",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-limited-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-limited-390-mock.png",
@@ -2594,25 +2643,26 @@
      "app": 629,
      "mock": 371,
      "ratio": 1.6954177897574123,
-     "reason": "In the captured case a reading is opened, so its full record shows inside the panel: the reading's fields, the configuration it was accepted under, the delivery receipt and the exact message as received. That comes on top of the mock's table, a 'Show all / Next page' line, the 'readings not accepted' line and a closed details row. With no reading opened the panel is about 1.6 to 1.7 times the mock."
+     "reason": "The panel is the mock's records table plus four things the mock does not draw: a one-line note on what the 10 readings are and which clock each time uses, two-line rows (reading name over its source), a 'Show all 10 readings / Next page' control line, and the 'readings not accepted' paragraph with its closed details row. The 3 listed rows are real readings; the extra height is that added content, not the rows."
     },
     {
      "title": "How each limit is set",
-     "app": 517,
+     "app": 504,
      "mock": 228,
-     "ratio": 2.267543859649123,
+     "ratio": 2.210526315789474,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 2.267543859649123
+   "maxRatio": 2.210526315789474,
+   "caseLabel": "limited"
   },
   {
    "screen": "dispatch",
    "case": "supported",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-supported-1440-app.png",
    "mockImage": "part07-dispatch/dispatch-supported-1440-mock.png",
@@ -2621,7 +2671,7 @@
    "countMatch": true,
    "appTitles": [
     "Sources and 15-minute blocks",
-    "Selected block · 04:00–04:15 UTC",
+    "Selected block · No block selected",
     "Accepted sample coverage"
    ],
    "mockTitles": [
@@ -2633,16 +2683,16 @@
    "panels": [
     {
      "title": "Sources and 15-minute blocks",
-     "app": 507,
+     "app": 417,
      "mock": 489,
-     "ratio": 1.0368098159509203,
+     "ratio": 0.852760736196319,
      "reason": "At 390 the day's 22 real 15-minute blocks wrap into five rows of tiles, with a summary sentence, the generator bar, a legend, a selected-period chip and two closed details rows above and below them."
     },
     {
-     "title": "Selected block · 04:00–04:15 UTC",
-     "app": 507,
+     "title": "Selected block · No block selected",
+     "app": 417,
      "mock": 489,
-     "ratio": 1.0368098159509203,
+     "ratio": 0.852760736196319,
      "reason": null
     },
     {
@@ -2653,15 +2703,16 @@
      "reason": "On top of the coverage rows, the app adds a record count with 'Show all', a comparison line and the recorded limitations; the review accepted this as honest content."
     }
    ],
-   "maxRatio": 1.4197530864197532
+   "maxRatio": 1.4197530864197532,
+   "caseLabel": "supported"
   },
   {
    "screen": "dispatch",
    "case": "supported",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-supported-390-app.png",
    "mockImage": "part07-dispatch/dispatch-supported-390-mock.png",
@@ -2670,7 +2721,7 @@
    "countMatch": true,
    "appTitles": [
     "Sources and 15-minute blocks",
-    "Selected block · 04:00–04:15 UTC",
+    "Selected block · No block selected",
     "Accepted sample coverage"
    ],
    "mockTitles": [
@@ -2682,16 +2733,16 @@
    "panels": [
     {
      "title": "Sources and 15-minute blocks",
-     "app": 789,
+     "app": 535,
      "mock": 356,
-     "ratio": 2.216292134831461,
+     "ratio": 1.502808988764045,
      "reason": "At 390 the day's 22 real 15-minute blocks wrap into five rows of tiles, with a summary sentence, the generator bar, a legend, a selected-period chip and two closed details rows above and below them."
     },
     {
-     "title": "Selected block · 04:00–04:15 UTC",
-     "app": 563,
+     "title": "Selected block · No block selected",
+     "app": 96,
      "mock": 489,
-     "ratio": 1.1513292433537832,
+     "ratio": 0.19631901840490798,
      "reason": null
     },
     {
@@ -2702,15 +2753,16 @@
      "reason": "On top of the coverage rows, the app adds a record count with 'Show all', a comparison line and the recorded limitations; the review accepted this as honest content."
     }
    ],
-   "maxRatio": 2.216292134831461
+   "maxRatio": 1.502808988764045,
+   "caseLabel": "supported"
   },
   {
    "screen": "dispatch",
    "case": "limited",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-limited-1440-app.png",
    "mockImage": "part07-dispatch/dispatch-limited-1440-mock.png",
@@ -2751,15 +2803,16 @@
      "reason": "On top of the coverage rows, the app adds a record count with 'Show all', a comparison line and the recorded limitations; the review accepted this as honest content."
     }
    ],
-   "maxRatio": 1.308641975308642
+   "maxRatio": 1.308641975308642,
+   "caseLabel": "limited"
   },
   {
    "screen": "dispatch",
    "case": "limited",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-limited-390-app.png",
    "mockImage": "part07-dispatch/dispatch-limited-390-mock.png",
@@ -2787,9 +2840,9 @@
     },
     {
      "title": "Selected block · No block selected",
-     "app": 186,
+     "app": 96,
      "mock": 489,
-     "ratio": 0.3803680981595092,
+     "ratio": 0.19631901840490798,
      "reason": null
     },
     {
@@ -2800,15 +2853,16 @@
      "reason": "On top of the coverage rows, the app adds a record count with 'Show all', a comparison line and the recorded limitations; the review accepted this as honest content."
     }
    ],
-   "maxRatio": 1.5786516853932584
+   "maxRatio": 1.5786516853932584,
+   "caseLabel": "limited"
   },
   {
    "screen": "dispatch",
    "case": "refused-failed",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-refused-failed-1440-app.png",
    "mockImage": "part07-dispatch/dispatch-refused-failed-1440-mock.png",
@@ -2849,15 +2903,16 @@
      "reason": "On top of the coverage rows, the app adds a record count with 'Show all', a comparison line and the recorded limitations; the review accepted this as honest content."
     }
    ],
-   "maxRatio": 1.308641975308642
+   "maxRatio": 1.308641975308642,
+   "caseLabel": "refused-failed"
   },
   {
    "screen": "dispatch",
    "case": "refused-failed",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-refused-failed-390-app.png",
    "mockImage": "part07-dispatch/dispatch-refused-failed-390-mock.png",
@@ -2885,9 +2940,9 @@
     },
     {
      "title": "Selected block · No block selected",
-     "app": 165,
+     "app": 96,
      "mock": 489,
-     "ratio": 0.3374233128834356,
+     "ratio": 0.19631901840490798,
      "reason": null
     },
     {
@@ -2898,15 +2953,16 @@
      "reason": "On top of the coverage rows, the app adds a record count with 'Show all', a comparison line and the recorded limitations; the review accepted this as honest content."
     }
    ],
-   "maxRatio": 1.0978260869565217
+   "maxRatio": 1.0978260869565217,
+   "caseLabel": "refused-failed"
   },
   {
    "screen": "analysis",
    "case": "supported",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-supported-1440-app.png",
    "mockImage": "part07-dispatch/analysis-supported-1440-mock.png",
@@ -2927,35 +2983,36 @@
    "panels": [
     {
      "title": "Constraint comparison",
-     "app": 349,
+     "app": 146,
      "mock": 432,
-     "ratio": 0.8078703703703703,
+     "ratio": 0.33796296296296297,
      "reason": null
     },
     {
      "title": "Bounded fuel calculation",
-     "app": 349,
+     "app": 146,
      "mock": 432,
-     "ratio": 0.8078703703703703,
+     "ratio": 0.33796296296296297,
      "reason": null
     },
     {
      "title": "Coverage, confidence and alternatives",
-     "app": 320,
+     "app": 262,
      "mock": 287,
-     "ratio": 1.1149825783972125,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); at 1440 the panel is within 1.3x of the mock, with the table cut to three blocks plus 'Show all' and the technical sections in one closed row."
+     "ratio": 0.9128919860627178,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
     }
    ],
-   "maxRatio": 1.1149825783972125
+   "maxRatio": 0.9128919860627178,
+   "caseLabel": "supported"
   },
   {
    "screen": "analysis",
    "case": "supported",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-supported-390-app.png",
    "mockImage": "part07-dispatch/analysis-supported-390-mock.png",
@@ -2976,9 +3033,9 @@
    "panels": [
     {
      "title": "Constraint comparison",
-     "app": 545,
+     "app": 162,
      "mock": 716,
-     "ratio": 0.7611731843575419,
+     "ratio": 0.22625698324022347,
      "reason": null
     },
     {
@@ -2990,21 +3047,22 @@
     },
     {
      "title": "Coverage, confidence and alternatives",
-     "app": 614,
+     "app": 387,
      "mock": 446,
-     "ratio": 1.3766816143497758,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); at 1440 the panel is within 1.3x of the mock, with the table cut to three blocks plus 'Show all' and the technical sections in one closed row."
+     "ratio": 0.8677130044843049,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
     }
    ],
-   "maxRatio": 1.3766816143497758
+   "maxRatio": 0.8677130044843049,
+   "caseLabel": "supported"
   },
   {
    "screen": "analysis",
    "case": "limited",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-limited-1440-app.png",
    "mockImage": "part07-dispatch/analysis-limited-1440-mock.png",
@@ -3025,35 +3083,36 @@
    "panels": [
     {
      "title": "Constraint comparison",
-     "app": 498,
+     "app": 146,
      "mock": 432,
-     "ratio": 1.1527777777777777,
+     "ratio": 0.33796296296296297,
      "reason": null
     },
     {
      "title": "Bounded fuel calculation",
-     "app": 498,
+     "app": 146,
      "mock": 432,
-     "ratio": 1.1527777777777777,
+     "ratio": 0.33796296296296297,
      "reason": null
     },
     {
      "title": "Coverage, confidence and alternatives",
-     "app": 291,
+     "app": 262,
      "mock": 287,
-     "ratio": 1.0139372822299653,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); at 1440 the panel is within 1.3x of the mock, with the table cut to three blocks plus 'Show all' and the technical sections in one closed row."
+     "ratio": 0.9128919860627178,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
     }
    ],
-   "maxRatio": 1.1527777777777777
+   "maxRatio": 0.9128919860627178,
+   "caseLabel": "limited"
   },
   {
    "screen": "analysis",
    "case": "limited",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-limited-390-app.png",
    "mockImage": "part07-dispatch/analysis-limited-390-mock.png",
@@ -3074,9 +3133,9 @@
    "panels": [
     {
      "title": "Constraint comparison",
-     "app": 770,
+     "app": 162,
      "mock": 716,
-     "ratio": 1.0754189944134078,
+     "ratio": 0.22625698324022347,
      "reason": null
     },
     {
@@ -3088,21 +3147,22 @@
     },
     {
      "title": "Coverage, confidence and alternatives",
-     "app": 480,
+     "app": 387,
      "mock": 446,
-     "ratio": 1.0762331838565022,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); at 1440 the panel is within 1.3x of the mock, with the table cut to three blocks plus 'Show all' and the technical sections in one closed row."
+     "ratio": 0.8677130044843049,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
     }
    ],
-   "maxRatio": 1.0762331838565022
+   "maxRatio": 0.8677130044843049,
+   "caseLabel": "limited"
   },
   {
    "screen": "analysis",
    "case": "refused-failed",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-refused-failed-1440-app.png",
    "mockImage": "part07-dispatch/analysis-refused-failed-1440-mock.png",
@@ -3140,18 +3200,19 @@
      "app": 262,
      "mock": 287,
      "ratio": 0.9128919860627178,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); at 1440 the panel is within 1.3x of the mock, with the table cut to three blocks plus 'Show all' and the technical sections in one closed row."
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
     }
    ],
-   "maxRatio": 0.9128919860627178
+   "maxRatio": 0.9128919860627178,
+   "caseLabel": "refused-failed"
   },
   {
    "screen": "analysis",
    "case": "refused-failed",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-refused-failed-390-app.png",
    "mockImage": "part07-dispatch/analysis-refused-failed-390-mock.png",
@@ -3186,20 +3247,21 @@
     },
     {
      "title": "Coverage, confidence and alternatives",
-     "app": 325,
+     "app": 387,
      "mock": 446,
-     "ratio": 0.7286995515695067,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); at 1440 the panel is within 1.3x of the mock, with the table cut to three blocks plus 'Show all' and the technical sections in one closed row."
+     "ratio": 0.8677130044843049,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
     }
    ],
-   "maxRatio": 0.7286995515695067
+   "maxRatio": 0.8677130044843049,
+   "caseLabel": "refused-failed"
   },
   {
    "screen": "finding",
    "case": "open",
    "width": "1440",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058",
    "mockHash": "#/finding",
    "appImage": "part08-finding/finding-open-1440-app.png",
@@ -3250,14 +3312,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 1.2425742574257426
+   "maxRatio": 1.2425742574257426,
+   "caseLabel": "open"
   },
   {
    "screen": "finding",
    "case": "open",
    "width": "390",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058",
    "mockHash": "#/finding",
    "appImage": "part08-finding/finding-open-390-app.png",
@@ -3308,14 +3371,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 1.4139344262295082
+   "maxRatio": 1.4139344262295082,
+   "caseLabel": "open"
   },
   {
    "screen": "finding",
    "case": "stale",
    "width": "1440",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8",
    "mockHash": "#/finding",
    "appImage": "part08-finding/finding-stale-1440-app.png",
@@ -3366,14 +3430,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 1.3648068669527897
+   "maxRatio": 1.3648068669527897,
+   "caseLabel": "stale"
   },
   {
    "screen": "finding",
    "case": "stale",
    "width": "390",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8",
    "mockHash": "#/finding",
    "appImage": "part08-finding/finding-stale-390-app.png",
@@ -3424,14 +3489,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 1.8278688524590163
+   "maxRatio": 1.8278688524590163,
+   "caseLabel": "stale"
   },
   {
    "screen": "finding",
    "case": "notfound",
    "width": "1440",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000",
    "mockHash": "#/finding",
    "appImage": "part08-finding/finding-notfound-1440-app.png",
@@ -3482,14 +3548,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 0.5107296137339056
+   "maxRatio": 0.5107296137339056,
+   "caseLabel": "notfound"
   },
   {
    "screen": "finding",
    "case": "notfound",
    "width": "390",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000",
    "mockHash": "#/finding",
    "appImage": "part08-finding/finding-notfound-390-app.png",
@@ -3540,14 +3607,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 0.48770491803278687
+   "maxRatio": 0.48770491803278687,
+   "caseLabel": "notfound"
   },
   {
    "screen": "finding-history",
    "case": "version1",
    "width": "1440",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92",
    "mockHash": "#/finding-history",
    "appImage": "part08-finding/finding-history-version1-1440-app.png",
@@ -3571,14 +3639,15 @@
      "reason": "The mock has a bare 3-row table. The app adds a state line (latest version at read time, keep this exact version), a headline with the version count, a line saying past versions cannot be replayed, and two-line rows; at 390 the rows wrap further and the table scrolls sideways inside the panel. The review accepted this."
     }
    ],
-   "maxRatio": 1.6296296296296295
+   "maxRatio": 1.6296296296296295,
+   "caseLabel": "version1"
   },
   {
    "screen": "finding-history",
    "case": "version1",
    "width": "390",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history?revision_id=b6af6f73-9be7-4a45-b729-86db1d3e2d92",
    "mockHash": "#/finding-history",
    "appImage": "part08-finding/finding-history-version1-390-app.png",
@@ -3602,14 +3671,15 @@
      "reason": "The mock has a bare 3-row table. The app adds a state line (latest version at read time, keep this exact version), a headline with the version count, a line saying past versions cannot be replayed, and two-line rows; at 390 the rows wrap further and the table scrolls sideways inside the panel. The review accepted this."
     }
    ],
-   "maxRatio": 2.670926517571885
+   "maxRatio": 2.670926517571885,
+   "caseLabel": "version1"
   },
   {
    "screen": "finding-history",
    "case": "latest",
    "width": "1440",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8/history",
    "mockHash": "#/finding-history",
    "appImage": "part08-finding/finding-history-latest-1440-app.png",
@@ -3633,14 +3703,15 @@
      "reason": "The mock has a bare 3-row table. The app adds a state line (latest version at read time, keep this exact version), a headline with the version count, a line saying past versions cannot be replayed, and two-line rows; at 390 the rows wrap further and the table scrolls sideways inside the panel. The review accepted this."
     }
    ],
-   "maxRatio": 1.8724279835390947
+   "maxRatio": 1.8724279835390947,
+   "caseLabel": "latest"
   },
   {
    "screen": "finding-history",
    "case": "latest",
    "width": "390",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8/history",
    "mockHash": "#/finding-history",
    "appImage": "part08-finding/finding-history-latest-390-app.png",
@@ -3664,14 +3735,15 @@
      "reason": "The mock has a bare 3-row table. The app adds a state line (latest version at read time, keep this exact version), a headline with the version count, a line saying past versions cannot be replayed, and two-line rows; at 390 the rows wrap further and the table scrolls sideways inside the panel. The review accepted this."
     }
    ],
-   "maxRatio": 3.303514376996805
+   "maxRatio": 3.303514376996805,
+   "caseLabel": "latest"
   },
   {
    "screen": "finding-history",
    "case": "notfound",
    "width": "1440",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/history",
    "mockHash": "#/finding-history",
    "appImage": "part08-finding/finding-history-notfound-1440-app.png",
@@ -3695,14 +3767,15 @@
      "reason": "The mock has a bare 3-row table. The app adds a state line (latest version at read time, keep this exact version), a headline with the version count, a line saying past versions cannot be replayed, and two-line rows; at 390 the rows wrap further and the table scrolls sideways inside the panel. The review accepted this."
     }
    ],
-   "maxRatio": 1.0041152263374487
+   "maxRatio": 1.0041152263374487,
+   "caseLabel": "notfound"
   },
   {
    "screen": "finding-history",
    "case": "notfound",
    "width": "390",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/history",
    "mockHash": "#/finding-history",
    "appImage": "part08-finding/finding-history-notfound-390-app.png",
@@ -3726,14 +3799,15 @@
      "reason": "The mock has a bare 3-row table. The app adds a state line (latest version at read time, keep this exact version), a headline with the version count, a line saying past versions cannot be replayed, and two-line rows; at 390 the rows wrap further and the table scrolls sideways inside the panel. The review accepted this."
     }
    ],
-   "maxRatio": 0.8402555910543131
+   "maxRatio": 0.8402555910543131,
+   "caseLabel": "notfound"
   },
   {
    "screen": "finding-evidence",
    "case": "latest",
    "width": "1440",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/evidence",
    "mockHash": "#/finding-evidence",
    "appImage": "part08-finding/finding-evidence-latest-1440-app.png",
@@ -3766,14 +3840,15 @@
      "reason": "The mock has a single link. The app shows the chain each cited record is traced through (five steps) and a line telling you to choose a record; at 390 both lines wrap onto several lines."
     }
    ],
-   "maxRatio": 1.8710801393728222
+   "maxRatio": 1.8710801393728222,
+   "caseLabel": "latest"
   },
   {
    "screen": "finding-evidence",
    "case": "latest",
    "width": "390",
    "part": "part08-finding",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6307/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/evidence",
    "mockHash": "#/finding-evidence",
    "appImage": "part08-finding/finding-evidence-latest-390-app.png",
@@ -3806,15 +3881,16 @@
      "reason": "The mock has a single link. The app shows the chain each cited record is traced through (five steps) and a line telling you to choose a record; at 390 both lines wrap onto several lines."
     }
    ],
-   "maxRatio": 2.18
+   "maxRatio": 2.18,
+   "caseLabel": "latest"
   },
   {
    "screen": "sitefindings",
    "case": "stocked",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stocked-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stocked-1440-mock.png",
@@ -3831,21 +3907,22 @@
    "panels": [
     {
      "title": "Findings at this site",
-     "app": 447,
+     "app": 516,
      "mock": 288,
-     "ratio": 1.5520833333333333,
+     "ratio": 1.7916666666666667,
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.5520833333333333
+   "maxRatio": 1.7916666666666667,
+   "caseLabel": "stocked"
   },
   {
    "screen": "sitefindings",
    "case": "stocked",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stocked-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stocked-390-mock.png",
@@ -3868,15 +3945,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.5304347826086957
+   "maxRatio": 1.5304347826086957,
+   "caseLabel": "stocked"
   },
   {
    "screen": "sitefindings",
    "case": "page2",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-page2-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-page2-1440-mock.png",
@@ -3893,21 +3971,22 @@
    "panels": [
     {
      "title": "Findings at this site",
-     "app": 395,
+     "app": 446,
      "mock": 288,
-     "ratio": 1.3715277777777777,
+     "ratio": 1.5486111111111112,
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.3715277777777777
+   "maxRatio": 1.5486111111111112,
+   "caseLabel": "page2"
   },
   {
    "screen": "sitefindings",
    "case": "page2",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-page2-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-page2-390-mock.png",
@@ -3930,15 +4009,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.3782608695652174
+   "maxRatio": 1.3782608695652174,
+   "caseLabel": "page2"
   },
   {
    "screen": "sitefindings",
    "case": "empty",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-empty-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-empty-1440-mock.png",
@@ -3961,15 +4041,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 0.9097222222222222
+   "maxRatio": 0.9097222222222222,
+   "caseLabel": "empty"
   },
   {
    "screen": "sitefindings",
    "case": "empty",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-empty-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-empty-390-mock.png",
@@ -3992,15 +4073,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.076086956521739
+   "maxRatio": 1.076086956521739,
+   "caseLabel": "empty"
   },
   {
    "screen": "sitefindings",
    "case": "stale",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stale-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stale-1440-mock.png",
@@ -4023,15 +4105,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 0.8402777777777778
+   "maxRatio": 0.8402777777777778,
+   "caseLabel": "stale"
   },
   {
    "screen": "sitefindings",
    "case": "stale",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stale-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stale-390-mock.png",
@@ -4054,15 +4137,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 0.9934782608695653
+   "maxRatio": 0.9934782608695653,
+   "caseLabel": "stale"
   },
   {
    "screen": "sitefindings",
    "case": "failed",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-failed-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-failed-1440-mock.png",
@@ -4085,15 +4169,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 0.8402777777777778
+   "maxRatio": 0.8402777777777778,
+   "caseLabel": "failed"
   },
   {
    "screen": "sitefindings",
    "case": "failed",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-failed-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-failed-390-mock.png",
@@ -4116,15 +4201,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.0260869565217392
+   "maxRatio": 1.0260869565217392,
+   "caseLabel": "failed"
   },
   {
    "screen": "sitefindings",
    "case": "unassessed",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-unassessed-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-unassessed-1440-mock.png",
@@ -4147,15 +4233,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 0.9305555555555556
+   "maxRatio": 0.9305555555555556,
+   "caseLabel": "unassessed"
   },
   {
    "screen": "sitefindings",
    "case": "unassessed",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6308/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-unassessed-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-unassessed-390-mock.png",
@@ -4178,14 +4265,15 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.0913043478260869
+   "maxRatio": 1.0913043478260869,
+   "caseLabel": "unassessed"
   },
   {
    "screen": "financials",
    "case": "priced",
    "width": "1440",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-priced-1440-app.png",
@@ -4227,14 +4315,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.2048611111111112
+   "maxRatio": 1.2048611111111112,
+   "caseLabel": "priced"
   },
   {
    "screen": "financials",
    "case": "priced",
    "width": "390",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-priced-390-app.png",
@@ -4276,14 +4365,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.696236559139785
+   "maxRatio": 1.696236559139785,
+   "caseLabel": "priced"
   },
   {
    "screen": "financials",
    "case": "notcalculated",
    "width": "1440",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/financials?finding_id=81b63e65-b87a-4d2b-a4dd-7819ef2dcf9f&revision_id=fcd0a325-d68a-4bc9-8898-ac880a4df7d1",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-notcalculated-1440-app.png",
@@ -4305,9 +4395,9 @@
    "panels": [
     {
      "title": "What happened → what it means in money",
-     "app": 400,
+     "app": 374,
      "mock": 288,
-     "ratio": 1.3888888888888888,
+     "ratio": 1.2986111111111112,
      "reason": "Above the mock's bridge table, the app adds a state paragraph (modelled range, prepared example data, source record link, version and as-of time) and a line saying which finding this is for, plus a links line and a closed details row. In the withheld case it also states why no amount is shown and the limit on the readings. At 390 the table cells wrap into tall rows."
     },
     {
@@ -4325,14 +4415,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.3888888888888888
+   "maxRatio": 1.2986111111111112,
+   "caseLabel": "notcalculated"
   },
   {
    "screen": "financials",
    "case": "notcalculated",
    "width": "390",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/financials?finding_id=81b63e65-b87a-4d2b-a4dd-7819ef2dcf9f&revision_id=fcd0a325-d68a-4bc9-8898-ac880a4df7d1",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-notcalculated-390-app.png",
@@ -4374,14 +4465,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.9166666666666667
+   "maxRatio": 1.9166666666666667,
+   "caseLabel": "notcalculated"
   },
   {
    "screen": "financials",
    "case": "notworkedout",
    "width": "1440",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6310/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-notworkedout-1440-app.png",
@@ -4423,14 +4515,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.2048611111111112
+   "maxRatio": 1.2048611111111112,
+   "caseLabel": "notworkedout"
   },
   {
    "screen": "financials",
    "case": "notworkedout",
    "width": "390",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6310/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-notworkedout-390-app.png",
@@ -4472,14 +4565,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.596774193548387
+   "maxRatio": 1.596774193548387,
+   "caseLabel": "notworkedout"
   },
   {
    "screen": "financials",
    "case": "notfound",
    "width": "1440",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-notfound-1440-app.png",
@@ -4521,14 +4615,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 0.9640522875816994
+   "maxRatio": 0.9640522875816994,
+   "caseLabel": "notfound"
   },
   {
    "screen": "financials",
    "case": "notfound",
    "width": "390",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
    "mockHash": "#/financials",
    "appImage": "part10-financials/financials-notfound-390-app.png",
@@ -4570,14 +4665,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.290983606557377
+   "maxRatio": 1.290983606557377,
+   "caseLabel": "notfound"
   },
   {
    "screen": "finding",
    "case": "priced",
    "width": "1440",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/findings/0e95ad69-759b-4c45-92e9-222146268f54?revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/finding",
    "appImage": "part10-financials/finding-priced-1440-app.png",
@@ -4628,14 +4724,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 1.2425742574257426
+   "maxRatio": 1.2425742574257426,
+   "caseLabel": "priced"
   },
   {
    "screen": "finding",
    "case": "priced",
    "width": "390",
    "part": "part10-financials",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6309/sites/KOBO-001/findings/0e95ad69-759b-4c45-92e9-222146268f54?revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/finding",
    "appImage": "part10-financials/finding-priced-390-app.png",
@@ -4686,14 +4783,15 @@
      "reason": "The app lists 5 destinations against the mock's 4 (Dispatch days carries two day links, and Related Findings is added), plus a closed details row."
     }
    ],
-   "maxRatio": 1.4139344262295082
+   "maxRatio": 1.4139344262295082,
+   "caseLabel": "priced"
   },
   {
    "screen": "financials",
    "case": "emptyprice",
    "width": "1440",
    "part": "part10b-financials-emptyprice",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6310/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/financials",
    "appImage": "part10b-financials-emptyprice/financials-emptyprice-1440-app.png",
@@ -4735,14 +4833,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.2986111111111112
+   "maxRatio": 1.2986111111111112,
+   "caseLabel": "emptyprice"
   },
   {
    "screen": "financials",
    "case": "emptyprice",
    "width": "390",
    "part": "part10b-financials-emptyprice",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6310/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
    "mockHash": "#/financials",
    "appImage": "part10b-financials-emptyprice/financials-emptyprice-390-app.png",
@@ -4764,9 +4863,9 @@
    "panels": [
     {
      "title": "What happened → what it means in money",
-     "app": 697,
+     "app": 638,
      "mock": 372,
-     "ratio": 1.8736559139784945,
+     "ratio": 1.7150537634408602,
      "reason": "Above the mock's bridge table, the app adds a state paragraph (modelled range, prepared example data, source record link, version and as-of time) and a line saying which finding this is for, plus a links line and a closed details row. In the withheld case it also states why no amount is shown and the limit on the readings. At 390 the table cells wrap into tall rows."
     },
     {
@@ -4784,14 +4883,15 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.8736559139784945
+   "maxRatio": 1.7150537634408602,
+   "caseLabel": "emptyprice"
   },
   {
    "screen": "assumptions",
    "case": "default",
    "width": "1440",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-default-1440-app.png",
@@ -4833,14 +4933,15 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 1.933649289099526
+   "maxRatio": 1.933649289099526,
+   "caseLabel": "default"
   },
   {
    "screen": "assumptions",
    "case": "default",
    "width": "390",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-default-390-app.png",
@@ -4882,14 +4983,15 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 2.037174721189591
+   "maxRatio": 2.037174721189591,
+   "caseLabel": "default"
   },
   {
    "screen": "assumptions",
    "case": "emptyprice",
    "width": "1440",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6312/sites/KOBO-001/financials/assumptions",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-emptyprice-1440-app.png",
@@ -4931,14 +5033,15 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 1.2985781990521328
+   "maxRatio": 1.2985781990521328,
+   "caseLabel": "emptyprice"
   },
   {
    "screen": "assumptions",
    "case": "emptyprice",
    "width": "390",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6312/sites/KOBO-001/financials/assumptions",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-emptyprice-390-app.png",
@@ -4980,15 +5083,16 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 1.516728624535316
+   "maxRatio": 1.516728624535316,
+   "caseLabel": "emptyprice"
   },
   {
    "screen": "assumptions",
    "case": "recordedv1",
    "width": "1440",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T18:39:33.417279%2B00:00",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T20:10:51.864214%2B00:00",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-recordedv1-1440-app.png",
    "mockImage": "part11-assumptions/assumptions-recordedv1-1440-mock.png",
@@ -5029,15 +5133,16 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 1.4320652173913044
+   "maxRatio": 1.4320652173913044,
+   "caseLabel": "recordedv1"
   },
   {
    "screen": "assumptions",
    "case": "recordedv1",
    "width": "390",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T18:39:33.417279%2B00:00",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T20:10:51.864214%2B00:00",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-recordedv1-390-app.png",
    "mockImage": "part11-assumptions/assumptions-recordedv1-390-mock.png",
@@ -5078,15 +5183,16 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 1.520446096654275
+   "maxRatio": 1.520446096654275,
+   "caseLabel": "recordedv1"
   },
   {
    "screen": "assumptions",
    "case": "version1",
    "width": "1440",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?revision_id=dd4a24ff-3d2d-4ef1-b198-88023503ca2a",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?revision_id=aa36763f-5227-447f-9ba0-d721d41e3287",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-version1-1440-app.png",
    "mockImage": "part11-assumptions/assumptions-version1-1440-mock.png",
@@ -5127,15 +5233,16 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 1.933649289099526
+   "maxRatio": 1.933649289099526,
+   "caseLabel": "version1"
   },
   {
    "screen": "assumptions",
    "case": "version1",
    "width": "390",
    "part": "part11-assumptions",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?revision_id=dd4a24ff-3d2d-4ef1-b198-88023503ca2a",
+   "revision": "e7d73fd7",
+   "appUrl": "http://localhost:6311/sites/KOBO-001/financials/assumptions?revision_id=aa36763f-5227-447f-9ba0-d721d41e3287",
    "mockHash": "#/assumptions",
    "appImage": "part11-assumptions/assumptions-version1-390-app.png",
    "mockImage": "part11-assumptions/assumptions-version1-390-mock.png",
@@ -5176,15 +5283,16 @@
      "reason": "The app shows 3 real price versions against the mock's 2, plus its own state line, a 'prices only' line, a small heading over the table and one closed details row; the review accepted this as having no redundant text."
     }
    ],
-   "maxRatio": 2.037174721189591
+   "maxRatio": 2.037174721189591,
+   "caseLabel": "version1"
   },
   {
    "screen": "recommendation",
    "case": "accepted",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/findings/829f9625-c4d9-4704-8f78-2d33075bbc7f/recommendation?revision_id=2a14f5b8-ea01-495e-a032-4e3e9a710386",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation?revision_id=ed3b53ae-48f0-4b1b-a59a-a6622e73975b",
    "mockHash": "#/recommendation",
    "appImage": "part13-action/recommendation-accepted-1440-app.png",
    "mockImage": "part13-action/recommendation-accepted-1440-mock.png",
@@ -5225,15 +5333,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.2837837837837838
+   "maxRatio": 1.2837837837837838,
+   "caseLabel": "accepted"
   },
   {
    "screen": "recommendation",
    "case": "accepted",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/findings/829f9625-c4d9-4704-8f78-2d33075bbc7f/recommendation?revision_id=2a14f5b8-ea01-495e-a032-4e3e9a710386",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation?revision_id=ed3b53ae-48f0-4b1b-a59a-a6622e73975b",
    "mockHash": "#/recommendation",
    "appImage": "part13-action/recommendation-accepted-390-app.png",
    "mockImage": "part13-action/recommendation-accepted-390-mock.png",
@@ -5274,15 +5383,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.402390438247012
+   "maxRatio": 1.402390438247012,
+   "caseLabel": "accepted"
   },
   {
    "screen": "recommendation",
    "case": "held",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/findings/829f9625-c4d9-4704-8f78-2d33075bbc7f/recommendation",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation",
    "mockHash": "#/recommendation",
    "appImage": "part13-action/recommendation-held-1440-app.png",
    "mockImage": "part13-action/recommendation-held-1440-mock.png",
@@ -5323,15 +5433,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.3
+   "maxRatio": 1.3,
+   "caseLabel": "held"
   },
   {
    "screen": "recommendation",
    "case": "held",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/findings/829f9625-c4d9-4704-8f78-2d33075bbc7f/recommendation",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/findings/d306477f-9292-4a97-9c46-3a729db48a95/recommendation",
    "mockHash": "#/recommendation",
    "appImage": "part13-action/recommendation-held-390-app.png",
    "mockImage": "part13-action/recommendation-held-390-mock.png",
@@ -5372,15 +5483,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.3851203501094091
+   "maxRatio": 1.3851203501094091,
+   "caseLabel": "held"
   },
   {
    "screen": "recommendation",
    "case": "unavailable",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/findings/8529c2fa-23ef-4e59-ae09-2949b3a856df/recommendation",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/findings/77d76d2c-25fb-46d9-bedc-5181a669f82f/recommendation",
    "mockHash": "#/recommendation",
    "appImage": "part13-action/recommendation-unavailable-1440-app.png",
    "mockImage": "part13-action/recommendation-unavailable-1440-mock.png",
@@ -5421,15 +5533,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.3405405405405406
+   "maxRatio": 1.3405405405405406,
+   "caseLabel": "unavailable"
   },
   {
    "screen": "recommendation",
    "case": "unavailable",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/findings/8529c2fa-23ef-4e59-ae09-2949b3a856df/recommendation",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/findings/77d76d2c-25fb-46d9-bedc-5181a669f82f/recommendation",
    "mockHash": "#/recommendation",
    "appImage": "part13-action/recommendation-unavailable-390-app.png",
    "mockImage": "part13-action/recommendation-unavailable-390-mock.png",
@@ -5470,15 +5583,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.4179431072210065
+   "maxRatio": 1.4179431072210065,
+   "caseLabel": "unavailable"
   },
   {
    "screen": "changes",
    "case": "applied",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/foundation/changes/8ec9a4e7-06b4-4381-ae97-5174eb4bf773",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/foundation/changes/9d547f84-5f4a-4c1f-904a-01e2e151f933",
    "mockHash": "#/changes",
    "appImage": "part13-action/changes-applied-1440-app.png",
    "mockImage": "part13-action/changes-applied-1440-mock.png",
@@ -5510,15 +5624,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2570532915360502
+   "maxRatio": 1.2570532915360502,
+   "caseLabel": "applied"
   },
   {
    "screen": "changes",
    "case": "applied",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/foundation/changes/8ec9a4e7-06b4-4381-ae97-5174eb4bf773",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/foundation/changes/9d547f84-5f4a-4c1f-904a-01e2e151f933",
    "mockHash": "#/changes",
    "appImage": "part13-action/changes-applied-390-app.png",
    "mockImage": "part13-action/changes-applied-390-mock.png",
@@ -5550,15 +5665,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.3430656934306568
+   "maxRatio": 1.3430656934306568,
+   "caseLabel": "applied"
   },
   {
    "screen": "action-overview",
    "case": "recorded",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66",
    "mockHash": "#/action-overview",
    "appImage": "part13-action/action-overview-recorded-1440-app.png",
    "mockImage": "part13-action/action-overview-recorded-1440-mock.png",
@@ -5581,15 +5697,16 @@
      "reason": "There are 6 rows against the mock's 5, plus two honest note lines (trial only, and the source being unverified); at 390 the app's real values (action name and acceptance time, source with a newer-version notice, application with failed attempts) wrap onto 2 to 4 lines, where the mock's values are single words."
     }
    ],
-   "maxRatio": 1.373134328358209
+   "maxRatio": 1.373134328358209,
+   "caseLabel": "recorded"
   },
   {
    "screen": "action-overview",
    "case": "recorded",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66",
    "mockHash": "#/action-overview",
    "appImage": "part13-action/action-overview-recorded-390-app.png",
    "mockImage": "part13-action/action-overview-recorded-390-mock.png",
@@ -5612,15 +5729,16 @@
      "reason": "There are 6 rows against the mock's 5, plus two honest note lines (trial only, and the source being unverified); at 390 the app's real values (action name and acceptance time, source with a newer-version notice, application with failed attempts) wrap onto 2 to 4 lines, where the mock's values are single words."
     }
    ],
-   "maxRatio": 2.171641791044776
+   "maxRatio": 2.171641791044776,
+   "caseLabel": "recorded"
   },
   {
    "screen": "action-execution",
    "case": "applied",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77/execution",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/execution",
    "mockHash": "#/action-execution",
    "appImage": "part13-action/action-execution-applied-1440-app.png",
    "mockImage": "part13-action/action-execution-applied-1440-mock.png",
@@ -5643,15 +5761,16 @@
      "reason": "The applied case shows 3 activity rows against the mock's 2, and the failed case adds the real apply control (date field, button and a one-line explanation) that the mock does not draw; at 390 these rows and the control wrap further."
     }
    ],
-   "maxRatio": 1.5260663507109005
+   "maxRatio": 1.5260663507109005,
+   "caseLabel": "applied"
   },
   {
    "screen": "action-execution",
    "case": "applied",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77/execution",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/execution",
    "mockHash": "#/action-execution",
    "appImage": "part13-action/action-execution-applied-390-app.png",
    "mockImage": "part13-action/action-execution-applied-390-mock.png",
@@ -5674,15 +5793,16 @@
      "reason": "The applied case shows 3 activity rows against the mock's 2, and the failed case adds the real apply control (date field, button and a one-line explanation) that the mock does not draw; at 390 these rows and the control wrap further."
     }
    ],
-   "maxRatio": 2.686695278969957
+   "maxRatio": 2.686695278969957,
+   "caseLabel": "applied"
   },
   {
    "screen": "action-execution",
    "case": "failed",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/be67c83d-6b59-43da-a47a-2b51064d8fdb/execution",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/0e729bcf-7e4d-4f0f-9322-b05cefc6f82b/execution",
    "mockHash": "#/action-execution",
    "appImage": "part13-action/action-execution-failed-1440-app.png",
    "mockImage": "part13-action/action-execution-failed-1440-mock.png",
@@ -5705,15 +5825,16 @@
      "reason": "The applied case shows 3 activity rows against the mock's 2, and the failed case adds the real apply control (date field, button and a one-line explanation) that the mock does not draw; at 390 these rows and the control wrap further."
     }
    ],
-   "maxRatio": 1.7251184834123223
+   "maxRatio": 1.7251184834123223,
+   "caseLabel": "failed"
   },
   {
    "screen": "action-execution",
    "case": "failed",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/be67c83d-6b59-43da-a47a-2b51064d8fdb/execution",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/0e729bcf-7e4d-4f0f-9322-b05cefc6f82b/execution",
    "mockHash": "#/action-execution",
    "appImage": "part13-action/action-execution-failed-390-app.png",
    "mockImage": "part13-action/action-execution-failed-390-mock.png",
@@ -5736,15 +5857,16 @@
      "reason": "The applied case shows 3 activity rows against the mock's 2, and the failed case adds the real apply control (date field, button and a one-line explanation) that the mock does not draw; at 390 these rows and the control wrap further."
     }
    ],
-   "maxRatio": 2.9012875536480687
+   "maxRatio": 2.9012875536480687,
+   "caseLabel": "failed"
   },
   {
    "screen": "action-history",
    "case": "all",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77/history",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history",
    "mockHash": "#/action-history",
    "appImage": "part13-action/action-history-all-1440-app.png",
    "mockImage": "part13-action/action-history-all-1440-mock.png",
@@ -5767,15 +5889,16 @@
      "reason": "The app shows 3 rows like the mock, but each row keeps a short second line with its failure reason in plain words, and that line wraps at 390."
     }
    ],
-   "maxRatio": 1.4609053497942386
+   "maxRatio": 1.4609053497942386,
+   "caseLabel": "all"
   },
   {
    "screen": "action-history",
    "case": "all",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77/history",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history",
    "mockHash": "#/action-history",
    "appImage": "part13-action/action-history-all-390-app.png",
    "mockImage": "part13-action/action-history-all-390-mock.png",
@@ -5798,15 +5921,16 @@
      "reason": "The app shows 3 rows like the mock, but each row keeps a short second line with its failure reason in plain words, and that line wraps at 390."
     }
    ],
-   "maxRatio": 1.7736625514403292
+   "maxRatio": 1.7736625514403292,
+   "caseLabel": "all"
   },
   {
    "screen": "action-history",
    "case": "event",
    "width": "1440",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77/history?event_id=78ea12c6-a9e2-4492-ad3b-5d3856de5fd4",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history?event_id=e7a3ddd7-5e4d-435d-890e-4e113abcdf7a",
    "mockHash": "#/action-history",
    "appImage": "part13-action/action-history-event-1440-app.png",
    "mockImage": "part13-action/action-history-event-1440-mock.png",
@@ -5823,21 +5947,22 @@
    "panels": [
     {
      "title": "Action history",
-     "app": 304,
+     "app": 247,
      "mock": 243,
-     "ratio": 1.2510288065843622,
+     "ratio": 1.0164609053497942,
      "reason": "The app shows 3 rows like the mock, but each row keeps a short second line with its failure reason in plain words, and that line wraps at 390."
     }
    ],
-   "maxRatio": 1.2510288065843622
+   "maxRatio": 1.0164609053497942,
+   "caseLabel": "event"
   },
   {
    "screen": "action-history",
    "case": "event",
    "width": "390",
    "part": "part13-action",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6313/sites/KOBO-001/actions/3e17a050-17fb-44f0-8f96-a32c39021a77/history?event_id=78ea12c6-a9e2-4492-ad3b-5d3856de5fd4",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6320/sites/KOBO-001/actions/f0e6ef46-7191-4c6c-9484-c0619bcd6b66/history?event_id=e7a3ddd7-5e4d-435d-890e-4e113abcdf7a",
    "mockHash": "#/action-history",
    "appImage": "part13-action/action-history-event-390-app.png",
    "mockImage": "part13-action/action-history-event-390-mock.png",
@@ -5854,21 +5979,22 @@
    "panels": [
     {
      "title": "Action history",
-     "app": 423,
+     "app": 401,
      "mock": 243,
-     "ratio": 1.7407407407407407,
+     "ratio": 1.6502057613168724,
      "reason": "The app shows 3 rows like the mock, but each row keeps a short second line with its failure reason in plain words, and that line wraps at 390."
     }
    ],
-   "maxRatio": 1.7407407407407407
+   "maxRatio": 1.6502057613168724,
+   "caseLabel": "event"
   },
   {
    "screen": "action-plan",
    "case": "pass",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/plan",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/plan",
    "mockHash": "#/action-plan",
    "appImage": "part14-verification/action-plan-pass-1440-app.png",
    "mockImage": "part14-verification/action-plan-pass-1440-mock.png",
@@ -5891,15 +6017,16 @@
      "reason": "In the guardrail case the app adds a visible failed-limit line and shows 5 real criterion rows; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.2752613240418118
+   "maxRatio": 1.2752613240418118,
+   "caseLabel": "pass"
   },
   {
    "screen": "action-plan",
    "case": "pass",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/plan",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/plan",
    "mockHash": "#/action-plan",
    "appImage": "part14-verification/action-plan-pass-390-app.png",
    "mockImage": "part14-verification/action-plan-pass-390-mock.png",
@@ -5922,15 +6049,16 @@
      "reason": "In the guardrail case the app adds a visible failed-limit line and shows 5 real criterion rows; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.4385474860335195
+   "maxRatio": 1.4385474860335195,
+   "caseLabel": "pass"
   },
   {
    "screen": "action-plan",
    "case": "guardrail",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/actions/78c14b86-742d-4afb-96de-04ed41ebaca8/plan",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/actions/41616622-75cc-4768-8cd2-77aedeec7c33/plan",
    "mockHash": "#/action-plan",
    "appImage": "part14-verification/action-plan-guardrail-1440-app.png",
    "mockImage": "part14-verification/action-plan-guardrail-1440-mock.png",
@@ -5953,15 +6081,16 @@
      "reason": "In the guardrail case the app adds a visible failed-limit line and shows 5 real criterion rows; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.3658536585365855
+   "maxRatio": 1.3658536585365855,
+   "caseLabel": "guardrail"
   },
   {
    "screen": "action-plan",
    "case": "guardrail",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/actions/78c14b86-742d-4afb-96de-04ed41ebaca8/plan",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/actions/41616622-75cc-4768-8cd2-77aedeec7c33/plan",
    "mockHash": "#/action-plan",
    "appImage": "part14-verification/action-plan-guardrail-390-app.png",
    "mockImage": "part14-verification/action-plan-guardrail-390-mock.png",
@@ -5984,15 +6113,16 @@
      "reason": "In the guardrail case the app adds a visible failed-limit line and shows 5 real criterion rows; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.600558659217877
+   "maxRatio": 1.600558659217877,
+   "caseLabel": "guardrail"
   },
   {
    "screen": "action-evidence",
    "case": "pass",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/evidence",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/evidence",
    "mockHash": "#/action-evidence",
    "appImage": "part14-verification/action-evidence-pass-1440-app.png",
    "mockImage": "part14-verification/action-evidence-pass-1440-mock.png",
@@ -6015,15 +6145,16 @@
      "reason": "The app adds a readings note line and a visible failed-limit line (time below reserve, battery charge at the end of the window), plus a closed details row and the trial-limit note; at 390 each status cell's long text wraps. The review accepted this, since the failed limit must stay visible."
     }
    ],
-   "maxRatio": 1.3244274809160306
+   "maxRatio": 1.3244274809160306,
+   "caseLabel": "pass"
   },
   {
    "screen": "action-evidence",
    "case": "pass",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/evidence",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/evidence",
    "mockHash": "#/action-evidence",
    "appImage": "part14-verification/action-evidence-pass-390-app.png",
    "mockImage": "part14-verification/action-evidence-pass-390-mock.png",
@@ -6046,15 +6177,16 @@
      "reason": "The app adds a readings note line and a visible failed-limit line (time below reserve, battery charge at the end of the window), plus a closed details row and the trial-limit note; at 390 each status cell's long text wraps. The review accepted this, since the failed limit must stay visible."
     }
    ],
-   "maxRatio": 2
+   "maxRatio": 2,
+   "caseLabel": "pass"
   },
   {
    "screen": "action-evidence",
    "case": "guardrail",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/actions/78c14b86-742d-4afb-96de-04ed41ebaca8/evidence",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/actions/41616622-75cc-4768-8cd2-77aedeec7c33/evidence",
    "mockHash": "#/action-evidence",
    "appImage": "part14-verification/action-evidence-guardrail-1440-app.png",
    "mockImage": "part14-verification/action-evidence-guardrail-1440-mock.png",
@@ -6077,15 +6209,16 @@
      "reason": "The app adds a readings note line and a visible failed-limit line (time below reserve, battery charge at the end of the window), plus a closed details row and the trial-limit note; at 390 each status cell's long text wraps. The review accepted this, since the failed limit must stay visible."
     }
    ],
-   "maxRatio": 1.4236641221374047
+   "maxRatio": 1.4236641221374047,
+   "caseLabel": "guardrail"
   },
   {
    "screen": "action-evidence",
    "case": "guardrail",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/actions/78c14b86-742d-4afb-96de-04ed41ebaca8/evidence",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/actions/41616622-75cc-4768-8cd2-77aedeec7c33/evidence",
    "mockHash": "#/action-evidence",
    "appImage": "part14-verification/action-evidence-guardrail-390-app.png",
    "mockImage": "part14-verification/action-evidence-guardrail-390-mock.png",
@@ -6108,15 +6241,16 @@
      "reason": "The app adds a readings note line and a visible failed-limit line (time below reserve, battery charge at the end of the window), plus a closed details row and the trial-limit note; at 390 each status cell's long text wraps. The review accepted this, since the failed limit must stay visible."
     }
    ],
-   "maxRatio": 2.3473282442748094
+   "maxRatio": 2.3473282442748094,
+   "caseLabel": "guardrail"
   },
   {
    "screen": "verification",
    "case": "pass",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/verification",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/verification",
    "mockHash": "#/verification",
    "appImage": "part14-verification/verification-pass-1440-app.png",
    "mockImage": "part14-verification/verification-pass-1440-mock.png",
@@ -6157,15 +6291,16 @@
      "reason": "On top of the mock's rows, the app adds an 'Inspect the evidence' link, a closed 'Earlier outcomes and plans' row and a one-line policy-trial notice; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.3412698412698412
+   "maxRatio": 1.3412698412698412,
+   "caseLabel": "pass"
   },
   {
    "screen": "verification",
    "case": "pass",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/verification",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/verification",
    "mockHash": "#/verification",
    "appImage": "part14-verification/verification-pass-390-app.png",
    "mockImage": "part14-verification/verification-pass-390-mock.png",
@@ -6206,15 +6341,16 @@
      "reason": "On top of the mock's rows, the app adds an 'Inspect the evidence' link, a closed 'Earlier outcomes and plans' row and a one-line policy-trial notice; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.3739837398373984
+   "maxRatio": 1.3739837398373984,
+   "caseLabel": "pass"
   },
   {
    "screen": "verification",
    "case": "historical",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/verification?outcome_id=0c817314-5f8f-458c-ab7b-2dd7a1789399",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/verification?outcome_id=f6b6158d-04d3-4973-8752-cf74a89f3395",
    "mockHash": "#/verification",
    "appImage": "part14-verification/verification-historical-1440-app.png",
    "mockImage": "part14-verification/verification-historical-1440-mock.png",
@@ -6255,15 +6391,16 @@
      "reason": "On top of the mock's rows, the app adds an 'Inspect the evidence' link, a closed 'Earlier outcomes and plans' row and a one-line policy-trial notice; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.3412698412698412
+   "maxRatio": 1.3412698412698412,
+   "caseLabel": "historical"
   },
   {
    "screen": "verification",
    "case": "historical",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/actions/9d044322-d5c0-4021-83d7-89ede78b7ff3/verification?outcome_id=0c817314-5f8f-458c-ab7b-2dd7a1789399",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/actions/fe698f6e-ab06-49e7-a73f-9788092e7251/verification?outcome_id=f6b6158d-04d3-4973-8752-cf74a89f3395",
    "mockHash": "#/verification",
    "appImage": "part14-verification/verification-historical-390-app.png",
    "mockImage": "part14-verification/verification-historical-390-mock.png",
@@ -6304,15 +6441,16 @@
      "reason": "On top of the mock's rows, the app adds an 'Inspect the evidence' link, a closed 'Earlier outcomes and plans' row and a one-line policy-trial notice; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.3739837398373984
+   "maxRatio": 1.3739837398373984,
+   "caseLabel": "historical"
   },
   {
    "screen": "verification",
    "case": "guardrail",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/actions/78c14b86-742d-4afb-96de-04ed41ebaca8/verification",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/actions/41616622-75cc-4768-8cd2-77aedeec7c33/verification",
    "mockHash": "#/verification",
    "appImage": "part14-verification/verification-guardrail-1440-app.png",
    "mockImage": "part14-verification/verification-guardrail-1440-mock.png",
@@ -6353,15 +6491,16 @@
      "reason": "On top of the mock's rows, the app adds an 'Inspect the evidence' link, a closed 'Earlier outcomes and plans' row and a one-line policy-trial notice; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.4047619047619047
+   "maxRatio": 1.4047619047619047,
+   "caseLabel": "guardrail"
   },
   {
    "screen": "verification",
    "case": "guardrail",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/actions/78c14b86-742d-4afb-96de-04ed41ebaca8/verification",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/actions/41616622-75cc-4768-8cd2-77aedeec7c33/verification",
    "mockHash": "#/verification",
    "appImage": "part14-verification/verification-guardrail-390-app.png",
    "mockImage": "part14-verification/verification-guardrail-390-mock.png",
@@ -6402,15 +6541,16 @@
      "reason": "On top of the mock's rows, the app adds an 'Inspect the evidence' link, a closed 'Earlier outcomes and plans' row and a one-line policy-trial notice; the review accepted this as honest state."
     }
    ],
-   "maxRatio": 1.4390243902439024
+   "maxRatio": 1.4390243902439024,
+   "caseLabel": "guardrail"
   },
   {
    "screen": "recommendation",
    "case": "guardrail-hold",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/findings/9edd8ba0-7bb3-4dc9-b5a7-b23ddc2b6051/recommendation?revision_id=1311244e-6e66-41c2-a4f2-66aa69f883d6",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/findings/af199990-2ba7-408c-9af4-a22a17fcff4f/recommendation?revision_id=c228e4f2-6ed1-4d2b-84fe-d62e760d93e1",
    "mockHash": "#/recommendation",
    "appImage": "part14-verification/recommendation-guardrail-hold-1440-app.png",
    "mockImage": "part14-verification/recommendation-guardrail-hold-1440-mock.png",
@@ -6451,15 +6591,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.3864864864864865
+   "maxRatio": 1.3864864864864865,
+   "caseLabel": "guardrail-hold"
   },
   {
    "screen": "recommendation",
    "case": "guardrail-hold",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6315/sites/KOBO-001/findings/9edd8ba0-7bb3-4dc9-b5a7-b23ddc2b6051/recommendation?revision_id=1311244e-6e66-41c2-a4f2-66aa69f883d6",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6331/sites/KOBO-001/findings/af199990-2ba7-408c-9af4-a22a17fcff4f/recommendation?revision_id=c228e4f2-6ed1-4d2b-84fe-d62e760d93e1",
    "mockHash": "#/recommendation",
    "appImage": "part14-verification/recommendation-guardrail-hold-390-app.png",
    "mockImage": "part14-verification/recommendation-guardrail-hold-390-mock.png",
@@ -6500,15 +6641,16 @@
      "reason": "At 390 the app adds a 'No verification plan yet' chip, a two-line sentence saying nothing can be judged until the change is applied, and an 'Open verification' link under the mock's two numbered items."
     }
    ],
-   "maxRatio": 1.5536105032822758
+   "maxRatio": 1.5536105032822758,
+   "caseLabel": "guardrail-hold"
   },
   {
    "screen": "changes",
    "case": "effect",
    "width": "1440",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/foundation/changes/6f1b5242-2242-4dee-8de0-4071598ec8b9",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/foundation/changes/628056c7-35ee-46d4-af73-7fd444160755",
    "mockHash": "#/changes",
    "appImage": "part14-verification/changes-effect-1440-app.png",
    "mockImage": "part14-verification/changes-effect-1440-mock.png",
@@ -6540,15 +6682,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2006269592476488
+   "maxRatio": 1.2006269592476488,
+   "caseLabel": "effect"
   },
   {
    "screen": "changes",
    "case": "effect",
    "width": "390",
    "part": "part14-verification",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6314/sites/KOBO-001/foundation/changes/6f1b5242-2242-4dee-8de0-4071598ec8b9",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6330/sites/KOBO-001/foundation/changes/628056c7-35ee-46d4-af73-7fd444160755",
    "mockHash": "#/changes",
    "appImage": "part14-verification/changes-effect-390-app.png",
    "mockImage": "part14-verification/changes-effect-390-mock.png",
@@ -6580,14 +6723,15 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.218978102189781
+   "maxRatio": 1.218978102189781,
+   "caseLabel": "effect"
   },
   {
    "screen": "sitework",
    "case": "active",
    "width": "1440",
    "part": "part15-sitework",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6316/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
    "mockHash": "#/sitework",
    "appImage": "part15-sitework/sitework-active-1440-app.png",
@@ -6611,14 +6755,15 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 1.3632478632478633
+   "maxRatio": 1.3632478632478633,
+   "caseLabel": "active"
   },
   {
    "screen": "sitework",
    "case": "active",
    "width": "390",
    "part": "part15-sitework",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6316/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
    "mockHash": "#/sitework",
    "appImage": "part15-sitework/sitework-active-390-app.png",
@@ -6642,14 +6787,15 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 1.6519337016574585
+   "maxRatio": 1.6519337016574585,
+   "caseLabel": "active"
   },
   {
    "screen": "sitework",
    "case": "zero",
    "width": "1440",
    "part": "part15-sitework",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6316/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
    "mockHash": "#/sitework",
    "appImage": "part15-sitework/sitework-zero-1440-app.png",
@@ -6673,14 +6819,15 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 0.9957264957264957
+   "maxRatio": 0.9957264957264957,
+   "caseLabel": "zero"
   },
   {
    "screen": "sitework",
    "case": "zero",
    "width": "390",
    "part": "part15-sitework",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6316/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
    "mockHash": "#/sitework",
    "appImage": "part15-sitework/sitework-zero-390-app.png",
@@ -6704,14 +6851,15 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 1.0856353591160222
+   "maxRatio": 1.0856353591160222,
+   "caseLabel": "zero"
   },
   {
    "screen": "sitework",
    "case": "none",
    "width": "1440",
    "part": "part15-sitework",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6316/sites/KOBO-001/work",
    "mockHash": "#/sitework",
    "appImage": "part15-sitework/sitework-none-1440-app.png",
@@ -6735,14 +6883,15 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 0.8376068376068376
+   "maxRatio": 0.8376068376068376,
+   "caseLabel": "none"
   },
   {
    "screen": "sitework",
    "case": "none",
    "width": "390",
    "part": "part15-sitework",
-   "revision": "69ceb4cf",
+   "revision": "e7d73fd7",
    "appUrl": "http://localhost:6316/sites/KOBO-001/work",
    "mockHash": "#/sitework",
    "appImage": "part15-sitework/sitework-none-390-app.png",
@@ -6766,15 +6915,16 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 0.9392265193370166
+   "maxRatio": 0.9392265193370166,
+   "caseLabel": "none"
   },
   {
    "screen": "health",
    "case": "kobo001",
    "width": "1440",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-001/health",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-001/health",
    "mockHash": "#/health",
    "appImage": "part16-health/health-kobo001-1440-app.png",
    "mockImage": "part16-health/health-kobo001-1440-mock.png",
@@ -6806,15 +6956,16 @@
      "reason": "There is one row for each real gateway (9 in the walkthrough fixture: 8 test cases plus one disabled) against the mock's 3, plus a one-line summary; no row is hidden, and the review accepted this as honest data."
     }
    ],
-   "maxRatio": 2.687719298245614
+   "maxRatio": 2.687719298245614,
+   "caseLabel": "kobo001"
   },
   {
    "screen": "health",
    "case": "kobo001",
    "width": "390",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-001/health",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-001/health",
    "mockHash": "#/health",
    "appImage": "part16-health/health-kobo001-390-app.png",
    "mockImage": "part16-health/health-kobo001-390-mock.png",
@@ -6846,15 +6997,16 @@
      "reason": "There is one row for each real gateway (9 in the walkthrough fixture: 8 test cases plus one disabled) against the mock's 3, plus a one-line summary; no row is hidden, and the review accepted this as honest data."
     }
    ],
-   "maxRatio": 2.217391304347826
+   "maxRatio": 2.217391304347826,
+   "caseLabel": "kobo001"
   },
   {
    "screen": "health",
    "case": "kobo002-nogateway",
    "width": "1440",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-002/health",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-002/health",
    "mockHash": "#/health",
    "appImage": "part16-health/health-kobo002-nogateway-1440-app.png",
    "mockImage": "part16-health/health-kobo002-nogateway-1440-mock.png",
@@ -6886,15 +7038,16 @@
      "reason": "There is one row for each real gateway (9 in the walkthrough fixture: 8 test cases plus one disabled) against the mock's 3, plus a one-line summary; no row is hidden, and the review accepted this as honest data."
     }
    ],
-   "maxRatio": 1.080701754385965
+   "maxRatio": 1.080701754385965,
+   "caseLabel": "kobo002-nogateway"
   },
   {
    "screen": "health",
    "case": "kobo002-nogateway",
    "width": "390",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-002/health",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-002/health",
    "mockHash": "#/health",
    "appImage": "part16-health/health-kobo002-nogateway-390-app.png",
    "mockImage": "part16-health/health-kobo002-nogateway-390-mock.png",
@@ -6926,15 +7079,16 @@
      "reason": "There is one row for each real gateway (9 in the walkthrough fixture: 8 test cases plus one disabled) against the mock's 3, plus a one-line summary; no row is hidden, and the review accepted this as honest data."
     }
    ],
-   "maxRatio": 1.0895140664961638
+   "maxRatio": 1.0895140664961638,
+   "caseLabel": "kobo002-nogateway"
   },
   {
    "screen": "asset",
    "case": "kobo001",
    "width": "1440",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-001/assets/0caa02f4-4490-4ad6-a20c-9441030ee938",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-001/assets/8eeb92d3-2058-4c84-910b-2229918fb207",
    "mockHash": "#/asset",
    "appImage": "part16-health/asset-kobo001-1440-app.png",
    "mockImage": "part16-health/asset-kobo001-1440-mock.png",
@@ -6965,7 +7119,7 @@
      "app": 379,
      "mock": 316,
      "ratio": 1.1993670886075949,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); the screen's gaps (exposure, capacity test, remaining life) are stated in place, and the panel is 1.26x the mock at 1440."
+     "reason": "At 1440 the panel is 1.20x the mock. At 390 it is 1.31x because the content is three numbered missing-input items (exposure, capacity test, remaining life), each stated in place, plus the capacity-test line; none of it can be hidden because each names a missing input."
     },
     {
      "title": "Condition evidence and its limits",
@@ -6975,15 +7129,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.2473867595818815
+   "maxRatio": 1.2473867595818815,
+   "caseLabel": "kobo001"
   },
   {
    "screen": "asset",
    "case": "kobo001",
    "width": "390",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-001/assets/0caa02f4-4490-4ad6-a20c-9441030ee938",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-001/assets/8eeb92d3-2058-4c84-910b-2229918fb207",
    "mockHash": "#/asset",
    "appImage": "part16-health/asset-kobo001-390-app.png",
    "mockImage": "part16-health/asset-kobo001-390-mock.png",
@@ -7014,7 +7169,7 @@
      "app": 415,
      "mock": 316,
      "ratio": 1.3132911392405062,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); the screen's gaps (exposure, capacity test, remaining life) are stated in place, and the panel is 1.26x the mock at 1440."
+     "reason": "At 1440 the panel is 1.20x the mock. At 390 it is 1.31x because the content is three numbered missing-input items (exposure, capacity test, remaining life), each stated in place, plus the capacity-test line; none of it can be hidden because each names a missing input."
     },
     {
      "title": "Condition evidence and its limits",
@@ -7024,15 +7179,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 1.3132911392405062
+   "maxRatio": 1.3132911392405062,
+   "caseLabel": "kobo001"
   },
   {
    "screen": "asset",
    "case": "refusal",
    "width": "1440",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
    "mockHash": "#/asset",
    "appImage": "part16-health/asset-refusal-1440-app.png",
    "mockImage": "part16-health/asset-refusal-1440-mock.png",
@@ -7063,7 +7219,7 @@
      "app": 126,
      "mock": 316,
      "ratio": 0.3987341772151899,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); the screen's gaps (exposure, capacity test, remaining life) are stated in place, and the panel is 1.26x the mock at 1440."
+     "reason": "At 1440 the panel is 1.20x the mock. At 390 it is 1.31x because the content is three numbered missing-input items (exposure, capacity test, remaining life), each stated in place, plus the capacity-test line; none of it can be hidden because each names a missing input."
     },
     {
      "title": "Condition evidence and its limits",
@@ -7073,15 +7229,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.3987341772151899
+   "maxRatio": 0.3987341772151899,
+   "caseLabel": "refusal"
   },
   {
    "screen": "asset",
    "case": "refusal",
    "width": "390",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
    "mockHash": "#/asset",
    "appImage": "part16-health/asset-refusal-390-app.png",
    "mockImage": "part16-health/asset-refusal-390-mock.png",
@@ -7112,7 +7269,7 @@
      "app": 126,
      "mock": 316,
      "ratio": 0.3987341772151899,
-     "reason": "Not yet verified at 390 (the capture was not inspected panel by panel); the screen's gaps (exposure, capacity test, remaining life) are stated in place, and the panel is 1.26x the mock at 1440."
+     "reason": "At 1440 the panel is 1.20x the mock. At 390 it is 1.31x because the content is three numbered missing-input items (exposure, capacity test, remaining life), each stated in place, plus the capacity-test line; none of it can be hidden because each names a missing input."
     },
     {
      "title": "Condition evidence and its limits",
@@ -7122,15 +7279,16 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.45985401459854014
+   "maxRatio": 0.45985401459854014,
+   "caseLabel": "refusal"
   },
   {
    "screen": "sitefindings",
    "case": "header",
    "width": "1440",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-001/findings",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-001/findings",
    "mockHash": "#/sitefindings",
    "appImage": "part16-health/sitefindings-header-1440-app.png",
    "mockImage": "part16-health/sitefindings-header-1440-mock.png",
@@ -7153,15 +7311,16 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 0.7534722222222222
+   "maxRatio": 0.7534722222222222,
+   "caseLabel": "header"
   },
   {
    "screen": "sitefindings",
    "case": "header",
    "width": "390",
    "part": "part16-health",
-   "revision": "69ceb4cf",
-   "appUrl": "http://localhost:6317/sites/KOBO-001/findings",
+   "revision": "d02849db",
+   "appUrl": "http://localhost:6350/sites/KOBO-001/findings",
    "mockHash": "#/sitefindings",
    "appImage": "part16-health/sitefindings-header-390-app.png",
    "mockImage": "part16-health/sitefindings-header-390-mock.png",
@@ -7184,7 +7343,8 @@
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 0.9347826086956522
+   "maxRatio": 0.9347826086956522,
+   "caseLabel": "header"
   },
   {
    "screen": "changes",
@@ -7224,7 +7384,8 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.30094043887147337
+   "maxRatio": 0.30094043887147337,
+   "caseLabel": "list"
   },
   {
    "screen": "changes",
@@ -7264,7 +7425,8 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.2719546742209632
+   "maxRatio": 0.2719546742209632,
+   "caseLabel": "list"
   },
   {
    "screen": "sitework",
@@ -7295,7 +7457,8 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 0.8376068376068376
+   "maxRatio": 0.8376068376068376,
+   "caseLabel": "tabrow"
   },
   {
    "screen": "sitework",
@@ -7326,7 +7489,8 @@
      "reason": "The app adds the working window control in the panel header and a compact count-and-basis line; at 390 the window form wraps. The review accepted this as a working control."
     }
    ],
-   "maxRatio": 0.9392265193370166
+   "maxRatio": 0.9392265193370166,
+   "caseLabel": "tabrow"
   },
   {
    "screen": "evidence",
@@ -7375,7 +7539,8 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.32558139534883723
+   "maxRatio": 0.32558139534883723,
+   "caseLabel": "tabrow"
   },
   {
    "screen": "evidence",
@@ -7424,7 +7589,8 @@
      "reason": null
     }
    ],
-   "maxRatio": 0.3949843260188088
+   "maxRatio": 0.3949843260188088,
+   "caseLabel": "tabrow"
   },
   {
    "screen": "financials",
@@ -7473,7 +7639,8 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 0.9640522875816994
+   "maxRatio": 0.9640522875816994,
+   "caseLabel": "tabrow"
   },
   {
    "screen": "financials",
@@ -7522,7 +7689,8 @@
      "reason": "At 390 the three full explanatory paragraphs (when an amount is shown, what is not included, the limits of this figure) and the fuel-allowance note wrap into many lines in the narrow column."
     }
    ],
-   "maxRatio": 1.290983606557377
+   "maxRatio": 1.290983606557377,
+   "caseLabel": "tabrow"
   }
  ]
 }

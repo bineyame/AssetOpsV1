@@ -1,12 +1,12 @@
 {
-  "revision": "69ceb4cf",
-  "captured_at": "2026-10-17T18:26:09.780Z",
+  "revision": "e7d73fd7",
+  "captured_at": "2026-10-17T20:04:06.518Z",
   "pairs": [
     {
       "screen": "evidence",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence",
       "mock_hash": "#/evidence",
       "app_image": "evidence-stocked-1440-app.png",
       "mock_image": "evidence-stocked-1440-mock.png",
@@ -77,7 +77,7 @@
       "screen": "evidence",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence",
       "mock_hash": "#/evidence",
       "app_image": "evidence-stocked-390-app.png",
       "mock_image": "evidence-stocked-390-mock.png",
@@ -148,7 +148,7 @@
       "screen": "evidence",
       "case": "no-readings",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
       "mock_hash": "#/evidence",
       "app_image": "evidence-no-readings-1440-app.png",
       "mock_image": "evidence-no-readings-1440-mock.png",
@@ -219,7 +219,7 @@
       "screen": "evidence",
       "case": "no-readings",
       "viewport": "390x900",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
       "mock_hash": "#/evidence",
       "app_image": "evidence-no-readings-390-app.png",
       "mock_image": "evidence-no-readings-390-mock.png",
@@ -290,7 +290,7 @@
       "screen": "evidence-analysis",
       "case": "no-selection",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-no-selection-1440-app.png",
       "mock_image": "evidence-analysis-no-selection-1440-mock.png",
@@ -345,7 +345,7 @@
       "screen": "evidence-analysis",
       "case": "no-selection",
       "viewport": "390x900",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-no-selection-390-app.png",
       "mock_image": "evidence-analysis-no-selection-390-mock.png",
@@ -400,7 +400,7 @@
       "screen": "evidence-analysis",
       "case": "supported",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=ab6777b1-3f29-4b74-be7f-2804e4179590",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-06",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-supported-1440-app.png",
       "mock_image": "evidence-analysis-supported-1440-mock.png",
@@ -422,7 +422,7 @@
             "x": 248,
             "y": 881,
             "w": 1145,
-            "h": 266
+            "h": 292
           }
         ],
         "overflowX": 0
@@ -455,7 +455,7 @@
       "screen": "evidence-analysis",
       "case": "supported",
       "viewport": "390x900",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=ab6777b1-3f29-4b74-be7f-2804e4179590",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-06",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-supported-390-app.png",
       "mock_image": "evidence-analysis-supported-390-mock.png",
@@ -477,7 +477,7 @@
             "x": 16,
             "y": 1394,
             "w": 358,
-            "h": 497
+            "h": 504
           }
         ],
         "overflowX": 0
@@ -510,7 +510,7 @@
       "screen": "evidence-analysis",
       "case": "limited",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=f400d420-2ea3-4114-9669-ded32e35beba",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-11",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-limited-1440-app.png",
       "mock_image": "evidence-analysis-limited-1440-mock.png",
@@ -532,7 +532,7 @@
             "x": 248,
             "y": 881,
             "w": 1145,
-            "h": 266
+            "h": 292
           }
         ],
         "overflowX": 0
@@ -565,7 +565,7 @@
       "screen": "evidence-analysis",
       "case": "limited",
       "viewport": "390x900",
-      "app_url": "http://localhost:6305/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=f400d420-2ea3-4114-9669-ded32e35beba",
+      "app_url": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-11",
       "mock_hash": "#/evidence-analysis",
       "app_image": "evidence-analysis-limited-390-app.png",
       "mock_image": "evidence-analysis-limited-390-mock.png",
@@ -587,7 +587,7 @@
             "x": 16,
             "y": 1394,
             "w": 358,
-            "h": 517
+            "h": 504
           }
         ],
         "overflowX": 0

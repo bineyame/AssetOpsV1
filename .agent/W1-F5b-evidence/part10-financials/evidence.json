@@ -1,6 +1,6 @@
 {
-  "revision": "69ceb4cf",
-  "captured_at": "2026-10-17T18:37:13.591Z",
+  "revision": "e7d73fd7",
+  "captured_at": "2026-10-17T20:14:15.605Z",
   "pairs": [
     {
       "screen": "financials",
@@ -164,19 +164,19 @@
             "x": 248,
             "y": 466,
             "w": 1145,
-            "h": 400
+            "h": 374
           },
           {
             "title": "Assumptions in use",
             "x": 248,
-            "y": 884,
+            "y": 857,
             "w": 725,
             "h": 275
           },
           {
             "title": "Trade-offs and exclusions",
             "x": 991,
-            "y": 884,
+            "y": 857,
             "w": 403,
             "h": 295
           }

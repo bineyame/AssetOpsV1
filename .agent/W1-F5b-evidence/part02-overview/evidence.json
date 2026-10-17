@@ -1,6 +1,6 @@
 {
-  "revision": "69ceb4cf",
-  "captured_at": "2026-10-17T18:08:35.792Z",
+  "revision": "e7d73fd7",
+  "captured_at": "2026-10-17T20:07:40.935Z",
   "pairs": [
     {
       "screen": "mini",
@@ -24,35 +24,35 @@
             "x": 248,
             "y": 499,
             "w": 1145,
-            "h": 333
+            "h": 357
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 849,
+            "y": 874,
             "w": 725,
-            "h": 518
+            "h": 538
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 849,
+            "y": 874,
             "w": 403,
-            "h": 518
+            "h": 538
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1386,
+            "y": 1430,
             "w": 725,
-            "h": 248
+            "h": 247
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1386,
+            "y": 1430,
             "w": 403,
-            "h": 248
+            "h": 247
           }
         ],
         "overflowX": 0
@@ -127,33 +127,33 @@
             "x": 16,
             "y": 968,
             "w": 358,
-            "h": 400
+            "h": 474
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 1386,
+            "y": 1460,
             "w": 358,
-            "h": 667
+            "h": 706
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2069,
+            "y": 2182,
             "w": 358,
-            "h": 248
+            "h": 467
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2334,
+            "y": 2666,
             "w": 358,
-            "h": 317
+            "h": 334
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 2666,
+            "y": 3016,
             "w": 358,
             "h": 226
           }
@@ -230,35 +230,35 @@
             "x": 248,
             "y": 499,
             "w": 1145,
-            "h": 333
+            "h": 357
           },
           {
             "title": "Operating context",
             "x": 248,
-            "y": 849,
+            "y": 874,
             "w": 725,
-            "h": 518
+            "h": 538
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 849,
+            "y": 874,
             "w": 403,
-            "h": 518
+            "h": 538
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1386,
+            "y": 1430,
             "w": 725,
-            "h": 229
+            "h": 247
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1386,
+            "y": 1430,
             "w": 403,
-            "h": 229
+            "h": 247
           }
         ],
         "overflowX": 0
@@ -333,33 +333,33 @@
             "x": 16,
             "y": 968,
             "w": 358,
-            "h": 433
+            "h": 507
           },
           {
             "title": "Operating context",
             "x": 16,
-            "y": 1419,
+            "y": 1493,
             "w": 358,
-            "h": 667
+            "h": 706
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 2102,
+            "y": 2215,
             "w": 358,
-            "h": 248
+            "h": 467
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2367,
+            "y": 2699,
             "w": 358,
             "h": 334
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 2717,
+            "y": 3049,
             "w": 358,
             "h": 226
           }
