@@ -22,7 +22,7 @@ export const UI_GAP_CATALOGUE = {
   "G-readiness-gateway-completeness": { status: "open", placements: ["readiness.gateway.completeness"] },
   "G-readiness-gateway-firmware": { status: "open", placements: ["readiness.gateway.firmware"] },
   "G-readiness-gateway-signal-strength": { status: "open", placements: ["readiness.gateway.signal-strength"] },
-  "G-readiness-gateway-uptime": { status: "open", placements: ["readiness.gateway.uptime", "cold-readiness.gateway.uptime"] },
+  "G-readiness-gateway-uptime": { status: "open", placements: ["readiness.gateway.uptime"] },
   "G-readiness-source-contact": { status: "open", placements: ["readiness.gateway.source-connection", "readiness.gateway.source-connection-registration", "readiness.sources.arrival"] },
   "G-sites-attention-counts": { status: "open", placements: ["sites.inventory.attention-counts"] },
   "G-sites-operating-view": { status: "open", placements: ["sites.inventory.operating-view", "sites.inventory.analysis-note"] },

@@ -310,9 +310,10 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(table.textContent).toContain("Set-up incomplete: 1 required item needs attention");
     const gateway = panelTitled("Gateway status · No gateway selected");
     expect(gateway.querySelector('[data-cold-gateway-metric="status"]')?.textContent).toContain("Never contacted");
-    // Review Low 5: the mock's availability timeline is kept as an empty track, marked not available yet.
+    // Review Low 5: the mock's availability timeline is kept as an empty track that says it has no history.
     const timeline = gateway.querySelector("[data-cold-gateway-timeline]") as HTMLElement;
-    expect(timeline.querySelector('[data-gap-id="G-readiness-gateway-uptime"]')?.textContent).toBe("Availability timeline not available yet");
+    expect(timeline.querySelector("[data-cold-timeline-gap]")?.textContent).toBe("No history to draw");
+    expect(timeline.querySelector(".cold-gw-key--up, .cold-gw-key--part, .cold-gw-key--down")?.closest(".cold-gw-track")).toBeNull();
     expect(timeline.textContent).toContain("Short outage or missing readings");
     expect(panelTitled("Connected sources").textContent).toContain("Source contact unavailable");
     expect(panelTitled("Effect on readiness and confidence").textContent).toContain("Confidence is not assessed");

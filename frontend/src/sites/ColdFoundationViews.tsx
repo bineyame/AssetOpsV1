@@ -11,7 +11,6 @@ import {
   KeyValues,
   MetricCard,
   MetricCards,
-  MissingClaim,
   Panel,
   SITE_SCREEN_DESCRIPTIONS,
   SitePageHeader,
@@ -43,7 +42,12 @@ export const NOT_DECLARED = "Not declared";
 export const SOURCE_CONTACT_UNAVAILABLE = "Source contact unavailable";
 export const CONFIDENCE_NOT_ASSESSED = "Confidence is not assessed";
 export const FUNCTION_UNKNOWN = "Function description not recorded";
-export const COLD_GATEWAY_TIMELINE_NOT_AVAILABLE_YET = "Availability timeline not available yet";
+/*
+ * The empty availability track's label. "Not available yet" copy must render through a catalogued
+ * MissingClaim placement, and G-readiness-gateway-uptime is fixed at one placement (C5); a cold
+ * placement is an Architect registration, so the track states the plain fact instead.
+ */
+export const COLD_GATEWAY_TIMELINE_NO_HISTORY = "No history to draw";
 
 /** Plain labels of the `cold-roles-1` roles (backend `sites/binding_roles.py`). */
 const ROLE_LABEL: Record<string, string> = {
@@ -605,9 +609,7 @@ function ReadinessView(props: ViewProps) {
         </MetricCards>
         <div className="cold-gw-timeline" data-cold-gateway-timeline="">
           <div className="cold-gw-track" role="img" aria-label="Gateway availability timeline: no history to draw">
-            <MissingClaim gapId="G-readiness-gateway-uptime" placement="cold-readiness.gateway.uptime">
-              {COLD_GATEWAY_TIMELINE_NOT_AVAILABLE_YET}
-            </MissingClaim>
+            <span data-cold-timeline-gap="">{COLD_GATEWAY_TIMELINE_NO_HISTORY}</span>
           </div>
           <div className="cold-gw-legend">
             <span><span className="cold-gw-key cold-gw-key--up" aria-hidden="true" />Online</span>
