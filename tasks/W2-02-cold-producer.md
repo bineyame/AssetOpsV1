@@ -30,3 +30,8 @@ Assign existing open `A-cold-world` and `I-cold-world` to W2-02 via `task`. Leav
 ## Architect questions
 
 None; the cited design fixes the producer and explicitly defers the physical peer.
+
+## Plan review notes (coordinator, 2026-10-17)
+
+- L4: state in the build whether the probe-failure `UNAVAILABLE` reading is published in `cold-publication/1` exactly as the design says, and test it.
+- Design line numbers have drifted: find code by name. Starts after W2-01 merges; read `D-2026-10-17-w2-01-answers` (W2-02 code pre-check) before coding.

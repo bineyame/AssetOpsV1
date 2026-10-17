@@ -32,3 +32,11 @@ Assign existing open `A-cold-excursion-rules`, `I-cold-assessment-store` and `D-
 ## Architect questions
 
 None; the cited design fixes the assessment, read and UI contracts.
+
+## Plan review fixes (coordinator, 2026-10-17; `.agent/W2-packets-2-review.md`)
+
+- **Replay-driven acceptance (M1, required in phase 1):** run each W2-02 demo replay through ordinary intake and the assessment, and assert on its accepted evidence: **normal** -> `NO_EXCURSION_OBSERVED` with start and transfer observed; **excursion** -> exposure Finding, latest start 19:15, open episode, duration lower bound 45 min and no upper bound; **backup-failed** -> `OBSERVED_FAILURE`, door only as context, exposure Finding still held; **missing-probe** -> coverage 7/13, temperature `UNKNOWN`, no exposure Finding, start failure still observed; **late-reading** -> at the 20:05 cutoff 12/13 points with first high readings at 19:15 and 19:25, at 20:10 a new revision with the old history intact; **contradictory** -> `CONTRADICTORY`, never `OBSERVED_FAILURE`. Hand-made fixtures do not satisfy this.
+- **L1:** missing-transfer, clock-skew, SUSPECT, unbound-role and equal-event-ID cases are built through the normal authenticated intake (never direct row inserts).
+- **L2:** test the shared read contract: 31-day window limit, paging, the typed error codes, and a missing claim returning 200 `UNKNOWN` (not 404).
+- **L3:** test the episode split rule (`finding.split_from_finding_id`).
+- Design line numbers have drifted (e.g. `kernel/execute.py`): find code by name.
