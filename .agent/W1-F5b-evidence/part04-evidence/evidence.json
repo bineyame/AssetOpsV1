@@ -1,0 +1,400 @@
+{
+  "revision": "69ceb4cf",
+  "captured_at": "2026-10-17T18:18:57.390Z",
+  "pairs": [
+    {
+      "screen": "evidence",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/evidence",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-stocked-1440-app.png",
+      "mock_image": "evidence-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 387,
+            "w": 1145,
+            "h": 457
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 862,
+            "w": 725,
+            "h": 497
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 862,
+            "w": 403,
+            "h": 254
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 387
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 821,
+            "w": 735,
+            "h": 387
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 821,
+            "w": 408,
+            "h": 387
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "evidence",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/evidence",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-stocked-390-app.png",
+      "mock_image": "evidence-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 654,
+            "w": 358,
+            "h": 655
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 1326,
+            "w": 358,
+            "h": 757
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 2100,
+            "w": 358,
+            "h": 254
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 639,
+            "w": 360,
+            "h": 549
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1205,
+            "w": 360,
+            "h": 533
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1757,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "evidence",
+      "case": "window",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-window-1440-app.png",
+      "mock_image": "evidence-window-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 387,
+            "w": 1145,
+            "h": 457
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 862,
+            "w": 725,
+            "h": 497
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 862,
+            "w": 403,
+            "h": 254
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 387
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 821,
+            "w": 735,
+            "h": 387
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 821,
+            "w": 408,
+            "h": 387
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "evidence",
+      "case": "window",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z",
+      "mock_hash": "#/evidence",
+      "app_image": "evidence-window-390-app.png",
+      "mock_image": "evidence-window-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 670,
+            "w": 358,
+            "h": 671
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 1359,
+            "w": 358,
+            "h": 757
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 2133,
+            "w": 358,
+            "h": 254
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 639,
+            "w": 360,
+            "h": 549
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1205,
+            "w": 360,
+            "h": 533
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1757,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "record",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=4da66e5a-23d6-40f5-8542-f52f682974ac",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-record-1440-app.png",
+      "mock_image": "evidence-analysis-record-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 427,
+            "w": 1145,
+            "h": 1530
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 1976,
+            "w": 1145,
+            "h": 241
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "evidence-analysis",
+      "case": "record",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6303/sites/KOBO-001/evidence?from=2026-09-30T03:00:00Z&to=2026-09-30T15:00:01Z&view=analysis&record=4da66e5a-23d6-40f5-8542-f52f682974ac",
+      "mock_hash": "#/evidence-analysis",
+      "app_image": "evidence-analysis-record-390-app.png",
+      "mock_image": "evidence-analysis-record-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 719,
+            "w": 358,
+            "h": 2916
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 3653,
+            "w": 358,
+            "h": 413
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 612,
+            "w": 360,
+            "h": 371
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 228
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

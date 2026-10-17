@@ -1,0 +1,588 @@
+{
+  "revision": "69ceb4cf",
+  "captured_at": "2026-10-17T18:55:53.060Z",
+  "pairs": [
+    {
+      "screen": "health",
+      "case": "kobo001",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-001/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo001-1440-app.png",
+      "mock_image": "health-kobo001-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 248,
+            "y": 273,
+            "w": 1145,
+            "h": 253
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 543,
+            "w": 1145,
+            "h": 766
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 285
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 669,
+            "w": 1161,
+            "h": 285
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "health",
+      "case": "kobo001",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-001/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo001-390-app.png",
+      "mock_image": "health-kobo001-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 16,
+            "y": 405,
+            "w": 358,
+            "h": 342
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 764,
+            "w": 358,
+            "h": 867
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 15,
+            "y": 562,
+            "w": 360,
+            "h": 442
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1022,
+            "w": 360,
+            "h": 391
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "health",
+      "case": "kobo002-nogateway",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-002/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo002-nogateway-1440-app.png",
+      "mock_image": "health-kobo002-nogateway-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 248,
+            "y": 250,
+            "w": 1160,
+            "h": 197
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 465,
+            "w": 1160,
+            "h": 308
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 285
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 669,
+            "w": 1161,
+            "h": 285
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "health",
+      "case": "kobo002-nogateway",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-002/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo002-nogateway-390-app.png",
+      "mock_image": "health-kobo002-nogateway-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 16,
+            "y": 405,
+            "w": 358,
+            "h": 274
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 697,
+            "w": 358,
+            "h": 426
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 15,
+            "y": 562,
+            "w": 360,
+            "h": 442
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1022,
+            "w": 360,
+            "h": 391
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "asset",
+      "case": "kobo001",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-001/assets/0caa02f4-4490-4ad6-a20c-9441030ee938",
+      "mock_hash": "#/asset",
+      "app_image": "asset-kobo001-1440-app.png",
+      "mock_image": "asset-kobo001-1440-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 248,
+            "y": 438,
+            "w": 725,
+            "h": 379
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 991,
+            "y": 438,
+            "w": 403,
+            "h": 379
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 248,
+            "y": 835,
+            "w": 1145,
+            "h": 358
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 234,
+            "y": 492,
+            "w": 735,
+            "h": 316
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 987,
+            "y": 492,
+            "w": 408,
+            "h": 316
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 234,
+            "y": 826,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "asset",
+      "case": "kobo001",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-001/assets/0caa02f4-4490-4ad6-a20c-9441030ee938",
+      "mock_hash": "#/asset",
+      "app_image": "asset-kobo001-390-app.png",
+      "mock_image": "asset-kobo001-390-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 16,
+            "y": 749,
+            "w": 358,
+            "h": 330
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 16,
+            "y": 1095,
+            "w": 358,
+            "h": 415
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 16,
+            "y": 1526,
+            "w": 358,
+            "h": 478
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 15,
+            "y": 828,
+            "w": 360,
+            "h": 274
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 15,
+            "y": 1120,
+            "w": 360,
+            "h": 316
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 15,
+            "y": 1454,
+            "w": 360,
+            "h": 428
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "asset",
+      "case": "refusal",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/asset",
+      "app_image": "asset-refusal-1440-app.png",
+      "mock_image": "asset-refusal-1440-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 248,
+            "y": 381,
+            "w": 734,
+            "h": 126
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 1000,
+            "y": 381,
+            "w": 408,
+            "h": 126
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 248,
+            "y": 524,
+            "w": 1160,
+            "h": 103
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 234,
+            "y": 492,
+            "w": 735,
+            "h": 316
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 987,
+            "y": 492,
+            "w": 408,
+            "h": 316
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 234,
+            "y": 826,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "asset",
+      "case": "refusal",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/asset",
+      "app_image": "asset-refusal-390-app.png",
+      "mock_image": "asset-refusal-390-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 16,
+            "y": 537,
+            "w": 358,
+            "h": 126
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 16,
+            "y": 678,
+            "w": 358,
+            "h": 126
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 16,
+            "y": 820,
+            "w": 358,
+            "h": 126
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 15,
+            "y": 828,
+            "w": 360,
+            "h": 274
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 15,
+            "y": 1120,
+            "w": 360,
+            "h": 316
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 15,
+            "y": 1454,
+            "w": 360,
+            "h": 428
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "header",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6317/sites/KOBO-001/findings",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-header-1440-app.png",
+      "mock_image": "sitefindings-header-1440-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 248,
+            "y": 273,
+            "w": 1160,
+            "h": 217
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 234,
+            "y": 406,
+            "w": 1161,
+            "h": 288
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitefindings",
+      "case": "header",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6317/sites/KOBO-001/findings",
+      "mock_hash": "#/sitefindings",
+      "app_image": "sitefindings-header-390-app.png",
+      "mock_image": "sitefindings-header-390-mock.png",
+      "app": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 16,
+            "y": 439,
+            "w": 358,
+            "h": 430
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Findings at this site"
+        ],
+        "panels": [
+          {
+            "title": "Findings at this site",
+            "x": 15,
+            "y": 667,
+            "w": 360,
+            "h": 460
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}
