@@ -1,0 +1,70 @@
+﻿PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: Assumptions with Interpretation history loads
+PASS  desktop: default address is not rewritten  "/sites/KOBO-001/financials/assumptions"
+PASS  desktop: prices and history at one identical cutoff string  ["2026-10-17T01:30:51.316240+00:00","2026-10-17T01:30:51.316240+00:00"]
+PASS  desktop: no identifier in visible text outside closed disclosures  []
+PASS  desktop: no current amount wording
+PASS  desktop: no horizontal overflow (page and shell)  {"page":0,"shell":0}
+PASS  desktop: latest and earlier versions listed  ["CURRENT_AT_CUTOFF","HISTORICAL_AT_CUTOFF"]
+PASS  desktop: recorded amounts labelled as history beside the source  4
+PASS  desktop: the price-only change is said plainly
+PASS  desktop: an unpriced version states no amount
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-default-desktop.png
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T01%3A29%3A19.770015%2B00%3A00: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: T1 address loads
+PASS  after reload or back: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: T1 cutoff kept after reload  "2026-10-17T01:29:19.770015+00:00"
+PASS  desktop: T1 price list at the same moment  "2026-10-17T01:29:19.770015+00:00"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-T1-desktop.png
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T01%3A29%3A43.163510%2B00%3A00: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: T3 address loads
+PASS  after reload or back: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: T3 cutoff kept after reload  "2026-10-17T01:29:43.163510+00:00"
+PASS  desktop: T3 price list at the same moment  "2026-10-17T01:29:43.163510+00:00"
+PASS  desktop: T3 lists earlier versions (state file)  4
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T01%3A29%3A43.163510%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTE3VDAxOjI5OjI2LjE5MDk3NiswMDowMCIsIjM5OGQ1NmEwLTkwMDUtNDZmOS1hYmIxLTE1OTI1NWIxMWU0YyJdLCJmZW5jZSI6InNjaDEtYWYzMjQ1NjgzZjE3ZjRhZDhjNGJmZTEwYmViNzhlZmYxZGQzMzUyZmJlZmU4ZTZhNmMwMjk3ZDYwN2M2NGJjNSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMTdUMDE6Mjk6NDMuMTYzNTEwKzAwOjAwIiwic2l0ZV9pZCI6IjRiYzc5ZDRhLWE0NmUtNDUyMy04MGQ4LTNhYmE3NWQ1OTZmNiIsInRlbmFudF9pZCI6ImZmZjZjN2VhLWFmNjQtNGM4Zi1iYzAxLTE2MDRjMzA3NGRhZSIsInYiOjF9&history_limit=2: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: next page address loads
+PASS  desktop: next page offers the way back
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: exact fuel cost version link  "/sites/KOBO-001/financials?finding_id=7d70dbb8-b69a-4fde-8e30-30eb6f2852fa&revision_id=d64b19cc-8df8-488e-bd61-fb3357cf9f28&consequence_revision_id=a602847d-739a-4e04-bd8d-9f305650d2f1"
+PASS  desktop: link opens the finding's own Financials view at that version  "/sites/KOBO-001/financials?finding_id=7d70dbb8-b69a-4fde-8e30-30eb6f2852fa&revision_id=d64b19cc-8df8-488e-bd61-fb3357cf9f28&consequence_revision_id=a602847d-739a-4e04-bd8d-9f305650d2f1"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-finding-financials-desktop.png
+PASS  loaded http://localhost:5560/mockups/v69/index.html#/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: v69 assumptions mock renders
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-mock-assumptions-desktop.png
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: Assumptions with Interpretation history loads
+PASS  narrow: default address is not rewritten  "/sites/KOBO-001/financials/assumptions"
+PASS  narrow: prices and history at one identical cutoff string  ["2026-10-17T01:31:05.284035+00:00","2026-10-17T01:31:05.284035+00:00"]
+PASS  narrow: no identifier in visible text outside closed disclosures  []
+PASS  narrow: no current amount wording
+PASS  narrow: no horizontal overflow (page and shell)  {"page":0,"shell":0}
+PASS  narrow: latest and earlier versions listed  ["CURRENT_AT_CUTOFF","HISTORICAL_AT_CUTOFF"]
+PASS  narrow: recorded amounts labelled as history beside the source  4
+PASS  narrow: the price-only change is said plainly
+PASS  narrow: an unpriced version states no amount
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-default-narrow.png
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T01%3A29%3A19.770015%2B00%3A00: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: T1 address loads
+PASS  after reload or back: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: T1 cutoff kept after reload  "2026-10-17T01:29:19.770015+00:00"
+PASS  narrow: T1 price list at the same moment  "2026-10-17T01:29:19.770015+00:00"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-T1-narrow.png
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T01%3A29%3A43.163510%2B00%3A00: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: T3 address loads
+PASS  after reload or back: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: T3 cutoff kept after reload  "2026-10-17T01:29:43.163510+00:00"
+PASS  narrow: T3 price list at the same moment  "2026-10-17T01:29:43.163510+00:00"
+PASS  narrow: T3 lists earlier versions (state file)  4
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-17T01%3A29%3A43.163510%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTE3VDAxOjI5OjI2LjE5MDk3NiswMDowMCIsIjM5OGQ1NmEwLTkwMDUtNDZmOS1hYmIxLTE1OTI1NWIxMWU0YyJdLCJmZW5jZSI6InNjaDEtYWYzMjQ1NjgzZjE3ZjRhZDhjNGJmZTEwYmViNzhlZmYxZGQzMzUyZmJlZmU4ZTZhNmMwMjk3ZDYwN2M2NGJjNSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMTdUMDE6Mjk6NDMuMTYzNTEwKzAwOjAwIiwic2l0ZV9pZCI6IjRiYzc5ZDRhLWE0NmUtNDUyMy04MGQ4LTNhYmE3NWQ1OTZmNiIsInRlbmFudF9pZCI6ImZmZjZjN2VhLWFmNjQtNGM4Zi1iYzAxLTE2MDRjMzA3NGRhZSIsInYiOjF9&history_limit=2: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: next page address loads
+PASS  narrow: next page offers the way back
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: exact fuel cost version link  "/sites/KOBO-001/financials?finding_id=7d70dbb8-b69a-4fde-8e30-30eb6f2852fa&revision_id=d64b19cc-8df8-488e-bd61-fb3357cf9f28&consequence_revision_id=a602847d-739a-4e04-bd8d-9f305650d2f1"
+PASS  narrow: link opens the finding's own Financials view at that version  "/sites/KOBO-001/financials?finding_id=7d70dbb8-b69a-4fde-8e30-30eb6f2852fa&revision_id=d64b19cc-8df8-488e-bd61-fb3357cf9f28&consequence_revision_id=a602847d-739a-4e04-bd8d-9f305650d2f1"
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-finding-financials-narrow.png
+PASS  loaded http://localhost:5560/mockups/v69/index.html#/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: v69 assumptions mock renders
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\owner\s408-mock-assumptions-narrow.png
+
+60/60 claims passed (owner)

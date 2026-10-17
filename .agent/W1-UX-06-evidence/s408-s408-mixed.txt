@@ -1,0 +1,22 @@
+﻿PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  desktop: Assumptions with Interpretation history loads
+PASS  desktop: default address is not rewritten  "/sites/KOBO-001/financials/assumptions"
+PASS  desktop: prices and history at one identical cutoff string  ["2026-10-17T01:32:52.877191+00:00","2026-10-17T01:32:52.877191+00:00"]
+PASS  desktop: no identifier in visible text outside closed disclosures  []
+PASS  desktop: no current amount wording
+PASS  desktop: no horizontal overflow (page and shell)  {"page":0,"shell":0}
+PASS  desktop: mixed source withholds every recorded amount  ["MIXED_OR_UNKNOWN_SOURCE"]
+PASS  desktop: mixed source is labelled
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\mixed\s408-mixed-desktop.png
+PASS  loaded http://localhost:5560/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  narrow: Assumptions with Interpretation history loads
+PASS  narrow: default address is not rewritten  "/sites/KOBO-001/financials/assumptions"
+PASS  narrow: prices and history at one identical cutoff string  ["2026-10-17T01:32:54.563586+00:00","2026-10-17T01:32:54.563586+00:00"]
+PASS  narrow: no identifier in visible text outside closed disclosures  []
+PASS  narrow: no current amount wording
+PASS  narrow: no horizontal overflow (page and shell)  {"page":0,"shell":0}
+PASS  narrow: mixed source withholds every recorded amount  ["MIXED_OR_UNKNOWN_SOURCE"]
+PASS  narrow: mixed source is labelled
+      screenshot C:\Users\assef\AppData\Local\Temp\w1ux06-final\s408\mixed\s408-mixed-narrow.png
+
+18/18 claims passed (mixed)
