@@ -79,7 +79,7 @@ Each change below re-points an assertion at the content's new v69 home and asser
 
 ## Checks run
 - Pass 2 (`1554f013`): `tsc` clean; `check-all` 10/10; full `npm.cmd test` 75 files, 1965 passed.
-- Compaction, final revision `REV`: `npx.cmd tsc --noEmit -p .` clean; full `npm.cmd test` SUITE; `tools/check-all.ps1` CHECKALL.
+- Compaction, final code revision `8270c9a6`: `npx.cmd tsc --noEmit -p .` clean; full `npm.cmd test` 76 files, **1984 passed, 0 failed**, wall 271 s; `tools/check-all.ps1` all 10 guards passed.
 - Captures (`node tools/w1-fidelity-evidence.mjs`, same targets as pass 2; Part 2 data with `tick` before capture, Part 6 and Part 7 data; Part 6 revision ids are new per prepare): `mini/` 48/48 at `8270c9a6`, `dispatch/` 60/60 at `ff1bc248`, `evidence/` 60/60 at `8270c9a6` (168/168). Ports 9250/5660, 9150/5650, 9350/5670, CDP 9483-9485. One dispatch run and one mini run first failed panel-count/"rendered" claims while a fixture prepare loaded the machine; both reruns passed in full and are the recorded runs.
 - Fixtures dropped afterwards: `assetops_s501_owner_w1f2` + `var\s501_owner_w1f2`, `assetops_s302_w1f2` + `var\s302_w1f2`, `assetops_s3walk` + `%LOCALAPPDATA%\AssetOps\s3-dispatch-walkthrough`.
 
