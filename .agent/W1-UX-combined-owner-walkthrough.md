@@ -6,7 +6,7 @@ Final version, written at W1-UX-06 phase 2 (2026-10-17). It covers all 26 W1 Sit
 
 W1 did not add new features or new data. It changed how the existing Site screens explain themselves, so that each one reads like the v69 mock-up while saying no more than the stored records support.
 
-- **Most screens now open with an answer card.** (Owner note 10 lists the exceptions: Sites has no picture, the held and empty states draw no picture, and a few refusal or not-yet-stored states show no card at all.) At the top is the question the screen answers, for example "Which site should I open?" or "What can we rely on?". Below it come a short plain answer, a state line, a small picture (bars, a step strip or a time strip), "What this means" and "What to do", and a link to the place that holds the detail.
+- **Most screens now open with an answer card.** (Exceptions: some held or empty states draw no picture, listed in owner note 10, and a few refusal or not-yet-stored states show no card at all, marked "not run" in their part's capture table.) At the top is the question the screen answers, for example "Which site should I open?" or "What can we rely on?". Below it come a short plain answer, a state line, a small picture (bars, a step strip or a time strip), "What this means" and "What to do", and a link to the place that holds the detail.
 - **The state line is always visible.** It gives the state, what the answer covers, and "As of <time>". When the record has no time, it says "As of: time not recorded", and never pretends the time is now.
 - **Codes and IDs are tucked away.** References, versions and codes sit in one closed "How this was worked out" section at the bottom of each card. The main reading uses plain words.
 - **Unknown is shown as unknown.** A missing value is drawn as a hatched "not known" mark, never as a zero bar. Refused, unavailable, stale or withdrawn reads say so in words.
@@ -23,7 +23,7 @@ W1 did not add new features or new data. It changed how the existing Site screen
    ```
    The line shown must be the commit the coordinator gives you (the W1 closeout merge). If it is not, stop and ask. Use only this folder for the whole walkthrough.
 2. Docker Desktop is running, with the AssetOps Postgres container on port 55432.
-3. In **every** PowerShell window you open for this walkthrough, paste these lines first (the first line is run from inside the folder from step 1; in a new window `cd` there first):
+3. In **every** PowerShell window you open for this walkthrough, paste these lines first (they move to the walkthrough folder and set the paths every command below uses):
    ```powershell
    cd C:\Users\assef\Bineyame\AssetOpsV1
    $wt = (Get-Location).Path
@@ -37,7 +37,9 @@ W1 did not add new features or new data. It changed how the existing Site screen
    cd $wt\frontend
    npm.cmd ci
    cd $wt
-   ```5. Each part uses **two windows**. Window 1 runs the test-case tool (its API server). Window 2 runs the screens:
+   ```
+   Stop any AssetOps dev server already running from this folder before `npm.cmd ci`.
+5. Each part uses **two windows**. Window 1 runs the test-case tool (its API server). Window 2 runs the screens:
    ```powershell
    cd $wt\frontend
    $env:ASSETOPS_API_PORT = "<API port named in the part>"
