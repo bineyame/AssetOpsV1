@@ -2283,3 +2283,5 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - Menu height (~575 px at 390) and 9 px status text: owner note 14 in the combined walkthrough.
 
 - Flaky under load (2026-10-17, W2-01 full suite at 62 min wall with three frontend agents running; both pass alone, 2 passed in 41 s): `test_s6_action_apply_postgres.py::TestClockBehindIsStale::test_publish_committed_after_the_apply_time_is_stale_not_clock_behind` and `test_t027_ingestion.py::TestRebuildIsolated::test_a_fresh_process_rebuilds_evidence_with_the_simulator_and_host_blocked`. Fold into OPS-01 (backend test speed).
+
+- W1-F5b carry 7 (2026-10-17): legacy file-backed Site paths have no 1440/390 fidelity captures because no walkthrough tool serves a file-backed site; covered by structure tests only. Accepted for W1; add a file-backed capture fixture if legacy Sites stay in the product.
