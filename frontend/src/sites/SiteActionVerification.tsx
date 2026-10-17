@@ -1,4 +1,4 @@
-﻿/**
+/**
  * S6-02b: the Action's Plan, Evidence and Verification child views
  * (`action-plan:1`, `action-evidence:1`, `verification:1-3`), under the S6-01b
  * Action root at `/sites/{site}/actions/{action}/{plan|evidence|verification}`.
@@ -524,9 +524,7 @@ function VerificationSummaryRow({ gapped, stateWord, source, criterion }: { gapp
 export function TrialNotice() {
   return (
     <p className="v69-chart-note w1f4-verification-notice" data-verification-trial-label="POLICY_TRIAL_NO_SAVINGS">
-      Policy trial on Lab or authored test data. It compares two observed windows under a plan fixed in advance. It
-      does not prove the change caused the difference, and it shows no savings or realized benefit. A resolution can
-      be withdrawn later; it is never permanent.
+      Policy trial on Lab or authored test data: no proof of cause, no savings or realized benefit; a resolution is never permanent.
     </p>
   );
 }
@@ -1209,15 +1207,19 @@ function OutcomeEvidencePanel({
       )}
       <p className="v69-chart-note">
         {demonstration ? <span data-product-outcome-demonstration>{demonstration} </span> : null}
-        {history === null ? (
-          historyGap ? (
-            <span className="w1f4-verification-gap" data-panel-gap={historyGap.kind}>
-              {historyGap.text}
-            </span>
-          ) : null
-        ) : outcomes.length === 0 ? (
-          <span data-verification-outcomes="none">No outcome recorded yet.</span>
-        ) : (
+        {history === null && historyGap ? (
+          <span className="w1f4-verification-gap" data-panel-gap={historyGap.kind}>
+            {historyGap.text}{" "}
+          </span>
+        ) : null}
+        {history !== null && outcomes.length === 0 ? <span data-verification-outcomes="none">No outcome recorded yet. </span> : null}
+        <Link className="w1f4-verification-evidence-link" to={links.view("evidence", { outcomeId: record?.outcome_id ?? null })} data-verification-evidence-link>
+          {record ? "Inspect the evidence for this outcome" : "Inspect the evidence"} →
+        </Link>
+      </p>
+      {history !== null && outcomes.length > 0 ? (
+        <DigDeeper name="attempts" summary="Earlier outcomes and plans">
+          <p className="v69-chart-note">
           <span data-verification-outcomes>
             Attempts:{" "}
             {shownOutcomes.map((o, index) => (
@@ -1246,13 +1248,9 @@ function OutcomeEvidencePanel({
               </>
             ) : null}
           </span>
-        )}
-      </p>
-      <p className="w1f4-verification-action">
-        <Link className="button" to={links.view("evidence", { outcomeId: record?.outcome_id ?? null })} data-verification-evidence-link>
-          {record ? "Inspect the evidence for this outcome" : "Inspect the evidence"}
-        </Link>
-      </p>
+          </p>
+        </DigDeeper>
+      ) : null}
       <TrialNotice />
     </Panel>
   );

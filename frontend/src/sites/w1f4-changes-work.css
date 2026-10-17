@@ -182,13 +182,14 @@
   color: var(--link, #1d4ed8);
 }
 
-/* Site Work State cell: the badge, then created time and latest step on a small second line. */
+/* Site Work State cell: the badge, then the latest-step link alone on a small second line (created and recorded times in its title). */
 .w1f4-changes-work td .w1f4-action-badge {
   white-space: normal;
 }
 
 .w1f4-changes-work .w1f4-work-subline {
   display: block;
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 10px;
+  white-space: nowrap;
 }

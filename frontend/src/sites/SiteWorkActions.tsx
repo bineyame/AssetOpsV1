@@ -255,11 +255,14 @@ function Rows({ body, links, all }: { body: ActionIndexBody; links: SiteWorkLink
                 {stateWords(row)}
               </span>
               <small className="w1f4-work-subline muted">
-                Created {utcText(row.created_at)} ·{" "}
-                <Link to={links.history(row.action_id, row.selected_event.id)} data-site-work-event-link>
+                Latest step:{" "}
+                <Link
+                  to={links.history(row.action_id, row.selected_event.id)}
+                  data-site-work-event-link
+                  title={`Created ${utcText(row.created_at)} · step recorded ${utcText(row.selected_event.recorded_at)}`}
+                >
                   {STEP_WORDS[row.selected_event.kind] ?? row.selected_event.kind}
-                </Link>{" "}
-                · recorded {utcText(row.selected_event.recorded_at)}
+                </Link>
               </small>
             </td>
             <td>Not recorded</td>

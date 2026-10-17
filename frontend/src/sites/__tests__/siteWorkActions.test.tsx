@@ -127,7 +127,8 @@ describe("Site Work Actions list", () => {
       expect(cells[3]).toBe("Not set");
       expect(cells[5]).toBe("Not recorded");
       expect(tr.querySelector("td .w1f4-action-badge")).not.toBeNull();
-      expect(tr.querySelector(".w1f4-work-subline")?.textContent).toMatch(/^Created /);
+      expect(tr.querySelector(".w1f4-work-subline")?.textContent).toMatch(/^Latest step: /);
+      expect(tr.querySelector(".w1f4-work-subline a")?.getAttribute("title")).toMatch(/^Created .* · step recorded /); // created and recorded times moved from the second line into the link title (fix round 2)
     });
     // IDs and the fence sit in the disclosure, not the default reading.
     // Select the list's own basis disclosure by name.
