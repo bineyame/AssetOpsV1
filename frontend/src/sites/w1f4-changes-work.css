@@ -1,0 +1,84 @@
+/*
+ * W1-F4 group B: the v69 `changes` and `sitework` screens
+ * (`D-2026-10-17-mockup-layout-spec`). Shared v69 patterns live in
+ * `ui/primitives.css`; this file only adjusts their use on these two screens.
+ */
+
+/* Change and effect: the changed-value table, then the record as key values. */
+.w1f4-changes-work .panel .data-table caption {
+  text-align: left;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.w1f4-changes-work .v69-key-values {
+  margin: 12px 0 8px;
+}
+
+.w1f4-changes-work .v69-chart-note {
+  margin: 8px 0 0;
+}
+
+.w1f4-changes-work .disclosure {
+  margin-top: 10px;
+}
+
+/* Decision path: the mock's attention rows; the verification chip sits inline. */
+.w1f4-changes-work .v69-attention__item p .verify-chip {
+  margin-right: 4px;
+}
+
+.w1f4-changes-work .v69-attention__item a + a {
+  margin-left: 10px;
+}
+
+/* Site Work: the window as chip-sized controls at the top of the one panel. */
+.w1f4-work-window {
+  margin: 0 0 12px;
+}
+
+.w1f4-work-window__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #5c6c86;
+  font-size: 11px;
+}
+
+.w1f4-work-window .button {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.w1f4-work-state {
+  padding: 18px 0 6px;
+  text-align: center;
+}
+
+.w1f4-work-state__title {
+  margin: 0;
+  font-size: 13px;
+}
+
+.w1f4-work-state .disclosure {
+  text-align: left;
+}
+
+.w1f4-work-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 760px) {
+  .w1f4-work-window__field {
+    flex: 1 1 100%;
+  }
+
+  .w1f4-work-window__field .v69-chip-control {
+    flex: 1 1 auto;
+  }
+}

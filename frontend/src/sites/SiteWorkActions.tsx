@@ -12,29 +12,25 @@
  * - A refusal (changed list, invalid window, sign-in, access, unavailable or
  *   inconsistent store) shows no rows and no count, and never reads as zero.
  *
+ * W1-F4 (`D-2026-10-17-mockup-layout-spec`): the v69 `sitework` layout. A
+ * one-line status strip ("Scoped to <site> · N Actions", the read state and
+ * read time), then the single "Actions at this site" panel holding the window
+ * chips, the table or the in-panel state, and a panel-foot note. The former
+ * W1-UX-04 answer card is merged into the strip and the panel; there is no
+ * separate top card. There is no global Actions list in this build, so the
+ * strip has no "Manage in Actions" link.
+ *
  * The default reading is plain; IDs, the selection rule and the list's fence
  * sit in a "What this list is based on" disclosure. Owner, due date, priority,
  * success criterion and any verification verdict are not shown: this read has
  * none of them, and the list derives none.
  */
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import {
-  DataTable,
-  Disclosure,
-  ExactReferences,
-  Fact,
-  FactList,
-  HeadlineVisualCard,
-  Panel,
-  ProductStatus,
-  readResultWords,
-  ValueBars,
-  type ProductWords,
-  type ValueBarItem,
-} from "../ui";
+import { ChartNote, DataTable, Disclosure, Fact, FactList, Panel, readResultWords, type ProductWords } from "../ui";
 import type { ActionIndexBody, ActionIndexClient, ActionIndexResult, ActionIndexRow, ActionIndexScope } from "./actionIndexClient";
+import "./w1f4-changes-work.css";
 
 export interface SiteWorkLinks {
   /** The same page at another scope (a new window, page one, or the next page). */
@@ -59,6 +55,8 @@ export interface SiteWorkActionsProps {
 }
 
 const HEADING_ID = "site-work-actions-heading";
+/** The v69 `sitework:1` panel title (`v69-rendered-panels.json`). */
+export const SITE_WORK_PANEL_TITLE = "Actions at this site";
 
 /** `2026-11-01 00:05 UTC` from an ISO instant. */
 export function utcText(instant: string | null | undefined): string {
@@ -129,16 +127,18 @@ function WindowForm({ scope, onScope }: { scope: ActionIndexScope | null; onScop
     onScope({ from: `${first}T00:00:00Z`, to: `${to.toISOString().slice(0, 10)}T00:00:00Z`, limit: scope?.limit ?? null, cursor: null });
   };
   return (
-    <form onSubmit={submit} data-site-work-window aria-label="Actions window">
-      <label>
+    <form onSubmit={submit} className="v69-chips w1f4-work-window" data-site-work-window aria-label="Actions window">
+      <label className="w1f4-work-window__field">
         {"Created from "}
-        <input type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
-      </label>{" "}
-      <label>
+        <input className="v69-chip-control" type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
+      </label>
+      <label className="w1f4-work-window__field">
         {"to (included) "}
-        <input type="date" value={last} onChange={(event) => setLast(event.target.value)} />
-      </label>{" "}
-      <button type="submit">Show Actions</button>
+        <input className="v69-chip-control" type="date" value={last} onChange={(event) => setLast(event.target.value)} />
+      </label>
+      <button className="button" type="submit">
+        Show Actions
+      </button>
     </form>
   );
 }
@@ -249,155 +249,6 @@ function Rows({ body, links }: { body: ActionIndexBody; links: SiteWorkLinks }) 
   );
 }
 
-function Loaded({ body, scope, links, siteName }: { body: ActionIndexBody; scope: ActionIndexScope; links: SiteWorkLinks; siteName: string }) {
-  if (body.total_count === 0) {
-    return (
-      <>
-        <p className="overview-note" data-site-work-scope>
-          <strong>Scoped to {siteName}</strong> · 0 Actions created {dayText(body.window.from)} to {dayText(lastDayOf(body.window.to))}
-        </p>
-        <Panel heading="No Actions created at this site in this window" headingId={HEADING_ID}>
-          <div data-site-work-state="current-empty">
-            <p>No accepted recommendation was turned into an Action here between these dates.</p>
-            <Basis body={body} />
-          </div>
-        </Panel>
-      </>
-    );
-  }
-  return (
-    <>
-      <p className="overview-note" data-site-work-scope>
-        <strong>Scoped to {siteName}</strong> · {body.total_count} {body.total_count === 1 ? "Action" : "Actions"} created{" "}
-        {dayText(body.window.from)} to {dayText(lastDayOf(body.window.to))}
-      </p>
-      <Panel heading="Actions at this site" headingId={HEADING_ID}>
-        <div data-site-work-state="current-rows">
-          <p>Newest first. Each link opens the Action, the Finding version it came from, or the exact step shown.</p>
-          <Rows body={body} links={links} />
-          <nav aria-label="Actions pages" data-site-work-pages>
-            <span>
-              Showing {body.rows.length} of {body.total_count}.
-            </span>{" "}
-            {scope.cursor ? (
-              <Link to={links.scope({ ...scope, cursor: null })} data-site-work-first>
-                First page
-              </Link>
-            ) : null}{" "}
-            {body.next_cursor ? (
-              <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-site-work-next>
-                Next page
-              </Link>
-            ) : null}
-          </nav>
-          <p className="overview-note">Owners, due dates and success criteria are not recorded for these Actions.</p>
-          <Basis body={body} />
-        </div>
-      </Panel>
-    </>
-  );
-}
-
-function Refused({ result, scope, links }: { result: ActionIndexResult; scope: ActionIndexScope; links: SiteWorkLinks }) {
-  switch (result.status) {
-    case "basis_changed":
-      return (
-        <Panel heading="This list changed" headingId={HEADING_ID}>
-          <div data-site-work-state="basis-changed" data-site-work-reason={result.reason ?? ""}>
-            <p>Actions in this window changed after this page was opened, so the next page cannot continue from it.</p>
-            <p>
-              <Link to={links.scope({ ...scope, cursor: null })} data-site-work-restart>
-                Start again from the first page
-              </Link>
-            </p>
-          </div>
-        </Panel>
-      );
-    case "invalid":
-      return (
-        <Panel heading="This window cannot be shown" headingId={HEADING_ID}>
-          <div data-site-work-state="invalid" data-site-work-code={result.code ?? ""}>
-            <p>{result.message ?? "The requested window is not valid."}</p>
-            <p>Windows are whole UTC days, at most 31 days long.</p>
-          </div>
-        </Panel>
-      );
-    case "unauthenticated":
-      return (
-        <Panel heading="Sign in to see Actions" headingId={HEADING_ID}>
-          <p data-site-work-state="unauthenticated">{result.message ?? "Sign in to read Actions."}</p>
-        </Panel>
-      );
-    case "forbidden":
-      return (
-        <Panel heading="No access to this site's Actions" headingId={HEADING_ID}>
-          <p data-site-work-state="forbidden">{result.message ?? "You do not have access to this site."}</p>
-        </Panel>
-      );
-    case "not_found":
-      return (
-        <Panel heading="No Actions record for this site" headingId={HEADING_ID}>
-          <p data-site-work-state="not-found">
-            This site has no imported record, so it has no Action list. This is not a statement that it has no work.
-          </p>
-        </Panel>
-      );
-    default:
-      return (
-        <Panel heading="Actions not known right now" headingId={HEADING_ID}>
-          <div data-site-work-state={result.status === "inconsistent" ? "inconsistent" : "unavailable"}>
-            <p>The Action list could not be read, so nothing is listed and no count is given.</p>
-            <p>This is not a statement that the site has no Actions. Try again shortly.</p>
-          </div>
-        </Panel>
-      );
-  }
-}
-
-export function SiteWorkActions({ siteId, siteName, client, scope, links, onScope }: SiteWorkActionsProps) {
-  const [result, setResult] = useState<ActionIndexResult | null>(null);
-  const from = scope?.from;
-  const to = scope?.to;
-  const limit = scope?.limit;
-  const cursor = scope?.cursor;
-  useEffect(() => {
-    if (from === undefined || to === undefined) return undefined;
-    let active = true;
-    setResult(null);
-    void client.getActionIndex(siteId, { from, to, limit, cursor }).then((loaded) => {
-      if (active) setResult(loaded);
-    });
-    return () => {
-      active = false;
-    };
-  }, [client, siteId, from, to, limit, cursor]);
-  return (
-    <section aria-labelledby={HEADING_ID} data-site-work="actions">
-      <WindowForm scope={scope} onScope={onScope} />
-      {scope === null ? (
-        <Panel heading="Choose a window" headingId={HEADING_ID}>
-          <p data-site-work-state="choose-window">
-            Pick the days the Actions were created in (at most 31) and select Show Actions. Nothing is listed until a
-            window is chosen.
-          </p>
-        </Panel>
-      ) : result === null ? (
-        <p data-site-work-state="loading">Loading the site&apos;s Actions.</p>
-      ) : null}
-      {scope !== null && result !== null ? <SiteWorkCard result={result} siteName={siteName} links={links} /> : null}
-      {scope === null || result === null ? null : result.status === "loaded" ? (
-        <Loaded body={result.value} scope={scope} links={links} siteName={siteName} />
-      ) : (
-        <Refused result={result} scope={scope} links={links} />
-      )}
-      <p className="overview-note" data-site-work-not-included>
-        This list holds Actions only. Incidents and maintenance work are not part of it.
-      </p>
-      <p className="overview-note">Opening an Action moves you to its own page; the breadcrumb keeps this site.</p>
-    </section>
-  );
-}
-
 const LISTED_WORDS: ProductWords = {
   label: "Every Action created here in this window",
   sentence:
@@ -407,21 +258,6 @@ const LISTED_WORDS: ProductWords = {
   code: "CURRENT",
   unrecognised: false,
 };
-
-const STAND_ORDER = [
-  ["Accepted, not applied", "pending"],
-  ["Applied, result not checked yet", "applied"],
-  ["Trial closed", "closed"],
-  ["Being checked again", "rechecking"],
-] as const;
-
-function standKey(row: ActionIndexRow): string {
-  if (row.state.resolution?.state === "RESOLVED") return "closed";
-  if (row.state.resolution?.state === "RESOLUTION_WITHDRAWN") return "rechecking";
-  if (row.state.application === "APPLIED") return "applied";
-  if (row.state.application === "PENDING") return "pending";
-  return "unrecognised";
-}
 
 /** The refused or unread list, as state-line words: never a zero. */
 function refusedWords(result: ActionIndexResult): ProductWords {
@@ -454,111 +290,219 @@ function refusedWords(result: ActionIndexResult): ProductWords {
   }
 }
 
-/**
- * W1-UX-04: the Site Work answer card - what work is open at this site and
- * what is next. A zero is shown only after a successful bounded read, with
- * its read time beside it; a refused or unread list is never a zero. No
- * verification verdict is derived here.
- */
-function SiteWorkCard({
-  result,
-  siteName,
-  links,
+/** An in-panel state: one bold line and one note line, never a nested panel or a zero. */
+function PanelState({
+  state,
+  title,
+  children,
+  data,
 }: {
-  result: ActionIndexResult;
-  siteName: string;
-  links: SiteWorkLinks;
+  state: string;
+  title: string;
+  children: ReactNode;
+  data?: Record<string, string>;
 }) {
-  if (result.status !== "loaded") {
-    const words = refusedWords(result);
-    return (
-      <HeadlineVisualCard
-        dataName="site-work"
-        headingId="site-work-answer-heading"
-        question="What work is open at this site, and what is next?"
-        headline={<>No Action list can be shown, and no count is given.</>}
-        status={<ProductStatus words={words} scope={`${siteName}, Actions`} asOf={null} />}
-        meaning={<p>This is not a statement that the site has no Actions.</p>}
-        todo={words.next === undefined ? undefined : <p>{words.next}</p>}
-      />
-    );
-  }
-  const body = result.value;
-  const days = `${dayText(body.window.from)} to ${dayText(lastDayOf(body.window.to))}`;
-  const scope = `${siteName}, Actions created ${days}`;
-  if (body.total_count === 0) {
-    const words = readResultWords("proved-empty");
-    return (
-      <HeadlineVisualCard
-        dataName="site-work"
-        headingId="site-work-answer-heading"
-        question="What work is open at this site, and what is next?"
-        headline={
-          <span data-site-work-proved-zero={body.read_at}>No Actions were created at this site in this window.</span>
-        }
-        status={<ProductStatus words={words} scope={scope} asOf={body.read_at} />}
-        meaning={
-          <p>
-            The full list for this site and window was read and holds no Action. It says nothing about other windows,
-            incidents or maintenance work.
-          </p>
-        }
-        todo={<p>Choose a wider window, or open the site&apos;s Findings to see what could be worked on.</p>}
-        references={<SiteWorkReferences body={body} />}
-      />
-    );
-  }
-  const counts = new Map<string, number>();
-  for (const row of body.rows) counts.set(standKey(row), (counts.get(standKey(row)) ?? 0) + 1);
-  const items: ValueBarItem[] = STAND_ORDER.map(([label, key]) => ({ label, key, value: counts.get(key) ?? 0, valueText: String(counts.get(key) ?? 0) }));
-  const unrecognised = counts.get("unrecognised") ?? 0;
-  if (unrecognised > 0) items.push({ label: "State not recognised", key: "unrecognised", value: unrecognised, valueText: String(unrecognised) });
-  const newest = body.rows[0];
   return (
-    <HeadlineVisualCard
-      dataName="site-work"
-      headingId="site-work-answer-heading"
-      question="What work is open at this site, and what is next?"
-      headline={
-        <>
-          {body.total_count} {body.total_count === 1 ? "Action was" : "Actions were"} created at this site in this window.
-        </>
-      }
-      status={<ProductStatus words={LISTED_WORDS} scope={scope} asOf={body.read_at} />}
-      visual={
-        <ValueBars
-          title={`Where the Actions on this page stand (${body.rows.length} of ${body.total_count})`}
-          items={items}
-        />
-      }
-      meaning={
-        <p>
-          Applied or closed is a recorded step, not proof that a trial worked. Whether a trial met its goal is shown on
-          each Action&apos;s Verification.
-        </p>
-      }
-      todo={<p>{LISTED_WORDS.next}</p>}
-      destination={
-        newest ? (
-          <Link to={links.action(newest.action_id)} data-site-work-newest-link>
-            Open the newest Action
-          </Link>
-        ) : undefined
-      }
-      references={<SiteWorkReferences body={body} />}
-    />
+    <div className="w1f4-work-state" data-site-work-state={state} data-panel-gap={HEADING_ID} {...data}>
+      <p className="w1f4-work-state__title">
+        <strong>{title}</strong>
+      </p>
+      {children}
+    </div>
   );
 }
 
-function SiteWorkReferences({ body }: { body: ActionIndexBody }) {
+function Refused({ result, scope, links }: { result: ActionIndexResult; scope: ActionIndexScope; links: SiteWorkLinks }) {
+  switch (result.status) {
+    case "basis_changed":
+      return (
+        <PanelState state="basis-changed" title="This list changed" data={{ "data-site-work-reason": result.reason ?? "" }}>
+          <ChartNote>Actions in this window changed after this page was opened, so the next page cannot continue from it.</ChartNote>
+          <p>
+            <Link to={links.scope({ ...scope, cursor: null })} data-site-work-restart>
+              Start again from the first page
+            </Link>
+          </p>
+        </PanelState>
+      );
+    case "invalid":
+      return (
+        <PanelState state="invalid" title="This window cannot be shown" data={{ "data-site-work-code": result.code ?? "" }}>
+          <ChartNote>
+            {result.message ?? "The requested window is not valid."} Windows are whole UTC days, at most 31 days long.
+          </ChartNote>
+        </PanelState>
+      );
+    case "unauthenticated":
+      return (
+        <PanelState state="unauthenticated" title="Sign in to see Actions">
+          <ChartNote>{result.message ?? "Sign in to read Actions."}</ChartNote>
+        </PanelState>
+      );
+    case "forbidden":
+      return (
+        <PanelState state="forbidden" title="No access to this site's Actions">
+          <ChartNote>{result.message ?? "You do not have access to this site."}</ChartNote>
+        </PanelState>
+      );
+    case "not_found":
+      return (
+        <PanelState state="not-found" title="No Actions record for this site">
+          <ChartNote>
+            This site has no imported record, so it has no Action list. This is not a statement that it has no work.
+          </ChartNote>
+        </PanelState>
+      );
+    default:
+      return (
+        <PanelState state={result.status === "inconsistent" ? "inconsistent" : "unavailable"} title="Actions not known right now">
+          <ChartNote>
+            The Action list could not be read, so nothing is listed and no count is given. This is not a statement that
+            the site has no Actions. Try again shortly.
+          </ChartNote>
+        </PanelState>
+      );
+  }
+}
+
+function Loaded({ body, scope, links }: { body: ActionIndexBody; scope: ActionIndexScope; links: SiteWorkLinks }) {
+  if (body.total_count === 0) {
+    return (
+      <div className="w1f4-work-state" data-site-work-state="current-empty">
+        <p className="w1f4-work-state__title">
+          <strong data-site-work-proved-zero={body.read_at}>No Actions created at this site in this window</strong>
+        </p>
+        <ChartNote>
+          The full list for this site and window was read at {utcText(body.read_at)} and holds no Action. It says nothing
+          about other windows, incidents or maintenance work.
+        </ChartNote>
+        <Basis body={body} />
+      </div>
+    );
+  }
   return (
-    <ExactReferences
-      name="site-work-references"
-      references={[
-        { label: "Window start", value: body.window.from },
-        { label: "Window end (not included)", value: body.window.to },
-        { label: "List check token", value: body.fence.token },
-      ]}
-    />
+    <div data-site-work-state="current-rows">
+      <Rows body={body} links={links} />
+      <nav aria-label="Actions pages" data-site-work-pages className="w1f4-work-pages">
+        <span>
+          Showing {body.rows.length} of {body.total_count}. Newest first.
+        </span>{" "}
+        {scope.cursor ? (
+          <Link to={links.scope({ ...scope, cursor: null })} data-site-work-first>
+            First page
+          </Link>
+        ) : null}{" "}
+        {body.next_cursor ? (
+          <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-site-work-next>
+            Next page
+          </Link>
+        ) : null}
+      </nav>
+      <ChartNote>
+        Applied or closed is a recorded step, not proof that a trial worked; each Action&apos;s Verification shows whether
+        its trial met its goal.
+      </ChartNote>
+      <Basis body={body} />
+    </div>
   );
 }
+
+/** The one-line strip: scope and count, the read state, the window's read time. */
+function WorkStrip({
+  siteName,
+  scope,
+  result,
+}: {
+  siteName: string;
+  scope: ActionIndexScope | null;
+  result: ActionIndexResult | null;
+}) {
+  let count: string;
+  let words: ProductWords | null = null;
+  let detail: string | null = null;
+  if (scope === null) {
+    count = "no window chosen";
+    detail = "Nothing is listed until a window is chosen";
+  } else if (result === null) {
+    count = "reading";
+  } else if (result.status === "loaded") {
+    const body = result.value;
+    const days = `${dayText(body.window.from)} to ${dayText(lastDayOf(body.window.to))}`;
+    count = `${body.total_count} ${body.total_count === 1 ? "Action" : "Actions"} created ${days}`;
+    words = body.total_count === 0 ? readResultWords("proved-empty") : LISTED_WORDS;
+    detail = `Read ${utcText(body.read_at)}`;
+  } else {
+    count = "no count";
+    words = refusedWords(result);
+    detail = "Read time not recorded";
+  }
+  return (
+    <div className="status-strip status-strip--line" aria-label="Actions at this site, scope">
+      <span className="status-strip__lead" data-site-work-scope>
+        <strong>Scoped to {siteName}</strong> · {count}
+      </span>
+      {words === null ? null : (
+        <span className="status-strip__state" data-site-work-status={words.tone}>
+          {words.label}
+        </span>
+      )}
+      {detail === null ? null : (
+        <span className="muted status-strip__item" data-site-work-read-at>
+          {detail}
+        </span>
+      )}
+    </div>
+  );
+}
+
+export function SiteWorkActions({ siteId, siteName, client, scope, links, onScope }: SiteWorkActionsProps) {
+  const [result, setResult] = useState<ActionIndexResult | null>(null);
+  const from = scope?.from;
+  const to = scope?.to;
+  const limit = scope?.limit;
+  const cursor = scope?.cursor;
+  useEffect(() => {
+    if (from === undefined || to === undefined) return undefined;
+    let active = true;
+    setResult(null);
+    void client.getActionIndex(siteId, { from, to, limit, cursor }).then((loaded) => {
+      if (active) setResult(loaded);
+    });
+    return () => {
+      active = false;
+    };
+  }, [client, siteId, from, to, limit, cursor]);
+  const shown = scope === null ? null : result;
+  const rows = shown !== null && shown.status === "loaded" && shown.value.total_count > 0;
+  return (
+    <div className="w1f4-changes-work" data-site-work="actions">
+      <WorkStrip siteName={siteName} scope={scope} result={shown} />
+      <Panel
+        heading={SITE_WORK_PANEL_TITLE}
+        headingId={HEADING_ID}
+        description={rows ? "Owners, due dates and success criteria are not recorded for these Actions." : undefined}
+      >
+        <WindowForm scope={scope} onScope={onScope} />
+        {scope === null ? (
+          <PanelState state="choose-window" title="Choose a window">
+            <ChartNote>
+              Pick the days the Actions were created in (at most 31) and select Show Actions. Nothing is listed until a
+              window is chosen.
+            </ChartNote>
+          </PanelState>
+        ) : result === null ? (
+          <p data-site-work-state="loading">Loading the site&apos;s Actions.</p>
+        ) : result.status === "loaded" ? (
+          <Loaded body={result.value} scope={scope} links={links} />
+        ) : (
+          <Refused result={result} scope={scope} links={links} />
+        )}
+        <ChartNote data={{ "data-site-work-not-included": "" }}>
+          This list holds Actions only. Incidents and maintenance work are not part of it.
+        </ChartNote>
+      </Panel>
+      <p className="notice notice--info">Opening an Action moves you to its own page; the breadcrumb keeps this site.</p>
+    </div>
+  );
+}
+

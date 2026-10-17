@@ -20,7 +20,7 @@ import {
 import { SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionSelector, type ActionView } from "../sites/SiteAction";
-import { SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
+import { ChangesWorkPageHeader, SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
 import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
@@ -731,8 +731,6 @@ export function SiteFoundationChangeFrame({
   actions?: ActionClient;
 }) {
   const { siteId, changeId } = useParams<{ siteId: string; changeId: string }>();
-  const [title, setTitle] = useState("Foundation change");
-  const onTitle = useCallback((next: string) => setTitle(next), []);
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Foundation change" headingId={SITE_CHANGE_HEADING_ID}>
       {(site) => (
@@ -745,18 +743,14 @@ export function SiteFoundationChangeFrame({
               { label: "Change" },
             ]}
           />
-          <PageHeader
-            title={title}
-            headingId={SITE_CHANGE_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id} · SYSTEM demonstration`}
-          />
+          {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
+          <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
           <SiteFoundationChange
             siteId={site.site_id}
             changeId={changeId ?? ""}
             client={actions}
             links={changeLinks(site.site_id)}
-            onTitle={onTitle}
           />
         </main>
       )}
@@ -847,11 +841,7 @@ export function SiteWorkFrame({
               { label: "Work" },
             ]}
           />
-          <PageHeader
-            title="Work"
-            headingId={SITE_WORK_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id} · work raised at this site`}
-          />
+          <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Work" />
           <nav className="site-tabs site-subtabs" aria-label={SITE_WORK_SECTIONS_LABEL}>
             <ol className="site-tabs__list">
