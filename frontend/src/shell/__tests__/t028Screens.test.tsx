@@ -44,6 +44,7 @@ import type {
   SiteDirectoryClient,
 } from "../../sites/siteDirectoryClient";
 import type { SiteOverviewReadModel } from "../../sites/siteOverviewClient";
+import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
@@ -648,5 +649,33 @@ describe("the Overview links to the Finding instead of recomputing it (AC12)", (
     expect(document.querySelector("[data-dispatch-empty]")).toHaveTextContent(
       "No period of generator operation has been assessed",
     );
+  });
+});
+
+/** W1-F2: a legacy Site's Dispatch and its Analysis on the v69 panels, stocked, empty and refused. */
+describe("W1-F2: legacy dispatch and analysis panel structure", () => {
+  it("stocked, selected, empty and refused keep exactly the v69 panels", async () => {
+    let view = renderAt(`/sites/${SITE_ID}/performance/dispatch`);
+    await settledScreen();
+    expectV69Panels("dispatch", { interval: "No block selected" });
+    view.unmount();
+    view = renderAt(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`);
+    await settledScreen();
+    expectV69Panels("analysis");
+    view.unmount();
+    view = renderAt(`/sites/${SITE_ID}/performance/dispatch`, { analytics: analyticsClient(SITE_ID, { emptyDispatch: true }) });
+    await settledScreen();
+    expectV69Panels("dispatch", { interval: "No block selected" });
+    view.unmount();
+    renderAt(`/sites/${SITE_ID}/performance/dispatch`, {
+      analytics: {
+        ...analyticsClient(SITE_ID),
+        getDeclaration: () => Promise.resolve({ status: "unavailable", message: "store down" }),
+      },
+    });
+    await settledScreen();
+    expect(document.querySelector('[data-page-refusal="performance-unavailable"]')).not.toBeNull();
+    expectV69Panels("dispatch", { interval: "No block selected" });
+    expect(document.querySelectorAll('[data-dispatch-gap="performance-unavailable"]')).toHaveLength(3);
   });
 });

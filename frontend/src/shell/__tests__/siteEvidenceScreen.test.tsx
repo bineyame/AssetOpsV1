@@ -14,6 +14,7 @@ import {
 } from "../../sites/__tests__/evidenceFixtures";
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
+import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 import { OPERATOR_SITE_TABS_LABEL } from "../operatorSiteTabs";
@@ -295,5 +296,22 @@ describe("Site > Evidence, empty and unavailable", () => {
     renderAt(EVIDENCE_URL, populated(), true);
     await settledScreen();
     expect(region("Where the records come from")).toBeInTheDocument();
+  });
+});
+
+/** W1-F2: a legacy Site's Evidence and its Analysis on the v69 panels, stocked, empty and refused. */
+describe("W1-F2: legacy evidence panel structure", () => {
+  it.each([
+    ["stocked", () => populated()],
+    ["empty", () => EMPTY_EVIDENCE_CLIENT],
+    ["unavailable", () => evidenceClient({ status: "unavailable", message: "store down" })],
+  ] as const)("%s: overview and analysis render exactly the v69 panels", async (_name, client) => {
+    const view = renderAt(EVIDENCE_URL, client());
+    await settledScreen();
+    expectV69Panels("evidence");
+    view.unmount();
+    renderAt(ANALYSIS_URL, client());
+    await settledScreen();
+    expectV69Panels("evidence-analysis");
   });
 });

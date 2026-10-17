@@ -17,6 +17,7 @@ import {
   ledgerEvidence,
 } from "../../sites/__tests__/ledgerEvidenceFixtures";
 import { scanProductVocabulary } from "../../test/productVocabulary";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { expectStateLineVisible } from "../../test/productPresentation";
 
@@ -307,5 +308,41 @@ describe("central-ledger evidence client", () => {
     expect(await client.getEvidence("KOBO-001", {})).toMatchObject({ transition: "AWAITING_EVIDENCE_MIGRATION" });
     stub(404, { detail: { code: "GATEWAY_HEALTH_UNAVAILABLE" } });
     expect((await client.gatewayHealth?.getGatewayHealth("KOBO-001"))?.status).toBe("not_found");
+  });
+});
+
+/**
+ * W1-F2 (D-2026-10-17-mockup-layout-spec): the v69 `evidence` and `evidence-analysis` panel structure in every
+ * variant. A refused or unread store states the refusal first and keeps the panels with the gap inside each.
+ */
+describe("W1-F2: v69 evidence and evidence-analysis panel structure", () => {
+  it.each([
+    ["stocked", { status: "loaded", value: LEDGER_EVIDENCE }],
+    ["no readings", { status: "loaded", value: ledgerEvidence({ state: "NO_DATA", states: ["NO_DATA"], counts: { ...LEDGER_EVIDENCE.counts, accepted: 0 } }) }],
+    ["rejected only", { status: "loaded", value: ledgerEvidence({ state: "REJECTED_ONLY", states: ["REJECTED_ONLY"], counts: { ...LEDGER_EVIDENCE.counts, accepted: 0 } }) }],
+  ] as const)("%s: overview and analysis render exactly the v69 panels", async (_name, read) => {
+    const view = renderAt(EVIDENCE_URL, ledgerClient(read as never));
+    await settledScreen();
+    expectV69Panels("evidence");
+    view.unmount();
+    renderAt(ANALYSIS_URL, ledgerClient(read as never));
+    await settledScreen();
+    expectV69Panels("evidence-analysis");
+  });
+
+  it.each([
+    ["unavailable", { status: "unavailable", message: "store down" }],
+    ["not-found", { status: "not_found" }],
+  ] as const)("refused (%s): the refusal precedes the same panels, each stating the gap", async (name, read) => {
+    const view = renderAt(EVIDENCE_URL, ledgerClient(read as never));
+    await settledScreen();
+    expect(document.querySelector(`[data-page-refusal="${name}"]`)).not.toBeNull();
+    expectV69Panels("evidence");
+    expect(panelTitled("Most useful next evidence").querySelector(`[data-evidence-gap="${name}"]`)).not.toBeNull();
+    view.unmount();
+    renderAt(ANALYSIS_URL, ledgerClient(read as never));
+    await settledScreen();
+    expectV69Panels("evidence-analysis");
+    expect(document.querySelectorAll(`[data-evidence-gap="${name}"]`)).toHaveLength(2);
   });
 });

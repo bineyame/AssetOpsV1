@@ -544,3 +544,64 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     expect(container.querySelector("[data-dispatch-story='none']")?.textContent).toMatch(/nothing is concluded here/);
   });
 });
+
+/**
+ * W1-F2 (D-2026-10-17-mockup-layout-spec): the v69 `dispatch` and `analysis` panel structure in every variant.
+ * A page-level refusal keeps the same panel slots with the gap inside each.
+ */
+describe("W1-F2: v69 dispatch and analysis panel structure", () => {
+  const root = (container: HTMLElement) => container.querySelector("section") as HTMLElement;
+  const stocked = () => {
+    const current = revision("rev-current", "CANDIDATE_AVOIDABLE");
+    return fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-current": detail(current) });
+  };
+
+  it.each([
+    ["stocked, block selected", "?day=2026-10-02&revision=rev-current&block=1", "04:00–04:15 UTC"],
+    ["stocked, period selected", "?day=2026-10-02&revision=rev-current", "03:45–04:15 UTC"],
+    ["stocked, nothing selected", "?day=2026-10-02", "No block selected"],
+  ])("dispatch, %s", async (_name, search, interval) => {
+    const { container } = mount(stocked(), search);
+    await settledScreen();
+    expectV69Panels("dispatch", { interval }, root(container));
+  });
+
+  it("dispatch and analysis on an empty day keep their panels with the gap inside", async () => {
+    const empty = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window({ intervals: [] }) });
+    const { container, unmount } = mount(empty, "?day=2026-10-02");
+    await settledScreen();
+    expectV69Panels("dispatch", { interval: "No block selected" }, root(container));
+    expect(panelTitled("Selected block · No block selected", root(container)).textContent).toContain("No period selected");
+    unmount();
+    const analysis = mount(empty, "?day=2026-10-02&view=analysis");
+    await settledScreen();
+    expectV69Panels("analysis", {}, root(analysis.container));
+    expect(panelTitled("Constraint comparison", root(analysis.container)).textContent).toContain("Select a period");
+  });
+
+  it("analysis, stocked: three panels, no fuel calculation claimed", async () => {
+    const { container } = mount(stocked(), "?day=2026-10-02&revision=rev-current&block=1&view=analysis");
+    await settledScreen();
+    expectV69Panels("analysis", {}, root(container));
+    expect(panelTitled("Bounded fuel calculation", root(container)).querySelector("[data-dispatch-gated]")).not.toBeNull();
+  });
+
+  it.each([
+    ["cutover unreadable", { status: "unavailable", message: "store down" } as EvidenceRead<CutoverState>, { status: "loaded", value: window() } as EvidenceRead<DispatchWindow>, "cutover-unreadable"],
+    ["cutover closed", { status: "loaded", value: { ...OPEN, permitted: false, reason: "not compared" } } as EvidenceRead<CutoverState>, { status: "loaded", value: window() } as EvidenceRead<DispatchWindow>, "closed"],
+    ["window not found", { status: "loaded", value: OPEN } as EvidenceRead<CutoverState>, { status: "not_found" } as EvidenceRead<DispatchWindow>, "window-unreadable"],
+  ])("refused (%s): the refusal precedes the same panels, each stating the gap", async (_name, cutover, read, name) => {
+    for (const view of ["", "&view=analysis"]) {
+      const { container, unmount } = mount(fake(cutover, read), `?day=2026-10-02${view}`);
+      await settledScreen();
+      expect(container.querySelector(`[data-page-refusal="${name}"]`)).not.toBeNull();
+      if (view === "") {
+        expectV69Panels("dispatch", { interval: "No block selected" }, root(container));
+      } else {
+        expectV69Panels("analysis", {}, root(container));
+      }
+      expect(container.querySelectorAll(`[data-dispatch-gap="${name}"]`)).toHaveLength(3);
+      unmount();
+    }
+  });
+});
