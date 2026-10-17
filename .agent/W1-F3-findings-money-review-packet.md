@@ -26,7 +26,7 @@ Genuine gaps, stated inside the owning panel and registered: editable assumption
 - Adapting to the tightened guard (commit `9f2feb2a`):
   - `StatusBar` renders `status-strip status-strip--line`.
   - The shared state line inside it uses the new additive `ProductStatus inline`: one `status-strip__state` span with the same label, sentence, scope and as-of hooks, and no blocks inside the strip.
-  - Notices carry `.notice`. The Assumptions notice now follows its panel pair, as in mock `siteAssumptionsScreen`.
+  - Notices carry `.notice`. The Assumptions notice follows its panel pair. The mini `assumptions` mock (screens.js:338) puts its notice first; that notice is mock-only meta, so the app keeps its own notice after the pair (review L11: wording corrected).
   - Route wrappers are `div`, not stray `section`s.
   - The "What this finding means in money" link moved into the Finding section row (`FindingSections aside`). Before, it was a body paragraph above panel 1.
   - In-panel `h3`s on the F3 screens are now the mock's eyebrow or strong text. `BigClaim` can only be a paragraph (its `as="h3"` option is removed).
@@ -152,7 +152,7 @@ Every pre-existing test passed unchanged. The full list stays reachable, because
   - strip and schedule reachable behind the closed expander, with the state, price and disabled edit visible;
   - price history: latest 3 visible, the rest reachable in order;
   - Assumptions in use: 3 key values visible, 3 in the closed disclosure.
-- `siteFinding`: at most 3 limits visible, the rest reachable (the fixture is asserted to have more than 3); could-change visible; primary button.
+- `siteFinding`: (superseded by review fix round H1) every material limit visible; only the access note and the SUPPORTED lifecycle sentence in the closed expander; could-change visible; primary button.
 - `s404SiteFindingIndex`: 3 rows visible, 5 reachable in the read's order, one visible amount note.
 
 Copy edits that existing tests still match as substrings: the history no-replay line and the evidence lineage-complete line are shorter.
@@ -207,6 +207,38 @@ Twelve rows are still OVER, from 1.305x to 1.95x. In each case the remaining hei
 - **The rest (1.39-1.54x):** sitefindings, the withheld bridge, priced trade-offs, and the finding limits in the stale case.
 
 Not re-captured after `d79a9705`. That commit only changes one word and a `white-space: nowrap`, and can only shorten the sitefindings rows.
+
+
+## Review fix round (`.agent/W1-F3-review.md`, RETURN at `a5e961fc`)
+
+Commits `def88117`..`de19aeff` on the branch. Money gates untouched: `FindingConsequence.tsx` `shown`/`gated`, `BridgeTable current`, NO_PRICE/CONFLICT paths and `recorded_amount.disposition` are unchanged by every fix commit.
+
+| # | Sev | Fix | Commit |
+| --- | --- | --- | --- |
+| 1 | High | `LimitList` renders every material limit visibly (bounded line, record gap, series limit, every `groups` item, stops, recurrence), each shortened to one sentence; only the development-access note and the SUPPORTED lifecycle sentence sit in `details[data-show-all='finding-limits-context']`. New test "with many limits, every material limit is visible" (4 limitation groups + gap + series + stops, 9 visible items). | `def88117` |
+| 2 | High | Sitefindings: Domain ("Dispatch"), Priority and Confidence ("Not assessed", muted dashed badge) columns; Lens deferred to F5. Finding strip: Priority/Confidence "not assessed" chips. Financials: bridge Confidence column and "Data confidence: not assessed" chip. | `def88117`, `6a9557d0`, `80eb9f4f` |
+| 3 | High | Interpretation history price versions are a `DataTable` (Version, Diesel price, Effective, Set by / why, Status + "Open version N"); "Prices as recorded then" moved into the row's exact reference. | `3960f44c` |
+| 4 | Med | State said once: Finding panel keeps only source clause + as-of; Financials drops the "Modelled potential…" line and the duplicate "Why no current amount"; History one state line ("Latest recorded version when read · Version N of M · As of … · Keep this exact version"), completeness sentence dropped when complete (`data-history-complete` now marks the headline); Evidence one sentence, version said once in the scope; Sitefindings drops the in-panel amount note, "Showing N of N", and the one-day strip. | `def88117`, `6a9557d0`, `80eb9f4f`, `9aaa8c05` |
+| 5 | Med | One disclosure per panel: Financial assumptions merged; Financials range method and counted readings folded into the bridge's disclosure (`ExactReferences extra`, additive); Finding Evidence exact references moved into the bundle's one disclosure, lineage panel has none. | `80eb9f4f`, `3960f44c`, `9aaa8c05` |
+| 6 | Med | Evidence bundle Source column: "Source not named" / "N sources, not named" / "No source recorded" (the read carries no source label); IDs moved to the disclosure's reference list ("<Input>: source references"). | `9aaa8c05` |
+| 7 | Med | Empty Interpretation history: one state line "No fuel cost version recorded by this moment; the price versions below are prices only." No "Every amount here…" when empty. | `3960f44c` |
+| 8 | Med | Lineage: complete-trail sentence deleted (step line only, `data-evidence-lineage-complete` on the wrapper); no-record line reworded to "Open 'How this was worked out' above and choose a record to follow its trail."; one head link ("Back to this version of the Finding"). | `9aaa8c05` |
+| 9 | Med | Sitefindings off-screen cells `white-space: nowrap`; Related moved under the Finding title. Re-captured at 390 (below). | `6a9557d0` |
+| 10 | Low | Inline status: space before the provenance disclosure; bound starts with no separator. | `def88117` |
+| 11 | Low | Packet wording on the Assumptions notice corrected (above). | this packet |
+| - | coord. | Inline state line never a grey box: local reset of `.status-strip__state.product-status`, `--inline` and every tone (padding, border, background) and inherited sizes; F2 fixes the shared CSS separately. | `3960f44c`, `de19aeff` |
+| H-table | - | Finding History: row "Open this version" and "Check their record trail" dropped (row keeps "Select version N" · "Its evidence" · "Times and references"); head keeps one link. | `9aaa8c05` |
+
+### Re-pointed assertions (none weakened)
+- `siteFinding`: the "at most 3 limits / Show all N" assertions are replaced by the stronger "every material limit visible" set (H1 asked for the opposite behaviour). State-line checks moved to `expectFindingStateVisible`, which still asserts label, sentence (non-positive) and as-of visible outside any closed disclosure; the scope's version/period moved to the strip (M4).
+- `s404`: amount-note count 1 -> 0 with every row's "Not in this list" and the notice asserted instead; the one-day day strip is asserted absent while the Period cell is asserted to name the day; the two-day case still asserts 2 steps.
+- `siteFinancials`: eyebrow price text -> the version's field value; "Showing 2 of 2" -> asserted absent; empty history line -> the state sentence; `financials-why` non-empty -> non-empty only when it adds a stored reason, else absent, with the state sentence asserted visible and >20 chars; disclosure counts 2 -> 1 per panel, and 4 for the history table (one per row).
+- `siteFindingHistory`: "All 205 recorded versions are listed" -> `[data-history-complete]` on the headline "205 recorded versions…"; "version N" -> "Version N of M" in the scope; row Finding link and `data-history-check-evidence` -> asserted absent, with the head link and the row's `data-history-evidence-link` asserted on the same exact IDs; `data-history-open-evidence` -> absent, with the selected row's evidence link asserted.
+- `siteFindingEvidence`: latest-at-read text -> scope "Version 2 of this Finding" plus label "Latest recorded version when read"; exact references -> last element of the bundle disclosure body, same six labels first, plus source-reference rows; lineage panel asserted to have no `details`; new M6 assertion that no input Source cell holds a `code` ID; disclosure vocabulary scan moved from lineage to bundle (count still 1).
+
+### Fix-round deviations
+- Finding History keeps one panel-head link ("Open version N of the Finding"). The review's height table asked to drop the head links as duplicates of row links, but with "Open this version" dropped from rows (same table) the head link is the only way to the Finding at a version; the head evidence link is dropped.
+- Sitefindings Lens column waits for F5, as the review allows.
 
 ## Residual risk
 
