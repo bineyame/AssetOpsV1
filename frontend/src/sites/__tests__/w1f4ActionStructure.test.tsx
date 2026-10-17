@@ -20,7 +20,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
 import verificationContract from "../../../../backend/tests/fixtures/s6_verification_api_contract.json";
 import { SiteActionFrame } from "../../shell/SiteAnalyticsFrames";
-import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -253,5 +253,14 @@ describe("W1-F4 C1: the Action views keep their single v69 panel in every varian
     expect(q("[data-page-refusal='selection-not-found'] [data-action-open-latest]")).not.toBeNull();
     expectV69Panels(screenId);
     noCard();
+  });
+});
+
+describe("W1-F4 C1: the guard is not vacuous on the Action views", () => {
+  it.each(SCREENS)("a planted extra panel before panel 1 fails: %s", async (screenId, segment) => {
+    serve(reads(served(ov.applied_pending_newer_revision), served(hi.events_latest)));
+    mount(`/sites/KOBO-001/actions/${ACTION}${segment}`);
+    await settledScreen();
+    expectPlantedPanelRejected(screenId);
   });
 });

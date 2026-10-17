@@ -13,7 +13,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import actionContract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
 import contract from "../../../../backend/tests/fixtures/s6_verification_api_contract.json";
 import { SiteActionFrame } from "../../shell/SiteAnalyticsFrames";
-import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -222,5 +222,28 @@ describe("W1-F4 C2: Verification keeps the v69 panel structure (verification)", 
     mount(`/sites/KOBO-001/actions/${ACTION}/verification?outcome_id=${OUT1}`);
     await structure("verification");
     expect(q("[data-verification-historical]")?.textContent).toMatch(/^Historical/);
+  });
+});
+
+describe("W1-F4 C2: the guard is not vacuous on Plan, Evidence and Verification", () => {
+  it("action-plan: a planted extra panel before panel 1 fails", async () => {
+    serve({ ...actionReads(), [`${V}/plan`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/plan`);
+    await structure("action-plan");
+    expectPlantedPanelRejected("action-plan");
+  });
+
+  it("action-evidence: a planted extra panel before panel 1 fails", async () => {
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(prep(R.evidence)), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await structure("action-evidence");
+    expectPlantedPanelRejected("action-evidence");
+  });
+
+  it("verification: a planted extra panel before panel 1 fails", async () => {
+    serve({ ...actionReads(), [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(outcomeCurrent()) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await structure("verification");
+    expectPlantedPanelRejected("verification");
   });
 });

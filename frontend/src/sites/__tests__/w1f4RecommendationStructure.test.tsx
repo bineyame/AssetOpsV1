@@ -15,7 +15,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import contract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
-import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
@@ -153,5 +153,12 @@ describe("W1-F4: Recommendation keeps the v69 panel structure in every variant",
     for (const gap of gaps()) expect(gap.textContent).toContain("could not be read");
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     expect(document.querySelector("button")).toBeNull();
+  });
+});
+
+describe("W1-F4: the guard is not vacuous on Recommendation", () => {
+  it("a planted extra panel before panel 1 fails", async () => {
+    await show(rec.pre_accept_available);
+    expectPlantedPanelRejected("recommendation");
   });
 });

@@ -203,3 +203,23 @@ export function panelTitled(title: string, scope?: HTMLElement): HTMLElement {
   if (panel === null || panel === undefined) throw new Error(`No panel titled "${title}".`);
   return panel;
 }
+
+/**
+ * Non-vacuity proof for a rendered route: plants an extra titled panel before
+ * panel 1 of the current screen and asserts the guard rejects it, then removes
+ * the plant so the screen is left as rendered.
+ */
+export function expectPlantedPanelRejected(screenId: string): void {
+  const first = document.querySelector("main section.panel");
+  expect(first, "the screen renders a panel 1 to plant before").not.toBeNull();
+  const plant = document.createElement("section");
+  plant.className = "panel";
+  plant.innerHTML = "<h2>Planted extra panel</h2>";
+  first!.parentElement!.insertBefore(plant, first);
+  try {
+    expect(() => expectV69Panels(screenId)).toThrow();
+  } finally {
+    plant.remove();
+  }
+  expectV69Panels(screenId);
+}

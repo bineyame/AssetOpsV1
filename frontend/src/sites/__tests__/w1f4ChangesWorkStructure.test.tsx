@@ -16,7 +16,7 @@ import actionContract from "../../../../backend/tests/fixtures/s6_action_api_con
 import indexContract from "../../../../backend/tests/fixtures/s6_site_action_index_contract.json";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
-import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -181,5 +181,21 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     expect(gap.getAttribute("data-site-work-state")).toBe(state);
     expect(gap.textContent).toContain(title);
     expect(document.body.textContent).not.toMatch(/No Actions created|Showing \d/);
+  });
+});
+
+describe("W1-F4: the guard is not vacuous on changes and sitework", () => {
+  it("changes: a planted extra panel before panel 1 fails", async () => {
+    serve({ [changes.change.request.path]: served(changes.change), [EVENTS_API]: served(hi.events_latest) });
+    mount(CHANGE_URL);
+    await settledScreen();
+    expectPlantedPanelRejected("changes");
+  });
+
+  it("sitework: a planted extra panel before panel 1 fails", async () => {
+    serve({ [indexApi(WINDOW)]: { status: 200, body: D.positive } });
+    mount(workUrl(WINDOW));
+    await settledScreen();
+    expectPlantedPanelRejected("sitework");
   });
 });
