@@ -38,6 +38,9 @@ export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { Panel, type PanelProps } from "./Panel";
 export {
   AttentionList,
+  BigClaim,
+  Notice,
+  StatusBar,
   type AttentionItem,
   ChartNote,
   KeyValues,

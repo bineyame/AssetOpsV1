@@ -4351,3 +4351,114 @@ tr[data-selected] > * {
 .page-refusal > * + * {
   margin-top: 8px;
 }
+
+/* v69 statusbar, big claim, prose, notice and form patterns (W1-F3) ------------
+   Ported from frontend/mockups/v69/mockups.css. None of these is a panel. */
+.v69-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border: 1px solid #dce6f4;
+  border-radius: 5px;
+  background: #edf3fc;
+  font-size: 11px;
+}
+
+.v69-statusbar__spacer {
+  flex: 1;
+}
+
+.v69-big-claim {
+  max-width: 790px;
+  margin: 0;
+  color: #273e5d;
+  font-size: 19px;
+  font-weight: 550;
+  line-height: 1.5;
+}
+
+.v69-prose {
+  color: #46566e;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.v69-prose strong {
+  color: #22344f;
+}
+
+.v69-prose p + p {
+  margin-top: 12px;
+}
+
+.v69-notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0 0 18px;
+  padding: 11px 14px;
+  border: 1px solid #f2e6d0;
+  border-radius: 5px;
+  background: #fff9ef;
+  color: #6f5a39;
+  font-size: 11px;
+  line-height: 1.7;
+  break-inside: avoid;
+}
+
+.v69-notice--blue {
+  border-color: #dce6f5;
+  background: #f0f5fd;
+  color: #456080;
+}
+
+.v69-notice p {
+  margin: 0;
+  line-height: 1.65;
+}
+
+.v69-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+  margin-bottom: 18px;
+}
+
+.v69-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #52637e;
+  font-size: 11px;
+}
+
+.v69-field input,
+.v69-field select {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #cfd9e8;
+  border-radius: 5px;
+  background: #fff;
+  color: #213853;
+  font-size: 13px;
+}
+
+.v69-field small {
+  font-size: 10px;
+}
+
+.v69-form-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 17px;
+}
+
+@media (max-width: 760px) {
+  .v69-input-row {
+    grid-template-columns: 1fr;
+  }
+}

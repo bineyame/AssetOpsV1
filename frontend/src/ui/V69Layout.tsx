@@ -110,3 +110,60 @@ export function ChartNote({ children, data }: { children: ReactNode; data?: Reco
     </p>
   );
 }
+
+/** The mock's `.statusbar`: one line of state badges and short facts; not a panel. */
+export function StatusBar({
+  children,
+  label,
+  data,
+}: {
+  children: ReactNode;
+  /** Accessible name of the status line. */
+  label?: string;
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className="v69-statusbar" role="group" aria-label={label} {...data}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * The mock's `.big-claim`: the one answer sentence inside its owning panel.
+ * Rendered as an h3 by default so it stays a findable heading without adding
+ * an h2 panel slot.
+ */
+export function BigClaim({
+  children,
+  as = "h3",
+  data,
+}: {
+  children: ReactNode;
+  as?: "h3" | "p";
+  data?: Record<string, string>;
+}) {
+  const Tag = as;
+  return (
+    <Tag className="v69-big-claim" {...data}>
+      {children}
+    </Tag>
+  );
+}
+
+/** The mock's `.notice` (amber by default, `blue` for an informational note). */
+export function Notice({
+  children,
+  tone = "amber",
+  data,
+}: {
+  children: ReactNode;
+  tone?: "amber" | "blue";
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className={tone === "blue" ? "v69-notice v69-notice--blue" : "v69-notice"} {...data}>
+      {children}
+    </div>
+  );
+}
