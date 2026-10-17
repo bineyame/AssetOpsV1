@@ -491,6 +491,21 @@ describe("Historical views beside the actual current state, and window lineage (
     expect(win?.querySelector("[data-verification-lineage-day]")?.textContent).toMatch(/SELECTED_UNIQUE/);
     noVocabularyViolations("action-evidence:lineage");
   });
+
+  it("W1-UX-06: source reasons sent as objects ({code, accepted_evidence_ids}) render their exact code, not a crash", async () => {
+    // Found by the final served capture (s602b inconclusive case): the Evidence page went blank on these objects.
+    const ev = prep(R.evidence);
+    ev.source_resolution.later = {
+      ...ev.source_resolution.later,
+      state: "UNKNOWN",
+      reasons: [{ code: "SOURCE_NOT_ESTABLISHED", accepted_evidence_ids: ["ev-1"] }, "PLAIN_CODE"],
+    };
+    serve({ ...actionReads(), [`${V}/evidence`]: ok(ev), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) });
+    mount(`/sites/KOBO-001/actions/${ACTION}/evidence`);
+    await settledScreen();
+    await vi.waitFor(() => expect(q("[data-verification-evidence-window='later']")).not.toBeNull());
+    expect(qa("[data-verification-source-reason]").map((e) => e.textContent)).toEqual(["SOURCE_NOT_ESTABLISHED", "PLAIN_CODE"]);
+  });
 });
 
 describe("Recommendation and Change panels (recommendation:2-3, changes:1#b, changes:2)", () => {

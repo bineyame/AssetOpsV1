@@ -1400,8 +1400,9 @@ function WindowPanel({ name, window, source, links, lineage }: { name: "baseline
             </Fact>
             {source.reasons.length > 0 ? (
               <Fact term="Source reasons">
-                {source.reasons.map((id) => (
-                  <Ref key={id} value={id} />
+                {/* W1-UX-06: each reason is an object from the backend; show its exact code (an object is not renderable). */}
+                {source.reasons.map((reason, index) => (
+                  <Ref key={index} value={typeof reason === "string" ? reason : String(reason.code)} attr="data-verification-source-reason" />
                 ))}
               </Fact>
             ) : null}
