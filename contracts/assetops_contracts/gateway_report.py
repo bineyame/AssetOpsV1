@@ -19,6 +19,7 @@ distinct physical event every time it arrives.
 
 from __future__ import annotations
 
+import hashlib
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -181,3 +182,128 @@ def report_from_observation(
         quality=quality,
         unavailable_reason=reason,
     )
+
+
+# --- W2-02: DeviceReport v2 (cold events and measurements) ----------------------------------------------------
+#
+# `D-2026-10-17-w2-02-buildspec`, "DeviceReport v2 and gateway path". v1 above stays byte for byte. v2 carries
+# what a SourceEnvelope V4 payload needs - a measurement or a witnessed event - and still nothing about why: no
+# run ID, no private cause, no scenario. Every key is present on every report; an inapplicable field is null.
+# Like v1, this record fixes shape and types only; the gateway validates the values with the V4 parser before
+# any sequence is allocated.
+
+DEVICE_REPORT_V2_SCHEMA_VERSION = 2
+
+_KEYS_V2 = (
+    "schema", "report_key", "device_id", "signal_id", "source_time", "family", "measurement", "interval_start",
+    "interval_end", "value", "unit", "quality", "unavailable_reason", "record_kind", "event_id",
+    "correlation_id", "component_id", "actor", "outcome", "session_id", "connector_id",
+)
+_REQUIRED_TEXT_V2 = ("device_id", "signal_id", "source_time", "family", "quality")
+
+
+@dataclass(frozen=True)
+class DeviceReportV2:
+    """One public v2 report: a MEASUREMENT or an EVENT, every inapplicable field null."""
+
+    report_key: str | None
+    device_id: str
+    signal_id: str
+    source_time: str
+    family: str
+    measurement: str | None
+    interval_start: str | None
+    interval_end: str | None
+    value: str | None
+    unit: str | None
+    quality: str
+    unavailable_reason: str | None
+    record_kind: str | None
+    event_id: str | None
+    correlation_id: str | None
+    component_id: str | None
+    actor: str | None
+    outcome: str | None
+    session_id: str | None
+    connector_id: str | None
+
+
+def device_report_v2_document(report: DeviceReportV2) -> dict[str, Any]:
+    document: dict[str, Any] = {"schema": {"id": DEVICE_REPORT_SCHEMA_ID, "version": DEVICE_REPORT_V2_SCHEMA_VERSION}}
+    for key in _KEYS_V2[1:]:
+        document[key] = getattr(report, key)
+    return document
+
+
+def device_report_v2_text(report: DeviceReportV2) -> str:
+    return canonical_json(device_report_v2_document(report))
+
+
+def parse_device_report_v2(document: object) -> DeviceReportV2:
+    if not isinstance(document, dict):
+        raise EnvelopeRejected("WRONG_TYPE", "report", "a report is an object")
+    for key in sorted(document):
+        if key not in _KEYS_V2:
+            raise EnvelopeRejected("UNKNOWN_FIELD", key, "not a field of a public device report")
+    for key in sorted(_KEYS_V2):
+        if key not in document:
+            raise EnvelopeRejected("MISSING_FIELD", key, "required (null when absent)")
+    if document["schema"] != {"id": DEVICE_REPORT_SCHEMA_ID, "version": DEVICE_REPORT_V2_SCHEMA_VERSION}:
+        raise EnvelopeRejected("SCHEMA_UNSUPPORTED", "schema", f"{document['schema']!r}")
+    for key in _KEYS_V2[1:]:
+        value = document[key]
+        if key in _REQUIRED_TEXT_V2:
+            if type(value) is not str:
+                raise EnvelopeRejected("WRONG_TYPE", key, "text is wanted")
+        elif value is not None and type(value) is not str:
+            raise EnvelopeRejected("WRONG_TYPE", key, "text or null is wanted")
+    key = document["report_key"]
+    if key is not None and not _KEY.fullmatch(key):
+        raise EnvelopeRejected("INVALID_IDENTITY", "report_key", f"{key!r} is not a report key")
+    return DeviceReportV2(**{k: document[k] for k in _KEYS_V2[1:]})
+
+
+def parse_device_report_v2_text(text: object) -> DeviceReportV2:
+    return parse_device_report_v2(load_canonical_json(text))
+
+
+def device_report_schema_version(text: object) -> int | None:
+    """The stated report schema version (1 or 2) of a report text, or None when it states neither.
+
+    Dispatch only: the chosen parser then reads the whole report strictly."""
+    try:
+        document = load_canonical_json(text)
+    except EnvelopeRejected:
+        return None
+    if not isinstance(document, dict):
+        return None
+    schema = document.get("schema")
+    if isinstance(schema, dict) and schema.get("id") == DEVICE_REPORT_SCHEMA_ID:
+        version = schema.get("version")
+        if type(version) is int and version in (DEVICE_REPORT_SCHEMA_VERSION, DEVICE_REPORT_V2_SCHEMA_VERSION):
+            return version
+    return None
+
+
+def _cold_digest(parts: list[object]) -> str:
+    return "cold:" + hashlib.sha256(canonical_json(parts).encode("utf-8")).hexdigest()
+
+
+def cold_event_id(*, scenario_sha256: str, device_id: str, signal_id: str, transition_ordinal: int) -> str:
+    """`cold:` + SHA-256 of canonical `(scenario_sha256, device_id, signal_id, transition_ordinal)`."""
+    return _cold_digest([scenario_sha256, device_id, signal_id, transition_ordinal])
+
+
+def cold_report_key(
+    *,
+    scenario_sha256: str,
+    device_id: str,
+    signal_id: str,
+    source_time: str,
+    record_kind: str | None,
+    event_id: str | None,
+    interval_start: str | None,
+) -> str:
+    """`cold:` + SHA-256 of canonical `(scenario_sha256, device_id, signal_id, source_time, record_kind,
+    event_id, interval_start)`: deterministic, so a retransmission carries the same key."""
+    return _cold_digest([scenario_sha256, device_id, signal_id, source_time, record_kind, event_id, interval_start])

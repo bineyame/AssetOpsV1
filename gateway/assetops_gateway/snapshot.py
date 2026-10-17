@@ -23,7 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field as _field
 from datetime import datetime, timezone
 from typing import Any
 
@@ -78,6 +78,8 @@ class Binding:
     canonical_unit: str
     conversion_kind: str
     enum_map: tuple[tuple[str, str], ...]
+    #: W2-02: the row's five v4 mapping keys exactly as the snapshot states them, or None for a v3 row.
+    v4_metadata: dict[str, Any] | None = _field(default=None, compare=False, hash=False)
 
 
 @dataclass(frozen=True)
@@ -309,6 +311,7 @@ def verify_snapshot(
                 canonical_unit=_text(row["canonical_unit"], f"{where}.canonical_unit"),
                 conversion_kind=kind,
                 enum_map=enum_map,
+                v4_metadata={k: row[k] for k in sorted(_V4_BINDING_KEYS)} if _V4_BINDING_KEYS & set(row) else None,
             )
         )
         content_rows.append({k: v for k, v in row.items() if k != "binding_revision_id"})
