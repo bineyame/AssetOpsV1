@@ -361,17 +361,33 @@ button:focus-visible {
 
 /* Panel ------------------------------------------------------------------- */
 
+/* v69 panel (`mockups.css` .panel / .panel-head, D-2026-10-17-mockup-layout-spec):
+   one padded card, the title row and its sub-line inside the same padding, no rule
+   between header and body. */
 .panel {
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  margin-bottom: var(--space-4);
+  border-radius: var(--v69-radius-panel);
+  padding: var(--v69-panel-padding);
+  margin-bottom: var(--v69-gap);
+  min-width: 0;
 }
 
 .panel__header {
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+
+.panel__header-text {
+  min-width: 0;
+}
+
+.panel__actions {
+  flex: none;
+  font-size: var(--text-panel-note);
 }
 
 .panel__heading {
@@ -382,14 +398,14 @@ button:focus-visible {
 }
 
 .panel__description {
-  margin: var(--space-1) 0 0;
+  margin: 5px 0 0;
   font-size: var(--text-panel-note);
   color: var(--text-secondary);
   line-height: var(--leading-relaxed);
 }
 
 .panel__body {
-  padding: var(--space-4);
+  padding: 0;
 }
 
 .panel__body > :first-child {
@@ -2549,9 +2565,24 @@ input:focus-visible,
   min-width: 0;
 }
 
-@media (min-width: 1100px) {
+/* v69 `.two-col`: 1.8fr / minmax(270px, 1fr) above 1100px, 1.4fr / 1fr down to 760px. */
+@media (min-width: 761px) {
   .panel-pair {
-    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr);
+    gap: var(--v69-gap);
+    margin-bottom: var(--v69-gap);
+  }
+  .panel-pair--equal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1101px) {
+  .panel-pair {
+    grid-template-columns: minmax(0, 1.8fr) minmax(270px, 1fr);
+  }
+  .panel-pair--equal {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -3170,13 +3201,6 @@ tr[data-selected] > * {
   color: var(--text-secondary);
 }
 
-/* Site model: balanced headings and padding across the pair (mock `.two-col`). */
-@media (min-width: 1100px) {
-  .panel-pair--balanced {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    align-items: stretch;
-  }
-}
 
 /* V-01b Evidence (Site > Evidence, central-ledger path) -----------------------
  * Mock v6.9 `siteEvidenceScreen` / `siteEvidenceAnalysis`: a compact window
@@ -4065,4 +4089,251 @@ tr[data-selected] > * {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   gap: var(--space-4);
+}
+
+/* v69 layout patterns ------------------------------------------------------------
+ * Ported from `frontend/mockups/v69/mockups.css` (D-2026-10-17-mockup-layout-spec):
+ * the compact metric row (`.cards` / `.metric`), key-value lists (`.key-values`),
+ * the numbered attention list, filter chips, the gateway strip and sources, and
+ * the configured-topology map. Components: `ui/V69Layout.tsx`.
+ */
+.v69-cards {
+  display: grid;
+  gap: 13px;
+  margin: 0 0 var(--v69-gap);
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.v69-cards--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.v69-cards--five {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.v69-metric {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--v69-radius-panel);
+  padding: 17px 17px 15px;
+  min-width: 0;
+}
+
+.v69-metric__label {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  color: #5b6b82;
+}
+
+.v69-metric__value {
+  margin: 10px 0 7px;
+  font-size: 27px;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* A word value (state, assessment, gap) is set smaller, as the mock's `.assessment`. */
+.v69-metric--word .v69-metric__value {
+  font-size: 17px;
+  margin: 11px 0;
+}
+
+.v69-metric--green .v69-metric__value { color: #166b50; }
+.v69-metric--amber .v69-metric__value { color: #8e580c; }
+.v69-metric--red .v69-metric__value { color: #a13838; }
+.v69-metric--muted .v69-metric__value { color: var(--text-secondary); }
+
+.v69-metric__note {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.v69-metric__note > p {
+  margin: 0;
+}
+
+.v69-key-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin: 0;
+  font-size: 11px;
+}
+
+.v69-key-values > div {
+  display: contents;
+}
+
+.v69-key-values dt,
+.v69-key-values dd {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.v69-key-values dt {
+  color: var(--text-secondary);
+}
+
+.v69-key-values dd {
+  text-align: right;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+
+.v69-chart-note {
+  margin: 10px 0 0;
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.v69-attention {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.v69-attention__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+
+.v69-attention__item:first-child {
+  padding-top: 0;
+}
+
+.v69-attention__item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.v69-attention__rank {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: #f0f3f9;
+  font-size: 11px;
+  color: #6c7c95;
+}
+
+.v69-attention__item h3 {
+  margin: 1px 0 4px;
+  font-size: 12px;
+}
+
+.v69-attention__item p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.v69-attention__item a {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.v69-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.v69-chip {
+  border: 1px solid var(--border-subtle);
+  border-radius: 5px;
+  padding: 7px 12px;
+  background: var(--surface-raised);
+  color: #5c6c86;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.v69-chip[aria-pressed="true"] {
+  background: #eaf0fd;
+  border-color: #cbdafa;
+  color: #245ac0;
+}
+
+/* Gateway status (mock `gatewayPanel`): metric row, then a sources/effect pair. */
+.gw-panel .v69-cards {
+  margin-bottom: 12px;
+}
+
+.gw-panel .panel-pair {
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+.gw-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gw-src {
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 5px 8px;
+  background: #fbfcfe;
+  font-size: 11px;
+}
+
+.gw-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #2f8f6f;
+}
+
+.gw-dot--gap {
+  background: #d6a052;
+}
+
+.gw-dot--none {
+  background: #fff;
+  border: 1.5px dashed #8a9bb3;
+}
+
+@media (max-width: 1100px) {
+  .v69-cards--five {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .v69-metric__value {
+    font-size: 23px;
+  }
+}
+
+@media (max-width: 760px) {
+  .v69-cards,
+  .v69-cards--three,
+  .v69-cards--five {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .v69-metric__value {
+    font-size: 24px;
+  }
 }

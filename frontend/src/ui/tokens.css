@@ -158,6 +158,10 @@
   --tab-gap: 1.5625rem;
 
   /* Spacing --------------------------------------------------------------- */
+  /* v69 layout metrics (mockups.css: panel padding 19px, radius 7px, 18px rhythm). */
+  --v69-panel-padding: 19px;
+  --v69-radius-panel: 7px;
+  --v69-gap: 18px;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;

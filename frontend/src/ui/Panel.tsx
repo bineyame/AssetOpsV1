@@ -24,6 +24,10 @@ export interface PanelProps {
   description?: ReactNode;
   /** Removes body padding, for a panel whose body is a table. */
   flush?: boolean;
+  /** The v69 panel-head right slot: one link or control beside the title. */
+  actions?: ReactNode;
+  /** An extra class for a v69 panel variant (for example `gw-panel`). */
+  className?: string;
   children: ReactNode;
 }
 
@@ -33,21 +37,26 @@ export function Panel({
   headingLevel = 2,
   description,
   flush = false,
+  actions,
+  className,
   children,
 }: PanelProps) {
   const Heading = headingLevel === 3 ? "h3" : "h2";
 
   return (
     <section
-      className={flush ? "panel panel--flush" : "panel"}
+      className={["panel", flush ? "panel--flush" : "", className ?? ""].filter(Boolean).join(" ")}
       aria-labelledby={heading === undefined ? undefined : headingId}
     >
       {heading === undefined ? null : (
         <div className="panel__header">
-          <Heading className="panel__heading" id={headingId}>
-            {heading}
-          </Heading>
-          {description === undefined ? null : <p className="panel__description">{description}</p>}
+          <div className="panel__header-text">
+            <Heading className="panel__heading" id={headingId}>
+              {heading}
+            </Heading>
+            {description === undefined ? null : <p className="panel__description">{description}</p>}
+          </div>
+          {actions === undefined ? null : <div className="panel__actions">{actions}</div>}
         </div>
       )}
       <div className="panel__body">{children}</div>

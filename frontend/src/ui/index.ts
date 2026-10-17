@@ -37,6 +37,16 @@ export { RailIcon, type RailIconName } from "./RailIcon";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { Panel, type PanelProps } from "./Panel";
 export {
+  AttentionList,
+  type AttentionItem,
+  ChartNote,
+  KeyValues,
+  MetricCard,
+  type MetricCardProps,
+  MetricCards,
+  type MetricTone,
+} from "./V69Layout";
+export {
   ReviewProposal,
   type ReviewProposalProps,
   REVIEW_PROPOSAL_STATUS,
