@@ -99,11 +99,11 @@ import {
  *
  * This is the legacy (unimported) Site's one page; an imported Site renders
  * the S1-03 views in `StoredFoundationViews` instead. Where the content sits
- * is settled, not incidental. A contents row once named Definition, Topology
- * and Controls (removed by S1-03; they remain headings), and T013's rule was
- * that no unlinked panel sit between those sections - so the topology, device and mapping
- * tables live INSIDE the Topology panel as subsections, and the components
- * table stays below Controls where T013 put it.
+ * is settled, not incidental. W1-F1 (D-2026-10-17-mockup-layout-spec) gives
+ * it the three v69 Foundation panels - Configured topology and Identity and
+ * operating obligations side by side, then Time-valid control configuration -
+ * and nothing else. Definition, Topology, Controls, Components and the other
+ * former panels are subsections (h3) of the panel that owns them.
  */
 export const SITE_CONFIGURATION_HEADING_ID = "site-configuration-heading";
 
@@ -311,187 +311,191 @@ export function SiteConfigurationFacts({
       {revision}
 
       {/*
-        * Definition, as v6.9 names it. T011A left a panel headed `Foundation`
-        * directly under a page titled `Foundation` and said this slice owned
-        * the correction; this is it, and the panel now carries what the
-        * criterion assigns to Definition: identity, summary, validity and
-        * provenance, in one place rather than scattered across three panels
-        * the subtab row does not name.
+        * W1-F1 (D-2026-10-17-mockup-layout-spec): the legacy Site model renders
+        * the three v69 Foundation panels and nothing else - Configured topology
+        * beside Identity and operating obligations, then Time-valid control
+        * configuration - the same arrangement as the stored Site model. The
+        * panels this page used to stack (Definition, Topology, Controls,
+        * Components, Key parameters, ...) are now subsections of the one panel
+        * that owns them, under their old names, so their content is still found
+        * where a reader looks for it.
         */}
-      <Panel
-        heading="Definition"
-        headingId={FOUNDATION_DEFINITION_ID}
-      >
-        <FactList>
-          <Fact term="Site ID">{view.siteId}</Fact>
-          <Fact term="Name">{view.displayName}</Fact>
-          <Fact term="Type">{view.siteType}</Fact>
-          <Fact term="Location">{view.location}</Fact>
-          <Fact term="Timezone">{view.timezone}</Fact>
-          <Fact term="Foundation version">{view.foundationVersion}</Fact>
-          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
-          <Fact term="Summary">{view.foundationSummary}</Fact>
+      <div className="panel-pair">
+        <Panel
+          heading="Configured topology"
+          headingId="site-configuration-configured-topology-heading"
+        >
+          <div className="subsection">
+            <h3 className="subsection__heading" id={FOUNDATION_TOPOLOGY_ID}>
+              Topology
+            </h3>
+            <p>
+              What this site&apos;s foundation declares about how its components
+              are joined, which devices are configured against them, and which
+              component each device signal describes. All of it is configuration
+              read back. Nothing here is a reading: no device has reported, and no
+              value below has ever been measured.
+            </p>
+
+            {/*
+              * The diagram comes first, above the tables that say the same
+              * thing in rows: it is the same facts in two forms and the drawing
+              * is the one a reader looks at first. It draws only what
+              * `deriveSiteSldView` validated, never a partial arrangement.
+              */}
+            <SiteSingleLineDiagram site={site} boundDevices={sldBoundDevices} />
+
+            {/*
+              * Topology is one declaration, so it is one absence: when a
+              * document declares none, the statement is made once rather than
+              * repeated under the nodes and the connections headings.
+              */}
+            {view.topologyNodes.status === "not_declared" ? (
+              <FactList>
+                <SiteConfigurationStatedAbsence
+                  name="Topology"
+                  fact={view.topologyNodes.absence}
+                />
+              </FactList>
+            ) : (
+              <>
+                <SiteTopologyNodes section={view.topologyNodes} />
+                <SiteTopologyConnections section={view.topologyConnections} />
+              </>
+            )}
+
+            <SiteFoundationDevices section={view.devices} />
+            <SiteSignalMappings section={view.signalMappings} basis={signalMappingBasis} />
+
+            {/*
+              * Two device facts this build does not hold, stated once rather
+              * than given a column each: a column of dashes would say the
+              * product looked for a protocol and found none.
+              */}
+            <p className="note">{FOUNDATION_DEVICE_METADATA_LIMITS}</p>
+          </div>
+
+          <SiteConfigurationComponents components={view.components} />
+
           {/*
-           * Three vocabularies, three tones, never one status pill. Template
-           * provenance stays plain text: a site created from no template
-           * renders an absence there, and an absence is not a badge value.
-           */}
-          <Fact term="Lifecycle status">
-            <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
-          </Fact>
-          <Fact term="Mode">
-            <Badge tone="provenance">{view.sourceMode}</Badge>
-          </Fact>
-          <Fact term="Configuration origin">
-            <Badge tone="origin">{view.configurationOrigin}</Badge>
-          </Fact>
-          <Fact term="Created from template">
-            <TemplateProvenanceText
-              site={site}
-              provenance={view.templateProvenance}
-              lineage={lineage}
-            />
-          </Fact>
-        </FactList>
-        <p>{view.foundationValiditySemantics}</p>
-        <p>
-          These are separate facts about a site and none is derived from
-          another. Configuration origin is where this site&apos;s configuration
-          document came from. Mode is where the site&apos;s evidence comes
-          from, and it is provenance rather than status, health, or an
-          assessment. Lifecycle status is where the site is in its own life.
-        </p>
-      </Panel>
+            * The typed physical properties sit with the components, because
+            * what a tank holds and what a generator burns are facts about what
+            * those machines ARE.
+            */}
+          <div className="subsection">
+            <h3
+              className="subsection__heading"
+              id="site-configuration-physical-properties-heading"
+            >
+              Declared component properties
+            </h3>
+            <SitePhysicalProperties section={view.physicalProperties} />
+          </div>
+        </Panel>
+
+        <Panel
+          heading="Identity and operating obligations"
+          headingId="site-configuration-identity-heading"
+        >
+          {/*
+            * Definition, as v6.9 names it: identity, summary, validity and
+            * provenance in one place.
+            */}
+          <div className="subsection">
+            <h3 className="subsection__heading" id={FOUNDATION_DEFINITION_ID}>
+              Definition
+            </h3>
+            <FactList>
+              <Fact term="Site ID">{view.siteId}</Fact>
+              <Fact term="Name">{view.displayName}</Fact>
+              <Fact term="Type">{view.siteType}</Fact>
+              <Fact term="Location">{view.location}</Fact>
+              <Fact term="Timezone">{view.timezone}</Fact>
+              <Fact term="Foundation version">{view.foundationVersion}</Fact>
+              <Fact term="Valid from">{view.foundationValidFrom}</Fact>
+              <Fact term="Summary">{view.foundationSummary}</Fact>
+              {/*
+               * Three vocabularies, three tones, never one status pill. Template
+               * provenance stays plain text: a site created from no template
+               * renders an absence there, and an absence is not a badge value.
+               */}
+              <Fact term="Lifecycle status">
+                <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
+              </Fact>
+              <Fact term="Mode">
+                <Badge tone="provenance">{view.sourceMode}</Badge>
+              </Fact>
+              <Fact term="Configuration origin">
+                <Badge tone="origin">{view.configurationOrigin}</Badge>
+              </Fact>
+              <Fact term="Created from template">
+                <TemplateProvenanceText
+                  site={site}
+                  provenance={view.templateProvenance}
+                  lineage={lineage}
+                />
+              </Fact>
+            </FactList>
+            <p>{view.foundationValiditySemantics}</p>
+            <p>
+              These are separate facts about a site and none is derived from
+              another. Configuration origin is where this site&apos;s configuration
+              document came from. Mode is where the site&apos;s evidence comes
+              from, and it is provenance rather than status, health, or an
+              assessment. Lifecycle status is where the site is in its own life.
+            </p>
+          </div>
+
+          <div className="subsection">
+            <h3 className="subsection__heading" id="site-configuration-fixed-heading">
+              Configuration is fixed at creation
+            </h3>
+            <p>{view.configurationFixedAtCreation}</p>
+          </div>
+
+          <SiteKeyParameters parameters={view.keyParameters} />
+
+          <div className="subsection">
+            <h3
+              className="subsection__heading"
+              id="site-configuration-no-evidence-heading"
+            >
+              Not available for this site
+            </h3>
+            <FactList>
+              <SiteConfigurationStatedAbsence
+                name="Integration readiness"
+                fact={view.integrationReadiness}
+              />
+            </FactList>
+            <p>
+              This tab states the site&apos;s configuration, and nothing on it is
+              evidence. What has been accepted for this site, the health of each
+              source that delivered it and its coverage are on the Evidence tab.
+            </p>
+          </div>
+        </Panel>
+      </div>
 
       <Panel
-        heading="Configuration is fixed at creation"
-        headingId="site-configuration-fixed-heading"
-      >
-        <p>{view.configurationFixedAtCreation}</p>
-      </Panel>
-
-      <SiteKeyParameters parameters={view.keyParameters} />
-
-      <Panel
-        heading="Topology"
-        headingId={FOUNDATION_TOPOLOGY_ID}
-      >
-        <p>
-          What this site&apos;s foundation declares about how its components
-          are joined, which devices are configured against them, and which
-          component each device signal describes. All of it is configuration
-          read back. Nothing here is a reading: no device has reported, and no
-          value below has ever been measured.
-        </p>
-
-        {/*
-          * Topology is one declaration, so it is one absence. When a document
-          * declares none, the nodes and the connections are not two separate
-          * things missing: the statement is made once, under the name the
-          * subtab row uses, rather than repeated under two subsection
-          * headings that would both give the same reason.
-          */}
-        {/*
-          * The diagram comes first inside Topology, above the tables that say
-          * the same thing in rows. It is the same facts in two forms and the
-          * drawing is the one a reader looks at first; putting it under six
-          * tables would make the section read as though the tables were the
-          * subject and the diagram an afterthought.
-          *
-          * It is a subsection and not a panel of its own. T013's rule is that
-          * no unlinked panel may sit between the sections the Foundation row
-          * names, and a panel headed for the diagram between Topology and
-          * Controls would make the row misleading about where Topology ends.
-          */}
-        <SiteSingleLineDiagram site={site} boundDevices={sldBoundDevices} />
-
-        {view.topologyNodes.status === "not_declared" ? (
-          <FactList>
-            <SiteConfigurationStatedAbsence
-              name="Topology"
-              fact={view.topologyNodes.absence}
-            />
-          </FactList>
-        ) : (
-          <>
-            <SiteTopologyNodes section={view.topologyNodes} />
-            <SiteTopologyConnections section={view.topologyConnections} />
-          </>
-        )}
-
-        <SiteFoundationDevices section={view.devices} />
-        <SiteSignalMappings section={view.signalMappings} basis={signalMappingBasis} />
-
-        {/*
-          * Two device facts this build does not hold, stated once rather than
-          * given a column each. `.ai/FEATURE_MAP.md` lists protocol metadata
-          * and sample cadence as prerequisites of this feature area; T014's
-          * schema carries neither, and the parser refuses a document that
-          * declares one. A column of dashes would say the product looked for a
-          * protocol and found none, which is a claim about the device.
-          */}
-        <p className="note">{FOUNDATION_DEVICE_METADATA_LIMITS}</p>
-      </Panel>
-
-      <Panel
-        heading="Controls"
-        headingId={FOUNDATION_CONTROLS_ID}
+        heading="Time-valid control configuration"
+        headingId="site-configuration-time-valid-controls-heading"
       >
         {/*
           * Two different kinds of fact under one heading, and the order says
           * which is which. The declared control properties are configured
-          * numbers with units; the control assumptions below are statements
-          * in words about how the site is intended to be operated. Neither is
-          * a control: nothing on this screen issues one, and the note on the
-          * properties table says so where a reader meets the numbers.
+          * numbers with units; the control assumptions below are statements in
+          * words about how the site is intended to be operated. Neither is a
+          * control: nothing on this screen issues one.
           */}
-        <SiteControlProperties section={view.controlProperties} />
-        <SiteControlsTable section={view.siteControls} />
-        <SiteControlAssumptions section={view.controlAssumptions} />
-      </Panel>
-
-      {/*
-        * The components table sits after Controls, not between Topology and
-        * Controls where T013 first put it.
-        *
-        * The row names Topology and Controls and does not name this, and an
-        * unnamed panel wedged between two named ones makes the row misleading
-        * about where a section ends. It also had a measurable cost: with this
-        * table above it, Controls could be reached only by the document
-        * clamping at the bottom of the page, so its link landed 336px from the
-        * top while every other link landed at 24px.
-        */}
-      <SiteConfigurationComponents components={view.components} />
-
-      {/*
-        * The typed physical properties sit with the components rather than
-        * with Controls, because what a tank holds and what a generator burns
-        * are facts about what those machines ARE. The control properties are
-        * under Controls, beside the assumptions they make concrete.
-        */}
-      <Panel
-        heading="Declared component properties"
-        headingId="site-configuration-physical-properties-heading"
-        flush
-      >
-        <SitePhysicalProperties section={view.physicalProperties} />
-      </Panel>
-
-      <Panel
-        heading="Not available for this site"
-        headingId="site-configuration-no-evidence-heading"
-      >
-        <FactList>
-          <SiteConfigurationStatedAbsence
-            name="Integration readiness"
-            fact={view.integrationReadiness}
-          />
-        </FactList>
-        <p>
-          This tab states the site&apos;s configuration, and nothing on it is
-          evidence. What has been accepted for this site, the health of each
-          source that delivered it and its coverage are on the Evidence tab.
-        </p>
+        <div className="subsection">
+          <h3 className="subsection__heading" id={FOUNDATION_CONTROLS_ID}>
+            Controls
+          </h3>
+          <SiteControlProperties section={view.controlProperties} />
+          <SiteControlsTable section={view.siteControls} />
+          <SiteControlAssumptions section={view.controlAssumptions} />
+        </div>
       </Panel>
     </>
   );
@@ -513,11 +517,10 @@ export function SiteConfigurationComponents({
   components,
 }: SiteConfigurationComponentsProps) {
   return (
-    <Panel
-      heading="Components"
-      headingId="site-configuration-components-heading"
-      flush
-    >
+    <div className="subsection">
+      <h3 className="subsection__heading" id="site-configuration-components-heading">
+        Components
+      </h3>
       <DataTable labelledBy="site-configuration-components-heading">
         <caption>
           The components this site&apos;s foundation declares, with the design
@@ -548,7 +551,7 @@ export function SiteConfigurationComponents({
           ))}
         </tbody>
       </DataTable>
-    </Panel>
+    </div>
   );
 }
 
@@ -989,10 +992,10 @@ export function SiteKeyParameters({ parameters }: SiteKeyParametersProps) {
   }
 
   return (
-    <Panel
-      heading="Key parameters"
-      headingId="site-configuration-key-parameters-heading"
-    >
+    <div className="subsection">
+      <h3 className="subsection__heading" id="site-configuration-key-parameters-heading">
+        Key parameters
+      </h3>
       <FactList>
         {parameters.map((parameter) => (
           <Fact key={`${parameter.label}-${parameter.value}`} term={parameter.label}>
@@ -1000,6 +1003,6 @@ export function SiteKeyParameters({ parameters }: SiteKeyParametersProps) {
           </Fact>
         ))}
       </FactList>
-    </Panel>
+    </div>
   );
 }

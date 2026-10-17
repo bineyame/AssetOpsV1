@@ -514,7 +514,10 @@ describe("the persisted Foundation version", () => {
     );
     renderAt(`/sites/${ID}/foundation`, legacy);
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Original configuration record" })).toBeInTheDocument();
+    // W1-F1: the legacy notice is a page-level status, not a panel, so the
+    // three v69 Foundation panels stay the only panels on the page.
+    expect(refusal("legacy-record")).toContain("Original configuration record");
+    expectV69Panels("foundation");
     expect(screen.queryByRole("combobox", { name: "Foundation period" })).toBeNull();
     expect(screen.queryByRole("form", { name: "Change battery reserve" })).toBeNull();
   });
@@ -537,7 +540,7 @@ describe("legacy surfaces of an imported Site", () => {
 });
 
 /** W1-F1: the text of the page-level refusal of `kind`, which must be present. */
-function refusal(kind: "no-version" | "unavailable" | "not-imported"): string {
+function refusal(kind: "no-version" | "unavailable" | "not-imported" | "legacy-record"): string {
   const node = document.querySelector(`[data-page-refusal="${kind}"]`);
   expect(node, `page refusal ${kind}`).not.toBeNull();
   return node?.textContent ?? "";

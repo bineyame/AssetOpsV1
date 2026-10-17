@@ -9,7 +9,7 @@ import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
-import { PageHeader, Panel, plainTime, ProductStatus, readResultWords } from "../ui";
+import { PageHeader, plainTime, ProductStatus, readResultWords } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import {
@@ -281,21 +281,28 @@ export function SiteFoundationFrame({
 
   const notice =
     state.foundation.status === "migration_required" ? (
-      <Panel heading="Original configuration record" headingId="foundation-legacy-heading">
+      // W1-F1: a page-level status, not a panel, so the three v69 panels stay the only cards.
+      <div className="page-refusal" role="status" data-page-refusal="legacy-record">
+        <p className="page-refusal__title">
+          <strong>Original configuration record</strong>
+        </p>
         <p>
           This site is read from its original configuration document. It has no stored
           Foundation versions until it is imported, so no period can be chosen and nothing can
           be changed here.
         </p>
-      </Panel>
+      </div>
     ) : state.foundation.status === "unavailable" ? (
-      <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+      <div className="page-refusal" role="status" data-page-refusal="store-unavailable-record">
+        <p className="page-refusal__title">
+          <strong>Stored versions unavailable</strong>
+        </p>
         <p>
           Stored Foundation versions could not be read
           {state.foundation.message === null ? "." : `: ${state.foundation.message}`} The
           configuration below is the site&apos;s record as served now; no period can be chosen.
         </p>
-      </Panel>
+      </div>
     ) : null;
 
   return (
