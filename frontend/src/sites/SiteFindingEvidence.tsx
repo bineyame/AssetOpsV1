@@ -40,6 +40,7 @@ import { dayOf, findingCurrentnessWords, LIFECYCLE_WORDS, sourceModeWords } from
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
 import { UnavailableTab } from "../ui/UnavailableEntry";
+import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 
 export const FINDING_SECTIONS_LABEL = "Finding sections";
 export const EVIDENCE_PAGE_SIZE = 50;
@@ -70,8 +71,9 @@ export function FindingSections({
   /** W1-F3: a related-screen link at the end of the section row (chrome, not a content block). */
   aside?: ReactNode;
 }) {
+  const rowRef = useCurrentTabInView<HTMLElement>();
   return (
-    <nav className="site-tabs site-subtabs finding-sections" aria-label={FINDING_SECTIONS_LABEL}>
+    <nav className="site-tabs site-subtabs finding-sections" aria-label={FINDING_SECTIONS_LABEL} ref={rowRef}>
       <ol className="site-tabs__list">
         {sections.map((section) =>
           section.unavailable ? (

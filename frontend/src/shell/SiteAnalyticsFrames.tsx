@@ -22,7 +22,7 @@ import {
 import { SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionSelector, type ActionView } from "../sites/SiteAction";
-import { ChangesWorkPageHeader, SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
+import { ChangesWorkPageHeader, NoChangeSelected, SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
 import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
@@ -809,25 +809,14 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
-              { label: "Changes" },
+              { label: "Change & effect" },
             ]}
           />
-          <PageHeader
-            title="Foundation changes"
-            headingId={SITE_CHANGE_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id}`}
-          />
+          <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
           <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
-          <Panel heading="No list of changes yet" headingId="site-changes-unavailable-heading">
-            <p data-change-index="unavailable">
-              This site has no list of Foundation changes yet. A change opens by its own address from the Action
-              that made it.
-            </p>
-            <p>
-              <Link to={siteFoundationHref(site.site_id)}>Back to the Foundation</Link>
-            </p>
-          </Panel>
+          {/* W1-F5b: the changes screen's two v69 slots, with the no-selection gap inside each. */}
+          <NoChangeSelected foundationHref={siteFoundationHref(site.site_id)} />
         </main>
       )}
     </SiteScoped>
