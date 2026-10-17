@@ -597,6 +597,19 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(limits.querySelector("[data-finding-could-change]")?.textContent).toMatch(/What could change it/);
     expect(limits.querySelector("[data-finding-lifecycle-sentence]")).not.toBeNull();
     expect(limits.querySelector("[data-finding-bounded]")?.textContent).toMatch(/not proof of wasted fuel/);
+    // Height phase: at most three limits show; any further limit stays reachable behind "Show all N limits",
+    // and the could-change line stays visible.
+    const shownLimits = Array.from(limits.querySelectorAll(".site-finding__limits li")).filter((li) => visibleOutsideClosedDisclosure(li));
+    expect(shownLimits.length).toBeLessThanOrEqual(3);
+    expect(visibleOutsideClosedDisclosure(shownLimits[0])).toBe(true);
+    expect(shownLimits[0].hasAttribute("data-finding-bounded")).toBe(true);
+    const moreLimits = limits.querySelector("details[data-show-all='finding-limits']") as HTMLDetailsElement | null;
+    const allLimits = limits.querySelectorAll(".site-finding__limits li").length;
+    expect(allLimits, "this fixture has more limits than the default view shows").toBeGreaterThan(3);
+    expect(moreLimits?.open).toBe(false);
+    expect(moreLimits?.querySelector("summary")).toHaveTextContent(`Show all ${allLimits} limits`);
+    expect(visibleOutsideClosedDisclosure(limits.querySelector("[data-finding-could-change]")!)).toBe(true);
+    expect(panelTitled("What to do next").querySelector("a.button.primary")).not.toBeNull();
     const look = panelTitled("Where to look next");
     expect(look.querySelector("[data-finding-destination='analysis']")?.getAttribute("href")).toBe("/sites/KOBO-001/findings/" + F + "?view=analysis");
     // Exact references are last, closed, individually labelled; the finding reference is not in the default reading.

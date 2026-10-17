@@ -224,3 +224,20 @@
 .site-finding-evidence .panel__actions .site-finding__note {
   font-size: 12px;
 }
+
+/* W1-F3 height phase: the finding pair keeps each panel's own height; limits are compact. */
+.site-finding .panel-pair {
+  align-items: start;
+}
+
+.site-finding .v69-state-line {
+  margin: 0 0 10px;
+}
+
+.site-finding__limits.v69-prose {
+  font-size: 12px;
+}
+
+.site-finding [data-finding-recommendation-link] .form-footer {
+  margin-top: 12px;
+}

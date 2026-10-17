@@ -11,7 +11,7 @@
  * needed and undetermined time stay separate; nothing here is a fuel or money
  * figure, a recommendation or an Action.
  */
-import { useEffect, useState } from "react";
+import { Children, isValidElement, useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import {
@@ -26,6 +26,7 @@ import {
   MetricCards,
   Panel,
   ProductStatus,
+  ShowAll,
   StatusBar,
   StepStrip,
   type AttentionItem,
@@ -318,34 +319,35 @@ function FindingStateLine({ body, links }: { body: FindingDetailBody; links: Sit
   const afterClosure = selected.lifecycle !== "NO_LONGER_SUPPORTED" && followsClosure(body.revisions, selected);
   return (
     <ProductStatus
+      inline
       words={words}
       scope={`Version ${body.selection.revision_no} of ${body.revision_page.total} · ${periodWords(selected.episode.start, selected.episode.end)}`}
       asOf={body.watermarks.finding_recorded_at}
     >
       <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="finding" />
       {body.audit_only ? (
-        <p data-finding-audit-only>
+        <span data-finding-audit-only>{" "}
           This exact version is kept as a record. It is not a current result, and whether it is still up to date is
           not checked while the site&apos;s assessments are not released.
-        </p>
+        </span>
       ) : null}
       {merged ? (
-        <p data-finding-merged={merged}>
+        <span data-finding-merged={merged}>{" "}
           Later records showed one longer period. The earlier Finding now carries the review.{" "}
           <Link to={links.finding(merged)}>Open the Finding that carries the review</Link>
-        </p>
+        </span>
       ) : null}
       {!body.selection.is_latest ? (
-        <p data-finding-earlier-version>
+        <span data-finding-earlier-version>{" "}
           A later version replaces this one. <Link to={links.finding(body.finding.id)}>Open the latest version</Link>
-        </p>
+        </span>
       ) : null}
       {afterClosure ? (
-        <p data-finding-after-closure>
+        <span data-finding-after-closure>{" "}
           {selected.lifecycle === "UNCONFIRMED"
             ? "This review had already been closed as no longer supported. The newer assessment cannot confirm either way; this is not a new issue."
             : "This review had been closed as no longer supported; a later assessment supports it again for the same period."}
-        </p>
+        </span>
       ) : null}
     </ProductStatus>
   );
@@ -422,11 +424,17 @@ function CouldChange({ body }: { body: FindingDetailBody }) {
 /** finding:3: the supported Recommendation link at the exact version read, or that none is recorded. */
 function NextStep({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
   return links.recommendation ? (
-    <p data-finding-recommendation-link>
-      A fixed rule may propose a battery reserve trial for this version.{" "}
-      <Link to={links.recommendation(body.selection.revision_id)}>Open the recommendation</Link>. Nothing here asks
-      you to change how the generator is operated.
-    </p>
+    <div data-finding-recommendation-link>
+      <p>
+        A fixed rule may propose a battery reserve trial for this version. Nothing here asks you to change how the
+        generator is operated.
+      </p>
+      <p className="form-footer">
+        <Link className="button primary" to={links.recommendation(body.selection.revision_id)}>
+          Open the recommendation
+        </Link>
+      </p>
+    </div>
   ) : (
     <p data-finding-recommendation-link="none">
       No recorded next action. Nothing here asks you to change how the generator is operated.
@@ -564,7 +572,7 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
       description={`Period covered · ${periodWords(selected.episode.start, selected.episode.end)} · ${durationText(period)}`}
     >
       <BigClaim data={{ "data-finding-claim": "" }}>{headlineText(body, words)}</BigClaim>
-      <div className="site-finding__state" data-finding-state>
+      <div className="site-finding__state v69-state-line" data-finding-state>
         <FindingStateLine body={body} links={links} />
       </div>
       <p className="v69-prose site-finding__sentence" data-finding-sentence>
@@ -607,8 +615,7 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
           <p className="site-finding__legend">
             <span className="dispatch-swatch dispatch-fill--avoidable" /> Possibly avoidable{" "}
             <span className="dispatch-swatch dispatch-fill--needed" /> Needed{" "}
-            <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine · Times are UTC. Select a
-            block to see it.
+            <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine · Times are UTC; select a block.
           </p>
           {chosen ? (
             <div className="dispatch-block-detail" data-finding-portion-detail>
@@ -686,17 +693,22 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
   const prior = body.relations.recurs_after_finding_id;
   return (
     <Panel heading="What limits this conclusion" headingId="site-finding-limits-heading">
-      <ul className="site-finding__limits v69-prose">
+      <LimitList>
         <li data-finding-bounded>
-          Only the possibly avoidable blocks are counted. Needed time and time that cannot be determined stay
-          separate, and the whole period is not said to be avoidable. This is a bounded estimate from the records
-          sent from site, not proof of wasted fuel: solar and battery capacity are as reported, and nothing was
-          measured directly at the fuel tank.
+          Only the possibly avoidable blocks are counted; needed and undetermined time stay separate. A bounded
+          estimate from the records sent from site, not proof of wasted fuel.
         </li>
         {recordGap ? (
           <li data-finding-record-gap>
             Some records this version needs are missing or conflict over part of the period, so that part could not
             be decided.
+          </li>
+        ) : null}
+        {selected.claim.end_reason === "SERIES_LIMIT" ? (
+          <li data-finding-end-reason="SERIES_LIMIT">
+            This finding ends at {stamp(selected.episode.end)} UTC because the generator records after that could not be
+            put in a proven time order (some arrived late and the clock behind them is not proven). Only the time
+            before that is counted; the time after it is not judged, so no current cost is shown for this version.
           </li>
         ) : null}
         {groups.length === 0 ? (
@@ -709,13 +721,6 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
             </li>
           ))
         )}
-        {selected.claim.end_reason === "SERIES_LIMIT" ? (
-          <li data-finding-end-reason="SERIES_LIMIT">
-            This finding ends at {stamp(selected.episode.end)} UTC because the generator records after that could not be
-            put in a proven time order (some arrived late and the clock behind them is not proven). Only the time
-            before that is counted; the time after it is not judged, so no current cost is shown for this version.
-          </li>
-        ) : null}
         {joined.length > 0 ? (
           <li data-finding-joined-gaps={joined.length}>
             {joined.length === 1 ? "One short gap" : `${joined.length} short gaps`} of 20 minutes or less inside this
@@ -745,14 +750,43 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
         <li>
           Shown under the pilot&apos;s development access. Sign-in and per-person access are not installed yet.
         </li>
-      </ul>
+        {selected.lifecycle === "SUPPORTED" ? (
+          <li className="site-finding__meaning-item">
+            <LifecycleSentence body={body} />
+          </li>
+        ) : null}
+      </LimitList>
       <div className="v69-prose site-finding__meaning">
-        <LifecycleSentence body={body} />
+        {selected.lifecycle === "SUPPORTED" ? null : <LifecycleSentence body={body} />}
         <CouldChange body={body} />
       </div>
     </Panel>
   );
 }
+
+/**
+ * W1-F3 height phase: the mock's limits list has two or three bullets. The first three limits show (the bounded
+ * estimate, then any record gap and series limit, which come first); the rest stay behind "Show all N limits".
+ */
+function LimitList({ children }: { children: ReactNode }) {
+  const items = Children.toArray(children).filter((child) => isValidElement(child));
+  const shown = items.slice(0, LIMITS_SHOWN);
+  const rest = items.slice(LIMITS_SHOWN);
+  return (
+    <>
+      <ul className="site-finding__limits v69-prose">{shown}</ul>
+      {rest.length === 0 ? null : (
+        <ShowAll name="finding-limits" summary={`Show all ${items.length} limits`}>
+          <ul className="site-finding__limits v69-prose" data-finding-limits-more>
+            {rest}
+          </ul>
+        </ShowAll>
+      )}
+    </>
+  );
+}
+
+const LIMITS_SHOWN = 3;
 
 /** finding:3 "What to do next". */
 function WhatNext({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
