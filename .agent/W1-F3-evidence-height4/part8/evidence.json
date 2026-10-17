@@ -1,0 +1,162 @@
+{
+  "revision": "60e29d17",
+  "captured_at": "2026-10-17T16:13:33.886Z",
+  "pairs": [
+    {
+      "screen": "finding-history",
+      "case": null,
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-1440-app.png",
+      "mock_image": "finding-history-1440-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 376
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-history",
+      "case": null,
+      "viewport": "390x900",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/937ffdef-a923-4f7b-b204-98fa61ce1058/history",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-390-app.png",
+      "mock_image": "finding-history-390-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 16,
+            "y": 870,
+            "w": 358,
+            "h": 796
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 313
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-history",
+      "case": "latest",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8/history",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-latest-1440-app.png",
+      "mock_image": "finding-history-latest-1440-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 455
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 243
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-history",
+      "case": "latest",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/ff2c2005-ec4f-413b-86f8-1fa8c8e6bce8/history",
+      "mock_hash": "#/finding-history",
+      "app_image": "finding-history-latest-390-app.png",
+      "mock_image": "finding-history-latest-390-mock.png",
+      "app": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 16,
+            "y": 870,
+            "w": 358,
+            "h": 1034
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Revision history"
+        ],
+        "panels": [
+          {
+            "title": "Revision history",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 313
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

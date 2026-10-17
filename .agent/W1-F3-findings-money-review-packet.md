@@ -287,3 +287,38 @@ Accepted overages, recorded as the review's residual risk asked:
 ## User review
 
 W1 UI slice: the build and review can proceed now, and the merge waits for the owner's walkthrough.
+
+## Fix round 2 (re-review RETURN: 2 Medium, 3 Low)
+
+| # | Finding | Fix | Where |
+| --- | --- | --- | --- |
+| M1 | Interpretation history: one disclosure per row | Each Status cell is the badge and "Open version N" on one line (`nowrap`). One panel-level `ExactReferences name="price-history"` holds every version's reference, its "Prices as recorded then" link and "How these times are read". Fuel-cost rows (`ConsequenceHistory`) untouched. | `SiteFinancials.tsx` `PriceHistory`; `w1ux02-money.css` |
+| M2 | Version-1 dates contradict | The pinned field is "Entered as applying" (default view keeps "Effective period"). A visible line "Applied: ..." lists the periods in force (assignments with no replaced-on time); known-from and replaced-on stay in the disclosure. A pinned page's in-use line reads "In use today, version N." | `SiteFinancials.tsx` `PriceFields`, `ExactVersion`, lead line |
+| L3 | Head link | "Open version N of the Finding" dropped. | `SiteFindingHistory.tsx` |
+| L4 | Leading space on wrapped state line | Space is no longer text after a child; `--after` margin; the inline-block bound's 4px left margin (the visible indent) removed. | `ProductStatus.tsx`, `primitives.css` |
+| L5 | Flake | `waitFor` around the address read. | `siteFinancials.test.tsx` |
+
+Money gates (`shown`, `gated`, `drawn`, NO_PRICE, CONFLICT, `recorded_amount.disposition`) are not in the diff.
+
+### Tests (none weakened; re-pointed ones justified)
+- `siteFinancials`: history disclosure count 4 to 3 (2 fuel rows + 1 shared; stricter checks added: no `details` inside `tbody`, both version IDs and both links inside the one closed disclosure, the "How these times are read" text). New M2 test on a version-1 fixture with two applied segments: label is not "Effective period", the applied line is outside any `details`, in-use line names its version. Pinned in-use assertion "In use today. Diesel price" re-pointed to `/^In use today, version 1. Diesel price/` (same fact plus the version, the M2 requirement).
+- `siteFindingHistory`: the three `data-history-open-finding` href assertions became `toBeNull()`; the exact version stays asserted on the Finding section tab (`data-finding-section='finding'`). In the latest-version case that tab carries no `revision_id` (latest is not pinned), so its assertion is the plain Finding address.
+
+### Checks
+- `npx.cmd tsc --noEmit`: clean.
+- Focused (8 files incl. `ui`): 246/246 at final code.
+- Full `npm.cmd test` at the first fix-round commit: 77 files, 2017/2017, 176 s, no flake this time. Later commits are CSS and the applied-line filter only; the focused files above rerun 246/246.
+- `tools/check-all.ps1` (run with `-ExecutionPolicy Bypass`): 10/10 guards passed.
+- Captures: `tools/w1-fidelity-evidence.mjs`, 1440 and 390, API 9460, web 5860, CDP 9487-9489. `.agent/W1-F3-evidence-height4/part11` (assumptions, recordedv1) and `part8` (finding-history, latest): 24/24 claims each, panel counts match the mock, overflowX 0. Fixtures dropped, servers stopped.
+
+### Heights at 1440 (app px; mock in brackets)
+| Panel | Before | After |
+| --- | --- | --- |
+| Interpretation history (default / v1) | 481 / 318 (211) | 408 / 408 (211) |
+| Financial assumptions (default / pinned v1) | 506 / 527 (368) | 506 / 525 (368) |
+| Finding History | 396 (243) | 376 (243) |
+| Finding History latest | 455 (243) | 455 (243) |
+
+At 390: Interpretation history 548 (rows one line); Financial assumptions 822 / 883; Finding History 796 / 1034.
+
+Interpretation history is 1.93x of the mock, not the re-review's expected 1.4x. Rows are now one line (about 51 px each). The rest is the panel's own state line, the "prices only" line, the eyebrow, three rows against the mock's two, and the closed disclosure; none of it is cuttable without hiding owned content. The earlier 481 on the default page had two-line rows; the 318 in the "before" column was the empty-fuel variant on a different fixture. Judgement left to the Reviewer.
