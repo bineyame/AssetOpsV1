@@ -10,6 +10,7 @@ import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-rou
 import { afterEach, describe, expect, it } from "vitest";
 
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
@@ -238,8 +239,9 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     ]);
     const rows = all("[data-history-revision-no]").map((r) => Number(r.getAttribute("data-history-revision-no")));
     expect(rows).toEqual(Array.from({ length: 205 }, (_, i) => i + 1));
-    expect(q("[data-history-complete]")).toHaveTextContent("All 205 recorded versions are listed, oldest first.");
-    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Latest version at the time of reading (version 205)");
+    // W1-F3 review M4: completeness is marked on the one headline; the label says "latest when read", the scope "Version N of M".
+    expect(q("[data-history-complete]")).toHaveTextContent("205 recorded versions");
+    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Version 205 of 205");
     expect(q("[data-history-pin]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(205)}`);
     expect(q("[data-finding-section='history']")).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Finding history");
@@ -253,13 +255,16 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(lead).toHaveTextContent("Version 1 is selected. It is an earlier version: version 3 replaces it.");
     // W1-UX-02: the earlier-version note is the first note of the answer card's state line, right after the state sentence.
     expect(statusNotes(lead)[0]).toBe(lead);
-    expect(expectStateLineVisible(lead.closest("[data-headline-card='finding-history']") as HTMLElement)).toBe("Earlier version, kept for the record");
+    expect(expectStateLineVisible(panelTitled("Revision history"))).toBe("Earlier version, kept for the record");
     expect(all("[data-history-selected]").map((r) => r.getAttribute("data-history-revision"))).toEqual([rid(1)]);
     expect(all("[data-history-latest]").map((r) => r.getAttribute("data-history-revision"))).toEqual([rid(3)]);
     expect(q(`[data-history-revision='${rid(1)}']`)).toHaveAttribute("aria-current", "true");
-    // Exact version links on every row: History selection, the Finding at that version, its Evidence.
+    // Exact version links on every row: History selection and its Evidence. W1-F3 review (height table): the row's
+    // "Open this version" is gone; the Finding at the selected version is the one panel-head link.
     expect(q(`[data-history-select='${rid(2)}']`)).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(2)}`);
-    expect(q(`[data-history-finding-link='${rid(2)}']`)).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(2)}`);
+    expect(q("[data-history-finding-link]")).toBeNull();
+    expect(q("[data-history-open-finding]")).toBeNull();
+    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
     expect(q(`[data-history-evidence-link='${rid(2)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(2)}`);
     // Section links keep the exact version.
     expect(q("[data-finding-section='evidence']")).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(1)}`);
@@ -276,7 +281,7 @@ describe("Finding History child view (S4-03 phase 3)", () => {
 
   it("states that a single version has no earlier versions", async () => {
     await frame(HISTORY, client({ total: 1 }));
-    expect(q("[data-history-no-earlier]")).toHaveTextContent("No earlier versions: this Finding has one recorded version.");
+    expect(q("[data-history-no-earlier]")).toHaveTextContent("No earlier versions. This Finding has one recorded version.");
     expect(all("[data-history-revision]")).toHaveLength(1);
   });
 
@@ -308,7 +313,9 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(ok).toHaveTextContent("42 cited; 42 of 42 found as accepted records");
     const gap = q(`[data-history-revision='${rid(2)}'] [data-history-cited]`)?.parentElement as HTMLElement;
     expect(gap).toHaveTextContent("41 of 42 found as accepted records (1 could not be found)");
-    expect(q(`[data-history-check-evidence='${rid(2)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(2)}`);
+    // W1-F3 review (height table): the row's one Evidence link ("Its evidence") replaces "Check their record trail".
+    expect(q(`[data-history-evidence-link='${rid(2)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(2)}`);
+    expect(q("[data-history-check-evidence]")).toBeNull();
     const text = document.body.textContent ?? "";
     expect(text).not.toMatch(/lineage|complete record trail|trail complete|fully traced|verified/i);
   });
@@ -318,6 +325,12 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     for (const term of ["Version recorded", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
       expect(screen.getByText(term)).toBeInTheDocument();
     }
+    // W1-F3 phase D: the Basis cell shows one short phrase; its labelled times sit in a closed per-row disclosure.
+    for (const term of ["Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
+      expect(screen.getByText(term).closest("details")).not.toHaveAttribute("open");
+    }
+    expect(q("[data-history-basis-line]")).toHaveTextContent(/possibly avoidable; .* undecided/);
+    expect(q("[data-history-basis-line]")?.closest("details")).toBeNull();
     expect(document.body).toHaveTextContent("they are not a way to view the Finding as of an earlier moment");
     expect(document.body.textContent ?? "").not.toMatch(/knowledge/i);
   });
@@ -337,7 +350,7 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(lead).toHaveTextContent("Record only.");
     // W1-UX-02: the record-only note is the first note of the answer card's state line, right after the state sentence.
     expect(statusNotes(lead)[0]).toBe(lead);
-    expect(expectStateLineVisible(lead.closest("[data-headline-card='finding-history']") as HTMLElement)).toBe("For the record only");
+    expect(expectStateLineVisible(panelTitled("Revision history"))).toBe("For the record only");
   });
 
   it("leads with a non-supported latest state in plain words", async () => {
@@ -417,11 +430,12 @@ describe("Q3: exact versions survive old -> new -> Evidence -> old, reload and b
   it("labels an omitted version as latest at read time, and a reload after an append moves it", async () => {
     const before = client({ total: 2 });
     const { unmount } = await frame(HISTORY, before);
-    expect(q("[data-history-latest-at-read]")).toHaveTextContent("version 2");
+    // W1-F3 review M4: the version is said once, in the scope.
+    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Version 2 of 2");
     unmount();
     const after = client({ total: 3 });
     await frame(HISTORY, after);
-    expect(q("[data-history-latest-at-read]")).toHaveTextContent("version 3");
+    expect(q("[data-history-latest-at-read]")).toHaveTextContent("Version 3 of 3");
     expect(after.asked[0]?.revisionId).toBeNull();
   });
 });
@@ -451,30 +465,29 @@ function expectUntimedStateLine(card: Element): string {
 }
 
 describe("W1-UX-02: Finding History answer card", () => {
-  const card = () => document.querySelector("[data-headline-card='finding-history']") as HTMLElement;
+  /** W1-F3: the single v69 panel "Revision history" (formerly the answer card). */
+  const card = () => panelTitled("Revision history");
   const main = () => document.querySelector("main") as HTMLElement;
-  const steps = () => Array.from(card().querySelectorAll("[data-step-strip] li")).map((li) => [li.querySelector(".step-strip__label")?.textContent, li.getAttribute("data-step")]);
+  const versionNos = () => all("[data-history-revision]").map((r) => Number(r.getAttribute("data-history-revision-no")));
 
-  it("W1-UX-02: leads with how the conclusion changed as a timeline; revision and page cutoff references are labelled detail; W1 vocabulary on <main>", async () => {
+  it("W1-F3: the Revision history panel states how the conclusion changed in its summary line and table; revision and page cutoff references are labelled detail; W1 vocabulary on <main>", async () => {
     await frame(HISTORY, client({ total: 205 }));
     const answer = card();
-    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("How did the conclusion and workflow change?");
-    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("205 recorded versions; the latest records: Open");
+    expect(answer.querySelector(".panel__description")?.textContent).toBe("How did the conclusion and workflow change?");
+    expect(answer.querySelector("[data-history-summary]")?.textContent).toBe("205 recorded versions; the latest records: Open");
     expect(expectStateLineVisible(answer)).toBe("Latest recorded version when read");
     expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
     // The plain "as of" is the selected version's recorded time (version 205: 6 Oct 14:00 + 2050 min).
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 8 Oct 2026, 00:10 UTC");
-    expect(steps()).toEqual([
-      ["Version 1: Opened", "done"],
-      ["200 versions in between", "done"],
-      ["Version 202: Assessment updated; amount unchanged", "done"],
-      ["Version 203: Assessment updated; amount unchanged", "done"],
-      ["Version 204: Assessment updated; amount unchanged", "done"],
-      ["Version 205: Assessment updated; amount unchanged", "done"],
-    ]);
+    // The mock's Time / Event / Basis table lists every version oldest first, inside the panel.
+    expect(versionNos()).toEqual(Array.from({ length: 205 }, (_, i) => i + 1));
+    expect(answer.querySelector(`[data-history-revision='${rid(1)}']`)).toHaveTextContent("Version 1 · Opened");
+    expect(answer.querySelector(`[data-history-revision='${rid(205)}']`)).toHaveTextContent(
+      "Version 205 · Assessment updated; amount unchanged",
+    );
     const refs = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
     expect(refs.open).toBe(false);
-    expect(answer.querySelector(".headline-card__body")?.lastElementChild).toBe(refs);
+    expect(answer.querySelector(".panel__body")?.lastElementChild).toBe(refs);
     const rows = Array.from(refs.querySelectorAll(".exact-references__row")).map((r) => [r.querySelector("dt")?.textContent, r.querySelector("code")?.textContent]);
     expect(rows).toEqual([
       ["Finding reference", F],
@@ -484,8 +497,11 @@ describe("W1-UX-02: Finding History answer card", () => {
       ["First page ends after version", "100"],
     ]);
     // Exact selectors from the card.
-    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(205)}`);
-    expect(q("[data-history-open-evidence]")).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(205)}`);
+    expect(q("[data-history-open-finding]")).toBeNull();
+    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}`);
+    // W1-F3 review (height table): one head link; the selected row's "Its evidence" carries the same exact ID.
+    expect(q("[data-history-open-evidence]")).toBeNull();
+    expect(q(`[data-history-evidence-link='${rid(205)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(205)}`);
     const w1 = scanProductVocabulary(main(), "finding history (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(100);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -500,15 +516,17 @@ describe("W1-UX-02: Finding History answer card", () => {
     expect(expectStateLineVisible(card())).toBe("Earlier version, kept for the record");
     expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 6 Oct 2026, 14:10 UTC");
     expect(q("[data-history-select-latest]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(3)}`);
-    expect(q("[data-history-open-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
+    expect(q("[data-history-open-finding]")).toBeNull();
+    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);
     const w1 = scanProductVocabulary(main(), "finding history earlier (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });
 
-  it("W1-UX-02: a limited (incomplete) list says so in the headline and ends the timeline in a not-known step", async () => {
+  it("W1-F3: a limited (incomplete) list says so in the summary line and lists only the versions read", async () => {
     await frame(HISTORY, client({ total: 205, failAfter: 100 }));
-    expect(card().querySelector(".headline-card__headline")?.textContent).toBe("Only 100 of 205 recorded versions could be read");
-    expect(steps().at(-1)).toEqual(["Versions not read", "not-known"]);
+    expect(card().querySelector("[data-history-summary]")?.textContent).toBe("Only 100 of 205 recorded versions could be read");
+    expect(card().querySelector("[data-history-incomplete]")).toHaveTextContent("this list is incomplete");
+    expect(versionNos()).toHaveLength(100);
     // The selected (latest) version was not among the pages read: its time is not recorded here, never "now".
     expect(expectUntimedStateLine(card())).toBe("Latest recorded version when read");
     const w1 = scanProductVocabulary(main(), "finding history incomplete (W1)", { set: "w1" });
@@ -524,8 +542,8 @@ describe("W1-UX-02: Finding History answer card", () => {
       },
     }));
     expect(expectStateLineVisible(card())).toBe("For the record only");
-    expect(card().querySelector(".headline-card__headline")?.textContent).toBe("2 recorded versions; the latest records: No longer supported");
-    expect(card().querySelector("[data-history-lifecycle='NO_LONGER_SUPPORTED']")?.closest(".headline-card__status")).not.toBeNull();
+    expect(card().querySelector("[data-history-summary]")?.textContent).toBe("2 recorded versions; the latest records: No longer supported");
+    expect(card().querySelector("[data-history-lifecycle='NO_LONGER_SUPPORTED']")?.closest("[data-product-status]")).not.toBeNull();
     const w1 = scanProductVocabulary(main(), "finding history record only (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });
@@ -551,4 +569,92 @@ describe("W1-UX-02: Finding History answer card", () => {
     expect(expectUntimedStateLine(card())).toBe("This record was not found");
     expect(where()).toBe(`${HISTORY}?revision_id=rev-9999`);
   });
+});
+
+describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)", () => {
+  const panel = () => panelTitled("Revision history");
+
+  it("stocked: one panel 'Revision history' with the table, related Findings and references inside it", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(1)}`, client({ total: 3 }));
+    expectV69Panels("finding-history");
+    expect(document.querySelector("[data-headline-card]"), "no lead card").toBeNull();
+    expect(panel().querySelectorAll("table [data-history-revision]")).toHaveLength(3);
+    expect(panel().querySelector("[data-history-earlier-version]"), "the selection note sits inside the panel").not.toBeNull();
+    expect(panel().querySelector("h3"), "no per-version subsection headings").toBeNull();
+    expect(panel().querySelector("details[data-exact-references]")).not.toBeNull();
+  });
+
+  it("stocked with relations: related Findings are one line inside the panel, not a second panel", async () => {
+    await frame(HISTORY, client({
+      total: 2,
+      body: {
+        relations: {
+          merged_into: [],
+          merged_from: [],
+          split_from_finding_id: null,
+          split_parts: [],
+          recurs_after_finding_id: "f-earlier-0000",
+          recurred_by: [],
+        },
+      } as never,
+    }));
+    expectV69Panels("finding-history");
+    const line = panel().querySelector("[data-history-related-line]") as HTMLElement;
+    expect(line).not.toBeNull();
+    expect(line.querySelector("[data-history-related='f-earlier-0000']")).toHaveAttribute(
+      "href",
+      `/sites/${SITE}/findings/f-earlier-0000/history`,
+    );
+  });
+
+  it("height phase: the default view shows the latest 3 versions; every earlier version stays reachable, oldest first, behind 'Show all N'", async () => {
+    await frame(HISTORY, client({ total: 205 }));
+    const shown = all("[data-history-revision]").filter((r) => visibleOutsideClosedDisclosure(r));
+    expect(shown.map((r) => Number(r.getAttribute("data-history-revision-no")))).toEqual([203, 204, 205]);
+    const showAll = panel().querySelector("details[data-show-all='finding-history-versions']") as HTMLDetailsElement;
+    expect(showAll.open).toBe(false);
+    expect(showAll.querySelector("summary")).toHaveTextContent("Show all 205 versions (202 earlier)");
+    expect(Array.from(showAll.querySelectorAll("[data-history-revision]")).map((r) => Number(r.getAttribute("data-history-revision-no")))).toEqual(
+      Array.from({ length: 202 }, (_, i) => i + 1),
+    );
+    // The state line, the completeness line and the replay disclaimer stay outside any closed disclosure.
+    for (const sel of ["[data-history-state-line]", "[data-history-complete]", "[data-history-kept-as-recorded]"]) {
+      expect(visibleOutsideClosedDisclosure(panel().querySelector(sel)!), sel).toBe(true);
+    }
+  });
+
+  it("height phase: an earlier selected version hidden behind 'Show all' opens the expander so the selection is visible", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(2)}`, client({ total: 205 }));
+    const showAll = panel().querySelector("details[data-show-all='finding-history-versions']") as HTMLDetailsElement;
+    expect(showAll.open).toBe(true);
+    expect(visibleOutsideClosedDisclosure(panel().querySelector(`[data-history-revision='${rid(2)}']`)!)).toBe(true);
+  });
+
+  it("height phase: three or fewer versions need no expander", async () => {
+    await frame(HISTORY, client({ total: 3 }));
+    expect(panel().querySelector("[data-show-all]")).toBeNull();
+  });
+
+  it("one version: the same panel says 'No earlier versions.'", async () => {
+    await frame(HISTORY, client({ total: 1 }));
+    expectV69Panels("finding-history");
+    expect(panel().querySelector("[data-history-no-earlier]")).toHaveTextContent(/^No earlier versions\./);
+    expect(panel().querySelectorAll("[data-history-revision]")).toHaveLength(1);
+  });
+
+  it.each(["not_found", "forbidden", "closed", "unavailable"] as const)(
+    "refused (%s): the same panel with the state line and an in-panel gap, no versions",
+    async (status) => {
+      const c: FindingClient = {
+        ...client({ total: 1 }),
+        getFindingHistory: async () => (status === "closed" ? { status, message: null, note: null } : { status, message: null }),
+      };
+      await frame(HISTORY, c);
+      expectV69Panels("finding-history");
+      expect(document.querySelector("[data-headline-card]"), "no refusal card").toBeNull();
+      expect(panel().querySelector("[data-product-status]")).not.toBeNull();
+      expect(panel().querySelector(`[data-history-gap] [data-finding-read='${status}']`)).not.toBeNull();
+      expect(all("[data-history-revision]")).toHaveLength(0);
+    },
+  );
 });

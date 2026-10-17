@@ -143,40 +143,32 @@ export function ChartNote({ children, data }: { children: ReactNode; data?: Reco
 }
 
 /**
- * The mock's `.statusbar`: one state line above the panels (not a panel). It
- * renders F1's `.status-strip--line`, so the guard's strip rules apply: every
- * child must be inline (spans, links, a chip-sized control), never a block.
- * Pass a `ProductStatus inline` for a state line.
+ * The mock's `.big-claim`: the one concise answer line inside its owning
+ * panel, only where the mock shows one (e.g. finding:1). A paragraph;
+ * it never stands in for a former panel or answer card.
  */
-export function StatusBar({
+export function BigClaim({
   children,
-  other,
-  action,
   data,
 }: {
   children: ReactNode;
-  other?: ReactNode;
-  action?: ReactNode;
   data?: Record<string, string>;
 }) {
   return (
-    <div className="status-strip status-strip--line v69-statusbar" role="status" {...data}>
-      <span className="status-strip__lead">{children}</span>
-      {other === undefined ? null : <span className="status-strip__item v69-statusbar__other">{other}</span>}
-      <span className="status-strip__spacer" aria-hidden="true" />
-      {action === undefined ? null : <span className="status-strip__action">{action}</span>}
-    </div>
+    <p className="v69-big-claim" {...data}>
+      {children}
+    </p>
   );
 }
 
-/** The mock's `.notice` (amber by default, `blue` for a neutral pointer). */
-export function V69Notice({
+/** The mock's `.notice` (amber by default, `blue` for an informational note or neutral pointer). */
+export function Notice({
   children,
-  tone,
+  tone = "amber",
   data,
 }: {
   children: ReactNode;
-  tone?: "blue";
+  tone?: "amber" | "blue";
   data?: Record<string, string>;
 }) {
   return (
@@ -185,6 +177,45 @@ export function V69Notice({
     </div>
   );
 }
+
+/**
+ * The mock's `.statusbar`: one state line above the panels (not a panel). It
+ * renders F1's `.status-strip--line`, so the guard's strip rules apply: every
+ * child must be inline (spans, links, a chip-sized control), never a block.
+ * Pass a `ProductStatus inline` for a state line.
+ */
+export function StatusBar({
+  children,
+  label,
+  items = false,
+  other,
+  action,
+  data,
+}: {
+  children: ReactNode;
+  /** Accessible name of the status line (W1-F3). */
+  label?: string;
+  /**
+   * W1-F3: the children are the strip's own items (chips, a spacer, a trailing
+   * fact), laid out by the strip's gap, instead of one lead state line.
+   */
+  items?: boolean;
+  other?: ReactNode;
+  action?: ReactNode;
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className="status-strip status-strip--line v69-statusbar" role="status" aria-label={label} {...data}>
+      {items ? children : <span className="status-strip__lead">{children}</span>}
+      {other === undefined ? null : <span className="status-strip__item v69-statusbar__other">{other}</span>}
+      {items ? null : <span className="status-strip__spacer" aria-hidden="true" />}
+      {action === undefined ? null : <span className="status-strip__action">{action}</span>}
+    </div>
+  );
+}
+
+/** W1-F2's name for the same `.notice` (one implementation: `Notice`). */
+export const V69Notice = Notice;
 
 export interface TimelineEvent {
   key: string;

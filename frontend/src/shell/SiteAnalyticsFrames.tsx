@@ -460,15 +460,20 @@ export function SiteFindingFrame({
               </Panel>
             ) : (
               <>
-                <FindingSections sections={sections} current={view} />
-                {/* W1-F4: on Recommendation the money link is a qualified line inside "Proposed intervention". */}
-                {view === "recommendation" ? null : (
-                  <p className="finding-financials-link" data-finding-financials-link>
-                    <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
-                      What this finding means in money
-                    </Link>
-                  </p>
-                )}
+                {/* W1-F3: the money link sits on the section-tab line; W1-F4: on Recommendation it is a qualified line inside "Proposed intervention" instead. */}
+                <FindingSections
+                  sections={sections}
+                  current={view}
+                  aside={
+                    view === "recommendation" ? undefined : (
+                      <span className="finding-financials-link" data-finding-financials-link>
+                        <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
+                          What this finding means in money
+                        </Link>
+                      </span>
+                    )
+                  }
+                />
                 {view === "evidence" ? (
                   <SiteFindingEvidence
                     siteId={site.site_id}
@@ -516,6 +521,7 @@ export function SiteFindingFrame({
                       finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                       dispatch,
                       evidence: siteEvidenceHref(site.site_id),
+                      findingEvidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
                       history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
                       recommendation: (rev) => siteFindingViewHref(site.site_id, id, "recommendation", rev),
                     }}

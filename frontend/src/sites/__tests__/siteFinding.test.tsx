@@ -2,7 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { AS_OF_PATTERN, expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { SourceProvenance } from "../sourceProvenance";
@@ -165,6 +166,8 @@ function mount(client: FindingClient, search = "", id = F, withRecommendation = 
                   finding: (fid, rid) => `/sites/KOBO-001/findings/${fid}${rid ? `?revision_id=${rid}` : ""}`,
                   dispatch: (day, rid) => `/sites/KOBO-001/performance/dispatch?day=${day}${rid ? `&revision=${rid}` : ""}`,
                   evidence: "/sites/KOBO-001/evidence",
+                  findingEvidence: (rid) => `/sites/KOBO-001/findings/${id}/evidence${rid ? `?revision_id=${rid}` : ""}`,
+                  history: (rid) => `/sites/KOBO-001/findings/${id}/history${rid ? `?revision_id=${rid}` : ""}`,
                   ...(withRecommendation
                     ? { recommendation: (rid: string | null) => `/sites/KOBO-001/findings/${id}/recommendation${rid ? `?revision_id=${rid}` : ""}` }
                     : {}),
@@ -181,6 +184,37 @@ function mount(client: FindingClient, search = "", id = F, withRecommendation = 
 }
 
 const where = () => screen.getByTestId("where").textContent ?? "";
+/** W1-F3: the one concise claim line of panel 1 (formerly the answer card's h2). */
+const claim = () => document.querySelector("[data-finding-claim]")?.textContent ?? "";
+const happened = () => panelTitled("What happened");
+
+/**
+ * W1-F3 review M4: the Overview's state line is split so nothing repeats. The status strip owns the state label,
+ * the version and the period; What happened keeps the non-positive sentence, the material notes and the as-of.
+ * Every part of the shared state line is still asserted present and outside any closed disclosure.
+ */
+function expectFindingStateVisible(panel: Element): string {
+  const strip = document.querySelector("[data-finding-statusbar]");
+  expect(strip, "the Finding status strip is rendered").not.toBeNull();
+  const label = strip!.querySelector("[data-chip='currentness']");
+  for (const [name, el] of [["state", label], ["version", strip!.querySelector("[data-chip='version']")], ["period", strip!.querySelector("[data-chip='period']")]] as const) {
+    expect(el, name).not.toBeNull();
+    expect((el!.textContent ?? "").trim().length, `${name} has text`).toBeGreaterThan(0);
+    expect(visibleOutsideClosedDisclosure(el!), `${name} is outside any closed disclosure`).toBe(true);
+  }
+  const state = panel.querySelector("[data-finding-panel-state]");
+  expect(state, "What happened keeps its state line").not.toBeNull();
+  const asOf = state!.querySelector("[data-product-status-as-of]");
+  expect(asOf, "as of").not.toBeNull();
+  expect(visibleOutsideClosedDisclosure(asOf!)).toBe(true);
+  expect(asOf!.textContent).toMatch(AS_OF_PATTERN);
+  if (state!.getAttribute("data-product-status") !== "positive") {
+    const sentence = state!.querySelector(".product-status__sentence");
+    expect((sentence?.textContent ?? "").trim().length, "a non-positive state keeps its sentence in the panel").toBeGreaterThan(0);
+    expect(visibleOutsideClosedDisclosure(sentence!)).toBe(true);
+  }
+  return label!.textContent ?? "";
+}
 
 
 /** S4-05b: a stored source provenance block for the selected version. */
@@ -199,8 +233,10 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
   it("offers no recommendation link, and says so, when the frame gives none (phase-1 review L5)", async () => {
     const { container } = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }), "", F, false);
     await settledScreen();
-    expect(container.querySelector("[data-finding-recommendation-link='none']")?.textContent).toMatch(/No recommendation link is offered here/);
+    const none = panelTitled("What to do next").querySelector("[data-finding-recommendation-link='none']");
+    expect(none?.textContent).toMatch(/^No recorded next action\. Nothing here asks you to change how the generator is operated\.$/);
     expect(container.querySelector("[data-finding-recommendation-link] a")).toBeNull();
+    expectV69Panels("finding");
   });
 
   it("shows what happened, its limits and where to look, in plain words, with the Dispatch drill-down", async () => {
@@ -208,20 +244,23 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     const { container } = mount(client);
     await settledScreen();
     expect(client.asked).toEqual([null]);
-    for (const heading of ["What happened", "What limits this conclusion", "Where to look next", "Versions"]) {
-      expect(screen.getByRole("heading", { name: heading })).toBeTruthy();
-    }
+    expectV69Panels("finding");
     expect(container.querySelector("[data-finding-card='CANDIDATE_AVOIDABLE']")?.textContent).toMatch(/45 min/);
     expect(container.querySelector("[data-finding-card='NECESSARY']")?.textContent).toMatch(/15 min/);
-    expect(container.querySelector("[data-finding-card='MONEY']")?.textContent).toMatch(/Not yet available/);
+    expect(container.querySelector("[data-finding-card='MONEY'] .v69-metric__value")?.textContent).toBe("Not available");
+    expect(container.querySelector("[data-finding-card='MONEY']")?.textContent).toMatch(/No fuel or money estimate is made on this page/);
     // W1-UX-02: the shared currentness words replace "Up to date".
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Using the latest checked readings");
     // S6-01b: "What to do next" links to the Recommendation view at the exact version read.
-    const next = container.querySelector("[data-finding-recommendation-link] a");
+    const next = panelTitled("What to do next").querySelector("[data-finding-recommendation-link] a");
     expect(next?.getAttribute("href")).toContain(`/sites/KOBO-001/findings/${F}/recommendation?revision_id=`);
     const day = container.querySelector("[data-finding-dispatch-day='2026-10-06']");
     expect(day?.getAttribute("href")).toBe(`/sites/KOBO-001/performance/dispatch?day=2026-10-06&revision=${I1}`);
-    expect(container.querySelectorAll("[data-evidence-id]")).toHaveLength(2);
+    // W1-F3: the record list moved to the Finding's Evidence view; the count and its exact link stay here.
+    const evidence = container.querySelector("[data-attention-item='evidence']");
+    expect(evidence?.textContent).toMatch(/2 accepted records support the counted blocks/);
+    expect(evidence?.querySelector("[data-finding-evidence-link]")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}/evidence?revision_id=rev-1`);
+    expect(container.querySelector("[data-evidence-id]")).toBeNull();
     const { violations, scanned } = scanProductVocabulary(container, "finding overview");
     expect(scanned).toBeGreaterThan(20);
     expect(violations, describeViolations(violations)).toEqual([]);
@@ -247,32 +286,36 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     const { container } = mount(client, "?revision_id=rev-1");
     await settledScreen();
     expect(client.asked).toEqual(["rev-1"]);
-    expect(screen.getByRole("heading", { name: "Earlier version 1 of 2" })).toBeTruthy();
+    expect(claim()).toBe("Earlier version 1 of 2");
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("Earlier version, kept for the record");
-    expect(container.querySelector("[data-finding-version='rev-1']")?.getAttribute("aria-current")).toBe("true");
+    // W1-F3: the version list lives on History (siteFindingHistory.test "marks the selected and the latest version");
+    // the History link keeps the exact earlier version selected.
+    expect(container.querySelector("[data-finding-history-link]")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}/history?revision_id=rev-1`);
     fireEvent.click(screen.getByRole("link", { name: "Open the latest version" }));
     await settledScreen();
     expect(client.asked).toEqual(["rev-1", null]);
     expect(where()).toBe(`/sites/KOBO-001/findings/${F}`);
   });
 
-  it("groups consecutive assessment updates as a hint, discloses their count and keeps each exact version selectable", async () => {
+  it("W1-F3: lists no versions on the Overview; History carries them, each exact version selectable", async () => {
     const revs = [summary(1, "OPENED"), summary(2, "BASIS_REFRESHED"), summary(3, "BASIS_REFRESHED")];
     const { container } = mount(fake({ status: "loaded", value: body(revs) }));
     await settledScreen();
-    const group = container.querySelector("[data-version-group='BASIS_REFRESHED']");
-    expect(group?.getAttribute("data-version-count")).toBe("2");
-    expect(group?.textContent).toMatch(/2 assessment updates; period and possibly avoidable time unchanged/);
-    expect(group?.querySelector("[data-finding-version='rev-2']")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}?revision_id=rev-2`);
-    expect(group?.querySelector("[data-finding-version='rev-3']")).not.toBeNull();
+    // The grouped, individually selectable versions are asserted on History
+    // (siteFindingHistory.test "keeps assessment updates with an unchanged amount individually selectable").
+    expect(container.querySelector("[data-finding-version]")).toBeNull();
+    expect(container.querySelector("[data-version-group]")).toBeNull();
+    expect(container.querySelector("[data-chip='version']")?.textContent).toMatch(/3/);
+    expect(container.querySelector("[data-finding-history-link]")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}/history?revision_id=rev-3`);
     expect(container.textContent).not.toMatch(/new issue/i);
+    expectV69Panels("finding");
   });
 
   it("an unconfirmed version after a closed review does not read as a new active issue", async () => {
     const revs = [summary(1, "OPENED"), summary(2, "NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED"), summary(3, "UNCONFIRMED", "UNCONFIRMED")];
     const { container } = mount(fake({ status: "loaded", value: body(revs) }));
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Not confirmed: cannot decide whether any time was possibly avoidable" })).toBeTruthy();
+    expect(claim()).toBe("Not confirmed: cannot decide whether any time was possibly avoidable");
     expect(container.querySelector("[data-finding-after-closure]")?.textContent).toMatch(/already been closed.*not a new issue/);
     expect(container.querySelector("[data-finding-card='CANDIDATE_AVOIDABLE']")?.textContent).toMatch(/0 min/);
     expect(container.querySelector("[data-limitation='EVIDENCE_GAP']")).not.toBeNull();
@@ -295,11 +338,11 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     value.links.performance = { status: "CLOSED", reason: "closed" };
     const { container } = mount(fake({ status: "loaded", value }), "?revision_id=rev-1");
     await settledScreen();
-    // W1-UX-02: the lead is the answer card; its state line carries the record-only state.
-    const lead = container.querySelector("[data-headline-card='finding']") as HTMLElement;
-    expect(lead?.querySelector("h2")?.textContent).toBe("Record only: this site's assessments are not released");
+    // W1-F3: the lead is panel 1's claim line; its state line carries the record-only state.
+    const lead = happened();
+    expect(lead.querySelector("[data-finding-claim]")?.textContent).toBe("Record only: this site's assessments are not released");
     expect(lead?.querySelector("[data-finding-audit-only]")).not.toBeNull();
-    expect(expectStateLineVisible(lead)).toBe("For the record only");
+    expect(expectFindingStateVisible(lead)).toBe("For the record only");
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe("For the record only");
     expect(container.textContent).not.toMatch(/Up to date/);
     expect(container.textContent).not.toMatch(/Using the latest checked readings/);
@@ -337,7 +380,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     value.relations.canonical_finding_id = CANON;
     const { container } = mount(fake({ status: "loaded", value }));
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Joined into an earlier Finding" })).toBeTruthy();
+    expect(claim()).toBe("Joined into an earlier Finding");
     expect(container.querySelector(`[data-finding-merged='${CANON}'] a`)?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${CANON}`);
   });
 
@@ -354,9 +397,9 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     expect(container.querySelector("[data-chip='currentness']")?.textContent).toBe(label);
     expect(container.querySelector(`[data-finding-currentness='${state}']`)?.textContent).toMatch(/last recorded version|not current/);
     expect(container.querySelector("[data-finding-card='CANDIDATE_AVOIDABLE']")).not.toBeNull();
-    // W1-UX-02: the state line beside the answer says the shown version is not current, outside the closed disclosure.
-    const card = container.querySelector("[data-headline-card='finding']") as HTMLElement;
-    expect(expectStateLineVisible(card)).toBe(label);
+    // W1-F3: the state line in What happened says the shown version is not current, outside the closed disclosure.
+    const card = happened();
+    expect(expectFindingStateVisible(card)).toBe(label);
     expect(card.querySelector(".product-status__sentence")?.textContent).toMatch(/last recorded version|not current/);
     expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
   });
@@ -373,6 +416,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     await settledScreen();
     expect(container.querySelector(`[data-finding-read='${status}']`)?.textContent).toMatch(words);
     expect(container.querySelector("[data-finding-card]")).toBeNull();
+    expectV69Panels("finding");
   });
 
   it("keeps stored codes and full identifiers in Analysis, with plain labels", async () => {
@@ -466,7 +510,7 @@ describe("Site Finding detail (S4-01 phase 3 fix round 3)", () => {
     stale.revision.currentness = { ...stale.revision.currentness, state: "STALE" };
     const a = mount(fake({ status: "loaded", value: stale }));
     await settledScreen();
-    expect(screen.getByRole("heading", { name: "Open in the last recorded version: 45 min of generator time possibly avoidable" })).toBeTruthy();
+    expect(claim()).toBe("Open in the last recorded version: 45 min of generator time possibly avoidable");
     a.unmount();
 
     const none = unconfirmed(() => {});
@@ -530,6 +574,52 @@ describe("Site Finding detail: LR-01 series limit end", () => {
     expect(document.querySelector("[data-finding-end-reason]")).toBeNull();
   });
 
+  it("W1-F3 review H1: with many limits, every material limit is visible and none sits in a closed expander", async () => {
+    const value = body([summary(1, "OPENED")]);
+    value.revision.claim = { ...value.revision.claim, end_reason: "SERIES_LIMIT" as const };
+    value.revision.limitations = [
+      "GENERATOR_SERIES_AMBIGUOUS: generator_power 2026-10-06T08:40:00Z..2026-10-06T09:00:00Z",
+      "EVIDENCE_GAP: battery_soc 2026-10-06T08:10:00Z..2026-10-06T08:15:00Z",
+      "EVIDENCE_GAP: battery_soc 2026-10-06T08:20:00Z..2026-10-06T08:25:00Z",
+      "REPORTS_OVERLAP: solar_power 2026-10-06T08:30:00Z..2026-10-06T08:35:00Z",
+      "SEQUENCE_ORDER_INVERTED: generator_power 2026-10-06T08:36:00Z",
+    ];
+    value.revision.indeterminate_cause = { kind: "RECORD_GAP", sentence: "Some records it needs are missing or conflict over part of the period." };
+    value.revision.claim.continuity = [
+      { start: "2026-10-06T08:50:00Z", end: "2026-10-06T08:55:00Z", minutes: "5", bridged_by: ["x"], stops: [{ start: "2026-10-06T08:50:00Z", end: "2026-10-06T08:55:00Z", off_after: "2026-10-06T08:50:00Z", off_before: "2026-10-06T08:55:00Z" }] },
+    ] as never;
+    value.relations.recurs_after_finding_id = PRIOR;
+    value.relations.recurrence = { status: "LINKED", prior_finding_id: PRIOR };
+    mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    const limits = panelTitled("What limits this conclusion");
+    const expected = [
+      "[data-finding-bounded]",
+      "[data-finding-record-gap]",
+      "[data-finding-end-reason='SERIES_LIMIT']",
+      "[data-limitation='GENERATOR_SERIES_AMBIGUOUS']",
+      "[data-limitation='EVIDENCE_GAP']",
+      "[data-limitation='REPORTS_OVERLAP']",
+      "[data-limitation='SEQUENCE_ORDER_INVERTED']",
+      "[data-finding-stop-bridges]",
+      "[data-finding-recurrence='LINKED']",
+    ];
+    for (const selector of expected) {
+      const item = limits.querySelector(selector);
+      expect(item, selector).not.toBeNull();
+      expect(visibleOutsideClosedDisclosure(item!), `${selector} is visible`).toBe(true);
+    }
+    expect(limits.querySelector("[data-limitation='EVIDENCE_GAP']")).toHaveTextContent("(2 places)");
+    expect(limits.querySelector("[data-finding-stop-bridges]")).toHaveTextContent("rests on those two off reports");
+    expect(limits.querySelectorAll("[data-finding-limits] > li")).toHaveLength(9);
+    // The closed expander holds only the access note and the SUPPORTED lifecycle sentence.
+    const context = limits.querySelector("details[data-show-all='finding-limits-context']") as HTMLDetailsElement;
+    expect(context.open).toBe(false);
+    for (const li of Array.from(context.querySelectorAll("li"))) {
+      expect(/development access/.test(li.textContent ?? "") || li.querySelector("[data-finding-lifecycle-sentence]") !== null, li.textContent ?? "").toBe(true);
+    }
+  });
+
   it("names the selected version's stored source, and an unrecorded source as not confirmed (S4-05b)", async () => {
     const { container } = mount(fake({ status: "loaded", value: body([summary(1, "OPENED")], 1, { source_provenance: stored("AUTHORED_DEMONSTRATION") }) }));
     await settledScreen();
@@ -555,30 +645,56 @@ function expectUntimedStateLine(card: Element): string {
   return status!.querySelector("[data-product-status-label]")?.textContent ?? "";
 }
 
-describe("W1-UX-02: Site Finding answer card", () => {
+describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
+  // W1-F3: the Overview's answer card became panel 1 "What happened"; the Analysis view keeps the card.
   const card = () => document.querySelector("[data-headline-card='finding']") as HTMLElement;
   const main = () => document.querySelector("main") as HTMLElement;
 
-  it("W1-UX-02: the Overview leads with the defensible conclusion, a causal strip and labelled exact references; W1 vocabulary on <main>", async () => {
+  it("W1-F3: the Overview leads with the defensible conclusion in What happened, then the limits, next step and labelled exact references; W1 vocabulary on <main>", async () => {
     mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
     await settledScreen();
-    const answer = card();
-    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("What is the defensible conclusion and its consequence?");
-    expect(answer.querySelector("h2")?.textContent).toBe("Open: 45 min of generator time possibly avoidable");
-    expect(expectStateLineVisible(answer)).toBe("Using the latest checked readings");
+    expectV69Panels("finding");
+    // W1-F3 review H2: the mock's Priority and Confidence chips, as honest unknowns.
+    expect(document.querySelector("[data-finding-statusbar] [data-chip='priority']")?.textContent).toBe("Priority: not assessed");
+    expect(document.querySelector("[data-finding-statusbar] [data-chip='confidence']")?.textContent).toBe("Confidence: not assessed");
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    const answer = happened();
+    expect(answer.querySelector("[data-finding-claim]")?.textContent).toBe("Open: 45 min of generator time possibly avoidable");
+    expect(expectFindingStateVisible(answer)).toBe("Using the latest checked readings");
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
-    const steps = Array.from(answer.querySelectorAll("[data-step-strip] li")).map((li) => li.querySelector(".step-strip__label")?.textContent);
-    expect(steps).toEqual(["Conclusion", "Cause", "Consequence", "Next useful step"]);
-    // The consequence is not worked out on this page: never a positive mark, never an amount.
-    const consequence = answer.querySelectorAll("[data-step-strip] li")[2];
-    expect(consequence.getAttribute("data-step")).toBe("not-known");
-    expect(answer.textContent).not.toMatch(/\$|USD|saved|savings/);
-    expect(answer.querySelector("[data-finding-could-change]")?.textContent).toMatch(/What could change it/);
-    expect(answer.querySelector("[data-finding-destination='analysis']")?.getAttribute("href")).toBe("/sites/KOBO-001/findings/" + F + "?view=analysis");
+    // W1-F3 review M4: the version and period are said once, in the strip; the panel subtitle keeps the period.
+    expect(document.querySelector("[data-chip='period']")?.textContent).toBe("2026-10-06 08:00–09:00 UTC");
+    expect(answer.querySelector("[data-product-status-scope]")).toBeNull();
+    expect(answer.querySelector("[data-product-status-label]")).toBeNull();
+    expect(answer.textContent).toMatch(/Period covered · 2026-10-06 08:00–09:00 UTC · 1 h/);
+    // The consequence is not worked out on this page: a muted word, never an amount.
+    const money = document.querySelector("[data-finding-card='MONEY']") as HTMLElement;
+    expect(money.className).toMatch(/v69-metric--muted/);
+    expect(money.className).toMatch(/v69-metric--word/);
+    expect(main().textContent).not.toMatch(/\$|USD|saved|savings/);
+    const limits = panelTitled("What limits this conclusion");
+    expect(limits.querySelector("[data-finding-could-change]")?.textContent).toMatch(/What could change it/);
+    expect(limits.querySelector("[data-finding-lifecycle-sentence]")).not.toBeNull();
+    expect(limits.querySelector("[data-finding-bounded]")?.textContent).toMatch(/not proof of wasted fuel/);
+    // W1-F3 review H1: every material limit is visible; only the access note and the SUPPORTED lifecycle
+    // sentence sit behind the closed "Access and review context" expander.
+    const material = limits.querySelector("[data-finding-limits]") as HTMLElement;
+    for (const li of Array.from(material.querySelectorAll("li"))) {
+      expect(visibleOutsideClosedDisclosure(li), li.textContent ?? "").toBe(true);
+    }
+    expect(material.firstElementChild?.hasAttribute("data-finding-bounded")).toBe(true);
+    const context = limits.querySelector("details[data-show-all='finding-limits-context']") as HTMLDetailsElement;
+    expect(context.open).toBe(false);
+    expect(context.querySelector("[data-finding-limits-context]")?.textContent).toMatch(/development access/);
+    expect(limits.querySelector("details[data-show-all='finding-limits']")).toBeNull();
+    expect(visibleOutsideClosedDisclosure(limits.querySelector("[data-finding-could-change]")!)).toBe(true);
+    expect(panelTitled("What to do next").querySelector("a.button.primary")).not.toBeNull();
+    const look = panelTitled("Where to look next");
+    expect(look.querySelector("[data-finding-destination='analysis']")?.getAttribute("href")).toBe("/sites/KOBO-001/findings/" + F + "?view=analysis");
     // Exact references are last, closed, individually labelled; the finding reference is not in the default reading.
-    const refs = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    const refs = look.querySelector("details[data-exact-references]") as HTMLDetailsElement;
     expect(refs.open).toBe(false);
-    expect(answer.querySelector(".headline-card__body")?.lastElementChild).toBe(refs);
+    expect(look.lastElementChild?.contains(refs) || look.lastElementChild === refs).toBe(true);
     expect(Array.from(refs.querySelectorAll("dt")).map((dt) => dt.textContent)).toEqual([
       "Finding reference", "Shown version reference", "Latest version reference", "Recorded state code", "Up-to-date check code", "Change code",
     ]);
@@ -586,7 +702,7 @@ describe("W1-UX-02: Site Finding answer card", () => {
     const w1 = scanProductVocabulary(main(), "finding overview (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(40);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const disclosure = scanDisclosureVocabulary(answer, "finding exact references");
+    const disclosure = scanDisclosureVocabulary(look, "finding exact references");
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.scanned).toBeGreaterThan(5);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
@@ -602,6 +718,9 @@ describe("W1-UX-02: Site Finding answer card", () => {
     expect(expectStateLineVisible(answer)).toBe("Earlier version, kept for the record");
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
     expect(answer.querySelector("[data-finding-destination='overview']")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}?revision_id=rev-1`);
+    const steps = Array.from(answer.querySelectorAll("[data-step-strip] li")).map((li) => li.querySelector(".step-strip__label")?.textContent);
+    expect(steps).toEqual(["Conclusion", "Cause", "Consequence", "Next useful step"]);
+    expect(answer.querySelectorAll("[data-step-strip] li")[2].getAttribute("data-step")).toBe("not-known");
     const w1 = scanProductVocabulary(main(), "finding analysis (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(40);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -620,12 +739,13 @@ describe("W1-UX-02: Site Finding answer card", () => {
     value.revision.currentness = { state, windows: [] };
     mount(fake({ status: "loaded", value }));
     await settledScreen();
-    const answer = card();
-    expect(expectStateLineVisible(answer)).toBe(label);
+    const answer = happened();
+    expect(expectFindingStateVisible(answer)).toBe(label);
     expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
-    expect(answer.querySelector("h2")?.textContent).toMatch(/^Open in the last recorded version: /);
+    expect(answer.querySelector("[data-finding-claim]")?.textContent).toMatch(/^Open in the last recorded version: /);
     // The raw code stays in the labelled exact detail only.
-    expect(answer.querySelector(".headline-card__status")?.textContent).not.toContain(state);
+    expect(answer.querySelector("[data-finding-state]")?.textContent).not.toContain(state);
+    expect(document.querySelector("[data-finding-statusbar]")?.textContent).not.toContain(state);
     const w1 = scanProductVocabulary(main(), `finding ${state} (W1)`, { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });
@@ -635,30 +755,32 @@ describe("W1-UX-02: Site Finding answer card", () => {
     limited.revision.indeterminate_cause = { kind: "RECORD_GAP", sentence: "Some records it needs are missing or conflict over part of the period." };
     const a = mount(fake({ status: "loaded", value: limited }));
     await settledScreen();
-    expectStateLineVisible(card());
-    expect(card().querySelectorAll("[data-step-strip] li")[1].getAttribute("data-step")).toBe("problem");
-    expect(card().querySelector("[data-finding-could-change]")?.textContent).toMatch(/fill the missing part/);
+    expectFindingStateVisible(happened());
+    // W1-F3: the causal strip's "problem" cause is the record-gap limit, named in What limits this conclusion.
+    const limits = panelTitled("What limits this conclusion");
+    expect(limits.querySelector("[data-finding-record-gap]")?.textContent).toMatch(/missing or conflict/);
+    expect(limits.querySelector("[data-finding-could-change]")?.textContent).toMatch(/fill the missing part/);
     a.unmount();
 
     const merged = body([summary(1, "OPENED"), summary(2, "MERGED_INTO", "MERGED")]);
     merged.state.merged_into_finding_id = CANON;
     const b = mount(fake({ status: "loaded", value: merged }));
     await settledScreen();
-    expect(expectStateLineVisible(card())).toBe("Joined into an earlier Finding");
+    expect(expectFindingStateVisible(happened())).toBe("Joined into an earlier Finding");
     b.unmount();
 
     const closed = body([summary(1, "OPENED")], 1, { audit_only: { non_current: true, reason: "closed", statement: "Audit material only" } });
     closed.revision.currentness = { state: "SOURCE_CLOSED", windows: [] };
     const c = mount(fake({ status: "loaded", value: closed }), "?revision_id=rev-1");
     await settledScreen();
-    expect(expectStateLineVisible(card())).toBe("For the record only");
+    expect(expectFindingStateVisible(happened())).toBe("For the record only");
     c.unmount();
 
     // S4-05: an unrecorded source is named beside the state line, never as a positive source.
     mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
     await settledScreen();
-    expectStateLineVisible(card());
-    const source = card().querySelector("[data-source-provenance]") as HTMLElement;
+    expectFindingStateVisible(happened());
+    const source = happened().querySelector("[data-source-provenance]") as HTMLElement;
     expect(source).toHaveTextContent("Source unverified.");
     expect(visibleOutsideClosedDisclosure(source)).toBe(true);
   });
@@ -669,14 +791,66 @@ describe("W1-UX-02: Site Finding answer card", () => {
     ["unauthenticated", "This cannot be shown to you"],
     ["closed", "Not released for use yet"],
     ["unavailable", "This could not be read right now"],
-  ] as const)("W1-UX-02: a %s read shows the refusal card with a plain state line and no Finding", async (status, label) => {
+  ] as const)("W1-F3: a %s read shows the page refusal with a plain state line, the four panels with in-panel gaps and no Finding", async (status, label) => {
     const result = (status === "closed" ? { status, message: null, note: null } : { status, message: null }) as FindingReadResult<FindingDetailBody>;
     mount(fake(result));
     await settledScreen();
-    expect(expectUntimedStateLine(card())).toBe(label);
-    expect(card().querySelector(`[data-finding-read='${status}']`)).not.toBeNull();
+    const refusal = document.querySelector(`[data-page-refusal='${status}']`) as HTMLElement;
+    expect(expectUntimedStateLine(refusal)).toBe(label);
+    expect(refusal.querySelector(`[data-finding-read='${status}']`)).not.toBeNull();
     expect(document.querySelector("[data-finding-card]")).toBeNull();
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    expectV69Panels("finding");
+    for (const title of ["What happened", "What limits this conclusion", "What to do next", "Where to look next"]) {
+      expect(panelTitled(title).querySelector("[data-finding-panel-gap]")?.textContent).toMatch(/nothing is shown here, and this is not a result that no Finding exists/);
+    }
     const w1 = scanProductVocabulary(main(), `finding ${status} (W1)`, { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+});
+
+describe("W1-F3: finding renders exactly the v69 panels", () => {
+  const order = () =>
+    Array.from(document.querySelectorAll("main [data-finding-statusbar], main h2, main .v69-cards")).map((el) =>
+      el.matches("[data-finding-statusbar]") ? "statusbar" : el.matches(".v69-cards") ? "metrics" : el.textContent,
+    );
+
+  it("stocked: statusbar, What happened, four metric cards, the limits / next pair, Where to look next", async () => {
+    mount(fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
+    await settledScreen();
+    expectV69Panels("finding");
+    expect(order()).toEqual(["statusbar", "What happened", "metrics", "What limits this conclusion", "What to do next", "Where to look next"]);
+    expect(Array.from(document.querySelectorAll("[data-finding-card]")).map((c) => c.getAttribute("data-finding-card"))).toEqual([
+      "CANDIDATE_AVOIDABLE", "NECESSARY", "INDETERMINATE", "MONEY",
+    ]);
+    const pair = document.querySelector(".panel-pair") as HTMLElement;
+    expect(Array.from(pair.querySelectorAll("h2")).map((h) => h.textContent)).toEqual(["What limits this conclusion", "What to do next"]);
+    expect(Array.from(document.querySelectorAll("[data-attention-item]")).map((i) => i.getAttribute("data-attention-item"))).toEqual([
+      "analysis", "evidence", "history", "dispatch", "related",
+    ]);
+    expect(happened().querySelector("[data-finding-claim]")?.tagName).toBe("P");
+  });
+
+  it("unconfirmed, no blocks and no records: the same four panels with honest empty lines", async () => {
+    const value = body([summary(1, "OPENED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")]);
+    value.revision.claim.other_portions = [];
+    value.revision.cited_evidence = [];
+    mount(fake({ status: "loaded", value }));
+    await settledScreen();
+    expectV69Panels("finding");
+    expect(happened().querySelector("[data-finding-no-blocks]")?.textContent).toBe("No block is counted in this version.");
+    expect(document.querySelector("[data-attention-item='evidence']")?.textContent).toMatch(/0 accepted records are cited by this version/);
+    expect(document.querySelector("[data-attention-item='related']")?.textContent).toMatch(/None recorded\./);
+  });
+
+  it("an earlier, record-only version: the same four panels; the Analysis view is outside this guard", async () => {
+    const value = body([summary(1, "OPENED"), summary(2, "SUPPORT_CHANGED")], 1, {
+      audit_only: { non_current: true, reason: "closed", statement: "Audit material only" },
+    });
+    value.links.performance = { status: "CLOSED", reason: "closed" };
+    mount(fake({ status: "loaded", value }), "?revision_id=rev-1");
+    await settledScreen();
+    expectV69Panels("finding");
+    expect(panelTitled("Where to look next").querySelector("[data-finding-dispatch-closed]")).not.toBeNull();
   });
 });
