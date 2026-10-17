@@ -158,3 +158,91 @@ Every statement kept; honest-state lines visible; closed disclosures hold IDs, d
 
 Finishing pass: heights re-measured from the committed evidence.json files and match the table above. Dispatch captures are at `ff1bc248`; no dispatch or analysis source changed after it (`git diff ff1bc248 HEAD -- frontend/src` touches only Evidence claim-limit, Evidence ledger, Overview and the Overview CSS), so they are valid for `8270c9a6`. Gateway wording confirmed visible in the contact line (LedgerSiteEvidence.tsx line 817; test v01bEvidenceVisual asserts it).
 
+
+## Review fix round (`.agent/W1-F2-review.md`, RETURN at `f3a2f518`)
+Code commits: `471df7bc` (H1, M6), `4faf2807` (H2), `43d9f53f` (M3, M4), `260c6c5e` (M5), `73cb5a54` (Lows 7a-7c). Final code revision `73cb5a54`.
+
+| Finding | Fix | Where |
+| --- | --- | --- |
+| H1 Dispatch chooser | Period chips and the block row moved into panel 1 under `DayBlockStrip`. Tiles are the mock's size: grid `minmax(58px,1fr)`, outcome word over start time, outcome colour as a top bar. Panel 2 now leads with the selected block's `ClaimBadge` and one plain sentence (`BLOCK_SENTENCE`), then its facts. The period facts follow under "The period this block is in: hh:mm to hh:mm UTC", with the term "Period outcome". With no block selected, the period facts lead as before. The duplicate "Select a block..." note in the chooser was removed; panel 1 keeps one. | `PerformanceDispatch.tsx` panel slots, `PeriodsAndBlocks`, `SelectedPeriod`; `primitives.css` `.dispatch-blocks` |
+| H2 Evidence Analysis limits | The day and period chooser renders through a portal into the page's `.v69-chips` row (`chooserTarget`; `v69-chip-control` date input, `.button`, 11 px period links). Removed: the `headline-card__question` label, the "What the readings can support" line and the "This page states what arrived..." note. Visible: the mock's two paragraphs (`.claim-limit__prose`), one result line (sentence plus inline state), the "Not available yet" rule line and the Dispatch link (note size). The physical-capacity caveat moved to the top of the closed `claim-limit-detail`. The technical disclosures stay closed, after the list of limits. | `EvidenceClaimLimit.tsx`, `LedgerSiteEvidence.tsx` (`WindowChooser extra`, `ClaimLimit technical`), CSS |
+| M3 repeated state line | Overview panel 1 omits the freshness `ProductStatus` when its words equal the statusbar's (same `db_now`). It keeps the source sentence and marks `data-freshness-in-statusbar`; when the words differ it stays one note line. Panel 1's two "How this was worked out" disclosures are merged into one (`window-assessment`, which now holds the assessment and freshness references). The money state is a note-size line (it differs from the statusbar). The Needs attention list state strip is removed, and its "as of" is now the reference "List known as of". Evidence panel 1's receipt state is one note-size inline line, and its notes bullet is at note size. | `SiteWindowOverview.tsx`, `OverviewFindingList.tsx`, `LedgerSiteEvidence.tsx` |
+| M4 Needs attention | The mock's numbered list (`v69-attention`): rank, h3 title, one-line reason, "Open the Finding →". Removed: the "Findings for {date}" h3 (the section is now `aria-label`), the state strip, the large count sentence (the count now shares the note line with the shown count and the full-list link) and the "same Finding" note. When parity is "same" and the chosen Finding is neither audit-only nor one of several, the separate chosen line is omitted. Item 1 then carries `data-known-finding`, the link and "· the Finding chosen for this day", and the choice references join the list's one disclosure. | `OverviewFindingList.tsx` (`chosen` prop), `SiteWindowOverview.tsx` `KnownFinding` |
+| M5 vocabulary | (a) `gaps_reason` is never rendered verbatim. It reads "No rule yet says which gaps in the readings matter here; the reading counts are shown instead." (b) Each record row is named by its role in words (unknown roles and channel IDs are humanised by `idWords`) over its source in words; the exact `source · device / signal` is the row title. Coded values read as words ("STOPPED state" becomes "Stopped"). Quality is shown in words. Source names in the sources table, the silent-source list and the per-source strip are humanised, with the exact ID as `title`. (c) "A delivery that was rejected as a whole is kept for audit and not listed as a reading." | `SiteWindowOverview.tsx`, `LedgerSiteEvidence.tsx`, `dispatchWords.ts` `idWords` |
+| M6 Other explanations | The not-available `alternatives` row is suppressed when the result records alternatives, so exactly one "Other explanations" line remains. Every unavailable key now gets a named term: known words, or the key in plain words. The "Another result" fallback is gone. | `PerformanceDispatch.tsx` `unavailableTerm`, `AnalysisView` |
+| 7a records panel | The not-accepted facts are one note line ("Readings not accepted: ..."), followed by the one closed disclosure. "Show all" and "Next page" are at note size. The two "Advanced details" rows were not merged: each holds a different table set, and both stay closed. | `LedgerSiteEvidence.tsx` `Rejected` |
+| 7b chooser position | The Overview day chooser is now above the statusbar, as on Dispatch and Evidence. | `SiteWindowOverview.tsx` |
+| 7c Feeder demand x3 | A timeline row whose reading kind repeats is labelled "{kind} · {device in words}". | `SiteWindowOverview.tsx` `Timeline` |
+| 7d, 7e, 7f | 7d not changed (Analysis panel 1 cards). 7e: see captures. 7f accepted by the reviewer. | - |
+
+### Changed assertions (re-pointed, none weakened)
+- `performanceDispatch` "Analysis shows ... types the rest unavailable":
+  - Was: unavailable `[alternatives, fuel_and_money, finding]`. Now: `[fuel_and_money, finding]`.
+  - Also asserts exactly one "Other explanations" term, stating "1 recorded". The fixture records one alternative, and M6 requires suppressing the contradicting row.
+  - The kept-when-none case is a new test.
+- `s5SiteWindowOverview`, freshness state line in 5 cases where the freshness and statusbar words are equal (current, stale, pending, failed x2):
+  - Was: `expectStateLineVisible(freshnessCard())`. Now: `expectFreshnessInStatusbar()`, which checks that panel 1 has no `.product-status`, carries the marker, and keeps the source sentence. Each case also asserts the same words on the statusbar; that assertion was added for the current case.
+  - The failed-day `[data-freshness-state=FAILED]` text check became an attribute check. The words are asserted on the statusbar in the next lines.
+  - The differing (unassessed) case keeps its panel-1 assertion and adds the `no` marker.
+- `s5SiteWindowOverview` W1-UX-02:
+  - Was: the first child is the statusbar. Now: the first child is the `.window-day` chooser, and its next sibling is the statusbar (Low 7b).
+- `s502OverviewFindingList`:
+  - Compaction test: was the inline state line with as-of. Now: no `.product-status` in the list, and the "List known as of" reference equals `knowledge_at`. The count, shown count and full-list link share a line.
+  - W1-UX-02 current rows: the state words are asserted on the statusbar, and the list as-of as a reference. The row `/version \d+$/` check now runs on the row's reason line. Added assertions: ranks 1-2, h3 titles, item 1 is the chosen Finding (exactly one `data-known-finding`), no "same Finding" note, no list h3, and the choice references are in the list disclosure.
+  - Date change: `findByText(/Findings for 2026-10-16/)` now waits on `[data-overview-finding-list-for="2026-10-16"]`, because the h3 was removed.
+- `s2LedgerEvidence` clocks:
+  - Was: `/operational audit record/`. Now: the exact plain sentence, plus a negative check for "server refused" and "operational audit record".
+  - Added: each record row header has no ` / `, ` · ` or `_`, and its title holds the exact IDs.
+- `v01bEvidenceVisual` silent source:
+  - Was: "fuel-level-sensor" in the text. Now: "Fuel level sensor" in the text, with `li[title='fuel-level-sensor']`.
+
+### New assertions and mutation proofs (committed first; each mutation reverted with `git checkout -- frontend/src`)
+- H1 (`performanceDispatch` W1-UX-03 test): tiles and chips are in panel 1; panel 2 has no chooser; its first badge is inside `[data-selected-block]` and reads "Possibly avoidable"; the lead sentence and period label are present. Mutation: block badge removed. Result: failed.
+- H2 (`v01bEvidenceVisual` limits test): the mock paragraphs are present; there is no "This page states" text, no `.headline-card__question` and no visible h3; the day form is absent from the panel and present in `.v69-chips`. Mutation: `chooserTarget={undefined}` (inline). Result: failed.
+- M4 (`s502` current rows). Mutation: `merged = false`. Result: failed.
+- M6 (two `performanceDispatch` tests). Mutation: the filter always passes. Result: failed.
+- M3: one "How this was worked out" in panel 1, plus the `expectFreshnessInStatusbar` checks.
+- M5(a): a new `s5` test checks that the raw `gaps_reason` never appears and the plain sentence does.
+
+### Checks (final code revision `73cb5a54`)
+- `npx.cmd tsc --noEmit -p .`: clean.
+- Full `npm.cmd test`: 76 files, **1986 passed, 0 failed**, wall 181 s. No flake reruns were needed.
+- `tools/check-all.ps1`: all 10 guards passed.
+- Captures with `tools/w1-fidelity-evidence.mjs` at 1440 and 390, commit `581a70bf`, all at `73cb5a54`:
+  - Claims: mini 48/48, dispatch 60/60, evidence 60/60.
+  - Ports (API/web/CDP): mini 9260/5680/9494, dispatch 9160/5690/9493, evidence 9360/5700/9495.
+  - Evidence passed on its rerun. On the first attempt the Vite server on 5700 exited by itself mid-run; that log is kept as `evidence/run-attempt1-devserver-exited.log`.
+  - Fixtures dropped afterwards (the same three as before) and all servers stopped.
+
+### Panel heights at 1440 after the fix round (app h / mock h)
+| Screen · case | Panels |
+| --- | --- |
+| mini · p01 priced | happened 333/238=1.40 · context+attention 518/373=1.39 · money+next 272/193=1.41 |
+| mini · p02 held | 333/238=1.40 · 518/373=1.39 · 271/193=1.40 |
+| mini · unassessed | 260/238=1.09 · 404/373=1.08 · 178/193=0.92 |
+| mini · failed | 236/238=0.99 · 454/373=1.22 · 178/193=0.92 |
+| dispatch · supported | pair 507/489=1.04 · coverage 345/243=1.42 |
+| dispatch · limited | 443/489=0.91 · 318/243=1.31 |
+| dispatch · failed | 289/489=0.59 · 318/243=1.31 |
+| analysis · supported | pair 349/432=0.81 · coverage 291/287=1.01 |
+| analysis · limited | 498/432=1.15 · 262/287=0.91 |
+| evidence · stocked | conclude 483/387=1.25 · sources 497/387=1.28 |
+| evidence · no readings | 457/387=1.18 · 480/387=1.24 |
+| evidence-analysis · supported | records 452/266=1.70 · limits 320/148=2.16 |
+| evidence-analysis · limited | 452/266=1.70 · 320/148=2.16 |
+| evidence-analysis · no selection | 452/266=1.70 · 363/148=2.45 |
+
+Low 7e: the 390 dispatch coverage table scrolls inside `DataTable`'s `.data-table__scroll` (`overflow-x: auto`, focusable). Page overflow is 0.
+
+### Known deviations (fix round)
+1. **The Evidence Analysis limits panel is 2.16-2.45x, not the targeted ~1.3x** (was 2.7-3.3x).
+   - Everything the review listed as removable is gone.
+   - What remains visible is the content the review said to keep: the mock's two paragraphs, the result line with its state, the "Not available yet" line and the Dispatch link.
+   - Three closed disclosure rows remain: limit detail, list of limits, technical. Each is about one line high.
+   - Merging those three rows into one would cut about one more line height, but it would move content between the assertions that pin each disclosure. I left that to the reviewer's call rather than doing it inside this round.
+   - The mock's paragraph height is the floor. The mock has no result or state line at all.
+2. **The mini "happened" (1.40) and money (1.41) panels are just above 1.3x.**
+   - happened: the duplicate state line and the second disclosure are gone. The rest is the honest whole-day gap line, the causal strip, the day reading and the limitations.
+   - money: the note-size state line and the source line remain.
+3. **Evidence Analysis records is 1.70x** (Low 7a: the not-accepted facts are now one note line). The two closed "Advanced details" rows were not merged.
+4. **The list as-of moved into a reference (M3).** The Needs attention list's own "as of" (`knowledge_at`) is now the exact reference "List known as of" inside the list's closed disclosure. The visible state is the statusbar's.
