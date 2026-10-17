@@ -2274,3 +2274,10 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ### Flaky test: schedule tick 8 s stage cap (2026-10-17)
 
 `backend/tests/test_s4_schedule_tick_postgres.py:435` (`test_a_hung_stage_is_killed_...`): the real-children tick exceeds the 8 s S3 stage cap under machine load (18 s while three UX builds ran tests), reading FAILED. Passes 7/7 alone on main and on the S4-08 branch. Fix: widen the cap for the recovery tick or isolate the load.
+
+### W1-UX-07 review Lows (2026-10-17)
+
+- `tools/checks/navigation-truthfulness.ps1:565,635`: lines starting with `*` are skipped, so a `*/ { kind: "live", ... }` line could hide a live entry (component tests still fail). Parse comments properly.
+- `navigation-truthfulness.ps1:671`: the route window should stop at the end of the operator block, not the catch-all.
+- `tools/checks/missing-claim-scan.mjs:181,207`: an aliased import of `NAV_RAIL_UNAVAILABLE_STATUS` keeps the exemption; resolve aliases.
+- Menu height (~575 px at 390) and 9 px status text: owner note 14 in the combined walkthrough.
