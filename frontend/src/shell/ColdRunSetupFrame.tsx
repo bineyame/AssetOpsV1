@@ -214,6 +214,13 @@ export function ColdRunSetupFrame({
                 (modelProfile === null || publicationProfile === null
                   ? "The scenario's profile identities could not be read, so no run can be set up."
                   : null);
+  // Say it once (W2-02 review M2): the choose-site, unavailable and empty states are already stated in
+  // the Cold scenarios panel, so the button stays disabled without repeating them beside it.
+  const panelStatesReason =
+    chosenSiteId === null ||
+    choices?.status === "unavailable" ||
+    (loadedChoices !== null && loadedChoices.length === 0);
+  const buttonReason = panelStatesReason ? null : blockedReason;
   const canCreate =
     !submitting &&
     blockedReason === null &&
@@ -340,9 +347,7 @@ export function ColdRunSetupFrame({
             <Fact term="Publication profile">{chosen.publication_profile}</Fact>
             <Fact term="Observation profile">{chosen.observation_profile}</Fact>
             <Fact term="Foundation version">
-              {foundationVersion === null
-                ? blockedReason ?? "Not available"
-                : String(foundationVersion)}
+              {foundationVersion === null ? "Not available yet" : String(foundationVersion)}
             </Fact>
             {basis?.status === "loaded" ? (
               <RegisteredBasisFacts model={basis.value} />
@@ -394,7 +399,7 @@ export function ColdRunSetupFrame({
             type="button"
             disabled={!canCreate}
             aria-describedby={
-              blockedReason === null ? undefined : "cold-run-setup-blocked-reason"
+              buttonReason === null ? undefined : "cold-run-setup-blocked-reason"
             }
             onClick={() => {
               void create();
@@ -402,9 +407,9 @@ export function ColdRunSetupFrame({
           >
             Create draft run
           </button>
-          {blockedReason === null ? null : (
+          {buttonReason === null ? null : (
             <span className="action-list__reason" id="cold-run-setup-blocked-reason">
-              {blockedReason}
+              {buttonReason}
             </span>
           )}
         </p>
@@ -440,7 +445,7 @@ function ChoiceRow({
         onChange={onChoose}
       />{" "}
       <label htmlFor={inputId}>
-        {choice.display_name} ({choice.scenario_id})
+        {choice.display_name}
       </label>
     </p>
   );

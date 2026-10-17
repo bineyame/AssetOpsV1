@@ -240,7 +240,7 @@ describe("cold run setup (W2-02)", () => {
 
     expect(cold.calls).toEqual(["COLD-LAB-001"]);
     expect(choiceRows()).toEqual(["cold-excursion", "cold-normal"]);
-    expect(screen.getByRole("radio", { name: "Normal (cold-normal)" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Normal" })).toBeInTheDocument();
   });
 
   it("states the empty copy for a Site with no cold scenarios and keeps Create disabled", async () => {
@@ -288,6 +288,45 @@ describe("cold run setup (W2-02)", () => {
     expect(document.querySelector('[data-cold-choice-state="unavailable"]')).toBeNull();
   });
 
+  it("states each setup message exactly once", async () => {
+    const once = (text: string) => expect(screen.getAllByText(text)).toHaveLength(1);
+
+    const first = renderAt(COLD_URL, coldClient().client);
+    await settledScreen();
+    once(COLD_CHOOSE_SITE_COPY);
+    chooseSite(OTHER_CHOICE_LABEL);
+    await settledScreen();
+    once(COLD_EMPTY_COPY);
+    expect(createButton().disabled).toBe(true);
+    first.unmount();
+
+    const second = renderAt(
+      COLD_URL,
+      coldClient(() => Promise.resolve({ status: "unavailable" })).client,
+    );
+    await settledScreen();
+    chooseSite(COLD_CHOICE_LABEL);
+    await settledScreen();
+    once(COLD_UNAVAILABLE_COPY);
+    expect(createButton().disabled).toBe(true);
+    second.unmount();
+
+    const pending = {
+      getFoundation: () => new Promise<FoundationRead<FoundationReadModel>>(() => {}),
+    } as unknown as SiteFoundationClient;
+    renderAt(COLD_URL, coldClient().client, runClient().client, pending);
+    await settledScreen();
+    chooseSite(COLD_CHOICE_LABEL);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("radio", { name: "Normal" }));
+    // The basis read is held pending on purpose, so this asserts the loading state itself.
+    await screen.findByText("Loading the registered configuration for the scenario start.");
+    once("Loading the registered configuration for the scenario start.");
+    const fact = screen.getByText("Foundation version").nextElementSibling;
+    expect(fact?.textContent).toBe("Not available yet");
+    expect(createButton().disabled).toBe(true);
+  });
+
   it("ignores an older response for a prior Site", async () => {
     let resolveCold: (value: ColdScenarioChoicesResult) => void = () => {};
     const cold = coldClient((siteId) =>
@@ -328,7 +367,7 @@ describe("cold run setup (W2-02)", () => {
     chooseSite(COLD_CHOICE_LABEL);
     await settledScreen();
 
-    fireEvent.click(screen.getByRole("radio", { name: "Normal (cold-normal)" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Normal" }));
     await settledScreen();
 
     expect(run.calls).toEqual([]);
@@ -355,7 +394,7 @@ describe("cold run setup (W2-02)", () => {
     await settledScreen();
     chooseSite(COLD_CHOICE_LABEL);
     await settledScreen();
-    fireEvent.click(screen.getByRole("radio", { name: "Normal (cold-normal)" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Normal" }));
     await settledScreen();
 
     fireEvent.click(createButton());
@@ -389,7 +428,7 @@ describe("cold run setup (W2-02)", () => {
     await settledScreen();
     chooseSite(COLD_CHOICE_LABEL);
     await settledScreen();
-    fireEvent.click(screen.getByRole("radio", { name: "Normal (cold-normal)" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Normal" }));
     await settledScreen();
     fireEvent.click(createButton());
     await screen.findByRole("alert");
