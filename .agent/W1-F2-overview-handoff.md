@@ -56,3 +56,8 @@ Branch `task/W1-F2-overview`, clean at `fde3e130`. Not merged. The packet is `.a
 - Overview: `sites/overviewSlots.tsx` (`OverviewGrid`, `OverviewRefused`); `SiteWindowOverview.tsx` (`DayStatus`, `ObjectiveCards`, `PeriodStrip`, `NextStep`, main); `SiteOverview.tsx` (legacy body, `DomainCard`, `DomainPeriods`, `DomainContext`).
 - Dispatch: `PerformanceDispatch.tsx` (`DispatchSlots`, `DispatchRefused`, `WindowView`, `AnalysisView`); `SitePerformance.tsx` (`LegacySlots`, `LegacyRefused`).
 - Evidence: `LedgerSiteEvidence.tsx` (`OverviewBody`, `Inspector` children, `ClaimLimit` children); `SiteEvidence.tsx` (`EvidenceRefused`); `panelPart.tsx`.
+
+## Coordinator decision for the resume (2026-10-17)
+
+- Evidence Analysis panel 2 title: render the plain variant **"How each limit is set"** (the existing panel title). Authority: `D-2026-10-16-w1-ux` bans "claim limit"/"claim" in default prose; add it to the approved title map in `frontend/src/test/v69PanelTitles.ts` and delete the vocabulary exception entry.
+- Resume after W1-F1 merges to main: merge main, then apply F1 styles (cards, `.field`/`.button`, `SitePageHeader`) and the tightened guard; headings read the site name, badge and per-screen description.
