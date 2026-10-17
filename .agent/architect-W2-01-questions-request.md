@@ -1,0 +1,6 @@
+# Architect request - W2-01 build questions + pre-check W2-02/W2-03 against code (2026-10-17)
+
+You are the AssetOps Architect (Codex). The W2-01 implementer stopped before coding: `.agent/W2-01-build-questions.md`. Owner rule: implementers make no design choice. Token-efficient; edit in place.
+1. Answer A-I definitively (exact enum values, media, where links live, units, component carriers, PHYSICAL/CONTROL, UNIT_RANGES with limits, route switching, title rules), and the two W2-02 carries (role mapping for grid-meter/event and the dual-role start-event channel; plain wording replacing "Mapped/Not mapped").
+2. Pre-check the W2-02 and W2-03 sections of `.agent/W2-technical-design-cold.md` against the ACTUAL closed vocabularies and code seams (models.py enums, binding_roles/binding_service, Role.value_kind, UNIT_RANGES, finding/assessment stores, kernel/execute and host pack selection, profiles.py, mappings, S3/S4 workers, rule 8) and resolve every mismatch now, so those builds do not stop the same way.
+Edit `.agent/W2-technical-design-cold.md` and `tasks/W2-01-cold-foundation.md` (and note impacts for W2-02/W2-03 packets) so nothing is open. Record `D-2026-10-17-w2-01-answers`. No code. Print a short summary.
