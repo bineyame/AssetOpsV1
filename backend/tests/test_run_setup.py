@@ -1702,6 +1702,12 @@ class TestEveryFrozenValueNamesAnAnswerer:
         # Frozen and inspectable through the structured identity, and
         # deliberately not given a row of its own, with the reason.
         not_rendered = {
+            # W2-02: the cold-only identity digests and observation profile. They are frozen run identity
+            # (covered by run_identity_sha256), not setup-summary rows; a legacy run never carries them.
+            ("FrozenScenarioBinding", "scenario_sha256"),
+            ("FrozenProfileBinding", "observation_profile_id"),
+            ("FrozenProfileBinding", "observation_profile_version"),
+            ("FrozenProfileBinding", "observation_sha256"),
             # T026 C1: the scenario's declaration of who issued a forced
             # change. It decides only whether a publication profile reports an
             # operator command; the scenario surface that declares it owns it.
