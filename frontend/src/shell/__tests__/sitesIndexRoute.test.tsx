@@ -15,6 +15,7 @@ import type {
 import { CREATE_SITE_ENTRY_POINT_LABEL } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 
 /** W1-F1: the v69 Sites screen has a second table (In setup); these tests read the inventory table. */
 const INVENTORY_TABLE = "Site inventory";
@@ -459,5 +460,32 @@ describe("a Sites row is the way into a site", () => {
 
     expect(hrefs).not.toContain("/sites/MG-002/foundation");
     expect(hrefs).not.toContain("/sites/MG-002/configuration");
+  });
+});
+
+/**
+ * W1-F1 (D-2026-10-17-mockup-layout-spec): the `/sites` route renders exactly the v69
+ * `sites` panels, in order, whether the directory is stocked, empty or unreadable.
+ */
+describe("W1-F1: the Sites route keeps the v69 panel structure", () => {
+  const unavailable: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "unavailable" as const }) };
+  const variants: [string, SiteDirectoryClient][] = [
+    ["stocked", directoryWith([SITE])],
+    ["empty", directoryWith([])],
+    ["unreadable", unavailable],
+  ];
+
+  it.each(variants)("renders Site inventory then In setup, and nothing else panel-like (%s)", async (_name, directory) => {
+    render(
+      <MemoryRouter initialEntries={["/sites"]}>
+        <App flags={DISABLED} siteDirectory={directory} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    await screen.findByText(/Registered sites, not ranked|No sites configured|Sites unavailable/);
+    expectV69Panels("sites");
+    expect(document.querySelector("[data-headline-card]")).toBeNull();
+    // Unsupported reads are stated inside their slots.
+    expect(panelTitled("In setup").querySelector('[data-gap-id="G-sites-setup-progress"]')).not.toBeNull();
   });
 });
