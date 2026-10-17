@@ -62,9 +62,11 @@ export function WorkspaceShellLayout({ flags }: WorkspaceShellLayoutProps) {
         <ul className="nav-rail__list">
           {workspaceEntryPoints.map((entryPoint) => (
             <li key={entryPoint.to}>
-              <Link className="nav-rail__link" to={entryPoint.to} data-vocabulary-exempt="lab">
+              <Link className="nav-rail__link" to={entryPoint.to}>
                 <RailIcon name="lab" />
-                <span className="nav-rail__label">{entryPoint.label}</span>
+                <span className="nav-rail__label" data-vocabulary-exempt="lab">
+                  {entryPoint.label}
+                </span>
               </Link>
             </li>
           ))}

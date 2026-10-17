@@ -47,6 +47,21 @@ export const PATTERNS = [
   /no\s+linked\s+constraint\s+evidence/i,
 ];
 
+// Reviewed placement exemptions (W1-UX-07, D-2026-10-17-w1-rail). Each names one file, the one const that
+// holds the copy, and its exact text. The hit is exempt only when that const initialiser is the literal and
+// every reference to the const is in the same file, so the phrase cannot leak onto a product panel through an
+// import. The same phrase anywhere else, or in that file outside the const, is still untagged copy. Adding an
+// entry is a guard change for review; this is not a general suppression of the phrase.
+export const REVIEWED_EXEMPTIONS = [
+  {
+    file: 'frontend/src/ui/NavRail.tsx',
+    constName: 'NAV_RAIL_UNAVAILABLE_STATUS',
+    text: 'Not available yet',
+    decision: 'D-2026-10-17-w1-rail',
+    reason: 'The operator rail status for a root with no cross-site destination yet (owner-directed inventory exception); it describes a missing destination, not a missing claim about a site, so it is not a mock_gaps placement.',
+  },
+];
+
 const toPosix = (p) => p.split(path.sep).join('/');
 const normalize = (text) => text.replace(/\s+/g, ' ').trim().slice(0, 160);
 
@@ -89,7 +104,7 @@ function owningConst(node) {
  * mirror: {path, text}; baseline: parsed baseline JSON; mainBaseline: parsed merge-base baseline or null.
  * Returns {errors: [{type, where, reason}], untagged: [{file, line, text}], usages: [{file, line, gapId, placement}]}.
  */
-export function analyze({ files, registry, mirror, baseline, mainBaseline = null, seedCeiling = SEED_CEILING }) {
+export function analyze({ files, registry, mirror, baseline, mainBaseline = null, seedCeiling = SEED_CEILING, exemptions = REVIEWED_EXEMPTIONS }) {
   const errors = [];
   const err = (type, where, reason) => errors.push({ type, where, reason });
 
@@ -138,7 +153,7 @@ export function analyze({ files, registry, mirror, baseline, mainBaseline = null
   // ---- 2 and 3. product source scan ----
   const usages = [];
   const literalHits = [];
-  const constRefs = new Map(); // const name -> [{inside}]
+  const constRefs = new Map(); // const name -> [{inside, file}]
   for (const file of files) {
     const sf = parse(file);
     const visit = (node) => {
@@ -166,7 +181,7 @@ export function analyze({ files, registry, mirror, baseline, mainBaseline = null
       if (ts.isIdentifier(node) && node.parent && !ts.isImportSpecifier(node.parent) && !ts.isExportSpecifier(node.parent) &&
           !(ts.isVariableDeclaration(node.parent) && node.parent.name === node) && !ts.isImportClause(node.parent)) {
         if (!constRefs.has(node.text)) constRefs.set(node.text, []);
-        constRefs.get(node.text).push({ inside: insideMissingClaim(node) });
+        constRefs.get(node.text).push({ inside: insideMissingClaim(node), file: file.path });
       }
       const text = stringParts(node);
       if (text !== null && PATTERNS.some((re) => re.test(text))) {
@@ -189,8 +204,11 @@ export function analyze({ files, registry, mirror, baseline, mainBaseline = null
   for (const [id, entry] of mirrorMap) for (const placement of entry.placements) {
     if (!used.has(`${id}\u0000${placement}`)) err('unused_placement', MIRROR_PATH, `${id} placement ${placement} is never rendered; place it or give the gap an unplaced_reason`);
   }
+  const isExempt = (hit) => exemptions.some((x) => x.file === hit.file && x.constName === hit.constName &&
+    x.text === hit.text && (constRefs.get(hit.constName) || []).every((r) => r.file === x.file));
   const untagged = literalHits.filter((hit) => {
     if (hit.inside) return false;
+    if (isExempt(hit)) return false;
     if (!hit.constName) return true;
     const refs = constRefs.get(hit.constName) || [];
     return !(refs.length > 0 && refs.every((r) => r.inside));
