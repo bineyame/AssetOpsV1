@@ -43,6 +43,7 @@ export const COLD_FOUNDATION_LOADING = "Loading the site's cold configuration.";
 export const COLD_GATEWAY_LOADING = "Loading the site's gateway contact.";
 export const COLD_HEADING_ID = "cold-foundation-page-heading";
 export const NO_GATEWAY_SELECTED = "No gateway selected";
+export const GATEWAY_NOT_READ = "Gateway not read";
 export const CONFIGURED = "Configured";
 export const NEEDS_A_SOURCE = "Needs a source";
 export const NOT_CONFIGURED = "Not configured";
@@ -104,11 +105,11 @@ export const NO_CONTACT_RECEIVED_YET = "No contact received yet";
  * it never says a particular gateway was not contacted; with no health read it says only that no contact is recorded.
  * None of these is a claim about equipment condition or physical non-contact.
  */
-function neverContact(limitations: string[], gateway: string): { value: string; note: string } {
+function neverContact(limitations: string[]): { value: string; note: string } {
   if (limitations.includes(COLD_CONTACT_NO_GATEWAY_REGISTERED)) {
     return { value: NO_GATEWAY_REGISTERED, note: "No contact can be recorded until a gateway is registered for this site" };
   }
-  if (limitations.includes(COLD_CONTACT_NO_GATEWAY_SELECTED) || gateway === NO_GATEWAY_SELECTED) {
+  if (limitations.includes(COLD_CONTACT_NO_GATEWAY_SELECTED)) {
     return { value: NO_GATEWAY_SELECTED, note: "No particular gateway is checked for contact" };
   }
   if (limitations.includes(COLD_CONTACT_HEALTH_ABSENT)) {
@@ -214,6 +215,8 @@ function gatewayName(health: EvidenceRead<GatewayHealth> | null): string {
   if (health !== null && health.status === "loaded" && health.value.gateways.length > 0) {
     return health.value.gateways.map((g) => g.gateway_external_id).join(", ");
   }
+  // W2-01 re-review Low 2: a failed health read is not evidence that no gateway is selected.
+  if (health !== null && health.status !== "loaded") return GATEWAY_NOT_READ;
   return NO_GATEWAY_SELECTED;
 }
 
@@ -535,7 +538,7 @@ function ReadinessView(props: ViewProps) {
 
   const contact = read.contact;
   const limitations = contact.limitations ?? [];
-  const never = contact.state === "NEVER" ? neverContact(limitations, props.gateway) : null;
+  const never = contact.state === "NEVER" ? neverContact(limitations) : null;
   const word =
     never !== null
       ? { value: never.value, tone: "muted" as const }

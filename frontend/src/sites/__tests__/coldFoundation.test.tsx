@@ -260,7 +260,7 @@ describe("W2-01: cold Foundation routes keep the v69 panel structure", () => {
 
   it.each([
     ["cold-foundation", "", {}, 2],
-    ["cold-readiness", "/readiness", { gateway: "No gateway selected" }, 4],
+    ["cold-readiness", "/readiness", { gateway: "Gateway not read" }, 4],
     ["cold-sld", "/sld", { site: "Kobo vaccine cold store" }, 2],
   ] as const)("unreadable configuration: %s keeps every slot with an in-panel gap", async (screenId, segment, values, slots) => {
     renderCold(`${BASE}${segment}`, () => ({ status: "unavailable", message: null }), { status: "unavailable", message: null });
@@ -287,7 +287,11 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
   });
 
   it("Readiness names the missing probe, unconfirmed commissioning, no selected gateway and unknown confidence", async () => {
-    renderCold(`${BASE}/readiness`, loaded(MISSING_PROBE), healthOf([]));
+    const noneSelected: ColdFoundationReadModel = {
+      ...MISSING_PROBE,
+      contact: { state: "NEVER", as_of: null, limitations: ["No gateway is selected for this site"] },
+    };
+    renderCold(`${BASE}/readiness`, loaded(noneSelected), healthOf([]));
     await settledScreen();
     const table = panelTitled("Readiness and commissioning evidence");
     const probeRow = table.querySelector('[data-cold-readiness-row="chamber"]') as HTMLElement;
@@ -320,6 +324,22 @@ describe("W2-01: in-panel honest gaps and configuration labels", () => {
     expect(timeline.textContent).toContain("Short outage or missing readings");
     expect(panelTitled("Connected sources").textContent).toContain("Source contact unavailable");
     expect(panelTitled("Effect on readiness and confidence").textContent).toContain("Confidence is not assessed");
+  });
+
+  it("W2-01 re-review Low 2: the status follows the cold read, not an empty or failed frontend health read", async () => {
+    // Registered gateway with no diagnostic (limitations []): the backend says no contact yet; an empty
+    // /gateway-health read must not turn that into "No gateway selected".
+    renderCold(`${BASE}/readiness`, loaded(MISSING_PROBE), healthOf([]));
+    await settledScreen();
+    const status = document.querySelector('[data-cold-gateway-metric="status"]')?.textContent ?? "";
+    expect(status).toContain("No contact received yet");
+    expect(status).not.toContain("No gateway selected");
+    cleanup();
+    renderCold(`${BASE}/readiness`, loaded(MISSING_PROBE), { status: "unavailable", message: null });
+    await settledScreen();
+    expect(panelTitled("Gateway status · Gateway not read")).not.toBeNull();
+    const failed = document.querySelector('[data-cold-gateway-metric="status"]')?.textContent ?? "";
+    expect(failed).toContain("No contact received yet");
   });
 
   it.each([

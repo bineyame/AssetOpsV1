@@ -409,6 +409,34 @@ class TestReadRefusals:
         read(client(store, health))
         assert health.calls == [(result.tenant.id, result.site.id)]  # scoped to the requested tenant/Site
 
+    @pytest.mark.parametrize(
+        "gateway_count, limitation",
+        [(2, "No gateway is selected for this site"), (0, "No gateway is registered for this site")],
+    )
+    def test_no_binding_set_without_one_gateway_names_the_missing_selection(
+        self, store, gateway_count, limitation
+    ) -> None:
+        # W2-01 re-review Low 1: with no binding set, two registered gateways leave none selected and zero leave
+        # none registered (cold_foundation_api.py wanted-gateway branch); both are NEVER with as_of null.
+        imported(store, "COLD-001", convert_bindings=False)
+
+        class GatewayCountStore:
+            def __init__(self, inner):
+                self._inner = inner
+
+            def __getattr__(self, name):
+                return getattr(self._inner, name)
+
+            def registrations(self, tenant_id, site_id):
+                regs = self._inner.registrations(tenant_id, site_id)
+                assert len(regs.gateways) == 1
+                extra = replace(regs.gateways[0], id=uuid.uuid4(), gateway_external_id="edge-cold-extra")
+                return replace(regs, gateways=(regs.gateways[0], extra)[:gateway_count])
+
+        response = read(client(GatewayCountStore(store), Health(NOW - timedelta(minutes=5))))
+        assert response.status_code == 200
+        assert response.json()["contact"] == {"state": "NEVER", "as_of": None, "limitations": [limitation]}
+
 
 class TestMigration0021:
     def test_upgrade_and_downgrade_touch_no_rows_and_old_reads_still_work(self, store, engine) -> None:
