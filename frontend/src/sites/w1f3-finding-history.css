@@ -1,0 +1,72 @@
+/*
+ * W1-F3: Finding History (`finding-history`) as the mock's one panel
+ * "Revision history" with a Time / Event / Basis table. Rows stay compact; the
+ * table scrolls inside its own wrapper at 390 px.
+ */
+.site-finding-history .product-status {
+  margin-bottom: 12px;
+}
+
+.site-finding-history__summary {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.site-finding-history__version td {
+  vertical-align: top;
+  font-size: 12px;
+}
+
+.site-finding-history__line {
+  display: block;
+  margin-top: 4px;
+}
+
+/* The basis reads as one flowing line of labelled values, as the mock's short Basis cell. */
+.site-finding-history__basis {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.site-finding-history__basis > div,
+.site-finding-history__basis dt,
+.site-finding-history__basis dd {
+  display: inline;
+  margin: 0;
+}
+
+.site-finding-history__basis dt {
+  color: var(--text-secondary);
+}
+
+.site-finding-history__basis dt::after {
+  content: ": ";
+}
+
+.site-finding-history__basis > div + div::before {
+  content: " · ";
+  color: var(--text-secondary);
+}
+
+.site-finding-history__related {
+  margin: 12px 0 0;
+  font-size: 12px;
+}
+
+.site-finding-history .v69-gap-line {
+  margin-top: 12px;
+}
+
+.site-finding-history__gap p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.site-finding-history .exact-references__list code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

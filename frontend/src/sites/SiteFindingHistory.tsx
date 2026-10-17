@@ -18,14 +18,16 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { ExactReferences, Fact, FactList, HeadlineVisualCard, Panel, plainTime, ProductStatus, StepStrip, type Step } from "../ui";
+import { DataTable, ExactReferences, Panel, ProductStatus } from "../ui";
 import { durationText, minutes, stamp } from "./dispatchWords";
 import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevision } from "./findingClient";
-import { FindingRefusalCard } from "./findingPresentation";
+import { findingRefusalWords } from "./findingPresentation";
 import { findingCurrentnessWords, LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import "./w1ux02-finding.css";
+import "./w1f3-finding-history.css";
 
 export const HISTORY_PAGE_SIZE = 100;
+const HEADING_ID = "finding-history-revisions-heading";
 /** The v69 `finding-history` screen question (W1-UX-02). */
 export const FINDING_HISTORY_QUESTION = "How did the conclusion and workflow change?";
 
@@ -125,19 +127,16 @@ export function SiteFindingHistory({
   }
   const { first: body, rows } = read;
   return (
-    <section
+    <div
       className="site-finding site-finding-history"
-      aria-labelledby="finding-history-selection-heading"
       data-finding-history={body.finding.id}
       data-finding-revision={body.selection.revision_id}
       data-history-selected-by={body.selection.selected_by}
       data-history-total={body.page.total}
       data-history-loaded={rows.length}
     >
-      <Selection body={body} rows={rows} read={read} links={links} />
-      <Versions body={body} rows={rows} read={read} links={links} />
-      <Related body={body} links={links} />
-    </section>
+      <RevisionHistory body={body} rows={rows} read={read} links={links} />
+    </div>
   );
 }
 
@@ -172,24 +171,28 @@ function Refused({
   };
   const chosen = words[read.status];
   return (
-    <FindingRefusalCard
-      status={read.status}
-      dataName="finding-history"
-      headingId="finding-history-refused-heading"
-      question={FINDING_HISTORY_QUESTION}
-      heading={chosen.heading}
-      text={chosen.text}
-      message={read.message}
-      scope={pinned ? "This Finding's history, at the version in the address" : "This Finding's history"}
-    >
-      {read.status === "not_found" && pinned ? (
-        <p>
-          <Link to={latestHref} data-history-open-latest>
-            Open the history at the latest version instead
-          </Link>
-        </p>
-      ) : undefined}
-    </FindingRefusalCard>
+    <div className="site-finding site-finding-history" data-finding-history-refused={read.status}>
+      <Panel heading="Revision history" headingId={HEADING_ID} description={FINDING_HISTORY_QUESTION}>
+        <ProductStatus
+          words={findingRefusalWords(read.status)}
+          scope={pinned ? "This Finding's history, at the version in the address" : "This Finding's history"}
+          asOf={null}
+        />
+        <div className="site-finding-history__gap" data-history-gap>
+          <p>
+            <strong>{chosen.heading}.</strong> <span data-finding-read={read.status}>{chosen.text}</span>
+          </p>
+          {read.message ? <p className="site-finding__note">Reason given: {read.message}</p> : null}
+          {read.status === "not_found" && pinned ? (
+            <p>
+              <Link to={latestHref} data-history-open-latest>
+                Open the history at the latest version instead
+              </Link>
+            </p>
+          ) : null}
+        </div>
+      </Panel>
+    </div>
   );
 }
 
@@ -198,46 +201,6 @@ function selectionWords(body: FindingHistoryBody) {
   if (body.audit_only) return findingCurrentnessWords("SOURCE_CLOSED");
   if (!body.selection.is_latest) return findingCurrentnessWords("SUPERSEDED_BY_LATER_REVISION");
   return findingCurrentnessWords(body.selection.selected_by === "LATEST_RECORDED" ? "LATEST_AT_READ" : "LATEST_PINNED");
-}
-
-const TIMELINE_HEAD = 1;
-const TIMELINE_TAIL = 4;
-
-/**
- * The versions read, oldest first, as a timeline strip: every version when
- * there are few, otherwise the first, a count of the ones in between and the
- * most recent. A list that could not be read in full ends in a not-known
- * step; a version recorded while reading ends in a waiting step.
- */
-function timelineSteps(body: FindingHistoryBody, rows: HistoryRevision[], read: Extract<HistoryRead, { status: "loaded" }>): Step[] {
-  const step = (r: HistoryRevision): Step => ({
-    label: `Version ${r.revision_no}: ${transitionWords(r.transition)}`,
-    state: "done",
-    detail: `${plainTime(r.times.recorded_at) ?? "Time not recorded"} · ${LIFECYCLE_WORDS[r.lifecycle]?.label ?? "State not known"}`,
-  });
-  const shown: Step[] =
-    rows.length <= TIMELINE_HEAD + TIMELINE_TAIL + 1
-      ? rows.map(step)
-      : [
-          ...rows.slice(0, TIMELINE_HEAD).map(step),
-          {
-            label: `${rows.length - TIMELINE_HEAD - TIMELINE_TAIL} versions in between`,
-            state: "done",
-            detail: "Each is listed below",
-          },
-          ...rows.slice(-TIMELINE_TAIL).map(step),
-        ];
-  if (!(read.complete && rows.length === body.page.total)) {
-    shown.push({
-      label: "Versions not read",
-      state: "not-known",
-      detail: `${Math.max(0, body.page.total - rows.length)} of ${body.page.total} could not be read`,
-    });
-  }
-  if (read.drift) {
-    shown.push({ label: "A newer version", state: "waiting", detail: "Recorded while this list was read; reload to see it" });
-  }
-  return shown;
 }
 
 function historyHeadline(body: FindingHistoryBody, rows: HistoryRevision[], read: Extract<HistoryRead, { status: "loaded" }>): string {
@@ -251,14 +214,29 @@ function historyHeadline(body: FindingHistoryBody, rows: HistoryRevision[], read
     : `${total} recorded versions; the latest records: ${latest}`;
 }
 
+/** Merge, split and recurrence links, as recorded; each opens that Finding's own history. */
+function relatedItems(body: FindingHistoryBody): { label: string; id: string }[] {
+  const r = body.relations;
+  return [
+    ...r.merged_into.map((m) => ({ label: "Joined into", id: m.canonical_finding_id })),
+    ...r.merged_from.map((m) => ({ label: "Joined from", id: m.superseded_finding_id })),
+    ...(r.split_from_finding_id ? [{ label: "Split from", id: r.split_from_finding_id }] : []),
+    ...r.split_parts.map((id) => ({ label: "Split part", id })),
+    ...(r.recurs_after_finding_id ? [{ label: "Recurs after", id: r.recurs_after_finding_id }] : []),
+    ...r.recurred_by.map((id) => ({ label: "Recurred as", id })),
+  ].filter((item) => item.id && item.id !== body.finding.id);
+}
+
 /**
- * W1-UX-02: which version is selected, and how, leads as the screen's answer
- * card: how the conclusion changed (count, latest state, timeline strip), the
- * plain state line with the non-current notes beside it and a plain "as of"
- * the selected version's recorded time, the way to that version and its
- * evidence, and the exact references (including the page cutoff) last.
+ * W1-F3 (`D-2026-10-17-mockup-layout-spec`, mock `finding-history:1`): the one
+ * panel "Revision history". Inside it: the selection's state line with its
+ * non-current notes, one summary line (count and latest state; "No earlier
+ * versions." for one version; incomplete or changed-while-read), the mock's
+ * Time / Event / Basis table with one row per recorded version, related
+ * Findings as one line, the kept-as-recorded note, and the exact references
+ * last. The way to the selected version and its evidence is the panel-head link.
  */
-function Selection({
+function RevisionHistory({
   body,
   rows,
   read,
@@ -271,62 +249,27 @@ function Selection({
 }) {
   const { selection, state } = body;
   const no = selection.revision_no;
+  const total = body.page.total;
   const latestState = LIFECYCLE_WORDS[state.lifecycle];
   const selectedRow = rows.find((r) => r.id === selection.revision_id) ?? null;
   const cutoff = body.page.next_after_revision_no;
+  const complete = read.complete && rows.length === total;
+  const groupOf = new Map<string, { count: number; first: number; last: number }>();
+  for (const group of body.revision_groups) {
+    if (group.kind === "BASIS_REFRESHED" && group.count > 1) {
+      for (const id of group.revision_ids) {
+        groupOf.set(id, { count: group.count, first: group.first_revision_no, last: group.last_revision_no });
+      }
+    }
+  }
+  const recordedAt = new Map(rows.map((r) => [r.id, r.times.recorded_at]));
+  const related = relatedItems(body);
   return (
-    <HeadlineVisualCard
-      dataName="finding-history"
-      headingId="finding-history-selection-heading"
-      title="Version history"
-      question={FINDING_HISTORY_QUESTION}
-      headline={historyHeadline(body, rows, read)}
-      status={
-        <ProductStatus
-          words={selectionWords(body)}
-          scope={`Version ${no} of ${body.page.total} selected`}
-          asOf={selectedRow?.times.recorded_at ?? null}
-        >
-          {body.audit_only ? (
-            <p className="site-finding__lead" data-history-audit-only>
-              Record only. This site&apos;s assessments are not released for use, so these saved versions are shown as a
-              record, not as the current Finding.
-            </p>
-          ) : null}
-          {latestState === undefined || state.lifecycle === "SUPPORTED" ? null : (
-            <p className="site-finding__lead" data-history-lifecycle={state.lifecycle}>
-              State recorded by the latest version: <strong>{latestState.label}</strong>. {latestState.sentence}
-            </p>
-          )}
-          {!selection.is_latest ? (
-            <p className="site-finding__lead" data-history-earlier-version>
-              Version {no} is selected. It is an earlier version: version {selection.latest_revision_no} replaces it.{" "}
-              <Link to={links.history(selection.latest_revision_id)} data-history-select-latest>
-                Select the latest version
-              </Link>
-            </p>
-          ) : selection.selected_by === "LATEST_RECORDED" ? (
-            <p data-history-latest-at-read>
-              Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
-              <Link to={links.history(selection.revision_id)} data-history-pin>
-                Keep this exact version
-              </Link>
-            </p>
-          ) : (
-            <p data-history-pinned-latest>Version {no}, the latest recorded version, selected by its exact reference.</p>
-          )}
-        </ProductStatus>
-      }
-      visual={<StepStrip title="How the conclusion changed, oldest first" steps={timelineSteps(body, rows, read)} />}
-      meaning={
-        <p>
-          Versions are kept exactly as recorded. A reading that arrives later adds a new version; it never changes an
-          earlier one. The times below describe each version; they are not a way to view the Finding as of an earlier
-          moment.
-        </p>
-      }
-      todo={<p>Select a version below to see it, its Finding page or its evidence as it was recorded.</p>}
-      destination={
+    <Panel
+      heading="Revision history"
+      headingId={HEADING_ID}
+      description={FINDING_HISTORY_QUESTION}
+      actions={
         <>
           <Link to={links.finding(body.finding.id, selection.revision_id)} data-history-open-finding>
             Open version {no} of the Finding
@@ -337,79 +280,116 @@ function Selection({
           </Link>
         </>
       }
-      references={
-        <ExactReferences
-          name="finding-history-references"
-          references={[
-            { label: "Finding reference", value: body.finding.id },
-            { label: "Selected version reference", value: selection.revision_id },
-            { label: "Latest version reference", value: selection.latest_revision_id },
-            { label: "How the version was chosen", value: selection.selected_by },
-            ...(cutoff === null ? [] : [{ label: "First page ends after version", value: String(cutoff) }]),
-          ]}
-        />
-      }
-    />
-  );
-}
-
-function Versions({
-  body,
-  rows,
-  read,
-  links,
-}: {
-  body: FindingHistoryBody;
-  rows: HistoryRevision[];
-  read: Extract<HistoryRead, { status: "loaded" }>;
-  links: SiteFindingHistoryLinks;
-}) {
-  const total = body.page.total;
-  const groupOf = new Map<string, { count: number; first: number; last: number }>();
-  for (const group of body.revision_groups) {
-    if (group.kind === "BASIS_REFRESHED" && group.count > 1) {
-      for (const id of group.revision_ids) {
-        groupOf.set(id, { count: group.count, first: group.first_revision_no, last: group.last_revision_no });
-      }
-    }
-  }
-  const recordedAt = new Map(rows.map((r) => [r.id, r.times.recorded_at]));
-  return (
-    <Panel heading="Every version" headingId="finding-history-versions-heading">
-      {body.earlier_versions === "NONE" ? (
-        <p data-history-no-earlier>No earlier versions: this Finding has one recorded version.</p>
-      ) : null}
-      {read.complete && rows.length === total ? (
-        <p data-history-complete>
-          All {total} recorded versions are listed, oldest first.
-        </p>
-      ) : (
-        <p className="site-finding__lead" data-history-incomplete>
-          Only {rows.length} of {total} recorded versions could be read, so this list is incomplete. Reload to read the
-          rest.
+    >
+      <ProductStatus
+        words={selectionWords(body)}
+        scope={`Version ${no} of ${total} selected`}
+        asOf={selectedRow?.times.recorded_at ?? null}
+      >
+        {body.audit_only ? (
+          <p className="site-finding__lead" data-history-audit-only>
+            Record only. This site&apos;s assessments are not released for use, so these saved versions are shown as a
+            record, not as the current Finding.
+          </p>
+        ) : null}
+        {latestState === undefined || state.lifecycle === "SUPPORTED" ? null : (
+          <p className="site-finding__lead" data-history-lifecycle={state.lifecycle}>
+            State recorded by the latest version: <strong>{latestState.label}</strong>. {latestState.sentence}
+          </p>
+        )}
+        {!selection.is_latest ? (
+          <p className="site-finding__lead" data-history-earlier-version>
+            Version {no} is selected. It is an earlier version: version {selection.latest_revision_no} replaces it.{" "}
+            <Link to={links.history(selection.latest_revision_id)} data-history-select-latest>
+              Select the latest version
+            </Link>
+          </p>
+        ) : selection.selected_by === "LATEST_RECORDED" ? (
+          <p data-history-latest-at-read>
+            Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
+            <Link to={links.history(selection.revision_id)} data-history-pin>
+              Keep this exact version
+            </Link>
+          </p>
+        ) : (
+          <p data-history-pinned-latest>Version {no}, the latest recorded version, selected by its exact reference.</p>
+        )}
+      </ProductStatus>
+      <p className="site-finding-history__summary">
+        <strong data-history-summary>{historyHeadline(body, rows, read)}</strong>{" "}
+        {body.earlier_versions === "NONE" ? (
+          <span data-history-no-earlier>No earlier versions. This Finding has one recorded version.</span>
+        ) : complete ? (
+          <span data-history-complete>All {total} recorded versions are listed, oldest first.</span>
+        ) : null}
+        {complete ? null : (
+          <span className="site-finding__lead" data-history-incomplete>
+            Only {rows.length} of {total} recorded versions could be read, so this list is incomplete. Reload to read
+            the rest.
+          </span>
+        )}
+        {read.drift ? (
+          <span className="site-finding__lead" data-history-drift>
+            {" "}
+            A new version was recorded while this list was being read. Reload to see the list as it is now.
+          </span>
+        ) : null}
+      </p>
+      <DataTable labelledBy={HEADING_ID}>
+        <thead>
+          <tr>
+            <th scope="col">Version recorded</th>
+            <th scope="col">Event</th>
+            <th scope="col">Basis</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <VersionRow
+              key={r.id}
+              r={r}
+              findingId={body.finding.id}
+              group={groupOf.get(r.id)}
+              previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
+              links={links}
+            />
+          ))}
+        </tbody>
+      </DataTable>
+      {related.length === 0 ? null : (
+        <p className="site-finding-history__related" data-history-related-line>
+          Related Findings:{" "}
+          {related.map((item, index) => (
+            <span key={`${item.label}-${item.id}`}>
+              {index > 0 ? " · " : ""}
+              <Link to={links.otherHistory(item.id)} data-history-related={item.id}>
+                {item.label} Finding <code data-vocabulary-exempt="source-reference">{item.id.slice(0, 8)}</code> - its
+                history
+              </Link>
+            </span>
+          ))}
         </p>
       )}
-      {read.drift ? (
-        <p className="site-finding__lead" data-history-drift>
-          A new version was recorded while this list was being read. Reload to see the list as it is now.
-        </p>
-      ) : null}
-      <ol className="site-finding__versions site-finding-history__list">
-        {rows.map((r) => (
-          <VersionRow
-            key={r.id}
-            r={r}
-            findingId={body.finding.id}
-            group={groupOf.get(r.id)}
-            previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
-            links={links}
-          />
-        ))}
-      </ol>
+      <p className="v69-gap-line" data-history-kept-as-recorded>
+        Versions are kept exactly as recorded. A reading that arrives later adds a new version; it never changes an
+        earlier one. The times above describe each version; they are not a way to view the Finding as of an earlier
+        moment.
+      </p>
+      <ExactReferences
+        name="finding-history-references"
+        references={[
+          { label: "Finding reference", value: body.finding.id },
+          { label: "Selected version reference", value: selection.revision_id },
+          { label: "Latest version reference", value: selection.latest_revision_id },
+          { label: "How the version was chosen", value: selection.selected_by },
+          ...(cutoff === null ? [] : [{ label: "First page ends after version", value: String(cutoff) }]),
+        ]}
+      />
     </Panel>
   );
 }
 
+/** One recorded version as a Time / Event / Basis row (mock `finding-history:1`). */
 function VersionRow({
   r,
   findingId,
@@ -430,7 +410,7 @@ function VersionRow({
   const cited = r.cited_evidence;
   const priorIds = [...(r.prior_window_assessment_revision_ids ?? []), ...(r.prior_interval_assessment_revision_ids ?? [])];
   return (
-    <li
+    <tr
       className="site-finding-history__version"
       data-history-revision={r.id}
       data-history-revision-no={r.revision_no}
@@ -438,110 +418,125 @@ function VersionRow({
       data-history-latest={r.is_latest ? "true" : undefined}
       aria-current={r.is_selected ? "true" : undefined}
     >
-      <h3 className="site-finding__subheading">
-        Version {r.revision_no} · {transitionWords(r.transition)}
+      <td>{stamp(r.times.recorded_at)}</td>
+      <td>
+        <strong>
+          Version {r.revision_no} · {transitionWords(r.transition)}
+        </strong>
         {r.is_selected ? <span data-history-selected-mark> · Selected</span> : null}
         {r.is_latest ? <span data-history-latest-mark> · Latest</span> : null}
-      </h3>
-      {group ? (
-        <p className="site-finding__note" data-history-group>
-          One of {group.count} assessment updates with the amount unchanged (versions {group.first}–{group.last}); each
-          stays its own version.
-        </p>
-      ) : null}
-      {lateEvidence ? (
-        <p data-history-late-evidence>
-          Cites readings accepted after version {r.revision_no - 1} was recorded. Version {r.revision_no - 1} keeps the
-          records it cited.
-        </p>
-      ) : null}
-      <FactList>
-        <Fact term="State">{state?.label ?? r.lifecycle}</Fact>
-        <Fact term="Version recorded">{stamp(r.times.recorded_at)}</Fact>
-        <Fact term="Period">
-          {stamp(r.episode.start)} to {stamp(r.episode.end)}
-        </Fact>
-        <Fact term="Possibly avoidable time">{minuteText(r.minutes.candidate)}</Fact>
-        <Fact term="Generator time needed">{minuteText(r.minutes.necessary)}</Fact>
-        <Fact term="Time that could not be decided">{minuteText(r.minutes.indeterminate)}</Fact>
-        <Fact term="Amount changed from the previous version">{r.revision_no === 1 ? "First version" : r.support_changed ? "Yes" : "No"}</Fact>
-        <Fact term="Cited records">
-          <span data-history-cited={cited.count} data-history-accepted-rows={cited.accepted_rows}>
-            {cited.count} cited; {cited.resolved} of {cited.count} found as accepted records
-          </span>
-          {cited.accepted_rows === "UNRESOLVED_PRESENT" ? (
-            <span data-history-unresolved> ({cited.count - cited.resolved} could not be found)</span>
-          ) : null}
-          . <Link to={links.evidence(r.id)} data-history-check-evidence={r.id}>Check their record trail on the Evidence page</Link>
-        </Fact>
-        <Fact term="Readings from">
-          {stamp(r.times.source_time.first)} to {stamp(r.times.source_time.last)}
-        </Fact>
-        <Fact term="Last cited reading received">{stamp(r.times.received_at)}</Fact>
-        <Fact term="Last cited reading accepted">{stamp(r.times.accepted_at)}</Fact>
-        <Fact term="Analysis finished">{stamp(r.times.analytic_completed_at)}</Fact>
-        <Fact term="Assessment rules reference">
-          <code data-vocabulary-exempt="source-reference">{r.model_version}</code>
-        </Fact>
-        <Fact term="Assessment behind it">
-          <code data-vocabulary-exempt="source-reference">{r.primary_assessment_revision_id.slice(0, 8)}</code>
-          {priorIds.length > 0 ? (
-            <>
-              {" "}
-              (previously{" "}
-              {priorIds.map((id, index) => (
-                <span key={id}>
-                  {index > 0 ? ", " : ""}
-                  <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code>
-                </span>
-              ))}
-              )
-            </>
-          ) : null}
-        </Fact>
-      </FactList>
-      <p className="site-finding-history__links">
-        <Link to={links.history(r.id)} data-history-select={r.id} aria-current={r.is_selected ? "true" : undefined}>
-          Select version {r.revision_no}
-        </Link>
-        {" · "}
-        <Link to={links.finding(findingId, r.id)} data-history-finding-link={r.id}>
-          Open this version
-        </Link>
-        {" · "}
-        <Link to={links.evidence(r.id)} data-history-evidence-link={r.id}>
-          Its evidence
-        </Link>
-      </p>
-    </li>
-  );
-}
-
-/** Merge, split and recurrence links stay as recorded; each opens that Finding's own history. */
-function Related({ body, links }: { body: FindingHistoryBody; links: SiteFindingHistoryLinks }) {
-  const r = body.relations;
-  const items: { label: string; id: string }[] = [
-    ...r.merged_into.map((m) => ({ label: "Joined into", id: m.canonical_finding_id })),
-    ...r.merged_from.map((m) => ({ label: "Joined from", id: m.superseded_finding_id })),
-    ...(r.split_from_finding_id ? [{ label: "Split from", id: r.split_from_finding_id }] : []),
-    ...r.split_parts.map((id) => ({ label: "Split part", id })),
-    ...(r.recurs_after_finding_id ? [{ label: "Recurs after", id: r.recurs_after_finding_id }] : []),
-    ...r.recurred_by.map((id) => ({ label: "Recurred as", id })),
-  ].filter((item) => item.id && item.id !== body.finding.id);
-  if (items.length === 0) {
-    return null;
-  }
-  return (
-    <Panel heading="Related Findings" headingId="finding-history-related-heading">
-      <ul className="site-finding__inline">
-        {items.map((item) => (
-          <li key={`${item.label}-${item.id}`}>
-            <Link to={links.otherHistory(item.id)} data-history-related={item.id}>
-              {item.label} Finding <code data-vocabulary-exempt="source-reference">{item.id.slice(0, 8)}</code> - its history
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Panel>
+        <br />
+        <small>State: {state?.label ?? r.lifecycle}</small>
+        {group ? (
+          <small className="site-finding-history__line" data-history-group>
+            One of {group.count} assessment updates with the amount unchanged (versions {group.first}–{group.last}); each
+            stays its own version.
+          </small>
+        ) : null}
+        {lateEvidence ? (
+          <small className="site-finding-history__line" data-history-late-evidence>
+            Cites readings accepted after version {r.revision_no - 1} was recorded. Version {r.revision_no - 1} keeps the
+            records it cited.
+          </small>
+        ) : null}
+        <small className="site-finding-history__line">
+          <Link to={links.history(r.id)} data-history-select={r.id} aria-current={r.is_selected ? "true" : undefined}>
+            Select version {r.revision_no}
+          </Link>
+          {" · "}
+          <Link to={links.finding(findingId, r.id)} data-history-finding-link={r.id}>
+            Open this version
+          </Link>
+          {" · "}
+          <Link to={links.evidence(r.id)} data-history-evidence-link={r.id}>
+            Its evidence
+          </Link>
+        </small>
+      </td>
+      <td>
+        <dl className="site-finding-history__basis">
+          <div>
+            <dt>Period</dt>
+            <dd>
+              {stamp(r.episode.start)} to {stamp(r.episode.end)}
+            </dd>
+          </div>
+          <div>
+            <dt>Possibly avoidable time</dt>
+            <dd>{minuteText(r.minutes.candidate)}</dd>
+          </div>
+          <div>
+            <dt>Generator time needed</dt>
+            <dd>{minuteText(r.minutes.necessary)}</dd>
+          </div>
+          <div>
+            <dt>Time that could not be decided</dt>
+            <dd>{minuteText(r.minutes.indeterminate)}</dd>
+          </div>
+          <div>
+            <dt>Amount changed from the previous version</dt>
+            <dd>{r.revision_no === 1 ? "First version" : r.support_changed ? "Yes" : "No"}</dd>
+          </div>
+          <div>
+            <dt>Cited records</dt>
+            <dd>
+              <span data-history-cited={cited.count} data-history-accepted-rows={cited.accepted_rows}>
+                {cited.count} cited; {cited.resolved} of {cited.count} found as accepted records
+              </span>
+              {cited.accepted_rows === "UNRESOLVED_PRESENT" ? (
+                <span data-history-unresolved> ({cited.count - cited.resolved} could not be found)</span>
+              ) : null}
+              .{" "}
+              <Link to={links.evidence(r.id)} data-history-check-evidence={r.id}>
+                Check their record trail on the Evidence page
+              </Link>
+            </dd>
+          </div>
+          <div>
+            <dt>Readings from</dt>
+            <dd>
+              {stamp(r.times.source_time.first)} to {stamp(r.times.source_time.last)}
+            </dd>
+          </div>
+          <div>
+            <dt>Last cited reading received</dt>
+            <dd>{stamp(r.times.received_at)}</dd>
+          </div>
+          <div>
+            <dt>Last cited reading accepted</dt>
+            <dd>{stamp(r.times.accepted_at)}</dd>
+          </div>
+          <div>
+            <dt>Analysis finished</dt>
+            <dd>{stamp(r.times.analytic_completed_at)}</dd>
+          </div>
+          <div>
+            <dt>Assessment rules reference</dt>
+            <dd>
+              <code data-vocabulary-exempt="source-reference">{r.model_version}</code>
+            </dd>
+          </div>
+          <div>
+            <dt>Assessment behind it</dt>
+            <dd>
+              <code data-vocabulary-exempt="source-reference">{r.primary_assessment_revision_id.slice(0, 8)}</code>
+              {priorIds.length > 0 ? (
+                <>
+                  {" "}
+                  (previously{" "}
+                  {priorIds.map((id, index) => (
+                    <span key={id}>
+                      {index > 0 ? ", " : ""}
+                      <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code>
+                    </span>
+                  ))}
+                  )
+                </>
+              ) : null}
+            </dd>
+          </div>
+        </dl>
+      </td>
+    </tr>
   );
 }
