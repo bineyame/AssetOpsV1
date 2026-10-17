@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { ExactReferences, Fact, FactList, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
@@ -155,11 +156,14 @@ export function ConsequenceHistoryPanel({
   siteName,
   links,
   historyLimit = null,
+  children,
 }: {
   body: ConsequenceHistoryBody;
   siteName: string;
   links: FinancialsLinks;
   historyLimit?: number | null;
+  /** W1-F3: the price versions recorded at the same moment, inside this panel. */
+  children?: ReactNode;
 }) {
   const cutoff = body.cutoff.recorded_at;
   return (
@@ -212,11 +216,18 @@ export function ConsequenceHistoryPanel({
           ) : null}
         </p>
       </div>
+      {children}
     </Panel>
   );
 }
 
-export function ConsequenceHistoryRefused({ read }: { read: Exclude<ConsequenceHistoryResult, { status: "loaded" }> }) {
+export function ConsequenceHistoryRefused({
+  read,
+  children,
+}: {
+  read: Exclude<ConsequenceHistoryResult, { status: "loaded" }>;
+  children?: ReactNode;
+}) {
   const words: Record<typeof read.status, string> = {
     not_found: "That list position is not one this list gave out. Nothing else is shown in its place.",
     unauthenticated: "Sign in to read this site's fuel cost versions.",
@@ -232,6 +243,7 @@ export function ConsequenceHistoryRefused({ read }: { read: Exclude<ConsequenceH
           <p data-consequence-history={read.status}>{words[read.status]}</p>
         </ProductStatus>
       </div>
+      {children}
     </Panel>
   );
 }
