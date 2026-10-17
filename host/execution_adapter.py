@@ -108,7 +108,7 @@ from assetops_contracts.world_inputs import (
     SiteControlInput,
     UnmodelledInput,
 )
-from assetops_simulator.kernel.execute import execute
+from assetops_simulator.kernel.execute import ProfilePairMismatch, execute, execution_path_for
 from assetops_simulator.kernel.model import ModelSpec
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL
 from assetops_simulator.packs.mini_grid import (
@@ -135,9 +135,35 @@ EXECUTABLE_MODELS: tuple[ModelSpec, ...] = (
 )
 
 
-def model_for(run: SimulationRun) -> ModelSpec:
-    """The executable model with the identity this run froze, or a refusal."""
+def execution_path(run: SimulationRun) -> str:
+    """W2-02: `COLD` for the frozen `cold-thermal/1` + `cold-publication/1` pair, `MODEL_SPEC` for every
+    older pair. A half-cold pair is refused, never resolved to either path."""
     frozen = run.deterministic_identity.profiles
+    try:
+        return execution_path_for(
+            (frozen.model_profile_id, frozen.model_profile_version),
+            (frozen.publication_profile_id, frozen.publication_profile_version),
+        )
+    except ProfilePairMismatch as mismatch:
+        raise FrozenRunNotReconstructible(
+            f"Run {run.run_id} froze model profile {frozen.model_profile_id} version "
+            f"{frozen.model_profile_version} with publication profile {frozen.publication_profile_id} "
+            f"version {frozen.publication_profile_version}; no execution path accepts that pair."
+        ) from mismatch
+
+
+def model_for(run: SimulationRun) -> ModelSpec:
+    """The executable model with the identity this run froze, or a refusal.
+
+    A cold run never resolves a ModelSpec: it executes through the cold pack (`ColdExecution`).
+    """
+    frozen = run.deterministic_identity.profiles
+    if execution_path(run) == "COLD":
+        raise FrozenRunNotReconstructible(
+            f"Run {run.run_id} froze the cold-chain pair {frozen.model_profile_id}/"
+            f"{frozen.model_profile_version}, which executes through the cold pack and has no model "
+            "specification."
+        )
     for model in EXECUTABLE_MODELS:
         if (
             model.model_profile_id == frozen.model_profile_id
@@ -159,6 +185,7 @@ def publication_profile_for(run: SimulationRun) -> PublicationProfile:
     one the host was constructed with. The same rule as `model_for`.
     """
     frozen = run.deterministic_identity.profiles
+    execution_path(run)  # W2-02: a half-cold pair refuses before any profile resolves.
     profile = find_publication_profile(
         PUBLICATION_PROFILES,
         frozen.publication_profile_id,

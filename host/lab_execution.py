@@ -134,6 +134,7 @@ from execution_adapter import (
     FrozenRunNotReconstructible,
     RunNotExecutable,
     frozen_world_inputs,
+    execution_path,
     model_for,
     publication_profile_for,
     refuse_a_model_the_run_did_not_select,
@@ -1980,11 +1981,14 @@ class HostLabExecution:
 
         The injected one when a caller composed one - a test proving the
         identity check does - and otherwise the executable model whose identity
-        the run froze (T024: there are two).
+        the run froze (T024: there are two). W2-02: a cold run never resolves one, injected or not; its
+        pair dispatches to the cold pack.
         """
-        if self._model is not None:
-            return self._model
         try:
+            if execution_path(run) == "COLD":
+                return model_for(run)  # refuses: the cold pair has no model specification
+            if self._model is not None:
+                return self._model
             return model_for(run)
         except FrozenRunNotReconstructible as broken:
             raise LabControlRefused(
