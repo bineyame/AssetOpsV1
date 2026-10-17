@@ -19,14 +19,14 @@
  * the shell supplies the builder, because the substrate does not know routes.
  */
 
-import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
+import { HourNotSelected, OverviewGrid, OverviewRefused } from "./overviewSlots";
 import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { SiteWindowOverview, type WindowOverviewLinks } from "./SiteWindowOverview";
 import type { FindingIndexClient } from "./findingIndexClient";
 
-import { Badge, Fact, FactList, Panel } from "../ui";
+import { Badge, ChartNote, KeyValues, MetricCard, MetricCards, StatusBar } from "../ui";
 import { AssessedPeriodTimeline, FuelRange } from "./assessmentGraphics";
 import {
   capabilityPresentation,
@@ -173,32 +173,47 @@ export function SiteOverview({
     return <p>{SITE_OVERVIEW_LOADING}</p>;
   }
   if (awaitingMigration(result)) {
-    return <AwaitingEvidenceMigration surface="overview" />;
+    return (
+      <OverviewRefused
+        name="awaiting-migration"
+        title="Awaiting evidence migration"
+        reason={
+          <span data-evidence-state="awaiting_migration">
+            This site&apos;s configuration has moved to its stored Foundation versions. Its overview is awaiting
+            evidence migration, so earlier results are not shown beside the updated configuration.
+          </span>
+        }
+        gapText="Not shown: this Overview is awaiting evidence migration. This is not an empty result."
+      />
+    );
   }
   if (result.status !== "loaded") {
     return (
-      <Panel
-        heading="Overview unavailable"
-        headingId="site-overview-unavailable-heading"
-      >
-        <p>
-          The Overview could not be read
-          {result.status === "unavailable" && result.message !== null
-            ? `: ${result.message}`
-            : "."}{" "}
-          This is a statement about the read, not about the site&apos;s
-          evidence.
-        </p>
-      </Panel>
+      <OverviewRefused
+        name="unavailable"
+        title="Overview unavailable"
+        reason={
+          <>
+            The Overview could not be read
+            {result.status === "unavailable" && result.message !== null
+              ? `: ${result.message}`
+              : "."}{" "}
+            This is a statement about the read, not about the site&apos;s
+            evidence.
+          </>
+        }
+      />
     );
   }
 
   if (isSiteWindowSummary(result.value)) {
     if (windowLinks === undefined) {
       return (
-        <Panel heading="Overview unavailable" headingId="site-overview-unavailable-heading">
-          <p>This screen has no destinations for the selected-day Overview.</p>
-        </Panel>
+        <OverviewRefused
+          name="no-destinations"
+          title="Overview unavailable"
+          reason="This screen has no destinations for the selected-day Overview."
+        />
       );
     }
     return (
@@ -222,67 +237,103 @@ export function SiteOverview({
     findings.flatMap((f) => (f.finding_id === null ? [] : [f.finding_id])),
   );
 
+  const empty = overview.window.start === null;
   return (
     <div
-      className="site-overview"
-      data-overview-state={
-        overview.window.start === null ? "empty" : "populated"
-      }
+      className="site-overview site-window-overview"
+      data-overview-state={empty ? "empty" : "populated"}
     >
-      <ObjectiveStrip
-        overview={overview}
-        evidencePageHref={evidencePageHref}
-        link={link}
+      <OverviewGrid
+        lead={
+          <>
+            <StatusBar other="Assessed for this window: the domain cards below only · no site-wide objective status">
+              <Badge tone="neutral">{overview.objective.assessment.label}</Badge>{" "}
+              <span className="overview-note">{overview.objective.assessment.reason}</span>
+            </StatusBar>
+            {cards.length === 0 ? null : (
+              <MetricCards columns={cards.length >= 5 ? 5 : cards.length === 3 ? 3 : 4} label="Domains">
+                {cards.map(({ label, card }) => (
+                  <DomainCard
+                    key={card.domain_id}
+                    label={label}
+                    card={card}
+                    profile={profile}
+                    link={link}
+                    findingIds={findingIds}
+                    findingHref={findingHref}
+                    dispatchHref={dispatchHref}
+                    analysisHref={analysisHref}
+                  />
+                ))}
+              </MetricCards>
+            )}
+          </>
+        }
+        happened={{
+          description: "Selected window · what the accepted evidence assessed, by domain",
+          body: (
+            <>
+              <HourNotSelected scope={empty ? "no window yet" : "the selected evidence window"} />
+              {cards.map(({ label, card }) => (
+                <DomainPeriods key={card.domain_id} label={label} card={card} profile={profile} />
+              ))}
+              <p className="overview-note">{overview.interval_statement}</p>
+            </>
+          ),
+        }}
+        context={{
+          description: "Selected window · context for the domains, not a status source",
+          body: (
+            <>
+              <ObjectiveStrip overview={overview} evidencePageHref={evidencePageHref} link={link} />
+              <Timeline overview={overview} />
+              {cards.map(({ label, card }) => (
+                <DomainContext key={card.domain_id} label={label} card={card} link={link} />
+              ))}
+            </>
+          ),
+        }}
+        attention={{
+          body: (
+            <>
+              <p>{overview.findings_statement}</p>
+              {findings.length === 0 || findingHref === undefined ? null : (
+                <ul className="cell-list" data-overview-findings>
+                  {findings.map((finding) => (
+                    <li key={finding.assessment_id}>
+                      <Link
+                        to={findingHref(finding.assessment_id)}
+                        data-overview-finding-link={finding.assessment_id}
+                      >
+                        {finding.reading === undefined
+                          ? "Assessed generator period"
+                          : `${finding.reading.outcome}: ${finding.reading.headline}`}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ),
+        }}
+        money={{
+          body: (
+            <p data-overview-gap="money">
+              No current amount: this Site&apos;s Overview has no money consequence read. This is not zero.
+            </p>
+          ),
+        }}
+        next={{
+          body: (
+            <div className="v69-prose" data-overview-next="evidence">
+              <p>No supported next action is recorded on this Overview.</p>
+              <p>
+                <Link to={evidencePageHref}>Open Site evidence →</Link>
+              </p>
+            </div>
+          ),
+        }}
       />
-      {cards.length === 0 ? null : (
-        <section
-          className="overview-cards"
-          aria-labelledby="site-overview-domains-heading"
-        >
-          <h2
-            className="overview-cards__heading"
-            id="site-overview-domains-heading"
-          >
-            Domains
-          </h2>
-          <div className="overview-cards__grid">
-            {cards.map(({ label, card }) => (
-              <DomainCard
-                key={card.domain_id}
-                label={label}
-                card={card}
-                profile={profile}
-                link={link}
-                findingIds={findingIds}
-                findingHref={findingHref}
-                dispatchHref={dispatchHref}
-                analysisHref={analysisHref}
-              />
-            ))}
-          </div>
-          <p className="overview-note">{overview.interval_statement}</p>
-        </section>
-      )}
-      <Timeline overview={overview} />
-      <Panel heading="Findings" headingId="site-overview-findings-heading">
-        <p>{overview.findings_statement}</p>
-        {findings.length === 0 || findingHref === undefined ? null : (
-          <ul className="cell-list" data-overview-findings>
-            {findings.map((finding) => (
-              <li key={finding.assessment_id}>
-                <Link
-                  to={findingHref(finding.assessment_id)}
-                  data-overview-finding-link={finding.assessment_id}
-                >
-                  {finding.reading === undefined
-                    ? "Assessed generator period"
-                    : `${finding.reading.outcome}: ${finding.reading.headline}`}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
     </div>
   );
 }
@@ -311,47 +362,44 @@ function ObjectiveStrip({
   const { window, objective } = overview;
   const empty = window.start === null;
   return (
-    <Panel
-      heading="Operating objective"
-      headingId="site-overview-objective-heading"
-    >
-      <FactList>
-        <Fact term="Site assessment">
-          <Badge tone="neutral">{objective.assessment.label}</Badge>{" "}
-          <span className="overview-note">{objective.assessment.reason}</span>
-        </Fact>
-        <Fact term="Service delivered">
-          {objective.service_delivered === null ? (
-            "Not measured for this site type"
-          ) : (
-            // Review F3: the strip names the metric it shows, so "measured
-            // intervals" and the measured share of the window stay with the
-            // number rather than two facts away from it.
+    <div data-overview-objective>
+      <KeyValues
+        label="Operating objective"
+        rows={[
+          [
+            "Service delivered",
+            objective.service_delivered === null ? (
+              "Not measured for this site type"
+            ) : (
+              <>
+                <span className="overview-metric__label">{objective.service_delivered.label}</span>
+                <MetricValue metric={objective.service_delivered} link={link} />
+              </>
+            ),
+            "service",
+          ],
+          [
+            "Window",
+            empty
+              ? "No window: no evidence has been accepted for this site."
+              : `${window.start} to ${window.end} (${window.hours} h, ${
+                  window.basis === "REQUESTED" ? "requested" : "latest release"
+                })`,
+            "window",
+          ],
+          [
+            "Evidence",
             <>
-              <span className="overview-metric__label">
-                {objective.service_delivered.label}
-              </span>
-              <MetricValue metric={objective.service_delivered} link={link} />
-            </>
-          )}
-        </Fact>
-        <Fact term="Window">
-          {empty
-            ? "No window: no evidence has been accepted for this site."
-            : `${window.start} to ${window.end} (${window.hours} h, ${
-                window.basis === "REQUESTED" ? "requested" : "latest release"
-              })`}
-        </Fact>
-        <Fact term="Evidence">
-          {`${overview.accepted_in_window} accepted records from ${overview.source_gateway_pairs_in_window} ${
-            overview.source_gateway_pairs_in_window === 1
-              ? "source and gateway pair"
-              : "source and gateway pairs"
-          } in this window. `}
-          <Link to={evidencePageHref}>Open Site evidence</Link>
-        </Fact>
-      </FactList>
-    </Panel>
+              {`${overview.accepted_in_window} accepted records from ${overview.source_gateway_pairs_in_window} ${
+                overview.source_gateway_pairs_in_window === 1 ? "source and gateway pair" : "source and gateway pairs"
+              } in this window. `}
+              <Link to={evidencePageHref}>Open Site evidence</Link>
+            </>,
+            "evidence",
+          ],
+        ]}
+      />
+    </div>
   );
 }
 
@@ -406,16 +454,7 @@ function MetricValue({
   );
 }
 
-function DomainCard({
-  label,
-  card,
-  profile,
-  link,
-  findingIds,
-  findingHref,
-  dispatchHref,
-  analysisHref,
-}: {
+interface DomainCardProps {
   label: string;
   card: OverviewCard;
   profile: DomainPresentationProfile | null;
@@ -428,116 +467,128 @@ function DomainCard({
    * Dispatch's Analysis view for a Needed period without a Finding.
    */
   analysisHref?: (assessmentId: string, isFinding: boolean) => string;
-}) {
+}
+
+function capabilityOf(card: OverviewCard, profile: DomainPresentationProfile | null) {
   const assessment = card.assessment;
-  const capability =
-    assessment.capability_id === undefined
-      ? null
-      : capabilityPresentation(
-          profile,
-          assessment.capability_id,
-          assessment.capability_display_name ?? assessment.capability_id,
-        );
-  const headingId = `site-overview-card-${card.domain_id.toLowerCase()}`;
+  return assessment.capability_id === undefined
+    ? null
+    : capabilityPresentation(
+        profile,
+        assessment.capability_id,
+        assessment.capability_display_name ?? assessment.capability_id,
+      );
+}
+
+/**
+ * W1-F2: one domain as the mock's objective card (label, large state word, one note and its destination).
+ * The domain's metrics and coverage are context, in Operating context; its assessed periods are in panel 1.
+ */
+function DomainCard({ label, card, profile, findingIds, findingHref, dispatchHref, analysisHref }: DomainCardProps) {
+  const assessment = card.assessment;
+  const capability = capabilityOf(card, profile);
   return (
-    <Panel heading={label} headingId={headingId} headingLevel={3}>
-      <p
-        className="overview-card__assessment"
-        data-overview-card={card.domain_id}
-        data-overview-gaps={card.gaps.length}
-        data-overview-values={
-          card.metrics.filter((m) => m.value !== null).length
-        }
-      >
-        {capability === null ? null : (
-          <span
-            className="overview-card__capability"
-            data-overview-capability={capability.id}
-            data-emphasis={capability.emphasis}
-          >
-            {`${capability.label}: `}
-          </span>
-        )}
-        <Badge tone="neutral">{assessment.label}</Badge>
-      </p>
-      {capability === null ? null : (
-        <p
-          className="overview-card__assessment-reason"
-          data-overview-assessment-status={assessment.status}
-        >
-          {assessment.reason}
-        </p>
-      )}
-      {capability === null || assessment.lead_timeline === undefined ? null : (
-        <div className="overview-card__timeline" data-overview-card-timeline={assessment.lead_assessment_id}>
-          <AssessedPeriodTimeline
-            compact
-            source={assessment.lead_timeline}
-            outcomes={assessment.lead_timeline.segments.map((s) => s.outcome)}
-            assessmentId={assessment.lead_assessment_id}
-          />
-          {assessment.lead_timeline.fuel.status === "BOUNDED" ? (
-            <FuelRange compact fuel={assessment.lead_timeline.fuel} reading={assessment.lead_timeline.fuel} />
-          ) : null}
-        </div>
-      )}
-      {capability === null || assessment.lead_assessment_id === undefined ? null : (
-        <p className="overview-card__assessment-link">
-          {findingIds.has(assessment.lead_assessment_id) && findingHref !== undefined ? (
-            <Link
-              to={findingHref(assessment.lead_assessment_id)}
-              data-overview-card-finding={assessment.lead_assessment_id}
+    <MetricCard
+      label={label}
+      word
+      tone="muted"
+      value={<Badge tone="neutral">{assessment.label}</Badge>}
+      data={{
+        "data-overview-card": card.domain_id,
+        "data-overview-gaps": String(card.gaps.length),
+        "data-overview-values": String(card.metrics.filter((m) => m.value !== null).length),
+      }}
+      note={
+        <>
+          {capability === null ? null : (
+            <span
+              className="overview-card__capability"
+              data-overview-capability={capability.id}
+              data-emphasis={capability.emphasis}
             >
-              Open the Finding
-            </Link>
-          ) : dispatchHref !== undefined ? (
-            <Link
-              to={dispatchHref(assessment.lead_assessment_id)}
-              data-overview-card-dispatch={assessment.lead_assessment_id}
-            >
-              See it on Performance &gt; Dispatch
-            </Link>
-          ) : null}
-          {analysisHref === undefined ? null : (
-            <>
-              {" "}
-              <Link
-                to={analysisHref(
-                  assessment.lead_assessment_id,
-                  findingIds.has(assessment.lead_assessment_id),
-                )}
-                data-overview-card-analysis={assessment.lead_assessment_id}
-              >
-                View analysis
-              </Link>
-            </>
+              {`${capability.label}: `}
+            </span>
           )}
-        </p>
-      )}
-      {card.gaps.length === 0 ? null : (
-        <p className="overview-card__gap" role="note">
-          {`Coverage gap: ${card.gaps
-            .map((gap) => `${signalOf(gap)} ${gap.reason}`)
-            .join("; ")}.`}
-        </p>
-      )}
-      <FactList>
-        {card.metrics.map((metric) => (
-          <Fact key={metric.metric_id} term={metric.label}>
-            <MetricValue metric={metric} link={link} />
-          </Fact>
-        ))}
-      </FactList>
-      <p className="overview-card__coverage">
-        {"Coverage: "}
+          {capability === null ? null : (
+            <span data-overview-assessment-status={assessment.status}>{assessment.reason}</span>
+          )}
+          {card.gaps.length === 0 ? null : (
+            <span className="overview-card__gap" role="note">
+              {` Coverage gap: ${card.gaps.map((gap) => `${signalOf(gap)} ${gap.reason}`).join("; ")}.`}
+            </span>
+          )}
+          {capability === null || assessment.lead_assessment_id === undefined ? null : (
+            <span className="overview-card__assessment-link">
+              {" "}
+              {findingIds.has(assessment.lead_assessment_id) && findingHref !== undefined ? (
+                <Link
+                  to={findingHref(assessment.lead_assessment_id)}
+                  data-overview-card-finding={assessment.lead_assessment_id}
+                >
+                  Open the Finding
+                </Link>
+              ) : dispatchHref !== undefined ? (
+                <Link
+                  to={dispatchHref(assessment.lead_assessment_id)}
+                  data-overview-card-dispatch={assessment.lead_assessment_id}
+                >
+                  See it on Performance &gt; Dispatch
+                </Link>
+              ) : null}
+              {analysisHref === undefined ? null : (
+                <>
+                  {" "}
+                  <Link
+                    to={analysisHref(assessment.lead_assessment_id, findingIds.has(assessment.lead_assessment_id))}
+                    data-overview-card-analysis={assessment.lead_assessment_id}
+                  >
+                    View analysis
+                  </Link>
+                </>
+              )}
+            </span>
+          )}
+        </>
+      }
+    />
+  );
+}
+
+/** A domain's assessed periods (panel 1), drawn only when the read carries its lead timeline. */
+function DomainPeriods({ label, card, profile }: { label: string; card: OverviewCard; profile: DomainPresentationProfile | null }) {
+  const assessment = card.assessment;
+  if (capabilityOf(card, profile) === null || assessment.lead_timeline === undefined) return null;
+  return (
+    <div className="overview-card__timeline" data-overview-card-timeline={assessment.lead_assessment_id}>
+      <AssessedPeriodTimeline
+        compact
+        source={assessment.lead_timeline}
+        outcomes={assessment.lead_timeline.segments.map((s) => s.outcome)}
+        assessmentId={assessment.lead_assessment_id}
+      />
+      {assessment.lead_timeline.fuel.status === "BOUNDED" ? (
+        <FuelRange compact fuel={assessment.lead_timeline.fuel} reading={assessment.lead_timeline.fuel} />
+      ) : null}
+      <ChartNote>{label}: assessed periods in the selected window.</ChartNote>
+    </div>
+  );
+}
+
+/** A domain's metrics and record coverage (Operating context), as the mock's key-value list. */
+function DomainContext({ label, card, link }: { label: string; card: OverviewCard; link: LinkBuilder }) {
+  return (
+    <div data-overview-domain-context={card.domain_id}>
+      <KeyValues
+        label={`${label} readings`}
+        rows={card.metrics.map((metric) => [metric.label, <MetricValue metric={metric} link={link} />, metric.metric_id])}
+      />
+      <ChartNote>
+        {`${label} coverage: `}
         {card.coverage
-          .map(
-            (row) =>
-              `${signalOf(row)} ${row.records} records, ${row.good} good, ${row.unavailable} unavailable`,
-          )
+          .map((row) => `${signalOf(row)} ${row.records} records, ${row.good} good, ${row.unavailable} unavailable`)
           .join("; ")}
-      </p>
-    </Panel>
+      </ChartNote>
+    </div>
   );
 }
 
@@ -674,11 +725,8 @@ function Timeline({ overview }: { overview: SiteOverviewReadModel }) {
   const { window, timeline } = overview;
   const plotted = timeline.filter((series) => series.points.length > 0);
   return (
-    <Panel
-      heading="Selected-window timeline"
-      headingId="site-overview-timeline-heading"
-    >
-      <p className="overview-note">{overview.timeline_statement}</p>
+    <>
+      <p className="overview-note" id="site-overview-timeline-heading">{overview.timeline_statement}</p>
       {window.start === null || window.end === null || plotted.length === 0 ? (
         <p>
           No accepted measurement in this window, so there is nothing to place
@@ -700,6 +748,6 @@ function Timeline({ overview }: { overview: SiteOverviewReadModel }) {
           })}
         </div>
       )}
-    </Panel>
+    </>
   );
 }

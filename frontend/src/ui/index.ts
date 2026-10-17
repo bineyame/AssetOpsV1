@@ -45,6 +45,10 @@ export {
   type MetricCardProps,
   MetricCards,
   type MetricTone,
+  CausalTimeline,
+  type TimelineEvent,
+  StatusBar,
+  V69Notice,
 } from "./V69Layout";
 export {
   ReviewProposal,

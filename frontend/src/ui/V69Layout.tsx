@@ -110,3 +110,71 @@ export function ChartNote({ children, data }: { children: ReactNode; data?: Reco
     </p>
   );
 }
+
+/** The mock's `.statusbar`: a state line above the panels (not a panel). */
+export function StatusBar({
+  children,
+  other,
+  action,
+  data,
+}: {
+  children: ReactNode;
+  other?: ReactNode;
+  action?: ReactNode;
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className="v69-statusbar" role="status" {...data}>
+      {children}
+      {other === undefined ? null : <span className="v69-statusbar__other">{other}</span>}
+      <span className="v69-statusbar__spacer" />
+      {action ?? null}
+    </div>
+  );
+}
+
+/** The mock's `.notice` (amber by default, `blue` for a neutral pointer). */
+export function V69Notice({
+  children,
+  tone,
+  data,
+}: {
+  children: ReactNode;
+  tone?: "blue";
+  data?: Record<string, string>;
+}) {
+  return (
+    <div className={tone === "blue" ? "v69-notice v69-notice--blue" : "v69-notice"} {...data}>
+      {children}
+    </div>
+  );
+}
+
+export interface TimelineEvent {
+  key: string;
+  time: ReactNode;
+  title: ReactNode;
+  detail?: ReactNode;
+  tone?: "danger" | "gap";
+}
+
+/** The mock's causal `.timeline` strip: time, event, source in sequence. */
+export function CausalTimeline({ events, label }: { events: TimelineEvent[]; label: string }) {
+  return (
+    <ol className="v69-timeline" aria-label={label}>
+      {events.map((event) => (
+        <li
+          key={event.key}
+          className={["v69-timeline__event", event.tone ? `v69-timeline__event--${event.tone}` : ""]
+            .filter(Boolean)
+            .join(" ")}
+          data-timeline-event={event.key}
+        >
+          <span>{event.time}</span>
+          <strong>{event.title}</strong>
+          {event.detail === undefined ? null : <span>{event.detail}</span>}
+        </li>
+      ))}
+    </ol>
+  );
+}

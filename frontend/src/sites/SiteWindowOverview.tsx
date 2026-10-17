@@ -26,10 +26,12 @@ import {
   ExactReferences,
   Fact,
   FactList,
-  HeadlineVisualCard,
+  CausalTimeline,
+  MetricCard,
+  MetricCards,
   moneyWords,
-  Panel,
   ProductStatus,
+  StatusBar,
   ValueBars,
   type ExactReference,
   type ProductWords,
@@ -41,6 +43,7 @@ import { OUTCOME_WORDS } from "./findingPresentation";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
 import type { FindingIndexClient, FindingIndexScope } from "./findingIndexClient";
 import { OverviewFindingList } from "./OverviewFindingList";
+import { HourNotSelected, OverviewGrid } from "./overviewSlots";
 import "./w1ux02-site.css";
 
 export interface WindowOverviewLinks {
@@ -233,8 +236,7 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   const f = summary.freshness;
   const accepted = summary.watermarks.accepted_source;
   return (
-    <Panel heading="This day" headingId="site-window-freshness-heading">
-      <div className="window-freshness" data-freshness-card>
+    <div className="window-freshness" data-freshness-card>
         <div data-freshness-state={f.state}>
           <ProductStatus words={currentnessWords(f.state)} scope={dayScope(summary)} asOf={summary.db_now} />
         </div>
@@ -264,8 +266,7 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
             ]}
           />
         </div>
-      </div>
-    </Panel>
+    </div>
   );
 }
 
@@ -296,66 +297,133 @@ function objectiveWords(state: string): ProductWords {
   return currentnessWords(state);
 }
 
-function Objective({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
+/**
+ * W1-F2: the mock's statusbar - the day's assessment state, scope and "as of" - above the panels. It is a state
+ * line, not a panel, and it claims nothing beyond the dispatch assessment this Overview reads.
+ */
+function DayStatus({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const a = summary.assessment;
-  const w = objectiveWords(a.state);
   const day = summary.window.utc_date;
-  const closed = a.state === "CLOSED";
   return (
-    <HeadlineVisualCard
-      dataName="overview-objective"
-      headingId="site-window-objective-heading"
-      question="Is the mini-grid meeting its operating objective?"
-      headline={a.state === "CURRENT" ? "No operating objective is stated for this day" : "No current answer for this day"}
-      status={
-        <div data-assessment-state={a.state}>
-          <ProductStatus words={w} scope={`${day}, one UTC day at this site`} asOf={summary.db_now} />
-        </div>
-      }
-      meaning={
-        <>
-          {closed ? (
-            <p>Nothing on this card is a current answer.</p>
-          ) : (
-            <p data-objective-statement="not-stated">
-              The assessment does not state an operating objective for this day, so none is shown here.
-            </p>
-          )}
-          {closed || a.claim_level === null ? null : (
-            <p data-assessment-claim={a.claim_level}>
-              Day reading: {OUTCOME_WORDS[a.claim_level] ?? "Assessed"}. {a.dispatch_intervals.length}{" "}
-              {a.dispatch_intervals.length === 1 ? "operating period" : "operating periods"} assessed;{" "}
-              {coverageRoles(a.coverage)}
-            </p>
-          )}
-          {a.limitations.length === 0 ? null : (
-            <ul className="cell-list" data-assessment-limitations={a.limitations.length}>
-              {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code) => (
-                <li key={code}>{limitationWords(code)}</li>
-              ))}
-            </ul>
-          )}
-        </>
-      }
-      todo={w.next === undefined ? undefined : <p>{w.next}</p>}
-      destination={
-        closed ? undefined : (
+    <StatusBar
+      data={{ "data-overview-status": a.state }}
+      other="Assessed for this day: dispatch only · the other objectives have no read on this Overview"
+      action={
+        a.state === "CLOSED" ? undefined : (
           <Link to={links.dispatchDay(day, a.window_assessment_revision_id)} data-window-dispatch-link={day}>
             Open this day in Performance &gt; Dispatch
           </Link>
         )
       }
-      references={
-        <ExactReferences
-          name="window-assessment"
-          references={[
-            { label: "Day assessment", value: a.window_assessment_revision_id },
-            { label: "Assessment pass", value: a.run_id },
-            { label: "Assessment state", value: a.state },
-            ...(a.status_reasons ?? []).map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
-          ]}
-        />
-      }
+    >
+      <div data-assessment-state={a.state}>
+        <ProductStatus words={objectiveWords(a.state)} scope={dayScope(summary)} asOf={summary.db_now} />
+      </div>
+    </StatusBar>
+  );
+}
+
+/** The mock's objective line: the assessment states no operating objective, so none is shown. */
+function ObjectiveLine({ summary }: { summary: SiteWindowSummary }) {
+  if (summary.assessment.state === "CLOSED") {
+    return <p className="v69-objective">Objective: nothing here is a current answer.</p>;
+  }
+  return (
+    <p className="v69-objective" data-objective-statement="not-stated">
+      Objective: the assessment does not state an operating objective for this day, so none is shown here.
+    </p>
+  );
+}
+
+/**
+ * The mock's five objective cards. Only Dispatch has a read (the day's dispatch assessment); every other
+ * objective is its own unknown cell, never a value drawn from the mock.
+ */
+function ObjectiveCards({ summary }: { summary: SiteWindowSummary }) {
+  const a = summary.assessment;
+  const current = a.state === "CURRENT" && a.claim_level !== null;
+  const w = objectiveWords(a.state);
+  const n = a.dispatch_intervals.length;
+  const unknown = (key: string, label: string, note: string) => (
+    <MetricCard key={key} label={label} value="Not available" note={note} tone="muted" word data={{ "data-objective-card": key, "data-objective-card-state": "no-read" }} />
+  );
+  return (
+    <MetricCards columns={5} label="Operating objectives for this day">
+      {unknown("service", "Service", "No service read for this day: what customers needed is not measured here")}
+      <MetricCard
+        label="Dispatch"
+        value={current ? (OUTCOME_WORDS[a.claim_level as string] ?? "Assessed") : w.label}
+        note={current ? `${n} ${n === 1 ? "operating period" : "operating periods"} assessed for this day` : w.sentence}
+        word
+        data={{ "data-objective-card": "dispatch", "data-objective-card-state": a.state }}
+      />
+      {unknown("battery", "Battery", "No battery condition read on this Overview")}
+      {unknown("fuel", "Fuel", "No fuel balance read for this day")}
+      {unknown("renewable", "Renewable", "No renewable read for this day")}
+    </MetricCards>
+  );
+}
+
+/** Panel 1 body: the day's assessed reading, its limitations and the exact references, in the mock's prose slot. */
+function DayReading({ summary }: { summary: SiteWindowSummary }) {
+  const a = summary.assessment;
+  const closed = a.state === "CLOSED";
+  return (
+    <div className="v69-prose">
+      {closed ? <p>Nothing in this panel is a current answer.</p> : null}
+      {closed || a.claim_level === null ? (
+        closed ? null : <p data-assessment-claim="none">No assessed reading is selected for this day.</p>
+      ) : (
+        <p data-assessment-claim={a.claim_level}>
+          Day reading: {OUTCOME_WORDS[a.claim_level] ?? "Assessed"}. {a.dispatch_intervals.length}{" "}
+          {a.dispatch_intervals.length === 1 ? "operating period" : "operating periods"} assessed;{" "}
+          {coverageRoles(a.coverage)}
+        </p>
+      )}
+      {a.limitations.length === 0 ? null : (
+        <ul className="cell-list" data-assessment-limitations={a.limitations.length}>
+          {[...new Set(a.limitations.map((l) => limitationCode(String(l))))].map((code) => (
+            <li key={code}>{limitationWords(code)}</li>
+          ))}
+        </ul>
+      )}
+      <ExactReferences
+        name="window-assessment"
+        references={[
+          { label: "Day assessment", value: a.window_assessment_revision_id },
+          { label: "Assessment pass", value: a.run_id },
+          { label: "Assessment state", value: a.state },
+          ...(a.status_reasons ?? []).map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
+        ]}
+      />
+    </div>
+  );
+}
+
+/**
+ * The mock's causal strip, from the read's assessed periods only: when each started and ended and what the
+ * assessment concluded for the generator. Each opens the period in Dispatch.
+ */
+function PeriodStrip({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
+  const day = summary.window.utc_date;
+  const intervals = summary.assessment.dispatch_intervals;
+  if (intervals.length === 0) {
+    return <p data-window-periods="none">No assessed period is selected for this day.</p>;
+  }
+  return (
+    <CausalTimeline
+      label={`Assessed operating periods on ${day}`}
+      events={intervals.map((i) => ({
+        key: i.revision_id,
+        time: `${clock(i.start)} to ${clock(i.end)}`,
+        title: `Generator ${portionWords(i.claim_level ?? "").toLowerCase()}`,
+        tone: (i.claim_level ?? "").toUpperCase() === "INDETERMINATE" ? "gap" : undefined,
+        detail: (
+          <Link to={links.dispatchDay(day, i.revision_id)} data-window-interval={i.revision_id}>
+            Open in Dispatch
+          </Link>
+        ),
+      }))}
     />
   );
 }
@@ -373,7 +441,7 @@ const TIMELINE_LEGEND: { key: string; label: string }[] = [
  * readable legend and a text description. It draws only the read's periods and reading spans; a not-current
  * day says so beside the drawing.
  */
-function Timeline({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
+function Timeline({ summary }: { summary: SiteWindowSummary }) {
   const day = summary.window.utc_date;
   const intervals = summary.assessment.dispatch_intervals;
   const coverage = summary.context.coverage ?? [];
@@ -387,7 +455,7 @@ function Timeline({ summary, links }: { summary: SiteWindowSummary; links: Windo
           .map((i) => `${clock(i.start)} to ${clock(i.end)}: generator ${portionWords(i.claim_level ?? "").toLowerCase()}`)
           .join("; ");
   return (
-    <Panel heading="Day timeline" headingId="site-window-timeline-heading">
+    <>
       <figure
         className="window-timeline-figure"
         data-window-timeline-figure
@@ -395,7 +463,7 @@ function Timeline({ summary, links }: { summary: SiteWindowSummary; links: Windo
       >
         <figcaption className="window-timeline-figure__caption">
           When the generator was in use and when readings arrived on {day}, 00:00 to 24:00 UTC.
-          {current ? "" : " These periods come from an answer that is not current; see This day."}
+          {current ? "" : " These periods come from an answer that is not current; see the state line above."}
         </figcaption>
         <div className="window-timeline" data-window-timeline={intervals.length}>
           <div className="window-timeline__axis" aria-hidden="true">
@@ -463,33 +531,7 @@ function Timeline({ summary, links }: { summary: SiteWindowSummary; links: Windo
           </ul>
         )}
       </figure>
-      {intervals.length === 0 ? (
-        <p>No assessed period is selected for this day.</p>
-      ) : (
-        <DataTable labelledBy="site-window-timeline-heading">
-          <thead>
-            <tr>
-              <th scope="col">From</th>
-              <th scope="col">To</th>
-              <th scope="col">Generator</th>
-              <th scope="col">Detail</th>
-            </tr>
-          </thead>
-          <tbody>
-            {intervals.map((i) => (
-              <tr key={i.revision_id} data-window-interval={i.revision_id}>
-                <td>{clock(i.start)}</td>
-                <td>{clock(i.end)}</td>
-                <td>{portionWords(i.claim_level ?? "")}</td>
-                <td>
-                  <Link to={links.dispatchDay(day, i.revision_id)}>Open</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </DataTable>
-      )}
-    </Panel>
+    </>
   );
 }
 
@@ -497,15 +539,13 @@ function Context({ summary, links }: { summary: SiteWindowSummary; links: Window
   const c = summary.context;
   if (c.series === null || c.coverage === null) {
     return (
-      <Panel heading="Operating context" headingId="site-window-context-heading">
-        <p data-window-context="unavailable">
-          Accepted readings for this day could not be read: <Code value={c.reason ?? null} />
-        </p>
-      </Panel>
+      <p data-window-context="unavailable">
+        Accepted readings for this day could not be read: <Code value={c.reason ?? null} />
+      </p>
     );
   }
   return (
-    <Panel heading="Operating context" headingId="site-window-context-heading">
+    <>
       <p data-window-context={c.series.length}>
         {c.total ?? c.series.length} accepted readings on this day
         {c.truncated ? `; the first ${c.series.length} are listed` : ""}.
@@ -555,7 +595,7 @@ function Context({ summary, links }: { summary: SiteWindowSummary; links: Window
           </ul>
         </Disclosure>
       )}
-    </Panel>
+    </>
   );
 }
 
@@ -623,7 +663,6 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
   const high = priced ? Number(m.amount_high) : Number.NaN;
   const scope = m.finding_id ? `One Finding overlapping ${summary.window.utc_date}` : dayScope(summary);
   return (
-    <Panel heading="Potential fuel-cost exposure, one Finding" headingId="site-window-money-heading">
       <div
         className="window-money"
         data-money-state={m.state}
@@ -631,11 +670,11 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
         data-consequence-revision-id={m.consequence_revision_id ?? ""}
       >
         {priced ? (
-          <p className="window-money__amount" data-money-amount>
+          <p className="window-money__amount v69-money" data-money-amount>
             {m.amount_low} to {m.amount_high} {m.currency}
           </p>
         ) : (
-          <p className="window-money__none" data-money-amount="none">
+          <p className="window-money__none v69-money v69-money--word" data-money-amount="none">
             No current amount.
           </p>
         )}
@@ -685,7 +724,6 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
           ]}
         />
       </div>
-    </Panel>
   );
 }
 
@@ -714,7 +752,7 @@ function KnownFinding({
   const k = summary.known_finding;
   const pin = summary.previous_pin ?? k?.previous_pin ?? null;
   return (
-    <Panel heading="Findings" headingId="site-window-findings-heading">
+    <>
       {k === null ? (
         <p data-known-finding="none">No Finding is selected for this day.</p>
       ) : (
@@ -759,24 +797,87 @@ function KnownFinding({
       ) : (
         <p data-finding-list={summary.finding_list.state}>{summary.finding_list.reason}</p>
       )}
-    </Panel>
+    </>
+  );
+}
+
+/** Panel 5: the next steps the read supports - the selected Finding and the day in Dispatch - or none. */
+function NextStep({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
+  const k = summary.known_finding;
+  const day = summary.window.utc_date;
+  const closed = summary.assessment.state === "CLOSED";
+  if (k === null && closed) {
+    return <p data-overview-next="none">No supported next action.</p>;
+  }
+  return (
+    <div className="v69-prose" data-overview-next={k === null ? "dispatch" : "finding"}>
+      {k === null ? (
+        <p>No Finding is selected for this day, so no recommendation is offered. Review the day in Dispatch.</p>
+      ) : (
+        <>
+          <h3>Review the Finding for this day</h3>
+          <p>
+            The Finding records what the assessment concluded about generator operation. No recommendation is
+            recorded on this Overview; any next action starts from the Finding.
+          </p>
+          <p>
+            <Link className="button" to={links.finding(k.id, k.revision_id)} data-overview-next-finding={k.id}>
+              Open the Finding
+            </Link>
+          </p>
+        </>
+      )}
+      {closed ? null : (
+        <p>
+          <Link to={links.dispatchDay(day, summary.assessment.window_assessment_revision_id)} data-overview-next-dispatch={day}>
+            Open this day in Dispatch →
+          </Link>
+        </p>
+      )}
+    </div>
   );
 }
 
 export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, onReload }: SiteWindowOverviewProps) {
+  const day = summary.window.utc_date;
   return (
     <div className="site-window-overview" data-overview-state="window" data-window-site={summary.site_code}>
-      <DaySelector summary={summary} onSelectDay={onSelectDay} />
-      <div className="site-window-overview__lead">
-        <Objective summary={summary} links={links} />
-      </div>
-      <div className="site-window-overview__grid">
-        <FreshnessStrip summary={summary} />
-        <Money summary={summary} links={links} />
-        <KnownFinding summary={summary} links={links} findingIndex={findingIndex} onReload={onReload} />
-      </div>
-      <Timeline summary={summary} links={links} />
-      <Context summary={summary} links={links} />
+      <OverviewGrid
+        lead={
+          <>
+            <DayStatus summary={summary} links={links} />
+            <ObjectiveLine summary={summary} />
+            <ObjectiveCards summary={summary} />
+          </>
+        }
+        happened={{
+          description: `Selected day ${day} · plain sequence of the assessed periods · the dispatch view has the detail`,
+          body: (
+            <>
+              <HourNotSelected scope={`one whole UTC day (${day})`} />
+              <DaySelector summary={summary} onSelectDay={onSelectDay} />
+              <PeriodStrip summary={summary} links={links} />
+              <DayReading summary={summary} />
+              <FreshnessStrip summary={summary} />
+            </>
+          ),
+        }}
+        context={{
+          description: "Selected day · when readings arrived; context for the cards, not a status source",
+          body: (
+            <>
+              <Timeline summary={summary} />
+              <Context summary={summary} links={links} />
+            </>
+          ),
+        }}
+        attention={{
+          description: "The Finding chosen for this day and the day's Finding list",
+          body: <KnownFinding summary={summary} links={links} findingIndex={findingIndex} onReload={onReload} />,
+        }}
+        money={{ body: <Money summary={summary} links={links} /> }}
+        next={{ body: <NextStep summary={summary} links={links} /> }}
+      />
     </div>
   );
 }

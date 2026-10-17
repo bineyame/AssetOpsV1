@@ -4351,3 +4351,149 @@ tr[data-selected] > * {
 .page-refusal > * + * {
   margin-top: 8px;
 }
+
+/* W1-F2 additions (additive to the W1-F1 v69 layer): the mock's statusbar,
+   objective line, notice, causal timeline, 15-minute segment bar, money value
+   and code block. None of these is a panel. */
+.v69-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 var(--v69-gap);
+  padding: 10px 14px;
+  border: 1px solid #dce6f4;
+  border-radius: 5px;
+  background: #edf3fc;
+  font-size: 11px;
+}
+
+.v69-statusbar__other {
+  color: var(--text-secondary);
+}
+
+.v69-statusbar__spacer {
+  flex: 1;
+}
+
+.v69-objective {
+  margin: 0;
+  padding: 0 0 17px;
+  color: #617089;
+  font-size: 11px;
+}
+
+.v69-notice {
+  margin: 0 0 var(--v69-gap);
+  padding: 11px 14px;
+  border: 1px solid #f2e6d0;
+  border-radius: 5px;
+  background: #fff9ef;
+  color: #6f5a39;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.v69-notice--blue {
+  border-color: #dce6f5;
+  background: #f0f5fd;
+  color: #456080;
+}
+
+.v69-prose {
+  color: #46566e;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.v69-prose > * + * {
+  margin-top: 12px;
+}
+
+.v69-money {
+  margin: 10px 0 7px;
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.v69-money--word {
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+.v69-timeline {
+  display: flex;
+  margin: 25px 0 21px;
+  padding: 0;
+  list-style: none;
+}
+
+.v69-timeline__event {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 19px 10px 0 0;
+  border-top: 2px solid #dce4ef;
+  font-size: 10px;
+}
+
+.v69-timeline__event::before {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border: 2px solid white;
+  border-radius: 50%;
+  background: #4e7ac5;
+  box-shadow: 0 0 0 1px #4e7ac5;
+  content: "";
+}
+
+.v69-timeline__event--danger::before {
+  background: #c15d5d;
+  box-shadow: 0 0 0 1px #c15d5d;
+}
+
+.v69-timeline__event--gap::before {
+  background: #c9d2de;
+  box-shadow: 0 0 0 1px #9aa8ba;
+}
+
+.v69-timeline__event > span {
+  display: block;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.v69-timeline__event > strong {
+  display: block;
+  margin: 3px 0;
+  font-size: 11px;
+}
+
+.v69-code {
+  margin: 0;
+  padding: 13px;
+  border: 1px solid var(--border, #e3e9f1);
+  border-radius: 5px;
+  background: #f5f7fb;
+  color: #4e6581;
+  font: 11px/1.8 Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .v69-timeline {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .v69-timeline__event {
+    flex: 1 1 140px;
+  }
+}
