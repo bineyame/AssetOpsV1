@@ -1,0 +1,81 @@
+﻿PASS  loaded http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-plan-withdrawn desktop: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/plan
+PASS  action-plan-withdrawn desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Plan fixed before the later readings","asOf":"As of 1 Nov 2026, 02:00 UTC"}
+PASS  action-plan-withdrawn desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-plan-withdrawn desktop: no sideways scroll from the card (measured 63 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-plan-withdrawn desktop: the card has a small visual  true
+PASS  action-plan-withdrawn desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Verification","A:Open Evidence","SUMMARY:How this was worked out"]}
+PASS  action-plan-withdrawn desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/plan"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-plan desktop: mock #/action-plan renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan-withdrawn narrow: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/plan
+PASS  action-plan-withdrawn narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Plan fixed before the later readings","asOf":"As of 1 Nov 2026, 02:00 UTC"}
+PASS  action-plan-withdrawn narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-plan-withdrawn narrow: no sideways scroll from the card (measured 63 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-plan-withdrawn narrow: the card has a small visual  true
+PASS  action-plan-withdrawn narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Verification","A:Open Evidence","SUMMARY:How this was worked out"]}
+PASS  action-plan-withdrawn narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/plan"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan narrow: mock #/action-plan renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-evidence-withdrawn desktop: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/evidence
+PASS  action-evidence-withdrawn desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Some readings are missing","asOf":"As of 2 Nov 2026, 14:04 UTC"}
+PASS  action-evidence-withdrawn desktop: the closed summary is plain text  "How this was worked out"
+PASS  action-evidence-withdrawn desktop: no sideways scroll from the card (measured 53 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  action-evidence-withdrawn desktop: the card has a small visual  true
+PASS  action-evidence-withdrawn desktop: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-evidence-withdrawn desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/evidence"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-evidence desktop: mock #/action-evidence renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence-withdrawn narrow: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/evidence
+PASS  action-evidence-withdrawn narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Some readings are missing","asOf":"As of 2 Nov 2026, 14:04 UTC"}
+PASS  action-evidence-withdrawn narrow: the closed summary is plain text  "How this was worked out"
+PASS  action-evidence-withdrawn narrow: no sideways scroll from the card (measured 53 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  action-evidence-withdrawn narrow: the card has a small visual  true
+PASS  action-evidence-withdrawn narrow: keyboard Tab reaches the disclosure summary  {"tabs":23,"focusable":["A:Open Verification","SUMMARY:How this was worked out"]}
+PASS  action-evidence-withdrawn narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/evidence"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/action-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence narrow: mock #/action-evidence renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-withdrawn desktop: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/verification
+PASS  verification-withdrawn desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Could not conclude","asOf":"As of 2 Nov 2026, 14:03 UTC"}
+PASS  verification-withdrawn desktop: the closed summary is plain text  "How this was worked out"
+PASS  verification-withdrawn desktop: no sideways scroll from the card (measured 68 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  verification-withdrawn desktop: the card has a small visual  true
+PASS  verification-withdrawn desktop: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Evidence","A:Open the Plan","SUMMARY:How this was worked out"]}
+PASS  verification-withdrawn desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/verification"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification desktop: mock #/verification renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-withdrawn narrow: the migrated card renders at http://localhost:5571/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/verification
+PASS  verification-withdrawn narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Could not conclude","asOf":"As of 2 Nov 2026, 14:03 UTC"}
+PASS  verification-withdrawn narrow: the closed summary is plain text  "How this was worked out"
+PASS  verification-withdrawn narrow: no sideways scroll from the card (measured 68 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  verification-withdrawn narrow: the card has a small visual  true
+PASS  verification-withdrawn narrow: keyboard Tab reaches the disclosure summary  {"tabs":24,"focusable":["A:Open Evidence","A:Open the Plan","SUMMARY:How this was worked out"]}
+PASS  verification-withdrawn narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/actions/38da3f33-8441-454a-bcd0-c2af0981d28c/verification"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification narrow: mock #/verification renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/findings/9897b026-68da-432c-880b-81ad1968d83c/recommendation?revision_id=9c825cb0-002a-4fdb-bba8-55e9351f0b28: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-withdrawn-hold desktop: the migrated card renders at http://localhost:5571/sites/KOBO-001/findings/9897b026-68da-432c-880b-81ad1968d83c/recommendation?revision_id=9c825cb0-002a-4fdb-bba8-55e9351f0b28
+PASS  recommendation-withdrawn-hold desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Held: late evidence withdrew an earlier trial's result","asOf":"As of 2 Nov 2026, 14:00 UTC"}
+PASS  recommendation-withdrawn-hold desktop: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-withdrawn-hold desktop: no sideways scroll from the card (measured 49 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+FAIL  recommendation-withdrawn-hold desktop: the card has a small visual  false
+PASS  recommendation-withdrawn-hold desktop: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open the earlier Action","SUMMARY:How this was worked out"]}
+PASS  recommendation-withdrawn-hold desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/9897b026-68da-432c-880b-81ad1968d83c/recommendation?revision_id=9c825cb0-002a-4fdb-bba8-55e9351f0b28"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation desktop: mock #/recommendation renders
+PASS  loaded http://localhost:5571/sites/KOBO-001/findings/9897b026-68da-432c-880b-81ad1968d83c/recommendation?revision_id=9c825cb0-002a-4fdb-bba8-55e9351f0b28: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-withdrawn-hold narrow: the migrated card renders at http://localhost:5571/sites/KOBO-001/findings/9897b026-68da-432c-880b-81ad1968d83c/recommendation?revision_id=9c825cb0-002a-4fdb-bba8-55e9351f0b28
+PASS  recommendation-withdrawn-hold narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Held: late evidence withdrew an earlier trial's result","asOf":"As of 2 Nov 2026, 14:00 UTC"}
+PASS  recommendation-withdrawn-hold narrow: the closed summary is plain text  "How this was worked out"
+PASS  recommendation-withdrawn-hold narrow: no sideways scroll from the card (measured 49 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+FAIL  recommendation-withdrawn-hold narrow: the card has a small visual  false
+PASS  recommendation-withdrawn-hold narrow: keyboard Tab reaches the disclosure summary  {"tabs":22,"focusable":["A:Open the earlier Action","SUMMARY:How this was worked out"]}
+PASS  recommendation-withdrawn-hold narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/findings/9897b026-68da-432c-880b-81ad1968d83c/recommendation?revision_id=9c825cb0-002a-4fdb-bba8-55e9351f0b28"
+PASS  loaded http://localhost:5571/mockups/v69/index.html#/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation narrow: mock #/recommendation renders
+78/80 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s602b\withdrawn
