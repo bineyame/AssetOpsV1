@@ -86,7 +86,7 @@ SNAPSHOT_ACCESS_STATEMENT = (
 )
 
 READINESS_STATEMENT = (
-    "Ready to report means this configuration names a bound channel or a configured "
+    "Set up to report means this configuration links a reading channel or names a configured "
     "control for every required role, and the Foundation shown has no configuration gap. "
     "It does not mean any device is connected, reporting or healthy; "
     "operational status is not assessed here."

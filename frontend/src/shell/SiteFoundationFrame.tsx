@@ -237,7 +237,7 @@ export function SiteFoundationFrame({
         {tabs}
         <Panel heading="This view needs an imported Site" headingId="foundation-view-unavailable-heading">
           <p>
-            This site has no stored Foundation version, signal binding set or snapshot, so there is no
+            This site has no stored Foundation version, channel-link set or snapshot, so there is no
             {view === "sld" ? " bound single line diagram" : " configuration readiness"} to show here.
           </p>
           <p>

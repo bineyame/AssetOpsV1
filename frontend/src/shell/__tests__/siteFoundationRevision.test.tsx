@@ -225,7 +225,7 @@ function published(
         { device_id: "d-genset-controller", signal_id: "ac-power", display_name: "Generator output power", unit: "kW", source_id: "s1", status: "BOUND", binding_revision_id: "b-genset-power", role: "generator_power" },
         { device_id: "d-genset-controller", signal_id: "output-voltage", display_name: "Generator output voltage", unit: "V", source_id: "s1", status: "UNBOUND", binding_revision_id: null, role: null },
       ],
-      statement: "Ready to report means this configuration names a bound channel for every required role. It does not mean any device is connected, reporting or healthy; operational status is not assessed here.",
+      statement: "Set up to report means this configuration links a reading channel for every required role. It does not mean any device is connected, reporting or healthy; operational status is not assessed here.",
     },
     acquisition_snapshot: {
       available: true,

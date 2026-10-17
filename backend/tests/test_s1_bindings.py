@@ -606,6 +606,14 @@ class TestReviewM3ReadinessWithFoundationGaps:
         store, _, _ = converted()
         ready = app_for(store, legacy_root).get("/api/sites/KOBO-001/foundation").json()["readiness"]
         assert (ready["state"], ready["foundation_gaps"], ready["missing_roles"]) == ("READY_TO_REPORT", [], [])
+        # W1-UX-06: the statement matches the "Set up to report" badge and stays configuration only.
+        assert ready["statement"] == (
+            "Set up to report means this configuration links a reading channel or names a configured "
+            "control for every required role, and the Foundation shown has no configuration gap. "
+            "It does not mean any device is connected, reporting or healthy; "
+            "operational status is not assessed here."
+        )
+        assert "Ready to report" not in ready["statement"]
 
 
 class TestBindingEditThroughFoundationSplits:

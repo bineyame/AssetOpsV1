@@ -157,6 +157,10 @@ class TestRegisteredSelection:
                                          foundation_version=1))
         assert refused.kind == "REGISTERED_BASIS_UNAVAILABLE"
         assert refused.reason_code == "BINDINGS_NOT_REGISTERED"
+        # W1-UX-06: the refusal sentence is plain language; the code stays exact.
+        assert refused.message.startswith("No channel-link set of KOBO-001 was registered as effective ")
+        assert ", so there is no configuration snapshot to run from." in refused.message
+        assert "signal binding set" not in refused.message
 
     def test_a_period_before_any_registration_is_refused(self) -> None:
         store, _, _ = converted()
