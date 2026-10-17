@@ -1157,24 +1157,9 @@ function card(name: string): HTMLElement {
  * present outside the closed disclosure and the bound says plainly that the time is not recorded (never "now").
  */
 function expectUntimedStateLine(within: Element): string {
-  const status = within.querySelector("[data-product-status]");
-  expect(status, "a shared state line is rendered").not.toBeNull();
-  for (const details of Array.from(within.querySelectorAll<HTMLDetailsElement>("details[data-exact-references]"))) {
-    expect(details.open, "the exact-reference disclosure is closed").toBe(false);
-  }
-  const parts = [
-    ["state", status!.querySelector("[data-product-status-label]")],
-    ["sentence", status!.querySelector(".product-status__sentence")],
-    ["scope", status!.querySelector("[data-product-status-scope]")],
-    ["as of", status!.querySelector("[data-product-status-as-of]")],
-  ] as const;
-  for (const [name, el] of parts) {
-    expect(el, name).not.toBeNull();
-    expect((el!.textContent ?? "").trim().length, `${name} has text`).toBeGreaterThan(0);
-    expect(visibleOutsideClosedDisclosure(el!), `${name} is outside the closed disclosure`).toBe(true);
-  }
-  expect(parts[3][1]!.textContent).toBe("As of: time not recorded");
-  return parts[0][1]!.textContent ?? "";
+  const label = expectStateLineVisible(within);
+  expect(within.querySelector("[data-product-status] [data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+  return label;
 }
 
 function expectW1Clean(container: HTMLElement, cardEl: HTMLElement, page: string, floor: number) {
@@ -1205,6 +1190,44 @@ describe("W1-UX-02: Site > Financials (financials)", () => {
     release({ status: "loaded", value: consequencesBody([crev(1, C1), crev(2, C2)]) });
     await settledScreen();
     expect(card("financials-consequence").querySelector("[data-financials-headline='amount']")).toHaveTextContent("0.00 to 16.20 USD");
+  });
+
+  it("W1-UX-06 (W1-UX-02 re-review N1): when the bridge lands, no commit pairs it with the earlier empty consequences answer", async () => {
+    // Before the bridge lands the consequences read answers "nothing to read" at once. When the bridge lands, the
+    // pinned request changes; the amount must never be drawn (even for one commit) from that earlier answer.
+    let releaseBridge: (r: FinancialReadResult<FindingFinancialsBody>) => void = () => undefined;
+    const pins: ConsequencePin[] = [];
+    const base = fake();
+    const client = {
+      ...base,
+      getFindingFinancials: () => new Promise<FinancialReadResult<FindingFinancialsBody>>((res) => { releaseBridge = res; }),
+      getFindingConsequences: (_s: string, _f: string, pin: ConsequencePin) => {
+        pins.push(pin);
+        return new Promise<FinancialReadResult<FindingConsequencesBody>>(() => undefined);
+      },
+    } as typeof base;
+    const drawn: string[] = [];
+    const observer = new MutationObserver((records) => {
+      for (const r of records) {
+        for (const n of Array.from(r.addedNodes)) {
+          if (!(n instanceof Element)) continue;
+          const hit = n.matches("[data-financials-headline='amount']") ? n : n.querySelector("[data-financials-headline='amount']");
+          if (hit) drawn.push(hit.textContent ?? "");
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    try {
+      mount(client, URL);
+      await vi.waitFor(() => expect(screen.getByText("Loading the finding's money view.")).toBeInTheDocument());
+      releaseBridge({ status: "loaded", value: pricedBridge() });
+      await vi.waitFor(() => expect(document.querySelector("[data-financials-bridge-loading]")).not.toBeNull());
+      await vi.waitFor(() => expect(pins.length).toBeGreaterThan(0));
+      expect(drawn, "an amount was drawn before its consequences read answered").toEqual([]);
+      expect(document.body.textContent).not.toContain("time not recorded");
+    } finally {
+      observer.disconnect();
+    }
   });
 
   it("W1-UX-02: a current priced Finding leads with the bounded range, its bars and basis, and the W1 vocabulary", async () => {
