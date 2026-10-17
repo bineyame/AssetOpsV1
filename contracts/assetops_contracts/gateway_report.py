@@ -285,13 +285,15 @@ def device_report_schema_version(text: object) -> int | None:
     return None
 
 
-def _cold_digest(parts: list[object]) -> str:
-    return "cold:" + hashlib.sha256(canonical_json(parts).encode("utf-8")).hexdigest()
+def _cold_digest(parts: list[object], prefix: str = "cold:") -> str:
+    return prefix + hashlib.sha256(canonical_json(parts).encode("utf-8")).hexdigest()
 
 
 def cold_event_id(*, scenario_sha256: str, device_id: str, signal_id: str, transition_ordinal: int) -> str:
-    """`cold:` + SHA-256 of canonical `(scenario_sha256, device_id, signal_id, transition_ordinal)`."""
-    return _cold_digest([scenario_sha256, device_id, signal_id, transition_ordinal])
+    """`cold-` + SHA-256 of canonical `[scenario_sha256, device_id, signal_id, transition_ordinal]`.
+
+    The V4 identifier grammar has no `:`; only report keys keep the `cold:` prefix."""
+    return _cold_digest([scenario_sha256, device_id, signal_id, transition_ordinal], "cold-")
 
 
 def cold_report_key(

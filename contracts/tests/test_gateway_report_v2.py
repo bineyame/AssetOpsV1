@@ -39,7 +39,7 @@ def test_measurement_event_unavailable_roundtrip() -> None:
     event_id = cold_event_id(scenario_sha256=SCENARIO, device_id="door-sensor", signal_id="event",
                              transition_ordinal=1)
     event = _report(device_id="door-sensor", signal_id="event", family="EVENT", record_kind="DOOR_OPEN",
-                    event_id=event_id, correlation_id="cold:door-1", component_id="room-1", actor="SENSOR",
+                    event_id=event_id, correlation_id="cold-door-1", component_id="room-1", actor="SENSOR",
                     outcome="OPEN",
                     report_key=cold_report_key(scenario_sha256=SCENARIO, device_id="door-sensor", signal_id="event",
                                                source_time="2026-10-06T19:05:00Z", record_kind="DOOR_OPEN",
@@ -56,7 +56,7 @@ def test_measurement_event_unavailable_roundtrip() -> None:
         assert document["schema"] == {"id": "assetops.simulated-device-report", "version": 2}
         assert parse_device_report_v2_text(text) == report
         assert device_report_schema_version(text) == 2
-    assert event.event_id.startswith("cold:") and len(event.event_id) == 69
+    assert event.event_id.startswith("cold-") and len(event.event_id) == 69
     # Deterministic for retransmission; a different ordinal is a different event.
     assert event_id == cold_event_id(scenario_sha256=SCENARIO, device_id="door-sensor", signal_id="event",
                                      transition_ordinal=1)

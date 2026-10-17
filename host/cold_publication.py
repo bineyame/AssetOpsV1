@@ -124,10 +124,10 @@ def _observation_rows(definition: ColdScenarioDefinition) -> tuple:
 
 
 def cold_correlation_id(*, scenario_sha256: str, correlation_key: tuple[str, int]) -> str:
-    """The outage/attempt or door-cycle correlation of a cold event: `cold:` + SHA-256 of canonical
-    `(scenario_sha256, correlation kind, ordinal)` (open question: see the phase-3 handoff)."""
+    """The outage/attempt or door-cycle correlation of a cold event: `cold-` + SHA-256 of canonical
+    `[scenario_sha256, kind, ordinal]`, kind `outage` or `door`, ordinal one-based."""
     kind, ordinal = correlation_key
-    return "cold:" + hashlib.sha256(canonical_json([scenario_sha256, kind, ordinal]).encode("utf-8")).hexdigest()
+    return "cold-" + hashlib.sha256(canonical_json([scenario_sha256, kind, ordinal]).encode("utf-8")).hexdigest()
 
 
 def report_of(observation: ColdObservation, scenario_sha256: str) -> DeviceReportV2:

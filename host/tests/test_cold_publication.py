@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -83,6 +84,11 @@ def test_observation_faults_reach_the_series() -> None:
     assert sorted(p.outcome for p in contradictory) == ["FAILED", "SUCCEEDED"]
     assert len({p.event_id for p in contradictory}) == 2
     assert len({p.correlation_id for p in contradictory}) == 1
+    # Ruled form: `cold-` + 64 hex, inside the unchanged V4 identifier grammar.
+    v4_identifier = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9._-]{0,126}[A-Za-z0-9])?")
+    for p in contradictory:
+        for identifier in (p.event_id, p.correlation_id):
+            assert re.fullmatch(r"cold-[0-9a-f]{64}", identifier) and v4_identifier.fullmatch(identifier)
 
 
 def test_mismatched_frozen_inputs_refuse_before_any_report() -> None:
