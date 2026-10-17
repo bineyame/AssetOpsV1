@@ -61,14 +61,22 @@
   color: var(--sld-ink);
 }
 
+/* Phone width: the boxes become compact chips that wrap, the way the mock's strip shrinks with its drawing. */
 @media (max-width: 640px) {
   .cold-sld__monitor-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 4px;
   }
   .cold-sld__monitor-box {
-    padding: 4px 6px;
-    font-size: 11px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .cold-sld__monitor-box .gw-dot {
+    width: 7px;
+    height: 7px;
+    margin-right: 4px;
   }
 }
 
@@ -184,7 +192,13 @@
   .cold-readiness__detail {
     font-size: 11px;
   }
+  /* The short Confirmed chip and Next step link stay on one line; the table scrolls inside its own region. */
+  .cold-readiness-panel .data-table td:nth-child(3),
+  .cold-readiness-panel .data-table td:last-child {
+    white-space: nowrap;
+  }
   .gw-panel .gw-src {
     padding: 3px 6px;
+    font-size: 10px;
   }
 }
