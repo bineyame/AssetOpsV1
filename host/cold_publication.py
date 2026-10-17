@@ -31,7 +31,7 @@ from assetops_contracts.gateway_report import (
 )
 from assetops_simulator.kernel.execute import ColdExecution
 from assetops_simulator.observation.transform import ColdObservation, cold_observations
-from assetops_simulator.packs.cold import PROPERTY_FIELDS, ColdForcingRow, ColdParameters
+from assetops_simulator.packs.cold import PROPERTY_FIELDS, ColdForcingRow, ColdPack, ColdParameters, run_window
 from assetops_simulator.packs.errors import PhysicallyUnacceptable
 
 from execution_adapter import FrozenRunNotReconstructible, execution_path
@@ -165,9 +165,9 @@ def cold_reports(verified: VerifiedColdInputs) -> tuple[ColdReport, ...]:
     """Execute the verified cold run and return its public v2 series in publication order."""
     d = verified.definition
     execution = ColdExecution(
-        verified.parameters, start=_at(d.start), end=_at(d.end),
+        ColdPack(verified.parameters, backup_enabled=d.backup_enabled), runner=run_window,
+        start=_at(d.start), end=_at(d.end),
         initial_temperature=Fraction(d.initial_temperature_deg_c), ambient=Fraction(d.ambient_deg_c),
-        backup_enabled=d.backup_enabled,
         forcings=tuple(ColdForcingRow(at=_at(f.at), kind=f.kind, asset=f.asset, value=f.value) for f in d.forcings),
     )
     out: list[ColdReport] = []

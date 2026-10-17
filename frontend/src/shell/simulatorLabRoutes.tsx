@@ -109,6 +109,8 @@ export const RUN_DETAIL_PATH = `${RUNS_PATH}/:runId`;
 export const SITE_TEMPLATES_API_PATH = "/api/simulator-lab/site-templates";
 export const CREATE_SITE_API_PATH = "/api/simulator-lab/sites";
 export const SCENARIOS_API_PATH = "/api/simulator-lab/scenarios";
+/** W2-02: the registered cold-chain choices for one selected Site. */
+export const COLD_SCENARIOS_API_PATH = "/api/simulator-lab/cold-scenarios";
 export const RUN_PROFILES_API_PATH = "/api/simulator-lab/run-profiles";
 export const RUNS_API_PATH = "/api/simulator-lab/runs";
 /** T025f: each site's recorded template lineage against the shipped catalog.

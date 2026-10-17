@@ -1987,13 +1987,13 @@ def execution_path_for(model: tuple[str, int], publication: tuple[str, int]) -> 
 
 
 class ColdExecution:
-    """Run the cold pack over a frozen window; the public records are the only output that leaves it."""
+    """Run the cold pack over a frozen window; the public records are the only output that leaves it.
 
-    def __init__(self, parameters, *, start, end, initial_temperature, ambient, backup_enabled, forcings) -> None:
-        from assetops_simulator.packs.cold import ColdPack, run_window
+    The composition leaf hands in the pack and its window runner (the kernel names no pack)."""
 
-        self.run = run_window(ColdPack(parameters, backup_enabled=backup_enabled), start=start, end=end,
-                              initial_temperature=initial_temperature, ambient=ambient, forcings=forcings)
+    def __init__(self, pack, *, runner, start, end, initial_temperature, ambient, forcings) -> None:
+        self.run = runner(pack, start=start, end=end, initial_temperature=initial_temperature, ambient=ambient,
+                          forcings=forcings)
 
     @property
     def records(self):

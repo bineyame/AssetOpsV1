@@ -8,7 +8,9 @@
  * unreadable store is `unavailable`, never an empty list.
  */
 
-export const COLD_SCENARIOS_API_PATH = "/api/simulator-lab/cold-scenarios";
+import { COLD_SCENARIOS_API_PATH } from "./simulatorLabRoutes";
+
+export { COLD_SCENARIOS_API_PATH };
 
 export interface ColdScenarioChoice {
   scenario_id: string;
