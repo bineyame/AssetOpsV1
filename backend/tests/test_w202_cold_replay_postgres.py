@@ -85,11 +85,10 @@ if URL:
     from assetops_contracts.source_envelope import canonical_json
     from assetops_contracts.source_envelope_v3 import v3_message_id
     from assetops_contracts.source_envelope_v4 import V4_CHANNEL_MAPPINGS
-    from assetops_gateway.credential_protection import restrict_to_current_user
     from cold_lab import StoreColdInputs
     from cold_publication import cold_reports, verify_cold_inputs
     from fake_central import CERT, FakeCentral
-    from gateway_process import GatewayProcess, provisioning_from_snapshot, write_config
+    from gateway_process import GatewayProcess, provisioning_from_snapshot, write_config, write_upload_credential
     from gateway_publication import RegisteredGatewayPublisher
     from lab_execution import HostLabExecution, YamlExecutionArtifacts
     from publication_schedule import JsonPublicationSchedules
@@ -233,9 +232,7 @@ class Chain:
         [issued] = list(out.glob("cred.*"))
         self.credential = issued.read_text(encoding="ascii").strip()
         state = self.tmp / "gateway"
-        state.mkdir(parents=True)
-        (state / "upload.credential").write_text(self.credential, encoding="ascii")
-        restrict_to_current_user(state / "upload.credential")
+        write_upload_credential(state, self.credential)  # the host's gateway helper; backend never imports it
         central_app = FastAPI()
         install_gateway_tls_boundary(central_app)
         central_app.include_router(build_evidence_router(
