@@ -26,7 +26,10 @@ mappings one identity - the thing a version exists to rule out.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from assetops_contracts.source_envelope import SourceMappingEntry, SourceMappingSet
+from assetops_contracts.source_envelope_v4 import V4_CHANNEL_MAPPINGS, ChannelMapping
 
 SIMULATOR_LAB_GATEWAY_MAPPINGS = SourceMappingSet(
     mapping_set_id="simulator-lab-gateway-fuel",
@@ -140,11 +143,49 @@ _MAPPING_BY_PUBLICATION_PROFILE = {
 }
 
 
+@dataclass(frozen=True)
+class V4MappingSet:
+    """W2-02: a closed schema-4 gateway mapping - the exact `(device_id, signal_id)` channels it carries."""
+
+    mapping_id: str
+    mapping_version: int
+    envelope_schema: int
+    channels: tuple[tuple[tuple[str, str], ChannelMapping], ...]
+
+    def entry(self, device_id: str, signal_id: str) -> ChannelMapping | None:
+        return dict(self.channels).get((device_id, signal_id))
+
+
+#: `simulator-lab-gateway-cold/1`, schema 4: the eleven live cold channels; the optional manual
+#: temperature log is never emitted or bound by `cold-publication/1`.
+COLD_V4_GATEWAY_MAPPINGS = V4MappingSet(
+    mapping_id="simulator-lab-gateway-cold",
+    mapping_version=1,
+    envelope_schema=4,
+    channels=tuple(
+        sorted(
+            (key, entry)
+            for key, entry in V4_CHANNEL_MAPPINGS.items()
+            if entry.role is not None and key != ("operator-log", "temperature-event")
+        )
+    ),
+)
+
+#: W2-02: the cold publication profile publishes through the schema-4 mapping only.
+_V4_MAPPING_BY_PUBLICATION_PROFILE = {("cold-publication", 1): COLD_V4_GATEWAY_MAPPINGS}
+
+
 def gateway_mapping_for(
     publication_profile_id: str, publication_profile_version: int
-) -> SourceMappingSet:
-    """The gateway mapping a run frozen under this publication profile uses."""
-    return _MAPPING_BY_PUBLICATION_PROFILE.get(
-        (publication_profile_id, publication_profile_version),
-        SIMULATOR_LAB_GATEWAY_MAPPINGS,
-    )
+) -> SourceMappingSet | V4MappingSet:
+    """The gateway mapping a run frozen under this publication profile uses.
+
+    W2-02 dispatches `cold-publication/1` explicitly to its schema-4 mapping; every older profile keeps its
+    schema-1 mapping and default, unchanged.
+    """
+    key = (publication_profile_id, publication_profile_version)
+    if key in _V4_MAPPING_BY_PUBLICATION_PROFILE:
+        return _V4_MAPPING_BY_PUBLICATION_PROFILE[key]
+    if publication_profile_id == "cold-publication":
+        raise LookupError(f"no gateway mapping for {publication_profile_id}/{publication_profile_version}")
+    return _MAPPING_BY_PUBLICATION_PROFILE.get(key, SIMULATOR_LAB_GATEWAY_MAPPINGS)

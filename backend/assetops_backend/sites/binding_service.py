@@ -48,6 +48,8 @@ from assetops_backend.sites.binding_roles import (
     conversion_problem,
     roles_for,
 )
+from assetops_backend.sites.cold_foundation import assets_by_code as cold_assets_by_code
+from assetops_backend.sites.cold_foundation import cold_foundation_document
 from assetops_backend.sites.foundation_content import (
     CURRENT_ROW_GAP_CODES,
     ConfigurationGap,
@@ -231,8 +233,15 @@ def validate_bindings(
     requests: Sequence[BindingRequest],
     registrations: Registrations,
     foundation: Sequence[RevisionRow],
+    *,
+    v4_metadata: bool = False,
 ) -> tuple[BindingRow, ...]:
     """Every request as a binding row, or a refusal naming every problem.
+
+    `v4_metadata` (W2-02, `D-2026-10-17-w2-02-buildspec`): a published (not
+    replayed-conversion) `cold-roles-1` row carries the closed v4 tuple's five
+    metadata keys; a tuple absent from the table, or one whose family or unit
+    does not match the role, is refused before publication.
 
     `foundation` is every currently recorded Foundation revision the binding
     period overlaps (after any joint Foundation change); each must declare the
@@ -286,6 +295,7 @@ def validate_bindings(
     channels: set[tuple[str, str]] = set()
     single: dict[tuple[str, str | None], int] = {}
     for index, req in enumerate(requests):
+        v4_mapping = None
         channel = (req.device_id, req.signal_id)
         name = f"{req.device_id} / {req.signal_id}"
         if channel in channels:
@@ -349,6 +359,17 @@ def validate_bindings(
                         f"Channel {name} carries {sorted(entry.allowed_record_kinds)}, but {role.label} "
                         f"needs {sorted(role.event_kinds)}.",
                     )
+                elif v4_metadata and entry is None:
+                    problem("BINDING_CHANNEL_V4_UNKNOWN", index,
+                            f"Channel {name} is not in the closed v4 channel table.")
+                elif v4_metadata and entry.family != ("EVENT" if role.value_kind == "EVENT" else "MEASUREMENT"):
+                    problem("BINDING_CHANNEL_ROLE_MISMATCH", index,
+                            f"Channel {name} carries {entry.family} records, not {role.label} values.")
+                elif v4_metadata and entry.family == "MEASUREMENT" and req.canonical_unit not in entry.allowed_units:
+                    problem("BINDING_UNIT_MISMATCH", index,
+                            f"Channel {name} carries {sorted(entry.allowed_units)}, not {req.canonical_unit!r}.")
+                elif v4_metadata:
+                    v4_mapping = entry.metadata()
             if req.asset_id is None:
                 problem("BINDING_ASSET_REQUIRED", index, f"{role.label} must name the asset it describes.")
             elif asset is not None and asset.asset_type != role.asset_type:
@@ -396,6 +417,7 @@ def validate_bindings(
                     source_unit=req.source_unit,
                     canonical_unit=req.canonical_unit,
                     conversion=req.conversion,
+                    v4_mapping=v4_mapping,
                 )
             )
     if problems:
@@ -613,7 +635,8 @@ class BindingService:
                     status=422,
                 )
             overlapping = [r for r in after if _overlaps(r.valid_from, r.valid_to, effective_from, period_to)]
-            bindings = validate_bindings(site, role_set, requests, registrations, overlapping)
+            bindings = validate_bindings(site, role_set, requests, registrations, overlapping,
+                                         v4_metadata=origin != "CONVERSION")
             digest = bindings_digest(role_set, bindings)
             if replaced is not None and digest == replaced.bindings_sha256 and not rev_inserts:
                 raise BindingRefused(
@@ -923,6 +946,38 @@ def pinned_identity_problems(
     return problems
 
 
+def cold_snapshot_gaps(
+    foundation: RevisionRow,
+    registrations: Registrations,
+    binding_set: BindingSetRevisionRow,
+) -> list[ConfigurationGap]:
+    """The blocking cold readiness of a COLDCHAIN selection, as snapshot gaps (q6).
+
+    Derived from `cold_foundation_document` on the selected revision and binding set; contact and
+    commissioning never gate acquisition, and nonblocking messages (TRANSFER_UNREPORTED, optional
+    channels) do not refuse. A role set other than cold-roles-1, or a revision the cold rule cannot
+    evaluate, is unavailable, never ready.
+    """
+    if binding_set.role_set != ROLE_SET_COLD_1:
+        return [ConfigurationGap(
+            "BINDING_ROLE_SET_UNKNOWN", "binding",
+            f"Role set {binding_set.role_set!r} is not the {ROLE_SET_COLD_1} cold role set.")]
+    try:
+        document = cold_foundation_document(
+            revision=foundation,
+            binding_set=binding_set,
+            assets_by_code=cold_assets_by_code(registrations.assets),
+            contact=None,
+        )
+        messages = document["readiness"]["messages"]
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        return [ConfigurationGap(
+            "COLD_FOUNDATION_UNEVALUABLE", "foundation",
+            f"The selected cold Foundation revision cannot be evaluated ({type(error).__name__}).")]
+    return [ConfigurationGap(m["code"], m["role"] or "foundation", m["message"])
+            for m in messages if m["blocking"]]
+
+
 def acquisition_snapshot(
     tenant_id: UUID,
     site: StoredSite,
@@ -963,8 +1018,15 @@ def acquisition_snapshot(
             500,
         )
     current = now is None or is_current_snapshot(binding_set, now)
-    gaps = configuration_gaps(site, foundation, registrations)
-    blocking = gaps if current else [g for g in gaps if g.code not in CURRENT_ROW_GAP_CODES]
+    if site.site_type == "COLDCHAIN":
+        # q6 (D-2026-10-17-w2-02-buildspec): COLDCHAIN readiness is the W2-01 cold rule on the selected
+        # revision and binding set; the MINIGRID gap rule is never applied to it. Every blocking cold
+        # readiness message refuses, current or historical.
+        gaps = cold_snapshot_gaps(foundation, registrations, binding_set)
+        blocking = gaps
+    else:
+        gaps = configuration_gaps(site, foundation, registrations)
+        blocking = gaps if current else [g for g in gaps if g.code not in CURRENT_ROW_GAP_CODES]
     if blocking:
         return SnapshotUnavailable(
             "ACQUISITION_SNAPSHOT_UNAVAILABLE",
@@ -1020,5 +1082,6 @@ def acquisition_snapshot(
         foundation_revision_id=foundation.id,
         binding_set=binding_set,
         current=current,
-        current_gaps=() if current else tuple(g for g in gaps if g.code in CURRENT_ROW_GAP_CODES),
+        current_gaps=() if current or site.site_type == "COLDCHAIN"
+        else tuple(g for g in gaps if g.code in CURRENT_ROW_GAP_CODES),
     )

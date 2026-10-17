@@ -1,6 +1,6 @@
 # W2-02 — Cold causal producer and public replay
 
-Status: implementation-ready (planned). Size M; two phases. Branch `task/W2-02-cold-producer` from merged W2-01. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. The exit is a registered cold Lab run whose public v4 records reach ordinary S2 AcceptedEvidence; it does not produce an assessment or Finding.
+Status: done (merged to main 2026-10-18; re-review ACCEPT; backend 2723, host 707, simulator 271, frontend 2156); was active (activated 2026-10-17 from main `d9cdcb97`; W2-01 merged); was implementation-ready (planned). Size M; two phases. Branch `task/W2-02-cold-producer` from merged W2-01. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. The exit is a registered cold Lab run whose public v4 records reach ordinary S2 AcceptedEvidence; it does not produce an assessment or Finding.
 
 ## Binding design and dependencies
 

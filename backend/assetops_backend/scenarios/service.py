@@ -25,7 +25,7 @@ from assetops_backend.scenarios.models import (
     ScenarioParameter,
     ScenarioSiteNeeds,
 )
-from assetops_backend.scenarios.ports import ScenarioDefinitionRepository
+from assetops_backend.scenarios.ports import AnyScenarioDefinition, ScenarioDefinitionRepository
 from assetops_backend.state_refs import StateRef
 
 
@@ -39,8 +39,8 @@ class ScenarioCatalogService:
     def __init__(self, repository: ScenarioDefinitionRepository) -> None:
         self._repository = repository
 
-    def list_scenarios(self) -> tuple[ScenarioDefinition, ...]:
-        """Return every saved scenario, ordered by scenario identity."""
+    def list_scenarios(self) -> tuple[AnyScenarioDefinition, ...]:
+        """Return every saved scenario (legacy or `cold-scenario/1`), ordered by scenario identity."""
         return tuple(
             sorted(
                 self._repository.list_scenarios(),
@@ -48,7 +48,7 @@ class ScenarioCatalogService:
             )
         )
 
-    def get_scenario(self, scenario_id: str) -> ScenarioDefinition:
+    def get_scenario(self, scenario_id: str) -> AnyScenarioDefinition:
         """Return one scenario by its identity.
 
         Raises:

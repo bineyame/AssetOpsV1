@@ -22,9 +22,13 @@ from pathlib import Path
 from typing import Callable, Iterable
 
 from assetops_contracts.gateway_report import (
+    DEVICE_REPORT_V2_SCHEMA_VERSION,
     DeviceReport,
+    DeviceReportV2,
+    device_report_schema_version,
     device_report_text,
     parse_device_report_text,
+    parse_device_report_v2_text,
 )
 from assetops_contracts.gateway_diagnostics import (
     DISK_PRESSURES,
@@ -48,6 +52,12 @@ from assetops_contracts.source_envelope_v3 import (
     is_canonical_decimal,
     text_sha256,
     v3_message_id,
+)
+from assetops_contracts.source_envelope_v4 import (
+    V4_CHANNEL_MAPPINGS,
+    SourceEnvelopeV4,
+    canonical_binding_metadata,
+    canonical_envelope_v4_text,
 )
 
 from assetops_gateway.ledger import open_reader_connection, open_writer_connection
@@ -124,6 +134,59 @@ def _check_initial_state(initial_state: str) -> None:
 class _Held(Exception):
     def __init__(self, kind: str, field: str, detail: str) -> None:
         self.kind, self.field, self.detail = kind, field, detail
+
+
+def _envelope_v4(
+    report: DeviceReportV2,
+    provisioning: Provisioning,
+    snapshot: VerifiedSnapshot,
+    binding: Binding,
+    epoch: str,
+    sequence: int,
+    published_at: str,
+) -> SourceEnvelopeV4:
+    """W2-02: the gateway's own SourceEnvelope V4 for one v2 report; the V4 parser's refusal is a hold.
+
+    The message identity is the same length-delimited transport identity V3 uses (`v3_message_id`)."""
+    try:
+        return SourceEnvelopeV4(
+            message_id=v3_message_id(
+                site_id=provisioning.site_id,
+                gateway_id=provisioning.gateway_id,
+                source_id=binding.source_id,
+                sequence_epoch=epoch,
+                sequence=sequence,
+            ),
+            sequence_epoch=epoch,
+            sequence=sequence,
+            site_id=provisioning.site_id,
+            gateway_id=provisioning.gateway_id,
+            source_id=binding.source_id,
+            device_id=report.device_id,
+            signal_id=report.signal_id,
+            binding_set_id=snapshot.binding_set_id,
+            binding_version=snapshot.binding_set_version,
+            source_time=report.source_time,
+            published_at=published_at,
+            interval_start=report.interval_start,
+            interval_end=report.interval_end,
+            family=report.family,
+            value=report.value,
+            unit=report.unit,
+            quality=report.quality,
+            session_id=report.session_id,
+            connector_id=report.connector_id,
+            measurement=report.measurement,
+            unavailable_reason=report.unavailable_reason,
+            record_kind=report.record_kind,
+            event_id=report.event_id,
+            correlation_id=report.correlation_id,
+            component_id=report.component_id,
+            actor=report.actor,
+            outcome=report.outcome,
+        )
+    except EnvelopeRejected as error:
+        raise _Held(error.kind, error.field, error.detail) from error
 
 
 def _seal(provisioning: Provisioning, snapshot: VerifiedSnapshot, source_id: str, texts: list[str]):
@@ -596,11 +659,14 @@ class GatewayService:
         gateway's real UTC. Either way the outbox creation time, the sequence
         update and the contact stay on real UTC: queue age is operational."""
         report_sha = text_sha256(report_text) if isinstance(report_text, str) else text_sha256(repr(report_text))
-        report: DeviceReport | None = None
+        report: DeviceReport | DeviceReportV2 | None = None
         snapshot: VerifiedSnapshot | None = None
+        # W2-02: dispatch by the report's stated schema. v1 -> the V3 branch, unchanged; v2 -> SourceEnvelope V4,
+        # only under a binding row carrying the exact v4 mapping metadata.
+        v2 = device_report_schema_version(report_text) == DEVICE_REPORT_V2_SCHEMA_VERSION
         try:
             try:
-                report = parse_device_report_text(report_text)
+                report = parse_device_report_v2_text(report_text) if v2 else parse_device_report_text(report_text)
             except EnvelopeRejected as error:
                 raise _Held("INVALID_REPORT", error.field, error.detail) from error
             provisioning, epoch = self._provisioning(db)
@@ -619,7 +685,10 @@ class GatewayService:
             self._record_contact(db, provisioning, binding.source_id)
             created_at = self._now()
             published_at = created_at if virtual_published_at is None else virtual_published_at
-            self._check_report(report, binding, snapshot, published_at)
+            if v2:
+                self._check_report_v2(report, binding, snapshot, published_at, provisioning, epoch)
+            else:
+                self._check_report(report, binding, snapshot, published_at)
             if report.report_key is not None:
                 earlier = db.execute(
                     "SELECT report_sha256, a.message_id, o.sequence FROM report_admission a "
@@ -660,32 +729,14 @@ class GatewayService:
                 sequence_epoch=epoch,
                 sequence=sequence,
             )
-            try:
-                envelope = SourceEnvelopeV3(
-                    message_id=message_id,
-                    sequence_epoch=epoch,
-                    sequence=sequence,
-                    site_id=provisioning.site_id,
-                    gateway_id=provisioning.gateway_id,
-                    source_id=binding.source_id,
-                    device_id=report.device_id,
-                    signal_id=report.signal_id,
-                    binding_set_id=snapshot.binding_set_id,
-                    binding_version=snapshot.binding_set_version,
-                    source_time=report.source_time,
-                    published_at=published_at,
-                    interval_start=report.interval_start,
-                    interval_end=report.source_time if report.measurement == "INTERVAL_MEAN" else None,
-                    family="MEASUREMENT",
-                    measurement=report.measurement,
-                    value=report.value,
-                    unit=report.unit,
-                    quality=report.quality,
-                    unavailable_reason=report.unavailable_reason,
+            if v2:
+                text = canonical_envelope_v4_text(
+                    _envelope_v4(report, provisioning, snapshot, binding, epoch, sequence, published_at)
                 )
-            except EnvelopeRejected as error:
-                raise _Held(error.kind, error.field, error.detail) from error
-            text = canonical_envelope_v3_text(envelope)
+            else:
+                text = self._envelope_v3_text(
+                    report, provisioning, snapshot, binding, epoch, sequence, message_id, published_at
+                )
             self._check_batchable(provisioning, snapshot, binding.source_id, text)
             db.execute(
                 "INSERT INTO envelope_outbox (message_id, gateway_id, source_id, sequence_epoch, sequence, "
@@ -722,6 +773,44 @@ class GatewayService:
             self._provenance(db, lab_run_ref, hold_id=hold_id)
             return Admission("HELD", hold_id=hold_id, kind=held.kind, field=held.field, detail=held.detail)
         return admission
+
+    @staticmethod
+    def _envelope_v3_text(
+        report: DeviceReport,
+        provisioning: Provisioning,
+        snapshot: VerifiedSnapshot,
+        binding: Binding,
+        epoch: str,
+        sequence: int,
+        message_id: str,
+        published_at: str,
+    ) -> str:
+        try:
+            envelope = SourceEnvelopeV3(
+                message_id=message_id,
+                sequence_epoch=epoch,
+                sequence=sequence,
+                site_id=provisioning.site_id,
+                gateway_id=provisioning.gateway_id,
+                source_id=binding.source_id,
+                device_id=report.device_id,
+                signal_id=report.signal_id,
+                binding_set_id=snapshot.binding_set_id,
+                binding_version=snapshot.binding_set_version,
+                source_time=report.source_time,
+                published_at=published_at,
+                interval_start=report.interval_start,
+                interval_end=report.source_time if report.measurement == "INTERVAL_MEAN" else None,
+                family="MEASUREMENT",
+                measurement=report.measurement,
+                value=report.value,
+                unit=report.unit,
+                quality=report.quality,
+                unavailable_reason=report.unavailable_reason,
+            )
+        except EnvelopeRejected as error:
+            raise _Held(error.kind, error.field, error.detail) from error
+        return canonical_envelope_v3_text(envelope)
 
     def admit_all(
         self, reports: Iterable[DeviceReport], *, snapshot_sha256: str, lab_run_ref: str | None = None
@@ -782,12 +871,77 @@ class GatewayService:
         elif binding.canonical_unit == STATE_UNIT or not is_canonical_decimal(report.value):
             raise _Held("INVALID_VALUE", "value", f"{report.value!r} is not a canonical decimal reading")
 
+    @staticmethod
+    def _check_report_v2(
+        report: DeviceReportV2,
+        binding: Binding,
+        snapshot: VerifiedSnapshot,
+        now: str,
+        provisioning: Provisioning,
+        epoch: str,
+    ) -> None:
+        """W2-02: a v2 report's checks, all before duplicate lookup and sequence allocation.
+
+        The binding row must carry the exact five v4 mapping keys of the closed `V4_CHANNEL_MAPPINGS` entry;
+        family, measurement, record kind and unit must be the entry's; and the whole report must pass the V4
+        parser (event kind/outcome, interval bounds, identifiers) under a provisional identity."""
+        try:
+            source = datetime.strptime(report.source_time, _INSTANT).replace(tzinfo=timezone.utc)
+        except ValueError as error:
+            raise _Held("INVALID_TIMING", "source_time", f"{report.source_time!r} is not a UTC instant") from error
+        if not snapshot.valid_at(source):
+            raise _Held(
+                "OUTSIDE_VALIDITY",
+                "source_time",
+                f"{report.source_time} is outside the snapshot's Foundation/binding valid periods",
+            )
+        if report.source_time > now:
+            raise _Held("SOURCE_TIME_IN_FUTURE", "source_time", f"{report.source_time} is after sealing time {now}")
+        entry = V4_CHANNEL_MAPPINGS.get((report.device_id, report.signal_id))
+        stated = None if binding.v4_metadata is None else canonical_binding_metadata(binding.v4_metadata)
+        if entry is None or stated is None or stated != entry.metadata():
+            raise _Held(
+                "MAPPING_INCOMPATIBLE",
+                "mapping",
+                f"{report.device_id}/{report.signal_id} has no exact v4 mapping metadata in this snapshot",
+            )
+        if report.family != entry.family or report.measurement != entry.measurement:
+            raise _Held(
+                "MAPPING_INCOMPATIBLE",
+                "family",
+                f"{report.family}/{report.measurement} is not what {report.device_id}/{report.signal_id} carries",
+            )
+        if report.family == "EVENT":
+            if report.record_kind not in entry.allowed_record_kinds:
+                raise _Held(
+                    "RECORD_KIND_UNSUPPORTED",
+                    "record_kind",
+                    f"{report.record_kind!r} is not a kind {report.device_id}/{report.signal_id} carries",
+                )
+            if report.unit is not None and report.unit not in entry.allowed_units:
+                raise _Held("UNIT_INCOMPATIBLE", "unit", f"{report.unit!r} is not an allowed unit of this channel")
+        else:
+            if report.unit != binding.source_unit:
+                raise _Held(
+                    "UNIT_INCOMPATIBLE",
+                    "unit",
+                    f"{report.unit!r} is not the binding's source unit {binding.source_unit!r}",
+                )
+            if report.quality != "UNAVAILABLE" and report.value is not None:
+                if binding.conversion_kind == "ENUM":
+                    labels = {label for label, _ in binding.enum_map}
+                    if report.value not in labels or not set(report.value) <= _MEMBER_CHARS:
+                        raise _Held("INVALID_ENUM", "value", f"{report.value!r} is not a label of the ENUM map")
+                elif binding.canonical_unit == STATE_UNIT or not is_canonical_decimal(report.value):
+                    raise _Held("INVALID_VALUE", "value", f"{report.value!r} is not a canonical decimal reading")
+        _envelope_v4(report, provisioning, snapshot, binding, epoch, 1, now)
+
     def _hold(
         self,
         db: sqlite3.Connection,
         report_text: object,
         report_sha: str,
-        report: DeviceReport | None,
+        report: DeviceReport | DeviceReportV2 | None,
         snapshot_sha256: str,
         held: _Held,
     ) -> int:

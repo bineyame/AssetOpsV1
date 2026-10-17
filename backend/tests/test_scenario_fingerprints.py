@@ -85,10 +85,16 @@ SITE_NAMING_KEYS = ("target_site", "site_id", "template_id")
 
 
 def shipped_documents() -> list[tuple[Path, dict[str, Any]]]:
+    """Every shipped legacy timeline document.
+
+    W2-02: `schema: cold-scenario/1` documents are a separate strict type with their own digest
+    (`test_w202_cold_scenario.py`); they carry no legacy version/fingerprint pin.
+    """
     paths = sorted(SHIPPED_SCENARIO_ROOT.glob("*.yaml"))
-    return [
+    documents = [
         (path, yaml.safe_load(path.read_text(encoding="utf-8"))) for path in paths
     ]
+    return [(path, doc) for path, doc in documents if doc.get("schema") != "cold-scenario/1"]
 
 
 def fingerprint_failure(

@@ -13,6 +13,7 @@ import sys
 import uuid
 from pathlib import Path
 
+from assetops_gateway.credential_protection import restrict_to_current_user
 from assetops_gateway.ipc import GatewayLink
 
 
@@ -50,6 +51,15 @@ def write_config(state_dir: Path, provisioning: dict) -> Path:
         encoding="utf-8",
     )
     return config
+
+
+def write_upload_credential(state_dir: Path, token: str, name: str = "upload.credential") -> Path:
+    """The gateway's owner-only upload credential file, as provisioning leaves it (Q15)."""
+    state_dir.mkdir(parents=True, exist_ok=True)
+    path = state_dir / name
+    path.write_text(token, encoding="ascii")
+    restrict_to_current_user(path)
+    return path
 
 
 class GatewayProcess:

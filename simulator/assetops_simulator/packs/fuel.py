@@ -62,21 +62,14 @@ from assetops_simulator.kernel.model import (
     ModelSpec,
     StateHandler,
 )
+# Re-exported: the class moved to `packs/errors.py` (W2-02).
+from assetops_simulator.packs.errors import PhysicallyUnacceptable
 
 #: The address of a stored volume, as this pack names the semantic state.
 FUEL_TANK_VOLUME = "fuel-tank-volume"
 FUEL_TANK_CAPACITY = "fuel-tank-capacity"
 GENERATOR_SPECIFIC_CONSUMPTION = "generator-specific-fuel-consumption"
 GENERATOR_OUTPUT_POWER = "generator-output-power"
-
-
-class PhysicallyUnacceptable(ValueError):
-    """The resolver was handed a value the world cannot have.
-
-    Raised by a handler rather than by the kernel, because which values a state
-    admits is a property of the state the model declares. The kernel turns it
-    into `PHYSICAL_RESOLUTION_FAILURE` at the phase the resolver runs in.
-    """
 
 
 def _stored_volume(value: Fraction) -> Fraction:

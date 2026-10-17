@@ -1,0 +1,247 @@
+site_id: COLD-LAB-001
+display_name: Cold replay lab
+site_type: COLDCHAIN
+location:
+  country: Ethiopia
+  locality: Kobo
+timezone: Africa/Addis_Ababa
+lifecycle_status: PLANNED
+origin: USER
+source:
+  mode: SIMULATED
+foundation:
+  version: 1
+  valid_from: '2026-10-01T00:00:00Z'
+  summary: 'Registered cold-chain replay lab for the W2-02 Lab scenarios (D-2026-10-17-w2-02-buildspec): a cold
+    room cooled by a compressor on an AC bus behind a transfer switch between the grid supply and a backup generator.
+    Configuration only: nothing here says any temperature has been measured.'
+  components:
+  - component_id: room-1
+    component_type: COLD_ROOM
+    display_name: Vaccine cold room
+    properties:
+    - property_key: cold-thermal-capacity
+      value: 1.2
+      unit: kWh/degC
+      source: SITE
+      source_version: 1
+    - property_key: cold-heat-leak
+      value: 0.08
+      unit: kW/degC
+      source: SITE
+      source_version: 1
+    - property_key: cold-door-heat
+      value: 0.02
+      unit: kWh/min
+      source: SITE
+      source_version: 1
+    - property_key: cold-control-low
+      value: 2.0
+      unit: degC
+      source: SITE
+      source_version: 1
+    - property_key: cold-control-high
+      value: 4.0
+      unit: degC
+      source: SITE
+      source_version: 1
+    - property_key: cold-policy-low
+      value: 2.0
+      unit: degC
+      source: SITE
+      source_version: 1
+    - property_key: cold-policy-high
+      value: 4.0
+      unit: degC
+      source: SITE
+      source_version: 1
+    - property_key: cold-min-excursion
+      value: 15.0
+      unit: min
+      source: SITE
+      source_version: 1
+    - property_key: cold-return-hysteresis
+      value: 0.2
+      unit: degC
+      source: SITE
+      source_version: 1
+  - component_id: probe-1
+    component_type: TEMPERATURE_PROBE
+    display_name: Chamber temperature probe
+    properties:
+    - property_key: cold-probe-error
+      value: 0.1
+      unit: degC
+      source: SITE
+      source_version: 1
+  - component_id: ambient-1
+    component_type: TEMPERATURE_PROBE
+    display_name: Ambient temperature probe
+  - component_id: compressor-1
+    component_type: COMPRESSOR
+    display_name: Refrigeration compressor
+    rating:
+      value: 3.0
+      unit: kW
+    properties:
+    - property_key: cold-cooling-capacity
+      value: 3.0
+      unit: kW
+      source: SITE
+      source_version: 1
+    - property_key: cold-compressor-start-delay
+      value: 1.0
+      unit: min
+      source: SITE
+      source_version: 1
+  - component_id: transfer-1
+    component_type: TRANSFER_SWITCH
+    display_name: Automatic transfer switch
+  - component_id: generator-1
+    component_type: GENERATOR
+    display_name: Backup generator
+    rating:
+      value: 20.0
+      unit: kW
+    properties:
+    - property_key: cold-start-timeout
+      value: 5.0
+      unit: min
+      source: SITE
+      source_version: 1
+  - component_id: bus-1
+    component_type: AC_BUS
+    display_name: Backup AC bus
+  - component_id: grid-1
+    component_type: METER
+    display_name: Grid supply meter
+  topology:
+    nodes:
+    - node_id: room-1
+      component_id: room-1
+      node_role: COLD_ROOM
+    - node_id: probe-1
+      component_id: probe-1
+      node_role: SENSOR
+    - node_id: ambient-1
+      component_id: ambient-1
+      node_role: SENSOR
+    - node_id: compressor-1
+      component_id: compressor-1
+      node_role: COOLING
+    - node_id: transfer-1
+      component_id: transfer-1
+      node_role: SWITCH
+    - node_id: generator-1
+      component_id: generator-1
+      node_role: GENERATION
+    - node_id: bus-1
+      component_id: bus-1
+      node_role: BUS
+    - node_id: grid-1
+      component_id: grid-1
+      node_role: METERING
+    connections:
+    - connection_id: room-to-chamber-probe
+      from_node: room-1
+      to_node: probe-1
+      medium: SIGNAL
+    - connection_id: compressor-cools-room
+      from_node: compressor-1
+      to_node: room-1
+      medium: THERMAL
+    - connection_id: grid-to-transfer
+      from_node: grid-1
+      to_node: transfer-1
+      medium: AC
+    - connection_id: generator-to-transfer
+      from_node: generator-1
+      to_node: transfer-1
+      medium: AC
+    - connection_id: transfer-to-bus
+      from_node: transfer-1
+      to_node: bus-1
+      medium: AC
+    - connection_id: bus-to-compressor
+      from_node: bus-1
+      to_node: compressor-1
+      medium: AC
+  devices:
+  - device_id: chamber-probe
+    device_type: SENSOR
+    display_name: Chamber probe
+    component_id: probe-1
+    signals:
+    - signal_id: temperature
+      display_name: Chamber temperature
+      unit: degC
+  - device_id: ambient-probe
+    device_type: SENSOR
+    display_name: Ambient probe
+    component_id: ambient-1
+    signals:
+    - signal_id: temperature
+      display_name: Ambient temperature
+      unit: degC
+  - device_id: grid-meter
+    device_type: METER
+    display_name: Grid meter
+    component_id: grid-1
+    signals:
+    - signal_id: state
+      display_name: Grid state
+      unit: state
+    - signal_id: event
+      display_name: Grid power events
+      unit: event
+  - device_id: generator-controller
+    device_type: CONTROLLER
+    display_name: Generator controller
+    component_id: generator-1
+    signals:
+    - signal_id: state
+      display_name: Generator state
+      unit: state
+    - signal_id: start-event
+      display_name: Generator start request and result
+      unit: event
+  - device_id: compressor-controller
+    device_type: CONTROLLER
+    display_name: Compressor controller
+    component_id: compressor-1
+    signals:
+    - signal_id: state
+      display_name: Compressor state
+      unit: state
+  - device_id: compressor-meter
+    device_type: METER
+    display_name: Compressor meter
+    component_id: compressor-1
+    signals:
+    - signal_id: power
+      display_name: Compressor power
+      unit: kW
+  - device_id: backup-bus-meter
+    device_type: METER
+    display_name: Backup bus meter
+    component_id: bus-1
+    signals:
+    - signal_id: state
+      display_name: Backup bus state
+      unit: state
+  - device_id: transfer-controller
+    device_type: CONTROLLER
+    display_name: Transfer switch controller
+    component_id: transfer-1
+    signals:
+    - signal_id: event
+      display_name: Transfer result
+      unit: event
+  - device_id: door-sensor
+    device_type: SENSOR
+    display_name: Cold room door sensor
+    component_id: room-1
+    signals:
+    - signal_id: event
+      display_name: Door open and close
+      unit: event

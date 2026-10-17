@@ -50,6 +50,9 @@ statement about what each outcome means rather than about arithmetic.
 
 from __future__ import annotations
 
+import decimal
+from dataclasses import dataclass, replace as _replace
+from datetime import datetime, timedelta
 from fractions import Fraction
 
 from assetops_contracts.observation import (
@@ -334,3 +337,86 @@ def outcome_counts(
     for item in observations:
         counts[item.outcome] = counts.get(item.outcome, 0) + 1
     return counts
+
+
+# --- cold-observation/1 (W2-02) ------------------------------------------------------------------------------
+#
+# A separate, closed transform for the standalone cold pack: it reads only the pack's public records and the
+# frozen scenario's observation rows, never the pack state. Zero bias, half-even 0.1 degC quantization, a fixed
+# +3 second publication latency. DROP removes the probe report at that instant; HOLD keeps the report's source
+# time and publishes it at `release_at`; ADD creates a second GOOD controller START_RESULT (outcome SUCCEEDED)
+# with a distinct transition ordinal and the attempt's correlation, without touching physical state.
+
+COLD_OBSERVATION_PROFILE = ("cold-observation", 1)
+COLD_BIAS_DEG_C = Fraction(0)
+COLD_LATENCY_SECONDS = 3
+_TENTH = decimal.Decimal("0.1")
+
+
+@dataclass(frozen=True)
+class ColdObservation:
+    """One public cold report before its gateway v2 serialization: the pack record plus public text/timing."""
+
+    record: object  # assetops_simulator.packs.cold.PublicRecord
+    value_text: str | None
+    published_at: datetime
+    transition_ordinal: int | None
+    held: bool = False
+    added: bool = False
+
+
+def cold_value_text(value: object, unit: str | None) -> str | None:
+    """Canonical public text: degC half-even to 0.1 after the zero bias; kW exact; a state member as is."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    if unit == "degC":
+        with decimal.localcontext() as ctx:
+            ctx.prec = 60
+            biased = value + COLD_BIAS_DEG_C
+            exact = decimal.Decimal(biased.numerator) / decimal.Decimal(biased.denominator)
+            q = exact.quantize(_TENTH, rounding=decimal.ROUND_HALF_EVEN)
+    else:
+        q = decimal.Decimal(value.numerator) / decimal.Decimal(value.denominator)
+        if Fraction(q) != value:
+            raise ValueError(f"{value} {unit} has no exact decimal text")
+    text = format(q.normalize(), "f")
+    return "0" if text in ("-0", "0") else text
+
+
+def cold_observations(records: tuple, observations: tuple = ()) -> tuple[ColdObservation, ...]:
+    """Apply `cold-observation/1` to the pack's public records and the scenario's observation rows.
+
+    `observations` rows carry `at`, `kind`, `device_id`, `action`, `outcome`, `release_at` (datetimes for the
+    instants), as the strict cold scenario parser produced them.
+    """
+    latency = timedelta(seconds=COLD_LATENCY_SECONDS)
+    drops = {o.at for o in observations if o.kind == "PROBE_REPORT" and o.action == "DROP"}
+    holds = {o.at: o.release_at for o in observations if o.kind == "PROBE_REPORT" and o.action == "HOLD"}
+    out: list[ColdObservation] = []
+    for r in records:
+        if r.device_id == "chamber-probe":
+            if r.source_time in drops:
+                continue
+            if r.source_time in holds:
+                out.append(ColdObservation(r, cold_value_text(r.value, r.unit), holds[r.source_time],
+                                           r.transition_ordinal, held=True))
+                continue
+        out.append(ColdObservation(r, cold_value_text(r.value, r.unit), r.source_time + latency,
+                                   r.transition_ordinal))
+    for o in observations:
+        if o.kind != "START_RESULT" or o.action != "ADD":
+            continue
+        channel = [r for r in records if r.device_id == "generator-controller" and r.signal_id == "start-event"]
+        prior = [r for r in channel if r.source_time <= o.at]
+        if not prior:
+            raise ValueError(f"an added START_RESULT at {o.at} has no attempt to correlate with")
+        ordinal = max(r.transition_ordinal for r in channel) + 1 + sum(
+            1 for x in out if x.added)
+        added = _replace(prior[-1], source_time=o.at, record_kind="START_RESULT", outcome=o.outcome,
+                         transition_ordinal=ordinal)
+        out.append(ColdObservation(added, None, o.at + latency, ordinal, added=True))
+    out.sort(key=lambda x: (x.published_at, x.record.source_time, x.record.device_id, x.record.signal_id,
+                            x.transition_ordinal or 0))
+    return tuple(out)

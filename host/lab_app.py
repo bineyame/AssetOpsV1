@@ -38,8 +38,11 @@ from fastapi import FastAPI
 from assetops_backend.config import FeatureFlags, database_url, load_feature_flags
 from assetops_backend.main import create_app
 from assetops_backend.runs.registered_release import publisher_for
+from assetops_backend.scenarios.composition import build_scenario_repository
+from assetops_backend.sites.composition import build_foundation_store
 
 from lab_execution import HostLabExecution
+from cold_lab import StoreColdInputs
 from gateway_publication import RegisteredGatewayPublisher
 from assetops_gateway.ipc import GatewayLink
 
@@ -67,11 +70,20 @@ def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI
     real kernel behind them.
     """
     resolved = load_feature_flags() if flags is None else flags
-    execution = (
-        HostLabExecution(gateway=gateway_from_environment(), source_publisher=publisher_for(database_url()))
-        if resolved.simulator_lab_enabled
-        else None
-    )
+    execution = None
+    if resolved.simulator_lab_enabled:
+        # W2-02: the cold re-read port reads the same Foundation store and scenario repository
+        # `create_app` is composed with - resolved here exactly as `create_app` resolves them, test
+        # overrides included, and handed on so both sides hold the same objects.
+        if overrides.get("foundation_store") is None and overrides.get("site_repository") is None:
+            overrides["foundation_store"] = build_foundation_store(database_url())
+        if overrides.get("scenario_repository") is None:
+            overrides["scenario_repository"] = build_scenario_repository()
+        execution = HostLabExecution(
+            gateway=gateway_from_environment(),
+            source_publisher=publisher_for(database_url()),
+            cold_inputs=StoreColdInputs(overrides.get("foundation_store"), overrides["scenario_repository"]),
+        )
     return create_app(resolved, execution=execution, **overrides)
 
 

@@ -21,6 +21,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
 
+from assetops_backend.sites.binding_alignment import V4_BINDING_KEYS
 from assetops_backend.sites.foundation_records import (
     AssetRow,
     BindingOverlap,
@@ -497,6 +498,15 @@ class PostgresFoundationStore:
             ),
             params,
         ).all()
+        # W2-02 (`D-2026-10-17-w2-02-buildspec`): a v4 row's five metadata keys live in the immutable
+        # snapshot document the set revision persisted; read them back from there (no column, no migration).
+        v4_by_binding: dict[str, dict] = {}
+        for r in rows:
+            if r.snapshot_canonical is None:
+                continue
+            for entry in json.loads(bytes(r.snapshot_canonical)).get("bindings") or ():
+                if all(k in entry for k in V4_BINDING_KEYS):
+                    v4_by_binding[entry["binding_revision_id"]] = {k: entry[k] for k in V4_BINDING_KEYS}
         by_set: dict[UUID, list[BindingRow]] = {}
         for b in bindings:
             by_set.setdefault(b.binding_set_revision_id, []).append(
@@ -511,6 +521,7 @@ class PostgresFoundationStore:
                     source_unit=b.source_unit,
                     canonical_unit=b.canonical_unit,
                     conversion=b.conversion,
+                    v4_mapping=v4_by_binding.get(str(b.id)),
                 )
             )
         return tuple(

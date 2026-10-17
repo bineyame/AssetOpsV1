@@ -345,6 +345,9 @@ class FrozenScenarioBinding:
     scenario_id: str
     scenario_version: int
     resolved_parameters: tuple[FrozenParameter, ...]
+    #: W2-02: the frozen `cold-scenario/1` document SHA-256 (lowercase hex). Cold runs only; absent (never
+    #: null on the wire) for every older run.
+    scenario_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -377,6 +380,11 @@ class FrozenProfileBinding:
     publication_profile_id: str
     publication_profile_version: int
     execution_contract_version: int
+    #: W2-02: the observation profile the cold document chose (`cold-observation/1`) and its digest. Cold
+    #: runs only; absent for every older run.
+    observation_profile_id: str | None = None
+    observation_profile_version: int | None = None
+    observation_sha256: str | None = None
 
 
 @dataclass(frozen=True)

@@ -2018,6 +2018,49 @@ REGISTERED_KOBO_PUBLICATION_PROFILE_V4 = replace(
     ),
 )
 
+#: W2-02 (`D-2026-10-17-w2-02-buildspec`). The standalone cold-chain pack: one chamber, probe, compressor,
+#: grid supply and a backup generator behind one transfer switch and bus, stepped once a minute by the
+#: simulator's `packs/cold.py`. It reads the thirteen frozen Foundation `cold-*` properties of the selected
+#: registered Site and nothing else; it is selected only by a `cold-scenario/1` document, through the
+#: cold-only run freeze path, never through the legacy timeline scenario path.
+COLD_THERMAL_MODEL = ModelProfile(
+    model_profile_id="cold-thermal",
+    model_profile_version=1,
+    display_name="Cold-chain thermal model",
+    statement=(
+        "One cold room's air temperature, stepped once a minute from its heat leak, door heat and "
+        "compressor cooling, with a grid supply and an automatically started backup generator behind one "
+        "transfer switch. It reads the Site's thirteen frozen cold-chain Foundation values."
+    ),
+    supported_states=(),
+)
+
+#: W2-02. What the cold lab publishes: the chamber and ambient temperatures every 5 minutes including the
+#: closing boundary; grid, generator, compressor and backup-bus states on each transition and a 5-minute
+#: heartbeat; compressor mean power per aligned 5-minute slot; door, start, transfer and grid events on
+#: transition. One registered source/gateway: the simulated gateway the registered Site's pinned binding
+#: snapshot names publishes every channel, on the run's virtual publication clock, as schema-4 envelopes.
+COLD_PUBLICATION_PROFILE = PublicationProfile(
+    publication_profile_id="cold-publication",
+    publication_profile_version=1,
+    display_name="Cold-chain publication profile",
+    statement=(
+        "Chamber and ambient temperatures every five minutes, equipment states on change and every five "
+        "minutes, compressor mean power per five-minute slot, and door, start, transfer and grid events as "
+        "they happen, published through the Site's registered simulated gateway."
+    ),
+    device_signal_cadence_minutes=5,
+    simulator_source_id="simulator-lab-source",
+    gateway_id="simulator-lab-gateway",
+    record_channels=(
+        ("door-sensor", "event"),
+        ("generator-controller", "start-event"),
+        ("transfer-controller", "event"),
+        ("grid-meter", "event"),
+    ),
+    publication_clock="RUN_VIRTUAL",
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
@@ -2026,6 +2069,7 @@ MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINI_GRID_V3_MODEL,
     MINI_GRID_V4_MODEL,
     MINI_GRID_V5_MODEL,
+    COLD_THERMAL_MODEL,
 )
 
 PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
@@ -2036,6 +2080,7 @@ PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     REGISTERED_KOBO_PUBLICATION_PROFILE_V2,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V3,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V4,
+    COLD_PUBLICATION_PROFILE,
 )
 
 

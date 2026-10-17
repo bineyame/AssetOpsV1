@@ -42,11 +42,14 @@ export interface SimulatorLabFrameProps {
    * user reaches.
    */
   addSiteEntryPoints: WorkspaceEntryPoint[];
+  /** W2-02: the cold-chain run setup, supplied by the gated route module. */
+  coldRunSetupPath: string;
 }
 
 export function SimulatorLabFrame({
   siteTemplatesPath,
   addSiteEntryPoints,
+  coldRunSetupPath,
 }: SimulatorLabFrameProps) {
   return (
     <main aria-labelledby="simulator-lab-heading">
@@ -83,6 +86,19 @@ export function SimulatorLabFrame({
             </Link>
           </p>
         ))}
+      </Panel>
+
+      <Panel
+        heading="Cold-chain run setup"
+        headingId="simulator-lab-cold-run-setup-heading"
+      >
+        <p>
+          Choose a site, then one of the cold scenarios registered for it, and
+          create a draft run from that scenario's own values.
+        </p>
+        <p>
+          <Link to={coldRunSetupPath}>Set up a cold-chain run</Link>
+        </p>
       </Panel>
 
       {/*

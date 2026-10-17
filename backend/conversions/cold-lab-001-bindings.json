@@ -1,0 +1,181 @@
+{
+  "schema": {
+    "id": "assetops.binding-conversion",
+    "version": 1
+  },
+  "status": "W2-02 registered simulated cold replay lab fixture (D-2026-10-17-w2-02-buildspec); configuration only, no observation.",
+  "site_code": "COLD-LAB-001",
+  "role_set": "cold-roles-1",
+  "effective_from": "FOUNDATION_ORIGINAL_VALID_FROM",
+  "note": "First (historical, v3-compatible) cold-roles-1 binding set for the COLD-LAB-001 fixture; the v4 revision is published at 2026-10-01T00:01:00Z.",
+  "declare_signals": [],
+  "bindings": [
+    {
+      "legacy_mapping_id": null,
+      "device_id": "chamber-probe",
+      "signal_id": "temperature",
+      "asset_code": "probe-1",
+      "role": "chamber_temperature",
+      "source_unit": "degC",
+      "canonical_unit": "degC",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ambient-probe",
+      "signal_id": "temperature",
+      "asset_code": "ambient-1",
+      "role": "ambient_temperature",
+      "source_unit": "degC",
+      "canonical_unit": "degC",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "compressor-controller",
+      "signal_id": "state",
+      "asset_code": "compressor-1",
+      "role": "compressor_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "OFF": "OFF",
+            "STARTING": "STARTING",
+            "RUNNING": "RUNNING",
+            "FAILED": "FAILED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "compressor-meter",
+      "signal_id": "power",
+      "asset_code": "compressor-1",
+      "role": "compressor_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "grid-meter",
+      "signal_id": "state",
+      "asset_code": "grid-1",
+      "role": "grid_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "LOST": "LOST"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "grid-meter",
+      "signal_id": "event",
+      "asset_code": "grid-1",
+      "role": "grid_power_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "generator-controller",
+      "signal_id": "state",
+      "asset_code": "generator-1",
+      "role": "generator_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "STOPPED": "STOPPED",
+            "STARTING": "STARTING",
+            "RUNNING": "RUNNING",
+            "FAILED": "FAILED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "generator-controller",
+      "signal_id": "start-event",
+      "asset_code": "generator-1",
+      "role": "backup_start_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "backup-bus-meter",
+      "signal_id": "state",
+      "asset_code": "bus-1",
+      "role": "backup_bus_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "POWERED": "POWERED",
+            "UNPOWERED": "UNPOWERED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "transfer-controller",
+      "signal_id": "event",
+      "asset_code": "transfer-1",
+      "role": "transfer_result",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "door-sensor",
+      "signal_id": "event",
+      "asset_code": "room-1",
+      "role": "door_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    }
+  ]
+}

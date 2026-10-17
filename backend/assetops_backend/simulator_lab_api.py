@@ -124,6 +124,7 @@ from assetops_backend.scenarios.execution import (
     initialization_inputs,
     state_transition_inputs,
 )
+from assetops_backend.scenarios.cold_parsing import COLD_SITE_CODE, ColdScenarioDefinition
 from assetops_backend.scenarios.identity import (
     SCENARIO_ID_RULE,
     validate_scenario_id,
@@ -225,6 +226,18 @@ SITE_TEMPLATE_LINEAGE_ROUTE = "/site-template-lineage"
 CREATE_SITE_ROUTE = "/sites"
 SCENARIOS_ROUTE = "/scenarios"
 SCENARIO_DETAIL_ROUTE = "/scenarios/{scenario_id}"
+#: W2-02: the registered cold-chain Lab choices for one selected Site (`D-2026-10-17-w2-02-buildspec`,
+#: "Lab choice and run-request closure"). The legacy listing and detail above never serve them.
+COLD_SCENARIOS_ROUTE = "/cold-scenarios"
+#: The labels of the six cold demo scenarios, by scenario ID; every other field comes from the saved document.
+COLD_SCENARIO_LABELS = {
+    "cold-normal": "Normal",
+    "cold-excursion": "Excursion",
+    "cold-backup-failed": "Backup failed",
+    "cold-missing-probe": "Missing probe",
+    "cold-late-reading": "Late reading",
+    "cold-contradictory": "Contradictory",
+}
 RUN_PROFILES_ROUTE = "/run-profiles"
 CREATE_RUN_ROUTE = "/runs"
 RUNS_ROUTE = "/runs"
@@ -2601,10 +2614,69 @@ def build_simulator_lab_router(
                 detail=_refusal(REFUSAL_SCENARIO_STORE_UNAVAILABLE, str(error)),
             ) from error
 
+        # W2-02: `cold-scenario/1` definitions are a separate strict type that the legacy
+        # summary does not describe; their Lab presentation is not part of this listing.
         return {
             "scenarios": [
                 scenario_public_summary(scenario) for scenario in saved
+                if not isinstance(scenario, ColdScenarioDefinition)
             ]
+        }
+
+    @router.get(COLD_SCENARIOS_ROUTE)
+    def list_cold_scenarios(site_id: str) -> dict[str, object]:
+        """The six cold Lab choices, only for the registered `COLD-LAB-001` Site.
+
+        Any other or unregistered Site answers an empty list. An unreadable registration or scenario
+        store is unavailable (503), never an empty claim.
+        """
+        if site_id != COLD_SITE_CODE:
+            return {"site_id": site_id, "scenarios": []}
+        try:
+            registered = registered_bases is not None and registered_bases.registered(site_id)
+        except SiteStoreUnavailable as error:
+            raise HTTPException(
+                status_code=503, detail=_refusal(REFUSAL_STORE_UNAVAILABLE, str(error))
+            ) from error
+        if not registered:
+            return {"site_id": site_id, "scenarios": []}
+        try:
+            saved = scenario_catalog.list_scenarios()
+        except (
+            ScenarioIdentityConflict,
+            ScenarioConfigurationInvalid,
+            ScenarioStoreUnavailable,
+        ) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(REFUSAL_SCENARIO_STORE_UNAVAILABLE, str(error)),
+            ) from error
+        cold = sorted(
+            (
+                scenario for scenario in saved
+                if isinstance(scenario, ColdScenarioDefinition)
+                and scenario.site_code == site_id
+                and scenario.scenario_id in COLD_SCENARIO_LABELS
+            ),
+            key=lambda scenario: scenario.scenario_id,
+        )
+        return {
+            "site_id": site_id,
+            "scenarios": [
+                {
+                    "scenario_id": scenario.scenario_id,
+                    "scenario_version": scenario.version,
+                    "display_name": COLD_SCENARIO_LABELS[scenario.scenario_id],
+                    "schema": scenario.schema,
+                    "model_profile": scenario.model_profile,
+                    "publication_profile": scenario.publication_profile,
+                    "observation_profile": scenario.observation_profile,
+                    "start": scenario.start,
+                    "end": scenario.end,
+                    "seed": scenario.seed,
+                }
+                for scenario in cold
+            ],
         }
 
     @router.get(SCENARIO_DETAIL_ROUTE)
@@ -2635,6 +2707,8 @@ def build_simulator_lab_router(
 
         try:
             scenario = scenario_detail.get_scenario(scenario_id)
+            if isinstance(scenario, ColdScenarioDefinition):
+                raise ScenarioNotFound(scenario_id)
         except ScenarioNotFound as error:
             raise HTTPException(
                 status_code=404,

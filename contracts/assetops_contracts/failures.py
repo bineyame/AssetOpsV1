@@ -46,8 +46,13 @@ EXECUTION_FAILURE_KINDS = frozenset(
         "FORCING_NOT_AVAILABLE",
         "FORCING_VALUE_AMBIGUOUS",
         "ENTRY_OUTSIDE_INTERVAL",
+        "PUBLICATION_REFUSED",
     }
 )
+
+#: W2-02: kinds the host raises after the kernel finished, never the kernel. The simulator suite's
+#: reachability guard excludes them; the host suite proves each is reached (`test_cold_lab_execution`).
+HOST_STAGING_FAILURE_KINDS = frozenset({"PUBLICATION_REFUSED"})
 
 #: What each kind means, and what a reader is being told to look at. A test
 #: asserts this covers the vocabulary exactly.
@@ -113,6 +118,12 @@ EXECUTION_FAILURE_STATEMENTS: dict[str, str] = {
         "run covers. Run setup refuses such a document, so reaching this means "
         "the run and the definition it names have drifted apart since it was "
         "frozen."
+    ),
+    "PUBLICATION_REFUSED": (
+        "A cold run's world executed, but ordinary gateway Stage admission "
+        "refused before the closing instant. The run is terminal and failed: "
+        "its digests are kept, nothing is staged again, and it cannot be "
+        "committed."
     ),
 }
 

@@ -689,6 +689,8 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                     }
                     for parameter in identity.scenario.resolved_parameters
                 ],
+                # W2-02: cold runs only; omitted (never null) for older runs.
+                **_render_present(scenario_sha256=identity.scenario.scenario_sha256),
             },
             "interval": {
                 "start_time": identity.interval.start_time,
@@ -708,6 +710,11 @@ def render_run_document(record: SimulationRun) -> dict[str, Any]:
                 ),
                 "execution_contract_version": (
                     identity.profiles.execution_contract_version
+                ),
+                **_render_present(
+                    observation_profile_id=identity.profiles.observation_profile_id,
+                    observation_profile_version=identity.profiles.observation_profile_version,
+                    observation_sha256=identity.profiles.observation_sha256,
                 ),
             },
             "initialization_inputs": [
@@ -1205,6 +1212,39 @@ def _parse_unsupported_optional_input(entry: Any) -> UnsupportedOptionalInput:
     )
 
 
+_SHA256_HEX = re.compile(r"[0-9a-f]{64}")
+_COLD_PROFILE_KEYS = ("observation_profile_id", "observation_profile_version", "observation_sha256")
+
+
+def _render_present(**fields: Any) -> dict[str, Any]:
+    """W2-02: the cold identity keys a run writes only when it has them (omit, never null)."""
+    return {key: value for key, value in fields.items() if value is not None}
+
+
+def _parse_cold_identity(
+    scenario: Mapping[str, Any], profiles: Mapping[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """W2-02: the four cold identity keys are all present (a cold run) or all absent (every older run)."""
+    present = ["scenario_sha256" in scenario] + [key in profiles for key in _COLD_PROFILE_KEYS]
+    if not any(present):
+        return {}, {}
+    if not all(present):
+        raise _bad(
+            "a cold run freezes scenario_sha256, observation_profile_id, observation_profile_version "
+            "and observation_sha256 together."
+        )
+    scenario_sha = _text(scenario, "scenario_sha256", where="scenario")
+    observation_sha = _text(profiles, "observation_sha256", where="profiles")
+    for name, value in (("scenario_sha256", scenario_sha), ("observation_sha256", observation_sha)):
+        if not _SHA256_HEX.fullmatch(value):
+            raise _bad(f"'{name}' is not a lowercase 64-hex SHA-256.")
+    return {"scenario_sha256": scenario_sha}, {
+        "observation_profile_id": _text(profiles, "observation_profile_id", where="profiles"),
+        "observation_profile_version": _whole(profiles, "observation_profile_version", where="profiles"),
+        "observation_sha256": observation_sha,
+    }
+
+
 def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
     site = _mapping(raw.get("site"), where="deterministic_identity")
     scenario = _mapping(raw.get("scenario"), where="deterministic_identity")
@@ -1220,6 +1260,8 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
     contract_version = _whole(
         profiles, "execution_contract_version", where="profiles"
     )
+
+    cold_scenario, cold_profile = _parse_cold_identity(scenario, profiles)
 
     history = _entries(raw, "intervention_history", where="deterministic_identity")
     for entry in history:
@@ -1251,6 +1293,7 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
                     scenario, "resolved_parameters", where="scenario"
                 )
             ),
+            **cold_scenario,
         ),
         interval=FrozenInterval(
             start_time=_text(interval, "start_time", where="interval"),
@@ -1275,6 +1318,7 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
                 profiles, "publication_profile_version", where="profiles"
             ),
             execution_contract_version=contract_version,
+            **cold_profile,
         ),
         initialization_inputs=tuple(
             _parse_initialization_input(entry)

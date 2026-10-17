@@ -38,6 +38,26 @@ def build_source_provenance(database_url: str | None) -> SourceProvenanceResolve
     return SourceProvenanceResolver(PostgresEvidenceLedger(database_url))
 
 
+class _ColdReplayReader:
+    """W2-02 review L5: exactly the ledger's two SELECT-only `cold_replay_*` reads, no writer method."""
+
+    __slots__ = ("_ledger",)
+
+    def __init__(self, ledger: PostgresEvidenceLedger) -> None:
+        self._ledger = ledger
+
+    def cold_replay_rows(self, tenant_id, site_id, run_id: str) -> dict:
+        return self._ledger.cold_replay_rows(tenant_id, site_id, run_id)
+
+    def cold_replay_run_referenced(self, tenant_id, site_id, run_id: str) -> bool:
+        return self._ledger.cold_replay_run_referenced(tenant_id, site_id, run_id)
+
+
+def build_cold_replay_reader(database_url: str | None) -> _ColdReplayReader:
+    """W2-02: the cold replay reader, narrowed to the SELECT-only `cold_replay_*` reads. Lazy."""
+    return _ColdReplayReader(PostgresEvidenceLedger(database_url))
+
+
 def build_gateway_access(database_url: str | None) -> PostgresGatewayAccess:
     """Gateway credentials, provisioning steps and central diagnostics (S2-02 phase 2).
     Lazy: no connection until first use."""

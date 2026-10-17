@@ -1959,3 +1959,42 @@ def _record_boundary(world: _World) -> None:
             ),
         )
     )
+
+
+# --- W2-02: explicit profile-pair dispatch ---------------------------------------------------------------------
+#
+# `Execution` above runs every `ModelSpec` pack (fuel, mini-grid) and never learns which one it was handed. The
+# standalone `cold-thermal/1` pack is not a `ModelSpec`: it owns its own power port and one-minute law, so the
+# pair `cold-thermal/1` + `cold-publication/1` dispatches here, explicitly, to `ColdExecution`. A cold model
+# with any other publication profile, or the reverse, is a mismatch and refuses; every other pair keeps the
+# `Execution` path unchanged.
+
+COLD_PROFILE_PAIR = (("cold-thermal", 1), ("cold-publication", 1))
+
+
+class ProfilePairMismatch(ValueError):
+    """A frozen model/publication profile pair no execution path accepts."""
+
+
+def execution_path_for(model: tuple[str, int], publication: tuple[str, int]) -> str:
+    """`COLD` for the cold pair, `MODEL_SPEC` for every older pair; a half-cold pair refuses."""
+    cold_model, cold_publication = COLD_PROFILE_PAIR
+    if (model, publication) == COLD_PROFILE_PAIR:
+        return "COLD"
+    if model[0] == cold_model[0] or publication[0] == cold_publication[0]:
+        raise ProfilePairMismatch(f"no execution path for model {model} with publication {publication}")
+    return "MODEL_SPEC"
+
+
+class ColdExecution:
+    """Run the cold pack over a frozen window; the public records are the only output that leaves it.
+
+    The composition leaf hands in the pack and its window runner (the kernel names no pack)."""
+
+    def __init__(self, pack, *, runner, start, end, initial_temperature, ambient, forcings) -> None:
+        self.run = runner(pack, start=start, end=end, initial_temperature=initial_temperature, ambient=ambient,
+                          forcings=forcings)
+
+    @property
+    def records(self):
+        return self.run.records

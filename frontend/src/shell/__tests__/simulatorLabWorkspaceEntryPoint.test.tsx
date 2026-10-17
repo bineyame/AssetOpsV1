@@ -242,6 +242,8 @@ describe("workspace entry point: enabled", () => {
       // T010 gives the Lab its own entry into the create flow, on the same
       // path and behind the same gate as the operator index's.
       ["/simulator-lab/create-site", "+ Add site"],
+      // W2-02: the Lab's way into the cold-chain run setup.
+      ["/simulator-lab/cold-run-setup", "Set up a cold-chain run"],
       ["/", "Back to the operator shell"],
     ]);
   });
