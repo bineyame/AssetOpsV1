@@ -206,8 +206,13 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   foundation: "Definition, topology and controls · stored configuration for the period shown",
   readiness: "Definition, commissioning and gateway readiness",
   sld: "Foundation · single line diagram",
+  mini: "Overview · operating objectives for the selected period",
   dispatch: "Performance · source coordination and generator support",
   analysis: "Performance · analytical method, input comparison and uncertainty",
+  // The mock's "capability readiness and claim ceilings" is not read here (no capability assessment; "claim" is on the
+  // W1 vocabulary list, D-2026-10-16-w1-ux), so the description says what the page does show.
+  evidence: "Evidence · accepted readings and what is missing",
+  "evidence-analysis": "Evidence · accepted records and how limits are set",
 } as const;
 
 export interface SitePageHeaderProps {

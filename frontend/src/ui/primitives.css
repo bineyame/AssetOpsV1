@@ -4880,3 +4880,18 @@ input.v69-chip-control {
 .not-available-yet.v69-chart-note {
   font-size: 10px;
 }
+
+/* W1-F2 evidence: the window chooser as a chip row; its period line wraps under the controls. */
+.v69-chips.evidence-window {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+input.v69-chip-control[type="datetime-local"] {
+  width: auto;
+}
+
+.status-strip.evidence-statusbar {
+  margin: 0 0 var(--space-4);
+}

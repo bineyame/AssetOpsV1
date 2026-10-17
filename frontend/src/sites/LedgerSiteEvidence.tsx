@@ -25,6 +25,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import {
   Badge,
+  ChartNote,
   DataTable,
   Disclosure,
   currentnessWords,
@@ -38,6 +39,7 @@ import {
   type ProductWords,
   ValueBars,
   asOfText,
+  V69Notice,
 } from "../ui";
 import { PeriodStrip } from "./periodStrip";
 import { CountBars } from "./assessmentGraphics";
@@ -248,20 +250,21 @@ function WindowChooser({ evidence }: { evidence: LedgerEvidence }) {
   }
 
   return (
-    <form className="evidence-window evidence-toolbar" onSubmit={apply} data-evidence-window={evidence.window.basis}>
+    // W1-F2: the window chooser as the v69 chip row (chip-sized controls, `.button`), the app-only control before panel 1.
+    <form className="v69-chips evidence-window evidence-toolbar" onSubmit={apply} data-evidence-window={evidence.window.basis}>
       <div className="evidence-toolbar__controls">
         <label className="evidence-toolbar__field">
           <span>From (UTC)</span>
-          <input type="datetime-local" name="from" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <input className="v69-chip-control" type="datetime-local" name="from" value={from} onChange={(e) => setFrom(e.target.value)} />
         </label>
         <label className="evidence-toolbar__field">
           <span>To (UTC)</span>
-          <input type="datetime-local" name="to" value={to} onChange={(e) => setTo(e.target.value)} />
+          <input className="v69-chip-control" type="datetime-local" name="to" value={to} onChange={(e) => setTo(e.target.value)} />
         </label>
-        <button type="submit" className="action action--primary">
+        <button type="submit" className="button">
           Show this period
         </button>
-        <button type="button" className="action" onClick={all}>
+        <button type="button" className="button" onClick={all}>
           Show all readings
         </button>
       </div>
@@ -308,7 +311,7 @@ function notAccepted(evidence: LedgerEvidence): number {
 /** A missing fact this slice has no data contract for, stated plainly (V-01a round 3 addendum). */
 function NotAvailableYet({ name, children }: { name: string; children: string }) {
   return (
-    <p className="not-available-yet" data-not-available={name}>
+    <p className="not-available-yet v69-chart-note" data-not-available={name}>
       {children}
     </p>
   );
@@ -338,7 +341,8 @@ function StatusBar({
   link?: ReactNode;
 }) {
   return (
-    <div className="evidence-statusbar" data-evidence-statusbar={view}>
+    // W1-F2: F1's one-line status strip (inline children only), so the v69 guard reads it as the mock's statusbar.
+    <div className="status-strip status-strip--line evidence-statusbar" data-evidence-statusbar={view}>
       <Badge tone="neutral">{badge}</Badge>
       {children}
       {link === undefined ? null : <span className="evidence-statusbar__link">{link}</span>}
@@ -460,16 +464,16 @@ function OverviewBody({
               ))}
             </ul>
           )}
-          <p data-evidence-rejection-count={refused}>
+          <ChartNote data={{ "data-evidence-rejection-count": String(refused) }}>
             {refused === 0
               ? "No reading in this period was refused."
               : `${plural(refused, "reading", "readings")} in this period could not be accepted; the reasons are on the Analysis view.`}
             {evidence.state === "NO_DATA" ? " Check that the site's data source is reporting." : ""}
-          </p>
-          <p className="overview-note" data-evidence-limits>
+          </ChartNote>
+          <ChartNote data={{ "data-evidence-limits": "" }}>
             This page shows the readings received and what happened to each. It draws no conclusion about how the
             site or its equipment is operating.
-          </p>
+          </ChartNote>
           <NotAvailableYet name="capability-conclusions">
             Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
           </NotAvailableYet>
@@ -489,15 +493,10 @@ function OverviewBody({
         <SourcesOverview evidence={evidence} health={health} onInspect={onInspect} />
         <NextEvidence evidence={evidence} />
       </div>
-      <p className="v69-notice v69-notice--blue" data-evidence-closing-notice>
+      <V69Notice tone="blue" data={{ "data-evidence-closing-notice": "" }}>
         Record-level detail, timing and how each limit is set are on{" "}
         <Link to={{ search: analysis }}>Evidence › Analysis</Link>.
-      </p>
-      {evidence.migration === null ? null : (
-        <Advanced name="evidence-earlier-store" summary="Advanced details — earlier store">
-          <MigrationNote evidence={evidence} />
-        </Advanced>
-      )}
+      </V69Notice>
     </>
   );
 }
@@ -560,8 +559,6 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
     { key: "contact", title: "Gateway contact", ...contactFact(health) },
     { key: "analysis", title: "Analysis up to date", ...analysisFact(evidence) },
   ];
-  const start = evidence.window.basis === "ALL" ? null : evidence.window.start;
-  const end = evidence.window.basis === "ALL" ? null : evidence.window.end;
   return (
     <div data-evidence-reporting-facts>
       <KeyValues
@@ -574,10 +571,20 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
           f.key,
         ])}
       />
-      <p className="panel__note" data-evidence-reporting-note>
+      <ChartNote data={{ "data-evidence-reporting-note": "" }}>
         A recent gateway report does not make the readings recent, and recent readings do not make the analysis up
         to date. {asOfText(evidence.extent.last_received_at)}.
-      </p>
+      </ChartNote>
+    </div>
+  );
+}
+
+/** W1-F2: the per-source latest-reading strip, below the sources table (the table is the panel's primary content). */
+function SourceStrip({ evidence }: { evidence: LedgerEvidence }) {
+  const start = evidence.window.basis === "ALL" ? null : evidence.window.start;
+  const end = evidence.window.basis === "ALL" ? null : evidence.window.end;
+  return (
+    <>
       {evidence.sources.length === 0 ? null : (
         <PeriodStrip
           name="evidence-sources"
@@ -601,7 +608,7 @@ function ReportingFacts({ evidence, health }: { evidence: LedgerEvidence; health
           })}
         />
       )}
-    </div>
+    </>
   );
 }
 
@@ -664,6 +671,7 @@ function SourcesOverview({
           {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock (UTC).`}
         </p>
       )}
+      <SourceStrip evidence={evidence} />
       <div className="evidence-gateway-block" aria-label="Gateway contact">
         <p>
           <strong>Gateway contact</strong>
@@ -673,6 +681,12 @@ function SourcesOverview({
       <NotAvailableYet name="source-judgements">
         Not available yet: a status at the end of the period, a quality grade and which conclusions each source affects. No reviewed rule sets these.
       </NotAvailableYet>
+      {/* W1-F2: the earlier-store comparison is reference material about these sources, so it closes this panel. */}
+      {evidence.migration === null ? null : (
+        <Advanced name="evidence-earlier-store" summary="Advanced details — earlier store">
+          <MigrationNote evidence={evidence} />
+        </Advanced>
+      )}
     </Panel>
   );
 }
@@ -1025,12 +1039,12 @@ function Rejected({
       <p id="site-evidence-rejected-heading">
         <strong>Readings not accepted</strong>
       </p>
-      <p data-evidence-not-accepted-line={refused}>
+      <p className="v69-chart-note" data-evidence-not-accepted-line={refused}>
         {refused === 0
           ? "No reading in this period was refused."
           : `${plural(refused, "reading", "readings")} in this period ${refused === 1 ? "was" : "were"} not accepted (${evidence.counts.rejected} refused, ${evidence.counts.conflicts} arrived again with different contents). They are never counted as accepted.`}
       </p>
-      <p data-evidence-untimed={typeof untimed === "number" ? String(untimed) : "unavailable"}>
+      <p className="v69-chart-note" data-evidence-untimed={typeof untimed === "number" ? String(untimed) : "unavailable"}>
         {typeof untimed !== "number"
           ? "How many refused readings had no readable time is not available."
           : untimed === 0
@@ -1318,12 +1332,16 @@ function ClaimLimit({ evidence, children }: { evidence: LedgerEvidence; children
   const p = evidence.projection;
   const analysisBehind = p.status === "STALE" || p.failed_jobs > 0;
   return (
-    <Panel heading="How a claim limit is set" headingId="site-evidence-claim-limit-heading">
-      <div className="prose" data-evidence-claim-limit>
-        <p>
+    <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-heading">
+      {/* W1-F2: note-size lines in the panel; the full list of limits sits in one closed disclosure, every statement kept. */}
+      <div data-evidence-claim-limit>
+        <ChartNote>
           This page states what arrived for the selected period and draws no conclusion about how the site or its
-          equipment is operating. What can be said is narrowed in these ways:
-        </p>
+          equipment is operating.
+        </ChartNote>
+        <ChartNote>Data-source status describes reporting, not equipment condition.</ChartNote>
+        <Advanced name="evidence-limit-list" summary="Advanced details — how what can be said is narrowed">
+        <p>What can be said is narrowed in these ways:</p>
         <ul>
           <li data-claim-limit="PARTIAL_BATCH">
             {`A partial period: while deliveries are still being processed, the counts may still grow.${applies("PARTIAL_BATCH")}`}
@@ -1338,7 +1356,7 @@ function ClaimLimit({ evidence, children }: { evidence: LedgerEvidence; children
             {`Analysis status: derived results may not yet include the newest readings; this is shown apart from whether readings are arriving.${analysisBehind ? " Derived results are behind for this site now; the analysis status details are below." : ""}`}
           </li>
         </ul>
-        <p>Data-source status describes reporting, not equipment condition.</p>
+        </Advanced>
       </div>
       <NotAvailableYet name="claim-limit-rule">
         Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).

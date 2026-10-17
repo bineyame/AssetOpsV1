@@ -55,7 +55,6 @@ import {
   scanProductVocabulary,
   type VocabularyViolation,
 } from "../../test/productVocabulary";
-import { withoutListedV69Titles } from "../../test/v69PanelTitles";
 import { settledScreen } from "../../test/settled";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
@@ -183,7 +182,7 @@ describe("T028 product vocabulary guard (section 4)", () => {
       // A scan of an empty or loading screen would pass for the wrong reason.
       expect(result.scanned, `${page} scanned nothing`).toBeGreaterThan(5);
       // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
-      violations.push(...withoutListedV69Titles(result.violations));
+      violations.push(...result.violations);
     }
     expect(describeViolations(violations)).toBe("");
   }, 60000);

@@ -199,15 +199,13 @@ describe("a site is rendered from its record", () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
-    // The heading is the `site_id`, not the display name. What addresses a
-    // site is what titles its page; the name is a label on the thing rather
-    // than the thing, so it renders beneath. T007 titled this with the display
-    // name because identity had nowhere else to go on that screen; canonical
-    // screen 2 gives it a header of its own.
+    // W1-F2 (v69 Site page heading, as F1 set for Foundation/Readiness/SLD): the display name is the level-1
+    // heading and the record's `site_id` sits beside it in the provenance badge, so the identity that
+    // addresses the site is still in the header, spelled the record's one way.
     expect(
-      screen.getByRole("heading", { level: 1, name: "MG-002" }),
+      screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Kalangala Mini-Grid", { selector: "p" })).toBeInTheDocument();
+    expect(container.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("MG-002");
     expect(factValue(container, "Site ID")).toBe("MG-002");
     expect(factValue(container, "Name")).toBe("Kalangala Mini-Grid");
     expect(factValue(container, "Type")).toBe("Mini-grid");

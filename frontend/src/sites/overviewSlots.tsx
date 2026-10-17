@@ -8,7 +8,7 @@
  */
 import type { ReactNode } from "react";
 
-import { Panel } from "../ui";
+import { ChartNote, Panel } from "../ui";
 
 export const OVERVIEW_PANEL_TITLES = [
   "What happened in the selected hour",
@@ -85,10 +85,10 @@ export function OverviewGrid({
 /** The in-panel gap for the hour the mock composes: the read covers a window, and no hour is selected. */
 export function HourNotSelected({ scope }: { scope: string }) {
   return (
-    <p className="overview-note" data-overview-gap="selected-hour">
+    <ChartNote data={{ "data-overview-gap": "selected-hour" }}>
       Hour not selected: this Overview reads {scope}, so it cannot say what happened in one hour. The periods below
       are the ones the read assessed.
-    </p>
+    </ChartNote>
   );
 }
 

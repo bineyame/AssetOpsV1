@@ -27,6 +27,7 @@ import {
   Fact,
   FactList,
   CausalTimeline,
+  ChartNote,
   MetricCard,
   MetricCards,
   moneyWords,
@@ -200,10 +201,12 @@ function dayPercent(instant: string | null, start: string): number | null {
 function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onSelectDay: (day: string) => void }) {
   const day = summary.window.utc_date;
   return (
-    <div className="window-day" data-window-date={day}>
-      <label className="window-day__field">
+    <>
+    <div className="v69-chips window-day" data-window-date={day}>
+      <label className="dispatch-day__label">
         <span>UTC day</span>
         <input
+          className="v69-chip-control"
           type="date"
           value={day}
           data-window-date-input
@@ -215,16 +218,17 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
         />
       </label>
       {/* Day navigation is navigation: links to the same page with another `date` (and no Finding pin). */}
-      <Link className="dispatch-day__button" to={`?date=${shiftDay(day, -1)}`} data-window-day-link="previous">
+      <Link className="button" to={`?date=${shiftDay(day, -1)}`} data-window-day-link="previous">
         Previous day
       </Link>
-      <Link className="dispatch-day__button" to={`?date=${shiftDay(day, 1)}`} data-window-day-link="next">
+      <Link className="button" to={`?date=${shiftDay(day, 1)}`} data-window-day-link="next">
         Next day
       </Link>
-      <p className="window-day__bounds">
-        {stamp(summary.window.start)} to {stamp(summary.window.end)} UTC, start included, end excluded.
-      </p>
     </div>
+    <ChartNote>
+      {stamp(summary.window.start)} to {stamp(summary.window.end)} UTC, start included, end excluded.
+    </ChartNote>
+    </>
   );
 }
 
@@ -237,13 +241,16 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   const accepted = summary.watermarks.accepted_source;
   return (
     <div className="window-freshness" data-freshness-card>
-        <div data-freshness-state={f.state}>
-          <ProductStatus words={currentnessWords(f.state)} scope={dayScope(summary)} asOf={summary.db_now} />
-        </div>
-        <p data-source-open={f.source_open ? "open" : "closed"}>
-          {f.source_open
-            ? "The source of these readings is open for current use."
-            : "The source of these readings is closed for current use: only records kept for the audit are shown."}
+        {/* W1-F2: one note-size line (readings state and source state), not a second state block in panel 1. */}
+        <p className="v69-chart-note">
+          <span data-freshness-state={f.state}>
+            <ProductStatus inline words={currentnessWords(f.state)} scope={dayScope(summary)} asOf={summary.db_now} />
+          </span>{" "}
+          <span data-source-open={f.source_open ? "open" : "closed"}>
+            {f.source_open
+              ? "The source of these readings is open for current use."
+              : "The source of these readings is closed for current use: only records kept for the audit are shown."}
+          </span>
         </p>
         <div data-window-reasons="freshness">
           <ExactReferences
@@ -316,9 +323,9 @@ function DayStatus({ summary, links }: { summary: SiteWindowSummary; links: Wind
         )
       }
     >
-      <div data-assessment-state={a.state}>
-        <ProductStatus words={objectiveWords(a.state)} scope={dayScope(summary)} asOf={summary.db_now} />
-      </div>
+      <span data-assessment-state={a.state}>
+        <ProductStatus inline words={objectiveWords(a.state)} scope={dayScope(summary)} asOf={summary.db_now} />
+      </span>
     </StatusBar>
   );
 }
@@ -370,15 +377,15 @@ function DayReading({ summary }: { summary: SiteWindowSummary }) {
   const closed = a.state === "CLOSED";
   return (
     <div className="v69-prose">
-      {closed ? <p>Nothing in this panel is a current answer.</p> : null}
+      {closed ? <ChartNote>Nothing in this panel is a current answer.</ChartNote> : null}
       {closed || a.claim_level === null ? (
-        closed ? null : <p data-assessment-claim="none">No assessed reading is selected for this day.</p>
+        closed ? null : <ChartNote data={{ "data-assessment-claim": "none" }}>No assessed reading is selected for this day.</ChartNote>
       ) : (
-        <p data-assessment-claim={a.claim_level}>
+        <ChartNote data={{ "data-assessment-claim": a.claim_level }}>
           Day reading: {OUTCOME_WORDS[a.claim_level] ?? "Assessed"}. {a.dispatch_intervals.length}{" "}
           {a.dispatch_intervals.length === 1 ? "operating period" : "operating periods"} assessed;{" "}
           {coverageRoles(a.coverage)}
-        </p>
+        </ChartNote>
       )}
       {a.limitations.length === 0 ? null : (
         <ul className="cell-list" data-assessment-limitations={a.limitations.length}>
@@ -692,9 +699,9 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
           />
         ) : null}
         {m.finding_id ? (
-          <p className="overview-note" data-money-qualifier>
+          <ChartNote data={{ "data-money-qualifier": "" }}>
             A modelled range of possible extra fuel cost for one Finding, not money lost or saved.
-          </p>
+          </ChartNote>
         ) : null}
         <FactList>
           <Fact term="Money gate">
@@ -812,14 +819,14 @@ function NextStep({ summary, links }: { summary: SiteWindowSummary; links: Windo
   return (
     <div className="v69-prose" data-overview-next={k === null ? "dispatch" : "finding"}>
       {k === null ? (
-        <p>No Finding is selected for this day, so no recommendation is offered. Review the day in Dispatch.</p>
+        <ChartNote>No Finding is selected for this day, so no recommendation is offered. Review the day in Dispatch.</ChartNote>
       ) : (
         <>
           <h3>Review the Finding for this day</h3>
-          <p>
+          <ChartNote>
             The Finding records what the assessment concluded about generator operation. No recommendation is
             recorded on this Overview; any next action starts from the Finding.
-          </p>
+          </ChartNote>
           <p>
             <Link className="button" to={links.finding(k.id, k.revision_id)} data-overview-next-finding={k.id}>
               Open the Finding

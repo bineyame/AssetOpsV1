@@ -10,7 +10,7 @@
  * out-of-date, pending or failed assessment is shown for audit only.
  *
  * The default reading is plain language, following the v6.9 Evidence Analysis
- * panel "How a claim limit is set": which readings the conclusion needs, where
+ * panel "How each limit is set": which readings the conclusion needs, where
  * they are missing or unreliable, and the accepted readings behind each one.
  * Rule, status codes, versions, watermarks and IDs sit behind one closed
  * "Technical details" disclosure.
@@ -296,7 +296,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
 
   return (
       <div className="claim-limit" data-claim-limit-section data-claim-limit-day={day ?? ""} data-claim-limit-revision={revision ?? ""}>
-        {/* W1-F2: this read sits inside the v69 "How a claim limit is set" panel; its label is a line, not a panel. */}
+        {/* W1-F2: this read sits inside the v69 "How each limit is set" panel; its label is a line, not a panel. */}
         <p className="claim-limit__label" id={CLAIM_LIMIT_HEADING_ID}>
           <strong>What the readings can support</strong>
         </p>

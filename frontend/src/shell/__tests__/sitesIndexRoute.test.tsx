@@ -325,14 +325,12 @@ describe("a Sites row is the way into a site", () => {
       screen.getByRole("link", { name: SITE.display_name }),
     );
 
-    // The row is named for the site; the page it opens is titled by the
-    // identity that addresses it. T012 moved the Site page heading from the
-    // display name to `site_id`, and this assertion follows it rather than
-    // being relaxed: what is pinned is that the row leads to the right site.
+    // The row leads to the right site. W1-F2 (v69 Site page heading) titles the page with the display name and
+    // carries the record's `site_id` in the provenance badge beside it; both are pinned here.
     expect(
-      await screen.findByRole("heading", { level: 1, name: SITE.site_id }),
+      await screen.findByRole("heading", { level: 1, name: SITE.display_name }),
     ).toBeInTheDocument();
-    expect(screen.getByText(SITE.display_name, { selector: "p" })).toBeInTheDocument();
+    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain(SITE.site_id);
   });
 
   it("adds exactly one destination and no navigation item", async () => {

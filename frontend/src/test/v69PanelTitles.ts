@@ -2,7 +2,7 @@
  * The approved v69 panel title map (`D-2026-10-17-mockup-layout-spec`,
  * `.agent/architect-W1-fidelity.md`). It is exhaustive: every screen's expected
  * panel titles are exactly `frontend/docs/architecture/v69-rendered-panels.json`,
- * except the five substitutions below, which the Architect approved. Do not add
+ * except the six substitutions below, which the Architect approved. Do not add
  * an entry to keep an extra app panel; move its content into its owning panel.
  *
  * A dynamic title is a function of the selected read, never of a mock fixture.
@@ -18,6 +18,8 @@ export const APPROVED_TITLE_CHANGES: Readonly<Record<string, string | DynamicTit
   "readiness:2": (v) => `Gateway status · ${need(v, "gateway")}`,
   "finding-evidence:1": (v) => `Evidence bundle · ${need(v, "finding")}`,
   "sld:1": (v) => (v.topology ? `${need(v, "site")} · ${v.topology}` : need(v, "site")),
+  // W1-F2 coordinator ruling (2026-10-17, under D-2026-10-16-w1-ux): the plain variant of "How a claim limit is set".
+  "evidence-analysis:2": "How each limit is set",
 };
 
 function need(values: Record<string, string>, key: string): string {
@@ -41,16 +43,4 @@ export function expectedPanelTitles(screenId: string, values: Record<string, str
       if (change === undefined) return title;
       return typeof change === "string" ? change : change(values);
     });
-}
-
-/**
- * W1-F2 known deviation, awaiting an Architect ruling: binding v69 panel titles that contain a word on the product
- * vocabulary lists (`productVocabulary.json`). Only a violation whose whole text node is exactly one of these titles
- * is set aside; the same words anywhere else, including in the same panel, still fail. Delete an entry the moment
- * the Architect approves a plain-language title for it.
- */
-export const V69_TITLES_ON_VOCABULARY_LIST: readonly string[] = ["How a claim limit is set"];
-
-export function withoutListedV69Titles<V extends { where: string; text: string }>(violations: readonly V[]): V[] {
-  return violations.filter((v) => !(v.where === "text" && V69_TITLES_ON_VOCABULARY_LIST.includes(v.text.trim())));
 }

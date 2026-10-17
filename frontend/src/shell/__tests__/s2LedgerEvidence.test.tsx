@@ -18,7 +18,6 @@ import {
 } from "../../sites/__tests__/ledgerEvidenceFixtures";
 import { scanProductVocabulary } from "../../test/productVocabulary";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
-import { withoutListedV69Titles } from "../../test/v69PanelTitles";
 import { settledScreen } from "../../test/settled";
 import { expectStateLineVisible } from "../../test/productPresentation";
 
@@ -280,7 +279,7 @@ describe("Site Evidence from the central ledger: product vocabulary", () => {
     const result = scanProductVocabulary(document.body, path);
     expect(result.scanned).toBeGreaterThan(0);
     // W1-F2 known deviation: a binding v69 panel title on the vocabulary list (see v69PanelTitles.ts).
-    expect(withoutListedV69Titles(result.violations)).toEqual([]);
+    expect(result.violations).toEqual([]);
   });
 });
 

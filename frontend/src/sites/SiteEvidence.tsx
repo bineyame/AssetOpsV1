@@ -284,7 +284,7 @@ export function SiteEvidence({
               <Rejections count={evidence.rejection_count} rejections={rejections} />
             )}
           </Panel>
-          <Panel heading="How a claim limit is set" headingId="site-evidence-claim-limit-panel-heading">
+          <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
             <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
             <EvidenceClaimLimit siteId={siteId} client={client.claimLimit} assessmentHref={assessmentHref} />
             {analytics === undefined || params.get("assessment") === null ? null : (
@@ -344,7 +344,7 @@ function EvidenceRefused({
           <Panel heading="Accepted records behind the conclusions" headingId="site-evidence-records-panel-heading">
             {gap}
           </Panel>
-          <Panel heading="How a claim limit is set" headingId="site-evidence-claim-limit-panel-heading">
+          <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
             {gap}
           </Panel>
         </>

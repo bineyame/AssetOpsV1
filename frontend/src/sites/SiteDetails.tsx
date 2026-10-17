@@ -8,6 +8,8 @@ import {
   PageHeader,
   Disclosure,
   Panel,
+  SITE_SCREEN_DESCRIPTIONS,
+  SitePageHeader,
   type Crumb,
 } from "../ui";
 import type { SiteDetailClient } from "./siteDirectoryClient";
@@ -241,11 +243,14 @@ export function SiteDetailFacts({
         * address in the wrong case resolves to one canonical site and this
         * header spells it the one way.
         */}
-      <PageHeader
-        title={view.siteId}
+      {/* W1-F2: the v69 Site page heading - the site name, the provenance badge carrying the record's Site ID, and
+          the screen description (the mock's mini subtitle states illustrative ratings, so it is not copied). */}
+      <SitePageHeader
+        siteName={view.displayName}
+        siteId={view.siteId}
+        mode={view.sourceMode}
+        description={SITE_SCREEN_DESCRIPTIONS.mini}
         headingId={SITE_DETAIL_HEADING_ID}
-        subtitle={view.displayName}
-        badge={<Badge tone="provenance">{view.sourceMode}</Badge>}
       />
 
       {tabs}
