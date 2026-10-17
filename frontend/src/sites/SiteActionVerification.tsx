@@ -1588,6 +1588,8 @@ function EvidencePanel({ body, links, pinnedOutcome, plan, gap }: { body: Eviden
       </DataTable>
       {(["baseline", "later"] as const)
         .filter((name) => !lineage[name].planRead || !lineage[name].bound)
+        // An unread plan is one fact for both windows: state it once.
+        .filter((name) => name === "baseline" || lineage.baseline.planRead || lineage[name].planRead)
         .map((name) => (
           <p key={name} className="v69-chart-note w1f4-verification-gap" data-verification-lineage-summary={name}>
             {lineageSummary(name, lineage[name], body.source_resolution[name])}
