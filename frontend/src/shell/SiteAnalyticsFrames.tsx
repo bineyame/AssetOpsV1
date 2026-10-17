@@ -36,7 +36,7 @@ import type { SiteDetailReadModel } from "../sites/siteReadModel";
 import { useSiteRecord } from "../sites/useSiteRecord";
 import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { localView } from "../sites/findingPresentation";
-import { deriveSiteView } from "../sites/siteViewModel";
+import { deriveSiteView, siteSourceModeLabel } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import {
   FINDING_CHILD_VIEWS,
@@ -254,10 +254,13 @@ export function SiteFindingsFrame({
               { label: "Findings" },
             ]}
           />
-          <PageHeader
-            title="Findings"
+          {/* W1-F5a carry 1: the mock's Site page heading. */}
+          <SitePageHeader
+            siteName={site.display_name}
+            siteId={site.site_id}
+            mode={siteSourceModeLabel(site)}
+            description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
-            subtitle={`${site.display_name} · ${site.site_id}`}
           />
           <OperatorSiteTabs siteId={siteId} current="Findings" />
           <SiteFindingIndex
@@ -449,7 +452,7 @@ export function SiteFindingFrame({
             <PageHeader
               title={view === "finding" || view === null ? title : FINDING_VIEW_TITLES[view]}
               headingId={SITE_FINDING_HEADING_ID}
-              subtitle={`${site.display_name} · ${site.site_id} · generator support`}
+              subtitle={`${site.display_name} · generator support finding`}
             />
             <OperatorSiteTabs siteId={siteId} current="Findings" />
             {view === null ? (
@@ -571,10 +574,13 @@ export function SiteFinancialsFrame({
                 ...(view === "assumptions" ? [{ label: "Assumptions" }] : []),
               ]}
             />
-            <PageHeader
-              title={title}
+            {/* W1-F5a carry 1: the mock's Site page heading. */}
+            <SitePageHeader
+              siteName={site.display_name}
+              siteId={site.site_id}
+              mode={siteSourceModeLabel(site)}
+              description={SITE_SCREEN_DESCRIPTIONS[view === "assumptions" ? "assumptions" : "financials"]}
               headingId={SITE_FINANCIALS_HEADING_ID}
-              subtitle={`${site.display_name} · ${site.site_id} · diesel price per litre`}
             />
             <OperatorSiteTabs siteId={siteId} current="Financials" />
             <nav className="site-tabs site-subtabs" aria-label={FINANCIALS_SECTIONS_LABEL}>
@@ -667,7 +673,7 @@ export function SiteActionFrame({
             <PageHeader
               title={title}
               headingId={SITE_ACTION_HEADING_ID}
-              subtitle={`${site.display_name} · ${site.site_id} · SYSTEM demonstration`}
+              subtitle={`${site.display_name} · an action raised from a finding`}
             />
             <OperatorSiteTabs siteId={siteId} current="Findings" />
             {view === null ? (

@@ -11,7 +11,7 @@ import { createHealthClient, type HealthClient } from "../sites/healthClient";
 import { SiteBattery, SiteBatteryEntry, type BatteryHeader } from "../sites/SiteBattery";
 import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteHealth";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
-import { deriveSiteView } from "../sites/siteViewModel";
+import { siteSourceModeLabel } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref } from "./operatorSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
@@ -50,7 +50,7 @@ export function SiteHealthFrame({
           <SitePageHeader
             siteName={site.display_name}
             siteId={site.site_id}
-            mode={deriveSiteView(site).sourceMode}
+            mode={siteSourceModeLabel(site)}
             description={SITE_SCREEN_DESCRIPTIONS.health}
             headingId={SITE_HEALTH_HEADING_ID}
           />
