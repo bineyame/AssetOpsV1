@@ -598,10 +598,13 @@ describe("the index shows no capability the product lacks", () => {
     expect(metric("count").textContent).toBe("Sites2Registered site identities");
     for (const key of ["needs-attention", "evidence-limited"]) {
       expect(metric(key).querySelector(".v69-metric__value")?.textContent).toBe("Not available");
-      expect(metric(key).querySelector("[data-gap-id]")?.textContent).toBe(
-        "Not available from this list: there is no common window or aggregation contract for this count.",
-      );
     }
+    // One claim covers both counts, rendered once (a placement is rendered once).
+    expect(metric("needs-attention").querySelector("[data-gap-id]")?.textContent).toBe(
+      "Needs attention and Evidence limited counts are not available from this list: there is no common window or aggregation contract for them.",
+    );
+    expect(metric("evidence-limited").querySelector("[data-gap-id]")).toBeNull();
+    expect(metric("evidence-limited").textContent).toContain("for the reason given under Needs attention");
     expect(panelTitled("In setup").textContent).toContain("Setup progress not available: no read returns who set up a site, its next step or when it was registered.");
   });
 
@@ -612,20 +615,17 @@ describe("the index shows no capability the product lacks", () => {
       "sites.inventory.operating-view": "Not available yetAssessment · top issue · evidence limit · last analysed",
       "sites.inventory.analysis-note":
         "Assessment, top issue, evidence limit and last analysis are not available in this directory. Open a Site for its selected-window evidence and assessments.",
-      "sites.metrics.needs-attention":
-        "Not available from this list: there is no common window or aggregation contract for this count.",
-      "sites.metrics.evidence-limited":
-        "Not available from this list: there is no common window or aggregation contract for this count.",
-      "sites.setup.progress": "Setup progress not available: no read returns who set up a site, its next step or when it was registered.",
+      "sites.inventory.attention-counts":
+        "Needs attention and Evidence limited counts are not available from this list: there is no common window or aggregation contract for them.",
+      "sites.inventory.setup-progress": "Setup progress not available: no read returns who set up a site, its next step or when it was registered.",
     };
     const view = renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE, SHIPPED_SIMULATED_SITE] });
     await screen.findByRole("table", { name: INVENTORY_TABLE });
     expect(pairs(document)).toEqual([
-      "G-sites-attention-counts@sites.metrics.evidence-limited",
-      "G-sites-attention-counts@sites.metrics.needs-attention",
+      "G-sites-attention-counts@sites.inventory.attention-counts",
       "G-sites-operating-view@sites.inventory.analysis-note",
       "G-sites-operating-view@sites.inventory.operating-view",
-      "G-sites-setup-progress@sites.setup.progress",
+      "G-sites-setup-progress@sites.inventory.setup-progress",
     ]);
     const tagged = [...document.querySelectorAll("[data-gap-id]")];
     expect(document.querySelectorAll('[data-gap-placement="sites.inventory.operating-view"]')).toHaveLength(2);
@@ -635,7 +635,7 @@ describe("the index shows no capability the product lacks", () => {
       expect(el.querySelector("[data-gap-id]")).toBeNull();
     }
     // W1-F1: the two count claims are separate elements in their own cards; the registered count carries none.
-    expect(document.querySelectorAll('[data-gap-id="G-sites-attention-counts"]')).toHaveLength(2);
+    expect(document.querySelectorAll('[data-gap-id="G-sites-attention-counts"]')).toHaveLength(1);
     expect(document.querySelector('[data-site-metric="count"] [data-gap-id]')).toBeNull();
     expect(document.body.textContent).not.toMatch(/G-sites-/);
     view.unmount();
@@ -646,9 +646,8 @@ describe("the index shows no capability the product lacks", () => {
       // W1-F1: the v69 panel slots keep their gaps in every state (D-2026-10-17-mockup-layout-spec);
       // with no row there is no per-row operating-view gap, and nothing else is tagged.
       expect(pairs(document)).toEqual([
-        "G-sites-attention-counts@sites.metrics.evidence-limited",
-        "G-sites-attention-counts@sites.metrics.needs-attention",
-        "G-sites-setup-progress@sites.setup.progress",
+        "G-sites-attention-counts@sites.inventory.attention-counts",
+        "G-sites-setup-progress@sites.inventory.setup-progress",
       ]);
       expectV69Panels("sites");
       other.unmount();
@@ -752,8 +751,8 @@ describe("W1-UX-02: the Sites directory (sites) on the W1 set", () => {
     expect(d.disclosures).toBe(1);
     expect(d.scanned).toBeGreaterThan(2);
     expect(d.violations, describeViolations(d.violations)).toEqual([]);
-    // Two operating-view rows, the analysis note, two count cards and the setup gap.
-    expect(container.querySelectorAll("[data-gap-id]")).toHaveLength(6);
+    // Two operating-view rows, the analysis note, the count claim and the setup gap.
+    expect(container.querySelectorAll("[data-gap-id]")).toHaveLength(5);
   });
 
   it("the empty and unreadable directories state themselves in the inventory panel, distinctly, with no count", async () => {

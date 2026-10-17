@@ -617,7 +617,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
           word
           tone="muted"
           label="Availability"
-          value="Not available yet"
+          value="Not available"
           note={
             <MissingClaim gapId="G-readiness-gateway-uptime" placement="readiness.gateway.uptime">
               {GATEWAY_UPTIME_NOT_AVAILABLE_YET}
@@ -629,7 +629,7 @@ export function GatewayStatusPanel({ foundation, siteId, gatewayHealth, evidence
           word
           tone="muted"
           label="Data completeness"
-          value="Not available yet"
+          value="Not available"
           note={
             <MissingClaim gapId="G-readiness-gateway-completeness" placement="readiness.gateway.completeness">
               {GATEWAY_COMPLETENESS_NOT_AVAILABLE_YET}

@@ -192,9 +192,9 @@ export const SITES_LISTED_WORDS: ProductWords = {
   unrecognised: false,
 };
 
-/** Why the mock's attention and evidence-limit counts are absent from this list. */
+/** Why the mock's attention and evidence-limit counts are absent: one claim, rendered once (G-02 placement rule). */
 export const SITES_COUNT_NOT_AVAILABLE =
-  "Not available from this list: there is no common window or aggregation contract for this count.";
+  "Needs attention and Evidence limited counts are not available from this list: there is no common window or aggregation contract for them.";
 /** Why the mock setup columns are absent (worded without "history": the index offers no history control). */
 export const SITES_SETUP_PROGRESS_NOT_AVAILABLE = "Setup progress not available: no read returns who set up a site, its next step or when it was registered.";
 
@@ -225,7 +225,7 @@ function SitesMetrics({ count }: { count: number | null }) {
         label="Needs attention"
         value="Not available"
         note={
-          <MissingClaim gapId="G-sites-attention-counts" placement="sites.metrics.needs-attention">
+          <MissingClaim gapId="G-sites-attention-counts" placement="sites.inventory.attention-counts">
             {SITES_COUNT_NOT_AVAILABLE}
           </MissingClaim>
         }
@@ -236,11 +236,7 @@ function SitesMetrics({ count }: { count: number | null }) {
         tone="muted"
         label="Evidence limited"
         value="Not available"
-        note={
-          <MissingClaim gapId="G-sites-attention-counts" placement="sites.metrics.evidence-limited">
-            {SITES_COUNT_NOT_AVAILABLE}
-          </MissingClaim>
-        }
+        note="Not available, for the reason given under Needs attention."
         data={{ "data-site-metric": "evidence-limited" }}
       />
     </MetricCards>
@@ -288,7 +284,7 @@ function SetupPanel({ sites }: { sites: SiteSummary[] | null }) {
           </tbody>
         </DataTable>
       )}
-      <MissingClaim as="p" className="not-available-yet" gapId="G-sites-setup-progress" placement="sites.setup.progress">
+      <MissingClaim as="p" className="not-available-yet" gapId="G-sites-setup-progress" placement="sites.inventory.setup-progress">
         {SITES_SETUP_PROGRESS_NOT_AVAILABLE}
       </MissingClaim>
     </Panel>
