@@ -2,14 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
-import { FOUNDATION_SUBTABS, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
-import { StoredFoundationViews } from "../sites/StoredFoundationViews";
+import { FOUNDATION_SUBTABS, FoundationSubtabs, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
+import { FoundationPanelSkeletons, StoredFoundationViews } from "../sites/StoredFoundationViews";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { GatewayHealthClient } from "../sites/gatewayHealthClient";
 import { bindingPublicationItem, type SiteFoundationClient } from "../sites/siteFoundationClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { SITE_FOUNDATION_LOADING, useSiteFoundation } from "../sites/useSiteFoundation";
-import { PageHeader, Panel, plainTime, ProductStatus, readResultWords } from "../ui";
+import { Breadcrumbs, PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import {
@@ -21,6 +21,9 @@ import {
   siteFoundationViewHref,
   sitePerformanceHref,
 } from "./operatorSiteRoutes";
+
+const segmentFor = (target: FoundationView) =>
+  FOUNDATION_SUBTABS.find((subtab) => subtab.view === target)?.segment ?? "";
 
 export interface SiteFoundationFrameProps {
   detail: SiteDetailClient;
@@ -109,6 +112,7 @@ export function SiteFoundationFrame({
   }
 
   const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;
+  const screenDescription = SITE_SCREEN_DESCRIPTIONS[view === "model" ? "foundation" : view];
 
   const tabs = <OperatorSiteTabs siteId={siteId} current="Foundation" />;
   const parentTrail = (canonicalSiteId: string) => [
@@ -176,9 +180,21 @@ export function SiteFoundationFrame({
   if (at !== null && (state.foundation.status === "not_found" || state.foundation.status === "invalid")) {
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
-        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        <Breadcrumbs trail={[...parentTrail(siteId ?? ""), { label: "Foundation" }]} />
+        <SitePageHeader
+          siteName={siteId ?? ""}
+          siteId={siteId ?? ""}
+          description={screenDescription}
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+          hideBadge
+        />
         {tabs}
-        <Panel heading="No stored version for this period" headingId="foundation-period-empty-heading">
+        <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId ?? "", segmentFor(target), at, null)} />
+        {/* W1-F1: the page-level refusal, then the view's v69 panel slots with in-panel gaps. */}
+        <div className="page-refusal" role="status" data-page-refusal="no-version">
+          <p className="page-refusal__title">
+            <strong>No stored version for this period</strong>
+          </p>
           {/* W1-UX-05: the plain state line; the bound is the selected time the read was asked for. */}
           <ProductStatus
             words={{
@@ -191,12 +207,17 @@ export function SiteFoundationFrame({
             scope={`${siteId} · selected time ${plainTime(at) ?? at}`}
             asOf={at}
           />
-          <p>{state.foundation.message}</p>
+          <p>{plainInstantsIn(state.foundation.message)}</p>
           <p>The configuration in effect now is not shown in its place.</p>
-          <button type="button" onClick={() => selectAt(null)}>
+          <button type="button" className="button primary" onClick={() => selectAt(null)}>
             Show the version in effect now
           </button>
-        </Panel>
+        </div>
+        <FoundationPanelSkeletons
+          view={view}
+          siteName={siteId ?? ""}
+          gap="No Foundation version is stored for the selected time, so nothing is shown as configured in this panel."
+        />
       </main>
     );
   }
@@ -211,9 +232,18 @@ export function SiteFoundationFrame({
     // evidence that the Site has no stored records, so say only that.
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
-        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        <SitePageHeader
+          siteName={siteId ?? ""}
+          siteId={siteId ?? ""}
+          description={screenDescription}
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         {tabs}
-        <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+        <FoundationSubtabs current={view} hrefFor={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)} />
+        <div className="page-refusal" role="status" data-page-refusal="unavailable">
+          <p className="page-refusal__title">
+            <strong>Stored versions unavailable</strong>
+          </p>
           <ProductStatus words={readResultWords("unavailable")} scope={`${siteId} · Foundation`} asOf={null} />
           <p>
             Stored Foundation versions could not be read
@@ -223,7 +253,12 @@ export function SiteFoundationFrame({
           <p>
             <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
           </p>
-        </Panel>
+        </div>
+        <FoundationPanelSkeletons
+          view={view}
+          siteName={siteId}
+          gap="Stored Foundation versions could not be read, so this panel shows nothing configured."
+        />
       </main>
     );
   }
@@ -233,9 +268,18 @@ export function SiteFoundationFrame({
     // snapshot, so these views would imply records it does not have.
     return (
       <main aria-labelledby={SITE_CONFIGURATION_HEADING_ID}>
-        <PageHeader title="Foundation" headingId={SITE_CONFIGURATION_HEADING_ID} subtitle={siteId} />
+        <SitePageHeader
+          siteName={siteId ?? ""}
+          siteId={siteId ?? ""}
+          description={screenDescription}
+          headingId={SITE_CONFIGURATION_HEADING_ID}
+        />
         {tabs}
-        <Panel heading="This view needs an imported Site" headingId="foundation-view-unavailable-heading">
+        {/* No view row: a site that is not imported has no Readiness or SLD view to switch to. */}
+        <div className="page-refusal" role="status" data-page-refusal="not-imported">
+          <p className="page-refusal__title">
+            <strong>This view needs an imported Site</strong>
+          </p>
           <p>
             This site has no stored Foundation version, channel-link set or snapshot, so there is no
             {view === "sld" ? " bound single line diagram" : " configuration readiness"} to show here.
@@ -243,28 +287,40 @@ export function SiteFoundationFrame({
           <p>
             <Link to={siteFoundationHref(siteId)}>Open this site&apos;s Foundation</Link>
           </p>
-        </Panel>
+        </div>
+        <FoundationPanelSkeletons
+          view={view}
+          siteName={siteId}
+          gap="This site has no stored Foundation version, so this panel has nothing to show."
+        />
       </main>
     );
   }
 
   const notice =
     state.foundation.status === "migration_required" ? (
-      <Panel heading="Original configuration record" headingId="foundation-legacy-heading">
+      // W1-F1: a page-level status, not a panel, so the three v69 panels stay the only cards.
+      <div className="page-refusal" role="status" data-page-refusal="legacy-record">
+        <p className="page-refusal__title">
+          <strong>Original configuration record</strong>
+        </p>
         <p>
           This site is read from its original configuration document. It has no stored
           Foundation versions until it is imported, so no period can be chosen and nothing can
           be changed here.
         </p>
-      </Panel>
+      </div>
     ) : state.foundation.status === "unavailable" ? (
-      <Panel heading="Stored versions unavailable" headingId="foundation-store-unavailable-heading">
+      <div className="page-refusal" role="status" data-page-refusal="store-unavailable-record">
+        <p className="page-refusal__title">
+          <strong>Stored versions unavailable</strong>
+        </p>
         <p>
           Stored Foundation versions could not be read
           {state.foundation.message === null ? "." : `: ${state.foundation.message}`} The
           configuration below is the site&apos;s record as served now; no period can be chosen.
         </p>
-      </Panel>
+      </div>
     ) : null;
 
   return (
@@ -279,4 +335,9 @@ export function SiteFoundationFrame({
       />
     </main>
   );
+}
+
+/** Machine ISO instants in a server message, shown as plain times. */
+function plainInstantsIn(message: string | null | undefined): string {
+  return (message ?? "").replace(/\d{4}-\d{2}-\d{2}T[\d:.]+(?:Z|[+-]\d{2}:\d{2})/g, (instant) => plainTime(instant) ?? instant);
 }

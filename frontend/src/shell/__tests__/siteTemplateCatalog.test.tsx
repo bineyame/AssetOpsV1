@@ -422,10 +422,7 @@ describe("templates never appear as sites", () => {
     renderAt("/sites");
 
     expect(
-      await screen.findByRole("heading", {
-        level: 2,
-        name: "No sites configured",
-      }),
+      await screen.findByText("No sites configured"),
     ).toBeInTheDocument();
   });
 

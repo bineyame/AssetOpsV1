@@ -81,10 +81,7 @@ describe("operator route frame empty states", () => {
     renderAt("/sites");
 
     expect(
-      await screen.findByRole("heading", {
-        level: 2,
-        name: "No sites configured",
-      }),
+      await screen.findByText("No sites configured"),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -109,7 +106,7 @@ describe("operator route frame empty states", () => {
     );
 
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sites unavailable" }),
+      await screen.findByText("Sites unavailable"),
     ).toBeInTheDocument();
     expect(screen.getByRole("main").textContent).not.toMatch(
       /No sites configured/i,
@@ -153,7 +150,7 @@ describe("operator route frame empty states", () => {
 
   it("renders no table on an empty Sites index", async () => {
     const { container } = renderAt("/sites");
-    await screen.findByRole("heading", { level: 2, name: "No sites configured" });
+    await screen.findByText("No sites configured");
 
     expect(container.querySelectorAll("table")).toHaveLength(0);
   });

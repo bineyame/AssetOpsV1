@@ -326,7 +326,7 @@ describe("the tab row belongs to a site", () => {
 
   it("does not render on the Sites index", async () => {
     renderAt("/sites");
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: "Site inventory" });
 
     expect(
       screen.queryByRole("navigation", { name: OPERATOR_SITE_TABS_LABEL }),
@@ -368,7 +368,7 @@ describe("the Site Evidence route", () => {
 describe("the landing route", () => {
   it("redirects / to the Sites index", async () => {
     renderAt("/");
-    await screen.findByRole("table");
+    await screen.findByRole("table", { name: "Site inventory" });
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Sites" }),
