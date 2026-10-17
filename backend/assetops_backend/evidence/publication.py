@@ -26,6 +26,7 @@ from uuid import UUID
 
 from assetops_contracts.ingestion_batch_v2 import BatchRejected, parse_canonical_batch_v2_text
 from assetops_contracts.source_envelope_v3 import parse_canonical_envelope_v3_text
+from assetops_contracts.source_envelope_v4 import read_envelope_header, uses_v4_header_path
 
 from assetops_backend.evidence.source_provenance import (
     AUTHORED_DEMONSTRATION,
@@ -231,7 +232,9 @@ def simulation_records(
         if batch.snapshot_sha256 != attestation.snapshot_sha256:
             raise PublicationRefused("RUN_SNAPSHOT_MISMATCH",
                                      f"batch {staged.batch_id} was sealed against another binding snapshot")
-        messages = tuple(parse_canonical_envelope_v3_text(e).message_id for e in batch.envelopes)
+        # W2-02: a schema-4 (or V4-kind) envelope is read by its header, exactly as `seal_batch_v2` admits it.
+        messages = tuple((read_envelope_header(e) if uses_v4_header_path(e) else parse_canonical_envelope_v3_text(e))
+                         .message_id for e in batch.envelopes)
         if messages != staged.message_ids or not set(messages) <= attestation.run_message_ids:
             raise PublicationRefused("RUN_BATCH_FOREIGN", f"batch {staged.batch_id} holds messages the run did not stage")
         records.append(PublicationRecord(
