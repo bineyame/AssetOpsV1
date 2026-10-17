@@ -66,6 +66,15 @@ W1 conclusion presentation plan: [W1-UX umbrella](W1-UX-mockup-fidelity.md). The
 | Configuration and health | [W1-UX-05](W1-UX-05-foundation-health.md) | Foundation, Readiness, SLD, Health, battery asset | Reviewed/merged W1-UX-01 and S7-01b | Done 2026-10-17 (merged; review ACCEPT) |
 | W1 closeout | [W1-UX-06](W1-UX-06-closeout.md) | Evidence measurement, shared and backend wording, combined 26-screen walkthrough | Reviewed/merged W1-UX-02, -03, -04 and -05 | Done 2026-10-17 (merged; owner walkthrough next) |
 
+## W2 cold-chain planning packets
+
+These implementation-ready packets sequence the binding `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold` and `D-2026-10-17-mockup-layout-spec`. Planning assigns existing registry `task` pointers only; W2 screen scope and node promotion await the owner's scope decision and independent review.
+
+| Slice | Packet | Exit and predecessor | Review |
+| --- | --- | --- | --- |
+| W2-00 source events | [W2-00](W2-00-source-events.md) | SourceEnvelope v4 event/EV delta through ordinary S2 accepted evidence; `0020` after `0019`; unlocks W2-02/W2-05b | S; implementation-ready; USER_REVIEW_REQUIRED false; one phase, independent review |
+| W2-01 cold Foundation | [W2-01](W2-01-cold-foundation.md) | Effective cold roles, topology, selected read and three exact v69 Site routes; `0021` after `0020`; UI phase waits for W1-F1 merge | S; implementation-ready; USER_REVIEW_REQUIRED true via later owner W2 walkthrough; two phases |
+
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 
 | Tooling lane | Task | Activation | Status |

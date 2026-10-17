@@ -1,0 +1,5 @@
+# Architect request - apply the mockup layout contract to W2 (2026-10-17)
+
+You are the AssetOps Architect (Codex). The owner rejected W1 for mockup drift (`.agent/owner-W1-walkthrough-verdict-2026-10-17.md`); `D-2026-10-17-mockup-layout-spec` (`.agent/architect-W1-fidelity.md`) is now binding for all UI. Edit in place, concise.
+
+In `.agent/W2-technical-design-cold.md` and `.agent/W2-technical-design-ev.md`, replace each UI mapping with a panel-for-panel map per screen: the exact v69 panel list from `frontend/docs/architecture/v69-rendered-panels.json` (and the mock in `frontend/mockups/v69`) for every cold/EV manifest ID, each panel -> its read fields, honest-gap state when unsupported, and the shared W1-F1 layout guard/CSS as the components. No leading cards, no extra structure. Every W2 UI phase's acceptance includes the per-route panel-structure test and side-by-side 1440/390 captures; reviewer treats a structural mismatch as High. Note the screens whose v69 panels need reads the design does not yet provide. Update `.agent/architect-W2-design.md` slice acceptance accordingly and amend the two techdesign decisions. No code. Print a short summary.
