@@ -61,3 +61,21 @@ Branch `task/W1-F2-overview`, clean at `fde3e130`. Not merged. The packet is `.a
 
 - Evidence Analysis panel 2 title: render the plain variant **"How each limit is set"** (the existing panel title). Authority: `D-2026-10-16-w1-ux` bans "claim limit"/"claim" in default prose; add it to the approved title map in `frontend/src/test/v69PanelTitles.ts` and delete the vocabulary exception entry.
 - Resume after W1-F1 merges to main: merge main, then apply F1 styles (cards, `.field`/`.button`, `SitePageHeader`) and the tightened guard; headings read the site name, badge and per-screen description.
+
+## Resume state 2 (after main merge, `5a7320a7`)
+
+- Main (final W1-F1) merged at `cc8f49fc`; conflicts resolved keeping both sides.
+- Shared layer, `5a7320a7`:
+  - `StatusBar` (`ui/V69Layout.tsx`) now renders F1's `div.status-strip.status-strip--line`. Every child must be inline; a block child fails `stripIntruders`.
+  - `ProductStatus inline` (`ui/ProductStatus.tsx`) renders spans and keeps all data attributes. Use it inside any strip.
+  - `V69Notice` carries `.notice`, so it is allowed between panels.
+  - Guard: `.v69-objective` is allowed before panel 1. This is additive, and it is the mock's `.objective`.
+  - Fixed an unclosed CSS rule at the end of the F2 statusbar block.
+- Guard failures found after the merge (18 tests in 6 files):
+  - `form.dispatch-day` sits before panel 1, on dispatch and analysis.
+  - A block `ProductStatus` sits inside the strip: `StatusLine`, and `DayStatus` at `SiteWindowOverview:320`.
+  - `section.dispatch-view` sits outside panels: legacy `SitePerformance`, t028.
+  - Evidence: `form.evidence-window` and `div.evidence-statusbar` sit before panel 1. That StatusBar is local to `LedgerSiteEvidence.tsx`, so give it the strip classes.
+  - Mini: `v69-statusbar` with a block child sits before panel 1, plus the objective line, which is now allowed.
+  - Legacy overview (`siteOverviewScreen`): `v69-statusbar` with `Badge` and `span`. It should now pass; verify it.
+- App-only controls such as the day picker and the window chooser go before panel 1 as a `.v69-chips` row. Use chip-sized controls (`.v69-chip-control`) and `.button`, as F1 did for the Sites search. Alternatively they can go inside the strip as chip-sized controls, as F1's period select is. Never put them in a free form before panel 1.

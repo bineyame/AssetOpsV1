@@ -1181,7 +1181,7 @@ function ConfigurationNote({ detail }: { detail: RevisionDetail }) {
 
 function DemoNotes({ notes }: { notes: DemoAnnotation[] }) {
   return (
-    <aside className="v69-notice dispatch-demo-notes" data-demo-annotations={notes.length} aria-label="Demonstration data notes">
+    <aside className="notice v69-notice dispatch-demo-notes" data-demo-annotations={notes.length} aria-label="Demonstration data notes">
       <p>
         <strong>Note supplied with the demonstration data.</strong>{" "}
         These notes come from the demonstration data&apos;s own description. They are not records AssetOps
@@ -1289,9 +1289,9 @@ function ReadingsToOutcome({
 }) {
   if (selected === null) {
     return (
-      <p data-dispatch-story="none">
+      <ChartNote data={{ "data-dispatch-story": "none" }}>
         No period is selected, so nothing is concluded here. Select a period or a 15-minute block on the Overview.
-      </p>
+      </ChartNote>
     );
   }
   const result = selected.result;
@@ -1309,37 +1309,37 @@ function ReadingsToOutcome({
   return (
     <ol aria-label="How the readings lead to the outcome" className="dispatch-story" data-dispatch-story={segment === null ? "period" : "block"}>
         <li className="dispatch-story__step" data-dispatch-story-step="readings">
-          <p>
-            <strong>What the accepted readings show.</strong>
-          </p>
-          <p>
+          <p className="v69-chart-note">
+            <strong>What the accepted readings show.</strong>{" "}
             {`For ${scope}: ${plural(selected.evidence_ids.length, "accepted reading", "accepted readings")} used.`}
             {demand === null ? "" : ` Demand ${demand}.`}
             {spare === null ? "" : ` Spare solar and battery capacity ${spare}.`}
           </p>
           {missing.length === 0 && unobserved === 0 ? null : (
-            <p data-dispatch-story-missing>
+            <p className="v69-chart-note" data-dispatch-story-missing>
               {missing.length === 0 ? "" : `Missing: ${Array.from(new Set(missing.map(missingWords))).join(", ")}. `}
               {unobserved === 0 ? "" : `${plural(unobserved, "block was", "blocks were")} not observed directly.`}
             </p>
           )}
         </li>
         <li className="dispatch-story__step" data-dispatch-story-step="rule">
-          <p>
+          <p className="v69-chart-note">
             <strong>The rule applied.</strong>
+            {constraints.length === 0 ? null : ` What held the generator on: ${constraints.map(constraintWords).join("; ")}.`}
           </p>
-          <p>
-            A block is Possibly avoidable only when the reported available solar power and battery output limit were
-            above the demand; Needed when a recorded reason required the generator; Cannot determine when readings
-            it needs are missing or conflicting.
-          </p>
-          {constraints.length === 0 ? null : <p>{`What held the generator on: ${constraints.map(constraintWords).join("; ")}.`}</p>}
+          <Disclosure summary="How each outcome is decided" name="dispatch-story-rule">
+            <p data-dispatch-story-rule>
+              A block is Possibly avoidable only when the reported available solar power and battery output limit were
+              above the demand; Needed when a recorded reason required the generator; Cannot determine when readings
+              it needs are missing or conflicting.
+            </p>
+          </Disclosure>
         </li>
         <li className="dispatch-story__step" data-dispatch-story-step="conclusion">
-          <p>
+          <p className="v69-chart-note">
             <strong>What can be concluded.</strong>
           </p>
-          <p data-dispatch-story-conclusion>
+          <p className="v69-chart-note" data-dispatch-story-conclusion>
             {!selectedIsCurrent
               ? `${conclusion}, for ${scope}, from a stored version that is not the current result.`
               : read.status === "CURRENT" && !read.stale
@@ -1347,13 +1347,11 @@ function ReadingsToOutcome({
                 : `${conclusion}, for ${scope}, from an earlier result that is not current.`}
           </p>
           {limits.length === 0 ? null : (
-            <ul data-dispatch-story-limits>
-              {limits.map((g) => (
-                <li key={g.code}>{limitationWords(g.code)}</li>
-              ))}
-            </ul>
+            <p className="v69-chart-note" data-dispatch-story-limits>
+              Limits: {limits.map((g) => limitationWords(g.code)).join("; ")}.
+            </p>
           )}
-          <p>This says nothing about fuel, savings or money.</p>
+          <p className="v69-chart-note">This says nothing about fuel, savings or money.</p>
         </li>
       </ol>
   );
@@ -1398,7 +1396,7 @@ function AnalysisView({
           <>
             {selected !== null && !selectedIsCurrent ? <PinnedNotice read={read} /> : null}
             {selected === null ? (
-              <p className="chart-note">Select a period on the Overview to compare its readings with its limits.</p>
+              <ChartNote>Select a period on the Overview to compare its readings with its limits.</ChartNote>
             ) : (
               <DataTable labelledBy="durable-dispatch-constraints-heading">
                 <thead>
@@ -1434,7 +1432,7 @@ function AnalysisView({
       }}
       second={{
         body: (
-          <p data-dispatch-gated>
+          <p className="v69-chart-note" data-dispatch-gated>
             Not yet available. This assessment makes no fuel quantity, saving or money claim, and an interval result
             is not itself a Finding; Findings recorded over this day are linked in Overview. Fuel and money need
             later, separately reviewed work.
